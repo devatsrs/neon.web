@@ -15,8 +15,9 @@ class QuickBookController extends \BaseController {
     public function index() {
 
         //QuickBook::disconnect();
+        $CompanyID = User::get_companyID();
 
-        $QuickBook = new BillingAPI();
+        $QuickBook = new BillingAPI($CompanyID);
         $quickbooks_CompanyInfo = $QuickBook->test_connection();
 
         if(!empty($quickbooks_CompanyInfo)){
@@ -28,7 +29,8 @@ class QuickBookController extends \BaseController {
     }
 
     public function disconnect(){
-        $QuickBook = new BillingAPI();
+        $CompanyID = User::get_companyID();
+        $QuickBook = new BillingAPI($CompanyID);
         $QuickBook->quickbook_disconnect();
         return View::make('quickbook.disconnection', compact(''));
     }
@@ -38,7 +40,8 @@ class QuickBookController extends \BaseController {
     }
 
     public function quickbookoauth(){
-        $QuickBook = new BillingAPI();
+        $CompanyID = User::get_companyID();
+        $QuickBook = new BillingAPI($CompanyID);
         $QuickBook->quickbook_connect();
     }
 
@@ -47,28 +50,32 @@ class QuickBookController extends \BaseController {
     }
 
     public function getAllCustomer(){
-        $QuickBook = new BillingAPI();
+        $CompanyID = User::get_companyID();
+        $QuickBook = new BillingAPI($CompanyID);
         $customers = $QuickBook->getAllCustomer();
         echo "<pre>";
         print_r($customers);exit;
     }
 
     public function getAllItems(){
-        $QuickBook = new BillingAPI();
+        $CompanyID = User::get_companyID();
+        $QuickBook = new BillingAPI($CompanyID);
         $items = $QuickBook->getAllItems();
         echo "<pre>";
         print_r($items);exit;
     }
 
     public function createItem(){
-        $QuickBook = new BillingAPI();
+        $CompanyID = User::get_companyID();
+        $QuickBook = new BillingAPI($CompanyID);
         $response = $QuickBook->createItem();
         print_r($response);
         exit;
     }
 
     public function createJournal(){
-        $QuickBook = new BillingAPI();
+        $CompanyID = User::get_companyID();
+        $QuickBook = new BillingAPI($CompanyID);
         $response = $QuickBook->createJournal();
         print_r($response);
         exit;

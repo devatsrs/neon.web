@@ -20,11 +20,11 @@ class SagePay
 
     //https://sagepay.co.za/integration/sage-pay-integration-documents/pay-now-gateway-technical-guide/
 
-    function __Construct(){
+    function __Construct($CompanyID){
 
         $this->method  = SiteIntegration::$SagePaySlug;
 
-        $sagepay_obj	 = SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$SagePaySlug);
+        $sagepay_obj	 = SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$SagePaySlug,$CompanyID);
 
         if( !empty($sagepay_obj) ) {
 

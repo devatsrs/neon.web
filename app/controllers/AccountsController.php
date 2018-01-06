@@ -20,6 +20,7 @@ class AccountsController extends \BaseController {
         }
         $data['vendor_on_off'] = $data['vendor_on_off']== 'true'?1:0;
         $data['customer_on_off'] = $data['customer_on_off']== 'true'?1:0;
+        $data['reseller_on_off'] = $data['reseller_on_off']== 'true'?1:0;
         $data['account_active'] = $data['account_active']== 'true'?1:0;
         $data['low_balance'] = $data['low_balance']== 'true'?1:0;
         //$data['account_name'] = $data['account_name']!= ''?$data['account_name']:'';
@@ -28,7 +29,7 @@ class AccountsController extends \BaseController {
         //$data['contact_name'] = $data['contact_name']!= ''?$data['contact_name']:'';
         $columns = array('AccountID','Number','AccountName','Ownername','Phone','OutStandingAmount','UnbilledAmount','PermanentCredit','AccountExposure','Email','AccountID');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data["ipclitext"]."','".$data['low_balance']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['reseller_on_off'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data["ipclitext"]."','".$data['low_balance']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             \Illuminate\Support\Facades\Log::info("Account query ".$query.',2)');
@@ -57,18 +58,15 @@ class AccountsController extends \BaseController {
 
     public function ajax_datagrid_PaymentProfiles($AccountID) {
         $data = Input::all();
-        $CompanyID = User::get_companyID();
+        //$CompanyID = User::get_companyID();
         $PaymentGatewayName = '';
         $PaymentGatewayID='';
         $account = Account::find($AccountID);
+        $CompanyID = $account->CompanyId;
         if(!empty($account->PaymentMethod)){
             $PaymentGatewayName = $account->PaymentMethod;
             $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PaymentGatewayName);
         }
-        /*$PaymentGatewayID = PaymentGateway::getPaymentGatewayID();
-        if(!empty($PaymentGatewayID)){
-            $PaymentGatewayName = PaymentGateway::$paymentgateway_name[$PaymentGatewayID];
-        }*/
         $carddetail = AccountPaymentProfile::select("tblAccountPaymentProfile.Title","tblAccountPaymentProfile.Status","tblAccountPaymentProfile.isDefault",DB::raw("'".$PaymentGatewayName."' as gateway"),"created_at","AccountPaymentProfileID","tblAccountPaymentProfile.Options");
         $carddetail->where(["tblAccountPaymentProfile.CompanyID"=>$CompanyID])
             ->where(["tblAccountPaymentProfile.AccountID"=>$AccountID])
@@ -78,7 +76,9 @@ class AccountsController extends \BaseController {
     }
 
     public function ajax_datagrid_account_logs($AccountID) {
-        $CompanyID = User::get_companyID();
+        $account = Account::find($AccountID);
+        $CompanyID = $account->CompanyId;
+        //$CompanyID = User::get_companyID();
         $data = Input::all();
         $data['iDisplayStart'] +=1;
         $userID = 0;
@@ -183,6 +183,7 @@ class AccountsController extends \BaseController {
             $data['AccountType'] = 1;
             $data['IsVendor'] = isset($data['IsVendor']) ? 1 : 0;
             $data['IsCustomer'] = isset($data['IsCustomer']) ? 1 : 0;
+            $data['IsReseller'] = isset($data['IsReseller']) ? 1 : 0;
             $data['Billing'] = isset($data['Billing']) ? 1 : 0;
             $data['created_by'] = User::get_user_full_name();
             $data['AccountType'] = 1;
@@ -192,6 +193,13 @@ class AccountsController extends \BaseController {
                 unset($data['accountgateway']);
             }else{
                 $AccountGateway = '';
+            }
+            /**
+             * If Reseller on backend customer is on
+            */
+            if($data['IsReseller']==1){
+                $data['IsCustomer']=1;
+                $data['IsVendor']=0;
             }
 
             //when account varification is off in company setting then varified the account by default.
@@ -354,9 +362,10 @@ class AccountsController extends \BaseController {
 			
 			$vendor   = $account->IsVendor?1:0;
 			$Customer = $account->IsCustomer?1:0;
-			
+			$Reseller = $account->IsReseller?1:0;
+
 			//get account card data
-             $sql 						= 	 "call prc_GetAccounts (".$companyID.",0,'".$vendor."','".$Customer."','".$account->Status."','".$account->VerificationStatus."','".$account->Number."','','".$account->AccountName."','".$account->tags."','',0,1 ,1,'AccountName','asc',0)";
+             $sql 						= 	 "call prc_GetAccounts (".$companyID.",0,'".$vendor."','".$Customer."','".$Reseller."','".$account->Status."','".$account->VerificationStatus."','".$account->Number."','','".$account->AccountName."','".$account->tags."','',0,1 ,1,'AccountName','asc',0)";
             $Account_card  				= 	 DB::select($sql);
 			$Account_card  				=	 array_shift($Account_card);
 			
@@ -478,8 +487,8 @@ class AccountsController extends \BaseController {
         $account_owners = User::getOwnerUsersbyRole();
         $countries = $this->countries;
         $tags = json_encode(Tags::getTagsArray());
-        $products = Product::getProductDropdownList();
-        $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0);
+        $products = Product::getProductDropdownList($companyID);
+        $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0,$companyID);
         $currencies = Currency::getCurrencyDropdownIDList();
         $timezones = TimeZone::getTimeZoneDropdownList();
         $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
@@ -521,8 +530,10 @@ class AccountsController extends \BaseController {
             }
         }
 
+        $ResellerCount = Reseller::where(['AccountID'=>$id,'Status'=>1])->count();
+
         $dynamicfields = Account::getDynamicfields('account',$id);
-        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields'));
+        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount'));
     }
 
     /**
@@ -546,11 +557,17 @@ class AccountsController extends \BaseController {
         $data['CompanyID'] = $companyID;
         $data['IsVendor'] = isset($data['IsVendor']) ? 1 : 0;
         $data['IsCustomer'] = isset($data['IsCustomer']) ? 1 : 0;
+        $data['IsReseller'] = isset($data['IsReseller']) ? 1 : 0;
         $data['Billing'] = isset($data['Billing']) ? 1 : 0;
         $data['updated_by'] = User::get_user_full_name();
 		$data['AccountName'] = trim($data['AccountName']);
 		$data['ShowAllPaymentMethod'] = isset($data['ShowAllPaymentMethod']) ? 1 : 0;
 		$data['DisplayRates'] = isset($data['DisplayRates']) ? 1 : 0;
+
+        if($data['IsReseller']==1){
+            $data['IsCustomer']=1;
+            $data['IsVendor']=0;
+        }
 
         $shipping = array('firstName'=>$account['FirstName'],
             'lastName'=>$account['LastName'],
@@ -675,7 +692,7 @@ class AccountsController extends \BaseController {
             }
 
             if(!empty($data['PaymentMethod'])) {
-                if (is_authorize() && $data['PaymentMethod'] == 'AuthorizeNet') {
+                if (is_authorize($companyID) && $data['PaymentMethod'] == 'AuthorizeNet') {
 
                     $PaymentGatewayID = PaymentGateway::AuthorizeNet;
                     $PaymentProfile = AccountPaymentProfile::where(['AccountID' => $id])
@@ -1129,8 +1146,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     }
     public function get_credit($id){
         $data = Input::all();
-        $CompanyID = User::get_companyID();
+        //$CompanyID = User::get_companyID();
         $account = Account::find($id);
+        $CompanyID = $account->CompanyId;
         $getdata['AccountID'] = $id;
         $response =  NeonAPI::request('account/get_creditinfo',$getdata,false,false,false);
         $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $UnbilledAmount = $VendorUnbilledAmount = $EmailToCustomer= $SOA_Amount = 0;
@@ -1262,9 +1280,10 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 			}
 			$data['vendor_on_off'] 	 = $data['vendor_on_off']== 'true'?1:0;
 			$data['customer_on_off'] = $data['customer_on_off']== 'true'?1:0;
+			$data['reseller_on_off'] = $data['reseller_on_off']== 'true'?1:0;
 			$data['low_balance'] = $data['low_balance']== 'true'?1:0;
 
-		 	$query = "call prc_UpdateAccountsStatus (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data['low_balance']."','".$data['status_set']."')";
+		 	$query = "call prc_UpdateAccountsStatus (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['reseller_on_off'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data['low_balance']."','".$data['status_set']."')";
 		 
 		 	$result  			= 	DB::select($query);	
 			return Response::json(array("status" => "success", "message" => "Account Status Updated"));				
@@ -1298,10 +1317,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     }
     public function unbilledreport($id){
         $data = Input::all();
-        $companyID = User::get_companyID();
+       // $companyID = User::get_companyID();
         // @TODO: ServiceID need to fix for show
         $AccountBilling = AccountBilling::getBilling($id,0);
         $account = Account::find($id);
+        $CompanyID = $account->CompanyId;
         $today = date('Y-m-d 23:59:59');
         $CustomerLastInvoiceDate = Account::getCustomerLastInvoiceDate($AccountBilling,$account);
         $VendorLastInvoiceDate = Account::getVendorLastInvoiceDate($AccountBilling,$account);
@@ -1540,6 +1560,10 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 		if(isset($data['CustomerCheck'])){
             $update['IsCustomer'] = isset($data['Customer_on_off'])?1:0;
         }
+        /*
+		if(isset($data['ResellerCheck'])){
+            $update['IsReseller'] = isset($data['reseller_on_off'])?1:0;
+        }*/
 		if(isset($data['BillingCheck'])){
             $billing_on_off = isset($data['billing_on_off'])?1:0;
             \Illuminate\Support\Facades\Log::info('billing -- '.$billing_on_off);
@@ -1714,10 +1738,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         }
         $data['vendor_on_off'] = $data['vendor_on_off']== 'true'?1:0;
         $data['customer_on_off'] = $data['customer_on_off']== 'true'?1:0;
+        $data['reseller_on_off'] = $data['reseller_on_off']== 'true'?1:0;
         $data['account_active'] = $data['account_active']== 'true'?1:0;
         $data['low_balance'] = $data['low_balance']== 'true'?1:0;
 
-        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data["ipclitext"]."','".$data['low_balance']."',1,50,'AccountName','asc',2)";
+        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['reseller_on_off'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data["ipclitext"]."','".$data['low_balance']."',1,50,'AccountName','asc',2)";
         $excel_data  = DB::select($query);
         $excel_datas = json_decode(json_encode($excel_data),true);
 

@@ -83,7 +83,7 @@ class SiteIntegration{
 	 */
 	
 	public static function SendMail($view,$data,$companyID,$body){
-		$config = self::CheckCategoryConfiguration(true,SiteIntegration::$EmailSlug);
+		$config = self::CheckCategoryConfiguration(true,SiteIntegration::$EmailSlug,$companyID);
 		
 		switch ($config->Slug){
 			case  SiteIntegration::$mandrillSlug:
@@ -97,11 +97,11 @@ class SiteIntegration{
 	 */
 	
 	public function ConnectActiveEmail($view,$data,$companyID,$body){
-		$config = self::CheckCategoryConfiguration(true,SiteIntegration::$emailtrackingSlug);
+		$config = self::CheckCategoryConfiguration(true,SiteIntegration::$emailtrackingSlug,$companyID);
 		
 		switch ($config->Slug){
 			case  SiteIntegration::$imapSlug:
-			$config = SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$imapSlug);			
+			$config = SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$imapSlug,$companyID);
        		 if(Imap::CheckConnection($config->EmailTrackingEmail,$config->EmailTrackingServer,$config->EmailTrackingPassword)){
 			 	$this->TrackingEmail = Imap;
 			 }
@@ -110,11 +110,11 @@ class SiteIntegration{
 	}
 	
 	public function ReadEmails($view,$data,$companyID,$body){
-		$config = self::CheckCategoryConfiguration(true,SiteIntegration::$emailtrackingSlug);
+		$config = self::CheckCategoryConfiguration(true,SiteIntegration::$emailtrackingSlug,$companyID);
 		
 		switch ($config->Slug){
 			case  SiteIntegration::$imapSlug:
-			$config = SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$imapSlug);			
+			$config = SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$imapSlug,$companyID);
        		return Imap::CheckConnection($config->EmailTrackingEmail,$config->EmailTrackingServer,$config->EmailTrackingPassword);
       	  break;
 		}	
@@ -135,20 +135,24 @@ class SiteIntegration{
 	 * check settings addded or not . return true,data or false
 	 */ 	
 	public static function  CheckIntegrationConfiguration($data=false,$slug,$companyID = 0){
+		if (!Auth::guest()){
+			$companyID = !empty($companyID)?$companyID:User::get_companyID();
+		}
 		if(!$companyID){
 			$companyID = SiteIntegration::GetComapnyIdByKey();
 		}
-		$companyID = !empty($companyID)?$companyID:User::get_companyID();
-		$Integration	 =	Integration::where(["CompanyID" => $companyID,"Slug"=>$slug])->first();	
-	
+		$Integration	 =	Integration::where(["Slug"=>$slug])->first();
+		//$Integration	 =	Integration::where(["CompanyID" => $companyID,"Slug"=>$slug])->first();
+
 		if(count($Integration)>0)
 		{						
 			$IntegrationSubcategory = Integration::select("*");
-			$IntegrationSubcategory->join('tblIntegrationConfiguration', function($join)
+			$IntegrationSubcategory->join('tblIntegrationConfiguration', function($join) use($companyID)
 			{
 				$join->on('tblIntegrationConfiguration.IntegrationID', '=', 'tblIntegration.IntegrationID');
-	
-			})->where(["tblIntegration.CompanyID"=>$companyID])->where(["tblIntegration.IntegrationID"=>$Integration->IntegrationID])->where(["tblIntegrationConfiguration.Status"=>1]);
+				$join->where('tblIntegrationConfiguration.CompanyID', '=', $companyID);
+
+			})->where(["tblIntegration.IntegrationID"=>$Integration->IntegrationID])->where(["tblIntegrationConfiguration.Status"=>1]);
 			 $result = $IntegrationSubcategory->first();
 			 if(count($result)>0)
 			 {	
@@ -168,20 +172,29 @@ class SiteIntegration{
 	/*
 	check main category have data or not
 	*/
-	public static function  CheckCategoryConfiguration($data=false,$slug){
+	public static function  CheckCategoryConfiguration($data=false,$slug,$companyID=0){
 
-		$companyID = SiteIntegration::GetComapnyIdByKey();
-		$companyID = !empty($companyID)?$companyID:User::get_companyID();
-		$Integration	 =	Integration::where(["CompanyId" => $companyID,"Slug"=>$slug])->first();	
+		if (!Auth::guest()){
+			$companyID = !empty($companyID)?$companyID:User::get_companyID();
+		}
+		if(!$companyID){
+			$companyID = SiteIntegration::GetComapnyIdByKey();
+		}
+
+		//$companyID = SiteIntegration::GetComapnyIdByKey();
+		//$companyID = !empty($companyID)?$companyID:User::get_companyID();
+		//$Integration	 =	Integration::where(["CompanyId" => $companyID,"Slug"=>$slug])->first();
+		$Integration	 =	Integration::where(["Slug"=>$slug])->first();
 	
 		if(count($Integration)>0)
 		{						
 			$IntegrationSubcategory = Integration::select("*");
-			$IntegrationSubcategory->join('tblIntegrationConfiguration', function($join)
+			$IntegrationSubcategory->join('tblIntegrationConfiguration', function($join) use ($companyID)
 			{
 				$join->on('tblIntegrationConfiguration.IntegrationID', '=', 'tblIntegration.IntegrationID');
-	
-			})->where(["tblIntegration.CompanyID"=>$companyID])->where(["tblIntegrationConfiguration.ParentIntegrationID"=>$Integration->IntegrationID])->where(["tblIntegrationConfiguration.Status"=>1]);
+				$join->where('tblIntegrationConfiguration.CompanyID', '=', $companyID);
+
+			})->where(["tblIntegrationConfiguration.ParentIntegrationID"=>$Integration->IntegrationID])->where(["tblIntegrationConfiguration.Status"=>1]);
 			 $result = $IntegrationSubcategory->first();
 			 if(count($result)>0)
 			 {	

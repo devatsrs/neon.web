@@ -17,7 +17,11 @@ class ProductsController extends \BaseController {
         $data['iDisplayStart'] +=1;
         $columns = ['ProductID','Name','Code','Amount','updated_at','Active'];
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_getProducts (".$CompanyID.", '".$data['Name']."','".$data['Code']."','".$data['Active']."', ".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        if($data['AppliedTo'] == ''){
+            $data['AppliedTo'] = 'null';
+        }
+
+        $query = "call prc_getProducts (".$CompanyID.", '".$data['Name']."','".$data['Code']."','".$data['Active']."',".$data['AppliedTo'].", ".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
         $Type =  Product::DYNAMIC_TYPE;
         $DynamicFields = $this->getDynamicFields($CompanyID,$Type);
@@ -108,6 +112,7 @@ class ProductsController extends \BaseController {
         $data["CreatedBy"] = User::get_user_full_name();
 
         unset($data['ProductID']);
+        unset($data['ProductClone']);
 
         if(isset($data['DynamicFields'])) {
             $j=0;
@@ -132,10 +137,24 @@ class ProductsController extends \BaseController {
                 return $error;
             }
         }
-        if($error = Product::validate($data)){
-            return $error;
-        }
 
+        $rules = array(
+            'CompanyID' => 'required',
+            'Name' => 'required',
+            'Amount' => 'required|numeric',
+            'Description' => 'required',
+            'Code' => 'required|unique:tblProduct,Code,NULL,ProductID,CompanyID,'.$data['CompanyID'].',AppliedTo,'.$data['AppliedTo'],
+        );
+
+        $verifier = App::make('validation.presence');
+        $verifier->setConnection('sqlsrv2');
+
+        $validator = Validator::make($data, $rules);
+        $validator->setPresenceVerifier($verifier);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
 
         $data["Amount"] = number_format(str_replace(",","",$data["Amount"]),$roundplaces,".","");
         if ($product = Product::create($data)) {
@@ -171,6 +190,7 @@ class ProductsController extends \BaseController {
             $data["CompanyID"] = $companyID;
             $data['Active'] = isset($data['Active']) ? 1 : 0;
             $data["ModifiedBy"] = $user;
+            unset($data['ProductClone']);
 
             if(isset($data['DynamicFields']) && count($data['DynamicFields']) > 0) {
                 $CompanyID = User::get_companyID();
@@ -217,8 +237,21 @@ class ProductsController extends \BaseController {
                 unset($data['DynamicFields']);
             }
 
-            if($error = Product::validate($data)){
-                return $error;
+            $rules = array(
+                'CompanyID' => 'required',
+                'Name' => 'required',
+                'Amount' => 'required|numeric',
+                'Description' => 'required',
+                'Code' => 'required|unique:tblProduct,Code,'.$id.',ProductID,CompanyID,'.$data['CompanyID'].',AppliedTo,'.$data['AppliedTo'],
+            );
+            $verifier = App::make('validation.presence');
+            $verifier->setConnection('sqlsrv2');
+
+            $validator = Validator::make($data, $rules);
+            $validator->setPresenceVerifier($verifier);
+
+            if ($validator->fails()) {
+                return json_validator_response($validator);
             }
 
             $data["Amount"] = number_format(str_replace(",","",$data["Amount"]),$roundplaces,".","");
@@ -413,6 +446,11 @@ class ProductsController extends \BaseController {
         }else{
             $data['Note'] = '';
         }
+        if(!empty($data['selection']['AppliedTo'])){
+            $data['AppliedTo'] = $data['selection']['AppliedTo'];
+        }else{
+            $data['AppliedTo'] = '';
+        }
         /*if(!empty($data['selection']['Active'])){
             $data['Active'] = $data['selection']['Active'];
         }else{
@@ -583,7 +621,11 @@ class ProductsController extends \BaseController {
                 $data['Active'] = (int) $data['Active'];
             }
 
-            $query = "call prc_UpdateProductsStatus (".$CompanyID.",'".$UserName."','".$data['Name']."','".$data['Code']."',".$data['Active'].",".$data['status_set'].")";
+            if($data['AppliedTo'] == ''){
+                $data['AppliedTo'] = 'null';
+            }
+
+            $query = "call prc_UpdateProductsStatus (".$CompanyID.",'".$UserName."','".$data['Name']."','".$data['Code']."',".$data['Active'].",".$data['AppliedTo'].",".$data['status_set'].")";
 
             $result = DB::connection('sqlsrv2')->select($query);
             return Response::json(array("status" => "success", "message" => "Items Status Updated"));

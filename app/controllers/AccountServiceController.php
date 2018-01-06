@@ -11,8 +11,8 @@ class AccountServiceController extends \BaseController {
 		$AccountID = $id;
         $ServiceName = Service::getServiceNameByID($ServiceID);
         $decimal_places = get_round_decimal_places($id);
-        $products = Product::getProductDropdownList();
-        $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0);
+        $products = Product::getProductDropdownList($CompanyID);
+        $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0,$CompanyID);
         $rate_table = RateTable::getRateTableList(array('CurrencyID'=>$account->CurrencyId));
         $DiscountPlan = DiscountPlan::getDropdownIDList($CompanyID,(int)$account->CurrencyId);
 

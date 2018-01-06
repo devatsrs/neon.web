@@ -6,8 +6,11 @@
             var modal = $(this).parents('.modal');
             var composit = modal.hasClass('composite')?1:0;
             var datatype = 'select[data-type="billingsubscription"]';
-            var SubscriptionID = $("#add-new-billing_subscription-form [name='SubscriptionID']").val()
-            if( typeof SubscriptionID != 'undefined' && SubscriptionID != ''){
+            var SubscriptionID = $("#add-new-billing_subscription-form [name='SubscriptionID']").val();
+            var SubscriptionClone = $("#add-new-billing_subscription-form [name='SubscriptionClone']").val();
+            if( typeof SubscriptionID != 'undefined' && SubscriptionID != '' && typeof SubscriptionClone != 'undefined' && SubscriptionClone == '1'){
+                update_new_url = baseurl + '/billing_subscription/create';
+            }else if( typeof SubscriptionID != 'undefined' && SubscriptionID != ''){
                 update_new_url = baseurl + '/billing_subscription/update/'+SubscriptionID;
             }else{
                 update_new_url = baseurl + '/billing_subscription/create';
@@ -179,6 +182,10 @@
                     </div>
                 </div>
                 <div class="form-group">
+                    <label for="field-1" class="col-sm-2 control-label">Applied To</label>
+                    <div class="col-sm-4">
+                        {{Form::select('AppliedTo',BillingSubscription::$AppliedTo,'',array("class"=>"form-control select2 small"))}}
+                    </div>
                     <label for="field-1" class="col-sm-2 control-label">Advance Subscription</label>
                     <div class="col-sm-4">
                         <p class="make-switch switch-small">
@@ -191,6 +198,7 @@
     </div>
     <div class="modal-footer">
         <input type="hidden" name="SubscriptionID" value="" />
+        <input type="hidden" name="SubscriptionClone" value="" />
         <button type="submit" id="billing_subscription-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
             <i class="entypo-floppy"></i>
             Save

@@ -5,8 +5,8 @@ class AccountStatementCustomerController extends \BaseController {
 
     public function ajax_datagrid() {
         $data = Input::all();
-        $CompanyID = User::get_companyID();
-        $data['AccountID'] = User::get_userID();
+        $CompanyID = Customer::get_companyID();
+        $data['AccountID'] = Customer::get_accountID();
         $account = Account::find($data['AccountID']);
         $roundplaces = get_round_decimal_places($data['AccountID']);
         $CurencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
@@ -107,7 +107,7 @@ class AccountStatementCustomerController extends \BaseController {
 	public function index()
 	{
         $id=0;
-        $companyID = User::get_companyID();
+        $companyID = Customer::get_companyID();
         $AccountName = Customer::get_accountName();
         //$UserName = User::get_user_full_name();
         $CompanyName = Company::getName($companyID);
@@ -123,8 +123,8 @@ class AccountStatementCustomerController extends \BaseController {
 
     public function exports($type) {
         $data = Input::all();
-        $CompanyID = User::get_companyID();
-        $data['AccountID'] = User::get_userID();
+        $CompanyID = Customer::get_companyID();
+        $data['AccountID'] = Customer::get_accountID();
         $account = Account::find($data['AccountID']);
         $roundplaces = get_round_decimal_places($data['AccountID']);
         $query = "call prc_getSOA (".$CompanyID.",".$data['AccountID'].",'".$data['StartDate']."','".$data['EndDate']."',1)";

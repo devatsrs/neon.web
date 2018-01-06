@@ -113,7 +113,7 @@ class Dispute extends \Eloquent {
 
 		if (Input::hasFile('Attachment') && $DisputeAttachment==1){
 			$upload_path = CompanyConfiguration::get('UPLOAD_PATH');
-			$amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['DISPUTE_ATTACHMENTS'],$data["AccountID"]) ;
+			$amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['DISPUTE_ATTACHMENTS'],$data["AccountID"],$data['CompanyID']) ;
 			$destinationPath = $upload_path . '/' . $amazonPath;
 			$proof = Input::file('Attachment');
 
@@ -122,7 +122,7 @@ class Dispute extends \Eloquent {
 				$filename = rename_upload_file($destinationPath,$proof->getClientOriginalName());
 
 				$proof->move($destinationPath,$filename);
-				if(!AmazonS3::upload($destinationPath.$filename,$amazonPath)){
+				if(!AmazonS3::upload($destinationPath.$filename,$amazonPath,$data['CompanyID'])){
 					return Response::json(array("status" => "failed", "message" => "Failed to upload."));
 				}
 				$data['Attachment'] = $amazonPath . $filename;
@@ -162,7 +162,7 @@ class Dispute extends \Eloquent {
 
 //				$FilePath =  AmazonS3::preSignedUrl($dispute->Attachment);
 //				@unlink($FilePath);
-				AmazonS3::delete($dispute->Attachment);
+				AmazonS3::delete($dispute->Attachment,$data['CompanyID']);
 
 			}
 			if(Dispute::find($data["DisputeID"])->update($disputeData) ) {

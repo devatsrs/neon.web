@@ -27,8 +27,9 @@ class CompanyGateway extends \Eloquent {
             return false;
         }
     }
-    public static function getCompanyGatewayIdList(){
-        $row = CompanyGateway::where(array('Status'=>1,'CompanyID'=>User::get_companyID()))->lists('Title', 'CompanyGatewayID');
+    public static function getCompanyGatewayIdList($CompanyID=0){
+        $company_id = $CompanyID>0?$CompanyID : User::get_companyID();
+        $row = CompanyGateway::where(array('Status'=>1,'CompanyID'=>$company_id))->lists('Title', 'CompanyGatewayID');
         if(!empty($row)){
             $row = array(""=> "Select")+$row;
         }

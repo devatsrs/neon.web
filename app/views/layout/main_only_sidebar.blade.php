@@ -34,7 +34,11 @@
 
         <div class="page-container">
 
-            @include('includes.sidebar')
+            @if(Session::get('reseller')==1)
+                @include('includes.resellerpanel.sidebar')
+            @else
+                @include('includes.sidebar')
+            @endif
 
             <div class="main-content">
 

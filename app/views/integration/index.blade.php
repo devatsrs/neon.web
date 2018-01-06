@@ -200,7 +200,8 @@
 		  	foreach($categories as $key => $CategoriesData) {
 				if($CategoriesData['Slug']!==SiteIntegration::$GatewaySlug){
 				
-		  	 $subcategories = Integration::where(["CompanyID" => $companyID,"ParentID"=>$CategoriesData['IntegrationID']])->orderBy('Title', 'asc')->get();
+		  	 //$subcategories = Integration::where(["CompanyID" => $companyID,"ParentID"=>$CategoriesData['IntegrationID']])->orderBy('Title', 'asc')->get();
+		  	 $subcategories = Integration::where(["ParentID"=>$CategoriesData['IntegrationID']])->orderBy('Title', 'asc')->get();
 			 	foreach($subcategories as $key => $subcategoriesData){
 					$active = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$subcategoriesData['IntegrationID']))->first();				
 					 

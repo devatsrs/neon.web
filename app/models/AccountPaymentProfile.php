@@ -33,7 +33,6 @@ class AccountPaymentProfile extends \Eloquent
     {
         $data = Input::all();
 
-        //$PaymentGatewayID = PaymentGateway::getPaymentGatewayID();
         if(empty($PaymentGatewayID)){
             return Response::json(array("status" => "failed", "message" => "Please Select Payment Gateway"));
         }
@@ -625,7 +624,7 @@ class AccountPaymentProfile extends \Eloquent
             'AccountType' => $data['AccountHolderType']
         );
 
-        $SagePayDirectDebit = new SagePayDirectDebit();
+        $SagePayDirectDebit = new SagePayDirectDebit($CompanyID);
         $verify_response = $SagePayDirectDebit->verifyBankAccount($varifydata);
 
         if(!empty($verify_response) && $verify_response['status']=='Success'){

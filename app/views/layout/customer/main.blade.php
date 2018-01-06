@@ -33,11 +33,18 @@
 
         <div class="page-container">
 
-            @include('includes.customer.sidebar')
+            @if(Session::get('reseller')==1)
+                @include('includes.resellerpanel.sidebar')
+            @else
+                    @include('includes.customer.sidebar')
+            @endif
 
             <div class="main-content">
-
-                @include('includes.customer.dashboard-top')
+                @if(Session::get('reseller')==1)
+                    @include('includes.resellerpanel.dashboard-top')
+                @else
+                    @include('includes.customer.dashboard-top')
+                @endif
                 <div id="content">
                     @yield('content')
                 </div>

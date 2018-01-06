@@ -22,11 +22,11 @@ class AnalysisController extends BaseController {
             $isAdmin = 0;
         }
         $account_owners = User::getOwnerUsersbyRole();
-        $gateway = CompanyGateway::getCompanyGatewayIdList();
+        $gateway = CompanyGateway::getCompanyGatewayIdList($companyID);
         $Country = Country::getCountryDropdownIDList();
         $account = Account::getAccountIDList();
-        $trunks = Trunk::getTrunkDropdownIDList();
-        $currency = Currency::getCurrencyDropdownIDList();
+        $trunks = Trunk::getTrunkDropdownIDList($companyID);
+        $currency = Currency::getCurrencyDropdownIDList($companyID);
         $timezones = TimeZone::getTimeZoneDropdownList();
         $MonitorDashboardSetting 	= 	array_filter(explode(',',CompanyConfiguration::get('MONITOR_DASHBOARD')));
 
@@ -215,10 +215,10 @@ class AnalysisController extends BaseController {
         $original_enddate = date('Y-m-d');
         $isAdmin = 1;
         $UserID  = 0;
-        $gateway = CompanyGateway::getCompanyGatewayIdList();
+        $gateway = CompanyGateway::getCompanyGatewayIdList($companyID);
         $Country = Country::getCountryDropdownIDList();
-        $trunks = Trunk::getTrunkDropdownIDList();
-        $currency = Currency::getCurrencyDropdownIDList();
+        $trunks = Trunk::getTrunkDropdownIDList($companyID);
+        $currency = Currency::getCurrencyDropdownIDList($companyID);
         $is_customer = Customer::get_currentUser()->IsCustomer;
         $is_vendor = Customer::get_currentUser()->IsVendor;
         $CurrencyID = Customer::get_currentUser()->CurrencyId;
@@ -234,10 +234,10 @@ class AnalysisController extends BaseController {
         $original_enddate = date('Y-m-d');
         $isAdmin = 1;
         $UserID  = 0;
-        $gateway = CompanyGateway::getCompanyGatewayIdList();
+        $gateway = CompanyGateway::getCompanyGatewayIdList($companyID);
         $Country = Country::getCountryDropdownIDList();
-        $trunks = Trunk::getTrunkDropdownIDList();
-        $currency = Currency::getCurrencyDropdownIDList();
+        $trunks = Trunk::getTrunkDropdownIDList($companyID);
+        $currency = Currency::getCurrencyDropdownIDList($companyID);
         $is_customer = Customer::get_currentUser()->IsCustomer;
         $is_vendor = Customer::get_currentUser()->IsVendor;
         $CurrencyID = Customer::get_currentUser()->CurrencyId;
@@ -260,11 +260,11 @@ class AnalysisController extends BaseController {
             $isAdmin = 0;
         }
         $users = User::getUserIDListAll(0);
-        $gateway = CompanyGateway::getCompanyGatewayIdList();
+        $gateway = CompanyGateway::getCompanyGatewayIdList($companyID);
         $Country = Country::getCountryDropdownIDList();
         $account = Account::getAccountIDList();
-        $trunks = Trunk::getTrunkDropdownIDList();
-        $currency = Currency::getCurrencyDropdownIDList();
+        $trunks = Trunk::getTrunkDropdownIDList($companyID);
+        $currency = Currency::getCurrencyDropdownIDList($companyID);
         $timezones = TimeZone::getTimeZoneDropdownList();
         $MonitorDashboardSetting = array_filter(explode(',', CompanyConfiguration::get('MONITOR_DASHBOARD')));
 

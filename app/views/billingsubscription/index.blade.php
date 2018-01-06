@@ -23,6 +23,11 @@
                     {{Form::select('FilterAdvance', BillingSubscription::$Advance, '' ,array("class"=>"form-control select2 small"))}}
                 </div>
                 <div class="form-group">
+                    <label for="field-1" class="control-label">Applied To</label>
+                    <!-- <input id="FilterAdvance" name="FilterAdvance" type="checkbox" value="1" >-->
+                    {{Form::select('FilterAppliedTo', BillingSubscription::$ALLAppliedTo, '' ,array("class"=>"form-control select2 small"))}}
+                </div>
+                <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
                         <i class="entypo-search"></i>
@@ -91,10 +96,11 @@ jQuery(document).ready(function ($) {
     public_vars.$body = $("body");
     //show_loading_bar(40);
 
-    var list_fields  = ["Name","AnnuallyFeeWithSymbol","QuarterlyFeeWithSymbol","MonthlyFeeWithSymbol","WeeklyFeeWithSymbol","DailyFeeWithSymbol","Advance","SubscriptionID" , "ActivationFee","CurrencyID","InvoiceLineDescription","Description","AnnuallyFee", "QuarterlyFee", "MonthlyFee", "WeeklyFee", "DailyFee"];
+    var list_fields  = ["Name","AnnuallyFeeWithSymbol","QuarterlyFeeWithSymbol","MonthlyFeeWithSymbol","WeeklyFeeWithSymbol","DailyFeeWithSymbol","Advance","SubscriptionID" , "ActivationFee","CurrencyID","InvoiceLineDescription","Description","AnnuallyFee", "QuarterlyFee", "MonthlyFee", "WeeklyFee", "DailyFee","AppliedTo"];
     $searchFilter.FilterName = $("#billing_subscription_filter [name='FilterName']").val();
     $searchFilter.FilterCurrencyID = $("#billing_subscription_filter select[name='FilterCurrencyID']").val();
     $searchFilter.FilterAdvance = $("#billing_subscription_filter select[name='FilterAdvance']").val();
+    $searchFilter.FilterAppliedTo = $("#billing_subscription_filter select[name='FilterAppliedTo']").val();
     //$searchFilter.FilterAdvance = $("#billing_subscription_filter [name='FilterAdvance']").prop("checked");
 
     data_table = $("#table-4").dataTable({
@@ -107,9 +113,9 @@ jQuery(document).ready(function ($) {
         "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
         "aaSorting": [[0, 'asc']],
         "fnServerParams": function(aoData) {
-            aoData.push({"name":"FilterName","value":$searchFilter.FilterName},{"name":"FilterCurrencyID","value":$searchFilter.FilterCurrencyID},{"name":"FilterAdvance","value":$searchFilter.FilterAdvance});
+            aoData.push({"name":"FilterName","value":$searchFilter.FilterName},{"name":"FilterCurrencyID","value":$searchFilter.FilterCurrencyID},{"name":"FilterAdvance","value":$searchFilter.FilterAdvance},{"name":"FilterAppliedTo","value":$searchFilter.FilterAppliedTo});
             data_table_extra_params.length = 0;
-            data_table_extra_params.push({"name":"FilterName","value":$searchFilter.FilterName},{"name":"FilterCurrencyID","value":$searchFilter.FilterCurrencyID},{"name":"FilterAdvance","value":$searchFilter.FilterAdvance},{"name":"Export","value":1});
+            data_table_extra_params.push({"name":"FilterName","value":$searchFilter.FilterName},{"name":"FilterCurrencyID","value":$searchFilter.FilterCurrencyID},{"name":"FilterAdvance","value":$searchFilter.FilterAdvance},{"name":"FilterAppliedTo","value":$searchFilter.FilterAppliedTo},{"name":"Export","value":1});
         },
         "aoColumns":
         [
@@ -137,10 +143,11 @@ jQuery(document).ready(function ($) {
                      }
                      action += '</div>';
                      <?php if(User::checkCategoryPermission('BillingSubscription','Edit')) { ?>
-                        action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" title="Edit" class="edit-billing_subscription btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
-                     <?php } ?>
+                        action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" title="Edit" class="edit-billing_subscription btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
+                        action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" title="Clone" class="clone-billing_subscription btn btn-default btn-sm tooltip-primary" data-original-title="Clone" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-clone"></i>&nbsp;</a>';
+                    <?php } ?>
                      <?php if(User::checkCategoryPermission('BillingSubscription','Delete')) { ?>
-                        action += ' <a data-id="'+ id +'" title="Delete" class="delete-billing_subscription btn delete btn-danger btn-sm"><i class="entypo-trash"></i></a>';
+                        action += ' <a data-id="'+ id +'" title="Delete" class="delete-billing_subscription btn delete btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></a>';
                      <?php } ?>
                     return action;
                   }
@@ -203,6 +210,7 @@ jQuery(document).ready(function ($) {
             $searchFilter.FilterCurrencyID = $("#billing_subscription_filter select[name='FilterCurrencyID']").val();
            // $searchFilter.FilterAdvance = $("#billing_subscription_filter [name='FilterAdvance']").prop("checked");
             $searchFilter.FilterAdvance = $("#billing_subscription_filter select[name='FilterAdvance']").val();
+            $searchFilter.FilterAppliedTo = $("#billing_subscription_filter select[name='FilterAppliedTo']").val();
             data_table.fnFilter('', 0);
             return false;
     });
@@ -211,6 +219,7 @@ jQuery(document).ready(function ($) {
         ev.preventDefault();
         $('#add-new-billing_subscription-form').trigger("reset");
         $("#add-new-billing_subscription-form [name='SubscriptionID']").val('');
+        $("#add-new-billing_subscription-form [name='SubscriptionClone']").val(0);
         $('#add-new-modal-billing_subscription h4').html('Add New Subscription');
         $('#add-new-modal-billing_subscription').modal('show');
         $("#add-new-modal-billing_subscription [name=CurrencyID]").prop("disabled",false);
@@ -228,7 +237,36 @@ jQuery(document).ready(function ($) {
         $.each(list_fields, function( index, field_name ) {
             var val = $this.prev("div.hiddenRowData").find("input[name='"+field_name+"']").val();
             $("#add-new-billing_subscription-form [name='"+field_name+"']").val(val!='null'?val:'');
-            if(field_name =='CurrencyID'){
+            if(field_name =='CurrencyID' || field_name =='AppliedTo'){
+                $("#add-new-billing_subscription-form [name='"+field_name+"']").val(val).trigger("change");
+            }else if(field_name == 'Advance'){
+                if(val == 1 ){
+                    $('#add-new-billing_subscription-form [name="Advance"]').prop('checked',true)
+                }else{
+                    $('#add-new-billing_subscription-form [name="Advance"]').prop('checked',false)
+                }
+            }
+        });
+        if($("#add-new-modal-billing_subscription select[name=CurrencyID]").val() > 0 ){
+            //$("#add-new-modal-billing_subscription select[name=CurrencyID]").prop("disabled",true);
+        }
+        $("#add-new-billing_subscription-form [name='SubscriptionClone']").val(0);
+
+        $('#add-new-modal-billing_subscription h4').html('Edit Subscription');
+
+    });
+    $('table tbody').on('click','.clone-billing_subscription',function(e){
+        e.preventDefault();
+        e.stopPropagation();
+
+        $('#add-new-billing_subscription-form').trigger("reset");
+        $('#add-new-modal-billing_subscription').modal('show');
+
+        var $this = $(this);
+        $.each(list_fields, function( index, field_name ) {
+            var val = $this.prev().prev("div.hiddenRowData").find("input[name='"+field_name+"']").val();
+            $("#add-new-billing_subscription-form [name='"+field_name+"']").val(val!='null'?val:'');
+            if(field_name =='CurrencyID' || field_name =='AppliedTo'){
                 $("#add-new-billing_subscription-form [name='"+field_name+"']").val(val).trigger("change");
             }else if(field_name == 'Advance'){
                 if(val == 1 ){
@@ -242,7 +280,8 @@ jQuery(document).ready(function ($) {
             //$("#add-new-modal-billing_subscription select[name=CurrencyID]").prop("disabled",true);
         }
 
-        $('#add-new-modal-billing_subscription h4').html('Edit Subscription');
+        $("#add-new-billing_subscription-form [name='SubscriptionClone']").val(1);
+        $('#add-new-modal-billing_subscription h4').html('Clone Subscription');
 
     });
 });
