@@ -27,26 +27,33 @@ class Notification extends \Eloquent {
         Notification::AutoAddIP=>'Auto Add IP'
     ];
 
-    public static function getNotificationMail($type){
-        $CompanyID = User::get_companyID();
+    public static function getNotificationMail($type,$CompanyID=0){
+        if(empty($CompanyID)){
+            $CompanyID = User::get_companyID();
+        }
         $Notification = Notification::where(['CompanyID'=>$CompanyID,'NotificationType'=>$type,'Status'=>1])->pluck('EmailAddresses');
         return empty($Notification)?'':$Notification;
     }
 
     public static function sendEmailNotification($type,$data){
+        $CompanyID = 0;
+        if(!empty($data['CompanyID'])){
+            $CompanyID = $data['CompanyID'];
+        }
         if($type==Notification::InvoicePaidByCustomer) {
             $body					=	EmailsTemplates::render('body',$data);
             $data['Subject']		=	EmailsTemplates::render("subject",$data);
         }
         $EmailTemplate = $data['EmailTemplate'];
         $data['EmailFrom']		=	$EmailTemplate->EmailFrom;
-        $Emails = Notification::getNotificationMail(Notification::InvoicePaidByCustomer);
+        $Emails = Notification::getNotificationMail(Notification::InvoicePaidByCustomer,$CompanyID);
         $emailArray 			= 	explode(',', $Emails);
         foreach($emailArray as $singleemail) {
             $singleemail = trim($singleemail);
             if (filter_var($singleemail, FILTER_VALIDATE_EMAIL)) {
                 if($EmailTemplate->Status){
                     $data['EmailTo'] 		= 	$singleemail;
+                    $data['companyID'] = $CompanyID;
                     $status 				= 	sendMail($body,$data,0);
                     Log::info($status['status']==1?'Email sent to '.$data['EmailTo'].' for Invoice Paid by Customer Notification':'Email sent failed to '.$data['EmailTo']);
                 }

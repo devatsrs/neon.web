@@ -11,11 +11,13 @@
 <h3>Inbound Rate</h3>
 {{--@include('accounts.errormessage')--}}
 <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
+    @if(empty(is_reseller()))
     <li>
         <a href="{{ URL::to('/customer/customers_rates') }}" >
             @lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_SETTINGS_TITLE")
         </a>
     </li>
+    @endif
     <li>
         <a href="{{ URL::to('/customer/customers_rates/rate') }}" >
             @lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_OUTBOUND_RATE_TITLE")
@@ -25,6 +27,13 @@
         <li class="active">
             <a href="{{ URL::to('/customer/customers_rates/inboundrate') }}" >
                 @lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_INBOUND_RATE_TITLE")
+            </a>
+        </li>
+    @endif
+    @if(isset($displayservice) && $displayservice>0)
+        <li>
+            <a href="{{ URL::to('/customer/customers_rates/servicerate') }}" >
+                Service Rate
             </a>
         </li>
     @endif

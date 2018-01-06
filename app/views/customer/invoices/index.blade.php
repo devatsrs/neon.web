@@ -50,8 +50,9 @@
 </div>
 <div class="row">
   <div  class="col-md-12">
-    <div class="text-right"> @if(is_PayNowInvoice())
+    <div class="text-right"> @if(is_PayNowInvoice($CompanyID))
       <button type="button"  id="pay_now" class="pay_now create btn btn-primary" >@lang('routes.CUST_PANEL_PAGE_INVOICE_BUTTON_PAY_NOW')</button>
+
       @endif </div>
     <div class="input-group-btn pull-right" style="width:70px;">
       <form id="clear-bulk-rate-form" >
@@ -66,7 +67,7 @@
 <table class="table table-bordered datatable" id="table-4">
   <thead>
     <tr>
-      <th width="10%"> @if(is_PayNowInvoice())
+      <th width="10%"> @if(is_PayNowInvoice($CompanyID))
         <div class="pull-left">
           <input type="checkbox" id="selectall" name="checkbox[]" class="" />
         </div>
@@ -127,7 +128,7 @@ var postdata;
                                      invoiceType = ' <button class=" btn btn-primary pull-right" title="@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_BUTTON_INVOICE_SENT')"><i class="entypo-right-bold"></i>SNT</a>';
                                  }
                                  if (full[0] != '{{Invoice::INVOICE_IN}}'){
-                                     if('{{is_PayNowInvoice()}}'){
+                                     if('{{is_PayNowInvoice($CompanyID)}}'){
                                         action += '<div class="pull-left"><input type="checkbox" class="checkbox rowcheckbox" value="'+full[7]+'" name="InvoiceID[]"></div>';
                                      }
                                  }

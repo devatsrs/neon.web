@@ -11,7 +11,12 @@ class BillingSubscription extends \Eloquent {
     public static $cache = ["subscription_dropdown1_cache"];
 	
 	public static $Advance = array(''=>'All',0=>"Off",1=>"On");
-	
+    const Customer = 0;
+    const Reseller = 1;
+
+    public static $AppliedTo = array(self::Customer=>"Customer",self::Reseller=>"Reseller");
+    public static $ALLAppliedTo = array(''=>'Select',self::Customer=>"Customer",self::Reseller=>"Reseller");
+
 
     static public function checkForeignKeyById($id) {
 
@@ -23,8 +28,13 @@ class BillingSubscription extends \Eloquent {
         }
     }
 
-    public static function getSubscriptionsArray($CompanyID,$CurrencyID){
-        $BillingSubscription = BillingSubscription::where(array("CompanyID"=>$CompanyID,'CurrencyID'=>$CurrencyID))->get();
+    public static function getSubscriptionsArray($CompanyID,$CurrencyID,$AppliedTo=0){
+        if($AppliedTo==="All"){
+            $Where = ["CompanyID"=>$CompanyID,'CurrencyID'=>$CurrencyID];
+        }else{
+            $Where = ["CompanyID"=>$CompanyID,'CurrencyID'=>$CurrencyID,"AppliedTo"=>$AppliedTo];
+        }
+        $BillingSubscription = BillingSubscription::where($Where)->get();
         $subscription = array();
         $subscription[''] = "Select";
         foreach($BillingSubscription as $Subscription){
@@ -33,18 +43,30 @@ class BillingSubscription extends \Eloquent {
         return $subscription;
     }
 
-    public static function getSubscriptionsList(){
+    public static function getSubscriptionsList($CompanyID=0,$AppliedTo=0){
 
         if (self::$enable_cache && Cache::has('subscription_dropdown1_cache')) {
             $admin_defaults = Cache::get('subscription_dropdown1_cache');
             self::$cache['subscription_dropdown1_cache'] = $admin_defaults['subscription_dropdown1_cache'];
         } else {
-            $CompanyId = User::get_companyID();
-            self::$cache['subscription_dropdown1_cache'] = BillingSubscription::where("CompanyId",$CompanyId)->lists('Name','SubscriptionID');
+            $CompanyID = $CompanyID>0?$CompanyID : User::get_companyID();
+            if($AppliedTo==="All"){
+                $Where = ["CompanyID"=>$CompanyID];
+            }else{
+                $Where = ["CompanyID"=>$CompanyID,"AppliedTo"=>$AppliedTo];
+            }
+            self::$cache['subscription_dropdown1_cache'] = BillingSubscription::where($Where)->lists('Name','SubscriptionID');
+
             Cache::forever('subscription_dropdown1_cache', array('subscription_dropdown1_cache' => self::$cache['subscription_dropdown1_cache']));
         }
 
         return self::$cache['subscription_dropdown1_cache'];
+    }
+
+    public static function getSubscriptionsListByAppliedTo($CompanyID=0,$AppliedTo){
+        $CompanyID = $CompanyID>0?$CompanyID : User::get_companyID();
+        $BillingSubscription = BillingSubscription::where(["CompanyID"=>$CompanyID,"AppliedTo"=>$AppliedTo])->lists('Name','SubscriptionID');
+        return $BillingSubscription;
     }
 
     public static function getSubscriptionNameByID($SubscriptionID){

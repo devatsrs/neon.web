@@ -94,7 +94,7 @@
                     </a>
                 </li>
                 @endif
-                @if (is_PayNowInvoice() && CompanyConfiguration::get('CUSTOMER_PAYMENT_PROFILE_DISPLAY') == 1)
+                @if (is_PayNowInvoice(Customer::get_companyID()) && CompanyConfiguration::get('CUSTOMER_PAYMENT_PROFILE_DISPLAY') == 1)
                 <li>
                     <a href="{{URL::to('customer/PaymentMethodProfiles')}}">
                         <span>@lang("routes.CUST_PANEL_SIDENAV_MENU_BILLING__PAYMENT_METHOD_PROFILES")</span>

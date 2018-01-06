@@ -16,17 +16,19 @@
 
              <span>
                  @if($row->Action == TicketLog::TICKET_ACTION_CREATED)
-                     created the ticket
+                     Created Ticket
                  @elseif($row->Action == TicketLog::TICKET_ACTION_ASSIGNED_TO)
-                     assigned ticket
+                     Assigned Ticket
                  @elseif($row->Action == TicketLog::TICKET_ACTION_AGENT_REPLIED)
-                     replied to ticket
+                     Replied To Ticket
                  @elseif($row->Action == TicketLog::TICKET_ACTION_CUSTOMER_REPLIED)
-                         replied to ticket
+                     Replied To Ticket
                  @elseif($row->Action == TicketLog::TICKET_ACTION_STATUS_CHANGED)
-                     changed status
+                     Changed Status
                  @elseif($row->Action == TicketLog::TICKET_ACTION_NOTE_ADDED)
-                     note added
+                     Note Added
+                 @elseif($row->Action == TicketLog::TICKET_ACTION_FIELD_CHANGED)
+                     {{$row->ActionText}}
                  @endif
              </span>
 

@@ -271,6 +271,15 @@ class HomeController extends BaseController {
             if(NeonAPI::login_by_id($user_ID)) {
                 User::setUserPermission();
                 create_site_configration_cache();
+
+                $CompanyID = $user->CompanyID;
+                $Resellers = Reseller::where('ChildCompanyID',$CompanyID)->first();
+                if(!empty($Resellers) && count($Resellers)>0){
+                    log::info('reseller');
+                    Session::set("reseller", 1);
+                    $redirect_to = URL::to("/reseller/profile");
+                }
+
                 echo json_encode(array("login_status" => "success", "redirect_url" => $redirect_to));
                 return;
             } else {

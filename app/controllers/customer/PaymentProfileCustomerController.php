@@ -4,18 +4,12 @@ class PaymentProfileCustomerController extends \BaseController {
 
     public function ajax_datagrid($AccountID) {
         $data = Input::all();
-        $CompanyID = User::get_companyID();
-        //$AccountID = User::get_userID();
 
         $PaymentGatewayName = '';
         $PaymentGatewayID='';
-        /*
-        $PaymentGatewayID = PaymentGateway::getPaymentGatewayID();
-        if(!empty($PaymentGatewayID)){
-            $PaymentGatewayName = PaymentGateway::$paymentgateway_name[$PaymentGatewayID];
-        }*/
 
         $account = Account::find($AccountID);
+        $CompanyID = $account->CompanyId;
         if(!empty($account->PaymentMethod)){
             $PaymentGatewayName = $account->PaymentMethod;
             $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PaymentGatewayName);
@@ -91,8 +85,8 @@ class PaymentProfileCustomerController extends \BaseController {
     public function update(){
 
         $data = Input::all();
-		
-		$isAuthorizedNet  = 	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$AuthorizeSlug);
+		$CompanyID = Customer::get_companyID();
+		$isAuthorizedNet  = 	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$AuthorizeSlug,$CompanyID);
 		if(!$isAuthorizedNet){
 			return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_MSG_PAYMENT_METHOD_NOT_INTEGRATED')));
 		}
@@ -274,8 +268,9 @@ class PaymentProfileCustomerController extends \BaseController {
     public function verify_sagebankaccount($cardID){
         $AccountPaymentProfile = AccountPaymentProfile::find($cardID);
         $options = json_decode($AccountPaymentProfile->Options,true);
+        $CompanyID = $AccountPaymentProfile->CompanyID;
         $sagedata = array();
-        $sagepayment = new SagePayDirectDebit();
+        $sagepayment = new SagePayDirectDebit($CompanyID);
         if(empty($sagepayment->status)){
             return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MSG_SAGE_DIRECT_DEBIT_NOT_SETUP_CORRECTLY')));
         }

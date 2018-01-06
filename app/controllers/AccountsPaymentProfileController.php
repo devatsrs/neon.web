@@ -9,7 +9,6 @@ class AccountsPaymentProfileController extends \BaseController {
 
         $PaymentGatewayName = '';
         $PaymentGatewayID = '';
-        //$PaymentGatewayID = PaymentGateway::getPaymentGatewayID();
         $account = Account::find($AccountID);
         if(!empty($account->PaymentMethod)){
             $PaymentGatewayName = $account->PaymentMethod;

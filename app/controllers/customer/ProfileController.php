@@ -16,9 +16,9 @@ class ProfileController extends \BaseController {
      * @return Response
      */
     public function show() {
-        $id = User::get_userID();
-        $companyID = User::get_companyID();
+        $id = Customer::get_accountID();
         $account = Account::find($id);
+        $companyID = $account->CompanyId;
         $AccountBilling = AccountBilling::getBilling($id);
         $account_owner = User::find($account->Owner);
         $contacts = Contact::where(["CompanyID" => $companyID, "Owner" => $id])->orderBy('FirstName', 'asc')->get();
@@ -33,18 +33,11 @@ class ProfileController extends \BaseController {
      * @return Response
      */
     public function edit() {
-        $id = User::get_userID();
-        $companyID = User::get_companyID();
+        $id =  Customer::get_accountID();
         $account = Account::find($id);
         $countries = $this->countries;
-
-        $currencies = Currency::getCurrencyDropdownIDList();
-        $taxrates = TaxRate::getTaxRateDropdownIDList();
-        $timezones = TimeZone::getTimeZoneDropdownList();
-        $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
-
         $doc_status = Account::$doc_status;
-        return View::make('customer.accounts.edit', compact('account', 'account_owners', 'countries','doc_status','currencies','timezones','taxrates','InvoiceTemplates'));
+        return View::make('customer.accounts.edit', compact('account', 'countries','doc_status'));
     }
 
     /**
@@ -56,9 +49,9 @@ class ProfileController extends \BaseController {
      */
     public function update() {
         $data = Input::all();
-        $id = User::get_userID();
-        $companyID = User::get_companyID();
-        $account = Account::find($id);
+        $AccountID = Customer::get_accountID();
+        $account = Account::find($AccountID);
+        $companyID = $account->CompanyId;
 
         if(empty($data['password'])){ /* if empty, dont update password */
             unset($data['password']);
@@ -73,7 +66,7 @@ class ProfileController extends \BaseController {
         if (!empty($CustomerPicture)){
 
             $extension = '.'. Input::file('Picture')->getClientOriginalExtension();
-            $amazonPath = AmazonS3::generate_path(AmazonS3::$dir['CUSTOMER_PROFILE_IMAGE'],User::get_companyID(),User::get_userID()) ;
+            $amazonPath = AmazonS3::generate_path(AmazonS3::$dir['CUSTOMER_PROFILE_IMAGE'],$companyID,$AccountID) ;
             $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . "/". $amazonPath;
             $fileName = \Illuminate\Support\Str::slug($account->AccountName .'_'. str_random(4)) .$extension;
             $CustomerPicture->move($destinationPath,$fileName);
@@ -98,13 +91,12 @@ class ProfileController extends \BaseController {
         }
     }
 
-    public function get_outstanding_amount($id) {
+    public function get_outstanding_amount($AccountID) {
         $data = Input::all();
-        //$id = User::get_userID();
-        $account = Account::find($id);
-        $companyID = User::get_companyID();
+        $account = Account::find($AccountID);
+        $CompanyID = $account->CompanyId;
         $Invoiceids = $data['InvoiceIDs'];
-        $outstanding = Account::getOutstandingInvoiceAmount($companyID, $account->AccountID, $Invoiceids, get_round_decimal_places($account->AccountID));
+        $outstanding = Account::getOutstandingInvoiceAmount($CompanyID, $AccountID, $Invoiceids, get_round_decimal_places($AccountID));
         //$outstanding =Account::getOutstandingAmount($companyID,$account->AccountID,get_round_decimal_places($account->AccountID));
         $currency = Currency::getCurrencySymbol($account->CurrencyId);
         $outstandingtext = $currency.$outstanding;

@@ -110,12 +110,12 @@ class Invoice extends \Eloquent {
             }
 
             $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
-            if (empty($InvoiceTemplate->CompanyLogoUrl) || AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key) == '') {
+            if (empty($InvoiceTemplate->CompanyLogoUrl) || AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key,$Account->CompanyId) == '') {
                 $as3url =  public_path("/assets/images/250x100.png");
             } else {
-                $as3url = (AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key));
+                $as3url = (AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key,$Account->CompanyId));
             }
-            $logo_path = CompanyConfiguration::get('UPLOAD_PATH') . '/logo/' . $Account->CompanyId;
+            $logo_path = CompanyConfiguration::get('UPLOAD_PATH',$Account->CompanyId) . '/logo/' . $Account->CompanyId;
             @mkdir($logo_path, 0777, true);
             RemoteSSH::run("chmod -R 777 " . $logo_path);
             $logo = $logo_path  . '/'  . basename($as3url);
@@ -140,7 +140,7 @@ class Invoice extends \Eloquent {
             $header = htmlspecialchars_decode($header);
 
             $amazonPath = AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId,$Invoice->AccountID) ;
-             $destination_dir = CompanyConfiguration::get('UPLOAD_PATH') . '/'. $amazonPath;
+             $destination_dir = CompanyConfiguration::get('UPLOAD_PATH',$Account->CompanyId) . '/'. $amazonPath;
 			
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);
@@ -181,7 +181,7 @@ class Invoice extends \Eloquent {
             @unlink($header_html);
             if (file_exists($local_file)) {
                 $fullPath = $amazonPath . basename($local_file); //$destinationPath . $file_name;
-                if (AmazonS3::upload($local_file, $amazonPath)) {
+                if (AmazonS3::upload($local_file, $amazonPath,$Account->CompanyId)) {
                     return $fullPath;
                 }
             }

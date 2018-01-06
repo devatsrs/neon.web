@@ -97,7 +97,7 @@
                     <div class="form-group">
                         <label class="col-md-2 control-label">Vendor</label>
                         <div class="col-md-4">
-                            <div class="make-switch switch-small">
+                            <div class="make-switch switch-small" id="desablevendor">
                                 <input type="checkbox" name="IsVendor"  @if(Input::old('IsVendor') == 1 )checked=""@endif value="1">
                             </div>
                         </div>
@@ -110,7 +110,7 @@
                     <div class="form-group">
                         <label class="col-md-2 control-label">Customer</label>
                         <div class="col-md-4">
-                            <div class="make-switch switch-small">
+                            <div class="make-switch switch-small" id="desablecustomer">
                                 <input type="checkbox" name="IsCustomer"  @if(Input::old('IsCustomer') == 1 )checked=""@endif value="1">
                             </div>
                         </div>
@@ -119,6 +119,15 @@
                         <div class="col-md-4">
                             <input type="text" name="Employee" class="form-control" id="field-1" placeholder="" value="{{Input::old('Employee')}}" />
                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">Reseller</label>
+                        <div class="col-md-4">
+                            <div class="make-switch switch-small">
+                                <input type="checkbox" name="IsReseller"  @if(Input::old('IsReseller') == 1 )checked=""@endif value="1">
+                            </div>
+                        </div>
+
                     </div>
                     <div class="form-group">
                         <label for="field-1" class="col-md-2 control-label">Email</label>
@@ -418,6 +427,18 @@
 
         });
         $('[name="Billing"]').trigger('change');
+
+        $('[name="IsReseller"]').on("change",function(e){
+            if($('[name="IsReseller"]').prop("checked") == true){
+                $('[name="IsCustomer"]').prop("checked", false).trigger('change');
+                $('[name="IsVendor"]').prop("checked", false).trigger('change');
+                $("#desablecustomer").addClass('deactivate');
+                $("#desablevendor").addClass('deactivate');
+            }else{
+                $("#desablecustomer").removeClass('deactivate');
+                $("#desablevendor").removeClass('deactivate');
+            }
+        });
 
     });
 function ajax_form_success(response){

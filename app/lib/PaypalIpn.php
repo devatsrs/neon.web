@@ -21,11 +21,11 @@ class PaypalIpn
     var $method;
 
 
-    function __Construct(){
+    function __Construct($CompanyID){
 
         $this->method  = "PAYPAL_IPN";
         //$is_paypal 	 = CompanyConfiguration::get($paypal_key);
-		$is_paypal	 = SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$paypalSlug);
+		$is_paypal	 = SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$paypalSlug,$CompanyID);
 
         if( !empty($is_paypal) ) {
 

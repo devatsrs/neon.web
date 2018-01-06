@@ -26,12 +26,12 @@ class QuickBook {
 	protected $Context =array() ;
 
 
-	function __Construct(){
+	function __Construct($CompanyID){
 		//require_once dirname(__FILE__) . '/quicibookmaster/QuickBooks.php';
 		//require_once 'I:/www/bhavin/neon/web/newbhavin/app/lib/quicibookmaster/QuickBooks.php';
 		//$path = getenv('PATH_SDK_ROOT').'QuickBooks.php';
 		//require_once($path);
-		$this->check_quickbook();
+		$this->check_quickbook($CompanyID);
     }
 
 	public function test_connection()
@@ -271,8 +271,8 @@ class QuickBook {
 
 	}
 
-	public function check_quickbook(){
-		$QuickBookData		=	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$QuickBookSlug);
+	public function check_quickbook($CompanyID){
+		$QuickBookData		=	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$QuickBookSlug,$CompanyID);
 
 		if(!$QuickBookData){
 			$this->quickbooks_is_connected = false;
@@ -300,11 +300,14 @@ class QuickBook {
 				$dsn = 'mysqli://'.$dbconnection['username'].':'.$dbconnection['password'].'@'.$dbconnection['host'].'/'.$dbconnection['database'];
 
 				//$this->dsn = 'mysqli://root:root@localhost/LocalRatemanagement';
-				$companyID = SiteIntegration::GetComapnyIdByKey();
-				$companyID = !empty($companyID)?$companyID:User::get_companyID();
+				if(empty($CompanyID)){
+					$CompanyID = SiteIntegration::GetComapnyIdByKey();
+					$CompanyID = !empty($CompanyID)?$CompanyID:User::get_companyID();
+				}
+
 				$this->dsn = $dsn;
 				$this->encryption_key = 'bcde1234';
-				$this->the_username = 'DO_NOT_CHANGE_ME'.$companyID;
+				$this->the_username = 'DO_NOT_CHANGE_ME'.$CompanyID;
 				$this->the_tenant = 12345;
 				$this->quickbooks_is_connected = true;
 			}else{

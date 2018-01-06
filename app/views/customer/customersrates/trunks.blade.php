@@ -25,6 +25,13 @@
         </a>
     </li>
     @endif
+    @if(isset($displayservice) && $displayservice>0)
+    <li>
+        <a href="{{ URL::to('/customer/customers_rates/servicerate') }}" >
+            Inbound Rate
+        </a>
+    </li>
+    @endif
 </ul>
 <div class="tab-content">
     <div class="tab-pane active" id="customer_rate_tab_content">

@@ -48,9 +48,9 @@ class AmazonS3 {
     );
 
     // Instantiate an S3 client
-    public static function getS3Client(){
+    public static function getS3Client($CompanyID=0){
 		     	
-	 	$AmazonData		=	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$AmazoneSlug);
+	 	$AmazonData		=	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$AmazoneSlug,$CompanyID);
 		
 		if(!$AmazonData){
             self::$isAmazonS3='NoAmazon';
@@ -85,9 +85,9 @@ class AmazonS3 {
         }*/
     }
 	
-	 public static function getAmazonSettings(){     
+	 public static function getAmazonSettings($CompanyID=0){
 		$amazon 		= 	array();
-		$AmazonData		=	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$AmazoneSlug);
+		$AmazonData		=	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$AmazoneSlug,$CompanyID);
 		
 		if($AmazonData){
 			$amazon 	=	 array("AWS_BUCKET"=>$AmazonData->AmazonAwsBucket,"AMAZONS3_KEY"=>$AmazonData->AmazonKey,"AMAZONS3_SECRET"=>$AmazonData->AmazonSecret,"AWS_REGION"=>$AmazonData->AmazonAwsRegion);	
@@ -100,13 +100,13 @@ class AmazonS3 {
      * Generate Path
      * Ex. WaveTell/18-Y/VendorUploads/2015/05
      * */
-    static function generate_upload_path($dir ='',$accountId = '' ) {
+    static function generate_upload_path($dir ='',$accountId = '',$CompanyID=0 ) {
 
         if(empty($dir))
             return false;
-
-        $CompanyID = User::get_companyID();//   Str::slug(Company::getName());
-
+        if(empty($CompanyID)) {
+            $CompanyID = User::get_companyID();//   Str::slug(Company::getName());
+        }
         $path = self::generate_path($dir,$CompanyID,$accountId);
 
         return $path;
@@ -121,7 +121,7 @@ class AmazonS3 {
         }
 
         $path .=  $dir . "/". date("Y")."/".date("m") ."/" .date("d") ."/";
-        $dir = CompanyConfiguration::get('UPLOAD_PATH') . '/'. $path;
+        $dir = CompanyConfiguration::get('UPLOAD_PATH',$companyId) . '/'. $path;
         if (!file_exists($dir)) {
             RemoteSSH::run("mkdir -p " . $dir);
             RemoteSSH::run("chmod -R 777 " . $dir);
@@ -131,17 +131,17 @@ class AmazonS3 {
         return $path;
     }
 
-    static function upload($file,$dir){
+    static function upload($file,$dir,$CompanyID=0){
 
         // Instantiate an S3 client
-        $s3 = self::getS3Client();
+        $s3 = self::getS3Client($CompanyID);
 
         //When no amazon return true;
         if($s3 == 'NoAmazon'){
             return true;
         }
 		
-		$AmazonSettings  = self::getAmazonSettings();		
+		$AmazonSettings  = self::getAmazonSettings($CompanyID);
         $bucket 		 = $AmazonSettings['AWS_BUCKET'];
         // Upload a publicly accessible file. The file size, file type, and MD5 hash
         // are automatically calculated by the SDK.
@@ -155,19 +155,19 @@ class AmazonS3 {
         }
     }
 
-    static function preSignedUrl($key=''){
+    static function preSignedUrl($key='',$CompanyID=0){
 
-        $s3 = self::getS3Client();
+        $s3 = self::getS3Client($CompanyID);
 
         //When no amazon ;
 
-            $Uploadpath = CompanyConfiguration::get('UPLOAD_PATH')."/".$key;
+            $Uploadpath = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID)."/".$key;
             if ( file_exists($Uploadpath) ) {
                 return $Uploadpath;
             }
             elseif(self::$isAmazonS3=='Amazon')
             {
-                $AmazonSettings = self::getAmazonSettings();
+                $AmazonSettings = self::getAmazonSettings($CompanyID);
                 $bucket = $AmazonSettings['AWS_BUCKET'];
 
                 // Get a command object from the client and pass in any options
@@ -188,14 +188,14 @@ class AmazonS3 {
             }
     }
 
-    static function unSignedUrl($key=''){
-        $s3 = self::getS3Client();
-        $Uploadpath = CompanyConfiguration::get('UPLOAD_PATH') . '/' .$key;
+    static function unSignedUrl($key='',$CompanyID=0){
+        $s3 = self::getS3Client($CompanyID);
+        $Uploadpath = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID) . '/' .$key;
 
         if ( file_exists($Uploadpath) ) {
             return $Uploadpath;
         } elseif(self::$isAmazonS3=='Amazon') {
-            $AmazonSettings = self::getAmazonSettings();
+            $AmazonSettings = self::getAmazonSettings($CompanyID);
             $bucket = $AmazonSettings['AWS_BUCKET'];
             $unsignedUrl = $s3->getObjectUrl($bucket, $key);
             return $unsignedUrl;
@@ -204,7 +204,7 @@ class AmazonS3 {
         }
     }
 
-    static function unSignedImageUrl($key=''){
+    static function unSignedImageUrl($key='',$CompanyID=0){
 
         /*$s3 = self::getS3Client();
 
@@ -219,7 +219,7 @@ class AmazonS3 {
         }
         return self::unSignedUrl($key);*/
 
-        $imagepath=self::preSignedUrl($key);
+        $imagepath=self::preSignedUrl($key,$CompanyID);
         if(file_exists($imagepath)){
             return  get_image_data($imagepath);
         }
@@ -232,15 +232,15 @@ class AmazonS3 {
 
     }
 
-    static function delete($file){
+    static function delete($file,$CompanyID=0){
         $return=false;
         if(strlen($file)>0) {
             // Instantiate an S3 client
-            $s3 = self::getS3Client();
+            $s3 = self::getS3Client($CompanyID);
 
             //When no amazon ;
 
-                $Uploadpath = CompanyConfiguration::get('UPLOAD_PATH') . "/"."".$file;
+                $Uploadpath = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID) . "/"."".$file;
                 if ( file_exists($Uploadpath) ) {
                     @unlink($Uploadpath);
                     if(self::$isAmazonS3=="NoAmazon")
@@ -251,7 +251,7 @@ class AmazonS3 {
 
             if(self::$isAmazonS3=="Amazon")
             {
-                 $AmazonSettings  = self::getAmazonSettings();
+                 $AmazonSettings  = self::getAmazonSettings($CompanyID);
                  $bucket 		 = $AmazonSettings['AWS_BUCKET'];
                 // Upload a publicly accessible file. The file size, file type, and MD5 hash
                 // are automatically calculated by the SDK.

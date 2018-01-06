@@ -20,6 +20,12 @@ class Product extends \Eloquent {
 
     const DYNAMIC_TYPE = 'product';
 
+    const Customer = 0;
+    const Reseller = 1;
+
+    public static $AppliedTo = array(self::Customer=>"Customer",self::Reseller=>"Reseller");
+    public static $ALLAppliedTo = array(''=>'Select',self::Customer=>"Customer",self::Reseller=>"Reseller");
+
     static public function checkForeignKeyById($id) {
         $hasAccountApprovalList = InvoiceDetail::where("ProductID",$id)->count();
         if( intval($hasAccountApprovalList) > 0){
@@ -29,16 +35,21 @@ class Product extends \Eloquent {
         }
     }
 
-    public static function getProductDropdownList(){
+    public static function getProductDropdownList($CompanyID=0,$AppliedTo=0){
 
         //Items
         if (self::$enable_cache && Cache::has('product_dropdown1_cache')) {
             $admin_defaults = Cache::get('product_dropdown1_cache');
             self::$cache['product_dropdown1_cache'] = $admin_defaults['product_dropdown1_cache'];
         } else {
-            $CompanyId = User::get_companyID();
-            self::$cache['product_dropdown1_cache'] = Product::where("CompanyId",$CompanyId)->where("Active",1)->lists('Name','ProductID');
-            self::$cache['product_dropdown1_cache'] = self::$cache['product_dropdown1_cache'];
+            $CompanyID = $CompanyID>0 ? $CompanyID : User::get_companyID();
+            if($AppliedTo==="All"){
+                $Where = ["CompanyId"=>$CompanyID];
+            }else{
+                $Where = ["CompanyId"=>$CompanyID,"AppliedTo"=>$AppliedTo];
+            }
+            self::$cache['product_dropdown1_cache'] = Product::where($Where)->where("Active",1)->lists('Name','ProductID');
+            Cache::forever('product_dropdown1_cache', array('product_dropdown1_cache' => self::$cache['product_dropdown1_cache']));
         }
         $list = array();
         $list = self::$cache['product_dropdown1_cache'];
@@ -50,6 +61,7 @@ class Product extends \Eloquent {
 
     }
 
+    //not using
     public static function validate($data){
         $rules = array(
             'CompanyID' => 'required',

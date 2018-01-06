@@ -133,7 +133,7 @@
                 <div class="form-group">
                     <label class="col-md-2 control-label">Vendor</label>
                     <div class="col-md-4">
-                        <div class="make-switch switch-small">
+                        <div class="make-switch switch-small" id="desablevendor">
                             <input type="checkbox" name="IsVendor"  @if($account->IsVendor == 1 )checked=""@endif value="1">
                         </div>
                     </div>
@@ -146,8 +146,21 @@
                 <div class="form-group">
                     <label class="col-md-2 control-label">Customer</label>
                     <div class="col-md-4">
-                        <div class="make-switch switch-small">
+                        <div class="make-switch switch-small" id="desablecustomer">
                             <input type="checkbox" @if($account->IsCustomer == 1 )checked="" @endif name="IsCustomer" value="1">
+                        </div>
+                    </div>
+
+                    <label for="field-1" class="col-md-2 control-label">Employee</label>
+                    <div class="col-md-4">
+                        <input type="text" name="Employee" class="form-control" id="field-1" placeholder="" value="{{$account->Employee}}" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label">Reseller</label>
+                    <div class="col-md-4">
+                        <div class="make-switch switch-small" id="desablereseller">
+                            <input type="checkbox" @if($account->IsReseller == 1 )checked="" @endif name="IsReseller" value="1">
                         </div>
                     </div>
 
@@ -673,7 +686,32 @@
     var readonly = ['Company','Phone','Email','ContactName'];
     var BillingChanged;
     var FirstTimeTrigger = true;
+    var ResellerCount = '{{$ResellerCount}}';
     jQuery(document).ready(function ($) {
+        if($('[name="IsReseller"]').prop("checked") == true){
+            $('[name="IsCustomer"]').prop("checked", false).trigger('change');
+            $('[name="IsVendor"]').prop("checked", false).trigger('change');
+            $("#desablecustomer").addClass('deactivate');
+            $("#desablevendor").addClass('deactivate');
+            $("#desablereseller").addClass('deactivate');
+        }else{
+            $("#desablecustomer").removeClass('deactivate');
+            $("#desablevendor").removeClass('deactivate');
+        }
+
+        if(ResellerCount==0){
+            $('[name="IsReseller"]').on("change",function(e){
+                if($('[name="IsReseller"]').prop("checked") == true){
+                    $('[name="IsCustomer"]').prop("checked", false).trigger('change');
+                    $('[name="IsVendor"]').prop("checked", false).trigger('change');
+                    $("#desablecustomer").addClass('deactivate');
+                    $("#desablevendor").addClass('deactivate');
+                }else{
+                    $("#desablecustomer").removeClass('deactivate');
+                    $("#desablevendor").removeClass('deactivate');
+                }
+            });
+        }
 		//account status start
         $('.acountclitable').DataTable({"aaSorting":[[1, 'asc']],"fnDrawCallback": function() {
             $(".dataTables_wrapper select").select2({
