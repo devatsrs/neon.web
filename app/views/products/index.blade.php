@@ -378,7 +378,7 @@
                                     $('#add-edit-product-form [name="Active"]').prop('checked',false)
                                 }
                             }else if(list_fields[i] == 'AppliedTo'){
-                                $("#add-new-billing_subscription-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
+                                $("#add-edit-product-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
                             }else{
                                 $("#add-edit-product-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                             }

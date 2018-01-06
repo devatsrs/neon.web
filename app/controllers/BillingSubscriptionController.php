@@ -57,6 +57,7 @@ class BillingSubscriptionController extends \BaseController {
         unset($data['SubscriptionID']);
         unset($data['SubscriptionClone']);
         $data['CreatedBy'] = User::get_user_full_name();
+        $data["AppliedTo"] = empty($data['AppliedTo']) ? BillingSubscription::Customer : $data['AppliedTo'];
         $rules = array(
             'CompanyID' => 'required',
             'Name' => 'required|unique:tblBillingSubscription,Name,NULL,SubscriptionID,CompanyID,'.$data['CompanyID'].',AppliedTo,'.$data['AppliedTo'],

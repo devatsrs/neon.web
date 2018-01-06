@@ -110,6 +110,7 @@ class ProductsController extends \BaseController {
         $data ["CompanyID"] = $companyID;
         $data['Active'] = isset($data['Active']) ? 1 : 0;
         $data["CreatedBy"] = User::get_user_full_name();
+        $data["AppliedTo"] = empty($data['AppliedTo']) ? Product::Customer : $data['AppliedTo'];
 
         unset($data['ProductID']);
         unset($data['ProductClone']);
