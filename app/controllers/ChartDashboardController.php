@@ -208,7 +208,7 @@ class ChartDashboardController extends BaseController {
             $count++;
         }
         if(empty($html)){
-            $html = '<tr><td colspan="'.($data['Type'] == 'call_cost'?5:4).'" valign="top">No data available in table</td></tr>';
+            $html = '<tr><td colspan="'.($data['Type'] == 'call_cost'?5:4).'" valign="top">'.Lang::get("routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_NO_DATA").'</td></tr>';
         }
         $response['html'] = $html;
         return $response;

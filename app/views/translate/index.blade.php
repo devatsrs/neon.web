@@ -169,6 +169,10 @@
             var label=$(ele).parent().find("label");
             var text_val=$(ele).val();
             var language=$(ele).attr("data-languages");
+            if(text_val==""){
+                $(ele).val(label.html());
+                return false;
+            }
             if(label.html() != text_val){
                 label.html(text_val);
                 if(language=="en"){

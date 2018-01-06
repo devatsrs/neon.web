@@ -131,7 +131,7 @@ private $validlicense;
 		{
 			//if(isset($data['SearchStr']) && $data['SearchStr']!='' && $data['currentpage']==0){
 				
-				return json_encode(array("result"=>"No Result "));
+				return json_encode(array( "result" => Lang::get('routes.CUST_PANEL_PAGE_TICKETS_FILTER_FIELD_SEARCH') ));
 			/*}else{			
 				return '';
 			}*/

@@ -75,7 +75,9 @@ class TranslateController extends \BaseController {
 
 
         $request = Input::all();
-
+        if($request["value"]==""){
+            return json_encode(["status" => "fail", "message" => "Required Translation"]);
+        }
         $data_langs = $this->get_language_translation($request["language"]);
 //        dd(DB::getQueryLog());
 
@@ -171,7 +173,7 @@ class TranslateController extends \BaseController {
             $this->create_language_file($data_langs->ISOCode,$translation_data);
             return json_encode(["status" => "success", "message" => "Add Successfully"]);
         }else{
-            return json_encode(["status" => "fail", "message" => "Please Try Again"]);
+            return json_encode(["status" => "fail", "message" => "System Name already exist."]);
         }
     }
 

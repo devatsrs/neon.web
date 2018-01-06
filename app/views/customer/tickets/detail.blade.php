@@ -172,7 +172,7 @@
       <form id="add-note-form" method="post">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">Add Note</h4>
+          <h4 class="modal-title">Add Note1</h4>
         </div>
         <div class="modal-body">
           <div class="row">
@@ -341,11 +341,12 @@ $(document).ready(function(e) {
 					var index_file = emailFileListReply.indexOf(f.name);
 					if(index_file >-1 )
 					{
-						ShowToastr("error",f.name+" file already selected.");							
+						ShowToastr("error",f.name+" @lang('routes.CUST_PANEL_PAGE_TICKETS_MSG_FILE_ALREADY_SELECTED')");
 					}
 					else if(bytesToSize(f.size))
 					{						
-						ShowToastr("error",f.name+" file size exceeds then upload limit ("+max_file_size_txt+"). Please select files again.");						
+//						ShowToastr("error",f.name+" file size exceeds then upload limit ("+max_file_size_txt+"). Please select files again.");
+						ShowToastr("error","@lang('routes.CUST_PANEL_PAGE_TICKETS_MSG_MAX_FILE_SIZE_ERROR') "+max_file_size_txt);
 						file_check = 0;
 						 return false;
 						
@@ -357,7 +358,7 @@ $(document).ready(function(e) {
 				}
 				else
 				{
-					ShowToastr("error",ext_current_file+" file type not allowed.");
+					ShowToastr("error",ext_current_file+" @lang('routes.CUST_PANEL_PAGE_TICKETS_MSG_FILE_TYPE_NOT_ALLOWED')");
 					
 				}
         });
