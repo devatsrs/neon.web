@@ -37,9 +37,9 @@ class SiteIntegration{
 	 * Get support settings return current active support
 	 */
 
-	public function SetSupportSettings($type,$data){
+	public function SetSupportSettings($type,$data,$companyID=0){
 		
-		if(self::CheckIntegrationConfiguration(false,SiteIntegration::$freshdeskSlug)){		
+		if(self::CheckIntegrationConfiguration(false,SiteIntegration::$freshdeskSlug,$companyID)){
 			$this->support = new Freshdesk($data);
 		}		
 	}
