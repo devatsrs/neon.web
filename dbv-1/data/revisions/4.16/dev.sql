@@ -74,6 +74,27 @@ CREATE TABLE `tblVendorRateChangeLog` (
 COLLATE='utf8_unicode_ci'
 ENGINE=InnoDB;
 
+
+RENAME TABLE `tblTicketLog` TO `tblTicketLog__OLD`;
+RENAME TABLE `tblTicketDashboardTimeline` TO `tblTicketDashboardTimeline__OLD`;
+
+CREATE TABLE `tblTicketLog` (
+	`TicketLogID` INT(11) NOT NULL AUTO_INCREMENT,
+	`CompanyID` INT(11) NULL DEFAULT NULL,
+	`TicketID` INT(11) NULL DEFAULT NULL,
+	`ParentID` INT(11) NULL DEFAULT NULL,
+	`ParentType` VARCHAR(50) NULL DEFAULT NULL COMMENT 'Account, Contact, User, System' COLLATE 'utf8_unicode_ci',
+	`Action` VARCHAR(50) NULL DEFAULT NULL COMMENT 'Created , Replied by cust / user ,  status changdd , note added' COLLATE 'utf8_unicode_ci',
+	`ActionText` VARCHAR(500) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`created_at` DATETIME NULL DEFAULT NULL,
+	PRIMARY KEY (`TicketLogID`),
+	INDEX `CompanyID` (`CompanyID`),
+	INDEX `TicketID` (`TicketID`)
+)
+	COLLATE='utf8_unicode_ci'
+	ENGINE=InnoDB
+;
+
 /*
 manually add all vendor rate upload procedures
 Vendor Rate 
@@ -7878,6 +7899,188 @@ CREATE PROCEDURE `prc_DeleteTicketGroup`(
 		DELETE FROM tblTicketGroups where GroupID = p_GroupID AND CompanyID = p_CompanyID;
 
 		SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+	END//
+DELIMITER ;
+
+
+
+DROP PROCEDURE IF EXISTS `prc_TicketCheckRepeatedEmails`;
+DELIMITER //
+CREATE PROCEDURE `prc_TicketCheckRepeatedEmails`(
+	IN `p_CompanyID` INT,
+	IN `p_Email` VARCHAR(100)
+
+)
+	BEGIN
+
+
+		DECLARE v_limit_records INT ;
+
+		SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+
+		SET @minutes = null;
+		SET @minutes_limit = 5;
+
+		SET v_limit_records  = 5;
+
+		SET @isAlreadyBlocked = 0;
+		SET @block = 0;
+
+		select count(ir.TicketImportRuleID) into @isAlreadyBlocked
+		from tblTicketImportRule  ir
+			inner join tblTicketImportRuleCondition irc on irc.TicketImportRuleID = ir.TicketImportRuleID
+			inner join tblTicketImportRuleConditionType irct on irc.TicketImportRuleConditionTypeID = irct.TicketImportRuleConditionTypeID
+		where
+			ir.CompanyID = p_CompanyID AND
+			irct.`Condition` = 'from_email'  AND
+			irc.operand = 'is' AND
+			irc.Value = p_Email;
+
+		IF @isAlreadyBlocked > 0 THEN
+
+			SET @isAlreadyBlocked = 1;
+
+		END IF;
+
+
+		select count(AccountEmailLogID) into @hasMoreThan5Emails from AccountEmailLog
+		where
+			CompanyID  = p_CompanyID AND
+			Emailfrom = p_Email
+		order by AccountEmailLogID desc
+		limit v_limit_records;
+
+
+		IF @isAlreadyBlocked = 0 AND @hasMoreThan5Emails >= v_limit_records THEN
+
+			SELECT
+				-- min(created_at) , max(created_at) ,
+				TIMESTAMPDIFF( MINUTE, min(created_at), max(created_at) )  into @minutes
+			FROM
+				(
+					select created_at from AccountEmailLog
+					where
+						CompanyID  = p_CompanyID AND
+						Emailfrom = p_Email
+					order by AccountEmailLogID desc
+					limit v_limit_records
+				) tmp;
+
+
+
+		END IF;
+
+		-- show minutes
+		IF @minutes <=  @minutes_limit THEN
+
+			SET @block = 1; -- block
+
+		ELSE
+
+			SET @block = 0; -- dont block
+
+		END IF ;
+
+		SELECT @block as block , @isAlreadyBlocked as isAlreadyBlocked;
+
+
+		SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+
+	END//
+DELIMITER ;
+
+
+
+DELIMITER //
+CREATE PROCEDURE `prc_GetTicketDashboardTimeline`(
+	IN `p_CompanyID` INT,
+	IN `P_Group` INT,
+	IN `P_Agent` INT,
+	IN `p_Time` DATETIME,
+	IN `p_TicketID` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowsPage` INT
+
+
+
+
+
+)
+	BEGIN
+
+
+		SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+
+
+		SELECT
+
+			tl.TicketID,
+
+			tl.ParentID,
+
+			tl.ParentType,
+
+			CASE WHEN tl.ParentType = 1  AND  a.AccountName is not null THEN
+				a.AccountName
+
+			WHEN  tl.ParentType = 2  AND  c.FirstName is not null THEN
+
+				concat (c.FirstName ,  ' ' , c.LastName)
+
+			WHEN  tl.ParentType = 3  AND  u.FirstName is not null THEN
+
+				concat (u.FirstName ,  ' ' , u.LastName)
+			ELSE
+
+				'System'
+
+			END as UserName  ,
+
+			tl.`Action`,
+
+			tl.ActionText,
+
+			tl.created_at
+
+		FROM tblTicketLog tl
+
+			inner join tblTickets t on tl.TicketID = t.TicketID
+
+			left join tblAccount a on tl.ParentType = 1  AND a.AccountID = tl.ParentID  -- 1 = Account
+
+			left join tblContact c on tl.ParentType = 2  AND c.ContactID = tl.ParentID  -- 2 = Contact
+
+			left join tblUser u on tl.ParentType = 3  AND u.UserID = tl.ParentID  -- 3 = User
+
+		WHERE (P_Agent = 0 OR t.Agent = p_Agent)
+
+					AND(P_Group = 0 OR t.`Group` = p_Group)
+
+					AND (p_TicketID = 0 OR (tl.TicketID = p_TicketID))
+
+					AND tl.CompanyID = p_CompanyID
+
+					AND
+					(
+						a.AccountID is not null OR
+
+						c.ContactID is not null OR
+
+						u.UserID is not null
+
+					)
+
+		ORDER BY created_at DESC
+
+		LIMIT p_RowsPage OFFSET p_PageNumber;
+
+
+		SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
 
 	END//
 DELIMITER ;

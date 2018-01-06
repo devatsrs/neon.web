@@ -2006,7 +2006,11 @@ function table_array($data,$response,$all_data_list){
                 $table_data['columns'][$i][$fincalcol_key . $col_seprator]['colspan'] = ${'new_count_colspan_' . $fincalcol_key . $col_seprator};
             }
         }
-        $columns_keys = array_keys($table_data['columns'][count($table_data['columns']) - 2]);
+        if(count($table_data['columns']) > 2){
+            $columns_keys = array_keys($table_data['columns'][count($table_data['columns']) - 2]);
+        }else{
+            $columns_keys = array_keys($table_data['columns'][count($table_data['columns']) - 1]);
+        }
 
         foreach ($table_data['data'] as $key => $table_row){
             $table_new_row = array();
@@ -2059,7 +2063,11 @@ function table_html($data,$table_data){
                     
                     $table_header_colgroup .= '<colgroup span="' . $row_val['colspan'] . '" style="background-color:' . $color. '"></colgroup>';
                 }
-                $table_header .= '<th colspan="' .$row_val['colspan'] . '" scope="colgroup"><strong>' . $row_val['name'] . '</strong></th>';
+                if(isset($row_val['name'])){
+                    $table_header .= '<th colspan="' .$row_val['colspan'] . '" scope="colgroup"><strong>' . $row_val['name'] . '</strong></th>';
+                }else{
+                    $table_header .= '<th colspan="' .$row_val['colspan'] . '" scope="colgroup"><strong></strong></th>';
+                }
                 $index_col++;
             }
 
@@ -2463,4 +2471,20 @@ function is_apply_total($col_name){
 function report_tables_dropbox($id=0,$CompanyID){
     $all_getRateTables = Report::getDropdownIDList($CompanyID);
     return Form::select('rategenerators', $all_getRateTables, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+
+
+function get_account_view_url($AccountID) {
+
+    return URL::to('accounts/'.$AccountID.'/show');
+}
+
+function get_contact_view_url($ContactID) {
+
+    return URL::to('contacts/'.$ContactID.'/show');
+}
+
+function get_user_edit_url($UserID) {
+
+    return URL::to('users/edit/'.$UserID);
 }
