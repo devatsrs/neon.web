@@ -22,9 +22,11 @@ COLLATE='utf8_unicode_ci'
 ENGINE=InnoDB
 ;
 
-ALTER TABLE `tblCompanyConfiguration`
-	DROP INDEX `Key_INDEX`,
-	ADD UNIQUE INDEX `Key_INDEX` (`Key`, `CompanyID`);
+ALTER TABLE `tblAccount`
+	ADD COLUMN `IsReseller` TINYINT(1) NULL DEFAULT NULL AFTER `IsCustomer`;
+
+ALTER TABLE `tblCompanyConfiguration`	
+	ADD UNIQUE INDEX `Key_CompanyConfiguration_INDEX` (`Key`, `CompanyID`);
 	
 DROP PROCEDURE IF EXISTS `prc_GetAllResourceCategoryByUser`;
 DELIMITER //
