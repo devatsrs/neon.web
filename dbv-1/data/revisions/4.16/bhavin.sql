@@ -907,6 +907,11 @@ BEGIN
 		
 		INSERT INTO tblReseller(ResellerName,CompanyID,ChildCompanyID,AccountID,FirstName,LastName,Email,Password,Status,AllowWhiteLabel,created_at,updated_at,created_by)
 		SELECT p_accountname as ResellerName,p_companyid as CompanyID,p_childcompanyid as ChildCompanyID,p_accountid as AccountID,p_firstname as FirstName,p_lastname as LastName,p_email as Email,p_password as Password,'1' as Status,p_allowwhitelabel as AllowWhiteLabel,Now(),Now(),'system' as created_by;
+		
+		INSERT INTO tblCompanySetting(`CompanyID`,`Key`,`Value`)
+		SELECT p_childcompanyid as `CompanyID`,`Key`,`Value` 
+		FROM tblCompanySetting
+		WHERE CompanyID = p_companyid AND `Key`='RoundChargesAmount';
 
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
