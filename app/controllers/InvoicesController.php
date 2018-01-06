@@ -2259,7 +2259,7 @@ class InvoicesController extends \BaseController {
         $stripedata['currency'] = strtolower($data['CurrencyCode']);
         $stripedata['description'] = $data['FullInvoiceNumber'].' (Invoice) Payment';
 
-        $stripepayment = new StripeBilling();
+        $stripepayment = new StripeBilling($Invoice->CompanyID);
 
         if(empty($stripepayment->status)){
             return Response::json(array("status" => "failed", "message" => "Stripe Payment not setup correctly"));
