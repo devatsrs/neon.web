@@ -20,8 +20,38 @@
 </p>
 </div>-->
 <br>
-<div class="btn btn-primary btn-lg">Current Version: <strong>v4.15</strong></div>
+<div class="btn btn-primary btn-lg">Current Version: <strong>v4.16</strong></div>
 <br>
+<h2>
+    <span class="label label-success">4.16</span> &nbsp; Version Highlights
+</h2>
+<div class="col-md-12">
+    <div class="row">
+        <ul class="version-highlights full-width">
+            <li>
+                <div class="notes full-width ">
+                    <h3>ChangeLog</h3>
+                    <h4>09-01-2017</h4>
+                    01. Added Resellers Billing.<br>
+                    02. Added option to Review Vendor Rates before uploading.<br>
+                    03. Added integration with Voip Now.<br>
+                    04. Added option to export reports under ‘Reports’.<br>
+                    05. Added option to schedule reports under ‘Reports’.<br>
+                    06. Added new dimensions and measures under ‘Reports’.<br>
+                    07. Added Management Reports option under Invoice Template.<br>
+                    08. Added new gateway type ‘VOS5000’.<br>
+                    09. Added invoice period from  and to placeholders under Email Templates.<br>
+                    10. Added Account First and Last Name placeholders under Invoice Template.<br>
+                    11. Added option to re run previous days summary.<br>
+                    12. Improved Ticketing section.<br>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+</div>
+<div class="clear"></div>
+
 <h2>
     <span class="label label-success">4.15</span> &nbsp; Version Highlights
 </h2>
