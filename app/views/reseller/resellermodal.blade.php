@@ -65,7 +65,7 @@
 @section('footer_ext')
     @parent
     <div class="modal fade" id="add-new-modal-reseller">
-        <div class="modal-dialog" style="width: 45%;">
+        <div class="modal-dialog" style="width: 65%;">
             <div class="modal-content">
                 <form id="add-new-reseller-form" method="post">
                     <div class="modal-header">
@@ -191,7 +191,7 @@
     </div>
     <!-- reseller copy data form -->
     <div class="modal fade" id="selected-reseller-copy">
-        <div class="modal-dialog" style="width: 45%;">
+        <div class="modal-dialog" style="width: 65%;">
             <div class="modal-content">
                 <form id="selected-reseller-copy-form" method="post">
                     <div class="modal-header">
