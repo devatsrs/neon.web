@@ -56,17 +56,18 @@
         <thead>
         <tr>
             <th width="20%">Name</th>
-            <th width="20%">Period </th>
-            <th width="20%">Last Run Time </th>
-            <th width="20%">Next Run Time</th>
-            <th width="20%">Action</th>
+            <th width="20%">Reports</th>
+            <th width="15%">Period </th>
+            <th width="15%">Last Run Time </th>
+            <th width="15%">Next Run Time</th>
+            <th width="15%">Action</th>
         </tr>
         </thead>
         <tbody>
         </tbody>
     </table>
     <script type="text/javascript">
-        var list_fields_index  = ["Name","ReportID","Status","Settings","ReportScheduleID"];
+        var list_fields_index  = ["Name","ReportName","Status","Settings","ReportScheduleID","ReportID"];
 
         var $search = {};
         var report_add_url = baseurl + "/report/add_schedule";
@@ -76,7 +77,7 @@
         var report_datagrid_url = baseurl + "/report/ajax_schedule_datagrid/type";
         jQuery(document).ready(function ($) {
             $('#filter-button-toggle').show();
-
+            $search.Name = $('#report_filter [name="Name"]').val();
             data_table = $("#table-4").dataTable({
                 "bDestroy": true,
                 "bProcessing": true,
@@ -93,6 +94,7 @@
                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "aaSorting": [[0, 'asc']],
                 "aoColumns": [
+                    {"bSortable": true},  // 1 Email Addresses
                     {"bSortable": true},  // 1 Email Addresses
                     {                        // 9 Action
                         "bSortable": false,
