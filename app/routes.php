@@ -67,6 +67,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('customer/customers_rates/rate', 'RateCustomerController@index');
 	Route::any('customer/customers_rates/inboundrate', 'RateCustomerController@inboundrate');
 	Route::any('customer/customers_rates/{id}/search_inbound_ajax_datagrid/{type}', 'RateCustomerController@search_inbound_ajax_datagrid');
+	Route::any('customer/customers_rates/servicerate', 'RateCustomerController@servicerate');
+	Route::any('customer/customers_rates/{id}/search_service_ajax_datagrid/{type}', 'RateCustomerController@search_service_ajax_datagrid');
 
 	//notification
 	Route::any('customer/notification', 'NotificationCustomerController@index');
@@ -1322,6 +1324,21 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rate_compare/search_ajax_datagrid/{type}', 'RateCompareController@search_ajax_datagrid');
 	Route::any('/rate_compare/rate_update', 'RateCompareController@rate_update');
 	Route::any('/rate_compare/load_account_dropdown', 'RateCompareController@load_account_dropdown');
+
+	// services
+	Route::any('reseller', 'ResellerController@index');
+	Route::any('reseller/ajax_datagrid', 'ResellerController@ajax_datagrid');
+	Route::any('reseller/store', 'ResellerController@store');
+	Route::any('reseller/update/{id}', 'ResellerController@update');
+	Route::any('reseller/delete/{id}', 'ResellerController@delete');
+	Route::any('reseller/exports/{type}', 'ResellerController@exports');
+	Route::any('reseller/view/{id}', 'ResellerController@view');
+	Route::any('reseller/bulkcopydata', 'ResellerController@bulkcopydata');
+
+	//Reseller
+	Route::any('reseller/profile', array('as' => 'profile_show', 'uses' => 'ResellerProfileController@show'));
+	Route::any('reseller/profile/edit', array('as' => 'profile_edit', 'uses' => 'ResellerProfileController@edit'));
+	Route::any('reseller/profile/update', array('as' => 'profile_update', 'uses' => 'ResellerProfileController@update'));
 });
 
 Route::group(array('before' => 'global_admin'), function () {
@@ -1343,6 +1360,9 @@ Route::group(array('before' => 'guest'), function () {
     Route::get('customer/login', array("as" => "customerhome", "uses" => "HomeCustomerController@home"));
     Route::any('customer/dologin', 'HomeCustomerController@dologin');
     Route::get('customer/logout', array("as" => "logoutCustomer", "uses" => "HomeCustomerController@dologout"));
+	Route::get('reseller/login', array("as" => "resellerhome", "uses" => "HomeResellerController@home"));
+	Route::any('reseller/dologin', 'HomeResellerController@dologin');
+	Route::get('reseller/logout', array("as" => "logoutreseller", "uses" => "HomeResellerController@dologout"));
     Route::get('/login', array("as" => "home", "uses" => "HomeController@home"));
     Route::any('dologin', 'HomeController@dologin');
     Route::get('/forgot_password', array("as" => "home", "uses" => "HomeController@forgot_password"));

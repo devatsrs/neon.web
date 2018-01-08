@@ -18,9 +18,9 @@ class AuthorizeNet {
 
     public $request;
 
-    function __Construct(){
+    function __Construct($CompanyID=0){
 		
-		$AuthorizeData 						= 	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$AuthorizeSlug); 
+		$AuthorizeData 						= 	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$AuthorizeSlug,$CompanyID);
 		if($AuthorizeData){	
 			$AUTHORIZENET_API_LOGIN_ID  	= 	isset($AuthorizeData->AuthorizeLoginID)?$AuthorizeData->AuthorizeLoginID:'';		
 			$AUTHORIZENET_TRANSACTION_KEY  	= 	isset($AuthorizeData->AuthorizeTransactionKey)?$AuthorizeData->AuthorizeTransactionKey:'';

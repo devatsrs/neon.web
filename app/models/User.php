@@ -30,6 +30,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
      */
     protected $hidden = array('password');
 
+    // customer login
     public static function user_login($data = array()){
         if(!empty($data) && isset($data["email"]) && isset($data["password"]) ){
             Config::set('auth.model', 'Customer');
@@ -60,7 +61,6 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         return false;
 
     }
-
 
     public static function checkPermission($resource, $abort = true) {
 
@@ -123,6 +123,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         return $this->EmailAddress;
     }
 
+    // not using
     public function login($email, $password) {
 
         if (empty($email))
@@ -166,12 +167,21 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         if(Auth::guest()){
             return $CompanyID = SiteIntegration::GetComapnyIdByKey();
         }else {
+            /*
+            $customer=Session::get('customer');
+            //$reseller=Session::get('reseller');
+            if($customer==1){
+                return $CompanyID = Customer::get_companyID();
+            }else{
+                return Auth::user()->CompanyID;
+            }*/
             return $CompanyID = Session::get('customer')==1?Customer::get_companyID():Auth::user()->CompanyID;
         }
     }
 
     public static function get_userID(){
         $customer=Session::get('customer');
+        //$reseller=Session::get('reseller');
         if($customer==1){
             return Customer::get_accountID();
         }
@@ -180,6 +190,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 
     public static function get_user_full_name(){
         $customer=Session::get('customer');
+        //$reseller=Session::get('reseller');
         if($customer==1){
             return Customer::get_user_full_name();
         }

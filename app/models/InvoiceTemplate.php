@@ -22,13 +22,13 @@ class InvoiceTemplate extends \Eloquent {
     public static $cache = array(
         "it_dropdown1_cache",
     );
-    public static function getInvoiceTemplateList() {
+    public static function getInvoiceTemplateList($CompanyID=0) {
 
         if (self::$enable_cache && Cache::has('it_dropdown1_cache')) {
             $admin_defaults = Cache::get('it_dropdown1_cache');
             self::$cache['it_dropdown1_cache'] = $admin_defaults['it_dropdown1_cache'];
         } else {
-            $CompanyId = User::get_companyID();
+            $CompanyId = $CompanyID>0 ? $CompanyID : User::get_companyID();
             self::$cache['it_dropdown1_cache'] = InvoiceTemplate::where("CompanyId",$CompanyId)->lists('Name','InvoiceTemplateID');
             self::$cache['it_dropdown1_cache'] = array('' => "Select")+ self::$cache['it_dropdown1_cache'];
             Cache::forever('it_dropdown1_cache', array('it_dropdown1_cache' => self::$cache['it_dropdown1_cache']));

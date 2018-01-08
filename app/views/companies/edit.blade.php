@@ -341,6 +341,8 @@
                 </div>
             </div>
 
+            @if(empty(is_reseller()))
+
             @if(isset($COMPANY_SSH_VISIBLE) && $COMPANY_SSH_VISIBLE == 1)
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
@@ -415,6 +417,8 @@
                           </div>
                   </div>
             </div>
+
+            @endif
 
         </form>
     </div>

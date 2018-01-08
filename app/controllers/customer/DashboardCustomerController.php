@@ -151,11 +151,11 @@ class DashboardCustomerController extends BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($exportType=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$typeText[$data['Type']].'.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID) .'/'.$typeText[$data['Type']].'.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($exportType=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$typeText[$data['Type']].'.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID) .'/'.$typeText[$data['Type']].'.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -167,12 +167,14 @@ class DashboardCustomerController extends BaseController {
 
     public function daily_report($id=0){
 
-        $companyID = User::get_companyID();
+        $AccountID = !empty($id)?$id:Customer::get_accountID();
+        $companyID = Account::where("AccountID",$AccountID)->pluck('CompanyId');
+        //$companyID = User::get_companyID();
         $DefaultCurrencyID = Company::where("CompanyID", $companyID)->pluck("CurrencyId");
         $original_startdate = date('Y-m-d', strtotime('-1 week'));
         $original_enddate = date('Y-m-d');
 
-        $AccountID = !empty($id)?$id:Customer::get_accountID();
+
         $extends = !empty($id)?'layout.main':'layout.customer.main';
         return View::make('customer.daily_report', compact('DefaultCurrencyID', 'original_startdate', 'original_enddate','AccountID','extends'));
 
@@ -261,7 +263,7 @@ class DashboardCustomerController extends BaseController {
 
     public function customer_rates_grid($type){
         $data       = Input::all();
-        $CompanyID  = User::get_companyID();
+        $CompanyID  = Customer::get_companyID();
         $CustomerID = Customer::get_accountID();
         $Trunks     = CustomerTrunk::getCustomerTrunk($CustomerID);
 
@@ -283,11 +285,11 @@ class DashboardCustomerController extends BaseController {
             $excel_data  = DB::select($query.',2)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Outbound Rates.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID) .'/Outbound Rates.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Outbound Rates.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID) .'/Outbound Rates.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

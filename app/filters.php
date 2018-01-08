@@ -41,6 +41,7 @@ Route::filter('auth', function()
 {
 	if (Auth::guest())
 	{
+        //log::info('reseller guest ');
 		if (Request::ajax())
 		{
             return Response::make('Unauthorized', 401);
@@ -50,6 +51,8 @@ Route::filter('auth', function()
             if ( !Request::ajax() && !Request::is('/') && !Request::is('login') && !Request::is('forgot_password') ) {
                 if (Request::is('customer/*')){
                     return Redirect::to('/customer/login?redirect_to=' . Request::url() );
+                }elseif(Request::is('reseller/*')) {
+                    return Redirect::to('/reseller/login?redirect_to=' . Request::url() );
                 }else{
                     return Redirect::to('/login?redirect_to=' . Request::url() );
                 }
@@ -63,8 +66,9 @@ Route::filter('auth', function()
          */
         $admin = Session::get('admin');
         $customer = Session::get('customer');
+        $reseller = Session::get('reseller');
 
-
+        //log::info('reseller session '.$reseller);
         $LicenceApiResponse = Company::getLicenceResponse();
 
 
@@ -79,8 +83,8 @@ Route::filter('auth', function()
                 /**
                  * When licence is not valid.
                  */
-
-                if($customer==1){
+                //log::info('reseller session When licence is not valid');
+                if($customer==1 || $reseller==1){
                     echo $LicenceApiResponse['Message'];
                     exit;
                 }else{
@@ -90,13 +94,17 @@ Route::filter('auth', function()
             }else{
 
                 //Licence is valid
-
+                //log::info('reseller session When licence is valid');
                 if(Request::is('customer/*')){
                     if($admin==1){
                         return Redirect::to('/process_redirect');
                     }
                     //return Redirect::to('customer/profile');
 
+                }elseif(Request::is('reseller/*')){
+                    if($admin==1){
+                        return Redirect::to('/process_redirect');
+                    }
                 }
                 else{
                     if($customer==1){

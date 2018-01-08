@@ -199,7 +199,7 @@ class PaymentsController extends \BaseController {
                 }
                 if($sendemail==1) {
                     $companyID = User::get_companyID();
-                    $PendingApprovalPayment = Notification::getNotificationMail(Notification::PendingApprovalPayment);
+                    $PendingApprovalPayment = Notification::getNotificationMail(Notification::PendingApprovalPayment,$companyID);
 
                     $PendingApprovalPayment = explode(',', $PendingApprovalPayment);
                     $data['EmailToName'] = Company::getName();
