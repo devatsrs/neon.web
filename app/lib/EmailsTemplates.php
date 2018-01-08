@@ -85,9 +85,13 @@ class EmailsTemplates{
 
 				if(!empty($InvoiceDetailPeriod) && isset($InvoiceDetailPeriod->StartDate)) {
 					$replace_array['PeriodFrom'] 			= 	 date('Y-m-d', strtotime($InvoiceDetailPeriod->StartDate));
+				} else {
+					$replace_array['PeriodFrom'] 			= 	 "";
 				}
 				if(!empty($InvoiceDetailPeriod) && isset($InvoiceDetailPeriod->EndDate)) {
 					$replace_array['PeriodTo'] 				= 	 date('Y-m-d', strtotime($InvoiceDetailPeriod->EndDate));
+				} else {
+					$replace_array['PeriodTo'] 				= 	 "";
 				}
 
 				$replace_array['InvoiceNumber']			=	 $InvoiceData->FullInvoiceNumber;		
