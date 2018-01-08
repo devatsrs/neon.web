@@ -67,7 +67,7 @@
         </tbody>
     </table>
     <script type="text/javascript">
-        var list_fields_index  = ["Name","ReportName","Status","Settings","ReportScheduleID","ReportID"];
+        var list_fields_index  = ["Name","ReportName","Status","Settings","ReportID","ReportScheduleID"];
 
         var $search = {};
         var report_add_url = baseurl + "/report/add_schedule";

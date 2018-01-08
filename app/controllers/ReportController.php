@@ -299,7 +299,7 @@ class ReportController extends \BaseController {
                 $NeonExcel->download_excel($excel_data);
             }
         }
-        $reports->select('tblReportSchedule.Name',DB::raw('(SELECT GROUP_CONCAT(tblReport.Name) FROM tblReport WHERE FIND_IN_SET(tblReport.ReportID,tblReportSchedule.ReportID)) as ReportName '),'tblReportSchedule.Status','tblReportSchedule.Settings','ReportScheduleID','tblReportSchedule.ReportID');
+        $reports->select('tblReportSchedule.Name',DB::raw('(SELECT GROUP_CONCAT(tblReport.Name) FROM tblReport WHERE FIND_IN_SET(tblReport.ReportID,tblReportSchedule.ReportID)) as ReportName '),'tblReportSchedule.Status','tblReportSchedule.Settings','tblReportSchedule.ReportID','ReportScheduleID');
 
         return Datatables::of($reports)->make();
     }
