@@ -14,13 +14,13 @@ class FideliPay {
 	var $Pin ;
 	var $FideliPayUrl ;
 
-    function __Construct(){
+    function __Construct($CompanyID=0){
 		
-		$FideliPayObj 						= 	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$FideliPaySlug);
+		$FideliPayObj 						= 	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$FideliPaySlug,$CompanyID);
 		if($FideliPayObj){	
 			$this->SourceKey 	            = 	$FideliPayObj->SourceKey;
             $this->Pin						= 	$FideliPayObj->Pin;
-            $FideliPayUrl                   = CompanyConfiguration::get('FIDELIPAY_WSDL_URL');
+            $FideliPayUrl                   = CompanyConfiguration::get('FIDELIPAY_WSDL_URL',$CompanyID);
             $this->FideliPayUrl				= 	$FideliPayUrl;
 			$this->status = true;			
 		}else{

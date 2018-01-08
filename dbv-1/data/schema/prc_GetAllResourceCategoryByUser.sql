@@ -1,4 +1,7 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetAllResourceCategoryByUser`(IN `p_CompanyID` INT, IN `p_userid` LONGTEXT)
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_GetAllResourceCategoryByUser`(
+	IN `p_CompanyID` INT,
+	IN `p_userid` LONGTEXT
+)
 BEGIN
 
     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
@@ -16,14 +19,19 @@ BEGIN
 		LEFT OUTER JOIN(
 			select distinct rescat.ResourceCategoryID, rescat.ResourceCategoryName,usrper.AddRemove
 			from tblResourceCategories rescat
-			inner join tblUserPermission usrper on usrper.resourceID = rescat.ResourceCategoryID and  FIND_IN_SET(usrper.UserID,p_userid) != 0 ) usrper
+			inner join tblUserPermission usrper on usrper.resourceID = rescat.ResourceCategoryID and  FIND_IN_SET(usrper.UserID,p_userid) != 0 
+			where usrper.CompanyID= p_CompanyID
+			) usrper
 			on usrper.ResourceCategoryID = rescat.ResourceCategoryID
+			
 	      LEFT OUTER JOIN(
 			select distinct rescat.ResourceCategoryID, rescat.ResourceCategoryName,'true' as Checked
 			from `tblResourceCategories` rescat
-			inner join `tblRolePermission` rolper on rolper.resourceID = rescat.ResourceCategoryID and rolper.roleID in(SELECT RoleID FROM `tblUserRole` where FIND_IN_SET(UserID,p_userid) != 0 )) rolres
+			inner join `tblRolePermission` rolper on rolper.resourceID = rescat.ResourceCategoryID and rolper.roleID in(SELECT RoleID FROM `tblUserRole` where FIND_IN_SET(UserID,p_userid) != 0 )
+			where rolper.CompanyID= p_CompanyID
+			) rolres
 			on rolres.ResourceCategoryID = rescat.ResourceCategoryID
-		where rescat.CompanyID= p_CompanyID;
+		;
 		
 		SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ; 
 END
