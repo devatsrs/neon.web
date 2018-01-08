@@ -280,26 +280,26 @@ class ReportController extends \BaseController {
     public function ajax_schedule_datagrid($type) {
 
         $CompanyID = User::get_companyID();
-        $reports = ReportSchedule::
-            select('Name','ReportID','Status','Settings','ReportScheduleID')
-            ->where("CompanyID", $CompanyID);
+        $reports = ReportSchedule::where("tblReportSchedule.CompanyID", $CompanyID);
         $data = Input::all();
         if(trim($data['Name']) != '') {
-            $reports->where('Name', 'like','%'.trim($data['Name']).'%');
+            $reports->where('tblReportSchedule.Name', 'like','%'.trim($data['Name']).'%');
         }
         if(isset($data['Export']) && $data['Export'] == 1) {
+            $reports->select('tblReportSchedule.Name',DB::raw('(SELECT GROUP_CONCAT(tblReport.Name) FROM tblReport WHERE FIND_IN_SET(tblReport.ReportID,tblReportSchedule.ReportID)) as Reports '),'tblReportSchedule.Status');
             $excel_data  = $reports->get();
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Reports.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Report Schedule.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Reports.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Report Schedule.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
         }
+        $reports->select('tblReportSchedule.Name',DB::raw('(SELECT GROUP_CONCAT(tblReport.Name) FROM tblReport WHERE FIND_IN_SET(tblReport.ReportID,tblReportSchedule.ReportID)) as ReportName '),'tblReportSchedule.Status','tblReportSchedule.Settings','tblReportSchedule.ReportID','ReportScheduleID');
 
         return Datatables::of($reports)->make();
     }
