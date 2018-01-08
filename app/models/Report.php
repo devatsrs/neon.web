@@ -271,16 +271,6 @@ class Report extends \Eloquent {
                 'TimeZone'=>'TimeZone',
                 'tags'=>'Tag',
             ),
-            'AccountBalance'=>array(
-                'SOAOffset' => 'Invoice Outstanding',
-                'UnbilledAmount' => 'Customer Unbilled Amount',
-                'VendorUnbilledAmount' => 'Vendor Unbilled Amount',
-                'BalanceAmount' => 'Account Exposure',
-                'AvailableCreditLimit'=>'Available Credit Limit',
-                'BalanceThreshold' => 'Balance Threshold',
-                'NetUnbilledAmount' => 'Unbilled Amount',
-                'PermanentCredit' => 'Permanent Credit',
-            ),
             'Owner'=>'Account Manager',
             'CurrencyID' =>'Currency Code',
         ),
@@ -343,6 +333,14 @@ class Report extends \Eloquent {
         ),
         'account'=>array(
             'AccountID' => 'Count',
+            'SOAOffset' => 'Invoice Outstanding',
+            'UnbilledAmount' => 'Customer Unbilled Amount',
+            'VendorUnbilledAmount' => 'Vendor Unbilled Amount',
+            'BalanceAmount' => 'Account Exposure',
+            'AvailableCreditLimit'=>'Available Credit Limit',
+            'BalanceThreshold' => 'Balance Threshold',
+            'NetUnbilledAmount' => 'Unbilled Amount',
+            'PermanentCredit' => 'Permanent Credit',
         ),
     );
 
