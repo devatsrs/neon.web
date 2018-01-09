@@ -124,6 +124,7 @@ class ReportVendorCDR extends \Eloquent{
             }
             $final_query2->select($select_columns2);
             $final_query->union($final_query2);
+
         }
         if (!empty($select_columns)) {
             $response['data'] = $final_query->get($select_columns);
