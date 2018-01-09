@@ -112,7 +112,8 @@ class ReportController extends \BaseController {
             $report = Report::find($id);
             $data = json_decode($report->Settings,true);
             $filters = json_decode($data['filter_settings'],true);
-            if(!empty(Input::get('StartDate'))) {
+			$StartDate = Input::get('StartDate');
+            if(!empty($StartDate)) {
                 if (isset($filters['date'])) {
                     $filters['date']['start_date'] = Input::get('StartDate');
                     $filters['date']['end_date'] = Input::get('EndDate');
@@ -181,7 +182,8 @@ class ReportController extends \BaseController {
             $response = Report::generateDynamicTable($CompanyID, $cube, $data,$filters);
         }
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $Type = !empty(Input::get('Type'))?Input::get('Type'):Report::XLS;
+			$data_type = Input::get('Type');
+            $Type = !empty($data_type)?$data_type:Report::XLS;
             $data['Name'] = !empty($data['Name']) ? $data['Name'] : 'Report';
             $table = generateReportTable2($data, $response, $all_data_list);
             if($Type == Report::PDF) {
@@ -280,26 +282,26 @@ class ReportController extends \BaseController {
     public function ajax_schedule_datagrid($type) {
 
         $CompanyID = User::get_companyID();
-        $reports = ReportSchedule::
-            select('Name','ReportID','Status','Settings','ReportScheduleID')
-            ->where("CompanyID", $CompanyID);
+        $reports = ReportSchedule::where("tblReportSchedule.CompanyID", $CompanyID);
         $data = Input::all();
         if(trim($data['Name']) != '') {
-            $reports->where('Name', 'like','%'.trim($data['Name']).'%');
+            $reports->where('tblReportSchedule.Name', 'like','%'.trim($data['Name']).'%');
         }
         if(isset($data['Export']) && $data['Export'] == 1) {
+            $reports->select('tblReportSchedule.Name',DB::raw('(SELECT GROUP_CONCAT(tblReport.Name) FROM tblReport WHERE FIND_IN_SET(tblReport.ReportID,tblReportSchedule.ReportID)) as Reports '),'tblReportSchedule.Status');
             $excel_data  = $reports->get();
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Reports.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Report Schedule.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Reports.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Report Schedule.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
         }
+        $reports->select('tblReportSchedule.Name',DB::raw('(SELECT GROUP_CONCAT(tblReport.Name) FROM tblReport WHERE FIND_IN_SET(tblReport.ReportID,tblReportSchedule.ReportID)) as ReportName '),'tblReportSchedule.Status','tblReportSchedule.Settings','tblReportSchedule.ReportID','ReportScheduleID');
 
         return Datatables::of($reports)->make();
     }
