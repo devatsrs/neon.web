@@ -33,13 +33,38 @@
 <!-- Raw Links -->
 <div class="col-md-6 col-sm-4 clearfix hidden-xs text-right">
 
-    <ul class="list-inline links-list pull-right ">
-
-
-        <li style="min-width: 150px;" class="pull-left">
-            {{ Form::select('user_language', Translation::getLanguageDropdownList(), NeonCookie::getCookie('customer_language') , array("class"=>"select2","id"=>"user_language")) }}
+    <ul class="list-inline links-list pull-right">
+        <li class="dropdown language-selector" id="user_language">
+            <?php
+            $cus_language=NeonCookie::getCookie('customer_language',"en");
+            ?>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-close-others="true" aria-expanded="false">
+                <i class="entypo-globe"></i>
+                <span>{{strtoupper($cus_language)}}</span>
+                <i class="entypo-down-open-mini"></i>
+            </a>
+            <ul class="dropdown-menu pull-right">
+                @foreach( Translation::getLanguageDropdownList() as $key=>$value )
+                    <?php
+                    $selected="";
+                        if($cus_language==$key){
+                            $selected="active";
+                        }
+                    ?>
+                    <li class="{{$selected}}" lang-key="{{$key}}"> <a href="javascripe:void(0);"> <span>{{$value}}</span> </a> </li>
+                @endforeach
+                <?php
+                   $cus_alignment = NeonCookie::getCookie('customer_alignment',"left");
+                    if($cus_alignment=="left"){
+                        $cus_alignment="right";
+                    }else{
+                        $cus_alignment="left";
+                    }
+                ?>
+                    <li class="" lang-key="toggle"> <a href="javascripe:void(0);"> <i class="glyphicon glyphicon-align-{{$cus_alignment}}"></i> <span>Toggle Alignment</span> </a> </li>
+            </ul>
         </li>
-        <li style="line-height: 32px;" class="pull-right">
+        <li>
             <a href="{{ URL::to('customer/logout') }}">@lang('routes.CUST_PANEL_HEAER_LOGOUT') <i class="entypo-logout right"></i></a>
         </li>
     </ul>

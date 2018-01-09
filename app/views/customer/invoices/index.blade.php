@@ -354,7 +354,7 @@ var postdata;
     display:none !important;
 }
 .dataTables_wrapper .export-data{
-    right: 30px !important;
+    right: 30px;
 }
  #table-5_filter label{
     display:block !important;

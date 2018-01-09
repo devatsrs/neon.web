@@ -1547,9 +1547,11 @@ toastr_opts = {
         });
 
 
-        $("#user_language").change(function(){
+        $("#user_language ul li").click(function(){
+            var language=$(this).attr("lang-key");
+
             $.ajax({
-                url: baseurl + "/translate/change/"+$("#user_language").val(),
+                url: baseurl + "/translate/change/"+language,
                 type: 'POST',
                 dataType: "json",
                 success:function(data) {
@@ -1558,6 +1560,9 @@ toastr_opts = {
                 cache: false
             });
         });
+        if(customer_alignment=="right"){
+            $('.pull-right, .pull-left').addClass('flip');
+        }
     });
 
 

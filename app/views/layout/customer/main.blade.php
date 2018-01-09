@@ -19,7 +19,10 @@
         <![endif]-->
 
              <script src="<?php echo URL::to('/'); ?>/assets/js/jquery-1.11.0.min.js"></script>
-        <script type="text/javascript">var baseurl = '<?php echo URL::to('/'); ?>';</script>
+        <script type="text/javascript">
+            var baseurl = '<?php echo URL::to('/'); ?>';
+            var customer_alignment = '<?php echo NeonCookie::getCookie('customer_alignment',"left") ?>';
+        </script>
 
         @if(Session::get('user_site_configrations.CustomCss'))
             <style>

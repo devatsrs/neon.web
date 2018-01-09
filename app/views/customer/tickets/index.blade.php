@@ -65,7 +65,7 @@
 .mail-body{width:100% !important; float:none !important;}
 .blue_link{font-size:13px; font-weight:bold;}
 .ticket_number{font-size:16px;}
-.col-time{text-align:left !important; font-size:12px;}
+.col-time{text-align:left; font-size:12px;}
 .col-time span{color:black;}
 .dropdown_sort li  a{color:white !important;}
 @if(count($result)>0)	 
