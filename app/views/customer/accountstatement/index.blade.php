@@ -47,7 +47,7 @@
                                     </div>
                                 </div>
 
-                                <p style="text-align: right;">
+                                <p class="pull-right">
                                     <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
                                         <i class="entypo-search"></i>
                                         @lang('routes.BUTTON_SEARCH_CAPTION')
@@ -220,24 +220,24 @@
 
 
                                     if( result[i]['PaymentIn_PaymentID'] !='' ) {
-                                        result[i]['PaymentIn_PaymentID'] = '<a class="paymentsModel" id="'+result[i]['PaymentIn_PaymentID']+'" href="javascript:;" onClick="paymentsModel(this);">'+result[i]['PaymentIn_Amount']+'</a>';
+                                        result[i]['PaymentIn_PaymentID'] = '<a class="paymentsModel leftsideview" id="'+result[i]['PaymentIn_PaymentID']+'" href="javascript:;" onClick="paymentsModel(this);">'+result[i]['PaymentIn_Amount']+'</a>';
                                     } else {
                                         result[i]['PaymentIn_PaymentID'] = '';
                                     }
                                     if( result[i]['PaymentOut_PaymentID'] !='' ) {
-                                        result[i]['PaymentOut_PaymentID'] = '<a class="paymentsModel" id="' + result[i]['PaymentOut_PaymentID'] + '" href="javascript:;" onClick="paymentsModel(this);">'+result[i]['PaymentOut_Amount']+'</a>';
+                                        result[i]['PaymentOut_PaymentID'] = '<a class="paymentsModel leftsideview" id="' + result[i]['PaymentOut_PaymentID'] + '" href="javascript:;" onClick="paymentsModel(this);">'+result[i]['PaymentOut_Amount']+'</a>';
                                     } else {
                                         result[i]['PaymentOut_PaymentID'] = '';
                                     }
 
 
                                     if( result[i]['InvoiceIn_DisputeID'] !='' ) {
-                                        result[i]['InvoiceIn_DisputeID'] = '<a style="color:#cc2424;font-weight: bold" class="DisputeModel" id="' + result[i]['InvoiceIn_DisputeID'] + '" href="javascript:;" onClick="disputesModel(this);">'+result[i]['InvoiceIn_DisputeAmount']+'</a>';
+                                        result[i]['InvoiceIn_DisputeID'] = '<a style="color:#cc2424;font-weight: bold" class="DisputeModel leftsideview" id="' + result[i]['InvoiceIn_DisputeID'] + '" href="javascript:;" onClick="disputesModel(this);">'+result[i]['InvoiceIn_DisputeAmount']+'</a>';
                                     } else {
                                         result[i]['InvoiceIn_DisputeID'] = '';
                                     }
                                     if( result[i]['InvoiceOut_DisputeID'] !='' ) {
-                                        result[i]['InvoiceOut_DisputeID'] = '<a style="color:#cc2424;font-weight: bold" class="DisputeModel" id="' + result[i]['InvoiceOut_DisputeID'] + '" href="javascript:;" onClick="disputesModel(this);">'+result[i]['InvoiceOut_DisputeAmount']+'</a>';
+                                        result[i]['InvoiceOut_DisputeID'] = '<a style="color:#cc2424;font-weight: bold" class="DisputeModel leftsideview" id="' + result[i]['InvoiceOut_DisputeID'] + '" href="javascript:;" onClick="disputesModel(this);">'+result[i]['InvoiceOut_DisputeAmount']+'</a>';
                                     } else {
                                         result[i]['InvoiceOut_DisputeID'] = '';
                                     }
@@ -247,26 +247,26 @@
                                                 // Invoice Out
                                             "<td align='center'>"+result[i]['InvoiceOut_InvoiceNo']+"</td>" +
                                             "<td align='center'>"+result[i]['InvoiceOut_PeriodCover']+"</td>" +
-                                            "<td align='right'>"+ result[i]['InvoiceOut_Amount'] +"</td>" +
-                                            "<td align='right'>"+ result[i]['InvoiceOut_DisputeID'] +"</td>" +
+                                            "<td align='right' class='leftsideview'>"+ result[i]['InvoiceOut_Amount'] +"</td>" +
+                                            "<td align='right' class='leftsideview'>"+ result[i]['InvoiceOut_DisputeID'] +"</td>" +
                                             "<td> </td>" +
 
                                                 // Payment In
                                             "<td align='center'>"+result[i]['PaymentIn_PeriodCover']+"</td>" +
-                                            "<td align='right'>"+result[i]['PaymentIn_PaymentID']+"</td>" +
+                                            "<td align='right' class='leftsideview'>"+result[i]['PaymentIn_PaymentID']+"</td>" +
                                             "<td> </td>" +
 
                                                 // Invoice In
                                             "<td align='center'>"+result[i]['InvoiceIn_InvoiceNo']+"</td>" +
                                             "<td align='center'>"+result[i]['InvoiceIn_PeriodCover']+"</td>" +
-                                            "<td align='right'>"+ result[i]['InvoiceIn_Amount'] +"</td>" +
-                                            "<td align='right' >"+ result[i]['InvoiceIn_DisputeID'] +"</td>" +
+                                            "<td align='right' class='leftsideview'>"+ result[i]['InvoiceIn_Amount'] +"</td>" +
+                                            "<td align='right' class='leftsideview'>"+ result[i]['InvoiceIn_DisputeID'] +"</td>" +
 
                                             "<td> </td>" +
 
                                                 //Payment Out
                                             "<td align='center'>"+ result[i]['PaymentOut_PeriodCover'] +"</td>" +
-                                            "<td align='right'>"+ result[i]['PaymentOut_PaymentID'] +"</td>" +
+                                            "<td align='right' class='leftsideview'>"+ result[i]['PaymentOut_PaymentID'] +"</td>" +
                                             "</tr>";
 
 
@@ -278,24 +278,24 @@
                                         '<tr>' +
                                         '<th>TOTAL</th>' +
                                         '<th></th>' +
-                                        '<th style="text-align: right;">'+ CurencySymbol+ InvoiceOutAmountTotal +'</th>' +
-                                        '<th style="color:#cc2424 !important;text-align: right;">' + CurencySymbol + InvoiceOutDisputeAmountTotal +'</th>' +
+                                        '<th style="text-align: right;" class="leftsideview">'+ CurencySymbol+ InvoiceOutAmountTotal +'</th>' +
+                                        '<th style="color:#cc2424 !important;text-align: right;" class="leftsideview">' + CurencySymbol + InvoiceOutDisputeAmountTotal +'</th>' +
                                         '<th></th>' +
                                         '<th></th>' +
-                                        '<th style="text-align: right;">'+ CurencySymbol+ PaymentInAmountTotal+'</th>' +
+                                        '<th style="text-align: right;" class="leftsideview">'+ CurencySymbol+ PaymentInAmountTotal+'</th>' +
                                         '<th></th>' +
                                         '<th></th>' +
                                         '<th></th>' +
-                                        '<th style="text-align: right;">'+ CurencySymbol + InvoiceInAmountTotal +'</th>' +
-                                        '<th style="color:#cc2424 !important;text-align: right;">' + CurencySymbol + InvoiceInDisputeAmountTotal +'</th>' +
+                                        '<th style="text-align: right;" class="leftsideview">'+ CurencySymbol + InvoiceInAmountTotal +'</th>' +
+                                        '<th style="color:#cc2424 !important;text-align: right;" class="leftsideview">' + CurencySymbol + InvoiceInDisputeAmountTotal +'</th>' +
                                         '<th></th>' +
                                         '<th></th>' +
-                                        '<th style="text-align: right;">'+ CurencySymbol + PaymentOutAmountTotal +'</th>' +
+                                        '<th style="text-align: right;" class="leftsideview">'+ CurencySymbol + PaymentOutAmountTotal +'</th>' +
                                         '</tr>'+
 
                                         '<tr><th colspan="15"></th></tr>'+
 
-                                        '<tr><th colspan="2" style="text-align: right;text-transform: uppercase">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_BALANCE_AFTER_OFFSET')</th><th>' + CurencySymbol + OffsetBalance +'</th><th></th><th></th><th></th><th></th><th></th><th colspan="2" style="text-align: right;text-transform: uppercase">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_BALANCE_BROUGHT_FORWARD') </th><th>' + CurencySymbol + BroughtForwardOffset +'</th><th></th><th></th><th></th><th></th>' +
+                                        '<tr><th colspan="2" style="text-align: right;text-transform: uppercase" >@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_BALANCE_AFTER_OFFSET')</th><th class="leftsideview">' + CurencySymbol + OffsetBalance +'</th><th></th><th></th><th></th><th></th><th></th><th colspan="2" style="text-align: right;text-transform: uppercase">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_BALANCE_BROUGHT_FORWARD') </th><th class="leftsideview">' + CurencySymbol + BroughtForwardOffset +'</th><th></th><th></th><th></th><th></th>' +
                                         '</tr>' ;
 
                                 $('#table-4 > tbody > tr:last').after(newRow);

@@ -8,7 +8,7 @@
         </li>
     </ol>
 
-<h3>Outbound Rate</h3>
+<h3>@lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_OUTBOUND_RATE_TITLE")</h3>
 {{--@include('accounts.errormessage')--}}
 <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
     @if(empty(is_reseller()))
@@ -107,7 +107,7 @@
 
 
 
-                           <p style="text-align: right;">
+                           <p class="pull-right">
                                <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
                                    <i class="entypo-search"></i>
                                    @lang("routes.BUTTON_SEARCH_CAPTION")

@@ -14,7 +14,7 @@
 @include('includes.errors')
 @include('includes.success')
 
-<p style="text-align: right;">
+<p class="text-right">
     <button type="button"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')">
         <i class="entypo-floppy"></i>
         @lang('routes.BUTTON_SAVE_CAPTION')

@@ -1,5 +1,5 @@
 <br/>
-<p style="text-align: right;">
+<p class="col-md-12 text-right">
     <a class=" btn btn-primary btn-sm btn-icon icon-left" id="add-call-alert">
         <i class="entypo-plus"></i>
         @lang('routes.BUTTON_ADD_CAPTION')

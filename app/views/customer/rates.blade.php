@@ -21,7 +21,7 @@
                     <label for="field-1" class="col-sm-1 control-label">@lang("routes.CUST_PANEL_PAGE_RATES_FILTER_FIELD_DESCRIPTION")</label>
                     <div class="col-sm-2"> {{ Form::text('Description', '', array("class"=>"form-control")) }} </div>
                 </div>
-                <p style="text-align: right;">
+                <p class="pull-right">
                     <button class="btn btn-primary btn-sm btn-icon icon-left" id="filter_submit" type="submit">
                         <i class="entypo-search"></i>
                         @lang("routes.BUTTON_SEARCH_CAPTION")

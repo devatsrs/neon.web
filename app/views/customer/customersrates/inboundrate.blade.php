@@ -107,7 +107,7 @@
 
 
 
-                           <p style="text-align: right;">
+                           <p class="pull-right">
                                <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
                                    <i class="entypo-search"></i>
                                    @lang("routes.BUTTON_SEARCH_CAPTION")

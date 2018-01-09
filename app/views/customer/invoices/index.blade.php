@@ -40,7 +40,7 @@
               </p>
             </div>
           </div>
-          <p style="text-align: right;">
+          <p class="pull-right">
             <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left"> <i class="entypo-search"></i> @lang('routes.BUTTON_SEARCH_CAPTION') </button>
           </p>
         </div>
@@ -141,8 +141,14 @@ var postdata;
                          {  "bSortable": true
                          },  // 2 IssueDate
                          {  "bSortable": true },  // 3 IssueDate
-                         {  "bSortable": true },  // 4 GrandTotal
-                         {  "bSortable": true },  // 4 GrandTotal
+                         {
+                             "bSortable": true,
+                             mRender: function (id, type, full) { return "<span class='leftsideview'>"+full[4]+"</span>" }
+                         },  // 4 GrandTotal
+                         {
+                             "bSortable": true,
+                             mRender: function (id, type, full) { return "<span class='leftsideview'>"+full[5]+"</span>"}
+                         },  // 4 GrandTotal
                          {  "bSortable": true,
                              mRender:function( id, type, full){
                                  return invoicestatus[full[6]];
@@ -259,7 +265,7 @@ var postdata;
                     {
                         $('.result_row').remove();
                         $('.result_row').hide();
-                        $('#table-4 tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td align="right" colspan="3"></td><td><strong>'+response1.total_grand+'</strong></td><td><strong>'+response1.os_pp+'</strong></td><td colspan="2"></td></tr>');
+                        $('#table-4 tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td align="right" colspan="3"></td><td class="leftsideview"><strong>'+response1.total_grand+'</strong></td><td class="leftsideview"><strong>'+response1.os_pp+'</strong></td><td colspan="2"></td></tr>');
                     }
                 },
             });

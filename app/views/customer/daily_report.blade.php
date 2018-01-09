@@ -23,7 +23,7 @@
                     <div class="col-sm-2"> {{ Form::text('EndDate', $original_enddate, array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }} </div>
                     <input type="hidden" name="AccountID" value="{{$AccountID}}">
                 </div>
-                <p style="text-align: right;">
+                <p class="pull-right">
                     <button class="btn btn-primary btn-sm btn-icon icon-left" id="filter_submit" type="submit">
                         <i class="entypo-search"></i>
                         @lang('routes.BUTTON_SEARCH_CAPTION')
@@ -94,10 +94,22 @@
                     },
                     "aoColumns": [
                         {  "bSortable": false },  // 0 Date
-                        {  "bSortable": false },  // 0 Payments
-                        {  "bSortable": false },  // 0 Consumption
-                        {  "bSortable": false },  // 0 Total
-                        {  "bSortable": false }  // 0 Balance
+                        {
+                            "bSortable": false,
+                            mRender: function (id, type, full) { return "<span class='leftsideview'>"+full[1]+"</span>"}
+                        },  // 0 Payments
+                        {
+                            "bSortable": false,
+                            mRender: function (id, type, full) { return "<span class='leftsideview'>"+full[2]+"</span>"}
+                        },  // 0 Consumption
+                        {
+                            "bSortable": false,
+                            mRender: function (id, type, full) { return "<span class='leftsideview'>"+full[3]+"</span>"}
+                        },  // 0 Total
+                        {
+                            "bSortable": false,
+                            mRender: function (id, type, full) { return "<span class='leftsideview'>"+full[4]+"</span>"}
+                        }  // 0 Balance
                     ],
                     "oTableTools": {
                         "aButtons": [
@@ -142,7 +154,7 @@
                         if (response1.Balance != null) {
                             $('.result_row').remove();
                             $('.result_row').hide();
-                            $('#table-list tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td><strong>' + response1.TotalPayment + '</strong></td><td><strong>' + response1.TotalCharge + '</strong></td><td><strong>' + response1.Total + '</strong></td><td><strong>' + response1.Balance + '</strong></td></tr>');
+                            $('#table-list tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td class="leftsideview"><strong>' + response1.TotalPayment + '</strong></td><td class="leftsideview"><strong>' + response1.TotalCharge + '</strong></td><td class="leftsideview"><strong>' + response1.Total + '</strong></td><td class="leftsideview"><strong>' + response1.Balance + '</strong></td></tr>');
                         }
                     }
                 });

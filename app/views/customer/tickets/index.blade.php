@@ -39,7 +39,7 @@
           @else
           <input type="hidden" name="agent" value="{{user::get_userID()}}" >
           @endif
-          <p style="text-align: right;">
+          <p class="pull-right">
             <button type="submit" class="btn btn-primary btn_form_submit btn-sm btn-icon icon-left"> <i class="entypo-search"></i> @lang('routes.BUTTON_SEARCH_CAPTION') </button>
           </p>
         </div>

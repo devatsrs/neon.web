@@ -78,3 +78,22 @@
 .pagination>li>a>i.entypo-right-open:before{
     content: '\e874';
 }
+.dataTables_wrapper table thead tr th.sorting_asc:before, .dataTables_wrapper table thead tr th.sorting_desc:before{
+    float: left;
+}
+.leftsideview{
+    direction: ltr;
+}
+.text-right {
+    text-align: left;
+}
+.text-left {
+    text-align: right;
+}
+.select2-search-choice-close{
+    right: unset;
+    left: 3px;
+}
+.datepicker-dropdown.dropdown-menu,.bootstrap-timepicker-widget.dropdown-menu {
+    right:unset;
+}

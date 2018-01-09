@@ -6,7 +6,7 @@
   <li class="active"> <strong>@lang('routes.CUST_PANEL_PAGE_NEW_TICKET_TITLE')</strong> </li>
 </ol>
 <h3>@lang('routes.CUST_PANEL_PAGE_NEW_TICKET_TITLE')</h3>
-<p style="text-align: right;">
+<p class="text-right">
   <button type='button' class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')"> <i class="entypo-floppy"></i> @lang('routes.BUTTON_SAVE_CAPTION') </button>
   <a href="{{URL::to('/customer/tickets')}}" class="btn btn-danger btn-sm btn-icon icon-left"> <i class="entypo-cancel"></i>  @lang('routes.BUTTON_CLOSE_CAPTION')  </a> </p>
 <br>

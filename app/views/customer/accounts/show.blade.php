@@ -14,14 +14,11 @@
         <a href="#"><i class="entypo-home"></i>@lang('routes.CUST_PANEL_PAGE_PROFILE_TITLE')</a>
     </li>
 </ol>
-<h3>@lang('routes.CUST_PANEL_PAGE_PROFILE_HEADING_VIEW_ACCOUNT')
 
-    <div style="float: right; text-align: right " class="col-sm-4">
-        <a href="{{ URL::to('customer/profile/edit')}}" class="save btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-floppy"></i>@lang('routes.BUTTON_EDIT_CAPTION')</a>
-    </div>
-
-
-</h3>
+<h3 class="text-left">@lang('routes.CUST_PANEL_PAGE_PROFILE_HEADING_VIEW_ACCOUNT')</h3>
+<div class="text-right">
+    <a href="{{ URL::to('customer/profile/edit')}}" class="save btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-floppy"></i>@lang('routes.BUTTON_EDIT_CAPTION')</a>
+</div>
 
 
 @include('includes.errors')

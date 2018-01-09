@@ -63,7 +63,7 @@
                                 </div>
                                 <!--payment date end -->
 
-                                <p style="text-align: right;">
+                                <p class="pull-right">
                                     <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
                                         <i class="entypo-search"></i>
                                         @lang('routes.BUTTON_SEARCH_CAPTION')
@@ -159,7 +159,8 @@
                                     mRender: function (id, type, full) {
                                         var a = parseFloat(Math.round(full[3] * 100) / 100).toFixed(2);
                                         a = a.toString();
-                                        return full[16]
+
+                                        return "<span class='leftsideview'>"+full[16]+"</span>"
                                     }
                                 },
                                 {
@@ -411,7 +412,7 @@
                     display:none !important;
                 }
                 .dataTables_wrapper .export-data{
-                    right: 30px !important;
+                    right: 30px;
                 }
             </style>
 

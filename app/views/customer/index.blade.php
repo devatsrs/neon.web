@@ -27,7 +27,7 @@
                             </div>
                             <input name="CurrencyID" type="hidden" value="{{$account->CurrencyId}}">
                         </div>
-                        <p style="text-align: right;">
+                        <p class="pull-right">
                             <button class="btn search btn-primary btn-sm btn-icon icon-left" type="submit" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')">
                                 <i class="entypo-search"></i>@lang('routes.BUTTON_SEARCH_CAPTION')
                             </button>
