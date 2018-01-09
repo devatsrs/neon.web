@@ -260,6 +260,7 @@ class AnalysisController extends BaseController {
             $isAdmin = 0;
         }
         $users = User::getUserIDListAll(0);
+
         $gateway = CompanyGateway::getCompanyGatewayIdList($companyID);
         $Country = Country::getCountryDropdownIDList();
         $account = Account::getAccountIDList();

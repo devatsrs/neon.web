@@ -36,11 +36,11 @@
                         {{$call_cost}}
                     @endif
                 </td>
-                <td>{{$alldata['call_count_val'][$indexcount]}}</td>
+                <td>{{number_format($alldata['call_count_val'][$indexcount],0)}}</td>
                 <td>{{$alldata['call_count_acd'][$indexcount]}}</td>
                 <td>{{$alldata['call_count_asr'][$indexcount]}}</td>
                 @if((int)Session::get('customer') == 0)
-                <td>{{$alldata['call_count_mar'][$indexcount]}}</td>
+                <td>{{number_format($alldata['call_count_mar'][$indexcount],get_round_decimal_places())}}</td>
                 <td>{{$alldata['call_count_marp'][$indexcount]}}</td>
                 @endif
             </tr>
@@ -86,11 +86,11 @@
                         {{$call_cost}}
                     @endif
                 </td>
-                <td>{{$alldata['call_cost_val'][$indexcount]}}</td>
+                <td>{{number_format($alldata['call_cost_val'][$indexcount],get_round_decimal_places())}}</td>
                 <td>{{$alldata['call_cost_acd'][$indexcount]}}</td>
                 <td>{{$alldata['call_cost_asr'][$indexcount]}}</td>
                 @if((int)Session::get('customer') == 0)
-                <td>{{$alldata['call_cost_mar'][$indexcount]}}</td>
+                <td>{{number_format($alldata['call_cost_mar'][$indexcount],get_round_decimal_places())}}</td>
                 <td>{{$alldata['call_cost_marp'][$indexcount]}}</td>
                 @endif
             </tr>
@@ -136,11 +136,11 @@
                         {{$call_cost}}
                     @endif
                 </td>
-                <td>{{$alldata['call_minutes_val'][$indexcount]}}</td>
+                <td>{{number_format($alldata['call_minutes_val'][$indexcount],0)}}</td>
                 <td>{{$alldata['call_minutes_acd'][$indexcount]}}</td>
                 <td>{{$alldata['call_minutes_asr'][$indexcount]}}</td>
                 @if((int)Session::get('customer') == 0)
-                <td>{{$alldata['call_minutes_mar'][$indexcount]}}</td>
+                <td>{{number_format($alldata['call_minutes_mar'][$indexcount],get_round_decimal_places())}}</td>
                 <td>{{$alldata['call_minutes_marp'][$indexcount]}}</td>
                 @endif
             </tr>

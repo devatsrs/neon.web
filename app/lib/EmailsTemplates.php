@@ -84,10 +84,14 @@ class EmailsTemplates{
 				}
 
 				if(!empty($InvoiceDetailPeriod) && isset($InvoiceDetailPeriod->StartDate)) {
-					$replace_array['StartDate'] 			= 	 date('Y-m-d', strtotime($InvoiceDetailPeriod->StartDate));
+					$replace_array['PeriodFrom'] 			= 	 date('Y-m-d', strtotime($InvoiceDetailPeriod->StartDate));
+				} else {
+					$replace_array['PeriodFrom'] 			= 	 "";
 				}
 				if(!empty($InvoiceDetailPeriod) && isset($InvoiceDetailPeriod->EndDate)) {
-					$replace_array['EndDate'] 				= 	 date('Y-m-d', strtotime($InvoiceDetailPeriod->EndDate));
+					$replace_array['PeriodTo'] 				= 	 date('Y-m-d', strtotime($InvoiceDetailPeriod->EndDate));
+				} else {
+					$replace_array['PeriodTo'] 				= 	 "";
 				}
 
 				$replace_array['InvoiceNumber']			=	 $InvoiceData->FullInvoiceNumber;		
@@ -95,14 +99,14 @@ class EmailsTemplates{
 				$replace_array['InvoiceGrandTotal']		=	 number_format($InvoiceData->GrandTotal,$RoundChargesAmount);
 				
 			
-				
+
 			$extraSpecific = [
 				'{{InvoiceNumber}}',
 				'{{InvoiceGrandTotal}}',
 				'{{InvoiceOutstanding}}',
 				"{{InvoiceLink}}",
-				"{{StartDate}}",
-				"{{EndDate}}"
+				"{{PeriodFrom}}",
+				"{{PeriodTo}}"
 			];
 			
 			$extraDefault	=	EmailsTemplates::$fields;

@@ -2,10 +2,10 @@
 class ReportAccount extends \Eloquent{
 
     public static $database_columns = array(
-        'NetUnbilledAmount' => 'COALESCE(tblAccountBalance.UnbilledAmount,0) - COALESCE(tblAccountBalance.VendorUnbilledAmount  )',
-        'AvailableCreditLimit' => 'IF(COALESCE(tblAccountBalance.PermanentCredit,0) - COALESCE(tblAccountBalance.BalanceAmount,0)<0,0,COALESCE(tblAccountBalance.PermanentCredit,0) - COALESCE(tblAccountBalance.BalanceAmount,0))',
+        'NetUnbilledAmount' => 'COALESCE(SUM(tblAccountBalance.UnbilledAmount),0) - COALESCE(SUM(tblAccountBalance.VendorUnbilledAmount),0)',
+        'AvailableCreditLimit' => 'IF(COALESCE(SUM(tblAccountBalance.PermanentCredit),0) - COALESCE(SUM(tblAccountBalance.BalanceAmount),0)<0,0,COALESCE(SUM(tblAccountBalance.PermanentCredit),0) - COALESCE(SUM(tblAccountBalance.BalanceAmount),0))',
     );
-    public static $AccountJoin = false;
+    public static $AccountBalanceJoin = false;
 
     public static function generateQuery($CompanyID, $data, $filters){
         $select_columns = array();
@@ -56,6 +56,10 @@ class ReportAccount extends \Eloquent{
         foreach ($data['sum'] as $colname) {
             if($colname == 'AccountID'){
                 $select_columns[] = DB::Raw("COUNT(tblAccount.AccountID) as " . $colname);
+            }else if($colname == 'NetUnbilledAmount' && self::$AccountBalanceJoin == true){
+                $select_columns[] = DB::Raw("COALESCE(SUM(tblAccountBalance.UnbilledAmount),0) - COALESCE(SUM(tblAccountBalance.VendorUnbilledAmount),0) as " . $colname);
+            }else if($colname == 'AvailableCreditLimit' && self::$AccountBalanceJoin == true){
+                $select_columns[] = DB::Raw("IF(COALESCE(SUM(tblAccountBalance.PermanentCredit),0) - COALESCE(SUM(tblAccountBalance.BalanceAmount),0)<0,0,COALESCE(SUM(tblAccountBalance.PermanentCredit),0) - COALESCE(SUM(tblAccountBalance.BalanceAmount),0)) " . $colname);
             }else{
                 $select_columns[] = DB::Raw("SUM(" . $colname . ") as " . $colname);
             }
@@ -80,7 +84,7 @@ class ReportAccount extends \Eloquent{
 
         if(array_intersect($data['column'],array_keys(Report::$dimension['account']['Account'])) || array_intersect_key($data['row'],array_keys(Report::$dimension['account']['Account'])) || array_intersect_key($data['filter'],array_keys(Report::$dimension['account']['Account'])) ){
             $query_common->leftJoin('tblAccountBalance', 'tblAccountBalance.AccountID', '=', 'tblAccount.AccountID');
-            self::$AccountJoin = true;
+            self::$AccountBalanceJoin = true;
         }
         foreach ($filters as $key => $filter) {
             if (!empty($filter[$key]) && is_array($filter[$key])) {
