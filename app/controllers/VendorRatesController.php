@@ -1442,14 +1442,14 @@ class VendorRatesController extends \BaseController
 
             if($data['Action'] == 'New') {
                 if (!empty($data['updateInterval1']) || !empty($data['updateIntervalN'])) {
-                    if (!empty($data['updateInterval1']) && empty((int)$data['Interval1'])) {
+                    if (!empty($data['updateInterval1']) && empty($data['Interval1'])) {
                         return json_encode(array("status" => "Error", "message" => "Please enter Interval1 value."));
-                    } else if (!empty($data['updateInterval1']) && !empty((int)$data['Interval1'])) {
+                    } else if (!empty($data['updateInterval1']) && !empty($data['Interval1'])) {
                         $Interval1 = (int)$data['Interval1'] > 0 ? (int)$data['Interval1'] : 0;
                     }
-                    if (!empty($data['updateIntervalN']) && empty((int)$data['IntervalN'])) {
+                    if (!empty($data['updateIntervalN']) && empty($data['IntervalN'])) {
                         return json_encode(array("status" => "Error", "message" => "Please enter IntervalN value."));
-                    } else if (!empty($data['updateIntervalN']) && !empty((int)$data['IntervalN'])) {
+                    } else if (!empty($data['updateIntervalN']) && !empty($data['IntervalN'])) {
                         $IntervalN = (int)$data['IntervalN'] > 0 ? (int)$data['IntervalN'] : 0;
                     }
                     $Action = $data['Action'];
