@@ -27,8 +27,9 @@ class CompanyGateway extends \Eloquent {
             return false;
         }
     }
-    public static function getCompanyGatewayIdList(){
-        $row = CompanyGateway::where(array('Status'=>1,'CompanyID'=>User::get_companyID()))->lists('Title', 'CompanyGatewayID');
+    public static function getCompanyGatewayIdList($CompanyID=0){
+        $company_id = $CompanyID>0?$CompanyID : User::get_companyID();
+        $row = CompanyGateway::where(array('Status'=>1,'CompanyID'=>$company_id))->lists('Title', 'CompanyGatewayID');
         if(!empty($row)){
             $row = array(""=> "Select")+$row;
         }
@@ -63,6 +64,27 @@ class CompanyGateway extends \Eloquent {
                 if(!empty($companygateway['Settings'])){
                     $option = json_decode($companygateway['Settings']);
                     if(!empty($option->AllowAccountImport)){
+                        $GatewayName = Gateway::getGatewayName($companygateway['GatewayID']);
+                        $row['CompanyGatewayID'] = $companygateway['CompanyGatewayID'];
+                        $row['Title'] = $companygateway['Title'];
+                        $row['Gateway'] = $GatewayName;
+                        $gatewaylist[] = $row;
+                    }
+                }
+            }
+        }
+        return $gatewaylist;
+    }
+
+    public static function importIPGatewayList(){
+        $row = array();
+        $gatewaylist = array();
+        $companygateways = CompanyGateway::where(array('Status'=>1,'CompanyID'=>User::get_companyID()))->get();
+        if(count($companygateways)>0){
+            foreach($companygateways as $companygateway){
+                if(!empty($companygateway['Settings'])){
+                    $option = json_decode($companygateway['Settings']);
+                    if(!empty($option->AllowAccountIPImport)){
                         $GatewayName = Gateway::getGatewayName($companygateway['GatewayID']);
                         $row['CompanyGatewayID'] = $companygateway['CompanyGatewayID'];
                         $row['Title'] = $companygateway['Title'];
@@ -371,6 +393,49 @@ class CompanyGateway extends \Eloquent {
                 log::info('--M2 CRONJOB END--');
 
                 CompanyGateway::createSummaryCronJobs(1);
+            }elseif(isset($GatewayName) && $GatewayName == 'VoipNow'){
+                log::info($GatewayName);
+                log::info('--VOIPNOW CRONJOB START--');
+
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('voipnowaccountusage');
+                $setting = CompanyConfiguration::get('VIOPNOW_PBX_CRONJOB');
+                $JobTitle = $CompanyGateway->Title.' CDR Download';
+                $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
+
+                log::info($settings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
+                log::info('--VOIPNOW CRONJOB END--');
+
+                CompanyGateway::createSummaryCronJobs(0);
+            }elseif(isset($GatewayName) && $GatewayName == 'VOS5000'){
+                log::info($GatewayName);
+                log::info('--VOS5000 FILE DOWNLOAD CRONJOB START--');
+
+                $DownloadCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vos5000downloadcdr');
+                $DownloadSetting = CompanyConfiguration::get('VOS5000_DOWNLOAD_CRONJOB');
+                $DownloadJobTitle = $CompanyGateway->Title.' CDR File Download';
+                $DownloadTag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $DownloadSettings = str_replace('"CompanyGatewayID":""',$DownloadTag,$DownloadSetting);
+
+                log::info($DownloadSettings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$DownloadCronJobCommandID,$DownloadSettings,$DownloadJobTitle);
+                log::info('--VOS5000 FILE DOWNLOAD CRONJOB END--');
+
+                log::info('--VOS5000 FILE PROCESS CRONJOB START--');
+
+                $ProcessCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vos5000accountusage');
+                $ProcessSetting = CompanyConfiguration::get('VOS_PROCESS_CRONJOB');
+                $ProcessJobTitle = $CompanyGateway->Title.' CDR File Process';
+                $ProcessTag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $ProcessSettings = str_replace('"CompanyGatewayID":""',$ProcessTag,$ProcessSetting);
+
+                log::info($ProcessSettings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$ProcessCronJobCommandID,$ProcessSettings,$ProcessJobTitle);
+                log::info('--VOS5000 FILE PROCESS CRONJOB END--');
+
+                CompanyGateway::createSummaryCronJobs(1);
+
             }
         }else{
             log::info('--Other CRONJOB START--');
@@ -427,12 +492,12 @@ class CompanyGateway extends \Eloquent {
         log::info('--CUSTOMER SUMMARY LIVE CRONJOB END--');
 
         if($type=='1'){
-            log::info('--VENDOR SUMMARY DAILY CRONJOB START--');
+           /* log::info('--VENDOR SUMMARY DAILY CRONJOB START--');
             $VendorSummaryDailyCommandID = CronJobCommand::getCronJobCommandIDByCommand('createvendorsummary');
             $VendorSummaryDailySetting = CompanyConfiguration::get('VENDOR_SUMMARYDAILY_CRONJOB');
             $VendorSummaryDailyJobTitle = 'Create Vendor Summary';
             log::info($VendorSummaryDailySetting);
-            CompanyGateway::createGatewayCronJob($CompanyGatewayID,$VendorSummaryDailyCommandID,$VendorSummaryDailySetting,$VendorSummaryDailyJobTitle);
+            CompanyGateway::createGatewayCronJob($CompanyGatewayID,$VendorSummaryDailyCommandID,$VendorSummaryDailySetting,$VendorSummaryDailyJobTitle);*/
 
             log::info('--VENDOR SUMMARY DAILY CRONJOB END--');
 

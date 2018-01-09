@@ -42,6 +42,7 @@
                 deleteImage( ui.draggable,$Columns );
                 update_rows(ui.draggable,'remove',0);
                 update_columns(ui.draggable,'add',1);
+                remove_tooltip();
 
             }
         });
@@ -67,6 +68,7 @@
                 deleteImage( ui.draggable,$Row );
                 update_columns(ui.draggable,'remove',0);
                 update_rows(ui.draggable,'add',1);
+                remove_tooltip();
 
             }
         });
@@ -94,11 +96,12 @@
                 update_filter(ui.draggable,'add',0);
                 show_filter(ui.draggable);
                 //update_rows(ui.draggable,'add',1);
+                remove_tooltip();
 
             }
         });
 
-        $( "#Filter_Drop .dimension" ).click(function(e){
+        $($Filter).on('click', '.dimension', function(e) {
             show_filter($(this));
         });
 
@@ -115,12 +118,22 @@
         }
 
 
-        //reload_table();
+        $('.save-report-data').on('click', function (e) {
+            var data = baseurl +'/report/getdatagrid/0?'+$("#report-row-col").serialize()+'&'+$("#add-new-filter-form").serialize()+'&'+$("#add-new-report-form").serialize()+'&Export=1&Type='+$(this).attr('data-format');
+            $(this).attr('href',data);
+                /*$(".table_report_overflow").table2excel({
+                    exclude: ".noExl",
+                    name: "Reports",
+                    filename: "Reports",
+                    fileext: ".xls",
+
+                });*/
+        });
         function reload_table(){
             var data = $("#report-row-col").serialize()+'&'+$("#add-new-filter-form").serialize();
             loading_table('.table_report_overflow',1);
             $.ajax({
-                url:baseurl +'/report/getdatagrid', //Server script to process data
+                url:baseurl +'/report/getdatagrid/0', //Server script to process data
                 type: 'POST',
                 dataType: 'json',
                 success: function(response) {
@@ -189,7 +202,7 @@
                     dimesions_html += '</ul></li>';
                 }else{
                     if(index == 'ProductType'){
-                        dimesions_html += '<li class="dimension ui-draggable tooltip-primary" data-toggle="tooltip" data-original-title="Item / Subscriptions / Additional Charges / Invoice Received" data-cube="'+cube+'" data-val="'+index+'"><span><i class="fa fa-arrows"></i> ' + value + '</span></li>';
+                        dimesions_html += '<li class="dimension ui-draggable tooltip-primary" data-trigger="hover" data-toggle="tooltip" data-original-title="Item / Subscriptions / Additional Charges / Invoice Received" data-cube="'+cube+'" data-val="'+index+'"><span><i class="fa fa-arrows"></i> ' + value + '</span></li>';
                     }else{
                         dimesions_html += '<li class="dimension ui-draggable" data-cube="'+cube+'" data-val="'+index+'"><span><i class="fa fa-arrows"></i> ' + value + '</span></li>';
                     }
@@ -411,12 +424,11 @@
     function filter_data_table(){
         data_table_filter = $("#table-filter-list").dataTable({
             "bDestroy": true,
-            "bProcessing":true,
-            "bServerSide":true,
+            "bProcessing": false,
+            "bServerSide": false,
+            "bPaginate": false,
             "sAjaxSource": baseurl + "/report/getdatalist",
-            "iDisplayLength": 10,
-            "sPaginationType": "bootstrap",
-            "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'> f>r> t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+            "sDom": "<'row'<'col-xs-1 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-11 col-right'<'change-view'> f>r> t<'row'<'col-xs-12 col-left'i>>",
             "aaSorting": [[0, 'asc']],
             "fnServerParams": function(aoData) {
                 aoData.push(
@@ -435,7 +447,7 @@
                     [
                         {"bSortable": false,
                             mRender: function(id, type, full) {
-                                return '<div class="checkbox "><input type="checkbox" name="'+$("#hidden_filter_col").val()+'[]" value="' + id + '" class="rowcheckbox" ></div>';
+                                return '<div class="checkbox "><input type="checkbox" name="'+$("#hidden_filter_col").val()+'[]" value="' + id.toString().replace(/"/g,"&quot;") + '" class="rowcheckbox" ></div>';
                             }
                         }, //0Checkbox
                         { "bSortable": true}
@@ -506,6 +518,9 @@
                 });
             }
         });
+    }
+    function remove_tooltip(){
+        $('body').find('[role="tooltip"]').remove();
     }
 
 </script>

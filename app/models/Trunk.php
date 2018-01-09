@@ -37,7 +37,7 @@ class Trunk extends \Eloquent  {
 */    }
 
 
-    public static function getTrunkDropdownList(){
+    public static function getTrunkDropdownList($CompanyID=0){
 
         if (self::$enable_cache && Cache::has('trunk_dropdown1_cache')) {
              //check if the cache has already the ```user_defaults``` item
@@ -46,7 +46,7 @@ class Trunk extends \Eloquent  {
             self::$cache['trunk_dropdown1_cache'] = $admin_defaults['trunk_dropdown1_cache'];
         } else {
              //if the cache doesn't have it yet
-            $company_id = User::get_companyID();
+            $company_id = $CompanyID>0?$CompanyID : User::get_companyID();
             self::$cache['trunk_dropdown1_cache'] = Trunk::where([ "Status" => 1 , "CompanyID" => $company_id])->lists('Trunk', 'Trunk');
             self::$cache['trunk_dropdown1_cache'] = array(""=>"Select") + self::$cache['trunk_dropdown1_cache'];
             
@@ -59,7 +59,7 @@ class Trunk extends \Eloquent  {
         return self::$cache['trunk_dropdown1_cache'];
     }
     
-    public static function getTrunkDropdownIDList(){
+    public static function getTrunkDropdownIDList($CompanyID=0){
 
         if (self::$enable_cache && Cache::has('trunk_dropdown2_cache')) {
              //check if the cache has already the ```user_defaults``` item
@@ -68,7 +68,7 @@ class Trunk extends \Eloquent  {
             self::$cache['trunk_dropdown2_cache'] = $admin_defaults['trunk_dropdown2_cache'];
         } else {
              //if the cache doesn't have it yet
-            $company_id = User::get_companyID();
+            $company_id = $CompanyID>0?$CompanyID : User::get_companyID();
             self::$cache['trunk_dropdown2_cache'] = Trunk::where(["Status" => 1 , "CompanyID" => $company_id])->lists( 'Trunk','TrunkID');
             self::$cache['trunk_dropdown2_cache'] =  array(""=> "Select") + self::$cache['trunk_dropdown2_cache'] ;
 
@@ -79,7 +79,7 @@ class Trunk extends \Eloquent  {
         return self::$cache['trunk_dropdown2_cache'];
     }
 
-    public static function getTrunkCacheObj(){
+    public static function getTrunkCacheObj($CompanyID=0){
 
          if (self::$enable_cache && Cache::has('trunk_cache')) {
              //check if the cache has already the ```user_defaults``` item
@@ -88,7 +88,7 @@ class Trunk extends \Eloquent  {
             self::$cache['trunk_cache'] = $admin_defaults['trunk_cache'];
         } else {
              //if the cache doesn't have it yet
-            $company_id = User::get_companyID();
+            $company_id = $CompanyID>0?$CompanyID : User::get_companyID();
             self::$cache['trunk_cache'] = Trunk::where(["Status" => 1 , "CompanyID" => $company_id])->get();
             Cache::forever('trunk_cache', array('trunk_cache' => self::$cache['trunk_cache']));
         }

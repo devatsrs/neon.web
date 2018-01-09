@@ -13,10 +13,10 @@ class BillingAPI {
 	protected $request ;
 	protected $quickbooks_is_connected = false;
 
-	function __Construct(){
+	function __Construct($CompanyID){
 
-		if($this->check_quickbook()){
-			$this->request = new QuickBook();
+		if($this->check_quickbook($CompanyID)){
+			$this->request = new QuickBook($CompanyID);
 		}
     }
 
@@ -244,8 +244,8 @@ class BillingAPI {
 
 	}
 
-	public function check_quickbook(){
-		$QuickBookData		=	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$QuickBookSlug);
+	public function check_quickbook($CompanyID){
+		$QuickBookData		=	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$QuickBookSlug,$CompanyID);
 
 		if(!$QuickBookData){
 			$this->quickbooks_is_connected = false;
@@ -261,6 +261,7 @@ class BillingAPI {
 				$QuickBookSandbox = false;
 			}
 			if(!empty($OauthConsumerKey) && !empty($OauthConsumerSecret) && !empty($AppToken)){
+				/*Only check quickbooks_is_connected*/
 				$this->oauth_consumer_key = $OauthConsumerKey;
 				$this->oauth_consumer_secret = $OauthConsumerSecret;
 				$this->token = $AppToken;
@@ -274,7 +275,7 @@ class BillingAPI {
 
 				$this->dsn = $dsn;
 				$this->encryption_key = 'bcde1234';
-				$this->the_username = 'DO_NOT_CHANGE_ME';
+				$this->the_username = 'DO_NOT_CHANGE_ME'.$CompanyID;
 				$this->the_tenant = 12345;
 				$this->quickbooks_is_connected = true;
 				return true;

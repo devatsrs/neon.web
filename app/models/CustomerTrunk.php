@@ -35,7 +35,9 @@ class CustomerTrunk extends \Eloquent {
 
         $CompanyID = User::get_companyID();
         $row = CustomerTrunk::join("tblTrunk","tblTrunk.TrunkID", "=    ","tblCustomerTrunk.TrunkID")
-                        ->where(["tblCustomerTrunk.Status"=> 1])->where(["tblCustomerTrunk.CompanyID"=>$CompanyID])->where(["tblCustomerTrunk.AccountID"=>$AccountID])->get();
+                        ->where(["tblCustomerTrunk.Status"=> 1])
+                        //->where(["tblCustomerTrunk.CompanyID"=>$CompanyID])
+                        ->where(["tblCustomerTrunk.AccountID"=>$AccountID])->get();
 
         return $row;
 
@@ -43,7 +45,9 @@ class CustomerTrunk extends \Eloquent {
     public static function getTrunkDropdownIDList($AccountID){
         $CompanyID = User::get_companyID();
         $row = CustomerTrunk::join("tblTrunk","tblTrunk.TrunkID", "=    ","tblCustomerTrunk.TrunkID")
-            ->where(["tblCustomerTrunk.Status"=> 1])->where(["tblCustomerTrunk.CompanyID"=>$CompanyID])->where(["tblCustomerTrunk.AccountID"=>$AccountID])->select(array('tblCustomerTrunk.TrunkID','Trunk'))->lists('Trunk', 'TrunkID');
+            ->where(["tblCustomerTrunk.Status"=> 1])
+            //->where(["tblCustomerTrunk.CompanyID"=>$CompanyID])
+            ->where(["tblCustomerTrunk.AccountID"=>$AccountID])->select(array('tblCustomerTrunk.TrunkID','Trunk'))->lists('Trunk', 'TrunkID');
         if(!empty($row)){
             $row = array(""=> "Select")+$row;
         }
@@ -52,7 +56,9 @@ class CustomerTrunk extends \Eloquent {
     public static function getRoutineDropdownIDList($AccountID){
         $CompanyID = User::get_companyID();
         $row = CustomerTrunk::join("tblTrunk","tblTrunk.TrunkID", "=    ","tblCustomerTrunk.TrunkID")
-            ->where(["tblCustomerTrunk.Status"=> 1,'tblCustomerTrunk.RoutinePlanStatus'=>1])->where(["tblCustomerTrunk.CompanyID"=>$CompanyID])->where(["tblCustomerTrunk.AccountID"=>$AccountID])->select(array('tblCustomerTrunk.TrunkID','Trunk'))->lists('Trunk', 'TrunkID');
+            ->where(["tblCustomerTrunk.Status"=> 1,'tblCustomerTrunk.RoutinePlanStatus'=>1])
+            //->where(["tblCustomerTrunk.CompanyID"=>$CompanyID])
+            ->where(["tblCustomerTrunk.AccountID"=>$AccountID])->select(array('tblCustomerTrunk.TrunkID','Trunk'))->lists('Trunk', 'TrunkID');
         if(!empty($row)){
             $row = array(""=> "Select")+$row;
         }

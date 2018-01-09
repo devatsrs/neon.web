@@ -15,11 +15,12 @@ BEGIN
 		ROLLBACK;
 	END;
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-	
+
 	CALL fngetDefaultCodes(p_CompanyID); 
 	CALL fnGetUsageForSummary(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
 	CALL fnGetVendorUsageForSummary(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
 	CALL fnUpdateCustomerLink(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
+	CALL fnUpdateVendorLink(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
 
 	DELETE FROM tmp_UsageSummaryLive WHERE CompanyID = p_CompanyID;
 
@@ -82,23 +83,23 @@ BEGIN
 	WHERE tmp_UsageSummaryLive.CompanyID = p_CompanyID AND code.CountryID > 0;
 
 	START TRANSACTION;
-	
+
 	DELETE us FROM tblUsageSummaryDayLive us 
 	INNER JOIN tblHeader sh ON us.HeaderID = sh.HeaderID
 	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
 	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
-	
+
 	DELETE usd FROM tblUsageSummaryHourLive usd
 	INNER JOIN tblHeader sh ON usd.HeaderID = sh.HeaderID
 	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
 	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
-	
+
 	DELETE h FROM tblHeader h 
 	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_UsageSummaryLive)u
 		ON h.DateID = u.DateID 
 		AND h.CompanyID = u.CompanyID
 	WHERE u.CompanyID = p_CompanyID;
-	
+
 	INSERT INTO tblHeader (
 		DateID,
 		CompanyID,
@@ -123,7 +124,7 @@ BEGIN
 	FROM tmp_UsageSummaryLive 
 	WHERE CompanyID = p_CompanyID
 	GROUP BY DateID,CompanyID,AccountID;
-	
+
 	DELETE FROM tmp_SummaryHeaderLive WHERE CompanyID = p_CompanyID;
 	INSERT INTO tmp_SummaryHeaderLive (HeaderID,DateID,CompanyID,AccountID)
 	SELECT 
@@ -172,13 +173,13 @@ BEGIN
 		SUM(us.NoOfCalls),
 		SUM(us.NoOfFailCalls)
 	FROM tmp_SummaryHeaderLive sh
-	INNER JOIN tmp_UsageSummaryLive us FORCE INDEX (Unique_key)	 
+	INNER JOIN tmp_UsageSummaryLive us FORCE INDEX (Unique_key)
 		ON  us.DateID = sh.DateID
 		AND us.CompanyID = sh.CompanyID
 		AND us.AccountID = sh.AccountID
 	WHERE us.CompanyID = p_CompanyID
 	GROUP BY us.DateID,us.CompanyID,us.CompanyGatewayID,us.ServiceID,us.GatewayAccountPKID,us.GatewayVAccountPKID,us.AccountID,us.VAccountID,us.AreaPrefix,us.Trunk,us.CountryID,sh.HeaderID,us.userfield;
-	
+
 	INSERT INTO tblUsageSummaryHourLive (
 		HeaderID,
 		TimeID,
@@ -196,7 +197,7 @@ BEGIN
 		TotalBilledDuration,
 		TotalDuration,
 		NoOfCalls,
-		NoOfFailCalls	
+		NoOfFailCalls
 	)
 	SELECT 
 		sh.HeaderID,
@@ -223,6 +224,6 @@ BEGIN
 		AND us.AccountID = sh.AccountID
 	WHERE us.CompanyID = p_CompanyID;
 
-	COMMIT;	 
-	
+	COMMIT;
+
 END

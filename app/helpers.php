@@ -142,6 +142,10 @@ function customer_dropbox($id=0,$data=array()){
     $all_customers = Account::getAccountIDList($data);
     return Form::select('customers', $all_customers, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
 }
+function upload_template_dropbox($id=0,$data=array()){
+    $all_templates = FileUploadTemplate::getTemplateIDList($data);
+    return Form::select('templates', $all_templates, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
+}
 
 function customer_leads_dropbox($id=0,$data=array()){
     $accounts = Account::getAccountIDList($data);
@@ -231,7 +235,7 @@ function sendMail($view,$data,$ViewType=1){
 	}
 
 	
-	if(SiteIntegration::CheckCategoryConfiguration(false,SiteIntegration::$EmailSlug)){
+	if(SiteIntegration::CheckCategoryConfiguration(false,SiteIntegration::$EmailSlug,$companyID)){
 		$status = 	SiteIntegration::SendMail($view,$data,$companyID,$body); 
 	}
 	else{ 
@@ -436,7 +440,8 @@ function compositDropdown($name,$data,$selection,$arr)
         $select .= ' <optgroup class="optgroup_'.Product::$TypetoProducts[$index].'" label="'.ucfirst(Product::$TypetoProducts[$index]).'">';
         foreach($cate as $key=>$val) {
             $selected = (!empty($selection) && $key==$selection['ID'] && $index==$selection['Type'])?'selected':'';
-            $select .= '    <option Item_Subscription_txt="'.ucfirst(Product::$TypetoProducts[$index]).'" Item_Subscription_type="'.$index.'" value="' . $key . '" '.$selected.'>';
+            $optgroup = !empty($key) ? $index . '-' : '';
+            $select .= '    <option Item_Subscription_txt="'.ucfirst(Product::$TypetoProducts[$index]).'" Item_Subscription_type="'.$index.'" value="' . $optgroup . $key . '" '.$selected.'>';
             $select .= $val;
             $select .= '    </option>';
         }
@@ -464,8 +469,8 @@ function is_amazon($CompanyID = 0){
     return true;
 }
 
-function is_authorize(){
-	return				SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$AuthorizeSlug);
+function is_authorize($CompanyID){
+	return				SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$AuthorizeSlug,$CompanyID);
 	
 	/*$AuthorizeDbData 	= 	IntegrationConfiguration::where(array('CompanyId'=>User::get_companyID(),"IntegrationID"=>9))->first();
 	if(count($AuthorizeDbData)>0){
@@ -484,18 +489,18 @@ function is_authorize(){
 	}	*/
 }
 
-function is_paypal(){
+function is_paypal($CompanyID){
 
-    $paypal = new PaypalIpn();
+    $paypal = new PaypalIpn($CompanyID);
     if($paypal->status){
         return true;
     }
     return false;
 }
 
-function is_sagepay(){
+function is_sagepay($CompanyID){
 
-    $sagepay = new SagePay();
+    $sagepay = new SagePay($CompanyID);
     if($sagepay->status){
         return true;
     }
@@ -1129,7 +1134,7 @@ function check_uri($parent_link=''){
     $Path 			  =    Route::currentRouteAction();
     $path_array 	  =    explode("Controller",$Path);
     $array_settings   =    array("Users","Trunk","CodeDecks","Gateway","Currencies","CurrencyConversion","DestinationGroup","DialString");
-    $array_admin	  =	   array("Users","Role","Themes","AccountApproval","VendorFileUploadTemplate","EmailTemplate","Notification","ServerInfo","Retention","NoticeBoard");
+    $array_admin	  =	   array("Users","Role","Themes","AccountApproval","FileUploadTemplate","EmailTemplate","Notification","ServerInfo","Retention","NoticeBoard");
     $array_summary    =    array("Summary");
     $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling");
 	$array_tickets	  =	   array("Tickets","TicketsFields","TicketsGroup","Dashboard","TicketsSla","TicketsBusinessHours","TicketImportRules");
@@ -1599,20 +1604,20 @@ function ShortName($title,$length=8){
 	}
 }
 
-function is_Stripe(){
-    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$StripeSlug);
+function is_Stripe($CompanyID){
+    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$StripeSlug,$CompanyID);
 }
-function is_StripeACH(){
-    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$StripeACHSlug);
+function is_StripeACH($CompanyID){
+    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$StripeACHSlug,$CompanyID);
 }
-function is_SagePayDirectDebit(){
-    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$SagePayDirectDebitSlug);
+function is_SagePayDirectDebit($CompanyID){
+    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$SagePayDirectDebitSlug,$CompanyID);
 }
-function is_FideliPay(){
-    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$FideliPaySlug);
+function is_FideliPay($CompanyID){
+    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$FideliPaySlug,$CompanyID);
 }
-function is_Xero(){
-    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$XeroSlug);
+function is_Xero($CompanyID){
+    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$XeroSlug,$CompanyID);
 }
 function change_timezone($billing_timezone,$timezone,$date){
     if(!empty($timezone) && !empty($billing_timezone)) {
@@ -1626,10 +1631,11 @@ function change_timezone($billing_timezone,$timezone,$date){
     return $date;
 }
 
-function getQuickBookAccountant(){
+// not using
+function getQuickBookAccountant($CompanyID){
     $ChartofAccounts = array();
-    $Quickbook = new BillingAPI();
-    $check_quickbook = $Quickbook->check_quickbook();
+    $Quickbook = new BillingAPI($CompanyID);
+    $check_quickbook = $Quickbook->check_quickbook($CompanyID);
     if($check_quickbook){
         $ChartofAccounts = $Quickbook->getChartofAccounts();
         if(!empty($ChartofAccounts) && count($ChartofAccounts)>0){
@@ -2000,7 +2006,11 @@ function table_array($data,$response,$all_data_list){
                 $table_data['columns'][$i][$fincalcol_key . $col_seprator]['colspan'] = ${'new_count_colspan_' . $fincalcol_key . $col_seprator};
             }
         }
-        $columns_keys = array_keys($table_data['columns'][count($table_data['columns']) - 2]);
+        if(count($table_data['columns']) > 2){
+            $columns_keys = array_keys($table_data['columns'][count($table_data['columns']) - 2]);
+        }else{
+            $columns_keys = array_keys($table_data['columns'][count($table_data['columns']) - 1]);
+        }
 
         foreach ($table_data['data'] as $key => $table_row){
             $table_new_row = array();
@@ -2053,7 +2063,11 @@ function table_html($data,$table_data){
                     
                     $table_header_colgroup .= '<colgroup span="' . $row_val['colspan'] . '" style="background-color:' . $color. '"></colgroup>';
                 }
-                $table_header .= '<th colspan="' .$row_val['colspan'] . '" scope="colgroup"><strong>' . $row_val['name'] . '</strong></th>';
+                if(isset($row_val['name'])){
+                    $table_header .= '<th colspan="' .$row_val['colspan'] . '" scope="colgroup"><strong>' . $row_val['name'] . '</strong></th>';
+                }else{
+                    $table_header .= '<th colspan="' .$row_val['colspan'] . '" scope="colgroup"><strong></strong></th>';
+                }
                 $index_col++;
             }
 
@@ -2109,9 +2123,11 @@ function table_html($data,$table_data){
             }
             if ($explode_row_count == $row_count && $explode_count >= $col_count) {
                 if($key_index > 0 && $col_count == 0){
-                    $table_single_row .= '<td class="col">' . (is_numeric($col_val)?number_format($col_val,get_round_decimal_places()):$col_val) . '</td>';
-                }else if($col_count > 0){
-                    $table_single_row .= '<td class="col">' . (is_numeric($col_val)?number_format($col_val,get_round_decimal_places()):$col_val) . '</td>';
+                    $table_single_row .= '<td class="col">' . (is_numeric($col_val) && is_apply_number_format($col_name) ?number_format($col_val,get_round_decimal_places()):$col_val) . '</td>';
+                } else if($key_index == 0 && $col_count == 0 && $row_count == 0 ){
+                    $table_single_row .= '<td class="col">' . (is_numeric($col_val) && is_apply_number_format($col_name) ?number_format($col_val,get_round_decimal_places()):$col_val) . '</td>';
+                } else if($col_count > 0){
+                    $table_single_row .= '<td class="col">' . (is_numeric($col_val) && is_apply_number_format($col_name) ?number_format($col_val,get_round_decimal_places()):$col_val) . '</td>';
                 }
 
             }
@@ -2138,7 +2154,11 @@ function table_html($data,$table_data){
         $footer_col_count = 0;
         foreach ($table_data['table_footer_sum'] as $foot_col_name => $foot_col_val) {
             if($footer_col_count >= $row_col_count) {
-                $table_footer .= '<td class="col" style="background-color: #91c5d4"><strong>' . (is_numeric($foot_col_val)?number_format($foot_col_val,get_round_decimal_places()):$foot_col_val) . '</strong></td>';
+                if(is_apply_total($foot_col_name)){
+                    $table_footer .= '<td class="col" style="background-color: #91c5d4"><strong></strong></td>';
+                }else{
+                    $table_footer .= '<td class="col" style="background-color: #91c5d4"><strong>' . (is_numeric($foot_col_val) && is_apply_number_format($foot_col_name)?number_format($foot_col_val,get_round_decimal_places()):$foot_col_val) . '</strong></td>';
+                }
             }
             $footer_col_count++;
         }
@@ -2353,6 +2373,14 @@ function generate_manual_datatable_response($ColName){
                 }
             }
             break;
+        case 'Owner':
+            $action = User::getOwnerUsersbyRole();
+            foreach ($action as $row_key => $row_title) {
+                if (!empty($row_key) && $row_key != 'All') {
+                    $response_data[] = array($row_key, $row_title);
+                }
+            }
+            break;
     }
     $manual_response = '{"sEcho":1,"iTotalRecords":'.count($response_data).',"iTotalDisplayRecords":'.count($response_data).',"aaData":'.json_encode($response_data).',"sColumns":["value","name"],"Total":{"totalcount":'.count($response_data).'}}';
     return $manual_response;
@@ -2371,28 +2399,92 @@ function report_join($data){
     $account_join = false;
     $Accountschema = Report::$dimension['summary']['Customer'];
     foreach ($data['column'] as $column) {
-        if (in_array($column, $Accountschema) && $column != 'AccountID') {
+        if (in_array($column, array_keys($Accountschema)) && $column != 'AccountID') {
+            $account_join = true;
+        }
+        if ($column == 'Owner') {
             $account_join = true;
         }
     }
     foreach ($data['row'] as $column) {
-        if (in_array($column, $Accountschema) && $column != 'AccountID' ) {
+        if (in_array($column,array_keys($Accountschema)) && $column != 'AccountID' ) {
+            $account_join = true;
+        }
+        if ($column == 'Owner' ) {
             $account_join = true;
         }
     }
 
     return $account_join;
 }
-function getInvoicePayments(){
-    if(is_authorize() || is_Stripe() || is_StripeACH() || is_paypal() || is_sagepay() || is_FideliPay()){
+function getInvoicePayments($CompanyID){
+    if(is_authorize($CompanyID) || is_Stripe($CompanyID) || is_StripeACH($CompanyID) || is_paypal($CompanyID) || is_sagepay($CompanyID) || is_FideliPay($CompanyID)){
         return true;
     }
     return false;
 }
 
-function is_PayNowInvoice(){
-    if(is_authorize() || is_Stripe() || is_StripeACH() || is_FideliPay()){
+function is_PayNowInvoice($CompanyID){
+    if(is_authorize($CompanyID) || is_Stripe($CompanyID) || is_StripeACH($CompanyID) || is_FideliPay($CompanyID)){
         return true;
     }
     return false;
+}
+function fix_jobstatus_meassage($message){
+    if(count($message)>100) {
+        $message = array_slice($message, 0, 100);
+        $message[] = '...';
+    }
+    return $message;
+}
+
+function is_reseller(){
+    if(Session::get('reseller')==1){
+        return true;
+    }else{
+        return false;
+    }
+}	
+
+function is_apply_number_format($col_name){
+    $flag = true;
+    $col_array = array('TotalBilledDuration','BilledDuration','NoOfCalls','NoOfFailCalls','TotalDuration','TotalDuration2','UsageDetailID','billed_duration','duration','VendorCDRID');
+    foreach($col_array as $col){
+        if (strpos($col_name, $col) !== false) {
+            $flag = false;
+        }
+    }
+    return $flag;
+}
+
+function is_apply_total($col_name){
+    $flag = false;
+    $col_array = array('ACD','ASR','MarginPercentage');
+    foreach($col_array as $col){
+        if (strpos($col_name, $col) !== false) {
+            $flag = true;
+        }
+    }
+    return $flag;
+}
+
+function report_tables_dropbox($id=0,$CompanyID){
+    $all_getRateTables = Report::getDropdownIDList($CompanyID);
+    return Form::select('rategenerators', $all_getRateTables, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+
+
+function get_account_view_url($AccountID) {
+
+    return URL::to('accounts/'.$AccountID.'/show');
+}
+
+function get_contact_view_url($ContactID) {
+
+    return URL::to('contacts/'.$ContactID.'/show');
+}
+
+function get_user_edit_url($UserID) {
+
+    return URL::to('users/edit/'.$UserID);
 }

@@ -44,6 +44,12 @@
                     </p>
                 </div>
                 <div class="form-group">
+                    <label class="control-label"  >Reseller</label><br/>
+                    <p class="make-switch switch-small">
+                        <input id="Reseller_on_off" name="reseller_on_off" type="checkbox" value="1">
+                    </p>
+                </div>
+                <div class="form-group">
                     <label class="control-label"  >Active</label><br/>
                     <p class="make-switch switch-small">
                         <input id="account_active" name="account_active" type="checkbox" value="1" checked="checked">
@@ -263,6 +269,7 @@
 			"verification_status":$("#account_filter [name='verification_status']").val(),
 			"account_owners":$("#account_filter [name='account_owners']").val(),			
 			"customer_on_off":$("#account_filter [name='customer_on_off']").prop("checked"),
+			"reseller_on_off":$("#account_filter [name='reseller_on_off']").prop("checked"),
 			"vendor_on_off":$("#account_filter [name='vendor_on_off']").prop("checked"),
             "low_balance":$("#account_filter [name='low_balance']").prop("checked"),
 			"account_active":$("#account_filter [name='account_active']").prop("checked"),
@@ -296,6 +303,7 @@
         $searchFilter.verification_status = $("#account_filter [name='verification_status']").val();
         $searchFilter.account_owners = $("#account_filter [name='account_owners']").val();
         $searchFilter.customer_on_off = $("#account_filter [name='customer_on_off']").prop("checked");
+        $searchFilter.reseller_on_off = $("#account_filter [name='reseller_on_off']").prop("checked");
         $searchFilter.vendor_on_off = $("#account_filter [name='vendor_on_off']").prop("checked");
         $searchFilter.low_balance = $("#account_filter [name='low_balance']").prop("checked");
         $searchFilter.account_active = $("#account_filter [name='account_active']").prop("checked");
@@ -318,6 +326,7 @@
                                 {"name":"tag","value":$searchFilter.tag},
                                 {"name":"contact_name","value":$searchFilter.contact_name},
                                 {"name":"customer_on_off","value":$searchFilter.customer_on_off},
+                                {"name":"reseller_on_off","value":$searchFilter.reseller_on_off},
                                 {"name":"vendor_on_off","value":$searchFilter.vendor_on_off},
                                 {"name":"low_balance","value":$searchFilter.low_balance},
                                 {"name":"account_active","value":$searchFilter.account_active},
@@ -332,6 +341,7 @@
                                 {"name":"tag","value":$searchFilter.tag},
                                 {"name":"contact_name","value":$searchFilter.contact_name},
                                 {"name":"customer_on_off","value":$searchFilter.customer_on_off},
+                                {"name":"reseller_on_off","value":$searchFilter.reseller_on_off},
                                 {"name":"vendor_on_off","value":$searchFilter.vendor_on_off},
                                 {"name":"low_balance","value":$searchFilter.low_balance},
                                 {"name":"account_active","value":$searchFilter.account_active},
@@ -767,6 +777,7 @@
         $searchFilter.account_owners = $("#account_filter [name='account_owners']").val();
         $searchFilter.customer_on_off = $("#account_filter [name='customer_on_off']").prop("checked");
         $searchFilter.vendor_on_off = $("#account_filter [name='vendor_on_off']").prop("checked");
+        $searchFilter.reseller_on_off = $("#account_filter [name='reseller_on_off']").prop("checked");
         $searchFilter.low_balance = $("#account_filter [name='low_balance']").prop("checked");
         $searchFilter.account_active = $("#account_filter [name='account_active']").prop("checked");
         $searchFilter.ipclitext = $("#account_filter [name='IPCLIText']").val();

@@ -219,8 +219,14 @@
                                 @endif
 
                             </div>
-
+                            <div class="form-group">
+                                <label for="field-1" class="col-sm-2 control-label">AppliedTo</label>
+                                <div class="col-sm-4">
+                                    {{Form::select('selection[AppliedTo]', array(),'',array("class"=>"select2 small"))}}
+                                </div>
+                            </div>
                         </div>
+
                     </div>
                     <div class="panel panel-primary" data-collapsed="0">
                         <div class="panel-heading">
@@ -467,6 +473,7 @@
                             <th>Unit Cost *</th>
                             <th>Note</th>
                             <th>Barcode</th>
+                            <th>AppliedTo</th>
                             <th>Action</th>
                         </tr>
                         </thead>
@@ -478,6 +485,7 @@
                             <td>50</td>
                             <td>abc note</td>
                             <td>111</td>
+                            <td>customer</td>
                             <td>I <span data-original-title="Insert" data-content="When action is set to 'I', It will insert new Item" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></td>
                         </tr>
                         <tr>
@@ -487,6 +495,7 @@
                             <td>100</td>
                             <td>pqr note</td>
                             <td>111</td>
+                            <td>customer</td>
                             <td>U <span data-original-title="Update" data-content="When action is set to 'U',It will replace existing Item" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></td>
                         </tr>
                         <tr>
@@ -495,7 +504,9 @@
                             <td>xyz product</td>
                             <td>75</td>
                             <td>xyz note</td>
-                            <td>D</td><td>D <span data-original-title="Delete" data-content="When action is set to 'D',It will delete existing Item" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></td>
+                            <td></td>
+                            <td>reseller</td>
+                            <td>D <span data-original-title="Delete" data-content="When action is set to 'D',It will delete existing Item" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></td>
                         </tr>
                         </tbody>
                     </table>

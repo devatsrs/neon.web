@@ -2,6 +2,7 @@ CREATE DEFINER=`neon-user`@`%` PROCEDURE `prc_CronJobGenerateM2Sheet`(
 	IN `p_CustomerID` INT ,
 	IN `p_trunks` VARCHAR(200) ,
 	IN `p_Effective` VARCHAR(50)
+
 )
 BEGIN
     
@@ -87,7 +88,8 @@ BEGIN
 		   '0:00:00 'as `Start Time`,
 		   '23:59:59' as `End Time`,
 		   '' as `Week Day`,
-		   EffectiveDate  as `Effective from`	
+		   EffectiveDate  as `Effective from`,
+			RoutinePlanName as `Routing through`	
      FROM tmp_customerrateall_ ; 
 	 
 		SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

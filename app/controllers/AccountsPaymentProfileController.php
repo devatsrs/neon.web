@@ -9,7 +9,6 @@ class AccountsPaymentProfileController extends \BaseController {
 
         $PaymentGatewayName = '';
         $PaymentGatewayID = '';
-        //$PaymentGatewayID = PaymentGateway::getPaymentGatewayID();
         $account = Account::find($AccountID);
         if(!empty($account->PaymentMethod)){
             $PaymentGatewayName = $account->PaymentMethod;
@@ -33,7 +32,7 @@ class AccountsPaymentProfileController extends \BaseController {
     public function index($AccountID)
     {
 
-        \Debugbar::disable();
+        
         $PaymentGatewayID = '';
         $Account = Account::find($AccountID);
         $PaymentMethod = '';

@@ -58,6 +58,18 @@
                                 <input name="excel" type="file" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label for="field-1" class="col-sm-2 control-label" style="text-align: right;">Skips rows from Start</label>
+                            <div class="col-sm-3" style="padding-left:40px;">
+                                <input name="start_row" type="number" class="form-control" data-label="
+                                <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" style="" placeholder="Skips rows from Start" min="0" value="{{(!empty($attrskiprows->start_row) ? $attrskiprows->start_row : 0)}}">
+                            </div>
+                            <label class="col-sm-2 control-label" style="text-align: right;">Skips rows from Bottom</label>
+                            <div class="col-sm-3">
+                                <input name="end_row" type="number" class="form-control" data-label="
+                                    <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" placeholder="Skips rows from Bottom" min="0" value="{{(!empty($attrskiprows->end_row) ? $attrskiprows->end_row : 0)}}">
+                            </div>
+                        </div>
                         <p style="text-align: right;">
                             <button type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left">
                                 <i class="entypo-floppy"></i>
@@ -125,27 +137,36 @@
 
                     <div class="panel-body">
                         <div class="form-group">
-                            <br />
-                            <br />
-                            <label for="field-1" class="col-sm-2 control-label">Code*</label>
+                            <label for="field-1" class="col-sm-2 control-label">Country Code</label>
                             <div class="col-sm-4">
+                                {{Form::select('selection[CountryCode]', $columns,(isset($attrselection->CountryCode)?$attrselection->CountryCode:''),array("class"=>"select2 small"))}}
+                            </div>
+                            <label for="field-1" class="col-sm-2 control-label">Code* </label>
+                            <div class="col-sm-2">
                                 {{Form::select('selection[Code]', $columns,(isset($attrselection->Code)?$attrselection->Code:''),array("class"=>"select2 small"))}}
                             </div>
-
+                            <div class="col-sm-2 popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Use this to split codes in one line" data-original-title="Code Separator">
+                                {{Form::select('selection[DialCodeSeparator]',Company::$dialcode_separator ,(isset($attrselection->DialCodeSeparator)?$attrselection->DialCodeSeparator:''),array("class"=>"select2 small"))}}
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label for="field-1" class="col-sm-2 control-label">Description*</label>
                             <div class="col-sm-4">
                                 {{Form::select('selection[Description]', $columns,(isset($attrselection->Description)?$attrselection->Description:''),array("class"=>"select2 small"))}}
                             </div>
-                        </div>
-                        <div class="form-group">
                             <label for="field-1" class="col-sm-2 control-label">Rate*</label>
                             <div class="col-sm-4">
                                 {{Form::select('selection[Rate]', $columns,(isset($attrselection->Rate)?$attrselection->Rate:''),array("class"=>"select2 small"))}}
                             </div>
-
-                            <label for="field-1" class="col-sm-2 control-label">EffectiveDate*</label>
+                        </div>
+                        <div class="form-group">
+                            <label for="field-1" class="col-sm-2 control-label">EffectiveDate <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If not selected then rates will be uploaded as effective immediately" data-original-title="EffectiveDate">?</span></label>
                             <div class="col-sm-4">
                                 {{Form::select('selection[EffectiveDate]', $columns,(isset($attrselection->EffectiveDate)?$attrselection->EffectiveDate:''),array("class"=>"select2 small"))}}
+                            </div>
+                            <label for="field-1" class="col-sm-2 control-label">End Date <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If selected than rate will be deleted at this End Date" data-original-title="End Date">?</span></label>
+                            <div class="col-sm-4">
+                                {{Form::select('selection[EndDate]', $columns,(isset($attrselection->EndDate)?$attrselection->EndDate:''),array("class"=>"select2 small"))}}
                             </div>
                         </div>
                         <div class="form-group">
@@ -155,17 +176,27 @@
                             </div>
                             <label for="field-1" class="col-sm-2 control-label">Action Insert</label>
                             <div class="col-sm-4">
-                                <input type="text" class="form-control" name="selection[ActionInsert]" value="{{$attrselection->ActionInsert}}" />
+                                <input type="text" class="form-control" name="selection[ActionInsert]" value="{{(!empty($attrselection->ActionInsert)?$attrselection->ActionInsert:'I')}}" />
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="field-1" class="col-sm-2 control-label">Action Update</label>
                             <div class="col-sm-4">
-                                <input type="text" class="form-control" name="selection[ActionUpdate]" value="{{$attrselection->ActionUpdate}}" />
+                                <input type="text" class="form-control" name="selection[ActionUpdate]" value="{{(!empty($attrselection->ActionUpdate)?$attrselection->ActionUpdate:'U')}}" />
                             </div>
                             <label for="field-1" class="col-sm-2 control-label">Action Delete</label>
                             <div class="col-sm-4">
-                                <input type="text" class="form-control" name="selection[ActionDelete]" value="{{$attrselection->ActionDelete}}" />
+                                <input type="text" class="form-control" name="selection[ActionDelete]" value="{{(!empty($attrselection->ActionDelete)?$attrselection->ActionDelete:'D')}}" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="field-1" class="col-sm-2 control-label">Forbidden <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="0 - Unblock , 1 - Block" data-original-title="Forbidden">?</span></label>
+                            <div class="col-sm-4">
+                                {{Form::select('selection[Forbidden]', $columns,(isset($attrselection->Forbidden)?$attrselection->Forbidden:''),array("class"=>"select2 small"))}}
+                            </div>
+                            <label for="field-1" class="col-sm-2 control-label">Preference</label>
+                            <div class="col-sm-4">
+                                {{Form::select('selection[Preference]', $columns,(isset($attrselection->Preference)?$attrselection->Preference:''),array("class"=>"select2 small"))}}
                             </div>
                         </div>
                         <div class="form-group">
@@ -173,7 +204,6 @@
                             <div class="col-sm-4">
                                 {{Form::select('selection[Interval1]', $columns,(isset($attrselection->Interval1)?$attrselection->Interval1:''),array("class"=>"select2 small"))}}
                             </div>
-
                             <label for=" field-1" class="col-sm-2 control-label">IntervalN</label>
                             <div class="col-sm-4">
                                 {{Form::select('selection[IntervalN]', $columns,(isset($attrselection->IntervalN)?$attrselection->IntervalN:''),array("class"=>"select2 small"))}}
@@ -184,9 +214,26 @@
                             <div class="col-sm-4">
                                 {{Form::select('selection[ConnectionFee]', $columns,(isset($attrselection->ConnectionFee)?$attrselection->ConnectionFee:''),array("class"=>"select2 small"))}}
                             </div>
-                            <label for=" field-1" class="col-sm-2 control-label">Date Format</label>
+                            <label for=" field-1" class="col-sm-2 control-label">Date Format <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Please check date format selected and date displays in grid." data-original-title="Date Format">?</span></label>
                             <div class="col-sm-4">
                                 {{Form::select('selection[DateFormat]',Company::$date_format ,(isset($attrselection->DateFormat)?$attrselection->DateFormat:''),array("class"=>"select2 small"))}}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for=" field-1" class="col-sm-2 control-label">Dial String <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If you want code to prefix mapping then select dial string." data-original-title="Dial String">?</span>
+                            </label>
+                            <div class="col-sm-4">
+                                {{Form::select('selection[DialString]',$dialstring ,(isset($attrselection->DialString)?$attrselection->DialString:''),array("class"=>"select2 small"))}}
+                            </div>
+                            <label for=" field-1" class="col-sm-2 control-label">Number Range <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Only Required when you have selected Dial String in mapping." data-original-title="Number Range">?</span></label>
+                            <div class="col-sm-4">
+                                {{Form::select('selection[DialStringPrefix]', $columns,(isset($attrselection->DialStringPrefix)?$attrselection->DialStringPrefix:''),array("class"=>"select2 small"))}}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for=" field-1" class="col-sm-2 control-label">Currency Conversion <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Select currency to convert rates to your base currency" data-original-title="Currency Conversion">?</span></label>
+                            <div class="col-sm-4">
+                                {{Form::select('selection[FromCurrency]', $currencies ,(isset($attrselection->FromCurrency)?$attrselection->FromCurrency:''),array("class"=>"select2 small"))}}
                             </div>
                         </div>
                     </div>
@@ -250,6 +297,9 @@
                     fullurl = baseurl + '/uploadtemplate/store';
                 }
                 var data = new FormData($("#csvimporter-form")[0]);
+                data.append('start_row', $('#file-form input[name="start_row"]').val());
+                data.append('end_row', $('#file-form input[name="end_row"]').val());
+
                 $.ajax({
                     url:fullurl, //Server script to process data
                     type: 'POST',

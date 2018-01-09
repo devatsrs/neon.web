@@ -8,7 +8,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_ProcessCDRAccount`(
 BEGIN
 
 	DECLARE v_NewAccountIDCount_ INT;
-	
+
 	/* insert new account */
 	SET @stm = CONCAT('
 	INSERT INTO tblGatewayAccount (CompanyID, CompanyGatewayID, GatewayAccountID, AccountName,AccountNumber,AccountCLI,AccountIP,ServiceID)
@@ -39,7 +39,7 @@ BEGIN
 	PREPARE stmt FROM @stm;
 	EXECUTE stmt;
 	DEALLOCATE PREPARE stmt;
-	
+
 	/* update cdr account */
 	SET @stm = CONCAT('
 	UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` uh
@@ -61,8 +61,6 @@ BEGIN
 
 	/* active new account */
 	CALL  prc_getActiveGatewayAccount(p_CompanyID,p_CompanyGatewayID,p_NameFormat);
-	
-	
 
 	/* update cdr account */
 	SET @stm = CONCAT('
@@ -85,7 +83,7 @@ BEGIN
 	EXECUTE stmt;
 	DEALLOCATE PREPARE stmt;
 
-	SELECT COUNT(*) INTO v_NewAccountIDCount_ 
+	SELECT COUNT(*) INTO v_NewAccountIDCount_
 	FROM NeonCDRDev.tblUsageHeader uh
 	INNER JOIN tblGatewayAccount ga
 		ON  uh.GatewayAccountPKID = ga.GatewayAccountPKID
@@ -106,23 +104,6 @@ BEGIN
 		AND ga.AccountID is not null
 		AND uh.CompanyID = p_CompanyID
 		AND uh.CompanyGatewayID = p_CompanyGatewayID;
-		
-		UPDATE NeonCDRDev.tblCallDetail uh
-		INNER JOIN tblGatewayAccount ga
-			ON  uh.GatewayAccountPKID = ga.GatewayAccountPKID
-		SET uh.AccountID = ga.AccountID
-		WHERE uh.AccountID IS NULL
-		AND ga.AccountID is not null
-		AND uh.CompanyGatewayID = p_CompanyGatewayID;
-		
-		UPDATE NeonCDRDev.tblCallDetail uh
-		INNER JOIN tblGatewayAccount ga
-			ON  uh.GatewayVAccountPKID = ga.GatewayAccountPKID
-		SET uh.VAccountID = ga.AccountID
-		WHERE uh.VAccountID IS NULL
-		AND ga.AccountID is not null
-		AND uh.CompanyGatewayID = p_CompanyGatewayID;
-		
 
 	END IF;
 

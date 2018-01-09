@@ -179,7 +179,8 @@
                                 <tbody>
                                     <tr class="odd gradeX">
                                         <td>
-                                            {{$rategenerator_rule->Code}}
+                                            {{$rategenerator_rule->Code}}@if(!empty($rategenerator_rule->Code)) <br/> @endif
+                                            {{$rategenerator_rule->Description}}
                                         </td>
                                         <td>
                                             @if(count($rategenerator_rule['RateRuleSource']))

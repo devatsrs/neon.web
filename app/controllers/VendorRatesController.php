@@ -1,4 +1,5 @@
 <?php
+
 class VendorRatesController extends \BaseController
 {
     
@@ -19,7 +20,7 @@ class VendorRatesController extends \BaseController
         $data['Code'] = $data['Code'] != ''?"'".$data['Code']."'":'null';
         $data['Description'] = $data['Description'] != ''?"'".$data['Description']."'":'null';
 
-        $columns = array('VendorRateID','Code','Description','ConnectionFee','Interval1','IntervalN','Rate','EffectiveDate','updated_at','updated_by','VendorRateID');
+        $columns = array('VendorRateID','Code','Description','ConnectionFee','Interval1','IntervalN','Rate','EffectiveDate','EndDate','updated_at','updated_by','VendorRateID');
 
         $sort_column = $columns[$data['iSortCol_0']];
         $companyID = User::get_companyID();
@@ -46,12 +47,12 @@ class VendorRatesController extends \BaseController
     
     public function upload($id) {
 //            $uploadtemplate = VendorFileUploadTemplate::getTemplateIDList();
-            $arrData = VendorFileUploadTemplate::where(['CompanyID'=>User::get_companyID()])->orderBy('Title')->get(['Title', 'VendorFileUploadTemplateID', 'Options'])->toArray();
+            $arrData = FileUploadTemplate::where(['CompanyID'=>User::get_companyID(),'Type'=>FileUploadTemplate::TEMPLATE_VENDOR_RATE])->orderBy('Title')->get(['Title', 'FileUploadTemplateID', 'Options'])->toArray();
 
             $uploadtemplate=[];
             $uploadtemplate[]=[
                 "Title" => "Select",
-                "VendorFileUploadTemplateID" => "",
+                "FileUploadTemplateID" => "",
                 "start_row" => "",
                 "end_row" => ""
             ];
@@ -60,7 +61,7 @@ class VendorRatesController extends \BaseController
             {
                 $arrUploadTmp=[];
                 $arrUploadTmp["Title"]=$val["Title"];
-                $arrUploadTmp["VendorFileUploadTemplateID"]=$val["VendorFileUploadTemplateID"];
+                $arrUploadTmp["FileUploadTemplateID"]=$val["FileUploadTemplateID"];
 
                 $options=json_decode($val["Options"], true);
 
@@ -71,8 +72,8 @@ class VendorRatesController extends \BaseController
                 }
                 else
                 {
-                    $arrUploadTmp["start_row"]="";
-                    $arrUploadTmp["end_row"]="";
+                    $arrUploadTmp["start_row"]="0";
+                    $arrUploadTmp["end_row"]="0";
                 }
                 $uploadtemplate[]=$arrUploadTmp;
             }
@@ -620,7 +621,7 @@ class VendorRatesController extends \BaseController
             $grid['filename'] = $data['TemplateFile'];
             $grid['tempfilename'] = $data['TempFileName'];
             if ($data['uploadtemplate'] > 0) {
-                $VendorFileUploadTemplate = VendorFileUploadTemplate::find($data['uploadtemplate']);
+                $VendorFileUploadTemplate = FileUploadTemplate::find($data['uploadtemplate']);
                 $grid['VendorFileUploadTemplate'] = json_decode(json_encode($VendorFileUploadTemplate), true);
                 //$grid['VendorFileUploadTemplate']['Options'] = json_decode($VendorFileUploadTemplate->Options,true);
             }
@@ -637,7 +638,7 @@ class VendorRatesController extends \BaseController
         $data = Input::all();
         $CompanyID = User::get_companyID();
 
-        $rules['selection.Code'] = 'required';
+        /*$rules['selection.Code'] = 'required';
         $rules['selection.Description'] = 'required';
         $rules['selection.Rate'] = 'required';
         //$rules['selection.EffectiveDate'] = 'required';
@@ -645,7 +646,7 @@ class VendorRatesController extends \BaseController
 
         if ($validator->fails()) {
             return json_validator_response($validator);
-        }
+        }*/
         if(isset($data['selection']['FromCurrency']) && !empty($data['selection']['FromCurrency'])) {
             $CompanyCurrency = Company::find($CompanyID)->CurrencyId;
 
@@ -690,7 +691,36 @@ class VendorRatesController extends \BaseController
         if (!isset($data['codedeckid']) || empty($data['codedeckid'])) {
             return json_encode(["status" => "failed", "message" => 'Please Update a Codedeck in Setting']);
         }
-        $file_name = basename($data['TemplateFile']);
+
+        $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_UPLOAD']);
+
+        if(!empty($data['TemplateName'])){
+            if(!empty($data['uploadtemplate'])) {
+                $data['FileUploadTemplateID'] = $data['uploadtemplate'];
+            }
+            $uploadresult = FileUploadTemplate::createOrUpdateFileUploadTemplate($data);
+
+            if(is_object($uploadresult)) {
+                return $uploadresult;
+            } else if (!empty($uploadresult['status']) && $uploadresult['status'] == "failed") {
+                return Response::json($uploadresult);
+            } else if (!empty($uploadresult['status']) && $uploadresult['status'] == "success") {
+                $template = $uploadresult['Template'];
+                $data['uploadtemplate'] = $template->FileUploadTemplateID;
+                $file_name = $uploadresult['file_name'];
+            }
+        } else {
+            $file_name = basename($data['TemplateFile']);
+            $temp_path = CompanyConfiguration::get('TEMP_PATH').'/' ;
+            $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+            copy($temp_path . $file_name, $destinationPath . $file_name);
+            if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
+                return Response::json(array("status" => "failed", "message" => "Failed to upload vendor rates file."));
+            }
+            $option["skipRows"] = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
+        }
+
+        /*$file_name = basename($data['TemplateFile']);
 
         $temp_path = CompanyConfiguration::get('TEMP_PATH').'/' ;
 
@@ -709,14 +739,18 @@ class VendorRatesController extends \BaseController
             $option["option"] = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
             $option["selection"] = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
             $save['Options'] = json_encode($option);
+
+            $isTemplateExist = VendorFileUploadTemplate::where(['Title'=>$data['TemplateName']]);
             if (isset($data['uploadtemplate']) && $data['uploadtemplate'] > 0) {
                 $template = VendorFileUploadTemplate::find($data['uploadtemplate']);
                 $template->update($save);
+            } else if($isTemplateExist->count() > 0) {
+                $template = $isTemplateExist->first();
             } else {
                 $template = VendorFileUploadTemplate::create($save);
             }
             $data['uploadtemplate'] = $template->VendorFileUploadTemplateID;
-        }
+        }*/
         $save = array();
         $option["option"]=  $data['option'];
         $option["selection"] = $data['selection'];
@@ -732,7 +766,13 @@ class VendorRatesController extends \BaseController
         $save['checkbox_replace_all'] = $data['checkbox_replace_all'];
         $save['checkbox_rates_with_effected_from'] = $data['checkbox_rates_with_effected_from'];
         $save['checkbox_add_new_codes_to_code_decks'] = $data['checkbox_add_new_codes_to_code_decks'];
-            //Inserting Job Log
+        $save['checkbox_review_rates'] = $data['checkbox_review_rates'];
+        $save['radio_list_option'] = $data['radio_list_option'];
+        if(!empty($data['ProcessID'])) {
+            $save['ProcessID'] = $data['ProcessID'];
+        }
+
+        //Inserting Job Log
         try {
             DB::beginTransaction();
             //remove unnecesarry object
@@ -764,6 +804,10 @@ class VendorRatesController extends \BaseController
                     $file_name = $file_name_without_ext . '.' . $excel->getClientOriginalExtension();
                     $excel->move($upload_path, $file_name);
                     $file_name = $upload_path . '/' . $file_name;
+
+                    if(!empty($data['checkbox_review_rates']) && $data['checkbox_review_rates'] == 1) {
+                        $file_name = NeonExcelIO::convertExcelToCSV($file_name, $data);
+                    }
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Please select excel or csv file."));
                 }
@@ -775,8 +819,8 @@ class VendorRatesController extends \BaseController
             if (!empty($file_name)) {
 
                 if ($data['uploadtemplate'] > 0) {
-                    $VendorFileUploadTemplate = VendorFileUploadTemplate::find($data['uploadtemplate']);
-                    $options = json_decode($VendorFileUploadTemplate->Options, true);
+                    $FileUploadTemplate = FileUploadTemplate::find($data['uploadtemplate']);
+                    $options = json_decode($FileUploadTemplate->Options, true);
                     $data['Delimiter'] = $options['option']['Delimiter'];
                     $data['Enclosure'] = $options['option']['Enclosure'];
                     $data['Escape'] = $options['option']['Escape'];
@@ -790,14 +834,14 @@ class VendorRatesController extends \BaseController
                 $grid['start_row'] = $data["start_row"];
                 $grid['end_row'] = $data["end_row"];
 
-                if (!empty($VendorFileUploadTemplate)) {
-                    $grid['VendorFileUploadTemplate'] = json_decode(json_encode($VendorFileUploadTemplate), true);
-                    $grid['VendorFileUploadTemplate']['Options'] = json_decode($VendorFileUploadTemplate->Options, true);
+                if (!empty($FileUploadTemplate)) {
+                    $grid['VendorFileUploadTemplate'] = json_decode(json_encode($FileUploadTemplate), true);
+                    $grid['VendorFileUploadTemplate']['Options'] = json_decode($FileUploadTemplate->Options, true);
                 }
                 return Response::json(array("status" => "success", "data" => $grid));
             }
         }catch(Exception $ex) {
-		Log::info($ex);
+		    Log::info($ex);
             return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
         }
     }
@@ -876,10 +920,563 @@ class VendorRatesController extends \BaseController
 
     public function vendordownloadtype($id,$type){
         if($type==RateSheetFormate::RATESHEET_FORMAT_VOS32 || $type==RateSheetFormate::RATESHEET_FORMAT_VOS20){
-            $downloadtype = '<option value="">Select</option><option value="txt">TXT</option>';
+            $downloadtype = '<option value="">Select</option><option value="txt">TXT</option><option value="xlsx">EXCEL</option><option value="csv">CSV</option>';
         }else{
             $downloadtype = '<option value="">Select</option><option value="xlsx">EXCEL</option><option value="csv">CSV</option>';
         }
         return $downloadtype;
     }
+
+    public function reviewRates($id) {
+        $data = Input::all();
+        $CompanyID = User::get_companyID();
+        $ProcessID = (string) GUID::generate();
+        $bacth_insert_limit = 250;
+        $counter = 0;
+        $p_forbidden = 0;
+        $p_preference = 0;
+        $DialStringId = 0;
+        $dialcode_separator = 'null';
+        //$TEMP_PATH = CompanyConfiguration::get($CompanyID,'TEMP_PATH').'/';
+
+        /*$rules['selection.Code'] = 'required';
+        $rules['selection.Description'] = 'required';
+        $rules['selection.Rate'] = 'required';
+        //$rules['selection.EffectiveDate'] = 'required';
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }*/
+        if(isset($data['selection']['FromCurrency']) && !empty($data['selection']['FromCurrency'])) {
+            $CompanyCurrency = Company::find($CompanyID)->CurrencyId;
+
+            $error = array();
+            if(!($CompanyCurrency && !empty($CompanyCurrency))) {
+                $error['status'] = "failed";
+                $error['message'] = "You have not setup your base currency, please select it under company page if you want to convert rates.<br/>";
+            } else {
+                $ACID = Account::find($id)->CurrencyId;
+                $CompanyConversionRate = CurrencyConversion::where(['CurrencyID' => $CompanyCurrency, 'CompanyID' => $CompanyID])->count();
+                $FileConversionRate = CurrencyConversion::where(['CurrencyID' => $data['selection']['FromCurrency'], 'CompanyID' => $CompanyID])->count();
+                $AccountConversionRate = CurrencyConversion::where(['CurrencyID' => $ACID, 'CompanyID' => $CompanyID])->count();
+
+                $error['message'] = "";
+                $CurrencyCode = array();
+                if(empty($CompanyConversionRate)) {
+                    $CurrencyCode[] = Currency::find($CompanyCurrency)->Code;
+                }
+                if(empty($FileConversionRate)) {
+                    $CurrencyCode[] = Currency::find($data['selection']['FromCurrency'])->Code;
+                }
+                if(empty($AccountConversionRate)) {
+                    $CurrencyCode[] = Currency::find($ACID)->Code;
+                }
+
+                if(count($CurrencyCode) > 0) {
+                    $CurrencyCode = array_unique($CurrencyCode);
+                    $error['status'] = "failed";
+
+                    foreach ($CurrencyCode as $Code) {
+                        $error['message'] .= "You have not setup your currency (".$Code.") conversion rate, please set it up under setting -> exchange rate.<br/>";
+                    }
+                }
+
+            }
+
+            if(isset($error['status']) && $error['status'] == 'failed') {
+                return json_encode($error);
+            }
+        }
+        $data['codedeckid'] = VendorTrunk::where(["AccountID" => $id, 'TrunkID' => $data['Trunk']])->pluck("CodeDeckId");
+        if (!isset($data['codedeckid']) || empty($data['codedeckid'])) {
+            return json_encode(["status" => "failed", "message" => 'Please Update a Codedeck in Setting']);
+        }
+
+        $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_UPLOAD']);
+        $FileUploadTemplateID = "";
+
+        $temp_path = CompanyConfiguration::get('TEMP_PATH').'/' ;
+
+        if(!empty($data['TemplateName'])){
+            if(!empty($data['uploadtemplate'])) {
+                $data['FileUploadTemplateID'] = $data['uploadtemplate'];
+            }
+            $uploadresult = FileUploadTemplate::createOrUpdateFileUploadTemplate($data);
+
+            if(is_object($uploadresult)) {
+                return $uploadresult;
+            } else if (!empty($uploadresult['status']) && $uploadresult['status'] == "failed") {
+                return Response::json($uploadresult);
+            } else if (!empty($uploadresult['status']) && $uploadresult['status'] == "success") {
+                $template = $uploadresult['Template'];
+                $data['uploadtemplate'] = $FileUploadTemplateID = $template->FileUploadTemplateID;
+                $file_name = $uploadresult['file_name'];
+            }
+        } else {
+            $file_name = basename($data['TemplateFile']);
+            $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+            copy($temp_path . $file_name, $destinationPath . $file_name);
+            if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
+                return Response::json(array("status" => "failed", "message" => "Failed to upload vendor rates file."));
+            }
+            $option["skipRows"] = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
+        }
+
+        /*$file_name = basename($data['TemplateFile']);
+
+        $temp_path = CompanyConfiguration::get('TEMP_PATH').'/' ;
+
+        $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_UPLOAD']);
+
+        $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+
+        copy($temp_path . $file_name, $destinationPath . $file_name);
+        if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
+            return Response::json(array("status" => "failed", "message" => "Failed to upload vendor rates file."));
+        }
+        $option["skipRows"] = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
+        if(!empty($data['TemplateName'])){
+            $save = ['CompanyID' => $CompanyID, 'Title' => $data['TemplateName'], 'TemplateFile' => $amazonPath . $file_name];
+            $save['created_by'] = User::get_user_full_name();
+            $option["option"] = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
+            $option["selection"] = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
+            $save['Options'] = json_encode($option);
+
+            $isTemplateExist = VendorFileUploadTemplate::where(['Title'=>$data['TemplateName']]);
+            if (isset($data['uploadtemplate']) && $data['uploadtemplate'] > 0) {
+                $template = VendorFileUploadTemplate::find($data['uploadtemplate']);
+                $template->update($save);
+            } else if($isTemplateExist->count() > 0) {
+                $template = $isTemplateExist->first();
+            } else {
+                $template = VendorFileUploadTemplate::create($save);
+            }
+            $data['uploadtemplate'] = $template->VendorFileUploadTemplateID;
+        }*/
+
+        $save = array();
+        $option["option"]=  $data['option'];
+        $option["selection"] = $data['selection'];
+        $save['Options'] = json_encode($option);
+        $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
+        $save['full_path'] = $fullPath;
+        $save["AccountID"] = $id;
+        $save['codedeckid'] = $data['codedeckid'];
+        if(isset($data['uploadtemplate'])) {
+            $save['uploadtemplate'] = $data['uploadtemplate'];
+        }
+        $save['Trunk'] = $data['Trunk'];
+        $save['checkbox_replace_all'] = $data['checkbox_replace_all'];
+        $save['checkbox_rates_with_effected_from'] = $data['checkbox_rates_with_effected_from'];
+        $save['checkbox_add_new_codes_to_code_decks'] = $data['checkbox_add_new_codes_to_code_decks'];
+        $save['checkbox_review_rates'] = $data['checkbox_review_rates'];
+        $save['radio_list_option'] = $data['radio_list_option'];
+
+        $jobdata = array();
+        $joboptions = json_decode(json_encode($save));
+        if (count($joboptions) > 0) {
+            if(isset($joboptions->uploadtemplate) && !empty($joboptions->uploadtemplate)){
+                $uploadtemplate = FileUploadTemplate::find($joboptions->uploadtemplate);
+                $templateoptions = json_decode($uploadtemplate->Options);
+            }else{
+                $templateoptions = json_decode($joboptions->Options);
+            }
+            $csvoption = $templateoptions->option;
+            $attrselection = $templateoptions->selection;
+
+            // check dialstring mapping or not
+            if(isset($attrselection->DialString) && !empty($attrselection->DialString))
+            {
+                $DialStringId = $attrselection->DialString;
+            }else{
+                $DialStringId = 0;
+            }
+            if(isset($attrselection->Forbidden) && !empty($attrselection->Forbidden)){
+                $p_forbidden = 1;
+            }
+            if(isset($attrselection->Preference) && !empty($attrselection->Preference)){
+                $p_preference = 1;
+            }
+
+            if(isset($attrselection->DialCodeSeparator)){
+                if($attrselection->DialCodeSeparator == ''){
+                    $dialcode_separator = 'null';
+                }else{
+                    $dialcode_separator = $attrselection->DialCodeSeparator;
+                }
+            }else{
+                $dialcode_separator = 'null';
+            }
+
+            if (isset($attrselection->FromCurrency) && !empty($attrselection->FromCurrency)) {
+                $CurrencyConversion = 1;
+                $CurrencyID = $attrselection->FromCurrency;
+            }else{
+                $CurrencyConversion = 0;
+                $CurrencyID = 0;
+            }
+
+            if ($fullPath) {
+                $path = AmazonS3::unSignedUrl($fullPath,$CompanyID);
+                if (strpos($path, "https://") !== false) {
+                    $file = $temp_path . basename($path);
+                    file_put_contents($file, file_get_contents($path));
+                    $FilePath = $file;
+                } else {
+                    $FilePath = $path;
+                }
+            };
+
+            if(isset($templateoptions->skipRows) && $csvoption->Firstrow == 'columnname') {
+                $skiptRows              = $templateoptions->skipRows;
+                NeonExcelIO::$start_row = intval($skiptRows->start_row);
+                NeonExcelIO::$end_row   = intval($skiptRows->end_row);
+                $lineno                 = intval($skiptRows->start_row) + 2;
+            } else if (isset($templateoptions->skipRows) && $csvoption->Firstrow == 'data') {
+                $skiptRows              = $templateoptions->skipRows;
+                NeonExcelIO::$start_row = intval($skiptRows->start_row);
+                NeonExcelIO::$end_row   = intval($skiptRows->end_row);
+                $lineno                 = intval($skiptRows->start_row) + 1;
+            } else if ($csvoption->Firstrow == 'data') {
+                $lineno = 1;
+            } else {
+                $lineno = 2;
+            }
+
+            $NeonExcel = new NeonExcelIO($FilePath, (array) $csvoption);
+            $results = $NeonExcel->read();
+             
+
+            $error = array();
+            // if EndDate is mapped and not empty than data will store in and insert from $batch_insert_array
+            // if EndDate is mapped and     empty than data will store in and insert from $batch_insert_array2
+            $batch_insert_array = $batch_insert_array2 = [];
+
+            foreach ($attrselection as $key => $value) {
+                $attrselection->$key = str_replace("\r",'',$value);
+                $attrselection->$key = str_replace("\n",'',$attrselection->$key);
+            }
+
+            foreach ($results as $index=>$temp_row) {
+
+                if ($csvoption->Firstrow == 'data') {
+                    array_unshift($temp_row, null);
+                    unset($temp_row[0]);
+                }
+
+                foreach ($temp_row as $key => $value) {
+                    $key = str_replace("\r",'',$key);
+                    $key = str_replace("\n",'',$key);
+                    $temp_row[$key] = $value;
+                }
+
+                $tempvendordata = array();
+                $tempvendordata['codedeckid'] = $joboptions->codedeckid;
+                $tempvendordata['ProcessId']  = $ProcessID;
+
+                //check empty row
+                $checkemptyrow = array_filter(array_values($temp_row));
+                if(!empty($checkemptyrow)){
+                    if (isset($attrselection->CountryCode) && !empty($attrselection->CountryCode) && !empty($temp_row[$attrselection->CountryCode])) {
+                        $tempvendordata['CountryCode'] = trim($temp_row[$attrselection->CountryCode]);
+                    }else{
+                        $tempvendordata['CountryCode'] = '';
+                    }
+
+                    if (isset($attrselection->Code) && !empty($attrselection->Code) && trim($temp_row[$attrselection->Code]) != '') {
+                        $tempvendordata['Code'] = trim($temp_row[$attrselection->Code]);
+                    }else if (isset($attrselection->CountryCode) && !empty($attrselection->CountryCode) && !empty($temp_row[$attrselection->CountryCode])) {
+                        $tempvendordata['Code'] = "";  // if code is blank but country code is not blank than mark code as blank., it will be merged with countr code later ie 91 - 1 -> 911
+                    } else {
+                        $error[] = 'Code is blank at line no:'.$lineno;
+                    }
+
+                    if (isset($attrselection->Description) && !empty($attrselection->Description) && !empty($temp_row[$attrselection->Description])) {
+                        $tempvendordata['Description'] = $temp_row[$attrselection->Description];
+                    }else{
+                        $error[] = 'Description is blank at line no:'.$lineno;
+                    }
+					if (isset($attrselection->Action) && !empty($attrselection->Action)) {
+                        if(empty($temp_row[$attrselection->Action])){
+                            $tempvendordata['Change'] = 'I';
+                        }else{
+                            $action_value = $temp_row[$attrselection->Action];
+                            if (isset($attrselection->ActionDelete) && !empty($attrselection->ActionDelete) && trim(strtolower($action_value)) == trim(strtolower($attrselection->ActionDelete)) ) {
+                                $tempvendordata['Change'] = 'D';
+                            }else if (isset($attrselection->ActionUpdate) && !empty($attrselection->ActionUpdate) && trim(strtolower($action_value)) == trim(strtolower($attrselection->ActionUpdate))) {
+                                $tempvendordata['Change'] = 'U';
+                            }else if (isset($attrselection->ActionInsert) && !empty($attrselection->ActionInsert) && trim(strtolower($action_value)) == trim(strtolower($attrselection->ActionInsert))) {
+                                $tempvendordata['Change'] = 'I';
+                            }else{
+                                $tempvendordata['Change'] = 'I';
+                            }
+                        }
+
+                    }else{
+                        $tempvendordata['Change'] = 'I';
+                    }
+
+                    if (isset($attrselection->Rate) && !empty($attrselection->Rate) && is_numeric(trim($temp_row[$attrselection->Rate]))  ) {
+                        if (is_numeric(trim($temp_row[$attrselection->Rate]))) {
+                            $tempvendordata['Rate'] = trim($temp_row[$attrselection->Rate]);
+                        } else {
+                            $error[] = 'Rate is not numeric at line no:' . $lineno;
+                        }
+                    }elseif($tempvendordata['Change'] == 'D') {
+                        $tempvendordata['Rate'] = 0;
+                    }elseif($tempvendordata['Change'] != 'D') {
+                        $error[] = 'Rate is blank at line no:'.$lineno;
+                    }
+                    if (isset($attrselection->EffectiveDate) && !empty($attrselection->EffectiveDate) && !empty($temp_row[$attrselection->EffectiveDate])) {
+                        try {
+                            $tempvendordata['EffectiveDate'] = formatSmallDate(str_replace( '/','-',$temp_row[$attrselection->EffectiveDate]), $attrselection->DateFormat);
+                        }catch (\Exception $e){
+                            $error[] = 'Date format is Wrong  at line no:'.$lineno;
+                        }
+                    }elseif(empty($attrselection->EffectiveDate)){
+                        $tempvendordata['EffectiveDate'] = date('Y-m-d');
+                    }elseif($tempvendordata['Change'] == 'D') {
+                        $tempvendordata['EffectiveDate'] = date('Y-m-d');
+                    }elseif($tempvendordata['Change'] != 'D') {
+                        $error[] = 'EffectiveDate is blank at line no:'.$lineno;
+                    }
+                    if (isset($attrselection->EndDate) && !empty($attrselection->EndDate) && !empty($temp_row[$attrselection->EndDate])) {
+                        try {
+                            $tempvendordata['EndDate'] = formatSmallDate(str_replace( '/','-',$temp_row[$attrselection->EndDate]), $attrselection->DateFormat);
+                        }catch (\Exception $e){
+                            $error[] = 'Date format is Wrong  at line no:'.$lineno;
+                        }
+                    }
+
+                     
+
+                    if (isset($attrselection->ConnectionFee) && !empty($attrselection->ConnectionFee)) {
+                        $tempvendordata['ConnectionFee'] = trim($temp_row[$attrselection->ConnectionFee]);
+                    }
+                    if (isset($attrselection->Interval1) && !empty($attrselection->Interval1)) {
+                        $tempvendordata['Interval1'] = intval(trim($temp_row[$attrselection->Interval1]));
+                    }
+                    if (isset($attrselection->IntervalN) && !empty($attrselection->IntervalN)) {
+                        $tempvendordata['IntervalN'] = intval(trim($temp_row[$attrselection->IntervalN]));
+                    }
+                    if (isset($attrselection->Preference) && !empty($attrselection->Preference)) {
+                        $tempvendordata['Preference'] = trim($temp_row[$attrselection->Preference]);
+                    }
+                    if (isset($attrselection->Forbidden) && !empty($attrselection->Forbidden)) {
+                        $Forbidden = trim($temp_row[$attrselection->Forbidden]);
+                        if($Forbidden=='0'){
+                            $tempvendordata['Forbidden'] = 'UB';
+                        }elseif($Forbidden=='1'){
+                            $tempvendordata['Forbidden'] = 'B';
+                        }else{
+                            $tempvendordata['Forbidden'] = '';
+                        }
+                    }
+                    if(!empty($DialStringId)){
+                        if (isset($attrselection->DialStringPrefix) && !empty($attrselection->DialStringPrefix)) {
+                            $tempvendordata['DialStringPrefix'] = trim($temp_row[$attrselection->DialStringPrefix]);
+                        } else {
+                            $tempvendordata['DialStringPrefix'] = '';
+                        }
+                    }
+                    if(isset($tempvendordata['Code']) && isset($tempvendordata['Description']) && ( isset($tempvendordata['Rate'])  || $tempvendordata['Change'] == 'D') && ( isset($tempvendordata['EffectiveDate']) || $tempvendordata['Change'] == 'D') ){
+                        if(isset($tempvendordata['EndDate'])) {
+                            $batch_insert_array[] = $tempvendordata;
+                        } else {
+                            $batch_insert_array2[] = $tempvendordata;
+                        }
+                        $counter++;
+                    }
+                }
+
+                if($counter==$bacth_insert_limit){
+                    Log::info('Batch insert start');
+                    Log::info('global counter'.$lineno);
+                    Log::info('insertion start');
+                    TempVendorRate::insert($batch_insert_array);
+                    TempVendorRate::insert($batch_insert_array2);
+                    Log::info('insertion end');
+                    $batch_insert_array = [];
+                    $batch_insert_array2 = [];
+                    $counter = 0;
+                }
+                $lineno++;
+            } // loop over
+
+            if(!empty($batch_insert_array) || !empty($batch_insert_array2)) {
+                Log::info('Batch insert start');
+                Log::info('global counter'.$lineno);
+                Log::info('insertion start');
+                Log::info('last batch insert ' . count($batch_insert_array));
+                Log::info('last batch insert 2 ' . count($batch_insert_array2));
+                TempVendorRate::insert($batch_insert_array);
+                TempVendorRate::insert($batch_insert_array2);
+                Log::info('insertion end');
+            }
+
+            $JobStatusMessage = array();
+            $duplicatecode=0;
+
+            Log::info("start CALL  prc_WSReviewVendorRate ('" . $save['AccountID'] . "','" . $save['Trunk'] . "'," . $save['checkbox_replace_all'] . ",'" . $save['checkbox_rates_with_effected_from'] . "','" . $ProcessID . "','" . $save['checkbox_add_new_codes_to_code_decks'] . "','" . $CompanyID . "','".$p_forbidden."','".$p_preference."','".$DialStringId."','".$dialcode_separator."',".$CurrencyID.",".$save['radio_list_option'].")");
+
+            try{
+                DB::beginTransaction();
+                $JobStatusMessage = DB::select("CALL  prc_WSReviewVendorRate ('" . $save['AccountID'] . "','" . $save['Trunk'] . "'," . $save['checkbox_replace_all'] . ",'" . $save['checkbox_rates_with_effected_from'] . "','" . $ProcessID . "','" . $save['checkbox_add_new_codes_to_code_decks'] . "','" . $CompanyID . "','".$p_forbidden."','".$p_preference."','".$DialStringId."','".$dialcode_separator."',".$CurrencyID.",".$save['radio_list_option'].")");
+                Log::info("end CALL  prc_WSReviewVendorRate ('" . $save['AccountID'] . "','" . $save['Trunk'] . "'," . $save['checkbox_replace_all'] . ",'" . $save['checkbox_rates_with_effected_from'] . "','" . $ProcessID . "','" . $save['checkbox_add_new_codes_to_code_decks'] . "','" . $CompanyID . "','".$p_forbidden."','".$p_preference."','".$DialStringId."','".$dialcode_separator."',".$CurrencyID.",".$save['radio_list_option'].")");
+                DB::commit();
+
+                $JobStatusMessage = array_reverse(json_decode(json_encode($JobStatusMessage),true));
+                Log::info($JobStatusMessage);
+                Log::info(count($JobStatusMessage));
+
+                if(!empty($error) || count($JobStatusMessage) > 1){
+                    $prc_error = array();
+                    foreach ($JobStatusMessage as $JobStatusMessage1) {
+                        $prc_error[] = $JobStatusMessage1['Message'];
+                        if(strpos($JobStatusMessage1['Message'], 'DUPLICATE CODE') !==false || strpos($JobStatusMessage1['Message'], 'No PREFIX FOUND') !==false){
+                            $duplicatecode = 1;
+                        }
+                    }
+
+                    // if duplicate code exit job will fail
+                    if($duplicatecode == 1){
+                        $error = array_merge($prc_error,$error);
+                        unset($error[0]);
+                        $jobdata['message'] = implode('<br>',fix_jobstatus_meassage($error));
+                        $jobdata['JobStatusID'] = DB::table('tblJobStatus')->where('Code','F')->pluck('JobStatusID');
+                    }else{
+                        $error = array_merge($prc_error,$error);
+                        $jobdata['message'] = implode('<br>',fix_jobstatus_meassage($error));
+                        $jobdata['JobStatusID'] = DB::table('tblJobStatus')->where('Code','PF')->pluck('JobStatusID');
+                    }
+                    $jobdata['status'] = "failed";
+
+                }elseif(empty($JobStatusMessage)){
+                    $jobdata['status'] = "success";
+                    $jobdata['ProcessID'] = $ProcessID;
+                    $jobdata['message'] = "Review Rates Successfully!";
+                    $jobdata['FileUploadTemplateID'] = $FileUploadTemplateID;
+                    $jobdata['JobStatusID'] = DB::table('tblJobStatus')->where('Code','S')->pluck('JobStatusID');
+                }
+
+            }catch ( Exception $err ){
+                DB::rollback();
+                $jobdata['JobStatusID'] = DB::table('tblJobStatus')->where('Code', 'F')->pluck('JobStatusID');
+                $jobdata['message'] = 'Exception: ' . $err->getMessage();
+                $jobdata['status'] = "failed";
+                Log::error($err);
+            }
+        }
+
+        return json_encode($jobdata);
+    }
+
+    public function getReviewRates() {
+        $data = Input::all();
+        $data['iDisplayStart'] +=1;
+
+        $columns = array('Code','Description','Rate','EffectiveDate','EndDate','ConnectionFee','Interval1','IntervalN');
+        $sort_column = $columns[$data['iSortCol_0']];
+
+        $data['Code'] = !empty($data['Code']) ? $data['Code'] : NULL;
+        $data['Description'] = !empty($data['Description']) ? $data['Description'] : NULL;
+
+        $query = "call prc_getReviewVendorRates ('".$data['ProcessID']."','".$data['Action']."','".$data['Code']."','".$data['Description']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
+        Log::info($query);
+
+        return DataTableSql::of($query)->make();
+    }
+
+    public function reviewRatesExports($id,$type) {
+        $data = Input::all();
+
+        //Log::info($data);exit;
+        $data['Code'] = !empty($data['Code']) ? $data['Code'] : NULL;
+        $data['Description'] = !empty($data['Description']) ? $data['Description'] : NULL;
+
+        $query = "call prc_getReviewVendorRates ('".$data['ProcessID']."','".$data['Action']."','".$data['Code']."','".$data['Description']."',0 ,0,'','',1)";
+        Log::info($query);
+
+        DB::setFetchMode( PDO::FETCH_ASSOC );
+        $review_vendor_rates = DB::select($query);
+        DB::setFetchMode( Config::get('database.fetch'));
+
+        if($type=='csv'){
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Review Vendor Rates.csv';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_csv($review_vendor_rates);
+        }elseif($type=='xlsx'){
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Review Vendor Rates.xls';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_excel($review_vendor_rates);
+        }
+
+        /*Excel::create('Vendor Rates', function ($excel) use ($vendor_rates) {
+            $excel->sheet('Vendor Rates', function ($sheet) use ($vendor_rates) {
+                $sheet->fromArray($vendor_rates);
+            });
+        })->download('xls');*/
+    }
+
+    public function updateTempVendorRates($AccountID) {
+        $data = Input::all();
+
+        $ProcessID   = $data['ProcessID'];
+        $Code        = $data['Code'];
+        $Description = $data['Description'];
+        $TrunkID   = 0;
+
+        if($data['Action'] == 'New') {
+            $TempRateIDs = array_filter(explode(',',$data['TempRateIDs']),'intval');
+        } else if($data['Action'] == 'Deleted') {
+            $TempRateIDs = array_filter(explode(',',$data['VendorRateIDs']),'intval');
+            $TrunkID     = $data['TrunkID'];
+        }
+
+        if (is_array($TempRateIDs) && count($TempRateIDs) || !empty($data['criteria'])) {
+            $criteria = !empty($data['criteria']) && (int) $data['criteria'] == 1 ? 1 : 0;
+            $Action = '';
+            $Interval1 = $IntervalN = 0;
+            $EndDate = date('Y-m-d H:i:s');
+
+            if($data['Action'] == 'New') {
+                if (!empty($data['updateInterval1']) || !empty($data['updateIntervalN'])) {
+                    if (!empty($data['updateInterval1']) && empty((int)$data['Interval1'])) {
+                        return json_encode(array("status" => "Error", "message" => "Please enter Interval1 value."));
+                    } else if (!empty($data['updateInterval1']) && !empty((int)$data['Interval1'])) {
+                        $Interval1 = (int)$data['Interval1'] > 0 ? (int)$data['Interval1'] : 0;
+                    }
+                    if (!empty($data['updateIntervalN']) && empty((int)$data['IntervalN'])) {
+                        return json_encode(array("status" => "Error", "message" => "Please enter IntervalN value."));
+                    } else if (!empty($data['updateIntervalN']) && !empty((int)$data['IntervalN'])) {
+                        $IntervalN = (int)$data['IntervalN'] > 0 ? (int)$data['IntervalN'] : 0;
+                    }
+                    $Action = $data['Action'];
+                } else {
+                    return json_encode(array("status" => "Error", "message" => "Please select atlease 1 checkbox."));
+                }
+            } else if($data['Action'] == 'Deleted') {
+                if (!empty($data['EndDate'])) {
+                    $EndDate = $data['EndDate'];
+                } else {
+                    return json_encode(array("status" => "Error", "message" => "Please Enter End Date."));
+                }
+                $Action = $data['Action'];
+            }
+
+            $TempRateIDs = implode(',',$TempRateIDs);
+
+            try {
+                Log::info("call prc_WSReviewVendorRateUpdate ('".$AccountID."','".$TrunkID."','".$TempRateIDs."','".$ProcessID."','".$criteria."','".$Action."','".$Interval1."','".$IntervalN."','".$EndDate."','".$Code."','".$Description."')");
+                DB::statement("call prc_WSReviewVendorRateUpdate ('".$AccountID."','".$TrunkID."','".$TempRateIDs."','".$ProcessID."','".$criteria."','".$Action."','".$Interval1."','".$IntervalN."','".$EndDate."','".$Code."','".$Description."')");
+                return json_encode(["status" => "success", "message" => "Rates successfully updated."]);
+            } catch (Exception $e) {
+                return json_encode(array("status" => "failed", "message" => $e->getMessage()));
+            }
+        }else{
+            return json_encode(array("status" => "failed", "message" => "Please select vendor rates."));
+        }
+    }
+
 }
