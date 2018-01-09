@@ -44,13 +44,13 @@ class TaxRate extends \Eloquent {
         }
         return implode(", ",$TaxRateTitles);
     }
-    public static function getTaxRateDropdownIDList(){
+    public static function getTaxRateDropdownIDList($CompanyID){
 
         if (self::$enable_cache && Cache::has('taxrate_dropdown1_cache')) {
             $admin_defaults = Cache::get('taxrate_dropdown1_cache');
             self::$cache['taxrate_dropdown1_cache'] = $admin_defaults['taxrate_dropdown1_cache'];
         } else {
-            self::$cache['taxrate_dropdown1_cache'] = TaxRate::where(array('CompanyID'=>User::get_companyID()))->lists('Title','TaxRateID');
+            self::$cache['taxrate_dropdown1_cache'] = TaxRate::where(array('CompanyID'=>$CompanyID))->lists('Title','TaxRateID');
             self::$cache['taxrate_dropdown1_cache'] = array('' => "Select")+ self::$cache['taxrate_dropdown1_cache'];
 
             Cache::forever('taxrate_dropdown1_cache', array('taxrate_dropdown1_cache' => self::$cache['taxrate_dropdown1_cache']));
@@ -59,11 +59,11 @@ class TaxRate extends \Eloquent {
         return self::$cache['taxrate_dropdown1_cache'];
     }
 
-    public static function getTaxRateDropdownIDListForInvoice($TaxRateID=0){  
+    public static function getTaxRateDropdownIDListForInvoice($TaxRateID=0,$CompanyID){
         if($TaxRateID==0){
-            self::$cache['taxrate_dropdown2_cache'] = TaxRate::where(array('CompanyID'=>User::get_companyID()))->get(['TaxRateID','Title','Amount','FlatStatus'])->toArray();
+            self::$cache['taxrate_dropdown2_cache'] = TaxRate::where(array('CompanyID'=>$CompanyID))->get(['TaxRateID','Title','Amount','FlatStatus'])->toArray();
         }else{
-            self::$cache['taxrate_dropdown2_cache'] = TaxRate::where(array('CompanyID'=>User::get_companyID(),'TaxRateID'=>$TaxRateID))->get(['TaxRateID','Title','Amount','FlatStatus'])->toArray();
+            self::$cache['taxrate_dropdown2_cache'] = TaxRate::where(array('CompanyID'=>$CompanyID,'TaxRateID'=>$TaxRateID))->get(['TaxRateID','Title','Amount','FlatStatus'])->toArray();
         }
         self::$cache['taxrate_dropdown2_cache'] = array_merge(array(array('TaxRateID' => 0 , "Title"=> "Select", "Amount"=> 0,"FlatStatus"=>0)),self::$cache['taxrate_dropdown2_cache']);
         return self::$cache['taxrate_dropdown2_cache'];

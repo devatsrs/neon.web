@@ -112,7 +112,8 @@ class ReportController extends \BaseController {
             $report = Report::find($id);
             $data = json_decode($report->Settings,true);
             $filters = json_decode($data['filter_settings'],true);
-            if(!empty(Input::get('StartDate'))) {
+			$StartDate = Input::get('StartDate');
+            if(!empty($StartDate)) {
                 if (isset($filters['date'])) {
                     $filters['date']['start_date'] = Input::get('StartDate');
                     $filters['date']['end_date'] = Input::get('EndDate');
@@ -164,24 +165,25 @@ class ReportController extends \BaseController {
         }*/
         $data['column'] = array_values($data['column']);
         $data['row'] = array_values($data['row']);
-        $all_data_list['CompanyGateway'] = CompanyGateway::getCompanyGatewayIdList();
+        $all_data_list['CompanyGateway'] = CompanyGateway::getCompanyGatewayIdList($CompanyID);
         $all_data_list['Country'] = Country::getCountryDropdownIDList();
-        $all_data_list['Currency'] = Currency::getCurrencyDropdownIDList();
-        $all_data_list['Tax'] = TaxRate::getTaxRateDropdownIDList();
-        $all_data_list['Product'] = Product::getProductDropdownList();
+        $all_data_list['Currency'] = Currency::getCurrencyDropdownIDList($CompanyID);
+        $all_data_list['Tax'] = TaxRate::getTaxRateDropdownIDList($CompanyID);
+        $all_data_list['Product'] = Product::getProductDropdownList($CompanyID);
         $all_data_list['Account'] = Account::getAccountIDList();
         $all_data_list['AccountIP'] = GatewayAccount::getAccountIPList($CompanyID);
         $all_data_list['AccountCLI'] = GatewayAccount::getAccountCLIList($CompanyID);
         $all_data_list['Service'] = Service::getDropdownIDList($CompanyID);
-        $all_data_list['Subscription'] = BillingSubscription::getSubscriptionsList();
+        $all_data_list['Subscription'] = BillingSubscription::getSubscriptionsList($CompanyID);
         $all_data_list['AccountManager'] = User::getOwnerUsersbyRole();
 
-        $CompanyID = User::get_companyID();
+        
         if(count($data['sum']) || $cube == 'account') {
             $response = Report::generateDynamicTable($CompanyID, $cube, $data,$filters);
         }
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $Type = !empty(Input::get('Type'))?Input::get('Type'):Report::XLS;
+			$data_type = Input::get('Type');
+            $Type = !empty($data_type)?$data_type:Report::XLS;
             $data['Name'] = !empty($data['Name']) ? $data['Name'] : 'Report';
             $table = generateReportTable2($data, $response, $all_data_list);
             if($Type == Report::PDF) {

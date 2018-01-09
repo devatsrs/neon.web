@@ -6,8 +6,11 @@
             var modal = $(this).parents('.modal');
             var composit = modal.hasClass('composite')?1:0;
             var datatype = 'select[data-type="item"]';
-            var ProductID = $("#add-edit-product-form [name='ProductID']").val()
-            if( typeof ProductID != 'undefined' && ProductID != ''){
+            var ProductID = $("#add-edit-product-form [name='ProductID']").val();
+            var ProductClone = $("#add-edit-product-form [name='ProductClone']").val();
+            if( typeof ProductID != 'undefined' && ProductID != '' && typeof ProductClone != 'undefined' && ProductClone == '1'){
+                update_new_url = baseurl + '/products/create';
+            }else if( typeof ProductID != 'undefined' && ProductID != ''){
                 update_new_url = baseurl + '/products/'+ProductID+'/update';
             }else{
                 update_new_url = baseurl + '/products/create';
@@ -107,9 +110,18 @@
                     </p>
                 </div>
             </div>
+
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="field-5" class="control-label">Applied To</label>
+                    {{Form::select('AppliedTo',Product::$AppliedTo,'',array("class"=>"form-control select2 small"))}}
+                </div>
+            </div>
+
         </div>
     </div>
     <input type="hidden" name="ProductID" />
+    <input type="hidden" name="ProductClone" value="" />
     <div class="modal-footer">
         <button type="submit" id="product-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
             <i class="entypo-floppy"></i>

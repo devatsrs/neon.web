@@ -33,7 +33,6 @@ class AccountPaymentProfile extends \Eloquent
     {
         $data = Input::all();
 
-        //$PaymentGatewayID = PaymentGateway::getPaymentGatewayID();
         if(empty($PaymentGatewayID)){
             return Response::json(array("status" => "failed", "message" => "Please Select Payment Gateway"));
         }
@@ -149,7 +148,7 @@ class AccountPaymentProfile extends \Eloquent
                     if(empty($CurrencyCode)){
                         return json_encode(array("status" => "failed", "message" => "No account currency available"));
                     }
-                    $stripestatus = new StripeBilling();
+                    $stripestatus = new StripeBilling($CompanyID);
                     if(empty($stripestatus->status)){
                         return json_encode(array("status" => "failed", "message" => "Stripe Payment not setup correctly"));
                     }
@@ -337,7 +336,7 @@ class AccountPaymentProfile extends \Eloquent
     // not using
     public static function createStripeProfile($CompanyID, $CustomerID,$PaymentGatewayID,$data)
     {
-        $stripepayment = new StripeBilling();
+        $stripepayment = new StripeBilling($CompanyID);
 
         $stripedata = array();
 
@@ -449,7 +448,7 @@ class AccountPaymentProfile extends \Eloquent
     // not using
     public static function deleteStripeProfile($CompanyID,$AccountID,$AccountPaymentProfileID){
 
-        $stripepayment = new StripeBilling();
+        $stripepayment = new StripeBilling($CompanyID);
 
         if (empty($stripepayment->status)) {
             return Response::json(array("status" => "failed", "message" => "Stripe Payment not setup correctly"));
@@ -625,7 +624,7 @@ class AccountPaymentProfile extends \Eloquent
             'AccountType' => $data['AccountHolderType']
         );
 
-        $SagePayDirectDebit = new SagePayDirectDebit();
+        $SagePayDirectDebit = new SagePayDirectDebit($CompanyID);
         $verify_response = $SagePayDirectDebit->verifyBankAccount($varifydata);
 
         if(!empty($verify_response) && $verify_response['status']=='Success'){

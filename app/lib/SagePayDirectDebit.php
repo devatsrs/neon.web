@@ -21,11 +21,11 @@ class SagePayDirectDebit
 
     //https://sagepay.co.za/integration/sage-pay-integration-documents/pay-now-gateway-technical-guide/
 
-    function __Construct(){
+    function __Construct($CompanyID){
 
         $this->method  = SiteIntegration::$SagePayDirectDebitSlug;
 
-        $sagepay_obj	 = SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$SagePayDirectDebitSlug);
+        $sagepay_obj	 = SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$SagePayDirectDebitSlug,$CompanyID);
 
         if( !empty($sagepay_obj) ) {
 
@@ -411,8 +411,9 @@ class SagePayDirectDebit
         $cardID = $data['cardID'];
         $AccountPaymentProfile = AccountPaymentProfile::find($cardID);
         $options = json_decode($AccountPaymentProfile->Options,true);
+        $CompanyID = $AccountPaymentProfile->CompanyID;
         $sagedata = array();
-        $sagepayment = new SagePayDirectDebit();
+        $sagepayment = new SagePayDirectDebit($CompanyID);
         if(empty($sagepayment->status)){
             return Response::json(array("status" => "failed", "message" => "Sage Direct Debit not setup correctly"));
         }

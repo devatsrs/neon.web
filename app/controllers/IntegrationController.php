@@ -18,8 +18,15 @@ class IntegrationController extends \BaseController
 		$companyID  			= 	User::get_companyID();
 		$GatewayConfiguration 	= 	IntegrationConfiguration::GetGatewayConfiguration();
 		$Gateway 				= 	Gateway::getGatWayList();
-		$categories 			= 	Integration::where(["CompanyID" => $companyID,"ParentID"=>0])->orderBy('Title', 'asc')->get();
+		if(is_reseller()){
+			$categories 			= 	Integration::where(["Slug"=>SiteIntegration::$PaymentSlug])
+													->orWhere(["Slug"=>SiteIntegration::$AccountingSlug])
+													->orderBy('Title', 'asc')->get();
+		}else{
+			$categories 			= 	Integration::where(["ParentID"=>0])->orderBy('Title', 'asc')->get();
+		}
 		$TaxLists =  TaxRate::where(["CompanyId" => $companyID, "Status" => 1])->get();
+		//$companyID = 1;
 		return View::make('integration.index', compact('categories',"companyID","GatewayConfiguration","Gateway","TaxLists"));
     }
 	

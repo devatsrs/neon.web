@@ -63,7 +63,7 @@ class InvoicesController extends \BaseController {
 		{
             $query .=',0,0,0,"",'.$userID.')';
         }
-    	
+
 		$result   = DataTableSql::of($query,'sqlsrv2')->getProcResult(array('ResultCurrentPage','Total_grand_field'));
 		$result2  = $result['data']['Total_grand_field'][0]->total_grand;
 		$result4  = array(
@@ -134,9 +134,9 @@ class InvoicesController extends \BaseController {
      */
     public function index()
     {
-        $companyID = User::get_companyID();
+        $CompanyID = User::get_companyID();
         $accounts = Account::getAccountIDList();
-		$DefaultCurrencyID    	=   Company::where("CompanyID",$companyID)->pluck("CurrencyId");
+		$DefaultCurrencyID    	=   Company::where("CompanyID",$CompanyID)->pluck("CurrencyId");
         $invoice_status_json = json_encode(Invoice::get_invoice_status());
         //$emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::INVOICE_TEMPLATE));
 		$emailTemplates = EmailTemplate::getTemplateArray(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE));
@@ -144,11 +144,11 @@ class InvoicesController extends \BaseController {
         $data['StartDateDefault'] 	  	= 	'';
 		$data['IssueDateEndDefault']  	= 	'';
         $InvoiceHideZeroValue = NeonCookie::getCookie('InvoiceHideZeroValue',1);
-        $Quickbook = new BillingAPI();
-        $check_quickbook = $Quickbook->check_quickbook();
+        $Quickbook = new BillingAPI($CompanyID);
+        $check_quickbook = $Quickbook->check_quickbook($CompanyID);
 		$bulk_type = 'invoices';
         //print_r($_COOKIE);exit;
-        return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue','check_quickbook','bulk_type'));
+        return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue','check_quickbook','bulk_type','CompanyID'));
 
     }
 
@@ -162,8 +162,8 @@ class InvoicesController extends \BaseController {
     {
         $companyID  =   User::get_companyID();
         $accounts 	= 	Account::getAccountIDList();
-        $products 	= 	Product::getProductDropdownList();
-        $taxes 		= 	TaxRate::getTaxRateDropdownIDListForInvoice();
+        $products 	= 	Product::getProductDropdownList($companyID);
+        $taxes 		= 	TaxRate::getTaxRateDropdownIDListForInvoice(0,$companyID);
 		//echo "<pre>"; 		print_r($taxes);		echo "</pre>"; exit;
         //$gateway_product_ids = Product::getGatewayProductIDs();
 		$BillingClass = BillingClass::getDropdownIDList($companyID);
@@ -186,10 +186,11 @@ class InvoicesController extends \BaseController {
         if($id > 0) {
 
             $Invoice = Invoice::find($id);
+            $CompanyID = $Invoice->CompanyID;
 			$InvoiceBillingClass =	 Invoice::GetInvoiceBillingClass($Invoice);			
             $InvoiceDetail = InvoiceDetail::where(["InvoiceID"=>$id])->get();
             $accounts = Account::getAccountIDList();
-            $products = Product::getProductDropdownList();
+            $products = Product::getProductDropdownList($CompanyID);
             //$gateway_product_ids = Product::getGatewayProductIDs();
             $Account = Account::where(["AccountID" => $Invoice->AccountID])->select(["AccountName","BillingEmail", "CurrencyId"])->first(); //"TaxRateID","RoundChargesAmount","InvoiceTemplateID"
             $CurrencyID = !empty($Invoice->CurrencyID)?$Invoice->CurrencyID:$Account->CurrencyId;
@@ -198,11 +199,11 @@ class InvoicesController extends \BaseController {
             $InvoiceNumberPrefix = ($InvoiceTemplateID>0)?InvoiceTemplate::find($InvoiceTemplateID)->InvoiceNumberPrefix:'';
             $Currency = Currency::find($CurrencyID);
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
-            $CompanyName = Company::getName();
-            $taxes =  TaxRate::getTaxRateDropdownIDListForInvoice();
+            $CompanyName = Company::getName($CompanyID);
+            $taxes =  TaxRate::getTaxRateDropdownIDListForInvoice(0,$CompanyID);
             $invoicelog =  InVoiceLog::where(array('InvoiceID'=>$id))->get();
 			$InvoiceAllTax =  InvoiceTaxRate::where(["InvoiceID"=>$id,"InvoiceTaxType"=>1])->get();
-			$BillingClass = BillingClass::getDropdownIDList(User::get_companyID());
+			$BillingClass = BillingClass::getDropdownIDList($CompanyID);
 			
             return View::make('invoices.edit', compact( 'id', 'Invoice','InvoiceDetail','InvoiceTemplateID','InvoiceNumberPrefix',  'CurrencyCode','CurrencyID','RoundChargesAmount','accounts', 'products', 'taxes','CompanyName','Account','invoicelog','InvoiceAllTax','BillingClass','InvoiceBillingClass'));
         }
@@ -896,7 +897,7 @@ class InvoicesController extends \BaseController {
             $payment_log = Payment::getPaymentByInvoice($id);
 
             $paypal_button = $sagepay_button = "";
-            $paypal = new PaypalIpn();
+            $paypal = new PaypalIpn($Invoice->CompanyID);
             if(!empty($paypal->status)){
                 $paypal->item_title =  Company::getName($Invoice->CompanyID).  ' Invoice #'.$Invoice->FullInvoiceNumber;
                 $paypal->item_number =  $Invoice->FullInvoiceNumber;
@@ -918,9 +919,9 @@ class InvoicesController extends \BaseController {
 
                 $paypal_button = $paypal->get_paynow_button($Invoice->AccountID,$Invoice->InvoiceID);
             }
-            if ( (new SagePay())->status()) {
+            if ( (new SagePay($Invoice->CompanyID))->status()) {
 
-                $SagePay = new SagePay();
+                $SagePay = new SagePay($Invoice->CompanyID);
 
                 $SagePay->item_title =  Company::getName($Invoice->CompanyID).  ' Invoice #'.$Invoice->FullInvoiceNumber;
                 $SagePay->item_number =  $Invoice->FullInvoiceNumber;
@@ -1001,7 +1002,7 @@ class InvoicesController extends \BaseController {
 //        echo "Something Went wrong";
     }
 
-    //Generate Item Based Invoice PDF
+    //Generate Item Based Invoice PDF - not using
     public function generate_pdf($id){   
         if($id>0) {
             $Invoice = Invoice::find($id);
@@ -1122,8 +1123,8 @@ class InvoicesController extends \BaseController {
         $Account = Account::where(["AccountID"=>$data['AccountID']])->select($fields)->first();
         $message = '';
         if (Input::hasFile('Attachment')) {
-            $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
-            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_UPLOAD']);
+            $upload_path = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID);
+            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_UPLOAD'],$CompanyID);
             $destinationPath = $upload_path . '/' . $amazonPath;
             $Attachment = Input::file('Attachment');
             // ->move($destinationPath);
@@ -1131,7 +1132,7 @@ class InvoicesController extends \BaseController {
             if (in_array(strtolower($ext), array("pdf", "jpg", "png", "gif"))) {
                 $file_name = GUID::generate() . '.' . $Attachment->getClientOriginalExtension();
                 $Attachment->move($destinationPath, $file_name);
-                if (!AmazonS3::upload($destinationPath.$file_name, $amazonPath)) {
+                if (!AmazonS3::upload($destinationPath.$file_name, $amazonPath,$CompanyID)) {
                     return Response::json(array("status" => "failed", "message" => "Failed to upload."));
                 }
                 $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
@@ -1207,8 +1208,8 @@ class InvoicesController extends \BaseController {
         $Account = Account::where(["AccountID"=>$data['AccountID']])->select($fields)->first();
         $message = '';
         if (Input::hasFile('Attachment')) {
-            $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
-            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_UPLOAD']);
+            $upload_path = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID);
+            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_UPLOAD'],$CompanyID);
             $destinationPath = $upload_path . '/' . $amazonPath;
             $Attachment = Input::file('Attachment');
             // ->move($destinationPath);
@@ -1216,7 +1217,7 @@ class InvoicesController extends \BaseController {
             if (in_array(strtolower($ext), array("pdf", "jpg", "png", "gif"))) {
                 $file_name = GUID::generate() . '.' . $Attachment->getClientOriginalExtension();
                 $Attachment->move($destinationPath, $file_name);
-                if (!AmazonS3::upload($destinationPath.$file_name, $amazonPath)) {
+                if (!AmazonS3::upload($destinationPath.$file_name, $amazonPath,$CompanyID)) {
                     return Response::json(array("status" => "failed", "message" => "Failed to upload."));
                 }
                 $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
@@ -1271,15 +1272,17 @@ class InvoicesController extends \BaseController {
     }
     public function  download_doc_file($id){
         $DocumentFile = Invoice::where(["InvoiceID"=>$id])->pluck('Attachment');
+        $Invoice = Invoice::find($id);
+        $CompanyID = $Invoice->CompanyID;
         if(file_exists($DocumentFile)){
             download_file($DocumentFile);
         }else{
-            $FilePath =  AmazonS3::preSignedUrl($DocumentFile);
+            $FilePath =  AmazonS3::preSignedUrl($DocumentFile,$CompanyID);
             if(file_exists($FilePath))
             {
                 download_file($FilePath);
             }
-            elseif(is_amazon() == true)
+            elseif(is_amazon($CompanyID) == true)
             {
                 header('Location: '.$FilePath);
             }
@@ -1327,9 +1330,9 @@ class InvoicesController extends \BaseController {
             $Company = Company::find($Invoice->CompanyID);
             $CompanyName = $Company->CompanyName;
             //$InvoiceGenerationEmail = CompanySetting::getKeyVal('InvoiceGenerationEmail');
-            $InvoiceCopy = Notification::getNotificationMail(Notification::InvoiceCopy);
+            $InvoiceCopy = Notification::getNotificationMail(Notification::InvoiceCopy,$Invoice->CompanyID);
             $InvoiceCopy = empty($InvoiceCopy)?$Company->Email:$InvoiceCopy;
-            $emailtoCustomer = CompanyConfiguration::get('EMAIL_TO_CUSTOMER');
+            $emailtoCustomer = CompanyConfiguration::get('EMAIL_TO_CUSTOMER',$Invoice->CompanyID);
             if(intval($emailtoCustomer) == 1){
                 $CustomerEmail = $data['Email'];
             }else{
@@ -1362,14 +1365,14 @@ class InvoicesController extends \BaseController {
 				$FilesArray = array();
 				foreach($files_array as $key=> $array_file_data){
 					$file_name  = basename($array_file_data['filepath']); 
-					$amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['EMAIL_ATTACHMENT']);
-					$destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+					$amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['EMAIL_ATTACHMENT'],'',$Invoice->CompanyID);
+					$destinationPath = CompanyConfiguration::get('UPLOAD_PATH',$Invoice->CompanyID) . '/' . $amazonPath;
 	
 					if (!file_exists($destinationPath)) {
 						mkdir($destinationPath, 0777, true);
 					}
 					copy($array_file_data['filepath'], $destinationPath . $file_name);
-					if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
+					if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath,$Invoice->CompanyID)) {
 						return Response::json(array("status" => "failed", "message" => "Failed to upload file." ));
 					}
 					$FilesArray[] = array ("filename"=>$array_file_data['filename'],"filepath"=>$amazonPath . $file_name);
@@ -1573,10 +1576,12 @@ class InvoicesController extends \BaseController {
     public function downloadUsageFile($id){
         //if( User::checkPermission('Job') && intval($id) > 0 ) {
         $OutputFilePath = Invoice::where("InvoiceID", $id)->pluck("UsagePath");
-        $FilePath =  AmazonS3::preSignedUrl($OutputFilePath);
+        $Invoice = Invoice::find($id);
+        $CompanyID = $Invoice->CompanyID;
+        $FilePath =  AmazonS3::preSignedUrl($OutputFilePath,$CompanyID);
         if(file_exists($FilePath)){
             download_file($FilePath);
-        }elseif(is_amazon() == true){
+        }elseif(is_amazon($CompanyID) == true){
             header('Location: '.$FilePath);
         }
         exit;
@@ -1630,8 +1635,11 @@ class InvoicesController extends \BaseController {
     }
     public static function display_invoice($InvoiceID){
         $Invoice = Invoice::find($InvoiceID);
+        $CompanyID = $Invoice->CompanyID;
         $PDFurl = '';
-        $PDFurl =  AmazonS3::preSignedUrl($Invoice->PDF);
+        log::info('CompanyID '.$CompanyID);
+        $PDFurl =  AmazonS3::preSignedUrl($Invoice->PDF,$CompanyID);
+        log::info('$PDFurl '.$PDFurl);
         header('Content-type: application/pdf');
         header('Content-Disposition: inline; filename="'.basename($PDFurl).'"');
         echo file_get_contents($PDFurl);
@@ -1639,20 +1647,22 @@ class InvoicesController extends \BaseController {
     }
     public static function download_invoice($InvoiceID){
         $Invoice = Invoice::find($InvoiceID);
-        $FilePath =  AmazonS3::preSignedUrl($Invoice->PDF);
+        $CompanyID = $Invoice->CompanyID;
+        $FilePath =  AmazonS3::preSignedUrl($Invoice->PDF,$CompanyID);
         if(file_exists($FilePath)){
             download_file($FilePath);
-        }elseif(is_amazon() == true){
+        }elseif(is_amazon($CompanyID) == true){
             header('Location: '.$FilePath);
         }
         exit;
     }
     public static function download_attachment($InvoiceID){
         $Invoice = Invoice::find($InvoiceID);
-        $FilePath =  AmazonS3::preSignedUrl($Invoice->Attachment);
+        $CompanyID = $Invoice->CompanyID;
+        $FilePath =  AmazonS3::preSignedUrl($Invoice->Attachment,$CompanyID);
         if(file_exists($FilePath)){
             download_file($FilePath);
-        }elseif(is_amazon() == true){
+        }elseif(is_amazon($CompanyID) == true){
             header('Location: '.$FilePath);
         }
         exit;
@@ -2071,7 +2081,10 @@ class InvoicesController extends \BaseController {
             $AccountID = intval($account_inv[0]);
             $InvoiceID = intval($account_inv[1]);
 
-            $paypal = new PaypalIpn();
+            $Invoice = Invoice::find($InvoiceID);
+            $CompanyID = $Invoice->CompanyID;
+
+            $paypal = new PaypalIpn($CompanyID);
 
             $data["Notes"]                  = $paypal->get_note();
             $data["Success"]                = $paypal->success();
@@ -2092,9 +2105,10 @@ class InvoicesController extends \BaseController {
     {
 
         //@TODO: need to merge all payment gateway payment insert entry.
+        $CompanyID = 0; // need to change if possible
 
         //https://sagepay.co.za/integration/sage-pay-integration-documents/pay-now-gateway-technical-guide/
-        $SagePay = new SagePay();
+        $SagePay = new SagePay($CompanyID);
         $AccountnInvoice = $SagePay->getAccountInvoiceID();
 
         if ($AccountnInvoice != null) { // Extra2 = m5 (hidden field of sagepay form).
@@ -2245,7 +2259,7 @@ class InvoicesController extends \BaseController {
         $stripedata['currency'] = strtolower($data['CurrencyCode']);
         $stripedata['description'] = $data['FullInvoiceNumber'].' (Invoice) Payment';
 
-        $stripepayment = new StripeBilling();
+        $stripepayment = new StripeBilling($Invoice->CompanyID);
 
         if(empty($stripepayment->status)){
             return Response::json(array("status" => "failed", "message" => "Stripe Payment not setup correctly"));
@@ -2605,8 +2619,8 @@ class InvoicesController extends \BaseController {
     }
 
     public function sagepay_return() {
-
-        $SagePay = new SagePay();
+        $CompanyID =0;
+        $SagePay = new SagePay($CompanyID);
         $AccountnInvoice = $SagePay->getAccountInvoiceID('m10');
 
         if(isset($AccountnInvoice["AccountID"]) && isset($AccountnInvoice["InvoiceID"])) {
@@ -2654,10 +2668,11 @@ class InvoicesController extends \BaseController {
         if(!empty($invoiceIds)) {
 
             $Invoices = Invoice::find($invoiceIds);
-            $UPLOAD_PATH = CompanyConfiguration::get('UPLOAD_PATH'). "/";
-            $isAmazon = is_amazon();
+            $CompanyID = $Invoices->CompanyID;
+            $UPLOAD_PATH = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID). "/";
+            $isAmazon = is_amazon($CompanyID);
             foreach ($Invoices as $invoice) {
-                $path = AmazonS3::preSignedUrl($invoice->PDF);
+                $path = AmazonS3::preSignedUrl($invoice->PDF,$CompanyID);
 
                 if ( file_exists($path) ){
                     $zipfiles[$invoice->InvoiceID]=$path;
@@ -2722,7 +2737,7 @@ class InvoicesController extends \BaseController {
             $SageData['Invoices'] = $InvoiceIDs;
             $SageData['MarkPaid'] = $MarkPaid;
 
-            $SageDirectDebit = new SagePayDirectDebit();
+            $SageDirectDebit = new SagePayDirectDebit($CompanyID);
             $Response = $SageDirectDebit->sagebatchfileexport($SageData);
             log::info('Response');
             log::info($Response);

@@ -173,7 +173,7 @@ BEGIN
 	INSERT INTO tmp_account_ (GatewayAccountPKID,AccountID)
 	SELECT 
 		DISTINCT GAC.GatewayAccountPKID,AccountID
-	FROM NeonBillingDev.tblGatewayAccount GAC
+	FROM RMBilling3.tblGatewayAccount GAC
 	WHERE GAC.CompanyID = p_CompanyID
 		AND GAC.ServiceID = p_ServiceID
 		AND AccountID IS NOT NULL
@@ -201,7 +201,7 @@ BEGIN
 
 	IF (SELECT COUNT(*) FROM tmp_account_) > 0 AND p_Confirm = 1 THEN
 
-			UPDATE NeonBillingDev.tblGatewayAccount GAC
+			UPDATE RMBilling3.tblGatewayAccount GAC
 			INNER JOIN tmp_account_ a ON a.GatewayAccountPKID = GAC.GatewayAccountPKID
 				SET GAC.AccountID = NULL
 			WHERE GAC.CompanyID = p_CompanyID

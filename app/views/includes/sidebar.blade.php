@@ -60,7 +60,9 @@
         <li> <a href="{{URL::to('/accounts')}}" class="first"> <i class="fa fa-users"></i> <span>&nbsp;Accounts</span> </a></li>
       @endif
     @endif
-
+    @if(user::is_admin())
+    <li> <a href="{{URL::to('/reseller')}}">  <i class="entypo-users"></i><span>Reseller</span> </a> </li>
+    @endif
          <!--tickets start -->
     @if(Tickets::CheckTicketLicense() && User::checkCategoryPermission('Tickets','View'))
     <li class="{{check_uri('tickets')}} {{ Tickets::CheckTicketLicense() && User::checkCategoryPermission('Tickets','Add') ? "two-links" : "" }}"><a href="#" class="first"><i class="fa fa-ticket"></i><span>Ticket Management</span></a>
