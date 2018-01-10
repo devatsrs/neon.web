@@ -49,7 +49,7 @@ if ( Request::is('/') || Request::is('login') || Request::is('forgot_password') 
     ];
 
     if(NeonCookie::getCookie('customer_alignment')=="right"){
-        $css[]="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-rtl/3.4.0/css/bootstrap-rtl.min.css";
+        $css[]="assets/css/bootstrap-rtl.min.css";
         $css[]="assets/css/custom-rtl.css";
     }
 

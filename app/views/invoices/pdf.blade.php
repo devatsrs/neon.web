@@ -2,6 +2,9 @@
 
 @section('content')
 <link rel="stylesheet" type="text/css" href="<?php echo URL::to('/'); ?>/assets/css/invoicetemplate/invoicestyle.css" />
+@if(isset($language->is_rtl) && $language->is_rtl=="Y")
+<link rel="stylesheet" type="text/css" href="<?php echo URL::to('/'); ?>/assets/css/bootstrap-rtl.min.css" />
+@endif
 <style type="text/css">
 .invoice,
 .invoice table,.invoice table td,.invoice table th,
@@ -41,25 +44,25 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
 <div class="inovicebody">
   <!-- logo and invoice from section start-->
   <header class="clearfix">
-    <div id="logo">
+    <div id="logo" class="pull-left flip">
       @if(!empty($logo))
         <img src="{{get_image_data($logo)}}" style="max-width: 250px">
       @endif
     </div>
-    <div id="company">
-      <h2 class="name"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_INVOICE_FROM')</b></h2>
-      <div>{{ nl2br($InvoiceTemplate->Header)}}</div>
+    <div id="company" class="pull-right flip">
+      <h2 class="name text-right flip"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_INVOICE_FROM')</b></h2>
+      <div class="text-right flip">{{ nl2br($InvoiceTemplate->Header)}}</div>
     </div>
   </header>
   <!-- logo and invoice from section end-->
 
   <main>
       <div id="details" class="clearfix">
-        <div id="client">
+        <div id="client" class="pull-left flip">
           <div class="to"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_INVOICE_TO')</b></div>
           <div>{{nl2br($Invoice->Address)}}</div>
         </div>
-        <div id="invoice">
+        <div id="invoice" class="pull-right flip">
           <h1>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_INVOICE_NO') {{$Invoice->FullInvoiceNumber}}</h1>
           <div class="date">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_INVOICE_DATE') {{ date($InvoiceTemplate->DateFormat,strtotime($Invoice->IssueDate))}}</div>
           <div class="date">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_DUE_DATE') {{date($InvoiceTemplate->DateFormat,strtotime($Invoice->IssueDate.' +'.$PaymentDueInDays.' days'))}}</div>
@@ -127,7 +130,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
     <!-- adevrtisement and terms section start-->
     <div id="thanksadevertise">
       <div class="invoice-left">
-        <p><a class="form-control" style="height: auto">{{nl2br($Invoice->Terms)}}</a></p>
+        <p><a class="form-control pull-left" style="height: auto">{{nl2br($Invoice->Terms)}}</a></p>
       </div>
     </div>
     <!-- adevrtisement and terms section end -->

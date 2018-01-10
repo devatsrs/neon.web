@@ -206,14 +206,19 @@ INSERT INTO `tblLanguage` (`LanguageID`, `ISOCode`, `Language`) VALUES
 
 
 -- Dumping structure for table NeonRMDev.tblTranslation
-CREATE TABLE IF NOT EXISTS `tblTranslation` (
-  `TranslationID` int(11) NOT NULL AUTO_INCREMENT,
-  `LanguageID` int(11) DEFAULT NULL,
-  `Language` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `Translation` longtext COLLATE utf8_unicode_ci,
-  `created_at` datetime DEFAULT NULL,
-  `created_by` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL,
-  `updated_by` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`TranslationID`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+CREATE TABLE `tblTranslation` (
+	`TranslationID` INT(11) NOT NULL AUTO_INCREMENT,
+	`LanguageID` INT(11) NULL DEFAULT NULL,
+	`Language` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`Translation` LONGTEXT NULL COLLATE 'utf8_unicode_ci',
+	`is_rtl` ENUM('Y','N') NULL DEFAULT 'N' COLLATE 'utf8_unicode_ci',
+	`created_at` DATETIME NULL DEFAULT NULL,
+	`created_by` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`updated_at` DATETIME NULL DEFAULT NULL,
+	`updated_by` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	PRIMARY KEY (`TranslationID`)
+)
+COLLATE='utf8_unicode_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=3
+;
