@@ -4,6 +4,11 @@
 <link rel="stylesheet" type="text/css" href="<?php echo URL::to('/'); ?>/assets/css/invoicetemplate/invoicestyle.css" />
 @if(isset($language->is_rtl) && $language->is_rtl=="Y")
 <link rel="stylesheet" type="text/css" href="<?php echo URL::to('/'); ?>/assets/css/bootstrap-rtl.min.css" />
+<style type="text/css">
+  .leftsideview{
+    direction: ltr;
+  }
+</style>
 @endif
 <style type="text/css">
 .invoice,
@@ -92,9 +97,9 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
               <tr>
                 <td class="desc">{{Product::getProductName($ProductRow->ProductID,$ProductRow->ProductType)}}</td>
                 <td class="desc">{{nl2br($ProductRow->Description)}}</td>
-                <td class="rightalign">{{$ProductRow->Qty}}</td>
-                <td class="rightalign">{{number_format($ProductRow->Price,$RoundChargesAmount)}}</td>
-                <td class="total">{{number_format($ProductRow->LineTotal,$RoundChargesAmount)}}</td>
+                <td class="rightalign leftsideview">{{$ProductRow->Qty}}</td>
+                <td class="rightalign leftsideview">{{number_format($ProductRow->Price,$RoundChargesAmount)}}</td>
+                <td class="total leftsideview">{{number_format($ProductRow->LineTotal,$RoundChargesAmount)}}</td>
               </tr> 
             {{--@endif--}}
         @endforeach       
@@ -103,7 +108,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
         <tr>
           <td colspan="2"></td>
           <td colspan="2">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_TBL_SUB_TOTAL')</td>
-          <td class="subtotal">{{$CurrencySymbol}}{{number_format($Invoice->SubTotal,$RoundChargesAmount)}}</td>
+          <td class="subtotal leftsideview">{{$CurrencySymbol}}{{number_format($Invoice->SubTotal,$RoundChargesAmount)}}</td>
         </tr>
         
         @if(count($InvoiceAllTaxRates))
@@ -111,7 +116,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
             <tr>
               <td colspan="2"></td>
               <td colspan="2">{{$InvoiceTaxRate->Title}}</td>
-              <td class="subtotal">{{$CurrencySymbol}}{{number_format($InvoiceTaxRate->TaxAmount,$RoundChargesAmount)}}</td>
+              <td class="subtotal leftsideview">{{$CurrencySymbol}}{{number_format($InvoiceTaxRate->TaxAmount,$RoundChargesAmount)}}</td>
             </tr>
           @endforeach
                 @endif
@@ -119,7 +124,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
         <tr>
           <td colspan="2"></td>
           <td colspan="2"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_TBL_GRAND_TOTAL')</b></td>
-          <td class="subtotal"><b>{{$CurrencySymbol}}{{number_format($Invoice->GrandTotal,$RoundChargesAmount)}}</b></td>
+          <td class="subtotal leftsideview"><b>{{$CurrencySymbol}}{{number_format($Invoice->GrandTotal,$RoundChargesAmount)}}</b></td>
         </tr>
         
         </tfoot>
