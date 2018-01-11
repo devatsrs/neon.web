@@ -9,7 +9,7 @@ class EmailTemplateController extends \BaseController {
         //$select = ["TemplateName","Subject","Type","CreatedBy","updated_at","Status","TemplateID","StaticType"];
 		$select = ["TemplateName","Subject","CreatedBy","updated_at","Status","TemplateID","StaticType","Type","StatusDisabled"];
         $template = EmailTemplate::select($select);
-        $template->where(["CompanyID" => $companyID]);
+        $template->where(["CompanyID" => $companyID, "LanguageID" => $data["templateLanguage"]]);
 		
 		
 		if(isset($data['search']) && !empty($data['search'])){
@@ -78,6 +78,10 @@ class EmailTemplateController extends \BaseController {
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
+        if(!isset($data['LanguageID'])){
+            $data['LanguageID']=Translation::$default_lang_id;
+        }
+
         if(isset($data['Email_template_privacy']) && $data['Email_template_privacy']>0){
             $data['userID'] = User::get_userID();
         }else
@@ -122,7 +126,7 @@ class EmailTemplateController extends \BaseController {
             $instance['Privacy'] = 1;
         } 
 		$instance['TicketTemplate'] = $template->TicketTemplate;
-		
+		$instance['LanguageID'] = (!empty($template->LanguageID))?$template->LanguageID:Translation::$default_lang_id;
         return $instance;
     }
 
@@ -159,6 +163,11 @@ class EmailTemplateController extends \BaseController {
             return json_validator_response($validator);
             exit;
         }
+
+        if(!isset($data['LanguageID'])){
+            $data['LanguageID']=Translation::$default_lang_id;
+        }
+
         if(isset($data['Email_template_privacy']) && $data['Email_template_privacy']>0){
             $data['userID'] = User::get_userID();
         }
@@ -233,4 +242,9 @@ class EmailTemplateController extends \BaseController {
             return Response::json(array("status" => "failed", "message" => "template is in Use, You cant delete this template."));
         }
 	}
+
+    public function ajax_templateList($id){
+        $data = EmailTemplate::GetUserDefinedTemplates(0, $id);
+        return Response::json(array("status" => "success", "data" => $data));
+    }
 }

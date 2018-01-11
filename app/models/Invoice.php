@@ -83,9 +83,8 @@ class Invoice extends \Eloquent {
             $Invoice = Invoice::find($InvoiceID);
 
             $language=Account::where("AccountID", $Invoice->AccountID)
-                                ->join('tblLanguage', 'tblAccount.Language', '=', 'tblLanguage.ISOCode')
-                                ->join('tblTranslation', 'tblTranslation.LanguageID', '=', 'tblLanguage.LanguageID')
-                                ->select('tblAccount.Language', 'tblTranslation.is_rtl')
+                                ->join('tblTranslation', 'tblTranslation.LanguageID', '=', 'tblAccount.LanguageID')
+                                ->select('tblTranslation.Language', 'tblTranslation.is_rtl')
                                 ->first();
             App::setLocale($language->Language);
 

@@ -363,6 +363,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('email_template/ajax_datagrid', 'EmailTemplateController@ajax_datagrid');
 	Route::any('email_template/exports/{type}', 'EmailTemplateController@exports');
 	Route::any('email_template/{id}/changestatus', 'EmailTemplateController@ChangeStatus');
+	Route::any('email_template/{id}/ajax_templateList', 'EmailTemplateController@ajax_templateList');
 
 	//Leads
 	//Leads

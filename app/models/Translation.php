@@ -9,6 +9,8 @@ class Translation extends \Eloquent {
     protected  $primaryKey = "TranslationID";
 
 	public static $enable_cache = false;
+	public static $default_lang_id = 43; // English
+	public static $default_lang_ISOcode = "en"; // English
 
     public static $cache = array(
     "language_dropdown1_cache",   // Country => Country
@@ -39,5 +41,11 @@ class Translation extends \Eloquent {
         }
 
         return self::$cache['language_dropdown1_cache'];
+    }
+    public static function getLanguageDropdownIdList(){
+        $dropdown = Translation::join('tblLanguage', 'tblLanguage.LanguageID', '=', 'tblTranslation.LanguageID')
+            ->whereRaw('tblLanguage.LanguageID=tblTranslation.LanguageID')
+            ->select("tblLanguage.LanguageID", "tblTranslation.Language")->lists("Language", "LanguageID");
+        return $dropdown;
     }
 }

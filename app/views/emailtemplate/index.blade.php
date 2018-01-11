@@ -54,7 +54,12 @@
 <h3>Templates</h3>
 @include('includes.errors')
 @include('includes.success')
-<p style="text-align: right;"> @if(User::checkCategoryPermission('EmailTemplate','Add')) <a href="#" data-action="showAddModal" data-type="email_template" data-modal="add-new-modal-template" class="btn btn-primary "> <i class="entypo-plus"></i> Add New </a> @endif </p>
+</br>
+<div class="col-md-2 text-left">
+    {{ Form::select('templateLanguage', Translation::getLanguageDropdownIdList(), Translation::$default_lang_id, array("class"=>"form-control select2","id"=>"templateLanguage")) }}
+</div>
+
+<p class="text-right"> @if(User::checkCategoryPermission('EmailTemplate','Add')) <a href="#" data-action="showAddModal" data-type="email_template" data-modal="add-new-modal-template" class="btn btn-primary "> <i class="entypo-plus"></i> Add New </a> @endif </p>
 <table class="table table-bordered datatable" id="table-4">
   <thead>
     <tr>
@@ -89,7 +94,7 @@ var popup_type	=	0;
         $searchFilter.template_type 		= 	$("#template_filter [name='template_type']").val();
 		$searchFilter.template_status 		= 	$("#template_filter [name='template_status']").prop("checked");
 		$searchFilter.system_templates 		= 	$("#template_filter [name='system_templates']").prop("checked");
-		
+		$searchFilter.templateLanguage 		= 	$("#templateLanguage").val();
 
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
@@ -98,7 +103,7 @@ var popup_type	=	0;
             "sAjaxSource": baseurl + "/email_template/ajax_datagrid",
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "fnServerParams": function(aoData) {
-                aoData.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type},{"name":"Status","value":$searchFilter.template_status},{"name":"search","value":$searchFilter.searchTxt},{"name":"system_templates","value":$searchFilter.system_templates});
+                aoData.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type},{"name":"Status","value":$searchFilter.template_status},{"name":"search","value":$searchFilter.searchTxt},{"name":"system_templates","value":$searchFilter.system_templates},{"name":"templateLanguage","value":$searchFilter.templateLanguage});
                 data_table_extra_params.length = 0;
                 data_table_extra_params.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type},{"name":"Status","value":$searchFilter.template_status},{"name":"search","value":$searchFilter.searchTxt},{"name":"system_templates","value":$searchFilter.system_templates});
             },
@@ -205,6 +210,10 @@ var popup_type	=	0;
             data_table.fnFilter('', 0);
             return false;
         });
+        $("#templateLanguage").change(function () {
+            $searchFilter.templateLanguage 		= 	$("#templateLanguage").val();
+            data_table.fnFilter('', 0);
+        });
 
     $('#add-new-template').click(function(ev){
         ev.preventDefault();
@@ -269,6 +278,7 @@ var popup_type	=	0;
 				$("#add-new-template-form [name='Type']").val(data['Type']);
 				if(data['Privacy']== '' || data['Privacy']=== null){data['Privacy']=0;}
                 $("#add-new-template-form [name='Email_template_privacy']").val(data['Privacy']).trigger("change");
+                $("#add-new-template-form [name='LanguageID']").val(data['LanguageID']).trigger("change");
 				if(data['StaticType']){
 					$("#add-new-template-form #email_from").val(data['email_from']).trigger('change');
 					$("#add-new-template-form .email_from").removeClass('hidden');	

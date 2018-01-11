@@ -1,7 +1,10 @@
 use Ratemanagement3;
 
 ALTER TABLE `tblAccount`
-	ADD COLUMN `Language` VARCHAR(50) NULL DEFAULT 'en' COLLATE 'utf8_unicode_ci' AFTER `Country`;
+ADD COLUMN `LanguageID` INT(11) NULL DEFAULT '43' AFTER `CurrencyId`;
+
+ALTER TABLE `tblEmailTemplate`
+ADD COLUMN `LanguageID` INT(11) NULL DEFAULT '43' AFTER `CompanyID`;
 
 -- Dumping structure for table NeonRMDev.tblLanguage
 CREATE TABLE IF NOT EXISTS `tblLanguage` (

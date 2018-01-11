@@ -47,6 +47,11 @@ class EmailTemplate extends \Eloquent {
         $select =  isset($data['select'])?$data['select']:1;
         unset($data['select']);
         $data['CompanyID']=User::get_companyID();
+
+        if(!isset($data['LanguageID'])){
+            $data['LanguageID']=Translation::$default_lang_id;;
+        }
+
         $EmailTemplate = EmailTemplate::where($data);
         if(!isset($data['UserID'])){
             $EmailTemplate->whereNull('UserID');
@@ -64,9 +69,12 @@ class EmailTemplate extends \Eloquent {
        return  EmailTemplate::where(array('SystemType'=>$SystemType))->pluck('TemplateID');
     }
 	
-	public static function GetUserDefinedTemplates($select = 1){
+	public static function GetUserDefinedTemplates($select = 1,$language_id=""){
 		$select =  isset($select)?$select:1;
-       $row =  EmailTemplate::where(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE,"CompanyID"=>User::get_companyID()))->whereNull('UserID')->select(["TemplateID","TemplateName"])->lists('TemplateName','TemplateID');
+        if(empty($language_id)){
+            $language_id=Translation::$default_lang_id;
+        }
+       $row =  EmailTemplate::where(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE,"CompanyID"=>User::get_companyID(), "LanguageID" => $language_id))->whereNull('UserID')->select(["TemplateID","TemplateName"])->lists('TemplateName','TemplateID');
 	    if(!empty($row) && $select==1){
             $row = array(""=> "Select")+$row;
         }
