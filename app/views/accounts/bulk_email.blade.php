@@ -42,10 +42,17 @@
           </div>
           @endif
           <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-12">
               <div class="form-group">
                 <label for="field-1" class="control-label">Show Template</label>
                 {{Form::select('email_template_privacy',EmailTemplate::$privacy,'',array("class"=>"select2 small"))}} </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="field-3" class="control-label">Templates Language:</label>
+                {{ Form::select('templateLanguage', Translation::getLanguageDropdownIdList(), Translation::$default_lang_id, array("class"=>"select2","id"=>"templateLanguage","trigger_id"=>"#BulkMail-form [name='email_template']")) }} </div>
             </div>
             <div class="col-md-6">
               <div class="form-group">

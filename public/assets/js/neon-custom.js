@@ -1563,6 +1563,14 @@ toastr_opts = {
         if(typeof customer_alignment!="undefined" && customer_alignment=="right"){
             $('.pull-right, .pull-left').addClass('flip');
         }
+
+        $('#templateLanguage').change(function() {
+            var languageID=$(this).val();
+            var trigger_id=$(this).attr("trigger_id");
+
+            get_email_template(languageID, trigger_id);
+        });
+
     });
 
 
@@ -3326,4 +3334,27 @@ function setCookie(cname,cvalue,exdays) {
     d.setTime(d.getTime() + (exdays*24*60*60*1000));
     var expires = "expires=" + d.toGMTString();
     document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+function get_email_template(languageID,selectBox){
+    if(typeof languageID!="undefined" && typeof selectBox!="undefined"){
+        var url = baseurl + '/email_template/' + languageID + '/ajax_templateList';
+        $(selectBox).select2("enable",false);
+        $.get(url, function (result, status) {
+            if (status = "success") {
+                var data=result.data;
+                var html = "";
+                html+="<option value=''>Select</option>";
+                for (var key in data) {
+                    html+="<option value="+key+">"+data[key]+"</option>";
+                }
+                $(selectBox).html(html).select2("val","");
+                $(selectBox).select2("enable",true);
+            } else {
+                $(selectBox).select2("enable",false);
+                toastr.error(status, "Error", toastr_opts);
+            }
+        });
+    }
+
 }

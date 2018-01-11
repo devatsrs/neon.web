@@ -38,7 +38,7 @@
         </div>
           <div class="form-group">
               <label for="bcc">Templates Language:</label>
-              {{ Form::select('templateLanguage', Translation::getLanguageDropdownIdList(), Translation::$default_lang_id, array("class"=>"select2","id"=>"templateLanguage")) }}
+              {{ Form::select('templateLanguage', Translation::getLanguageDropdownIdList(), Translation::$default_lang_id, array("class"=>"select2","id"=>"templateLanguage","trigger_id"=>"[name='email_template']")) }}
           </div>
         <div class="form-group">
           <label for="bcc">Email Templates:</label>
@@ -264,24 +264,6 @@ $(document).ready(function(e) {
                     }
                 });
             }
-        });
-
-        $('#templateLanguage').change(function() {
-            var languageID=$(this).val();
-            var url = baseurl + '/email_template/' + languageID + '/ajax_templateList';
-            $.get(url, function (result, status) {
-                if (Status = "success") {
-                    var data=result.data;
-                    var html = "";
-                    html+="<option value=''>Select</option>";
-                    for (var key in data) {
-                        html+="<option value="+key+">"+data[key]+"</option>";
-                    }
-                    $("#MailBoxCompose [name='email_template']").html(html).select2("val","");
-                } else {
-                    toastr.error(status, "Error", toastr_opts);
-                }
-            });
         });
 		
 		  function editor_reset(data){
