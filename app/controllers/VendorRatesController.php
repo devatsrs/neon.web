@@ -710,6 +710,15 @@ class VendorRatesController extends \BaseController
                 $file_name = $uploadresult['file_name'];
             }
         } else {
+            $rules['selection.Code'] = 'required';
+            $rules['selection.Description'] = 'required';
+            $rules['selection.Rate'] = 'required';
+            //$rules['selection.EffectiveDate'] = 'required';
+            $validator = Validator::make($data, $rules);
+
+            if ($validator->fails()) {
+                return json_validator_response($validator);
+            }
             $file_name = basename($data['TemplateFile']);
             $temp_path = CompanyConfiguration::get('TEMP_PATH').'/' ;
             $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
@@ -1014,6 +1023,15 @@ class VendorRatesController extends \BaseController
                 $file_name = $uploadresult['file_name'];
             }
         } else {
+            $rules['selection.Code'] = 'required';
+            $rules['selection.Description'] = 'required';
+            $rules['selection.Rate'] = 'required';
+            //$rules['selection.EffectiveDate'] = 'required';
+            $validator = Validator::make($data, $rules);
+
+            if ($validator->fails()) {
+                return json_validator_response($validator);
+            }
             $file_name = basename($data['TemplateFile']);
             $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
             copy($temp_path . $file_name, $destinationPath . $file_name);
