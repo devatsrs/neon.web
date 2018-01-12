@@ -112,7 +112,8 @@ class ReportController extends \BaseController {
             $report = Report::find($id);
             $data = json_decode($report->Settings,true);
             $filters = json_decode($data['filter_settings'],true);
-            if(!empty(Input::get('StartDate'))) {
+			$StartDate = Input::get('StartDate');
+            if(!empty($StartDate)) {
                 if (isset($filters['date'])) {
                     $filters['date']['start_date'] = Input::get('StartDate');
                     $filters['date']['end_date'] = Input::get('EndDate');
@@ -181,7 +182,8 @@ class ReportController extends \BaseController {
             $response = Report::generateDynamicTable($CompanyID, $cube, $data,$filters);
         }
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $Type = !empty(Input::get('Type'))?Input::get('Type'):Report::XLS;
+			$data_type = Input::get('Type');
+            $Type = !empty($data_type)?$data_type:Report::XLS;
             $data['Name'] = !empty($data['Name']) ? $data['Name'] : 'Report';
             $table = generateReportTable2($data, $response, $all_data_list);
             if($Type == Report::PDF) {

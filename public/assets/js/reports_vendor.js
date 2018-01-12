@@ -347,10 +347,10 @@ function loadTable(table_id,pageSize,$searchFilter){
             $($(row).children().get(1)).html('<strong>'+TotalCall+'</strong>');
             $($(row).children().get(2)).html('<strong>'+TotalDuration+'</strong>');
             if(TotalCost) {
-                $($(row).children().get(3)).html('<strong>' + TotalCost.toFixed(toFixed) + '</strong>');
+                $($(row).children().get(3)).html('<strong>' + TotalCost + '</strong>');
             }
             if(TotalMargin) {
-                $($(row).children().get(6)).html('<strong>' + TotalMargin.toFixed(toFixed) + '</strong>');
+                $($(row).children().get(6)).html('<strong>' + TotalMargin + '</strong>');
             }
 
         }else{
