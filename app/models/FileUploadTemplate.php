@@ -71,7 +71,7 @@ class FileUploadTemplate extends \Eloquent {
                 return json_validator_response($validator);
             }
 
-            $validations = SELF::prepareTemplateValidations($data);
+            $validations = FileUploadTemplate::prepareTemplateValidations($data);
             $validator = Validator::make($data, $validations['rules_for_type'], $validations['message_for_type']);
 
             if ($validator->fails()) {
@@ -83,7 +83,7 @@ class FileUploadTemplate extends \Eloquent {
             }
 
             $file_name = $data['TemplateFile'];
-            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir[SELF::$upload_dir[$data['TemplateType']]]);
+            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir[FileUploadTemplate::$upload_dir[$data['TemplateType']]]);
             $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
             copy($file_name, $destinationPath . basename($file_name));
             if (!AmazonS3::upload($destinationPath . basename($file_name), $amazonPath)) {
@@ -124,7 +124,7 @@ class FileUploadTemplate extends \Eloquent {
                     return json_validator_response($validator);
                 }
 
-                $validations = SELF::prepareTemplateValidations($data);
+                $validations = FileUploadTemplate::prepareTemplateValidations($data);
                 $validator = Validator::make($data, $validations['rules_for_type'], $validations['message_for_type']);
 
                 if ($validator->fails()) {
@@ -137,7 +137,7 @@ class FileUploadTemplate extends \Eloquent {
 
                 if(isset($data['TemplateFile']) && !empty($data['TemplateFile'])) {
                     $file_name = $data['TemplateFile'];
-                    $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir[SELF::$upload_dir[$data['TemplateType']]]);
+                    $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir[FileUploadTemplate::$upload_dir[$data['TemplateType']]]);
                     $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
                     copy($file_name, $destinationPath . basename($file_name));
                     if (!AmazonS3::upload($destinationPath . basename($file_name), $amazonPath)) {
