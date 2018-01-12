@@ -228,10 +228,6 @@
                   <input type="text" name="bcc"  class="form-control tags"  id="bcc" />
                 </div>
                 <div class="form-Group" style="margin-bottom: 15px;">
-                  <label >Templates Language:</label>
-                  {{ Form::select('templateLanguage', Translation::getLanguageDropdownIdList(), Translation::$default_lang_id, array("class"=>"select2","id"=>"templateLanguage","trigger_id"=>"[name='email_template']")) }}
-                </div>
-                <div class="form-Group" style="margin-bottom: 15px;">
                   <label >Email Template</label>
                   {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2 email_template","parent_box"=>"mail-compose"))}}
                  </div>                  

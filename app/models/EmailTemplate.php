@@ -71,13 +71,19 @@ class EmailTemplate extends \Eloquent {
 	
 	public static function GetUserDefinedTemplates($select = 1,$language_id=""){
 		$select =  isset($select)?$select:1;
-        if(empty($language_id)){
-            $language_id=Translation::$default_lang_id;
+
+        $result=array();
+        $language_arr = Translation::getLanguageDropdownIdList();
+
+        foreach($language_arr as $key=>$value){
+            $row=  EmailTemplate::where(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE,"CompanyID"=>User::get_companyID(), "LanguageID" => $key))->whereNull('UserID')->select(["TemplateID","TemplateName"])->lists('TemplateName','TemplateID');
+            if(count($row)){
+                $result[$value]=$row;
+            }
         }
-       $row =  EmailTemplate::where(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE,"CompanyID"=>User::get_companyID(), "LanguageID" => $language_id))->whereNull('UserID')->select(["TemplateID","TemplateName"])->lists('TemplateName','TemplateID');
-	    if(!empty($row) && $select==1){
-            $row = array(""=> "Select")+$row;
+        if(!empty($result) && $select==1){
+            $result = array(""=> "Select")+$result;
         }
-        return $row;
+        return $result;
     }
 }

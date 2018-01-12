@@ -36,10 +36,6 @@
           <label for="cc">CC:</label>
           <input type="text" class="form-control useremails" id="cc" name="cc" value="" tabindex="2" />
         </div>
-          <div class="form-group">
-              <label for="bcc">Templates Language:</label>
-              {{ Form::select('templateLanguage', Translation::getLanguageDropdownIdList(), Translation::$default_lang_id, array("class"=>"select2","id"=>"templateLanguage","trigger_id"=>"[name='email_template']")) }}
-          </div>
         <div class="form-group">
           <label for="bcc">Email Templates:</label>
           {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2 email_template","parent_box"=>"mail-compose"))}}
