@@ -71,10 +71,13 @@ class ResellerController extends BaseController {
             $data['CompanyID'] = $CompanyID;
             $CurrentTime = date('Y-m-d H:i:s');
             $CreatedBy = User::get_user_full_name();
+            if(empty($CreatedBy)){
+                $CreatedBy = 'system';
+            }
             //$data['Status'] = isset($data['Status']) ? 1 : 0;
 
             Reseller::$rules['AccountID'] = 'required|unique:tblReseller,AccountID';
-            Reseller::$rules['Email'] = 'required';
+            Reseller::$rules['Email'] = 'required|email';
             Reseller::$rules['Password'] ='required|min:3';
 
 
@@ -93,8 +96,13 @@ class ResellerController extends BaseController {
             $Password = $data['Password'];
             $AllowWhiteLabel = $data['AllowWhiteLabel'];
             $AccountName = $Account->AccountName;
-            $FirstName = empty($Account->FirstName) ? '' : $Account->FirstName;
-            $LastName =  empty($Account->LastName)  ? '' : $Account->LastName;
+            if(!empty($Account->FirstName) && !empty($Account->LastName)){
+                $FirstName = empty($Account->FirstName) ? '' : $Account->FirstName;
+                $LastName =  empty($Account->LastName)  ? '' : $Account->LastName;
+            }else{
+                $FirstName = $AccountName;
+                $LastName = 'Reseller';
+            }
 
             try {
 
@@ -152,15 +160,20 @@ class ResellerController extends BaseController {
         $CurrentTime = date('Y-m-d H:i:s');
         $CreatedBy = User::get_user_full_name();
 
-        Reseller::$rules['Email'] = 'required';
+        Reseller::$rules['Email'] = 'required|email';
         //Reseller::$rules['FirstName'] = 'required|min:2';
         //Reseller::$rules['LastName'] = 'required|min:2';
         //Reseller::$rules["ResellerName"] = 'required|unique:tblReseller,ResellerName,'.$id.',ResellerID,CompanyID,'.$data['CompanyID'];
 
         $Account = Account::find($data['UpdateAccountID']);
         $AccountName = $Account->AccountName;
-        $FirstName = empty($Account->FirstName) ? '' : $Account->FirstName;
-        $LastName =  empty($Account->LastName)  ? '' : $Account->LastName;
+        if(!empty($Account->FirstName) && !empty($Account->LastName)){
+            $FirstName = empty($Account->FirstName) ? '' : $Account->FirstName;
+            $LastName =  empty($Account->LastName)  ? '' : $Account->LastName;
+        }else{
+            $FirstName = $AccountName;
+            $LastName = 'Reseller';
+        }
 
         if(!empty($data['Password'])){
             Reseller::$rules['Password'] ='required|min:3';
@@ -189,8 +202,6 @@ class ResellerController extends BaseController {
         $ResellerData['updated_by'] = $CreatedBy;
 
         $UserData = array();
-        $UserData['FirstName'] = $FirstName;
-        $UserData['LastName'] = $LastName;
         $UserData['EmailAddress'] = $data['Email'];
         if(isset($data['Password'])){
             $UserData['Password'] = $data['Password'];
@@ -202,6 +213,10 @@ class ResellerController extends BaseController {
             DB::beginTransaction();
 
             $User = User::where(['CompanyID'=>$Reseller->ChildCompanyID,'Status'=>1])->first();
+            if(empty($User->FirstName) && empty($User->LastName)){
+                $UserData['FirstName'] = $FirstName;
+                $UserData['LastName'] = $LastName;
+            }
             $User->update($UserData);
             $Result = $Reseller->update($ResellerData);
             DB::commit();
