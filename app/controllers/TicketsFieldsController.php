@@ -300,10 +300,6 @@ private $validlicense;
 								foreach($deleted_choices as $deleted_choices_data){									
 									TicketfieldsValues::find($deleted_choices_data)->delete();	 
 								
-								   TicketLog::where(['TicketFieldValueFromID'=>$deleted_choices_data,"TicketFieldID"=>$postdata['id']])->delete();
-								   TicketLog::where(['TicketFieldValueToID'=>$deleted_choices_data,"TicketFieldID"=>$postdata['id']])->delete();				   
-								   TicketDashboardTimeline::where(['TicketFieldValueFromID'=>$deleted_choices_data,"TicketFieldID"=>$postdata['id']])->delete();
-								   TicketDashboardTimeline::where(['TicketFieldValueToID'=>$deleted_choices_data,"TicketFieldID"=>$postdata['id']])->delete();							
 								}
 						}					
 					}
@@ -340,11 +336,6 @@ private $validlicense;
 								$deleted_choices = explode(",",$postdata['deleted_choices']);
 								foreach($deleted_choices as $deleted_choices_data){									
 								   TicketfieldsValues::find($deleted_choices_data)->delete();	
-								   TicketLog::where(['TicketFieldValueFromID'=>$deleted_choices_data,"TicketFieldID"=>$postdata['id']])->delete();
-								   TicketLog::where(['TicketFieldValueToID'=>$deleted_choices_data,"TicketFieldID"=>$postdata['id']])->delete();				   
-								   TicketDashboardTimeline::where(['TicketFieldValueFromID'=>$deleted_choices_data,"TicketFieldID"=>$postdata['id']])->delete();
-								   TicketDashboardTimeline::where(['TicketFieldValueToID'=>$deleted_choices_data,"TicketFieldID"=>$postdata['id']])->delete();	
-
 								}
 						}					
 					}
