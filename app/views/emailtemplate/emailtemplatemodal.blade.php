@@ -126,6 +126,8 @@
 				var modal = $(this);
 				modal.find('.email_from').addClass('hidden');
 				modal.find('#TemplateName').removeAttr('readonly');
+				modal.find('#SystemType').select2('enable', true);
+				modal.find('[name=LanguageID]').select2('enable', true);
 	  });
 		
     });
@@ -147,6 +149,11 @@
                                 <label for="field-1" class="control-label col-sm-2">Language</label>
                                 <div class="col-sm-4">
                                     {{ Form::select('LanguageID', Translation::getLanguageDropdownIdList(), Translation::$default_lang_id , array("class"=>"select2")) }}
+                                </div>
+
+                                <label for="field-1" class="control-label col-sm-2">Type</label>
+                                <div class="col-sm-4">
+                                    {{ Form::select('SystemType', EmailTemplate::getSystemTypeArray(), '', array("class"=>"select2", "id"=>"SystemType")) }}
                                 </div>
                             </div>
                         </div>

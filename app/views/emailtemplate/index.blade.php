@@ -282,15 +282,18 @@ var popup_type	=	0;
 				if(data['StaticType']){
 					$("#add-new-template-form #email_from").val(data['email_from']).trigger('change');
 					$("#add-new-template-form .email_from").removeClass('hidden');	
-					$("#add-new-template-form #TemplateName").attr('readonly','readonly');	
-					
+					$("#add-new-template-form #TemplateName").attr('readonly','readonly');
+                    $("#add-new-template-form #SystemType, #add-new-template-form [name=LanguageID]").select2('enable', false);
+                    $("#add-new-template-form #SystemType").select2('val', data['SystemType']);
+
 					if(data['TicketTemplate']){
 						$("#add-new-template-form .email_from").addClass('hidden');
 					} 
 				}else{
 					//$("#add-new-template-form .email_from").hide();			
 					$("#add-new-template-form .email_from").addClass('hidden');	 
-					$("#add-new-template-form #TemplateName").removeAttr('readonly');	 
+					$("#add-new-template-form #TemplateName").removeAttr('readonly');
+                    $("#add-new-template-form #SystemType, #add-new-template-form [name=LanguageID]").select2('enable', true);
 				}
 				if(data['StatusDisabled'])
 				{ 	

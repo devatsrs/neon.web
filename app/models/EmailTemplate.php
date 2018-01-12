@@ -48,10 +48,6 @@ class EmailTemplate extends \Eloquent {
         unset($data['select']);
         $data['CompanyID']=User::get_companyID();
 
-        if(!isset($data['LanguageID'])){
-            $data['LanguageID']=Translation::$default_lang_id;;
-        }
-
         $EmailTemplate = EmailTemplate::where($data);
         if(!isset($data['UserID'])){
             $EmailTemplate->whereNull('UserID');
@@ -81,6 +77,15 @@ class EmailTemplate extends \Eloquent {
                 $result[$value]=$row;
             }
         }
+        if(!empty($result) && $select==1){
+            $result = array(""=> "Select")+$result;
+        }
+        return $result;
+    }
+
+    public static function getSystemTypeArray($select = 1){
+        $result=EmailTemplate::where('SystemType', "!=", "")->select('SystemType')->distinct()->orderBy('SystemType')->lists('SystemType', 'SystemType');
+
         if(!empty($result) && $select==1){
             $result = array(""=> "Select")+$result;
         }

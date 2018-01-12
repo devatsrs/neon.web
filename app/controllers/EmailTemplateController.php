@@ -90,7 +90,14 @@ class EmailTemplateController extends \BaseController {
 		}
 		$data['Status'] = isset($data['Status'])?1:0;
         unset($data['Email_template_privacy']);
-		unset($data['email_from']);		
+		unset($data['email_from']);
+
+        if(!empty($data['SystemType'])){
+            if(EmailTemplate::where([ "LanguageID"=>$data['LanguageID'], "SystemType"=>$data['SystemType'], "CompanyID"=>$data['CompanyID']])->count()){
+                return Response::json(array("status" => "failed", "message" => "Template already exists."));
+            }
+        }
+
         if ($obj = EmailTemplate::create($data)) {
             return Response::json(array("status" => "success", "message" => "Template Successfully Created","newcreated"=>$obj));
         } else {
@@ -127,6 +134,7 @@ class EmailTemplateController extends \BaseController {
         } 
 		$instance['TicketTemplate'] = $template->TicketTemplate;
 		$instance['LanguageID'] = (!empty($template->LanguageID))?$template->LanguageID:Translation::$default_lang_id;
+        $instance['SystemType'] = $template->SystemType;
         return $instance;
     }
 
