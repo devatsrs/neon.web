@@ -155,8 +155,10 @@ class ReportVendorCDR extends \Eloquent{
             }
         }else{
             if($Live){
+				self::$DetailTable = 'tblVendorSummaryDayLive';
                 $query_common->join('tblVendorSummaryDayLive', 'tblHeaderV.HeaderVID', '=', 'tblVendorSummaryDayLive.HeaderVID');
             }else{
+				self::$DetailTable = 'tblVendorSummaryDay';
                 $query_common->join('tblVendorSummaryDay', 'tblHeaderV.HeaderVID', '=', 'tblVendorSummaryDay.HeaderVID');
             }
         }

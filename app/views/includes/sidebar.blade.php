@@ -60,7 +60,7 @@
         <li> <a href="{{URL::to('/accounts')}}" class="first"> <i class="fa fa-users"></i> <span>&nbsp;Accounts</span> </a></li>
       @endif
     @endif
-    @if(user::is_admin())
+    @if(User::checkCategoryPermission('Reseller','View'))
     <li> <a href="{{URL::to('/reseller')}}">  <i class="entypo-users"></i><span>Reseller</span> </a> </li>
     @endif
          <!--tickets start -->

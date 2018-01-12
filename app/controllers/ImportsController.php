@@ -119,6 +119,13 @@ class ImportsController extends \BaseController {
                 $file_name = $uploadresult['file_name'];
             }
         } else {
+            Account::$importrules['selection.AccountName'] = 'required';
+
+            $validator = Validator::make($data, Account::$importrules,Account::$importmessages);
+
+            if ($validator->fails()) {
+                return json_validator_response($validator);
+            }
             $file_name = basename($data['TemplateFile']);
             $temp_path = CompanyConfiguration::get('TEMP_PATH').'/' ;
             $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
