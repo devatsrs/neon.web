@@ -1321,7 +1321,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         // @TODO: ServiceID need to fix for show
         $AccountBilling = AccountBilling::getBilling($id,0);
         $account = Account::find($id);
-        $CompanyID = $account->CompanyId;
+        $companyID = $account->CompanyId;
         $today = date('Y-m-d 23:59:59');
         $CustomerLastInvoiceDate = Account::getCustomerLastInvoiceDate($AccountBilling,$account);
         $VendorLastInvoiceDate = Account::getVendorLastInvoiceDate($AccountBilling,$account);
