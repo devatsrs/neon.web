@@ -718,6 +718,9 @@ var neonLogin = neonLogin || {};
             $('.pull-right, .pull-left').addClass('flip');
         }
 
+        var page_url = baseurl + "/customer/login?lang="+$("#user_language ul li.active").attr("lang-key");
+        window.history.pushState({path:page_url},'',page_url);
+
     });
 
 })(jQuery, window);
