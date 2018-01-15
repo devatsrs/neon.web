@@ -22,6 +22,10 @@
                             </div>-->
                 </div>
                 <div class="form-group">
+                    <label class="control-label">Language</label>
+                    {{ Form::select('templateLanguage', Translation::getLanguageDropdownIdList(), Translation::$default_lang_id, array("class"=>"form-control select2")) }}
+                </div>
+                <div class="form-group">
                     <label class="control-label">System Templates</label><br/>
                     <p class="make-switch switch-small">
                         <input type="checkbox"  name="system_templates" value="1">
@@ -55,9 +59,6 @@
 @include('includes.errors')
 @include('includes.success')
 </br>
-<div class="col-md-2 text-left">
-    {{ Form::select('templateLanguage', Translation::getLanguageDropdownIdList(), Translation::$default_lang_id, array("class"=>"form-control select2","id"=>"templateLanguage")) }}
-</div>
 
 <p class="text-right"> @if(User::checkCategoryPermission('EmailTemplate','Add')) <a href="#" data-action="showAddModal" data-type="email_template" data-modal="add-new-modal-template" class="btn btn-primary "> <i class="entypo-plus"></i> Add New </a> @endif </p>
 <table class="table table-bordered datatable" id="table-4">
@@ -94,7 +95,7 @@ var popup_type	=	0;
         $searchFilter.template_type 		= 	$("#template_filter [name='template_type']").val();
 		$searchFilter.template_status 		= 	$("#template_filter [name='template_status']").prop("checked");
 		$searchFilter.system_templates 		= 	$("#template_filter [name='system_templates']").prop("checked");
-		$searchFilter.templateLanguage 		= 	$("#templateLanguage").val();
+		$searchFilter.templateLanguage 		= 	$("#template_filter [name='templateLanguage']").val();
 
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
@@ -207,12 +208,9 @@ var popup_type	=	0;
             $searchFilter.template_type 	= 	$("#template_filter [name='template_type']").val();
 			$searchFilter.template_status 	= 	$("#template_filter [name='template_status']").prop("checked");
 			$searchFilter.system_templates 	= 	$("#template_filter [name='system_templates']").prop("checked");
+			$searchFilter.templateLanguage 	= 	$("#template_filter [name='templateLanguage']").val();
             data_table.fnFilter('', 0);
             return false;
-        });
-        $("#templateLanguage").change(function () {
-            $searchFilter.templateLanguage 		= 	$("#templateLanguage").val();
-            data_table.fnFilter('', 0);
         });
 
     $('#add-new-template').click(function(ev){
