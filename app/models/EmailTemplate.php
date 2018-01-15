@@ -91,4 +91,11 @@ class EmailTemplate extends \Eloquent {
         }
         return $result;
     }
+
+    public static function getSystemEmailTemplate($slug,$LanguageID=""){
+        if(empty($LanguageID)){
+            $LanguageID=Translation::$default_lang_id;
+        }
+        return EmailTemplate::where(["SystemType"=>$slug, "LanguageID"=>$LanguageID])->first();
+    }
 }
