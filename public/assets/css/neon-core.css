@@ -8960,7 +8960,7 @@ body.page-fade-only-init > .page-container {
   border-radius: 0;
   background-clip: padding-box;
   padding: 10px 20px;
-  color: #8d929a;
+  color: #8d929a !important;
   -moz-transition: all 300ms ease-in-out;
   -o-transition: all 300ms ease-in-out;
   -webkit-transition: all 300ms ease-in-out;
@@ -9155,6 +9155,16 @@ body.page-fade-only-init > .page-container {
 }
 .boxed-layout #chat {
   position: absolute;
+}
+#form_customer_login .language-selector.open span{
+  color:black;
+}
+#form_customer_login .language-selector span{
+  width: 275px;padding: 0px;
+}
+.ddl-language, .ddl-language .dropdown-toggle{
+  margin-left: 5px;
+  padding-right: 0px;
 }
 @media screen and (max-width: 992px) {
   .boxed-layout .page-container {

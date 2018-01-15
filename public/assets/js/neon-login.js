@@ -708,9 +708,15 @@ var neonLogin = neonLogin || {};
             ctx.restore();
         }
 
-        $("#user_language").change(function(){
-            window.location.href=baseurl + "/customer/login?lang="+$("#user_language").val();
+        $("#user_language ul li").click(function(){
+            window.location = baseurl + "/customer/login?lang="+$(this).attr("lang-key");
+            return false;
         });
+        $("#user_language.language-selector .dropdown-toggle img").attr("src",$("#user_language ul li.active img").attr("src"));
+        $("#user_language.language-selector .dropdown-toggle span").html($("#user_language ul li.active span").html());
+        if(typeof customer_alignment!="undefined" && customer_alignment=="right"){
+            $('.pull-right, .pull-left').addClass('flip');
+        }
 
     });
 

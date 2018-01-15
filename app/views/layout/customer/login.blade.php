@@ -16,7 +16,10 @@
                 <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
                 <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
         <![endif]-->
-       <script type="text/javascript">var baseurl = '<?php echo URL::to('/');?>';</script>
+       <script type="text/javascript">
+           var baseurl = '<?php echo URL::to('/');?>';
+           var customer_alignment = '<?php echo $customer_alignment ?>';
+       </script>
         @if(Session::get('user_site_configrations.CustomCss'))
             <style>
                 {{Session::get('user_site_configrations.CustomCss')}}

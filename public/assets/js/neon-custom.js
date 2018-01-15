@@ -1560,6 +1560,7 @@ toastr_opts = {
                 cache: false
             });
         });
+        $("#user_language.language-selector .dropdown-toggle img").attr("src",$("#user_language ul li.active img").attr("src"));
         if(typeof customer_alignment!="undefined" && customer_alignment=="right"){
             $('.pull-right, .pull-left').addClass('flip');
         }

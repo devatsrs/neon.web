@@ -262,7 +262,6 @@ return array(
 	'CUST_PANEL_PAGE_INVOICE_TITLE'=>'Invoice',
 	'CUST_PANEL_PAGE_LOGIN_HEADING_INVALID_LOGIN_MSG'=>'Enter correct login and password.',
 	'CUST_PANEL_PAGE_LOGIN_HEADING_INVALID_LOGIN_TITLE'=>'Invalid login',
-	'CUST_PANEL_PAGE_LOGIN_LBL_LOGINMESSAGE'=>'Dear user, Please login below!',
 	'CUST_PANEL_PAGE_LOGIN_LBL_LOGIN_MSG'=>'Dear user, Please login below!',
 	'CUST_PANEL_PAGE_LOGIN_MSG_LOGGING_PROCESS'=>'logging in...',
 	'CUST_PANEL_PAGE_MONITOR_HEADING_TRAFFIC_BY_REGION'=>'Traffic By Region',

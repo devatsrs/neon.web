@@ -11,19 +11,7 @@ class TranslateController extends \BaseController {
 
     public function changeLanguage($language)
     {
-        if($language=="toggle"){
-            $cus_alignment=NeonCookie::getCookie('customer_alignment',"left");
-            if($cus_alignment=="left"){
-                $cus_alignment="right";
-            }else{
-                $cus_alignment="left";
-            }
-            NeonCookie::setCookie('customer_alignment',$cus_alignment,365);
-        }else{
-            App::setLocale($language);
-            NeonCookie::setCookie('customer_language',$language,365);
-        }
-
+        set_cus_language($language);
         echo json_encode(array( "status"=>"success", "language"=>NeonCookie::getCookie('customer_language') ));
     }
 

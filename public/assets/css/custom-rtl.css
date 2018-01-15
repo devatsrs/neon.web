@@ -97,3 +97,18 @@
 .datepicker-dropdown.dropdown-menu,.bootstrap-timepicker-widget.dropdown-menu {
     right:unset;
 }
+.ddl-language, .ddl-language .dropdown-toggle{
+    margin-right: 5px;
+    padding-left: 0px;
+    padding-right: 10px;
+}
+.ddl-language .language-selector.open > .dropdown-toggle{
+    border-radius:3px 0px 0 0px;
+}
+.ddl-language .language-selector .dropdown-menu.pull-right{
+    border-radius: 0px 3px 3px 0px;
+}
+.ddl-language .dropdown-menu.pull-right{
+    left: 5px;
+    right: auto;
+}

@@ -42,6 +42,10 @@ if ( Request::is('/') || Request::is('login') || Request::is('forgot_password') 
 
     ];
 }
+if($customer_alignment=="right"){
+    $css[]="assets/css/bootstrap-rtl.min.css";
+    $css[]="assets/css/custom-rtl.css";
+}
 
 $css[]  = 'assets/css/skins/black.css';
 ?>

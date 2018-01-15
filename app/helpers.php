@@ -2488,3 +2488,18 @@ function get_user_edit_url($UserID) {
 
     return URL::to('users/edit/'.$UserID);
 }
+
+function set_cus_language($language){
+
+    NeonCookie::deleteCookie("customer_language");
+    NeonCookie::deleteCookie("customer_alignment");
+
+    App::setLocale($language);
+    NeonCookie::setCookie('customer_language',$language,365);
+
+    if( DB::table('tblLanguage')->where(['ISOCode'=>$language, "is_rtl"=>"y"])->count()){
+        NeonCookie::setCookie('customer_alignment',"right",365);
+    }else{
+        NeonCookie::setCookie('customer_alignment',"left",365);
+    }
+}

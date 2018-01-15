@@ -29,14 +29,39 @@
                     <p>@lang("routes.CUST_PANEL_PAGE_LOGIN_HEADING_INVALID_LOGIN_MSG")</p>
                 </div>
                 <form method="post" role="form" id="form_customer_login">
-                    <div class="form-group">
-                        <div class="input-group">
-                            <div class="input-group-addon">
-                                <i class="entypo-globe"></i>
-                            </div>
-                            {{ Form::select('user_language', Translation::getLanguageDropdownList(), $language , array("class"=>"form-control ","id"=>"user_language")) }}
+
+                        <div class="input-group ddl-language col-md-12">
+{{--                            {{ Form::select('user_language', Translation::getLanguageDropdownList(), $language , array("class"=>"form-control ","id"=>"user_language")) }}--}}
+                            <ul class="list-inline links-list pull-right">
+                                <li class="dropdown language-selector" id="user_language">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-close-others="true" aria-expanded="false">
+                                        <img src="" width="25" />
+                                        <span></span>
+                                        <i class="entypo-down-open-mini"></i>
+                                    </a>
+                                    <ul class="dropdown-menu pull-right">
+                                        <?php
+//                                        $language=NeonCookie::getCookie('customer_language',"en");
+                                        ?>
+                                        @foreach( Translation::getLanguageDropdownWithFlagList() as $key=>$value )
+                                            <?php
+                                            $selected="";
+                                            if($language==$key){
+                                                $selected="active";
+                                            }
+                                            ?>
+                                            <li class="{{$selected}}" lang-key="{{$key}}">
+                                                <a href="javascripe:void(0);">
+                                                    <img src="{{URL::to('/assets/images/flag/'.$value["languageFlag"])}}" width="25" />
+                                                    <span>{{$value["languageName"]}}</span>
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </li>
+                            </ul>
+
                         </div>
-                    </div>
                     <div class="form-group">
                         <div class="input-group">
                             <div class="input-group-addon">

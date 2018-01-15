@@ -39,19 +39,24 @@
             $cus_language=NeonCookie::getCookie('customer_language',"en");
             ?>
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-close-others="true" aria-expanded="false">
-                <i class="entypo-globe"></i>
+                <img src="" width="25" />
                 <span>{{strtoupper($cus_language)}}</span>
                 <i class="entypo-down-open-mini"></i>
             </a>
             <ul class="dropdown-menu pull-right">
-                @foreach( Translation::getLanguageDropdownList() as $key=>$value )
+                @foreach( Translation::getLanguageDropdownWithFlagList() as $key=>$value )
                     <?php
                     $selected="";
                         if($cus_language==$key){
                             $selected="active";
                         }
                     ?>
-                    <li class="{{$selected}}" lang-key="{{$key}}"> <a href="javascripe:void(0);"> <span>{{$value}}</span> </a> </li>
+                    <li class="{{$selected}}" lang-key="{{$key}}">
+                        <a href="javascripe:void(0);">
+                            <img src="{{URL::to('/assets/images/flag/'.$value["languageFlag"])}}" width="25" />
+                            <span>{{$value["languageName"]}}</span>
+                        </a>
+                    </li>
                 @endforeach
                 <?php
                    $cus_alignment = NeonCookie::getCookie('customer_alignment',"left");
@@ -61,7 +66,7 @@
                         $cus_alignment="left";
                     }
                 ?>
-                    <li class="" lang-key="toggle"> <a href="javascripe:void(0);"> <i class="glyphicon glyphicon-align-{{$cus_alignment}}"></i> <span>Toggle Alignment</span> </a> </li>
+                    {{--<li class="" lang-key="toggle"> <a href="javascripe:void(0);"> <i class="glyphicon glyphicon-align-{{$cus_alignment}}"></i> <span>Toggle Alignment</span> </a> </li>--}}
             </ul>
         </li>
         <li>
