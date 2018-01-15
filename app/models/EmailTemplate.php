@@ -96,6 +96,12 @@ class EmailTemplate extends \Eloquent {
         if(empty($LanguageID)){
             $LanguageID=Translation::$default_lang_id;
         }
-        return EmailTemplate::where(["SystemType"=>$slug, "LanguageID"=>$LanguageID])->first();
+
+        $emailtemplate=EmailTemplate::where(["SystemType"=>$slug, "LanguageID"=>$LanguageID])->first();
+        if(empty($emailtemplate)){
+            $emailtemplate=EmailTemplate::where(["SystemType"=>$slug, "LanguageID"=>Translation::$default_lang_id])->first();
+        }
+        
+        return $emailtemplate;
     }
 }

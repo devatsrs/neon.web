@@ -277,12 +277,12 @@ var popup_type	=	0;
 				if(data['Privacy']== '' || data['Privacy']=== null){data['Privacy']=0;}
                 $("#add-new-template-form [name='Email_template_privacy']").val(data['Privacy']).trigger("change");
                 $("#add-new-template-form [name='LanguageID']").val(data['LanguageID']).trigger("change");
+                $("#add-new-template-form #SystemType").select2('val', data['SystemType']);
 				if(data['StaticType']){
 					$("#add-new-template-form #email_from").val(data['email_from']).trigger('change');
 					$("#add-new-template-form .email_from").removeClass('hidden');	
 					$("#add-new-template-form #TemplateName").attr('readonly','readonly');
                     $("#add-new-template-form #SystemType, #add-new-template-form [name=LanguageID]").select2('enable', false);
-                    $("#add-new-template-form #SystemType").select2('val', data['SystemType']);
 
 					if(data['TicketTemplate']){
 						$("#add-new-template-form .email_from").addClass('hidden');
