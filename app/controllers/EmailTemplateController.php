@@ -91,12 +91,14 @@ class EmailTemplateController extends \BaseController {
 		unset($data['email_from']);
 
         if(!empty($data['SystemType'])){
-            if(EmailTemplate::where([ "LanguageID"=>$data['LanguageID'], "SystemType"=>$data['SystemType'], "CompanyID"=>$data['CompanyID']])->count()){
+            if(EmailTemplate::where([ "LanguageID"=>$data['LanguageID'], "SystemType"=>$data['SystemType'], "CompanyID"=>$companyID])->count()){
                 return Response::json(array("status" => "failed", "message" => "Template already exists."));
             }
 
             $emailTemplate = EmailTemplate::getSystemEmailTemplate($companyID, $data['SystemType'], Translation::$default_lang_id)->toArray();
             $data=array_merge($emailTemplate, $data);
+
+            $data["Type"]=$emailTemplate["Type"];
             unset($data['created_at'], $data['ModifiedBy'], $data['updated_at']);
         }
 

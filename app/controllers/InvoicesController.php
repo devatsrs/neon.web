@@ -1793,7 +1793,8 @@ class InvoicesController extends \BaseController {
                 $transactiondata['Response'] = json_encode($response);
                 TransactionLog::insert($transactiondata);
                 $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
-                $paymentdata['EmailTemplate'] 		= 	EmailTemplate::where(["SystemType"=>EmailTemplate::InvoicePaidNotificationTemplate])->first();
+
+                $paymentdata['EmailTemplate'] 		= 	EmailTemplate::getSystemEmailTemplate($Invoice->CompanyId, Estimate::InvoicePaidNotificationTemplate, $account->LanguageID);
                 $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);
                 $paymentdata['Invoice'] = $Invoice;
                 Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$paymentdata);
@@ -2310,8 +2311,11 @@ class InvoicesController extends \BaseController {
 
             TransactionLog::insert($transactiondata);
 
+
+            $account = Account::find($AccountID);
+
             $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
-            $paymentdata['EmailTemplate'] 		= 	EmailTemplate::where(["SystemType"=>EmailTemplate::InvoicePaidNotificationTemplate])->first();
+            $paymentdata['EmailTemplate'] 		= 	EmailTemplate::getSystemEmailTemplate($Invoice->CompanyId, Estimate::InvoicePaidNotificationTemplate, $account->LanguageID);
             $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);
             $paymentdata['Invoice'] = $Invoice;
             Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$paymentdata);
@@ -2423,9 +2427,9 @@ class InvoicesController extends \BaseController {
                 $transactiondata['Response'] = json_encode($StripeResponse['response']);
 
                 TransactionLog::insert($transactiondata);
-
+                $account = Account::find($AccountID);
                 $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
-                $paymentdata['EmailTemplate'] 		= 	EmailTemplate::where(["SystemType"=>EmailTemplate::InvoicePaidNotificationTemplate])->first();
+                $paymentdata['EmailTemplate'] 		= 	EmailTemplate::getSystemEmailTemplate($Invoice->CompanyId, Estimate::InvoicePaidNotificationTemplate, $account->LanguageID);
                 $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);
                 $paymentdata['Invoice'] = $Invoice;
                 Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$paymentdata);

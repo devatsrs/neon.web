@@ -138,8 +138,8 @@ class EmailsTemplates{
 			$replace_array							=	EmailsTemplates::setCompanyFields($replace_array,$EstimateData->CompanyID); 
 			$replace_array 							=	EmailsTemplates::setAccountFields($replace_array,$EstimateData->AccountID);
 			$AccoutData 							=	Account::find($EstimateData->AccountID);
-			$EmailTemplate 							= 	EmailTemplate::where(["SystemType"=>$slug])->first();
-				
+			$EmailTemplate 							= 	EmailTemplate::getSystemEmailTemplate($AccoutData->CompanyId, $slug, $AccoutData->LanguageID);
+
 			$InvoiceTemplateID 		= 	AccountBilling::getInvoiceTemplateID($EstimateData->AccountID);
 			$EstimateNumber			=   Estimate::getFullEstimateNumber($EstimateData,$InvoiceTemplateID);
 			
