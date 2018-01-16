@@ -717,9 +717,11 @@ var neonLogin = neonLogin || {};
         if(typeof customer_alignment!="undefined" && customer_alignment=="right"){
             $('.pull-right, .pull-left').addClass('flip');
         }
+        if($("#user_language ul li.active").length){
+            var page_url = baseurl + "/customer/login?lang="+$("#user_language ul li.active").attr("lang-key");
+            window.history.pushState({path:page_url},'',page_url);
+        }
 
-        var page_url = baseurl + "/customer/login?lang="+$("#user_language ul li.active").attr("lang-key");
-        window.history.pushState({path:page_url},'',page_url);
 
     });
 

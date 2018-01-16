@@ -52,7 +52,7 @@
                         }
                     ?>
                     <li class="{{$selected}}" lang-key="{{$key}}">
-                        <a href="javascripe:void(0);">
+                        <a href="javascript:void(0);">
                             <img src="{{URL::to('/assets/images/flag/'.$value["languageFlag"])}}" width="25" />
                             <span>{{$value["languageName"]}}</span>
                         </a>
