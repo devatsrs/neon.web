@@ -18,9 +18,12 @@ class HomeCustomerController extends BaseController {
             if(isset($_GET["lang"]) && !empty($_GET["lang"])){
                 $language = $_GET["lang"];
             }else{
-                $language=NeonCookie::getCookie('customer_language',"en");
+                $language=NeonCookie::getCookie('customer_language');
             }
-
+            $languageList=Translation::getLanguageDropdownList();
+            if(!array_key_exists($language,$languageList)){
+                $language=Translation::$default_lang_ISOcode;
+            }
 //            set_cus_language($language);
             App::setLocale($language);
             NeonCookie::setCookie('customer_language',$language,365);
