@@ -57,7 +57,7 @@ class EmailsTemplates{
 				$InvoiceDetailPeriod 					= 	InvoiceDetail::where(["InvoiceID" => $InvoiceID,'ProductType'=>Product::INVOICE_PERIOD])->first();
 
 				$Account 								= 	Account::find($InvoiceData->AccountID);
-				$EmailTemplate 							= 	EmailTemplate::getSystemEmailTemplate(Invoice::EMAILTEMPLATE, $Account->LanguageID );
+				$EmailTemplate 							= 	EmailTemplate::getSystemEmailTemplate($companyID, Invoice::EMAILTEMPLATE, $Account->LanguageID );
 
 				$replace_array							=	EmailsTemplates::setCompanyFields($replace_array,$InvoiceData->CompanyID);
 				$replace_array 							=	EmailsTemplates::setAccountFields($replace_array,$InvoiceData->AccountID);

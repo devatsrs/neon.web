@@ -92,12 +92,12 @@ class EmailTemplate extends \Eloquent {
         return $result;
     }
 
-    public static function getSystemEmailTemplate($slug,$LanguageID=""){
-        if(empty($LanguageID)){
-            $LanguageID=Translation::$default_lang_id;
+    public static function getSystemEmailTemplate($companyID, $slug,$languageID=""){
+        if(empty($languageID)){
+            $languageID=Translation::$default_lang_id;
         }
 
-        $emailtemplate=EmailTemplate::where(["SystemType"=>$slug, "LanguageID"=>$LanguageID])->first();
+        $emailtemplate=EmailTemplate::where(["SystemType"=>$slug, "LanguageID"=>$languageID, "CompanyID"=>$companyID])->first();
         if(empty($emailtemplate)){
             $emailtemplate=EmailTemplate::where(["SystemType"=>$slug, "LanguageID"=>Translation::$default_lang_id])->first();
         }

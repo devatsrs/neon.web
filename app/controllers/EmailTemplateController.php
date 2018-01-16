@@ -71,15 +71,13 @@ class EmailTemplateController extends \BaseController {
         $rules = [
             "TemplateName" => "required|unique:tblEmailTemplate,TemplateName,NULL,TemplateID,CompanyID,".$companyID,
             "Subject" => "required",
-            "TemplateBody"=>"required"
+            "TemplateBody"=>"required",
+            "LanguageID"=>"required"
         ];
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
             return json_validator_response($validator);
-        }
-        if(!isset($data['LanguageID'])){
-            $data['LanguageID']=Translation::$default_lang_id;
         }
 
         if(isset($data['Email_template_privacy']) && $data['Email_template_privacy']>0){
@@ -96,6 +94,10 @@ class EmailTemplateController extends \BaseController {
             if(EmailTemplate::where([ "LanguageID"=>$data['LanguageID'], "SystemType"=>$data['SystemType'], "CompanyID"=>$data['CompanyID']])->count()){
                 return Response::json(array("status" => "failed", "message" => "Template already exists."));
             }
+
+            $emailTemplate = EmailTemplate::getSystemEmailTemplate($companyID, $data['SystemType'], Translation::$default_lang_id)->toArray();
+            $data=array_merge($emailTemplate, $data);
+            unset($data['created_at'], $data['ModifiedBy'], $data['updated_at']);
         }
 
         if ($obj = EmailTemplate::create($data)) {
@@ -156,13 +158,15 @@ class EmailTemplateController extends \BaseController {
             "TemplateName" => "required|unique:tblEmailTemplate,TemplateName,$id,TemplateID,CompanyID,".$companyID,
             "Subject" => "required",
             "TemplateBody"=>"required",
-			"email_from"=>"required"
+			"email_from"=>"required",
+            "LanguageID"=>"required"
         ];
 		}else{
 	    $rules = [
             "TemplateName" => "required|unique:tblEmailTemplate,TemplateName,$id,TemplateID,CompanyID,".$companyID,
             "Subject" => "required",
-            "TemplateBody"=>"required"
+            "TemplateBody"=>"required",
+            "LanguageID"=>"required"
         ];
 	   }
         $validator = Validator::make($data, $rules);
@@ -170,10 +174,6 @@ class EmailTemplateController extends \BaseController {
         if ($validator->fails()) {
             return json_validator_response($validator);
             exit;
-        }
-
-        if(!isset($data['LanguageID'])){
-            $data['LanguageID']=Translation::$default_lang_id;
         }
 
         if(isset($data['Email_template_privacy']) && $data['Email_template_privacy']>0){

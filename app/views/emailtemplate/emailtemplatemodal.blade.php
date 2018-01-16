@@ -10,8 +10,11 @@
             }else{
                 update_new_url = baseurl + '/email_template/store';
             }
+            var formdata = new FormData(($('#add-new-template-form')[0]));
+            formdata.append('LanguageID', $("#add-new-template-form [name='LanguageID']").val());
+            formdata.append('SystemType', $("#add-new-template-form [name='SystemType']").val());
 
-            showAjaxScript(update_new_url, new FormData(($('#add-new-template-form')[0])), function(response){
+            showAjaxScript(update_new_url, formdata, function(response){
                 $(".btn").button('reset');
                 if (response.status == 'success') {
                     $('#add-new-modal-template').modal('hide');
@@ -148,7 +151,7 @@
                             <div class="form-group">
                                 <label for="field-1" class="control-label col-sm-2">Language</label>
                                 <div class="col-sm-4">
-                                    {{ Form::select('LanguageID', Translation::getLanguageDropdownIdList(), Translation::$default_lang_id , array("class"=>"select2")) }}
+                                    {{ Form::select('LanguageID', Translation::getLanguageDropdownIdList(1), Translation::$default_lang_id , array("class"=>"select2")) }}
                                 </div>
 
                                 <label for="field-1" class="control-label col-sm-2">Type</label>
