@@ -55,7 +55,10 @@ class EmailsTemplates{
 				$replace_array							=	$data;
 				$InvoiceData   							=  	Invoice::find($InvoiceID);
 				$InvoiceDetailPeriod 					= 	InvoiceDetail::where(["InvoiceID" => $InvoiceID,'ProductType'=>Product::INVOICE_PERIOD])->first();
-				$EmailTemplate 							= 	EmailTemplate::where(["SystemType"=>Invoice::EMAILTEMPLATE])->first();
+
+				$Account 								= 	Account::find($InvoiceData->AccountID);
+				$EmailTemplate 							= 	EmailTemplate::getSystemEmailTemplate(Invoice::EMAILTEMPLATE, $Account->LanguageID );
+
 				$replace_array							=	EmailsTemplates::setCompanyFields($replace_array,$InvoiceData->CompanyID);
 				$replace_array 							=	EmailsTemplates::setAccountFields($replace_array,$InvoiceData->AccountID);
 				$replace_array['InvoiceOutstanding'] 	=	Account::getOutstandingInvoiceAmount($companyID, $InvoiceData->AccountID, $InvoiceID, get_round_decimal_places($InvoiceData->AccountID));
