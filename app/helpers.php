@@ -2038,6 +2038,7 @@ function table_html($data,$table_data){
     $col_count = count($data['column']);
     $table_header = $table_header_colgroup = $table_row = $table_footer = '';
     $table_data['table_footer_sum'] = array();
+    $setting_rename = json_decode($data['setting_rename'],true);
     $chartColor = array('#C5CAE9','#BBDEFB','#B3E5FC','#B2EBF2','#C8E6C9','#DCEDC8','#F0F4C3','#FFCCBC','#D7CCC8','#F5F5F5','#CFD8DC');
     if($row_count) {
         $table_header_colgroup .= '<colgroup span="' . $row_count . '" style="background-color:' . $chartColor[0] . '"></colgroup>';
@@ -2085,7 +2086,7 @@ function table_html($data,$table_data){
         foreach ($table_data['columns'][$key_count] as $row_val) {
             foreach ($row_val['name'] as $row_name) {
                 if(array_key_exists($row_name,Report::$measures[$cube])){
-                    $table_header .= '<th colspan="' . 1 . '" scope="colgroup">' . Report::$measures[$cube][$row_name] . '</th>';
+                    $table_header .= '<th colspan="' . 1 . '" scope="colgroup">' . (isset($setting_rename[$row_name])?$setting_rename[$row_name]:Report::$measures[$cube][$row_name])  . '</th>';
                 }else{
                     $table_header .= '<th colspan="' . 1 . '" scope="colgroup">' . $row_name . '</th>';
                 }
@@ -2487,4 +2488,42 @@ function get_contact_view_url($ContactID) {
 function get_user_edit_url($UserID) {
 
     return URL::to('users/edit/'.$UserID);
+}
+
+function check_apply_limit($setting_ag){
+    $response_array = array(
+        'applylimit' => false,
+        'limit' => 0,
+        'order' => 'ASC',
+    );
+    foreach((array)$setting_ag as $col => $column_action) {
+        if ($column_action == 'top5' || $column_action == 'top10' || $column_action == 'bottom5' || $column_action == 'bottom10') {
+            $response_array['applylimit'] = true;
+        }
+        if ($column_action == 'top5' || $column_action == 'bottom5'){
+            $response_array['limit'] = 5 ;
+        }else if($column_action == 'top10' || $column_action == 'bottom10'){
+            $response_array['limit'] = 10 ;
+        }
+        if ($column_action == 'top5' || $column_action == 'top10'){
+            $response_array['order'] = 'DESC';
+        }
+    }
+    return $response_array;
+}
+
+function get_col_full_name($setting_ag,$Table,$colname){
+    $aggregator = 'SUM';
+    $aggregator2 = '';
+    if(!empty($Table)) {
+        $Table = $Table . ".";
+    }
+    if(!empty($setting_ag[$colname]) && $setting_ag[$colname] ==  'count_distinct' ){
+        $aggregator2 = 'distinct';
+        $aggregator = 'count';
+    }else if(!empty($setting_ag[$colname])){
+        $aggregator = $setting_ag[$colname];
+    }
+
+    return $aggregator."(".$aggregator2." ".$Table. $colname . ") as " . $colname;
 }

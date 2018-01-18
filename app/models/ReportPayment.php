@@ -15,6 +15,9 @@ class ReportPayment extends \Eloquent{
 
     public static function generateQuery($CompanyID, $data, $filters){
         $select_columns = array();
+        $setting_ag = json_decode($data['setting_ag'],true);
+        $setting_af_re = check_apply_limit($setting_ag);
+        $orders_columns = array();
 
         if (count($data['row'])) {
             $query_distinct = self::commonQuery($CompanyID, $data, $filters);
@@ -60,7 +63,14 @@ class ReportPayment extends \Eloquent{
 
         $data['row'] = array_merge($data['row'], $data['column']);
         foreach ($data['sum'] as $colname) {
-            $select_columns[] = DB::Raw("SUM(" . $colname . ") as " . $colname);
+            $select_columns[] = DB::Raw(get_col_full_name($setting_ag,'',$colname));
+            $orders_columns[]  = $colname;
+        }
+        if($setting_af_re['applylimit']) {
+            foreach($orders_columns as $order_column) {
+                $final_query->orderby(DB::raw($order_column), $setting_af_re['order']);
+            }
+            $final_query->limit($setting_af_re['limit']);
         }
         /*if(!empty($select_columns)){
             $data['row'][] = DB::Raw($select_columns);

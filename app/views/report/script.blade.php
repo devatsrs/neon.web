@@ -6,9 +6,21 @@
         var filter_settings = {};
     @endif
 
+    @if(!empty($report_settings['setting_ag']))
+        var agg_settings = {{$report_settings['setting_ag']}};
+    @else
+        var agg_settings = {};
+    @endif
+    @if(!empty($report_settings['setting_rename']))
+        var setting_rename = {{$report_settings['setting_rename']}};
+    @else
+        var setting_rename = {};
+    @endif
+
 
     var dimesions = {{json_encode($dimensions)}};
     var measures = {{json_encode($measures)}};
+    var column_function = {'top5':'Top 5', 'top10':'Top 10','bottom5':'Bottom 5','bottom10':'Bottom 10','':'Actual','min':'Min','max':'Max','sum':'Sum','avg':'Average','count':'Count','count_distinct':'Count Distinct'};
     $( function() {
 
         // There's the Dimension and the Measures
@@ -32,17 +44,18 @@
             },
             out: function( event, ui ) {
                 var drop_ele_val = $(ui.draggable).attr('data-val');
-                if( $Dimension.find('[data-val="'+drop_ele_val+'"]').length == 1 || $Measures.find('[data-val="'+drop_ele_val+'"]').length) {
+                if( $Dimension.find('[data-val="'+drop_ele_val+'"]').length || $Measures.find('[data-val="'+drop_ele_val+'"]').length) {
                     $Columns.find('[data-val="'+drop_ele_val+'"]').remove();
                     update_columns(ui.draggable,'remove',1);
                 }
             },
             drop: function( event, ui ) {
 
-                deleteImage( ui.draggable,$Columns );
-                update_rows(ui.draggable,'remove',0);
-                update_columns(ui.draggable,'add',1);
-                remove_tooltip();
+                if(deleteImage( ui.draggable,$Columns )) {
+                    update_rows(ui.draggable, 'remove', 0);
+                    update_columns(ui.draggable, 'add', 1);
+                    remove_tooltip();
+                }
 
             }
         });
@@ -59,16 +72,17 @@
             },
             out: function( event, ui ) {
                 var drop_ele_val = $(ui.draggable).attr('data-val');
-                if( $Dimension.find('[data-val="'+drop_ele_val+'"]').length == 1 || $Measures.find('[data-val="'+drop_ele_val+'"]').length) {
+                if( $Dimension.find('[data-val="'+drop_ele_val+'"]').length || $Measures.find('[data-val="'+drop_ele_val+'"]').length) {
                     $Row.find('[data-val="'+drop_ele_val+'"]').remove();
                     update_rows(ui.draggable,'remove',1);
                 }
             },
             drop: function( event, ui ) {
-                deleteImage( ui.draggable,$Row );
-                update_columns(ui.draggable,'remove',0);
-                update_rows(ui.draggable,'add',1);
-                remove_tooltip();
+                if(deleteImage( ui.draggable,$Row )) {
+                    update_columns(ui.draggable, 'remove', 0);
+                    update_rows(ui.draggable, 'add', 1);
+                    remove_tooltip();
+                }
 
             }
         });
@@ -85,7 +99,7 @@
             },
             out: function( event, ui ) {
                 var drop_ele_val = $(ui.draggable).attr('data-val');
-                if( $Dimension.find('[data-val="'+drop_ele_val+'"]').length == 1 || $Measures.find('[data-val="'+drop_ele_val+'"]').length) {
+                if( $Dimension.find('[data-val="'+drop_ele_val+'"]').length || $Measures.find('[data-val="'+drop_ele_val+'"]').length) {
                     $Filter.find('[data-val="'+drop_ele_val+'"]').remove();
                     update_filter(ui.draggable,'remove',1);
 
@@ -105,16 +119,78 @@
             show_filter($(this));
         });
 
+        $('body').on('click', '.column_function', function(e) {
+            e.preventDefault();
+            var column_element = $(this).parents('.dropdown-menu').siblings('.dropdown-toggle');
+            var column_action = $(this).attr('data-action');
+            var li_element = $(this).parents('.dropdown');
+            var dimension_count = $('#Columns_Drop').find('.dimension').length+$('#Row_Drop').find('.dimension').length;
+            if(dimension_count > 1 && ( column_action == 'top5' || column_action == 'top10' || column_action == 'bottom5' || column_action == 'bottom10')){
+                toastr.error("Only 1 dimension allowed for ranking. Please remove a other dimension", "Error", toastr_opts);
+                //toastr.error("Only 2 columns allowed as X-Axis", "Error", toastr_opts);
+                //toastr.error("Only 1 y-axis column allowed with 2 x-axis columns (for pivot table/crosstab)", "Error", toastr_opts);
+                //toastr.error("Only 1 Y-axis column allowed with 2 X-axis columns(in pivot table/crosstab). Please remove some y-axis columns.", "Error", toastr_opts);
+                return false;
+            }
+
+            column_element.html('<span><i class="fa fa-arrows"></i><span class="col-name">'+column_element.find('.col-name').text()+'</span>( <span class="col-agg">'+column_function[column_action]+'</span> )</span>');
+            agg_settings[li_element.attr('data-val')] = column_action;
+            $('#hidden_setting_ag').val(JSON.stringify(agg_settings));
+            reload_table();
+        });
+        $('body').on('click', '.add_label', function(e) {
+            var li_element = $(this).parents('.dropdown');
+            $("#report-rename-form [name='ActualName']").val(li_element.attr('data-val'));
+            $("#report-rename-form [name='Name']").val('');
+            $('#rename-column-modal').modal('show');
+        });
+        $("#report-rename-form").submit(function(ev){
+            ev.preventDefault();
+            var rename_col_val = $("#report-rename-form [name='Name']").val();
+            var rename_col_act_val = $("#report-rename-form [name='ActualName']").val();
+            if(rename_col_val == '' || typeof rename_col_val  == 'undefined'){
+                $(".btn").button('reset');
+                toastr.error("Please Enter a Name", "Error", toastr_opts);
+                return false;
+            }
+            setting_rename[rename_col_act_val] = rename_col_val;
+            var update_col = $('.droppable').find('[data-val="'+rename_col_act_val+'"]').find('.dropdown-toggle');
+            update_col.html('<span><i class="fa fa-arrows"></i> <span class="col-name">'+rename_col_val+'</span>( <span class="col-agg">'+update_col.find('.col-agg').text()+'</span> )</span>');
+            $('#hidden_setting_rename').val(JSON.stringify(setting_rename));
+            $('#rename-column-modal').modal('hide');
+            reload_table();
+
+        });
         function deleteImage( $item, $droppable) {
             var element=$item.clone();
+            if(check_top_bottom()){
+                toastr.error("Only 1 dimension allowed for ranking.", "Error", toastr_opts);
+                return false;
+            }
+            element.addClass('dropdown');
+            if($droppable.attr('id') == 'Row_Drop' || $droppable.attr('id') == 'Columns_Drop') {
+                if (element.hasClass('measures')) {
+                    var html = '<a class="dropdown-toggle" data-toggle="dropdown" data-text="' + element.text() + '"><span><i class="fa fa-arrows"></i><span class="col-name">' + element.text() + '</span>( <span class="col-agg">Sum</span> )</span></a>';
+                } else {
+                    var html = '<a class="dropdown-toggle" data-toggle="dropdown" data-text="' + element.text() + '"><span><i class="fa fa-arrows"></i><span class="col-name">' + element.text() + '</span>( <span class="col-agg">Actual</span> )</span></a>';
+                }
+                if (html.indexOf('dropdown-menu') === -1) {
+                    if (element.hasClass('measures')) {
+                        element.html(html + '<ul class="dropdown-menu" style="background-color: #000; border-color: #000; margin-top:0px; min-width: 0"><li><a class="column_function" data-action="">Actual</a></li><li><a class="column_function" data-action="sum">Sum</a></li><li><a class="column_function" data-action="avg">Average</a></li><li><a class="column_function" data-action="count">Count</a></li><li><a class="column_function" data-action="count_distinct">Count Distinct</a></li><li><a class="column_function" data-action="min">Min</a></li><li><a class="column_function" data-action="max">Max</a></li><li class="divider"></li><li><a class="add_label" >Rename Column</a></li></ul>')
+                    } else {
+                        element.html(html + '<ul class="dropdown-menu" style="background-color: #000; border-color: #000; margin-top:0px; min-width: 0"><li><a class="column_function" data-action="" >Actual</a></li><li><a class="column_function" data-action="top5" >Top 5</a></li><li><a class="column_function" data-action="top10" >Top 10</a></li><li><a class="column_function" data-action="bottom5" >Bottom 5</a></li><li><a class="column_function" data-action="bottom10" >Bottom 10</a></li><li class="divider"></li><li><a class="column_function" data-action="sum" >Sum</a></li><li><a class="column_function" data-action="count" >Count</a></li><li class="divider"></li><li><a class="add_label" >Rename Column</a></li></ul>');
+                    }
+                }
+            }
             var drop_ele_val = $(element).attr('data-val');
             if( $droppable.find('[data-val="'+drop_ele_val+'"]').length == 0){
-                var $list = $( "ul", $droppable ).length ?
-                        $( "ul", $droppable ) :
+                var $list = $( ".multi_ul", $droppable ).length ?
+                        $( ".multi_ul", $droppable ) :
                         $( "<ul class=' select2-choices ui-helper-reset'/>" ).appendTo( $droppable );
                 $(element).draggable({helper: 'clone'});
                 $(element).appendTo( $list ).fadeIn();
             }
+            return true;
         }
 
 
@@ -244,6 +320,10 @@
             var index = rows.indexOf($item.attr('data-val'));
             if (index > -1) {
                 rows.splice(index, 1);
+                delete agg_settings[$item.attr('data-val')]
+                delete setting_rename[$item.attr('data-val')]
+                $('#hidden_setting_ag').val(JSON.stringify(agg_settings));
+                $('#hidden_setting_rename').val(JSON.stringify(setting_rename));
             }
             //}
             if(action == 'add') {
@@ -265,6 +345,10 @@
             var index = columns.indexOf($item.attr('data-val'));
             if (index > -1) {
                 columns.splice(index, 1);
+                delete agg_settings[$item.attr('data-val')]
+                delete setting_rename[$item.attr('data-val')]
+                $('#hidden_setting_ag').val(JSON.stringify(agg_settings));
+                $('#hidden_setting_rename').val(JSON.stringify(setting_rename));
             }
             //}
             if(action == 'add') {
@@ -521,6 +605,12 @@
     }
     function remove_tooltip(){
         $('body').find('[role="tooltip"]').remove();
+    }
+    function check_top_bottom() {
+        if($('#hidden_setting_ag').val().indexOf('top5') !== -1 || $('#hidden_setting_ag').val().indexOf('top10') !== -1 || $('#hidden_setting_ag').val().indexOf('bottom5') !== -1 || $('#hidden_setting_ag').val().indexOf('bottom10') !== -1){
+            return true;
+        }
+        return false;
     }
 
 </script>

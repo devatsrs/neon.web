@@ -17,7 +17,9 @@ class ReportVendorCDRs extends \Eloquent{
     public static  $DetailTable = 'tblVendorCDR';
 
     public static function generateSummaryQuery($CompanyID, $data, $filters){
-
+        $setting_ag = json_decode($data['setting_ag'],true);
+        $setting_af_re = check_apply_limit($setting_ag);
+        $orders_columns = array();
         if (count($data['row'])) {
             $query_distinct = self::commonCDRQuery($CompanyID, $data, $filters,false);
             foreach ($data['row'] as $column) {
@@ -66,8 +68,15 @@ class ReportVendorCDRs extends \Eloquent{
             }else if($colname == 'duration1'){
                 $select_columns[] = DB::Raw("ROUND(COALESCE(SUM(".self::$DetailTable.".billed_duration),0)/ 60,0) as " . $colname);
             }else{
-                $select_columns[] = DB::Raw("SUM(".self::$DetailTable."." . $colname . ") as " . $colname);
+                $select_columns[] = DB::Raw(get_col_full_name($setting_ag,self::$DetailTable,$colname));
             }
+            $orders_columns[]  = $colname;
+        }
+        if($setting_af_re['applylimit']) {
+            foreach($orders_columns as $order_column) {
+                $final_query->orderby(DB::raw($order_column), $setting_af_re['order']);
+            }
+            $final_query->limit($setting_af_re['limit']);
         }
 
         if (!empty($select_columns)) {

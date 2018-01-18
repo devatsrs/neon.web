@@ -10,7 +10,9 @@ class ReportCustomerCDR extends \Eloquent{
     public static  $DetailTable = 'tblUsageSummaryDay';
 
     public static function generateSummaryQuery($CompanyID, $data, $filters){
-
+        $setting_ag = json_decode($data['setting_ag'],true);
+        $setting_af_re = check_apply_limit($setting_ag);
+        $orders_columns = array();
         if (count($data['row'])) {
             $query_distinct = self::commonCDRQuery($CompanyID, $data, $filters,false);
             if(substr($filters['date']['start_date'],0,10) == date('Y-m-d') || substr($filters['date']['end_date'],0,10) == date('Y-m-d')){
@@ -79,8 +81,9 @@ class ReportCustomerCDR extends \Eloquent{
             }else if($colname == 'TotalDuration2'){
                 $select_columns[] = DB::Raw("ROUND(COALESCE(SUM(".self::$DetailTable.".TotalDuration),0)/ 60,0) as " . $colname);
             }else{
-                $select_columns[] = DB::Raw("SUM(".self::$DetailTable."." . $colname . ") as " . $colname);
+                $select_columns[] = DB::Raw(get_col_full_name($setting_ag,self::$DetailTable,$colname));
             }
+            $orders_columns[]  = $colname;
         }
         if(substr($filters['date']['start_date'],0,10) == date('Y-m-d') || substr($filters['date']['end_date'],0,10) == date('Y-m-d')){
             $final_query2 = self::commonCDRQuery($CompanyID, $data, $filters,true);
@@ -117,12 +120,18 @@ class ReportCustomerCDR extends \Eloquent{
                 }else if($colname == 'TotalDuration2'){
                     $select_columns2[] = DB::Raw("ROUND(COALESCE(SUM(".self::$DetailTable.".TotalDuration),0)/ 60,0) as " . $colname);
                 }else{
-                    $select_columns2[] = DB::Raw("SUM(".self::$DetailTable."." . $colname . ") as " . $colname);
+                    $select_columns2[] = DB::Raw(get_col_full_name($setting_ag,self::$DetailTable,$colname));
                 }
             }
             $final_query2->select($select_columns2);
             $final_query->union($final_query2);
 
+        }
+        if($setting_af_re['applylimit']) {
+            foreach($orders_columns as $order_column) {
+                $final_query->orderby(DB::raw($order_column), $setting_af_re['order']);
+            }
+            $final_query->limit($setting_af_re['limit']);
         }
         if (!empty($select_columns)) {
             $response['data'] = $final_query->get($select_columns);
