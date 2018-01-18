@@ -1308,7 +1308,7 @@ CREATE PROCEDURE `prc_WSProcessVendorRate`(
 							FROM tblVendorRate
 							WHERE AccountId = p_accountId
 										AND TrunkId = p_trunkId
-										AND EffectiveDate <   @EffectiveDate
+										AND EffectiveDate =   @EffectiveDate
 							order by EffectiveDate desc
 
 						) tmpvr
@@ -1316,13 +1316,13 @@ CREATE PROCEDURE `prc_WSProcessVendorRate`(
 								vr1.AccountID = tmpvr.AccountID
 								AND vr1.TrunkID  	=       	tmpvr.TrunkID
 								AND vr1.RateID  	=        	tmpvr.RateID
-								AND vr1.EffectiveDate 	= tmpvr.EffectiveDate
+								AND vr1.EffectiveDate 	< tmpvr.EffectiveDate
 					SET
 						vr1.EndDate = @EffectiveDate
 					where
 						vr1.AccountId = p_accountId
 						AND vr1.TrunkID = p_trunkId
-						AND vr1.EffectiveDate < @EffectiveDate
+						--	AND vr1.EffectiveDate < @EffectiveDate
 						AND vr1.EndDate is null;
 
 
