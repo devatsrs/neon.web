@@ -1308,7 +1308,7 @@ CREATE PROCEDURE `prc_WSProcessVendorRate`(
 							FROM tblVendorRate
 							WHERE AccountId = p_accountId
 										AND TrunkId = p_trunkId
-										AND EffectiveDate <   @EffectiveDate
+										AND EffectiveDate =   @EffectiveDate
 							order by EffectiveDate desc
 
 						) tmpvr
@@ -1316,13 +1316,13 @@ CREATE PROCEDURE `prc_WSProcessVendorRate`(
 								vr1.AccountID = tmpvr.AccountID
 								AND vr1.TrunkID  	=       	tmpvr.TrunkID
 								AND vr1.RateID  	=        	tmpvr.RateID
-								AND vr1.EffectiveDate 	= tmpvr.EffectiveDate
+								AND vr1.EffectiveDate 	< tmpvr.EffectiveDate
 					SET
 						vr1.EndDate = @EffectiveDate
 					where
 						vr1.AccountId = p_accountId
 						AND vr1.TrunkID = p_trunkId
-						AND vr1.EffectiveDate < @EffectiveDate
+						--	AND vr1.EffectiveDate < @EffectiveDate
 						AND vr1.EndDate is null;
 
 
@@ -1459,7 +1459,6 @@ CREATE  PROCEDURE `prc_WSGenerateVendorSippySheet`(
 	END//
 DELIMITER ;
 
-
 DROP PROCEDURE IF EXISTS `prc_TicketCheckRepeatedEmails`;
 DELIMITER //
 CREATE PROCEDURE `prc_TicketCheckRepeatedEmails`(
@@ -1467,6 +1466,8 @@ CREATE PROCEDURE `prc_TicketCheckRepeatedEmails`(
 	IN `p_Email` VARCHAR(100)
 
 
+	,
+	IN `p_GroupID` INT
 )
 	BEGIN
 		DECLARE v_limit_records INT ;
@@ -1490,7 +1491,8 @@ CREATE PROCEDURE `prc_TicketCheckRepeatedEmails`(
 			ir.CompanyID = p_CompanyID AND
 			irct.`Condition` = 'from_email'  AND
 			irc.operand = 'is' AND
-			irc.Value = p_Email;
+			irc.Value = p_Email AND
+			ir.`Status` = 1;
 
 
 		IF @isAlreadyBlocked > 0 THEN
@@ -1499,21 +1501,39 @@ CREATE PROCEDURE `prc_TicketCheckRepeatedEmails`(
 
 		END IF;
 
-		select count(AccountEmailLogID) into @hasMoreThan5Emails from AccountEmailLog
+		/*select count(AccountEmailLogID) into @hasMoreThan5Emails from AccountEmailLog
 		where
 			CompanyID  = p_CompanyID AND
 			Emailfrom = p_Email
 		order by AccountEmailLogID desc
-		limit v_limit_records;
+		limit v_limit_records;*/
 
+
+		select GroupReplyAddress into @GroupReplyAddress from tblTicketGroups where GroupID = p_GroupID;
+
+
+		-- get open field status id
+		select fv.ValuesID into @OpenStatusID from tblTicketfieldsValues fv
+			inner join tblTicketfields f on fv.FieldsID = f.TicketFieldsID
+		where
+			f. FieldType = 'default_status' AND fv.FieldType = 0 AND fv.FieldValueAgent = 'Open';
+
+
+
+		select count(ael.AccountEmailLogID) into @hasMoreThan5Emails from AccountEmailLog ael
+			left join tblTickets t on t.TicketID=ael.TicketID
+		where
+			ael.CompanyID  = p_CompanyID AND
+			ael.Emailfrom = p_Email AND
+			(
+				ael.EmailTo = @GroupReplyAddress
+				OR
+				ael.Cc like concat('%',  @GroupReplyAddress , '%' )
+			)
+			AND
+			t.`Status`= @OpenStatusID;
 
 		IF @isAlreadyBlocked = 0 AND @hasMoreThan5Emails >= v_limit_records THEN
-
-			-- get open field status id
-			select fv.ValuesID into @OpenStatusID from tblTicketfieldsValues fv
-				inner join tblTicketfields f on fv.FieldsID = f.TicketFieldsID
-			where
-				f. FieldType = 'default_status' AND fv.FieldType = 0 AND fv.FieldValueAgent = 'Open';
 
 			-- check time difference with last 5 open tickets
 			SELECT
@@ -1526,7 +1546,14 @@ CREATE PROCEDURE `prc_TicketCheckRepeatedEmails`(
 					where
 						ael.CompanyID  = p_CompanyID AND
 						ael.Emailfrom = p_Email AND
+						(
+							ael.EmailTo = @GroupReplyAddress
+							OR
+							ael.Cc like concat('%',  @GroupReplyAddress , '%' )
+						)
+						AND
 						t.`Status`= @OpenStatusID
+
 					order by ael.AccountEmailLogID desc
 					limit v_limit_records
 				) tmp;
@@ -1554,6 +1581,7 @@ CREATE PROCEDURE `prc_TicketCheckRepeatedEmails`(
 
 	END//
 DELIMITER ;
+
 
 
 
