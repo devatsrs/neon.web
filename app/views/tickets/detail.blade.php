@@ -366,7 +366,7 @@ $(document).ready(function(e) {
         $(this).addClass("img-fluid");
         var $image = $('<div>').append($(this).clone()).html();
         lightboxhtml.html($image);
-        $(this).replaceWith(lightboxhtml);
+        $(this).replaceWith($('<div>').append(lightboxhtml.clone()).html());
     });
 
     $(document).on('click', '[data-toggle="lightbox"]:not([data-gallery="navigateTo"])', function(event) {
