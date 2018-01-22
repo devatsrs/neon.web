@@ -2668,7 +2668,7 @@ class InvoicesController extends \BaseController {
         if(!empty($invoiceIds)) {
 
             $Invoices = Invoice::find($invoiceIds);
-            $CompanyID = $Invoices->CompanyID;
+            $CompanyID = User::get_companyID();
             $UPLOAD_PATH = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID). "/";
             $isAmazon = is_amazon($CompanyID);
             foreach ($Invoices as $invoice) {
