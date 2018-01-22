@@ -35,7 +35,19 @@
     </li>
 
 </ul>
+    <ul class="user-info pull-left pull-right-xs pull-none-xsm">
+        <!-- Task Notifications -->
+        <li class="notifications jobs dropdown">
 
+            <!-- Ajax Content here : Latest Jobs -->
+            <a data-close-others="true" data-hover="dropdown" data-toggle="dropdown" class="dropdown-toggle jobs" href="#"><i class="entypo-list"></i></a>
+            <ul class="dropdown-menu">
+                <li class="top">
+                    <p>Loading...</p>
+                </li>
+            </ul>
+        </li>
+    </ul>
 </div>
 <!-- Raw Links -->
 <div class="col-md-6 col-sm-4 clearfix hidden-xs">
