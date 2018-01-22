@@ -7,7 +7,7 @@ class RateTablesController extends \BaseController {
         $rate_tables = RateTable::
         Join('tblCurrency','tblCurrency.CurrencyId','=','tblRateTable.CurrencyId')
             ->join('tblCodeDeck','tblCodeDeck.CodeDeckId','=','tblRateTable.CodeDeckId')
-            ->join('tblTrunk','tblTrunk.TrunkID','=','tblRateTable.TrunkID')
+            ->leftjoin('tblTrunk','tblTrunk.TrunkID','=','tblRateTable.TrunkID')
             ->select(['tblRateTable.RateTableName','tblCurrency.Code', 'tblTrunk.Trunk as trunkName','tblCodeDeck.CodeDeckName','tblRateTable.updated_at','tblRateTable.RateTableId', 'tblRateTable.TrunkID', 'tblRateTable.CurrencyID'])
             ->where("tblRateTable.CompanyId",$CompanyID);
         //$rate_tables = RateTable::join('tblCurrency', 'tblCurrency.CurrencyId', '=', 'tblRateTable.CurrencyId')->where(["tblRateTable.CompanyId" => $CompanyID])->select(["tblRateTable.RateTableName","Code","tblRateTable.updated_at", "tblRateTable.RateTableId"]);
