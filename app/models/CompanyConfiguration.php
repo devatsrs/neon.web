@@ -12,6 +12,11 @@ class CompanyConfiguration extends \Eloquent {
 
     public static function getConfiguration($CompanyID=0){
         $data = Input::all();
+
+        if($CompanyID==0){
+            $CompanyID = \User::get_companyID();
+        }
+
         $LicenceKey = getenv('LICENCE_KEY');
         $CompanyName = getenv('COMPANY_NAME');
         $CompanyConfiguration = 'CompanyConfiguration' . $LicenceKey.$CompanyName.$CompanyID;
@@ -22,9 +27,6 @@ class CompanyConfiguration extends \Eloquent {
             $cache = Cache::get($CompanyConfiguration);
             self::$cache['CompanyConfiguration'] = $cache['CompanyConfiguration'];
         } else {
-            if($CompanyID==0){
-                $CompanyID = \User::get_companyID();
-            }
             if($CompanyID > 0) {
                 self::$cache['CompanyConfiguration'] = CompanyConfiguration::where(['CompanyID' => $CompanyID])->lists('Value', 'Key');
                 $CACHE_EXPIRE = self::$cache['CompanyConfiguration']['CACHE_EXPIRE'];
