@@ -10,7 +10,7 @@ class TrunkObserver   {
 		try{
 
 			$model::clearCache();
-			Debugbar::info("clearCache called... ");
+			//Debugbar::info("clearCache called... ");
 
 		}catch(Exception $ex){
 
