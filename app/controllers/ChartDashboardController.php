@@ -133,6 +133,15 @@ class ChartDashboardController extends BaseController {
         }
         $response['CountryColor'] =  $CountryColors;
         $response['CountryChart'] =  $CountryCharts;
+        $response['lang_labels'] =  [
+            "calls"=>Lang::get("routes.PAGE_DASHBOARD_DATA_WORLDMAP_LBL_CALLS"),
+            "cost"=>Lang::get("routes.PAGE_DASHBOARD_DATA_WORLDMAP_LBL_COST"),
+            "minutes"=>Lang::get("routes.PAGE_DASHBOARD_DATA_WORLDMAP_LBL_MINUTES"),
+            "acd"=>Lang::get("routes.PAGE_DASHBOARD_DATA_WORLDMAP_LBL_ACD"),
+            "asr"=>Lang::get("routes.PAGE_DASHBOARD_DATA_WORLDMAP_LBL_ASR"),
+            "totalmargin"=>Lang::get("routes.PAGE_DASHBOARD_DATA_WORLDMAP_LBL_TOTAL_MARGIN"),
+            "margin"=>Lang::get("routes.PAGE_DASHBOARD_DATA_WORLDMAP_LBL_MARGIN"),
+        ];
         return $response;
     }
     public function getVendorWorldMap(){
