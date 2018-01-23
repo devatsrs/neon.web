@@ -68,7 +68,6 @@ class CompaniesController extends \BaseController {
 	public function update()
 	{
         $data = Input::all();
-//        echo "<pre>";print_r($data);exit();
         $companyID = User::get_companyID();
         $company = Company::find($companyID);
         $data['UseInBilling'] = isset($data['UseInBilling']) ? 1 : 0;

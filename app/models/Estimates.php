@@ -41,12 +41,13 @@ class Estimate extends \Eloquent {
             $EstimateDetail 		= 	EstimateDetail::where(["EstimateID" => $EstimateID])->get();
 			$EstimateDetailItems 	= 	EstimateDetail::where(["EstimateID" => $EstimateID,"ProductType"=>Product::ITEM])->get();
 			$EstimateDetailISubscription 	= 	EstimateDetail::where(["EstimateID" => $EstimateID,"ProductType"=>Product::SUBSCRIPTION])->get();
-			
+
+            $CompanyID = $Estimate->CompanyID;
 			
             $EstimateItemTaxRates = DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->where(["EstimateID"=>$EstimateID,"EstimateTaxType"=>0])->orderby('EstimateTaxRateID')->get();
 			  $EstimateSubscriptionTaxRates = DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->where(["EstimateID"=>$EstimateID,"EstimateTaxType"=>2])->orderby('EstimateTaxRateID')->get();
 			//$EstimateAllTaxRates = DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->where(["EstimateID"=>$EstimateID,"EstimateTaxType"=>1])->orderby('EstimateTaxRateID')->get();
-            $taxes 	  = TaxRate::getTaxRateDropdownIDListForInvoice();
+            $taxes 	  = TaxRate::getTaxRateDropdownIDListForInvoice(0,$CompanyID);
 			$EstimateAllTaxRates = DB::connection('sqlsrv2')->table('tblEstimateTaxRate')
                     ->select('TaxRateID', 'Title', DB::Raw('sum(TaxAmount) as TaxAmount'))
                     ->where("EstimateID", $EstimateID)
@@ -64,15 +65,15 @@ class Estimate extends \Eloquent {
 			$InvoiceTemplateID  =   self::GetEstimateInvoiceTemplateID($Estimate);
             $EstimateTemplate 	= 	InvoiceTemplate::find($InvoiceTemplateID);
 			
-            if (empty($EstimateTemplate->CompanyLogoUrl) || AmazonS3::unSignedUrl($EstimateTemplate->CompanyLogoAS3Key) == '')
+            if (empty($EstimateTemplate->CompanyLogoUrl) || AmazonS3::unSignedUrl($EstimateTemplate->CompanyLogoAS3Key,$CompanyID) == '')
 			{
                 $as3url =  base_path().'/public/assets/images/250x100.png';
             }
 			else
 			{
-                $as3url = (AmazonS3::unSignedUrl($EstimateTemplate->CompanyLogoAS3Key));
+                $as3url = (AmazonS3::unSignedUrl($EstimateTemplate->CompanyLogoAS3Key,$CompanyID));
             }
-            $logo_path = CompanyConfiguration::get('UPLOAD_PATH') . '/logo/' . User::get_companyID();
+            $logo_path = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID) . '/logo/' . $CompanyID;
             @mkdir($logo_path, 0777, true);
             RemoteSSH::run("chmod -R 777 " . $logo_path);
             $logo = $logo_path  . '/'  . basename($as3url);
@@ -91,7 +92,7 @@ class Estimate extends \Eloquent {
             $header = htmlspecialchars_decode($header);
 			
             $amazonPath = AmazonS3::generate_path(AmazonS3::$dir['ESTIMATE_UPLOAD'],$Account->CompanyId,$Estimate->AccountID) ;
-            $destination_dir = CompanyConfiguration::get('UPLOAD_PATH') . '/'. $amazonPath;
+            $destination_dir = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID) . '/'. $amazonPath;
             
 			if (!file_exists($destination_dir))
 			{
@@ -128,7 +129,7 @@ class Estimate extends \Eloquent {
           //  @unlink($header_html);
             if (file_exists($local_file)) {
                 $fullPath = $amazonPath . basename($local_file); //$destinationPath . $file_name;
-                if (AmazonS3::upload($local_file, $amazonPath)) {
+                if (AmazonS3::upload($local_file, $amazonPath,$CompanyID)) {
                     return $fullPath;
                 }
             }

@@ -24,6 +24,8 @@ class Invoice extends \Eloquent {
     public static $invoice_type_customer = array(''=>'Select' ,self::INVOICE_OUT => 'Invoice Received',self::INVOICE_IN=>'Invoice sent','All'=>'Both');
     public static $invoice_company_info = array(''=>'Select Company Info' ,'companyname' => 'Company Name','companyaddress'=>'Company Address','companyvatno'=>'Company Vat Number','companyemail'=>'Company Email');
     public static $invoice_account_info = array(''=>'Select Account Info' ,'{AccountName}' => 'Account Name',
+                                            '{FirstName}'=>'First Name',
+                                            '{LastName}'=>'Last Name',
                                             '{AccountNumber}'=>'Account Number',
                                             '{Address1}'=>'Address1',
                                             '{Address2}'=>'Address2',
@@ -104,12 +106,12 @@ class Invoice extends \Eloquent {
             }
 
             $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
-            if (empty($InvoiceTemplate->CompanyLogoUrl) || AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key) == '') {
+            if (empty($InvoiceTemplate->CompanyLogoUrl) || AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key,$Account->CompanyId) == '') {
                 $as3url =  public_path("/assets/images/250x100.png");
             } else {
-                $as3url = (AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key));
+                $as3url = (AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key,$Account->CompanyId));
             }
-            $logo_path = CompanyConfiguration::get('UPLOAD_PATH') . '/logo/' . $Account->CompanyId;
+            $logo_path = CompanyConfiguration::get('UPLOAD_PATH',$Account->CompanyId) . '/logo/' . $Account->CompanyId;
             @mkdir($logo_path, 0777, true);
             RemoteSSH::run("chmod -R 777 " . $logo_path);
             $logo = $logo_path  . '/'  . basename($as3url);
@@ -134,7 +136,7 @@ class Invoice extends \Eloquent {
             $header = htmlspecialchars_decode($header);
 
             $amazonPath = AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId,$Invoice->AccountID) ;
-             $destination_dir = CompanyConfiguration::get('UPLOAD_PATH') . '/'. $amazonPath;
+             $destination_dir = CompanyConfiguration::get('UPLOAD_PATH',$Account->CompanyId) . '/'. $amazonPath;
 			
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);
@@ -175,7 +177,7 @@ class Invoice extends \Eloquent {
             @unlink($header_html);
             if (file_exists($local_file)) {
                 $fullPath = $amazonPath . basename($local_file); //$destinationPath . $file_name;
-                if (AmazonS3::upload($local_file, $amazonPath)) {
+                if (AmazonS3::upload($local_file, $amazonPath,$Account->CompanyId)) {
                     return $fullPath;
                 }
             }
@@ -255,6 +257,8 @@ class Invoice extends \Eloquent {
     public static function getInvoiceToByAccount($Message,$replace_array){
         $extra = [
             '{AccountName}',
+            '{FirstName}',
+            '{LastName}',
             '{AccountNumber}',
             '{VatNumber}',
             '{VatNumber}',

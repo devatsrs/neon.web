@@ -1,4 +1,17 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_UpdateAccountsStatus`(IN `p_CompanyID` int, IN `p_userID` int , IN `p_IsVendor` int , IN `p_isCustomer` int , IN `p_VerificationStatus` int, IN `p_AccountNo` VARCHAR(100), IN `p_ContactName` VARCHAR(50), IN `p_AccountName` VARCHAR(50), IN `p_tags` VARCHAR(50), IN `p_low_balance` INT, IN `P_status` INT)
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_UpdateAccountsStatus`(
+	IN `p_CompanyID` int,
+	IN `p_userID` int ,
+	IN `p_IsVendor` int ,
+	IN `p_isCustomer` int ,
+	IN `p_isReseller` INT,
+	IN `p_VerificationStatus` int,
+	IN `p_AccountNo` VARCHAR(100),
+	IN `p_ContactName` VARCHAR(50),
+	IN `p_AccountName` VARCHAR(50),
+	IN `p_tags` VARCHAR(50),
+	IN `p_low_balance` INT,
+	IN `P_status` INT
+)
 BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	
@@ -14,6 +27,7 @@ BEGIN
 		AND (p_userID = 0 OR ta.Owner = p_userID)
 		AND ((p_IsVendor = 0 OR ta.IsVendor = 1))
 		AND ((p_isCustomer = 0 OR ta.IsCustomer = 1))
+		AND ((p_isReseller = 0 OR ta.IsReseller = 1))		
 		AND ((p_AccountNo = '' OR ta.Number like p_AccountNo))
 		AND ((p_AccountName = '' OR ta.AccountName like Concat('%',p_AccountName,'%')))
 		AND ((p_tags = '' OR ta.tags like Concat(p_tags,'%')))

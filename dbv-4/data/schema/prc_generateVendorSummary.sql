@@ -59,8 +59,8 @@ BEGIN
 		COALESCE(SUM(ud.selling_cost),0)  AS TotalSales ,
 		COALESCE(SUM(ud.billed_duration),0) AS TotalBilledDuration ,
 		COALESCE(SUM(ud.duration),0) AS TotalDuration,
-		SUM(IF(ud.call_status=1,1,0)) AS  NoOfCalls,
-		SUM(IF(ud.call_status=2,1,0)) AS  NoOfFailCalls
+		SUM(IF(ud.call_status_v=1,1,0)) AS  NoOfCalls,
+		SUM(IF(ud.call_status_v=2,1,0)) AS  NoOfFailCalls
 	FROM tmp_tblVendorUsageDetailsReport_',p_UniqueID,' ud  
 	INNER JOIN tblDimTime t ON t.fulltime = connect_time
 	INNER JOIN tblDimDate d ON d.date = connect_date

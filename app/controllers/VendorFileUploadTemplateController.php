@@ -78,16 +78,10 @@ class VendorFileUploadTemplateController extends \BaseController {
                 $rows = $grid['rows'];
                 $TemplateName = $data['TemplateName'];
             }
-            $dialstring = DialString::getDialStringIDList();
-            $currencies = Currency::getCurrencyDropdownIDList();
-
-            $attrskiprows = new stdClass();
-            $attrskiprows->start_row = isset($data['start_row']) ? $data['start_row'] : 0;
-            $attrskiprows->end_row = isset($data['end_row']) ? $data['end_row'] : 0;
         }
         $heading = 'New Template';
         $templateID = '';
-        return View::make('vendorfileuploadtemplate.create',compact('columns','rows','message','csvoption','attrselection','file_name','templateID','heading','TemplateName','dialstring','currencies','attrskiprows'));
+        return View::make('vendorfileuploadtemplate.create',compact('columns','rows','message','csvoption','attrselection','file_name','templateID','heading','TemplateName'));
     }
 
     function ajaxfilegrid(){
@@ -119,7 +113,6 @@ class VendorFileUploadTemplateController extends \BaseController {
                  $templateoptions=json_decode($template->Options);
                  $TemplateName = $template->Title;
                  $attrselection = $templateoptions->selection;
-                 $attrskiprows = isset($templateoptions->skipRows) ? $templateoptions->skipRows : '';
                  $file_name = $data['TemplateFile'];
                  $csvoption->Enclosure = $data['Enclosure'];
                  $csvoption->Delimiter = $data['Delimiter'];
@@ -130,7 +123,6 @@ class VendorFileUploadTemplateController extends \BaseController {
                 $templateoptions=json_decode($template->Options);
                 $csvoption = $templateoptions->option;
                 $attrselection = $templateoptions->selection;
-                $attrskiprows = isset($templateoptions->skipRows) ? $templateoptions->skipRows : '';
                 if(!empty($csvoption->Delimiter)){
                     Config::set('excel::csv.delimiter', $csvoption->Delimiter);
                 }
@@ -157,13 +149,11 @@ class VendorFileUploadTemplateController extends \BaseController {
                 $columns = array(""=> "Skip loading") + $grid['columns'];
                 $rows = $grid['rows'];
             }
-            $dialstring = DialString::getDialStringIDList();
-            $currencies = Currency::getCurrencyDropdownIDList();
         }else{
             $message = 'toastr.error("Not Found", "Error", toastr_opts);';
         }
         $heading = 'Update Template';
-        return View::make('vendorfileuploadtemplate.create',compact('columns','rows','message','csvoption','attrselection','file_name','TemplateName','templateID','heading','dialstring','currencies','attrskiprows'));
+        return View::make('vendorfileuploadtemplate.create',compact('columns','rows','message','csvoption','attrselection','file_name','TemplateName','templateID','heading'));
     }
 
     /**
@@ -190,7 +180,6 @@ class VendorFileUploadTemplateController extends \BaseController {
         if(!AmazonS3::upload($destinationPath.basename($file_name),$amazonPath)){
             return Response::json(array("status" => "failed", "message" => "Failed to upload."));
         }
-        $option["skipRows"] = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
         $save = ['CompanyID'=>$CompanyID,'Title'=>$data['TemplateName'],'TemplateFile'=>$amazonPath.basename($file_name)];
         $save['created_by'] = User::get_user_full_name();
         $option["option"] = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
@@ -220,7 +209,7 @@ class VendorFileUploadTemplateController extends \BaseController {
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
-        $option["skipRows"] = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
+
         $save = ['CompanyID'=>$CompanyID,'Title'=>$data['TemplateName'],];
         $save['updated_by'] = User::get_user_full_name();
         $option["option"] = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];

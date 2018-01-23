@@ -232,10 +232,10 @@ class UsersController extends BaseController {
     public function edit_profile($id){
         //if( User::checkPermission('User') ) {
 
-        $user_id = User::get_userID();
-        $hasUserProfile = UserProfile::where("UserID",$user_id)->count();
+        //$user_id = User::get_userID();
+        $hasUserProfile = UserProfile::where("UserID",$id)->count();
         if($hasUserProfile == 0){
-            UserProfile::create(array("UserID"=>$user_id));
+            UserProfile::create(array("UserID"=>$id));
         }
         $countries = Country::getCountryDropdownList();
         $user = DB::table('tblUser')->where(['UserID' => $id])->first();

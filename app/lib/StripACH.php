@@ -12,9 +12,9 @@ class StripeACH {
 	var $stripe_secret_key;
 	var $stripe_publishable_key;
 
-	function __Construct()
+	function __Construct($CompanyID=0)
 	{
-		$is_stripe = SiteIntegration::CheckIntegrationConfiguration(true, SiteIntegration::$StripeACHSlug);
+		$is_stripe = SiteIntegration::CheckIntegrationConfiguration(true, SiteIntegration::$StripeACHSlug,$CompanyID);
 		if(!empty($is_stripe)){
 			$this->stripe_secret_key = $is_stripe->SecretKey;
 			$this->stripe_publishable_key = $is_stripe->PublishableKey;

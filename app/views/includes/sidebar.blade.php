@@ -60,7 +60,9 @@
         <li> <a href="{{URL::to('/accounts')}}" class="first"> <i class="fa fa-users"></i> <span>&nbsp;Accounts</span> </a></li>
       @endif
     @endif
-
+    @if(User::checkCategoryPermission('Reseller','View'))
+    <li> <a href="{{URL::to('/reseller')}}">  <i class="entypo-users"></i><span>Reseller</span> </a> </li>
+    @endif
          <!--tickets start -->
     @if(Tickets::CheckTicketLicense() && User::checkCategoryPermission('Tickets','View'))
     <li class="{{check_uri('tickets')}} {{ Tickets::CheckTicketLicense() && User::checkCategoryPermission('Tickets','Add') ? "two-links" : "" }}"><a href="#" class="first"><i class="fa fa-ticket"></i><span>Ticket Management</span></a>
@@ -278,7 +280,7 @@
          <li> <a href="{{URL::to('/retention')}}">  <span>Retention</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('UploadFileTemplate','view'))
-        <li> <a href="{{URL::to('/uploadtemplate')}}">  <span>Vendor Template</span> </a> </li>
+        <li> <a href="{{URL::to('/uploadtemplate')}}">  <span>Upload Template</span> </a> </li>
         @endif
          @if( User::checkCategoryPermission('EmailTemplate','View'))
         <li> <a href="{{URL::to('/email_template')}}">  <span>Email Templates</span> </a> </li>

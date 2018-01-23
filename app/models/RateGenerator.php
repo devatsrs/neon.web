@@ -42,7 +42,7 @@ class RateGenerator extends \Eloquent {
             foreach($RateRuleSource as $RateRuleSourceRow) {
                 $CurrencyToID = Account::where(["AccountID" => $RateRuleSourceRow->AccountId])->pluck('CurrencyId');
                 if($CurrencyToID != $CurrencyId){
-                    if (!CurrencyConversion::isDefined($CurrencyToID)) {
+                    if (!CurrencyConversion::isDefined($CompanyID,$CurrencyToID)) {
                         $status['status'] = 1;
                         $CurrencyToCode = Currency::getCurrencyCode($CurrencyToID);
                         $status['message'] = "Exchange Rate $CurrencyToCode not defined ";

@@ -110,6 +110,7 @@
             @if($configtitle['name'] == 'ThresholdTime') <span data-original-title="What is Threshold Time?" data-content="Threshold Time is maximum running time. if time is more than threshold time then email will be sent to Error Email" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> @endif
             @if($configtitle['name'] == 'ImportDays') <span data-original-title="Import Payments Day" data-content="if blank then system will import payments from last 7 days." data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> @endif
             @if($configtitle['name'] == 'AlertEmailInterval') <span data-original-title="What is Alert Active Email Time?" data-content="It is interval time to send Email If any cron job is running out of its threshold time" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> @endif
+            @if($configtitle['name'] == 'StartDate') <span data-original-title="Dates" data-content="in order to create previous days summary please select start date and end date. Otherwise leave it bank. By default system creates last 4 days summary." data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> @endif
             </label>
             @if($configtitle['type'] == 'select' && isset($configtitle['multiple']) &&  $configtitle['multiple'] == 'multiple')
             {{Form::select('Setting['.$configtitle['name'].'][]',$configtitle['value'],$selectd_val, array( "class"=>"select2",'multiple',"data-placeholder"=>$configtitle['placeholder']))}}
@@ -120,7 +121,7 @@
             <input type="{{$configtitle['type']}}"  name="Setting[{{$configtitle['name']}}]" value="{{$selectd_val}}" class="form-control timepicker starttime2" data-minute-step="5" data-show-meridian="true"  data-default-time="12:00:00 AM" data-show-seconds="true" data-template="dropdown">
 
             @else
-            <input type="{{$configtitle['type']}}" name="Setting[{{$configtitle['name']}}]" value="{{$selectd_val}}" class="form-control @if(isset($configtitle['datepicker'])) datepicker @endif"  id="field-5" placeholder="" @if(isset($configtitle['datepicker']) && isset($configtitle['startdate']) && $configtitle['startdate'] == 'now') data-startdate="{{date('Y-m-d')}}" @endif>
+            <input type="{{$configtitle['type']}}" name="Setting[{{$configtitle['name']}}]" value="{{$selectd_val}}" class="form-control @if(isset($configtitle['datepicker'])) datepicker  @endif" @if(isset($configtitle['datepicker'])) data-date-format="yyyy-mm-dd"  @endif  id="field-5" placeholder="" @if(isset($configtitle['datepicker']) && isset($configtitle['startdate']) && $configtitle['startdate'] == 'now') data-startdate="{{date('Y-m-d')}}" @endif>
             @endif
          </div>
     </div>

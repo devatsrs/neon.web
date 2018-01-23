@@ -1,5 +1,6 @@
 @extends('layout.main')
 @section('content')
+    <link rel="stylesheet" type="text/css" href="<?php echo URL::to('/'); ?>/assets/lightbox/ekko-lightbox.css" />
 <ol class="breadcrumb bc-3">
   <li> <a href="{{ URL::to('/dashboard') }}"><i class="entypo-home"></i>Home</a> </li>
   <li><a href="{{ URL::to('/tickets') }}">Tickets</a></li>
@@ -37,36 +38,6 @@
         {{\Carbon\Carbon::createFromTimeStamp(strtotime($ticketdata->created_at))->diffForHumans()}} ( {{\Carbon\Carbon::createFromTimeStamp(strtotime($ticketdata->created_at))}} )</div>
       <!-- links --> 
     </div>
-    <?php $attachments = unserialize($ticketdata->AttachmentPaths); ?>
-    <div class="mail-text"> {{$ticketdata->Description}} </div>
-    @if(count($attachments)>0 && strlen($ticketdata->AttachmentPaths)>0)
-    <div class="mail-attachments last_data">
-      <h4> <i class="entypo-attach"></i> Attachments <span>({{count($attachments)}})</span> </h4>
-      <ul>
-        @if(is_array($attachments)) 
-        @foreach($attachments as $key_acttachment => $attachments_data)
-        <?php 
-   		//$FilePath 		= 	AmazonS3::preSignedUrl($attachments_data['filepath']);
-		$Filename		=	$attachments_data['filepath'];
-		
-		/*if(is_amazon() == true)
-		{
-			$Attachmenturl =  AmazonS3::preSignedUrl($attachments_data['filepath']);
-		}
-		else
-		{
-			$Attachmenturl = Config::get('app.upload_path')."/".$attachments_data['filepath'];
-		}*/
-		$Attachmenturl = URL::to('tickets/'.$ticketdata->TicketID.'/getattachment/'.$key_acttachment);		
-   	    ?>
-        <li> <a target="_blank" href="{{$Attachmenturl}}" class="thumb download"> <img width="75"   src="{{getimageicons($Filename)}}" class="img-rounded" /> </a> <a target="_blank" href="{{$Attachmenturl}}" class="shortnamewrap name"> {{$attachments_data['filename']}} </a>
-          <div class="links"><a href="{{$Attachmenturl}}">Download</a> </div>
-        </li>
-        @endforeach
-        @endif
-      </ul>
-    </div>
-    @endif
     <?php if(count($TicketConversation)>0){
 		if(is_array($TicketConversation)){ $loop = 0;
 		foreach($TicketConversation as $key => $TicketConversationData){ 
@@ -77,15 +48,15 @@
       
       <!-- panel head -->
       <div class="panel-heading panel-heading-convesation">        
-          <div class="panel-title" ><span><?php 
+          <div class="panel-title col-md-10" ><span><?php
 		  if($TicketConversationData->EmailCall==Messages::Received){
-		   ?>From <?php if(!empty($TicketConversationData->EmailfromName)){ echo $TicketConversationData->EmailfromName." (".$TicketConversationData->Emailfrom.")"; ?> <?php }else{ ?> <?php echo $TicketConversationData->Emailfrom; } ?>
+		   ?>From <?php if(!empty($TicketConversationData->EmailfromName)){ echo $TicketConversationData->EmailfromName." (".$TicketConversationData->Emailfrom.")"; ?> <?php }else{ ?> <?php echo $TicketConversationData->Emailfrom; } ?><br>to (<?php echo $TicketConversationData->EmailTo; ?>)
 		 <?php }elseif($TicketConversationData->EmailCall==Messages::Sent){ echo $TicketConversationData->CreatedBy; ?> (<?php echo $TicketConversationData->Emailfrom; ?>) replied<br>to (<?php echo $TicketConversationData->EmailTo; ?>) <?php } ?></span>
           
-          <?php if(!empty($TicketConversationData->EmailCc)){ ?><br>cc:  <?php echo $TicketConversationData->EmailCc; ?> <?php } ?>
-		  <?php if(!empty($TicketConversationData->EmailBcc)){ ?><br>bcc: <?php echo $TicketConversationData->EmailBcc; ?> <?php } ?> </div>
+          <?php if(!empty($TicketConversationData->EmailCc)){ ?><br>cc:  <?php echo str_replace(',',', ',$TicketConversationData->EmailCc); ?> <?php } ?>
+		  <?php if(!empty($TicketConversationData->EmailBcc)){ ?><br>bcc: <?php echo str_replace(',',', ',$TicketConversationData->EmailBcc); ?> <?php } ?> </div>
           
-        <div class="panel-options"> <span> {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}}</span> @if( User::checkCategoryPermission('Tickets','Edit')) <a action_type="forward"  data-toggle="tooltip" data-type="child" data-placement="top"  ticket_number="{{$TicketConversationData->AccountEmailLogID}}" data-original-title="Forward" class="btn btn-xs btn-info email_action tooltip-primary"><i class="entypo-forward"></i> </a> @endif <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
+        <div class="panel-options col-md-2" style="text-align: right; padding: 0 5px;"> <span> {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}}</span> @if( User::checkCategoryPermission('Tickets','Edit')) <a action_type="forward"  data-toggle="tooltip" data-type="child" data-placement="top"  ticket_number="{{$TicketConversationData->AccountEmailLogID}}" data-original-title="Forward" class="btn btn-xs btn-info email_action tooltip-primary"><i class="entypo-forward"></i> </a> @endif <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
       </div>
       
       <!-- panel body -->
@@ -134,6 +105,37 @@
     </div>
     <?php	} ?>
     <?php $loop++; } } } ?>
+
+      <?php $attachments = unserialize($ticketdata->AttachmentPaths); ?>
+      <div class="mail-text"> {{$ticketdata->Description}} </div>
+      @if(count($attachments)>0 && strlen($ticketdata->AttachmentPaths)>0)
+          <div class="mail-attachments last_data">
+              <h4> <i class="entypo-attach"></i> Attachments <span>({{count($attachments)}})</span> </h4>
+              <ul>
+                  @if(is_array($attachments))
+                      @foreach($attachments as $key_acttachment => $attachments_data)
+                          <?php
+                          //$FilePath 		= 	AmazonS3::preSignedUrl($attachments_data['filepath']);
+                          $Filename		=	$attachments_data['filepath'];
+
+                          /*if(is_amazon() == true)
+                          {
+                              $Attachmenturl =  AmazonS3::preSignedUrl($attachments_data['filepath']);
+                          }
+                          else
+                          {
+                              $Attachmenturl = Config::get('app.upload_path')."/".$attachments_data['filepath'];
+                          }*/
+                          $Attachmenturl = URL::to('tickets/'.$ticketdata->TicketID.'/getattachment/'.$key_acttachment);
+                          ?>
+                          <li> <a target="_blank" href="{{$Attachmenturl}}" class="thumb download"> <img width="75"   src="{{getimageicons($Filename)}}" class="img-rounded" /> </a> <a target="_blank" href="{{$Attachmenturl}}" class="shortnamewrap name"> {{$attachments_data['filename']}} </a>
+                              <div class="links"><a href="{{$Attachmenturl}}">Download</a> </div>
+                          </li>
+                      @endforeach
+                  @endif
+              </ul>
+          </div>
+      @endif
   </div>
   
   <!-- Sidebar -->
@@ -345,6 +347,7 @@
 .panel-primary > .panel-heading-convesation .panel-title{font-size:12px !important; }
 .change_due_time{display:none;}
 </style>
+<script src="<?php echo URL::to('/'); ?>/assets/lightbox/ekko-lightbox.js"></script>
 <script>
 var editor_options 	 	=  		{};
 var agent 				= 		parseInt('{{$ticketdata->Agent}}');
@@ -355,7 +358,32 @@ var max_file_size_txt 	=	    '{{$max_file_size}}';
 var max_file_size	  	=	    '{{str_replace("M","",$max_file_size)}}';
 var emailFileListReply 	=		[];
 var CloseStatus			=		'{{$CloseStatus}}';
-$(document).ready(function(e) {	
+$(document).ready(function(e) {
+    var lightboxhtml = $('<a href="" data-type="image" data-toggle="lightbox" data-title="" data-footer=""></a>');
+    $(".mail-body img").each(function(i){
+        //var $this = $(this);
+        lightboxhtml.attr('href',$(this).attr('src'));
+        $(this).addClass("img-fluid");
+        var $image = $('<div>').append($(this).clone()).html();
+        lightboxhtml.html($image);
+        $(this).replaceWith($('<div>').append(lightboxhtml.clone()).html());
+    });
+
+    $(document).on('click', '[data-toggle="lightbox"]:not([data-gallery="navigateTo"])', function(event) {
+        event.preventDefault();
+        return $(this).ekkoLightbox({
+            onShown: function() {
+                if (window.console) {
+                    return console.log('Checking our the events huh?');
+                }
+            },
+            onNavigate: function(direction, itemIndex) {
+                if (window.console) {
+                    return console.log('Navigating '+direction+'. Current item: '+itemIndex);
+                }
+            }
+        });
+    });
 	
 	$( document ).on("click",'.email_action' ,function(e) {			
 		var url 		    = 	  baseurl + '/tickets/ticket_action';

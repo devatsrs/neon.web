@@ -37,7 +37,7 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	SET  sql_mode='ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-	SELECT cr.Symbol INTO v_CurrencyCode_ from NeonRMDev.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
+	SELECT cr.Symbol INTO v_CurrencyCode_ from Ratemanagement3.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
 	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_Invoices_;
@@ -88,8 +88,8 @@ BEGIN
 			IFNULL(ac.BillingEmail,'') as BillingEmail,
 			ac.Number,
 			if (inv.BillingClassID > 0,
-				 (SELECT IFNULL(b.PaymentDueInDays,0) FROM NeonRMDev.tblBillingClass b where  b.BillingClassID =inv.BillingClassID),
-				 (SELECT IFNULL(b.PaymentDueInDays,0) FROM NeonRMDev.tblAccountBilling ab INNER JOIN NeonRMDev.tblBillingClass b ON b.BillingClassID =ab.BillingClassID WHERE ab.AccountID = ac.AccountID AND ab.ServiceID = inv.ServiceID LIMIT 1)
+				 (SELECT IFNULL(b.PaymentDueInDays,0) FROM Ratemanagement3.tblBillingClass b where  b.BillingClassID =inv.BillingClassID),
+				 (SELECT IFNULL(b.PaymentDueInDays,0) FROM Ratemanagement3.tblAccountBilling ab INNER JOIN Ratemanagement3.tblBillingClass b ON b.BillingClassID =ab.BillingClassID WHERE ab.AccountID = ac.AccountID AND ab.ServiceID = inv.ServiceID LIMIT 1)
 			) as PaymentDueInDays,
 			(SELECT PaymentDate FROM tblPayment p WHERE p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.Recall =0 AND p.AccountID = inv.AccountID ORDER BY PaymentID DESC LIMIT 1) AS PaymentDate,
 			inv.SubTotal,
@@ -97,9 +97,9 @@ BEGIN
 			ac.NominalAnalysisNominalAccountNumber,
 			IFNULL((SELECT SUM(IFNULL(TotalMinutes,0)) FROM tblInvoiceDetail tid WHERE tid.InvoiceID=inv.InvoiceID GROUP BY tid.InvoiceID),0) AS TotalMinutes
 			FROM tblInvoice inv
-			INNER JOIN NeonRMDev.tblAccount ac ON ac.AccountID = inv.AccountID
+			INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = inv.AccountID
 			LEFT JOIN tblInvoiceDetail invd ON invd.InvoiceID = inv.InvoiceID AND (invd.ProductType = 5 OR inv.InvoiceType = 2)
-			LEFT JOIN NeonRMDev.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId
+			LEFT JOIN Ratemanagement3.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId
 			WHERE ac.CompanyID = p_CompanyID
 			AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
 			AND (p_userID = 0 OR ac.Owner = p_userID)
@@ -349,13 +349,13 @@ BEGIN
 		IF p_sageExport = 2
 		THEN
 			UPDATE tblInvoice  inv
-			INNER JOIN NeonRMDev.tblAccount ac
+			INNER JOIN Ratemanagement3.tblAccount ac
 				ON ac.AccountID = inv.AccountID
-			INNER JOIN NeonRMDev.tblAccountBilling ab
+			INNER JOIN Ratemanagement3.tblAccountBilling ab
 				ON ab.AccountID = ac.AccountID AND ab.ServiceID = inv.ServiceID
-			INNER JOIN NeonRMDev.tblBillingClass b
+			INNER JOIN Ratemanagement3.tblBillingClass b
 				ON ab.BillingClassID = b.BillingClassID
-			INNER JOIN NeonRMDev.tblCurrency c
+			INNER JOIN Ratemanagement3.tblCurrency c
 				ON c.CurrencyId = ac.CurrencyId
 			SET InvoiceStatus = 'paid'
 			WHERE ac.CompanyID = p_CompanyID
@@ -405,6 +405,89 @@ BEGIN
 							AND(PendingAmount>0)
 						)
 				);
+
+	END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_getPaymentPendingInvoice`;
+DELIMITER //
+CREATE PROCEDURE `prc_getPaymentPendingInvoice`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_PaymentDueInDays` INT ,
+	IN `p_AutoPay` INT
+)
+BEGIN
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	IF p_AutoPay=1
+	THEN
+
+	SELECT
+		MAX(i.InvoiceID) AS InvoiceID,
+		(IFNULL(MAX(i.GrandTotal), 0) - IFNULL(SUM(p.Amount), 0)) AS RemaingAmount
+	FROM tblInvoice i
+	INNER JOIN Ratemanagement3.tblAccount a
+		ON i.AccountID = a.AccountID
+	INNER JOIN Ratemanagement3.tblAccountBilling ab
+		ON ab.AccountID = a.AccountID AND ab.ServiceID = i.ServiceID
+	INNER JOIN Ratemanagement3.tblBillingClass b
+		ON b.BillingClassID = ab.BillingClassID
+	LEFT JOIN tblPayment p
+		ON p.AccountID = i.AccountID
+		AND p.InvoiceID = i.InvoiceID AND p.Status = 'Approved' AND p.AccountID = i.AccountID
+		AND p.Status = 'Approved'
+		AND p.Recall = 0
+	WHERE i.CompanyID = p_CompanyID
+	AND i.InvoiceStatus NOT IN ( 'awaiting','cancel' , 'draft' , 'paid','post')
+	AND ( (i.ItemInvoice IS NULL) OR (i.ItemInvoice=1 AND i.RecurringInvoiceID IS NOT NULL))
+	AND i.InvoiceType =1
+	AND i.AccountID = p_AccountID
+	AND (p_PaymentDueInDays =0  OR (p_PaymentDueInDays =1 AND TIMESTAMPDIFF(DAY, i.IssueDate, NOW()) >= IFNULL(b.PaymentDueInDays,0) ) )
+
+	GROUP BY i.InvoiceID,
+			 p.AccountID
+	HAVING (IFNULL(MAX(i.GrandTotal), 0) - IFNULL(SUM(p.Amount), 0)) > 0;
+
+	END IF;
+
+	IF p_AutoPay =0
+	THEN
+
+	SELECT
+		MAX(i.InvoiceID) AS InvoiceID,
+		(IFNULL(MAX(i.GrandTotal), 0) - IFNULL(SUM(p.Amount), 0)) AS RemaingAmount
+	FROM tblInvoice i
+	LEFT JOIN tblPayment p
+		ON p.AccountID = i.AccountID
+		AND p.InvoiceID = i.InvoiceID AND p.Status = 'Approved' AND p.AccountID = i.AccountID
+		AND p.Status = 'Approved'
+		AND p.Recall = 0
+	WHERE i.CompanyID = p_CompanyID
+	AND i.InvoiceStatus != 'cancel'
+	AND i.AccountID = p_AccountID
+	GROUP BY i.InvoiceID,
+			 p.AccountID;
+--	HAVING (IFNULL(MAX(i.GrandTotal), 0) - IFNULL(SUM(p.Amount), 0)) > 0;
 
 	END IF;
 

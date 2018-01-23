@@ -510,21 +510,25 @@
             if($(this).hasClass('vendor-delete-ip')){
                 acountipclitable = 'vendoriptable';
                 isCustomerOrVendor = 0;
+                type = 0;
                 var processing = 'vendoriptableprocessing';
                 var selection = 'IP Address';
             }else if($(this).hasClass('vendor-delete-cli')){
                 acountipclitable = 'vendorclitable';
                 isCustomerOrVendor = 0;
+                type = 1;
                 var processing = 'vendorclitableprocessing';
                 var selection = 'CLI';
             }else if($(this).hasClass('customer-delete-ip')){
                 acountipclitable = 'customeriptable';
                 isCustomerOrVendor = 1;
+                type = 0;
                 var processing = 'customeriptableprocessing';
                 var selection = 'IP Address';
             }else if($(this).hasClass('customer-delete-cli')){
                 acountipclitable = 'table-clitable';
                 isCustomerOrVendor = 1;
+                type = 1;
                 var processing = 'table-clitableprocessing';
                 var selection = 'CLI';
             }
@@ -552,7 +556,7 @@
                                 $('.selectall').prop("checked", false);
                                 toastr.success(response.message,'Success', toastr_opts);
                             }else if (response.status == 'check') {
-                                $('#confirm-modal').modal('show');
+                                $('#confirm-ip-modal').modal('show');
                             }
                             else{
                                 toastr.error(response.message, "Error", toastr_opts);
@@ -565,10 +569,10 @@
             }
         });
 
-        $('#form-confirm-modal').submit(function(e){
+        $('#form-ip-confirm-modal').submit(function(e){
             e.preventDefault();
             var url = baseurl + "/accounts/"+accountID+"/deleteips";
-            var dates = $('#form-confirm-modal [name="Closingdate"]').val();
+            var dates = $('#form-ip-confirm-modal [name="Closingdate"]').val();
             $.ajax({
                 url: url,
                 type:'POST',
@@ -583,7 +587,7 @@
                         toastr.error(response.message, "Error", toastr_opts);
                     }
                     $('.btn').button('reset');
-                    $('#confirm-modal').modal('hide');
+                    $('#confirm-ip-modal').modal('hide');
                 }
 
             });
@@ -712,10 +716,10 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="confirm-modal" >
+<div class="modal fade" id="confirm-ip-modal" >
     <div class="modal-dialog">
         <div class="modal-content">
-            <form role="form" id="form-confirm-modal" method="post" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
+            <form role="form" id="form-ip-confirm-modal" method="post" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     <h4 class="modal-title">Delete Ips</h4>

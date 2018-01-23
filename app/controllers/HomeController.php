@@ -139,8 +139,17 @@ class HomeController extends BaseController {
                     return;
                 }
             }
+            $Count=1;
+            $Users = User::where('EmailAddress',$data['email'])->first();
+            if(!empty($Users) && count($Users)>0){
+                $CompanyID = $Users->CompanyID;
+                $Resellers = Reseller::where('ChildCompanyID',$CompanyID)->first();
+                if(!empty($Resellers) && count($Resellers)>0){
+                    $Count=0;
+                }
+            }
             //if Normal User
-            if (Auth::attempt(array('EmailAddress' => $data['email'], 'password' => $data['password'] ,'Status'=> 1 )) && NeonAPI::login()) {
+            if (Auth::attempt(array('EmailAddress' => $data['email'], 'password' => $data['password'] ,'Status'=> 1 )) && $Count==1  && NeonAPI::login()) {
                 User::setUserPermission();
                 Log::info("Current Login Date : ".date('Y-m-d H:i:s'));
                 User::find(Auth::user()->UserID)->update(['LastLoginDate' => date('Y-m-d H:i:s')]);
@@ -271,6 +280,15 @@ class HomeController extends BaseController {
             if(NeonAPI::login_by_id($user_ID)) {
                 User::setUserPermission();
                 create_site_configration_cache();
+
+                $CompanyID = $user->CompanyID;
+                $Resellers = Reseller::where('ChildCompanyID',$CompanyID)->first();
+                if(!empty($Resellers) && count($Resellers)>0){
+                    log::info('reseller');
+                    Session::set("reseller", 1);
+                    $redirect_to = URL::to("/reseller/profile");
+                }
+
                 echo json_encode(array("login_status" => "success", "redirect_url" => $redirect_to));
                 return;
             } else {

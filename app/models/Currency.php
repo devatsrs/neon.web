@@ -33,13 +33,13 @@ class Currency extends \Eloquent {
         }
     }
 
-    public static function getCurrencyDropdownIDList(){
+    public static function getCurrencyDropdownIDList($CompanyID=0){
 
         if (self::$enable_cache && Cache::has('currency_dropdown1_cache')) {
             $admin_defaults = Cache::get('currency_dropdown1_cache');
             self::$cache['currency_dropdown1_cache'] = $admin_defaults['currency_dropdown1_cache'];
         } else {
-            $CompanyId = User::get_companyID();
+            $CompanyId = $CompanyID>0?$CompanyID : User::get_companyID();
             self::$cache['currency_dropdown1_cache'] = Currency::where("CompanyId",$CompanyId)->lists('Code','CurrencyID');
             self::$cache['currency_dropdown1_cache'] = array('' => "Select")+ self::$cache['currency_dropdown1_cache'];
             Cache::forever('currency_dropdown1_cache', array('currency_dropdown1_cache' => self::$cache['currency_dropdown1_cache']));

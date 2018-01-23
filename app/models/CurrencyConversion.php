@@ -26,9 +26,8 @@ class CurrencyConversion extends \Eloquent {
         }
 
     }
-    public static function isDefined($CurrencyToID)
+    public static function isDefined($CompanyID,$CurrencyToID)
     {
-        $CompanyID = User::get_companyID();
         $currencytocount = CurrencyConversion::where(array('CompanyID' => $CompanyID, 'CurrencyID' => $CurrencyToID))->count();
         if ($currencytocount > 0) {
             return true;

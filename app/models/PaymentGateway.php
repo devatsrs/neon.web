@@ -169,17 +169,6 @@ class PaymentGateway extends \Eloquent {
 
     }
 
-    public static function getPaymentGatewayID(){
-        $PaymentGatewayID = 0;
-        if(is_authorize()){
-            $PaymentGatewayID = PaymentGateway::AuthorizeNet;
-        }
-        if(is_Stripe()){
-            $PaymentGatewayID = PaymentGateway::Stripe;
-        }
-        return $PaymentGatewayID;
-    }
-
     public static function getPaymentGatewayIDByName($PaymentMehod){
         $PaymentGateway = PaymentGateway::$paymentgateway_name;
         $PaymentGatewayID = array_search($PaymentMehod, $PaymentGateway);

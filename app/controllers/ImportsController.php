@@ -15,8 +15,9 @@ class ImportsController extends \BaseController {
      * @return Response
      */
     public function index() {
-            $Quickbook = new BillingAPI();
-            $check_quickbook = $Quickbook->check_quickbook();
+            $CompanyID = User::get_companyID();
+            $Quickbook = new BillingAPI($CompanyID);
+            $check_quickbook = $Quickbook->check_quickbook($CompanyID);
             $gatewaylist = CompanyGateway::importgatewaylist();
             $templateoption = ['' => 'Select', 1 => 'Create new', 2 => 'Update existing'];
             $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_Account);
@@ -100,7 +101,41 @@ class ImportsController extends \BaseController {
         $data = Input::all();
         $CompanyID = User::get_companyID();
 
-        Account::$importrules['selection.AccountName'] = 'required';
+        $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['ACCOUNT_DOCUMENT']);
+
+        if(!empty($data['TemplateName'])){
+            if(!empty($data['uploadtemplate'])) {
+                $data['FileUploadTemplateID'] = $data['uploadtemplate'];
+            }
+            $uploadresult = FileUploadTemplate::createOrUpdateFileUploadTemplate($data);
+
+            if(is_object($uploadresult)) {
+                return $uploadresult;
+            } else if (!empty($uploadresult['status']) && $uploadresult['status'] == "failed") {
+                return Response::json($uploadresult);
+            } else if (!empty($uploadresult['status']) && $uploadresult['status'] == "success") {
+                $template = $uploadresult['Template'];
+                $data['uploadtemplate'] = $template->FileUploadTemplateID;
+                $file_name = $uploadresult['file_name'];
+            }
+        } else {
+            Account::$importrules['selection.AccountName'] = 'required';
+
+            $validator = Validator::make($data, Account::$importrules,Account::$importmessages);
+
+            if ($validator->fails()) {
+                return json_validator_response($validator);
+            }
+            $file_name = basename($data['TemplateFile']);
+            $temp_path = CompanyConfiguration::get('TEMP_PATH').'/' ;
+            $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+            copy($temp_path . $file_name, $destinationPath . $file_name);
+            if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
+                return Response::json(array("status" => "failed", "message" => "Failed to upload vendor rates file."));
+            }
+        }
+
+        /*Account::$importrules['selection.AccountName'] = 'required';
         //Account::$importrules['selection.Email'] = 'required';
         //Account::$importrules['selection.Country'] = 'required';
         //Account::$importrules['selection.FirstName'] = 'required';
@@ -134,7 +169,7 @@ class ImportsController extends \BaseController {
                 $template = FileUploadTemplate::create($save);
             }
             $data['uploadtemplate'] = $template->FileUploadTemplateID;
-        }
+        }*/
         $save = array();
         $option["option"]=  $data['option'];
         $option["selection"] = $data['selection'];
@@ -618,16 +653,16 @@ class ImportsController extends \BaseController {
             ini_set('max_execution_time', 0);
 
             $data = Input::all();
-            $QuickBook = new BillingAPI();
+            $CompanyID = User::get_companyID();
+            $QuickBook = new BillingAPI($CompanyID);
             $quickbooks_CompanyInfo = $QuickBook->test_connection();
 
             if(!empty($quickbooks_CompanyInfo)){
                 $ProcessID = (string) GUID::generate();
                 log::info('--ProcessID--'.$ProcessID);
-                $CompanyID = User::get_companyID();
                 $param['CompanyID'] = $CompanyID;
                 $param['ProcessID'] = $ProcessID;
-                $quickbook = new BillingAPI();
+                $quickbook = new BillingAPI($CompanyID);
                 $response1 = $quickbook->getAccountsDetail($param);
                 log::info('Quickbook Response'.print_r($response1,true));
                 if(isset($response1['result']) && $response1['result'] =='OK'){

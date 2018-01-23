@@ -47,12 +47,12 @@ class VendorRatesController extends \BaseController
     
     public function upload($id) {
 //            $uploadtemplate = VendorFileUploadTemplate::getTemplateIDList();
-            $arrData = VendorFileUploadTemplate::where(['CompanyID'=>User::get_companyID()])->orderBy('Title')->get(['Title', 'VendorFileUploadTemplateID', 'Options'])->toArray();
+            $arrData = FileUploadTemplate::where(['CompanyID'=>User::get_companyID(),'Type'=>FileUploadTemplate::TEMPLATE_VENDOR_RATE])->orderBy('Title')->get(['Title', 'FileUploadTemplateID', 'Options'])->toArray();
 
             $uploadtemplate=[];
             $uploadtemplate[]=[
                 "Title" => "Select",
-                "VendorFileUploadTemplateID" => "",
+                "FileUploadTemplateID" => "",
                 "start_row" => "",
                 "end_row" => ""
             ];
@@ -61,7 +61,7 @@ class VendorRatesController extends \BaseController
             {
                 $arrUploadTmp=[];
                 $arrUploadTmp["Title"]=$val["Title"];
-                $arrUploadTmp["VendorFileUploadTemplateID"]=$val["VendorFileUploadTemplateID"];
+                $arrUploadTmp["FileUploadTemplateID"]=$val["FileUploadTemplateID"];
 
                 $options=json_decode($val["Options"], true);
 
@@ -72,8 +72,8 @@ class VendorRatesController extends \BaseController
                 }
                 else
                 {
-                    $arrUploadTmp["start_row"]="";
-                    $arrUploadTmp["end_row"]="";
+                    $arrUploadTmp["start_row"]="0";
+                    $arrUploadTmp["end_row"]="0";
                 }
                 $uploadtemplate[]=$arrUploadTmp;
             }
@@ -621,7 +621,7 @@ class VendorRatesController extends \BaseController
             $grid['filename'] = $data['TemplateFile'];
             $grid['tempfilename'] = $data['TempFileName'];
             if ($data['uploadtemplate'] > 0) {
-                $VendorFileUploadTemplate = VendorFileUploadTemplate::find($data['uploadtemplate']);
+                $VendorFileUploadTemplate = FileUploadTemplate::find($data['uploadtemplate']);
                 $grid['VendorFileUploadTemplate'] = json_decode(json_encode($VendorFileUploadTemplate), true);
                 //$grid['VendorFileUploadTemplate']['Options'] = json_decode($VendorFileUploadTemplate->Options,true);
             }
@@ -638,7 +638,7 @@ class VendorRatesController extends \BaseController
         $data = Input::all();
         $CompanyID = User::get_companyID();
 
-        $rules['selection.Code'] = 'required';
+        /*$rules['selection.Code'] = 'required';
         $rules['selection.Description'] = 'required';
         $rules['selection.Rate'] = 'required';
         //$rules['selection.EffectiveDate'] = 'required';
@@ -646,7 +646,7 @@ class VendorRatesController extends \BaseController
 
         if ($validator->fails()) {
             return json_validator_response($validator);
-        }
+        }*/
         if(isset($data['selection']['FromCurrency']) && !empty($data['selection']['FromCurrency'])) {
             $CompanyCurrency = Company::find($CompanyID)->CurrencyId;
 
@@ -691,7 +691,45 @@ class VendorRatesController extends \BaseController
         if (!isset($data['codedeckid']) || empty($data['codedeckid'])) {
             return json_encode(["status" => "failed", "message" => 'Please Update a Codedeck in Setting']);
         }
-        $file_name = basename($data['TemplateFile']);
+
+        $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_UPLOAD']);
+
+        if(!empty($data['TemplateName'])){
+            if(!empty($data['uploadtemplate'])) {
+                $data['FileUploadTemplateID'] = $data['uploadtemplate'];
+            }
+            $uploadresult = FileUploadTemplate::createOrUpdateFileUploadTemplate($data);
+
+            if(is_object($uploadresult)) {
+                return $uploadresult;
+            } else if (!empty($uploadresult['status']) && $uploadresult['status'] == "failed") {
+                return Response::json($uploadresult);
+            } else if (!empty($uploadresult['status']) && $uploadresult['status'] == "success") {
+                $template = $uploadresult['Template'];
+                $data['uploadtemplate'] = $template->FileUploadTemplateID;
+                $file_name = $uploadresult['file_name'];
+            }
+        } else {
+            $rules['selection.Code'] = 'required';
+            $rules['selection.Description'] = 'required';
+            $rules['selection.Rate'] = 'required';
+            //$rules['selection.EffectiveDate'] = 'required';
+            $validator = Validator::make($data, $rules);
+
+            if ($validator->fails()) {
+                return json_validator_response($validator);
+            }
+            $file_name = basename($data['TemplateFile']);
+            $temp_path = CompanyConfiguration::get('TEMP_PATH').'/' ;
+            $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+            copy($temp_path . $file_name, $destinationPath . $file_name);
+            if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
+                return Response::json(array("status" => "failed", "message" => "Failed to upload vendor rates file."));
+            }
+            $option["skipRows"] = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
+        }
+
+        /*$file_name = basename($data['TemplateFile']);
 
         $temp_path = CompanyConfiguration::get('TEMP_PATH').'/' ;
 
@@ -721,7 +759,7 @@ class VendorRatesController extends \BaseController
                 $template = VendorFileUploadTemplate::create($save);
             }
             $data['uploadtemplate'] = $template->VendorFileUploadTemplateID;
-        }
+        }*/
         $save = array();
         $option["option"]=  $data['option'];
         $option["selection"] = $data['selection'];
@@ -775,6 +813,10 @@ class VendorRatesController extends \BaseController
                     $file_name = $file_name_without_ext . '.' . $excel->getClientOriginalExtension();
                     $excel->move($upload_path, $file_name);
                     $file_name = $upload_path . '/' . $file_name;
+
+                    if(!empty($data['checkbox_review_rates']) && $data['checkbox_review_rates'] == 1) {
+                        $file_name = NeonExcelIO::convertExcelToCSV($file_name, $data);
+                    }
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Please select excel or csv file."));
                 }
@@ -786,8 +828,8 @@ class VendorRatesController extends \BaseController
             if (!empty($file_name)) {
 
                 if ($data['uploadtemplate'] > 0) {
-                    $VendorFileUploadTemplate = VendorFileUploadTemplate::find($data['uploadtemplate']);
-                    $options = json_decode($VendorFileUploadTemplate->Options, true);
+                    $FileUploadTemplate = FileUploadTemplate::find($data['uploadtemplate']);
+                    $options = json_decode($FileUploadTemplate->Options, true);
                     $data['Delimiter'] = $options['option']['Delimiter'];
                     $data['Enclosure'] = $options['option']['Enclosure'];
                     $data['Escape'] = $options['option']['Escape'];
@@ -801,14 +843,14 @@ class VendorRatesController extends \BaseController
                 $grid['start_row'] = $data["start_row"];
                 $grid['end_row'] = $data["end_row"];
 
-                if (!empty($VendorFileUploadTemplate)) {
-                    $grid['VendorFileUploadTemplate'] = json_decode(json_encode($VendorFileUploadTemplate), true);
-                    $grid['VendorFileUploadTemplate']['Options'] = json_decode($VendorFileUploadTemplate->Options, true);
+                if (!empty($FileUploadTemplate)) {
+                    $grid['VendorFileUploadTemplate'] = json_decode(json_encode($FileUploadTemplate), true);
+                    $grid['VendorFileUploadTemplate']['Options'] = json_decode($FileUploadTemplate->Options, true);
                 }
                 return Response::json(array("status" => "success", "data" => $grid));
             }
         }catch(Exception $ex) {
-		Log::info($ex);
+		    Log::info($ex);
             return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
         }
     }
@@ -906,7 +948,7 @@ class VendorRatesController extends \BaseController
         $dialcode_separator = 'null';
         //$TEMP_PATH = CompanyConfiguration::get($CompanyID,'TEMP_PATH').'/';
 
-        $rules['selection.Code'] = 'required';
+        /*$rules['selection.Code'] = 'required';
         $rules['selection.Description'] = 'required';
         $rules['selection.Rate'] = 'required';
         //$rules['selection.EffectiveDate'] = 'required';
@@ -914,7 +956,7 @@ class VendorRatesController extends \BaseController
 
         if ($validator->fails()) {
             return json_validator_response($validator);
-        }
+        }*/
         if(isset($data['selection']['FromCurrency']) && !empty($data['selection']['FromCurrency'])) {
             $CompanyCurrency = Company::find($CompanyID)->CurrencyId;
 
@@ -959,7 +1001,47 @@ class VendorRatesController extends \BaseController
         if (!isset($data['codedeckid']) || empty($data['codedeckid'])) {
             return json_encode(["status" => "failed", "message" => 'Please Update a Codedeck in Setting']);
         }
-        $file_name = basename($data['TemplateFile']);
+
+        $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_UPLOAD']);
+        $FileUploadTemplateID = "";
+
+        $temp_path = CompanyConfiguration::get('TEMP_PATH').'/' ;
+
+        if(!empty($data['TemplateName'])){
+            if(!empty($data['uploadtemplate'])) {
+                $data['FileUploadTemplateID'] = $data['uploadtemplate'];
+            }
+            $uploadresult = FileUploadTemplate::createOrUpdateFileUploadTemplate($data);
+
+            if(is_object($uploadresult)) {
+                return $uploadresult;
+            } else if (!empty($uploadresult['status']) && $uploadresult['status'] == "failed") {
+                return Response::json($uploadresult);
+            } else if (!empty($uploadresult['status']) && $uploadresult['status'] == "success") {
+                $template = $uploadresult['Template'];
+                $data['uploadtemplate'] = $FileUploadTemplateID = $template->FileUploadTemplateID;
+                $file_name = $uploadresult['file_name'];
+            }
+        } else {
+            $rules['selection.Code'] = 'required';
+            $rules['selection.Description'] = 'required';
+            $rules['selection.Rate'] = 'required';
+            //$rules['selection.EffectiveDate'] = 'required';
+            $validator = Validator::make($data, $rules);
+
+            if ($validator->fails()) {
+                return json_validator_response($validator);
+            }
+            $file_name = basename($data['TemplateFile']);
+            $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+            copy($temp_path . $file_name, $destinationPath . $file_name);
+            if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
+                return Response::json(array("status" => "failed", "message" => "Failed to upload vendor rates file."));
+            }
+            $option["skipRows"] = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
+        }
+
+        /*$file_name = basename($data['TemplateFile']);
 
         $temp_path = CompanyConfiguration::get('TEMP_PATH').'/' ;
 
@@ -989,7 +1071,7 @@ class VendorRatesController extends \BaseController
                 $template = VendorFileUploadTemplate::create($save);
             }
             $data['uploadtemplate'] = $template->VendorFileUploadTemplateID;
-        }
+        }*/
 
         $save = array();
         $option["option"]=  $data['option'];
@@ -1013,7 +1095,7 @@ class VendorRatesController extends \BaseController
         $joboptions = json_decode(json_encode($save));
         if (count($joboptions) > 0) {
             if(isset($joboptions->uploadtemplate) && !empty($joboptions->uploadtemplate)){
-                $uploadtemplate = VendorFileUploadTemplate::find($joboptions->uploadtemplate);
+                $uploadtemplate = FileUploadTemplate::find($joboptions->uploadtemplate);
                 $templateoptions = json_decode($uploadtemplate->Options);
             }else{
                 $templateoptions = json_decode($joboptions->Options);
@@ -1064,15 +1146,19 @@ class VendorRatesController extends \BaseController
                 }
             };
 
-            if(isset($templateoptions->skipRows))
-            {
-                $skiptRows=$templateoptions->skipRows;
-                NeonExcelIO::$start_row=$skiptRows->start_row;
-                NeonExcelIO::$end_row=$skiptRows->end_row;
-                $lineno = 1+$skiptRows->start_row;
-            }else if ($csvoption->Firstrow == 'data') {
+            if(isset($templateoptions->skipRows) && $csvoption->Firstrow == 'columnname') {
+                $skiptRows              = $templateoptions->skipRows;
+                NeonExcelIO::$start_row = intval($skiptRows->start_row);
+                NeonExcelIO::$end_row   = intval($skiptRows->end_row);
+                $lineno                 = intval($skiptRows->start_row) + 2;
+            } else if (isset($templateoptions->skipRows) && $csvoption->Firstrow == 'data') {
+                $skiptRows              = $templateoptions->skipRows;
+                NeonExcelIO::$start_row = intval($skiptRows->start_row);
+                NeonExcelIO::$end_row   = intval($skiptRows->end_row);
+                $lineno                 = intval($skiptRows->start_row) + 1;
+            } else if ($csvoption->Firstrow == 'data') {
                 $lineno = 1;
-            }else{
+            } else {
                 $lineno = 2;
             }
 
@@ -1288,6 +1374,7 @@ class VendorRatesController extends \BaseController
                     $jobdata['status'] = "success";
                     $jobdata['ProcessID'] = $ProcessID;
                     $jobdata['message'] = "Review Rates Successfully!";
+                    $jobdata['FileUploadTemplateID'] = $FileUploadTemplateID;
                     $jobdata['JobStatusID'] = DB::table('tblJobStatus')->where('Code','S')->pluck('JobStatusID');
                 }
 
@@ -1373,14 +1460,14 @@ class VendorRatesController extends \BaseController
 
             if($data['Action'] == 'New') {
                 if (!empty($data['updateInterval1']) || !empty($data['updateIntervalN'])) {
-                    if (!empty($data['updateInterval1']) && empty((int)$data['Interval1'])) {
+                    if (!empty($data['updateInterval1']) && empty($data['Interval1'])) {
                         return json_encode(array("status" => "Error", "message" => "Please enter Interval1 value."));
-                    } else if (!empty($data['updateInterval1']) && !empty((int)$data['Interval1'])) {
+                    } else if (!empty($data['updateInterval1']) && !empty($data['Interval1'])) {
                         $Interval1 = (int)$data['Interval1'] > 0 ? (int)$data['Interval1'] : 0;
                     }
-                    if (!empty($data['updateIntervalN']) && empty((int)$data['IntervalN'])) {
+                    if (!empty($data['updateIntervalN']) && empty($data['IntervalN'])) {
                         return json_encode(array("status" => "Error", "message" => "Please enter IntervalN value."));
-                    } else if (!empty($data['updateIntervalN']) && !empty((int)$data['IntervalN'])) {
+                    } else if (!empty($data['updateIntervalN']) && !empty($data['IntervalN'])) {
                         $IntervalN = (int)$data['IntervalN'] > 0 ? (int)$data['IntervalN'] : 0;
                     }
                     $Action = $data['Action'];

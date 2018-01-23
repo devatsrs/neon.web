@@ -85,7 +85,7 @@
                             "name"=>"uploadtemplate",
                             "data"=>$uploadtemplate,
                             "selected"=>'',
-                            "value_key"=>"VendorFileUploadTemplateID",
+                            "value_key"=>"FileUploadTemplateID",
                             "title_key"=>"Title",
                             "data-title1"=>"start_row",
                             "data-value1"=>"start_row",
@@ -149,7 +149,7 @@
                                 <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" style="" placeholder="Skips rows from Start" min="0" value="0">
                             </div>
                             <label class="col-sm-2 control-label" style="text-align: right;">Skips rows from Bottom </label>
-                            <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="For example if you have 10 rows at bottom of file, out of which 5 rows are empty enter 5 only." data-original-title="Skips rows from Bottom">?</span>
+                            {{--<span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="For example if you have 10 rows at bottom of file, out of which 5 rows are empty enter 5 only." data-original-title="Skips rows from Bottom">?</span>--}}
                             <div class="col-sm-3">
                                 <input name="end_row" type="number" class="form-control" data-label="
                                     <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" placeholder="Skips rows from Bottom" min="0" value="0">
@@ -192,10 +192,12 @@
 
 <div class="row hidden" id="add-template">
     <div class="col-md-12">
-        <form id="add-template-form" method="post">
+        <form id="add-template-form" method="post" class="form-horizontal form-groups-bordered">
             <input name="start_row" type="hidden" value="0" min="0">
             <input name="end_row" type="hidden" value="0" min="0">
             <input type="hidden" name="ProcessID" id="ProcessID" value="" />
+            <input type="hidden" name="TemplateType" id="TemplateType" value="{{FileUploadTemplate::TEMPLATE_VENDOR_RATE}}" />
+            <input type="hidden" name="FileUploadTemplateID" id="FileUploadTemplateID" value="" />
 
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
@@ -272,125 +274,9 @@
                     </div>
                 </div>
 
-                <div class="panel-body" id="mapping">
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Country Code</label>
-                        <div class="col-sm-4">
-                            {{Form::select('selection[CountryCode]', array(),'',array("class"=>"select2 small"))}}
-                        </div>
-                        <label for="field-1" class="col-sm-2 control-label">Code* </label>
-                        <div class="col-sm-2">
-                            {{Form::select('selection[Code]', array(),'',array("class"=>"select2 small"))}}
-                        </div>
-                        <div class="col-sm-2 popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Use this to split codes in one line" data-original-title="Code Separator">
-                            {{Form::select('selection[DialCodeSeparator]',Company::$dialcode_separator ,'',array("class"=>"select2 small"))}}
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <br />
-                        <br />
-                        <label for="field-1" class="col-sm-2 control-label">Description*</label>
-                        <div class="col-sm-4">
-                            {{Form::select('selection[Description]', array(),'',array("class"=>"select2 small"))}}
-                        </div>
-                        <label for="field-1" class="col-sm-2 control-label">Rate*</label>
-                        <div class="col-sm-4">
-                            {{Form::select('selection[Rate]', array(),'',array("class"=>"select2 small"))}}
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <br />
-                        <br />
-                        <label for="field-1" class="col-sm-2 control-label">EffectiveDate <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If not selected then rates will be uploaded as effective immediately" data-original-title="EffectiveDate">?</span></label>
-                        <div class="col-sm-4">
-                            {{Form::select('selection[EffectiveDate]', array(),'',array("class"=>"select2 small"))}}
-                        </div>
-                        <label for="field-1" class="col-sm-2 control-label">End Date <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If selected than rate will be deleted at this End Date" data-original-title="End Date">?</span></label>
-                        <div class="col-sm-4">
-                            {{Form::select('selection[EndDate]', array(),'',array("class"=>"select2 small"))}}
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <br />
-                        <br />
-                        <label for="field-1" class="col-sm-2 control-label">Action</label>
-                        <div class="col-sm-4">
-                            {{Form::select('selection[Action]', array(),'',array("class"=>"select2 small"))}}
-                        </div>
-                        <label for="field-1" class="col-sm-2 control-label">Action Insert</label>
-                        <div class="col-sm-4">
-                            <input type="text" class="form-control" name="selection[ActionInsert]" value="I" />
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <br />
-                        <br />
-                        <label for="field-1" class="col-sm-2 control-label">Action Update</label>
-                        <div class="col-sm-4">
-                            <input type="text" class="form-control" name="selection[ActionUpdate]" value="U" />
-                        </div>
-                        <label for="field-1" class="col-sm-2 control-label">Action Delete</label>
-                        <div class="col-sm-4">
-                            <input type="text" class="form-control" name="selection[ActionDelete]" value="D" />
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <br />
-                        <br />
-                        <label for="field-1" class="col-sm-2 control-label">Forbidden <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="0 - Unblock , 1 - Block" data-original-title="Forbidden">?</span></label>
-                        <div class="col-sm-4">
-                            {{Form::select('selection[Forbidden]', array(),'',array("class"=>"select2 small"))}}
-                        </div>
-                        <label for="field-1" class="col-sm-2 control-label">Preference</label>
-                        <div class="col-sm-4">
-                            {{Form::select('selection[Preference]', array(),'',array("class"=>"select2 small"))}}
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <br />
-                        <br />
-                        <label for="field-1" class="col-sm-2 control-label">Interval1</label>
-                        <div class="col-sm-4">
-                            {{Form::select('selection[Interval1]', array(),'',array("class"=>"select2 small"))}}
-                        </div>
-                        <label for=" field-1" class="col-sm-2 control-label">IntervalN</label>
-                        <div class="col-sm-4">
-                            {{Form::select('selection[IntervalN]', array(),'',array("class"=>"select2 small"))}}
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <br />
-                        <br />
-                        <label for=" field-1" class="col-sm-2 control-label">Connection Fee</label>
-                        <div class="col-sm-4">
-                            {{Form::select('selection[ConnectionFee]', array(),'',array("class"=>"select2 small"))}}
-                        </div>
-                        <label for=" field-1" class="col-sm-2 control-label">Date Format <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Please check date format selected and date displays in grid." data-original-title="Date Format">?</span></label>
-                        <div class="col-sm-4">
-                            {{Form::select('selection[DateFormat]',Company::$date_format ,'',array("class"=>"select2 small"))}}
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <br />
-                        <br />
-                        <label for=" field-1" class="col-sm-2 control-label">Dial String <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If you want code to prefix mapping then select dial string." data-original-title="Dial String">?</span>
-                        </label>
-                        <div class="col-sm-4">
-                            {{Form::select('selection[DialString]',$dialstring ,'',array("class"=>"select2 small"))}}
-                        </div>
-                        <label for=" field-1" class="col-sm-2 control-label">Number Range <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Only Required when you have selected Dial String in mapping." data-original-title="Number Range">?</span></label>
-                        <div class="col-sm-4">
-                            {{Form::select('selection[DialStringPrefix]', array(),'',array("class"=>"select2 small"))}}
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <br />
-                        <br />
-                        <label for=" field-1" class="col-sm-2 control-label">Currency Conversion <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Select currency to convert rates to your base currency" data-original-title="Currency Conversion">?</span></label>
-                        <div class="col-sm-4">
-                            {{Form::select('selection[FromCurrency]', $currencies ,'',array("class"=>"select2 small"))}}
-                        </div>
-                    </div>
+                <div class="panel-body field-remaping" id="mapping">
+                    <?php $columns = array(); ?>
+                    @include('fileuploadtemplates.vendorratetemplate')
                 </div>
             </div>
             <div class="panel panel-primary" data-collapsed="0">
@@ -589,6 +475,7 @@
                         $('.btn.save').button('reset');
                         if (response.status == 'success') {
                             toastr.success(response.message, "Success", toastr_opts);
+                            $("#FileUploadTemplateID").val(response.FileUploadTemplateID);
                             getReviewRates(response.ProcessID,{});
                             $('#ProcessID').val(response.ProcessID);
                         } else {

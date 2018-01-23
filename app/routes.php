@@ -67,6 +67,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('customer/customers_rates/rate', 'RateCustomerController@index');
 	Route::any('customer/customers_rates/inboundrate', 'RateCustomerController@inboundrate');
 	Route::any('customer/customers_rates/{id}/search_inbound_ajax_datagrid/{type}', 'RateCustomerController@search_inbound_ajax_datagrid');
+	Route::any('customer/customers_rates/servicerate', 'RateCustomerController@servicerate');
+	Route::any('customer/customers_rates/{id}/search_service_ajax_datagrid/{type}', 'RateCustomerController@search_service_ajax_datagrid');
 
 	//notification
 	Route::any('customer/notification', 'NotificationCustomerController@index');
@@ -965,6 +967,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/calculate_total', 'InvoicesController@calculate_total');
 	Route::any('/invoice/get_account_info', 'InvoicesController@getAccountInfo');
 	Route::any('/invoice/get_billingclass_info', 'InvoicesController@getBillingclassInfo');
+
 	
 	Route::any('/invoice/bulk_invoice', 'InvoicesController@bulk_invoice');
 	Route::any('/invoice/add_invoice_in', 'InvoicesController@add_invoice_in');
@@ -1111,15 +1114,15 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/paymentprofile/{id}', 'AccountsPaymentProfileController@index');
     Route::any('/paymentprofile/{id}/ajax_datagrid', 'AccountsPaymentProfileController@ajax_datagrid');
 
-    //VendorFileUploadTemplate
-    Route::any('/uploadtemplate','VendorFileUploadTemplateController@index');
-    Route::any('/uploadtemplate/ajax_datagrid/{type}','VendorFileUploadTemplateController@ajax_datagrid');
-    Route::any('/uploadtemplate/ajaxfilegrid','VendorFileUploadTemplateController@ajaxfilegrid');
-    Route::any('/uploadtemplate/create','VendorFileUploadTemplateController@create');
-    Route::any('/uploadtemplate/{id}/edit','VendorFileUploadTemplateController@edit');
-    Route::any('/uploadtemplate/update','VendorFileUploadTemplateController@update');
-    Route::any('/uploadtemplate/{id}/delete','VendorFileUploadTemplateController@delete');
-    Route::any('/uploadtemplate/store','VendorFileUploadTemplateController@store');
+    //FileUploadTemplate
+    Route::any('/uploadtemplate','FileUploadTemplateController@index');
+    Route::any('/uploadtemplate/ajax_datagrid/{type}','FileUploadTemplateController@ajax_datagrid');
+    Route::any('/uploadtemplate/ajaxfilegrid','FileUploadTemplateController@ajaxfilegrid');
+    Route::any('/uploadtemplate/create','FileUploadTemplateController@create');
+    Route::any('/uploadtemplate/{id}/edit','FileUploadTemplateController@edit');
+    Route::any('/uploadtemplate/update','FileUploadTemplateController@update');
+    Route::any('/uploadtemplate/{id}/delete','FileUploadTemplateController@delete');
+    Route::any('/uploadtemplate/store','FileUploadTemplateController@store');
 
     //VendorProfiling
     Route::any('/vendor_profiling','VendorProfilingController@index');
@@ -1298,21 +1301,44 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/delete_post/{id}', 'NoticeBoardController@delete');
 	
 	// report
-    Route::any('/report','ReportController@index');
+    Route::get('/report', array("as" => "report", "uses" => "ReportController@index"));
     Route::any('/report/ajax_datagrid/{type}','ReportController@ajax_datagrid');
     Route::any('/report/create','ReportController@create');
     Route::any('/report/edit/{id}','ReportController@edit');
     Route::any('/report/store','ReportController@report_store');
     Route::any('/report/update/{id}','ReportController@report_update');
     Route::any('/report/delete/{id}','ReportController@report_delete');
-    Route::any('/report/getdatagrid','ReportController@getdatagrid');
+    Route::any('/report/getdatagrid/{id}','ReportController@getdatagrid');
     Route::any('/report/getdatalist','ReportController@getdatalist');
+	Route::any('/report/status_update/{id}','ReportController@status_update');
+	Route::any('/report/schedule_history/','ReportController@schedule_history');
+	Route::any('/report/schedule_history/{type}','ReportController@schedule_history_datagrid');
+	Route::any('/report/schedule','ReportController@schedule');
+	Route::any('/report/add_schedule','ReportController@add_schedule');
+	Route::any('/report/schedule_update/{id}','ReportController@update_schedule');
+	Route::any('/report/schedule_delete/{id}','ReportController@schedule_delete');
+	Route::any('/report/ajax_schedule_datagrid/{type}','ReportController@ajax_schedule_datagrid');
 
 	//RateCompare
 	Route::any('/rate_compare', 'RateCompareController@index');
 	Route::any('/rate_compare/search_ajax_datagrid/{type}', 'RateCompareController@search_ajax_datagrid');
 	Route::any('/rate_compare/rate_update', 'RateCompareController@rate_update');
 	Route::any('/rate_compare/load_account_dropdown', 'RateCompareController@load_account_dropdown');
+
+	// services
+	Route::any('reseller', 'ResellerController@index');
+	Route::any('reseller/ajax_datagrid', 'ResellerController@ajax_datagrid');
+	Route::any('reseller/store', 'ResellerController@store');
+	Route::any('reseller/update/{id}', 'ResellerController@update');
+	Route::any('reseller/delete/{id}', 'ResellerController@delete');
+	Route::any('reseller/exports/{type}', 'ResellerController@exports');
+	Route::any('reseller/view/{id}', 'ResellerController@view');
+	Route::any('reseller/bulkcopydata', 'ResellerController@bulkcopydata');
+
+	//Reseller
+	Route::any('reseller/profile', array('as' => 'profile_show', 'uses' => 'ResellerProfileController@show'));
+	Route::any('reseller/profile/edit', array('as' => 'profile_edit', 'uses' => 'ResellerProfileController@edit'));
+	Route::any('reseller/profile/update', array('as' => 'profile_update', 'uses' => 'ResellerProfileController@update'));
 });
 
 Route::group(array('before' => 'global_admin'), function () {
@@ -1334,6 +1360,9 @@ Route::group(array('before' => 'guest'), function () {
     Route::get('customer/login', array("as" => "customerhome", "uses" => "HomeCustomerController@home"));
     Route::any('customer/dologin', 'HomeCustomerController@dologin');
     Route::get('customer/logout', array("as" => "logoutCustomer", "uses" => "HomeCustomerController@dologout"));
+	Route::get('reseller/login', array("as" => "resellerhome", "uses" => "HomeResellerController@home"));
+	Route::any('reseller/dologin', 'HomeResellerController@dologin');
+	Route::get('reseller/logout', array("as" => "logoutreseller", "uses" => "HomeResellerController@dologout"));
     Route::get('/login', array("as" => "home", "uses" => "HomeController@home"));
     Route::any('dologin', 'HomeController@dologin');
     Route::get('/forgot_password', array("as" => "home", "uses" => "HomeController@forgot_password"));
@@ -1345,6 +1374,7 @@ Route::group(array('before' => 'guest'), function () {
     Route::any('/doRegistration', "HomeController@doRegistration");
     Route::get('/super_admin', "HomeController@home");
 	Route::any('/activate_support_email', "TicketsGroupController@Activate_support_email");
+	Route::any('/report/export/{id}','ReportController@getdatagrid');
 	
     /*Route::get('/l/{id}', function($id){
 		$user = User::find($id);
@@ -1367,6 +1397,7 @@ Route::group(array('before' => 'guest'), function () {
 	exit;
     });*/
     Route::any('/invoice/{id}/cview', 'InvoicesController@cview'); //Customer View
+	Route::any('/invoice/{id}/invoice_chart', 'InvoicesController@invoice_management_chart'); //Customer View
     //Route::any('/invoice/{id}/cprint', 'InvoicesController@cpdf_view');
     Route::any('/invoice/{id}/cdownload_usage', 'InvoicesController@cdownloadUsageFile');
     Route::any('/invoice/display_invoice/{id}', 'InvoicesController@display_invoice');

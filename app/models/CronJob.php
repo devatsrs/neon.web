@@ -116,6 +116,15 @@ class CronJob extends \Eloquent {
         }elseif(isset($data['TemplateID'])&& trim($data['TemplateID']) == ''){
             $valid['message'] = Response::json(array("status" => "failed", "message" => "Please select Template"));
             return $valid;
+        }else if(isset($data['Setting']['StartDate']) &&  isset($data['Setting']['EndDate']) && trim($data['Setting']['StartDate']) == '' && trim($data['Setting']['EndDate']) != '' ) {
+            $valid['message'] = Response::json(array("status" => "failed", "message" => "Start date is required"));
+            return $valid;
+        }else if(isset($data['Setting']['StartDate']) &&  isset($data['Setting']['EndDate']) && trim($data['Setting']['StartDate']) != '' && trim($data['Setting']['EndDate']) == '' ) {
+            $valid['message'] = Response::json(array("status" => "failed", "message" => "End date is required"));
+            return $valid;
+        }else if(isset($data['Setting']['StartDate']) &&  isset($data['Setting']['EndDate']) && $data['Setting']['StartDate'] > $data['Setting']['EndDate']){
+            $valid['message'] = Response::json(array("status" => "failed", "message" => "Dates are invalid"));
+            return $valid;
         }
 
         $today = date('Y-m-d');
@@ -358,5 +367,27 @@ class CronJob extends \Eloquent {
         }
         return false;
 
+    }
+
+    public static function create_system_report_alert_job($CompanyID,$active){
+        $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('neonalerts');
+        $settings = CompanyConfiguration::get('NEON_ALERTS');
+        $JobTitle = 'Neon System Alerts';
+        $today = date('Y-m-d');
+        $cronJobs_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$CronJobCommandID])->count();
+        log::info('count - '.$cronJobs_count.'========='.$active);
+        if($cronJobs_count == 0 && !empty($settings)){
+            $cronjobdata = array();
+            $cronjobdata['CompanyID'] = $CompanyID;
+            $cronjobdata['CronJobCommandID'] = $CronJobCommandID;
+            $cronjobdata['Settings'] = $settings;
+            $cronjobdata['Status'] = 1;
+            $cronjobdata['created_by'] = User::get_user_full_name();
+            $cronjobdata['created_at'] =  $today;
+            $cronjobdata['JobTitle'] = $JobTitle;
+            CronJob::create($cronjobdata);
+        } else if($cronJobs_count == 1 && $active == 1){
+            CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$CronJobCommandID])->update(['Status'=>1]);
+        }
     }
 }

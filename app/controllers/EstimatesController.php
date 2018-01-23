@@ -109,11 +109,11 @@ class EstimatesController extends \BaseController {
      */
     public function create()
     {
-
+        $CompanyID = User::get_companyID();
         $accounts = Account::getAccountIDList();
-        $products = Product::getProductDropdownList();
-        $taxes 	  = TaxRate::getTaxRateDropdownIDListForInvoice();
-		$BillingClass = BillingClass::getDropdownIDList(User::get_companyID());
+        $products = Product::getProductDropdownList($CompanyID);
+        $taxes 	  = TaxRate::getTaxRateDropdownIDListForInvoice(0,$CompanyID);
+		$BillingClass = BillingClass::getDropdownIDList($CompanyID);
         //$gateway_product_ids = Product::getGatewayProductIDs();
         return View::make('estimates.create',compact('accounts','products','taxes','BillingClass'));
 
@@ -129,10 +129,11 @@ class EstimatesController extends \BaseController {
 		{
 			
             $Estimate 					= 	 Estimate::find($id);
+            $CompanyID = $Estimate->CompanyID;
 			$EstimateBillingClass 		=	 Estimate::GetEstimateBillingClass($Estimate);
             $EstimateDetail 			=	 EstimateDetail::where(["EstimateID"=>$id])->get();
             $accounts 					= 	 Account::getAccountIDList();
-            $products 					= 	 Product::getProductDropdownList();
+            $products 					= 	 Product::getProductDropdownList($CompanyID);
             $Account 					= 	 Account::where(["AccountID" => $Estimate->AccountID])->select(["AccountName","BillingEmail","CurrencyId"])->first(); //"TaxRateID","RoundChargesAmount","InvoiceTemplateID"
             $CurrencyID 				= 	 !empty($Estimate->CurrencyID)?$Estimate->CurrencyID:$Account->CurrencyId;
             $RoundChargesAmount 		= 	 get_round_decimal_places($Estimate->AccountID);
@@ -140,10 +141,10 @@ class EstimatesController extends \BaseController {
             $EstimateNumberPrefix 		= 	 ($EstimateTemplateID>0)?InvoiceTemplate::find($EstimateTemplateID)->EstimateNumberPrefix:'';
             $Currency 					= 	 Currency::find($CurrencyID);
             $CurrencyCode 				= 	 !empty($Currency)?$Currency->Code:'';
-            $CompanyName 				= 	 Company::getName();
-            $taxes 						= 	 TaxRate::getTaxRateDropdownIDListForInvoice();
+            $CompanyName 				= 	 Company::getName($CompanyID);
+            $taxes 						= 	 TaxRate::getTaxRateDropdownIDListForInvoice(0,$CompanyID);
 			$EstimateAllTax 			= 	 DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->where(["EstimateID"=>$id,"EstimateTaxType"=>1])->get();
-			$BillingClass				=    BillingClass::getDropdownIDList(User::get_companyID());
+			$BillingClass				=    BillingClass::getDropdownIDList($CompanyID);
             return View::make('estimates.edit', compact( 'id', 'Estimate','EstimateDetail','EstimateTemplateID','EstimateNumberPrefix',  'CurrencyCode','CurrencyID','RoundChargesAmount','accounts', 'products', 'taxes','CompanyName','Account','EstimateAllTax','BillingClass','EstimateBillingClass'));
         }
     }
@@ -194,7 +195,7 @@ class EstimatesController extends \BaseController {
             ///////////
             $rules = array(
                 'CompanyID' => 'required',
-                'AccountID' => 'required',
+                'AccountID' => 'required|integer|min:1',
                 'Address' => 'required',
 				'BillingClassID'=> 'required',
                 'EstimateNumber' => 'required|unique:tblEstimate,EstimateNumber,NULL,EstimateID,CompanyID,'.$companyID,
@@ -202,7 +203,7 @@ class EstimatesController extends \BaseController {
                 'CurrencyID' => 'required',
                 'GrandTotal' => 'required',
             );
-			$message = ['BillingClassID.required'=>'Billing Class field is required'];
+            $message = ['BillingClassID.required'=>'Billing Class field is required','AccountID'=>'Client field is required','AccountID.min'=>'Client field is required'];
 			
             $verifier = App::make('validation.presence');
             $verifier->setConnection('sqlsrv2');
@@ -214,8 +215,12 @@ class EstimatesController extends \BaseController {
 			{
                 return json_validator_response($validator);
             }
-            
-			try
+
+            if(empty($data["EstimateDetail"])) {
+                return json_encode(["status"=>"failed","message"=>"Please select atleast one item."]);
+            }
+
+            try
 			{	
                 DB::connection('sqlsrv2')->beginTransaction();
                 $Estimate = Estimate::create($EstimateData);
@@ -238,8 +243,12 @@ class EstimatesController extends \BaseController {
                         }
                         else if($field == "ProductID")
                         {
-                            $pid = explode('-',$value);
-                            $EstimateDetailData[$i][$field] = $pid[1];
+                            if(!empty($value)) {
+                                $pid = explode('-',$value);
+                                $EstimateDetailData[$i][$field] = $pid[1];
+                            } else {
+                                $EstimateDetailData[$i][$field] = "";
+                            }
                         }
 						else
 						{
@@ -330,7 +339,7 @@ class EstimatesController extends \BaseController {
 				 if(!empty($EstimateAllTaxRates)) { //estimate tax
                     DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateAllTaxRates);
                 }
-Log::info(print_r($EstimateDetailData,true));
+//Log::info(print_r($EstimateDetailData,true));
                 if (!empty($EstimateDetailData) && EstimateDetail::insert($EstimateDetailData))
 				{
                     $pdf_path = Estimate::generate_pdf($Estimate->EstimateID);
@@ -417,6 +426,10 @@ Log::info(print_r($EstimateDetailData,true));
                 return json_validator_response($validator);
             }
 
+            if(empty($data["EstimateDetail"])) {
+                return json_encode(["status"=>"failed","message"=>"Please select atleast one item."]);
+            }
+
             try
 			{
                 DB::connection('sqlsrv2')->beginTransaction();
@@ -448,8 +461,12 @@ Log::info(print_r($EstimateDetailData,true));
                                 }
                                 else if($field == "ProductID")
                                 {
-                                    $pid = explode('-',$value);
-                                    $EstimateDetailData[$i][$field] = $pid[1];
+                                    if(!empty($value)) {
+                                        $pid = explode('-',$value);
+                                        $EstimateDetailData[$i][$field] = $pid[1];
+                                    } else {
+                                        $EstimateDetailData[$i][$field] = "";
+                                    }
                                 }
 								else
 								{
@@ -540,7 +557,7 @@ Log::info(print_r($EstimateDetailData,true));
                             DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateAllTaxRates);
                         }
 
-                        if (EstimateDetail::insert($EstimateDetailData))
+                        if (!empty($EstimateDetailData) && EstimateDetail::insert($EstimateDetailData))
 						{
                             $pdf_path = Estimate::generate_pdf($Estimate->EstimateID);
 							
@@ -557,6 +574,11 @@ Log::info(print_r($EstimateDetailData,true));
 
                             DB::connection('sqlsrv2')->commit();
                             return Response::json(array("status" => "success", "message" => "Estimate Successfully Updated", 'LastID' => $Estimate->EstimateID));
+                        }
+                        else
+                        {
+                            DB::connection('sqlsrv2')->rollback();
+                            return Response::json(array("status" => "failed", "message" => "Problem Updating Estimate."));
                         }
                     }
 					else
@@ -1022,13 +1044,15 @@ Log::info(print_r($EstimateDetailData,true));
    
     public function  download_doc_file($id){
         $DocumentFile = Estimate::where(["EstimateID"=>$id])->pluck('Attachment');
+        $Estimate = Estimate::find($id);
+        $CompanyID = $Estimate->CompanyID;
         if(file_exists($DocumentFile)){
             download_file($DocumentFile);
         }else{
-            $FilePath =  AmazonS3::preSignedUrl($DocumentFile);
+            $FilePath =  AmazonS3::preSignedUrl($DocumentFile,$CompanyID);
             if(file_exists($FilePath)){
                 download_file($FilePath);
-            }elseif(is_amazon() == true){
+            }elseif(is_amazon($CompanyID) == true){
                 header('Location: '.$FilePath);
             }
         }
@@ -1124,7 +1148,7 @@ Log::info(print_r($EstimateDetailData,true));
 				$FilesArray = array();
 				foreach($files_array as $key=> $array_file_data){
 					$file_name  = basename($array_file_data['filepath']); 
-					$amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['EMAIL_ATTACHMENT']);
+					$amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['EMAIL_ATTACHMENT'],'',$Estimate->CompanyID);
 					$destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
 	
 					if (!file_exists($destinationPath)) {
