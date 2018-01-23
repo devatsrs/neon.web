@@ -23,7 +23,7 @@
                 </div>
                 <div class="form-group">
                     <label class="control-label">Language</label>
-                    {{ Form::select('templateLanguage', Translation::getLanguageDropdownIdList(), Translation::$default_lang_id, array("class"=>"form-control select2")) }}
+                    {{ddl_language("", "templateLanguage", Translation::$default_lang_id, "", "id")}}
                 </div>
                 <div class="form-group">
                     <label class="control-label">System Templates</label><br/>

@@ -151,7 +151,7 @@
                             <div class="form-group">
                                 <label for="field-1" class="control-label col-sm-2">Language</label>
                                 <div class="col-sm-4">
-                                    {{ Form::select('LanguageID', Translation::getLanguageDropdownIdList(1), Translation::$default_lang_id , array("class"=>"select2")) }}
+                                    {{ddl_language("", "LanguageID", Translation::$default_lang_id,"", "id", "yes")}}
                                 </div>
 
                                 <label for="field-1" class="control-label col-sm-2">Type</label>

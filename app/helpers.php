@@ -2503,3 +2503,25 @@ function set_cus_language($language){
         NeonCookie::setCookie('customer_alignment',"left",365);
     }
 }
+
+function ddl_language($id="",$name="",$defaultVal="",$class="",$valuetype="isocode",$selectOne=""){
+    $return = '<select id="'.$id.'" name="'.$name.'" class="ddl_language '.$class.'">';
+                if($selectOne!=""){
+                    $return .= '<option data-flag="" value="" >Select</option>';
+                }
+                foreach(Translation::getLanguageDropdownWithFlagList() as $key=>$value){
+                    $selected="";
+                    if($valuetype=="isocode"){
+                        $opt_value=$key;
+                    }else if($valuetype=="id"){
+                        $opt_value=$value["languageId"];
+                    }
+                    if($defaultVal==$opt_value){
+                        $selected="selected";
+                    }
+                    $return .= '<option data-flag="'.$value["languageFlag"].'" value="'.$opt_value.'" '.$selected.' >'.$value["languageName"].'</option>';
+                }
+    $return .= '</select>';
+
+    return $return;
+}

@@ -54,11 +54,11 @@ class Translation extends \Eloquent {
             //if the cache doesn't have it yet
             $dd = Translation::join('tblLanguage', 'tblLanguage.LanguageID', '=', 'tblTranslation.LanguageID')
                 ->whereRaw('tblLanguage.LanguageID=tblTranslation.LanguageID')
-                ->select("tblLanguage.ISOCode", "tblTranslation.Language", "tblLanguage.flag")->get();
+                ->select("tblLanguage.ISOCode", "tblTranslation.Language", "tblLanguage.flag", "tblLanguage.LanguageID")->get();
 
             $dropdown = array();
             foreach ($dd as $key => $value) {
-                $dropdown[$value->ISOCode] = ["languageName"=>$value->Language, "languageFlag"=>$value->flag];
+                $dropdown[$value->ISOCode] = ["languageName"=>$value->Language, "languageFlag"=>$value->flag, "languageId"=>$value->LanguageID];
             }
             self::$cache['languageflag_dropdown1_cache'] = $dropdown;
             //cache the database results so we won't need to fetch them again for 10 minutes at least
@@ -67,14 +67,5 @@ class Translation extends \Eloquent {
         }
 
         return self::$cache['languageflag_dropdown1_cache'];
-    }
-    public static function getLanguageDropdownIdList($select=0){
-        $dropdown = Translation::join('tblLanguage', 'tblLanguage.LanguageID', '=', 'tblTranslation.LanguageID')
-            ->whereRaw('tblLanguage.LanguageID=tblTranslation.LanguageID')
-            ->select("tblLanguage.LanguageID", "tblTranslation.Language")->lists("Language", "LanguageID");
-        if($select==1) {
-            $dropdown = array("" => "Select") + $dropdown;
-        }
-        return $dropdown;
     }
 }

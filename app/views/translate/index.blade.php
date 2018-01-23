@@ -20,8 +20,7 @@
                     <div class="panel-body">
                         <label class="col-sm-1 control-label">Language</label>
                         <div class="col-sm-3">
-                            {{ Form::select('user_language', Translation::getLanguageDropdownList(), "" , array("class"=>"select2","id"=>"language")) }}
-
+                            {{ddl_language("language", "user_language", Translation::$default_lang_ISOcode)}}
                         </div>
                          <div style="text-align: right;padding:10px 0 ">
                             <a class="btn btn-primary btn-sm btn-icon icon-left" id="set_new_label" href="javascript:;" data-toggle="modal" data-target="#set_new_system_name_model">

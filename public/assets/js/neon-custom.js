@@ -1561,6 +1561,7 @@ toastr_opts = {
             });
         });
         $("#user_language.language-selector .dropdown-toggle img").attr("src",$("#user_language ul li.active img").attr("src"));
+        $("#user_language.language-selector .dropdown-toggle span").html($("#user_language ul li.active span").html());
         if(typeof customer_alignment!="undefined" && customer_alignment=="right"){
             $('.pull-right, .pull-left').addClass('flip');
         }
@@ -1588,12 +1589,21 @@ toastr_opts = {
 			  value: 0
 			});
         }
-
+    $(".ddl_language").select2({
+        formatResult: format,
+        formatSelection: format,
+        escapeMarkup: function(m) { return m; }
+    });
 })(jQuery, window);
 
-
 /* Functions */
-
+function format(state) {
+    var img = $(state.element).data('flag');
+    if(img==""){
+        return state.text;
+    }
+    return "<img class='lang_flag' src='"+ baseurl+ "/assets/images/flag/" + img + "' />" + state.text;
+}
 function buildselect2(el){
     var $this = $(el),
         opts = {

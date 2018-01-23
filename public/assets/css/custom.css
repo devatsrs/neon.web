@@ -3176,3 +3176,7 @@ button.btn.btn-xs.small_icons{
 select#user_language option {
     color: black;
 }
+.lang_flag{
+    width: 30px;
+    margin-right: 10px;
+}

@@ -4,9 +4,7 @@ class TranslateController extends \BaseController {
 
     public function index()
     {
-        $all_langs =Translation::getLanguageDropdownList();
-
-        return View::make('translate.index',compact("all_langs"));
+        return View::make('translate.index');
     }
 
     public function changeLanguage($language)

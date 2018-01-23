@@ -40,7 +40,7 @@
             ?>
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-close-others="true" aria-expanded="false">
                 <img src="" width="25" />
-                <span>{{strtoupper($cus_language)}}</span>
+                <span></span>
                 <i class="entypo-down-open-mini"></i>
             </a>
             <ul class="dropdown-menu pull-right">
