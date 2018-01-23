@@ -132,7 +132,7 @@
                                                         $selected_dimension = $dimensions[$report_settings['Cube']]['Account'][$selectedColumn];
                                                     }
                                                     ?>
-                                                        <span class="col-name">{{isset($setting_rename[$selectedColumn])?$setting_rename[$selectedColumn]:$selected_dimension}}</span>
+                                                        <span class="col-name">{{$selected_dimension}}</span>
                                                         (<span class="col-agg">
                                                             @if(isset($setting_ag[$selectedColumn]))
                                                                 {{$setting_ag[$selectedColumn]}}
@@ -182,7 +182,7 @@
                                                         $selected_measures = $dimensions[$report_settings['Cube']]['Account'][$selectedRow];
                                                     }
                                                     ?>
-                                                        <span class="col-name">{{isset($setting_rename[$selectedRow])?$setting_rename[$selectedRow]:$selected_measures}}</span>
+                                                        <span class="col-name">{{$selected_measures}}</span>
                                                         (<span class="col-agg">
                                                         @if(isset($setting_ag[$selectedRow]))
                                                             {{$setting_ag[$selectedRow]}}

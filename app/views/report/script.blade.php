@@ -155,7 +155,7 @@
             }
             setting_rename[rename_col_act_val] = rename_col_val;
             var update_col = $('.droppable').find('[data-val="'+rename_col_act_val+'"]').find('.dropdown-toggle');
-            update_col.html('<span><i class="fa fa-arrows"></i> <span class="col-name">'+rename_col_val+'</span>( <span class="col-agg">'+update_col.find('.col-agg').text()+'</span> )</span>');
+            update_col.html('<span><i class="fa fa-arrows"></i> <span class="col-name">'+update_col.find('.col-name').text()+'</span>( <span class="col-agg">'+update_col.find('.col-agg').text()+'</span> )</span>');
             $('#hidden_setting_rename').val(JSON.stringify(setting_rename));
             $('#rename-column-modal').modal('hide');
             reload_table();
