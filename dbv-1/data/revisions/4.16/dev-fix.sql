@@ -2696,7 +2696,7 @@ CREATE PROCEDURE `prc_WSGenerateRateTable`(
 								@prev_RowCode  := vr.RowCode,
 								@prev_Rate  := vr.Rate
 							from (
-										 select tmpvr.*
+										 select distinct tmpvr.*
 										 from tmp_VendorRate_  tmpvr
 											 inner JOIN tmp_Raterules_ rr ON rr.RateRuleId = v_rateRuleId_ and
 																											 (
@@ -2704,7 +2704,7 @@ CREATE PROCEDURE `prc_WSGenerateRateTable`(
 																												 OR
 																												 ( rr.description != '' AND tmpvr.Description LIKE (REPLACE(rr.description,'*', '%%')) )
 																											 )
-											 inner JOIN tmp_Raterules_dup rr2 ON rr2.RateRuleId > v_rateRuleId_ and
+											 left JOIN tmp_Raterules_dup rr2 ON rr2.RateRuleId > v_rateRuleId_ and
 																											 (
 																												 ( rr2.code != '' AND tmpvr.RowCode LIKE (REPLACE(rr2.code,'*', '%%')) )
 																												 OR
@@ -2755,7 +2755,7 @@ CREATE PROCEDURE `prc_WSGenerateRateTable`(
 								@prev_Rate := vr.Rate
 							from (
 
-								select tmpvr.*
+								select distinct tmpvr.*
 								from tmp_VendorRate_  tmpvr
 									inner JOIN tmp_Raterules_ rr ON rr.RateRuleId = v_rateRuleId_ and
 																									(
@@ -2763,7 +2763,7 @@ CREATE PROCEDURE `prc_WSGenerateRateTable`(
 																										OR
 																										( rr.description != '' AND tmpvr.Description LIKE (REPLACE(rr.description,'*', '%%')) )
 																									)
-									inner JOIN tmp_Raterules_dup rr2 ON rr2.RateRuleId > v_rateRuleId_ and
+									left JOIN tmp_Raterules_dup rr2 ON rr2.RateRuleId > v_rateRuleId_ and
 																											(
 																												( rr2.code != '' AND tmpvr.RowCode LIKE (REPLACE(rr2.code,'*', '%%')) )
 																												OR
@@ -3612,7 +3612,7 @@ CREATE PROCEDURE `prc_WSGenerateRateTableWithPrefix`(
 								@prev_RowCode  := vr.RowCode,
 								@prev_Rate  := vr.Rate
 							from (
-										 select tmpvr.*
+										 select distinct tmpvr.*
 										 from tmp_VendorRate_  tmpvr
 											 inner JOIN tmp_Raterules_ rr ON rr.RateRuleId = v_rateRuleId_ and
 																											 (
@@ -3620,7 +3620,7 @@ CREATE PROCEDURE `prc_WSGenerateRateTableWithPrefix`(
 																												 OR
 																												 ( rr.description != '' AND tmpvr.Description LIKE (REPLACE(rr.description,'*', '%%')) )
 																											 )
-											 inner JOIN tmp_Raterules_dup rr2 ON rr2.RateRuleId > v_rateRuleId_ and
+											 left JOIN tmp_Raterules_dup rr2 ON rr2.RateRuleId > v_rateRuleId_ and
 																													 (
 																														 ( rr2.code != '' AND tmpvr.RowCode LIKE (REPLACE(rr2.code,'*', '%%')) )
 																														 OR
@@ -3670,7 +3670,7 @@ CREATE PROCEDURE `prc_WSGenerateRateTableWithPrefix`(
 								@prev_Preference := vr.Preference,
 								@prev_Rate := vr.Rate
 							from (
-										 select tmpvr.*
+										 select distinct tmpvr.*
 										 from tmp_VendorRate_  tmpvr
 											 inner JOIN tmp_Raterules_ rr ON rr.RateRuleId = v_rateRuleId_ and
 																											 (
@@ -3678,7 +3678,7 @@ CREATE PROCEDURE `prc_WSGenerateRateTableWithPrefix`(
 																												 OR
 																												 ( rr.description != '' AND tmpvr.Description LIKE (REPLACE(rr.description,'*', '%%')) )
 																											 )
-											 inner JOIN tmp_Raterules_dup rr2 ON rr2.RateRuleId > v_rateRuleId_ and
+											 left JOIN tmp_Raterules_dup rr2 ON rr2.RateRuleId > v_rateRuleId_ and
 																													 (
 																														 ( rr2.code != '' AND tmpvr.RowCode LIKE (REPLACE(rr2.code,'*', '%%')) )
 																														 OR
