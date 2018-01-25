@@ -222,7 +222,7 @@ class ReportVendorCDR extends \Eloquent{
                         $whereRaw_measure  = $measure_name ." Between ". (double)$filter['number_agg_range_min']." AND ".(double)$filter['number_agg_range_max'];
                         break;
                     default :
-                        $whereRaw_measure = $measure_name." ". $filter['number_sign'] ." ". str_replace('*', '%', $filter['number_agg_val']);
+                        $whereRaw_measure = $measure_name." ". $filter['number_sign'] ." ". str_replace('*', '%', (double)$filter['number_agg_val']);
                         break;
                 }
 
