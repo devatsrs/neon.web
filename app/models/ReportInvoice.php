@@ -206,7 +206,12 @@ class ReportInvoice extends \Eloquent{
                 $query_common->whereRaw(self::$database_columns[$key].' like "'.str_replace('*', '%', $filter['wildcard_match_val']).'"');
                 self::$dateFilterString[] = self::$database_payment_columns[$key].' like "'.str_replace('*', '%', $filter['wildcard_match_val']).'"';
             } else if (in_array($key,array_keys(Report::$measures[$data['Cube']]))) {
-                $measure_name  = $measure_name2 = self::get_measure_name($key,'');
+                if(in_array('AccountID',$data['column']) || in_array('AccountID',$data['row'])){
+                    $extra_query_2 = 'tblPayment.AccountID = tblInvoice.AccountID';
+                }else{
+                    $extra_query_2 = 'tblPayment.CompanyID = '.$CompanyID;
+                }
+                $measure_name  = $measure_name2 = self::get_measure_name($key,$extra_query_2);
                 if($filter['number_agg'] ==  'count_distinct' ){
                     $aggregator2 = 'distinct';
                     $aggregator = 'count';
