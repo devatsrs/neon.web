@@ -2530,10 +2530,16 @@ function get_col_full_name($setting_ag,$Table,$colname){
 
 function get_measure_name($colname,$Table){
     $measure_name = '';
+    $col_TotalCharges = 'TotalCharges';
+    $col_TotalCost = 'TotalCost';
+    if (strpos($Table, 'Vendor') !== false) {
+        $col_TotalCharges = 'TotalSales';
+        $col_TotalCost = 'TotalCharges';
+    }
     if($colname == 'Margin'){
-        $measure_name = "COALESCE(SUM(".$Table.".TotalCharges),0) - COALESCE(SUM(".$Table.".TotalCost),0)";
+        $measure_name = "COALESCE(SUM(".$Table.".".$col_TotalCharges."),0) - COALESCE(SUM(".$Table.".".$col_TotalCost."),0)";
     }else if($colname == 'MarginPercentage'){
-        $measure_name = "(COALESCE(SUM(".$Table.".TotalCharges),0) - COALESCE(SUM(".$Table.".TotalCost),0)) / SUM(".$Table.".TotalCharges)*100 ";
+        $measure_name = "(COALESCE(SUM(".$Table.".".$col_TotalCharges."),0) - COALESCE(SUM(".$Table.".".$col_TotalCost."),0)) / SUM(".$Table.".".$col_TotalCharges.")*100 ";
     }else if($colname == 'ACD'){
         $measure_name = "IF(SUM(".$Table.".NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(".$Table.".TotalBilledDuration),0)/SUM(".$Table.".NoOfCalls)),0) ";
     }else if($colname == 'ASR'){
