@@ -198,9 +198,9 @@ class ReportController extends \BaseController {
                 $local_file = $temp_path . $file2;
                 file_put_contents($local_htmlfile, $table);
                 if (getenv('APP_OS') == 'Linux') {
-                    exec(base_path() . '/wkhtmltox/bin/wkhtmltopdf "' . $local_htmlfile . '" "' . $local_file . '"', $output);
+                    exec(base_path() . '/wkhtmltox/bin/wkhtmltopdf -O landscape "' . $local_htmlfile . '" "' . $local_file . '"', $output);
                 } else {
-                    exec(base_path() . '/wkhtmltopdf/bin/wkhtmltopdf.exe "' . $local_htmlfile . '" "' . $local_file . '"', $output);
+                    exec(base_path() . '/wkhtmltopdf/bin/wkhtmltopdf.exe -O landscape "' . $local_htmlfile . '" "' . $local_file . '"', $output);
                 }
                 download_file($local_file);
             }else if($Type == Report::PNG) {

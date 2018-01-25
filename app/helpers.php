@@ -2527,3 +2527,29 @@ function get_col_full_name($setting_ag,$Table,$colname){
 
     return $aggregator."(".$aggregator2." ".$Table. $colname . ") as " . $colname;
 }
+
+function get_measure_name($colname,$Table){
+    $measure_name = '';
+    if($colname == 'Margin'){
+        $measure_name = "COALESCE(SUM(".$Table.".TotalCharges),0) - COALESCE(SUM(".$Table.".TotalCost),0)";
+    }else if($colname == 'MarginPercentage'){
+        $measure_name = "(COALESCE(SUM(".$Table.".TotalCharges),0) - COALESCE(SUM(".$Table.".TotalCost),0)) / SUM(".$Table.".TotalCharges)*100 ";
+    }else if($colname == 'ACD'){
+        $measure_name = "IF(SUM(".$Table.".NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(".$Table.".TotalBilledDuration),0)/SUM(".$Table.".NoOfCalls)),0) ";
+    }else if($colname == 'ASR'){
+        $measure_name = "SUM(".$Table.".NoOfCalls)/(SUM(".$Table.".NoOfCalls)+SUM(".$Table.".NoOfFailCalls))*100 ";
+    }else if($colname == 'BilledDuration'){
+        $measure_name = "ROUND(COALESCE(SUM(".$Table.".TotalBilledDuration),0)/ 60,0) ";
+    }else if($colname == 'TotalDuration2'){
+        $measure_name = "ROUND(COALESCE(SUM(".$Table.".TotalDuration),0)/ 60,0)";
+    }else if($colname == 'UsageDetailID'){
+        $measure_name = "COUNT(".$Table.".UsageDetailID) ";
+    }else if($colname == 'VendorCDRID'){
+        $measure_name = "COUNT(".$Table.".VendorCDRID) ";
+    }else if($colname == 'duration2'){
+        $measure_name = "ROUND(COALESCE(SUM(".$Table.".duration),0)/ 60,0) ";
+    }else if($colname == 'duration1'){
+        $measure_name ="ROUND(COALESCE(SUM(".$Table.".billed_duration),0)/ 60,0) ";
+    }
+    return $measure_name;
+}
