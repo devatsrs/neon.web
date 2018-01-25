@@ -270,9 +270,9 @@ class Report extends \Eloquent {
                 'VatNumber'=>'VatNumber',
                 'TimeZone'=>'TimeZone',
                 'tags'=>'Tag',
+                'Owner'=>'Account Manager',
+                'CurrencyID' =>'Currency Code',
             ),
-            'Owner'=>'Account Manager',
-            'CurrencyID' =>'Currency Code',
         ),
     );
 
