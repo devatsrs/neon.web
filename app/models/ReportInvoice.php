@@ -83,11 +83,7 @@ class ReportInvoice extends \Eloquent{
                 $final_query->groupby($columnname);
             }
         }
-        if(in_array('AccountID',$data['column']) || in_array('AccountID',$data['row'])){
-            $extra_query_2 = 'tblPayment.AccountID = tblInvoice.AccountID';
-        }else{
-            $extra_query_2 = 'tblPayment.CompanyID = '.$CompanyID;
-        }
+
 
         //$data['row'] = array_merge($data['row'], $data['column']);
         foreach ($data['sum'] as $colname) {
@@ -106,7 +102,7 @@ class ReportInvoice extends \Eloquent{
             }else if(self::$InvoiceDetailJoin == false && in_array($colname,array('GrandTotal'))){
                 $select_columns[] = DB::Raw("SUM(tblInvoice." . $colname . ") as " . $colname);
             }*/
-            $measure_name  = self::get_measure_name($colname,$extra_query_2);
+            $measure_name  = self::get_measure_name($colname,$data,$CompanyID);
             if(!empty($measure_name)) {
                 $select_columns[] = DB::Raw($measure_name." as " . $colname);
             }
@@ -206,12 +202,7 @@ class ReportInvoice extends \Eloquent{
                 $query_common->whereRaw(self::$database_columns[$key].' like "'.str_replace('*', '%', $filter['wildcard_match_val']).'"');
                 self::$dateFilterString[] = self::$database_payment_columns[$key].' like "'.str_replace('*', '%', $filter['wildcard_match_val']).'"';
             } else if (in_array($key,array_keys(Report::$measures[$data['Cube']]))) {
-                if(in_array('AccountID',$data['column']) || in_array('AccountID',$data['row'])){
-                    $extra_query_2 = 'tblPayment.AccountID = tblInvoice.AccountID';
-                }else{
-                    $extra_query_2 = 'tblPayment.CompanyID = '.$CompanyID;
-                }
-                $measure_name  = $measure_name2 = self::get_measure_name($key,$extra_query_2);
+                $measure_name  = $measure_name2 = self::get_measure_name($key,$data,$CompanyID);
                 if($filter['number_agg'] ==  'count_distinct' ){
                     $aggregator2 = 'distinct';
                     $aggregator = 'count';
@@ -247,18 +238,27 @@ class ReportInvoice extends \Eloquent{
         return $query_common;
     }
 
-    public static function get_measure_name($colname,$extra_query_2){
+    public static function get_measure_name($colname,$data,$CompanyID){
         $measure_name = '';
+        $extra_query_3 = '';
+        if(in_array('AccountID',$data['column']) || in_array('AccountID',$data['row'])){
+            $extra_query_2 = 'tblPayment.AccountID = tblInvoice.AccountID';
+        }else{
+            $extra_query_2 = 'tblPayment.CompanyID = '.$CompanyID;
+        }
+        if(in_array('CurrencyID',$data['column']) || in_array('CurrencyID',$data['row']) || in_array('CurrencyID',$data['filter'])){
+            $extra_query_3 = ' AND tblPayment.CurrencyID = tblInvoice.CurrencyID';
+        }
         if($colname == 'TotalTax' && self::$InvoiceTaxRateJoin == true){
             $measure_name = "SUM(tblInvoiceTaxRate.TaxAmount) ";
         }else if($colname == 'GrandTotal' && self::$InvoiceDetailJoin == true){
             $measure_name = "SUM(tblInvoiceDetail.LineTotal) ";
         }else if($colname == 'PaidTotal'){
             $extra_query = !empty(self::$dateFilterString)?implode(' AND ',self::$dateFilterString):' 1=1 ';
-            $measure_name = " (SELECT SUM(Amount) FROM tblPayment WHERE (FIND_IN_SET(tblPayment.InvoiceID,group_concat(tblInvoice.InvoiceID)) OR (tblPayment.InvoiceID =0 AND tblPayment.CurrencyID = tblInvoice.CurrencyID AND ".$extra_query.") ) AND $extra_query_2 AND Status='Approved' AND Recall = '0') ";
+            $measure_name = " (SELECT SUM(Amount) FROM tblPayment WHERE (FIND_IN_SET(tblPayment.InvoiceID,group_concat(tblInvoice.InvoiceID)) OR (tblPayment.InvoiceID =0 ".$extra_query_3." AND ".$extra_query.") ) AND $extra_query_2 AND Status='Approved' AND Recall = '0') ";
         }else if($colname == 'OutStanding'){
             $extra_query = !empty(self::$dateFilterString)?implode(' AND ',self::$dateFilterString):' 1=1 ';
-            $measure_name = "(SUM(tblInvoice.GrandTotal) - (SELECT SUM(Amount) FROM tblPayment WHERE ( FIND_IN_SET(tblPayment.InvoiceID,group_concat(tblInvoice.InvoiceID)) OR (tblPayment.InvoiceID =0 AND tblPayment.CurrencyID = tblInvoice.CurrencyID AND ".$extra_query.")) AND $extra_query_2 AND Status='Approved' AND Recall = '0'))";
+            $measure_name = "(SUM(tblInvoice.GrandTotal) - (SELECT SUM(Amount) FROM tblPayment WHERE ( FIND_IN_SET(tblPayment.InvoiceID,group_concat(tblInvoice.InvoiceID)) OR (tblPayment.InvoiceID =0 ".$extra_query_3." AND ".$extra_query.")) AND $extra_query_2 AND Status='Approved' AND Recall = '0'))";
         }else if(self::$InvoiceTaxRateJoin == false && in_array($colname,array('TotalTax'))){
             $measure_name = "SUM(tblInvoice." . $colname . ")";
         }else if(self::$InvoiceDetailJoin == false && in_array($colname,array('GrandTotal'))){
