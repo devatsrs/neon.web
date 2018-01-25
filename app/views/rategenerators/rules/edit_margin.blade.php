@@ -114,7 +114,7 @@
                     <div class="modal-body">
 
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-6">
 
                                 <div class="form-group">
                                     <label for="field-4" class="control-label">Min Rate</label>
@@ -122,21 +122,21 @@
                                 </div>
 
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Max Rate</label>
                                     <input type="text" name="MaxRate" class="form-control" id="field-5" placeholder="">
                                 </div>
 
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Add Margin <span class="label label-info popover-primary" data-original-title="Example" data-content="If you want to add percentage value enter i.e. 10p for 10% percentage value" data-placement="bottom" data-trigger="hover" data-toggle="popover">?</span></label>
                                     <input type="text" name="AddMargin" class="form-control" id="field-5" placeholder="">
                                 </div>
 
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Fixed Value</label>
                                     <input type="text" name="FixedValue" class="form-control" id="field-5" placeholder="">
