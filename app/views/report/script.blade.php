@@ -90,7 +90,7 @@
         // Let the Measures be droppable, accepting the Dimension items
         $Filter.droppable({
             accept: function(d) {
-                if(d.hasClass("dimension")){
+                if(d.hasClass("dimension")|| d.hasClass("measures")){
                     return true;
                 }
             },
@@ -118,6 +118,24 @@
         $($Filter).on('click', '.dimension', function(e) {
             show_filter($(this));
         });
+        $($Filter).on('click', '.measures', function(e) {
+            show_filter($(this));
+        });
+
+        $("#add-new-filter-form [name='number_sign']").on('change', function () {
+            if($(this).val() == 'range'){
+                $('.number_filter_range').show();
+                $('.number_agg_val').hide();
+            }else if($(this).val() == 'null' || $(this).val() == 'not_null') {
+                $('.number_filter_range').hide();
+                $('.number_agg_val').hide();
+            }else{
+                $('.number_filter_range').hide();
+                $('.number_agg_val').show();
+
+            }
+        });
+        $("#add-new-filter-form [name='number_sign']").trigger('change');
 
         $('body').on('click', '.column_function', function(e) {
             e.preventDefault();
@@ -133,7 +151,7 @@
                 return false;
             }
 
-            column_element.html('<span><i class="fa fa-arrows"></i><span class="col-name">'+column_element.find('.col-name').text()+'</span>( <span class="col-agg">'+column_function[column_action]+'</span> )</span>');
+            column_element.html('<span><i class="fa fa-arrows"></i><span class="col-name"> '+column_element.find('.col-name').text()+'</span>( <span class="col-agg">'+column_function[column_action]+'</span> )</span>');
             agg_settings[li_element.attr('data-val')] = column_action;
             $('#hidden_setting_ag').val(JSON.stringify(agg_settings));
             reload_table();
@@ -155,7 +173,7 @@
             }
             setting_rename[rename_col_act_val] = rename_col_val;
             var update_col = $('.droppable').find('[data-val="'+rename_col_act_val+'"]').find('.dropdown-toggle');
-            update_col.html('<span><i class="fa fa-arrows"></i> <span class="col-name">'+update_col.find('.col-name').text()+'</span>( <span class="col-agg">'+update_col.find('.col-agg').text()+'</span> )</span>');
+            update_col.html('<span><i class="fa fa-arrows"></i> <span class="col-name"> '+update_col.find('.col-name').text()+'</span>( <span class="col-agg">'+update_col.find('.col-agg').text()+'</span> )</span>');
             $('#hidden_setting_rename').val(JSON.stringify(setting_rename));
             $('#rename-column-modal').modal('hide');
             reload_table();
@@ -170,9 +188,9 @@
             element.addClass('dropdown');
             if($droppable.attr('id') == 'Row_Drop' || $droppable.attr('id') == 'Columns_Drop') {
                 if (element.hasClass('measures')) {
-                    var html = '<a class="dropdown-toggle" data-toggle="dropdown" data-text="' + element.text() + '"><span><i class="fa fa-arrows"></i><span class="col-name">' + element.text() + '</span>( <span class="col-agg">Sum</span> )</span></a>';
+                    var html = '<a class="dropdown-toggle" data-toggle="dropdown" data-text="' + element.text() + '"><span><i class="fa fa-arrows"></i><span class="col-name"> ' + element.text() + '</span>( <span class="col-agg">Sum</span> )</span></a>';
                 } else {
-                    var html = '<a class="dropdown-toggle" data-toggle="dropdown" data-text="' + element.text() + '"><span><i class="fa fa-arrows"></i><span class="col-name">' + element.text() + '</span>( <span class="col-agg">Actual</span> )</span></a>';
+                    var html = '<a class="dropdown-toggle" data-toggle="dropdown" data-text="' + element.text() + '"><span><i class="fa fa-arrows"></i><span class="col-name"> ' + element.text() + '</span>( <span class="col-agg">Actual</span> )</span></a>';
                 }
                 if (html.indexOf('dropdown-menu') === -1) {
                     if (element.hasClass('measures')) {
@@ -366,6 +384,11 @@
             $('#hidden_filter_col').val(col_val);
             var data = $("#report-row-col").serialize();
             var date_fields = {{json_encode(Report::$date_fields)}};
+            var is_measures = 0;
+            if($items.hasClass('measures')){
+                is_measures = 1;
+            }
+
             if(filter_settings[col_val]) {
                 var filter_settings_array = filter_settings[col_val];
             }
@@ -373,16 +396,28 @@
             if($.inArray(col_val,date_fields) > -1){
                 $(".filter_data_table").hide();
                 $(".filter_data_wildcard").hide();
+                $(".number_filter").hide();
                 $("li.date_filters a").trigger('click');
                 $(".date_filters").show()
                 if(typeof filter_settings_array != 'undefined') {
                     $("#date_filter [name='start_date']").val(filter_settings_array.start_date);
                     $("#date_filter [name='end_date']").val(filter_settings_array.end_date);
                 }
+            }else if(is_measures == 1){
+                $(".filter_data_table").hide();
+                $(".filter_data_wildcard").hide();
+                $(".date_filters").hide();
+                $(".number_filter").show();
+                $("li.number_filter a").trigger('click');
+                if(typeof filter_settings_array != 'undefined') {
+                    $("#wildcard [name='wildcard_match_val']").val(filter_settings_array.wildcard_match_val);
+                }
+
             }else{
                 $(".filter_data_table").show();
                 $(".filter_data_wildcard").show();
                 $("li.filter_data_table a").trigger('click');
+                $(".number_filter").hide();
                 $(".date_filters").hide();
                 if(typeof filter_settings_array != 'undefined') {
                     $("#wildcard [name='wildcard_match_val']").val(filter_settings_array.wildcard_match_val);

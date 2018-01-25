@@ -12,6 +12,7 @@ class ReportVendorCDR extends \Eloquent{
     public static function generateSummaryQuery($CompanyID, $data, $filters){
         $setting_ag = json_decode($data['setting_ag'],true);
         $setting_af_re = check_apply_limit($setting_ag);
+        $measure_filter = count(array_intersect($data['filter'],array_keys(Report::$measures[$data['Cube']])));
         $orders_columns = array();
         if (count($data['row'])) {
             $query_distinct = self::commonCDRQuery($CompanyID, $data, $filters,false);
@@ -31,12 +32,15 @@ class ReportVendorCDR extends \Eloquent{
             }
             foreach ($data['row'] as $column) {
                 if(isset(self::$database_columns[$column])){
-                    $query_distinct->orderby($column);
+                    $columnname = $column;
                     $select_columns[] = DB::raw(self::$database_columns[$column].' as '.$column) ;
                 }else {
                     $columnname = report_col_name($column);
-                    $query_distinct->orderby($columnname);
                     $select_columns[] = $columnname;
+                }
+                $query_distinct->orderby($columnname);
+                if($measure_filter){
+                    $query_distinct->groupby($columnname);
                 }
             }
             $query_distinct = $query_distinct->distinct();
@@ -70,19 +74,10 @@ class ReportVendorCDR extends \Eloquent{
 
 
         foreach ($data['sum'] as $colname) {
-            if($colname == 'Margin'){
-                $select_columns[] = DB::Raw("COALESCE(SUM(".self::$DetailTable.".TotalSales),0) - COALESCE(SUM(".self::$DetailTable.".TotalCharges),0) as " . $colname);
-            }else if($colname == 'MarginPercentage'){
-                $select_columns[] = DB::Raw("(COALESCE(SUM(".self::$DetailTable.".TotalSales),0) - COALESCE(SUM(".self::$DetailTable.".TotalCharges),0)) / SUM(".self::$DetailTable.".TotalSales)*100 as " . $colname);
-            }else if($colname == 'ACD'){
-                $select_columns[] = DB::Raw("IF(SUM(".self::$DetailTable.".NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(".self::$DetailTable.".TotalBilledDuration),0)/SUM(".self::$DetailTable.".NoOfCalls)),0) as " . $colname);
-            }else if($colname == 'ASR'){
-                $select_columns[] = DB::Raw("SUM(".self::$DetailTable.".NoOfCalls)/(SUM(".self::$DetailTable.".NoOfCalls)+SUM(".self::$DetailTable.".NoOfFailCalls))*100 as " . $colname);
-            }else if($colname == 'BilledDuration'){
-                $select_columns[] = DB::Raw("ROUND(COALESCE(SUM(".self::$DetailTable.".TotalBilledDuration),0)/ 60,0) as " . $colname);
-            }else if($colname == 'TotalDuration2'){
-                $select_columns[] = DB::Raw("ROUND(COALESCE(SUM(".self::$DetailTable.".TotalDuration),0)/ 60,0) as " . $colname);
-            }else{
+            $measure_name  = get_measure_name($colname,self::$DetailTable);
+            if(!empty($measure_name)) {
+                $select_columns[] = DB::Raw($measure_name." as " . $colname);
+            } else {
                 $select_columns[] = DB::Raw(get_col_full_name($setting_ag,self::$DetailTable,$colname));
             }
             $orders_columns[]  = $colname;
@@ -109,19 +104,10 @@ class ReportVendorCDR extends \Eloquent{
             }
 
             foreach ($data['sum'] as $colname) {
-                if($colname == 'Margin'){
-                    $select_columns2[] = DB::Raw("COALESCE(SUM(".self::$DetailTable.".TotalSales),0) - COALESCE(SUM(".self::$DetailTable.".TotalCharges),0) as " . $colname);
-                }else if($colname == 'MarginPercentage'){
-                    $select_columns2[] = DB::Raw("(COALESCE(SUM(".self::$DetailTable.".TotalSales),0) - COALESCE(SUM(".self::$DetailTable.".TotalCharges),0)) / SUM(".self::$DetailTable.".TotalSales)*100 as " . $colname);
-                }else if($colname == 'ACD'){
-                    $select_columns2[] = DB::Raw("IF(SUM(".self::$DetailTable.".NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(".self::$DetailTable.".TotalBilledDuration),0)/SUM(".self::$DetailTable.".NoOfCalls)),0) as " . $colname);
-                }else if($colname == 'ASR'){
-                    $select_columns2[] = DB::Raw("SUM(".self::$DetailTable.".NoOfCalls)/(SUM(".self::$DetailTable.".NoOfCalls)+SUM(".self::$DetailTable.".NoOfFailCalls))*100 as " . $colname);
-                }else if($colname == 'BilledDuration'){
-                    $select_columns2[] = DB::Raw("ROUND(COALESCE(SUM(".self::$DetailTable.".TotalBilledDuration),0)/ 60,0) as " . $colname);
-                }else if($colname == 'TotalDuration2'){
-                    $select_columns2[] = DB::Raw("ROUND(COALESCE(SUM(".self::$DetailTable.".TotalDuration),0)/ 60,0) as " . $colname);
-                }else{
+                $measure_name  = get_measure_name($colname,self::$DetailTable);
+                if(!empty($measure_name)) {
+                    $select_columns2[] = DB::Raw($measure_name." as " . $colname);
+                } else {
                     $select_columns2[] = DB::Raw(get_col_full_name($setting_ag,self::$DetailTable,$colname));
                 }
             }
@@ -212,6 +198,38 @@ class ReportVendorCDR extends \Eloquent{
                 }
                 if (!empty($filter['end_date'])) {
                     $query_common->where('date', '<=', str_replace('*', '%', $filter['end_date']));
+                }
+            } else if (in_array($key,array_keys(Report::$measures[$data['Cube']]))) {
+                $measure_name  = $measure_name2 = get_measure_name($key,self::$DetailTable);
+                if($filter['number_agg'] ==  'count_distinct' ){
+                    $aggregator2 = 'distinct';
+                    $aggregator = 'count';
+                }else{
+                    $aggregator = $filter['number_agg'];
+                    $aggregator2 = '';
+                }
+                if(empty($measure_name)) {
+                    $measure_name =  $aggregator."(".$aggregator2." ".self::$DetailTable.".". $key . ") ";;
+                }
+                switch ($filter['number_sign']) {
+                    case 'null':
+                        $whereRaw_measure = $measure_name.' IS NULL';
+                        break;
+                    case 'not_null':
+                        $whereRaw_measure = $measure_name.' IS NOT NULL';
+                        break;
+                    case 'range':
+                        $whereRaw_measure  = $measure_name ." Between ". (double)$filter['number_agg_range_min']." AND ".(double)$filter['number_agg_range_max'];
+                        break;
+                    default :
+                        $whereRaw_measure = $measure_name." ". $filter['number_sign'] ." ". str_replace('*', '%', $filter['number_agg_val']);
+                        break;
+                }
+
+                if(empty($filter['number_agg']) && empty($measure_name2)){
+                    $query_common->whereRaw($whereRaw_measure);
+                }else{
+                    $query_common->havingRaw($whereRaw_measure);
                 }
             }
         }

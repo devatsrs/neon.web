@@ -411,8 +411,8 @@
                             <li class="active filter_data_table"><a href="#general" data-toggle="tab">General</a></li>
                             <li class="filter_data_wildcard"><a href="#wildcard" data-toggle="tab" >Wildcard</a></li>
                             <li class="date_filters"><a href="#date_filter" data-toggle="tab" >Date Filter</a></li>
-                            {{--<li ><a href="#condition" data-toggle="tab">Condition</a></li>
-                            <li ><a href="#top" data-toggle="tab">Top</a></li>--}}
+                            <li class="number_filter"><a href="#number_filter" data-toggle="tab">Number Filter</a></li>
+                            {{--<li ><a href="#top" data-toggle="tab">Top</a></li>--}}
                         </ul>
                         <div class="tab-content">
                             <div class="tab-pane active" id="general" >
@@ -459,57 +459,33 @@
                                 </div>
                             </div>
 
-                            <div class="tab-pane" id="condition"  >
-                                <div class="row margin-top">
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <div class="radio">
-                                                <label>
-                                                    <input type="radio"  value="none" checked name="condition" class="condition_filter condition_filter_none" id="field-5" placeholder="">None
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <div class="radio">
-                                                <label>
-                                                    <input type="radio" name="condition" value="condition_active" class="condition_filter" id="field-5" placeholder="">
-                                                    By Field
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 clear">
-                                        <div class="form-group">
-                                            {{Form::select('condition_col',$Columns,'',array("class"=>"select2 small condition_filter_data"))}}
-                                        </div>
-                                    </div>
+                            <div class="tab-pane" id="number_filter"  >
+                                <div class="row margin-top number_filter">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            {{Form::select('condition_agg',Report::$aggregator,'',array("class"=>"select2 small condition_filter_data"))}}
+                                            {{Form::select('number_agg',Report::$aggregator,'',array("class"=>"select2 small number_filter_data"))}}
                                         </div>
                                     </div>
                                     <div class="col-md-6 clear">
                                         <div class="form-group">
-                                            {{Form::select('Condition_sign',Report::$condition,'',array("class"=>"select2 small condition_filter_data"))}}
+                                            {{Form::select('number_sign',Report::$condition,'',array("class"=>"select2 small number_filter_data"))}}
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-6 number_agg_val">
                                         <div class="form-group">
-                                            <input type="text" name="condition_agg_val" value="" class="form-control condition_filter_data" id="field-5" placeholder="">
+                                            <input type="text" name="number_agg_val" value="" class="form-control number_filter_data" id="field-5" placeholder="">
                                         </div>
                                     </div>
-                                    <div class="col-md-6 clear">
+                                    <div class="col-md-6 clear number_filter_range">
                                         <div class="form-group">
                                             <label for="field-5" class="control-label">Range Min</label>
-                                            <input type="text" name="condition_agg_range_min" value="" class="form-control condition_filter_data" id="field-5" placeholder="">
+                                            <input type="text" name="number_agg_range_min" value="" class="form-control number_filter_data" id="field-5" placeholder="">
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-6 number_filter_range">
                                         <div class="form-group">
                                             <label for="field-5" class="control-label">Range Max</label>
-                                            <input type="text" name="condition_agg_range_max" value="" class="form-control condition_filter_data" id="field-5" placeholder="">
+                                            <input type="text" name="number_agg_range_max" value="" class="form-control number_filter_data" id="field-5" placeholder="">
                                         </div>
                                     </div>
                                 </div>
