@@ -157,10 +157,12 @@
             <div class="panel-body">
 
                             <div class="pull-right">
+
                                 <a  href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/rule/add" class="btn addnew btn-primary btn-sm btn-icon icon-left" >
                                     <i class="entypo-floppy"></i>
                                     Add New
                                 </a>
+                                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Rules will be applied in the order they are setup. Keep * at the top." data-original-title="Add New Rule">?</span>
                                 <br><br>
                             </div>
 
