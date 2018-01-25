@@ -410,7 +410,11 @@
                 $(".number_filter").show();
                 $("li.number_filter a").trigger('click');
                 if(typeof filter_settings_array != 'undefined') {
-                    $("#wildcard [name='wildcard_match_val']").val(filter_settings_array.wildcard_match_val);
+                    $("#number_filter [name='number_agg']").val(filter_settings_array.number_agg).trigger('change');
+                    $("#number_filter [name='number_sign']").val(filter_settings_array.number_sign).trigger('change');
+                    $("#number_filter [name='number_agg_val']").val(filter_settings_array.number_agg_val);
+                    $("#number_filter [name='number_agg_range_min']").val(filter_settings_array.number_agg_range_min);
+                    $("#number_filter [name='number_agg_range_max']").val(filter_settings_array.number_agg_range_max);
                 }
 
             }else{
