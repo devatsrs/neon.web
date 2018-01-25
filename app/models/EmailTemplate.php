@@ -48,17 +48,35 @@ class EmailTemplate extends \Eloquent {
         unset($data['select']);
         $data['CompanyID']=User::get_companyID();
 
-        $EmailTemplate = EmailTemplate::where($data);
-        if(!isset($data['UserID'])){
-            $EmailTemplate->whereNull('UserID');
-        }
-		$EmailTemplate->where('StaticType',0);
-        $row = $EmailTemplate->select(array('TemplateID', 'TemplateName'))->orderBy('TemplateName')->lists('TemplateName','TemplateID');
+        $language_arr = Translation::getLanguageDropdownIdList();
 
-        if(!empty($row) && $select==1){
-            $row = array(""=> "Select")+$row;
+        if(isset($data['LanguageID']) && !empty($data['LanguageID'])){
+            $language_arr=[
+                $data['LanguageID'] => $language_arr[$data['LanguageID']]
+            ];
         }
-        return $row;
+        $result=array();
+        foreach($language_arr as $key=>$value){
+
+            $data['LanguageID']=$key;
+
+            $EmailTemplate = EmailTemplate::where($data);
+
+            if(!isset($data['UserID'])){
+                $EmailTemplate->whereNull('UserID');
+            }
+            $EmailTemplate->where('StaticType',0);
+            $row = $EmailTemplate->select(array('TemplateID', 'TemplateName'))->orderBy('TemplateName')->lists('TemplateName','TemplateID');
+
+            if(count($row)){
+                $result[$value]=$row;
+            }
+        }
+
+        if(!empty($result) && $select==1){
+            $result = array(""=> "Select")+$result;
+        }
+        return $result;
     }
 
     public static function getDefaultSystemTemplate($SystemType){
@@ -69,10 +87,7 @@ class EmailTemplate extends \Eloquent {
 		$select =  isset($select)?$select:1;
 
         $result=array();
-
-        $language_arr = Translation::join('tblLanguage', 'tblLanguage.LanguageID', '=', 'tblTranslation.LanguageID')
-            ->whereRaw('tblLanguage.LanguageID=tblTranslation.LanguageID')
-            ->select("tblLanguage.LanguageID", "tblTranslation.Language")->lists("Language", "LanguageID");
+        $language_arr = Translation::getLanguageDropdownIdList();
 
         foreach($language_arr as $key=>$value){
             $row=  EmailTemplate::where(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE,"CompanyID"=>User::get_companyID(), "LanguageID" => $key))->whereNull('UserID')->select(["TemplateID","TemplateName"])->lists('TemplateName','TemplateID');

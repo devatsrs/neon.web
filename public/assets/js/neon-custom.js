@@ -2825,20 +2825,23 @@ function showHideControls(form){
 
 function rebuildSelect2(el,data,defualtText){
     el.empty();
-    options = [];
+
+    if(defualtText.length > 0){
+        $('<option />').html(defualtText).appendTo(el);
+    }
+
     $.each(data,function(key,value){
         if(typeof value == 'object'){
-            key = value.id;
-            value = value.text;
+            var group = $('<optgroup label="' + key + '" />');
+            $.each(value, function(key2,value2){
+                $('<option />').val(key2).html(value2).appendTo(group);
+            });
+            group.appendTo(el);
+        }else{
+            $('<option />').val(key).html(value).appendTo(el);
         }
-        options.push(new Option(value, key, false, false));
     });
-    if(defualtText.length > 0){
-        options.push(new Option(defualtText, '', true, true));
-    }
-//    options.sort();
-//    options.reverse();
-    el.append(options);
+
     if(el.hasClass('select2add')){
         el.prepend('<option value="select2-add" disabled="disabled">Add</option>');
     }

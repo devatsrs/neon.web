@@ -68,4 +68,14 @@ class Translation extends \Eloquent {
 
         return self::$cache['languageflag_dropdown1_cache'];
     }
+
+    public static function getLanguageDropdownIdList($select=0){
+        $dropdown = Translation::join('tblLanguage', 'tblLanguage.LanguageID', '=', 'tblTranslation.LanguageID')
+            ->whereRaw('tblLanguage.LanguageID=tblTranslation.LanguageID')
+            ->select("tblLanguage.LanguageID", "tblTranslation.Language")->lists("Language", "LanguageID");
+        if($select==1) {
+            $dropdown = array("" => "Select") + $dropdown;
+        }
+        return $dropdown;
+    }
 }
