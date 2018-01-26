@@ -3,12 +3,18 @@
 @section('content')
 <link rel="stylesheet" type="text/css" href="<?php echo URL::to('/'); ?>/assets/css/invoicetemplate/invoicestyle.css" />
 @if(isset($language->is_rtl) && $language->is_rtl=="Y")
-<link rel="stylesheet" type="text/css" href="<?php echo URL::to('/'); ?>/assets/css/bootstrap-rtl.min.css" />
-<style type="text/css">
-  .leftsideview{
-    direction: ltr;
-  }
-</style>
+  <link rel="stylesheet" type="text/css" href="<?php echo URL::to('/'); ?>/assets/css/bootstrap-rtl.min.css" />
+  <style type="text/css">
+    .leftsideview{
+      direction: ltr;
+    }
+    #details{
+      border-right: 3px solid #000000;
+      padding-right: 6px;
+      padding-left: 0px;
+      border-left: 0px;
+    }
+  </style>
 @endif
 <style type="text/css">
 .invoice,
