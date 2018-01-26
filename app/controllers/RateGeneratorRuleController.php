@@ -378,4 +378,30 @@ class RateGeneratorRuleController extends \BaseController {
             }
         }
     }
+
+    //clone rule
+    public function clone_rule($id, $RateRuleID) {
+
+        if ($id > 0 && $RateRuleID > 0) {
+
+            $CreatedBy = User::get_user_full_name();
+
+            $query = "call prc_CloneRateRuleInRateGenerator (?,?)";
+
+            DB::select($query,array($RateRuleID,$CreatedBy));
+
+            return json_encode([
+                "status" => "success",
+                "message" => "RateGenerator Rule Successfully Cloned"
+            ]);
+
+        }
+
+        return json_encode([
+            "status" => "failed",
+            "message" => "Problem Cloning RateGenerator Rule"
+        ]);
+
+
+    }
 }

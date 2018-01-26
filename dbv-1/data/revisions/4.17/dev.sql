@@ -3131,3 +3131,46 @@ CREATE  PROCEDURE `prc_GetLCRwithPrefix`(
 	END//
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `prc_CloneRateRuleInRateGenerator`;
+DELIMITER //
+CREATE PROCEDURE `prc_CloneRateRuleInRateGenerator`(
+	IN `p_RateRuleID` INT
+,
+	IN `p_CreatedBy` VARCHAR(100)
+
+
+)
+BEGIN
+
+
+
+
+
+		insert into tblRateRule
+		(	RateGeneratorId,	Code,	Description,	created_at,	CreatedBy)
+		select
+				RateGeneratorId,	Code,	Description,	now(),	p_CreatedBy
+		from tblRateRule
+		where RateRuleID  = p_RateRuleID;
+
+
+
+		select LAST_INSERT_ID() into @NewRateRuleID;
+
+		insert into tblRateRuleSource
+		(	RateRuleId,AccountId,created_at,CreatedBy )
+		select
+				@NewRateRuleID,AccountId,	now(), p_CreatedBy
+		from tblRateRuleSource
+		where RateRuleID  = p_RateRuleID;
+
+
+		insert into tblRateRuleMargin
+		(	RateRuleId,MinRate,MaxRate,AddMargin,FixedValue,created_at,CreatedBy )
+		select
+				@NewRateRuleID,MinRate,MaxRate,AddMargin,FixedValue,now(),p_CreatedBy
+		from tblRateRuleMargin
+		where RateRuleID  = p_RateRuleID;
+
+END//
+DELIMITER ;

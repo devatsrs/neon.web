@@ -209,6 +209,10 @@
                                                 <i class="entypo-pencil"></i>
                                             </a>
 
+                                            <a href="{{URL::to('/rategenerators/'.$id. '/rule/' . $rategenerator_rule->RateRuleId .'/clone_rule' )}}" id="clone-rule" class="clone_rule btn btn-primary btn-sm" data-original-title="Clone" title="" data-placement="top" data-toggle="tooltip" data-loading-text="...">
+                                                <i class="fa fa-clone"></i>
+                                            </a>
+
                                             <a href="{{URL::to('/rategenerators/'.$id. '/rule/' . $rategenerator_rule->RateRuleId .'/delete' )}}" class="btn delete btn-danger btn-sm" data-redirect="{{Request::url()}}">
                                                 <i class="entypo-trash"></i>
                                             </a>
@@ -384,7 +388,32 @@
                         return false;
 
                     });
-					
+        $(".btn.clone_rule").click(function (e) {
+            e.preventDefault();
+            $(this).button('loading');
+            var url = $(this).attr('href');
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    dataType: 'html',
+                    success: function (response) {
+                        $(".btn.clone_rule").button('reset');
+                        toastr.error(response.message, "Error", toastr_opts);
+                        setTimeout(location.reload(),2000);
+
+                    },
+
+                    // Form data
+                    //data: {},
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            return false;
+
+        });
+
 					
         $('#delete-rate-generator-form').submit(function (e) {
             e.preventDefault();
