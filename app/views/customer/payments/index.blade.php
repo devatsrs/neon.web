@@ -205,7 +205,7 @@
                                         action += '<input type = "hidden"  name = "PaymentMethod" value = "' + full[11] + '" / >';
                                         action += '<input type = "hidden"  name = "Notes" value = "' + full[12] + '" / >';
                                         action += '</div>';
-                                        action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="edit-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>'
+                                        action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="edit-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>@lang('routes.BUTTON_VIEW_CAPTION') </a>'
                                         <?php if(User::is('BillingAdmin')){?>
                                         if(full[7] != "Approved"){
 
