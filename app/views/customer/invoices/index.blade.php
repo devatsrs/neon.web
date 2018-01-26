@@ -4,7 +4,7 @@
 <ol class="breadcrumb bc-3">
   <li> <a href="#"><i class="entypo-home"></i>@lang('routes.CUST_PANEL_PAGE_INVOICE_TITLE')</a> </li>
 </ol>
-<h3>@lang('routes.CUST_PANEL_PAGE_INVOICE_TITLE')</h3>
+<h3>{{cus_lang('CUST_PANEL_PAGE_INVOICE_TITLE')}}</h3>
 @include('includes.errors')
 @include('includes.success')
 <div class="row">

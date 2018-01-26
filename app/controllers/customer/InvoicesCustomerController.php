@@ -189,7 +189,7 @@ class InvoicesCustomerController extends \BaseController {
                 $PaymentResponse = $PaymentIntegration->paymentWithProfile($PaymentData);
                 return json_encode($PaymentResponse);
             }else{
-                return json_encode(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_INVOICE_MODAL_PAY_NOW_MSG_ACCOUNT_PROFILE_NOT_SET')));
+                return json_encode(array("status" => "failed", "message" => Lang::get('routes.PAGE_INVOICE_MSG_ACCOUNT_PROFILE_NOT_SET')));
             }
 
         }else{

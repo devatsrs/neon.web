@@ -2779,7 +2779,7 @@ class InvoicesController extends \BaseController {
             $PaymentResponse = $PaymentIntegration->paymentWithCreditCard($data);
             return json_encode($PaymentResponse);
         }else{
-            return Response::json(array("status" => "failed", "message" => "Invoice not found"));
+            return Response::json(array("status" => "failed", "message" => cus_lang('PAGE_INVOICE_MSG_INVOICE_NOT_FOUND')));
         }
     }
 
@@ -2843,12 +2843,12 @@ class InvoicesController extends \BaseController {
                 return json_encode($PaymentResponse);
 
             }else{
-                return json_encode(array("status" => "failed", "message" => "Account Profile not set"));
+                return json_encode(array("status" => "failed", "message" => cus_lang('PAGE_INVOICE_MSG_ACCOUNT_PROFILE_NOT_SET')));
             }
 
 
         }else{
-            return Response::json(array("status" => "failed", "message" => "Invoice not found"));
+            return Response::json(array("status" => "failed", "message" => cus_lang('PAGE_INVOICE_MSG_INVOICE_NOT_FOUND')));
         }
     }
     /**

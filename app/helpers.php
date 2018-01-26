@@ -2525,3 +2525,7 @@ function ddl_language($id="",$name="",$defaultVal="",$class="",$valuetype="isoco
 
     return $return;
 }
+
+function cus_lang($key=""){
+    return trans('routes.'.strtoupper($key));
+}
