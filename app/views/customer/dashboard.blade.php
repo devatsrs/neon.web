@@ -48,7 +48,7 @@
                         <h3>Sales</h3>
                         {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
                         <p>Today Sales by hour</p>
-                        <span class="hourly-sales-cost"></span>
+                        <span class="hourly-sales-cost-"></span>
                     </div>
                 </div>
 
@@ -57,7 +57,7 @@
                         <h3>Minutes 0</h3>
                         {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
                         <p>Today Minutes by hour</p>
-                        <span class="hourly-sales-minutes"></span>
+                        <span class="hourly-sales-minutes-"></span>
                     </div>
                 </div>
                 <div class="col-md-12">
