@@ -1,3 +1,6 @@
+Use Ratemanagement3;
+
+
 DROP PROCEDURE IF EXISTS `prc_WSGenerateRateTable`;
 DELIMITER //
 CREATE PROCEDURE `prc_WSGenerateRateTable`(

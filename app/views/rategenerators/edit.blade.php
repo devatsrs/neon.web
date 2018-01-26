@@ -196,8 +196,9 @@
 
                                             @if(count($rategenerator_rule['RateRuleMargin']))
                                             @foreach($rategenerator_rule['RateRuleMargin'] as $index=>$materulemargin )
-                                                {{$materulemargin->MinRate}} {{$index!=0?'<':'<='}}  rate <= {{$materulemargin->MaxRate}} {{$materulemargin->AddMargin}} <br>
-                                            @endforeach
+                                                {{$materulemargin->MinRate}} {{$index!=0?'<':'<='}}  rate <= {{$materulemargin->MaxRate}} {{$materulemargin->AddMargin}} {{$materulemargin->FixedValue}} <br>
+
+                                                @endforeach
                                             @endif
 
 
