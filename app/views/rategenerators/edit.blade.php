@@ -396,11 +396,17 @@
                 $.ajax({
                     url: url,
                     type: 'POST',
-                    dataType: 'html',
+                    dataType: 'json',
                     success: function (response) {
+
+                        if (response.status == 'success') {
+                            toastr.success(response.message, "Success", toastr_opts);
+                            setTimeout( function() {  location.reload() } ,2000 );
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
                         $(".btn.clone_rule").button('reset');
-                        toastr.error(response.message, "Error", toastr_opts);
-                        setTimeout(location.reload(),2000);
+
 
                     },
 
