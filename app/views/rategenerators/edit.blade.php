@@ -401,7 +401,7 @@
 
                         if (response.status == 'success') {
                             toastr.success(response.message, "Success", toastr_opts);
-                            setTimeout( function() {  location.reload() } ,2000 );
+                            setTimeout( function() {  location.reload() } ,1000 );
                         } else {
                             toastr.error(response.message, "Error", toastr_opts);
                         }
