@@ -1,5 +1,7 @@
 Use Ratemanagement3;
 
+ALTER TABLE `tblRateRuleMargin`
+ADD COLUMN `FixedValue` DECIMAL(18,6) NULL AFTER `AddMargin`;
 
 DROP PROCEDURE IF EXISTS `prc_WSGenerateRateTable`;
 DELIMITER //
