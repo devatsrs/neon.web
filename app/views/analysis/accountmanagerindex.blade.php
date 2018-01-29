@@ -26,11 +26,11 @@
                     <input type="hidden" name="chart_type" value="destination">
                 </div>
                 <div class="form-group">
-                    @if(User::is_admin())
+                    @if(User::is('AccountManager'))
+                        <input type="hidden" name="UsersID[]" value="{{User::get_userID()}}">
+                    @else
                         <label class="control-label" for="field-1">Account Manager</label>
                         {{Form::select('UsersID[]', $users, '' ,array("class"=>"select2","multiple"=>"multiple"))}}
-                    @else
-                        <input type="hidden" name="UsersID[]" value="{{User::get_userID()}}">
                     @endif
                 </div>
                 <div class="form-group">
