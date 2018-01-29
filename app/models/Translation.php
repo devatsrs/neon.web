@@ -52,12 +52,12 @@ class Translation extends \Eloquent {
             self::$cache['languageflag_dropdown1_cache'] = $admin_defaults['languageflag_dropdown1_cache'];
         } else {
             //if the cache doesn't have it yet
-            $dd = Translation::join('tblLanguage', 'tblLanguage.LanguageID', '=', 'tblTranslation.LanguageID')
+            $lang_result = Translation::join('tblLanguage', 'tblLanguage.LanguageID', '=', 'tblTranslation.LanguageID')
                 ->whereRaw('tblLanguage.LanguageID=tblTranslation.LanguageID')
                 ->select("tblLanguage.ISOCode", "tblTranslation.Language", "tblLanguage.flag", "tblLanguage.LanguageID")->get();
 
             $dropdown = array();
-            foreach ($dd as $key => $value) {
+            foreach ($lang_result as $key => $value) {
                 $dropdown[$value->ISOCode] = ["languageName"=>$value->Language, "languageFlag"=>$value->flag, "languageId"=>$value->LanguageID];
             }
             self::$cache['languageflag_dropdown1_cache'] = $dropdown;
@@ -79,7 +79,7 @@ class Translation extends \Eloquent {
         return $dropdown;
     }
 
-    public static function get_language_translation($languageCode="en"){
+    public static function get_language_labels($languageCode="en"){
         $data_langs = DB::table('tblLanguage')
             ->select("TranslationID", "tblTranslation.Language", "Translation", "tblLanguage.ISOCode")
             ->join('tblTranslation', 'tblLanguage.LanguageID', '=', 'tblTranslation.LanguageID')
