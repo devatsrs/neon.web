@@ -164,7 +164,7 @@ class ReportVendorCDR extends \Eloquent{
         }
         $RMDB = Config::get('database.connections.sqlsrv.database');
         if(report_join($data)){
-            $query_common->join($RMDB.'.tblAccount', 'tblHeaderV.AccountID', '=', 'tblAccount.AccountID');
+            $query_common->join($RMDB.'.tblAccount', 'tblHeaderV.VAccountID', '=', 'tblAccount.AccountID');
             self::$AccountJoin = true;
         }
         if(in_array('DestinationBreak',$data['column']) || in_array('DestinationBreak',$data['row']) || in_array('DestinationBreak',$data['filter'])){

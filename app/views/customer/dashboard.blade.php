@@ -48,7 +48,8 @@
                         <h3>@lang("routes.CUST_PANEL_PAGE_MONITOR_RIGHT_SIDE_SALES") <span></span></h3>
                         {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
                         <p>@lang("routes.CUST_PANEL_PAGE_MONITOR_RIGHT_SIDE_TODAY_SALES_BY_HOUR")</p>
-                        <span class="hourly-sales-cost"></span>
+                        <span class="hourly-sales-cost-"></span>
+
                     </div>
                 </div>
 
@@ -57,7 +58,7 @@
                         <h3>@lang("routes.CUST_PANEL_PAGE_MONITOR_RIGHT_SIDE_TODAY_MINUTES") <span>0</span></h3>
                         {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
                         <p>@lang("routes.CUST_PANEL_PAGE_MONITOR_RIGHT_SIDE_TODAY_MINUTES_BY_HOUR")</p>
-                        <span class="hourly-sales-minutes"></span>
+                        <span class="hourly-sales-minutes-"></span>
                     </div>
                 </div>
                 <div class="col-md-12">
