@@ -238,6 +238,7 @@ class ReportController extends \BaseController {
         $Accountschema = array_keys(Report::$dimension['summary']['Customer']);
         if(in_array($ColName,$Accountschema) && $ColName != 'AccountID'){
             $accounts = Account::where(["AccountType" => 1, "CompanyID" => $CompanyID, "Status" => 1])
+				->whereNotNull($ColName)
                 ->select(array($ColName.' as 2',$ColName))
                 ->distinct()
                 ->orderBy($ColName);
