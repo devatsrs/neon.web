@@ -158,7 +158,7 @@ class TranslateController extends \BaseController {
     public function new_system_name(){
         $request = Input::all();
         $request["system_name"]=trim(strtoupper($request["system_name"]));
-        $data_langs = $this->get_language_labels();
+        $data_langs = Translation::get_language_labels();
 
         $translation_data = json_decode($data_langs->Translation, true);
 

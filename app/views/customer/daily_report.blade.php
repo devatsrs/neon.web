@@ -154,7 +154,7 @@
                         if (response1.Balance != null) {
                             $('.result_row').remove();
                             $('.result_row').hide();
-                            $('#table-list tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td class="leftsideview"><strong>' + response1.TotalPayment + '</strong></td><td class="leftsideview"><strong>' + response1.TotalCharge + '</strong></td><td class="leftsideview"><strong>' + response1.Total + '</strong></td><td class="leftsideview"><strong>' + response1.Balance + '</strong></td></tr>');
+                            $('#table-list tbody').append('<tr class="result_row"><td><strong>{{cus_lang("TABLE_TOTAL")}}</strong></td><td class="leftsideview"><strong>' + response1.TotalPayment + '</strong></td><td class="leftsideview"><strong>' + response1.TotalCharge + '</strong></td><td class="leftsideview"><strong>' + response1.Total + '</strong></td><td class="leftsideview"><strong>' + response1.Balance + '</strong></td></tr>');
                         }
                     }
                 });

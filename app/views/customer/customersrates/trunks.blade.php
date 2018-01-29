@@ -28,7 +28,7 @@
     @if(isset($displayservice) && $displayservice>0)
     <li>
         <a href="{{ URL::to('/customer/customers_rates/servicerate') }}" >
-            Inbound Rate
+            @lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_SERVICE_RATE_TITLE")
         </a>
     </li>
     @endif
