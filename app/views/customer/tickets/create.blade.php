@@ -22,7 +22,7 @@
           <?php  $required = array();
 			   foreach($Ticketfields as $TicketfieldsData)
 			   {
-				$TicketfieldsData->CustomerLabel = Lang::get('routes.CUST_PANEL_PAGE_TICKET_FIELDS_'.strtoupper($TicketfieldsData->FieldType) );
+				$TicketfieldsData->CustomerLabel = Lang::get('routes.CUST_PANEL_PAGE_TICKET_FIELDS_'.strtoupper($TicketfieldsData->TicketFieldsID) );
 				  $id		    =  'Ticket'.str_replace(" ","",$TicketfieldsData->FieldName);
 				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_TEXT)
 				 {

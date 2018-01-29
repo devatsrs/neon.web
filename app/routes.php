@@ -1210,6 +1210,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('translate/single_delete', 'TranslateController@process_singleDelete');
 	Route::any('/translate/{languageCode}/exports/{type}', 'TranslateController@exports');
 	Route::any('translate/new_system_name', 'TranslateController@new_system_name');
+	Route::any('translate/refresh_label', 'TranslateController@refresh_label');
 
 	//Retention
 	Route::any('/retention', "RetentionController@index");

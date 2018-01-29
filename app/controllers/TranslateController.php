@@ -76,7 +76,7 @@ class TranslateController extends \BaseController {
         if($request["value"]==""){
             return json_encode(["status" => "fail", "message" => "Required Translation"]);
         }
-        $data_langs = $this->get_language_translation($request["language"]);
+        $data_langs = Translation::get_language_translation($request["language"]);
 //        dd(DB::getQueryLog());
 
         $json_file = json_decode($data_langs->Translation, true);
@@ -99,7 +99,7 @@ class TranslateController extends \BaseController {
 
         $request = Input::all();
 
-        $data_langs = $this->get_language_translation($request["language"]);
+        $data_langs = Translation::get_language_translation($request["language"]);
 //        dd(DB::getQueryLog());
 
         $json_file = json_decode($data_langs->Translation, true);
@@ -118,7 +118,7 @@ class TranslateController extends \BaseController {
 
     }
 
-    function create_language_file($lang_folder, $data_array){
+    public static function create_language_file($lang_folder, $data_array){
 
         ksort($data_array);
         $arr_valid="\nreturn array(";
@@ -137,7 +137,7 @@ class TranslateController extends \BaseController {
 
     public function exports($languageCode,$type) {
 
-        $data_langs = $this->get_language_translation($languageCode);
+        $data_langs = Translation::get_language_translation($languageCode);
         $translation_data = json_decode($data_langs->Translation, true);
         $json_file=array();
         foreach($translation_data as $key=>$value){
@@ -175,13 +175,28 @@ class TranslateController extends \BaseController {
         }
     }
 
-    function get_language_translation($languageCode="en"){
-        $data_langs = DB::table('tblLanguage')
-            ->select("TranslationID", "tblTranslation.Language", "Translation", "tblLanguage.ISOCode")
-            ->join('tblTranslation', 'tblLanguage.LanguageID', '=', 'tblTranslation.LanguageID')
-            ->where(["tblLanguage.ISOCode"=>$languageCode])
-            ->first();
-        return $data_langs;
+    public static function refresh_label(){
+        try{
+            $data_langs = Translation::get_language_translation();
+            $translation_data = json_decode($data_langs->Translation, true);
+
+            foreach($translation_data  as $key=>$value){
+                if(strpos($key,"CUST_PANEL_PAGE_TICKET_FIELDS_")!==false){
+                    unset($translation_data[$key]);
+                }
+            }
+
+            $ticketFields = Ticketfields::all();
+            foreach($ticketFields as $ticke_field){
+                $translation_data["CUST_PANEL_PAGE_TICKET_FIELDS_".$ticke_field->TicketFieldsID]=$ticke_field->CustomerLabel;
+            }
+            ksort($translation_data);
+            Translation::where('TranslationID', $data_langs->TranslationID)->update( array('Translation' => json_encode($translation_data) ));
+            TranslateController::create_language_file($data_langs->ISOCode,$translation_data);
+            return json_encode(["status" => "success", "message" => ""]);
+        } catch (Exception $ex) {
+            return Response::json(["status" => "failed", "message" => " Exception: " . $ex->getMessage()]);
+        }
     }
 
 }

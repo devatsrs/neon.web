@@ -78,4 +78,13 @@ class Translation extends \Eloquent {
         }
         return $dropdown;
     }
+
+    public static function get_language_translation($languageCode="en"){
+        $data_langs = DB::table('tblLanguage')
+            ->select("TranslationID", "tblTranslation.Language", "Translation", "tblLanguage.ISOCode")
+            ->join('tblTranslation', 'tblLanguage.LanguageID', '=', 'tblTranslation.LanguageID')
+            ->where(["tblLanguage.ISOCode"=>$languageCode])
+            ->first();
+        return $data_langs;
+    }
 }

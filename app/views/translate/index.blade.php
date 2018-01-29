@@ -23,10 +23,14 @@
                             {{ddl_language("language", "user_language", Translation::$default_lang_ISOcode)}}
                         </div>
                         {{--add new table button--}}
-                        <div style="text-align: right;padding:10px 0 ">
+                        <div class="text-right" >
                             <a class="btn btn-primary btn-sm btn-icon icon-left" id="set_new_label" href="javascript:;" data-toggle="modal" data-target="#set_new_system_name_model">
                                 <i class="entypo-plus"></i>
                                 Add Label
+                            </a>
+                            <a class="btn btn-primary btn-sm btn-icon icon-left" onclick="refresh_label();" href="javascript:;" >
+                                <i class="entypo-arrows-ccw"></i>
+                                Refresh
                             </a>
                         </div>
 
@@ -218,6 +222,21 @@
                 data: post_data
             });
 
+        }
+        function refresh_label(){
+            $.ajax({
+                url: baseurl + "/translate/refresh_label",
+                type: 'POST',
+                dataType: 'JSON',
+                success: function(response) {
+                    if (response.status == 'success') {
+                        toastr.success(response.message, "Success", toastr_opts);
+                        rebindLanguageTable();
+                    } else {
+                        toastr.error(response.message, "Error", toastr_opts);
+                    }
+                }
+            });
         }
     </script>
 
