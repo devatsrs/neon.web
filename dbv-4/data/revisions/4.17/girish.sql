@@ -1,4 +1,6 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_getReportHistory`(
+DROP PROCEDURE IF EXISTS `prc_getReportHistory`;
+DELIMITER //
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getReportHistory`(
 	IN `p_CompanyID` INT,
 	IN `p_ReportScheduleID` INT,
 	IN `p_ReportID` INT,
@@ -30,7 +32,7 @@ BEGIN
 		FROM tblReportSchedule
 		INNER JOIN tblReportScheduleLog 
 			ON tblReportSchedule.ReportScheduleID = tblReportScheduleLog.ReportScheduleID
-		INNER JOIN NeonRMDev.AccountEmailLog 
+		INNER JOIN Ratemanagement3.AccountEmailLog 
 			ON tblReportScheduleLog.AccountEmailLogID = AccountEmailLog.AccountEmailLogID
 		WHERE tblReportSchedule.CompanyID = p_CompanyID
 			AND (p_ReportScheduleID = 0 OR tblReportSchedule.ReportScheduleID = p_ReportScheduleID)
@@ -80,4 +82,5 @@ BEGIN
 	END IF;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-END
+END//
+DELIMITER ;

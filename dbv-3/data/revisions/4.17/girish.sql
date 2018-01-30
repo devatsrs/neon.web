@@ -1,4 +1,6 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_InvoiceManagementReport`(
+DROP PROCEDURE IF EXISTS `prc_InvoiceManagementReport`;
+DELIMITER //
+CREATE PROCEDURE `prc_InvoiceManagementReport`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountID` INT,
 	IN `p_StartDate` DATETIME,
@@ -9,12 +11,11 @@ BEGIN
 	DECLARE v_ShowZeroCall_ INT;
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
-	/* top 10 Longest Calls*/
 	
 	SELECT tblInvoiceTemplate.ShowZeroCall INTO v_ShowZeroCall_ 
-	FROM NeonRMDev.tblAccountBilling  
-	INNER JOIN NeonRMDev.tblBillingClass ON tblBillingClass.BillingClassID = tblAccountBilling.BillingClassID
-	INNER JOIN NeonBillingDev.tblInvoiceTemplate ON tblInvoiceTemplate.InvoiceTemplateID = tblBillingClass.InvoiceTemplateID
+	FROM Ratemanagement3.tblAccountBilling  
+	INNER JOIN Ratemanagement3.tblBillingClass ON tblBillingClass.BillingClassID = tblAccountBilling.BillingClassID
+	INNER JOIN RMBilling3.tblInvoiceTemplate ON tblInvoiceTemplate.InvoiceTemplateID = tblBillingClass.InvoiceTemplateID
 	WHERE AccountID = p_AccountID
 	LIMIT 1;
 	
@@ -35,7 +36,7 @@ BEGIN
 	AND ((v_ShowZeroCall_ =0 AND ud.cost >0 ) OR (v_ShowZeroCall_ =1 AND ud.cost >= 0))
 	ORDER BY billed_duration DESC LIMIT 10;
 
-	/* top 10 Most Expensive Calls*/
+	
 	SELECT 
 		cli as col1,
 		cld as col2,
@@ -51,7 +52,7 @@ BEGIN
 	AND ((v_ShowZeroCall_ =0 AND ud.cost >0 ) OR (v_ShowZeroCall_ =1 AND ud.cost >= 0))
 	ORDER BY cost DESC LIMIT 10;
 
-	/* top 10 Most Dialled Number*/
+	
 	SELECT 
 		cld as col1,
 		count(*) AS col2,
@@ -69,7 +70,7 @@ BEGIN
 	ORDER BY col2 DESC
 	LIMIT 10;
 
-	/* Daily Summary */
+	
 	SELECT 
 		DATE(StartDate) as col1,
 		count(*) AS col2,
@@ -86,10 +87,10 @@ BEGIN
 	GROUP BY StartDate
 	ORDER BY StartDate;
 
-	/* Usage by Category */	
+		
 	SELECT
 		(SELECT Description
-		FROM NeonRMDev.tblRate r
+		FROM Ratemanagement3.tblRate r
 		WHERE  r.Code = ud.area_prefix limit 1 )
 		AS col1,
 		COUNT(UsageDetailID) AS col2,
@@ -107,4 +108,5 @@ BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ; 
 
-END
+END//
+DELIMITER ;
