@@ -2038,6 +2038,7 @@ function table_html($data,$table_data){
     $col_count = count($data['column']);
     $table_header = $table_header_colgroup = $table_row = $table_footer = '';
     $table_data['table_footer_sum'] = array();
+    $setting_rename = json_decode($data['setting_rename'],true);
     $chartColor = array('#C5CAE9','#BBDEFB','#B3E5FC','#B2EBF2','#C8E6C9','#DCEDC8','#F0F4C3','#FFCCBC','#D7CCC8','#F5F5F5','#CFD8DC');
     if($row_count) {
         $table_header_colgroup .= '<colgroup span="' . $row_count . '" style="background-color:' . $chartColor[0] . '"></colgroup>';
@@ -2085,7 +2086,7 @@ function table_html($data,$table_data){
         foreach ($table_data['columns'][$key_count] as $row_val) {
             foreach ($row_val['name'] as $row_name) {
                 if(array_key_exists($row_name,Report::$measures[$cube])){
-                    $table_header .= '<th colspan="' . 1 . '" scope="colgroup">' . Report::$measures[$cube][$row_name] . '</th>';
+                    $table_header .= '<th colspan="' . 1 . '" scope="colgroup">' . (isset($setting_rename[$row_name])?$setting_rename[$row_name]:Report::$measures[$cube][$row_name])  . '</th>';
                 }else{
                     $table_header .= '<th colspan="' . 1 . '" scope="colgroup">' . $row_name . '</th>';
                 }
@@ -2122,12 +2123,16 @@ function table_html($data,$table_data){
                 $table_col_row .= '<td rowspan="' . $table_data['row'][$explode_row_count-1][$datakey]['rowspan'] . '">' . $table_data['row'][$explode_row_count-1][$datakey]['name'] . '</td>';
             }
             if ($explode_row_count == $row_count && $explode_count >= $col_count) {
+                $round_decimal = get_round_decimal_places();
+                if(!is_apply_number_format($col_name)){
+                    $round_decimal = 0;
+                }
                 if($key_index > 0 && $col_count == 0){
-                    $table_single_row .= '<td class="col">' . (is_numeric($col_val) && is_apply_number_format($col_name) ?number_format($col_val,get_round_decimal_places()):$col_val) . '</td>';
+                    $table_single_row .= '<td class="col">' . (is_numeric($col_val) ?number_format($col_val,$round_decimal):$col_val) . '</td>';
                 } else if($key_index == 0 && $col_count == 0 && $row_count == 0 ){
-                    $table_single_row .= '<td class="col">' . (is_numeric($col_val) && is_apply_number_format($col_name) ?number_format($col_val,get_round_decimal_places()):$col_val) . '</td>';
+                    $table_single_row .= '<td class="col">' . (is_numeric($col_val) ?number_format($col_val,$round_decimal):$col_val) . '</td>';
                 } else if($col_count > 0){
-                    $table_single_row .= '<td class="col">' . (is_numeric($col_val) && is_apply_number_format($col_name) ?number_format($col_val,get_round_decimal_places()):$col_val) . '</td>';
+                    $table_single_row .= '<td class="col">' . (is_numeric($col_val) ?number_format($col_val,$round_decimal):$col_val) . '</td>';
                 }
 
             }
@@ -2154,10 +2159,14 @@ function table_html($data,$table_data){
         $footer_col_count = 0;
         foreach ($table_data['table_footer_sum'] as $foot_col_name => $foot_col_val) {
             if($footer_col_count >= $row_col_count) {
+                $round_decimal = get_round_decimal_places();
+                if(!is_apply_number_format($foot_col_name)){
+                    $round_decimal = 0;
+                }
                 if(is_apply_total($foot_col_name)){
                     $table_footer .= '<td class="col" style="background-color: #91c5d4"><strong></strong></td>';
                 }else{
-                    $table_footer .= '<td class="col" style="background-color: #91c5d4"><strong>' . (is_numeric($foot_col_val) && is_apply_number_format($foot_col_name)?number_format($foot_col_val,get_round_decimal_places()):$foot_col_val) . '</strong></td>';
+                    $table_footer .= '<td class="col" style="background-color: #91c5d4"><strong>' . (is_numeric($foot_col_val) ?number_format($foot_col_val,$round_decimal):$foot_col_val) . '</strong></td>';
                 }
             }
             $footer_col_count++;
@@ -2487,4 +2496,74 @@ function get_contact_view_url($ContactID) {
 function get_user_edit_url($UserID) {
 
     return URL::to('users/edit/'.$UserID);
+}
+
+function check_apply_limit($setting_ag){
+    $response_array = array(
+        'applylimit' => false,
+        'limit' => 0,
+        'order' => 'ASC',
+    );
+    foreach((array)$setting_ag as $col => $column_action) {
+        if ($column_action == 'top5' || $column_action == 'top10' || $column_action == 'bottom5' || $column_action == 'bottom10') {
+            $response_array['applylimit'] = true;
+        }
+        if ($column_action == 'top5' || $column_action == 'bottom5'){
+            $response_array['limit'] = 5 ;
+        }else if($column_action == 'top10' || $column_action == 'bottom10'){
+            $response_array['limit'] = 10 ;
+        }
+        if ($column_action == 'top5' || $column_action == 'top10'){
+            $response_array['order'] = 'DESC';
+        }
+    }
+    return $response_array;
+}
+
+function get_col_full_name($setting_ag,$Table,$colname){
+    $aggregator = 'SUM';
+    $aggregator2 = '';
+    if(!empty($Table)) {
+        $Table = $Table . ".";
+    }
+    if(!empty($setting_ag[$colname]) && $setting_ag[$colname] ==  'count_distinct' ){
+        $aggregator2 = 'distinct';
+        $aggregator = 'count';
+    }else if(!empty($setting_ag[$colname])){
+        $aggregator = $setting_ag[$colname];
+    }
+
+    return $aggregator."(".$aggregator2." ".$Table. $colname . ") as " . $colname;
+}
+
+function get_measure_name($colname,$Table){
+    $measure_name = '';
+    $col_TotalCharges = 'TotalCharges';
+    $col_TotalCost = 'TotalCost';
+    if (strpos($Table, 'Vendor') !== false) {
+        $col_TotalCharges = 'TotalSales';
+        $col_TotalCost = 'TotalCharges';
+    }
+    if($colname == 'Margin'){
+        $measure_name = "COALESCE(SUM(".$Table.".".$col_TotalCharges."),0) - COALESCE(SUM(".$Table.".".$col_TotalCost."),0)";
+    }else if($colname == 'MarginPercentage'){
+        $measure_name = "(COALESCE(SUM(".$Table.".".$col_TotalCharges."),0) - COALESCE(SUM(".$Table.".".$col_TotalCost."),0)) / SUM(".$Table.".".$col_TotalCharges.")*100 ";
+    }else if($colname == 'ACD'){
+        $measure_name = "IF(SUM(".$Table.".NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(".$Table.".TotalBilledDuration),0)/SUM(".$Table.".NoOfCalls)),0) ";
+    }else if($colname == 'ASR'){
+        $measure_name = "SUM(".$Table.".NoOfCalls)/(SUM(".$Table.".NoOfCalls)+SUM(".$Table.".NoOfFailCalls))*100 ";
+    }else if($colname == 'BilledDuration'){
+        $measure_name = "ROUND(COALESCE(SUM(".$Table.".TotalBilledDuration),0)/ 60,0) ";
+    }else if($colname == 'TotalDuration2'){
+        $measure_name = "ROUND(COALESCE(SUM(".$Table.".TotalDuration),0)/ 60,0)";
+    }else if($colname == 'UsageDetailID'){
+        $measure_name = "COUNT(".$Table.".UsageDetailID) ";
+    }else if($colname == 'VendorCDRID'){
+        $measure_name = "COUNT(".$Table.".VendorCDRID) ";
+    }else if($colname == 'duration2'){
+        $measure_name = "ROUND(COALESCE(SUM(".$Table.".duration),0)/ 60,0) ";
+    }else if($colname == 'duration1'){
+        $measure_name ="ROUND(COALESCE(SUM(".$Table.".billed_duration),0)/ 60,0) ";
+    }
+    return $measure_name;
 }

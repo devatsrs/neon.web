@@ -270,9 +270,9 @@ class Report extends \Eloquent {
                 'VatNumber'=>'VatNumber',
                 'TimeZone'=>'TimeZone',
                 'tags'=>'Tag',
+                'Owner'=>'Account Manager',
+                'CurrencyID' =>'Currency Code',
             ),
-            'Owner'=>'Account Manager',
-            'CurrencyID' =>'Currency Code',
         ),
     );
 
@@ -345,12 +345,13 @@ class Report extends \Eloquent {
     );
 
     public static $aggregator = array(
-        'SUM' => 'Sum',
-        'AVG' => 'Average',
-        'COUNT' => 'Count',
-        'COUNT_DISTINCT' => 'Count(Distinct)',
-        'MAX' => 'Maximum',
-        'MIN' => 'Minimum',
+        '' => 'Actual',
+        'sum' => 'Sum',
+        'avg' => 'Average',
+        'count' => 'Count',
+        'count_distinct' => 'Count(Distinct)',
+        'max' => 'Maximum',
+        'min' => 'Minimum',
     );
 
     public static $condition = array(
@@ -360,6 +361,9 @@ class Report extends \Eloquent {
         '<=' => '<=',
         '>' => '>',
         '>=' => '>=',
+        'null' => 'Null',
+        'not_null' => 'Is not null',
+        'range' => 'Range'
     );
 
     public static $top = array(

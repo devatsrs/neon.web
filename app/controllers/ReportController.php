@@ -42,6 +42,8 @@ class ReportController extends \BaseController {
         $ReportSchedule = ReportSchedule::where('ReportID',$id)->first();
         $reports = Report::getDropdownIDList($report->CompanyID);
         $report_settings = json_decode($report->Settings,true);
+        $setting_rename = isset($report_settings['setting_rename'])?json_decode($report_settings['setting_rename'],true):array();
+        $setting_ag = isset($report_settings['setting_ag'])?json_decode($report_settings['setting_ag'],true):array();
         $schedule_settings = array();
         if(!empty($ReportSchedule)) {
             $schedule_settings = json_decode($ReportSchedule->Settings, true);
@@ -57,7 +59,7 @@ class ReportController extends \BaseController {
             $layout = 'layout.main_only_sidebar';
         }*/
 
-        return View::make('report.create', compact('report','dimensions','measures','Columns','report_settings','report','disable','layout','schedule_settings','reports','ReportSchedule'));
+        return View::make('report.create', compact('report','dimensions','measures','Columns','report_settings','report','disable','layout','schedule_settings','reports','ReportSchedule','setting_rename','setting_ag'));
     }
 
     public function report_store(){
@@ -170,7 +172,8 @@ class ReportController extends \BaseController {
         $all_data_list['Currency'] = Currency::getCurrencyDropdownIDList($CompanyID);
         $all_data_list['Tax'] = TaxRate::getTaxRateDropdownIDList($CompanyID);
         $all_data_list['Product'] = Product::getProductDropdownList($CompanyID);
-        $all_data_list['Account'] = Account::getAccountIDList();
+        $all_data_list['Account'] = Account::where(['Status'=>1,'CompanyID'=>$CompanyID,'AccountType'=>1,'VerificationStatus'=>Account::VERIFIED])->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
+        //$all_data_list['Account'] = Account::getAccountIDList();
         $all_data_list['AccountIP'] = GatewayAccount::getAccountIPList($CompanyID);
         $all_data_list['AccountCLI'] = GatewayAccount::getAccountCLIList($CompanyID);
         $all_data_list['Service'] = Service::getDropdownIDList($CompanyID);
@@ -195,9 +198,9 @@ class ReportController extends \BaseController {
                 $local_file = $temp_path . $file2;
                 file_put_contents($local_htmlfile, $table);
                 if (getenv('APP_OS') == 'Linux') {
-                    exec(base_path() . '/wkhtmltox/bin/wkhtmltopdf "' . $local_htmlfile . '" "' . $local_file . '"', $output);
+                    exec(base_path() . '/wkhtmltox/bin/wkhtmltopdf -O landscape "' . $local_htmlfile . '" "' . $local_file . '"', $output);
                 } else {
-                    exec(base_path() . '/wkhtmltopdf/bin/wkhtmltopdf.exe "' . $local_htmlfile . '" "' . $local_file . '"', $output);
+                    exec(base_path() . '/wkhtmltopdf/bin/wkhtmltopdf.exe -O landscape "' . $local_htmlfile . '" "' . $local_file . '"', $output);
                 }
                 download_file($local_file);
             }else if($Type == Report::PNG) {
