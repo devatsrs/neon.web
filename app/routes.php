@@ -669,6 +669,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rategenerators/{id}/rule/store_code', 'RateGeneratorRuleController@store_code');
 	Route::any('rategenerators/{id}/rule/{ruleID}/edit', 'RateGeneratorRuleController@edit')->where('ruleID', '(.[09]*)+');
 	Route::any('/rategenerators/rules/{id}/update/{rule_id}', 'RateGeneratorRuleController@update_rule')->where('rule_id', '(.[09]*)+');
+	Route::any('rategenerators/{id}/rule/{ruleID}/clone_rule', 'RateGeneratorRuleController@clone_rule')->where('ruleID', '(.[09]*)+');
 
 	Route::any('/rategenerators/rules/{id}/update_source/{rule_id}', 'RateGeneratorRuleController@update_rule_source')->where('rule_id', '(.[09]*)+');
 	Route::any('/rategenerators/rules/{id}/update_margin/{rule_id}', 'RateGeneratorRuleController@update_rule_margin')->where('rule_id', '(.[09]*)+');
@@ -1329,6 +1330,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/report/schedule_update/{id}','ReportController@update_schedule');
 	Route::any('/report/schedule_delete/{id}','ReportController@schedule_delete');
 	Route::any('/report/ajax_schedule_datagrid/{type}','ReportController@ajax_schedule_datagrid');
+	Route::any('/report/schedule_download/{name}','ReportController@schedule_download');
 
 	//RateCompare
 	Route::any('/rate_compare', 'RateCompareController@index');

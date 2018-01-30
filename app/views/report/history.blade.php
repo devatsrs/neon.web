@@ -74,7 +74,7 @@
         <tr>
             <th width="30%">Name</th>
             <th width="30%">Created Date</th>
-            <th width="10%">Action</th>
+            <th width="30%">Action</th>
         </tr>
     </thead>
     <tbody>
@@ -84,7 +84,7 @@
 <script src="{{ URL::asset('assets/js/dashboard.js') }}"></script>
 <script type="text/javascript">
     var $searchFilter = {};
-    var list_fields_index  = ["Name","send_at","Subject","Message"];
+    var list_fields_index  = ["Name","send_at","Subject","Message","AttachmentPaths"];
     jQuery(document).ready(function($) {
 
         $searchFilter.Search = $("#history_filter [name='Search']").val();
@@ -139,7 +139,14 @@
                                 action += '</div>';
 
                                 action += ' <a class="view-report btn btn-default btn-sm tooltip-primary" data-original-title="View" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-eye"></i></a>'
-
+                                var str = full[4];
+                                if(str) {
+                                    var str_array = str.split(',');
+                                    for (var i = 0; i < str_array.length; i++) {
+                                        console.log(str_array[i])
+                                        action += ' <a href="'+baseurl+'/report/schedule_download/'+full[5]+'-'+i+'" class="btn btn-green btn-sm tooltip-primary" data-original-title="View" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-download"></i></a>'
+                                    }
+                                }
                                         return action;
                             }
                         }
