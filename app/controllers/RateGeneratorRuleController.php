@@ -388,12 +388,17 @@ class RateGeneratorRuleController extends \BaseController {
 
             $query = "call prc_CloneRateRuleInRateGenerator (?,?)";
 
-            DB::select($query,array($RateRuleID,$CreatedBy));
+            $NewRateRuleObj = DB::select($query,array($RateRuleID,$CreatedBy));
 
-            return json_encode([
-                "status" => "success",
-                "message" => "RateGenerator Rule Successfully Cloned"
-            ]);
+            if(isset($NewRateRuleObj[0]->RateRuleID)  ) {
+                $RateRuleID = $NewRateRuleObj[0]->RateRuleID;
+
+                return json_encode([
+                    "status" => "success",
+                    "message" => "RateGenerator Rule Successfully Cloned",
+                    "RateRuleID" => $RateRuleID
+                ]);
+            }
 
         }
 
