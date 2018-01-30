@@ -668,6 +668,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rategenerators/{id}/rule/store_code', 'RateGeneratorRuleController@store_code');
 	Route::any('rategenerators/{id}/rule/{ruleID}/edit', 'RateGeneratorRuleController@edit')->where('ruleID', '(.[09]*)+');
 	Route::any('/rategenerators/rules/{id}/update/{rule_id}', 'RateGeneratorRuleController@update_rule')->where('rule_id', '(.[09]*)+');
+	Route::any('rategenerators/{id}/rule/{ruleID}/clone_rule', 'RateGeneratorRuleController@clone_rule')->where('ruleID', '(.[09]*)+');
 
 	Route::any('/rategenerators/rules/{id}/update_source/{rule_id}', 'RateGeneratorRuleController@update_rule_source')->where('rule_id', '(.[09]*)+');
 	Route::any('/rategenerators/rules/{id}/update_margin/{rule_id}', 'RateGeneratorRuleController@update_rule_margin')->where('rule_id', '(.[09]*)+');
