@@ -339,7 +339,7 @@ class EmailsTemplates{
 			$array['CompanyCity']					=   $CompanyData->City;
 			$array['CompanyPostCode']				=   $CompanyData->PostCode;
 			$array['CompanyCountry']				=   $CompanyData->Country;
-			$array['Logo']							=   Session::get('user_site_configrations.Logo');
+			$array['Logo']							=   "<img src='".Session::get('user_site_configrations.Logo')."' />";
 			
 			//$array['CompanyAddress']				=   Company::getCompanyFullAddress(User::get_companyID());
 			return $array;
