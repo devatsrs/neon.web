@@ -123,7 +123,7 @@ class TranslateController extends \BaseController {
         ksort($data_array);
         $arr_valid="\nreturn array(";
         foreach($data_array as $key=>$value){
-            $arr_valid.="\n\t'".$key."'=>'".$value."',";
+            $arr_valid.="\n\t'".$key."'=>'".HTML::entities($value)."',";
         }
         $arr_valid.="\n);";
 
