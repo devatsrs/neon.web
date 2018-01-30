@@ -209,7 +209,7 @@
                                                 <i class="entypo-pencil"></i>
                                             </a>
 
-                                            <a href="{{URL::to('/rategenerators/'.$id. '/rule/' . $rategenerator_rule->RateRuleId .'/clone_rule' )}}" id="clone-rule" class="clone_rule btn btn-primary btn-sm" data-original-title="Clone" title="" data-placement="top" data-toggle="tooltip" data-loading-text="...">
+                                            <a href="{{URL::to('/rategenerators/'.$id. '/rule/' . $rategenerator_rule->RateRuleId .'/clone_rule' )}}" data-rate-generator-id="{{$id}}" id="clone-rule" class="clone_rule btn btn-default  btn-sm" data-original-title="Clone" title="" data-placement="top" data-toggle="tooltip" data-loading-text="...">
                                                 <i class="fa fa-clone"></i>
                                             </a>
 
@@ -392,6 +392,7 @@
             e.preventDefault();
             $(this).button('loading');
             var url = $(this).attr('href');
+            var rate_generator_id = $(this).attr('data-rate-generator-id');
 
                 $.ajax({
                     url: url,
@@ -401,7 +402,9 @@
 
                         if (response.status == 'success') {
                             toastr.success(response.message, "Success", toastr_opts);
-                            setTimeout( function() {  location.reload() } ,1000 );
+                             var new_rule_url = baseurl + '/rategenerators/' + rate_generator_id + '/rule/' + response.RateRuleID + '/edit';
+
+                            setTimeout( function() {  window.location = new_rule_url } ,1000 );
                         } else {
                             toastr.error(response.message, "Error", toastr_opts);
                         }

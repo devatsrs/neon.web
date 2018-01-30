@@ -3174,5 +3174,8 @@ BEGIN
 		from tblRateRuleMargin
 		where RateRuleID  = p_RateRuleID;
 
+	  select @NewRateRuleID as RateRuleID;
+
+
 END//
 DELIMITER ;

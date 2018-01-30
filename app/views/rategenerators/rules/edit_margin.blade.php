@@ -24,13 +24,14 @@
                     </div>
                     <div class="col-md-2">
                         <div class="form-group">
-                            <label for="field-5" class="control-label">Add Margin <span class="label label-info popover-primary" data-original-title="Example" data-content="If you want to add percentage value enter i.e. 10p for 10% percentage value" data-placement="bottom" data-trigger="hover" data-toggle="popover">?</span></label>
+                            <label for="field-5" class="control-label">Add Margin <span class="label label-info popover-primary" data-original-title="Add Margin" data-content="If you want to add percentage value enter i.e. 10p for 10% percentage value" data-placement="bottom" data-trigger="hover" data-toggle="popover">?</span></label>
                             <input type="text" name="AddMargin" class="form-control" id="field-5" placeholder="">
                         </div>
                     </div>
                     <div class="col-md-2">
                         <div class="form-group">
                             <label for="field-5" class="control-label">Fixed Value</label>
+                            <span class="label label-info popover-primary" data-original-title="Fixed Value" data-content="if the rate is between min and max then rate will be changed to the value specified." data-placement="bottom" data-trigger="hover" data-toggle="popover">?</span>
                             <input type="text" name="FixedValue" class="form-control" id="field-5" placeholder="">
                         </div>
                     </div>
@@ -131,7 +132,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Add Margin <span class="label label-info popover-primary" data-original-title="Example" data-content="If you want to add percentage value enter i.e. 10p for 10% percentage value" data-placement="bottom" data-trigger="hover" data-toggle="popover">?</span></label>
+                                    <label for="field-5" class="control-label">Add Margin <span class="label label-info popover-primary" data-original-title="Add Margin" data-content="If you want to add percentage value enter i.e. 10p for 10% percentage value" data-placement="bottom" data-trigger="hover" data-toggle="popover">?</span></label>
                                     <input type="text" name="AddMargin" class="form-control" id="field-5" placeholder="">
                                 </div>
 
@@ -139,6 +140,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Fixed Value</label>
+                                    <span class="label label-info popover-primary" data-original-title="Fixed Value" data-content="if the rate is between min and max then rate will be changed to the value specified." data-placement="bottom" data-trigger="hover" data-toggle="popover">?</span>
                                     <input type="text" name="FixedValue" class="form-control" id="field-5" placeholder="">
                                 </div>
 
