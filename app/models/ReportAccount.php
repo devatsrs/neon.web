@@ -9,7 +9,7 @@ class ReportAccount extends \Eloquent{
 
     public static function generateQuery($CompanyID, $data, $filters){
         $select_columns = array();
-        $setting_ag = json_decode($data['setting_ag'],true);
+        $setting_ag = isset($data['setting_ag'])?json_decode($data['setting_ag'],true):array();
         $setting_af_re = check_apply_limit($setting_ag);
         $measure_filter = count(array_intersect($data['filter'],array_keys(Report::$measures[$data['Cube']])));
         $orders_columns = array();

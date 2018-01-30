@@ -2038,7 +2038,7 @@ function table_html($data,$table_data){
     $col_count = count($data['column']);
     $table_header = $table_header_colgroup = $table_row = $table_footer = '';
     $table_data['table_footer_sum'] = array();
-    $setting_rename = json_decode($data['setting_rename'],true);
+    $setting_rename = isset($data['setting_rename'])?json_decode($data['setting_rename'],true):array();
     $chartColor = array('#C5CAE9','#BBDEFB','#B3E5FC','#B2EBF2','#C8E6C9','#DCEDC8','#F0F4C3','#FFCCBC','#D7CCC8','#F5F5F5','#CFD8DC');
     if($row_count) {
         $table_header_colgroup .= '<colgroup span="' . $row_count . '" style="background-color:' . $chartColor[0] . '"></colgroup>';
