@@ -345,4 +345,18 @@ class ReportController extends \BaseController {
         $response =  NeonAPI::request('report/delete_schedule/'.$id,$postdata,'put',false,false);
         return json_response_api($response);
     }
+    public function schedule_download($index){
+        $CompanyID = User::get_companyID();
+        $explods_array = explode('-',$index);
+
+        $AttachmentPaths = AccountEmailLog::where("AccountEmailLogID", $explods_array[0])->pluck('AttachmentPaths');
+        $OutputFilePath = isset(explode(',',$AttachmentPaths)[$explods_array[1]])?explode(',',$AttachmentPaths)[$explods_array[1]]:'';
+        $FilePath =  AmazonS3::preSignedUrl($OutputFilePath,$CompanyID);
+        if(file_exists($FilePath)){
+            download_file($FilePath);
+        }elseif(is_amazon($CompanyID) == true){
+            header('Location: '.$FilePath);
+        }
+        exit;
+    }
 }
