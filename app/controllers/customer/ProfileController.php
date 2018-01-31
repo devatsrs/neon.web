@@ -72,7 +72,7 @@ class ProfileController extends \BaseController {
             $CustomerPicture->move($destinationPath,$fileName);
 
             if(!AmazonS3::upload($destinationPath.$fileName,$amazonPath)){
-                return Response::json(array("status" => "failed", "message" => "Failed to upload."));
+                return Response::json(array("status" => "failed", "message" => Lang::get('routes.MESSAGE_FAILED_TO_UPLOAD_FILE')));
             }
 
             $data['Picture'] = $amazonPath.$fileName;
@@ -85,9 +85,9 @@ class ProfileController extends \BaseController {
             unset($data['Picture']);
         }
         if ($account->update($data)) {
-            return Response::json(array("status" => "success", "message" => "Account Successfully Updated"));
+            return Response::json(array("status" => "success", "message" => Lang::get('routes.CUST_PANEL_PAGE_PROFILE_MSG_ACCOUNT_SUCCESSFULLY_UPDATED')));
         } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Updating Account."));
+            return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_PROFILE_MSG_PROBLEM_UPDATING_ACCOUNT')));
         }
     }
 
