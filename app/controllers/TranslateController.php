@@ -49,7 +49,7 @@ class TranslateController extends \BaseController {
 
 
 //            delete lable btn
-            $html_translation.='<input type="button" value="Delete" data-languages="'.$data["Language"].'" class="text_delete form-control btn-danger"  data-system-name="'.$key.'" />';
+//            $html_translation.='<input type="button" value="Delete" data-languages="'.$data["Language"].'" class="text_delete form-control btn-danger"  data-system-name="'.$key.'" />';
 
 
 

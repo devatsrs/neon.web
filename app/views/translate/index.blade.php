@@ -22,12 +22,13 @@
                         <div class="col-sm-3">
                             {{ddl_language("language", "user_language", Translation::$default_lang_ISOcode)}}
                         </div>
-                        {{--add new table button--}}
+
                         <div class="text-right" >
-                            <a class="btn btn-primary btn-sm btn-icon icon-left" id="set_new_label" href="javascript:;" data-toggle="modal" data-target="#set_new_system_name_model">
+                            {{--add new table button--}}
+                            {{--<a class="btn btn-primary btn-sm btn-icon icon-left" id="set_new_label" href="javascript:;" data-toggle="modal" data-target="#set_new_system_name_model">
                                 <i class="entypo-plus"></i>
                                 Add Label
-                            </a>
+                            </a>--}}
                             <a class="btn btn-primary btn-sm btn-icon icon-left" onclick="refresh_label();" href="javascript:;" >
                                 <i class="entypo-arrows-ccw"></i>
                                 Refresh
