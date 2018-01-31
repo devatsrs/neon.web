@@ -48,10 +48,10 @@
           <tr><!-- new email class: unread -->
             <td class="col-name @if(!empty($result_data->PriorityValue)) borderside borderside{{$result_data->PriorityValue}} @endif"><a target="_blank" href="{{URL::to('/')}}/customer/tickets/{{$result_data->TicketID}}/detail" class="col-name"> <span class="blue_link"> <?php echo ShortName($result_data->Subject,100); ?></span> </a>
             <span class="ticket_number"> #<?php echo $result_data->TicketID; ?></span><br>
-             <a class="col-name">Requester: <?php echo $result_data->Requester; ?></a><br>
-              <span> Created: <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->created_at))->diffForHumans();  ?></span></td>
-            <td  align="left" class="col-time"><div>Status:<span>&nbsp;&nbsp;<?php echo $result_data->TicketStatus; ?></span></div>
-              <div>Priority:<span>&nbsp;&nbsp;<?php echo $result_data->PriorityValue; ?></span></div>              
+             <a class="col-name">{{cus_lang('CUST_PANEL_PAGE_TICKETS_TAB_REQUESTER')}} <?php echo $result_data->Requester; ?></a><br>
+              <span> {{cus_lang('CUST_PANEL_PAGE_TICKETS_TAB_CREATED')}} <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->created_at))->diffForHumans();  ?></span></td>
+            <td  align="left" class="col-time"><div>{{cus_lang('CUST_PANEL_PAGE_TICKETS_TAB_STATUS')}}<span>&nbsp;&nbsp;<?php echo $result_data->TicketStatus; ?></span></div>
+              <div>{{cus_lang('CUST_PANEL_PAGE_TICKETS_TAB_PRIORITY')}}<span>&nbsp;&nbsp;<?php echo $result_data->PriorityValue; ?></span></div>
               </td>
           </tr>
           <?php } }else{ ?>
