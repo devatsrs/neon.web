@@ -3,7 +3,8 @@
 <form role="form" id="form-tickets-edit" method="post"   class="form-horizontal form-groups-bordered validate" novalidate>
   <?php  $required = array();
 			   foreach($ticketsfields as $TicketfieldsData)
-			   {	 
+			   {
+	  			 $TicketfieldsData->CustomerLabel = Lang::get('routes.CUST_PANEL_PAGE_TICKET_FIELDS_'.strtoupper($TicketfieldsData->TicketFieldsID) );
 		   		 if($TicketfieldsData->FieldType=='default_requester' || $TicketfieldsData->FieldType=='default_description' || $TicketfieldsData->FieldType=='default_subject'){continue;}
 				 
 				  $id		    =  'Ticket'.str_replace(" ","",$TicketfieldsData->FieldName);
