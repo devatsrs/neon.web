@@ -74,9 +74,9 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
           <div>{{nl2br($Invoice->Address)}}</div>
         </div>
         <div id="invoice" class="pull-right flip">
-          <h1>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_INVOICE_NO') {{$Invoice->FullInvoiceNumber}}</h1>
-          <div class="date">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_INVOICE_DATE') {{ date($InvoiceTemplate->DateFormat,strtotime($Invoice->IssueDate))}}</div>
-          <div class="date">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_DUE_DATE') {{date($InvoiceTemplate->DateFormat,strtotime($Invoice->IssueDate.' +'.$PaymentDueInDays.' days'))}}</div>
+          <h1  class="text-right flip">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_INVOICE_NO') {{$Invoice->FullInvoiceNumber}}</h1>
+          <div class="date text-right flip">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_INVOICE_DATE') {{ date($InvoiceTemplate->DateFormat,strtotime($Invoice->IssueDate))}}</div>
+          <div class="date text-right flip">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_DUE_DATE') {{date($InvoiceTemplate->DateFormat,strtotime($Invoice->IssueDate.' +'.$PaymentDueInDays.' days'))}}</div>
         </div>
       </div>
       
