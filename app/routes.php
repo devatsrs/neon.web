@@ -1319,6 +1319,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/report/schedule_update/{id}','ReportController@update_schedule');
 	Route::any('/report/schedule_delete/{id}','ReportController@schedule_delete');
 	Route::any('/report/ajax_schedule_datagrid/{type}','ReportController@ajax_schedule_datagrid');
+	Route::any('/report/schedule_download/{name}','ReportController@schedule_download');
 
 	//RateCompare
 	Route::any('/rate_compare', 'RateCompareController@index');
