@@ -291,6 +291,7 @@
          @if( User::checkCategoryPermission('ServerInfo','View'))
         <li> <a href="{{URL::to('/serverinfo')}}">  <span>Server Monitor</span> </a> </li>
     	@endif
+          <li> <a href="{{URL::to('/translate')}}">  <span>Translation</span> </a> </li>
       </ul>
     </li>
     @endif

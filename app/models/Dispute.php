@@ -195,7 +195,9 @@ class Dispute extends \Eloquent {
             $data['InvoiceNumber'] = $data['InvoiceNo'];
         }
         $data['CompanyName'] 	= 	Company::getName($CompanyID);
-        $data['EmailTemplate'] 	= 	EmailTemplate::where(["SystemType"=>EmailTemplate::DisputeEmailCustomerTemplate,'Status'=>1,'CompanyID'=>$CompanyID])->first();
+		$Account = Account::find($data["AccountID"]);
+
+		$data['EmailTemplate'] 	= 	EmailTemplate::getSystemEmailTemplate($CompanyID, EmailTemplate::DisputeEmailCustomerTemplate, $Account->LanguageID);
 		// when no email template selected then no email send
 		if(!empty($data['EmailTemplate'])) {
 			$body = EmailsTemplates::render('body', $data);
@@ -203,7 +205,6 @@ class Dispute extends \Eloquent {
 			$EmailTemplate = $data['EmailTemplate'];
 			if(!empty($EmailTemplate->EmailFrom)) {
 				$data['EmailFrom'] = $EmailTemplate->EmailFrom;
-				$Account = Account::find($data["AccountID"]);
 				$CustomerEmail = $Account->BillingEmail;
 				$emailArray = explode(',', $Account->BillingEmail);
 				foreach ($emailArray as $singleemail) {

@@ -32,20 +32,26 @@ class ReportInvoice extends \Eloquent{
 
     public static function generateQuery($CompanyID, $data, $filters){
         $select_columns = array();
+        $setting_ag = isset($data['setting_ag'])?json_decode($data['setting_ag'],true):array();
+        $setting_af_re = check_apply_limit($setting_ag);
+        $measure_filter = count(array_intersect($data['filter'],array_keys(Report::$measures[$data['Cube']])));
+        $orders_columns = array();
 
         if (count($data['row'])) {
             $query_distinct = self::commonQuery($CompanyID, $data, $filters);
 
             foreach ($data['row'] as $column) {
                 if(isset(self::$database_columns[$column])){
-                    $query_distinct->orderby($column);
+                    $columnname = $column;
                     $select_columns[] = DB::raw(self::$database_columns[$column].' as '.$column) ;
-                }else{
+                }else {
                     $columnname = report_col_name($column);
-                    $query_distinct->orderby($columnname);
                     $select_columns[] = $columnname;
                 }
-
+                $query_distinct->orderby($columnname);
+                if($measure_filter){
+                    $query_distinct->groupby($columnname);
+                }
             }
 
             $query_distinct = $query_distinct->distinct();
@@ -77,15 +83,11 @@ class ReportInvoice extends \Eloquent{
                 $final_query->groupby($columnname);
             }
         }
-        if(in_array('AccountID',$data['column']) || in_array('AccountID',$data['row'])){
-            $extra_query_2 = 'tblPayment.AccountID = tblInvoice.AccountID';
-        }else{
-            $extra_query_2 = 'tblPayment.CompanyID = '.$CompanyID;
-        }
+
 
         //$data['row'] = array_merge($data['row'], $data['column']);
         foreach ($data['sum'] as $colname) {
-            if($colname == 'TotalTax' && self::$InvoiceTaxRateJoin == true){
+            /*if($colname == 'TotalTax' && self::$InvoiceTaxRateJoin == true){
                 $select_columns[] = DB::Raw("SUM(tblInvoiceTaxRate.TaxAmount) as " . $colname);
             }else if($colname == 'GrandTotal' && self::$InvoiceDetailJoin == true){
                 $select_columns[] = DB::Raw("SUM(tblInvoiceDetail.LineTotal) as " . $colname);
@@ -99,8 +101,19 @@ class ReportInvoice extends \Eloquent{
                 $select_columns[] = DB::Raw("SUM(tblInvoice." . $colname . ") as " . $colname);
             }else if(self::$InvoiceDetailJoin == false && in_array($colname,array('GrandTotal'))){
                 $select_columns[] = DB::Raw("SUM(tblInvoice." . $colname . ") as " . $colname);
+            }*/
+            $measure_name  = self::get_measure_name($colname,$data,$CompanyID);
+            if(!empty($measure_name)) {
+                $select_columns[] = DB::Raw($measure_name." as " . $colname);
             }
+            $orders_columns[]  = $colname;
 
+        }
+        if($setting_af_re['applylimit']) {
+            foreach($orders_columns as $order_column) {
+                $final_query->orderby(DB::raw($order_column), $setting_af_re['order']);
+            }
+            $final_query->limit($setting_af_re['limit']);
         }
         /*if(!empty($select_columns)){
             $data['row'][] = DB::Raw($select_columns);
@@ -188,9 +201,70 @@ class ReportInvoice extends \Eloquent{
             }else if (!empty($filter['wildcard_match_val']) && in_array($key, array('year', 'quarter_of_year','month','week_of_year'))) {
                 $query_common->whereRaw(self::$database_columns[$key].' like "'.str_replace('*', '%', $filter['wildcard_match_val']).'"');
                 self::$dateFilterString[] = self::$database_payment_columns[$key].' like "'.str_replace('*', '%', $filter['wildcard_match_val']).'"';
+            } else if (in_array($key,array_keys(Report::$measures[$data['Cube']]))) {
+                $measure_name  = $measure_name2 = self::get_measure_name($key,$data,$CompanyID);
+                if($filter['number_agg'] ==  'count_distinct' ){
+                    $aggregator2 = 'distinct';
+                    $aggregator = 'count';
+                }else{
+                    $aggregator = $filter['number_agg'];
+                    $aggregator2 = '';
+                }
+                if(empty($measure_name)) {
+                    $measure_name =  $aggregator."(".$aggregator2." ". $key . ") ";;
+                }
+                switch ($filter['number_sign']) {
+                    case 'null':
+                        $whereRaw_measure = $measure_name.' IS NULL';
+                        break;
+                    case 'not_null':
+                        $whereRaw_measure = $measure_name.' IS NOT NULL';
+                        break;
+                    case 'range':
+                        $whereRaw_measure  = $measure_name ." Between ". (double)$filter['number_agg_range_min']." AND ".(double)$filter['number_agg_range_max'];
+                        break;
+                    default :
+                        $whereRaw_measure = $measure_name." ". $filter['number_sign'] ." ". str_replace('*', '%', (double)$filter['number_agg_val']);
+                        break;
+                }
+
+                if(empty($filter['number_agg']) && empty($measure_name2)){
+                    $query_common->whereRaw($whereRaw_measure);
+                }else{
+                    $query_common->havingRaw($whereRaw_measure);
+                }
             }
         }
         return $query_common;
+    }
+
+    public static function get_measure_name($colname,$data,$CompanyID){
+        $measure_name = '';
+        $extra_query_3 = '';
+        if(in_array('AccountID',$data['column']) || in_array('AccountID',$data['row'])){
+            $extra_query_2 = 'tblPayment.AccountID = tblInvoice.AccountID';
+        }else{
+            $extra_query_2 = 'tblPayment.CompanyID = '.$CompanyID;
+        }
+        if(in_array('CurrencyID',$data['column']) || in_array('CurrencyID',$data['row']) || in_array('CurrencyID',$data['filter'])){
+            $extra_query_3 = ' AND tblPayment.CurrencyID = tblInvoice.CurrencyID';
+        }
+        if($colname == 'TotalTax' && self::$InvoiceTaxRateJoin == true){
+            $measure_name = "SUM(tblInvoiceTaxRate.TaxAmount) ";
+        }else if($colname == 'GrandTotal' && self::$InvoiceDetailJoin == true){
+            $measure_name = "SUM(tblInvoiceDetail.LineTotal) ";
+        }else if($colname == 'PaidTotal'){
+            $extra_query = !empty(self::$dateFilterString)?implode(' AND ',self::$dateFilterString):' 1=1 ';
+            $measure_name = " (SELECT SUM(Amount) FROM tblPayment WHERE (FIND_IN_SET(tblPayment.InvoiceID,group_concat(tblInvoice.InvoiceID)) OR (tblPayment.InvoiceID =0 ".$extra_query_3." AND ".$extra_query.") ) AND $extra_query_2 AND Status='Approved' AND Recall = '0') ";
+        }else if($colname == 'OutStanding'){
+            $extra_query = !empty(self::$dateFilterString)?implode(' AND ',self::$dateFilterString):' 1=1 ';
+            $measure_name = "(SUM(tblInvoice.GrandTotal) - (SELECT SUM(Amount) FROM tblPayment WHERE ( FIND_IN_SET(tblPayment.InvoiceID,group_concat(tblInvoice.InvoiceID)) OR (tblPayment.InvoiceID =0 ".$extra_query_3." AND ".$extra_query.")) AND $extra_query_2 AND Status='Approved' AND Recall = '0'))";
+        }else if(self::$InvoiceTaxRateJoin == false && in_array($colname,array('TotalTax'))){
+            $measure_name = "SUM(tblInvoice." . $colname . ")";
+        }else if(self::$InvoiceDetailJoin == false && in_array($colname,array('GrandTotal'))){
+            $measure_name = "SUM(tblInvoice." . $colname . ")";
+        }
+        return $measure_name ;
     }
 
 }

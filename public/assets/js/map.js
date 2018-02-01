@@ -21,14 +21,14 @@ function getWorldMap(submit_data){
                 onRegionTipShow: function(e, el, code){
                     if(data.CountryChart[code]) {
                         var  label_html= '</br>'+
-                            '<b>Calls: </b>'+data.CountryChart[code].CallCount+'</br>'+
-                            '<b>Cost: </b>'+data.CountryChart[code].TotalCost+'</br>'+
-                            '<b>Minutes: </b>'+data.CountryChart[code].TotalMinutes+'</br>'+
-                            '<b>ACD: </b>'+data.CountryChart[code].ACD+'</br>'+
-                            '<b>ASR: </b>'+data.CountryChart[code].ASR+'%';
+                            '<b>'+data.lang_labels["calls"]+' </b>'+data.CountryChart[code].CallCount+'</br>'+
+                            '<b>'+data.lang_labels["cost"]+' </b>'+data.CountryChart[code].TotalCost+'</br>'+
+                            '<b>'+data.lang_labels["minutes"]+' </b>'+data.CountryChart[code].TotalMinutes+'</br>'+
+                            '<b>'+data.lang_labels["acd"]+' </b>'+data.CountryChart[code].ACD+'</br>'+
+                            '<b>'+data.lang_labels["asr"]+' </b>'+data.CountryChart[code].ASR+'%';
                             if(customer_login == 0) {
-                                label_html+='</br><b>TotalMargin: </b>' + data.CountryChart[code].TotalMargin;
-                                label_html+='</br><b>Margin(%): </b>' + data.CountryChart[code].MarginPercentage+'%';
+                                label_html+='</br><b>'+data.lang_labels["totalmargin"]+' </b>' + data.CountryChart[code].TotalMargin;
+                                label_html+='</br><b>'+data.lang_labels["margin"]+' </b>' + data.CountryChart[code].MarginPercentage+'%';
                             }
 
                         el.html(el.html() + label_html );
@@ -40,7 +40,7 @@ function getWorldMap(submit_data){
                         submit_data_new = jQuery.extend({}, submit_data);
                         submit_data_new.CountryID = data.CountryChart[code].CountryID;
                         submit_data_new.chart_type = 'prefix';
-						$('#modal-map h4').html('Traffic By Prefix ( '+data.CountryChart[code].Country+' ) ');
+						$('#modal-map h4 span').html(' ( '+data.CountryChart[code].Country+' ) ');
                         $('#modal-map').modal('show');
                         loadTable('#map_destination_table',submit_data_new.pageSize,submit_data_new)
                     }

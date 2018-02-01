@@ -4,25 +4,25 @@
 
 <ol class="breadcrumb bc-3">
     <li>
-        <a href="#"><i class="entypo-home"></i>Profile</a>
+        <a href="#"><i class="entypo-home"></i>@lang('routes.CUST_PANEL_PAGE_PROFILE_TITLE')</a>
     </li>
     <li class="active">
-        <strong>Edit Profile</strong>
+        <strong>@lang('routes.CUST_PANEL_PAGE_EDIT_PROFILE_TITLE')</strong>
     </li>
 </ol>
-<h3>Edit Account</h3>
+<h3>@lang('routes.CUST_PANEL_PAGE_EDIT_PROFILE_TITLE')</h3>
 @include('includes.errors')
 @include('includes.success')
 
-<p style="text-align: right;">
-    <button type="button"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+<p class="text-right">
+    <button type="button"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')">
         <i class="entypo-floppy"></i>
-        Save
+        @lang('routes.BUTTON_SAVE_CAPTION')
     </button>
 
     <a href="{{URL::to('customer/profile')}}" class="btn btn-danger btn-sm btn-icon icon-left">
         <i class="entypo-cancel"></i>
-        Close
+        @lang('routes.BUTTON_CLOSE_CAPTION')
     </a>
 </p>
 <br>
@@ -34,7 +34,7 @@
             <div class="panel panel-primary" data-collapsed="0">
             <div class="panel-heading">
                 <div class="panel-title">
-                    Account Details
+                    @lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_AC_DETAILS_TITLE')
                 </div>
 
                 <div class="panel-options">
@@ -46,16 +46,16 @@
 
 
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">Password</label>
+                    <label class="col-sm-2 control-label">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_AC_DETAILS_LBL_PASSWORD')</label>
                     <div class="col-sm-4">
                         <input class="hide">
                         <input type="password" class="hide">
                             <input type="password" class="form-control"  name="password" id="field-1" placeholder="" value=""/>
                     </div>
 
-                    <label for="field-1" class="col-sm-2 control-label">Picture</label>
+                    <label for="field-1" class="col-sm-2 control-label">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_AC_DETAILS_LBL_PICTURE')</label>
                     <div class="col-sm-4">
-                            <input id="picture" type="file" name="Picture" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
+                            <input id="picture" type="file" name="Picture" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   @lang('routes.BUTTON_BROWSE_CAPTION')" />
                             @if(Customer::get_customer_picture_url(Customer::get_accountID()) !='')
                             <img src="{{ Customer::get_customer_picture_url(Customer::get_accountID()) }}" alt="" class="img-circle" width="44" />
                             @endif
@@ -69,7 +69,7 @@
         <div class="panel panel-primary" data-collapsed="0">
             <div class="panel-heading">
                 <div class="panel-title">
-                    Address Information
+                    @lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_ADDRESS_INFORMATION_TITLE')
                 </div>
 
                 <div class="panel-options">
@@ -79,34 +79,34 @@
 
             <div class="panel-body">
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Address Line 1</label>
+                    <label for="field-1" class="col-sm-2 control-label">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_ADDRESS_INFORMATION_LBL_ADDRESS_LINE_1')</label>
                     <div class="col-sm-4">
                         <input type="text" name="Address1" class="form-control" id="field-1" placeholder="" value="{{$account->Address1}}" />
                     </div>
 
-                    <label for="field-1" class="col-sm-2 control-label">City</label>
+                    <label for="field-1" class="col-sm-2 control-label">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_ADDRESS_INFORMATION_LBL_CITY')</label>
                     <div class="col-sm-4">
                         <input type="text" name="City" class="form-control" id="field-1" placeholder="" value="{{$account->City}}" />
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Address Line 2</label>
+                    <label for="field-1" class="col-sm-2 control-label">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_ADDRESS_INFORMATION_LBL_ADDRESS_LINE_2')</label>
                     <div class="col-sm-4">
                         <input type="text" name="Address2" class="form-control" id="field-1" placeholder="" value="{{$account->Address2}}" />
                     </div>
 
-                    <label for="field-1" class="col-sm-2 control-label">Post/Zip Code</label>
+                    <label for="field-1" class="col-sm-2 control-label">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_ADDRESS_INFORMATION_LBL_POST_ZIP_CODE')</label>
                     <div class="col-sm-4">
                         <input type="text" name="PostCode" class="form-control" id="field-1" placeholder="" value="{{$account->PostCode}}" />
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Address Line 3</label>
+                    <label for="field-1" class="col-sm-2 control-label">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_ADDRESS_INFORMATION_LBL_ADDRESS_LINE_3')</label>
                     <div class="col-sm-4">
                         <input type="text" name="Address3" class="form-control" id="field-1" placeholder="" value="{{$account->Address3}}" />
                     </div>
 
-                    <label for=" field-1" class="col-sm-2 control-label">*Country</label>
+                    <label for=" field-1" class="col-sm-2 control-label">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_ADDRESS_INFORMATION_LBL_COUNTRY')</label>
                     <div class="col-sm-4">
 
                     {{Form::select('Country', $countries, $account->Country ,array("class"=>"form-control select2"))}}
@@ -178,9 +178,10 @@
                                 var filename = response.Filename;
 
                                 if($('.table_'+$("#form-upload [name='AccountApprovalID']").val()).html().trim() === ''){
-                                    $('.table_'+$("#form-upload [name='AccountApprovalID']").val()).html('<table class="table table-bordered datatable dataTable "><thead><tr><th>File Name</th><th>Action</th></tr></thead><tbody class="doc_'+$("#form-upload [name='AccountApprovalID']").val()+'"></tbody></table>');
+                                    $('.table_'+$("#form-upload [name='AccountApprovalID']").val()).html('<table class="table table-bordered datatable dataTable "><thead><tr><th>@lang('routes.CUST_PANEL_PAGE_PROFILE_TBL_FILE_NAME')</th><th>@lang('routes.TABLE_COLUMN_ACTION')</th></tr></thead><tbody class="doc_'+$("#form-upload [name='AccountApprovalID']").val()+'"></tbody></table>');
                                 }
-                                var down_html = $('.doc_'+$("#form-upload [name='AccountApprovalID']").val()).html()+'<tr><td>'+filename+'</td><td><a class="btn btn-success btn-sm btn-icon icon-left"  href="'+url3+'" title="" ><i class="entypo-down"></i>Download</a> <a class="btn  btn-danger delete-doc btn-sm btn-icon icon-left"  href="'+delete_doc_url+'" title="" ><i class="entypo-trash"></i>Delete</a></td></tr>';
+
+                                var down_html = $('.doc_'+$("#form-upload [name='AccountApprovalID']").val()).html()+'<tr><td>'+filename+'</td><td><a class="btn btn-success btn-sm btn-icon icon-left"  href="'+url3+'" title="" ><i class="entypo-down"></i>Download</a> <a class="btn  btn-danger delete-doc btn-sm btn-icon icon-left"  href="'+delete_doc_url+'" title="" ><i class="entypo-trash"></i>@lang("routes.BUTTON_DELETE_CAPTION")</a></td></tr>';
                                 $('.doc_'+$("#form-upload [name='AccountApprovalID']").val()).html(down_html);
                                 if(response.refresh){
                                     setTimeout(function(){window.location.reload()},1000);
@@ -210,7 +211,7 @@
 
             $('body').on('click', '.delete-doc', function(e) {
                 e.preventDefault();
-                result = confirm("Are you Sure?");
+                result = confirm("@lang('routes.MESSAGE_ARE_YOU_SURE')");
                 if(result){
                     submit_ajax($(this).attr('href'),'AccountID=AccountID')
                     $(this).parent().parent('tr').remove();

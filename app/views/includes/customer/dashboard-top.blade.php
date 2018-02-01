@@ -21,7 +21,7 @@
             <li>
                 <a href="{{URL::to('/customer/profile' )}}">
                     <i class="entypo-user"></i>
-                    Edit Profile
+                    @lang("routes.CUST_PANEL_HEAER_EDIT_PROFILE")
                 </a>
             </li>
         </ul>
@@ -31,12 +31,46 @@
 
 </div>
 <!-- Raw Links -->
-<div class="col-md-6 col-sm-4 clearfix hidden-xs">
+<div class="col-md-6 col-sm-4 clearfix hidden-xs text-right">
 
     <ul class="list-inline links-list pull-right">
-        <li>
-            <a href="{{ URL::to('customer/logout') }}">Log Out <i class="entypo-logout right"></i>
+        <li class="dropdown language-selector" id="user_language">
+            <?php
+            $cus_language=NeonCookie::getCookie('customer_language',"en");
+            ?>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-close-others="true" aria-expanded="false">
+                <img src="" width="25" />
+                <span></span>
+                <i class="entypo-down-open-mini"></i>
             </a>
+            <ul class="dropdown-menu pull-right">
+                @foreach( Translation::getLanguageDropdownWithFlagList() as $key=>$value )
+                    <?php
+                    $selected="";
+                        if($cus_language==$key){
+                            $selected="active";
+                        }
+                    ?>
+                    <li class="{{$selected}}" lang-key="{{$key}}">
+                        <a href="javascript:void(0);">
+                            <img src="{{URL::to('/assets/images/flag/'.$value["languageFlag"])}}" width="25" />
+                            <span>{{$value["languageName"]}}</span>
+                        </a>
+                    </li>
+                @endforeach
+                <?php
+                   $cus_alignment = NeonCookie::getCookie('customer_alignment',"left");
+                    if($cus_alignment=="left"){
+                        $cus_alignment="right";
+                    }else{
+                        $cus_alignment="left";
+                    }
+                ?>
+                    {{--<li class="" lang-key="toggle"> <a href="javascripe:void(0);"> <i class="glyphicon glyphicon-align-{{$cus_alignment}}"></i> <span>Toggle Alignment</span> </a> </li>--}}
+            </ul>
+        </li>
+        <li>
+            <a href="{{ URL::to('customer/logout') }}">@lang('routes.CUST_PANEL_HEAER_LOGOUT') <i class="entypo-logout right"></i></a>
         </li>
     </ul>
 
@@ -143,5 +177,11 @@
              </div>
          </div>
      </div>
- </div> 
+ </div>
+
+<style>
+    .select2-choice {
+        text-align: left;
+    }
+</style>
  @stop

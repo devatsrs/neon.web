@@ -43,5 +43,11 @@ class NeonCookie
         setcookie($name,$value,$expire_day,$path,$domain,$secure,$httponly);
     }
 
+    public static function deleteCookie($name){
+        if(isset($_COOKIE[$name])){
+            unset($_COOKIE[$name]);
+            setcookie($name, '', time() - 3600);
+        }
+    }
 
 }
