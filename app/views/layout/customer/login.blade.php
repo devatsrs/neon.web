@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{App::getLocale()}}">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -16,7 +16,10 @@
                 <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
                 <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
         <![endif]-->
-       <script type="text/javascript">var baseurl = '<?php echo URL::to('/');?>';</script>
+       <script type="text/javascript">
+           var baseurl = '<?php echo URL::to('/');?>';
+           var customer_alignment = '<?php echo $customer_alignment ?>';
+       </script>
         @if(Session::get('user_site_configrations.CustomCss'))
             <style>
                 {{Session::get('user_site_configrations.CustomCss')}}

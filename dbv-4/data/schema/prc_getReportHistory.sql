@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getReportHistory`(
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_getReportHistory`(
 	IN `p_CompanyID` INT,
 	IN `p_ReportScheduleID` INT,
 	IN `p_ReportID` INT,
@@ -24,7 +24,9 @@ BEGIN
 			tblReportSchedule.Name,
 			tblReportScheduleLog.send_at,
 			AccountEmailLog.Subject,
-			AccountEmailLog.Message
+			AccountEmailLog.Message,
+			AccountEmailLog.AttachmentPaths,
+			AccountEmailLog.AccountEmailLogID
 		FROM tblReportSchedule
 		INNER JOIN tblReportScheduleLog 
 			ON tblReportSchedule.ReportScheduleID = tblReportScheduleLog.ReportScheduleID

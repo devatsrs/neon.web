@@ -1,19 +1,19 @@
 <br/>
-<p style="text-align: right;">
+<p class="col-md-12 text-right">
     <a class=" btn btn-primary btn-sm btn-icon icon-left" id="add-call-alert">
         <i class="entypo-plus"></i>
-        Add New
+        @lang('routes.BUTTON_ADD_CAPTION')
     </a>
 </p>
 <table class="table table-bordered datatable" id="table-6">
     <thead>
     <tr>
-        <th width="10%">Name</th>
-        <th width="10%">Type</th>
-        <th width="10%">Status</th>
-        <th width="10%">Last Updated</th>
-        <th width="10%">Updated By</th>
-        <th width="20%">Action</th>
+        <th width="10%">@lang('routes.CUST_PANEL_PAGE_NOTIFICATIONS_TBL_NAME')</th>
+        <th width="10%">@lang('routes.CUST_PANEL_PAGE_NOTIFICATIONS_TBL_TYPE')</th>
+        <th width="10%">@lang('routes.CUST_PANEL_PAGE_NOTIFICATIONS_TBL_STATUS')</th>
+        <th width="10%">@lang('routes.CUST_PANEL_PAGE_NOTIFICATIONS_TBL_LAST_UPDATED')</th>
+        <th width="10%">@lang('routes.CUST_PANEL_PAGE_NOTIFICATIONS_TBL_UPDATED_BY')</th>
+        <th width="20%">@lang('routes.TABLE_COLUMN_ACTION')</th>
     </tr>
     </thead>
     <tbody>
@@ -86,10 +86,10 @@
                         }
                         action += '</div>';
 
-                                action += ' <a href="' + alert_edit_url.replace("{id}", id) + '" title="Edit" class="edit-call-alert btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
+                                action += ' <a href="' + alert_edit_url.replace("{id}", id) + '" title="@lang('routes.BUTTON_EDIT_CAPTION')" class="edit-call-alert btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
 
 
-                                action += ' <a href="' + alert_delete_url.replace("{id}", id) + '" title="Delete" class="delete-call-alert btn btn-danger btn-sm"><i class="entypo-trash"></i></a>'
+                                action += ' <a href="' + alert_delete_url.replace("{id}", id) + '" title="@lang('routes.BUTTON_DELETE_CAPTION')" class="delete-call-alert btn btn-danger btn-sm"><i class="entypo-trash"></i></a>'
 
                                 return action;
                     }
@@ -99,13 +99,13 @@
                 "aButtons": [
                     {
                         "sExtends": "download",
-                        "sButtonText": "EXCEL",
+                        "sButtonText": "@lang("routes.BUTTON_EXPORT_EXCEL_CAPTION")",
                         "sUrl": baseurl + "/customer/alert/ajax_datagrid/xlsx",
                         sButtonClass: "save-collection btn-sm"
                     },
                     {
                         "sExtends": "download",
-                        "sButtonText": "CSV",
+                        "sButtonText": "@lang("routes.BUTTON_EXPORT_CSV_CAPTION")",
                         "sUrl": baseurl + "/customer/alert/ajax_datagrid/csv",
                         sButtonClass: "save-collection btn-sm"
                     }
@@ -138,7 +138,7 @@
         $('#add-call-alert').click(function(ev){
             ev.preventDefault();
             $('#call-billing-form').trigger("reset");
-            $('#add-call-modal h4').html('Add Monitoring');
+            $('#add-call-modal h4').html('@lang('routes.CUST_PANEL_PAGE_NOTIFICATIONS_MODAL_ADD_MONITORING_TITLE')');
 
 
             $('#call-billing-form select').select2("val", "");
@@ -158,7 +158,7 @@
             $('#call-billing-form').trigger("reset");
             var edit_url  = $(this).attr("href");
             $('#call-billing-form').attr("action",edit_url);
-            $('#add-call-modal h4').html('Edit Monitoring');
+            $('#add-call-modal h4').html('@lang('routes.CUST_PANEL_PAGE_NOTIFICATIONS_MODAL_EDIT_MONITORING_TITLE')');
             $('#call-billing-form select').select2("val", "");
             $(this).prev("div.hiddenRowData").find('input').each(function(i, el){
                 var ele_name = $(el).attr('name');
@@ -195,7 +195,7 @@
         });
         $('table tbody').on('click', '.delete-call-alert', function (ev) {
             ev.preventDefault();
-            result = confirm("Are you Sure?");
+            result = confirm("@lang('routes.MESSAGE_ARE_YOU_SURE')");
             if(result){
                 var delete_url  = $(this).attr("href");
                 submit_ajax_datatable( delete_url,"",0,data_table_call);

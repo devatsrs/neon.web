@@ -91,6 +91,8 @@ class NeonAPI{
         $post_data['LicenceKey'] = getenv('LICENCE_KEY');
         $post_data['CompanyName']= getenv('COMPANY_NAME');
 		$post_data['LoginType']= 'user';	 //default user
+		$post_data['Language']= NeonCookie::getCookie('customer_language', Translation::$default_lang_ISOcode);
+
 		
 		
 		$customer 	= Session::get('customer'); //customer check

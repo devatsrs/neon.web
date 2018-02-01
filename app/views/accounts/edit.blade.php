@@ -204,7 +204,7 @@
                     <div class="col-md-4">
                             @if($all_invoice_count == 0)
                             {{Form::SelectControl('currency',0,$account->CurrencyId,0,'CurrencyId')}}
-                            <!--{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2 small"))}}-->
+                            <!--{Form::select('CurrencyI d', $currencies, $account->CurrencyId ,array("class"=>"form-control select2 small"))}}-->
                             @else
                             {{Form::SelectControl('currency',0,$account->CurrencyId,1,'CurrencyId')}}
                             <!--{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2 small",'disabled'))}}-->
@@ -250,6 +250,12 @@
                 @endforeach
                     </div>
                 @endif
+                <div class="form-group">
+                    <label for="field-1" class="col-md-2 control-label">Languages</label>
+                    <div class="col-md-4">
+                        {{ddl_language("", "LanguageID", ( isset($account->LanguageID)?$account->LanguageID:Translation::$default_lang_id ),"", "id")}}
+                    </div>
+                </div>
 
                 <script>
                     $(document).ready(function() {

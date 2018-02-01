@@ -10,8 +10,11 @@
             }else{
                 update_new_url = baseurl + '/email_template/store';
             }
+            var formdata = new FormData(($('#add-new-template-form')[0]));
+            formdata.append('LanguageID', $("#add-new-template-form [name='LanguageID']").val());
+            formdata.append('SystemType', $("#add-new-template-form [name='SystemType']").val());
 
-            showAjaxScript(update_new_url, new FormData(($('#add-new-template-form')[0])), function(response){
+            showAjaxScript(update_new_url, formdata, function(response){
                 $(".btn").button('reset');
                 if (response.status == 'success') {
                     $('#add-new-modal-template').modal('hide');
@@ -126,6 +129,8 @@
 				var modal = $(this);
 				modal.find('.email_from').addClass('hidden');
 				modal.find('#TemplateName').removeAttr('readonly');
+				modal.find('#SystemType').select2('enable', true);
+				modal.find('[name=LanguageID]').select2('enable', true);
 	  });
 		
     });
@@ -144,6 +149,20 @@
                     <div class="modal-body">
                         <div class="row">
                             <div class="form-group">
+                                <label for="field-1" class="control-label col-sm-2">Language</label>
+                                <div class="col-sm-4">
+                                    {{ddl_language("", "LanguageID", Translation::$default_lang_id,"", "id", "yes")}}
+                                </div>
+
+                                <label for="field-1" class="control-label col-sm-2">Type</label>
+                                <div class="col-sm-4">
+                                    {{ Form::select('SystemType', EmailTemplate::getSystemTypeArray(), '', array("class"=>"select2", "id"=>"SystemType")) }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group">
+                                <br />
                                 <label for="field-1" class="control-label col-sm-2">Template Name</label>
                                 <div class="col-sm-4">
                                     <input type="text" name="TemplateName" class="form-control" id="TemplateName" placeholder="">

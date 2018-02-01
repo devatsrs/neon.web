@@ -292,7 +292,7 @@
 
                                 newRow =
                                         '<tr>' +
-                                        '<th>TOTAL</th>' +
+                                        '<th>@lang('routes.TABLE_TOTAL')</th>' +
                                         '<th></th>' +
                                         '<th style="text-align: right;">'+ CurencySymbol+ InvoiceOutAmountTotal +'</th>' +
                                         '<th style="color:#cc2424 !important;text-align: right;">' + CurencySymbol + InvoiceOutDisputeAmountTotal +'</th>' +

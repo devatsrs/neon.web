@@ -45,29 +45,30 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="tile-stats tile-cyan stat-tile panel loading">
-                        <h3>Sales</h3>
+                        <h3>@lang("routes.CUST_PANEL_PAGE_MONITOR_RIGHT_SIDE_SALES") <span></span></h3>
                         {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
-                        <p>Today Sales by hour</p>
+                        <p>@lang("routes.CUST_PANEL_PAGE_MONITOR_RIGHT_SIDE_TODAY_SALES_BY_HOUR")</p>
                         <span class="hourly-sales-cost-"></span>
+
                     </div>
                 </div>
 
                 <div class="col-md-12">
                     <div class="tile-stats tile-aqua stat-tile panel loading">
-                        <h3>Minutes 0</h3>
+                        <h3>@lang("routes.CUST_PANEL_PAGE_MONITOR_RIGHT_SIDE_TODAY_MINUTES") <span>0</span></h3>
                         {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
-                        <p>Today Minutes by hour</p>
+                        <p>@lang("routes.CUST_PANEL_PAGE_MONITOR_RIGHT_SIDE_TODAY_MINUTES_BY_HOUR")</p>
                         <span class="hourly-sales-minutes-"></span>
                     </div>
                 </div>
                 <div class="col-md-12">
                     <div class="tile-stats tile-pink stat-tile panel loading">
-                        <h3>Account Manager</h3>
+                        <h3>@lang("routes.CUST_PANEL_PAGE_MONITOR_RIGHT_SIDE_ACCOUNT_MANAGER")</h3>
                         <div class="icon"><i class="fa fa-user"></i></div>
                         <p style="font-size:12px; ">
-                            Name:{{$AccountManager}}
+                            @lang("routes.CUST_PANEL_PAGE_MONITOR_RIGHT_SIDE_ACCOUNT_MANAGER_NAME"):{{$AccountManager}}
                             <br/>
-                            Email:{{$AccountManagerEmail}}
+                            @lang("routes.CUST_PANEL_PAGE_MONITOR_RIGHT_SIDE_ACCOUNT_MANAGER_EMAIL"):{{$AccountManagerEmail}}
 
                         </p>
 
@@ -80,15 +81,15 @@
         <div class="col-md-12">
         <ul class="nav nav-tabs">
             @if( (empty($MonitorDashboardSetting)) ||  in_array('AnalysisMonitor',$MonitorDashboardSetting))
-            <li class="active"><a href="#tab1" data-toggle="tab">Destination</a></li>
-            <li ><a href="#tab2" data-toggle="tab">Destination Break</a></li>
-            <li ><a href="#tab3" data-toggle="tab">Prefix</a></li>
-            <li ><a href="#tab4" data-toggle="tab">Trunk</a></li>
+            <li class="active"><a href="#tab1" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_DESTINATION_TITLE")</a></li>
+            <li ><a href="#tab2" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_DESTINATION_BREAK_TITLE")</a></li>
+            <li ><a href="#tab3" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_PREFIX_TITLE")</a></li>
+            <li ><a href="#tab4" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_TRUNK_TITLE")</a></li>
             @endif
             @if((empty($MonitorDashboardSetting)) ||  in_array('CallMonitor',$MonitorDashboardSetting))
-            <li class="{{!in_array('AnalysisMonitor',$MonitorDashboardSetting)?'active':''}}"><a href="#mdn" data-toggle="tab">Most Dialled Number</a></li>
-            <li ><a href="#ldc" data-toggle="tab">Longest Durations Calls</a></li>
-            <li ><a href="#mec" data-toggle="tab">Most Expensive Calls</a></li>
+            <li class="{{!in_array('AnalysisMonitor',$MonitorDashboardSetting)?'active':''}}"><a href="#mdn" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_MOST_DIALLED_NUMBER_TITLE")</a></li>
+            <li ><a href="#ldc" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_LONGEST_DURATIONS_CALLS_TITLE")</a></li>
+            <li ><a href="#mec" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_MOST_EXPENSIVE_CALLS_TITLE")</a></li>
             @endif
         </ul>
         <div class="tab-content">
@@ -100,7 +101,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">Top 10 Destination - Call Count.</div>
+                            <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_DESTINATION_LBL_TOP_DESTINATION_CALL_COUNT")</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -127,7 +128,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">Top 10 Destination - Call Cost.</div>
+                            <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_DESTINATION_LBL_TOP_DESTINATION_CALL_COST")</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -154,7 +155,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">Top 10 Destination - Call Minutes.</div>
+                            <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_DESTINATION_LBL_TOP_DESTINATION_CALL_MINUTES")</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -185,7 +186,7 @@
                             <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                                 <!-- panel head -->
                                 <div class="panel-heading">
-                                    <div class="panel-title">Top 10 Destination Break - Call Count.</div>
+                                    <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_DESTINATION_BREAK_LBL_TOP_DESTINATION_BREAK_CALL_COUNT")</div>
 
                                     {{--<div class="panel-options">
                                         <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -212,7 +213,7 @@
                             <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                                 <!-- panel head -->
                                 <div class="panel-heading">
-                                    <div class="panel-title">Top 10 Destination Break - Call Cost.</div>
+                                    <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_DESTINATION_BREAK_LBL_TOP_DESTINATION_BREAK_CALL_COST")</div>
 
                                     {{--<div class="panel-options">
                                         <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -239,7 +240,7 @@
                             <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                                 <!-- panel head -->
                                 <div class="panel-heading">
-                                    <div class="panel-title">Top 10 Destination Break - Call Minutes.</div>
+                                    <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_DESTINATION_BREAK_LBL_TOP_DESTINATION_BREAK_CALL_MINUTES")</div>
 
                                     {{--<div class="panel-options">
                                         <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -270,7 +271,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">Top 10 Prefix - Call Count.</div>
+                            <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_PREFIX_TOP_PREFIX_CALL_COUNT")</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -297,7 +298,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">Top 10 Prefix - Call Cost.</div>
+                            <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_PREFIX_TOP_PREFIX_CALL_COST")</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -324,7 +325,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">Top 10 Prefix - Call Minutes.</div>
+                            <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_PREFIX_TOP_PREFIX_CALL_MINUTES")</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -355,7 +356,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">Top 10 Trunks - Call Count.</div>
+                            <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_TRUNK_TOP_TRUNK_CALL_COUNT")</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -382,7 +383,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">Top 10 Trunks - Call Cost.</div>
+                            <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_TRUNK_TOP_TRUNK_CALL_COST")</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -409,7 +410,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">Top 10 Trunks - Call Minutes.</div>
+                            <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_TRUNK_TOP_TRUNK_CALL_MINUTES")</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>

@@ -378,7 +378,7 @@ class Payment extends \Eloquent {
         TransactionLog::insert($transactiondata);
         $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
 
-        $EmailTemplate = EmailTemplate::where(["CompanyID" => $paymentdata['CompanyID'], "SystemType" => EmailTemplate::InvoicePaidNotificationTemplate , "Status" => 1 ])->first();
+        $EmailTemplate = EmailTemplate::getSystemEmailTemplate($paymentdata['CompanyID'], EmailTemplate::InvoicePaidNotificationTemplate, $account->LanguageID);
         if(!empty($EmailTemplate) && isset($EmailTemplate->Status) && $EmailTemplate->Status == 1 ){
             $paymentdata['EmailTemplate'] = $EmailTemplate;
             $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);

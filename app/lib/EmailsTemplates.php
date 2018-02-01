@@ -55,7 +55,10 @@ class EmailsTemplates{
 				$replace_array							=	$data;
 				$InvoiceData   							=  	Invoice::find($InvoiceID);
 				$InvoiceDetailPeriod 					= 	InvoiceDetail::where(["InvoiceID" => $InvoiceID,'ProductType'=>Product::INVOICE_PERIOD])->first();
-				$EmailTemplate 							= 	EmailTemplate::where(["SystemType"=>Invoice::EMAILTEMPLATE])->first();
+
+				$Account 								= 	Account::find($InvoiceData->AccountID);
+				$EmailTemplate 							= 	EmailTemplate::getSystemEmailTemplate($companyID, Invoice::EMAILTEMPLATE, $Account->LanguageID );
+
 				$replace_array							=	EmailsTemplates::setCompanyFields($replace_array,$InvoiceData->CompanyID);
 				$replace_array 							=	EmailsTemplates::setAccountFields($replace_array,$InvoiceData->AccountID);
 				$replace_array['InvoiceOutstanding'] 	=	Account::getOutstandingInvoiceAmount($companyID, $InvoiceData->AccountID, $InvoiceID, get_round_decimal_places($InvoiceData->AccountID));
@@ -135,8 +138,8 @@ class EmailsTemplates{
 			$replace_array							=	EmailsTemplates::setCompanyFields($replace_array,$EstimateData->CompanyID); 
 			$replace_array 							=	EmailsTemplates::setAccountFields($replace_array,$EstimateData->AccountID);
 			$AccoutData 							=	Account::find($EstimateData->AccountID);
-			$EmailTemplate 							= 	EmailTemplate::where(["SystemType"=>$slug])->first();
-				
+			$EmailTemplate 							= 	EmailTemplate::getSystemEmailTemplate($AccoutData->CompanyId, $slug, $AccoutData->LanguageID);
+
 			$InvoiceTemplateID 		= 	AccountBilling::getInvoiceTemplateID($EstimateData->AccountID);
 			$EstimateNumber			=   Estimate::getFullEstimateNumber($EstimateData,$InvoiceTemplateID);
 			

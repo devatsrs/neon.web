@@ -81,6 +81,15 @@ class Invoice extends \Eloquent {
     public static  function generate_pdf($InvoiceID){  
         if($InvoiceID>0) {
             $Invoice = Invoice::find($InvoiceID);
+
+            $language=Account::where("AccountID", $Invoice->AccountID)
+                                ->join('tblLanguage', 'tblLanguage.LanguageID', '=', 'tblAccount.LanguageID')
+                                ->join('tblTranslation', 'tblTranslation.LanguageID', '=', 'tblAccount.LanguageID')
+                                ->select('tblLanguage.ISOCode', 'tblTranslation.Language', 'tblLanguage.is_rtl')
+                                ->first();
+
+            App::setLocale($language->ISOCode);
+
             $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $InvoiceID])->get();
             $InvoiceTaxRates = InvoiceTaxRate::where(["InvoiceID"=>$InvoiceID,"InvoiceTaxType"=>0])->orderby('InvoiceTaxRateID')->get();
 			//$InvoiceAllTaxRates = InvoiceTaxRate::where(["InvoiceID"=>$InvoiceID,"InvoiceTaxType"=>1])->orderby('InvoiceTaxRateID')->get();
@@ -126,7 +135,7 @@ class Invoice extends \Eloquent {
             $htmlfile_name = 'Invoice--' .$common_name . '.html';
 
 			$print_type = 'Invoice';
-            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','InvoiceTaxRates','PaymentDueInDays','InvoiceAllTaxRates'))->render();
+            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','InvoiceTaxRates','PaymentDueInDays','InvoiceAllTaxRates','language'))->render();
 
             $body = htmlspecialchars_decode($body);  
             $footer = View::make('invoices.pdffooter', compact('Invoice','print_type'))->render();
