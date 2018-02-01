@@ -35,7 +35,7 @@
                             <ul class="list-inline links-list pull-right">
                                 <li class="dropdown language-selector" id="user_language">
                                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-close-others="true" aria-expanded="false">
-                                        <img src="" width="25" />
+                                        <img src="" width="30" />
                                         <span></span>
                                         <i class="entypo-down-open-mini"></i>
                                     </a>

@@ -251,7 +251,7 @@
                     </div>
                 @endif
                 <div class="form-group">
-                    <label for="field-1" class="col-md-2 control-label">Languages</label>
+                    <label for="field-1" class="col-md-2 control-label">Language</label>
                     <div class="col-md-4">
                         {{ddl_language("", "LanguageID", ( isset($account->LanguageID)?$account->LanguageID:Translation::$default_lang_id ),"", "id")}}
                     </div>
