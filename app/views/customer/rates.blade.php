@@ -1,14 +1,14 @@
 @extends('layout.customer.main')
 @section('content')
     <ol class="breadcrumb bc-3">
-        <li> <a href="#"><i class="entypo-home"></i>Rates</a> </li>
+        <li> <a href="#"><i class="entypo-home"></i>@lang("routes.CUST_PANEL_PAGE_RATES_TITLE")</a> </li>
     </ol>
-    <h3>Rates</h3>
+    <h3>@lang("routes.CUST_PANEL_PAGE_RATES_TITLE")</h3>
     <div id="table_filter" method="get" action="#" >
         <div class="panel panel-primary" data-collapsed="0">
             <div class="panel-heading">
                 <div class="panel-title">
-                    Filter
+                    @lang("routes.CUST_PANEL_FILTER_TITLE")
                 </div>
                 <div class="panel-options">
                     <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
@@ -16,15 +16,15 @@
             </div>
             <div class="panel-body">
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-1 control-label">Prefix</label>
+                    <label for="field-1" class="col-sm-1 control-label">@lang("routes.CUST_PANEL_PAGE_RATES_FILTER_FIELD_PREFIX")</label>
                     <div class="col-sm-2"> {{ Form::text('Prefix', '', array("class"=>"form-control")) }} </div>
-                    <label for="field-1" class="col-sm-1 control-label">Description</label>
+                    <label for="field-1" class="col-sm-1 control-label">@lang("routes.CUST_PANEL_PAGE_RATES_FILTER_FIELD_DESCRIPTION")</label>
                     <div class="col-sm-2"> {{ Form::text('Description', '', array("class"=>"form-control")) }} </div>
                 </div>
-                <p style="text-align: right;">
+                <p class="pull-right">
                     <button class="btn btn-primary btn-sm btn-icon icon-left" id="filter_submit" type="submit">
                         <i class="entypo-search"></i>
-                        Search
+                        @lang("routes.BUTTON_SEARCH_CAPTION")
                     </button>
                 </p>
             </div>
@@ -35,14 +35,14 @@
         <thead>
         <tr>
             <th width="5%"></th>
-            <th width="15%">Prefix</th>
-            <th width="20%">Name</th>
-            <th width="10%">Interval 1</th>
-            <th width="10%">Interval N</th>
+            <th width="15%">@lang("routes.CUST_PANEL_PAGE_RATES_TBL_PREFIX")</th>
+            <th width="20%">@lang("routes.CUST_PANEL_PAGE_RATES_TBL_NAME")</th>
+            <th width="10%">@lang("routes.CUST_PANEL_PAGE_RATES_TBL_INTERVAL_1")</th>
+            <th width="10%">@lang("routes.CUST_PANEL_PAGE_RATES_TBL_INTERVAL_N")</th>
             <th width="5%"></th>
-            <th width="10%">Connection Fee</th>
-            <th width="15%">Rate</th>
-            <th width="15%">Effective Date</th>
+            <th width="10%">@lang("routes.CUST_PANEL_PAGE_RATES_TBL_CONNECTION_FEE")</th>
+            <th width="15%">@lang("routes.CUST_PANEL_PAGE_RATES_TBL_RATE")</th>
+            <th width="15%">@lang("routes.CUST_PANEL_PAGE_RATES_TBL_EFFECTIVE_DATE")</th>
         </tr>
         </thead>
         <tbody>
@@ -110,13 +110,13 @@
                         "aButtons": [
                             {
                                 "sExtends": "download",
-                                "sButtonText": "EXCEL",
+                                "sButtonText": "@lang('routes.BUTTON_EXPORT_EXCEL_CAPTION')",
                                 "sUrl": baseurl + "/customer/rates_grid/xlsx", //baseurl + "/generate_xls.php",
                                 sButtonClass: "save-collection btn-sm"
                             },
                             {
                                 "sExtends": "download",
-                                "sButtonText": "CSV",
+                                "sButtonText": "@lang('routes.BUTTON_EXPORT_CSV_CAPTION')",
                                 "sUrl": baseurl + "/customer/rates_grid/csv", //baseurl + "/generate_csv.php",
                                 sButtonClass: "save-collection btn-sm"
                             }

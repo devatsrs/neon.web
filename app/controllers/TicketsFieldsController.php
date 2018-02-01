@@ -342,6 +342,7 @@ private $validlicense;
 					
 											
 				} 
+			 	TranslateController::refresh_label();
 				 DB::commit();
 				   return Response::json(["status" => "success", "message" => "Successfully updated."]);
 			 } catch (Exception $ex) {
@@ -370,6 +371,7 @@ private $validlicense;
 					}					
 				}
 				
+				TranslateController::refresh_label();
 				DB::commit();
 				 return Response::json(["status" => "success", "message" => "Successfully updated."]);
 			} catch (Exception $ex) {

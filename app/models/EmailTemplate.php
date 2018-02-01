@@ -47,29 +47,79 @@ class EmailTemplate extends \Eloquent {
         $select =  isset($data['select'])?$data['select']:1;
         unset($data['select']);
         $data['CompanyID']=User::get_companyID();
-        $EmailTemplate = EmailTemplate::where($data);
-        if(!isset($data['UserID'])){
-            $EmailTemplate->whereNull('UserID');
-        }
-		$EmailTemplate->where('StaticType',0);
-        $row = $EmailTemplate->select(array('TemplateID', 'TemplateName'))->orderBy('TemplateName')->lists('TemplateName','TemplateID');
 
-        if(!empty($row) && $select==1){
-            $row = array(""=> "Select")+$row;
+        $language_arr = Translation::getLanguageDropdownIdList();
+
+        if(isset($data['LanguageID']) && !empty($data['LanguageID'])){
+            $language_arr=[
+                $data['LanguageID'] => $language_arr[$data['LanguageID']]
+            ];
         }
-        return $row;
+        $result=array();
+        foreach($language_arr as $key=>$value){
+
+            $data['LanguageID']=$key;
+
+            $EmailTemplate = EmailTemplate::where($data);
+
+            if(!isset($data['UserID'])){
+                $EmailTemplate->whereNull('UserID');
+            }
+            $EmailTemplate->where('StaticType',0);
+            $row = $EmailTemplate->select(array('TemplateID', 'TemplateName'))->orderBy('TemplateName')->lists('TemplateName','TemplateID');
+
+            if(count($row)){
+                $result[$value]=$row;
+            }
+        }
+
+        if(!empty($result) && $select==1){
+            $result = array(""=> "Select")+$result;
+        }
+        return $result;
     }
 
     public static function getDefaultSystemTemplate($SystemType){
        return  EmailTemplate::where(array('SystemType'=>$SystemType))->pluck('TemplateID');
     }
 	
-	public static function GetUserDefinedTemplates($select = 1){
+	public static function GetUserDefinedTemplates($select = 1,$language_id=""){
 		$select =  isset($select)?$select:1;
-       $row =  EmailTemplate::where(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE,"CompanyID"=>User::get_companyID()))->whereNull('UserID')->select(["TemplateID","TemplateName"])->lists('TemplateName','TemplateID');
-	    if(!empty($row) && $select==1){
-            $row = array(""=> "Select")+$row;
+
+        $result=array();
+        $language_arr = Translation::getLanguageDropdownIdList();
+
+        foreach($language_arr as $key=>$value){
+            $row=  EmailTemplate::where(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE,"CompanyID"=>User::get_companyID(), "LanguageID" => $key))->whereNull('UserID')->select(["TemplateID","TemplateName"])->lists('TemplateName','TemplateID');
+            if(count($row)){
+                $result[$value]=$row;
+            }
         }
-        return $row;
+        if(!empty($result) && $select==1){
+            $result = array(""=> "Select")+$result;
+        }
+        return $result;
+    }
+
+    public static function getSystemTypeArray($select = 1){
+        $result=EmailTemplate::where('SystemType', "!=", "")->select('SystemType')->distinct()->orderBy('SystemType')->lists('SystemType', 'SystemType');
+
+        if(!empty($result) && $select==1){
+            $result = array(""=> "Select")+$result;
+        }
+        return $result;
+    }
+
+    public static function getSystemEmailTemplate($companyID, $slug,$languageID=""){
+        if(empty($languageID)){
+            $languageID=Translation::$default_lang_id;
+        }
+
+        $emailtemplate=EmailTemplate::where(["SystemType"=>$slug, "LanguageID"=>$languageID, "CompanyID"=>$companyID, 'Status'=>1])->first();
+        if(empty($emailtemplate)){
+            $emailtemplate=EmailTemplate::where(["SystemType"=>$slug, "LanguageID"=>Translation::$default_lang_id])->first();
+        }
+        
+        return $emailtemplate;
     }
 }

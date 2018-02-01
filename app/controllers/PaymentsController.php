@@ -405,13 +405,13 @@ class PaymentsController extends \BaseController {
                         $emaildata['EmailTo'] = $managerinfo->EmailAddress;
                         $status = sendMail('emails.admin.paymentstatus',$emaildata);
                     }
-                    return Response::json(array("status" => "success", "message" => "payment Successfully Updated"));
+                    return Response::json(array("status" => "success", "message" => Lang::get('routes.CUST_PANEL_PAGE_PAYMENTS_MSG_PAYMENT_SUCCESSFULLY_UPDATED')));
                 } else {
-                    return Response::json(array("status" => "failed", "message" => "Problem Creating Payment."));
+                    return Response::json(array("status" => "failed", "message" =>  Lang::get("routes.CUST_PANEL_PAGE_PAYMENTS_MSG_PROBLEM_CREATING_PAYMENT")));
                 }
             }
         }else{
-            return Response::json(array("status" => "failed", "message" => "You have not permission to Approve or reject"));
+            return Response::json(array("status" => "failed", "message" => Lang::get("routes.CUST_PANEL_PAGE_PAYMENTS_MSG_YOU_HAVE_NOT_PERMISSION_TO_APPROVE_OR_REJECT")));
         }
     }
 

@@ -198,7 +198,12 @@
                             @endforeach
                         </div>
                     @endif
-
+                    <div class="form-group">
+                        <label for="field-1" class="col-md-2 control-label">Languages</label>
+                        <div class="col-md-4">
+                            {{ddl_language("", "LanguageID", ( isset($AccountBilling->Language)?$AccountBilling->Language:Translation::$default_lang_id ),"", "id")}}
+                        </div>
+                    </div>
                     <div class="panel-title desc clear">
                         Description
                     </div>

@@ -17,21 +17,21 @@
                   </div>
                 </div>
                 <div class="pull-left  btn-group">
-                <button type="button" data-toggle="dropdown" class="btn  dropdown-toggle  btn-green">Export <span class="caret"></span></button>
+                <button type="button" data-toggle="dropdown" class="btn  dropdown-toggle  btn-green">@lang('routes.BUTTON_EXPORT_CAPTION') <span class="caret"></span></button>
                 <ul class="dropdown-menu dropdown_sort dropdown-green" role="menu">    
-                    <li><a class="export_btn export_type" action_type="csv" href="#"> CSV</a> </li>
-                    <li><a class="export_btn export_type" action_type="xlsx"  href="#">  EXCEL</a> </li>
+                    <li><a class="export_btn export_type" action_type="csv" href="#"> @lang('routes.BUTTON_EXPORT_CSV_CAPTION')</a> </li>
+                    <li><a class="export_btn export_type" action_type="xlsx"  href="#">  @lang('routes.BUTTON_EXPORT_EXCEL_CAPTION')</a> </li>
                   </ul>
                 </div>
                 <div class="pull-right sorted btn-group">
-                  <button type="button" class="btn btn-green dropdown-toggle" data-toggle="dropdown"> Sorted by {{$Sortcolumns[$data['iSortCol_0']]}} <span class="caret"></span> </button>
+                  <button type="button" class="btn btn-green dropdown-toggle" data-toggle="dropdown"> @lang('routes.CUST_PANEL_PAGE_TICKETS_TABLE_SORTED_BY') @lang('routes.CUST_PANEL_PAGE_TICKETS_TABLE_SORTED_BY_COLUMNS_'. strtoupper($data['iSortCol_0'])) <span class="caret"></span> </button>
                   <ul class="dropdown-menu dropdown_sort dropdown-green" role="menu">
                     <?php foreach($Sortcolumns as $key => $SortcolumnsData){ ?>
-                    <li><a class="sort_fld @if($key==$data['iSortCol_0']) checked @endif" action_type="sort_field" action_value="{{$key}}"   href="#"> <i class="entypo-check" @if($key!=$data['iSortCol_0']) style="visibility:hidden;" @endif ></i> {{@$SortcolumnsData}}</a></li>
+                    <li><a class="sort_fld @if($key==$data['iSortCol_0']) checked @endif" action_type="sort_field" action_value="{{$key}}"   href="#"> <i class="entypo-check" @if($key!=$data['iSortCol_0']) style="visibility:hidden;" @endif ></i> @lang('routes.CUST_PANEL_PAGE_TICKETS_TABLE_SORTED_BY_COLUMNS_'.strtoupper($key))</a></li>
                     <?php } ?>
                     <li class="divider"></li>
-                    <li><a class="sort_type @if($data['sSortDir_0']=='asc') checked @endif" action_type="sort_type" action_value="asc" href="#"> <i class="entypo-check" @if($data['sSortDir_0']!='asc') style="visibility:hidden;" @endif  ></i> Ascending</a> </li>
-                    <li><a class="sort_type @if($data['sSortDir_0']=='desc') checked @endif" action_type="sort_type" action_value="desc" href="#"> <i class="entypo-check" @if($data['sSortDir_0']!='desc') style="visibility:hidden;" @endif  ></i> Descending</a> </li>
+                    <li><a class="sort_type @if($data['sSortDir_0']=='asc') checked @endif" action_type="sort_type" action_value="asc" href="#"> <i class="entypo-check" @if($data['sSortDir_0']!='asc') style="visibility:hidden;" @endif  ></i> @lang('routes.CUST_PANEL_PAGE_TICKETS_TABLE_SORTED_BY_COLUMNS_ASCENDING')</a> </li>
+                    <li><a class="sort_type @if($data['sSortDir_0']=='desc') checked @endif" action_type="sort_type" action_value="desc" href="#"> <i class="entypo-check" @if($data['sSortDir_0']!='desc') style="visibility:hidden;" @endif  ></i> @lang('routes.CUST_PANEL_PAGE_TICKETS_TABLE_SORTED_BY_COLUMNS_DESCENDING')</a> </li>
                   </ul>
                 </div>
               </div>
@@ -48,15 +48,15 @@
           <tr><!-- new email class: unread -->
             <td class="col-name @if(!empty($result_data->PriorityValue)) borderside borderside{{$result_data->PriorityValue}} @endif"><a target="_blank" href="{{URL::to('/')}}/customer/tickets/{{$result_data->TicketID}}/detail" class="col-name"> <span class="blue_link"> <?php echo ShortName($result_data->Subject,100); ?></span> </a>
             <span class="ticket_number"> #<?php echo $result_data->TicketID; ?></span><br>
-             <a class="col-name">Requester: <?php echo $result_data->Requester; ?></a><br>
-              <span> Created: <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->created_at))->diffForHumans();  ?></span></td>
-            <td  align="left" class="col-time"><div>Status:<span>&nbsp;&nbsp;<?php echo $result_data->TicketStatus; ?></span></div>
-              <div>Priority:<span>&nbsp;&nbsp;<?php echo $result_data->PriorityValue; ?></span></div>              
+             <a class="col-name">{{cus_lang('CUST_PANEL_PAGE_TICKETS_TAB_REQUESTER')}} <?php echo $result_data->Requester; ?></a><br>
+              <span> {{cus_lang('CUST_PANEL_PAGE_TICKETS_TAB_CREATED')}} <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->created_at))->diffForHumans();  ?></span></td>
+            <td  align="left" class="col-time"><div>{{cus_lang('CUST_PANEL_PAGE_TICKETS_TAB_STATUS')}}<span>&nbsp;&nbsp;<?php echo $result_data->TicketStatus; ?></span></div>
+              <div>{{cus_lang('CUST_PANEL_PAGE_TICKETS_TAB_PRIORITY')}}<span>&nbsp;&nbsp;<?php echo $result_data->PriorityValue; ?></span></div>
               </td>
           </tr>
           <?php } }else{ ?>
     <tr>
-      <td align="center" colspan="2">No Result Found.</td>
+      <td align="center" colspan="2">@lang('routes.MESSAGE_DATA_NOT_AVAILABLE')</td>
     </tr>
     <?php } ?>
   </tbody>
