@@ -9,12 +9,13 @@ class Company extends \Eloquent {
 
     const BILLING_STARTTIME = 1;
     const BILLING_ENDTIME = 2;
+    const BILLING_SETUPTIME = 3;
 
     const LICENCE_ALL = 3;
     const LICENCE_BILLING = 2;
     const LICENCE_RM = 1;
 
-    public static $billing_time = array(''=>'Select',self::BILLING_STARTTIME=>'Start Time',self::BILLING_ENDTIME=>'End Time');
+    public static $billing_time = array(''=>'Select',self::BILLING_STARTTIME=>'Start Time',self::BILLING_ENDTIME=>'End Time',self::BILLING_SETUPTIME=>'Setup Time');
     public static $BillingCycleType =
         array(
              ""=>"Select",
