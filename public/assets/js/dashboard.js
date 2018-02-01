@@ -137,7 +137,8 @@ function getHourlyChart(type){
                 });
                 $(".hourly-sales-cost-"+type).parent().find('h3 span').html(data.TotalCost)
             }else{
-                $(".hourly-sales-cost-"+type).html('<h3>No Data</h3>');
+                $(".hourly-sales-cost-"+type).html('<h3>'+data.no_data+'</h3>');
+
             }
 
             if(parseInt(data.TotalMinutes) > 0) {
@@ -155,7 +156,7 @@ function getHourlyChart(type){
                 });
                 $(".hourly-sales-minutes-"+type).parent().find('h3 span').html(data.TotalMinutes)
             }else{
-                $(".hourly-sales-minutes-"+type).html('<h3>No Data</h3>');
+                $(".hourly-sales-minutes-"+type).html('<h3>'+data.no_data+'</h3>');
             }
         }
     });
