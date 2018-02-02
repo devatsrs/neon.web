@@ -247,6 +247,13 @@ class ThemesController extends \BaseController {
 			{
                 if ($theme = Themes::create($themeData))
 				{
+					$domainUrl_key = preg_replace('/[^A-Za-z0-9\-]/', '', $themeData["DomainUrl"]);
+					$domainUrl_key = preg_replace('/-+/', '_',$domainUrl_key);
+
+					Translation::add_system_name("THEMES_".$domainUrl_key."_FOOTERTEXT", $themeData["FooterText"]);
+					Translation::add_system_name("THEMES_".$domainUrl_key."_LOGIN_MSG", $themeData["LoginMessage"]);
+					Translation::add_system_name("THEMES_".$domainUrl_key."_TITLE", $themeData["Title"]);
+
 					   return  Response::json(array("status" => "success", "message" => "Theme Successfully Created",'LastID'=>$theme->ThemeID,'redirect' => URL::to('/themes')));
 				}
 				else
@@ -408,6 +415,14 @@ class ThemesController extends \BaseController {
                 if(isset($Themes->ThemeID))
 				{
                     $Themes->update($themeData);
+
+					$domainUrl_key = preg_replace('/[^A-Za-z0-9\-]/', '', $themeData["DomainUrl"]);
+					$domainUrl_key = preg_replace('/-+/', '_',$domainUrl_key);
+
+					Translation::update_label(Translation::$default_lang_ISOcode, "THEMES_".$domainUrl_key."_FOOTERTEXT", $themeData["FooterText"]);
+					Translation::update_label(Translation::$default_lang_ISOcode, "THEMES_".$domainUrl_key."_LOGIN_MSG", $themeData["LoginMessage"]);
+					Translation::update_label(Translation::$default_lang_ISOcode, "THEMES_".$domainUrl_key."_TITLE", $themeData["Title"]);
+
 					return Response::json(array("status" => "success", "message" => "Theme Successfully Updated", 'LastID' => $Themes->ThemeID,'redirect' => URL::to('/themes')));
 
                 }
@@ -425,7 +440,21 @@ class ThemesController extends \BaseController {
 		{
             try
 			{
-                Themes::find($id)->delete();
+                $theme=Themes::find($id);
+				$domainUrl_key=$theme->DomainUrl;
+				$theme->delete();
+
+				$arr_language=Translation::getLanguageDropdownWithFlagList();
+
+				$domainUrl_key = preg_replace('/[^A-Za-z0-9\-]/', '', $domainUrl_key);
+				$domainUrl_key = preg_replace('/-+/', '_',$domainUrl_key);
+
+				foreach($arr_language as $lang_iso=>$value){
+					Translation::delete_label($lang_iso, "THEMES_".$domainUrl_key."_FOOTERTEXT");
+					Translation::delete_label($lang_iso, "THEMES_".$domainUrl_key."_LOGIN_MSG");
+					Translation::delete_label($lang_iso, "THEMES_".$domainUrl_key."_TITLE");
+				}
+
                 return Response::json(array("status" => "success", "message" => "Theme Successfully Deleted"));
             }
 			catch (Exception $e)
@@ -446,7 +475,22 @@ class ThemesController extends \BaseController {
 		 {				 
             try
 			{
-				Themes::whereIn('ThemeID',$ThemesIDs)->delete();
+				$arr_themes = Themes::whereIn('ThemeID',$ThemesIDs);
+				$arr_themes->delete();
+
+				$arr_language=Translation::getLanguageDropdownWithFlagList();
+
+				foreach($arr_themes as $theme){
+					$domainUrl_key = preg_replace('/[^A-Za-z0-9\-]/', '', $theme->DomainUrl);
+					$domainUrl_key = preg_replace('/-+/', '_',$domainUrl_key);
+
+					foreach($arr_language as $lang_iso=>$value){
+						Translation::delete_label($lang_iso, "THEMES_".$domainUrl_key."_FOOTERTEXT");
+						Translation::delete_label($lang_iso, "THEMES_".$domainUrl_key."_LOGIN_MSG");
+						Translation::delete_label($lang_iso, "THEMES_".$domainUrl_key."_TITLE");
+					}
+				}
+
                 return Response::json(array("status" => "success", "message" => "Theme(s) Successfully Deleted"));
             }
 			catch (Exception $e)

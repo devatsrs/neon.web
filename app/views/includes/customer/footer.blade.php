@@ -1,4 +1,8 @@
 <!-- Footer -->
 <footer class="main">
-    <a href="#" target="_blank"><strong>{{Session::get('user_site_configrations.FooterText')}}</strong></a>
+    <?php
+    $domainUrl_key = preg_replace('/[^A-Za-z0-9\-]/', '', $_SERVER['HTTP_HOST']);
+    $domainUrl_key = strtoupper(preg_replace('/-+/', '_',$domainUrl_key));
+    ?>
+    <a href="#" target="_blank"><strong>{{cus_lang("THEMES_".$domainUrl_key."_FOOTERTEXT")}}</strong></a>
 </footer>

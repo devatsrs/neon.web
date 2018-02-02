@@ -242,7 +242,9 @@ private $validlicense;
 						$data['created_at']       		   		   = 		date("Y-m-d H:i:s");
 						$data['created_by']       		   		   = 		User::get_user_full_name();			
 						$TicketFieldsID 						   = 		Ticketfields::insertGetId($data);	
-						
+
+						Translation::add_system_name("CUST_PANEL_PAGE_TICKET_FIELDS_".$TicketFieldsID, $data['CustomerLabel']);
+
 						if(isset($postdata['choices']))
 						{
 							$choices 								   = 		json_decode($postdata['choices']);
@@ -266,7 +268,8 @@ private $validlicense;
 					$data['updated_at']       		   		   = 		date("Y-m-d H:i:s");
 					$data['updated_by']       		   		   = 		User::get_user_full_name();			
 					Ticketfields::find($postdata['id'])->update($data);	
-					
+					Translation::update_label(Translation::$default_lang_ISOcode, "CUST_PANEL_PAGE_TICKET_FIELDS_".$postdata['id'], $data['CustomerLabel']);
+
 					if(($postdata['type']=='dropdown') && ($postdata['field_type']!='default_status'))
 					{	
 						$choices 		= 	json_decode($postdata['choices']);
@@ -341,8 +344,8 @@ private $validlicense;
 					}
 					
 											
-				} 
-			 	TranslateController::refresh_label();
+				}
+
 				 DB::commit();
 				   return Response::json(["status" => "success", "message" => "Successfully updated."]);
 			 } catch (Exception $ex) {
@@ -364,14 +367,20 @@ private $validlicense;
 				}
 				if(isset($postdata['deleted_main_fields']) && !empty($postdata['deleted_main_fields']))
 				{
-					$main_fields_delete = explode(",",$postdata['deleted_main_fields']);							
+					$arr_language=Translation::getLanguageDropdownWithFlagList();
+
+					$main_fields_delete = explode(",",$postdata['deleted_main_fields']);
+
 					foreach($main_fields_delete as $main_fields_delete_data){ 
 						Ticketfields::find($main_fields_delete_data)->delete();		
 						TicketfieldsValues::where(["FieldsID"=>$main_fields_delete_data])->delete();
-					}					
+
+						foreach($arr_language as $lang_iso=>$value){
+							Translation::delete_label($lang_iso, "CUST_PANEL_PAGE_TICKET_FIELDS_".$main_fields_delete_data);
+						}
+					}
 				}
-				
-				TranslateController::refresh_label();
+
 				DB::commit();
 				 return Response::json(["status" => "success", "message" => "Successfully updated."]);
 			} catch (Exception $ex) {

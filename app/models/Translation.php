@@ -87,4 +87,98 @@ class Translation extends \Eloquent {
             ->first();
         return $data_langs;
     }
+
+
+    public static function add_system_name($system_name, $en_word){
+        $system_name=trim(strtoupper($system_name));
+        $data_langs = Translation::get_language_labels();
+
+        $translation_data = json_decode($data_langs->Translation, true);
+
+        if($system_name!="" && !array_key_exists($system_name ,$translation_data )){
+            $translation_data[$system_name]=$en_word;
+
+            ksort($translation_data);
+
+            Translation::where('TranslationID', $data_langs->TranslationID)->update( array('Translation' => json_encode($translation_data) ));
+            Translation::create_language_file($data_langs->ISOCode,$translation_data);
+            return true;
+        }
+        return false;
+    }
+
+    public static function update_label($language,$system_name, $value){
+
+        if(trim($value)!=""){
+            $data_langs = Translation::get_language_labels($language);
+
+            $json_file = json_decode($data_langs->Translation, true);
+            $system_name=strtoupper($system_name);
+            if(array_key_exists($system_name, $json_file)){
+
+                $json_file[$system_name]=$value;
+                DB::table('tblTranslation')
+                    ->where(['TranslationID'=>$data_langs->TranslationID])
+                    ->update(['Translation' => json_encode($json_file)]);
+
+                Translation::create_language_file($data_langs->ISOCode,$json_file);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static function delete_label($language,$system_name){
+
+        $data_langs = Translation::get_language_labels($language);
+
+        $json_file = json_decode($data_langs->Translation, true);
+        if(array_key_exists($system_name, $json_file)){
+            unset($json_file[$system_name]);
+        }
+
+        DB::table('tblTranslation')
+            ->where(['TranslationID'=>$data_langs->TranslationID])
+            ->update(['Translation' => json_encode($json_file)]);
+
+        Translation::create_language_file($data_langs->ISOCode,$json_file);
+    }
+
+    public static function create_language_file($lang_folder, $data_array){
+
+        ksort($data_array);
+        $arr_valid="\nreturn array(";
+        foreach($data_array as $key=>$value){
+            $arr_valid.="\n\t'".$key."'=>'".HTML::entities($value)."',";
+        }
+        $arr_valid.="\n);";
+
+        $JSON_File = app_path("lang/".$lang_folder);
+        if(!File::exists($JSON_File)){
+            // File::makeDirectory($JSON_File);
+            RemoteSSH::run("mkdir -p " . $JSON_File);
+            RemoteSSH::run("chmod -R 777 " . $JSON_File);
+        }
+        RemoteSSH::run("chmod -R 777 " . $JSON_File."/routes.php");
+        file_put_contents($JSON_File."/routes.php", "<?php ".$arr_valid );
+
+        $service_path=dirname(CompanyConfiguration::get("RM_ARTISAN_FILE_LOCATION"))."/resources/lang/".$lang_folder;
+
+        if(!File::exists($service_path)){
+            RemoteSSH::run("mkdir -p " . $service_path);
+            RemoteSSH::run("chmod -R 777 " . $service_path);
+        }
+
+        RemoteSSH::run("cp " . $JSON_File."/routes.php ".$service_path."/routes.php" );
+
+        $api_path=public_path("neon.api/resources/lang/".$lang_folder);
+
+        if(!File::exists($api_path)){
+            RemoteSSH::run("mkdir -p " . $api_path);
+            RemoteSSH::run("chmod -R 777 " . $api_path);
+        }
+
+        RemoteSSH::run("cp " . $JSON_File."/routes.php ".$api_path."/routes.php" );
+    }
+
 }
