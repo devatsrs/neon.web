@@ -475,8 +475,8 @@ class ThemesController extends \BaseController {
 		 {				 
             try
 			{
-				$arr_themes = Themes::whereIn('ThemeID',$ThemesIDs);
-				$arr_themes->delete();
+				$arr_themes = Themes::whereIn('ThemeID',$ThemesIDs)->get();
+				Themes::whereIn('ThemeID',$ThemesIDs)->delete();
 
 				$arr_language=Translation::getLanguageDropdownWithFlagList();
 
