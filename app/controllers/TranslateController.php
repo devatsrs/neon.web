@@ -147,6 +147,11 @@ class TranslateController extends \BaseController {
                         $translation_data["CUST_PANEL_PAGE_TICKET_FIELDS_".$ticke_field_values->FieldsID."_VALUE_".$ticke_field_values->ValuesID]=$ticke_field_values->FieldValueCustomer;
                     }
 
+                    $arr_TicketPriority = TicketPriority::all();
+                    foreach($arr_TicketPriority as $TicketPriority){
+                        $translation_data["CUST_PANEL_PAGE_TICKET_FIELDS_PRIORITY_VAL_".$TicketPriority->PriorityID]=$TicketPriority->PriorityValue;
+                    }
+
                     $themes_data = Themes::all();
                     foreach($themes_data as $theme){
                         $domainUrl_key = preg_replace('/[^A-Za-z0-9\-]/', '', $theme->DomainUrl);
