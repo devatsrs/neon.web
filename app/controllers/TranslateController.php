@@ -71,11 +71,11 @@ class TranslateController extends \BaseController {
 
     function process_singleUpdate(){
 
+        $request = Input::all();
         if($request["value"]==""){
             return json_encode(["status" => "fail", "message" => "Required Translation"]);
         }
 
-        $request = Input::all();
         Translation::update_label($request["language"], $request["system_name"], $request["value"]);
 
         return json_encode(["status" => "success", "message" => ""]);
