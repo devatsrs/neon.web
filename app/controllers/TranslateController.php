@@ -149,7 +149,7 @@ class TranslateController extends \BaseController {
 
                     $arr_TicketPriority = TicketPriority::all();
                     foreach($arr_TicketPriority as $TicketPriority){
-                        $translation_data["CUST_PANEL_PAGE_TICKET_FIELDS_PRIORITY_VAL_".$TicketPriority->PriorityID]=$TicketPriority->PriorityValue;
+                        $translation_data[strtoupper("CUST_PANEL_PAGE_TICKET_FIELDS_PRIORITY_VAL_".$TicketPriority->PriorityValue)]=$TicketPriority->PriorityValue;
                     }
 
                     $themes_data = Themes::all();

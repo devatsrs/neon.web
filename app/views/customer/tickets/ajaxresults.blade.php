@@ -51,7 +51,7 @@
              <a class="col-name">{{cus_lang('CUST_PANEL_PAGE_TICKETS_TAB_REQUESTER')}} <?php echo $result_data->Requester; ?></a><br>
               <span> {{cus_lang('CUST_PANEL_PAGE_TICKETS_TAB_CREATED')}} <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->created_at))->diffForHumans();  ?></span></td>
             <td  align="left" class="col-time"><div>{{cus_lang('CUST_PANEL_PAGE_TICKETS_TAB_STATUS')}}<span>&nbsp;&nbsp;<?php echo $result_data->TicketStatus; ?></span></div>
-              <div>{{cus_lang('CUST_PANEL_PAGE_TICKETS_TAB_PRIORITY')}}<span>&nbsp;&nbsp;<?php echo $result_data->PriorityValue; ?></span></div>
+              <div>{{cus_lang('CUST_PANEL_PAGE_TICKETS_TAB_PRIORITY')}}<span>&nbsp;&nbsp;{{cus_lang("CUST_PANEL_PAGE_TICKET_FIELDS_PRIORITY_VAL_".$result_data->PriorityValue)}}</span></div>
               </td>
           </tr>
           <?php } }else{ ?>

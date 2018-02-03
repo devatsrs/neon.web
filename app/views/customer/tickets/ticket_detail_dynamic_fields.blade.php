@@ -80,7 +80,7 @@
 				$FieldValues = TicketPriority::orderBy('PriorityID', 'asc')->get(); 
 					foreach($FieldValues as $FieldValuesData){
 					?>
-        <option  @if($ticketSavedData[$TicketfieldsData->FieldType]==$FieldValuesData->PriorityID) selected @endif  value="{{$FieldValuesData->PriorityID}}">{{$FieldValuesData->PriorityValue}}</option>
+        <option  @if($ticketSavedData[$TicketfieldsData->FieldType]==$FieldValuesData->PriorityID) selected @endif  value="{{$FieldValuesData->PriorityID}}">{{cus_lang("CUST_PANEL_PAGE_TICKET_FIELDS_PRIORITY_VAL_".$FieldValuesData->PriorityValue)}}</option>
         <?php 
 					}
 				}else  

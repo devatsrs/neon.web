@@ -114,9 +114,8 @@
 			  if($TicketfieldsData->FieldType == 'default_priority'){
 				$FieldValues = TicketPriority::orderBy('PriorityID', 'asc')->get(); 
 					foreach($FieldValues as $FieldValuesData){
-				  		$FieldValuesData->PriorityValue = Lang::get('routes.CUST_PANEL_PAGE_TICKET_FIELDS_PRIORITY_VAL_'.$FieldValuesData->PriorityID);
 					?>
-                <option value="{{$FieldValuesData->PriorityID}}">{{$FieldValuesData->PriorityValue}}</option>
+                <option value="{{$FieldValuesData->PriorityID}}">{{cus_lang("CUST_PANEL_PAGE_TICKET_FIELDS_PRIORITY_VAL_".$FieldValuesData->PriorityValue)}}</option>
                 <?php 
 					}
 				}				
