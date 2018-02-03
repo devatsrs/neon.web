@@ -192,7 +192,11 @@ function loadBarChart(chart_type,submit_data){
                     }
                 });
             }else{
-                $('.bar_chart').html('No Data');
+                if(typeof MSG_DATA_NOT_AVAILABLE=="undefined"){
+                    $('.bar_chart').html('No Data');
+                }else{
+                    $('.bar_chart').html(MSG_DATA_NOT_AVAILABLE);
+                }
             }
         }
     });
@@ -437,7 +441,11 @@ function account_expense_chart(submit_data){
                     ]
                 });
             }else{
-                $('#account_expense_bar_chart').html('No Data');
+                if(typeof MSG_DATA_NOT_AVAILABLE=="undefined"){
+                    $('#account_expense_bar_chart').html('No Data');
+                }else{
+                    $('#account_expense_bar_chart').html(MSG_DATA_NOT_AVAILABLE);
+                }
             }
         }
     });

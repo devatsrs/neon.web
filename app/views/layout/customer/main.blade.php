@@ -26,6 +26,7 @@
         <script type="text/javascript">
             var baseurl = '<?php echo URL::to('/'); ?>';
             var customer_alignment = '<?php echo NeonCookie::getCookie('customer_alignment',"left") ?>';
+            var MSG_DATA_NOT_AVAILABLE = '{{cus_lang("MESSAGE_DATA_NOT_AVAILABLE")}}';
         </script>
 
         @if(Session::get('user_site_configrations.CustomCss'))
