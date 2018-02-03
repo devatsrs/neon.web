@@ -114,16 +114,15 @@ class Translation extends \Eloquent {
 
             $json_file = json_decode($data_langs->Translation, true);
             $system_name=strtoupper($system_name);
-            if(array_key_exists($system_name, $json_file)){
 
-                $json_file[$system_name]=$value;
-                DB::table('tblTranslation')
-                    ->where(['TranslationID'=>$data_langs->TranslationID])
-                    ->update(['Translation' => json_encode($json_file)]);
+            $json_file[$system_name]=$value;
+            DB::table('tblTranslation')
+                ->where(['TranslationID'=>$data_langs->TranslationID])
+                ->update(['Translation' => json_encode($json_file)]);
 
-                Translation::create_language_file($data_langs->ISOCode,$json_file);
-                return true;
-            }
+            Translation::create_language_file($data_langs->ISOCode,$json_file);
+            return true;
+
         }
         return false;
     }
