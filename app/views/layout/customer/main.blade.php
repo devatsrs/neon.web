@@ -5,7 +5,11 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
         @if(Session::get('user_site_configrations.FavIcon')!='')<link href="{{Session::get('user_site_configrations.FavIcon')}}" rel="icon">@endif
-        <title>{{Session::get('user_site_configrations.Title')}}</title>
+        <?php
+        $domainUrl_key = preg_replace('/[^A-Za-z0-9\-]/', '', $_SERVER['HTTP_HOST']);
+        $domainUrl_key = strtoupper(preg_replace('/-+/', '_',$domainUrl_key));
+        ?>
+        <title>{{cus_lang("THEMES_".$domainUrl_key."_TITLE")}}</title>
 
         @include('includes.login-css')
 

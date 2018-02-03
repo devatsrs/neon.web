@@ -132,10 +132,7 @@ class TranslateController extends \BaseController {
                 if(Translation::$default_lang_ISOcode==$lang_iso){
 
                     foreach($translation_data  as $key=>$value){
-                        if(strpos($key,"CUST_PANEL_PAGE_TICKET_FIELDS_")!==false ){
-                            unset($translation_data[$key]);
-                        }
-                        if(strpos($key,"THEMES_")===0){
+                        if(strpos($key,"CUST_PANEL_PAGE_TICKET_FIELDS_")===0 || strpos($key,"THEMES_")===0){
                             unset($translation_data[$key]);
                         }
                     }
@@ -143,6 +140,11 @@ class TranslateController extends \BaseController {
                     $ticketFields = Ticketfields::all();
                     foreach($ticketFields as $ticke_field){
                         $translation_data["CUST_PANEL_PAGE_TICKET_FIELDS_".$ticke_field->TicketFieldsID]=$ticke_field->CustomerLabel;
+                    }
+
+                    $ticketFieldsValues = TicketfieldsValues::all();
+                    foreach($ticketFieldsValues as $ticke_field_values){
+                        $translation_data["CUST_PANEL_PAGE_TICKET_FIELDS_".$ticke_field_values->FieldsID."_VALUE_".$ticke_field_values->ValuesID]=$ticke_field_values->FieldValueCustomer;
                     }
 
                     $themes_data = Themes::all();

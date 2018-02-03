@@ -9,8 +9,11 @@
                     </a>
                 @endif
 
-
-                <p class="description" style="color:#fff">{{Session::get('user_site_configrations.LoginMessage')}}</p>
+                <?php
+                $domainUrl_key = preg_replace('/[^A-Za-z0-9\-]/', '', $_SERVER['HTTP_HOST']);
+                $domainUrl_key = strtoupper(preg_replace('/-+/', '_',$domainUrl_key));
+                ?>
+                <p class="description" style="color:#fff">{{cus_lang("THEMES_".$domainUrl_key."LoginMessage")}}</p>
                 <!--<p class="description" style="color:#fff">Dear user, log in to access your account!</p>-->
                 <!-- progress bar indicator -->
                 <div class="login-progressbar-indicator">

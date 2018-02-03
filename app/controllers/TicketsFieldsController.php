@@ -259,7 +259,9 @@ private $validlicense;
 								$choicesdata['FieldOrder']			 	= 		isset($choices_data->FieldOrder)?$choices_data->FieldOrder:0;
 								$choicesdata['created_at']       		= 		date("Y-m-d H:i:s");
 								$choicesdata['created_by']       		= 		User::get_user_full_name();	
-								TicketfieldsValues::insertGetId($choicesdata);	
+
+								$TicketfieldsValues =  TicketfieldsValues::insertGetId($choicesdata);
+								Translation::add_system_name("CUST_PANEL_PAGE_TICKET_FIELDS_".$TicketFieldsID."_VALUE_".$TicketfieldsValues, $data['CustomerLabel']);
 							}
 						}
 				}
@@ -287,7 +289,8 @@ private $validlicense;
 								$choicesdata['FieldType']	     		= 		1;	
 								$choicesdata['created_at']       		= 		date("Y-m-d H:i:s");
 								$choicesdata['created_by']       		= 		User::get_user_full_name();	
-								TicketfieldsValues::insertGetId($choicesdata);	
+								$TicketfieldsValues=TicketfieldsValues::insertGetId($choicesdata);
+								Translation::add_system_name("CUST_PANEL_PAGE_TICKET_FIELDS_".$choicesdata['FieldsID']."_VALUE_".$TicketfieldsValues, $choicesdata['FieldValueCustomer']);
 								continue;				
 							}
 							
@@ -295,14 +298,17 @@ private $validlicense;
 								$choicesdata['updated_at']       		= 		date("Y-m-d H:i:s");
 								$choicesdata['updated_by']       		= 		User::get_user_full_name();	
 								TicketfieldsValues::find($choices_data->ValuesID)->update($choicesdata);		
+								Translation::update_label(Translation::$default_lang_ISOcode, "CUST_PANEL_PAGE_TICKET_FIELDS_".$choicesdata['FieldsID']."_VALUE_".$choices_data->ValuesID, $choicesdata['FieldValueCustomer']);
 								continue;
 							}								
 						}
 						if(isset($postdata['deleted_choices']) && !empty($postdata['deleted_choices'])){
 								$deleted_choices = explode(",",$postdata['deleted_choices']);
 								foreach($deleted_choices as $deleted_choices_data){									
-									TicketfieldsValues::find($deleted_choices_data)->delete();	 
-								
+									$TicketfieldsValues = TicketfieldsValues::find($deleted_choices_data);
+									$fieldsID=$TicketfieldsValues->FieldsID;
+									$TicketfieldsValues->delete();
+									Translation::delete_label(Translation::$default_lang_ISOcode, "CUST_PANEL_PAGE_TICKET_FIELDS_".$fieldsID."_VALUE_".$deleted_choices_data);
 								}
 						}					
 					}
@@ -325,6 +331,7 @@ private $validlicense;
 								$choicesdata['created_at']       		= 		date("Y-m-d H:i:s");
 								$choicesdata['created_by']       		= 		User::get_user_full_name();	
 								TicketfieldsValues::insertGetId($choicesdata);	
+								Translation::add_system_name("CUST_PANEL_PAGE_TICKET_FIELDS_".$choicesdata['FieldsID']."_VALUE_".$TicketfieldsValues, $choicesdata['FieldValueCustomer']);
 								continue;				
 							}
 							
@@ -332,13 +339,17 @@ private $validlicense;
 								$choicesdata['updated_at']       		= 		date("Y-m-d H:i:s");
 								$choicesdata['updated_by']       		= 		User::get_user_full_name();	
 								TicketfieldsValues::find($choices_data->ValuesID)->update($choicesdata);		
+								Translation::update_label(Translation::$default_lang_ISOcode, "CUST_PANEL_PAGE_TICKET_FIELDS_".$choicesdata['FieldsID']."_VALUE_".$choices_data->ValuesID, $choicesdata['FieldValueCustomer']);
 								continue;
 							}								
 						}
 						if(isset($postdata['deleted_choices']) && !empty($postdata['deleted_choices'])){
 								$deleted_choices = explode(",",$postdata['deleted_choices']);
 								foreach($deleted_choices as $deleted_choices_data){									
-								   TicketfieldsValues::find($deleted_choices_data)->delete();	
+									$TicketfieldsValues = TicketfieldsValues::find($deleted_choices_data);
+									$fieldsID=$TicketfieldsValues->FieldsID;
+									$TicketfieldsValues->delete();
+									Translation::delete_label(Translation::$default_lang_ISOcode, "CUST_PANEL_PAGE_TICKET_FIELDS_".$fieldsID."_VALUE_".$deleted_choices_data);
 								}
 						}					
 					}
