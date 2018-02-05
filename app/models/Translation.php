@@ -105,7 +105,7 @@ class Translation extends \Eloquent {
 
         $system_name=trim(strtoupper($system_name));
         Translation::update_label(Translation::$default_lang_ISOcode, $system_name, $en_word);
-        return false;
+        return true;
     }
 
     public static function update_label($language,$system_name, $value){
