@@ -68,7 +68,7 @@
     <tr>
       <th colspan="2"> 
           <?php if(count($result)>0){ ?>
-          <div class="mail-pagination">
+          <div class="mail-pagination leftsideview">
           <strong> <?php echo $current+1; ?>-
           <?php  echo $current+count($result); ?>
           </strong> <span>of {{$totalResults}}</span>
