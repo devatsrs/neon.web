@@ -107,7 +107,16 @@ class VendorAnalysisController extends BaseController {
             $indexcount++;
         }
         $alldata['call_minutes_html'] = View::make('dashboard.grid', compact('alldata','data','param_array'))->render();
-        return chart_reponse($alldata);
+
+        $return=array();
+        $return['data']=chart_reponse($alldata);
+        $return['html']=[
+                "total_calls" => cus_lang("CUST_PANEL_PAGE_ANALYSIS_HEADER_ANALYSIS_DATA_LBL_TOTAL_CALLS"),
+                "total_sales" => cus_lang("CUST_PANEL_PAGE_ANALYSIS_HEADER_ANALYSIS_DATA_LBL_TOTAL_SALES"),
+                "total_minutes" => cus_lang("CUST_PANEL_PAGE_ANALYSIS_HEADER_ANALYSIS_DATA_LBL_TOTAL_MINUTES"),
+        ];
+
+        return $return;
     }
     public function getAnalysisBarData(){
         $data = Input::all();
