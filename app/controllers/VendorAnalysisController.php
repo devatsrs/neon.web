@@ -142,9 +142,9 @@ class VendorAnalysisController extends BaseController {
             $cat_index++;
         }
         if(!empty($category1)) {
-            $series[] = array('name' => 'Call Count', 'data' => $category1, 'color' => '#3366cc');
-            $series[] = array('name' => 'Call Cost', 'data' => $category2, 'color' => '#ff9900');
-            $series[] = array('name' => 'Call Minutes', 'data' => $category3, 'color' => '#dc3912');
+            $series[] = array('name' => cus_lang("CUST_PANEL_PAGE_ANALYSIS_LBL_CALL_COUNT"), 'data' => $category1, 'color' => '#3366cc');
+            $series[] = array('name' => cus_lang("CUST_PANEL_PAGE_ANALYSIS_LBL_CALL_COST"), 'data' => $category2, 'color' => '#ff9900');
+            $series[] = array('name' => cus_lang("CUST_PANEL_PAGE_ANALYSIS_LBL_CALL_MINUTES"), 'data' => $category3, 'color' => '#dc3912');
         }
         $reponse['series'] = $series;
         $reponse['Title'] = get_report_title($report_type);
