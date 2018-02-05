@@ -223,6 +223,9 @@ var postdata;
                    $(".dataTables_wrapper select").select2({
                        minimumResultsForSearch: -1
                    });
+                   if(typeof customer_alignment!="undefined" && customer_alignment=="right"){
+                       $('.pull-right, .pull-left').addClass('flip');
+                   }
            }
 
         });
