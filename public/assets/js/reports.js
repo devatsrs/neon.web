@@ -196,11 +196,7 @@ function loadBarChart(chart_type,submit_data){
                     }
                 });
             }else{
-                if(typeof MSG_DATA_NOT_AVAILABLE=="undefined"){
-                    $('.bar_chart').html('No Data');
-                }else{
-                    $('.bar_chart').html(MSG_DATA_NOT_AVAILABLE);
-                }
+                $('.bar_chart').html(MSG_DATA_NOT_AVAILABLE);
             }
         }
     });
@@ -337,13 +333,13 @@ function loadTable(table_id,pageSize,$searchFilter){
         "aButtons": [
             {
                 "sExtends": "download",
-                "sButtonText": "EXCEL",
+                "sButtonText": BUTTON_EXPORT_EXCEL_CAPTION,
                 "sUrl": baseurl + "/analysis/ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
                 sButtonClass: "save-collection"
             },
             {
                 "sExtends": "download",
-                "sButtonText": "CSV",
+                "sButtonText": BUTTON_EXPORT_CSV_CAPTION,
                 "sUrl": baseurl + "/analysis/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
                 sButtonClass: "save-collection"
             }
@@ -374,7 +370,7 @@ function loadTable(table_id,pageSize,$searchFilter){
                 $(a).html('');
                 $(row).append(a);
             }
-            $($(row).children().get(0)).html('<strong>Total</strong>')
+            $($(row).children().get(0)).html('<strong>'+TABLE_TOTAL+'</strong>')
             $($(row).children().get(1)).html('<strong>'+TotalCall+'</strong>');
             $($(row).children().get(2)).html('<strong>'+TotalDuration+'</strong>');
             if(TotalCost) {
@@ -445,11 +441,7 @@ function account_expense_chart(submit_data){
                     ]
                 });
             }else{
-                if(typeof MSG_DATA_NOT_AVAILABLE=="undefined"){
-                    $('#account_expense_bar_chart').html('No Data');
-                }else{
-                    $('#account_expense_bar_chart').html(MSG_DATA_NOT_AVAILABLE);
-                }
+                $('#account_expense_bar_chart').html(MSG_DATA_NOT_AVAILABLE);
             }
         }
     });
