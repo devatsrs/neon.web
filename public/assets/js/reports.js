@@ -26,16 +26,20 @@ function getAnalysisData(chart_type,submitdata){
         dataType: 'json',
         data:submitdata,
         aysync: true,
-        success: function(data) {
+        success: function(result) {
             loading("."+chart_type+"-call-count-pie-chart",0);
             loading("."+chart_type+"-call-cost-pie-chart",0);
             loading("."+chart_type+"-call-minutes-pie-chart",0);
+
+            var HTML_LBL=result.html;
+            var data=result.data;
+
             $("."+chart_type+"-call-count-pie-chart").sparkline(data.CallCountVal.split(','), {
                 type: 'pie',
                 width: '200',
                 height: '200',
                 sliceColors: data.ChartColors.split(','),
-                tooltipFormat: '<span style="color: {{color}}">&#9679;</span> {{offset:names}} Total Calls({{value}})',
+                tooltipFormat: '<span style="color: {{color}}">&#9679;</span> {{offset:names}} '+HTML_LBL.total_calls+'({{value}})',
                 tooltipValueLookups: {
                     names: data.CallCount.split(',')
                 }
@@ -47,7 +51,7 @@ function getAnalysisData(chart_type,submitdata){
                 width: '200',
                 height: '200',
                 sliceColors: data.ChartColors.split(','),
-                tooltipFormat: '<span style="color: {{color}}">&#9679;</span> {{offset:names}} Total Sales({{value}})',
+                tooltipFormat: '<span style="color: {{color}}">&#9679;</span> {{offset:names}} '+HTML_LBL.total_sales+'({{value}})',
                 tooltipValueLookups: {
                     names: data.CallCost.split(',')
                 }
@@ -59,7 +63,7 @@ function getAnalysisData(chart_type,submitdata){
                 width: '200',
                 height: '200',
                 sliceColors: data.ChartColors.split(','),
-                tooltipFormat: '<span style="color: {{color}}">&#9679;</span> {{offset:names}} Total Minutes({{value}})',
+                tooltipFormat: '<span style="color: {{color}}">&#9679;</span> {{offset:names}} '+HTML_LBL.total_minutes+'({{value}})',
                 tooltipValueLookups: {
                     names: data.CallMinutes.split(',')
                 }

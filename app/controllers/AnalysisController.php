@@ -110,6 +110,14 @@ class AnalysisController extends BaseController {
             $indexcount++;
         }
         $alldata['call_minutes_html'] = View::make('dashboard.grid', compact('alldata','data','customer','param_array'))->render();
+        $return=array();
+        $return["data"]=chart_reponse($alldata);
+        $return['html']=[
+            "total_calls" => cus_lang("CUST_PANEL_PAGE_ANALYSIS_HEADER_ANALYSIS_DATA_LBL_TOTAL_CALLS"),
+            "total_sales" => cus_lang("CUST_PANEL_PAGE_ANALYSIS_HEADER_ANALYSIS_DATA_LBL_TOTAL_SALES"),
+            "total_minutes" => cus_lang("CUST_PANEL_PAGE_ANALYSIS_HEADER_ANALYSIS_DATA_LBL_TOTAL_MINUTES"),
+        ];
+
         return chart_reponse($alldata);
     }
     public function getAnalysisBarData(){
