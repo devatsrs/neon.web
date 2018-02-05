@@ -118,7 +118,7 @@ class AnalysisController extends BaseController {
             "total_minutes" => cus_lang("CUST_PANEL_PAGE_ANALYSIS_HEADER_ANALYSIS_DATA_LBL_TOTAL_MINUTES"),
         ];
 
-        return chart_reponse($alldata);
+        return $return;
     }
     public function getAnalysisBarData(){
         $data = Input::all();
