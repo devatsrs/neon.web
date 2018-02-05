@@ -354,8 +354,5 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
 .dataTables_filter label{
     /*display:none !important;*/
 }
-.dataTables_wrapper .export-data{
-    right: 30px !important;
-}
 </style>
 @stop
