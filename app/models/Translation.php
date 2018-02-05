@@ -90,26 +90,26 @@ class Translation extends \Eloquent {
 
 
     public static function add_system_name($system_name, $en_word){
-        $system_name=trim(strtoupper($system_name));
-        $data_langs = Translation::get_language_labels();
+
+        /*$data_langs = Translation::get_language_labels();
 
         $translation_data = json_decode($data_langs->Translation, true);
 
-        if($system_name!="" && !array_key_exists($system_name ,$translation_data )){
+        if(!array_key_exists($system_name ,$translation_data )){
             $translation_data[$system_name]=$en_word;
-
-            ksort($translation_data);
 
             Translation::where('TranslationID', $data_langs->TranslationID)->update( array('Translation' => json_encode($translation_data) ));
             Translation::create_language_file($data_langs->ISOCode,$translation_data);
             return true;
-        }
+        }*/
+
+        $system_name=trim(strtoupper($system_name));
+        Translation::update_label(Translation::$default_lang_ISOcode, $system_name, $en_word);
         return false;
     }
 
     public static function update_label($language,$system_name, $value){
 
-        if(trim($value)!=""){
             $data_langs = Translation::get_language_labels($language);
 
             $json_file = json_decode($data_langs->Translation, true);
@@ -122,9 +122,6 @@ class Translation extends \Eloquent {
 
             Translation::create_language_file($data_langs->ISOCode,$json_file);
             return true;
-
-        }
-        return false;
     }
 
     public static function delete_label($language,$system_name){
