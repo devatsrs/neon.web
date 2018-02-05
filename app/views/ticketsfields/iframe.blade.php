@@ -20,7 +20,13 @@
 .phpdebugbar{display:none;}
 .antipattern{background:#f1f1f1 !important;}
 </style>
-<script type="text/javascript">	var baseurl = "{{URL::to('/')}}"; 	</script>
+<script type="text/javascript">
+    var baseurl = "{{URL::to('/')}}";
+    var MSG_DATA_NOT_AVAILABLE = '{{cus_lang("MESSAGE_DATA_NOT_AVAILABLE")}}';
+    var TABLE_TOTAL = '{{cus_lang("TABLE_TOTAL")}}';
+    var BUTTON_EXPORT_CSV_CAPTION = '{{cus_lang("BUTTON_EXPORT_CSV_CAPTION")}}';
+    var BUTTON_EXPORT_EXCEL_CAPTION = '{{cus_lang("BUTTON_EXPORT_EXCEL_CAPTION")}}';
+</script>
 <script src="{{ URL::asset('assets/formbuilder/js/defaults.js')}}" type="text/javascript"></script>
 <script src="{{ URL::asset('assets/formbuilder/js/frameworks.js')}}" type="text/javascript"></script>
 <script src="{{ URL::asset('assets/formbuilder/js/workspace.js')}}" type="text/javascript"></script>
