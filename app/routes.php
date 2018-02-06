@@ -363,6 +363,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('email_template/ajax_datagrid', 'EmailTemplateController@ajax_datagrid');
 	Route::any('email_template/exports/{type}', 'EmailTemplateController@exports');
 	Route::any('email_template/{id}/changestatus', 'EmailTemplateController@ChangeStatus');
+	Route::any('email_template/{id}/ajax_templateList', 'EmailTemplateController@ajax_templateList');
 
 	//Leads
 	//Leads
@@ -1201,6 +1202,16 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('serverinfo/store', 'ServerInfoController@store');
     Route::any('serverinfo/{server_id}/update', 'ServerInfoController@update')->where('notification_id', '(.[09]*)+');
     Route::any('serverinfo/{server_id}/delete', 'ServerInfoController@delete')->where('notification_id', '(.[09]*)+');
+
+	//Translate Info
+	Route::any('translate', 'TranslateController@index');
+	Route::any('translate/change/{language}', 'TranslateController@changeLanguage');
+	Route::any('translate/search_ajax_datagrid', 'TranslateController@search_ajax_datagrid');
+	Route::any('translate/single_update', 'TranslateController@process_singleUpdate');
+	Route::any('translate/single_delete', 'TranslateController@process_singleDelete');
+	Route::any('/translate/{languageCode}/exports/{type}', 'TranslateController@exports');
+	Route::any('translate/new_system_name', 'TranslateController@new_system_name');
+	Route::any('translate/refresh_label', 'TranslateController@refresh_label');
 
 	//Retention
 	Route::any('/retention', "RetentionController@index");

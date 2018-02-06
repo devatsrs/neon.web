@@ -3179,3 +3179,114 @@ BEGIN
 
 END//
 DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `prc_getVendorCodeRate`;
+DELIMITER //
+CREATE PROCEDURE `prc_getVendorCodeRate`(
+	IN `p_AccountID` INT,
+	IN `p_trunkID` INT,
+	IN `p_RateCDR` INT
+
+)
+	BEGIN
+
+		IF p_RateCDR = 0
+		THEN
+
+			DROP TEMPORARY TABLE IF EXISTS tmp_vcodes_;
+			CREATE TEMPORARY TABLE tmp_vcodes_ (
+				RateID INT,
+				Code VARCHAR(50),
+				INDEX tmp_vcodes_RateID (`RateID`),
+				INDEX tmp_vcodes_Code (`Code`)
+			);
+
+			INSERT INTO tmp_vcodes_
+				SELECT
+					DISTINCT
+					tblRate.RateID,
+					tblRate.Code
+				FROM tblRate
+					INNER JOIN tblVendorRate
+						ON tblVendorRate.RateID = tblRate.RateID
+				WHERE
+					tblVendorRate.AccountId = p_AccountID
+					AND tblVendorRate.TrunkID = p_trunkID
+					AND tblVendorRate.EffectiveDate <= NOW();
+
+		END IF;
+
+		IF p_RateCDR = 1
+		THEN
+
+			DROP TEMPORARY TABLE IF EXISTS tmp_vcodes_;
+			CREATE TEMPORARY TABLE tmp_vcodes_ (
+				RateID INT,
+				Code VARCHAR(50),
+				Rate Decimal(18,6),
+				ConnectionFee Decimal(18,6),
+				Interval1 INT,
+				IntervalN INT,
+				INDEX tmp_vcodes_RateID (`RateID`),
+				INDEX tmp_vcodes_Code (`Code`)
+			);
+
+			INSERT INTO tmp_vcodes_
+				SELECT
+					DISTINCT
+					tblRate.RateID,
+					tblRate.Code,
+					tblVendorRate.Rate,
+					tblVendorRate.ConnectionFee,
+					tblVendorRate.Interval1,
+					tblVendorRate.IntervalN
+				FROM tblRate
+					INNER JOIN tblVendorRate
+						ON tblVendorRate.RateID = tblRate.RateID
+				WHERE
+					tblVendorRate.AccountId = p_AccountID
+					AND tblVendorRate.TrunkID = p_trunkID
+					AND tblVendorRate.EffectiveDate <= NOW()
+					AND (tblVendorRate.EndDate IS NULL OR tblVendorRate.EndDate > NOW()) ;
+
+		END IF;
+	END//
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `prc_updatSippyCustomerSetupTime`;
+DELIMITER //
+CREATE PROCEDURE `prc_updatSippyCustomerSetupTime`(
+	IN `p_ProcessID` INT,
+	IN `p_customertable` VARCHAR(50),
+	IN `p_vendortable` VARCHAR(50)
+
+)
+BEGIN
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+	SET SESSION innodb_lock_wait_timeout = 180;
+
+	-- for sippy update connect_time from vendor (setup time)  cdr to customer cdr
+
+	SET @stmt = CONCAT('
+	UPDATE `' , p_vendortable , '` vd
+	INNER JOIN  `' , p_customertable , '` cd ON cd.ID = vd.ID
+		SET cd.connect_time = vd.connect_time
+	WHERE cd.ProcessID =  "' , p_ProcessID , '"
+		AND vd.ProcessID =  "' , p_ProcessID , '";
+	');
+
+	PREPARE stmt FROM @stmt;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+
+	-- return no of rows updated
+	select FOUND_ROWS() as rows_updated;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
