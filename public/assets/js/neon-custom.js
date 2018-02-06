@@ -1546,6 +1546,26 @@ toastr_opts = {
             radioClass: 'iradio_minimal'
         });
 
+
+        $("#user_language ul li").click(function(){
+            var language=$(this).attr("lang-key");
+
+            $.ajax({
+                url: baseurl + "/translate/change/"+language,
+                type: 'POST',
+                dataType: "json",
+                success:function(data) {
+                    location.reload();
+                },
+                cache: false
+            });
+        });
+        $("#user_language.language-selector .dropdown-toggle img").attr("src",$("#user_language ul li.active img").attr("src"));
+        $("#user_language.language-selector .dropdown-toggle span").html($("#user_language ul li.active span").html());
+        if(typeof customer_alignment!="undefined" && customer_alignment=="right"){
+            $('.pull-right, .pull-left').addClass('flip');
+        }
+
     });
 
 
@@ -1569,12 +1589,21 @@ toastr_opts = {
 			  value: 0
 			});
         }
-
+    $(".ddl_language").select2({
+        formatResult: format,
+        formatSelection: format,
+        escapeMarkup: function(m) { return m; }
+    });
 })(jQuery, window);
 
-
 /* Functions */
-
+function format(state) {
+    var img = $(state.element).data('flag');
+    if(img==""){
+        return state.text;
+    }
+    return "<img class='lang_flag' src='"+ baseurl+ "/assets/images/flag/" + img + "' />" + state.text;
+}
 function buildselect2(el){
     var $this = $(el),
         opts = {
@@ -2796,20 +2825,23 @@ function showHideControls(form){
 
 function rebuildSelect2(el,data,defualtText){
     el.empty();
-    options = [];
+
+    if(defualtText.length > 0){
+        $('<option />').html(defualtText).appendTo(el);
+    }
+
     $.each(data,function(key,value){
         if(typeof value == 'object'){
-            key = value.id;
-            value = value.text;
+            var group = $('<optgroup label="' + key + '" />');
+            $.each(value, function(key2,value2){
+                $('<option />').val(key2).html(value2).appendTo(group);
+            });
+            group.appendTo(el);
+        }else{
+            $('<option />').val(key).html(value).appendTo(el);
         }
-        options.push(new Option(value, key, false, false));
     });
-    if(defualtText.length > 0){
-        options.push(new Option(defualtText, '', true, true));
-    }
-//    options.sort();
-//    options.reverse();
-    el.append(options);
+
     if(el.hasClass('select2add')){
         el.prepend('<option value="select2-add" disabled="disabled">Add</option>');
     }

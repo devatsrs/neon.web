@@ -24,8 +24,15 @@
                     </div>
                     <div class="col-md-2">
                         <div class="form-group">
-                            <label for="field-5" class="control-label">Add Margin <span class="label label-info popover-primary" data-original-title="Example" data-content="If you want to add percentage value enter i.e. 10p for 10% percentage value" data-placement="bottom" data-trigger="hover" data-toggle="popover">?</span></label>
+                            <label for="field-5" class="control-label">Add Margin <span class="label label-info popover-primary" data-original-title="Add Margin" data-content="If you want to add percentage value enter i.e. 10p for 10% percentage value" data-placement="bottom" data-trigger="hover" data-toggle="popover">?</span></label>
                             <input type="text" name="AddMargin" class="form-control" id="field-5" placeholder="">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="field-5" class="control-label">Fixed Value</label>
+                            <span class="label label-info popover-primary" data-original-title="Fixed Value" data-content="if the rate is between min and max then rate will be changed to the value specified." data-placement="bottom" data-trigger="hover" data-toggle="popover">?</span>
+                            <input type="text" name="FixedValue" class="form-control" id="field-5" placeholder="">
                         </div>
                     </div>
                     <div class="col-md-2">
@@ -52,6 +59,7 @@
                         <th>Min Rate</th>
                         <th>Max Rate</th>
                         <th>Margin</th>
+                        <th>Fixed Value</th>
                         <th>Action</th>
                     </tr>
                     </thead>
@@ -72,12 +80,14 @@
             MinRate = $(this).prev("div.hiddenRowData").find("input[name='MinRate']").val();
             MaxRate = $(this).prev("div.hiddenRowData").find("input[name='MaxRate']").val();
             AddMargin = $(this).prev("div.hiddenRowData").find("input[name='AddMargin']").val();
+            FixedValue = $(this).prev("div.hiddenRowData").find("input[name='FixedValue']").val();
             RateRuleMarginId = $(this).prev("div.hiddenRowData").find("input[name='RateRuleMarginId']").val();
 
             $("#edit-margin-form").find("input[name='MinRate']").val(MinRate);
             $("#edit-margin-form").find("input[name='MaxRate']").val(MaxRate);
             $("#edit-margin-form").find("input[name='AddMargin']").val(AddMargin);
             $("#edit-margin-form").find("input[name='RateRuleMarginId']").val(RateRuleMarginId);
+            $("#edit-margin-form").find("input[name='FixedValue']").val(FixedValue);
 
             jQuery('#modal-RateGenerator').modal('show', {backdrop: 'static'});
         });
@@ -105,7 +115,7 @@
                     <div class="modal-body">
 
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-6">
 
                                 <div class="form-group">
                                     <label for="field-4" class="control-label">Min Rate</label>
@@ -113,17 +123,25 @@
                                 </div>
 
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Max Rate</label>
                                     <input type="text" name="MaxRate" class="form-control" id="field-5" placeholder="">
                                 </div>
 
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Add Margin <span class="label label-info popover-primary" data-original-title="Example" data-content="If you want to add percentage value enter i.e. 10p for 10% percentage value" data-placement="bottom" data-trigger="hover" data-toggle="popover">?</span></label>
+                                    <label for="field-5" class="control-label">Add Margin <span class="label label-info popover-primary" data-original-title="Add Margin" data-content="If you want to add percentage value enter i.e. 10p for 10% percentage value" data-placement="bottom" data-trigger="hover" data-toggle="popover">?</span></label>
                                     <input type="text" name="AddMargin" class="form-control" id="field-5" placeholder="">
+                                </div>
+
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Fixed Value</label>
+                                    <span class="label label-info popover-primary" data-original-title="Fixed Value" data-content="if the rate is between min and max then rate will be changed to the value specified." data-placement="bottom" data-trigger="hover" data-toggle="popover">?</span>
+                                    <input type="text" name="FixedValue" class="form-control" id="field-5" placeholder="">
                                 </div>
 
                             </div>
@@ -153,6 +171,7 @@
 
         jQuery(document).ready(function ($) {
 
+            var list_fields  = ['MinRate', 'MaxRate', 'AddMargin', 'FixedValue', 'RateRuleMarginId'];
 
             data_table = $("#table-rate-generator-margin").dataTable({
 
@@ -173,6 +192,7 @@
                             { "bSortable": false },
                             { "bSortable": false },
                             { "bSortable": false },
+                            { "bSortable": false },
                             {
                                 "bSortable": false,
                                 mRender: function ( id, type, full ) {
@@ -181,8 +201,13 @@
                                     delete_ = "{{ URL::to('rategenerators/rules/'.$RateRuleID.'/delete_margin/{id}')}}";
                                     delete_ = delete_.replace( '{id}', id );
 
-
-                                    action = '<div class="hiddenRowData"><input type="hidden" value="'+full[0]+'" name="MinRate"><input type="hidden" value="'+full[1]+'" name="MaxRate"><input type="hidden" value="'+full[2]+'" name="AddMargin"><input type="hidden" value="'+full[3]+'" name="RateRuleMarginId"></div>';
+                                    action = '<div class = "hiddenRowData" >';
+                                    for (var i = 0; i < list_fields.length; i++) {
+                                        var str = '';
+                                        str = full[i];
+                                        action += '<input disabled type="hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null ? str : '') + '" / >';
+                                    }
+                                    action += '</div>';
                                     action += ' <a title="Edit" class="edit btn btn-primary btn-sm" id="add-new-margin" href="#"><i class="entypo-pencil"></i>&nbsp;</a>';
                                     action += ' <a title="Delete" class="btn delete btn-danger btn-sm"  href="'+delete_+'"><i class="entypo-trash"></i></a>';
 
@@ -219,11 +244,20 @@
 
                 var MinRate = $("#add-margin-form input[name='MinRate']").val();
                 var MaxRate = $("#add-margin-form input[name='MaxRate']").val();
+                var AddMargin = $("#add-margin-form input[name='AddMargin']").val();
+                var FixedValue = $("#add-margin-form input[name='FixedValue']").val();
 
                 if((typeof MinRate  == 'undefined' || MinRate.trim() == '' ) && (typeof MaxRate  == 'undefined' || MaxRate.trim() == '' )){
 
                     setTimeout(function(){$('.btn').button('reset');},10);
                     toastr.error("Please Enter a Min Rate or Max Rate", "Error", toastr_opts);
+                    return false;
+
+                }
+                if((typeof AddMargin  == 'undefined' || AddMargin.trim() == '' ) && (typeof FixedValue  == 'undefined' || FixedValue.trim() == '' )){
+
+                    setTimeout(function(){$('.btn').button('reset');},10);
+                    toastr.error("Please Enter a Margin or Fix Rate", "Error", toastr_opts);
                     return false;
 
                 }

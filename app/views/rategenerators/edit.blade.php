@@ -157,10 +157,12 @@
             <div class="panel-body">
 
                             <div class="pull-right">
+
                                 <a  href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/rule/add" class="btn addnew btn-primary btn-sm btn-icon icon-left" >
                                     <i class="entypo-floppy"></i>
                                     Add New
                                 </a>
+                                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Rules will be applied in the order they are setup. Keep * at the top." data-original-title="Add New Rule">?</span>
                                 <br><br>
                             </div>
 
@@ -194,8 +196,9 @@
 
                                             @if(count($rategenerator_rule['RateRuleMargin']))
                                             @foreach($rategenerator_rule['RateRuleMargin'] as $index=>$materulemargin )
-                                                {{$materulemargin->MinRate}} {{$index!=0?'<':'<='}}  rate <= {{$materulemargin->MaxRate}} {{$materulemargin->AddMargin}} <br>
-                                            @endforeach
+                                                {{$materulemargin->MinRate}} {{$index!=0?'<':'<='}}  rate <= {{$materulemargin->MaxRate}} {{$materulemargin->AddMargin}} {{$materulemargin->FixedValue}} <br>
+
+                                                @endforeach
                                             @endif
 
 
@@ -204,6 +207,10 @@
                                         <td>
                                             <a href="{{URL::to('/rategenerators/'.$id. '/rule/' . $rategenerator_rule->RateRuleId .'/edit' )}}" id="add-new-margin" class="update btn btn-primary btn-sm">
                                                 <i class="entypo-pencil"></i>
+                                            </a>
+
+                                            <a href="{{URL::to('/rategenerators/'.$id. '/rule/' . $rategenerator_rule->RateRuleId .'/clone_rule' )}}" data-rate-generator-id="{{$id}}" id="clone-rule" class="clone_rule btn btn-default  btn-sm" data-original-title="Clone" title="" data-placement="top" data-toggle="tooltip" data-loading-text="...">
+                                                <i class="fa fa-clone"></i>
                                             </a>
 
                                             <a href="{{URL::to('/rategenerators/'.$id. '/rule/' . $rategenerator_rule->RateRuleId .'/delete' )}}" class="btn delete btn-danger btn-sm" data-redirect="{{Request::url()}}">
@@ -381,7 +388,41 @@
                         return false;
 
                     });
-					
+        $(".btn.clone_rule").click(function (e) {
+            e.preventDefault();
+            $(this).button('loading');
+            var url = $(this).attr('href');
+            var rate_generator_id = $(this).attr('data-rate-generator-id');
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+
+                        if (response.status == 'success') {
+                            toastr.success(response.message, "Success", toastr_opts);
+                             var new_rule_url = baseurl + '/rategenerators/' + rate_generator_id + '/rule/' + response.RateRuleID + '/edit';
+
+                            setTimeout( function() {  window.location = new_rule_url } ,1000 );
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                        $(".btn.clone_rule").button('reset');
+
+
+                    },
+
+                    // Form data
+                    //data: {},
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            return false;
+
+        });
+
 					
         $('#delete-rate-generator-form').submit(function (e) {
             e.preventDefault();

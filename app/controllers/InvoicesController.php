@@ -1295,10 +1295,11 @@ class InvoicesController extends \BaseController {
         if(!empty($Invoice)) {
             $Account = Account::find($Invoice->AccountID);
             $Currency = Currency::find($Account->CurrencyId);
+            $companyID = User::get_companyID();
             $CompanyName = Company::getName();
             if (!empty($Currency)) {
                // $Subject = "New Invoice " . $Invoice->FullInvoiceNumber . ' from ' . $CompanyName . ' ('.$Account->AccountName.')';
-			    $templateData	 	 = 	 EmailTemplate::where(["SystemType"=>Invoice::EMAILTEMPLATE])->first();
+			    $templateData	 	 = 	 EmailTemplate::getSystemEmailTemplate($companyID, Invoice::EMAILTEMPLATE, $Account->LanguageID );
 				$data['InvoiceURL']	 =   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email=#email');
 			//	$Subject	 		 = 	 $templateData->Subject;
 			//	$Message 	 		 = 	 $templateData->TemplateBody;		
@@ -1792,7 +1793,8 @@ class InvoicesController extends \BaseController {
                 $transactiondata['Response'] = json_encode($response);
                 TransactionLog::insert($transactiondata);
                 $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
-                $paymentdata['EmailTemplate'] 		= 	EmailTemplate::where(["SystemType"=>EmailTemplate::InvoicePaidNotificationTemplate])->first();
+
+                $paymentdata['EmailTemplate'] 		= 	EmailTemplate::getSystemEmailTemplate($Invoice->CompanyId, Estimate::InvoicePaidNotificationTemplate, $account->LanguageID);
                 $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);
                 $paymentdata['Invoice'] = $Invoice;
                 Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$paymentdata);
@@ -2309,8 +2311,11 @@ class InvoicesController extends \BaseController {
 
             TransactionLog::insert($transactiondata);
 
+
+            $account = Account::find($AccountID);
+
             $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
-            $paymentdata['EmailTemplate'] 		= 	EmailTemplate::where(["SystemType"=>EmailTemplate::InvoicePaidNotificationTemplate])->first();
+            $paymentdata['EmailTemplate'] 		= 	EmailTemplate::getSystemEmailTemplate($Invoice->CompanyId, Estimate::InvoicePaidNotificationTemplate, $account->LanguageID);
             $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);
             $paymentdata['Invoice'] = $Invoice;
             Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$paymentdata);
@@ -2422,9 +2427,9 @@ class InvoicesController extends \BaseController {
                 $transactiondata['Response'] = json_encode($StripeResponse['response']);
 
                 TransactionLog::insert($transactiondata);
-
+                $account = Account::find($AccountID);
                 $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
-                $paymentdata['EmailTemplate'] 		= 	EmailTemplate::where(["SystemType"=>EmailTemplate::InvoicePaidNotificationTemplate])->first();
+                $paymentdata['EmailTemplate'] 		= 	EmailTemplate::getSystemEmailTemplate($Invoice->CompanyId, Estimate::InvoicePaidNotificationTemplate, $account->LanguageID);
                 $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);
                 $paymentdata['Invoice'] = $Invoice;
                 Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$paymentdata);
@@ -2668,7 +2673,7 @@ class InvoicesController extends \BaseController {
         if(!empty($invoiceIds)) {
 
             $Invoices = Invoice::find($invoiceIds);
-            $CompanyID = $Invoices->CompanyID;
+            $CompanyID = User::get_companyID();
             $UPLOAD_PATH = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID). "/";
             $isAmazon = is_amazon($CompanyID);
             foreach ($Invoices as $invoice) {
@@ -2774,7 +2779,7 @@ class InvoicesController extends \BaseController {
             $PaymentResponse = $PaymentIntegration->paymentWithCreditCard($data);
             return json_encode($PaymentResponse);
         }else{
-            return Response::json(array("status" => "failed", "message" => "Invoice not found"));
+            return Response::json(array("status" => "failed", "message" => cus_lang('PAGE_INVOICE_MSG_INVOICE_NOT_FOUND')));
         }
     }
 
@@ -2838,12 +2843,12 @@ class InvoicesController extends \BaseController {
                 return json_encode($PaymentResponse);
 
             }else{
-                return json_encode(array("status" => "failed", "message" => "Account Profile not set"));
+                return json_encode(array("status" => "failed", "message" => cus_lang('PAGE_INVOICE_MSG_ACCOUNT_PROFILE_NOT_SET')));
             }
 
 
         }else{
-            return Response::json(array("status" => "failed", "message" => "Invoice not found"));
+            return Response::json(array("status" => "failed", "message" => cus_lang('PAGE_INVOICE_MSG_INVOICE_NOT_FOUND')));
         }
     }
     /**

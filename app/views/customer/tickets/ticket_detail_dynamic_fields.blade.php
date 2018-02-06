@@ -3,7 +3,8 @@
 <form role="form" id="form-tickets-edit" method="post"   class="form-horizontal form-groups-bordered validate" novalidate>
   <?php  $required = array();
 			   foreach($ticketsfields as $TicketfieldsData)
-			   {	 
+			   {
+	  			 $TicketfieldsData->CustomerLabel = Lang::get('routes.CUST_PANEL_PAGE_TICKET_FIELDS_'.strtoupper($TicketfieldsData->TicketFieldsID) );
 		   		 if($TicketfieldsData->FieldType=='default_requester' || $TicketfieldsData->FieldType=='default_description' || $TicketfieldsData->FieldType=='default_subject'){continue;}
 				 
 				  $id		    =  'Ticket'.str_replace(" ","",$TicketfieldsData->FieldName);
@@ -130,7 +131,7 @@
   <?php if($show_edit==1){ ?>
   <div class="form-group">
     <div class="col-md-5 pull-right">
-      <button  type="submit" class="btn save btn-primary btn-icon btn-sm icon-left" id="update_ticket" data-loading-text="Loading..."> Update <i class="entypo-mail"></i> </button>
+      <button  type="submit" class="btn save btn-primary btn-icon btn-sm icon-left" id="update_ticket" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')"> @lang('routes.BUTTON_UPDATE_CAPTION') <i class="entypo-mail"></i> </button>
     </div>
   </div> 
  <?php } ?>

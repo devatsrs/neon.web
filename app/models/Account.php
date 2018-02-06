@@ -37,7 +37,7 @@ class Account extends \Eloquent {
         'Twitter', 'SecondaryEmail', 'Email','IsVendor','IsCustomer',
         'IsReseller', 'Ownership', 'Website','Mobile','Phone',
         'Fax', 'Employee', 'Description','Address1','Address2',
-        'Address3', 'City', 'State','PostCode','Country',
+        'Address3', 'City', 'State','PostCode','Country', 'LanguageID',
         'RateEmail', 'BillingEmail', 'ResellerEmail','TechnicalEmail','VatNumber',
         'Status', 'PaymentMethod', 'PaymentDetail','Converted','ConvertedDate',
         'ConvertedBy', 'TimeZone', 'VerificationStatus','Subscription','SubscriptionQty',
