@@ -51,6 +51,10 @@ class Payment extends \Eloquent {
     public static function validate($id=0){
         $valid = array('valid'=>0,'message'=>'Some thing wrong with payment validation','data'=>'');
         $data = Input::all();
+        if(isset($data['CustomerPaymentType'])){
+            $data['PaymentType'] = $data['CustomerPaymentType'];
+            unset($data['CustomerPaymentType']);
+        }
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
         unset($data['customers']);
@@ -111,6 +115,25 @@ class Payment extends \Eloquent {
             return $valid;
         }
         if (Input::hasFile('PaymentProof')){
+
+            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PAYMENT_PROOF']);
+            $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+
+            $proof = Input::file('PaymentProof');
+            $ext = $proof->getClientOriginalExtension();
+            if (in_array(strtolower($ext), array("pdf",'png','jpg','gif'))) {
+                $filename = rename_upload_file($destinationPath,$proof->getClientOriginalName());
+                $proof->move($destinationPath,$filename);
+                if(!AmazonS3::upload($destinationPath.$filename,$amazonPath)){
+                    return Response::json(array("status" => "failed", "message" => "Failed to upload."));
+                }
+                $data['PaymentProof'] = $amazonPath . $filename;
+            }else{
+                $valid['message'] = Response::json(array("status" => "failed", "message" => "Please Upload file with given extensions."));
+                return $valid;
+            }
+
+            /*
             $upload_path = CompanyConfiguration::get('PAYMENT_PROOF_PATH');
             $destinationPath = $upload_path.'/SampleUpload/'.Company::getName().'/';
             $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PAYMENT_PROOF']) ;
@@ -128,7 +151,7 @@ class Payment extends \Eloquent {
             }else{
                 $valid['message'] = Response::json(array("status" => "failed", "message" => "Please Upload file with given extensions."));
                 return $valid;
-            }
+            }*/
         }else{
             unset($data['PaymentProof']);
         }

@@ -33,6 +33,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('customer/payments/create', 'PaymentsCustomerController@create');
     Route::any('customer/payments/ajax_datagrid/{type}', 'PaymentsCustomerController@ajax_datagrid');
     Route::any('customer/payments/ajax_datagrid_total', 'PaymentsCustomerController@ajax_datagrid_total');
+    Route::any('customer/payments/download_doc/{id}', 'PaymentsCustomerController@download_doc');
 
     //Account Statement
 

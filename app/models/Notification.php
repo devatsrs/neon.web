@@ -20,7 +20,7 @@ class Notification extends \Eloquent {
     public static $type = [ Notification::InvoiceCopy=>'Invoice Copy',
         Notification::ReRate=>'CDR Rate Log',
         Notification::WeeklyPaymentTransactionLog=>'Weekly Payment Transaction Log',
-        Notification::PendingApprovalPayment=>'Pending Approval Payment',
+        Notification::PendingApprovalPayment=>'Payment Verification',
         Notification::RetentionDiskSpaceEmail=>'Retention Disk Space Email',
         Notification::BlockAccount=>'Block Account',
         Notification::InvoicePaidByCustomer=>'Invoice Paid',
