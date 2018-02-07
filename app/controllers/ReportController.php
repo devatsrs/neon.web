@@ -109,22 +109,31 @@ class ReportController extends \BaseController {
     }
 
     public function getdatagrid($id=0){
-        $data = Input::all();
+        $data = $data2 = Input::all();
         if($id>0){
             $report = Report::find($id);
             $data = json_decode($report->Settings,true);
             $filters = json_decode($data['filter_settings'],true);
 			$StartDate = Input::get('StartDate');
+			$EndDate = Input::get('EndDate');
             if(!empty($StartDate)) {
                 if (isset($filters['date'])) {
-                    $filters['date']['start_date'] = Input::get('StartDate');
-                    $filters['date']['end_date'] = Input::get('EndDate');
+                    $filters['date']['start_date'] = date('Y-m-d',strtotime($StartDate));
+                    $filters['date']['end_date'] = date('Y-m-d',strtotime($EndDate));
                 } else {
                     $filters['date']['wildcard_match_val'] = '';
-                    $filters['date']['start_date'] = Input::get('StartDate');
-                    $filters['date']['end_date'] = Input::get('EndDate');
+                    $filters['date']['start_date'] = date('Y-m-d',strtotime($StartDate));
+                    $filters['date']['end_date'] = date('Y-m-d',strtotime($EndDate));
                     $filters['date']['condition'] = 'none';
                     $filters['date']['top'] = 'none';
+                }
+                if(isset($data2['Time']) && $data2['Time'] == 'HOUR') {
+                    if (date('Y-m-d', strtotime($StartDate)) == date('Y-m-d', strtotime($EndDate))) {
+                        $filters['Hour']['Hour'] = range(date('H', strtotime($StartDate)), date('H', strtotime($EndDate)));
+                    } else {
+                        $filters['multiday_hour']['StartDate'] = range(date('H', strtotime($StartDate)), 23);
+                        $filters['multiday_hour']['EndDate'] = range(0, date('H', strtotime($EndDate)));
+                    }
                 }
             }
             $data['filter_settings'] = json_encode($filters);

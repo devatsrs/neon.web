@@ -1,82 +1,64 @@
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_WSProcessCodeDeck`(
+CREATE DEFINER=`neon-user`@`%` PROCEDURE `prc_WSProcessCodeDeck`(
 	IN `p_processId` VARCHAR(200),
 	IN `p_companyId` INT
-
 )
 BEGIN
 
-    DECLARE v_AffectedRecords_ INT DEFAULT 0;     
+    DECLARE v_AffectedRecords_ INT DEFAULT 0;
     DECLARE   v_CodeDeckId_ INT;
     DECLARE errormessage longtext;
 	 DECLARE errorheader longtext;
 	 DECLARE countrycount INT DEFAULT 0;
-    
+
     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-    
+
 	 DROP TEMPORARY TABLE IF EXISTS tmp_JobLog_;
-    CREATE TEMPORARY TABLE tmp_JobLog_  ( 
-        Message longtext   
+    CREATE TEMPORARY TABLE tmp_JobLog_  (
+        Message longtext
     );
 
     SELECT CodeDeckId INTO v_CodeDeckId_ FROM tblTempCodeDeck WHERE ProcessId = p_processId AND CompanyId = p_companyId LIMIT 1;
-    
-    DELETE n1 
-	 FROM tblTempCodeDeck n1 
+
+    DELETE n1
+	 FROM tblTempCodeDeck n1
 	 INNER JOIN (
 	 	SELECT MAX(TempCodeDeckRateID) as TempCodeDeckRateID,Code FROM tblTempCodeDeck WHERE ProcessId = p_processId
 		GROUP BY Code
 		HAVING COUNT(*)>1
-	) n2 
+	) n2
 	 	ON n1.Code = n2.Code AND n1.TempCodeDeckRateID < n2.TempCodeDeckRateID
 	WHERE n1.ProcessId = p_processId;
- 		
- 	
+
+
 	 SELECT COUNT(*) INTO countrycount FROM tblTempCodeDeck WHERE ProcessId = p_processId AND Country !='';
-	  
- 
+
+
     UPDATE tblTempCodeDeck
-    SET  
+    SET
         tblTempCodeDeck.Interval1 = CASE WHEN tblTempCodeDeck.Interval1 is not null  and tblTempCodeDeck.Interval1 > 0
-                                    THEN    
+                                    THEN
                                         tblTempCodeDeck.Interval1
                                     ELSE
-                                    CASE WHEN tblTempCodeDeck.Interval1 is null and (tblTempCodeDeck.Description LIKE '%gambia%' OR tblTempCodeDeck.Description LIKE '%mexico%')
-                                            THEN 
-                                            60
-                                    ELSE CASE WHEN tblTempCodeDeck.Description LIKE '%USA%' 
-                                            THEN 
-                                            6
-                                            ELSE 
-                                            1
-                                        END
-                                    END
+                                    	1
                                     END,
         tblTempCodeDeck.IntervalN = CASE WHEN tblTempCodeDeck.IntervalN is not null  and tblTempCodeDeck.IntervalN > 0
-                                    THEN    
+                                    THEN
                                         tblTempCodeDeck.IntervalN
                                     ELSE
-                                        CASE WHEN tblTempCodeDeck.Description LIKE '%mexico%' THEN 
-                                        60
-                                    ELSE CASE
-                                        WHEN tblTempCodeDeck.Description LIKE '%USA%' THEN 
-                                        6
-                                    ELSE 
                                         1
                                     END
-                                    END
-                                    END
     WHERE tblTempCodeDeck.ProcessId = p_processId;
-  
+
     UPDATE tblTempCodeDeck t
-	    SET t.CountryId = fnGetCountryIdByCodeAndCountry (t.Code ,t.Country) 
+	    SET t.CountryId = fnGetCountryIdByCodeAndCountry (t.Code ,t.Country)
 	 WHERE t.ProcessId = p_processId ;
-  
+
    IF countrycount > 0
    THEN
 	  	UPDATE tblTempCodeDeck t
-		    SET t.CountryId = fnGetCountryIdByCodeAndCountry (t.Code ,t.Description) 
+		    SET t.CountryId = fnGetCountryIdByCodeAndCountry (t.Code ,t.Description)
 		 WHERE t.ProcessId = p_processId AND  t.CountryId IS NULL;
-	END IF;	 
+	END IF;
 
  IF ( SELECT COUNT(*)
                  FROM   tblTempCodeDeck
@@ -94,14 +76,14 @@ BEGIN
             WHERE   tblTempCodeDeck.Action = 'D'
           AND tblTempCodeDeck.CompanyID = p_companyId
           AND tblTempCodeDeck.CodeDeckId = v_CodeDeckId_
-          AND tblTempCodeDeck.ProcessId = p_processId                    
+          AND tblTempCodeDeck.ProcessId = p_processId
                     AND tblCustomerRate.CustomerRateID IS NULL
                     AND tblRateTableRate.RateTableRateID IS NULL
-                    AND tblVendorRate.VendorRateID IS NULL ;   
-		END IF; 
+                    AND tblVendorRate.VendorRateID IS NULL ;
+		END IF;
       SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();
-  
-  
+
+
   		SELECT GROUP_CONCAT(Code) into errormessage FROM(
 	      SELECT distinct tblRate.Code as Code,1 as a
 	      FROM    tblRate
@@ -110,11 +92,11 @@ BEGIN
 	          WHERE   tblTempCodeDeck.Action = 'D'
 	          AND tblTempCodeDeck.ProcessId = p_processId
 	          AND tblTempCodeDeck.CompanyID = p_companyId AND tblTempCodeDeck.CodeDeckId = v_CodeDeckId_)as tbl GROUP BY a;
-	          
+
 	   IF errormessage IS NOT NULL
           THEN
-                    INSERT INTO tmp_JobLog_ (Message)                    
-                    SELECT distinct 
+                    INSERT INTO tmp_JobLog_ (Message)
+                    SELECT distinct
 						  CONCAT(tblRate.Code , ' FAILED TO DELETE - CODE IS IN USE')
 					      FROM   tblRate
 					              INNER JOIN tblTempCodeDeck ON tblTempCodeDeck.Code = tblRate.Code
@@ -123,7 +105,7 @@ BEGIN
 					          AND tblTempCodeDeck.ProcessId = p_processId
 					          AND tblTempCodeDeck.CompanyID = p_companyId AND tblTempCodeDeck.CodeDeckId = v_CodeDeckId_;
 	 	END IF;
-      
+
       UPDATE  tblRate
       JOIN tblTempCodeDeck ON tblRate.Code = tblTempCodeDeck.Code
             AND tblTempCodeDeck.ProcessId = p_processId
@@ -133,10 +115,10 @@ BEGIN
 		SET   tblRate.Description = tblTempCodeDeck.Description,
             tblRate.Interval1 = tblTempCodeDeck.Interval1,
             tblRate.IntervalN = tblTempCodeDeck.IntervalN;
-  
+
   		IF countrycount > 0
   		THEN
-  		
+
 	  		UPDATE  tblRate
 	      JOIN tblTempCodeDeck ON tblRate.Code = tblTempCodeDeck.Code
 	            AND tblTempCodeDeck.ProcessId = p_processId
@@ -144,11 +126,11 @@ BEGIN
 	            AND tblRate.CodeDeckId = v_CodeDeckId_
 	            AND tblTempCodeDeck.Action != 'D'
 			SET   tblRate.CountryID = tblTempCodeDeck.CountryId;
-		
+
 		END IF;
-      
+
       SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();
-      
+
             INSERT  INTO tblRate
                     ( CountryID ,
                       CompanyID ,
@@ -172,15 +154,15 @@ BEGIN
               AND tblTempCodeDeck.CompanyID = p_companyId
               AND tblTempCodeDeck.CodeDeckId = v_CodeDeckId_
                             AND tblTempCodeDeck.Action != 'D';
-  
+
       SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();
-    
+
 	 INSERT INTO tmp_JobLog_ (Message)
 	 SELECT CONCAT(v_AffectedRecords_, ' Records Uploaded \n\r ' );
-	 
+
 	DELETE  FROM tblTempCodeDeck WHERE   tblTempCodeDeck.ProcessId = p_processId;
  	 SELECT * from tmp_JobLog_;
-	      
+
     SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
     SELECT * from tmp_JobLog_ limit 0 , 20;
 END
