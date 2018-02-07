@@ -17,11 +17,11 @@ BEGIN
 	-- for sippy update connect_time from vendor (setup time)  cdr to customer cdr
 
 	SET @stmt = CONCAT('
-	UPDATE `' , p_vendortable , '` vd
-	INNER JOIN  `' , p_customertable , '` cd ON cd.ID = vd.ID
+		UPDATE `'' , p_customertable , ''` cd
+	INNER JOIN  `'' , p_vendortable , ''` vd ON cd.ID = vd.ID
 		SET cd.connect_time = vd.connect_time
-	WHERE cd.ProcessID =  "' , p_ProcessID , '"
-		AND vd.ProcessID =  "' , p_ProcessID , '";
+	WHERE cd.ProcessID =  "'' , p_ProcessID , ''"
+		AND vd.ProcessID =  "'' , p_ProcessID , ''";
 	');
 
 	PREPARE stmt FROM @stmt;
