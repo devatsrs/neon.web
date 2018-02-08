@@ -26,16 +26,19 @@ function getAnalysisData(chart_type,submitdata){
         dataType: 'json',
         data:submitdata,
         aysync: true,
-        success: function(data) {
+        success: function(result) {
             loading("."+chart_type+"-call-count-pie-chart",0);
             loading("."+chart_type+"-call-cost-pie-chart",0);
             loading("."+chart_type+"-call-minutes-pie-chart",0);
+            var HTML_LBL=result.html;
+            var data=result.data;
+
             $("."+chart_type+"-call-count-pie-chart").sparkline(data.CallCountVal.split(','), {
                 type: 'pie',
                 width: '200',
                 height: '200',
                 sliceColors: data.ChartColors.split(','),
-                tooltipFormat: '<span style="color: {{color}}">&#9679;</span> {{offset:names}} Total Calls({{value}})',
+                tooltipFormat: '<span style="color: {{color}}">&#9679;</span> {{offset:names}} '+HTML_LBL.total_calls+'({{value}})',
                 tooltipValueLookups: {
                     names: data.CallCount.split(',')
                 }
@@ -47,7 +50,7 @@ function getAnalysisData(chart_type,submitdata){
                 width: '200',
                 height: '200',
                 sliceColors: data.ChartColors.split(','),
-                tooltipFormat: '<span style="color: {{color}}">&#9679;</span> {{offset:names}} Total Sales({{value}})',
+                tooltipFormat: '<span style="color: {{color}}">&#9679;</span> {{offset:names}} '+HTML_LBL.total_sales+'({{value}})',
                 tooltipValueLookups: {
                     names: data.CallCost.split(',')
                 }
@@ -59,7 +62,7 @@ function getAnalysisData(chart_type,submitdata){
                 width: '200',
                 height: '200',
                 sliceColors: data.ChartColors.split(','),
-                tooltipFormat: '<span style="color: {{color}}">&#9679;</span> {{offset:names}} Total Minutes({{value}})',
+                tooltipFormat: '<span style="color: {{color}}">&#9679;</span> {{offset:names}} '+HTML_LBL.total_minutes+'({{value}})',
                 tooltipValueLookups: {
                     names: data.CallMinutes.split(',')
                 }
@@ -191,7 +194,7 @@ function loadBarChart(chart_type,submit_data){
                     }
                 });
             }else{
-                $('.bar_chart').html('No Data');
+                $('.bar_chart').html(MSG_DATA_NOT_AVAILABLE);
             }
         }
     });
@@ -306,13 +309,13 @@ function loadTable(table_id,pageSize,$searchFilter){
         "aButtons": [
             {
                 "sExtends": "download",
-                "sButtonText": "EXCEL",
+                "sButtonText": BUTTON_EXPORT_EXCEL_CAPTION,
                 "sUrl": baseurl + "/vendor_analysis/ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
                 sButtonClass: "save-collection"
             },
             {
                 "sExtends": "download",
-                "sButtonText": "CSV",
+                "sButtonText": BUTTON_EXPORT_CSV_CAPTION,
                 "sUrl": baseurl + "/vendor_analysis/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
                 sButtonClass: "save-collection"
             }
@@ -343,7 +346,7 @@ function loadTable(table_id,pageSize,$searchFilter){
                 $(a).html('');
                 $(row).append(a);
             }
-            $($(row).children().get(0)).html('<strong>Total</strong>')
+            $($(row).children().get(0)).html('<strong>'+TABLE_TOTAL+'</strong>')
             $($(row).children().get(1)).html('<strong>'+TotalCall+'</strong>');
             $($(row).children().get(2)).html('<strong>'+TotalDuration+'</strong>');
             if(TotalCost) {

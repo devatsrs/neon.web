@@ -33,8 +33,13 @@ class TicketPriority extends \Eloquent {
 	static function getTicketPriority(){
 		//TicketfieldsValues::WHERE
 		 $row =  TicketPriority::orderBy('PriorityID')->lists('PriorityValue', 'PriorityID');
-		 $row = array("0"=> "Select")+$row;
-		 return $row;
+
+        $return=array();
+        foreach($row as $key=>$value){
+            $return[$key]=cus_lang("CUST_PANEL_PAGE_TICKET_FIELDS_PRIORITY_VAL_".$value);
+        }
+        $return = array("0"=> cus_lang("DROPDOWN_OPTION_SELECT"))+$return;
+		 return $return;
 	}
 	
 	
