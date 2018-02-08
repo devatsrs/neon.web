@@ -138,9 +138,9 @@ class ReportCustomerCDR extends \Eloquent{
         if(in_array('hour',$data['column']) || in_array('hour',$data['row']) || in_array('hour',$data['filter'])) {
 
             if($Live){
-                $query_common->join('tblUsageSummaryHourLive', 'tblHeader.HeaderID', '=', 'tblUsageSummaryHourLive.HeaderID');
-                $query_common->join('tblDimTime', 'tblUsageSummaryHourLive.TimeID', '=', 'tblDimTime.TimeID');
-                self::$DetailTable = 'tblUsageSummaryHourLive';
+                $query_common->join('tblUsageSummaryHourLive AS tblUsageSummaryHour', 'tblHeader.HeaderID', '=', 'tblUsageSummaryHour.HeaderID');
+                $query_common->join('tblDimTime', 'tblUsageSummaryHour.TimeID', '=', 'tblDimTime.TimeID');
+                self::$DetailTable = 'tblUsageSummaryHour';
             }else{
                 $query_common->join('tblUsageSummaryHour', 'tblHeader.HeaderID', '=', 'tblUsageSummaryHour.HeaderID');
                 $query_common->join('tblDimTime', 'tblUsageSummaryHour.TimeID', '=', 'tblDimTime.TimeID');
@@ -148,8 +148,8 @@ class ReportCustomerCDR extends \Eloquent{
             }
         }else{
             if($Live){
-                $query_common->join('tblUsageSummaryDayLive', 'tblHeader.HeaderID', '=', 'tblUsageSummaryDayLive.HeaderID');
-                self::$DetailTable = 'tblUsageSummaryDayLive';
+                $query_common->join('tblUsageSummaryDayLive AS tblUsageSummaryDay', 'tblHeader.HeaderID', '=', 'tblUsageSummaryDay.HeaderID');
+                self::$DetailTable = 'tblUsageSummaryDay';
             }else{
                 $query_common->join('tblUsageSummaryDay', 'tblHeader.HeaderID', '=', 'tblUsageSummaryDay.HeaderID');
                 self::$DetailTable = 'tblUsageSummaryDay';
@@ -169,7 +169,19 @@ class ReportCustomerCDR extends \Eloquent{
         }
 
         foreach ($filters as $key => $filter) {
-            if (!empty($filter[$key]) && is_array($filter[$key]) && !in_array($key, array('GatewayAccountPKID', 'GatewayVAccountPKID'))) {
+            if ($key == 'multiday_hour') {
+                if (!empty($filters['date']['start_date'])) {
+                    $query_common->where(function ($query) use($filters, $filter){
+                        $query->where(function ($query_inner) use($filters, $filter){
+                            $query_inner->where('date', '=', str_replace('*', '%', $filters['date']['start_date']))
+                                ->whereIn('Hour',$filter['StartDate']);
+                        })->orWhere(function ($query_inner) use($filters, $filter) {
+                            $query_inner->where('date', '=', str_replace('*', '%', $filters['date']['end_date']))
+                                ->whereIn('Hour',$filter['EndDate']);
+                        });
+                    });
+                }
+            } else if (!empty($filter[$key]) && is_array($filter[$key]) && !in_array($key, array('GatewayAccountPKID', 'GatewayVAccountPKID'))) {
                 if(isset(self::$database_columns[$key])) {
                     $query_common->whereRaw(self::$database_columns[$key].' in ("'.implode('","',$filter[$key]).'")');
                 }else{
