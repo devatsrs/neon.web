@@ -326,8 +326,8 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                             $(a).html('');
                             $(row).append(a);
                         }
-                        $($(row).children().get(0)).html('<strong>Total</strong>')
-                        $($(row).children().get(2)).html('<strong>'+TotalCall+' Calls</strong>');
+                        $($(row).children().get(0)).html('<strong>{{cus_lang("TABLE_TOTAL")}}</strong>')
+                        $($(row).children().get(2)).html('<strong>'+TotalCall+' {{cus_lang("CUST_PANEL_PAGE_INVOICE_PDF_TBL_CALLS")}}</strong>');
                         $($(row).children().get(3)).html('<strong>'+TotalDuration+' (mm:ss)</strong>');
                         $($(row).children().get(4)).html('<strong>' + CurrencyCode + TotalCost + '</strong>');
                     }else{
@@ -353,9 +353,6 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
 <style>
 .dataTables_filter label{
     /*display:none !important;*/
-}
-.dataTables_wrapper .export-data{
-    right: 30px !important;
 }
 </style>
 @stop

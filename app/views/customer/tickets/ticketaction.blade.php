@@ -1,6 +1,6 @@
 <div class="modal-header">
   <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-  <h4 class="modal-title">{{ucfirst($action_type)}} Ticket</h4>
+  <h4 class="modal-title">{{ucfirst($action_type)." ".cus_lang("CUST_PANEL_PAGE_TICKETS_MODAL_TICKET_EMAIL_ACTION_TITLE")}}</h4>
 </div>
 <div class="modal-body">
   <div class="row">

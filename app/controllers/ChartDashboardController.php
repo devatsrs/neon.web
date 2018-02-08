@@ -31,6 +31,7 @@ class ChartDashboardController extends BaseController {
         $response['TotalCostChart'] = implode(',',$hourChartCost);
         $response['costTitle'] = implode(',',$costTitle);
         $response['minutesTitle'] = implode(',',$minutesTitle);
+        $response['no_data'] = cus_lang("MESSAGE_DATA_NOT_AVAILABLE");
         return $response;
     }
     /* all tab report */

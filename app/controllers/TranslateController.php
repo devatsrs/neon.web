@@ -71,89 +71,23 @@ class TranslateController extends \BaseController {
 
     function process_singleUpdate(){
 
-
         $request = Input::all();
         if($request["value"]==""){
             return json_encode(["status" => "fail", "message" => "Required Translation"]);
         }
-        $data_langs = Translation::get_language_labels($request["language"]);
-//        dd(DB::getQueryLog());
 
-        $json_file = json_decode($data_langs->Translation, true);
-
-        $json_file[$request["system_name"]]=$request["value"];
-
-        DB::table('tblTranslation')
-            ->where(['TranslationID'=>$data_langs->TranslationID])
-            ->update(['Translation' => json_encode($json_file)]);
-
-        $this->create_language_file($data_langs->ISOCode,$json_file);
-
+        Translation::update_label($request["language"], $request["system_name"], $request["value"]);
 
         return json_encode(["status" => "success", "message" => ""]);
-
     }
 
     function process_singleDelete(){
-
-
         $request = Input::all();
-
-        $data_langs = Translation::get_language_labels($request["language"]);
-//        dd(DB::getQueryLog());
-
-        $json_file = json_decode($data_langs->Translation, true);
-        if(array_key_exists($request["system_name"], $json_file)){
-            unset($json_file[$request["system_name"]]);
-        }
-
-        DB::table('tblTranslation')
-            ->where(['TranslationID'=>$data_langs->TranslationID])
-            ->update(['Translation' => json_encode($json_file)]);
-
-        $this->create_language_file($data_langs->ISOCode,$json_file);
-
+        Translation::delete_label($request["language"], $request["system_name"]);
 
         return json_encode(["status" => "success", "message" => "Deleted - ".$request["system_name"]]);
-
     }
 
-    public static function create_language_file($lang_folder, $data_array){
-
-        ksort($data_array);
-        $arr_valid="\nreturn array(";
-        foreach($data_array as $key=>$value){
-            $arr_valid.="\n\t'".$key."'=>'".HTML::entities($value)."',";
-        }
-        $arr_valid.="\n);";
-
-        $JSON_File = app_path("lang/".$lang_folder);
-        if(!File::exists($JSON_File)){
-            // File::makeDirectory($JSON_File);
-            RemoteSSH::run("mkdir -p " . $JSON_File);
-            RemoteSSH::run("chmod -R 777 " . $JSON_File);
-        }
-        RemoteSSH::run("chmod -R 777 " . $JSON_File."/routes.php");
-        file_put_contents($JSON_File."/routes.php", "<?php ".$arr_valid );
-
-        $service_path=dirname(CompanyConfiguration::get("RM_ARTISAN_FILE_LOCATION"))."/resources/lang/".$lang_folder;
-
-        if(!File::exists($service_path)){
-            RemoteSSH::run("mkdir -p " . $service_path);
-            RemoteSSH::run("chmod -R 777 " . $service_path);
-        }
-
-        RemoteSSH::run("cp " . $JSON_File."/routes.php ".$service_path."/routes.php" );
-
-        $api_path=public_path("neon.api/resources/lang/".$lang_folder);
-
-        if(!File::exists($api_path)){
-            RemoteSSH::run("mkdir -p " . $api_path);
-            RemoteSSH::run("chmod -R 777 " . $api_path);
-        }
-
-        RemoteSSH::run("cp " . $JSON_File."/routes.php ".$api_path."/routes.php" );
-    }
 
     public function exports($languageCode,$type) {
 
@@ -177,18 +111,8 @@ class TranslateController extends \BaseController {
 
     public function new_system_name(){
         $request = Input::all();
-        $request["system_name"]=trim(strtoupper($request["system_name"]));
-        $data_langs = Translation::get_language_labels();
 
-        $translation_data = json_decode($data_langs->Translation, true);
-
-        if($request["system_name"]!="" && !array_key_exists($request["system_name"] ,$translation_data )){
-            $translation_data[$request["system_name"]]=$request["en_word"];
-
-            ksort($translation_data);
-
-            Translation::where('TranslationID', $data_langs->TranslationID)->update( array('Translation' => json_encode($translation_data) ));
-            $this->create_language_file($data_langs->ISOCode,$translation_data);
+        if(Translation::add_system_name($request["system_name"], $request["en_word"])){
             return json_encode(["status" => "success", "message" => "Add Successfully"]);
         }else{
             return json_encode(["status" => "fail", "message" => "System Name already exist."]);
@@ -196,19 +120,19 @@ class TranslateController extends \BaseController {
     }
 
     public static function refresh_label(){
+
         try{
 
             $arr_language=Translation::getLanguageDropdownWithFlagList();
-            $arr_iso=array_keys($arr_language);
 
-            foreach($arr_iso as $lang_iso){
+            foreach($arr_language as $lang_iso=>$value){
                 $data_langs = Translation::get_language_labels($lang_iso);
                 $translation_data = json_decode($data_langs->Translation, true);
 
                 if(Translation::$default_lang_ISOcode==$lang_iso){
 
                     foreach($translation_data  as $key=>$value){
-                        if(strpos($key,"CUST_PANEL_PAGE_TICKET_FIELDS_")!==false){
+                        if(strpos($key,"CUST_PANEL_PAGE_TICKET_FIELDS_")===0 || strpos($key,"THEMES_")===0){
                             unset($translation_data[$key]);
                         }
                     }
@@ -218,11 +142,30 @@ class TranslateController extends \BaseController {
                         $translation_data["CUST_PANEL_PAGE_TICKET_FIELDS_".$ticke_field->TicketFieldsID]=$ticke_field->CustomerLabel;
                     }
 
+                    $ticketFieldsValues = TicketfieldsValues::all();
+                    foreach($ticketFieldsValues as $ticke_field_values){
+                        $translation_data["CUST_PANEL_PAGE_TICKET_FIELDS_".$ticke_field_values->FieldsID."_VALUE_".$ticke_field_values->ValuesID]=$ticke_field_values->FieldValueCustomer;
+                    }
+
+                    $arr_TicketPriority = TicketPriority::all();
+                    foreach($arr_TicketPriority as $TicketPriority){
+                        $translation_data[strtoupper("CUST_PANEL_PAGE_TICKET_FIELDS_PRIORITY_VAL_".$TicketPriority->PriorityValue)]=$TicketPriority->PriorityValue;
+                    }
+
+                    $themes_data = Themes::all();
+                    foreach($themes_data as $theme){
+                        $domainUrl_key = preg_replace('/[^A-Za-z0-9\-]/', '', $theme->DomainUrl);
+                        $domainUrl_key = strtoupper(preg_replace('/-+/', '_',$domainUrl_key));
+
+                        $translation_data["THEMES_".$domainUrl_key."_FOOTERTEXT"]=$theme->FooterText;
+                        $translation_data["THEMES_".$domainUrl_key."_LOGIN_MSG"]=$theme->LoginMessage;
+                        $translation_data["THEMES_".$domainUrl_key."_TITLE"]=$theme->Title;
+                    }
                 }
 
                 ksort($translation_data);
                 Translation::where('TranslationID', $data_langs->TranslationID)->update( array('Translation' => json_encode($translation_data) ));
-                TranslateController::create_language_file($data_langs->ISOCode,$translation_data);
+                Translation::create_language_file($data_langs->ISOCode,$translation_data);
             }
 
 

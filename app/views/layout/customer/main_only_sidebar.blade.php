@@ -5,7 +5,11 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     @if(Session::get('user_site_configrations.FavIcon')!='')<link href="{{Session::get('user_site_configrations.FavIcon')}}" rel="icon">@endif
-    <title>{{Session::get('user_site_configrations.Title')}}</title>
+    <?php
+    $domainUrl_key = preg_replace('/[^A-Za-z0-9\-]/', '', $_SERVER['HTTP_HOST']);
+    $domainUrl_key = strtoupper(preg_replace('/-+/', '_',$domainUrl_key));
+    ?>
+    <title>{{cus_lang("THEMES_".$domainUrl_key."_TITLE")}}</title>
 
     @include('includes.login-css')
 
@@ -19,7 +23,13 @@
     <![endif]-->
 
     <script src="<?php echo URL::to('/'); ?>/assets/js/jquery-1.11.0.min.js"></script>
-    <script type="text/javascript">var baseurl = '<?php echo URL::to('/'); ?>';</script>
+    <script type="text/javascript">
+        var baseurl = '<?php echo URL::to('/'); ?>';
+        var MSG_DATA_NOT_AVAILABLE = '{{cus_lang("MESSAGE_DATA_NOT_AVAILABLE")}}';
+        var TABLE_TOTAL = '{{cus_lang("TABLE_TOTAL")}}';
+        var BUTTON_EXPORT_CSV_CAPTION = '{{cus_lang("BUTTON_EXPORT_CSV_CAPTION")}}';
+        var BUTTON_EXPORT_EXCEL_CAPTION = '{{cus_lang("BUTTON_EXPORT_EXCEL_CAPTION")}}';
+    </script>
 
     @if(Session::get('user_site_configrations.CustomCss'))
         <style>
