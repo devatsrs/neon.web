@@ -1348,6 +1348,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('reseller/exports/{type}', 'ResellerController@exports');
 	Route::any('reseller/view/{id}', 'ResellerController@view');
 	Route::any('reseller/bulkcopydata', 'ResellerController@bulkcopydata');
+	Route::any('reseller/getdomainurl/{id}', 'ResellerController@getdomainurl');
 
 	//Reseller
 	Route::any('reseller/profile', array('as' => 'profile_show', 'uses' => 'ResellerProfileController@show'));

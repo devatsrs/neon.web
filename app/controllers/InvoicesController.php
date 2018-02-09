@@ -1299,7 +1299,7 @@ class InvoicesController extends \BaseController {
             $CompanyName = Company::getName();
             if (!empty($Currency)) {
                // $Subject = "New Invoice " . $Invoice->FullInvoiceNumber . ' from ' . $CompanyName . ' ('.$Account->AccountName.')';
-			    $templateData	 	 = 	 EmailTemplate::getSystemEmailTemplate($companyID, Invoice::EMAILTEMPLATE, $Account->LanguageID );
+			    $templateData	 	 = 	 EmailTemplate::getSystemEmailTemplate($Invoice->CompanyID, Invoice::EMAILTEMPLATE, $Account->LanguageID );
 				$data['InvoiceURL']	 =   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email=#email');
 			//	$Subject	 		 = 	 $templateData->Subject;
 			//	$Message 	 		 = 	 $templateData->TemplateBody;		
