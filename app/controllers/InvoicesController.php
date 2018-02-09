@@ -737,7 +737,7 @@ class InvoicesController extends \BaseController {
                         $error = "No Invoice Template Assigned to Account";
                     }
                 } else {
-                    $error = "No Account Found";
+                    $error = "Billing Class Not Found, Please select Account and Billing Class both.";
                 }
                 if (empty($response)) {
                     $response = [
