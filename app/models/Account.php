@@ -513,7 +513,7 @@ class Account extends \Eloquent {
     }
 
     public static function getVendorLastInvoiceDate($AccountBilling,$account){
-        $invoiceDetail =   Invoice::join('tblInvoiceDetail','tblInvoiceDetail.InvoiceID','=','tblInvoice.InvoiceID')->where(array('AccountID'=>$account->AccountID,'InvoiceType'=>Invoice::INVOICE_IN))->orderBy('IssueDate','DESC')->limit(1)->first(['EndDate']);
+        $invoiceDetail =   Invoice::join('tblInvoiceDetail','tblInvoiceDetail.InvoiceID','=','tblInvoice.InvoiceID')->where(array('AccountID'=>$account->AccountID,'InvoiceType'=>Invoice::INVOICE_IN))->orderBy('EndDate','DESC')->limit(1)->first(['EndDate']);
         if(!empty($invoiceDetail)){
             $LastInvoiceDate = $invoiceDetail->EndDate;
         }else if(!empty($AccountBilling->BillingStartDate)) {
