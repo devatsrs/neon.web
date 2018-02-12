@@ -961,6 +961,12 @@ class Job extends \Eloquent {
         $data["updated_at"] = date('Y-m-d H:i:s');
         $data["created_at"] = date('Y-m-d H:i:s');
 
+        if($options['Effective'] == "CustomDate") {
+            $Effective = $options['CustomDate'];
+        } else {
+            $Effective = $options['Effective'];
+        }
+
         if (isset($options['isMerge']) && $options['isMerge'] == 1) {
 
             $data["AccountID"] = $options["AccountID"];
@@ -976,7 +982,7 @@ class Job extends \Eloquent {
                 $format = "";
             }
 
-            $data["Title"] = Account::getCompanyNameByID($data["AccountID"]) . ' ' . $format;
+            $data["Title"] = Account::getCompanyNameByID($data["AccountID"]) . ' ' . $format.' ('.$Effective.') ';
             $data["Description"] = Account::getCompanyNameByID($data["AccountID"]) . ' ' . isset($jobType[0]->Title) ? $jobType[0]->Title : '';
             $data["Options"] =  json_encode(self::removeUnnecesorryOptions($jobType,$options) );
 
@@ -1006,7 +1012,7 @@ class Job extends \Eloquent {
                 $format = "";
             }
 
-            $data["Title"] = Account::getCompanyNameByID($data["AccountID"]) . ' ' . $format;
+            $data["Title"] = Account::getCompanyNameByID($data["AccountID"]) . ' ' . $format.' ('.$Effective.') ';
             $data["Description"] = Account::getCompanyNameByID($data["AccountID"]) . ' ' . isset($jobType[0]->Title) ? $jobType[0]->Title : '';
 
             $trunks = $options['Trunks'];

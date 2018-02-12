@@ -586,8 +586,27 @@ class Account extends \Eloquent {
         }
         return $row;
     }
-	
-	 public static function GetAccountAllEmails($id,$ArrayReturn=false){
+    public static function getOnlyVendorIDList($data=array()){
+        if(User::is('AccountManager')){
+            $data['Owner'] = User::get_userID();
+        }
+        if(User::is_admin() && isset($data['UserID'])){
+            $data['Owner'] = $data['UserID'];
+        }
+        $data['Status'] = 1;
+        $data['AccountType'] = 1;
+        $data['VerificationStatus'] = Account::VERIFIED;
+        $data['CompanyID']=User::get_companyID();
+        $vendors = Account::where($data)
+            ->where(function($where){
+                $where->Where(['IsVendor'=>1]);
+            })
+            ->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
+
+        return $vendors;
+    }
+
+    public static function GetAccountAllEmails($id,$ArrayReturn=false){
 	  $array			 =  array();
 	  $accountemails	 = 	Account::where(array("AccountID"=>$id))->select(array('Email', 'BillingEmail'))->get();
 	  $acccountcontact 	 =  DB::table('tblContact')->where(array("AccountID"=>$id))->get(array("Email"));	

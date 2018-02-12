@@ -146,26 +146,32 @@ class VendorRatesController extends \BaseController
             echo json_encode(array("status" => "failed", "message" => "Please upload excel/csv file <5MB."));
         }
     }
-    
+
     public function download($id) {
             $Account = Account::find($id);
+            $Vendors = Account::getOnlyVendorIDList();
+            unset($Vendors[$id]);
             $trunks = VendorTrunk::getTrunkDropdownIDList($id);
             if(count($trunks) == 0){
                 return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
             }
             $rate_sheet_formates = $this->rate_sheet_formates;
             $downloadtype = [''=>'Select','xlsx'=>'EXCEL','csv'=>'CSV'];
-            return View::make('vendorrates.download', compact('id', 'trunks', 'rate_sheet_formates','Account','downloadtype'));
+
+            return View::make('vendorrates.download', compact('id', 'trunks', 'rate_sheet_formates','Account','downloadtype','Vendors'));
     }
     
     public function process_download($id) {
         if (Request::ajax()) {
             
             $data = Input::all();
-            
+
             $rules = array( 'isMerge' => 'required', 'Trunks' => 'required', 'Format' => 'required','filetype' => 'required' );
             if (!isset($data['isMerge'])) {
                 $data['isMerge'] = 0;
+            }
+            if($data['Effective'] == 'CustomDate') {
+                $rules['CustomDate'] = "required|date|date_format:Y-m-d";
             }
 
 
@@ -179,24 +185,29 @@ class VendorRatesController extends \BaseController
                 unset($data['filetype']);
             }
 
-            
-            //Inserting Job Log
-            try {
-                DB::beginTransaction();
-                $data["AccountID"] = $id;
-                $result = Job::logJob("VD", $data);
-                
-                if ($result['status'] != "success") {
-                    DB::rollback();
-                    return json_encode(["status" => "failed", "message" => $result['message']]);
+            $data['vendor'][] = $id;
+            foreach($data['vendor'] as $vendorID) {
+                if ((int)$vendorID) {
+                    //Inserting Job Log
+                    try {
+                        DB::beginTransaction();
+                        $data["AccountID"] = $vendorID;
+                        $result = Job::logJob("VD", $data);
+
+                        if ($result['status'] != "success") {
+                            DB::rollback();
+                            $json_result = json_encode(["status" => "failed", "message" => $result['message']]);
+                        }
+                        DB::commit();
+                        $json_result = json_encode(["status" => "success", "message" => "File is added to queue for processing. You will be notified once file creation is completed. "]);
+                    }
+                    catch(Exception $ex) {
+                        DB::rollback();
+                        $json_result = json_encode(["status" => "failed", "message" => " Exception: " . $ex->getMessage() ]);
+                    }
                 }
-                DB::commit();
-                return json_encode(["status" => "success", "message" => "File is added to queue for processing. You will be notified once file creation is completed. "]);
             }
-            catch(Exception $ex) {
-                DB::rollback();
-                return json_encode(["status" => "failed", "message" => " Exception: " . $ex->getMessage() ]);
-            }
+
         } else {
             echo json_encode(array("status" => "failed", "message" => "Access not allowed"));
         }
@@ -726,8 +737,8 @@ class VendorRatesController extends \BaseController
             if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
                 return Response::json(array("status" => "failed", "message" => "Failed to upload vendor rates file."));
             }
-            $option["skipRows"] = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
         }
+        $option["skipRows"] = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
 
         /*$file_name = basename($data['TemplateFile']);
 
@@ -1038,8 +1049,8 @@ class VendorRatesController extends \BaseController
             if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
                 return Response::json(array("status" => "failed", "message" => "Failed to upload vendor rates file."));
             }
-            $option["skipRows"] = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
         }
+        $option["skipRows"] = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
 
         /*$file_name = basename($data['TemplateFile']);
 
