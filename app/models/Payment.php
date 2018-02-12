@@ -48,6 +48,18 @@ class Payment extends \Eloquent {
         'selection.Amount.required' =>'The Amount field is required'
     );
 
+    public static function multiLang_init(){
+        Payment::$credit_card_type = array(
+            'American Express'=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_AMERICAN_EXPRESS"),
+            'Australian BankCard'=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_AUSTRALIAN_BANKCARD"),
+            'Diners Club'=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_DINERS_CLUB"),
+            'Discover'=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_DISCOVER"),
+            'MasterCard'=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_MASTERCARD"),
+            'Visa'=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_VISA"),
+            "JCB"=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_JCB"),
+        );
+    }
+
     public static function validate($id=0){
         $valid = array('valid'=>0,'message'=>'Some thing wrong with payment validation','data'=>'');
         $data = Input::all();

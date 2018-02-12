@@ -481,6 +481,7 @@ class AccountsController extends \BaseController {
 	}
 	 
     public function edit($id) {
+        Payment::multiLang_init();
         $ServiceID = 0;
         $account = Account::find($id);
         $companyID = User::get_companyID();
