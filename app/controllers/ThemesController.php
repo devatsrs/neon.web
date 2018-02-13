@@ -77,11 +77,15 @@ class ThemesController extends \BaseController {
      */
     public function index()
     {
+		if(is_reseller() && empty(Reseller::is_AllowWhiteLabel())){
+			return Redirect::to('reseller/profile');
+		}
         $companyID 				= 		User::get_companyID();
         $data 					= 		Input::all();
         $Themes 				= 		DB::table('tblCompanyThemes')->where(["CompanyID" => $companyID])->orderBy('ThemeID', 'desc')->get();
+		$ThemesCount            = DB::table('tblCompanyThemes')->where(["CompanyID" => $companyID])->count();
 		$themes_status_json 	= 		json_encode(Themes::get_theme_status());
-        return View::make('themes.index',compact('Themes','themes_status_json'));
+        return View::make('themes.index',compact('Themes','themes_status_json','ThemesCount'));
     }
 
     /**
@@ -92,8 +96,15 @@ class ThemesController extends \BaseController {
      */
     public function create()
     {
+		if(is_reseller() && empty(Reseller::is_AllowWhiteLabel())){
+			return Redirect::to('reseller/profile');
+		}
+		$CompanyID 				= 	User::get_companyID();
+		$Domain_Url = CompanyConfiguration::get('WEB_URL',$CompanyID);
+		$sourceUrl = parse_url($Domain_Url);
+		$sourceUrl = $sourceUrl['host'];
 		$theme_status_json 		= 	Themes::get_theme_status();		
-        return View::make('themes.create',compact('theme_status_json'));
+        return View::make('themes.create',compact('theme_status_json','sourceUrl'));
     }
 
     /**
@@ -103,9 +114,13 @@ class ThemesController extends \BaseController {
 	{
         if($id > 0)
 		{
-	        $theme_status_json 		= 	 Themes::get_theme_status();
-            $Theme 					= 	 Themes::find($id);
-		    return View::make('themes.edit', compact('Theme','theme_status_json','FilePath_logo','FilePath_fav'));
+			$CompanyID 				= 	User::get_companyID();
+	        $theme_status_json 		= 	Themes::get_theme_status();
+            $Theme 					= 	Themes::find($id);
+			$Domain_Url = CompanyConfiguration::get('WEB_URL',$CompanyID);
+			$sourceUrl = parse_url($Domain_Url);
+			$sourceUrl = $sourceUrl['host'];
+		    return View::make('themes.edit', compact('Theme','theme_status_json','FilePath_logo','FilePath_fav','sourceUrl'));
         }
     }
 

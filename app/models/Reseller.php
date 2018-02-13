@@ -101,4 +101,46 @@ class Reseller extends \Eloquent
         return $Account;
     }
 
+    public static function get_AllowWhilteLabel($ResellerID){
+        $IsAllowWhiteLabel = Reseller::where('ResellerID',$ResellerID)->pluck('AllowWhiteLabel');
+        return $IsAllowWhiteLabel;
+    }
+
+    public static function is_AllowWhiteLabel(){
+        return Reseller::where('ChildCompanyID',Auth::user()->CompanyID)->pluck('AllowWhiteLabel');
+    }
+
+    public static function ResellerDomainUrl($ResellerID){
+        $Reseller = Reseller::find($ResellerID);
+        $IsAllowWhiteLabel = $Reseller->AllowWhiteLabel;
+        $ResellerDomain = CompanyConfiguration::where(['CompanyID'=>$Reseller->ChildCompanyID,'Key'=>'WEB_URL'])->pluck('Value');
+        return $ResellerDomain;
+    }
+
+    public static function IsAllowDomainUrl($DomainUrl,$ResellerID=''){
+        $DomainUrl = rtrim($DomainUrl,"/");
+        /**
+         * When create/update reseller and white labeling is on than check domain url if already exits or not.
+         * Because we can not allow to setup multiple theme in single domain.
+        **/
+
+        if(empty($ResellerID)){
+            $WebUrlArray = CompanyConfiguration::where(['Key'=>'WEB_URL'])->select('Value')->get()->toArray();
+        }else{
+            $CompanyID = Reseller::where('ResellerID',$ResellerID)->pluck('ChildCompanyID');
+            $WebUrlArray = CompanyConfiguration::where(['Key'=>'WEB_URL'])->where('CompanyID', '<>', $CompanyID)->select('Value')->get()->toArray();
+        }
+        $wb1 = array();
+        foreach($WebUrlArray as $wb){
+
+            $wb1[]=$wb['Value'];
+        }
+        if (in_array($DomainUrl, $wb1))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
 }

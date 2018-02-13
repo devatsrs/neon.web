@@ -331,6 +331,8 @@
             Email = $(this).prev("div.hiddenRowData").find("input[name='Email']").val();
             Status = $(this).prev("div.hiddenRowData").find("input[name='Status']").val();
             AllowWhiteLabel = $(this).prev("div.hiddenRowData").find("input[name='AllowWhiteLabel']").val();
+
+            getDomainUrl($(this).attr('data-id'));
 			/*
             if(Status == 1 ){
                 $('#add-new-reseller-form [name="Status"]').prop('checked',true);
@@ -351,12 +353,16 @@
             $("#add-new-reseller-form [name='AccountID']").select2().select2('val',AccountID);
             $("#add-new-reseller-form [name='UpdateAccountID']").val(AccountID);
             $("#add-new-reseller-form [name='ResellerID']").val($(this).attr('data-id'));
+
             //account disabled when edit
             $("#add-new-reseller-form [name='AccountID']").attr("disabled","disabled");
             //hide copy data when edit
             $('#copy_data').hide();
             $('#add-new-modal-reseller h4').html('Edit Reseller');
-            $('#add-new-modal-reseller').modal('show');
+            setTimeout(function(){
+                $('#add-new-modal-reseller').modal('show');
+            },10);
+
         })
 
         $('#copy-resellerdata').on('click', function(e){
@@ -390,6 +396,15 @@
                 }
             });
         });
+
+        function getDomainUrl(id){
+            var domain_url;
+            var result='';
+            domain_url = baseurl + "/reseller/getdomainurl/"+id;
+            $.get(domain_url, function (response) {
+                $("#add-new-reseller-form [name='DomainUrl']").val(response.DomainUrl);
+            });
+        }
 
     });
 
