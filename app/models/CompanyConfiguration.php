@@ -84,4 +84,13 @@ class CompanyConfiguration extends \Eloquent {
         return "";
 
     }
+
+    // using for get value without cache
+    public static function getValueConfigurationByKey($Key,$CompanyID){
+        if($CompanyID > 0){
+            $ConfigurationValue = CompanyConfiguration::where(['CompanyID'=>$CompanyID,'Key'=>$Key])->pluck("Value");
+            return $ConfigurationValue;
+        }
+        return "";
+    }
 }
