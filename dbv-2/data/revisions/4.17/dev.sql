@@ -8,8 +8,6 @@ fnServiceUsageDetail
 fnVendorUsageDetail
 prc_DeleteVCDR
 prc_DeleteCDR
-
-not in use
 prc_InsertTempReRateCDR
 */
 
@@ -429,7 +427,6 @@ BEGIN
 END//
 DELIMITER ;
 
--- not in use `prc_InsertTempReRateCDR`
 DROP PROCEDURE IF EXISTS `prc_InsertTempReRateCDR`;
 DELIMITER //
 CREATE PROCEDURE `prc_InsertTempReRateCDR`(
