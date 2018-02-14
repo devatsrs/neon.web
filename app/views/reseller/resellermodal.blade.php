@@ -116,12 +116,24 @@
                                     </div>
                                     <div class="col-md-6  margin-top">
                                         <div class="form-group">
-                                            <label for="field-1"  class="col-sm-4 control-label">Allow white label:</label>
+                                            <label for="field-1"  class="col-sm-4 control-label">Allow white label:
+                                                <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If you allow your re seller to white label the panel then please make sure you setup different domain for your reseller." data-original-title="Allow white label" class="label label-info popover-primary">?</span>
+                                            </label>
                                             <div class="col-md-8">
                                                 <div class="make-switch switch-small">
                                                     <input type="checkbox" name="AllowWhiteLabel"  @if(Input::old('AllowWhiteLabel') == 1 )checked=""@endif value="1">
                                                 </div>
                                             </div>
+                                        </div>
+                                    </div>
+                                    <div class="clear"></div>
+                                    <div class="col-md-6 margin-top">
+                                        <div class="form-group">
+                                            <label for="field-1" class="col-sm-3 control-label">Panel Url:</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" name="DomainUrl"  class="form-control" id="field-5" placeholder="">
+                                            </div>
+                                            <label for="field-2" class="col-sm-3 control-label">/reseller/login</label>
                                         </div>
                                     </div>
                                     <div class="clear"></div>

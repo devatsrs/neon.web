@@ -158,9 +158,7 @@
                             <div class="tile-stats tile-aqua"><a target="_blank" class="undefined" data-startdate=""
                                                                  data-enddate="" data-currency=""
                                                                  href="javascript:void(0)">
-                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                         data-duration="1500" data-delay="1200">0
-                                    </div>
+                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix="" data-duration="1500" data-delay="1200">0</div>
                                     <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_PENDING_DISPUTE')</p></a></div>
                         </div>
                         @endif
@@ -169,9 +167,7 @@
                             <div class="tile-stats tile-pink"><a target="_blank" class="undefined" data-startdate=""
                                                                  data-enddate="" data-currency=""
                                                                  href="javascript:void(0)">
-                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                         data-duration="1500" data-delay="1200">0
-                                    </div>
+                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix="" data-duration="1500" data-delay="1200">0</div>
                                     <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_PENDING_ESTIMATE')</p></a></div>
                         </div>
                         @endif
@@ -180,9 +176,7 @@
                                 <div class="tile-stats tile-aqua"><a target="_blank" class="undefined" data-startdate=""
                                                                      data-enddate="" data-currency=""
                                                                      href="javascript:void(0)">
-                                        <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                             data-duration="1500" data-delay="1200">0
-                                        </div>
+                                        <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix="" data-duration="1500" data-delay="1200">0</div>
                                         <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_MOR_BALANCE')</p></a></div>
                             </div>
                         @endif
@@ -191,10 +185,17 @@
                                 <div class="tile-stats tile-aqua"><a target="_blank" class="undefined" data-startdate=""
                                                                      data-enddate="" data-currency=""
                                                                      href="javascript:void(0)">
-                                        <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
-                                             data-duration="1500" data-delay="1200">0
-                                        </div>
+                                        <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix="" data-duration="1500" data-delay="1200">0</div>
                                         <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_LOCUTORIOS_BALANCE')</p></a></div>
+                            </div>
+                        @endif
+                        @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardAccountBalance',$BillingDashboardWidgets))
+                            <div class="col-sm-3 col-xs-6">
+                                <div class="tile-stats tile-aqua"><a target="_blank" class="undefined" data-startdate=""
+                                                                     data-enddate="" data-currency=""
+                                                                     href="javascript:void(0)">
+                                        <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix="" data-duration="1500" data-delay="1200">0</div>
+                                        <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_ACCOUNT_BALANCE')</p></a></div>
                             </div>
                         @endif
                 </div>
@@ -533,6 +534,15 @@
                 option["tileclass"] = 'tile-aqua';
                 option["class"] = 'callshopbalance';
                 option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_LOCUTORIOS_BALANCE')";
+                /*option["count"] = response.data.CountTotalDispute;*/
+                widgets += buildbox(option);
+                @endif
+                @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardAccountBalance',$BillingDashboardWidgets))
+                option["amount"] = response.data.Account_Balance;
+                option["end"] = response.data.Account_Balance;
+                option["tileclass"] = 'tile-aqua';
+                option["class"] = 'accountbalance';
+                option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_ACCOUNT_BALANCE')";
                 /*option["count"] = response.data.CountTotalDispute;*/
                 widgets += buildbox(option);
                 @endif
@@ -1058,7 +1068,6 @@
                     duration = attrDefault($num, 'duration', 1000),
                     delay = attrDefault($num, 'delay', 1000);
             round = attrDefault($num, 'round', 0);
-
             if (start < end) {
                 if (typeof scrollMonitor == 'undefined') {
                     $num.html(prefix + end + postfix);

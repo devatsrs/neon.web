@@ -67,7 +67,8 @@ class DashboardCustomerController extends BaseController {
                     $VendorUnbilledAmount = $response->data->VendorUnbilledAmount;
                 }
                 $BalanceAmount = $SOA_Amount+($UnbilledAmount-$VendorUnbilledAmount);
-                $InvoiceExpenseResult[0]->TotalUnbillidAmount = $BalanceAmount>=0?$BalanceAmount:0;
+                $BalanceAmount = $BalanceAmount>=0?$BalanceAmount:0;
+                $InvoiceExpenseResult[0]->TotalUnbillidAmount = number_format($BalanceAmount,$InvoiceExpenseResult[0]->Round);
                 $account_number = Account::where('AccountID',$CustomerID)->pluck('Number');
 
                 /** mor account balance widget **/
@@ -75,15 +76,18 @@ class DashboardCustomerController extends BaseController {
                 $CompanyGatewayID = CompanyGateway::getCompanyGatewayID($GatewayID);
                 $mor = new MOR($CompanyGatewayID);
                 $response = $mor->getAccountsBalace(array('username'=>$account_number));
-                $InvoiceExpenseResult[0]->MOR_Balance = $response['balance'];
+                $InvoiceExpenseResult[0]->MOR_Balance = number_format($response['balance'],$InvoiceExpenseResult[0]->Round);
 
                 /** call shop account balance widget **/
                 $GatewayID = Gateway::getGatewayID('CallShop');
                 $CompanyGatewayID = CompanyGateway::getCompanyGatewayID($GatewayID);
                 $callshop = new CallShop($CompanyGatewayID);
                 $response = $callshop->getAccountsBalace(array('username'=>$account_number));
-                $InvoiceExpenseResult[0]->CallShop_Balance = $response['balance'];
+                $InvoiceExpenseResult[0]->CallShop_Balance = number_format($response['balance'],$InvoiceExpenseResult[0]->Round);
 
+                /** account balance widget **/
+                $AccountBalance = AccountBalance::where('AccountID',$CustomerID)->pluck('BalanceAmount');
+                $InvoiceExpenseResult[0]->Account_Balance = number_format($AccountBalance,$InvoiceExpenseResult[0]->Round);
 
                 return Response::json(array("data" => $InvoiceExpenseResult[0], 'CurrencyCode' => $CurrencyCode, 'CurrencySymbol' => $CurrencySymbol));
             }else {
