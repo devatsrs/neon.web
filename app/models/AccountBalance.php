@@ -38,7 +38,26 @@ class AccountBalance extends \Eloquent {
 	 public static function getBalanceThresholdAmount($AccountID){
         return AccountBalance::where(['AccountID'=>$AccountID])->pluck('BalanceThreshold');
     }
-	
+
+    /**
+     * If Account Balance is negative than
+     * Prepaid Account = amount is negative to positive
+     * Postpaid Account = amount is 0
+    **/
+    public static function getAccountBalance($AccountID){
+        $AccountBalance = AccountBalance::where('AccountID',$AccountID)->pluck('BalanceAmount');
+        if($AccountBalance<0){
+            $BillingType = AccountBilling::where(['AccountID'=>$AccountID,'ServiceID'=>0])->pluck('BillingType');
+            if(isset($BillingType)){
+                if($BillingType==AccountApproval::BILLINGTYPE_PREPAID){
+                    $AccountBalance=abs($AccountBalance);
+                    return $AccountBalance;
+                }
+            }
+            return 0;
+        }
+        return $AccountBalance;
+    }
 	
 
 }
