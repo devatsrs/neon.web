@@ -39,7 +39,7 @@
             $cus_language=NeonCookie::getCookie('customer_language',"en");
             ?>
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-close-others="true" aria-expanded="false">
-                <img src="" width="25" />
+                <img src="" width="30" />
                 <span></span>
                 <i class="entypo-down-open-mini"></i>
             </a>
@@ -53,7 +53,7 @@
                     ?>
                     <li class="{{$selected}}" lang-key="{{$key}}">
                         <a href="javascript:void(0);">
-                            <img src="{{URL::to('/assets/images/flag/'.$value["languageFlag"])}}" width="25" />
+                            <img src="{{URL::to('/assets/images/flag/'.$value["languageFlag"])}}" width="30" />
                             <span>{{$value["languageName"]}}</span>
                         </a>
                     </li>

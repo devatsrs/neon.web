@@ -109,13 +109,13 @@
             <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->CustomerLabel}}</label>
             <div class="col-sm-9">
               <select name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld select2" id="{{$id}}" >
-              <option value="0">Select</option>
+              <option value="0">{{cus_lang("DROPDOWN_OPTION_SELECT")}}</option>
                 <?php
 			  if($TicketfieldsData->FieldType == 'default_priority'){
 				$FieldValues = TicketPriority::orderBy('PriorityID', 'asc')->get(); 
 					foreach($FieldValues as $FieldValuesData){
 					?>
-                <option value="{{$FieldValuesData->PriorityID}}">{{$FieldValuesData->PriorityValue}}</option>
+                <option value="{{$FieldValuesData->PriorityID}}">{{cus_lang("CUST_PANEL_PAGE_TICKET_FIELDS_PRIORITY_VAL_".$FieldValuesData->PriorityValue)}}</option>
                 <?php 
 					}
 				}				
@@ -123,6 +123,7 @@
 				{	 
 					$FieldValues = TicketfieldsValues::where(["FieldsID"=>$TicketfieldsData->TicketFieldsID])->orderBy('FieldOrder', 'asc')->get();
 					foreach($FieldValues as $FieldValuesData){
+				  		$FieldValuesData->FieldValueCustomer = Lang::get('routes.CUST_PANEL_PAGE_TICKET_FIELDS_'.$FieldValuesData->FieldsID."_VALUE_".$FieldValuesData->ValuesID );
 					?>
                 <option value="{{$FieldValuesData->ValuesID}}">{{$FieldValuesData->FieldValueCustomer}}</option>
                 <?php

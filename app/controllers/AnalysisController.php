@@ -110,7 +110,15 @@ class AnalysisController extends BaseController {
             $indexcount++;
         }
         $alldata['call_minutes_html'] = View::make('dashboard.grid', compact('alldata','data','customer','param_array'))->render();
-        return chart_reponse($alldata);
+        $return=array();
+        $return["data"]=chart_reponse($alldata);
+        $return['html']=[
+            "total_calls" => cus_lang("CUST_PANEL_PAGE_ANALYSIS_HEADER_ANALYSIS_DATA_LBL_TOTAL_CALLS"),
+            "total_sales" => cus_lang("CUST_PANEL_PAGE_ANALYSIS_HEADER_ANALYSIS_DATA_LBL_TOTAL_SALES"),
+            "total_minutes" => cus_lang("CUST_PANEL_PAGE_ANALYSIS_HEADER_ANALYSIS_DATA_LBL_TOTAL_MINUTES"),
+        ];
+
+        return $return;
     }
     public function getAnalysisBarData(){
         $data = Input::all();
@@ -145,9 +153,9 @@ class AnalysisController extends BaseController {
             $cat_index++;
         }
         if(!empty($category1)) {
-            $series[] = array('name' => 'Call Count', 'data' => $category1, 'color' => '#3366cc');
-            $series[] = array('name' => 'Call Cost', 'data' => $category2, 'color' => '#ff9900');
-            $series[] = array('name' => 'Call Minutes', 'data' => $category3, 'color' => '#dc3912');
+            $series[] = array('name' => cus_lang("CUST_PANEL_PAGE_ANALYSIS_LBL_CALL_COUNT"), 'data' => $category1, 'color' => '#3366cc');
+            $series[] = array('name' => cus_lang("CUST_PANEL_PAGE_ANALYSIS_LBL_CALL_COST"), 'data' => $category2, 'color' => '#ff9900');
+            $series[] = array('name' => cus_lang("CUST_PANEL_PAGE_ANALYSIS_LBL_CALL_MINUTES"), 'data' => $category3, 'color' => '#dc3912');
         }
         $reponse['series'] = $series;
         $reponse['Title'] = get_report_title($report_type);

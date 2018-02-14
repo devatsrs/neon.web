@@ -9,8 +9,11 @@
                     </a>
                 @endif
 
-
-                <p class="description" style="color:#fff">{{Session::get('user_site_configrations.LoginMessage')}}</p>
+                <?php
+                $domainUrl_key = preg_replace('/[^A-Za-z0-9\-]/', '', $_SERVER['HTTP_HOST']);
+                $domainUrl_key = strtoupper(preg_replace('/-+/', '_',$domainUrl_key));
+                ?>
+                <p class="description" style="color:#fff">{{cus_lang("THEMES_".$domainUrl_key."_LOGIN_MSG")}}</p>
                 <!--<p class="description" style="color:#fff">Dear user, log in to access your account!</p>-->
                 <!-- progress bar indicator -->
                 <div class="login-progressbar-indicator">
@@ -35,7 +38,7 @@
                             <ul class="list-inline links-list pull-right">
                                 <li class="dropdown language-selector" id="user_language">
                                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-close-others="true" aria-expanded="false">
-                                        <img src="" width="25" />
+                                        <img src="" width="30" />
                                         <span></span>
                                         <i class="entypo-down-open-mini"></i>
                                     </a>
@@ -52,7 +55,7 @@
                                             ?>
                                             <li class="{{$selected}}" lang-key="{{$key}}">
                                                 <a href="javascripe:void(0);">
-                                                    <img src="{{URL::to('/assets/images/flag/'.$value["languageFlag"])}}" width="25" />
+                                                    <img src="{{URL::to('/assets/images/flag/'.$value["languageFlag"])}}" width="30" />
                                                     <span>{{$value["languageName"]}}</span>
                                                 </a>
                                             </li>
