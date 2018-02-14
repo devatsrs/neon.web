@@ -86,7 +86,8 @@ class DashboardCustomerController extends BaseController {
                 $InvoiceExpenseResult[0]->CallShop_Balance = number_format($response['balance'],$InvoiceExpenseResult[0]->Round);
 
                 /** account balance widget **/
-                $AccountBalance = AccountBalance::where('AccountID',$CustomerID)->pluck('BalanceAmount');
+
+                $AccountBalance = AccountBalance::getAccountBalance($CustomerID);
                 $InvoiceExpenseResult[0]->Account_Balance = number_format($AccountBalance,$InvoiceExpenseResult[0]->Round);
 
                 return Response::json(array("data" => $InvoiceExpenseResult[0], 'CurrencyCode' => $CurrencyCode, 'CurrencySymbol' => $CurrencySymbol));
