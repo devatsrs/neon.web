@@ -28,6 +28,8 @@ class NotificationCustomerController extends \BaseController {
     }
 
     public function index(){
+
+        Alert::multiLang_init();
         asort(Notification::$type);
         $notificationType = array(""=> "Select") + Notification::$type;
         $gateway = CompanyGateway::getCompanyGatewayIdList();

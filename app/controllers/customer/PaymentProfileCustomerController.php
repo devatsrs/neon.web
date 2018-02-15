@@ -30,6 +30,7 @@ class PaymentProfileCustomerController extends \BaseController {
 	 */
 	public function index()
 	{
+        Payment::multiLang_init();
         $currentmonth = date("n");
         $currentyear = date("Y");
         $CustomerID = Customer::get_accountID();

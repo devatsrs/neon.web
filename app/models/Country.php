@@ -61,15 +61,14 @@ class Country extends \Eloquent {
              //if the cache doesn't have it yet
             $company_id = User::get_companyID();
             self::$cache['country_dropdown2_cache'] = Country::selectRaw("concat(prefix,' ',Country) as IDCountry")->addSelect('CountryID')->lists('IDCountry','CountryID');
-            self::$cache['country_dropdown2_cache'] = array('' => "Select")+ self::$cache['country_dropdown2_cache'];
             
             //cache the database results so we won't need to fetch them again for 10 minutes at least
             Cache::forever('country_dropdown2_cache', array('country_dropdown2_cache' => self::$cache['country_dropdown2_cache']));
         }
-
+        self::$cache['country_dropdown2_cache'] = array('' => cus_lang("DROPDOWN_OPTION_SELECT"))+ self::$cache['country_dropdown2_cache'];
         if($is_all == 'All'){
             unset(self::$cache['country_dropdown2_cache'][""]);
-            self::$cache['country_dropdown2_cache'] = array("All" => "All")+self::$cache['country_dropdown2_cache'];
+            self::$cache['country_dropdown2_cache'] = array("All" => cus_lang("DROPDOWN_OPTION_ALL"))+self::$cache['country_dropdown2_cache'];
         }
         return self::$cache['country_dropdown2_cache'];
     }

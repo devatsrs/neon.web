@@ -134,6 +134,8 @@ class InvoicesController extends \BaseController {
      */
     public function index()
     {
+        Invoice::multiLang_init();
+        Payment::multiLang_init();
         $CompanyID = User::get_companyID();
         $accounts = Account::getAccountIDList();
 		$DefaultCurrencyID    	=   Company::where("CompanyID",$CompanyID)->pluck("CurrencyId");
@@ -1670,6 +1672,7 @@ class InvoicesController extends \BaseController {
     }
     public function invoice_payment($id,$type)
     {
+        Payment::multiLang_init();
         $stripeachprofiles=array();
         $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($type);
         $account_inv = explode('-', $id);

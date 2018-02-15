@@ -561,10 +561,10 @@ class TimeZone extends \Eloquent {
                  $temp[$tz] =   $tz . " " . $offset;
             }
             self::$cache['tz_dropdown1_cache'] = $temp;
-            self::$cache['tz_dropdown1_cache'] = array('' => "Select")+ self::$cache['tz_dropdown1_cache'];
 
             Cache::forever('tz_dropdown1_cache', array('tz_dropdown1_cache' => self::$cache['tz_dropdown1_cache']));
         }
+        self::$cache['tz_dropdown1_cache'] = array('' => cus_lang("DROPDOWN_OPTION_SELECT"))+ self::$cache['tz_dropdown1_cache'];
 
         return self::$cache['tz_dropdown1_cache'];
 

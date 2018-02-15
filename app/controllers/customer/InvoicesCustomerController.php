@@ -50,6 +50,7 @@ class InvoicesCustomerController extends \BaseController {
      */
     public function index()
     {
+        Invoice::multiLang_init();
         $CompanyID 					 =  Customer::get_companyID();
         $invoice_status_json = json_encode(Invoice::get_invoice_status());
         return View::make('customer.invoices.index',compact('invoice_status_json','CompanyID'));
