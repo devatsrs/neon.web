@@ -285,6 +285,14 @@
                         </div>
                     </div>
                     </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label">Customer Payment Add</label>
+                    <div class="col-md-4">
+                        <div class="make-switch switch-small">
+                            <input type="checkbox" @if(isset($accountdetails->CustomerPaymentAdd) && $accountdetails->CustomerPaymentAdd == 1 )checked="" @endif name="CustomerPaymentAdd" value="1">
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         @if( ($account->IsVendor == 1 || $account->IsCustomer == 1) && count($AccountApproval) > 0)

@@ -77,11 +77,15 @@ class ThemesController extends \BaseController {
      */
     public function index()
     {
+		if(is_reseller() && empty(Reseller::is_AllowWhiteLabel())){
+			return Redirect::to('reseller/profile');
+		}
         $companyID 				= 		User::get_companyID();
         $data 					= 		Input::all();
         $Themes 				= 		DB::table('tblCompanyThemes')->where(["CompanyID" => $companyID])->orderBy('ThemeID', 'desc')->get();
+		$ThemesCount            = DB::table('tblCompanyThemes')->where(["CompanyID" => $companyID])->count();
 		$themes_status_json 	= 		json_encode(Themes::get_theme_status());
-        return View::make('themes.index',compact('Themes','themes_status_json'));
+        return View::make('themes.index',compact('Themes','themes_status_json','ThemesCount'));
     }
 
     /**
@@ -92,8 +96,16 @@ class ThemesController extends \BaseController {
      */
     public function create()
     {
+		$CompanyID 				= 	User::get_companyID();
+		if(is_reseller() && empty(Reseller::is_AllowWhiteLabel())){
+			return Redirect::to('reseller/profile');
+		}
+
+		$Domain_Url = CompanyConfiguration::getValueConfigurationByKey('WEB_URL',$CompanyID);
+		$sourceUrl = parse_url($Domain_Url);
+		$sourceUrl = $sourceUrl['host'];
 		$theme_status_json 		= 	Themes::get_theme_status();		
-        return View::make('themes.create',compact('theme_status_json'));
+        return View::make('themes.create',compact('theme_status_json','sourceUrl'));
     }
 
     /**
@@ -103,9 +115,13 @@ class ThemesController extends \BaseController {
 	{
         if($id > 0)
 		{
-	        $theme_status_json 		= 	 Themes::get_theme_status();
-            $Theme 					= 	 Themes::find($id);
-		    return View::make('themes.edit', compact('Theme','theme_status_json','FilePath_logo','FilePath_fav'));
+			$CompanyID 				= 	User::get_companyID();
+	        $theme_status_json 		= 	Themes::get_theme_status();
+            $Theme 					= 	Themes::find($id);
+			$Domain_Url = CompanyConfiguration::getValueConfigurationByKey('WEB_URL',$CompanyID);
+			$sourceUrl = parse_url($Domain_Url);
+			$sourceUrl = $sourceUrl['host'];
+		    return View::make('themes.edit', compact('Theme','theme_status_json','FilePath_logo','FilePath_fav','sourceUrl'));
         }
     }
 
@@ -116,12 +132,12 @@ class ThemesController extends \BaseController {
 	{
         $data 					= 		Input::all();		
 		$companyID 				= 		User::get_companyID();
+		$CreatedBy 						= 	User::get_user_full_name();
 		$company_name 			= 		Account::getCompanyNameByID($companyID);
 		
         if($data)
 		{
-            $companyID 						=   User::get_companyID();
-            $CreatedBy 						= 	User::get_user_full_name();           
+
             $themeData 						= 	array();
             $themeData["CompanyID"] 		= 	$companyID;
             $themeData["DomainUrl"] 		= 	$data["DomainUrl"];
@@ -167,8 +183,8 @@ class ThemesController extends \BaseController {
 						return Response::json(array("status" => "failed", "message" => "Logo max width is 200"));			
 					}					
 
-					$amazonPath		 	=	AmazonS3::generate_upload_path(AmazonS3::$dir['THEMES_IMAGES']);
-					$destinationPath 	= 	CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+					$amazonPath		 	=	AmazonS3::generate_upload_path(AmazonS3::$dir['THEMES_IMAGES'],'',$companyID);
+					$destinationPath 	= 	CompanyConfiguration::get('UPLOAD_PATH',$companyID) . '/' . $amazonPath;
 					$filename 		 	= 	rename_upload_file($destinationPath,$Attachment->getClientOriginalName());
 					$fullPath 		 	= 	$destinationPath .$filename;										
         	        $Attachment->move($destinationPath, $filename);
@@ -213,8 +229,8 @@ class ThemesController extends \BaseController {
 						return Response::json(array("status" => "failed", "message" => "Favicon image max size is 32 x 32"));			
 					}
 					
-					$amazonPath		 	=	AmazonS3::generate_upload_path(AmazonS3::$dir['THEMES_IMAGES']);
-					$destinationPath 	= 	CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+					$amazonPath		 	=	AmazonS3::generate_upload_path(AmazonS3::$dir['THEMES_IMAGES'],'',$companyID);
+					$destinationPath 	= 	CompanyConfiguration::get('UPLOAD_PATH',$companyID) . '/' . $amazonPath;
 					$filename 		 	= 	rename_upload_file($destinationPath,$Attachment->getClientOriginalName());
 					$fullPath 		 	= 	$destinationPath .$filename;										
         	        $Attachment->move($destinationPath, $filename);
@@ -275,13 +291,13 @@ class ThemesController extends \BaseController {
 	{
         $data 					= 		Input::all();
 		$companyID 				= 		User::get_companyID();
+		$CreatedBy 						= 	User::get_user_full_name();
 		$company_name 			= 		Account::getCompanyNameByID($companyID);
 		
         if(!empty($data) && $id > 0)
 		{
             $Themes 						= 	Themes::find($id);
-            $CreatedBy 						= 	User::get_user_full_name();
-            $companyID 						=   User::get_companyID();
+
             $themeData 						= 	array();
             $themeData["DomainUrl"] 		= 	$data["DomainUrl"];
             $themeData["Title"] 			= 	$data["Title"];
@@ -328,8 +344,8 @@ class ThemesController extends \BaseController {
 						return Response::json(array("status" => "failed", "message" => "Logo max width is 200"));			
 					}
 
-					$amazonPath		 	=	AmazonS3::generate_upload_path(AmazonS3::$dir['THEMES_IMAGES']);
-					$destinationPath 	= 	CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+					$amazonPath		 	=	AmazonS3::generate_upload_path(AmazonS3::$dir['THEMES_IMAGES'],'',$companyID);
+					$destinationPath 	= 	CompanyConfiguration::get('UPLOAD_PATH',$companyID) . '/' . $amazonPath;
 					$filename 		 	= 	rename_upload_file($destinationPath,$Attachment->getClientOriginalName());
 					$fullPath 		 	= 	$destinationPath .$filename;										
         	        $Attachment->move($destinationPath, $filename);
@@ -377,8 +393,8 @@ class ThemesController extends \BaseController {
 						return Response::json(array("status" => "failed", "message" => "Favicon image max size is 32 x 32"));			
 					}
 					
-					$amazonPath		 	=	AmazonS3::generate_upload_path(AmazonS3::$dir['THEMES_IMAGES']);
-					$destinationPath 	= 	CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+					$amazonPath		 	=	AmazonS3::generate_upload_path(AmazonS3::$dir['THEMES_IMAGES'],'',$companyID);
+					$destinationPath 	= 	CompanyConfiguration::get('UPLOAD_PATH',$companyID) . '/' . $amazonPath;
 					$filename 		 	= 	rename_upload_file($destinationPath,$Attachment->getClientOriginalName());
 					$fullPath 		 	= 	$destinationPath .$filename;										
         	        $Attachment->move($destinationPath, $filename);
