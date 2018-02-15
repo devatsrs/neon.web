@@ -55,7 +55,7 @@
                 @if( (empty($MonitorDashboardSetting)) ||  in_array('InboundMonitor',$MonitorDashboardSetting))
                     <div class="col-md-12">
                         <div class="tile-stats tile-sky stat-tile panel loading">
-                            <h3>Sales</h3>
+                            <h3>Sales <span></span></h3>
                             {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
                             <p>Today Outbound Sales by hour</p>
                             <span class="hourly-sales-cost-outbound"></span>
@@ -63,7 +63,7 @@
                     </div>
                     <div class="col-md-12">
                         <div class="tile-stats tile-sunset stat-tile panel loading">
-                            <h3>Sales</h3>
+                            <h3>Sales <span></span></h3>
                             {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
                             <p>Today Inbound Sales by hour</p>
                             <span class="hourly-sales-cost-inbound"></span>
@@ -71,7 +71,7 @@
                     </div>
                     <div class="col-md-12">
                         <div class="tile-stats tile-grass stat-tile panel loading">
-                            <h3>Minutes 0</h3>
+                            <h3>Minutes <span>0</span></h3>
                             {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
                             <p>Today Outbound Minutes by hour</p>
                             <span class="hourly-sales-minutes-outbound"></span>
@@ -79,7 +79,7 @@
                     </div>
                     <div class="col-md-12">
                         <div class="tile-stats tile-sunflower stat-tile panel loading">
-                            <h3>Minutes 0</h3>
+                            <h3>Minutes <span>0</span></h3>
                             {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
                             <p>Today Inbound Minutes by hour</p>
                             <span class="hourly-sales-minutes-inbound"></span>
@@ -88,7 +88,7 @@
                 @else
                     <div class="col-md-12">
                         <div class="tile-stats tile-grass stat-tile panel loading">
-                            <h3>Sales</h3>
+                            <h3>Sales <span></span></h3>
                             {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
                             <p>Today Sales by hour</p>
                             <span class="hourly-sales-cost-"></span>
@@ -96,7 +96,7 @@
                     </div>
                     <div class="col-md-12">
                         <div class="tile-stats tile-sky stat-tile panel loading">
-                            <h3>Minutes 0</h3>
+                            <h3>Minutes <span>0</span></h3>
                             {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
                             <p>Today Minutes by hour</p>
                             <span class="hourly-sales-minutes-"></span>
