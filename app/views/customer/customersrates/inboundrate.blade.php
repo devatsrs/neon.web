@@ -74,9 +74,9 @@
                                <label for="field-1" class="col-sm-1 control-label">@lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_OUTBOUND_RATE_FILTER_FIELD_EFFECTIVE")</label>
                                <div class="col-sm-2">
                                    <select name="Effective" class="select2 small" data-allow-clear="true" data-placeholder="Select Effective">
-                                       <option value="Now">Now</option>
-                                       <option value="Future">Future</option>
-                                       <option value="All">All</option>
+                                       <option value="Now">{{cus_lang("CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_OUTBOUND_RATE_FILTER_FIELD_EFFECTIVE_DLL_NOW")}}</option>
+                                       <option value="Future">{{cus_lang("CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_OUTBOUND_RATE_FILTER_FIELD_EFFECTIVE_DLL_FUTURE")}}</option>
+                                       <option value="All">{{cus_lang("DROPDOWN_OPTION_ALL")}}</option>
                                    </select>
                                </div>
 

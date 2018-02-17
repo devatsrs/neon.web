@@ -63,6 +63,7 @@ class DisputeController extends \BaseController {
 
 	public function index()
 	{
+		Invoice::multiLang_init();
 		$id=0;
 		$currency = Currency::getCurrencyDropdownList();
 		$currency_ids = json_encode(Currency::getCurrencyDropdownIDList());

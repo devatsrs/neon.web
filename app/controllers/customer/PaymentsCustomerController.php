@@ -83,9 +83,10 @@ class PaymentsCustomerController extends \BaseController {
         $CurrencyId = Company::where("CompanyID", '=', $companyID)->pluck('CurrencyId');
         $currency = Currency::where('CurrencyId',$CurrencyId)->pluck('Code');
         $AccountID = Customer::get_accountID();
-        $method = array(''=>'Select ','CASH'=>'CASH','PAYPAL'=>'PAYPAL','CHEQUE'=>'CHEQUE','CREDIT CARD'=>'CREDIT CARD','BANK TRANSFER'=>'BANK TRANSFER');
-        $action = array(''=>'Select ','Payment In'=>'Payment out','Payment Out'=>'Payment In');
-        $status = array(''=>'Select ','Pending Approval'=>'Pending Approval','Approved'=>'Approved','Rejected'=>'Rejected');
+
+        $method = array(''=>cus_lang("DROPDOWN_OPTION_SELECT"),'CASH'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_CASH"),'PAYPAL'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_PAYPAL"),'CHEQUE'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_CHEQUE"),'CREDIT CARD'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_CREDIT_CARD"),'BANK TRANSFER'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_BANK_TRANSFER"));
+        $action = array(''=>cus_lang("DROPDOWN_OPTION_SELECT"),'Payment In'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_ACTION_DDL_PAYMENT_OUT"),'Payment Out'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_ACTION_DDL_PAYMENT_IN"));
+        $status = array(''=>cus_lang("DROPDOWN_OPTION_SELECT"),'Pending Approval'=>'Pending Approval','Approved'=>'Approved','Rejected'=>'Rejected');
         $AccountDetailsID = AccountDetails::where('AccountID',$AccountID)->pluck('CustomerPaymentAdd');
         return View::make('customer.payments.index', compact('id','currency','method','type','status','action','AccountID','AccountDetailsID'));
 	}

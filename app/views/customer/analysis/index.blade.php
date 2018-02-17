@@ -64,7 +64,14 @@
                                 </div>
                                 <label class="col-sm-1 control-label" for="field-1">@lang("routes.CUST_PANEL_PAGE_ANALYSIS_FILTER_FIELD_TYPE")</label>
                                 <div class="col-sm-2">
-                                    {{ Form::select('CDRType',array(''=>'Both','inbound' => "Inbound", 'outbound' => "Outbound" ),'', array("class"=>"select2")) }}
+                                    <?php
+                                        $CDRType=[
+                                                ''=>cus_lang("CUST_PANEL_PAGE_CDR_FILTER_FIELD_CDR_TYPE_DLL_BOTH"),
+                                                'inbound' => cus_lang("CUST_PANEL_PAGE_CDR_FILTER_FIELD_CDR_TYPE_DLL_INBOUND"),
+                                                'outbound' => cus_lang("CUST_PANEL_PAGE_CDR_FILTER_FIELD_CDR_TYPE_DLL_OUTBOUND")
+                                        ];
+                                    ?>
+                                    {{ Form::select('CDRType', $CDRType,'', array("class"=>"select2")) }}
                                 </div>
                                 <input type="hidden" name="CurrencyID" value="{{$CurrencyID}}">
                                 <input type="hidden" name="AccountID" value="{{Customer::get_accountID()}}">
