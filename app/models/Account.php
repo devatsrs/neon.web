@@ -513,7 +513,7 @@ class Account extends \Eloquent {
     }
 
     public static function getVendorLastInvoiceDate($AccountBilling,$account){
-        $invoiceDetail =   Invoice::join('tblInvoiceDetail','tblInvoiceDetail.InvoiceID','=','tblInvoice.InvoiceID')->where(array('AccountID'=>$account->AccountID,'InvoiceType'=>Invoice::INVOICE_IN))->orderBy('IssueDate','DESC')->limit(1)->first(['EndDate']);
+        $invoiceDetail =   Invoice::join('tblInvoiceDetail','tblInvoiceDetail.InvoiceID','=','tblInvoice.InvoiceID')->where(array('AccountID'=>$account->AccountID,'InvoiceType'=>Invoice::INVOICE_IN))->orderBy('EndDate','DESC')->limit(1)->first(['EndDate']);
         if(!empty($invoiceDetail)){
             $LastInvoiceDate = $invoiceDetail->EndDate;
         }else if(!empty($AccountBilling->BillingStartDate)) {
@@ -586,8 +586,27 @@ class Account extends \Eloquent {
         }
         return $row;
     }
-	
-	 public static function GetAccountAllEmails($id,$ArrayReturn=false){
+    public static function getOnlyVendorIDList($data=array()){
+        if(User::is('AccountManager')){
+            $data['Owner'] = User::get_userID();
+        }
+        if(User::is_admin() && isset($data['UserID'])){
+            $data['Owner'] = $data['UserID'];
+        }
+        $data['Status'] = 1;
+        $data['AccountType'] = 1;
+        $data['VerificationStatus'] = Account::VERIFIED;
+        $data['CompanyID']=User::get_companyID();
+        $vendors = Account::where($data)
+            ->where(function($where){
+                $where->Where(['IsVendor'=>1]);
+            })
+            ->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
+
+        return $vendors;
+    }
+
+    public static function GetAccountAllEmails($id,$ArrayReturn=false){
 	  $array			 =  array();
 	  $accountemails	 = 	Account::where(array("AccountID"=>$id))->select(array('Email', 'BillingEmail'))->get();
 	  $acccountcontact 	 =  DB::table('tblContact')->where(array("AccountID"=>$id))->get(array("Email"));	
