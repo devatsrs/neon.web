@@ -83,7 +83,7 @@
                                 </div>
                                 <label for="field-1" class="col-md-1 control-label" style="padding-left: 0px; width:5%;">@lang('routes.CUST_PANEL_PAGE_CDR_FILTER_FIELD_SHOW')</label>
                                 <div class="col-md-2">
-                                    <?php $options = [0=>'All',1=>'Zero Cost',2=>'Non Zero Cost'] ?>
+                                    <?php $options = [0=>cus_lang("DROPDOWN_OPTION_ALL"),1=>cus_lang("CUST_PANEL_PAGE_CDR_FILTER_FIELD_SHOW_DDL_ZERO_COST"),2=>cus_lang("CUST_PANEL_PAGE_CDR_FILTER_FIELD_SHOW_DDL_NON_ZERO_COST")] ?>
                                     {{ Form::select('zerovaluecost',$options,'', array("class"=>"select2 small","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
                                 <label class="col-md-1 control-label" for="field-1" style="padding-right: 0px; padding-left: 0px; width: 2%;">@lang('routes.CUST_PANEL_PAGE_CDR_FILTER_FIELD_CLI')</label>
@@ -99,7 +99,14 @@
                             <div class="form-group">
                                 <label class="col-md-2 control-label " for="field-1" style="padding-left: 0px; padding-right: 0px; width: 4%;">@lang('routes.CUST_PANEL_PAGE_CDR_FILTER_FIELD_CDR_TYPE')</label>
                                 <div class="col-md-1" style="padding-right: 0px; width: 17%;">
-                                    {{ Form::select('CDRType',array(''=>'Both','inbound' => "Inbound", 'outbound' => "Outbound" ),'', array("class"=>"select2 small_fld","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                                    <?php
+                                        $CDRType=[
+                                                ''=>cus_lang("CUST_PANEL_PAGE_CDR_FILTER_FIELD_CDR_TYPE_DLL_BOTH"),
+                                                'inbound' => cus_lang("CUST_PANEL_PAGE_CDR_FILTER_FIELD_CDR_TYPE_DLL_INBOUND"),
+                                                'outbound' => cus_lang("CUST_PANEL_PAGE_CDR_FILTER_FIELD_CDR_TYPE_DLL_OUTBOUND")
+                                        ];
+                                    ?>
+                                    {{ Form::select('CDRType', $CDRType,'', array("class"=>"select2 small_fld","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
                                 <label class="col-md-1 control-label" for="field-1">@lang('routes.CUST_PANEL_PAGE_CDR_FILTER_FIELD_PREFIX')</label>
                                 <div class="col-md-2">
@@ -326,8 +333,8 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                             $(a).html('');
                             $(row).append(a);
                         }
-                        $($(row).children().get(0)).html('<strong>Total</strong>')
-                        $($(row).children().get(2)).html('<strong>'+TotalCall+' Calls</strong>');
+                        $($(row).children().get(0)).html('<strong>{{cus_lang("TABLE_TOTAL")}}</strong>')
+                        $($(row).children().get(2)).html('<strong>'+TotalCall+' {{cus_lang("CUST_PANEL_PAGE_INVOICE_PDF_TBL_CALLS")}}</strong>');
                         $($(row).children().get(3)).html('<strong>'+TotalDuration+' (mm:ss)</strong>');
                         $($(row).children().get(4)).html('<strong>' + CurrencyCode + TotalCost + '</strong>');
                     }else{
@@ -353,9 +360,6 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
 <style>
 .dataTables_filter label{
     /*display:none !important;*/
-}
-.dataTables_wrapper .export-data{
-    right: 30px !important;
 }
 </style>
 @stop

@@ -33,6 +33,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('customer/payments/create', 'PaymentsCustomerController@create');
     Route::any('customer/payments/ajax_datagrid/{type}', 'PaymentsCustomerController@ajax_datagrid');
     Route::any('customer/payments/ajax_datagrid_total', 'PaymentsCustomerController@ajax_datagrid_total');
+    Route::any('customer/payments/download_doc/{id}', 'PaymentsCustomerController@download_doc');
 
     //Account Statement
 
@@ -1348,6 +1349,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('reseller/exports/{type}', 'ResellerController@exports');
 	Route::any('reseller/view/{id}', 'ResellerController@view');
 	Route::any('reseller/bulkcopydata', 'ResellerController@bulkcopydata');
+	Route::any('reseller/getdomainurl/{id}', 'ResellerController@getdomainurl');
 
 	//Reseller
 	Route::any('reseller/profile', array('as' => 'profile_show', 'uses' => 'ResellerProfileController@show'));

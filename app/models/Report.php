@@ -411,6 +411,7 @@ class Report extends \Eloquent {
 
 
     public static function getName($PKColumnName,$ID,$all_data){
+        Invoice::multiLang_init();
         $name = $ID;
         switch ($PKColumnName) {
             case 'CompanyGatewayID':

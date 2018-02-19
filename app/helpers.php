@@ -2342,6 +2342,7 @@ function get_client_ip() {
 
 function generate_manual_datatable_response($ColName){
     $response_data = array();
+    Invoice::multiLang_init();
     switch ($ColName) {
         case 'InvoiceType':
             foreach (Invoice::$invoice_type as $row_key => $row_title) {

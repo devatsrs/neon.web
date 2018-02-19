@@ -86,7 +86,7 @@ class TicketsTable extends \Eloquent
 		 $row =  TicketfieldsValues::join('tblTicketfields','tblTicketfields.TicketFieldsID','=','tblTicketfieldsValues.FieldsID')
             ->where(['tblTicketfields.FieldType'=>Ticketfields::TICKET_SYSTEM_STATUS_FLD])->lists('FieldValueAgent','ValuesID');
         if($select==1) {
-            $row = array("0" => "Select") + $row;
+            $row = array("0" => cus_lang("DROPDOWN_OPTION_SELECT")) + $row;
         }
 			return $row;
 	}
@@ -96,7 +96,7 @@ class TicketsTable extends \Eloquent
 		 $row =  TicketfieldsValues::join('tblTicketfields','tblTicketfields.TicketFieldsID','=','tblTicketfieldsValues.FieldsID')->where('tblTicketfieldsValues.FieldValueAgent',"!=",TicketfieldsValues::$Status_UnResolved)
             ->where(['tblTicketfields.FieldType'=>Ticketfields::TICKET_SYSTEM_STATUS_FLD])->lists('FieldValueAgent','ValuesID');
         if($select==1) {
-            $row = array("0" => "Select") + $row;
+            $row = array("0" => cus_lang("DROPDOWN_OPTION_SELECT")) + $row;
         }
 			return $row;
 	}
@@ -111,9 +111,15 @@ class TicketsTable extends \Eloquent
 	static function getCustomerTicketStatus(){
 		//TicketfieldsValues::WHERE
 		 $row =  TicketfieldsValues::join('tblTicketfields','tblTicketfields.TicketFieldsID','=','tblTicketfieldsValues.FieldsID')
-            ->where(['tblTicketfields.FieldType'=>Ticketfields::TICKET_SYSTEM_STATUS_FLD])->lists('FieldValueCustomer','ValuesID');
-			$row = array("0"=> "Select")+$row;
-			return $row;
+            ->where(['tblTicketfields.FieldType'=>Ticketfields::TICKET_SYSTEM_STATUS_FLD])
+			 ->select('ValuesID',"FieldsID")->get();
+		$return=array();
+		foreach ($row as $val) {
+			$return[$val->ValuesID]=cus_lang("CUST_PANEL_PAGE_TICKET_FIELDS_".$val->FieldsID."_VALUE_".$val->ValuesID);
+		}
+
+		$return = array("0"=> cus_lang("DROPDOWN_OPTION_SELECT"))+$return;
+		return $return;
 	}
 	
 	static function getTicketType($select=1){
@@ -121,7 +127,7 @@ class TicketsTable extends \Eloquent
 		 $row =  TicketfieldsValues::join('tblTicketfields','tblTicketfields.TicketFieldsID','=','tblTicketfieldsValues.FieldsID')
             ->where(['tblTicketfields.FieldType'=>Ticketfields::TICKET_SYSTEM_TYPE_FLD])->lists('FieldValueAgent','ValuesID');
 		if($select==1) {
-			$row = array("0"=> "Select")+$row;
+			$row = array("0"=> cus_lang("DROPDOWN_OPTION_SELECT"))+$row;
 		}
 		return $row;
 	}

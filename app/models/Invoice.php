@@ -38,6 +38,10 @@ class Invoice extends \Eloquent {
                                             '{Email}'=>'Email',
                                             '{Phone}'=>'Phone');
 
+    public static function multiLang_init(){
+        Invoice::$invoice_type_customer = array(''=>cus_lang("DROPDOWN_OPTION_SELECT") ,self::INVOICE_OUT => cus_lang("CUST_PANEL_PAGE_INVOICE_FILTER_FIELD_TYPE_DDL_INVOICE_RECEIVED"),self::INVOICE_IN=>cus_lang("CUST_PANEL_PAGE_INVOICE_FILTER_FIELD_TYPE_DDL_INVOICE_SENT"),'All'=>cus_lang("CUST_PANEL_PAGE_INVOICE_FILTER_FIELD_TYPE_DDL_BOTH"));
+    }
+
     public static function getInvoiceEmailTemplate($data){
 
         $message = '[CompanyName] has sent you an invoice of [GrandTotal] [CurrencyCode], '. PHP_EOL. 'to download copy of your invoice please click the below link.';

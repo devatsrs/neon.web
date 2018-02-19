@@ -462,7 +462,7 @@ class Account extends \Eloquent {
                 $ExpenseYearHTML .= "<tr><td>$year</td><td>".$total['CustomerTotal']."</td><td>".$total['VendorTotal']."</td></tr>";
             }
         }else{
-            $ExpenseYearHTML = '<h4>No Data</h4>';
+            $ExpenseYearHTML = '<h4>'.cus_lang("MESSAGE_DATA_NOT_AVAILABLE").'</h4>';
         }
 
         $response['customer'] =  implode(',',$customer);

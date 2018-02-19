@@ -134,6 +134,8 @@ class InvoicesController extends \BaseController {
      */
     public function index()
     {
+        Invoice::multiLang_init();
+        Payment::multiLang_init();
         $CompanyID = User::get_companyID();
         $accounts = Account::getAccountIDList();
 		$DefaultCurrencyID    	=   Company::where("CompanyID",$CompanyID)->pluck("CurrencyId");
@@ -1299,7 +1301,7 @@ class InvoicesController extends \BaseController {
             $CompanyName = Company::getName();
             if (!empty($Currency)) {
                // $Subject = "New Invoice " . $Invoice->FullInvoiceNumber . ' from ' . $CompanyName . ' ('.$Account->AccountName.')';
-			    $templateData	 	 = 	 EmailTemplate::getSystemEmailTemplate($companyID, Invoice::EMAILTEMPLATE, $Account->LanguageID );
+			    $templateData	 	 = 	 EmailTemplate::getSystemEmailTemplate($Invoice->CompanyID, Invoice::EMAILTEMPLATE, $Account->LanguageID );
 				$data['InvoiceURL']	 =   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email=#email');
 			//	$Subject	 		 = 	 $templateData->Subject;
 			//	$Message 	 		 = 	 $templateData->TemplateBody;		
@@ -1670,6 +1672,7 @@ class InvoicesController extends \BaseController {
     }
     public function invoice_payment($id,$type)
     {
+        Payment::multiLang_init();
         $stripeachprofiles=array();
         $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($type);
         $account_inv = explode('-', $id);

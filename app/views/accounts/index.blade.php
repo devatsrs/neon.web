@@ -134,6 +134,8 @@
                         <span>Bulk Rate sheet Email</span>
                     </a>
                 </li>
+                @endif
+                @if(User::checkCategoryPermission('Account','Add'))
                 <li>
                    <a href="{{ URL::to('/import/account') }}" >
                         <i class="entypo-user-add"></i>
@@ -1420,6 +1422,18 @@
               </div>
             </div>
           </div>
+            <div class="row">
+                <div id="Vendor" class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-3" class="control-label">
+                            <input type="checkbox"  name="CustomerPaymentAddCheck">
+                            <span>Customer Payment Add</span></label><br>
+                        <p class="make-switch switch-small">
+                            <input id="BulkCustomerPaymentAdd" name="customerpayment_on_off" type="checkbox" value="1">
+                        </p>
+                    </div>
+                </div>
+            </div>
             <hr>
           <!-- billing section start -->
             <div class="row">
