@@ -437,8 +437,8 @@
 								
 								if(full[10]==1 || full[11]==1){
                                  	action += '&nbsp;<button redirecto="'+authenticate_+'" title="Authentication Rule" class="btn small_icons btn-default btn-xs"><i class="entypo-lock"></i></button>';
-                                } 
-								
+                                }
+
 								<?php if(User::checkCategoryPermission('AccountService','View') && CompanyConfiguration::get('ACCOUNT_SUB') == 1) { ?>
                                 action +='&nbsp;<button class="btn btn-default small_icons btn-xs " redirecto="'+subscriptions_+'" title="View Account Subscriptions" data-id="'+full[0]+'" type="button"> <i class="fa fa-refresh"></i> </button>';
                                 <?php } ?>

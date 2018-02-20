@@ -14,7 +14,9 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_VendorBulkRateDelete`(
 ,
 	IN `p_effective` VARCHAR(50)
 ,
+	IN `p_DeletedBy` TEXT,
 	IN `p_action` INT
+
 
 
 )
@@ -145,7 +147,7 @@ BEGIN
 
 	
 	-- archive rates which has EndDate <= today
-	call prc_ArchiveOldVendorRate(p_accountId,p_trunkId);
+	call prc_ArchiveOldVendorRate(p_accountId,p_trunkId,p_DeletedBy);
 	
 	-- CALL prc_InsertDiscontinuedVendorRate(p_AccountId,p_TrunkId);
 	

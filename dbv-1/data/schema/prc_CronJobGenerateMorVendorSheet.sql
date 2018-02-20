@@ -1,8 +1,11 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_CronJobGenerateMorVendorSheet`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_CronJobGenerateMorVendorSheet`(
 	IN `p_AccountID` INT ,
 	IN `p_trunks` VARCHAR(200),
 	IN `p_Effective` VARCHAR(50)
 
+
+,
+	IN `p_CustomDate` DATE
 
 )
 BEGIN
@@ -28,6 +31,8 @@ BEGIN
 					  				(p_Effective = 'Now' AND EffectiveDate <= NOW()) 
 								  	OR 
 								  	(p_Effective = 'Future' AND EffectiveDate > NOW())
+								  	OR
+								  	(p_Effective = 'CustomDate' AND EffectiveDate <= p_CustomDate AND (EndDate IS NULL OR EndDate > p_CustomDate))
 								  	OR 
 								  	(p_Effective = 'All')
 								);
@@ -38,8 +43,12 @@ BEGIN
       DELETE n1 FROM tmp_VendorRate_ n1, tmp_VendorRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
  	   AND n1.TrunkID = n2.TrunkID
 	   AND  n1.RateId = n2.RateId
-		AND n1.EffectiveDate <= NOW()
-		AND n2.EffectiveDate <= NOW();
+		AND
+	   (
+			(p_Effective = 'CustomDate' AND n1.EffectiveDate <= p_CustomDate AND n2.EffectiveDate <= p_CustomDate)
+		  	OR 
+		  	(p_Effective != 'CustomDate' AND n1.EffectiveDate <= NOW() AND n2.EffectiveDate <= NOW())
+		);
 		
 		DROP TEMPORARY TABLE IF EXISTS tmp_morrateall_;
     CREATE TEMPORARY TABLE tmp_morrateall_ (
