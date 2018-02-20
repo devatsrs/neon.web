@@ -77,11 +77,15 @@ class ThemesController extends \BaseController {
      */
     public function index()
     {
+		if(is_reseller() && empty(Reseller::is_AllowWhiteLabel())){
+			return Redirect::to('reseller/profile');
+		}
         $companyID 				= 		User::get_companyID();
         $data 					= 		Input::all();
         $Themes 				= 		DB::table('tblCompanyThemes')->where(["CompanyID" => $companyID])->orderBy('ThemeID', 'desc')->get();
+		$ThemesCount            = DB::table('tblCompanyThemes')->where(["CompanyID" => $companyID])->count();
 		$themes_status_json 	= 		json_encode(Themes::get_theme_status());
-        return View::make('themes.index',compact('Themes','themes_status_json'));
+        return View::make('themes.index',compact('Themes','themes_status_json','ThemesCount'));
     }
 
     /**
@@ -92,8 +96,16 @@ class ThemesController extends \BaseController {
      */
     public function create()
     {
+		$CompanyID 				= 	User::get_companyID();
+		if(is_reseller() && empty(Reseller::is_AllowWhiteLabel())){
+			return Redirect::to('reseller/profile');
+		}
+
+		$Domain_Url = CompanyConfiguration::getValueConfigurationByKey('WEB_URL',$CompanyID);
+		$sourceUrl = parse_url($Domain_Url);
+		$sourceUrl = $sourceUrl['host'];
 		$theme_status_json 		= 	Themes::get_theme_status();		
-        return View::make('themes.create',compact('theme_status_json'));
+        return View::make('themes.create',compact('theme_status_json','sourceUrl'));
     }
 
     /**
@@ -103,9 +115,13 @@ class ThemesController extends \BaseController {
 	{
         if($id > 0)
 		{
-	        $theme_status_json 		= 	 Themes::get_theme_status();
-            $Theme 					= 	 Themes::find($id);
-		    return View::make('themes.edit', compact('Theme','theme_status_json','FilePath_logo','FilePath_fav'));
+			$CompanyID 				= 	User::get_companyID();
+	        $theme_status_json 		= 	Themes::get_theme_status();
+            $Theme 					= 	Themes::find($id);
+			$Domain_Url = CompanyConfiguration::getValueConfigurationByKey('WEB_URL',$CompanyID);
+			$sourceUrl = parse_url($Domain_Url);
+			$sourceUrl = $sourceUrl['host'];
+		    return View::make('themes.edit', compact('Theme','theme_status_json','FilePath_logo','FilePath_fav','sourceUrl'));
         }
     }
 
@@ -116,12 +132,12 @@ class ThemesController extends \BaseController {
 	{
         $data 					= 		Input::all();		
 		$companyID 				= 		User::get_companyID();
+		$CreatedBy 						= 	User::get_user_full_name();
 		$company_name 			= 		Account::getCompanyNameByID($companyID);
 		
         if($data)
 		{
-            $companyID 						=   User::get_companyID();
-            $CreatedBy 						= 	User::get_user_full_name();           
+
             $themeData 						= 	array();
             $themeData["CompanyID"] 		= 	$companyID;
             $themeData["DomainUrl"] 		= 	$data["DomainUrl"];
@@ -167,8 +183,8 @@ class ThemesController extends \BaseController {
 						return Response::json(array("status" => "failed", "message" => "Logo max width is 200"));			
 					}					
 
-					$amazonPath		 	=	AmazonS3::generate_upload_path(AmazonS3::$dir['THEMES_IMAGES']);
-					$destinationPath 	= 	CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+					$amazonPath		 	=	AmazonS3::generate_upload_path(AmazonS3::$dir['THEMES_IMAGES'],'',$companyID);
+					$destinationPath 	= 	CompanyConfiguration::get('UPLOAD_PATH',$companyID) . '/' . $amazonPath;
 					$filename 		 	= 	rename_upload_file($destinationPath,$Attachment->getClientOriginalName());
 					$fullPath 		 	= 	$destinationPath .$filename;										
         	        $Attachment->move($destinationPath, $filename);
@@ -213,8 +229,8 @@ class ThemesController extends \BaseController {
 						return Response::json(array("status" => "failed", "message" => "Favicon image max size is 32 x 32"));			
 					}
 					
-					$amazonPath		 	=	AmazonS3::generate_upload_path(AmazonS3::$dir['THEMES_IMAGES']);
-					$destinationPath 	= 	CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+					$amazonPath		 	=	AmazonS3::generate_upload_path(AmazonS3::$dir['THEMES_IMAGES'],'',$companyID);
+					$destinationPath 	= 	CompanyConfiguration::get('UPLOAD_PATH',$companyID) . '/' . $amazonPath;
 					$filename 		 	= 	rename_upload_file($destinationPath,$Attachment->getClientOriginalName());
 					$fullPath 		 	= 	$destinationPath .$filename;										
         	        $Attachment->move($destinationPath, $filename);
@@ -247,6 +263,13 @@ class ThemesController extends \BaseController {
 			{
                 if ($theme = Themes::create($themeData))
 				{
+					$domainUrl_key = preg_replace('/[^A-Za-z0-9\-]/', '', $themeData["DomainUrl"]);
+					$domainUrl_key = preg_replace('/-+/', '_',$domainUrl_key);
+
+					Translation::add_system_name("THEMES_".$domainUrl_key."_FOOTERTEXT", $themeData["FooterText"]);
+					Translation::add_system_name("THEMES_".$domainUrl_key."_LOGIN_MSG", $themeData["LoginMessage"]);
+					Translation::add_system_name("THEMES_".$domainUrl_key."_TITLE", $themeData["Title"]);
+
 					   return  Response::json(array("status" => "success", "message" => "Theme Successfully Created",'LastID'=>$theme->ThemeID,'redirect' => URL::to('/themes')));
 				}
 				else
@@ -268,13 +291,13 @@ class ThemesController extends \BaseController {
 	{
         $data 					= 		Input::all();
 		$companyID 				= 		User::get_companyID();
+		$CreatedBy 						= 	User::get_user_full_name();
 		$company_name 			= 		Account::getCompanyNameByID($companyID);
 		
         if(!empty($data) && $id > 0)
 		{
             $Themes 						= 	Themes::find($id);
-            $CreatedBy 						= 	User::get_user_full_name();
-            $companyID 						=   User::get_companyID();
+
             $themeData 						= 	array();
             $themeData["DomainUrl"] 		= 	$data["DomainUrl"];
             $themeData["Title"] 			= 	$data["Title"];
@@ -321,8 +344,8 @@ class ThemesController extends \BaseController {
 						return Response::json(array("status" => "failed", "message" => "Logo max width is 200"));			
 					}
 
-					$amazonPath		 	=	AmazonS3::generate_upload_path(AmazonS3::$dir['THEMES_IMAGES']);
-					$destinationPath 	= 	CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+					$amazonPath		 	=	AmazonS3::generate_upload_path(AmazonS3::$dir['THEMES_IMAGES'],'',$companyID);
+					$destinationPath 	= 	CompanyConfiguration::get('UPLOAD_PATH',$companyID) . '/' . $amazonPath;
 					$filename 		 	= 	rename_upload_file($destinationPath,$Attachment->getClientOriginalName());
 					$fullPath 		 	= 	$destinationPath .$filename;										
         	        $Attachment->move($destinationPath, $filename);
@@ -370,8 +393,8 @@ class ThemesController extends \BaseController {
 						return Response::json(array("status" => "failed", "message" => "Favicon image max size is 32 x 32"));			
 					}
 					
-					$amazonPath		 	=	AmazonS3::generate_upload_path(AmazonS3::$dir['THEMES_IMAGES']);
-					$destinationPath 	= 	CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+					$amazonPath		 	=	AmazonS3::generate_upload_path(AmazonS3::$dir['THEMES_IMAGES'],'',$companyID);
+					$destinationPath 	= 	CompanyConfiguration::get('UPLOAD_PATH',$companyID) . '/' . $amazonPath;
 					$filename 		 	= 	rename_upload_file($destinationPath,$Attachment->getClientOriginalName());
 					$fullPath 		 	= 	$destinationPath .$filename;										
         	        $Attachment->move($destinationPath, $filename);
@@ -408,6 +431,14 @@ class ThemesController extends \BaseController {
                 if(isset($Themes->ThemeID))
 				{
                     $Themes->update($themeData);
+
+					$domainUrl_key = preg_replace('/[^A-Za-z0-9\-]/', '', $themeData["DomainUrl"]);
+					$domainUrl_key = preg_replace('/-+/', '_',$domainUrl_key);
+
+					Translation::update_label(Translation::$default_lang_ISOcode, "THEMES_".$domainUrl_key."_FOOTERTEXT", $themeData["FooterText"]);
+					Translation::update_label(Translation::$default_lang_ISOcode, "THEMES_".$domainUrl_key."_LOGIN_MSG", $themeData["LoginMessage"]);
+					Translation::update_label(Translation::$default_lang_ISOcode, "THEMES_".$domainUrl_key."_TITLE", $themeData["Title"]);
+
 					return Response::json(array("status" => "success", "message" => "Theme Successfully Updated", 'LastID' => $Themes->ThemeID,'redirect' => URL::to('/themes')));
 
                 }
@@ -425,7 +456,21 @@ class ThemesController extends \BaseController {
 		{
             try
 			{
-                Themes::find($id)->delete();
+                $theme=Themes::find($id);
+				$domainUrl_key=$theme->DomainUrl;
+				$theme->delete();
+
+				$arr_language=Translation::getLanguageDropdownWithFlagList();
+
+				$domainUrl_key = preg_replace('/[^A-Za-z0-9\-]/', '', $domainUrl_key);
+				$domainUrl_key = preg_replace('/-+/', '_',$domainUrl_key);
+
+				foreach($arr_language as $lang_iso=>$value){
+					Translation::delete_label($lang_iso, "THEMES_".$domainUrl_key."_FOOTERTEXT");
+					Translation::delete_label($lang_iso, "THEMES_".$domainUrl_key."_LOGIN_MSG");
+					Translation::delete_label($lang_iso, "THEMES_".$domainUrl_key."_TITLE");
+				}
+
                 return Response::json(array("status" => "success", "message" => "Theme Successfully Deleted"));
             }
 			catch (Exception $e)
@@ -446,7 +491,22 @@ class ThemesController extends \BaseController {
 		 {				 
             try
 			{
+				$arr_themes = Themes::whereIn('ThemeID',$ThemesIDs)->get();
 				Themes::whereIn('ThemeID',$ThemesIDs)->delete();
+
+				$arr_language=Translation::getLanguageDropdownWithFlagList();
+
+				foreach($arr_themes as $theme){
+					$domainUrl_key = preg_replace('/[^A-Za-z0-9\-]/', '', $theme->DomainUrl);
+					$domainUrl_key = preg_replace('/-+/', '_',$domainUrl_key);
+
+					foreach($arr_language as $lang_iso=>$value){
+						Translation::delete_label($lang_iso, "THEMES_".$domainUrl_key."_FOOTERTEXT");
+						Translation::delete_label($lang_iso, "THEMES_".$domainUrl_key."_LOGIN_MSG");
+						Translation::delete_label($lang_iso, "THEMES_".$domainUrl_key."_TITLE");
+					}
+				}
+
                 return Response::json(array("status" => "success", "message" => "Theme(s) Successfully Deleted"));
             }
 			catch (Exception $e)

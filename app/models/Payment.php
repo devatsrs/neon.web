@@ -48,9 +48,25 @@ class Payment extends \Eloquent {
         'selection.Amount.required' =>'The Amount field is required'
     );
 
+    public static function multiLang_init(){
+        Payment::$credit_card_type = array(
+            'American Express'=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_AMERICAN_EXPRESS"),
+            'Australian BankCard'=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_AUSTRALIAN_BANKCARD"),
+            'Diners Club'=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_DINERS_CLUB"),
+            'Discover'=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_DISCOVER"),
+            'MasterCard'=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_MASTERCARD"),
+            'Visa'=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_VISA"),
+            "JCB"=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_JCB"),
+        );
+    }
+
     public static function validate($id=0){
         $valid = array('valid'=>0,'message'=>'Some thing wrong with payment validation','data'=>'');
         $data = Input::all();
+        if(isset($data['CustomerPaymentType'])){
+            $data['PaymentType'] = $data['CustomerPaymentType'];
+            unset($data['CustomerPaymentType']);
+        }
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
         unset($data['customers']);
@@ -111,6 +127,25 @@ class Payment extends \Eloquent {
             return $valid;
         }
         if (Input::hasFile('PaymentProof')){
+
+            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PAYMENT_PROOF']);
+            $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+
+            $proof = Input::file('PaymentProof');
+            $ext = $proof->getClientOriginalExtension();
+            if (in_array(strtolower($ext), array("pdf",'png','jpg','gif'))) {
+                $filename = rename_upload_file($destinationPath,$proof->getClientOriginalName());
+                $proof->move($destinationPath,$filename);
+                if(!AmazonS3::upload($destinationPath.$filename,$amazonPath)){
+                    return Response::json(array("status" => "failed", "message" => "Failed to upload."));
+                }
+                $data['PaymentProof'] = $amazonPath . $filename;
+            }else{
+                $valid['message'] = Response::json(array("status" => "failed", "message" => "Please Upload file with given extensions."));
+                return $valid;
+            }
+
+            /*
             $upload_path = CompanyConfiguration::get('PAYMENT_PROOF_PATH');
             $destinationPath = $upload_path.'/SampleUpload/'.Company::getName().'/';
             $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PAYMENT_PROOF']) ;
@@ -128,7 +163,7 @@ class Payment extends \Eloquent {
             }else{
                 $valid['message'] = Response::json(array("status" => "failed", "message" => "Please Upload file with given extensions."));
                 return $valid;
-            }
+            }*/
         }else{
             unset($data['PaymentProof']);
         }
@@ -378,7 +413,7 @@ class Payment extends \Eloquent {
         TransactionLog::insert($transactiondata);
         $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
 
-        $EmailTemplate = EmailTemplate::where(["CompanyID" => $paymentdata['CompanyID'], "SystemType" => EmailTemplate::InvoicePaidNotificationTemplate , "Status" => 1 ])->first();
+        $EmailTemplate = EmailTemplate::getSystemEmailTemplate($paymentdata['CompanyID'], EmailTemplate::InvoicePaidNotificationTemplate, $account->LanguageID);
         if(!empty($EmailTemplate) && isset($EmailTemplate->Status) && $EmailTemplate->Status == 1 ){
             $paymentdata['EmailTemplate'] = $EmailTemplate;
             $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);

@@ -31,6 +31,7 @@ class ChartDashboardController extends BaseController {
         $response['TotalCostChart'] = implode(',',$hourChartCost);
         $response['costTitle'] = implode(',',$costTitle);
         $response['minutesTitle'] = implode(',',$minutesTitle);
+        $response['no_data'] = cus_lang("MESSAGE_DATA_NOT_AVAILABLE");
         return $response;
     }
     /* all tab report */
@@ -133,6 +134,15 @@ class ChartDashboardController extends BaseController {
         }
         $response['CountryColor'] =  $CountryColors;
         $response['CountryChart'] =  $CountryCharts;
+        $response['lang_labels'] =  [
+            "calls"=>Lang::get("routes.PAGE_DASHBOARD_DATA_WORLDMAP_LBL_CALLS"),
+            "cost"=>Lang::get("routes.PAGE_DASHBOARD_DATA_WORLDMAP_LBL_COST"),
+            "minutes"=>Lang::get("routes.PAGE_DASHBOARD_DATA_WORLDMAP_LBL_MINUTES"),
+            "acd"=>Lang::get("routes.PAGE_DASHBOARD_DATA_WORLDMAP_LBL_ACD"),
+            "asr"=>Lang::get("routes.PAGE_DASHBOARD_DATA_WORLDMAP_LBL_ASR"),
+            "totalmargin"=>Lang::get("routes.PAGE_DASHBOARD_DATA_WORLDMAP_LBL_TOTAL_MARGIN"),
+            "margin"=>Lang::get("routes.PAGE_DASHBOARD_DATA_WORLDMAP_LBL_MARGIN"),
+        ];
         return $response;
     }
     public function getVendorWorldMap(){
@@ -208,7 +218,7 @@ class ChartDashboardController extends BaseController {
             $count++;
         }
         if(empty($html)){
-            $html = '<tr><td colspan="'.($data['Type'] == 'call_cost'?5:4).'" valign="top">No data available in table</td></tr>';
+            $html = '<tr><td colspan="'.($data['Type'] == 'call_cost'?5:4).'" valign="top">'.Lang::get("routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_NO_DATA").'</td></tr>';
         }
         $response['html'] = $html;
         return $response;

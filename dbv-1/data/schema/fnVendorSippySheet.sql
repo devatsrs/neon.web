@@ -1,4 +1,8 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `fnVendorSippySheet`(IN `p_AccountID` int, IN `p_Trunks` longtext, IN `p_Effective` VARCHAR(50))
+CREATE DEFINER=`neon-user`@`%` PROCEDURE `fnVendorSippySheet`(
+	IN `p_AccountID` int,
+	IN `p_Trunks` longtext,
+	IN `p_Effective` VARCHAR(50)
+)
 BEGIN
 	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorSippySheet_(
             RateID int,
@@ -20,33 +24,25 @@ BEGIN
             AccountID int,
             TrunkID int
     );
-    
 
-    call vwVendorCurrentRates(p_AccountID,p_Trunks,p_Effective); 
-    
+    call vwVendorCurrentRates(p_AccountID,p_Trunks,p_Effective);
+
         SELECT NULL AS RateID,
                'A' AS `Action [A|D|U|S|SA]`,
                '' AS id,
                Concat(tblTrunk.Prefix , vendorRate.Code)  AS PREFIX,
                vendorRate.Description AS COUNTRY,
                5 AS Preference,
-               CASE
-                   WHEN vendorRate.Description LIKE '%gambia%'
-                        OR vendorRate.Description LIKE '%mexico%' THEN 60
-                   ELSE 1
-               END AS `Interval 1`,
-               CASE
-                   WHEN vendorRate.Description LIKE '%mexico%' THEN 60
-                   ELSE 1
-               END AS `Interval N`,
+               vendorRate.`Interval 1` AS `Interval 1`,
+               vendorRate.`Interval N` AS `Interval N`,
                vendorRate.Rate AS `Price 1`,
                vendorRate.Rate AS `Price N`,
                10 AS `1xx Timeout`,
                60 AS `2xx Timeout`,
                0 AS Huntstop,
-               CASE WHEN (tblVendorBlocking.VendorBlockingId IS NOT NULL AND  FIND_IN_SET(vendorRate.TrunkId,p_Trunks) != 0) OR (blockCountry.VendorBlockingId IS NOT NULL AND FIND_IN_SET(vendorRate.TrunkId,p_Trunks) != 0 ) 
-                THEN 1 
-                ELSE 0 
+               CASE WHEN (tblVendorBlocking.VendorBlockingId IS NOT NULL AND  FIND_IN_SET(vendorRate.TrunkId,p_Trunks) != 0) OR (blockCountry.VendorBlockingId IS NOT NULL AND FIND_IN_SET(vendorRate.TrunkId,p_Trunks) != 0 )
+                THEN 1
+                ELSE 0
                 END AS Forbidden,
                'NOW' AS `Activation Date`,
                '' AS `Expiration Date`,
@@ -65,6 +61,4 @@ BEGIN
           AND FIND_IN_SET(vendorRate.TrunkId,p_Trunks) != 0
           AND vendorRate.Rate > 0;
 
-
-     
 END

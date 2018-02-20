@@ -53,7 +53,7 @@
       </form>
     </div>
 
-      @if(User::checkCategoryPermission('themes','Add'))
+      @if(User::checkCategoryPermission('themes','Add') && $ThemesCount==0)
           <a href="{{URL::to("themes/create")}}" id="add-new-themes" class="btn btn-primary pull-right"> <i class="entypo-plus"></i> Add New</a>
       @endif
     <!-- /btn-group --> 

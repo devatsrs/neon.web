@@ -3,7 +3,8 @@
 <form role="form" id="form-tickets-edit" method="post"   class="form-horizontal form-groups-bordered validate" novalidate>
   <?php  $required = array();
 			   foreach($ticketsfields as $TicketfieldsData)
-			   {	 
+			   {
+	  			 $TicketfieldsData->CustomerLabel = Lang::get('routes.CUST_PANEL_PAGE_TICKET_FIELDS_'.strtoupper($TicketfieldsData->TicketFieldsID) );
 		   		 if($TicketfieldsData->FieldType=='default_requester' || $TicketfieldsData->FieldType=='default_description' || $TicketfieldsData->FieldType=='default_subject'){continue;}
 				 
 				  $id		    =  'Ticket'.str_replace(" ","",$TicketfieldsData->FieldName);
@@ -72,14 +73,14 @@
     <label for="GroupName" class="col-md-4 control-label">{{$TicketfieldsData->CustomerLabel}}</label>
     <div class="col-sm-8">
       <select  name='Ticket[{{$TicketfieldsData->FieldType}}]'  {{$disable}}  class="form-control formfld select2" id="{{$id}}" >
-        <option value="0">Select</option>
+        <option value="0">{{cus_lang("DROPDOWN_OPTION_SELECT")}}</option>
         <?php
 	          
 			  if($TicketfieldsData->FieldType == 'default_priority'){
 				$FieldValues = TicketPriority::orderBy('PriorityID', 'asc')->get(); 
 					foreach($FieldValues as $FieldValuesData){
 					?>
-        <option  @if($ticketSavedData[$TicketfieldsData->FieldType]==$FieldValuesData->PriorityID) selected @endif  value="{{$FieldValuesData->PriorityID}}">{{$FieldValuesData->PriorityValue}}</option>
+        <option  @if($ticketSavedData[$TicketfieldsData->FieldType]==$FieldValuesData->PriorityID) selected @endif  value="{{$FieldValuesData->PriorityID}}">{{cus_lang("CUST_PANEL_PAGE_TICKET_FIELDS_PRIORITY_VAL_".$FieldValuesData->PriorityValue)}}</option>
         <?php 
 					}
 				}else  
@@ -88,7 +89,7 @@
 					$FieldValues = TicketfieldsValues::where(["FieldsID"=>$TicketfieldsData->TicketFieldsID])->orderBy('FieldOrder', 'asc')->get();
 					foreach($FieldValues as $FieldValuesData){
 					?>
-        <option @if($ticketSavedData[$TicketfieldsData->FieldType]==$FieldValuesData->ValuesID) selected  @endif  value="{{$FieldValuesData->ValuesID}}">{{$FieldValuesData->FieldValueCustomer}}</option>
+        <option @if($ticketSavedData[$TicketfieldsData->FieldType]==$FieldValuesData->ValuesID) selected  @endif  value="{{$FieldValuesData->ValuesID}}">{{cus_lang("CUST_PANEL_PAGE_TICKET_FIELDS_".$FieldValuesData->FieldsID."_VALUE_".$FieldValuesData->ValuesID)}}</option>
         <?php
 					}
 		}
@@ -130,7 +131,7 @@
   <?php if($show_edit==1){ ?>
   <div class="form-group">
     <div class="col-md-5 pull-right">
-      <button  type="submit" class="btn save btn-primary btn-icon btn-sm icon-left" id="update_ticket" data-loading-text="Loading..."> Update <i class="entypo-mail"></i> </button>
+      <button  type="submit" class="btn save btn-primary btn-icon btn-sm icon-left" id="update_ticket" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')"> @lang('routes.BUTTON_UPDATE_CAPTION') <i class="entypo-mail"></i> </button>
     </div>
   </div> 
  <?php } ?>

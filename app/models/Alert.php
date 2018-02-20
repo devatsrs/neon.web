@@ -12,6 +12,10 @@ class Alert extends \Eloquent {
     public static $call_monitor_customer_alert_type = array(''=>'Select','call_duration'=>'Longest Call','call_cost'=>'Expensive Calls','call_after_office'=>'Call After Business Hour');
     public static $call_blacklist_alert_type = array(''=>'Select','block_destination'=>'Blacklisted Destination');
 
+    public static function multiLang_init(){
+        Alert::$call_monitor_customer_alert_type = array(''=>cus_lang("DROPDOWN_OPTION_SELECT"),'call_duration'=>cus_lang("PAGE_NOTIFICATIONS_FIELD_CALL_MONITOR_CUSTOMER_ALERT_TYPE_DDL_LONGEST_CALL"),'call_cost'=>cus_lang("PAGE_NOTIFICATIONS_FIELD_CALL_MONITOR_CUSTOMER_ALERT_TYPE_DDL_EXPENSIVE_CALLS"),'call_after_office'=>cus_lang("PAGE_NOTIFICATIONS_FIELD_CALL_MONITOR_CUSTOMER_ALERT_TYPE_DDL_CALL_AFTER_BUSINESS_HOUR"));
+    }
+
     public static $rules = array(
         'AlertType'=>'required',
         'Name'=>'required',

@@ -134,6 +134,8 @@
                         <span>Bulk Rate sheet Email</span>
                     </a>
                 </li>
+                @endif
+                @if(User::checkCategoryPermission('Account','Add'))
                 <li>
                    <a href="{{ URL::to('/import/account') }}" >
                         <i class="entypo-user-add"></i>
@@ -435,8 +437,8 @@
 								
 								if(full[10]==1 || full[11]==1){
                                  	action += '&nbsp;<button redirecto="'+authenticate_+'" title="Authentication Rule" class="btn small_icons btn-default btn-xs"><i class="entypo-lock"></i></button>';
-                                } 
-								
+                                }
+
 								<?php if(User::checkCategoryPermission('AccountService','View') && CompanyConfiguration::get('ACCOUNT_SUB') == 1) { ?>
                                 action +='&nbsp;<button class="btn btn-default small_icons btn-xs " redirecto="'+subscriptions_+'" title="View Account Subscriptions" data-id="'+full[0]+'" type="button"> <i class="fa fa-refresh"></i> </button>';
                                 <?php } ?>
@@ -1420,6 +1422,18 @@
               </div>
             </div>
           </div>
+            <div class="row">
+                <div id="Vendor" class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-3" class="control-label">
+                            <input type="checkbox"  name="CustomerPaymentAddCheck">
+                            <span>Customer Payment Add</span></label><br>
+                        <p class="make-switch switch-small">
+                            <input id="BulkCustomerPaymentAdd" name="customerpayment_on_off" type="checkbox" value="1">
+                        </p>
+                    </div>
+                </div>
+            </div>
             <hr>
           <!-- billing section start -->
             <div class="row">

@@ -96,7 +96,13 @@
                         <div class="col-md-12">
                     <div class="form-group">
                         <label for="field-1" class="control-label  bold">Effective</label>
-                        <div >{{$Effective}}</div>
+                        <div >
+                            @if($Options->Effective == 'CustomDate' && isset($Options->CustomDate) && !empty($Options->CustomDate))
+                                {{$Options->CustomDate}}
+                            @else
+                                {{$Effective}}
+                            @endif
+                        </div>
                     </div>
                         </div>
                     </div>
@@ -207,6 +213,21 @@
                 @endif
                 @if(isset($Options->checkbox_add_new_codes_to_code_decks) && $Options->checkbox_add_new_codes_to_code_decks == 1)
                 <div>Add new codes from the file to code decks</div>
+                @endif
+                @if(isset($Options->checkbox_review_rates) && $Options->checkbox_review_rates == 1)
+                <div>Review Rates</div>
+                @endif
+                @if(isset($Options->radio_list_option) && $Options->radio_list_option == 1)
+                    <div>Complete File</div>
+                @else
+                    <div>Partial File</div>
+                @endif
+                <?php $skipRows = json_decode($Options->Options); ?>
+                @if(isset($skipRows->skipRows->start_row) && (int) $skipRows->skipRows->start_row > 0)
+                    <div>Skips rows from Start - {{$skipRows->skipRows->start_row}}</div>
+                @endif
+                @if(isset($skipRows->skipRows->end_row) && (int) $skipRows->skipRows->end_row > 0)
+                    <div>Skips rows from Bottom - {{$skipRows->skipRows->end_row}}</div>
                 @endif
             </div>
                     </div>

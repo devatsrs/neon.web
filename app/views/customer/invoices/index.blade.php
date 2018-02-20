@@ -2,9 +2,9 @@
 
 @section('content')
 <ol class="breadcrumb bc-3">
-  <li> <a href="#"><i class="entypo-home"></i>Invoice</a> </li>
+  <li> <a href="#"><i class="entypo-home"></i>@lang('routes.CUST_PANEL_PAGE_INVOICE_TITLE')</a> </li>
 </ol>
-<h3>Invoice</h3>
+<h3>{{cus_lang('CUST_PANEL_PAGE_INVOICE_TITLE')}}</h3>
 @include('includes.errors')
 @include('includes.success')
 <div class="row">
@@ -12,36 +12,36 @@
     <form id="invoice_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
       <div class="panel panel-primary" data-collapsed="0">
         <div class="panel-heading">
-          <div class="panel-title"> Filter </div>
+          <div class="panel-title"> @lang('routes.CUST_PANEL_FILTER_TITLE') </div>
           <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
         </div>
         <div class="panel-body">
           <div class="form-group">
-            <label for="field-1" class="col-sm-1 control-label">Type</label>
+            <label for="field-1" class="col-sm-1 control-label">@lang('routes.CUST_PANEL_PAGE_INVOICE_FILTER_FIELD_TYPE')</label>
             <div class="col-sm-2"> {{Form::select('InvoiceType',Invoice::$invoice_type_customer,Input::get('InvoiceType'),array("class"=>"select2 small"))}} </div>
-            <label for="field-1" class="col-sm-1 control-label">Issue Date Start</label>
+            <label for="field-1" class="col-sm-1 control-label">@lang('routes.CUST_PANEL_PAGE_INVOICE_FILTER_FIELD_START_DATE')</label>
             <div class="col-sm-2"> {{ Form::text('IssueDateStart', Input::get('StartDate'), array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }} </div>
-            <label for="field-1" class="col-sm-1 control-label">Issue Date End</label>
+            <label for="field-1" class="col-sm-1 control-label">@lang('routes.CUST_PANEL_PAGE_INVOICE_FILTER_FIELD_END_DATE')</label>
             <div class="col-sm-2"> {{ Form::text('IssueDateEnd', Input::get('EndDate'), array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }} </div>
-            <label for="field-1" class="col-sm-1 control-label">Hide Zero Value</label>
+            <label for="field-1" class="col-sm-1 control-label">@lang('routes.CUST_PANEL_PAGE_INVOICE_FILTER_FIELD_HIDE_ZERO')</label>
             <div class="col-sm-2">
-              <p class="make-switch switch-small">
+              <p class="make-switch switch-small"  data-on-label="@lang('routes.BUTTON_ON_CAPTION')" data-off-label="@lang('routes.BUTTON_OFF_CAPTION')"  >
                 <input id="zerovalueinvoice" name="zerovalueinvoice" type="checkbox" checked>
               </p>
             </div>
           </div>
           <div class="form-group">
-            <label for="field-1" class="col-sm-1 control-label">Number</label>
+            <label for="field-1" class="col-sm-1 control-label">@lang('routes.CUST_PANEL_PAGE_INVOICE_FILTER_FIELD_NUMBER')</label>
             <div class="col-sm-2"> {{ Form::text('InvoiceNumber', '', array("class"=>"form-control")) }} </div>
-            <label for="field-1" class="col-sm-1 control-label">Overdue</label>
+            <label for="field-1" class="col-sm-1 control-label">@lang('routes.CUST_PANEL_PAGE_INVOICE_FILTER_FIELD_OVERDUE')</label>
             <div class="col-sm-2">
-              <p class="make-switch switch-small">
-                <input id="Overdue" name="Overdue" type="checkbox">
+              <p class="make-switch switch-small"  data-on-label="@lang('routes.BUTTON_ON_CAPTION')" data-off-label="@lang('routes.BUTTON_OFF_CAPTION')" >
+                <input id="Overdue" name="Overdue"  type="checkbox">
               </p>
             </div>
           </div>
-          <p style="text-align: right;">
-            <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
+          <p class="pull-right">
+            <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left"> <i class="entypo-search"></i> @lang('routes.BUTTON_SEARCH_CAPTION') </button>
           </p>
         </div>
       </div>
@@ -51,7 +51,8 @@
 <div class="row">
   <div  class="col-md-12">
     <div class="text-right"> @if(is_PayNowInvoice($CompanyID))
-      <button type="button"  id="pay_now" class="pay_now create btn btn-primary" >Pay Now</button>
+      <button type="button"  id="pay_now" class="pay_now create btn btn-primary" >@lang('routes.CUST_PANEL_PAGE_INVOICE_BUTTON_PAY_NOW')</button>
+
       @endif </div>
     <div class="input-group-btn pull-right" style="width:70px;">
       <form id="clear-bulk-rate-form" >
@@ -72,13 +73,13 @@
         </div>
         @endif
         <div class="pull-right"></div></th>
-      <th width="20%">Account Name</th>
-      <th width="10%">Invoice Number</th>
-      <th width="10%">Issue Date</th>
-      <th width="10%">Grand Total</th>
-      <th width="10%">Paid/OS</th>
-      <th width="10%">Invoice Status</th>
-      <th width="15%">Action</th>
+        <th width="20%">@lang('routes.CUST_PANEL_PAGE_INVOICE_TBL_AC_NAME')</th>
+        <th width="10%">@lang('routes.CUST_PANEL_PAGE_INVOICE_TBL_INVOICE_NUMBER')</th>
+        <th width="10%">@lang('routes.CUST_PANEL_PAGE_INVOICE_TBL_ISSUE_DATE')</th>
+        <th width="10%">@lang('routes.CUST_PANEL_PAGE_INVOICE_TBL_GRAND_TOTAL')</th>
+        <th width="10%">@lang('routes.CUST_PANEL_PAGE_INVOICE_TBL_PAID_OS')</th>
+        <th width="10%">@lang('routes.CUST_PANEL_PAGE_INVOICE_TBL_INVOICE_STATUS')</th>
+        <th width="15%">@lang('routes.TABLE_COLUMN_ACTION')</th>
     </tr>
   </thead>
   <tbody>
@@ -122,9 +123,9 @@ var postdata;
                              mRender: function ( id, type, full ) {
                                  var action , action = '<div class = "hiddenRowData" >';
                                  if (id != '{{Invoice::INVOICE_IN}}'){
-                                     invoiceType = ' <button class=" btn btn-primary pull-right" title="Invoice Received"><i class="entypo-left-bold"></i>RCV</a>';
+                                     invoiceType = ' <button class=" btn btn-primary pull-right" title="@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_BUTTON_INVOICE_RECEIVED')"><i class="entypo-left-bold"></i>RCV</a>';
                                  }else{
-                                     invoiceType = ' <button class=" btn btn-primary pull-right" title="Invoice Sent"><i class="entypo-right-bold"></i>SNT</a>';
+                                     invoiceType = ' <button class=" btn btn-primary pull-right" title="@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_BUTTON_INVOICE_SENT')"><i class="entypo-right-bold"></i>SNT</a>';
                                  }
                                  if (full[0] != '{{Invoice::INVOICE_IN}}'){
                                      if('{{is_PayNowInvoice($CompanyID)}}'){
@@ -140,8 +141,14 @@ var postdata;
                          {  "bSortable": true
                          },  // 2 IssueDate
                          {  "bSortable": true },  // 3 IssueDate
-                         {  "bSortable": true },  // 4 GrandTotal
-                         {  "bSortable": true },  // 4 GrandTotal
+                         {
+                             "bSortable": true,
+                             mRender: function (id, type, full) { return "<span class='leftsideview'>"+full[4]+"</span>" }
+                         },  // 4 GrandTotal
+                         {
+                             "bSortable": true,
+                             mRender: function (id, type, full) { return "<span class='leftsideview'>"+full[5]+"</span>"}
+                         },  // 4 GrandTotal
                          {  "bSortable": true,
                              mRender:function( id, type, full){
                                  return invoicestatus[full[6]];
@@ -164,10 +171,10 @@ var postdata;
                                  }
                                  action += '</div>';
                                  if (full[0] == '{{Invoice::INVOICE_OUT}}'){
-                                     action += ' <a href="'+invoice_preview+'" target="_blank" title="View" class="view-invoice-sent btn btn-default btn-sm"><i class="fa fa-eye"></i></a>';
+                                     action += ' <a href="'+invoice_preview+'" target="_blank" title="@lang('routes.BUTTON_VIEW_CAPTION')" class="view-invoice-sent btn btn-default btn-sm"><i class="fa fa-eye"></i></a>';
                                  }else{
                                      action += ' <a></a>';
-                                     action += ' <a title="View" class="view-invoice-in btn btn-default btn-sm"><i class="fa fa-eye"></i></a>';
+                                     action += ' <a title="@lang('routes.BUTTON_VIEW_CAPTION')" class="view-invoice-in btn btn-default btn-sm"><i class="fa fa-eye"></i></a>';
                                  }
 
                                  return action;
@@ -178,13 +185,13 @@ var postdata;
                 "aButtons": [
                     {
                         "sExtends": "download",
-                        "sButtonText": "EXCEL",
+                        "sButtonText": "@lang('routes.BUTTON_EXPORT_EXCEL_CAPTION')",
                         "sUrl": baseurl + "/customer/invoice/ajax_datagrid/xlsx", //baseurl + "/generate_xls.php",
                         sButtonClass: "save-collection btn-sm"
                     },
                     {
                         "sExtends": "download",
-                        "sButtonText": "CSV",
+                        "sButtonText": "@lang('routes.BUTTON_EXPORT_CSV_CAPTION')",
                         "sUrl": baseurl + "/customer/invoice/ajax_datagrid/csv", //baseurl + "/generate_xls.php",
                         sButtonClass: "save-collection btn-sm"
                     }
@@ -205,7 +212,7 @@ var postdata;
                    }
                    //onDelete Click
                    FnDeleteInvoiceTemplate = function(e){
-                       result = confirm("Are you Sure?");
+                       result = confirm("@lang("routes.MESSAGE_ARE_YOU_SURE")");
                        if(result){
                            var id  = $(this).attr("data-id");
                            showAjaxScript( baseurl + "/invoice/"+id+"/delete" ,"",FnDeleteInvoiceTemplateSuccess );
@@ -216,6 +223,9 @@ var postdata;
                    $(".dataTables_wrapper select").select2({
                        minimumResultsForSearch: -1
                    });
+                   if(typeof customer_alignment!="undefined" && customer_alignment=="right"){
+                       $('.pull-right, .pull-left').addClass('flip');
+                   }
            }
 
         });
@@ -258,7 +268,7 @@ var postdata;
                     {
                         $('.result_row').remove();
                         $('.result_row').hide();
-                        $('#table-4 tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td align="right" colspan="3"></td><td><strong>'+response1.total_grand+'</strong></td><td><strong>'+response1.os_pp+'</strong></td><td colspan="2"></td></tr>');
+                        $('#table-4 tbody').append('<tr class="result_row"><td><strong>@lang('routes.TABLE_TOTAL')</strong></td><td align="right" colspan="3"></td><td class="leftsideview"><strong>'+response1.total_grand+'</strong></td><td class="leftsideview"><strong>'+response1.os_pp+'</strong></td><td colspan="2"></td></tr>');
                     }
                 },
             });
@@ -283,7 +293,7 @@ var postdata;
             $("#modal-invoice-in-view").find("[data-id='"+list_fields[i]+"']").html('');
                 if(list_fields[i] == 'Attachment'){
                     if(cur_obj.find("input[name='"+list_fields[i]+"']").val() != ''){
-                        var down_html = ' <a href="' + baseurl +'/customer/invoice/download_invoice_file/'+cur_obj.find("input[name='InvoiceID']").val() +'" class="edit-invoice btn btn-success btn-sm btn-icon icon-left"><i class="entypo-down"></i>Download</a>';
+                        var down_html = ' <a href="' + baseurl +'/customer/invoice/download_invoice_file/'+cur_obj.find("input[name='InvoiceID']").val() +'" class="edit-invoice btn btn-success btn-sm btn-icon icon-left"><i class="entypo-down"></i>@lang('routes.BUTTON_DOWNLOAD_CAPTION')</a>';
                         $("#modal-invoice-in-view").find("[data-id='"+list_fields[i]+"']").html(down_html);
                     }
                 }else{
@@ -332,7 +342,7 @@ var postdata;
 
             });
             if(InvoiceIDs.length){
-                if (!confirm('Are you sure you want to pay selected invoices?')) {
+                if (!confirm("@lang('routes.CUST_PANEL_PAGE_INVOICE_BUTTON_PAY_NOW_CONFIRM_MSG')")) {
                     return;
                 }
                 //console.log(InvoiceIDs);
@@ -353,7 +363,7 @@ var postdata;
     display:none !important;
 }
 .dataTables_wrapper .export-data{
-    right: 30px !important;
+    right: 30px;
 }
  #table-5_filter label{
     display:block !important;
@@ -369,11 +379,11 @@ var postdata;
       <form id="add-new-invoice_template-form" method="post" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
         <div class="modal-header">
           <button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
-          <h4 class="modal-title"> <a class="btn btn-primary print btn-sm btn-icon icon-left" href=""> <i class="entypo-print"></i> Print </a> </h4>
+          <h4 class="modal-title"> <a class="btn btn-primary print btn-sm btn-icon icon-left" href=""> <i class="entypo-print"></i> @lang('routes.CUST_PANEL_PAGE_INVOICE_MODAL_PRINT_INVOICE_TITLE') </a> </h4>
         </div>
-        <div class="modal-body"> Content is loading... </div>
+        <div class="modal-body"> @lang('routes.MESSAGE_CONTENT_LOADION') </div>
         <div class="modal-footer">
-          <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+          <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> @lang('routes.BUTTON_CLOSE_CAPTION') </button>
         </div>
       </form>
     </div>
@@ -385,35 +395,35 @@ var postdata;
       <form class="form-horizontal form-groups-bordered">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">View Invoice</h4>
+          <h4 class="modal-title">@lang('routes.CUST_PANEL_PAGE_INVOICE_MODAL_VIEW_INVOICE_TITLE')</h4>
         </div>
         <div class="modal-body">
           <div class="form-group">
-            <label for="field-5" class="col-sm-2 control-label">Account Name<span id="currency"></span></label>
+            <label for="field-5" class="col-sm-2 control-label">@lang('routes.CUST_PANEL_PAGE_INVOICE_MODAL_VIEW_INVOICE_FIELD_ACCOUNT_NAME')<span id="currency"></span></label>
             <div class="col-sm-4 control-label"> <span data-id="AccountName">{{Customer::get_accountName()}}</span> </div>
           </div>
           <div class="form-group">
-            <label class="col-sm-2 control-label" for="field-1">Start Date</label>
+            <label class="col-sm-2 control-label" for="field-1">@lang('routes.CUST_PANEL_PAGE_INVOICE_MODAL_VIEW_INVOICE_FIELD_START_DATE')</label>
             <div class="col-sm-4 control-label"> <span data-id="StartDate"></span> <span data-id="StartTime"></span> </div>
           </div>
           <div class="form-group">
-            <label class="col-sm-2 control-label" for="field-1">End Date</label>
+            <label class="col-sm-2 control-label" for="field-1">@lang('routes.CUST_PANEL_PAGE_INVOICE_MODAL_VIEW_INVOICE_FIELD_END_DATE')</label>
             <div class="col-sm-4 control-label"> <span data-id="EndDate"></span> <span data-id="EndTime"></span> </div>
           </div>
           <div class="form-group">
-            <label class="col-sm-2 control-label" for="field-1">Issue Date</label>
+            <label class="col-sm-2 control-label" for="field-1">@lang('routes.CUST_PANEL_PAGE_INVOICE_MODAL_VIEW_INVOICE_FIELD_ISSUE_DATE')</label>
             <div class="col-sm-4 control-label"> <span data-id="IssueDate"></span> </div>
           </div>
           <div class="form-group">
-            <label class="col-sm-2 control-label" for="field-1">Invoice Number</label>
+            <label class="col-sm-2 control-label" for="field-1">@lang('routes.CUST_PANEL_PAGE_INVOICE_MODAL_VIEW_INVOICE_FIELD_INVOICE_NUMBER')</label>
             <div class="col-sm-4 control-label"> <span data-id="InvoiceNumber"></span> </div>
           </div>
           <div class="form-group">
-            <label class="col-sm-2 control-label" for="field-1">Grand Total</label>
+            <label class="col-sm-2 control-label" for="field-1">@lang('routes.CUST_PANEL_PAGE_INVOICE_MODAL_VIEW_INVOICE_FIELD_GRAND_TOTAL')</label>
             <div class="col-sm-4 control-label"> <span data-id="GrandTotal"></span> </div>
           </div>
           <div class="form-group">
-            <label class="col-sm-2 control-label" for="field-1">Description</label>
+            <label class="col-sm-2 control-label" for="field-1">@lang('routes.CUST_PANEL_PAGE_INVOICE_MODAL_VIEW_INVOICE_FIELD_DESCRIPTION')</label>
             <div class="col-sm-4 control-label"> <span data-id="Description"></span> </div>
           </div>
           <!--<div class="form-group">
@@ -424,7 +434,7 @@ var postdata;
                     </div>--> 
         </div>
         <div class="modal-footer">
-          <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+          <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> @lang('routes.BUTTON_CLOSE_CAPTION') </button>
         </div>
       </form>
     </div>
@@ -435,11 +445,11 @@ var postdata;
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title"> Pay Now </h4>
+        <h4 class="modal-title"> @lang('routes.CUST_PANEL_PAGE_INVOICE_MODAL_PAY_NOW_TITLE') </h4>
       </div>
       <div class="modal-body"> </div>
       <div class="modal-footer">
-        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> @lang('routes.BUTTON_CLOSE_CAPTION') </button>
       </div>
     </div>
   </div>

@@ -1,23 +1,39 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_VendorBulkRateUpdate`(IN `p_AccountId` INT
-, IN `p_TrunkId` INT 
-, IN `p_code` varchar(50)
-, IN `p_description` varchar(200)
-, IN `p_CountryId` INT
-, IN `p_CompanyId` INT
-, IN `p_Rate` decimal(18,6)
-, IN `p_EffectiveDate` DATETIME
-, IN `p_ConnectionFee` decimal(18,6)
-, IN `p_Interval1` INT
-, IN `p_IntervalN` INT
-, IN `p_ModifiedBy` varchar(50)
-, IN `p_effective` VARCHAR(50)
-, IN `p_action` INT)
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_VendorBulkRateUpdate`(
+	IN `p_AccountId` INT
+,
+	IN `p_TrunkId` INT 
+,
+	IN `p_code` varchar(50)
+,
+	IN `p_description` varchar(200)
+,
+	IN `p_CountryId` INT
+,
+	IN `p_CompanyId` INT
+,
+	IN `p_Rate` decimal(18,6)
+,
+	IN `p_EffectiveDate` DATETIME
+,
+	IN `p_ConnectionFee` decimal(18,6)
+,
+	IN `p_Interval1` INT
+,
+	IN `p_IntervalN` INT
+,
+	IN `p_ModifiedBy` varchar(50)
+,
+	IN `p_effective` VARCHAR(50)
+,
+	IN `p_action` INT
+
+)
 BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	
 	IF p_action = 1
-	-- bulk update vendor rate
+	
 	THEN
 	
 	UPDATE tblVendorRate
@@ -45,8 +61,8 @@ BEGIN
 		ConnectionFee = p_ConnectionFee,
 		updated_at = NOW(); 
  	END IF;
-		
-	 CALL prc_ArchiveOldVendorRate(p_AccountId,p_TrunkId);
+
+	 CALL prc_ArchiveOldVendorRate(p_AccountId,p_TrunkId,p_ModifiedBy);
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END
