@@ -624,6 +624,9 @@
             function getDrilDown(type) {
                 if(type==1) {
                     $("#paymentTable").dataTable({
+                        "oLanguage": {
+                            "sUrl": baseurl + "/translate/datatable_Label"
+                        },
                         "bDestroy": true,
                         "bProcessing": true,
                         "bServerSide": true,
@@ -759,6 +762,9 @@
                 }else {
 
                     $("#invoiceTable").dataTable({
+                        "oLanguage": {
+                            "sUrl": baseurl + "/translate/datatable_Label"
+                        },
                         "bDestroy": true,
                         "bProcessing": true,
                         "bServerSide": true,
@@ -987,6 +993,9 @@
 
             }
             data_table = $("#pin_grid").dataTable({
+                "oLanguage": {
+                    "sUrl": baseurl + "/translate/datatable_Label"
+                },
                 "bDestroy": true,
                 "bProcessing": true,
                 "bServerSide": true,

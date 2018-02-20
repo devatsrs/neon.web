@@ -117,6 +117,9 @@
                         $searchFilter.PaymentDate_EndDate   = $("#payment-table-search input[name='PaymentDate_EndDate']").val();
                         $searchFilter.PaymentDate_EndTime   = $("#payment-table-search input[name='PaymentDate_EndTime']").val();
                         data_table = $("#table-4").dataTable({
+                            "oLanguage": {
+                                "sUrl": baseurl + "/translate/datatable_Label"
+                            },
                             "bDestroy": true,
                             "bProcessing": true,
                             "bServerSide": true,

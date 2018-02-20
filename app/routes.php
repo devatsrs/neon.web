@@ -1449,7 +1449,7 @@ Route::group(array('before' => 'guest'), function () {
 	
 
 });
-
+Route::any('translate/datatable_Label', 'TranslateController@datatable_Label');
 /*
  * save isGuest to skip routes/urls for user permission
  * */
