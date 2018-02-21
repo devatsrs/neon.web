@@ -2630,3 +2630,17 @@ function getSql($model)
 
     return $sql;
 }
+
+function js_labels(){
+    $arrJsLabel= array();
+    $arrJsLabel["MSG_DATA_NOT_AVAILABLE"]=cus_lang("MESSAGE_DATA_NOT_AVAILABLE");
+    $arrJsLabel["TABLE_TOTAL"]=cus_lang("TABLE_TOTAL");
+    $arrJsLabel["BUTTON_EXPORT_CSV_CAPTION"]=cus_lang("BUTTON_EXPORT_CSV_CAPTION");
+    $arrJsLabel["BUTTON_EXPORT_EXCEL_CAPTION"]=cus_lang("BUTTON_EXPORT_EXCEL_CAPTION");
+
+    $html="";
+    foreach($arrJsLabel as $key=>$val){
+        $html.=" var ".$key." = '".$val."';  \n\r";
+    }
+    return $html;
+}
