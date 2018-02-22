@@ -1,7 +1,9 @@
 use Ratemanagement3;
 
 
-
+set sql_mode = "";
+ALTER TABLE `tblInvoiceDetail`
+	CHANGE COLUMN `Qty` `Qty` FLOAT NULL DEFAULT NULL AFTER `Price`;
 
 
 DROP PROCEDURE IF EXISTS `prc_SplitAndInsertVendorRate`;
