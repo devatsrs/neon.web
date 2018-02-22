@@ -2658,19 +2658,19 @@ $( document ).ajaxError(function( event, jqXHR, ajaxSettings, thrownError) {
     $('.btn[data-loading-text]').button('reset');
     switch(jqXHR.status) {
         case 500:
-            toastr.error('Oops Something went wrong please contact your system administrator', "Error", toastr_opts);
+            toastr.error(HTTP_STATUS_500_MSG, "Error", toastr_opts);
             break;
         case 503:
-            toastr.error('Service Unavailable', "Error", toastr_opts);
+            toastr.error(HTTP_STATUS_503_MSG, "Error", toastr_opts);
             break;
         case 504:
-            toastr.error('Gateway Timeout', "Error", toastr_opts);
+            toastr.error(HTTP_STATUS_504_MSG, "Error", toastr_opts);
             break;
         case 400:
-            toastr.error('Bad Request', "Error", toastr_opts);
+            toastr.error(HTTP_STATUS_400_MSG, "Error", toastr_opts);
             break;
         case 404:
-            toastr.error('Not Found', "Error", toastr_opts);
+            toastr.error(HTTP_STATUS_404_MSG, "Error", toastr_opts);
             break;
         case 401:
             console.log("event");
@@ -2688,13 +2688,13 @@ $( document ).ajaxError(function( event, jqXHR, ajaxSettings, thrownError) {
             }, 100);*/
             break;
         case 403:
-            toastr.error('Forbidden', "Error", toastr_opts);
+            toastr.error(HTTP_STATUS_403_MSG, "Error", toastr_opts);
             break;
         case 408:
-            toastr.error('Request Timeout', "Error", toastr_opts);
+            toastr.error(HTTP_STATUS_408_MSG, "Error", toastr_opts);
             break;
         case 410:
-            toastr.error('Gone', "Error", toastr_opts);
+            toastr.error(HTTP_STATUS_410_MSG, "Error", toastr_opts);
             break;
         default:
             if(thrownError != ''){
