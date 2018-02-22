@@ -4,6 +4,7 @@ CREATE DEFINER=`neon-user`@`%` PROCEDURE `prc_checkDialstringAndDupliacteCode`(
 	IN `p_dialStringId` INT,
 	IN `p_effectiveImmediately` INT,
 	IN `p_dialcodeSeparator` VARCHAR(50)
+
 )
 ThisSP:BEGIN
 
@@ -104,7 +105,7 @@ ThisSP:BEGIN
 		DROP TEMPORARY TABLE IF EXISTS tmp_split_VendorRate_2;
 		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_split_VendorRate_2 as (SELECT * FROM tmp_split_VendorRate_);
 
- 		DELETE n1 FROM tmp_split_VendorRate_ n1
+ 		/*DELETE n1 FROM tmp_split_VendorRate_ n1
 			  INNER JOIN
 			(
 			  SELECT MAX(TempVendorRateID) AS TempVendorRateID,EffectiveDate,Code
@@ -114,7 +115,7 @@ ThisSP:BEGIN
 			)n2
 			ON n1.Code = n2.Code
 			AND n2.EffectiveDate = n1.EffectiveDate AND n1.TempVendorRateID < n2.TempVendorRateID
-			WHERE n1.ProcessId = p_processId;
+			WHERE n1.ProcessId = p_processId;*/
 
  		-- v4.16
 		  INSERT INTO tmp_TempVendorRate_
