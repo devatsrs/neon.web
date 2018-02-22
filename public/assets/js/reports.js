@@ -98,6 +98,7 @@ function set_search_parameter(submit_form){
     $searchFilter.CurrencyID = $(submit_form).find("[name='CurrencyID']").val();
     $searchFilter.TimeZone = $(submit_form).find("[name='TimeZone']").val();
     $searchFilter.CDRType = $(submit_form).find("[name='CDRType']").val();
+    $searchFilter.ResellerOwner = $(submit_form).find("[name='ResellerOwner']").val();
 }
 function loadBarChart(chart_type,submit_data){
     loading(".bar_chart",1);
@@ -261,8 +262,8 @@ function loadTable(table_id,pageSize,$searchFilter){
                 {"name": "TrunkID","value": $searchFilter.TrunkID},
                 {"name": "TimeZone","value": $searchFilter.TimeZone},
                 {"name": "CDRType","value": $searchFilter.CDRType},
-                {"name": "CurrencyID","value": $searchFilter.CurrencyID}
-
+                {"name": "CurrencyID","value": $searchFilter.CurrencyID},
+                {"name": "ResellerOwner","value": $searchFilter.ResellerOwner}
 
             );
             data_table_extra_params.length = 0;
@@ -280,6 +281,7 @@ function loadTable(table_id,pageSize,$searchFilter){
                 {"name": "TimeZone","value": $searchFilter.TimeZone},
                 {"name": "CDRType","value": $searchFilter.CDRType},
                 {"name": "CurrencyID","value": $searchFilter.CurrencyID},
+                {"name": "ResellerOwner","value": $searchFilter.ResellerOwner},
                 {"name":"Export","value":1});
 
         },

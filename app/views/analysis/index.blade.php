@@ -44,6 +44,10 @@
                     {{ Form::select('TrunkID',$trunks,'', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
+                    <label class="control-label" for="field-1">Reseller Owner</label>
+                    {{ Form::select('ResellerOwner',$reseller_owners,'', array("class"=>"select2")) }}
+                </div>
+                <div class="form-group">
                     <label class="control-label" for="field-1">Account</label>
                     {{ Form::select('AccountID',$account,'', array("class"=>"select2")) }}
                 </div>
