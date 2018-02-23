@@ -94,7 +94,7 @@ class FileUploadTemplate extends \Eloquent {
             $save['created_by']     = User::get_user_full_name();
             $option["option"]       = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
             $option["selection"]    = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
-            $save['Options']        = json_encode($option);
+            $save['Options']        = str_replace('Skip loading','',json_encode($option));
             $save['Type']           = $data['TemplateType'];
 
             try {
@@ -152,7 +152,7 @@ class FileUploadTemplate extends \Eloquent {
                 $save['updated_by']     = User::get_user_full_name();
                 $option["option"]       = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
                 $option["selection"]    = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
-                $save['Options']        = json_encode($option);
+                $save['Options']        = str_replace('Skip loading','',json_encode($option));
                 $save['Type']           = $data['TemplateType'];
 
                 try {

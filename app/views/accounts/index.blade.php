@@ -1423,7 +1423,7 @@
             </div>
           </div>
             <div class="row">
-                <div id="Vendor" class="col-md-6">
+                <div id="" class="col-md-6">
                     <div class="form-group">
                         <label for="field-3" class="control-label">
                             <input type="checkbox"  name="CustomerPaymentAddCheck">
@@ -1431,6 +1431,14 @@
                         <p class="make-switch switch-small">
                             <input id="BulkCustomerPaymentAdd" name="customerpayment_on_off" type="checkbox" value="1">
                         </p>
+                    </div>
+                </div>
+                <div id="" class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-3" class="control-label">
+                            <input type="checkbox"  name="ResellerOwnerAddCheck">
+                            <span>Reseller Owner</span></label><br>
+                            {{Form::select('ResellerOwner', $reseller_owners, '' ,array("id"=>"ResellerOwner_id","class"=>"select2 small form-control1"));}}
                     </div>
                 </div>
             </div>
