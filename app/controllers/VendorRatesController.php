@@ -425,6 +425,7 @@ class VendorRatesController extends \BaseController
             $VendorRates[$i]['Interval1']       = $data['Interval1'];
             $VendorRates[$i]['IntervalN']       = $data['IntervalN'];
             $VendorRates[$i]['updated_by']      = $username;
+            $VendorRates[$i]['updated_at']      = date('Y-m-d');
             $VendorRates[$i]['ConnectionFee']   = floatval($data['ConnectionFee']);
             $VendorRates[$i]['EffectiveDate']   = $data['EffectiveDate'];
             $VendorRates[$i]['Rate']            = $data['Rate'];
@@ -827,7 +828,7 @@ class VendorRatesController extends \BaseController
         $save = array();
         $option["option"]=  $data['option'];
         $option["selection"] = $data['selection'];
-        $save['Options'] = json_encode($option);
+        $save['Options'] = str_replace('Skip loading','',json_encode($option));
         $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
         $save['full_path'] = $fullPath;
         $save["AccountID"] = $id;
@@ -1140,7 +1141,7 @@ class VendorRatesController extends \BaseController
         $save = array();
         $option["option"]=  $data['option'];
         $option["selection"] = $data['selection'];
-        $save['Options'] = json_encode($option);
+        $save['Options'] = str_replace('Skip loading','',json_encode($option));
         $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
         $save['full_path'] = $fullPath;
         $save["AccountID"] = $id;
@@ -1412,7 +1413,7 @@ class VendorRatesController extends \BaseController
                 Log::info($JobStatusMessage);
                 Log::info(count($JobStatusMessage));
 
-                if(!empty($error) || count($JobStatusMessage) > 1){
+                if(!empty($error) || count($JobStatusMessage) >= 1){
                     $prc_error = array();
                     foreach ($JobStatusMessage as $JobStatusMessage1) {
                         $prc_error[] = $JobStatusMessage1['Message'];
@@ -1424,7 +1425,7 @@ class VendorRatesController extends \BaseController
                     // if duplicate code exit job will fail
                     if($duplicatecode == 1){
                         $error = array_merge($prc_error,$error);
-                        unset($error[0]);
+                        //unset($error[0]);
                         $jobdata['message'] = implode('<br>',fix_jobstatus_meassage($error));
                         $jobdata['JobStatusID'] = DB::table('tblJobStatus')->where('Code','F')->pluck('JobStatusID');
                     }else{

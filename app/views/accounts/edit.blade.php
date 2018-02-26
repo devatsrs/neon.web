@@ -157,16 +157,20 @@
                     </div>
                 </div>
                 <div class="form-group">
+                    <label for="field-1" class="col-md-2 control-label">Reseller Owner</label>
+                    <div class="col-md-4">
+                        @if(empty($accountdetails->ResellerOwner))
+                            {{Form::select('ResellerOwner',$reseller_owners,'',array("class"=>"select2"))}}
+                        @else
+                            {{Form::select('ResellerOwner',$reseller_owners,$accountdetails->ResellerOwner,array("class"=>"select2"))}}
+                        @endif
+                    </div>
+
                     <label class="col-md-2 control-label">Reseller</label>
                     <div class="col-md-4">
                         <div class="make-switch switch-small" id="desablereseller">
                             <input type="checkbox" @if($account->IsReseller == 1 )checked="" @endif name="IsReseller" value="1">
                         </div>
-                    </div>
-
-                    <label for="field-1" class="col-md-2 control-label">Employee</label>
-                    <div class="col-md-4">
-                        <input type="text" name="Employee" class="form-control" id="field-1" placeholder="" value="{{$account->Employee}}" />
                     </div>
                 </div>
                 <div class="form-group">

@@ -11,10 +11,11 @@ class ChartDashboardController extends BaseController {
         $data = Input::all();
         $companyID = User::get_companyID();
         $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
+        $data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
         $data['UserID'] = empty($data['UserID'])?'0':$data['UserID'];
         $data['Admin'] = empty($data['Admin'])?'0':$data['Admin'];
         $data['CDRType'] = empty($data['CDRType'])?'':$data['CDRType'];
-        $query = "call prc_getHourlyReport ('". $companyID  . "','". $data['UserID']  . "','". $data['Admin']  . "','".$data['AccountID']."','".date('Y-m-d 00:00:00') . "','".date('Y-m-d 23:59:59') . "','". $data['CDRType']  . "')";
+        $query = "call prc_getHourlyReport ('". $companyID  . "','". $data['UserID']  . "','". $data['Admin']  . "','".$data['AccountID']."','".$data['ResellerOwner']."','".date('Y-m-d 00:00:00') . "','".date('Y-m-d 23:59:59') . "','". $data['CDRType']  . "')";
         $HourlyChartData = DataTableSql::of($query, 'neon_report')->getProcResult(array('TotalCost','HourCost','TotalMinutes','HourMinutes'));
         $response['TotalCost'] = $HourlyChartData['data']['TotalCost'][0]->TotalCost;
         $response['TotalMinutes'] = $HourlyChartData['data']['TotalMinutes'][0]->TotalMinutes;
@@ -39,6 +40,7 @@ class ChartDashboardController extends BaseController {
         $data = Input::all();
         $companyID = User::get_companyID();
         $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
+        $data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
         $data['UserID'] = empty($data['UserID'])?'0':$data['UserID'];
         $data['Admin'] = empty($data['Admin'])?'0':$data['Admin'];
         $query = '';
@@ -55,7 +57,7 @@ class ChartDashboardController extends BaseController {
         }elseif($data['chart_type'] == 'description') {
             $query = "call prc_getDescReportAll ";
         }
-        $query .= "('" . $companyID . "','0','" . intval($data['AccountID']) ."','0','".date('Y-m-d 00:00:00') . "','".date('Y-m-d 23:59:59') . "' ,'','','0','','" . $data['UserID'] . "','" . $data['Admin'] . "'".",0,0,'','',2)";
+        $query .= "('" . $companyID . "','0','" . intval($data['AccountID']) ."','" . intval($data['ResellerOwner']) ."','0','".date('Y-m-d 00:00:00') . "','".date('Y-m-d 23:59:59') . "' ,'','','0','','" . $data['UserID'] . "','" . $data['Admin'] . "'".",0,0,'','',2)";
         $TopReports = DataTableSql::of($query, 'neon_report')->getProcResult(array('CallCount','CallCost','CallMinutes'));
         $customer = 1;
         $indexcount = 0;
@@ -109,6 +111,7 @@ class ChartDashboardController extends BaseController {
         $data = Input::all();
         $companyID = User::get_companyID();
         $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
+        $data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
         $data['UserID'] = empty($data['UserID'])?'0':$data['UserID'];
         $data['Admin'] = empty($data['Admin'])?'0':$data['Admin'];
         $data['StartDate'] = empty($data['StartDate'])?date('Y-m-d 00:00:00'):$data['StartDate'];
@@ -119,7 +122,7 @@ class ChartDashboardController extends BaseController {
         $data['Prefix'] = empty($data['Prefix'])?'':$data['Prefix'];
         $data['CDRType'] = empty($data['CDRType'])?'':$data['CDRType'];
         $Trunk = empty($data['TrunkID'])?'':Trunk::getTrunkName($data['TrunkID']);
-        $query = "call prc_getWorldMap ('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','".$data['CDRType']."','" . $data['UserID'] . "','" . $data['Admin'] . "')";
+        $query = "call prc_getWorldMap ('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['ResellerOwner']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','".$data['CDRType']."','" . $data['UserID'] . "','" . $data['Admin'] . "')";
         $CountryChartData = DataTableSql::of($query, 'neon_report')->getProcResult(array('CountryCall'));
         $CountryCharts = $CountryColors = array();
         $chartColor = array('#3366cc','#ff9900','#dc3912','#109618','#66aa00','#dd4477','#0099c6','#990099','#ec3b83','#f56954','#0A1EFF','#050FFF','#0000FF');
@@ -181,12 +184,14 @@ class ChartDashboardController extends BaseController {
         $companyID = User::get_companyID();
         //$data['StartDate'] = '2016-12-01';
         $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
+        $data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
         $data['StartDate'] = empty($data['StartDate'])?date('Y-m-d 00:00:00'):$data['StartDate'];
         $data['EndDate'] = empty($data['EndDate'])?date('Y-m-d 23:59:59'):$data['EndDate'];
         $data['Type'] = empty($data['Type'])?'':$data['Type'];
         $html = '';
 
-        $query = "call prc_RetailMonitorCalls ('" . $companyID . "','".intval($data['AccountID']) . "','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Type']."')";
+        $query = "call prc_RetailMonitorCalls ('" . $companyID . "','".intval($data['AccountID']) . "','".intval($data['ResellerOwner']) . "','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Type']."')";
+        //log::info($query);
         $RetailMonitorCalls = DB::connection('sqlsrvcdr')->select($query);
         $count = 1;
         foreach($RetailMonitorCalls as $RetailMonitorCall){
