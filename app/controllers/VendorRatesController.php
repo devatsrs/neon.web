@@ -425,6 +425,7 @@ class VendorRatesController extends \BaseController
             $VendorRates[$i]['Interval1']       = $data['Interval1'];
             $VendorRates[$i]['IntervalN']       = $data['IntervalN'];
             $VendorRates[$i]['updated_by']      = $username;
+            $VendorRates[$i]['updated_at']      = date('Y-m-d');
             $VendorRates[$i]['ConnectionFee']   = floatval($data['ConnectionFee']);
             $VendorRates[$i]['EffectiveDate']   = $data['EffectiveDate'];
             $VendorRates[$i]['Rate']            = $data['Rate'];
