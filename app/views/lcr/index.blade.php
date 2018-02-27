@@ -1,6 +1,7 @@
 @extends('layout.main')
 
 @section('filter')
+
     <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
         <div class="filter-inner">
             <h2 class="filter-header">
@@ -25,12 +26,7 @@
                     <label for="field-1" class="control-label">CodeDeck</label>
                     {{ Form::select('CodeDeckId', $codedecklist, '' , array("class"=>"select2")) }}
                 </div>
-                <div class="form-group">
-                    <label for="field-1" class="control-label">Use Preference</label>
-                    <p class="make-switch switch-small">
-                        <input id="Use_Preference" name="Use_Preference" type="checkbox" value="1">
-                    </p>
-                </div>
+
                 <div class="form-group">
                     <label for="field-1" class="control-label">Currency</label>
                     {{Form::select('Currency', $currencies, $CurrencyID ,array("class"=>"form-control select2"))}}
@@ -44,8 +40,30 @@
                     {{ Form::select('LCRPosition', LCR::$position, $LCRPosition , array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
+                    <label for="field-1" class="control-label">Group By</label>
+                    {{Form::select('GroupBy', ["code"=>"Code", "description" => "Description"], $GroupBy ,array("class"=>"form-control select2"))}}
+                </div>
+                <div class="form-group">
+                    <div class="SelectedEffectiveDate_Class">
+                        <label for="field-1" class="control-label">Date</label>
+                        {{Form::text('SelectedEffectiveDate', date('Y-m-d') ,array("class"=>"form-control datepicker","Placeholder"=>"Effective Date" , "data-start-date"=>date('Y-m-d',strtotime(" today")) ,"data-date-format"=>"yyyy-mm-dd" ,  "data-start-view"=>"2"))}}
+                    </div>
+                </div>
+                <div class="form-group">
                     <label for="field-1" class="control-label">Vendors</label>
                     {{Form::select('Accounts[]', $all_accounts, array() ,array("class"=>"form-control select2",'multiple'))}}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Use Preference</label>
+                    <p class="make-switch switch-small">
+                        <input id="Use_Preference" name="Use_Preference" type="checkbox" value="1">
+                    </p>
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Show Block Vendor</label>
+                    <p class="make-switch switch-small">
+                        <input id="vendor_block" name="vendor_block" type="checkbox" value="1">
+                    </p>
                 </div>
                 <div class="form-group">
                     <br/>
@@ -61,30 +79,34 @@
 
 
 @section('content')
-<style>
-    .lowest_rate{
-        background-color: #ff6600;
-    }
-</style>
+    <style>
+        .lowest_rate{
+            background-color: #ff6600;
+        }
+        .hrpadding{
+            margin-top: 4px;
+            margin-bottom: 2px;
+        }
+    </style>
 
-<ol class="breadcrumb bc-3">
-    <li>
-        <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
-    </li>
-    <li>
+    <ol class="breadcrumb bc-3">
+        <li>
+            <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
+        </li>
+        <li>
 
-        <a href="{{URL::to('accounts')}}">Accounts</a>
-    </li>
-    <li class="active">
-        <strong>LCR</strong>
-    </li>
-</ol>
-<h3>LCR</h3>
+            <a href="{{URL::to('accounts')}}">Accounts</a>
+        </li>
+        <li class="active">
+            <strong>LCR</strong>
+        </li>
+    </ol>
+    <h3>LCR</h3>
 
-<br>
+    <br>
 
-<table class="table table-bordered datatable" id="table-4">
-    <thead>
+    <table class="table table-bordered datatable" id="table-4">
+        <thead>
         <tr>
             <th>Destination</th>
             <th id="dt_company1">Position 1</th>
@@ -98,53 +120,50 @@
             <th id="dt_company9">Position 9</th>
             <th id="dt_company10">Position 10</th>
         </tr>
-    </thead>
-    <tbody>
+        </thead>
+        <tbody>
 
 
-    </tbody>
-</table>
+        </tbody>
+    </table>
+
+    <div class="alert alert-info vendorRateInfo"></div>
 
 
-<script type="text/javascript">
-    jQuery(document).ready(function($) {
-
-        $('#filter-button-toggle').show();
-
-        //var data_table;
-        if('{{$LCRPosition}}'=='5'){
-            setTimeout(function(){
-                $('#dt_company6').addClass("hidden");
-                $('#dt_company7').addClass("hidden");
-                $('#dt_company8').addClass("hidden");
-                $('#dt_company9').addClass("hidden");
-                $('#dt_company10').addClass("hidden");
-            },10);
-        }else{
-            setTimeout(function(){
-                $('#dt_company6').removeClass("hidden");
-                $('#dt_company7').removeClass("hidden");
-                $('#dt_company8').removeClass("hidden");
-                $('#dt_company9').removeClass("hidden");
-                $('#dt_company10').removeClass("hidden");
-            },10);
-        }
+    {{-- edit preference --}}
+            <!-- Modal -->
 
 
-        $("#lcr-search-form").submit(function(e) {
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
 
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Edit Preference</h4>
+                </div>
+                <form id="edit-preference-form" method="post">
 
-            var Code, Description, Currency,CodeDeck,Use_Preference, Policy,LCRPosition,aoColumns,aoColumnDefs,accounts;
-            Code = $("#lcr-search-form input[name='Code']").val();
-            Description = $("#lcr-search-form input[name='Description']").val();
-            Currency = $("#lcr-search-form select[name='Currency']").val();
-            Trunk = $("#lcr-search-form select[name='Trunk']").val();
-            CodeDeck = $("#lcr-search-form select[name='CodeDeckId']").val();
-            Policy = $("#lcr-search-form select[name='Policy']").val();
-            Use_Preference = $("#lcr-search-form [name='Use_Preference']").prop("checked");
-            LCRPosition = $("#lcr-search-form select[name='LCRPosition']").val();
-            Accounts = $("#lcr-search-form select[name='Accounts[]']").val();
-            if(LCRPosition=='5'){
+                    <div class="modal-body"></div>
+                    <div class="modal-footer">
+                        <button type="submit" id="preference-update" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..." style="visibility: visible;"> <i class="entypo-floppy"></i> Save </button>
+                        <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+                    </div>
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        jQuery(document).ready(function($) {
+
+            $('#filter-button-toggle').show();
+
+            //var data_table;
+            if('{{$LCRPosition}}'=='5'){
                 setTimeout(function(){
                     $('#dt_company6').addClass("hidden");
                     $('#dt_company7').addClass("hidden");
@@ -152,29 +171,6 @@
                     $('#dt_company9').addClass("hidden");
                     $('#dt_company10').addClass("hidden");
                 },10);
-                 aoColumns = [
-                     {}, //1 Destination
-                     { "bSortable": false}, //2 Company 1
-                     { "bSortable": false}, //3 Company 2
-                     { "bSortable": false}, //4 Company 3
-                     { "bSortable": false}, //5 Company 4
-                     { "bSortable": false}, //6 Company 5
-                     { "bVisible": false}, //7 Company 6
-                     { "bVisible": false}, //8 Company 7
-                     { "bVisible": false}, //9 Company 8
-                     { "bVisible": false}, //10 Company 9
-                     { "bVisible": false} //11 Company 10
-
-                ];
-
-                 aoColumnDefs = [
-                    {    "sClass": "destination", "aTargets": [ 0 ] },
-                    {    "sClass": "rate1_class", "aTargets": [ 1 ] },
-                    {    "sClass": "rate2_class", "aTargets": [ 2 ] },
-                    {    "sClass": "rate3_class", "aTargets": [ 3 ] },
-                    {    "sClass": "rate4_class", "aTargets": [ 4 ] },
-                    {    "sClass": "rate5_class", "aTargets": [ 5 ] }
-                ];
             }else{
                 setTimeout(function(){
                     $('#dt_company6').removeClass("hidden");
@@ -183,98 +179,513 @@
                     $('#dt_company9').removeClass("hidden");
                     $('#dt_company10').removeClass("hidden");
                 },10);
-                 aoColumns = [
-                    {}, //1 Destination
-                    { "bSortable": false}, //2 Company 1
-                    { "bSortable": false}, //3 Company 2
-                    { "bSortable": false}, //4 Company 3
-                    { "bSortable": false}, //5 Company 4
-                    { "bSortable": false}, //6 Company 5
-                    { "bSortable": false}, //7 Company 6
-                    { "bSortable": false}, //8 Company 7
-                    { "bSortable": false}, //9 Company 8
-                    { "bSortable": false}, //10 Company 9
-                    { "bSortable": false} //11 Company 10
+            }
 
-                ];
+            $("#lcr-search-form").submit(function(e) {
 
-                 aoColumnDefs = [
-                    {    "sClass": "destination", "aTargets": [ 0 ] },
-                    {    "sClass": "rate1_class", "aTargets": [ 1 ] },
-                    {    "sClass": "rate2_class", "aTargets": [ 2 ] },
-                    {    "sClass": "rate3_class", "aTargets": [ 3 ] },
-                    {    "sClass": "rate4_class", "aTargets": [ 4 ] },
-                    {    "sClass": "rate5_class", "aTargets": [ 5 ] },
-                    {    "sClass": "rate6_class", "aTargets": [ 6 ] },
-                    {    "sClass": "rate7_class", "aTargets": [ 7 ] },
-                    {    "sClass": "rate8_class", "aTargets": [ 8 ] },
-                    {    "sClass": "rate9_class", "aTargets": [ 9 ] },
-                    {    "sClass": "rate10_class", "aTargets": [ 10 ] }
-                ];
-            }
-            if(typeof Trunk  == 'undefined' || Trunk == '' ){
-                setTimeout(function(){
-                    $('.btn').button('reset');
-                },10);
-                toastr.error("Please Select a Trunk", "Error", toastr_opts);
-                return false;
-            }
-            if(typeof CodeDeck  == 'undefined' || CodeDeck == '' ){
-               setTimeout(function(){
-                   $('.btn').button('reset');
-               },10);
-                toastr.error("Please Select a CodeDeck", "Error", toastr_opts);
-                return false;
-            }
-            if((typeof Code  == 'undefined' || Code == '' ) && (typeof Description  == 'undefined' || Description == '' )){
-                setTimeout(function(){
-                    $('.btn').button('reset');
-                },10);
-                toastr.error("Please Enter a Code Or Description", "Error", toastr_opts);
-                return false;
-            }
-            if(typeof Currency  == 'undefined' || Currency == '' ){
-                setTimeout(function(){
-                    $('.btn').button('reset');
-                },10);
-                toastr.error("Please Select a Currency", "Error", toastr_opts);
-                return false;
-            }
-            data_table = $("#table-4").dataTable({
-                "bDestroy": true, // Destroy when resubmit form
-                "bProcessing": true,
-                "bServerSide": true,
-                "sAjaxSource": baseurl + "/lcr/search_ajax_datagrid/type",
-                "fnServerParams": function(aoData) {
-                    aoData.push({"name": "Code", "value": Code},{"name": "Description", "value": Description},{"name": "LCRPosition", "value": LCRPosition},{"name": "Accounts", "value": Accounts},  {"name": "Currency", "value": Currency}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference},{"name":"Policy","value":Policy});
-                    data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name": "Code", "value": Code},{"name": "Description", "value": Description},{"name": "LCRPosition", "value": LCRPosition},{"name": "Accounts", "value": Accounts},  {"name": "Currency", "value": Currency}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference},{"name":"Policy","value":Policy},{"name":"Export","value":1});
-                },
-                "iDisplayLength": 10,
-                "sPaginationType": "bootstrap",
-                "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                "aaSorting": [[0, "asc"]],
-               "aoColumnDefs": aoColumnDefs,
-                "aoColumns":aoColumns,
-                "oTableTools":
-                        {
-                            "aButtons": [
-                                {
-                                    "sExtends": "download",
-                                    "sButtonText": "EXCEL",
-                                    "sUrl": baseurl + "/lcr/search_ajax_datagrid/xlsx",
-                                    sButtonClass: "save-collection btn-sm"
-                                },
-                                {
-                                    "sExtends": "download",
-                                    "sButtonText": "CSV",
-                                    "sUrl": baseurl + "/lcr/search_ajax_datagrid/csv",
-                                    sButtonClass: "save-collection btn-sm"
+
+                var Code, Description, Currency,CodeDeck,Use_Preference,vendor_block, Policy,LCRPosition,GroupBy,SelectedEffectiveDate,aoColumns,aoColumnDefs,accounts;
+                Code = $("#lcr-search-form input[name='Code']").val();
+                Description = $("#lcr-search-form input[name='Description']").val();
+                Currency = $("#lcr-search-form select[name='Currency']").val();
+                Trunk = $("#lcr-search-form select[name='Trunk']").val();
+                CodeDeck = $("#lcr-search-form select[name='CodeDeckId']").val();
+                Policy = $("#lcr-search-form select[name='Policy']").val();
+                Use_Preference = $("#lcr-search-form [name='Use_Preference']").prop("checked");
+                vendor_block = $("#lcr-search-form [name='vendor_block']").prop("checked");
+                LCRPosition = $("#lcr-search-form select[name='LCRPosition']").val();
+                GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
+                SelectedEffectiveDate = $("#lcr-search-form input[name='SelectedEffectiveDate']").val();
+                Accounts = $("#lcr-search-form select[name='Accounts[]']").val();
+                if(LCRPosition=='5'){
+                    setTimeout(function(){
+                        $('#dt_company6').addClass("hidden");
+                        $('#dt_company7').addClass("hidden");
+                        $('#dt_company8').addClass("hidden");
+                        $('#dt_company9').addClass("hidden");
+                        $('#dt_company10').addClass("hidden");
+                    },10);
+                    var GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
+                    aoColumns = [
+                        {}, //1 Destination
+                        { "bSortable": false,
+                            mRender: function ( id, type, full ) {
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+
+                                    var array = id.split(",");
+                                    var action = "" ;
+                                    for (i=0;i<array.length;i++){
+                                        //alert(array[i]);
+                                        var data3 = array[i].split("=");
+                                        action += data3[0];
+                                        var blockdata = data3[1].split("-");
+                                        var blockid = blockdata[0];
+                                        var accountId = blockdata[1];
+                                        var RowCode = blockdata[2];
+                                        var blocktitle = blockid == 0 ? 'Block' : 'UnBlock';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blockclass = blockid == 0 ? 'danger' : 'success';
+                                        var len = array.length-1;
+                                        var hr = len != i ? '<hr class="hrpadding">' : '';
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a><a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'"><i class="fa fa-pencil"></a>'+hr;
+                                    }
+                                    return action;
                                 }
-                            ]
-                        },
-                "fnDrawCallback": function(results) {
+                            }
+                        }, //2 Company 1
+                        { "bSortable": false,
+                            mRender: function ( id, type, full ) {
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
 
+                                    var array = id.split(",");
+                                    var action = "" ;
+                                    for (i=0;i<array.length;i++){
+                                        //alert(array[i]);
+                                        var data3 = array[i].split("=");
+                                        action += data3[0];
+                                        var blockdata = data3[1].split("-");
+                                        var blockid = blockdata[0];
+                                        var accountId = blockdata[1];
+                                        var RowCode = blockdata[2];
+                                        var blocktitle = blockid == 0 ? 'Block' : 'UnBlock';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blockclass = blockid == 0 ? 'danger' : 'success';
+                                        var len = array.length-1;
+                                        var hr = len != i ? '<hr class="hrpadding">' : '';
+                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                    }
+                                    return action;
+                                }
+                            }
+                        }, //3 Company 2
+                        { "bSortable": false,
+                            mRender: function ( id, type, full ) {
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+
+                                    var array = id.split(",");
+                                    var action = "" ;
+                                    for (i=0;i<array.length;i++){
+                                        //alert(array[i]);
+                                        var data3 = array[i].split("=");
+                                        action += data3[0];
+                                        var blockdata = data3[1].split("-");
+                                        var blockid = blockdata[0];
+                                        var accountId = blockdata[1];
+                                        var RowCode = blockdata[2];
+                                        var blocktitle = blockid == 0 ? 'Block' : 'UnBlock';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blockclass = blockid == 0 ? 'danger' : 'success';
+                                        var len = array.length-1;
+                                        var hr = len != i ? '<hr class="hrpadding">' : '';
+                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                    }
+                                    return action;
+                                }
+                            }
+                        }, //4 Company 3
+                        { "bSortable": false,
+                            mRender: function ( id, type, full ) {
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+
+                                    var array = id.split(",");
+                                    var action = "" ;
+                                    for (i=0;i<array.length;i++){
+                                        //alert(array[i]);
+                                        var data3 = array[i].split("=");
+                                        action += data3[0];
+                                        var blockdata = data3[1].split("-");
+                                        var blockid = blockdata[0];
+                                        var accountId = blockdata[1];
+                                        var RowCode = blockdata[2];
+                                        var blocktitle = blockid == 0 ? 'Block' : 'UnBlock';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blockclass = blockid == 0 ? 'danger' : 'success';
+                                        var len = array.length-1;
+                                        var hr = len != i ? '<hr class="hrpadding">' : '';
+                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                    }
+                                    return action;
+                                }
+                            }
+                        }, //5 Company 4
+                        { "bSortable": false,
+                            mRender: function ( id, type, full ) {
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+
+                                    var array = id.split(",");
+                                    var action = "" ;
+                                    for (i=0;i<array.length;i++){
+                                        //alert(array[i]);
+                                        var data3 = array[i].split("=");
+                                        action += data3[0];
+                                        var blockdata = data3[1].split("-");
+                                        var blockid = blockdata[0];
+                                        var accountId = blockdata[1];
+                                        var RowCode = blockdata[2];
+                                        var blocktitle = blockid == 0 ? 'Block' : 'UnBlock';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blockclass = blockid == 0 ? 'danger' : 'success';
+                                        var len = array.length-1;
+                                        var hr = len != i ? '<hr class="hrpadding">' : '';
+                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                    }
+                                    return action;
+                                }
+                            }
+                        } //6 Company 5
+
+                    ];
+
+                    aoColumnDefs = [
+                        {    "sClass": "destination", "aTargets": [ 0 ] },
+                        {    "sClass": "rate1_class", "aTargets": [ 1 ] },
+                        {    "sClass": "rate2_class", "aTargets": [ 2 ] },
+                        {    "sClass": "rate3_class", "aTargets": [ 3 ] },
+                        {    "sClass": "rate4_class", "aTargets": [ 4 ] },
+                        {    "sClass": "rate5_class", "aTargets": [ 5 ] }
+                    ];
+                }else{
+                    setTimeout(function(){
+                        $('#dt_company6').removeClass("hidden");
+                        $('#dt_company7').removeClass("hidden");
+                        $('#dt_company8').removeClass("hidden");
+                        $('#dt_company9').removeClass("hidden");
+                        $('#dt_company10').removeClass("hidden");
+                    },10);
+                    aoColumns = [
+                        {}, //1 Destination
+                        { "bSortable": false,
+                            mRender: function ( id, type, full ) {
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+
+                                    var array = id.split(",");
+                                    var action = "" ;
+                                    for (i=0;i<array.length;i++){
+                                        //alert(array[i]);
+                                        var data3 = array[i].split("=");
+                                        action += data3[0];
+                                        var blockdata = data3[1].split("-");
+                                        var blockid = blockdata[0];
+                                        var accountId = blockdata[1];
+                                        var RowCode = blockdata[2];
+                                        var blocktitle = blockid == 0 ? 'Block' : 'UnBlock';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blockclass = blockid == 0 ? 'danger' : 'success';
+                                        var len = array.length-1;
+                                        var hr = len != i ? '<hr class="hrpadding">' : '';
+                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                    }
+                                    return action;
+                                }
+                            }
+                        }, //2 Company 1
+                        { "bSortable": false,
+                            mRender: function ( id, type, full ) {
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+
+                                    var array = id.split(",");
+                                    var action = "" ;
+                                    for (i=0;i<array.length;i++){
+                                        //alert(array[i]);
+                                        var data3 = array[i].split("=");
+                                        action += data3[0];
+                                        var blockdata = data3[1].split("-");
+                                        var blockid = blockdata[0];
+                                        var accountId = blockdata[1];
+                                        var RowCode = blockdata[2];
+                                        var blocktitle = blockid == 0 ? 'Block' : 'UnBlock';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blockclass = blockid == 0 ? 'danger' : 'success';
+                                        var len = array.length-1;
+                                        var hr = len != i ? '<hr class="hrpadding">' : '';
+                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                    }
+                                    return action;
+                                }
+                            }
+                        }, //3 Company 2
+                        { "bSortable": false,
+                            mRender: function ( id, type, full ) {
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+
+                                    var array = id.split(",");
+                                    var action = "" ;
+                                    for (i=0;i<array.length;i++){
+                                        //alert(array[i]);
+                                        var data3 = array[i].split("=");
+                                        action += data3[0];
+                                        var blockdata = data3[1].split("-");
+                                        var blockid = blockdata[0];
+                                        var accountId = blockdata[1];
+                                        var RowCode = blockdata[2];
+                                        var blocktitle = blockid == 0 ? 'Block' : 'UnBlock';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blockclass = blockid == 0 ? 'danger' : 'success';
+                                        var len = array.length-1;
+                                        var hr = len != i ? '<hr class="hrpadding">' : '';
+                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                    }
+                                    return action;
+                                }
+                            }
+                        }, //4 Company 3
+                        { "bSortable": false,
+                            mRender: function ( id, type, full ) {
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+
+                                    var array = id.split(",");
+                                    var action = "" ;
+                                    for (i=0;i<array.length;i++){
+                                        //alert(array[i]);
+                                        var data3 = array[i].split("=");
+                                        action += data3[0];
+                                        var blockdata = data3[1].split("-");
+                                        var blockid = blockdata[0];
+                                        var accountId = blockdata[1];
+                                        var RowCode = blockdata[2];
+                                        var blocktitle = blockid == 0 ? 'Block' : 'UnBlock';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blockclass = blockid == 0 ? 'danger' : 'success';
+                                        var len = array.length-1;
+                                        var hr = len != i ? '<hr class="hrpadding">' : '';
+                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                    }
+                                    return action;
+                                }
+                            }
+                        }, //5 Company 4
+                        { "bSortable": false,
+                            mRender: function ( id, type, full ) {
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+
+                                    var array = id.split(",");
+                                    var action = "" ;
+                                    for (i=0;i<array.length;i++){
+                                        //alert(array[i]);
+                                        var data3 = array[i].split("=");
+                                        action += data3[0];
+                                        var blockdata = data3[1].split("-");
+                                        var blockid = blockdata[0];
+                                        var accountId = blockdata[1];
+                                        var RowCode = blockdata[2];
+                                        var blocktitle = blockid == 0 ? 'Block' : 'UnBlock';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blockclass = blockid == 0 ? 'danger' : 'success';
+                                        var len = array.length-1;
+                                        var hr = len != i ? '<hr class="hrpadding">' : '';
+                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                    }
+                                    return action;
+                                }
+                            }
+                        }, //6 Company 5
+                        { "bSortable": false,
+                            mRender: function ( id, type, full ) {
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+
+                                    var array = id.split(",");
+                                    var action = "" ;
+                                    for (i=0;i<array.length;i++){
+                                        //alert(array[i]);
+                                        var data3 = array[i].split("=");
+                                        action += data3[0];
+                                        var blockdata = data3[1].split("-");
+                                        var blockid = blockdata[0];
+                                        var accountId = blockdata[1];
+                                        var RowCode = blockdata[2];
+                                        var blocktitle = blockid == 0 ? 'Block' : 'UnBlock';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blockclass = blockid == 0 ? 'danger' : 'success';
+                                        var len = array.length-1;
+                                        var hr = len != i ? '<hr class="hrpadding">' : '';
+                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                    }
+                                    return action;
+                                }
+                            }
+                        }, //7 Company 6
+                        { "bSortable": false,
+                            mRender: function ( id, type, full ) {
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+
+                                    var array = id.split(",");
+                                    var action = "" ;
+                                    for (i=0;i<array.length;i++){
+                                        //alert(array[i]);
+                                        var data3 = array[i].split("=");
+                                        action += data3[0];
+                                        var blockdata = data3[1].split("-");
+                                        var blockid = blockdata[0];
+                                        var accountId = blockdata[1];
+                                        var RowCode = blockdata[2];
+                                        var blocktitle = blockid == 0 ? 'Block' : 'UnBlock';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blockclass = blockid == 0 ? 'danger' : 'success';
+                                        var len = array.length-1;
+                                        var hr = len != i ? '<hr class="hrpadding">' : '';
+                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                    }
+                                    return action;
+                                }
+                            }
+                        }, //8 Company 7
+                        { "bSortable": false,
+                            mRender: function ( id, type, full ) {
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+
+                                    var array = id.split(",");
+                                    var action = "" ;
+                                    for (i=0;i<array.length;i++){
+                                        //alert(array[i]);
+                                        var data3 = array[i].split("=");
+                                        action += data3[0];
+                                        var blockdata = data3[1].split("-");
+                                        var blockid = blockdata[0];
+                                        var accountId = blockdata[1];
+                                        var RowCode = blockdata[2];
+                                        var blocktitle = blockid == 0 ? 'Block' : 'UnBlock';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blockclass = blockid == 0 ? 'danger' : 'success';
+                                        var len = array.length-1;
+                                        var hr = len != i ? '<hr class="hrpadding">' : '';
+                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                    }
+                                    return action;
+                                }
+                            }
+                        }, //9 Company 8
+                        { "bSortable": false,
+                            mRender: function ( id, type, full ) {
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+
+                                    var array = id.split(",");
+                                    var action = "" ;
+                                    for (i=0;i<array.length;i++){
+                                        //alert(array[i]);
+                                        var data3 = array[i].split("=");
+                                        action += data3[0];
+                                        var blockdata = data3[1].split("-");
+                                        var blockid = blockdata[0];
+                                        var accountId = blockdata[1];
+                                        var RowCode = blockdata[2];
+                                        var blocktitle = blockid == 0 ? 'Block' : 'UnBlock';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blockclass = blockid == 0 ? 'danger' : 'success';
+                                        var len = array.length-1;
+                                        var hr = len != i ? '<hr class="hrpadding">' : '';
+                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                    }
+                                    return action;
+                                }
+                            }
+                        }, //10 Company 9
+                        { "bSortable": false,
+                            mRender: function ( id, type, full ) {
+                                if (typeof id != 'undefined' && id != null && id != 'null') {
+
+                                    var array = id.split(",");
+                                    var action = "" ;
+                                    for (i=0;i<array.length;i++){
+                                        //alert(array[i]);
+                                        var data3 = array[i].split("=");
+                                        action += data3[0];
+                                        var blockdata = data3[1].split("-");
+                                        var blockid = blockdata[0];
+                                        var accountId = blockdata[1];
+                                        var RowCode = blockdata[2];
+                                        var blocktitle = blockid == 0 ? 'Block' : 'UnBlock';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blockclass = blockid == 0 ? 'danger' : 'success';
+                                        var len = array.length-1;
+                                        var hr = len != i ? '<hr class="hrpadding">' : '';
+                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                    }
+                                    return action;
+                                }
+                            }
+                        } //11 Company 10
+
+                    ];
+
+                    aoColumnDefs = [
+                        {    "sClass": "destination", "aTargets": [ 0 ] },
+                        {    "sClass": "rate1_class", "aTargets": [ 1 ] },
+                        {    "sClass": "rate2_class", "aTargets": [ 2 ] },
+                        {    "sClass": "rate3_class", "aTargets": [ 3 ] },
+                        {    "sClass": "rate4_class", "aTargets": [ 4 ] },
+                        {    "sClass": "rate5_class", "aTargets": [ 5 ] },
+                        {    "sClass": "rate6_class", "aTargets": [ 6 ] },
+                        {    "sClass": "rate7_class", "aTargets": [ 7 ] },
+                        {    "sClass": "rate8_class", "aTargets": [ 8 ] },
+                        {    "sClass": "rate9_class", "aTargets": [ 9 ] },
+                        {    "sClass": "rate10_class", "aTargets": [ 10 ] }
+                    ];
+                }
+                if(typeof Trunk  == 'undefined' || Trunk == '' ){
+                    setTimeout(function(){
+                        $('.btn').button('reset');
+                    },10);
+                    toastr.error("Please Select a Trunk", "Error", toastr_opts);
+                    return false;
+                }
+                if(typeof CodeDeck  == 'undefined' || CodeDeck == '' ){
+                    setTimeout(function(){
+                        $('.btn').button('reset');
+                    },10);
+                    toastr.error("Please Select a CodeDeck", "Error", toastr_opts);
+                    return false;
+                }
+                if((typeof Code  == 'undefined' || Code == '' ) && (typeof Description  == 'undefined' || Description == '' )){
+                    setTimeout(function(){
+                        $('.btn').button('reset');
+                    },10);
+                    toastr.error("Please Enter a Code Or Description", "Error", toastr_opts);
+                    return false;
+                }
+                if(typeof Currency  == 'undefined' || Currency == '' ){
+                    setTimeout(function(){
+                        $('.btn').button('reset');
+                    },10);
+                    toastr.error("Please Select a Currency", "Error", toastr_opts);
+                    return false;
+                }
+
+
+                var data_table = $("#table-4").dataTable({
+                    "bDestroy": true, // Destroy when resubmit form
+                    "bProcessing": true,
+                    "bServerSide": true,
+                    "sAjaxSource": baseurl + "/lcr/search_ajax_datagrid/type",
+                    "fnServerParams": function(aoData) {
+                        aoData.push({"name": "Code", "value": Code},{"name": "Description", "value": Description},{"name": "LCRPosition", "value": LCRPosition},{"name": "Accounts", "value": Accounts},  {"name": "Currency", "value": Currency}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference},{"name": "vendor_block", "value": vendor_block},{"name": "GroupBy", "value": GroupBy},{ "name" : "SelectedEffectiveDate"  , "value" : SelectedEffectiveDate },{"name":"Policy","value":Policy});
+                        data_table_extra_params.length = 0;
+                        data_table_extra_params.push({"name": "Code", "value": Code},{"name": "Description", "value": Description},{"name": "LCRPosition", "value": LCRPosition},{"name": "Accounts", "value": Accounts},  {"name": "Currency", "value": Currency}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference},{"name": "vendor_block", "value": vendor_block},{"name": "GroupBy", "value": GroupBy},{ "name" : "SelectedEffectiveDate"  , "value" : SelectedEffectiveDate },{"name":"Policy","value":Policy},{"name":"Export","value":1});
+                    },
+                    "iDisplayLength": 10,
+                    "sPaginationType": "bootstrap",
+                    "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                    "aaSorting": [[0, "asc"]],
+                    "aoColumnDefs": aoColumnDefs,
+                    "aoColumns":aoColumns,
+                    "oTableTools":
+                    {
+                        "aButtons": [
+                            {
+                                "sExtends": "download",
+                                "sButtonText": "EXCEL",
+                                "sUrl": baseurl + "/lcr/search_ajax_datagrid/xlsx",
+                                sButtonClass: "save-collection btn-sm"
+                            },
+                            {
+                                "sExtends": "download",
+                                "sButtonText": "CSV",
+                                "sUrl": baseurl + "/lcr/search_ajax_datagrid/csv",
+                                sButtonClass: "save-collection btn-sm"
+                            }
+                        ]
+                    },
+                    "fnDrawCallback": function(results) {
+                        /*console.log(results);*/
                         //results.aoData[0]._aData[0]="---------";
 
 
@@ -327,96 +738,240 @@
 
                         //mark_lowest_rate_selected(results);
 
-                    $(".dataTables_wrapper select").select2({
-                        minimumResultsForSearch: -1
-                    });
-                }
+                        $(".dataTables_wrapper select").select2({
+                            minimumResultsForSearch: -1
+                        });
+                    }
+                });
+                return false;
             });
 
-            return false;
-        });
+            // Replace Checboxes
+            $(".pagination a").click(function(ev) {
+                replaceCheckboxes();123
+            });
 
+            function mark_lowest_rate_selected(result){
+                var rates = new Array();
+                var selected_index , min_rate;
+                $('#table-4 > tbody > tr').each(function(index, row){
 
-        // Replace Checboxes
-        $(".pagination a").click(function(ev) {
-            replaceCheckboxes();123
-        });
+                    var i = 0;
+                    min_rate = 0;
+                    selected_index = -1;
 
-        function mark_lowest_rate_selected(result){
-            var rates = new Array();
-            var selected_index , min_rate;
-            $('#table-4 > tbody > tr').each(function(index, row){
+                    $(row).find("td").each(function(){
 
-                var i = 0;
-                min_rate = 0;
-                selected_index = -1;
+                        if(i++ > 0){
 
-                $(row).find("td").each(function(){
-
-                    if(i++ > 0){
-
-                        td_rate_val  = $(this).html();
-                        var br_index = td_rate_val.indexOf("<br>");
-                        if( br_index > 0){
-                            if(min_rate==0){
-                                min_rate = td_rate_val.substr(0,br_index);
-                                selected_index = i;
-                            }else{
-                                rate  = td_rate_val.substr(0,br_index);
-                                if(rate < min_rate){
-                                    min_rate = rate;
+                            td_rate_val  = $(this).html();
+                            var br_index = td_rate_val.indexOf("<br>");
+                            if( br_index > 0){
+                                if(min_rate==0){
+                                    min_rate = td_rate_val.substr(0,br_index);
                                     selected_index = i;
+                                }else{
+                                    rate  = td_rate_val.substr(0,br_index);
+                                    if(rate < min_rate){
+                                        min_rate = rate;
+                                        selected_index = i;
+                                    }
                                 }
                             }
                         }
+                    });
+                    console.log(i +" min_rate  " +min_rate);
+                    console.log(i +" selected_index"+selected_index);
+                    if(selected_index > -1 ){
+                        $(row).find("td:nth-child("+selected_index+")" ).addClass( "lowest_rate" );
                     }
                 });
-                console.log(i +" min_rate  " +min_rate);
-                console.log(i +" selected_index"+selected_index);
-                if(selected_index > -1 ){
-                    $(row).find("td:nth-child("+selected_index+")" ).addClass( "lowest_rate" );
-                }
-            });
-        }
-    });
-</script>
-<style>
-.dataTables_filter label{
-    display:none !important;
-}
-.dataTables_wrapper .export-data{
-    right: 30px !important;
-}
-.rate1_class{
-background-color: #f5fea8;
-}
-.rate2_class{
-background-color: #f3fe9a;
-}
-.rate3_class{
-background-color: #f2fe8b;
-}
-.rate4_class{
-background-color: #f0fe7d;
-}
-.rate5_class{
-background-color: #EFFE6F;
-}
-.rate6_class{
-background-color: #E8F764;
-}
-.rate7_class{
-background-color: #E4EF7B;
-}
-.rate8_class{
-background-color: #DAE477;
-}
-.rate9_class{
-background-color: #CED774;
-}
-.rate10_class{
-background-color: #c1c96f;
-}
+            }
 
-</style>
+            $('#table-4 tbody').on('click','.blockingbycode',function(){
+
+                Trunk = $("#lcr-search-form select[name='Trunk']").val();
+                CodeDeck = $("#lcr-search-form select[name='CodeDeckId']").val();
+                GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
+                var thisclass = $(this);
+                var thisid = thisclass.attr("id");
+                var thisaccid = thisclass.attr("data-id");
+                var rowcode = thisclass.attr("data-rowcode");
+                $.ajax({
+                    type: "POST",
+                    url: baseurl + '/vendor_blocking_lrc/blockunblockcode',
+                    data: {
+                        id: thisid,
+                        acc_id: thisaccid,
+                        trunk: Trunk,
+                        CodeDeckId: CodeDeck,
+                        rowcode: rowcode,
+                        GroupBy: GroupBy
+                    },
+                    success: function(response){
+                        ShowToastr("success",response.message);
+                        data_table.fnFilter('', 0);
+                    }
+
+                });
+            });
+
+            /* show margine datatable */
+            $('#table-4 tbody').on('click', 'td.destination', function () {
+
+                var desinationdata = $(this).html().split(":");
+                var code = desinationdata[0];
+                var code_des = $(this).html();
+                var allVendordata = $(this).next('td').html().split('<br>');
+                var v_rate = allVendordata[0];
+                var vendor = allVendordata[1];
+                arr = [];
+                arr['rate'] = [];
+                arr['vendor'] = [];
+                for(i=1;i<=5;i++) {
+                    var value = $(this).closest("tr").find("td:eq(" + i + ")").html().split('<br>');
+                    var valuetd = $.trim(value);
+                    if (valuetd.length != 0){
+                        var td2_vrate = value[0];
+                        var td2_vendor = value[1];
+                        arr['rate'].push(td2_vrate);
+                        arr['vendor'].push(td2_vendor);
+                    }
+
+                }
+                $.ajax({
+                    type:"POST",
+                    url: baseurl + '/lcr/margin-rate',
+                    data:{
+                        code:code,
+                        rate:v_rate,
+                    },
+                    success:function(response){
+                        var margindata = response;
+                        var verate = '';
+                        var result = '<table id="margineDataTable" class="table table-bordered datatable"><thead><tr><th id="dt_col1">Customer</th><th id="dt_col2">Margin Detail</th></tr></thead><tbody>';
+                        margindata.forEach(function(data) {
+                                var verate = '<table class="table table-bordered"><tr><th>Vendor</th><th>Rate</th><th>CRate</th><th>Margin (Percentage)</th></tr>';
+                                margin = "";
+                                margin_percentage = "";
+                                for(i=0;i<=arr['rate'].length-1;i++)
+                                {
+                                    var margin = parseFloat(arr['rate'][i]) - parseFloat(data.Rate);
+                                    var margin_percentage  = 100 - (parseFloat(data.Rate)* 100/parseFloat(arr['rate'][i]));
+                                    verate += '<tr><td>'+arr['vendor'][i]+'</td><td>'+arr['rate'][i]+'</td><td>'+data.Rate+'</td><td>'+margin.toFixed(6)+' ('+margin_percentage.toFixed(2)+'%)</td></tr>';
+                                }
+                                verate += '</table>';
+                                result += '<tr><td>'+data.AccountName+'</td><td colspan="3">'+verate+'</td></tr>';
+                        });
+                        result += '</tbody></table>';
+                        $(".vendorRateInfo").removeClass('hide');
+                        $(".vendorRateInfo").html(result);
+                        var margineDataTable = $('#margineDataTable').DataTable({
+                            "bDestroy": true,
+                            "bProcessing": false,
+                        });
+
+                    }
+
+                });
+
+
+            } );
+            /* show margine datatable end */
+
+            /* Edit preference */
+            $(document).on('click','.openPopup',function(){
+
+                Trunk = $("#lcr-search-form select[name='Trunk']").val();
+                CodeDeck = $("#lcr-search-form select[name='CodeDeckId']").val();
+                GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
+                var thisclass = $(this);
+                var thisid = thisclass.attr("id");
+                var thisaccid = thisclass.attr("data-id");
+                var rowcode = thisclass.attr("data-rowcode");
+                var data = '<div class="row">' +
+                                '<div class="col-md-12">' +
+                                    '<div class="form-group">' +
+                                        '<label for="field-5" class="control-label">Enter Preference</label>' +
+                                            '<input type="text" name="DisputeAmount" class="form-control" id="field-5" placeholder="">' +
+                                    '</div>' +
+                                '</div>' +
+                            '</div>' +
+                        '<input type="hidden" name="id" value='+thisid+'>' +
+                        '<input type="hidden" name="acc_id" value='+thisaccid+'>' +
+                        '<input type="hidden" name="trunk" value='+Trunk+'>' +
+                        '<input type="hidden" name="CodeDeckId" value='+CodeDeck+'>' +
+                        '<input type="hidden" name="GroupBy" value='+GroupBy+'>' +
+                        '<input type="hidden" name="rowcode" value='+rowcode+'>' +
+                        '<input type="hidden" class="form-control">';
+                $('.modal-body').html(data);
+                $('#myModal').modal({show:true});
+                /*$('.modal-body').load(dataURL,function(){
+                    $('#myModal').modal({show:true});
+                });*/
+            });
+            /* Edit Preference*/
+
+            $('#edit-preference-form').submit(function(){
+                alert('hi');
+                //var DisputeID = $("#add-edit-dispute-form [name='DisputeID']").val();
+                $.ajax({
+                    type: "POST",
+                    url: baseurl + '/lcr/edit_preference',
+                    data: $("#edit-preference-form-form").serialize(),
+                    success: function(data)
+                    {
+                        alert(data);
+                    }
+
+                });
+                return false;
+
+
+            });
+
+
+        });
+
+
+    </script>
+    <style>
+        .dataTables_filter label{
+            display:none !important;
+        }
+        .dataTables_wrapper .export-data{
+            right: 30px !important;
+        }
+        .rate1_class{
+            background-color: #f5fea8;
+        }
+        .rate2_class{
+            background-color: #f3fe9a;
+        }
+        .rate3_class{
+            background-color: #f2fe8b;
+        }
+        .rate4_class{
+            background-color: #f0fe7d;
+        }
+        .rate5_class{
+            background-color: #EFFE6F;
+        }
+        .rate6_class{
+            background-color: #E8F764;
+        }
+        .rate7_class{
+            background-color: #E4EF7B;
+        }
+        .rate8_class{
+            background-color: #DAE477;
+        }
+        .rate9_class{
+            background-color: #CED774;
+        }
+        .rate10_class{
+            background-color: #c1c96f;
+        }
+
+    </style>
 @stop
