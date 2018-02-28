@@ -121,16 +121,16 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="field-1" class="col-md-2 control-label">Reseller Owner</label>
-                        <div class="col-md-4">
-                            {{Form::select('ResellerOwner',$reseller_owners,'',array("class"=>"select2"))}}
-                        </div>
-
                         <label class="col-md-2 control-label">Reseller</label>
                         <div class="col-md-4">
                             <div class="make-switch switch-small">
                                 <input type="checkbox" name="IsReseller"  @if(Input::old('IsReseller') == 1 )checked=""@endif value="1">
                             </div>
+                        </div>
+
+                        <label for="field-1" class="col-md-2 control-label">Account Reseller</label>
+                        <div class="col-md-4">
+                            {{Form::select('ResellerOwner',$reseller_owners,'',array("class"=>"select2"))}}
                         </div>
 
                     </div>

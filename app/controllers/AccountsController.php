@@ -27,9 +27,10 @@ class AccountsController extends \BaseController {
         //$data['tag'] = $data['tag']!= ''?$data['tag']:'null';
         //$data['account_number'] = $data['account_number']!= ''?$data['account_number']:0;
         //$data['contact_name'] = $data['contact_name']!= ''?$data['contact_name']:'';
+        $data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
         $columns = array('AccountID','Number','AccountName','Ownername','Phone','OutStandingAmount','UnbilledAmount','PermanentCredit','AccountExposure','Email','AccountID');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['reseller_on_off'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data["ipclitext"]."','".$data['low_balance']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['reseller_on_off'].",".$data['ResellerOwner'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data["ipclitext"]."','".$data['low_balance']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             \Illuminate\Support\Facades\Log::info("Account query ".$query.',2)');
@@ -51,6 +52,8 @@ class AccountsController extends \BaseController {
             })->download('xls');*/
         }
         $query .=',0)';
+
+        log::info($query);
 
         return DataTableSql::of($query)->make();
     }
@@ -375,9 +378,10 @@ class AccountsController extends \BaseController {
 			$vendor   = $account->IsVendor?1:0;
 			$Customer = $account->IsCustomer?1:0;
 			$Reseller = $account->IsReseller?1:0;
+            $ResellerOwner=0;
 
 			//get account card data
-             $sql 						= 	 "call prc_GetAccounts (".$companyID.",0,'".$vendor."','".$Customer."','".$Reseller."','".$account->Status."','".$account->VerificationStatus."','".$account->Number."','','".$account->AccountName."','".$account->tags."','',0,1 ,1,'AccountName','asc',0)";
+             $sql 						= 	 "call prc_GetAccounts (".$companyID.",0,'".$vendor."','".$Customer."','".$Reseller."','".$ResellerOwner."','".$account->Status."','".$account->VerificationStatus."','".$account->Number."','','".$account->AccountName."','".$account->tags."','',0,1 ,1,'AccountName','asc',0)";
             $Account_card  				= 	 DB::select($sql);
 			$Account_card  				=	 array_shift($Account_card);
 			
@@ -1799,8 +1803,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $data['reseller_on_off'] = $data['reseller_on_off']== 'true'?1:0;
         $data['account_active'] = $data['account_active']== 'true'?1:0;
         $data['low_balance'] = $data['low_balance']== 'true'?1:0;
+        $data['ResellerOwner'] = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
 
-        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['reseller_on_off'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data["ipclitext"]."','".$data['low_balance']."',1,50,'AccountName','asc',2)";
+        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['reseller_on_off'].",".$data['ResellerOwner'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data["ipclitext"]."','".$data['low_balance']."',1,50,'AccountName','asc',2)";
         $excel_data  = DB::select($query);
         $excel_datas = json_decode(json_encode($excel_data),true);
 
