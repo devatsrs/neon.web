@@ -1,5 +1,7 @@
 use Ratemanagement3;
 
+ALTER TABLE `tblBillingClass`
+	ADD COLUMN `RoundChargesCDR` INT(11) NULL DEFAULT NULL AFTER `RoundChargesAmount`;
 
 
 
