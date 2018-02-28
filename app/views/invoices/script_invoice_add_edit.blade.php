@@ -70,7 +70,7 @@ $(document).ready(function(){
         var  selected_product_type = optgroup.prop('label')==txtSUBSCRIPTION?SUBSCRIPTION:optgroup.prop('label')==txtITEM?ITEM:'';
         //selected_product_type = ($(this.options[this.selectedIndex]).closest('optgroup').prop('label')).toLowerCase();
         //$row.find('.ProductType').val(product_types[selected_product_type]);
-        if( productID != ''  && parseInt(AccountID) > 0 ) {
+        if( typeof productID!="undefined" && productID != ''  && parseInt(AccountID) > 0 ) {
             try{
                 $row.find(".Qty").val(1);
                 //console.log(productID);
