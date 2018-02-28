@@ -108,7 +108,7 @@
           <div class="pull-right"> &nbsp;</div>
           @endif
 
-              <a href="{{$PDFurl}}" class="print-invoice pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print"> @lang('routes.CUST_PANEL_PAGE_INVOICE_CVIEW_BUTTON_DOWNLOD_USAGE') <i class="entypo-doc-text"></i> </a>
+              <a href="{{$PDFurl}}" class="print-invoice pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print"> @lang('routes.CUST_PANEL_PAGE_INVOICE_CVIEW_BUTTON_PRINT_INVOICE') <i class="entypo-doc-text"></i> </a>
               @if(($Invoice->InvoiceStatus != Invoice::PAID) && (is_paypal($Invoice->CompanyID)  ) )
               {{$paypal_button}}
               @endif

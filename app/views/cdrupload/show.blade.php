@@ -44,10 +44,6 @@
                     {{ Form::select('CompanyGatewayID',$gateway,Input::get('CompanyGatewayID'), array("class"=>"select2","id"=>"bluk_CompanyGatewayID")) }}
                 </div>
                 <div class="form-group">
-                    <label class="control-label" for="field-1">Reseller Owner</label>
-                    {{ Form::select('ResellerOwner',$reseller_owners,Input::get('ResellerOwner'), array("class"=>"select2","id"=>"bluk_ResellerOwner")) }}
-                </div>
-                <div class="form-group">
                     <label class="control-label" for="field-1">Account</label>
                     {{ Form::select('AccountID',$accounts,Input::get('AccountID'), array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                 </div>
@@ -77,6 +73,10 @@
                     ?>
                     <label class="control-label" for="field-1">Trunk</label>
                     {{ Form::select('Trunk',$trunks,$trunk, array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                </div>
+                <div class="form-group">
+                    <label class="control-label" for="field-1">Reseller</label>
+                    {{ Form::select('ResellerOwner',$reseller_owners,Input::get('ResellerOwner'), array("class"=>"select2","id"=>"bluk_ResellerOwner")) }}
                 </div>
                 <div class="form-group">
                     <br/>
