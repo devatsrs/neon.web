@@ -15,6 +15,7 @@ class VendorRatesController extends \BaseController
     public function search_ajax_datagrid($id) {
 
         $data = Input::all();
+
         $data['iDisplayStart'] +=1;
         $data['Country']=$data['Country']!= 'All'?$data['Country']:'null';
         $data['Code'] = $data['Code'] != ''?"'".$data['Code']."'":'null';
@@ -25,10 +26,36 @@ class VendorRatesController extends \BaseController
         $sort_column = $columns[$data['iSortCol_0']];
         $companyID = User::get_companyID();
 
-        $query = "call prc_GetVendorRates (".$companyID.",".$id.",".$data['Trunk'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
+        if(!empty($data['DiscontinuedRates'])) {
+            $query = "call prc_getDiscontinuedVendorRateGrid (" . $companyID . "," . $id . "," . $data['Trunk'] . "," . $data['Country'] . "," . $data['Code'] . "," . $data['Description'] . "," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "',0)";
+        } else {
+            $query = "call prc_GetVendorRates (" . $companyID . "," . $id . "," . $data['Trunk'] . "," . $data['Country'] . "," . $data['Code'] . "," . $data['Description'] . ",'" . $data['Effective'] . "'," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "',0)";
+        }
+        Log::info($query);
 
         return DataTableSql::of($query)->make();
-        
+
+    }
+
+    public function search_ajax_datagrid_archive_rates($AccountID) {
+
+        $data = Input::all();
+        $companyID = User::get_companyID();
+
+        if(!empty($data['Codes'])) {
+            $Codes = $data['Codes'];
+            $query = 'call prc_GetVendorRatesArchiveGrid ('.$companyID.','.$AccountID.',"'.$Codes.'")';
+            //Log::info($query);
+            $response['status']     = "success";
+            $response['message']    = "Data fetched successfully!";
+            $response['data']       = DB::select($query);
+        } else {
+            $response['status']     = "success";
+            $response['message']    = "Data fetched successfully!";
+            $response['data']       = [];
+        }
+
+        return json_encode($response);
     }
 
     public function index($id) {
@@ -146,26 +173,32 @@ class VendorRatesController extends \BaseController
             echo json_encode(array("status" => "failed", "message" => "Please upload excel/csv file <5MB."));
         }
     }
-    
+
     public function download($id) {
             $Account = Account::find($id);
+            $Vendors = Account::getOnlyVendorIDList();
+            unset($Vendors[$id]);
             $trunks = VendorTrunk::getTrunkDropdownIDList($id);
             if(count($trunks) == 0){
                 return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
             }
             $rate_sheet_formates = $this->rate_sheet_formates;
             $downloadtype = [''=>'Select','xlsx'=>'EXCEL','csv'=>'CSV'];
-            return View::make('vendorrates.download', compact('id', 'trunks', 'rate_sheet_formates','Account','downloadtype'));
+
+            return View::make('vendorrates.download', compact('id', 'trunks', 'rate_sheet_formates','Account','downloadtype','Vendors'));
     }
     
     public function process_download($id) {
         if (Request::ajax()) {
             
             $data = Input::all();
-            
+
             $rules = array( 'isMerge' => 'required', 'Trunks' => 'required', 'Format' => 'required','filetype' => 'required' );
             if (!isset($data['isMerge'])) {
                 $data['isMerge'] = 0;
+            }
+            if($data['Effective'] == 'CustomDate') {
+                $rules['CustomDate'] = "required|date|date_format:Y-m-d";
             }
 
 
@@ -179,24 +212,29 @@ class VendorRatesController extends \BaseController
                 unset($data['filetype']);
             }
 
-            
-            //Inserting Job Log
-            try {
-                DB::beginTransaction();
-                $data["AccountID"] = $id;
-                $result = Job::logJob("VD", $data);
-                
-                if ($result['status'] != "success") {
-                    DB::rollback();
-                    return json_encode(["status" => "failed", "message" => $result['message']]);
+            $data['vendor'][] = $id;
+            foreach($data['vendor'] as $vendorID) {
+                if ((int)$vendorID) {
+                    //Inserting Job Log
+                    try {
+                        DB::beginTransaction();
+                        $data["AccountID"] = $vendorID;
+                        $result = Job::logJob("VD", $data);
+
+                        if ($result['status'] != "success") {
+                            DB::rollback();
+                            $json_result = json_encode(["status" => "failed", "message" => $result['message']]);
+                        }
+                        DB::commit();
+                        $json_result = json_encode(["status" => "success", "message" => "File is added to queue for processing. You will be notified once file creation is completed. "]);
+                    }
+                    catch(Exception $ex) {
+                        DB::rollback();
+                        $json_result = json_encode(["status" => "failed", "message" => " Exception: " . $ex->getMessage() ]);
+                    }
                 }
-                DB::commit();
-                return json_encode(["status" => "success", "message" => "File is added to queue for processing. You will be notified once file creation is completed. "]);
             }
-            catch(Exception $ex) {
-                DB::rollback();
-                return json_encode(["status" => "failed", "message" => " Exception: " . $ex->getMessage() ]);
-            }
+
         } else {
             echo json_encode(array("status" => "failed", "message" => "Access not allowed"));
         }
@@ -343,8 +381,9 @@ class VendorRatesController extends \BaseController
         }
 
         $CompanyID = User::get_companyID();
+        $username = User::get_user_full_name();
 
-        $results = DB::statement("call prc_VendorBulkRateDelete ('".$CompanyID."','".$id."','".$data['Trunk']."','".$data['VendorRateID']."',NULL,NULL,NULL,NULL,2)");
+        $results = DB::statement("call prc_VendorBulkRateDelete ('".$CompanyID."','".$id."','".$data['Trunk']."','".$data['VendorRateID']."',NULL,NULL,NULL,NULL,'".$username."',2)");
         if ($results) {
             return Response::json(array("status" => "success", "message" => "Vendors Rate Successfully Deleted"));
         } else {
@@ -378,11 +417,37 @@ class VendorRatesController extends \BaseController
         }
         $username = User::get_user_full_name();
         $VendorIDs = explode(",", $data['VendorRateID']);
+
+        $VendorRates = VendorRate::whereIn('VendorRateID',$VendorIDs)->get()->toArray();
+
+        for($i=0; $i<count($VendorRates);$i++) {
+            unset($VendorRates[$i]['VendorRateID']);
+            $VendorRates[$i]['Interval1']       = $data['Interval1'];
+            $VendorRates[$i]['IntervalN']       = $data['IntervalN'];
+            $VendorRates[$i]['updated_by']      = $username;
+            $VendorRates[$i]['updated_at']      = date('Y-m-d');
+            $VendorRates[$i]['ConnectionFee']   = floatval($data['ConnectionFee']);
+            $VendorRates[$i]['EffectiveDate']   = $data['EffectiveDate'];
+            $VendorRates[$i]['Rate']            = $data['Rate'];
+        }
+
         //'Interval1'=> $data['Interval1'],'IntervalN'=> $data['IntervalN'],
-        if (VendorRate::whereIn('VendorRateID',$VendorIDs)->update(['Interval1'=> $data['Interval1'],'IntervalN'=> $data['IntervalN'], 'updated_by'=>$username,'ConnectionFee'=>floatval($data['ConnectionFee']), 'EffectiveDate' => $data['EffectiveDate'],'Rate'=>$data['Rate']])) {
-            return Response::json(array("status" => "success", "message" => "Vendor Rates Successfully Updated."));
-        } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Updating Vendor Rates."));
+        try {
+            DB::beginTransaction();
+            VendorRate::whereIn('VendorRateID',$VendorIDs)->update(['EndDate'=> date('Y-m-d')]);
+
+            $username = User::get_user_full_name();
+            DB::statement("call prc_WSCronJobDeleteOldVendorRate('".$username."')");
+
+            if (VendorRate::insert($VendorRates)) {
+                DB::commit();
+                return Response::json(array("status" => "success", "message" => "Vendor Rates Successfully Updated."));
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem Updating Vendor Rates."));
+            }
+        } catch (Exception $ex) {
+            DB::rollback();
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
         }
 
     }
@@ -426,7 +491,7 @@ class VendorRatesController extends \BaseController
             $criteria['Code'] =  $criteria['Code'] == ''?'NULL':"'".$criteria['Code']."'";
             $criteria['Description'] = $criteria['Description'] == ''?'NULL':"'".$criteria['Description']."'";
             $username = User::get_user_full_name();
-            $results = DB::statement("call prc_VendorBulkRateDelete ('".$CompanyID."','".$id."','".$data['Trunk']."',NULL,".$criteria['Code'].",".$criteria['Description'].",".$criteria['Country'].",'".$criteria['Effective']."',1)");
+            $results = DB::statement("call prc_VendorBulkRateDelete ('".$CompanyID."','".$id."','".$data['Trunk']."',NULL,".$criteria['Code'].",".$criteria['Description'].",".$criteria['Country'].",'".$criteria['Effective']."','".$username."',1)");
             if ($results) {
                 return Response::json(array("status" => "success", "message" => "Vendor Rates Successfully Deleted."));
             } else {
@@ -726,8 +791,8 @@ class VendorRatesController extends \BaseController
             if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
                 return Response::json(array("status" => "failed", "message" => "Failed to upload vendor rates file."));
             }
-            $option["skipRows"] = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
         }
+        $option["skipRows"] = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
 
         /*$file_name = basename($data['TemplateFile']);
 
@@ -763,7 +828,7 @@ class VendorRatesController extends \BaseController
         $save = array();
         $option["option"]=  $data['option'];
         $option["selection"] = $data['selection'];
-        $save['Options'] = json_encode($option);
+        $save['Options'] = str_replace('Skip loading','',json_encode($option));
         $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
         $save['full_path'] = $fullPath;
         $save["AccountID"] = $id;
@@ -1038,8 +1103,8 @@ class VendorRatesController extends \BaseController
             if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
                 return Response::json(array("status" => "failed", "message" => "Failed to upload vendor rates file."));
             }
-            $option["skipRows"] = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
         }
+        $option["skipRows"] = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
 
         /*$file_name = basename($data['TemplateFile']);
 
@@ -1076,7 +1141,7 @@ class VendorRatesController extends \BaseController
         $save = array();
         $option["option"]=  $data['option'];
         $option["selection"] = $data['selection'];
-        $save['Options'] = json_encode($option);
+        $save['Options'] = str_replace('Skip loading','',json_encode($option));
         $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
         $save['full_path'] = $fullPath;
         $save["AccountID"] = $id;
@@ -1348,7 +1413,7 @@ class VendorRatesController extends \BaseController
                 Log::info($JobStatusMessage);
                 Log::info(count($JobStatusMessage));
 
-                if(!empty($error) || count($JobStatusMessage) > 1){
+                if(!empty($error) || count($JobStatusMessage) >= 1){
                     $prc_error = array();
                     foreach ($JobStatusMessage as $JobStatusMessage1) {
                         $prc_error[] = $JobStatusMessage1['Message'];
@@ -1360,7 +1425,7 @@ class VendorRatesController extends \BaseController
                     // if duplicate code exit job will fail
                     if($duplicatecode == 1){
                         $error = array_merge($prc_error,$error);
-                        unset($error[0]);
+                        //unset($error[0]);
                         $jobdata['message'] = implode('<br>',fix_jobstatus_meassage($error));
                         $jobdata['JobStatusID'] = DB::table('tblJobStatus')->where('Code','F')->pluck('JobStatusID');
                     }else{

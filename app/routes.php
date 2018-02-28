@@ -485,6 +485,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/vendor_rates/{id}/storeTemplate', 'VendorRatesController@storeTemplate');
     Route::any('/vendor_rates/{id}/search_vendor_grid', 'VendorRatesController@search_vendor_grid');
 	Route::any('/vendor_rates/{id}/customerdownloadtype/{type}', 'VendorRatesController@vendordownloadtype');
+	Route::any('/vendor_rates/{id}/search_ajax_datagrid_archive_rates', 'VendorRatesController@search_ajax_datagrid_archive_rates'); // get archive rates for vendor rates grid
 
 	Route::resource('vendor_rates', 'VendorRatesController');
 	Route::controller('vendor_rates', 'VendorRatesController');
