@@ -38,7 +38,7 @@
 				$required[] =  array("id"=>$id,"title"=>$TicketfieldsData->FieldName);
 			?>
             <div class="col-sm-6">
-            	<input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]' required id="{{$id}}" class="form-control requestersearch typeahead formfld" spellcheck="false" dir="auto"   value="{{$ticketSavedData[$TicketfieldsData->FieldType]}}"  placeholder="{{$TicketfieldsData->AgentLabel}}" />
+            	<input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]' required id="{{$id}}" class="form-control requestersearch typeahead formfld" spellcheck="false" dir="auto"   value="{{htmlspecialchars($ticketSavedData[$TicketfieldsData->FieldType])}}"  placeholder="{{$TicketfieldsData->AgentLabel}}" />
 				<span><a href="javascript:;" class="emailoptiontxt" onclick="$(this).hide(); $('#reqcc').removeClass('hidden'); $('#cc').focus();">CC</a> </span>
             </div>
             <div class="col-sm-3 dropdown" style="padding:0;">
