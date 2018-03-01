@@ -312,7 +312,7 @@ class TicketsTable extends \Eloquent
 		if($TicketData->ContactID){
 				$data = 	DB::table('tblContact')->where(['ContactID'=>$TicketData->ContactID])->get(array("FirstName","LastName","Owner"));
 				$url = URL::to('/') . '/contacts/' . $TicketData->ContactID . '/show';
-				$Requester = array("Title"=>$data[0]->FirstName.'&nbsp;'.$data[0]->LastName,"Email"=>$TicketData->Requester,"URL"=>$url,"Contact"=>0);
+				$Requester = array("Title"=>$data[0]->FirstName.'&nbsp;'.$data[0]->LastName,"Email"=>$TicketData->Requester,"URL"=>$url,"Contact"=>0,"Owner"=>$data[0]->Owner);
 		}
 		if($TicketData->UserID){
 				$data = 	DB::table('tblUser')->where(['UserID'=>$TicketData->UserID])->get(array("FirstName","LastName"));
