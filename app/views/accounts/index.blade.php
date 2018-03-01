@@ -50,6 +50,10 @@
                     </p>
                 </div>
                 <div class="form-group">
+                    <label class="control-label" for="field-1">Account Reseller</label>
+                    {{ Form::select('ResellerOwner',$reseller_owners,'', array("class"=>"select2")) }}
+                </div>
+                <div class="form-group">
                     <label class="control-label"  >Active</label><br/>
                     <p class="make-switch switch-small">
                         <input id="account_active" name="account_active" type="checkbox" value="1" checked="checked">
@@ -270,6 +274,7 @@
 			"tag":$("#account_filter [name='tag']").val(),
 			"verification_status":$("#account_filter [name='verification_status']").val(),
 			"account_owners":$("#account_filter [name='account_owners']").val(),			
+			"ResellerOwner":$("#account_filter [name='ResellerOwner']").val(),
 			"customer_on_off":$("#account_filter [name='customer_on_off']").prop("checked"),
 			"reseller_on_off":$("#account_filter [name='reseller_on_off']").prop("checked"),
 			"vendor_on_off":$("#account_filter [name='vendor_on_off']").prop("checked"),
@@ -304,6 +309,7 @@
         $searchFilter.tag = $("#account_filter [name='tag']").val();
         $searchFilter.verification_status = $("#account_filter [name='verification_status']").val();
         $searchFilter.account_owners = $("#account_filter [name='account_owners']").val();
+        $searchFilter.ResellerOwner = $("#account_filter [name='ResellerOwner']").val();
         $searchFilter.customer_on_off = $("#account_filter [name='customer_on_off']").prop("checked");
         $searchFilter.reseller_on_off = $("#account_filter [name='reseller_on_off']").prop("checked");
         $searchFilter.vendor_on_off = $("#account_filter [name='vendor_on_off']").prop("checked");
@@ -334,6 +340,7 @@
                                 {"name":"account_active","value":$searchFilter.account_active},
                                 {"name":"verification_status","value":$searchFilter.verification_status},
                                 {"name":"account_owners","value":$searchFilter.account_owners},
+                                {"name":"ResellerOwner","value":$searchFilter.ResellerOwner},
                                 {"name":"ipclitext","value":$searchFilter.ipclitext}
                         );
                         data_table_extra_params.length = 0;
@@ -349,6 +356,7 @@
                                 {"name":"account_active","value":$searchFilter.account_active},
                                 {"name":"verification_status","value":$searchFilter.verification_status},
                                 {"name":"account_owners","value":$searchFilter.account_owners},
+                                {"name":"ResellerOwner","value":$searchFilter.ResellerOwner},
                                 {"name":"ipclitext","value":$searchFilter.ipclitext},
                                 {"name":"Export","value":1}
                         );
@@ -777,6 +785,7 @@
         $searchFilter.tag = $("#account_filter [name='tag']").val();
         $searchFilter.verification_status = $("#account_filter [name='verification_status']").val();
         $searchFilter.account_owners = $("#account_filter [name='account_owners']").val();
+        $searchFilter.ResellerOwner = $("#account_filter [name='ResellerOwner']").val();
         $searchFilter.customer_on_off = $("#account_filter [name='customer_on_off']").prop("checked");
         $searchFilter.vendor_on_off = $("#account_filter [name='vendor_on_off']").prop("checked");
         $searchFilter.reseller_on_off = $("#account_filter [name='reseller_on_off']").prop("checked");
@@ -1437,7 +1446,7 @@
                     <div class="form-group">
                         <label for="field-3" class="control-label">
                             <input type="checkbox"  name="ResellerOwnerAddCheck">
-                            <span>Reseller Owner</span></label><br>
+                            <span>Account Reseller</span></label><br>
                             {{Form::select('ResellerOwner', $reseller_owners, '' ,array("id"=>"ResellerOwner_id","class"=>"select2 small form-control1"));}}
                     </div>
                 </div>
