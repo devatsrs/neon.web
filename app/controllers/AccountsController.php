@@ -1705,7 +1705,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                             if(empty($billingupdate['BillingStartDate'])){
                                 $billingupdate['BillingStartDate'] = $abdata->BillingStartDate;
                             }
-                            AccountBilling::insertUpdateBilling($id, $billingupdate, $ServiceID);
+                            AccountBilling::insertUpdateBilling($id, $billingupdate, $ServiceID,$invoice_count);
                             if($ManualBilling ==0) {
                                 AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
                             }
