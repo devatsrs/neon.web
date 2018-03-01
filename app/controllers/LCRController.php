@@ -166,14 +166,14 @@ class LCRController extends \BaseController {
                 $keyname = 'POSITION ' . $i . '';
                 $vname = explode("<br>",$data[0][$keyname]);
                 if(!empty($data[0][$keyname])) {
-                    $temp['AccountName'] = $rows['AccountName'];
+                    $temp['Customer'] = $rows['AccountName'];
                     $temp['Vendor'] = $vname[1];
                     $temp['Rate'] = $vname[0];
                     $temp['CRate'] = $rows['Rate'];
                     $margin = floatval($vname[0]) - floatval($rows['Rate']);
                     $margin = number_format((float)$margin, 6, '.', '');
                     $margin_percentage  = 100 - (floatval($rows['Rate'])) * 100/ floatval($vname[0]);
-                    $temp['Margin Detail'] = $margin.' ('.round($margin_percentage,2).' %)';
+                    $temp['Vendor Detail'] = $margin.' ('.round($margin_percentage,2).' %)';
                     array_push($result, $temp);
                 }
             }

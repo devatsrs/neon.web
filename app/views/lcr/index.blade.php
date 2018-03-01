@@ -137,7 +137,7 @@
         </tbody>
     </table>
 
-    <div class="vendorRateInfo"></div>
+    <div class="vendorRateInfo hide"></div>
 
 
     {{-- edit preference --}}
@@ -192,7 +192,10 @@
 
             $("#lcr-search-form").submit(function(e) {
 
-
+                var show_customer_rate = $("#lcr-search-form [name='show_customer_rate']").prop("checked");
+                if(show_customer_rate == false) {
+                    $(".vendorRateInfo").addClass('hide');
+                }
                 var Code, Description, Currency,CodeDeck,Use_Preference,vendor_block, Policy,LCRPosition,GroupBy,SelectedEffectiveDate,aoColumns,aoColumnDefs,accounts;
                 Code = $("#lcr-search-form input[name='Code']").val();
                 Description = $("#lcr-search-form input[name='Description']").val();
