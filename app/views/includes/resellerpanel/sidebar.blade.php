@@ -32,7 +32,7 @@
 
     <ul id="main-menu" class="">
         <li class="two-links"> <a href="{{URL::to('/accounts')}}" class="first"> <i class="fa fa-users"></i> <span>&nbsp;Accounts</span> </a> <a href="{{URL::to('accounts/create')}}" class="last"><i class="fa fa-plus-circle" style="color: #fff;"></i></a> </li>
-        <li> <a href="{{URL::to('/reseller')}}"><i class="entypo-users"></i>  <span>Reseller</span> </a> </li>
+        <!--<li> <a href="{{URL::to('/reseller')}}"><i class="entypo-users"></i>  <span>Reseller</span> </a> </li>-->
         <li class="{{check_uri('Rates')}}"> <a href="#"> <i class="fa fa-table"></i> <span>&nbsp;Rate Management</span> </a>
             <ul>
                 <li> <a href="{{URL::to('/rate_tables')}}">  <span>Rate Tables</span> </a> </li>
@@ -72,7 +72,9 @@
         <li class="{{check_uri('Admin')}}"> <a href="#"> <i class="fa fa-lock"></i> <span>&nbsp;&nbsp;&nbsp;Admin</span> </a>
             <ul>
                 <li> <a href="{{Url::to('/notification')}}">  <span>Notifications</span> </a> </li>
-                <li> <a href="{{Url::to('/themes')}}">  <span>Themes</span> </a> </li>
+                @if(Reseller::is_AllowWhiteLabel())
+                    <li> <a href="{{Url::to('/themes')}}">  <span>Themes</span> </a> </li>
+                @endif
                 <li> <a href="{{URL::to('/email_template')}}">  <span>Email Templates</span> </a> </li>
                 <li> <a href="{{URL::to('/noticeboard')}}">  <span>Notice Board</span> </a> </li>
             </ul>

@@ -27,9 +27,10 @@ class AccountsController extends \BaseController {
         //$data['tag'] = $data['tag']!= ''?$data['tag']:'null';
         //$data['account_number'] = $data['account_number']!= ''?$data['account_number']:0;
         //$data['contact_name'] = $data['contact_name']!= ''?$data['contact_name']:'';
+        $data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
         $columns = array('AccountID','Number','AccountName','Ownername','Phone','OutStandingAmount','UnbilledAmount','PermanentCredit','AccountExposure','Email','AccountID');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['reseller_on_off'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data["ipclitext"]."','".$data['low_balance']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['reseller_on_off'].",".$data['ResellerOwner'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data["ipclitext"]."','".$data['low_balance']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             \Illuminate\Support\Facades\Log::info("Account query ".$query.',2)');
@@ -51,6 +52,8 @@ class AccountsController extends \BaseController {
             })->download('xls');*/
         }
         $query .=',0)';
+
+        log::info($query);
 
         return DataTableSql::of($query)->make();
     }
@@ -138,7 +141,8 @@ class AccountsController extends \BaseController {
 
         $BillingClass = BillingClass::getDropdownIDList(User::get_companyID());
         $timezones = TimeZone::getTimeZoneDropdownList();
-        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','bulk_type','Currencies','BillingClass','timezones'));
+        $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
+        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','bulk_type','Currencies','BillingClass','timezones','reseller_owners'));
 
     }
 
@@ -166,7 +170,8 @@ class AccountsController extends \BaseController {
                 unset($doc_status[Account::VERIFIED]);
             }
             $dynamicfields = Account::getDynamicfields('account',0);
-            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company'));
+            $reseller_owners = Reseller::getDropdownIDList($company_id);
+            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company','reseller_owners'));
     }
 
     /**
@@ -200,7 +205,10 @@ class AccountsController extends \BaseController {
             if($data['IsReseller']==1){
                 $data['IsCustomer']=1;
                 $data['IsVendor']=0;
-            }
+             }
+
+            $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
+            unset($data['ResellerOwner']);
 
             //when account varification is off in company setting then varified the account by default.
             $AccountVerification =  CompanySetting::getKeyVal('AccountVerification');
@@ -286,6 +294,13 @@ class AccountsController extends \BaseController {
                 if (trim(Input::get('Number')) == '') {
                     CompanySetting::setKeyVal('LastAccountNo', $account->Number);
                 }
+
+                $AccountDetails=array();
+                $AccountDetails['ResellerOwner'] = $ResellerOwner;
+                $AccountDetails['AccountID'] = $account->AccountID;
+                AccountDetails::create($AccountDetails);
+
+
                 $account->update($data);
                 return Response::json(array("status" => "success", "message" => "Account Successfully Created", 'LastID' => $account->AccountID, 'redirect' => URL::to('/accounts/' . $account->AccountID . '/edit')));
             } else {
@@ -363,9 +378,10 @@ class AccountsController extends \BaseController {
 			$vendor   = $account->IsVendor?1:0;
 			$Customer = $account->IsCustomer?1:0;
 			$Reseller = $account->IsReseller?1:0;
+            $ResellerOwner=0;
 
 			//get account card data
-             $sql 						= 	 "call prc_GetAccounts (".$companyID.",0,'".$vendor."','".$Customer."','".$Reseller."','".$account->Status."','".$account->VerificationStatus."','".$account->Number."','','".$account->AccountName."','".$account->tags."','',0,1 ,1,'AccountName','asc',0)";
+             $sql 						= 	 "call prc_GetAccounts (".$companyID.",0,'".$vendor."','".$Customer."','".$Reseller."','".$ResellerOwner."','".$account->Status."','".$account->VerificationStatus."','".$account->Number."','','".$account->AccountName."','".$account->tags."','',0,1 ,1,'AccountName','asc',0)";
             $Account_card  				= 	 DB::select($sql);
 			$Account_card  				=	 array_shift($Account_card);
 			
@@ -481,6 +497,7 @@ class AccountsController extends \BaseController {
 	}
 	 
     public function edit($id) {
+        Payment::multiLang_init();
         $ServiceID = 0;
         $account = Account::find($id);
         $companyID = User::get_companyID();
@@ -533,7 +550,9 @@ class AccountsController extends \BaseController {
         $ResellerCount = Reseller::where(['AccountID'=>$id,'Status'=>1])->count();
 
         $dynamicfields = Account::getDynamicfields('account',$id);
-        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount'));
+        $accountdetails = AccountDetails::where(['AccountID'=>$id])->first();
+        $reseller_owners = Reseller::getDropdownIDList($companyID);
+        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners'));
     }
 
     /**
@@ -552,6 +571,15 @@ class AccountsController extends \BaseController {
         }
         //$DiscountPlanID = $data['DiscountPlanID'];
         //$InboundDiscountPlanID = $data['InboundDiscountPlanID'];
+
+        $AccountDetails=array();
+        $AccountDetails['CustomerPaymentAdd'] = isset($data['CustomerPaymentAdd']) ? 1 : 0;
+        $AccountDetails['AccountID'] = $id;
+        $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
+        $AccountDetails['ResellerOwner'] = $ResellerOwner;
+        unset($data['CustomerPaymentAdd']);
+        unset($data['ResellerOwner']);
+
         $message = $password = "";
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
@@ -691,6 +719,13 @@ class AccountsController extends \BaseController {
                // $this->sendPasswordEmail($account, $password, $data);
             }
 
+            $AccountDetailsID=AccountDetails::where('AccountID',$id)->pluck('AccountDetailID');
+            if(!empty($AccountDetailsID)){
+                AccountDetails::find($AccountDetailsID)->update($AccountDetails);
+            }else{
+                AccountDetails::create($AccountDetails);
+            }
+
             if(!empty($data['PaymentMethod'])) {
                 if (is_authorize($companyID) && $data['PaymentMethod'] == 'AuthorizeNet') {
 
@@ -715,6 +750,7 @@ class AccountsController extends \BaseController {
                     }
                 }
             }
+
             return Response::json(array("status" => "success", "message" => "Account Successfully Updated. " . $message));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Account."));
@@ -1528,6 +1564,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
            !isset($data['VendorCheck']) &&
            !isset($data['BillingCheck']) &&
            !isset($data['CustomerCheck'])&&
+           !isset($data['CustomerPaymentAddCheck'])&&
+           !isset($data['ResellerOwnerAddCheck'])&&
            !isset($data['BulkBillingClassCheck'])&&
            !isset($data['BulkBillingTypeCheck'])&&
            !isset($data['BulkBillingTimezoneCheck'])&&
@@ -1548,6 +1586,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $update = [];
         $billingupdate = array();
         $currencyupdate = array();
+        $AccountDetails = array();
+        $AccountDetailUpdate=0;
         if(isset($data['account_owners']) && $data['account_owners'] != 0 && isset($data['OwnerCheck'])){
             $update['Owner'] = $data['account_owners'];
         }
@@ -1559,6 +1599,15 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         }		
 		if(isset($data['CustomerCheck'])){
             $update['IsCustomer'] = isset($data['Customer_on_off'])?1:0;
+        }
+        if(isset($data['CustomerPaymentAddCheck'])){
+            $AccountDetailUpdate=1;
+            $AccountDetails['CustomerPaymentAdd'] = isset($data['customerpayment_on_off'])?1:0;
+        }
+        if(isset($data['ResellerOwnerAddCheck']) && !empty($data['ResellerOwner'])){
+            $AccountDetailUpdate=1;
+            $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
+            $AccountDetails['ResellerOwner'] = $ResellerOwner;
         }
         /*
 		if(isset($data['ResellerCheck'])){
@@ -1676,6 +1725,19 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $upaccount = Account::find($id);
                 $upaccount->update($update);
                 //Account::where(['AccountID'=>$id])->update($update);
+                /** Account Details Update
+                */
+                if($AccountDetailUpdate==1) {
+                    $AccountDetailsID = AccountDetails::where('AccountID', $id)->pluck('AccountDetailID');
+                    $AccountDetails['AccountID']=$id;
+                    if (!empty($AccountDetailsID)) {
+                        AccountDetails::find($AccountDetailsID)->update($AccountDetails);
+                    } else {
+                        AccountDetails::create($AccountDetails);
+                    }
+                }
+
+
                 $invoice_count = Account::getInvoiceCount($id);
                 if(isset($data['BillingCheck']) && !empty($billing_on_off)) {
                     \Illuminate\Support\Facades\Log::info('--update billing--');
@@ -1741,8 +1803,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $data['reseller_on_off'] = $data['reseller_on_off']== 'true'?1:0;
         $data['account_active'] = $data['account_active']== 'true'?1:0;
         $data['low_balance'] = $data['low_balance']== 'true'?1:0;
+        $data['ResellerOwner'] = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
 
-        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['reseller_on_off'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data["ipclitext"]."','".$data['low_balance']."',1,50,'AccountName','asc',2)";
+        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['reseller_on_off'].",".$data['ResellerOwner'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data["ipclitext"]."','".$data['low_balance']."',1,50,'AccountName','asc',2)";
         $excel_data  = DB::select($query);
         $excel_datas = json_decode(json_encode($excel_data),true);
 

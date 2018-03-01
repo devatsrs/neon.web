@@ -48,7 +48,14 @@ class CDRCustomerController extends BaseController {
         $CurrencyID 		 = 	 empty($CurrencyId)?'0':$CurrencyId;
         $area_prefix = $Trunk = '';
 
-        $query = "call prc_GetCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",'".$data['CDRType']."' ,'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluecost'].",".$CurrencyID.",'".$data['area_prefix']."','".$data['Trunk']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $ResellerID = 0;
+        if(is_reseller()){
+            log::info('Reseller');
+            $ResellerID = Reseller::where(['AccountID'=>Customer::get_accountID()])->pluck('ResellerID');
+            log::info('Reseller ID '.$ResellerID);
+            $data['AccountID']=0;
+        }
+        $query = "call prc_GetCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",".(int)$ResellerID.",'".$data['CDRType']."' ,'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluecost'].",".$CurrencyID.",'".$data['area_prefix']."','".$data['Trunk']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
@@ -66,6 +73,7 @@ class CDRCustomerController extends BaseController {
 
         }
          $query .=',0)';
+        log::info($query);
         return DataTableSql::of($query, 'sqlsrv2')->make();
     }
 

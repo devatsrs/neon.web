@@ -3,15 +3,15 @@
     <table class="table table-bordered datatable" id="destination_table">
         <thead>
         <tr>
-            <th width="20%">Country</th>
-            <th width="20%">No. of Calls</th>
-            <th width="10%">Billed Duration (Min.)</th>
-            <th width="10%">Charged Amount</th>
-            <th width="10%">ACD (mm:ss)</th>
-            <th width="10%">ASR (%)</th>
+            <th width="20%">@lang("routes.CUST_PANEL_PAGE_ANALYSIS_TAB_DESTINATION_TBL_COUNTRY")</th>
+            <th width="20%">@lang("routes.CUST_PANEL_PAGE_ANALYSIS_TAB_DESTINATION_TBL_NO_OF_CALLS")</th>
+            <th width="10%">@lang("routes.CUST_PANEL_PAGE_ANALYSIS_TAB_DESTINATION_TBL_BILLED_DURATION_MIN")</th>
+            <th width="10%">@lang("routes.CUST_PANEL_PAGE_ANALYSIS_TAB_DESTINATION_TBL_CHARGED_AMOUNT")</th>
+            <th width="10%">@lang("routes.CUST_PANEL_PAGE_ANALYSIS_TAB_DESTINATION_TBL_ACD")</th>
+            <th width="10%">@lang("routes.CUST_PANEL_PAGE_ANALYSIS_TAB_DESTINATION_TBL_ASR")</th>
             @if((int)Session::get('customer') == 0)
-            <th width="10%">Margin</th>
-            <th width="10%">Margin (%)</th>
+            <th width="10%">@lang("routes.CUST_PANEL_PAGE_ANALYSIS_TAB_DESTINATION_TBL_MARGIN")</th>
+            <th width="10%">@lang("routes.CUST_PANEL_PAGE_ANALYSIS_TAB_DESTINATION_TBL_MARGIN") (%)</th>
             @endif
         </tr>
         </thead>

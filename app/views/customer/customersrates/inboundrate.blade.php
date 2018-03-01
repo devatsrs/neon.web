@@ -4,7 +4,7 @@
 
     <ol class="breadcrumb bc-3">
         <li>
-            <a href="#"><i class="entypo-home"></i>Inbound Rate</a>
+            <a href="#"><i class="entypo-home"></i>@lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_INBOUND_RATE_TITLE")</a>
         </li>
     </ol>
 
@@ -14,26 +14,26 @@
     @if(empty(is_reseller()))
     <li>
         <a href="{{ URL::to('/customer/customers_rates') }}" >
-            Settings
+            @lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_SETTINGS_TITLE")
         </a>
     </li>
     @endif
     <li>
         <a href="{{ URL::to('/customer/customers_rates/rate') }}" >
-           Outbound Rate
+            @lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_OUTBOUND_RATE_TITLE")
         </a>
     </li>
     @if(isset($displayinbound) && $displayinbound>0)
         <li class="active">
             <a href="{{ URL::to('/customer/customers_rates/inboundrate') }}" >
-                Inbound Rate
+                @lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_INBOUND_RATE_TITLE")
             </a>
         </li>
     @endif
     @if(isset($displayservice) && $displayservice>0)
         <li>
             <a href="{{ URL::to('/customer/customers_rates/servicerate') }}" >
-                Service Rate
+                @lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_SERVICE_RATE_TITLE")
             </a>
         </li>
     @endif
@@ -51,7 +51,7 @@
                    <div class="panel panel-primary" data-collapsed="0">
                        <div class="panel-heading">
                            <div class="panel-title">
-                               Search
+                               @lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_OUTBOUND_RATE_FILTER_SEARCH_TITLE")
                            </div>
 
                            <div class="panel-options">
@@ -61,22 +61,22 @@
 
                        <div class="panel-body">
                            <div class="form-group">
-                               <label for="field-1" class="col-sm-1 control-label">Code</label>
+                               <label for="field-1" class="col-sm-1 control-label">@lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_OUTBOUND_RATE_FILTER_FIELD_CODE")</label>
                                <div class="col-sm-2">
                                    <input type="text" name="Code" class="form-control" id="field-1" placeholder="" value="{{Input::get('Code')}}" />
                                </div>
 
-                               <label class="col-sm-1 control-label">Description</label>
+                               <label class="col-sm-1 control-label">@lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_OUTBOUND_RATE_FILTER_FIELD_DESCRIPTION")</label>
                                <div class="col-sm-2">
                                    <input type="text" name="Description" class="form-control" id="field-1" placeholder="" value="{{Input::get('Description')}}" />
 
                                </div>
-                               <label for="field-1" class="col-sm-1 control-label">Effective</label>
+                               <label for="field-1" class="col-sm-1 control-label">@lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_OUTBOUND_RATE_FILTER_FIELD_EFFECTIVE")</label>
                                <div class="col-sm-2">
                                    <select name="Effective" class="select2 small" data-allow-clear="true" data-placeholder="Select Effective">
-                                       <option value="Now">Now</option>
-                                       <option value="Future">Future</option>
-                                       <option value="All">All</option>
+                                       <option value="Now">{{cus_lang("CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_OUTBOUND_RATE_FILTER_FIELD_EFFECTIVE_DLL_NOW")}}</option>
+                                       <option value="Future">{{cus_lang("CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_OUTBOUND_RATE_FILTER_FIELD_EFFECTIVE_DLL_FUTURE")}}</option>
+                                       <option value="All">{{cus_lang("DROPDOWN_OPTION_ALL")}}</option>
                                    </select>
                                </div>
 
@@ -92,7 +92,7 @@
 
                            </div>
                            <div class="form-group">
-                               <label for="field-1" class="col-sm-1 control-label">Country</label>
+                               <label for="field-1" class="col-sm-1 control-label">@lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_OUTBOUND_RATE_FILTER_FIELD_COUNTRY")</label>
                                <div class="col-sm-3">
                                    {{ Form::select('Country', $countries, Input::get('Country') , array("class"=>"select2")) }}
                                </div>
@@ -107,10 +107,10 @@
 
 
 
-                           <p style="text-align: right;">
+                           <p class="pull-right">
                                <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
                                    <i class="entypo-search"></i>
-                                   Search
+                                   @lang("routes.BUTTON_SEARCH_CAPTION")
                                </button>
                            </p>
                        </div>
@@ -135,13 +135,13 @@
             <thead>
                 <tr>
                     <th width="5%"></th>
-                    <th width="5%">Code</th>
-                    <th width="20%">Description</th>
-                    <th width="5%">Interval 1</th>
-                    <th width="5%">Interval N</th>
-                    <th width="5%">Connection Fee</th>
-                    <th width="5%">Rate ({{$CurrencySymbol}})</th>
-                    <th width="10%">Effective Date</th>
+                    <th width="5%">@lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_OUTBOUND_RATE_TBL_CODE")</th>
+                    <th width="20%">@lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_OUTBOUND_RATE_TBL_DESCRIPTION")</th>
+                    <th width="5%">@lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_OUTBOUND_RATE_TBL_INTERVAL_1")</th>
+                    <th width="5%">@lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_OUTBOUND_RATE_TBL_INTERVAL_N")</th>
+                    <th width="5%">@lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_OUTBOUND_RATE_TBL_CONNECTION_FEE")</th>
+                    <th width="5%">@lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_OUTBOUND_RATE_TBL_RATE") ({{$CurrencySymbol}})</th>
+                    <th width="10%">@lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_OUTBOUND_RATE_TBL_EFFECTIVE_DATE")</th>
                 </tr>
             </thead>
             <tbody>
@@ -213,13 +213,13 @@
                                             "aButtons": [
                                                 {
                                                     "sExtends": "download",
-                                                    "sButtonText": "EXCEL",
+                                                    "sButtonText": "@lang('routes.BUTTON_EXPORT_EXCEL_CAPTION')",
                                                     "sUrl": baseurl + "/customer/customers_rates/{{$id}}/search_inbound_ajax_datagrid/xlsx",
                                                     sButtonClass: "save-collection btn-sm"
                                                 },
                                                 {
                                                     "sExtends": "download",
-                                                    "sButtonText": "CSV",
+                                                    "sButtonText": "@lang('routes.BUTTON_EXPORT_CSV_CAPTION')",
                                                     "sUrl": baseurl + "/customer/customers_rates/{{$id}}/search_inbound_ajax_datagrid/csv",
                                                     sButtonClass: "save-collection btn-sm"
                                                 }

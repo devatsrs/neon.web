@@ -14,7 +14,7 @@
             <div class="x-row">
                 <div class="x-span8">
                     <div>
-                        <div class="due">@if($Invoice->InvoiceStatus == Invoice::PAID) Paid @else DUE @endif</div>
+                        <div class="due">@if($Invoice->InvoiceStatus == Invoice::PAID) {{cus_lang('CUST_PANEL_PAGE_INVOICE_CVIEW_LBL_PAID')}} @else {{cus_lang('CUST_PANEL_PAGE_INVOICE_CVIEW_LBL_DUE')}} @endif</div>
                     </div>
                     <div class="amount">
                         <span class="overdue">{{$CurrencySymbol}}{{number_format($Invoice->GrandTotal,get_round_decimal_places($Invoice->AccountID))}}</span>

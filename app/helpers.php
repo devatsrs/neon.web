@@ -1033,7 +1033,7 @@ function create_site_configration_cache(){
         $cache['Title']				=	'Neon';
         $cache['FooterText']		=	'&copy; '.date('Y').' Code Desk';
         $cache['FooterUrl']			=	'http://www.code-desk.com';
-        $cache['LoginMessage']		=	'Dear user, Please login below!';
+        $cache['LoginMessage']		=	Lang::get("routes.CUST_PANEL_PAGE_LOGIN_LBL_LOGIN_MSG");
         $cache['CustomCss']			=	'';
     }
 
@@ -1054,7 +1054,7 @@ function chart_reponse($alldata){
     $response['ChartColors'] = implode(',',$chartColor);
 
     if(empty($alldata['call_count'])) {
-        $response['CallCountHtml'] = '<h4>No Data</h4>';
+        $response['CallCountHtml'] = '<h4>'.Lang::get('routes.MESSAGE_DATA_NOT_AVAILABLE').'</h4>';
         $response['CallCount'] = '';
         $response['CallCountVal'] = '';
     }else{
@@ -1063,7 +1063,7 @@ function chart_reponse($alldata){
         $response['CallCountHtml'] =  $alldata['call_count_html'];
     }
     if(empty($alldata['call_cost'])) {
-        $response['CallCostHtml'] = '<h4>No Data</h4>';
+        $response['CallCostHtml'] = '<h4>'.Lang::get('routes.MESSAGE_DATA_NOT_AVAILABLE').'</h4>';
         $response['CallCost'] = '';
         $response['CallCostVal'] = '';
     }else{
@@ -1072,7 +1072,7 @@ function chart_reponse($alldata){
         $response['CallCostHtml'] = $alldata['call_cost_html'];
     }
     if(empty($alldata['call_minutes'])) {
-        $response['CallMinutesHtml'] = '<h4>No Data</h4>';
+        $response['CallMinutesHtml'] = '<h4>'.Lang::get('routes.MESSAGE_DATA_NOT_AVAILABLE').'</h4>';
         $response['CallMinutes'] = '';
         $response['CallMinutesVal'] = '';
     }else{
@@ -2342,6 +2342,7 @@ function get_client_ip() {
 
 function generate_manual_datatable_response($ColName){
     $response_data = array();
+    Invoice::multiLang_init();
     switch ($ColName) {
         case 'InvoiceType':
             foreach (Invoice::$invoice_type as $row_key => $row_title) {
@@ -2566,4 +2567,66 @@ function get_measure_name($colname,$Table){
         $measure_name ="ROUND(COALESCE(SUM(".$Table.".billed_duration),0)/ 60,0) ";
     }
     return $measure_name;
+}
+
+function set_cus_language($language){
+
+    NeonCookie::deleteCookie("customer_language");
+    NeonCookie::deleteCookie("customer_alignment");
+
+    App::setLocale($language);
+    NeonCookie::setCookie('customer_language',$language,365);
+
+    if( DB::table('tblLanguage')->where(['ISOCode'=>$language, "is_rtl"=>"y"])->count()){
+        NeonCookie::setCookie('customer_alignment',"right",365);
+    }else{
+        NeonCookie::setCookie('customer_alignment',"left",365);
+    }
+}
+
+function ddl_language($id="",$name="",$defaultVal="",$class="",$valuetype="isocode",$selectOne=""){
+    $return = '<select id="'.$id.'" name="'.$name.'" class="ddl_language '.$class.'">';
+                if($selectOne!=""){
+                    $return .= '<option data-flag="" value="" >Select</option>';
+                }
+                foreach(Translation::getLanguageDropdownWithFlagList() as $key=>$value){
+                    $selected="";
+                    if($valuetype=="isocode"){
+                        $opt_value=$key;
+                    }else if($valuetype=="id"){
+                        $opt_value=$value["languageId"];
+                    }
+                    if($defaultVal==$opt_value){
+                        $selected="selected";
+                    }
+                    $return .= '<option data-flag="'.$value["languageFlag"].'" value="'.$opt_value.'" '.$selected.' >'.$value["languageName"].'</option>';
+                }
+    $return .= '</select>';
+
+    return $return;
+}
+
+function cus_lang($key=""){
+    return trans('routes.'.strtoupper($key));
+}
+
+function getSql($model)
+{
+    $replace = function ($sql, $bindings)
+    {
+        $needle = '?';
+        foreach ($bindings as $replace){
+            $pos = strpos($sql, $needle);
+            if ($pos !== false) {
+                if (gettype($replace) === "string") {
+                    $replace = ' "'.addslashes($replace).'" ';
+                }
+                $sql = substr_replace($sql, $replace, $pos, strlen($needle));
+            }
+        }
+        return $sql;
+    };
+    $sql = $replace($model->toSql(), $model->getBindings());
+
+    return $sql;
 }

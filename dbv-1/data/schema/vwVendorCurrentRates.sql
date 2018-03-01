@@ -1,4 +1,11 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `vwVendorCurrentRates`(IN `p_AccountID` INT, IN `p_Trunks` LONGTEXT, IN `p_Effective` VARCHAR(50))
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `vwVendorCurrentRates`(
+	IN `p_AccountID` INT,
+	IN `p_Trunks` LONGTEXT,
+	IN `p_Effective` VARCHAR(50)
+,
+	IN `p_CustomDate` DATE
+
+)
 BEGIN	
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_VendorCurrentRates_;
@@ -13,7 +20,8 @@ BEGIN
 		RateID int,
 		Interval1 INT,
 		IntervalN varchar(100),
-		ConnectionFee float
+		ConnectionFee float,
+		EndDate date
     );
     
     DROP TEMPORARY TABLE IF EXISTS tmp_VendorRate_;
@@ -25,27 +33,35 @@ BEGIN
         Interval1 INT,
         IntervalN INT,
         ConnectionFee DECIMAL(18,6),
+        EndDate date,
         INDEX tmp_RateTable_RateId (`RateId`)  
     );
         INSERT INTO tmp_VendorRate_
-        SELECT   `TrunkID`, `RateId`, `Rate`, `EffectiveDate`, `Interval1`, `IntervalN`, `ConnectionFee`
+        SELECT   `TrunkID`, `RateId`, `Rate`, `EffectiveDate`, `Interval1`, `IntervalN`, `ConnectionFee` , tblVendorRate.EndDate
 		  FROM tblVendorRate WHERE tblVendorRate.AccountId =  p_AccountID 
 								AND FIND_IN_SET(tblVendorRate.TrunkId,p_Trunks) != 0 
                         AND 
 								(
-					  				(p_Effective = 'Now' AND EffectiveDate <= NOW()) 
+					  				(p_Effective = 'Now' AND EffectiveDate <= NOW() AND (EndDate IS NULL OR EndDate > NOW() )) 
 								  	OR 
-								  	(p_Effective = 'Future' AND EffectiveDate > NOW())
+								  	(p_Effective = 'Future' AND EffectiveDate > NOW() AND ( EndDate IS NULL OR EndDate > NOW() ))
+								  	OR
+								  	(p_Effective = 'CustomDate' AND EffectiveDate <= p_CustomDate AND (EndDate IS NULL OR EndDate > p_CustomDate))
 								  	OR 
-								  	(p_Effective = 'All')
+								  	(p_Effective = 'All'  )
 								);
+
     DROP TEMPORARY TABLE IF EXISTS tmp_VendorRate4_;
        CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorRate4_ as (select * from tmp_VendorRate_);	        
       DELETE n1 FROM tmp_VendorRate_ n1, tmp_VendorRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
  	   AND n1.TrunkID = n2.TrunkID
 	   AND  n1.RateId = n2.RateId
-		AND n1.EffectiveDate <= NOW()
-		AND n2.EffectiveDate <= NOW();
+		AND
+	   (
+			(p_Effective = 'CustomDate' AND n1.EffectiveDate <= p_CustomDate AND n2.EffectiveDate <= p_CustomDate)
+		  	OR
+		  	(p_Effective != 'CustomDate' AND n1.EffectiveDate <= NOW() AND n2.EffectiveDate <= NOW())
+		);
 		
 
     INSERT INTO tmp_VendorCurrentRates_ 
@@ -66,7 +82,8 @@ BEGIN
     	THEN v_1.IntervalN
         ELSE r.IntervalN
     END IntervalN,
-    v_1.ConnectionFee
+    v_1.ConnectionFee,
+    v_1.EndDate
     FROM tmp_VendorRate_ AS v_1
 	INNER JOIN tblRate AS r
     	ON r.RateID = v_1.RateId;	 

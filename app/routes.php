@@ -33,6 +33,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('customer/payments/create', 'PaymentsCustomerController@create');
     Route::any('customer/payments/ajax_datagrid/{type}', 'PaymentsCustomerController@ajax_datagrid');
     Route::any('customer/payments/ajax_datagrid_total', 'PaymentsCustomerController@ajax_datagrid_total');
+    Route::any('customer/payments/download_doc/{id}', 'PaymentsCustomerController@download_doc');
 
     //Account Statement
 
@@ -363,6 +364,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('email_template/ajax_datagrid', 'EmailTemplateController@ajax_datagrid');
 	Route::any('email_template/exports/{type}', 'EmailTemplateController@exports');
 	Route::any('email_template/{id}/changestatus', 'EmailTemplateController@ChangeStatus');
+	Route::any('email_template/{id}/ajax_templateList', 'EmailTemplateController@ajax_templateList');
 
 	//Leads
 	//Leads
@@ -483,6 +485,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/vendor_rates/{id}/storeTemplate', 'VendorRatesController@storeTemplate');
     Route::any('/vendor_rates/{id}/search_vendor_grid', 'VendorRatesController@search_vendor_grid');
 	Route::any('/vendor_rates/{id}/customerdownloadtype/{type}', 'VendorRatesController@vendordownloadtype');
+	Route::any('/vendor_rates/{id}/search_ajax_datagrid_archive_rates', 'VendorRatesController@search_ajax_datagrid_archive_rates'); // get archive rates for vendor rates grid
 
 	Route::resource('vendor_rates', 'VendorRatesController');
 	Route::controller('vendor_rates', 'VendorRatesController');
@@ -1202,6 +1205,16 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('serverinfo/{server_id}/update', 'ServerInfoController@update')->where('notification_id', '(.[09]*)+');
     Route::any('serverinfo/{server_id}/delete', 'ServerInfoController@delete')->where('notification_id', '(.[09]*)+');
 
+	//Translate Info
+	Route::any('translate', 'TranslateController@index');
+	Route::any('translate/change/{language}', 'TranslateController@changeLanguage');
+	Route::any('translate/search_ajax_datagrid', 'TranslateController@search_ajax_datagrid');
+	Route::any('translate/single_update', 'TranslateController@process_singleUpdate');
+	Route::any('translate/single_delete', 'TranslateController@process_singleDelete');
+	Route::any('/translate/{languageCode}/exports/{type}', 'TranslateController@exports');
+	Route::any('translate/new_system_name', 'TranslateController@new_system_name');
+	Route::any('translate/refresh_label', 'TranslateController@refresh_label');
+
 	//Retention
 	Route::any('/retention', "RetentionController@index");
 	Route::any('/retention/create', "RetentionController@create");
@@ -1336,6 +1349,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('reseller/exports/{type}', 'ResellerController@exports');
 	Route::any('reseller/view/{id}', 'ResellerController@view');
 	Route::any('reseller/bulkcopydata', 'ResellerController@bulkcopydata');
+	Route::any('reseller/getdomainurl/{id}', 'ResellerController@getdomainurl');
 
 	//Reseller
 	Route::any('reseller/profile', array('as' => 'profile_show', 'uses' => 'ResellerProfileController@show'));

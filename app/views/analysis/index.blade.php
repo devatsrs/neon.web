@@ -76,6 +76,10 @@
                     @endif
                 </div>
                 <div class="form-group">
+                    <label class="control-label" for="field-1">Reseller</label>
+                    {{ Form::select('ResellerOwner',$reseller_owners,'', array("class"=>"select2")) }}
+                </div>
+                <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
                         <i class="entypo-search"></i>

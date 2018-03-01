@@ -91,8 +91,8 @@
                         <input type="text" name="Description" class="form-control" id="field-1" placeholder="" value="{{Input::get('Description')}}" />
 
                     </div>
-                    <label for="field-1" class="col-sm-1 control-label">Effective</label>
-                    <div class="col-sm-3">
+                    <label for="field-1" class="col-sm-1 control-label EffectiveBox">Effective</label>
+                    <div class="col-sm-3 EffectiveBox">
                         <select name="Effective" class="select2" data-allow-clear="true" data-placeholder="Select Effective">
                             <option value="Now">Now</option>
                             <option value="Future">Future</option>
@@ -110,6 +110,13 @@
                     <label for="field-1" class="col-sm-1 control-label">Trunk</label>
                     <div class="col-sm-3">
                         {{ Form::select('Trunk', $trunks, $trunk_keys, array("class"=>"select2")) }}
+                    </div>
+
+                    <label for="field-1" class="col-sm-1 control-label">Discontinued Codes</label>
+                    <div class="col-sm-3">
+                        <p class="make-switch switch-small">
+                            {{Form::checkbox('DiscontinuedRates', '1', false, array("id"=>"DiscontinuedRates"))}}
+                        </p>
                     </div>
 
                 </div>
@@ -174,6 +181,7 @@
  
 <script type="text/javascript">
 jQuery(document).ready(function($) {
+    var ArchiveRates;
     //var data_table;
     var Code, Description, Country,Trunk,Effective,update_new_url;
     var $searchFilter = {};
@@ -185,21 +193,22 @@ jQuery(document).ready(function($) {
         $searchFilter.Effective = Effective = $("#vendor-rate-search select[name='Effective']").val();
         $searchFilter.Code = Code = $("#vendor-rate-search input[name='Code']").val();
         $searchFilter.Description = Description = $("#vendor-rate-search input[name='Description']").val();
+        $searchFilter.DiscontinuedRates = DiscontinuedRates = $("#vendor-rate-search input[name='DiscontinuedRates']").is(':checked') ? 1 : 0;
 
         if(Trunk == '' || typeof Trunk  == 'undefined'){
            toastr.error("Please Select a Trunk", "Error", toastr_opts);
            return false;
         }
-        data_table = $("#table-4").dataTable({
+        data_table = $("#table-4").DataTable({
             "bDestroy": true, // Destroy when resubmit form
             "bAutoWidth": false,
             "bProcessing": true,
             "bServerSide": true,
             "sAjaxSource": baseurl + "/vendor_rates/{{$id}}/search_ajax_datagrid",
             "fnServerParams": function(aoData) {
-                aoData.push({"name": "Effective", "value": Effective}, {"name": "Trunk", "value": Trunk}, {"name": "Country", "value": Country}, {"name": "Code", "value": Code}, {"name": "Description", "value": Description});
+                aoData.push({"name": "Effective", "value": Effective}, {"name": "Trunk", "value": Trunk}, {"name": "Country", "value": Country}, {"name": "Code", "value": Code}, {"name": "Description", "value": Description}, {"name": "DiscontinuedRates", "value": DiscontinuedRates});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name": "Effective", "value": Effective}, {"name": "Trunk", "value": Trunk}, {"name": "Country", "value": Country},  {"name": "Code", "value": Code}, {"name": "Description", "value": Description});
+                data_table_extra_params.push({"name": "Effective", "value": Effective}, {"name": "Trunk", "value": Trunk}, {"name": "Country", "value": Country},  {"name": "Code", "value": Code}, {"name": "Description", "value": Description}, {"name": "DiscontinuedRates", "value": DiscontinuedRates});
             },
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
@@ -209,7 +218,7 @@ jQuery(document).ready(function($) {
                     [
                         {"bSortable": false, //RateID
                             mRender: function(id, type, full) {
-                            return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
+                                return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
                             }
                         },
                         {}, //1 Code
@@ -238,11 +247,18 @@ jQuery(document).ready(function($) {
                                 }
                                 action += '</div>';
                                 <?php if(User::checkCategoryPermission('VendorRates','Edit')) { ?>
-                                    action += ' <a href="Javascript:;" title="Edit" class="edit-vendor-rate btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
+                                        if(DiscontinuedRates == 0) {
+                                            action += ' <a href="Javascript:;" title="Edit" class="edit-vendor-rate btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</a>';
+                                        }
                                 <?php } ?>
+
+                                action += ' <a href="Javascript:;" title="History" class="btn btn-default btn-xs details-control" style="display: none;"><i class="entypo-back-in-time"></i>&nbsp;</a>';
+
                                 if (full[0] > 0) {
                                     <?php if(User::checkCategoryPermission('VendorRates','Delete')) { ?>
-                                        action += ' <button href="' + clerRate_ + '" title="Delete"  class="btn clear btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
+                                            if(DiscontinuedRates == 0) {
+                                                action += ' <button href="' + clerRate_ + '" title="Delete"  class="btn clear btn-danger btn-xs" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
+                                            }
                                     <?php } ?>
                                 }
                                 return action;
@@ -267,6 +283,7 @@ jQuery(document).ready(function($) {
                         ]
                     },
                "fnDrawCallback": function() {
+                   getArchiveVendorRates(); //rate history for plus button
                    $(".btn.clear").click(function(e) {
 
                        response = confirm('Are you sure?');
@@ -365,12 +382,18 @@ jQuery(document).ready(function($) {
                        }
                    });
 
-                   if(Effective == 'All') {
+                   if(Effective == 'All' || DiscontinuedRates == 1) {
                        $('#bulk_set_vendor_rate').hide();
                        $('#changeSelectedVendorRates').hide();
                    } else {
                        $('#bulk_set_vendor_rate').show();
                        $('#changeSelectedVendorRates').show();
+                   }
+
+                   if(DiscontinuedRates == 1) {
+                       $('#clear-bulk-rate').hide();
+                   } else {
+                       $('#clear-bulk-rate').show();
                    }
                }
 
@@ -656,7 +679,85 @@ jQuery(document).ready(function($) {
          update_new_url = baseurl + '/vendor_rates/bulk_update_new/{{$id}}';
 
     });
+
+    $("#DiscontinuedRates").on('change', function (event, state) {
+        if($("#DiscontinuedRates").is(':checked')) {
+            $(".EffectiveBox").hide();
+        } else {
+            $(".EffectiveBox").show();
+        }
+    });
 });
+
+    function getArchiveVendorRates() {
+        var Codes = new Array();
+        var ArchiveRates;
+        $("#table-4 tr td:nth-child(2)").each(function(){
+            Codes.push($(this).html());
+        });
+
+        $.ajax({
+            url : baseurl + "/vendor_rates/{{$id}}/search_ajax_datagrid_archive_rates",
+            type : 'POST',
+            data : "Codes="+Codes,
+            dataType : 'json',
+            cache: false,
+            success : function(response){
+                if (response.status == 'success') {
+                    ArchiveRates = response.data;
+                    $('.details-control').show();
+                } else {
+                    ArchiveRates = {};
+                    toastr.error(response.message, "Error", toastr_opts);
+                }
+            }
+        });
+
+        // to show/hide child row archive rates
+        $('#table-4 tbody').off('click.toggleArchiveRates');
+        $('#table-4 tbody').on('click.toggleArchiveRates', 'td .details-control', function () {
+            var tr = $(this).closest('tr');
+            var row = data_table.row(tr);
+
+            if (row.child.isShown()) {
+                $(this).find('i').toggleClass('entypo-plus-squared entypo-minus-squared');
+                row.child.hide();
+                tr.removeClass('shown');
+            } else {
+                $(this).find('i').toggleClass('entypo-plus-squared entypo-minus-squared');
+                var hiddenRowData = tr.find('.hiddenRowData');
+                var Code = hiddenRowData.find('input[name="Code"]').val();
+                var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
+                table.append("<thead><tr><th>Code</th><th>Description</th><th>Interval 1</th><th>Interval N</th><th>Rate</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                var tbody = $("<tbody></tbody>");
+
+                /*ArchiveRates.sort(function(obj1, obj2) {
+                    // Ascending: first age less than the previous
+                    return new Date(obj2.EffectiveDate).getTime() - new Date(obj1.EffectiveDate).getTime();
+                });*/
+                ArchiveRates.forEach(function(data){
+                    if(data['Code'] == Code) {
+                        var html = "";
+                        html += "<tr class='no-selection'>";
+                        html += "<td>" + data['Code'] + "</td>";
+                        html += "<td>" + data['Description'] + "</td>";
+                        html += "<td>" + data['Interval1'] + "</td>";
+                        html += "<td>" + data['IntervalN'] + "</td>";
+                        html += "<td>" + data['Rate'] + "</td>";
+                        html += "<td>" + data['EffectiveDate'] + "</td>";
+                        html += "<td>" + data['EndDate'] + "</td>";
+                        html += "<td>" + data['ModifiedDate'] + "</td>";
+                        html += "<td>" + data['ModifiedBy'] + "</td>";
+                        html += "</tr>";
+                        table.append(html);
+                    }
+                });
+                table.append(tbody);
+                row.child(table).show();
+                tr.addClass('shown');
+            }
+        });
+    }
 </script>
 <style>
 .dataTables_filter label{
@@ -667,6 +768,9 @@ jQuery(document).ready(function($) {
 }
 #selectcheckbox{
     padding: 15px 10px;
+}
+#table-4 tbody tr td.details-control{
+    width: 8%;
 }
 </style>
 @stop

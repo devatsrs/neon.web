@@ -14,9 +14,31 @@ class HomeCustomerController extends BaseController {
                 return Redirect::to('customer/monitor');
             }
         }else{
-            $loginpath='customer/dologin';
+
+            if(isset($_GET["lang"]) && !empty($_GET["lang"])){
+                $language = $_GET["lang"];
+            }else{
+                $language=NeonCookie::getCookie('customer_language');
+            }
+            $languageList=Translation::getLanguageDropdownList();
+            if(!array_key_exists($language,$languageList)){
+                $language=Translation::$default_lang_ISOcode;
+            }
+//            set_cus_language($language);
+            App::setLocale($language);
+            NeonCookie::setCookie('customer_language',$language,365);
+
+            if( DB::table('tblLanguage')->where(['ISOCode'=>$language, "is_rtl"=>"y"])->count()){
+                NeonCookie::setCookie('customer_alignment',"right",365);
+                $customer_alignment="right";
+            }else{
+                NeonCookie::setCookie('customer_alignment',"left",365);
+                $customer_alignment="left";
+            }
+
             create_site_configration_cache();
-            return View::make('customer.login',Compact('loginpath'));
+            $loginpath='customer/dologin';
+            return View::make('customer.login',Compact('loginpath', "language", "customer_alignment"));
         }
 
     }

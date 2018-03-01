@@ -75,6 +75,10 @@
                     {{ Form::select('Trunk',$trunks,$trunk, array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                 </div>
                 <div class="form-group">
+                    <label class="control-label" for="field-1">Reseller</label>
+                    {{ Form::select('ResellerOwner',$reseller_owners,Input::get('ResellerOwner'), array("class"=>"select2","id"=>"bluk_ResellerOwner")) }}
+                </div>
+                <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
                         <i class="entypo-search"></i>
@@ -235,7 +239,8 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
             $searchFilter.EndDate 				= 		$("#cdr_filter [name='EndDate']").val();
             $searchFilter.CompanyGatewayID 		= 		$("#cdr_filter [name='CompanyGatewayID']").val();
             $searchFilter.AccountID 			= 		$("#cdr_filter [name='AccountID']").val();
-            $searchFilter.CDRType 				= 		$("#cdr_filter [name='CDRType']").val();			
+            $searchFilter.ResellerOwner 		= 		$("#cdr_filter [name='ResellerOwner']").val();
+            $searchFilter.CDRType 				= 		$("#cdr_filter [name='CDRType']").val();
 			$searchFilter.CLI 					= 		$("#cdr_filter [name='CLI']").val();
 			$searchFilter.CLD 					= 		$("#cdr_filter [name='CLD']").val();			
 			$searchFilter.zerovaluecost 		= 		$("#cdr_filter [name='zerovaluecost']").val();
@@ -268,6 +273,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                             {"name":"EndDate","value":$searchFilter.EndDate},
                             {"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},
                             {"name":"AccountID","value":$searchFilter.AccountID},
+                            {"name":"ResellerOwner","value":$searchFilter.ResellerOwner},
                             {"name":"CDRType","value":$searchFilter.CDRType},
                             {"name":"CLI","value":$searchFilter.CLI},
                             {"name":"CLD","value":$searchFilter.CLD},
@@ -282,6 +288,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                             {"name":"EndDate","value":$searchFilter.EndDate},
                             {"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},
                             {"name":"AccountID","value":$searchFilter.AccountID},
+                            {"name":"ResellerOwner","value":$searchFilter.ResellerOwner},
                             {"name":"CDRType","value":$searchFilter.CDRType},
                             {"name":"Export","value":1},
                             {"name":"CLI","value":$searchFilter.CLI},

@@ -1071,8 +1071,8 @@ class EstimatesController extends \BaseController {
             
 			if (!empty($Currency))
 			{
-               
-				$templateData	 = 	EmailTemplate::where(["SystemType"=>Estimate::EMAILTEMPLATE])->first();				
+                $companyID = User::get_companyID();
+                $templateData	 = 	EmailTemplate::getSystemEmailTemplate($companyID, Estimate::EMAILTEMPLATE, $Account->LanguageID);
 				//$Subject	 	 = 	$templateData->Subject;
 				//$Message 		 = 	$templateData->TemplateBody;		 		
 				$data['EstimateURL']	=   URL::to('/estimate/'.$Estimate->AccountID.'-'.$Estimate->EstimateID.'/cview?email=#email');

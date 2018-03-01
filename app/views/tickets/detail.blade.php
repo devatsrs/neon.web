@@ -28,7 +28,7 @@
   <div class="mail-body">
     <div class="mail-header"> 
       <!-- title -->
-      <div class="mail-title">{{$ticketdata->Subject}} #{{$ticketdata->TicketID}}</div>
+        <div class="mail-title">{{imap_mime_header_decode($ticketdata->Subject)[0]->text}} #{{$ticketdata->TicketID}}</div>
       <div class="mail-date">
         To: {{$ticketdata->EmailTo}} <br>
         From: <a class="" href="{{$Requester['URL']}}">{{$Requester['Title']}}</a> ({{$Requester['Email']}})<br>
@@ -50,7 +50,7 @@
       <div class="panel-heading panel-heading-convesation">        
           <div class="panel-title col-md-10" ><span><?php
 		  if($TicketConversationData->EmailCall==Messages::Received){
-		   ?>From <?php if(!empty($TicketConversationData->EmailfromName)){ echo $TicketConversationData->EmailfromName." (".$TicketConversationData->Emailfrom.")"; ?> <?php }else{ ?> <?php echo $TicketConversationData->Emailfrom; } ?><br>to (<?php echo $TicketConversationData->EmailTo; ?>)
+		   ?>From <?php if(!empty($TicketConversationData->EmailfromName)){ echo imap_mime_header_decode($TicketConversationData->EmailfromName)[0]->text." (".$TicketConversationData->Emailfrom.")"; ?> <?php }else{ ?> <?php echo $TicketConversationData->Emailfrom; } ?><br>to (<?php echo $TicketConversationData->EmailTo; ?>)
 		 <?php }elseif($TicketConversationData->EmailCall==Messages::Sent){ echo $TicketConversationData->CreatedBy; ?> (<?php echo $TicketConversationData->Emailfrom; ?>) replied<br>to (<?php echo $TicketConversationData->EmailTo; ?>) <?php } ?></span>
           
           <?php if(!empty($TicketConversationData->EmailCc)){ ?><br>cc:  <?php echo str_replace(',',', ',$TicketConversationData->EmailCc); ?> <?php } ?>
@@ -218,7 +218,7 @@
                   <label for="field-1" class="col-sm-3 control-label">Contact Owner</label>
                   <div class="col-sm-9">
                     <?php
-                                $selected_owner = $Requester['Contact'];
+                                $selected_owner = $Requester['Owner'];
                             ?>
                     <select name="Owner" class="select2" data-allow-clear="true" data-placeholder="Account Owner...">
                       <option></option>

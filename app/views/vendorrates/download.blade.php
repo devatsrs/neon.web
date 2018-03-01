@@ -1,6 +1,9 @@
 @extends('layout.main')
 @section('content')
 
+<link rel="stylesheet" type="text/css" href="<?php echo URL::to('/').'/assets/Bootstrap-Dual-Listbox/bootstrap-duallistbox.css'; ?>">
+<script src="<?php echo URL::to('/').'/assets/Bootstrap-Dual-Listbox/jquery.bootstrap-duallistbox.min.js'; ?>" ></script>
+
 <ol class="breadcrumb bc-3">
 	<li>
 		<a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
@@ -121,8 +124,15 @@
                     <select name="Effective" class="select2 small" data-allow-clear="true" data-placeholder="Select Effective" id="fileeffective">
                         <option value="Now">Now</option>
                         <option value="Future">Future</option>
+                        <option value="CustomDate">Custom Date</option>
                         <option value="All">All</option>
                     </select>
+                </div>
+            </div>
+            <div class="form-group DateFilter" style="display: none;">
+                <label for="field-1" class="col-sm-3 control-label">Date</label>
+                <div class="col-sm-5">
+                    {{ Form::text('CustomDate', date('Y-m-d'), array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd","placeholder"=>date('Y-m-d'))) }} {{--  ,"data-enddate"=>date('Y-m-d') --}}
                 </div>
             </div>
             <div class="form-group">
@@ -134,6 +144,13 @@
                     </div>
                 </div>
             </div>
+
+            <h4 >Click <span class="label label-info" onclick="$('#vendor_box').toggle();"    style="cursor: pointer">here</span> to select additional customer accounts for bulk ratesheet download.</h4>
+            <div style="display: none;" id="vendor_box">
+                {{Form::select('vendors[]',$Vendors,array(),array("id"=>"vendors","class"=>"","multiple"=>"multiple"))}}
+                <br/>
+            </div>
+
         </form>
          <p style="text-align: right;">
             <button class="btn download btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
@@ -152,6 +169,14 @@
  
 <script type="text/javascript">
 jQuery(document).ready(function ($) {
+    var vendors = $('#vendors').bootstrapDualListbox({
+        nonselectedlistlabel: 'Non-selected',
+        selectedlistlabel: 'Selected',
+        filterPlaceHolder: 'Search',
+        moveonselect: false,
+        preserveselectiononmove: 'moved',
+    });
+
     $('#fileformat').change(function(e){
         if($(this).val()){
             var url = baseurl +'/vendor_rates/{{$id}}/customerdownloadtype/'+$(this).val();
@@ -171,11 +196,11 @@ jQuery(document).ready(function ($) {
 
             if($(this).val()=='{{RateSheetFormate::RATESHEET_FORMAT_VOS20}}'){
                 $('#fileeffective').empty();
-                var html ='<option value="Now">Now</option><option value="Future">Future</option>';
+                var html ='<option value="Now">Now</option><option value="Future">Future</option><option value="CustomDate" selected="selected">Custom Date</option>';
                 $('#fileeffective').append(html);
             }else{
                 $('#fileeffective').empty();
-                var html ='<option value="Now">Now</option><option value="Future">Future</option><option value="All">All</option>';
+                var html ='<option value="Now">Now</option><option value="Future">Future</option><option value="All">All</option><option value="CustomDate" selected="selected">Custom Date</option>';
                 $('#fileeffective').append(html);
             }
 
@@ -229,6 +254,14 @@ minimumResultsForSearch: -1
 $(".pagination a").click(function (ev) {
 replaceCheckboxes();
 });
+
+    $("#fileeffective").on("change", function() {
+        if($(this).val() == "CustomDate") {
+            $(".DateFilter").show();
+        } else {
+            $(".DateFilter").hide();
+        }
+    });
 });
 </script>
 @stop

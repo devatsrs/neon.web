@@ -63,7 +63,7 @@
             </div>
           </div>
           <?php if($class_textarea == 'wysihtml5box'){ ?>
-          <p class="comment-box-options-activity"> <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)"> <i class="entypo-attach"></i> </a> </p>
+          <p class="comment-box-options-activity"> <a id="addTtachment" class="btn-sm btn-white btn-xs" title="@lang('routes.MESSAGE_ADD_AN_ATTACHMENT')" href="javascript:void(0)"> <i class="entypo-attach"></i> </a> </p>
           
           <?php } ?>
           <?php
@@ -109,7 +109,7 @@
 				$FieldValues = TicketPriority::orderBy('PriorityID', 'asc')->get(); 
 					foreach($FieldValues as $FieldValuesData){
 					?> 
-                <option  @if($ticketSavedData[$TicketfieldsData->FieldType]==$FieldValuesData->PriorityID) selected @endif  value="{{$FieldValuesData->PriorityID}}">{{$FieldValuesData->PriorityValue}}</option>
+                <option  @if($ticketSavedData[$TicketfieldsData->FieldType]==$FieldValuesData->PriorityID) selected @endif  value="{{$FieldValuesData->PriorityID}}">{{cus_lang("CUST_PANEL_PAGE_TICKET_FIELDS_PRIORITY_VAL_".$FieldValuesData->PriorityValue)}}</option>
                 <?php 
 					}
 				}				

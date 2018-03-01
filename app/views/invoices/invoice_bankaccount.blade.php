@@ -6,11 +6,11 @@
 		<table class="table table-bordered datatable" id="ajxtable-stripeach">
 			<thead>
 			<tr>
-				<th width="25%">Title</th>
-				<th width="10%">Default</th>
-				<th width="20%">Payment Method</th>
-				<th width="25%">Created Date</th>
-				<th width="20%">Action</th>
+				<th width="25%">{{cus_lang('CUST_PANEL_PAGE_INVOICE_BANK_AC_TBL_TITLE')}}</th>
+				<th width="10%">{{cus_lang('CUST_PANEL_PAGE_INVOICE_BANK_AC_TBL_DEFAULT')}}</th>
+				<th width="20%">{{cus_lang('CUST_PANEL_PAGE_INVOICE_BANK_AC_TBL_PAYMENT_METHOD')}}</th>
+				<th width="25%">{{cus_lang('CUST_PANEL_PAGE_INVOICE_BANK_AC_TBL_CREATED_DATE')}}</th>
+				<th width="20%">{{cus_lang('TABLE_COLUMN_ACTION')}}</th>
 			</tr>
 			</thead>
 			
@@ -25,7 +25,7 @@
 						</td>
 						<td>{{$stripeachprofile['PaymentMethod']}}</td>
 						<td>{{$stripeachprofile['created_at']}}</td>
-						<td><button class="btn paynow btn-success btn-sm " data-cutomerid="{{$stripeachprofile['CustomerProfileID']}}" data-bankid="{{$stripeachprofile['BankAccountID']}}" data-id="{{$stripeachprofile['AccountPaymentProfileID']}}" data-loading-text="Loading...">Pay Now </button>
+						<td><button class="btn paynow btn-success btn-sm " data-cutomerid="{{$stripeachprofile['CustomerProfileID']}}" data-bankid="{{$stripeachprofile['BankAccountID']}}" data-id="{{$stripeachprofile['AccountPaymentProfileID']}}" data-loading-text="{{cus_lang('BUTTON_LOADING_CAPTION')}}">{{cus_lang('BUTTON_PAY_NOW_CAPTION')}}</button>
 						</td>
 					</tr>
 				@endforeach

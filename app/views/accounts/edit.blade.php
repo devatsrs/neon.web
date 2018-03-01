@@ -164,9 +164,13 @@
                         </div>
                     </div>
 
-                    <label for="field-1" class="col-md-2 control-label">Employee</label>
+                    <label for="field-1" class="col-md-2 control-label">Account Reseller</label>
                     <div class="col-md-4">
-                        <input type="text" name="Employee" class="form-control" id="field-1" placeholder="" value="{{$account->Employee}}" />
+                        @if(empty($accountdetails->ResellerOwner))
+                            {{Form::select('ResellerOwner',$reseller_owners,'',array("class"=>"select2"))}}
+                        @else
+                            {{Form::select('ResellerOwner',$reseller_owners,$accountdetails->ResellerOwner,array("class"=>"select2"))}}
+                        @endif
                     </div>
                 </div>
                 <div class="form-group">
@@ -204,7 +208,7 @@
                     <div class="col-md-4">
                             @if($all_invoice_count == 0)
                             {{Form::SelectControl('currency',0,$account->CurrencyId,0,'CurrencyId')}}
-                            <!--{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2 small"))}}-->
+                            <!--{Form::select('CurrencyI d', $currencies, $account->CurrencyId ,array("class"=>"form-control select2 small"))}}-->
                             @else
                             {{Form::SelectControl('currency',0,$account->CurrencyId,1,'CurrencyId')}}
                             <!--{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2 small",'disabled'))}}-->
@@ -250,6 +254,12 @@
                 @endforeach
                     </div>
                 @endif
+                <div class="form-group">
+                    <label for="field-1" class="col-md-2 control-label">Language</label>
+                    <div class="col-md-4">
+                        {{ddl_language("", "LanguageID", ( isset($account->LanguageID)?$account->LanguageID:Translation::$default_lang_id ),"", "id")}}
+                    </div>
+                </div>
 
                 <script>
                     $(document).ready(function() {
@@ -279,6 +289,14 @@
                         </div>
                     </div>
                     </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label">Customer Payment Add</label>
+                    <div class="col-md-4">
+                        <div class="make-switch switch-small">
+                            <input type="checkbox" @if(isset($accountdetails->CustomerPaymentAdd) && $accountdetails->CustomerPaymentAdd == 1 )checked="" @endif name="CustomerPaymentAdd" value="1">
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         @if( ($account->IsVendor == 1 || $account->IsCustomer == 1) && count($AccountApproval) > 0)

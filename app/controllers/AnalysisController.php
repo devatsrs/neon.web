@@ -29,8 +29,8 @@ class AnalysisController extends BaseController {
         $currency = Currency::getCurrencyDropdownIDList($companyID);
         $timezones = TimeZone::getTimeZoneDropdownList();
         $MonitorDashboardSetting 	= 	array_filter(explode(',',CompanyConfiguration::get('MONITOR_DASHBOARD')));
-
-        return View::make('analysis.index',compact('gateway','UserID','Country','account','DefaultCurrencyID','original_startdate','original_enddate','isAdmin','trunks','currency','timezones','MonitorDashboardSetting','account_owners'));
+        $reseller_owners = Reseller::getDropdownIDList($companyID);
+        return View::make('analysis.index',compact('gateway','UserID','Country','account','DefaultCurrencyID','original_startdate','original_enddate','isAdmin','trunks','currency','timezones','MonitorDashboardSetting','account_owners','reseller_owners'));
     }
     /* all tab report */
     public function getAnalysisData(){
@@ -38,6 +38,7 @@ class AnalysisController extends BaseController {
         $companyID = User::get_companyID();
         $data['UserID'] = empty($data['UserID'])?'0':$data['UserID'];
         $data['Admin'] = empty($data['Admin'])?'0':$data['Admin'];
+        $data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
         $Trunk = Trunk::getTrunkName($data['TrunkID']);
         $query = '';
         $customer = 1;
@@ -60,7 +61,7 @@ class AnalysisController extends BaseController {
             $data['EndDate'] = change_timezone($data['TimeZone'], $CompanyTimezone, $data['EndDate']);
         }
 
-        $query .= "('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "' ,'".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','".$data['CDRType']."','" . $data['UserID'] . "','" . $data['Admin'] . "'".",0,0,'',''";
+        $query .= "('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['ResellerOwner']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "' ,'".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','".$data['CDRType']."','" . $data['UserID'] . "','" . $data['Admin'] . "'".",0,0,'',''";
         $query .= ",2)";
         $TopReports = DataTableSql::of($query, 'neon_report')->getProcResult(array('CallCount','CallCost','CallMinutes'));
 
@@ -110,12 +111,21 @@ class AnalysisController extends BaseController {
             $indexcount++;
         }
         $alldata['call_minutes_html'] = View::make('dashboard.grid', compact('alldata','data','customer','param_array'))->render();
-        return chart_reponse($alldata);
+        $return=array();
+        $return["data"]=chart_reponse($alldata);
+        $return['html']=[
+            "total_calls" => cus_lang("CUST_PANEL_PAGE_ANALYSIS_HEADER_ANALYSIS_DATA_LBL_TOTAL_CALLS"),
+            "total_sales" => cus_lang("CUST_PANEL_PAGE_ANALYSIS_HEADER_ANALYSIS_DATA_LBL_TOTAL_SALES"),
+            "total_minutes" => cus_lang("CUST_PANEL_PAGE_ANALYSIS_HEADER_ANALYSIS_DATA_LBL_TOTAL_MINUTES"),
+        ];
+
+        return $return;
     }
     public function getAnalysisBarData(){
         $data = Input::all();
         $companyID = User::get_companyID();
         $Trunk = Trunk::getTrunkName($data['TrunkID']);
+        $data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
         $reponse = array();
         if(!empty($data['TimeZone'])) {
             $CompanyTimezone = Config::get('app.timezone');
@@ -123,7 +133,7 @@ class AnalysisController extends BaseController {
             $data['EndDate'] = change_timezone($data['TimeZone'], $CompanyTimezone, $data['EndDate']);
         }
         $report_type = get_report_type($data['StartDate'],$data['EndDate']);
-        $query = "call prc_getReportByTime ('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','".$data['CDRType']."','" . $data['UserID'] . "','" . $data['Admin'] . "',".$report_type.")";
+        $query = "call prc_getReportByTime ('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['ResellerOwner']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','".$data['CDRType']."','" . $data['UserID'] . "','" . $data['Admin'] . "',".$report_type.")";
         $TopReports = DB::connection('neon_report')->select($query);
         $series = $category1 = $category2 = $category3 = array();
         $cat_index = 0;
@@ -145,9 +155,9 @@ class AnalysisController extends BaseController {
             $cat_index++;
         }
         if(!empty($category1)) {
-            $series[] = array('name' => 'Call Count', 'data' => $category1, 'color' => '#3366cc');
-            $series[] = array('name' => 'Call Cost', 'data' => $category2, 'color' => '#ff9900');
-            $series[] = array('name' => 'Call Minutes', 'data' => $category3, 'color' => '#dc3912');
+            $series[] = array('name' => cus_lang("CUST_PANEL_PAGE_ANALYSIS_LBL_CALL_COUNT"), 'data' => $category1, 'color' => '#3366cc');
+            $series[] = array('name' => cus_lang("CUST_PANEL_PAGE_ANALYSIS_LBL_CALL_COST"), 'data' => $category2, 'color' => '#ff9900');
+            $series[] = array('name' => cus_lang("CUST_PANEL_PAGE_ANALYSIS_LBL_CALL_MINUTES"), 'data' => $category3, 'color' => '#dc3912');
         }
         $reponse['series'] = $series;
         $reponse['Title'] = get_report_title($report_type);
@@ -164,6 +174,7 @@ class AnalysisController extends BaseController {
         $Trunk = Trunk::getTrunkName($data['TrunkID']);
         $data['StartDate'] = empty($data['StartDate'])?date('Y-m-d 00:00:00'):$data['StartDate'];
         $data['EndDate'] = empty($data['EndDate'])?date('Y-m-d 23:59:59'):$data['EndDate'];
+        $data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
         $query = '';
         if($data['chart_type'] == 'destination') {
             $columns = array('Country','CallCount','TotalMinutes','TotalCost','ACD','ASR','TotalMargin','MarginPercentage');
@@ -191,7 +202,8 @@ class AnalysisController extends BaseController {
         }
         $sort_column = $columns[$data['iSortCol_0']];
 
-        $query .= "('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','".$data['CDRType']."','" . $data['UserID'] . "','" . $data['Admin'] . "'".",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query .= "('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['ResellerOwner']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','".$data['CDRType']."','" . $data['UserID'] . "','" . $data['Admin'] . "'".",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        log::info($query);
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('neon_report')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
