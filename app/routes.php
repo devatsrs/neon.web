@@ -715,6 +715,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::resource('lcr', 'LCRController');
 	Route::resource('lcr', 'LCRController');
 	Route::any('lcr/margin-rate', 'LCRController@marginRate');
+	Route::any('lcr/margin-rate-export/{type}/{id}', 'LCRController@marginRateExport');
 	Route::any('lcr/edit_preference', 'LCRController@editPreference');
 
 	//Pages

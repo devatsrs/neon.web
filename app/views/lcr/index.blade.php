@@ -11,6 +11,12 @@
             </h2>
             <form role="form" id="lcr-search-form" method="post" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
                 <div class="form-group">
+                    <div class="SelectedEffectiveDate_Class">
+                        <label for="field-1" class="control-label">Date</label>
+                        {{Form::text('SelectedEffectiveDate', date('Y-m-d') ,array("class"=>"form-control datepicker","Placeholder"=>"Effective Date" , "data-start-date"=>date('Y-m-d',strtotime(" today")) ,"data-date-format"=>"yyyy-mm-dd" ,  "data-start-view"=>"2"))}}
+                    </div>
+                </div>
+                <div class="form-group">
                     <label for="field-1" class="control-label">Code</label>
                     <input type="text" name="Code" class="form-control" id="field-1" placeholder="" value="" />
                 </div>
@@ -43,12 +49,7 @@
                     <label for="field-1" class="control-label">Group By</label>
                     {{Form::select('GroupBy', ["code"=>"Code", "description" => "Description"], $GroupBy ,array("class"=>"form-control select2"))}}
                 </div>
-                <div class="form-group">
-                    <div class="SelectedEffectiveDate_Class">
-                        <label for="field-1" class="control-label">Date</label>
-                        {{Form::text('SelectedEffectiveDate', date('Y-m-d') ,array("class"=>"form-control datepicker","Placeholder"=>"Effective Date" , "data-start-date"=>date('Y-m-d',strtotime(" today")) ,"data-date-format"=>"yyyy-mm-dd" ,  "data-start-view"=>"2"))}}
-                    </div>
-                </div>
+
                 <div class="form-group">
                     <label for="field-1" class="control-label">Vendors</label>
                     {{Form::select('Accounts[]', $all_accounts, array() ,array("class"=>"form-control select2",'multiple'))}}
@@ -63,6 +64,12 @@
                     <label for="field-1" class="control-label">Show Block Vendor</label>
                     <p class="make-switch switch-small">
                         <input id="vendor_block" name="vendor_block" type="checkbox" value="1">
+                    </p>
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Show Customer Rate</label>
+                    <p class="make-switch switch-small">
+                        <input id="show_customer_rate" name="show_customer_rate" type="checkbox" value="1">
                     </p>
                 </div>
                 <div class="form-group">
@@ -86,6 +93,9 @@
         .hrpadding{
             margin-top: 4px;
             margin-bottom: 2px;
+        }
+        .destination{
+            cursor: pointer;
         }
     </style>
 
@@ -127,7 +137,7 @@
         </tbody>
     </table>
 
-    <div class="alert alert-info vendorRateInfo"></div>
+    <div class="vendorRateInfo"></div>
 
 
     {{-- edit preference --}}
@@ -147,7 +157,7 @@
 
                     <div class="modal-body"></div>
                     <div class="modal-footer">
-                        <button type="submit" id="preference-update" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..." style="visibility: visible;"> <i class="entypo-floppy"></i> Save </button>
+                        <button type="button" id="preference-update" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..." style="visibility: visible;"> <i class="entypo-floppy"></i> Save </button>
                         <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
                     </div>
                 </form>
@@ -156,8 +166,7 @@
 
         </div>
     </div>
-
-    <script type="text/javascript">
+  <script type="text/javascript">
         jQuery(document).ready(function($) {
 
             $('#filter-button-toggle').show();
@@ -227,7 +236,10 @@
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a><a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'"><i class="fa fa-pencil"></a>'+hr;
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -252,7 +264,10 @@
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -277,7 +292,10 @@
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -302,7 +320,10 @@
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -327,7 +348,10 @@
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -423,7 +447,10 @@
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -448,7 +475,10 @@
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -473,7 +503,10 @@
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -498,7 +531,10 @@
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -523,7 +559,10 @@
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -548,7 +587,10 @@
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -573,7 +615,10 @@
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -598,7 +643,10 @@
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -816,68 +864,95 @@
                 });
             });
 
+
+
             /* show margine datatable */
             $('#table-4 tbody').on('click', 'td.destination', function () {
+                var show_customer_rate = $("#lcr-search-form [name='show_customer_rate']").prop("checked");
+                if(show_customer_rate == true) {
 
-                var desinationdata = $(this).html().split(":");
-                var code = desinationdata[0];
-                var code_des = $(this).html();
-                var allVendordata = $(this).next('td').html().split('<br>');
-                var v_rate = allVendordata[0];
-                var vendor = allVendordata[1];
-                arr = [];
-                arr['rate'] = [];
-                arr['vendor'] = [];
-                for(i=1;i<=5;i++) {
-                    var value = $(this).closest("tr").find("td:eq(" + i + ")").html().split('<br>');
-                    var valuetd = $.trim(value);
-                    if (valuetd.length != 0){
-                        var td2_vrate = value[0];
-                        var td2_vendor = value[1];
-                        arr['rate'].push(td2_vrate);
-                        arr['vendor'].push(td2_vendor);
+                    GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
+                    var caption = $(this).html();
+                    var desinationdata = $(this).html().split(":");
+                    var code = desinationdata[0];
+                    var code_des = $(this).html();
+                    var allVendordata = $(this).next('td').html().split('<br>');
+                    var v_rate = allVendordata[0];
+                    var vendor = allVendordata[1];
+                    arr = [];
+                    arr['rate'] = [];
+                    arr['vendor'] = [];
+                    for (i = 1; i <= 5; i++) {
+                        var value = $(this).closest("tr").find("td:eq(" + i + ")").html().split('<br>');
+                        var valuetd = $.trim(value);
+                        if (valuetd.length != 0) {
+                            var td2_vrate = value[0];
+                            var td2_vendor = value[1];
+                            arr['rate'].push(td2_vrate);
+                            arr['vendor'].push(td2_vendor);
+                        }
+
                     }
-
-                }
-                $.ajax({
-                    type:"POST",
-                    url: baseurl + '/lcr/margin-rate',
-                    data:{
-                        code:code,
-                        rate:v_rate,
-                    },
-                    success:function(response){
-                        var margindata = response;
-                        var verate = '';
-                        var result = '<table id="margineDataTable" class="table table-bordered datatable"><thead><tr><th id="dt_col1">Customer</th><th id="dt_col2">Margin Detail</th></tr></thead><tbody>';
-                        margindata.forEach(function(data) {
+                    $.ajax({
+                        type: "POST",
+                        url: baseurl + '/lcr/margin-rate',
+                        data: {
+                            code: code,
+                            rate: v_rate,
+                            GroupBy: GroupBy,
+                        },
+                        success: function (response) {
+                            var margindata = response;
+                            var verate = '';
+                            var result = '<h5 class="text-center">' + caption + '</h5>' +
+                                    '<table id="margineDataTable" class="table table-bordered datatable"><thead><tr><th id="dt_col1">Customer</th><th id="dt_col2">Vendor Detail</th></tr></thead><tbody>';
+                            margindata.forEach(function (data) {
                                 var verate = '<table class="table table-bordered"><tr><th>Vendor</th><th>Rate</th><th>CRate</th><th>Margin (Percentage)</th></tr>';
                                 margin = "";
                                 margin_percentage = "";
-                                for(i=0;i<=arr['rate'].length-1;i++)
-                                {
+                                for (i = 0; i <= arr['rate'].length - 1; i++) {
                                     var margin = parseFloat(arr['rate'][i]) - parseFloat(data.Rate);
-                                    var margin_percentage  = 100 - (parseFloat(data.Rate)* 100/parseFloat(arr['rate'][i]));
-                                    verate += '<tr><td>'+arr['vendor'][i]+'</td><td>'+arr['rate'][i]+'</td><td>'+data.Rate+'</td><td>'+margin.toFixed(6)+' ('+margin_percentage.toFixed(2)+'%)</td></tr>';
+                                    var margin_percentage = 100 - (parseFloat(data.Rate) * 100 / parseFloat(arr['rate'][i]));
+                                    verate += '<tr><td>' + arr['vendor'][i] + '</td><td>' + arr['rate'][i] + '</td><td>' + data.Rate + '</td><td>' + margin.toFixed(6) + ' (' + margin_percentage.toFixed(2) + '%)</td></tr>';
                                 }
                                 verate += '</table>';
-                                result += '<tr><td>'+data.AccountName+'</td><td colspan="3">'+verate+'</td></tr>';
-                        });
-                        result += '</tbody></table>';
-                        $(".vendorRateInfo").removeClass('hide');
-                        $(".vendorRateInfo").html(result);
-                        var margineDataTable = $('#margineDataTable').DataTable({
-                            "bDestroy": true,
-                            "bProcessing": false,
-                        });
+                                result += '<tr><td>' + data.AccountName + '</td><td colspan="3">' + verate + '</td></tr>';
+                            });
+                            result += '</tbody></table>';
+                            $(".vendorRateInfo").removeClass('hide');
+                            $(".vendorRateInfo").html(result);
+                            var margineDataTable = $('#margineDataTable').DataTable({
+                                "bDestroy": true,
+                                "bProcessing": true,
+                                "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data exbtn'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                                "aaSorting": [[0, "asc"]],
+                                "oTableTools": {
+                                    "aButtons": [
+                                        {
+                                            "sExtends": "download",
+                                            "sButtonText": "EXCEL",
+                                            "sUrl": baseurl + "/lcr/margin-rate-export/xlsx/" + code,
+                                            sButtonClass: "save-collection btn-sm",
+                                        },
+                                        {
+                                            "sExtends": "download",
+                                            "sButtonText": "CSV",
+                                            "sUrl": baseurl + "/lcr/margin-rate-export/csv/" + code,
+                                            sButtonClass: "save-collection btn-sm"
+                                        }
+                                    ]
+                                }
+                            });
+                        }
 
-                    }
+                    });
 
-                });
-
-
-            } );
+                }
+            });
             /* show margine datatable end */
+
+
+
 
             /* Edit preference */
             $(document).on('click','.openPopup',function(){
@@ -893,7 +968,7 @@
                                 '<div class="col-md-12">' +
                                     '<div class="form-group">' +
                                         '<label for="field-5" class="control-label">Enter Preference</label>' +
-                                            '<input type="text" name="DisputeAmount" class="form-control" id="field-5" placeholder="">' +
+                                            '<input type="number" name="preference" class="form-control" placeholder="Enter Preference">' +
                                     '</div>' +
                                 '</div>' +
                             '</div>' +
@@ -912,22 +987,19 @@
             });
             /* Edit Preference*/
 
-            $('#edit-preference-form').submit(function(){
-                alert('hi');
-                //var DisputeID = $("#add-edit-dispute-form [name='DisputeID']").val();
+            $('#preference-update').click(function(){
                 $.ajax({
                     type: "POST",
                     url: baseurl + '/lcr/edit_preference',
-                    data: $("#edit-preference-form-form").serialize(),
+                    data: $("#edit-preference-form").serialize(),
                     success: function(data)
                     {
-                        alert(data);
+                        ShowToastr("success",data);
+                        $('#myModal').modal('hide');
+                        data_table.fnFilter('', 0);
                     }
-
                 });
-                return false;
-
-
+               // return false;
             });
 
 
@@ -939,8 +1011,8 @@
         .dataTables_filter label{
             display:none !important;
         }
-        .dataTables_wrapper .export-data{
-            right: 30px !important;
+        .table-4_wrapper .export-data{
+           right: 30px !important;
         }
         .rate1_class{
             background-color: #f5fea8;
@@ -972,6 +1044,14 @@
         .rate10_class{
             background-color: #c1c96f;
         }
+        #margineDataTable_filter label {
+            display: block !important;
+            padding-right: 118px;
+        }
+        .exbtn {
+            right: 242px !important;
+        }
+
 
     </style>
 @stop
