@@ -27,7 +27,7 @@ class RateTablesController extends \BaseController {
 
         $data = Input::all();
         $data['iDisplayStart'] +=1;
-        $columns = array('RateTableRateID','Code','Description','Interval1','IntervalN','ConnectionFee','Rate','EffectiveDate','updated_at','ModifiedBy','RateTableRateID');
+        $columns = array('RateTableRateID','Code','Description','Interval1','IntervalN','ConnectionFee','PreviousRate','Rate','EffectiveDate','updated_at','ModifiedBy','RateTableRateID');
         $sort_column = $columns[$data['iSortCol_0']];
 
         $view = isset($data['view']) && $data['view'] == 2 ? $data['view'] : 1;

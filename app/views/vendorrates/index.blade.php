@@ -248,16 +248,16 @@ jQuery(document).ready(function($) {
                                 action += '</div>';
                                 <?php if(User::checkCategoryPermission('VendorRates','Edit')) { ?>
                                         if(DiscontinuedRates == 0) {
-                                            action += ' <a href="Javascript:;" title="Edit" class="edit-vendor-rate btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
+                                            action += ' <a href="Javascript:;" title="Edit" class="edit-vendor-rate btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</a>';
                                         }
                                 <?php } ?>
 
-                                action += ' <a href="Javascript:;" title="History" class="btn btn-default btn-sm details-control" style="display: none;"><i class="entypo-back-in-time"></i>&nbsp;</a>';
+                                action += ' <a href="Javascript:;" title="History" class="btn btn-default btn-xs details-control" style="display: none;"><i class="entypo-back-in-time"></i>&nbsp;</a>';
 
                                 if (full[0] > 0) {
                                     <?php if(User::checkCategoryPermission('VendorRates','Delete')) { ?>
                                             if(DiscontinuedRates == 0) {
-                                                action += ' <button href="' + clerRate_ + '" title="Delete"  class="btn clear btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
+                                                action += ' <button href="' + clerRate_ + '" title="Delete"  class="btn clear btn-danger btn-xs" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
                                             }
                                     <?php } ?>
                                 }

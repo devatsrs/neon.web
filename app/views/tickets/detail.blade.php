@@ -218,7 +218,7 @@
                   <label for="field-1" class="col-sm-3 control-label">Contact Owner</label>
                   <div class="col-sm-9">
                     <?php
-                                $selected_owner = $Requester['Contact'];
+                                $selected_owner = $Requester['Owner'];
                             ?>
                     <select name="Owner" class="select2" data-allow-clear="true" data-placeholder="Account Owner...">
                       <option></option>
