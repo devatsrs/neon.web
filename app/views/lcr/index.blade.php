@@ -269,7 +269,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -297,7 +297,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -325,7 +325,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -353,7 +353,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -400,7 +400,10 @@
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -425,7 +428,10 @@
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -452,7 +458,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -480,7 +486,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -508,7 +514,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -536,7 +542,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -564,7 +570,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -592,7 +598,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -620,7 +626,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -648,7 +654,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
