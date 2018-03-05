@@ -3180,3 +3180,13 @@ select#user_language option {
     width: 30px;
     margin-right: 10px;
 }
+.btn-grey {
+    background: grey;
+    border-color: grey;
+    color: #fff;
+}
+.btn-grey:hover {
+    background: #615e5e;
+    border-color: #615e5e;
+    color: #fff;
+}
