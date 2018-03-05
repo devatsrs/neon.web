@@ -81,9 +81,11 @@ class LCRController extends \BaseController {
         if(!empty($all_accounts[''])){
             unset($all_accounts['']);
         }
+        $companyID = User::get_companyID();
+        $DefaultCodedeck = BaseCodeDeck::where(["CompanyID"=>$companyID,"DefaultCodedeck"=>1])->pluck("CodeDeckId");
         $GroupBy =    NeonCookie::getCookie('LCRGroupBy');
 
-        return View::make('lcr.index', compact('trunks', 'currencies','CurrencyID','codedecklist','trunk_keys','LCRPosition','all_accounts','GroupBy'));
+        return View::make('lcr.index', compact('trunks', 'currencies','CurrencyID','codedecklist','DefaultCodedeck','trunk_keys','LCRPosition','all_accounts','GroupBy'));
     }
     //not using
     public function exports(){
