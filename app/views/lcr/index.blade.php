@@ -191,7 +191,7 @@
             }
 
             $("#lcr-search-form").submit(function(e) {
-
+                $(".vendorRateInfo").addClass('hide');
                 var show_customer_rate = $("#lcr-search-form [name='show_customer_rate']").prop("checked");
                 if(show_customer_rate == false) {
                     $(".vendorRateInfo").addClass('hide');
