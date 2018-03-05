@@ -30,7 +30,7 @@
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">CodeDeck</label>
-                    {{ Form::select('CodeDeckId', $codedecklist, '' , array("class"=>"select2")) }}
+                    {{ Form::select('CodeDeckId', $codedecklist, $DefaultCodedeck , array("class"=>"select2")) }}
                 </div>
 
                 <div class="form-group">
@@ -67,7 +67,7 @@
                     </p>
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="control-label">Show Customer Rate</label>
+                    <label for="field-1" class="control-label">Show Customer Sell Rate</label>
                     <p class="make-switch switch-small">
                         <input id="show_customer_rate" name="show_customer_rate" type="checkbox" value="1">
                     </p>
@@ -191,7 +191,7 @@
             }
 
             $("#lcr-search-form").submit(function(e) {
-
+                $(".vendorRateInfo").addClass('hide');
                 var show_customer_rate = $("#lcr-search-form [name='show_customer_rate']").prop("checked");
                 if(show_customer_rate == false) {
                     $(".vendorRateInfo").addClass('hide');
@@ -241,7 +241,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -269,7 +269,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -297,7 +297,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -325,7 +325,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -353,7 +353,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -400,7 +400,10 @@
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -425,7 +428,10 @@
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -452,7 +458,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -480,7 +486,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -508,7 +514,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -536,7 +542,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -564,7 +570,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -592,7 +598,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -620,7 +626,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -648,7 +654,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -702,7 +708,7 @@
                 }
 
 
-                var data_table = $("#table-4").dataTable({
+                data_table = $("#table-4").dataTable({
                     "bDestroy": true, // Destroy when resubmit form
                     "bProcessing": true,
                     "bServerSide": true,
@@ -867,8 +873,6 @@
                 });
             });
 
-
-
             /* show margine datatable */
             $('#table-4 tbody').on('click', 'td.destination', function () {
                 var show_customer_rate = $("#lcr-search-form [name='show_customer_rate']").prop("checked");
@@ -907,19 +911,21 @@
                         success: function (response) {
                             var margindata = response;
                             var verate = '';
-                            var result = '<h5 class="text-center">' + caption + '</h5>' +
-                                    '<table id="margineDataTable" class="table table-bordered datatable"><thead><tr><th id="dt_col1">Customer</th><th id="dt_col2">Vendor Detail</th></tr></thead><tbody>';
+                            var result = '<h5 class="text-center bold">' + caption + '</h5>' +
+                                    '<table id="margineDataTable" class="table table-bordered datatable">' +
+                                    '<thead><tr><th id="dt_col1">Customer</th><th id="dt_col1">CRate</th><th id="dt_col2">&nbsp;</th></tr>' +
+                                    '</thead><tbody>';
                             margindata.forEach(function (data) {
-                                var verate = '<table class="table table-bordered"><tr><th>Vendor</th><th>Rate</th><th>CRate</th><th>Margin (Percentage)</th></tr>';
+                                var verate = '<table class="table table-bordered"><tr><th>Vendor</th><th>Rate</th><th>Margin (Percentage)</th></tr>';
                                 margin = "";
                                 margin_percentage = "";
                                 for (i = 0; i <= arr['rate'].length - 1; i++) {
                                     var margin = parseFloat(arr['rate'][i]) - parseFloat(data.Rate);
                                     var margin_percentage = 100 - (parseFloat(data.Rate) * 100 / parseFloat(arr['rate'][i]));
-                                    verate += '<tr><td>' + arr['vendor'][i] + '</td><td>' + arr['rate'][i] + '</td><td>' + data.Rate + '</td><td>' + margin.toFixed(6) + ' (' + margin_percentage.toFixed(2) + '%)</td></tr>';
+                                    verate += '<tr><td>' + arr['vendor'][i] + '</td><td>' + arr['rate'][i] + '</td><td>' + margin.toFixed(6) + ' (' + margin_percentage.toFixed(2) + '%)</td></tr>';
                                 }
                                 verate += '</table>';
-                                result += '<tr><td>' + data.AccountName + '</td><td colspan="3">' + verate + '</td></tr>';
+                                result += '<tr><td>' + data.AccountName + '</td><td>'+data.Rate+'</td><td colspan="3">' + verate + '</td></tr>';
                             });
                             result += '</tbody></table>';
                             $(".vendorRateInfo").removeClass('hide');
@@ -953,9 +959,6 @@
                 }
             });
             /* show margine datatable end */
-
-
-
 
             /* Edit preference */
             $(document).on('click','.openPopup',function(){
