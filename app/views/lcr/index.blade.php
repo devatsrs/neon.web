@@ -909,7 +909,8 @@
                             GroupBy: GroupBy,
                         },
                         success: function (response) {
-                            var margindata = response;
+                            var decimalpoint = response.decimalpoint;
+                            var margindata = response.result;
                             var verate = '';
                             var result = '<h5 class="text-center bold">' + caption + '</h5>' +
                                     '<table id="margineDataTable" class="table table-bordered datatable">' +
@@ -920,9 +921,11 @@
                                 margin = "";
                                 margin_percentage = "";
                                 for (i = 0; i <= arr['rate'].length - 1; i++) {
-                                    var margin = parseFloat(arr['rate'][i]) - parseFloat(data.Rate);
-                                    var margin_percentage = 100 - (parseFloat(data.Rate) * 100 / parseFloat(arr['rate'][i]));
-                                    verate += '<tr><td>' + arr['vendor'][i] + '</td><td>' + arr['rate'][i] + '</td><td>' + margin.toFixed(6) + ' (' + margin_percentage.toFixed(2) + '%)</td></tr>';
+                                    var margin = parseFloat(data.Rate) - parseFloat(arr['rate'][i]) ;
+                                    var margincolor = parseFloat(data.Rate) < parseFloat(arr['rate'][i]) ? 'color:red' : '' ;
+                                    var margin_percentage =  (parseFloat(data.Rate) * 100 / parseFloat(arr['rate'][i])) - 100;
+                                    verate += '<tr><td>' + arr['vendor'][i] + '</td><td>' + arr['rate'][i] + '</td>' +
+                                            '<td style="'+ margincolor +'">' + margin.toFixed(decimalpoint) + ' (' + margin_percentage.toFixed(2) + '%)</td></tr>';
                                 }
                                 verate += '</table>';
                                 result += '<tr><td>' + data.AccountName + '</td><td>'+data.Rate+'</td><td colspan="3">' + verate + '</td></tr>';

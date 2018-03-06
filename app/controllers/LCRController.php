@@ -119,16 +119,22 @@ class LCRController extends \BaseController {
     public function marginRate(){
         $postdata = Input::all();
             if($postdata['GroupBy']=='code') {
-                $data = DB::table("tblCustomerRate as cr")->select('acc.AccountName', 'cr.Rate')
+                $result = DB::table("tblCustomerRate as cr")->select('acc.AccountName', 'cr.Rate')
                     ->join('tblRate as r', 'cr.RateID', '=', 'r.RateID')
                     ->join('tblAccount as acc', 'cr.CustomerID', '=', 'acc.AccountID')
-                    ->where('r.Code', '=', $postdata['code'])->get();
+                    ->where('r.Code', '=', $postdata['code'])
+                    ->where('acc.Status', '=', '1')
+                    ->get();
             }else{
-                $data = DB::table("tblCustomerRate as cr")->select('acc.AccountName' , 'cr.Rate')
+                $result = DB::table("tblCustomerRate as cr")->select('acc.AccountName' , 'cr.Rate')
                     ->join('tblRate as r', 'cr.RateID', '=', 'r.RateID')
                     ->join('tblAccount as acc', 'cr.CustomerID', '=', 'acc.AccountID')
-                    ->where('r.Description', '=', $postdata['code'])->groupby('acc.AccountName')->get();
+                    ->where('r.Description', '=', $postdata['code'])->groupby('acc.AccountName')
+                    ->where('acc.Status', '=', '1')
+                    ->get();
             }
+            $data["decimalpoint"] =  get_round_decimal_places();
+            $data["result"] = $result;
             return $data;
     }
     public function marginRateExport($type,$id){
