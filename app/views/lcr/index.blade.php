@@ -924,8 +924,9 @@
                                     var margin = parseFloat(data.Rate) - parseFloat(arr['rate'][i]) ;
                                     var margincolor = parseFloat(data.Rate) < parseFloat(arr['rate'][i]) ? 'color:red' : '' ;
                                     var margin_percentage =  (parseFloat(data.Rate) * 100 / parseFloat(arr['rate'][i])) - 100;
+                                    var margin_percentage = Math.abs(margin_percentage);
                                     verate += '<tr><td>' + arr['vendor'][i] + '</td><td>' + arr['rate'][i] + '</td>' +
-                                            '<td style="'+ margincolor +'">' + margin.toFixed(decimalpoint) + ' (' + margin_percentage.toFixed(2) + '%)</td></tr>';
+                                            '<td style="'+ margincolor +'">' + Math.abs(margin.toFixed(decimalpoint)) + ' (' + margin_percentage.toFixed(2) + '%)</td></tr>';
                                 }
                                 verate += '</table>';
                                 result += '<tr><td>' + data.AccountName + '</td><td>'+data.Rate+'</td><td colspan="3">' + verate + '</td></tr>';
