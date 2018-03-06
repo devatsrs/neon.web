@@ -200,13 +200,9 @@ class LCRController extends \BaseController {
 
     public function editPreference(){
         $postdata = Input::all();
-        $id =  $postdata['id'];
         $preference =  $postdata['preference'];
         $acc_id =  $postdata['acc_id'];
         $trunk =  $postdata['trunk'];
-        $GroupBy =  $postdata['GroupBy'];
-        $CodeDeckId =  $postdata['CodeDeckId'];
-        $rowcode =  $postdata['rowcode'];
         $username = User::get_user_full_name();
         /* Get rateid */
         $test = DB::table('tblVendorRate')
@@ -218,22 +214,33 @@ class LCRController extends \BaseController {
             ->get();
         $RateId = $test[0]->RateID;
         /* Get rateid */
-        $checkPreference = DB::table('tblVendorPreference')->select('VendorPreferenceID')
+        $checkPreference = DB::table('tblVendorPreference')->select('VendorPreferenceID','Preference')
             ->where('AccountId','=',$acc_id)
             ->where('RateId','=',$RateId)
             ->where('TrunkID','=',$trunk)->get();
-        if(!empty($checkPreference)){
-            $VendorPreferenceID = $checkPreference[0]->VendorPreferenceID;
-            $preference = $preference==''? 5 : $preference;
-            DB::table('tblVendorPreference')->where('VendorPreferenceID','=',$VendorPreferenceID)->update(["Preference"=>$preference]);
-            echo "Preference Update Successfully";
-        }else{
-            $preference = $preference==''? 5 : $preference;
-            DB::table('tblVendorPreference')->insert(
-                ["AccountId"=>$acc_id,"Preference"=>$preference,"RateId"=>$RateId,"TrunkID"=>$trunk,"CreatedBy"=>$username ]
-            );
-            echo "Preference Insert Successfully";
-        }
+
+            if (!empty($checkPreference)) {
+                if(!empty($preference)) {
+                    $VendorPreferenceID = $checkPreference[0]->VendorPreferenceID;
+                    $preference = $preference == '' ? 5 : $preference;
+                    DB::table('tblVendorPreference')->where('VendorPreferenceID', '=', $VendorPreferenceID)->update(["Preference" => $preference]);
+                    echo "Preference Update Successfully";
+                }else {
+                    $VendorPreferenceID = $checkPreference[0]->Preference;
+                    echo $preference = !empty($VendorPreferenceID) ? $VendorPreferenceID : '';
+                }
+            } else {
+                if(!empty($preference)) {
+                    $preference = $preference == '' ? 5 : $preference;
+                    DB::table('tblVendorPreference')->insert(
+                        ["AccountId" => $acc_id, "Preference" => $preference, "RateId" => $RateId, "TrunkID" => $trunk, "CreatedBy" => $username]
+                    );
+                    echo "Preference Insert Successfully";
+                }else{
+                    echo $preference = '';
+                }
+            }
+
         exit;
     }
 
