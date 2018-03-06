@@ -966,34 +966,56 @@
 
             /* Edit preference */
             $(document).on('click','.openPopup',function(){
-
                 Trunk = $("#lcr-search-form select[name='Trunk']").val();
                 CodeDeck = $("#lcr-search-form select[name='CodeDeckId']").val();
                 GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
                 var thisclass = $(this);
+                var thisaccid = thisclass.attr("data-id");
                 var thisid = thisclass.attr("id");
                 var thisaccid = thisclass.attr("data-id");
                 var rowcode = thisclass.attr("data-rowcode");
-                var data = '<div class="row">' +
-                                '<div class="col-md-12">' +
-                                    '<div class="form-group">' +
-                                        '<label for="field-5" class="control-label">Enter Preference</label>' +
-                                            '<input type="number" name="preference" class="form-control" placeholder="Enter Preference">' +
-                                    '</div>' +
-                                '</div>' +
-                            '</div>' +
-                        '<input type="hidden" name="id" value='+thisid+'>' +
-                        '<input type="hidden" name="acc_id" value='+thisaccid+'>' +
-                        '<input type="hidden" name="trunk" value='+Trunk+'>' +
-                        '<input type="hidden" name="CodeDeckId" value='+CodeDeck+'>' +
-                        '<input type="hidden" name="GroupBy" value='+GroupBy+'>' +
-                        '<input type="hidden" name="rowcode" value='+rowcode+'>' +
-                        '<input type="hidden" class="form-control">';
-                $('.modal-body').html(data);
-                $('#myModal').modal({show:true});
-                /*$('.modal-body').load(dataURL,function(){
-                    $('#myModal').modal({show:true});
-                });*/
+                $.ajax({
+                    type: "POST",
+                    url: baseurl + '/lcr/edit_preference',
+                    data: {
+                        trunk: Trunk,
+                        CodeDeckId: CodeDeck,
+                        GroupBy: GroupBy,
+                        acc_id:thisaccid,
+                        rowcode:rowcode,
+                        preference:'',
+                        id:'',
+                    },
+                    success: function(data)
+                    {
+                           // ShowToastr("success",data);
+                            Trunk = $("#lcr-search-form select[name='Trunk']").val();
+                            CodeDeck = $("#lcr-search-form select[name='CodeDeckId']").val();
+                            GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
+                            //var thisclass = $(this);
+                           // var thisid = thisclass.attr("id");
+                           // var thisaccid = thisclass.attr("data-id");
+                           // var rowcode = thisclass.attr("data-rowcode");
+                            var data = '<div class="row">' +
+                                            '<div class="col-md-12">' +
+                                                '<div class="form-group">' +
+                                                    '<label for="field-5" class="control-label">Enter Preference</label>' +
+                                                        '<input type="number" value="'+data+'" id="txtpreference" name="preference" class="form-control" placeholder="Enter Preference">' +
+                                                '</div>' +
+                                            '</div>' +
+                                        '</div>' +
+                                    '<input type="hidden" name="id" value='+thisid+'>' +
+                                    '<input type="hidden" name="acc_id" value='+thisaccid+'>' +
+                                    '<input type="hidden" name="trunk" value='+Trunk+'>' +
+                                    '<input type="hidden" name="CodeDeckId" value='+CodeDeck+'>' +
+                                    '<input type="hidden" name="GroupBy" value='+GroupBy+'>' +
+                                    '<input type="hidden" name="rowcode" value='+rowcode+'>' +
+                                    '<input type="hidden" class="form-control">';
+                            $('.modal-body').html(data);
+                            $('#myModal').modal({show:true});
+                    }
+                });
+
             });
             /* Edit Preference*/
 
