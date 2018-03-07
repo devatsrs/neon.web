@@ -398,7 +398,9 @@ class Payment extends \Eloquent {
             }else{
                 $paymentdata['InvoiceID'] = 0;
             }
-            $data['transaction_notes'] .= " ". $data['custome_notes'];
+            if(isset($data['custome_notes'])){
+                $data['transaction_notes'] .= " ". $data['custome_notes'];
+            }
         }
 
         $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
@@ -475,8 +477,9 @@ class Payment extends \Eloquent {
             }else{
                 $transactiondata['InvoiceID'] = 0;
             }
-
-            $data['transaction_notes'] .= " ". $data['custome_notes'];
+            if(isset($data['custome_notes'])){
+                $data['transaction_notes'] .= " ". $data['custome_notes'];
+            }
         }
 
         $transactiondata['Transaction'] = '';
