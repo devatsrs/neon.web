@@ -881,12 +881,12 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/cdr_upload/storeVendorTemplate', 'CDRController@storeVendorTemplate');
 
 
-    //CDR Template
-    Route::any('/cdr_template', 'CDRTemplateController@index');;
-    Route::any('/cdr_template/upload', 'CDRTemplateController@upload');
-    Route::any('/cdr_template/check_upload', 'CDRTemplateController@check_upload');
-    Route::any('/cdr_template/ajaxfilegrid', 'CDRTemplateController@ajaxfilegrid');
-    Route::any('/cdr_template/storeTemplate', 'CDRTemplateController@storeTemplate');
+	//CDR Template - FTP Gateway cdr mapping
+	Route::any('/cdr_template/gateway/{id}', 'CDRTemplateController@index');
+	Route::any('/cdr_template/upload', 'CDRTemplateController@upload');
+	Route::any('/cdr_template/check_upload', 'CDRTemplateController@check_upload');
+	Route::any('/cdr_template/ajaxfilegrid', 'CDRTemplateController@ajaxfilegrid');
+	Route::any('/cdr_template/storeTemplate/gateway/{id}', 'CDRTemplateController@storeTemplate');
 
 	/////////////////
 	//Estimates
