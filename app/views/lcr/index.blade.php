@@ -191,7 +191,7 @@
             }
 
             $("#lcr-search-form").submit(function(e) {
-
+                $(".vendorRateInfo").addClass('hide');
                 var show_customer_rate = $("#lcr-search-form [name='show_customer_rate']").prop("checked");
                 if(show_customer_rate == false) {
                     $(".vendorRateInfo").addClass('hide');
@@ -269,7 +269,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -297,7 +297,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -325,7 +325,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -353,7 +353,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -400,7 +400,10 @@
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -425,7 +428,10 @@
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-                                        action += '<a href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right"><i class="fa '+blockfa+'"></i></a>'+hr;
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -452,7 +458,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -480,7 +486,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -508,7 +514,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -536,7 +542,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -564,7 +570,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -592,7 +598,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -620,7 +626,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -648,7 +654,7 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
-                                                '<a class="openPopup btn btn-primary btn-xs pull-right" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
@@ -903,7 +909,8 @@
                             GroupBy: GroupBy,
                         },
                         success: function (response) {
-                            var margindata = response;
+                            var decimalpoint = response.decimalpoint;
+                            var margindata = response.result;
                             var verate = '';
                             var result = '<h5 class="text-center bold">' + caption + '</h5>' +
                                     '<table id="margineDataTable" class="table table-bordered datatable">' +
@@ -914,9 +921,12 @@
                                 margin = "";
                                 margin_percentage = "";
                                 for (i = 0; i <= arr['rate'].length - 1; i++) {
-                                    var margin = parseFloat(arr['rate'][i]) - parseFloat(data.Rate);
-                                    var margin_percentage = 100 - (parseFloat(data.Rate) * 100 / parseFloat(arr['rate'][i]));
-                                    verate += '<tr><td>' + arr['vendor'][i] + '</td><td>' + arr['rate'][i] + '</td><td>' + margin.toFixed(6) + ' (' + margin_percentage.toFixed(2) + '%)</td></tr>';
+                                    var margin = parseFloat(data.Rate) - parseFloat(arr['rate'][i]) ;
+                                    var margincolor = parseFloat(data.Rate) < parseFloat(arr['rate'][i]) ? 'color:red' : '' ;
+                                    var margin_percentage =  (parseFloat(data.Rate) * 100 / parseFloat(arr['rate'][i])) - 100;
+                                    var margin_percentage = Math.abs(margin_percentage);
+                                    verate += '<tr><td>' + arr['vendor'][i] + '</td><td>' + arr['rate'][i] + '</td>' +
+                                            '<td style="'+ margincolor +'">' + Math.abs(margin.toFixed(decimalpoint)) + ' (' + margin_percentage.toFixed(2) + '%)</td></tr>';
                                 }
                                 verate += '</table>';
                                 result += '<tr><td>' + data.AccountName + '</td><td>'+data.Rate+'</td><td colspan="3">' + verate + '</td></tr>';
@@ -956,34 +966,56 @@
 
             /* Edit preference */
             $(document).on('click','.openPopup',function(){
-
                 Trunk = $("#lcr-search-form select[name='Trunk']").val();
                 CodeDeck = $("#lcr-search-form select[name='CodeDeckId']").val();
                 GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
                 var thisclass = $(this);
+                var thisaccid = thisclass.attr("data-id");
                 var thisid = thisclass.attr("id");
                 var thisaccid = thisclass.attr("data-id");
                 var rowcode = thisclass.attr("data-rowcode");
-                var data = '<div class="row">' +
-                                '<div class="col-md-12">' +
-                                    '<div class="form-group">' +
-                                        '<label for="field-5" class="control-label">Enter Preference</label>' +
-                                            '<input type="number" name="preference" class="form-control" placeholder="Enter Preference">' +
-                                    '</div>' +
-                                '</div>' +
-                            '</div>' +
-                        '<input type="hidden" name="id" value='+thisid+'>' +
-                        '<input type="hidden" name="acc_id" value='+thisaccid+'>' +
-                        '<input type="hidden" name="trunk" value='+Trunk+'>' +
-                        '<input type="hidden" name="CodeDeckId" value='+CodeDeck+'>' +
-                        '<input type="hidden" name="GroupBy" value='+GroupBy+'>' +
-                        '<input type="hidden" name="rowcode" value='+rowcode+'>' +
-                        '<input type="hidden" class="form-control">';
-                $('.modal-body').html(data);
-                $('#myModal').modal({show:true});
-                /*$('.modal-body').load(dataURL,function(){
-                    $('#myModal').modal({show:true});
-                });*/
+                $.ajax({
+                    type: "POST",
+                    url: baseurl + '/lcr/edit_preference',
+                    data: {
+                        trunk: Trunk,
+                        CodeDeckId: CodeDeck,
+                        GroupBy: GroupBy,
+                        acc_id:thisaccid,
+                        rowcode:rowcode,
+                        preference:'',
+                        id:'',
+                    },
+                    success: function(data)
+                    {
+                           // ShowToastr("success",data);
+                            Trunk = $("#lcr-search-form select[name='Trunk']").val();
+                            CodeDeck = $("#lcr-search-form select[name='CodeDeckId']").val();
+                            GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
+                            //var thisclass = $(this);
+                           // var thisid = thisclass.attr("id");
+                           // var thisaccid = thisclass.attr("data-id");
+                           // var rowcode = thisclass.attr("data-rowcode");
+                            var data = '<div class="row">' +
+                                            '<div class="col-md-12">' +
+                                                '<div class="form-group">' +
+                                                    '<label for="field-5" class="control-label">Enter Preference</label>' +
+                                                        '<input type="number" value="'+data+'" id="txtpreference" name="preference" class="form-control" placeholder="Enter Preference">' +
+                                                '</div>' +
+                                            '</div>' +
+                                        '</div>' +
+                                    '<input type="hidden" name="id" value='+thisid+'>' +
+                                    '<input type="hidden" name="acc_id" value='+thisaccid+'>' +
+                                    '<input type="hidden" name="trunk" value='+Trunk+'>' +
+                                    '<input type="hidden" name="CodeDeckId" value='+CodeDeck+'>' +
+                                    '<input type="hidden" name="GroupBy" value='+GroupBy+'>' +
+                                    '<input type="hidden" name="rowcode" value='+rowcode+'>' +
+                                    '<input type="hidden" class="form-control">';
+                            $('.modal-body').html(data);
+                            $('#myModal').modal({show:true});
+                    }
+                });
+
             });
             /* Edit Preference*/
 
