@@ -449,8 +449,12 @@ class StripeBilling {
 		$stripedata['currency'] = strtolower($CurrencyCode);
 		$stripedata['description'] = $data['InvoiceNumber'].' (Invoice) Payment';
 
-		$Invoice = Invoice::where(["InvoiceID" => $data['InvoiceID'], "AccountID" => $data['AccountID']])->first();
-		$stripedata['CurrencyCode'] = Currency::getCurrency($Invoice->CurrencyID);
+		if(!empty($Invoice)){
+			$Invoice = Invoice::where(["InvoiceID" => $data['InvoiceID'], "AccountID" => $data['AccountID']])->first();
+			$stripedata['CurrencyCode'] = Currency::getCurrency($Invoice->CurrencyID);
+		}else{
+			$stripedata['CurrencyCode'] = Currency::getCurrency($account->CurrencyId);
+		}
 
 		log::info('Payment with card start');
 		$StripeResponse = $this->create_charge($stripedata);

@@ -310,6 +310,32 @@
                     $('#add-edit-payment-form').submit(function(e){
                         e.preventDefault();
                         var PaymentID = $("#add-edit-payment-form [name='PaymentID']").val();
+                        var PaymentMethod = $("#add-edit-payment-form [name='PaymentMethod']").val();
+
+                        if(PaymentMethod.indexOf("online_")==0){
+                            PaymentMethod = PaymentMethod.replace("online_", "");
+                            var Amount = $("#add-edit-payment-form [name='Amount']").val();
+                            var InvoiceNo = $("#add-edit-payment-form [name='InvoiceNo']").val();
+                            var custome_notes = $("#add-edit-payment-form [name='Notes']").val();
+                            if(PaymentMethod=="Paypal"  ){
+                                $('#pyapalform [name=amount]').val(Amount)
+                                $('#pyapalform').submit();
+                                return false;
+                            }
+                            if(PaymentMethod=="SagePay"){
+                                $('#sagepayform [name=p4]').val(Amount)
+                                $('#sagepayform').submit();
+                                return false;
+                            }
+
+                            $("#frm_online_payment [name=Amount]").val(Amount);
+                            $("#frm_online_payment [name=InvoiceNo]").val(InvoiceNo);
+                            $("#frm_online_payment [name=custome_notes]").val(custome_notes);
+                            $("#frm_online_payment").attr("action", baseurl + "/invoice_payment/{{$Account->AccountID}}-0/"+PaymentMethod).submit();
+
+                            return false;
+                        }
+
                         if( typeof PaymentID != 'undefined' && PaymentID != ''){
                             update_new_url = baseurl + '/customer/payments/update/'+PaymentID;
                         }else{
@@ -547,7 +573,7 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_MODAL_EDIT_PAYMENT_FIELD_PAYMENT_METHOD')</label>
-                                    {{ Form::select('PaymentMethod', $method, '', array("class"=>"select2 small")) }}
+                                    {{ Form::select('PaymentMethod', $method, '', array("class"=>"select2 small", "required")) }}
                                 </div>
                             </div>
                             {{--
@@ -561,11 +587,11 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_MODAL_EDIT_PAYMENT_FIELD_AMOUNT')</label>
-                                    <input type="text" name="Amount" class="form-control" id="field-5" placeholder="">
+                                    <input type="text" name="Amount" class="form-control" id="field-5" placeholder="" pattern="\d+" required>
                                     <input type="hidden" name="PaymentID" >
                                     <input type="hidden" name="CustomerPaymentType" value="Payment In" >
                                     <input type="hidden" name="Currency" value="{{$currency}}" >
-                                    <input type="hidden" name="AccountID" value="{{$AccountID}}">
+                                    <input type="hidden" name="AccountID" value="{{$Account->AccountID}}">
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -608,4 +634,15 @@
             </div>
         </div>
     </div>
+    <form action="" id="frm_online_payment" method="post">
+        <input type="hidden" name="Amount" class="form-control">
+        <input type="hidden" name="InvoiceNo" class="form-control">
+        <input type="hidden" name="custome_notes" class="form-control">
+    </form>
+@if(is_paypal($Account->CompanyId) )
+    {{$paypal_button}}
+@endif
+@if(is_sagepay($Account->CompanyId))
+    {{$sagepay_button}}
+@endif
 @stop

@@ -82,13 +82,88 @@ class PaymentsCustomerController extends \BaseController {
         $companyID = Customer::get_companyID();
         $CurrencyId = Company::where("CompanyID", '=', $companyID)->pluck('CurrencyId');
         $currency = Currency::where('CurrencyId',$CurrencyId)->pluck('Code');
-        $AccountID = Customer::get_accountID();
 
-        $method = array(''=>cus_lang("DROPDOWN_OPTION_SELECT"),'CASH'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_CASH"),'PAYPAL'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_PAYPAL"),'CHEQUE'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_CHEQUE"),'CREDIT CARD'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_CREDIT_CARD"),'BANK TRANSFER'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_BANK_TRANSFER"));
+        $Account = Customer::get_currentUser();
+
+        $StripeACHCount=0;
+        $AccountPaymentProfile = AccountPaymentProfile::where(['PaymentGatewayID'=> PaymentGateway::StripeACH,'AccountID'=>$Account->AccountID,'Status'=>1])->count();
+        if($AccountPaymentProfile>0){
+            $StripeACHCount=1;
+        }
+
+        $method = array(
+                    ''=>cus_lang("DROPDOWN_OPTION_SELECT"),
+                    'CASH'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_CASH"),
+//                    'PAYPAL'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_PAYPAL"),
+                    'CHEQUE'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_CHEQUE"),
+                    'CREDIT CARD'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_CREDIT_CARD"),
+                    'BANK TRANSFER'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_BANK_TRANSFER")
+        );
+        if(empty($Account->ShowAllPaymentMethod)){
+            if(($Account->PaymentMethod == 'AuthorizeNet') && (is_authorize($Account->CompanyID)  ) ){
+                $method["online_AuthorizeNet"]="AuthorizeNet";
+            }
+            if(($Account->PaymentMethod == 'Stripe') && (is_Stripe($Account->CompanyID)  ) ){
+                $method["online_Stripe"]="Stripe";
+            }
+            if(is_FideliPay($Account->CompanyID)){
+                $method["online_FideliPay"]="FideliPay";
+            }
+            if(($Account->PaymentMethod == 'StripeACH') && (is_StripeACH($Account->CompanyID) && $StripeACHCount==1 ) ){
+                $method["online_StripeACH"]="StripeACH";
+            }
+            if(($Account->PaymentMethod == 'Paypal') && (is_paypal($Account->CompanyID)  ) ){
+                $method["online_Paypal"]=cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_PAYPAL");
+            }
+            if(($Account->PaymentMethod == 'SagePay') && (is_sagepay($Account->CompanyID)  ) ){
+                $method["online_SagePay"]="SagePay";
+            }
+        }else{
+            if(is_authorize($Account->CompanyId)){
+                $method["online_AuthorizeNet"]="AuthorizeNet";
+            }
+            if(is_Stripe($Account->CompanyID)){
+                $method["online_Stripe"]="Stripe";
+            }
+            if(is_FideliPay($Account->CompanyID)){
+                $method["online_FideliPay"]="FideliPay";
+            }
+            if(is_StripeACH($Account->CompanyID) && $StripeACHCount==1){
+                $method["online_StripeACH"]="StripeACH";
+            }
+            if(is_paypal($Account->CompanyID)){
+                $method["online_Paypal"]=cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_PAYPAL");
+            }
+            if(is_sagepay($Account->CompanyID)){
+                $method["online_SagePay"]="SagePay";
+            }
+
+        }
+
+        $CurrencyCode 		= 	!empty($Currency) ? $Currency->Code : '';
+
+        $paypal_button = $sagepay_button = "";
+        $paypal = new PaypalIpn($Account->CompanyID);
+        if(!empty($paypal->status)){
+            $paypal->item_title =  Company::getName($Account->CompanyID);
+            $paypal->item_number =  0;
+            $paypal->curreny_code =  $CurrencyCode;
+            $paypal->amount = 0;
+            $paypal_button = $paypal->get_paynow_button($Account->AccountID, 0);
+        }
+        if ( (new SagePay($Account->CompanyID))->status()) {
+            $SagePay = new SagePay($Account->CompanyID);
+            $SagePay->item_title =  Company::getName($Account->CompanyID);
+            $SagePay->item_number =  0;
+            $SagePay->curreny_code =  $CurrencyCode;
+            $SagePay->amount = 0;
+            $sagepay_button = $SagePay->get_paynow_button($Account->AccountID, 0);
+        }
+
         $action = array(''=>cus_lang("DROPDOWN_OPTION_SELECT"),'Payment In'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_ACTION_DDL_PAYMENT_OUT"),'Payment Out'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_ACTION_DDL_PAYMENT_IN"));
         $status = array(''=>cus_lang("DROPDOWN_OPTION_SELECT"),'Pending Approval'=>'Pending Approval','Approved'=>'Approved','Rejected'=>'Rejected');
-        $AccountDetailsID = AccountDetails::where('AccountID',$AccountID)->pluck('CustomerPaymentAdd');
-        return View::make('customer.payments.index', compact('id','currency','method','type','status','action','AccountID','AccountDetailsID'));
+        $AccountDetailsID = AccountDetails::where('AccountID',$Account->AccountID)->pluck('CustomerPaymentAdd');
+        return View::make('customer.payments.index', compact('id','currency','method','type','status','action','Account','AccountDetailsID', 'paypal_button', 'sagepay_button'));
 	}
 
     /**
@@ -149,7 +224,7 @@ class PaymentsCustomerController extends \BaseController {
 
                 //@TODO: swipe required - multiLanguage
                 $message = isset($status['message'])?' and '.$status['message']:'';
-                return Response::json(array("status" => "success", "message" => "Payment Successfully Created. "));
+                return Response::json(array("status" => "success", "message" => cus_lang("CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MSG_PAYMENT_SUCCESSFULLY_CREATED")));
             } else {
                 return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MSG_PROBLEM_CREATING_PAYMENT')));
             }

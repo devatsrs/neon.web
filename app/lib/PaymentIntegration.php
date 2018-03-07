@@ -71,6 +71,10 @@ class PaymentIntegration {
 
 		$transactionResponse['InvoiceID'] = $data['InvoiceID'];
 		$transactionResponse['AccountID'] = $data['AccountID'];
+		$transactionResponse['isInvoicePay'] = $data['isInvoicePay'];
+		if(!$data['isInvoicePay']){
+			$transactionResponse['custome_notes'] = $data['custome_notes'];
+		}
 		$transactionResponse['CreatedBy'] = 'customer';
 		if($transactionResponse['status']=='success'){
 			Payment::paymentSuccess($transactionResponse);
@@ -106,23 +110,38 @@ class PaymentIntegration {
 		$unPaidInvoices = DB::connection('sqlsrv2')->select('call prc_getPaymentPendingInvoice (' . $data['CompanyID'] . ',' . $data['AccountID'].',0,0)');
 		if (isset($transactionResponse['response_code']) && $transactionResponse['response_code'] == 1) {
 			$transactionResponse['Transaction'] = $transactionResponse['transaction_id'];
-			foreach ($unPaidInvoices as $Invoiceid) {
-				/**  Update Invoice as Paid */
-				if (in_array($Invoiceid->InvoiceID, explode(',', $data['InvoiceIDs']))) {
-					$transactionResponse['Amount'] = $Invoiceid->RemaingAmount;
-					$transactionResponse['InvoiceID'] = $Invoiceid->InvoiceID;
-					$transactionResponse['AccountID'] = $data['AccountID'];
-					Payment::paymentSuccess($transactionResponse);
+
+			if(isset($data['isInvoicePay']) && !$data['isInvoicePay']){
+				$transactionResponse['Amount'] = $data['outstanginamount'];
+				$transactionResponse['InvoiceID'] = $data['InvoiceIDs'];
+				$transactionResponse['AccountID'] = $data['AccountID'];
+				Payment::paymentSuccess($transactionResponse);
+			}else{
+				foreach ($unPaidInvoices as $Invoiceid) {
+					/**  Update Invoice as Paid */
+					if (in_array($Invoiceid->InvoiceID, explode(',', $data['InvoiceIDs']))) {
+						$transactionResponse['Amount'] = $Invoiceid->RemaingAmount;
+						$transactionResponse['InvoiceID'] = $Invoiceid->InvoiceID;
+						$transactionResponse['AccountID'] = $data['AccountID'];
+						Payment::paymentSuccess($transactionResponse);
+					}
 				}
 			}
 			return array("status" => "success", "message" => "All Invoice Paid Successfully");
 		} else {
-			foreach ($unPaidInvoices as $Invoiceid) {
-				if (in_array($Invoiceid->InvoiceID, explode(',', $data['InvoiceIDs']))) {
-					$transactionResponse['Amount'] = $Invoiceid->RemaingAmount;
-					$transactionResponse['InvoiceID'] = $Invoiceid->InvoiceID;
-					$transactionResponse['AccountID'] = $data['AccountID'];
-					Payment::paymentFail($transactionResponse);
+			if(isset($data['isInvoicePay']) && !$data['isInvoicePay']){
+				$transactionResponse['Amount'] = $data['outstanginamount'];
+				$transactionResponse['InvoiceID'] = $data['InvoiceIDs'];
+				$transactionResponse['AccountID'] = $data['AccountID'];
+				Payment::paymentFail($transactionResponse);
+			}else{
+				foreach ($unPaidInvoices as $Invoiceid) {
+					if (in_array($Invoiceid->InvoiceID, explode(',', $data['InvoiceIDs']))) {
+						$transactionResponse['Amount'] = $Invoiceid->RemaingAmount;
+						$transactionResponse['InvoiceID'] = $Invoiceid->InvoiceID;
+						$transactionResponse['AccountID'] = $data['AccountID'];
+						Payment::paymentFail($transactionResponse);
+					}
 				}
 			}
 			return array("status" => "failed", "message" => "Transaction Failed :" . $transactionResponse['failed_reason']);

@@ -379,12 +379,28 @@ class Payment extends \Eloquent {
     public static function paymentSuccess($data){
         $Invoice = Invoice::find($data['InvoiceID']);
         $account = Account::find($data['AccountID']);
-
+        $isInvoicePay=true;
+        if(isset($data['isInvoicePay'])){
+            $isInvoicePay=$data['isInvoicePay'];
+        }
         $paymentdata = array();
-        $paymentdata['CompanyID'] = $Invoice->CompanyID;
-        $paymentdata['AccountID'] = $Invoice->AccountID;
-        $paymentdata['InvoiceNo'] = $Invoice->FullInvoiceNumber;
-        $paymentdata['InvoiceID'] = (int)$Invoice->InvoiceID;
+        if(!empty($Invoice) && $isInvoicePay){
+            $paymentdata['CompanyID'] = $Invoice->CompanyID;
+            $paymentdata['AccountID'] = $Invoice->AccountID;
+            $paymentdata['InvoiceNo'] = $Invoice->FullInvoiceNumber;
+            $paymentdata['InvoiceID'] = (int)$Invoice->InvoiceID;
+        }else{
+            $paymentdata['CompanyID'] = $account->CompanyID;
+            $paymentdata['AccountID'] = $account->AccountID;
+            $paymentdata['InvoiceNo'] = '';
+            if(!empty($Invoice)){
+                $paymentdata['InvoiceID'] = (int)$Invoice->InvoiceID;
+            }else{
+                $paymentdata['InvoiceID'] = 0;
+            }
+            $data['transaction_notes'] .= " ". $data['custome_notes'];
+        }
+
         $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
         $paymentdata['PaymentMethod'] = $data['PaymentMethod'];
         $paymentdata['CurrencyID'] = $account->CurrencyId;
@@ -398,9 +414,20 @@ class Payment extends \Eloquent {
         $paymentdata['updated_at'] = date('Y-m-d H:i:s');
         Payment::insert($paymentdata);
         $transactiondata = array();
-        $transactiondata['CompanyID'] = $Invoice->CompanyID;
-        $transactiondata['AccountID'] = $Invoice->AccountID;
-        $transactiondata['InvoiceID'] = $Invoice->InvoiceID;
+        if(!empty($Invoice) && $isInvoicePay){
+            $transactiondata['CompanyID'] = $Invoice->CompanyID;
+            $transactiondata['AccountID'] = $Invoice->AccountID;
+            $transactiondata['InvoiceID'] = $Invoice->InvoiceID;
+        }else{
+            $transactiondata['CompanyID'] = $account->CompanyId;
+            $transactiondata['AccountID'] = $account->AccountID;
+            if(!empty($Invoice)){
+                $transactiondata['InvoiceID'] = (int)$Invoice->InvoiceID;
+            }else{
+                $transactiondata['InvoiceID'] = 0;
+            }
+        }
+
         $transactiondata['Transaction'] = $data['Transaction'];
         $transactiondata['Notes'] = $data['transaction_notes'];
         $transactiondata['Amount'] = floatval($data['Amount']);
@@ -411,25 +438,47 @@ class Payment extends \Eloquent {
         $transactiondata['ModifyBy'] = $data['CreatedBy'];
         $transactiondata['Response'] = json_encode($data['Response']);
         TransactionLog::insert($transactiondata);
-        $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
+        if(!empty($Invoice) && $isInvoicePay){
+            $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
 
-        $EmailTemplate = EmailTemplate::getSystemEmailTemplate($paymentdata['CompanyID'], EmailTemplate::InvoicePaidNotificationTemplate, $account->LanguageID);
-        if(!empty($EmailTemplate) && isset($EmailTemplate->Status) && $EmailTemplate->Status == 1 ){
-            $paymentdata['EmailTemplate'] = $EmailTemplate;
-            $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);
-            $paymentdata['Invoice'] = $Invoice;
-            Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$paymentdata);
+            $EmailTemplate = EmailTemplate::getSystemEmailTemplate($paymentdata['CompanyID'], EmailTemplate::InvoicePaidNotificationTemplate, $account->LanguageID);
+            if(!empty($EmailTemplate) && isset($EmailTemplate->Status) && $EmailTemplate->Status == 1 ){
+                $paymentdata['EmailTemplate'] = $EmailTemplate;
+                $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);
+                if(empty($Invoice)){
+                    $paymentdata['Invoice'] = $Invoice;
+                    Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$paymentdata);
+                }
+            }
         }
     }
 
     public static function paymentFail($data){
+        $transactiondata = array();
+
+        $isInvoicePay=true;
+        if(isset($data['isInvoicePay'])){
+            $isInvoicePay=$data['isInvoicePay'];
+        }
 
         $Invoice = Invoice::find($data['InvoiceID']);
+        if(!empty($Invoice) && $isInvoicePay){
+            $transactiondata['CompanyID'] = $Invoice->CompanyID;
+            $transactiondata['AccountID'] = $Invoice->AccountID;
+            $transactiondata['InvoiceID'] = $Invoice->InvoiceID;
+        }else{
+            $account = Account::find($data['AccountID']);
+            $transactiondata['CompanyID'] = $account->CompanyID;
+            $transactiondata['AccountID'] = $account->AccountID;
+            if(!empty( $Invoice )){
+                $transactiondata['InvoiceID'] =  $Invoice->InvoiceID;
+            }else{
+                $transactiondata['InvoiceID'] = 0;
+            }
 
-        $transactiondata = array();
-        $transactiondata['CompanyID'] = $Invoice->CompanyID;
-        $transactiondata['AccountID'] = $Invoice->AccountID;
-        $transactiondata['InvoiceID'] = $Invoice->InvoiceID;
+            $data['transaction_notes'] .= " ". $data['custome_notes'];
+        }
+
         $transactiondata['Transaction'] = '';
         $transactiondata['Notes'] = $data['transaction_notes'];
         $transactiondata['Amount'] = floatval(0);
