@@ -2103,7 +2103,8 @@ class InvoicesController extends \BaseController {
                 $Invoice = Invoice::find($InvoiceID);
                 $CompanyID = $Invoice->CompanyID;
             }else{
-                $CompanyID = $AccountID->CompanyID;
+                $account = Account::find($AccountID);
+                $CompanyID = $account->CompanyId;
             }
 
             $paypal = new PaypalIpn($CompanyID);
