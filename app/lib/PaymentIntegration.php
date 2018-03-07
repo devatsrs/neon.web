@@ -106,42 +106,50 @@ class PaymentIntegration {
 	public function getpaymentResponse($transactionResponse,$data){
 
 		$transactionResponse['CreatedBy'] = $data['CreatedBy'];
+		$transactionResponse['custome_notes']='';
+		if(isset($data['isInvoicePay']) && !$data['isInvoicePay']){
+			if (isset($transactionResponse['response_code']) && $transactionResponse['response_code'] == 1) {
+				$transactionResponse['Transaction'] = $transactionResponse['transaction_id'];
+
+
+				$transactionResponse['Amount'] = $data['outstanginamount'];
+				$transactionResponse['InvoiceID'] = $data['InvoiceIDs'];
+				$transactionResponse['AccountID'] = $data['AccountID'];
+				$transactionResponse['custome_notes'] = $data['custome_notes'];
+				Payment::paymentSuccess($transactionResponse);
+				return array("status" => "success", "message" => "All Invoice Paid Successfully");
+			} else {
+				$transactionResponse['Amount'] = $data['outstanginamount'];
+				$transactionResponse['InvoiceID'] = $data['InvoiceIDs'];
+				$transactionResponse['AccountID'] = $data['AccountID'];
+				$transactionResponse['custome_notes'] = $data['custome_notes'];
+				Payment::paymentFail($transactionResponse);
+
+				return array("status" => "failed", "message" => "Transaction Failed :" . $transactionResponse['failed_reason']);
+
+			}
+		}
 
 		$unPaidInvoices = DB::connection('sqlsrv2')->select('call prc_getPaymentPendingInvoice (' . $data['CompanyID'] . ',' . $data['AccountID'].',0,0)');
 		if (isset($transactionResponse['response_code']) && $transactionResponse['response_code'] == 1) {
 			$transactionResponse['Transaction'] = $transactionResponse['transaction_id'];
-
-			if(isset($data['isInvoicePay']) && !$data['isInvoicePay']){
-				$transactionResponse['Amount'] = $data['outstanginamount'];
-				$transactionResponse['InvoiceID'] = $data['InvoiceIDs'];
-				$transactionResponse['AccountID'] = $data['AccountID'];
-				Payment::paymentSuccess($transactionResponse);
-			}else{
-				foreach ($unPaidInvoices as $Invoiceid) {
-					/**  Update Invoice as Paid */
-					if (in_array($Invoiceid->InvoiceID, explode(',', $data['InvoiceIDs']))) {
-						$transactionResponse['Amount'] = $Invoiceid->RemaingAmount;
-						$transactionResponse['InvoiceID'] = $Invoiceid->InvoiceID;
-						$transactionResponse['AccountID'] = $data['AccountID'];
-						Payment::paymentSuccess($transactionResponse);
-					}
+			foreach ($unPaidInvoices as $Invoiceid) {
+				/**  Update Invoice as Paid */
+				if (in_array($Invoiceid->InvoiceID, explode(',', $data['InvoiceIDs']))) {
+					$transactionResponse['Amount'] = $Invoiceid->RemaingAmount;
+					$transactionResponse['InvoiceID'] = $Invoiceid->InvoiceID;
+					$transactionResponse['AccountID'] = $data['AccountID'];
+					Payment::paymentSuccess($transactionResponse);
 				}
 			}
 			return array("status" => "success", "message" => "All Invoice Paid Successfully");
 		} else {
-			if(isset($data['isInvoicePay']) && !$data['isInvoicePay']){
-				$transactionResponse['Amount'] = $data['outstanginamount'];
-				$transactionResponse['InvoiceID'] = $data['InvoiceIDs'];
-				$transactionResponse['AccountID'] = $data['AccountID'];
-				Payment::paymentFail($transactionResponse);
-			}else{
-				foreach ($unPaidInvoices as $Invoiceid) {
-					if (in_array($Invoiceid->InvoiceID, explode(',', $data['InvoiceIDs']))) {
-						$transactionResponse['Amount'] = $Invoiceid->RemaingAmount;
-						$transactionResponse['InvoiceID'] = $Invoiceid->InvoiceID;
-						$transactionResponse['AccountID'] = $data['AccountID'];
-						Payment::paymentFail($transactionResponse);
-					}
+			foreach ($unPaidInvoices as $Invoiceid) {
+				if (in_array($Invoiceid->InvoiceID, explode(',', $data['InvoiceIDs']))) {
+					$transactionResponse['Amount'] = $Invoiceid->RemaingAmount;
+					$transactionResponse['InvoiceID'] = $Invoiceid->InvoiceID;
+					$transactionResponse['AccountID'] = $data['AccountID'];
+					Payment::paymentFail($transactionResponse);
 				}
 			}
 			return array("status" => "failed", "message" => "Transaction Failed :" . $transactionResponse['failed_reason']);

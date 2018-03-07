@@ -2908,6 +2908,7 @@ class InvoicesController extends \BaseController {
                 $PaymentData['PaymentGateway'] = $PaymentGateway;
                 $PaymentData['outstanginamount'] = $data['GrandTotal'];
                 $PaymentData['isInvoicePay'] = $data['isInvoicePay'];
+                $PaymentData['custome_notes'] = $data['custome_notes'];
 
                 $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $account->CompanyID);
                 $PaymentResponse = $PaymentIntegration->paymentWithProfile($PaymentData);

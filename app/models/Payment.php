@@ -390,7 +390,7 @@ class Payment extends \Eloquent {
             $paymentdata['InvoiceNo'] = $Invoice->FullInvoiceNumber;
             $paymentdata['InvoiceID'] = (int)$Invoice->InvoiceID;
         }else{
-            $paymentdata['CompanyID'] = $account->CompanyID;
+            $paymentdata['CompanyID'] = $account->CompanyId;
             $paymentdata['AccountID'] = $account->AccountID;
             $paymentdata['InvoiceNo'] = '';
             if(!empty($Invoice)){
@@ -468,7 +468,7 @@ class Payment extends \Eloquent {
             $transactiondata['InvoiceID'] = $Invoice->InvoiceID;
         }else{
             $account = Account::find($data['AccountID']);
-            $transactiondata['CompanyID'] = $account->CompanyID;
+            $transactiondata['CompanyID'] = $account->CompanyId;
             $transactiondata['AccountID'] = $account->AccountID;
             if(!empty( $Invoice )){
                 $transactiondata['InvoiceID'] =  $Invoice->InvoiceID;
