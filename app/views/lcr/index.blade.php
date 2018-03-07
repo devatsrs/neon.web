@@ -66,12 +66,12 @@
                         <input id="vendor_block" name="vendor_block" type="checkbox" value="1">
                     </p>
                 </div>
-                <div class="form-group">
+             {{--   <div class="form-group">
                     <label for="field-1" class="control-label">Show Customer Sell Rate</label>
                     <p class="make-switch switch-small">
                         <input id="show_customer_rate" name="show_customer_rate" type="checkbox" value="1">
                     </p>
-                </div>
+                </div>--}}
                 <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
@@ -97,6 +97,21 @@
         .destination{
             cursor: pointer;
         }
+        .toolbartitle{
+
+            text-align: center;
+        }
+        .centercaption{
+            background: #fff;
+            border-top: 1px solid #ebebeb;
+            border-bottom: 0;
+            padding: 15px 12px;
+            height: 58px;
+        }
+        .table-responsive {
+            overflow-x: unset;
+        }
+
     </style>
 
     <ol class="breadcrumb bc-3">
@@ -114,28 +129,29 @@
     <h3>LCR</h3>
 
     <br>
+    <div class="table-responsive">
+        <table class="table table-bordered datatable" id="table-4">
+            <thead>
+            <tr>
+                <th>Destination</th>
+                <th id="dt_company1">Position 1</th>
+                <th id="dt_company2">Position 2</th>
+                <th id="dt_company3">Position 3</th>
+                <th id="dt_company4">Position 4</th>
+                <th id="dt_company5">Position 5</th>
+                <th id="dt_company6">Position 6</th>
+                <th id="dt_company7">Position 7</th>
+                <th id="dt_company8">Position 8</th>
+                <th id="dt_company9">Position 9</th>
+                <th id="dt_company10">Position 10</th>
+            </tr>
+            </thead>
+            <tbody>
 
-    <table class="table table-bordered datatable" id="table-4">
-        <thead>
-        <tr>
-            <th>Destination</th>
-            <th id="dt_company1">Position 1</th>
-            <th id="dt_company2">Position 2</th>
-            <th id="dt_company3">Position 3</th>
-            <th id="dt_company4">Position 4</th>
-            <th id="dt_company5">Position 5</th>
-            <th id="dt_company6">Position 6</th>
-            <th id="dt_company7">Position 7</th>
-            <th id="dt_company8">Position 8</th>
-            <th id="dt_company9">Position 9</th>
-            <th id="dt_company10">Position 10</th>
-        </tr>
-        </thead>
-        <tbody>
 
-
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
 
     <div class="vendorRateInfo hide"></div>
 
@@ -192,10 +208,6 @@
 
             $("#lcr-search-form").submit(function(e) {
                 $(".vendorRateInfo").addClass('hide');
-                var show_customer_rate = $("#lcr-search-form [name='show_customer_rate']").prop("checked");
-                if(show_customer_rate == false) {
-                    $(".vendorRateInfo").addClass('hide');
-                }
                 var Code, Description, Currency,CodeDeck,Use_Preference,vendor_block, Policy,LCRPosition,GroupBy,SelectedEffectiveDate,aoColumns,aoColumnDefs,accounts;
                 Code = $("#lcr-search-form input[name='Code']").val();
                 Description = $("#lcr-search-form input[name='Description']").val();
@@ -720,7 +732,7 @@
                     },
                     "iDisplayLength": 10,
                     "sPaginationType": "bootstrap",
-                    "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                    "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-md-6 col-xs-12 col-left'i><'col-md-6 col-xs-12 col-right'p>>",
                     "aaSorting": [[0, "asc"]],
                     "aoColumnDefs": aoColumnDefs,
                     "aoColumns":aoColumns,
@@ -875,9 +887,9 @@
 
             /* show margine datatable */
             $('#table-4 tbody').on('click', 'td.destination', function () {
-                var show_customer_rate = $("#lcr-search-form [name='show_customer_rate']").prop("checked");
-                if(show_customer_rate == true) {
 
+
+                $("#margineDataTable_processing").css('visibility','visible');
                     GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
                     var caption = $(this).html();
                     var desinationdata = $(this).html().split(":");
@@ -912,32 +924,35 @@
                             var decimalpoint = response.decimalpoint;
                             var margindata = response.result;
                             var verate = '';
-                            var result = '<h5 class="text-center bold">' + caption + '</h5>' +
-                                    '<table id="margineDataTable" class="table table-bordered datatable">' +
+                            //var result = '<h5 class="text-center bold">' + caption + '</h5>' +
+                            var result = '<div class="table-responsive"><table id="margineDataTable" class="table table-bordered datatable">' +
                                     '<thead><tr><th id="dt_col1">Customer</th><th id="dt_col1">CRate</th><th id="dt_col2">&nbsp;</th></tr>' +
                                     '</thead><tbody>';
                             margindata.forEach(function (data) {
-                                var verate = '<table class="table table-bordered"><tr><th>Vendor</th><th>Rate</th><th>Margin (Percentage)</th></tr>';
+                                var verate = '<table class="table table-bordered" style="background-color:#f8f8ff"><tr><th>Vendor</th><th>Rate</th><th>Margin (Percentage)</th></tr>';
                                 margin = "";
                                 margin_percentage = "";
                                 for (i = 0; i <= arr['rate'].length - 1; i++) {
                                     var margin = parseFloat(data.Rate) - parseFloat(arr['rate'][i]) ;
                                     var margincolor = parseFloat(data.Rate) < parseFloat(arr['rate'][i]) ? 'color:red' : '' ;
                                     var margin_percentage =  (parseFloat(data.Rate) * 100 / parseFloat(arr['rate'][i])) - 100;
-                                    var margin_percentage = Math.abs(margin_percentage);
                                     verate += '<tr><td>' + arr['vendor'][i] + '</td><td>' + arr['rate'][i] + '</td>' +
-                                            '<td style="'+ margincolor +'">' + Math.abs(margin.toFixed(decimalpoint)) + ' (' + margin_percentage.toFixed(2) + '%)</td></tr>';
+                                            '<td style="'+ margincolor +'">' + margin.toFixed(decimalpoint) + ' (' + margin_percentage.toFixed(2) + '%)</td></tr>';
                                 }
-                                verate += '</table>';
-                                result += '<tr><td>' + data.AccountName + '</td><td>'+data.Rate+'</td><td colspan="3">' + verate + '</td></tr>';
+                                verate += '</table></div>';
+                                var linkurl = baseurl + "/customers_rates/" + data.AccountID;
+                                var accountNameLink = '<a target="_blank" href="'+linkurl+'">'+data.AccountName+'</a>';
+
+                                result += '<tr><td>'+accountNameLink+'</td><td>'+data.Rate+'</td><td colspan="3">' + verate + '</td></tr>';
                             });
                             result += '</tbody></table>';
                             $(".vendorRateInfo").removeClass('hide');
                             $(".vendorRateInfo").html(result);
+
                             var margineDataTable = $('#margineDataTable').DataTable({
                                 "bDestroy": true,
                                 "bProcessing": true,
-                                "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data exbtn'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                                "sDom": "<'row'<'col-md-push-4 col-md-4 col-xs-12 centercaption'<'toolbartitle'> ><'col-md-pull-4 col-md-4 col-xs-12 col-left'l ><'col-md-4 col-xs-12'<'export-data exbtn'T>f>r>t<'row'<'col-md-6 col-xs-12 col-left'i><'col-md-6 col-xs-12 col-right'p>>",
                                 "aaSorting": [[0, "asc"]],
                                 "oTableTools": {
                                     "aButtons": [
@@ -956,11 +971,14 @@
                                     ]
                                 }
                             });
+                            $("div.toolbartitle").html('<b>'+caption+'</b>');
+                            $("#margineDataTable_processing").css('visibility','hidden');
+
                         }
 
                     });
 
-                }
+
             });
             /* show margine datatable end */
 

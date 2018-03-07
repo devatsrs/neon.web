@@ -119,10 +119,10 @@ class LCRController extends \BaseController {
     public function marginRate(){
         $postdata = Input::all();
             if($postdata['GroupBy']=='code') {
-                $result = DB::table("tblCustomerRate as cr")->select('acc.AccountName', 'cr.Rate')
+                $result = DB::table("tblCustomerRate as cr")->select('acc.AccountName','acc.AccountID', 'cr.Rate')
                     ->join('tblRate as r', 'cr.RateID', '=', 'r.RateID')
                     ->join('tblAccount as acc', 'cr.CustomerID', '=', 'acc.AccountID')
-                    ->where('r.Code', '=', $postdata['code'])
+                    ->where('r.Code', '=', $postdata['code'])->groupby('acc.AccountName')
                     ->where('acc.Status', '=', '1')
                     ->get();
             }else{
