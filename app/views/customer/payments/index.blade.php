@@ -587,7 +587,7 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_MODAL_EDIT_PAYMENT_FIELD_AMOUNT')</label>
-                                    <input type="text" name="Amount" class="form-control" id="field-5" placeholder="" pattern="\d+" required>
+                                    <input type="text" name="Amount" class="form-control" id="field-5" placeholder="" pattern="[0-9.]*" required>
                                     <input type="hidden" name="PaymentID" >
                                     <input type="hidden" name="CustomerPaymentType" value="Payment In" >
                                     <input type="hidden" name="Currency" value="{{$currency}}" >
