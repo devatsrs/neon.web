@@ -32,6 +32,9 @@
     jQuery(document).ready(function ($) {
         $search.AlertType = $('#call_filter [name="AlertType"]').val();
         data_table_call = $("#table-6").dataTable({
+            "oLanguage": {
+                "sUrl": baseurl + "/translate/datatable_Label"
+            },
             "bDestroy": true,
             "bProcessing": true,
             "bServerSide": true,

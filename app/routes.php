@@ -1451,7 +1451,7 @@ Route::group(array('before' => 'guest'), function () {
 	
 	Route::any('/download_file', 'HomeController@DownloadFile');
 	
-
+	Route::any('translate/datatable_Label', 'TranslateController@datatable_Label');
 });
 
 /*

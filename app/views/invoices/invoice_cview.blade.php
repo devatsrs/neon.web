@@ -104,7 +104,7 @@
                   <a href="{{URL::to('/invoice/'.$Invoice->InvoiceID.'/invoice_chart/')}}" class="btn pull-right btn-success tooltip-primary" data-original-title="Management Reports" title="Management Reports" data-placement="top" data-toggle="tooltip"> <i class="entypo-chart-bar"></i></a>
                   <div class="pull-right"> &nbsp;</div>
               @endif
-          @if( !empty($Invoice->UsagePath)) <a href="{{$cdownload_usage}}" class="btn pull-right btn-success btn-sm btn-icon icon-left"> <i class="entypo-down"></i> @lang('routes.CUST_PANEL_PAGE_INVOICE_CVIEW_BUTTON_DOWNLOD_USAGE') </a>
+          @if( !empty($Invoice->UsagePath)) <a href="{{$cdownload_usage}}" class="btn pull-right btn-success btn-sm btn-icon icon-left"> <i class="entypo-down"></i> @lang('routes.CUST_PANEL_PAGE_INVOICE_CVIEW_BUTTON_DOWNLOAD_USAGE') </a>
           <div class="pull-right"> &nbsp;</div>
           @endif
 

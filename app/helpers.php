@@ -2630,3 +2630,27 @@ function getSql($model)
 
     return $sql;
 }
+
+function js_labels(){
+    $arrJsLabel= array();
+    $arrJsLabel["MSG_DATA_NOT_AVAILABLE"]=cus_lang("MESSAGE_DATA_NOT_AVAILABLE");
+    $arrJsLabel["TABLE_TOTAL"]=cus_lang("TABLE_TOTAL");
+    $arrJsLabel["BUTTON_EXPORT_CSV_CAPTION"]=cus_lang("BUTTON_EXPORT_CSV_CAPTION");
+    $arrJsLabel["BUTTON_EXPORT_EXCEL_CAPTION"]=cus_lang("BUTTON_EXPORT_EXCEL_CAPTION");
+
+    $arrJsLabel["HTTP_STATUS_400_MSG"]=cus_lang("HTTP_STATUS_400_MSG");
+    $arrJsLabel["HTTP_STATUS_403_MSG"]=cus_lang("HTTP_STATUS_403_MSG");
+    $arrJsLabel["HTTP_STATUS_404_MSG"]=cus_lang("HTTP_STATUS_404_MSG");
+    $arrJsLabel["HTTP_STATUS_408_MSG"]=cus_lang("HTTP_STATUS_408_MSG");
+    $arrJsLabel["HTTP_STATUS_410_MSG"]=cus_lang("HTTP_STATUS_410_MSG");
+    $arrJsLabel["HTTP_STATUS_500_MSG"]=cus_lang("HTTP_STATUS_500_MSG");
+    $arrJsLabel["HTTP_STATUS_503_MSG"]=cus_lang("HTTP_STATUS_503_MSG");
+    $arrJsLabel["HTTP_STATUS_504_MSG"]=cus_lang("HTTP_STATUS_504_MSG");
+
+
+    $html="";
+    foreach($arrJsLabel as $key=>$val){
+        $html.=" var ".$key." = '".$val."';  \n\r";
+    }
+    return $html;
+}

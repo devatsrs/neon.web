@@ -23,6 +23,12 @@
       <div class="panel-body">
         <form role="form" id="form-ticketgroup-add" method="post" action="{{URL::to('ticketgroups/create')}}"
                       class="form-horizontal form-groups-bordered">
+        <div class="form-group">
+            <label for="GroupName" class="col-sm-3 control-label">Language</label>
+            <div class="col-sm-9">
+                {{ddl_language("", "groupLanguage", Translation::$default_lang_id, "", "id")}}
+            </div>
+        </div>
           <div class="form-group">
             <label for="GroupName" class="col-sm-3 control-label">Name</label>
             <div class="col-sm-9">

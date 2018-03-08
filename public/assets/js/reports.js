@@ -242,6 +242,9 @@ function loadTable(table_id,pageSize,$searchFilter){
     var TotalCost = 0;
     var TotalMargin = 0;
         data_table  = $(table_id).dataTable({
+        "oLanguage": {
+            "sUrl": baseurl + "/translate/datatable_Label"
+        },
         "bDestroy": true,
         "bProcessing": true,
         "bServerSide": true,
