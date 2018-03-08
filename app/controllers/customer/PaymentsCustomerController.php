@@ -92,12 +92,7 @@ class PaymentsCustomerController extends \BaseController {
         }
 
         $method = array(
-                    ''=>cus_lang("DROPDOWN_OPTION_SELECT"),
-                    'CASH'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_CASH"),
-//                    'PAYPAL'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_PAYPAL"),
-                    'CHEQUE'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_CHEQUE"),
-                    'CREDIT CARD'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_CREDIT_CARD"),
-                    'BANK TRANSFER'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_BANK_TRANSFER")
+            ''=>cus_lang("DROPDOWN_OPTION_SELECT")
         );
         if(empty($Account->ShowAllPaymentMethod)){
             if(($Account->PaymentMethod == 'AuthorizeNet') && (is_authorize($Account->CompanyID)  ) ){
@@ -119,6 +114,14 @@ class PaymentsCustomerController extends \BaseController {
                 $method["online_SagePay"]="SagePay";
             }
         }else{
+            $method = array_merge($method, array(
+                'CASH'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_CASH"),
+//                    'PAYPAL'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_PAYPAL"),
+                'CHEQUE'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_CHEQUE"),
+                'CREDIT CARD'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_CREDIT_CARD"),
+                'BANK TRANSFER'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_BANK_TRANSFER")
+            ));
+            
             if(is_authorize($Account->CompanyId)){
                 $method["online_AuthorizeNet"]="AuthorizeNet";
             }
