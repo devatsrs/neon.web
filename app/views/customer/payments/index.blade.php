@@ -349,12 +349,8 @@
 
                         if(PaymentMethod.indexOf("online_")==0){
                             if(PaymentMethod=="online_Paypal" || PaymentMethod=="online_SagePay" ){
-                                $("#PaymentProof").parents(".col-md-12").eq(0).hide();
-                                $("#add-edit-payment-form [name='PaymentDate']").parents(".col-md-12").eq(0).hide();
                                 $("#add-edit-payment-form [name='Notes']").parents(".col-md-12").eq(0).hide();
                             }else{
-                                $("#PaymentProof").parents(".col-md-12").eq(0).show();
-                                $("#add-edit-payment-form [name='PaymentDate']").parents(".col-md-12").eq(0).show();
                                 $("#add-edit-payment-form [name='Notes']").parents(".col-md-12").eq(0).show();
                             }
                         }
@@ -580,7 +576,7 @@
                     </div>-->
                     <div class="modal-body">
                         <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-12 hidden">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_MODAL_EDIT_PAYMENT_FIELD_PAYMENT_DATE')</label>
                                     <input type="text" name="PaymentDate" class="form-control datepicker" data-date-format="yyyy-mm-dd" id="field-5" placeholder="" value="{{date('Y-m-d')}}">
@@ -624,7 +620,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-12">
+                            <div class="col-md-12 hidden">
                                 <div class="form-group">
                                     <label for="PaymentProof" class="col-sm-2 control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_MODAL_EDIT_PAYMENT_FIELD_PROOF_UPLOAD_EXTENSION')</label>
                                     <div class="col-sm-6">
