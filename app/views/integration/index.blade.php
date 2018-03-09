@@ -604,7 +604,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label class="control-label">* Live:</label>
+                        <label class="control-label">Live:</label>
                         <div id="PeleCardLiveDiv">
                             <input id="PeleCardLive" class="subcatstatus" Divid="PeleCardLiveDiv" name="PeleCardLive" type="checkbox" value="1" <?php if(isset($PeleCardDbData->PeleCardLive) && $PeleCardDbData->PeleCardLive==1){ ?>   checked="checked"<?php } ?> >
                         </div>
