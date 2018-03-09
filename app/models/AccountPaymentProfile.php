@@ -5,6 +5,8 @@ class AccountPaymentProfile extends \Eloquent
     protected $guarded = array('AccountPaymentProfileID');
     protected $table = 'tblAccountPaymentProfile';
     protected $primaryKey = "AccountPaymentProfileID";
+    public static $StatusActive = 1;
+    public static $StatusDeactive = 0;
 
     public static function getActiveProfile($AccountID,$PaymentGatewayID)
     {

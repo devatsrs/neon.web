@@ -1452,7 +1452,13 @@ Route::group(array('before' => 'guest'), function () {
 	Route::any('/download_file', 'HomeController@DownloadFile');
 	
 	Route::any('translate/datatable_Label', 'TranslateController@datatable_Label');
+
+	//test pages
+	Route::any('/test', 'TestController@index');
+
 });
+
+Route::any('terms', "HomeController@terms");
 
 /*
  * save isGuest to skip routes/urls for user permission

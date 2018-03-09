@@ -10,12 +10,14 @@ class PaymentGateway extends \Eloquent {
     const  StripeACH	=	3;
     const  SagePayDirectDebit	=	4;
     const  FideliPay	=	5;
+    const  PeleCard	    =	6;
     public static $paymentgateway_name = array(''=>'' ,
         self::AuthorizeNet => 'AuthorizeNet',
         self::Stripe=>'Stripe',
         self::StripeACH=>'StripeACH',
         self::SagePayDirectDebit=>'SagePayDirectDebit',
-        self::FideliPay=>'FideliPay'
+        self::FideliPay=>'FideliPay',
+        self::PeleCard=>'PeleCard'
     );
 
     public static function getName($PaymentGatewayID)
