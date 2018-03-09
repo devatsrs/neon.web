@@ -2104,8 +2104,8 @@ class InvoicesController extends \BaseController {
                 $CompanyID = $Invoice->CompanyID;
             }else{
                 if(isset($account_inv[2])){
-                    $Invoice = Invoice::where(array('FullInvoiceNumber'=>$account_inv[2],'AccountID'=>$AccountID))->get();
-                    if(!empty($Invoice)){
+                    $Invoice = Invoice::where(array('FullInvoiceNumber'=>$account_inv[2],'AccountID'=>$AccountID))->first();
+                    if(!empty($Invoice) && count($Invoice)){
                         $CompanyID = $Invoice->CompanyID;
                         $InvoiceID = $Invoice->InvoiceID;
                     }
