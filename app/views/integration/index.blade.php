@@ -597,7 +597,7 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="field-1" class="control-label">* Password:</label>
-                        <input type="text"  class="form-control" name="password" value="{{isset($PeleCardData->password)?$PeleCardData->password:''}}" />
+                        <input type="password"  class="form-control" name="password" value="" />
                     </div>
                 </div>
             </div>

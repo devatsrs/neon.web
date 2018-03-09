@@ -421,11 +421,20 @@ class IntegrationController extends \BaseController
 
 			if($data['secondcategory']=='PeleCard')
 			{
-				$rules = array(
-					'terminalNumber'	=> 'required',
-					'user'	 			=> 'required',
-					'password'			=> 'required'
-				);
+				$PeleCardDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+
+				if(count($PeleCardDbData)>0) { // update
+					$rules = array(
+						'terminalNumber' => 'required',
+						'user' => 'required'
+					);
+				} else { // create
+					$rules = array(
+						'terminalNumber' => 'required',
+						'user' => 'required',
+						'password' => 'required'
+					);
+				}
 
 				$validator = Validator::make($data, $rules);
 
@@ -439,20 +448,19 @@ class IntegrationController extends \BaseController
 				$PeleCardData = array(
 					"terminalNumber"	=>	$data['terminalNumber'],
 					"user"				=>	$data['user'],
-					"password"			=>	$data['password'],
+					"password"			=>	Crypt::encrypt($data['password']),
 					"PeleCardLive"		=>	$data['PeleCardLive']
 				);
 
-				$PeleCardDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+				if(count($PeleCardDbData)>0 && empty($data['password'])) {
+					$Settings = json_decode($PeleCardDbData->Settings);
+					$PeleCardData['password'] = $Settings->password;
+				}
 
-				if(count($PeleCardDbData)>0)
-				{
+				if(count($PeleCardDbData)>0) {
 					$SaveData = array("Settings"=>json_encode($PeleCardData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
 					IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$PeleCardDbData->IntegrationConfigurationID))->update($SaveData);
-
-				}
-				else
-				{
+				} else {
 					$SaveData = array("Settings"=>json_encode($PeleCardData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
 					IntegrationConfiguration::create($SaveData);
 				}
