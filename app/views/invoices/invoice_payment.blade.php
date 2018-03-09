@@ -31,7 +31,7 @@
         </div>
     </div>
     </header>
-    @if($PaymentGatewayID==PaymentGateway::AuthorizeNet || $PaymentGatewayID==PaymentGateway::Stripe || $PaymentGatewayID==PaymentGateway::FideliPay))
+    @if($PaymentGatewayID==PaymentGateway::AuthorizeNet || $PaymentGatewayID==PaymentGateway::Stripe || $PaymentGatewayID==PaymentGateway::FideliPay || $PaymentGatewayID==PaymentGateway::PeleCard))
         @include('invoices.invoice_creditcard')
     @endif
     @if($PaymentGatewayID==PaymentGateway::StripeACH)

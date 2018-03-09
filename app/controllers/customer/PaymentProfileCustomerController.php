@@ -18,7 +18,8 @@ class PaymentProfileCustomerController extends \BaseController {
         $carddetail = AccountPaymentProfile::select("tblAccountPaymentProfile.Title","tblAccountPaymentProfile.Status","tblAccountPaymentProfile.isDefault",DB::raw("'".$PaymentGatewayName."' as gateway"),"created_at","AccountPaymentProfileID","tblAccountPaymentProfile.Options");
         $carddetail->where(["tblAccountPaymentProfile.CompanyID"=>$CompanyID])
             ->where(["tblAccountPaymentProfile.AccountID"=>$AccountID])
-            ->where(["tblAccountPaymentProfile.PaymentGatewayID"=>$PaymentGatewayID]);
+            ->where(["tblAccountPaymentProfile.PaymentGatewayID"=>$PaymentGatewayID])
+            ->where(["tblAccountPaymentProfile.Status"=>AccountPaymentProfile::$StatusActive]);
 
         return Datatables::of($carddetail)->make();
     }

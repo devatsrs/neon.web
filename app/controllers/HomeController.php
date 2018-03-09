@@ -397,4 +397,8 @@ class HomeController extends BaseController {
             return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
         }
     }
+
+    function terms(){
+        return View::make('terms.index');
+    }
 }
