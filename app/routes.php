@@ -1446,7 +1446,9 @@ Route::group(array('before' => 'guest'), function () {
 	Route::any('/estimate/download_estimate/{id}', 'EstimatesController@download_estimate');
 	
 	Route::any('/download_file', 'HomeController@DownloadFile');
-	
+
+	//test pages
+	Route::any('/test', 'TestController@index');
 
 });
 
