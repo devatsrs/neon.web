@@ -678,6 +678,10 @@
                                 <label for="minimal-radio-9-11">FideliPay</label>
                             </li>
                             <li>
+                                <input type="radio" class="icheck-11" id="minimal-radio-10-11" name="PaymentMethod" value="PeleCard" @if( $account->PaymentMethod == 'PeleCard' ) checked="" @endif />
+                                <label for="minimal-radio-10-11">PeleCard</label>
+                            </li>
+                            <li>
                                 <input type="radio" class="icheck-11" id="minimal-radio-5-11" name="PaymentMethod" value="Other" @if( $account->PaymentMethod == 'Other' ) checked="" @endif />
                                 <label for="minimal-radio-5-11">Other</label>
                             </li>

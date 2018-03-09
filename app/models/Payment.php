@@ -438,7 +438,7 @@ class Payment extends \Eloquent {
         $transactiondata['updated_at'] = date('Y-m-d H:i:s');
         $transactiondata['CreatedBy'] = $data['CreatedBy'];
         $transactiondata['ModifyBy'] = $data['CreatedBy'];
-        $transactiondata['Response'] = $data['Response'];
+        $transactiondata['Response'] = json_encode($data['Response']);
         TransactionLog::insert($transactiondata);
     }
 }

@@ -418,6 +418,46 @@ class IntegrationController extends \BaseController
 				}
 				return Response::json(array("status" => "success", "message" => "FideliPay Settings Successfully Updated"));
 			}
+
+			if($data['secondcategory']=='PeleCard')
+			{
+				$rules = array(
+					'terminalNumber'	=> 'required',
+					'user'	 			=> 'required',
+					'password'			=> 'required'
+				);
+
+				$validator = Validator::make($data, $rules);
+
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+
+				$data['PeleCardLive'] 	= 	isset($data['PeleCardLive'])?1:0;
+				$data['Status'] 		= 	isset($data['Status'])?1:0;
+
+				$PeleCardData = array(
+					"terminalNumber"	=>	$data['terminalNumber'],
+					"user"				=>	$data['user'],
+					"password"			=>	$data['password'],
+					"PeleCardLive"		=>	$data['PeleCardLive']
+				);
+
+				$PeleCardDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+
+				if(count($PeleCardDbData)>0)
+				{
+					$SaveData = array("Settings"=>json_encode($PeleCardData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$PeleCardDbData->IntegrationConfigurationID))->update($SaveData);
+
+				}
+				else
+				{
+					$SaveData = array("Settings"=>json_encode($PeleCardData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::create($SaveData);
+				}
+				return Response::json(array("status" => "success", "message" => "PeleCard Settings Successfully Updated"));
+			}
 		}
 		
 		if($data['firstcategory']=='email') {

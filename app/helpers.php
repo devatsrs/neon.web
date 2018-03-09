@@ -498,6 +498,15 @@ function is_paypal($CompanyID){
     return false;
 }
 
+function is_pelecard($CompanyID){
+
+    $pelecard = new PeleCard($CompanyID);
+    if($pelecard->status){
+        return true;
+    }
+    return false;
+}
+
 function is_sagepay($CompanyID){
 
     $sagepay = new SagePay($CompanyID);
@@ -2428,7 +2437,7 @@ function report_join($data){
     return $account_join;
 }
 function getInvoicePayments($CompanyID){
-    if(is_authorize($CompanyID) || is_Stripe($CompanyID) || is_StripeACH($CompanyID) || is_paypal($CompanyID) || is_sagepay($CompanyID) || is_FideliPay($CompanyID)){
+    if(is_authorize($CompanyID) || is_Stripe($CompanyID) || is_StripeACH($CompanyID) || is_paypal($CompanyID) || is_sagepay($CompanyID) || is_FideliPay($CompanyID) || is_pelecard($CompanyID)){
         return true;
     }
     return false;
