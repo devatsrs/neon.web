@@ -166,11 +166,12 @@ class PeleCard {
     public function pay_invoice($data){
         try {
             //test params
-            $creditCard         = "4111111111111111";
+            /*$creditCard         = "4111111111111111";
             $creditCardDateMmYy = "1219";
             $cvv2               = "123";
             $id                 = "123456789";
-            $paramX             = "test";
+            $paramX             = "test";*/
+            //test params
 
             $Account            = Account::find($data['AccountID']);
             $CurrencyID         = $Account->CurrencyId;
