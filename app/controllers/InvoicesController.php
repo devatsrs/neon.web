@@ -2103,6 +2103,15 @@ class InvoicesController extends \BaseController {
                 $Invoice = Invoice::find($InvoiceID);
                 $CompanyID = $Invoice->CompanyID;
             }else{
+                if(isset($account_inv[2])){
+                    $Invoice = Invoice::where(array('FullInvoiceNumber'=>$account_inv[2],'AccountID'=>$AccountID))->get();
+                    if(!empty($Invoice)){
+                        $CompanyID = $Invoice->CompanyID;
+                        $InvoiceID = $Invoice->InvoiceID;
+                    }
+                }
+            }
+            if(!isset($CompanyID)){
                 $account = Account::find($AccountID);
                 $CompanyID = $account->CompanyId;
             }

@@ -318,6 +318,7 @@
                             var InvoiceNo = $("#add-edit-payment-form [name='InvoiceNo']").val();
                             var custome_notes = $("#add-edit-payment-form [name='Notes']").val();
                             if(PaymentMethod=="Paypal"  ){
+                                $('#pyapalform [name=notify_url]').val(baseurl + "/paypal_ipn/{{$Account->AccountID}}-0-"+InvoiceNo)
                                 $('#pyapalform [name=amount]').val(Amount)
                                 $('#pyapalform').submit();
                                 return false;
@@ -344,7 +345,7 @@
                         ajax_Add_update(update_new_url);
                     });
 
-                    $("#add-edit-payment-form [name='PaymentMethod']").change(function(){
+                    /*$("#add-edit-payment-form [name='PaymentMethod']").change(function(){
                         var PaymentMethod = $("#add-edit-payment-form [name='PaymentMethod']").val();
 
                         if(PaymentMethod.indexOf("online_")==0){
@@ -354,7 +355,7 @@
                                 $("#add-edit-payment-form [name='Notes']").parents(".col-md-12").eq(0).show();
                             }
                         }
-                    });
+                    });*/
                     $("#payment-table-search").submit();
 
                 });
@@ -613,7 +614,7 @@
                                 </div>
                             </div>
                             <div class="col-md-12">
-                                <div class="form-group">
+                                <div class="form-group hidden">
                                     <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_MODAL_EDIT_PAYMENT_FIELD_NOTES')</label>
                                     <textarea name="Notes" class="form-control" id="field-5" placeholder=""></textarea>
                                     <input type="hidden" name="PaymentID" >
