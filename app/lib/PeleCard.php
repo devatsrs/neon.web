@@ -29,7 +29,7 @@ class PeleCard {
 
             $this->terminalNumber 	= 	$PeleCardobj->terminalNumber;
             $this->user		        = 	$PeleCardobj->user;
-            $this->password		    = 	$PeleCardobj->password;
+            $this->password		    = 	Crypt::decrypt($PeleCardobj->password);
             $this->PeleCardLive     = 	$PeleCardobj->PeleCardLive;
             $this->DebitRegularType = 	"DebitRegularType";
             $this->ConvertToToken   = 	"ConvertToToken";
