@@ -71,6 +71,9 @@
                 $search.Description = $("#table_filter").find('[name="Description"]').val();
 
                 data_table = $("#table-list").dataTable({
+                    "oLanguage": {
+                        "sUrl": baseurl + "/translate/datatable_Label"
+                    },
                     "bDestroy": true,
                     "bProcessing":true,
                     "bServerSide": true,

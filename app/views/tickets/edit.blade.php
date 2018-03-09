@@ -38,7 +38,8 @@
 				$required[] =  array("id"=>$id,"title"=>$TicketfieldsData->FieldName);
 			?>
             <div class="col-sm-6">
-            <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]' required id="{{$id}}" class="form-control requestersearch typeahead formfld" spellcheck="false" dir="auto"   value="{{htmlspecialchars($ticketSavedData[$TicketfieldsData->FieldType])}}"  placeholder="{{$TicketfieldsData->AgentLabel}}" />
+            	<input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]' required id="{{$id}}" class="form-control requestersearch typeahead formfld" spellcheck="false" dir="auto"   value="{{htmlspecialchars($ticketSavedData[$TicketfieldsData->FieldType])}}"  placeholder="{{$TicketfieldsData->AgentLabel}}" />
+				<span><a href="javascript:;" class="emailoptiontxt" onclick="$(this).hide(); $('#reqcc').removeClass('hidden'); $('#cc').focus();">CC</a> </span>
             </div>
             <div class="col-sm-3 dropdown" style="padding:0;">
               <button title="Add new requester" type="button" class="btn btn-primary btn-xs  dropdown-toggle" data-toggle="dropdown">+</button>
@@ -55,6 +56,15 @@
             </div>
             <?php } ?>
           </div>
+		  <?php if($TicketfieldsData->FieldType == 'default_requester')
+		  {  ?>
+		  <div id="reqcc" class="form-group hidden">
+			  <label for="cc" class="col-sm-3 control-label" for="cc">CC</label>
+			  <div class="col-sm-9">
+				  <input type="text" class="form-control useremails" id="cc" name="Ticket[cc]" value="" tabindex="2" />
+			  </div>
+		  </div>
+		  <?php } ?>
           <?php
 				 }
 				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_TEXTAREA)
@@ -221,7 +231,11 @@ var img_array		   =    '{{$ticketSavedData['AttachmentPaths']['attachmentsinfo']
 @endif
 
     jQuery(document).ready(function($) {
-		
+
+	$('.useremails').select2({
+		tags:{{$AllEmails}}
+	});
+
 					$('.requestersearch').select2({
     tags: true,
 	 tags:{{$AllEmails}},

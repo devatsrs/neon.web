@@ -71,6 +71,10 @@ class PaymentIntegration {
 
 		$transactionResponse['InvoiceID'] = $data['InvoiceID'];
 		$transactionResponse['AccountID'] = $data['AccountID'];
+		$transactionResponse['isInvoicePay'] = $data['isInvoicePay'];
+		if(!$data['isInvoicePay']){
+			$transactionResponse['custome_notes'] = $data['custome_notes'];
+		}
 		$transactionResponse['CreatedBy'] = 'customer';
 		if($transactionResponse['status']=='success'){
 			Payment::paymentSuccess($transactionResponse);
@@ -102,6 +106,29 @@ class PaymentIntegration {
 	public function getpaymentResponse($transactionResponse,$data){
 
 		$transactionResponse['CreatedBy'] = $data['CreatedBy'];
+		$transactionResponse['custome_notes']='';
+		if(isset($data['isInvoicePay']) && !$data['isInvoicePay']){
+			if (isset($transactionResponse['response_code']) && $transactionResponse['response_code'] == 1) {
+				$transactionResponse['Transaction'] = $transactionResponse['transaction_id'];
+
+
+				$transactionResponse['Amount'] = $data['outstanginamount'];
+				$transactionResponse['InvoiceID'] = $data['InvoiceIDs'];
+				$transactionResponse['AccountID'] = $data['AccountID'];
+				$transactionResponse['custome_notes'] = $data['custome_notes'];
+				Payment::paymentSuccess($transactionResponse);
+				return array("status" => "success", "message" => "All Invoice Paid Successfully");
+			} else {
+				$transactionResponse['Amount'] = $data['outstanginamount'];
+				$transactionResponse['InvoiceID'] = $data['InvoiceIDs'];
+				$transactionResponse['AccountID'] = $data['AccountID'];
+				$transactionResponse['custome_notes'] = $data['custome_notes'];
+				Payment::paymentFail($transactionResponse);
+
+				return array("status" => "failed", "message" => "Transaction Failed :" . $transactionResponse['failed_reason']);
+
+			}
+		}
 
 		$unPaidInvoices = DB::connection('sqlsrv2')->select('call prc_getPaymentPendingInvoice (' . $data['CompanyID'] . ',' . $data['AccountID'].',0,0)');
 		if (isset($transactionResponse['response_code']) && $transactionResponse['response_code'] == 1) {

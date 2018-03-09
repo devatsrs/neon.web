@@ -197,7 +197,7 @@ var required_flds	  =          '{{json_encode($required)}}';
 				
 					if(CurrentElementVal=='' || CurrentElementVal==0)
 					{
-						error_msg += element.title+' field is required<br>';						
+						error_msg += element.title+' {{cus_lang("MESSAGE_FIELD_IS_REQUIRED")}}<br>';
 					}				
 				});
 				if(error_msg!='')
@@ -283,11 +283,11 @@ var required_flds	  =          '{{json_encode($required)}}';
 					var index_file = emailFileList.indexOf(f.name);
 					if(index_file >-1 )
 					{
-						ShowToastr("error",f.name+" file already selected.");							
+						ShowToastr("error",f.name+" {{cus_lang("CUST_PANEL_PAGE_TICKETS_MSG_FILE_ALREADY_SELECTED")}}");
 					}
 					else if(bytesToSize(f.size))
 					{						
-						ShowToastr("error",f.name+" file size exceeds then upload limit ("+max_file_size_txt+"). Please select files again.");						
+						ShowToastr("error","{{cus_lang("CUST_PANEL_PAGE_TICKETS_MSG_MAX_FILE_SIZE_ERROR")}} "+max_file_size_txt);
 						file_check = 0;
 						 return false;
 						
@@ -299,8 +299,7 @@ var required_flds	  =          '{{json_encode($required)}}';
 				}
 				else
 				{
-					ShowToastr("error",ext_current_file+" file type not allowed.");
-					
+					ShowToastr("error",ext_current_file+" @lang('routes.CUST_PANEL_PAGE_TICKETS_MSG_FILE_TYPE_NOT_ALLOWED')");
 				}
         });
         		if(local_array.length>0 && file_check==1)

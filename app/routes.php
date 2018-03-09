@@ -437,6 +437,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/vendor_blocking/unblock/{id}', array('as' => 'vendor_blocking_unblock', 'uses' => 'VendorBlockingsController@unblock'));
 
 	Route::any('/vendor_blocking/index_blockby_code/{id}',  'VendorBlockingsController@index_blockby_code');
+	Route::any('/vendor_blocking_lrc/blockunblockcode',  'VendorBlockingsController@blockunblockcode');
 
 	Route::any('/vendor_blocking/blockby_code/{id}', array('as' => 'vendor_blocking_block_blockby_code', 'uses' => 'VendorBlockingsController@blockby_code'));
 	Route::any('/vendor_blocking/unblockby_code/{id}', array('as' => 'vendor_blocking_unblockby_code', 'uses' => 'VendorBlockingsController@unblockby_code'));
@@ -713,6 +714,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('lcr/exports', 'LCRController@exports');
 	Route::resource('lcr', 'LCRController');
 	Route::resource('lcr', 'LCRController');
+	Route::any('lcr/margin-rate', 'LCRController@marginRate');
+	Route::any('lcr/margin-rate-export/{type}/{id}', 'LCRController@marginRateExport');
+	Route::any('lcr/edit_preference', 'LCRController@editPreference');
 
 	//Pages
 	Route::any('/about', 'PagesController@about');
@@ -1446,6 +1450,8 @@ Route::group(array('before' => 'guest'), function () {
 	Route::any('/estimate/download_estimate/{id}', 'EstimatesController@download_estimate');
 	
 	Route::any('/download_file', 'HomeController@DownloadFile');
+	
+	Route::any('translate/datatable_Label', 'TranslateController@datatable_Label');
 
 	//test pages
 	Route::any('/test', 'TestController@index');

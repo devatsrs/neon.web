@@ -73,6 +73,72 @@ class VendorBlockingsController extends \BaseController {
             return View::make('vendorblockings.blockby_code', compact('id', 'trunks', 'trunk_keys', 'countries','Account'));
     }
 
+    public function blockunblockcode()
+    {
+
+        $username = User::get_user_full_name();
+        $data = Input::all();
+        $test1 = '';
+        $test2 = '';
+        if ($data["GroupBy"] == 'description') {
+
+            $test1 = DB::table('tblVendorBlocking')
+                ->where('CountryId', '=', $data["id"])
+                ->where('AccountId', '=', $data["acc_id"])
+                ->limit(1)
+                ->get();
+
+            if (!empty($test1)) {
+
+                DB::table('tblVendorBlocking')->where('AccountId', '=', $data["acc_id"])->delete();
+                $result["message"] = "Vendor Unblocked";
+
+            } else {
+
+                $test2 = DB::table('tblRate')
+                    ->where('Code', '=', $data["rowcode"])
+                    ->limit(1)
+                    ->get();
+                $CountryID = $test2[0]->CountryID;
+                DB::table('tblVendorBlocking')->insert(
+                    ['AccountId' => $data["acc_id"], 'CountryId' => $CountryID, 'TrunkID' => $data["trunk"], 'BlockedBy' => $username]
+                );
+                $result["message"] = "Vendor Blocked";
+                $result["vendorblocingId"] = DB::getPdo()->lastInsertId();
+            }
+
+        }else{
+
+                $test = DB::table('tblVendorRate')
+                ->join('tblRate', 'tblVendorRate.RateId', '=', 'tblRate.RateId')
+                ->where('tblVendorRate.AccountId', '=', $data["acc_id"])
+                ->where('tblVendorRate.TrunkID', '=', $data["trunk"])
+                ->where('tblRate.Code', '=', $data["rowcode"])
+                ->limit(1)
+                ->get();
+
+                $RateId = $test[0]->RateID;
+                $message = "";
+                $vendorblocingId = "";
+                if ($data["id"] == 0)
+                {
+                DB::table('tblVendorBlocking')->insert(
+                ['AccountId' => $data["acc_id"], 'RateId' => $RateId, 'TrunkID' => $data["trunk"], 'BlockedBy' => $username]
+                );
+                $result["message"] = "Vendor Blocked";
+                $result["vendorblocingId"] = DB::getPdo()->lastInsertId();
+                }
+
+                else{
+                    DB::table('tblVendorBlocking')->where('VendorBlockingId', '=', $data["id"])->delete();
+                    $result["message"] = "Vendor Unblocked";
+                }
+        }
+
+
+        return $result;
+    }
+
     public function blockbycountry_exports($id,$type) {
             $data = Input::all();
 

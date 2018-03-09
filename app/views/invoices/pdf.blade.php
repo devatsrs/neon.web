@@ -1,9 +1,9 @@
 @extends('layout.print')
 
 @section('content')
-<link rel="stylesheet" type="text/css" href="<?php echo URL::to('/'); ?>/assets/css/invoicetemplate/invoicestyle.css" />
+<link rel="stylesheet" type="text/css" href="<?php echo public_path("assets/css/invoicetemplate/invoicestyle.css"); ?>" />
 @if(isset($language->is_rtl) && $language->is_rtl=="Y")
-  <link rel="stylesheet" type="text/css" href="<?php echo URL::to('/'); ?>/assets/css/bootstrap-rtl.min.css" />
+  <link rel="stylesheet" type="text/css" href="<?php echo public_path("assets/css/bootstrap-rtl.min.css"); ?>" />
   <style type="text/css">
     .leftsideview{
       direction: ltr;

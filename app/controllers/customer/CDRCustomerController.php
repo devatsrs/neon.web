@@ -32,7 +32,7 @@ class CDRCustomerController extends BaseController {
         $account                     = Account::find($AccountID);
         $CurrencyID 		 = 	 empty($account->CurrencyId)?'0':$account->CurrencyId;
         $trunks = Trunk::getTrunkDropdownList($CompanyID);
-        $trunks = $trunks + array('Other'=>'Other');
+        $trunks = $trunks + array('Other'=>cus_lang("CUST_PANEL_PAGE_CDR_FILTER_FIELD_TRUNK_DLL_OTHER"));
         $Hide_AvgRateMinute = CompanyConfiguration::get('HIDE_AVGRATEMINUTE',$CompanyID);
         return View::make('customer.cdr.index',compact('dashboardData','account','gateway','rate_cdr','AccountID','CurrencyID','trunks','Hide_AvgRateMinute'));
     }

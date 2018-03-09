@@ -40,7 +40,7 @@
         <div class="alert alert-success">
             <strong>@lang('routes.CUST_PANEL_PAGE_NOTIFICATIONS_MSG_LATEST_UPDATES')</strong>
             @if(!empty($LastUpdated))
-                Updated {{\Carbon\Carbon::createFromTimeStamp(strtotime($LastUpdated))->diffForHumans() }}
+                {{cus_lang("CUST_PANEL_PAGE_NOTICEBOARD_MSG_UPDATED")}} {{\Carbon\Carbon::createFromTimeStamp(strtotime($LastUpdated))->diffForHumans() }}
             @else
                  @lang('routes.CUST_PANEL_PAGE_NOTICEBOARD_MSG_NO_UPDATES_FOUND')
             @endif
