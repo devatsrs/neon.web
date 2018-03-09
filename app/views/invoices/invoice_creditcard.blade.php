@@ -139,7 +139,7 @@ $(document).ready(function() {
                         @if(isset($Invoice))
                             window.location = '{{URL::to('/')}}/invoice_thanks/{{$Invoice->AccountID}}-{{$Invoice->InvoiceID}}';
                         @elseif(isset($request["Amount"]))
-                            window.location = '{{URL::to('/')}}/invoice_thanks/{{$Account->AccountID}}-0';
+                            window.location = '{{URL::to('/customer/payments')}}';
                         @endif
                     }else{
                         $('#add-credit-card-form').find('[type="submit"]').attr('disabled', false);

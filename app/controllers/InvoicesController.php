@@ -2653,6 +2653,9 @@ class InvoicesController extends \BaseController {
             $TransactionLog = TransactionLog::where(["AccountID" => $AccountnInvoice["AccountID"], "InvoiceID" => $AccountnInvoice["InvoiceID"]])->orderby("created_at", "desc")->first();
 
             $TransactionLog = json_decode(json_encode($TransactionLog),true);
+            if($AccountnInvoice["InvoiceID"]==0){
+                return Redirect::to(url('/customer/payments'));
+            }
             if($TransactionLog["Status"] == TransactionLog::SUCCESS ){
 
                 $Amount = $TransactionLog["Amount"];
