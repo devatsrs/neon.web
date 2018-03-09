@@ -198,7 +198,8 @@ class PaypalIpn
         $paypal_ipn_url = url('/paypal_ipn/'.$AccountID . '-' . $InvoiceID );
 
         if (!$this->is_live) {
-            $paypal_email =  'devens_1224939565_biz@yahoo.com';  //devens_1224939565_biz@yahoo.com
+//            $paypal_email =  'devens_1224939565_biz@yahoo.com';  //devens_1224939565_biz@yahoo.com
+            $paypal_email =  'vishal.jagani-facilitator@code-desk.com';  //devens_1224939565_biz@yahoo.com
             $paypal_url  = 'https://www.sandbox.paypal.com/cgi-bin/webscr';
         } else {
             $paypal_url  = 'https://www.paypal.com/cgi-bin/webscr';
