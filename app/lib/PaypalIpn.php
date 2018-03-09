@@ -186,10 +186,15 @@ class PaypalIpn
     /**
      * paynow button show.
      */
-    public function get_paynow_button($AccountID,$InvoiceID){
+    public function get_paynow_button($AccountID,$InvoiceID, $paypal_success_url="", $paypal_cancel_url=""){
 
-        $paypal_success_url = url('/invoice_thanks/'.$AccountID . '-' . $InvoiceID );
-        $paypal_cancel_url = url('/paypal_cancel/'.$AccountID . '-' . $InvoiceID );
+        if(empty($paypal_success_url)){
+            $paypal_success_url = url('/invoice_thanks/'.$AccountID . '-' . $InvoiceID );
+        }
+        if(empty($paypal_cancel_url)){
+            $paypal_cancel_url = url('/paypal_cancel/'.$AccountID . '-' . $InvoiceID );
+        }
+
         $paypal_ipn_url = url('/paypal_ipn/'.$AccountID . '-' . $InvoiceID );
 
         if (!$this->is_live) {

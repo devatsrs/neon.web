@@ -114,13 +114,13 @@ class PaymentsCustomerController extends \BaseController {
                 $method["online_SagePay"]="SagePay";
             }
         }else{
-            $method = array_merge($method, array(
+            /*$method = array_merge($method, array(
                 'CASH'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_CASH"),
 //                    'PAYPAL'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_PAYPAL"),
                 'CHEQUE'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_CHEQUE"),
                 'CREDIT CARD'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_CREDIT_CARD"),
                 'BANK TRANSFER'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_BANK_TRANSFER")
-            ));
+            ));*/
             
             if(is_authorize($Account->CompanyId)){
                 $method["online_AuthorizeNet"]="AuthorizeNet";
@@ -152,7 +152,7 @@ class PaymentsCustomerController extends \BaseController {
             $paypal->item_number =  0;
             $paypal->curreny_code =  $CurrencyCode;
             $paypal->amount = 0;
-            $paypal_button = $paypal->get_paynow_button($Account->AccountID, 0);
+            $paypal_button = $paypal->get_paynow_button($Account->AccountID, 0, url('/customer/payments'), url('/customer/payments'));
         }
         if ( (new SagePay($Account->CompanyID))->status()) {
             $SagePay = new SagePay($Account->CompanyID);

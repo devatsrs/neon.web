@@ -343,6 +343,22 @@
                         }
                         ajax_Add_update(update_new_url);
                     });
+
+                    $("#add-edit-payment-form [name='PaymentMethod']").change(function(){
+                        var PaymentMethod = $("#add-edit-payment-form [name='PaymentMethod']").val();
+
+                        if(PaymentMethod.indexOf("online_")==0){
+                            if(PaymentMethod=="online_Paypal" || PaymentMethod=="online_SagePay" ){
+                                $("#PaymentProof").parents(".col-md-12").eq(0).hide();
+                                $("#add-edit-payment-form [name='PaymentDate']").parents(".col-md-12").eq(0).hide();
+                                $("#add-edit-payment-form [name='Notes']").parents(".col-md-12").eq(0).hide();
+                            }else{
+                                $("#PaymentProof").parents(".col-md-12").eq(0).show();
+                                $("#add-edit-payment-form [name='PaymentDate']").parents(".col-md-12").eq(0).show();
+                                $("#add-edit-payment-form [name='Notes']").parents(".col-md-12").eq(0).show();
+                            }
+                        }
+                    });
                     $("#payment-table-search").submit();
 
                 });
