@@ -334,7 +334,7 @@ class SagePayDirectDebit
             $ValidationResponse['message'] = $verify_response['error'];
         }else{
             $ValidationResponse['status'] = 'failed';
-            $ValidationResponse['message'] = "Problem creating in verify";
+            $ValidationResponse['message'] = cus_lang("PAYMENT_MSG_PROBLEM_CREATING_IN_VERIFY");
         }
         return $ValidationResponse;
 
@@ -375,9 +375,9 @@ class SagePayDirectDebit
             'PaymentGatewayID' => $PaymentGatewayID);
 
         if (AccountPaymentProfile::create($BankDetail)) {
-            return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully Created"));
+            return Response::json(array("status" => "success", "message" => cus_lang("PAYMENT_MSG_PAYMENT_METHOD_PROFILE_SUCCESSFULLY_CREATED")));
         } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Saving Payment Method Profile."));
+            return Response::json(array("status" => "failed", "message" => cus_lang("PAYMENT_MSG_PROBLEM_SAVING_PAYMENT_METHOD_PROFILE")));
         }
     }
 
@@ -391,18 +391,18 @@ class SagePayDirectDebit
         if(!empty($PaymentProfile)){
             $isDefault = $PaymentProfile->isDefault;
         }else{
-            return Response::json(array("status" => "failed", "message" => "Record Not Found"));
+            return Response::json(array("status" => "failed", "message" => cus_lang("MESSAGE_RECORD_NOT_FOUND")));
         }
         if($isDefault==1){
             if($count!=1){
-                return Response::json(array("status" => "failed", "message" => "You can not delete default profile. Please set as default an other profile first."));
+                return Response::json(array("status" => "failed", "message" => cus_lang("PAYMENT_MSG_NOT_DELETE_DEFAULT_PROFILE")));
             }
         }
 
         if($PaymentProfile->delete()) {
-            return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully deleted. Profile deleted too."));
+            return Response::json(array("status" => "success", "message" => cus_lang("PAYMENT_MSG_PAYMENT_METHOD_PROFILE_DELETED")));
         } else {
-            return Response::json(array("status" => "failed", "message" => "Problem deleting Payment Method Profile."));
+            return Response::json(array("status" => "failed", "message" => cus_lang("PAYMENT_MSG_PROBLEM_DELETING_PAYMENT_METHOD_PROFILE")));
         }
 
     }
@@ -415,7 +415,7 @@ class SagePayDirectDebit
         $sagedata = array();
         $sagepayment = new SagePayDirectDebit($CompanyID);
         if(empty($sagepayment->status)){
-            return Response::json(array("status" => "failed", "message" => "Sage Direct Debit not setup correctly"));
+            return Response::json(array("status" => "failed", "message" => cus_lang("CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MSG_SAGE_DIRECT_DEBIT_NOT_SETUP_CORRECTLY")));
         }
 
         $sagedata['AccountNumber']=Crypt::decrypt($options['AccountNumber']);
@@ -429,9 +429,9 @@ class SagePayDirectDebit
                 $options['VerifyStatus'] = $SageResponse['VerifyStatus'];
                 $AccountPaymentProfile->update(array('Options' => json_encode($options)));
 
-                return Response::json(array("status" => "success", "message" => "verification status is ".$SageResponse['VerifyStatus']));
+                return Response::json(array("status" => "success", "message" => cus_lang("PAYMENT_STRIPEACH_MSG_VERIFICATION_STATUS_IS").$SageResponse['VerifyStatus']));
             }else{
-                return Response::json(array("status" => "failed", "message" => "verification status is ".$SageResponse['VerifyStatus']));
+                return Response::json(array("status" => "failed", "message" => cus_lang("PAYMENT_STRIPEACH_MSG_VERIFICATION_STATUS_IS").$SageResponse['VerifyStatus']));
             }
 
         }else{

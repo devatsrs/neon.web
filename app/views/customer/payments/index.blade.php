@@ -318,6 +318,7 @@
                             var InvoiceNo = $("#add-edit-payment-form [name='InvoiceNo']").val();
                             var custome_notes = $("#add-edit-payment-form [name='Notes']").val();
                             if(PaymentMethod=="Paypal"  ){
+                                $('#pyapalform [name=notify_url]').val(baseurl + "/paypal_ipn/{{$Account->AccountID}}-0-"+InvoiceNo)
                                 $('#pyapalform [name=amount]').val(Amount)
                                 $('#pyapalform').submit();
                                 return false;
@@ -343,6 +344,18 @@
                         }
                         ajax_Add_update(update_new_url);
                     });
+
+                    /*$("#add-edit-payment-form [name='PaymentMethod']").change(function(){
+                        var PaymentMethod = $("#add-edit-payment-form [name='PaymentMethod']").val();
+
+                        if(PaymentMethod.indexOf("online_")==0){
+                            if(PaymentMethod=="online_Paypal" || PaymentMethod=="online_SagePay" ){
+                                $("#add-edit-payment-form [name='Notes']").parents(".col-md-12").eq(0).hide();
+                            }else{
+                                $("#add-edit-payment-form [name='Notes']").parents(".col-md-12").eq(0).show();
+                            }
+                        }
+                    });*/
                     $("#payment-table-search").submit();
 
                 });
@@ -564,7 +577,7 @@
                     </div>-->
                     <div class="modal-body">
                         <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-12 hidden">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_MODAL_EDIT_PAYMENT_FIELD_PAYMENT_DATE')</label>
                                     <input type="text" name="PaymentDate" class="form-control datepicker" data-date-format="yyyy-mm-dd" id="field-5" placeholder="" value="{{date('Y-m-d')}}">
@@ -601,14 +614,14 @@
                                 </div>
                             </div>
                             <div class="col-md-12">
-                                <div class="form-group">
+                                <div class="form-group hidden">
                                     <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_MODAL_EDIT_PAYMENT_FIELD_NOTES')</label>
                                     <textarea name="Notes" class="form-control" id="field-5" placeholder=""></textarea>
                                     <input type="hidden" name="PaymentID" >
                                 </div>
                             </div>
 
-                            <div class="col-md-12">
+                            <div class="col-md-12 hidden">
                                 <div class="form-group">
                                     <label for="PaymentProof" class="col-sm-2 control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_MODAL_EDIT_PAYMENT_FIELD_PROOF_UPLOAD_EXTENSION')</label>
                                     <div class="col-sm-6">

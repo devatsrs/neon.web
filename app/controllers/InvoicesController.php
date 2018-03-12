@@ -2103,6 +2103,15 @@ class InvoicesController extends \BaseController {
                 $Invoice = Invoice::find($InvoiceID);
                 $CompanyID = $Invoice->CompanyID;
             }else{
+                if(isset($account_inv[2])){
+                    $Invoice = Invoice::where(array('FullInvoiceNumber'=>$account_inv[2],'AccountID'=>$AccountID))->first();
+                    if(!empty($Invoice) && count($Invoice)){
+                        $CompanyID = $Invoice->CompanyID;
+                        $InvoiceID = $Invoice->InvoiceID;
+                    }
+                }
+            }
+            if(!isset($CompanyID)){
                 $account = Account::find($AccountID);
                 $CompanyID = $account->CompanyId;
             }
@@ -2653,6 +2662,9 @@ class InvoicesController extends \BaseController {
             $TransactionLog = TransactionLog::where(["AccountID" => $AccountnInvoice["AccountID"], "InvoiceID" => $AccountnInvoice["InvoiceID"]])->orderby("created_at", "desc")->first();
 
             $TransactionLog = json_decode(json_encode($TransactionLog),true);
+            if($AccountnInvoice["InvoiceID"]==0){
+                return Redirect::to(url('/customer/payments'));
+            }
             if($TransactionLog["Status"] == TransactionLog::SUCCESS ){
 
                 $Amount = $TransactionLog["Amount"];
