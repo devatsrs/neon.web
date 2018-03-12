@@ -3,6 +3,9 @@ use Ratemanagement3;
 ALTER TABLE `tblAccount`
 ADD COLUMN `LanguageID` INT(11) NULL DEFAULT '43' AFTER `CurrencyId`;
 
+ALTER TABLE `tblTicketGroups`
+ADD COLUMN `LanguageID` INT(11) NULL DEFAULT '43' AFTER `CompanyID`;
+
 ALTER TABLE `tblEmailTemplate`
 ADD COLUMN `LanguageID` INT(11) NULL DEFAULT '43' AFTER `CompanyID`;
 

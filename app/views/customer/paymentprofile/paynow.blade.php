@@ -29,6 +29,9 @@
 
                // jQuery(document).ready(function ($) {
                         ajax_data_table = $("#ajxtable-4").dataTable({
+                            "oLanguage": {
+                                "sUrl": baseurl + "/translate/datatable_Label"
+                            },
                             "bDestroy": true,
                             "bProcessing": true,
                             "bServerSide": true,

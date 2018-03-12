@@ -104,6 +104,9 @@ var postdata;
         $searchFilter.Overdue = $("#invoice_filter [name='Overdue']").prop("checked");
 
         data_table = $("#table-4").dataTable({
+            "oLanguage": {
+                "sUrl": baseurl + "/translate/datatable_Label"
+            },
             "bDestroy": true,
             "bProcessing":true,
             "bServerSide":true,

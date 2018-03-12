@@ -35,6 +35,9 @@
             var deletePaymentMethodProfile_url = "{{ URL::to('customer/PaymentMethodProfiles/{id}/delete')}}";
             jQuery(document).ready(function ($) {
                 data_table = $("#table-4").dataTable({
+                    "oLanguage": {
+                        "sUrl": baseurl + "/translate/datatable_Label"
+                    },
                     "bDestroy": true,
                     "bProcessing": true,
                     "bServerSide": true,

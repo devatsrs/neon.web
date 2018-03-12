@@ -68,6 +68,9 @@
                 $search.EndDate = $("#table_filter").find('[name="EndDate"]').val();
                 $search.AccountID = $("#table_filter").find('[name="AccountID"]').val();
                 data_table = $("#table-list").dataTable({
+                    "oLanguage": {
+                        "sUrl": baseurl + "/translate/datatable_Label"
+                    },
                     "bDestroy": true,
                     "bProcessing":true,
                     "bServerSide": true,

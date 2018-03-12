@@ -26,6 +26,12 @@
       <div class="panel-body">
         <form role="form" id="form-ticketgroup-edit" method="post" action="{{URL::to('ticketgroups/'.$ticketdata->GroupID.'/update')}}"
                       class="form-horizontal form-groups-bordered">
+            <div class="form-group">
+                <label for="GroupName" class="col-sm-3 control-label">Language</label>
+                <div class="col-sm-9">
+                    {{ddl_language("", "groupLanguage", $ticketdata->LanguageID, "", "id")}}
+                </div>
+            </div>
           <div class="form-group">
             <label for="GroupName" class="col-sm-3 control-label">Name</label>
             <div class="col-sm-9">

@@ -646,24 +646,28 @@
 
                         <ul class="icheck-list">
                             <li>
-                                <input class="icheck-11" type="radio" id="minimal-radio-8-11" name="PaymentMethod" value="SagePayDirectDebit" @if( $account->PaymentMethod == 'SagePayDirectDebit' ) checked="" @endif />
-                                <label for="minimal-radio-8-11">SagePay Direct Debit</label>
+                                <input type="radio" class="icheck-11" id="minimal-radio-3-11" name="PaymentMethod" value="AuthorizeNet" @if( $account->PaymentMethod == 'AuthorizeNet' ) checked="" @endif />
+                                <label for="minimal-radio-3-11">AuthorizeNet</label>
                             </li>
                             <li>
-                                <input class="icheck-11" type="radio" id="minimal-radio-7-11" name="PaymentMethod" value="SagePay" @if( $account->PaymentMethod == 'SagePay' ) checked="" @endif />
-                                <label for="minimal-radio-7-11">SagePay</label>
+                                <input type="radio" class="icheck-11" id="minimal-radio-9-11" name="PaymentMethod" value="FideliPay" @if( $account->PaymentMethod == 'FideliPay' ) checked="" @endif />
+                                <label for="minimal-radio-9-11">FideliPay</label>
                             </li>
                             <li>
                                 <input class="icheck-11" type="radio" id="minimal-radio-1-11" name="PaymentMethod" value="Paypal" @if( $account->PaymentMethod == 'Paypal' ) checked="" @endif />
                                 <label for="minimal-radio-1-11">Paypal</label>
                             </li>
                             <li>
-                                <input tabindex="8" class="icheck-11" type="radio" id="minimal-radio-2-11" name="PaymentMethod" value="Wire Transfer" @if( $account->PaymentMethod == 'Wire Transfer' ) checked="" @endif />
-                                <label for="minimal-radio-2-11">Wire Transfer</label>
+                                <input type="radio" class="icheck-11" id="minimal-radio-10-11" name="PaymentMethod" value="PeleCard" @if( $account->PaymentMethod == 'PeleCard' ) checked="" @endif />
+                                <label for="minimal-radio-10-11">PeleCard</label>
                             </li>
                             <li>
-                                <input type="radio" class="icheck-11" id="minimal-radio-3-11" name="PaymentMethod" value="AuthorizeNet" @if( $account->PaymentMethod == 'AuthorizeNet' ) checked="" @endif />
-                                <label for="minimal-radio-3-11">AuthorizeNet</label>
+                                <input class="icheck-11" type="radio" id="minimal-radio-7-11" name="PaymentMethod" value="SagePay" @if( $account->PaymentMethod == 'SagePay' ) checked="" @endif />
+                                <label for="minimal-radio-7-11">SagePay</label>
+                            </li>
+                            <li>
+                                <input class="icheck-11" type="radio" id="minimal-radio-8-11" name="PaymentMethod" value="SagePayDirectDebit" @if( $account->PaymentMethod == 'SagePayDirectDebit' ) checked="" @endif />
+                                <label for="minimal-radio-8-11">SagePay Direct Debit</label>
                             </li>
                             <li>
                                 <input type="radio" class="icheck-11" id="minimal-radio-4-11" name="PaymentMethod" value="Stripe" @if( $account->PaymentMethod == 'Stripe' ) checked="" @endif />
@@ -674,8 +678,8 @@
                                 <label for="minimal-radio-6-11">Stripe ACH</label>
                             </li>
                             <li>
-                                <input type="radio" class="icheck-11" id="minimal-radio-9-11" name="PaymentMethod" value="FideliPay" @if( $account->PaymentMethod == 'FideliPay' ) checked="" @endif />
-                                <label for="minimal-radio-9-11">FideliPay</label>
+                                <input tabindex="8" class="icheck-11" type="radio" id="minimal-radio-2-11" name="PaymentMethod" value="Wire Transfer" @if( $account->PaymentMethod == 'Wire Transfer' ) checked="" @endif />
+                                <label for="minimal-radio-2-11">Wire Transfer</label>
                             </li>
                             <li>
                                 <input type="radio" class="icheck-11" id="minimal-radio-5-11" name="PaymentMethod" value="Other" @if( $account->PaymentMethod == 'Other' ) checked="" @endif />

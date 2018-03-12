@@ -11,6 +11,7 @@ class BaseController extends Controller {
     {
         if(NeonCookie::getCookie('customer_language')){
             App::setLocale(NeonCookie::getCookie('customer_language'));
+            \Carbon\Carbon::setLocale(NeonCookie::getCookie('customer_language'));
         }
 
         //@TODO: load translated arrays;

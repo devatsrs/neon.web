@@ -158,23 +158,13 @@ class Translation extends \Eloquent {
         RemoteSSH::run("chmod -R 777 " . $JSON_File."/routes.php");
         file_put_contents($JSON_File."/routes.php", "<?php ".$arr_valid );
 
-        $service_path=dirname(CompanyConfiguration::get("RM_ARTISAN_FILE_LOCATION"))."/resources/lang/".$lang_folder;
+        $service_path=dirname(CompanyConfiguration::get("RM_ARTISAN_FILE_LOCATION"))."/resources/lang/";
+        RemoteSSH::run("yes | cp -rf ".$JSON_File." ".$service_path);
+        RemoteSSH::run("chmod -R 777 " . $service_path.$lang_folder);
 
-        if(!File::exists($service_path)){
-            RemoteSSH::run("mkdir -p " . $service_path);
-            RemoteSSH::run("chmod -R 777 " . $service_path);
-        }
-
-        RemoteSSH::run("cp " . $JSON_File."/routes.php ".$service_path."/routes.php" );
-
-        $api_path=public_path("neon.api/resources/lang/".$lang_folder);
-
-        if(!File::exists($api_path)){
-            RemoteSSH::run("mkdir -p " . $api_path);
-            RemoteSSH::run("chmod -R 777 " . $api_path);
-        }
-
-        RemoteSSH::run("cp " . $JSON_File."/routes.php ".$api_path."/routes.php" );
+        $api_path=public_path("neon.api/resources/lang/");
+        RemoteSSH::run("yes | cp -rf ".$JSON_File." ".$api_path);
+        RemoteSSH::run("chmod -R 777 " . $api_path.$lang_folder);
     }
 
 }

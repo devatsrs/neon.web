@@ -47,7 +47,7 @@ class AuthorizeNet {
             $response = $this->request->createCustomerProfile($customerProfile); 
             if (($response != null) && ($response->getResultCode() == "Ok") ) {
                 $result["status"] = "success";
-                $result["message"] = "Customer profile created on authorize.net";
+                $result["message"] = cus_lang("PAYMENT_MSG_CUSTOMER_PROFILE_CREATED_ON_AUTHORIZE_NET");
                 $result["ID"] = (int) $response->getCustomerProfileId();
             }else{
 
@@ -81,7 +81,7 @@ class AuthorizeNet {
             $response = $this->request->createCustomerProfile($customerProfile);
             if (($response != null) && ($response->getResultCode() == "Ok") ) {
                 $result["status"] = "success";
-                $result["message"] = "Customer profile created on authorize.net";
+                $result["message"] = cus_lang("PAYMENT_MSG_CUSTOMER_PROFILE_CREATED_ON_AUTHORIZE_NET");
                 $result["ID"] = $response->xml->customerProfileId;
             }else{
                 $result["status"] = "failed";
@@ -101,7 +101,7 @@ class AuthorizeNet {
             $response = $this->request->deleteCustomerProfile($ProfileID);
             if (($response != null) && ($response->getResultCode() == "Ok") ) {
                 $result["status"] = "success";
-                $result["message"] = "Customer profile deleted on authorize.net";
+                $result["message"] = cus_lang("PAYMENT_MSG_CUSTOMER_PROFILE_DELETED_ON_AUTHORIZE_NET");
                 $result["ID"] = $response->xml->customerProfileId;
             }else{
                 $result["status"] = "failed";
@@ -126,7 +126,7 @@ class AuthorizeNet {
             $response = $this->request->createCustomerPaymentProfile($customerProfileId, $paymentProfile);
             if (($response != null) && ($response->getResultCode() == "Ok") ) {
                 $result["status"] = "success";
-                $result["message"] = "Payment profile created on authorize.net";
+                $result["message"] = cus_lang("PAYMENT_MSG_PAYMENT_PROFILE_CREATED_ON_AUTHORIZE_NET");
                 $result["ID"] = (int) $response->xml->customerPaymentProfileId;
             }
             else {
@@ -152,7 +152,7 @@ class AuthorizeNet {
             $response = $this->request->updateCustomerPaymentProfile($customerProfileId,$paymentProfileId,$paymentProfile);
             if (($response != null) && ($response->getResultCode() == "Ok") ) {
                 $result["status"] = "success";
-                $result["message"] = "Payment profile created on authorize.net";
+                $result["message"] = cus_lang("PAYMENT_MSG_PAYMENT_PROFILE_CREATED_ON_AUTHORIZE_NET");
                 $result["ID"] = (int) $response->xml->customerPaymentProfileId;
             }
             else {
@@ -173,7 +173,7 @@ class AuthorizeNet {
             $response = $this->request->deleteCustomerPaymentProfile($customerProfileId,$paymentProfileId);
             if (($response != null) && ($response->getResultCode() == "Ok") ) {
                 $result["status"] = "success";
-                $result["message"] = "Payment profile deleted on authorize.net";
+                $result["message"] = cus_lang("PAYMENT_MSG_PAYMENT_PROFILE_DELETED_ON_AUTHORIZE_NET");
                 $result["code"] = $response->xml->messages->message->code;
                 $result["ID"] = (int) $response->xml->customerPaymentProfileId;
             }
@@ -205,7 +205,7 @@ class AuthorizeNet {
             $response = $this->request->createCustomerShippingAddress($customerProfileId, $address);
             if (($response != null) && ($response->getResultCode() == "Ok") ) {
                 $result["status"] = "success";
-                $result["message"] = "Shipping Address created on authorize.net";
+                $result["message"] = cus_lang("PAYMENT_MSG_SHIPPING_ADDRESS_CREATED_ON_AUTHORIZE_NET");
                 $result["ID"] = (int) $response->getCustomerAddressId();
             }
             else {
@@ -245,7 +245,7 @@ class AuthorizeNet {
             $response = $this->request->updateCustomerShippingAddress($customerProfileId,$customerShippingAddressId, $address);
             if (($response != null) && ($response->getResultCode() == "Ok") ) {
                 $result["status"] = "success";
-                $result["message"] = "Shipping Address updated on authorize.net";
+                $result["message"] = cus_lang("PAYMENT_MSG_SHIPPING_ADDRESS_UPDATED_ON_AUTHORIZE_NET");
                 $result["ID"] = (int) $response->xml->customerAddressId;
             }
             else {
@@ -266,7 +266,7 @@ class AuthorizeNet {
             $response = $this->request->deleteCustomerShippingAddress($customerProfileId,$customerShippingAddressId);
             if (($response != null) && ($response->getResultCode() == "Ok") ) {
                 $result["status"] = "success";
-                $result["message"] = "Shipping Address deleted on authorize.net";
+                $result["message"] = cus_lang("PAYMENT_MSG_SHIPPING_ADDRESS_DELETED_ON_AUTHORIZE_NET");
                 $result["ID"] = (int) $response->xml->customerAddressId;
             }
             else {
@@ -359,13 +359,13 @@ class AuthorizeNet {
         if (date("Y") == $data['ExpirationYear'] && date("m") > $data['ExpirationMonth']) {
 
             $ValidationResponse['status'] = 'failed';
-            $ValidationResponse['message'] = "Month must be after " . date("F");
+            $ValidationResponse['message'] = cus_lang("PAYMENT_MSG_MONTH_MUST_BE_AFTER") . date("F");
             return $ValidationResponse;
         }
         $card = CreditCard::validCreditCard($data['CardNumber']);
         if ($card['valid'] == 0) {
             $ValidationResponse['status'] = 'failed';
-            $ValidationResponse['message'] = "Please enter valid card number";
+            $ValidationResponse['message'] = cus_lang("PAYMENT_MSG_ENTER_VALID_CARD_NUMBER");
             return $ValidationResponse;
         }
 
@@ -436,9 +436,9 @@ class AuthorizeNet {
                 'AccountID' => $CustomerID,
                 'PaymentGatewayID' => $PaymentGatewayID);
             if (AccountPaymentProfile::create($CardDetail)) {
-                return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully Created"));
+                return Response::json(array("status" => "success", "message" => cus_lang("PAYMENT_MSG_PAYMENT_METHOD_PROFILE_SUCCESSFULLY_CREATED")));
             } else {
-                return Response::json(array("status" => "failed", "message" => "Problem Saving Payment Method Profile."));
+                return Response::json(array("status" => "failed", "message" => cus_lang("PAYMENT_MSG_PROBLEM_SAVING_PAYMENT_METHOD_PROFILE")));
             }
         } else {
             return Response::json(array("status" => "failed", "message" => (array)$result["message"]));
@@ -458,11 +458,11 @@ class AuthorizeNet {
             $PaymentProfileID = $options->PaymentProfileID;
             $isDefault = $PaymentProfile->isDefault;
         }else{
-            return Response::json(array("status" => "failed", "message" => "Record Not Found"));
+            return Response::json(array("status" => "failed", "message" => cus_lang("MESSAGE_RECORD_NOT_FOUND")));
         }
         if($isDefault==1){
             if($count!=1){
-                return Response::json(array("status" => "failed", "message" => "You can not delete default profile. Please set as default an other profile first."));
+                return Response::json(array("status" => "failed", "message" => cus_lang("PAYMENT_MSG_NOT_DELETE_DEFAULT_PROFILE")));
             }
         }
         $result = $this->DeletePaymentProfile($ProfileID,$PaymentProfileID);
@@ -471,19 +471,19 @@ class AuthorizeNet {
                 if($count==1){
                     $result =  $this->deleteAuthorizeProfile($ProfileID);
                     if($result["status"]=="success"){
-                        return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully deleted. Profile deleted too."));
+                        return Response::json(array("status" => "success", "message" => cus_lang("PAYMENT_MSG_PAYMENT_METHOD_PROFILE_DELETED")));
                     }
                 }else{
-                    return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully deleted"));
+                    return Response::json(array("status" => "success", "message" => cus_lang("PAYMENT_MSG_PAYMENT_METHOD_PROFILE_DELETED_AUTHORIZE_NET")));
                 }
             } else {
-                return Response::json(array("status" => "failed", "message" => "Problem deleting Payment Method Profile."));
+                return Response::json(array("status" => "failed", "message" => cus_lang("PAYMENT_MSG_PROBLEM_DELETING_PAYMENT_METHOD_PROFILE")));
             }
         }elseif($result["code"]=='E00040'){
             if ($PaymentProfile->delete()) {
-                return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully deleted"));
+                return Response::json(array("status" => "success", "message" => cus_lang("PAYMENT_MSG_PAYMENT_METHOD_PROFILE_DELETED_AUTHORIZE_NET")));
             }else{
-                return Response::json(array("status" => "failed", "message" => "Problem deleting Payment Method Profile."));
+                return Response::json(array("status" => "failed", "message" => cus_lang("PAYMENT_MSG_PROBLEM_DELETING_PAYMENT_METHOD_PROFILE")));
             }
         }else{
             return Response::json(array("status" => "failed", "message" => (array)$result["message"]));

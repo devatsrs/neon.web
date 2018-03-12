@@ -176,6 +176,9 @@
                             }
 
                             data_table = $("#table-4").dataTable({
+                                "oLanguage": {
+                                    "sUrl": baseurl + "/translate/datatable_Label"
+                                },
                             "bDestroy": true, // Destroy when resubmit form
                             "bProcessing": true,
                             "bServerSide": true,
