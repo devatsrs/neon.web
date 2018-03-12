@@ -25,7 +25,7 @@ class PeleCard {
         $PeleCardobj = SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$PeleCardSlug,$CompanyID);
         if($PeleCardobj){
             $this->SandboxUrl       = "https://gateway20.pelecard.biz/services/";
-            $this->LiveUrl          = "https://gateway20.pelecard.biz/PaymentGW/init/";
+            $this->LiveUrl          = "https://gateway20.pelecard.biz/services/";
 
             $this->terminalNumber 	= 	$PeleCardobj->terminalNumber;
             $this->user		        = 	$PeleCardobj->user;
@@ -182,7 +182,9 @@ class PeleCard {
                 if(strtolower($InvoiceCurrency) == "usd") {
                     $currency   = "2";
                 } else if(strtolower($InvoiceCurrency) == "eur") {
-                    $currency   = "3";
+                    $currency   = "978";
+                } else if(strtolower($InvoiceCurrency) == "gbp") {
+                    $currency   = "286";
                 } else {
                     $currency   = "0";
                 }
