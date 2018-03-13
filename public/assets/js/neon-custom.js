@@ -1592,7 +1592,8 @@ toastr_opts = {
     $(".ddl_language").select2({
         formatResult: format,
         formatSelection: format,
-        escapeMarkup: function(m) { return m; }
+        escapeMarkup: function(m) { return m; },
+        minimumResultsForSearch: -1
     });
 })(jQuery, window);
 
@@ -1602,7 +1603,7 @@ function format(state) {
     if(img==""){
         return state.text;
     }
-    return "<img class='lang_flag' src='"+ baseurl+ "/assets/images/flag/" + img + "' />" + state.text;
+    return "<div class='lang_div'><img class='lang_flag' src='"+ baseurl+ "/assets/images/flag/" + img + "' />" + state.text + "</div>";
 }
 function buildselect2(el){
     var $this = $(el),
