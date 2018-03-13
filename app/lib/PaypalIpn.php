@@ -186,14 +186,20 @@ class PaypalIpn
     /**
      * paynow button show.
      */
-    public function get_paynow_button($AccountID,$InvoiceID){
+    public function get_paynow_button($AccountID,$InvoiceID, $paypal_success_url="", $paypal_cancel_url=""){
 
-        $paypal_success_url = url('/invoice_thanks/'.$AccountID . '-' . $InvoiceID );
-        $paypal_cancel_url = url('/paypal_cancel/'.$AccountID . '-' . $InvoiceID );
+        if(empty($paypal_success_url)){
+            $paypal_success_url = url('/invoice_thanks/'.$AccountID . '-' . $InvoiceID );
+        }
+        if(empty($paypal_cancel_url)){
+            $paypal_cancel_url = url('/paypal_cancel/'.$AccountID . '-' . $InvoiceID );
+        }
+
         $paypal_ipn_url = url('/paypal_ipn/'.$AccountID . '-' . $InvoiceID );
 
         if (!$this->is_live) {
-            $paypal_email =  'devens_1224939565_biz@yahoo.com';  //devens_1224939565_biz@yahoo.com
+//            $paypal_email =  'devens_1224939565_biz@yahoo.com';  //devens_1224939565_biz@yahoo.com
+            $paypal_email =  'vishal.jagani-facilitator@code-desk.com';  //devens_1224939565_biz@yahoo.com
             $paypal_url  = 'https://www.sandbox.paypal.com/cgi-bin/webscr';
         } else {
             $paypal_url  = 'https://www.paypal.com/cgi-bin/webscr';

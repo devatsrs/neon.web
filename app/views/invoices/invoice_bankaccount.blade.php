@@ -37,8 +37,13 @@
 </div>
             <script type="text/javascript">
 				$(document).ready(function() {
-					var InvoiceID = '{{$Invoice->InvoiceID}}';
-					var AccountID = '{{$Invoice->AccountID}}';
+					@if(isset($Invoice))
+						var InvoiceID = '{{$Invoice->InvoiceID}}';
+						var AccountID = '{{$Invoice->AccountID}}';
+					@elseif(isset($request["Amount"]))
+						var InvoiceID = '{{$request["InvoiceID"]}}';
+						var AccountID = '{{$Account->AccountID}}';
+					@endif
 
                     $('.paynow').click(function(e) {
 						e.preventDefault();
@@ -55,7 +60,16 @@
 						if(type == 'StripeACH'){
 							update_new_url = '{{URL::to('/')}}/payinvoice_withprofile/'+type;
 						}
-						$.ajax({
+
+						var postData='AccountPaymentProfileID='+AccountPaymentProfileID+'&CustomerProfileID='+CustomerProfileID+'&BankAccountID='+BankAccountID+'&InvoiceID='+InvoiceID+'&AccountID='+AccountID;
+
+						@if(isset($request["Amount"]))
+							postData+='&GrandTotal={{$request["Amount"]}}&isInvoicePay=0&custome_notes={{$request["custome_notes"]}}';
+						@else
+							postData+='&isInvoicePay=1';
+						@endif
+
+                            $.ajax({
 							url: update_new_url,  //Server script to process data
 							type: 'POST',
 							dataType: 'json',
@@ -63,7 +77,11 @@
 								$(".paynow").button('reset');
 								if(response.status =='success'){
 									toastr.success(response.message, "Success", toastr_opts);
-									window.location = '{{URL::to('/')}}/invoice_thanks/{{$Invoice->AccountID}}-{{$Invoice->InvoiceID}}';
+									@if(isset($Invoice))
+										window.location = '{{URL::to('/')}}/invoice_thanks/{{$Invoice->AccountID}}-{{$Invoice->InvoiceID}}';
+									@elseif(isset($request["Amount"]))
+										window.location = '{{URL::to('/customer/payments')}}';
+									@endif
 								}else{
 									toastr.error(response.message, "Error", toastr_opts);
 								}
@@ -73,7 +91,7 @@
 								toastr.error(response.message, "Error", toastr_opts);
 							},
 							// Form data
-							data: 'AccountPaymentProfileID='+AccountPaymentProfileID+'&CustomerProfileID='+CustomerProfileID+'&BankAccountID='+BankAccountID+'&InvoiceID='+InvoiceID+'&AccountID='+AccountID,
+							data: postData,
 							//Options to tell jQuery not to process data or worry about content-type.
 							cache: false
 						});

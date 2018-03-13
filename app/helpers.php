@@ -498,6 +498,15 @@ function is_paypal($CompanyID){
     return false;
 }
 
+function is_pelecard($CompanyID){
+
+    $pelecard = new PeleCard($CompanyID);
+    if($pelecard->status){
+        return true;
+    }
+    return false;
+}
+
 function is_sagepay($CompanyID){
 
     $sagepay = new SagePay($CompanyID);
@@ -2428,7 +2437,7 @@ function report_join($data){
     return $account_join;
 }
 function getInvoicePayments($CompanyID){
-    if(is_authorize($CompanyID) || is_Stripe($CompanyID) || is_StripeACH($CompanyID) || is_paypal($CompanyID) || is_sagepay($CompanyID) || is_FideliPay($CompanyID)){
+    if(is_authorize($CompanyID) || is_Stripe($CompanyID) || is_StripeACH($CompanyID) || is_paypal($CompanyID) || is_sagepay($CompanyID) || is_FideliPay($CompanyID) || is_pelecard($CompanyID)){
         return true;
     }
     return false;
@@ -2629,4 +2638,28 @@ function getSql($model)
     $sql = $replace($model->toSql(), $model->getBindings());
 
     return $sql;
+}
+
+function js_labels(){
+    $arrJsLabel= array();
+    $arrJsLabel["MSG_DATA_NOT_AVAILABLE"]=cus_lang("MESSAGE_DATA_NOT_AVAILABLE");
+    $arrJsLabel["TABLE_TOTAL"]=cus_lang("TABLE_TOTAL");
+    $arrJsLabel["BUTTON_EXPORT_CSV_CAPTION"]=cus_lang("BUTTON_EXPORT_CSV_CAPTION");
+    $arrJsLabel["BUTTON_EXPORT_EXCEL_CAPTION"]=cus_lang("BUTTON_EXPORT_EXCEL_CAPTION");
+
+    $arrJsLabel["HTTP_STATUS_400_MSG"]=cus_lang("HTTP_STATUS_400_MSG");
+    $arrJsLabel["HTTP_STATUS_403_MSG"]=cus_lang("HTTP_STATUS_403_MSG");
+    $arrJsLabel["HTTP_STATUS_404_MSG"]=cus_lang("HTTP_STATUS_404_MSG");
+    $arrJsLabel["HTTP_STATUS_408_MSG"]=cus_lang("HTTP_STATUS_408_MSG");
+    $arrJsLabel["HTTP_STATUS_410_MSG"]=cus_lang("HTTP_STATUS_410_MSG");
+    $arrJsLabel["HTTP_STATUS_500_MSG"]=cus_lang("HTTP_STATUS_500_MSG");
+    $arrJsLabel["HTTP_STATUS_503_MSG"]=cus_lang("HTTP_STATUS_503_MSG");
+    $arrJsLabel["HTTP_STATUS_504_MSG"]=cus_lang("HTTP_STATUS_504_MSG");
+
+
+    $html="";
+    foreach($arrJsLabel as $key=>$val){
+        $html.=" var ".$key." = '".$val."';  \n\r";
+    }
+    return $html;
 }

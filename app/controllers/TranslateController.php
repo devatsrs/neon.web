@@ -175,4 +175,19 @@ class TranslateController extends \BaseController {
         }
     }
 
+    public static function datatable_Label(){
+
+        $arr_label=[
+            "sLengthMenu"=> cus_lang("TABLE_LBL_RECORDS_PER_PAGE"),
+            "sZeroRecords"=> cus_lang("MESSAGE_DATA_NOT_AVAILABLE"),
+            "sInfo"=> cus_lang("TABLE_LBL_SHOWING_RECORDS"),
+            "sInfoEmpty"=> cus_lang("TABLE_LBL_SHOWING_EMPTY_RECORDS"),
+            "sInfoFiltered"=> cus_lang("TABLE_LBL_FILTERED_FROM_MAX_TOTAL_RECORD"),
+            "sLoadingRecords"=> cus_lang("BUTTON_LOADING_CAPTION"),
+            "sProcessing"=> cus_lang("DATATABLE_PROCESSING")
+        ];
+
+        return Response::json($arr_label);
+    }
+
 }
