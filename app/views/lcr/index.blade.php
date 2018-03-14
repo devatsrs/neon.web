@@ -858,7 +858,7 @@
             }
 
             $('#table-4 tbody').on('click','.blockingbycode',function(){
-
+                var descriptioname = $(this).parent().siblings(":first").text();
                 Trunk = $("#lcr-search-form select[name='Trunk']").val();
                 CodeDeck = $("#lcr-search-form select[name='CodeDeckId']").val();
                 GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
@@ -869,16 +869,18 @@
                 $.ajax({
                     type: "POST",
                     url: baseurl + '/vendor_blocking_lrc/blockunblockcode',
+                    dataType: 'json',
                     data: {
                         id: thisid,
                         acc_id: thisaccid,
                         trunk: Trunk,
                         CodeDeckId: CodeDeck,
                         rowcode: rowcode,
-                        GroupBy: GroupBy
+                        GroupBy: GroupBy,
+                        description:descriptioname
                     },
-                    success: function(response){
-                        ShowToastr("success",response.message);
+                    success: function(data){
+                        ShowToastr("success",data.message);
                         data_table.fnFilter('', 0);
                     }
 
@@ -914,7 +916,7 @@
                     }
                     $.ajax({
                         type: "POST",
-                        url: baseurl + '/lcr/margin-rate',
+                        url: baseurl + '/lcr/ajax_customer_rate_grid',
                         data: {
                             code: code,
                             rate: v_rate,
@@ -923,8 +925,6 @@
                         success: function (response) {
                             var decimalpoint = response.decimalpoint;
                             var margindata = response.result;
-                            var verate = '';
-                            //var result = '<h5 class="text-center bold">' + caption + '</h5>' +
                             var result = '<div class="table-responsive"><table id="margineDataTable" class="table table-bordered datatable">' +
                                     '<thead><tr><th id="dt_col1">Customer</th><th id="dt_col1">CRate</th><th id="dt_col2">&nbsp;</th></tr>' +
                                     '</thead><tbody>';
@@ -959,17 +959,40 @@
                                         {
                                             "sExtends": "download",
                                             "sButtonText": "EXCEL",
-                                            "sUrl": baseurl + "/lcr/margin-rate-export/xlsx/" + code,
                                             sButtonClass: "save-collection btn-sm",
+                                            "fnClick": function (e, dt, node, config) {
+                                                $.ajax({
+                                                    type: "POST",
+                                                    dataType: 'json',
+                                                    url: baseurl + '/lcr/ajax_customer_rate_export/xlsx',
+                                                    data: {vendor:arr['vendor'],rate:arr['rate'],customer:response,type:'xlsx'},
+                                                    success: function (data) {
+                                                        document.location = baseurl + "/download_file?file="+data.fileurl;
+                                                    }
+                                                });
+                                            }
                                         },
                                         {
                                             "sExtends": "download",
                                             "sButtonText": "CSV",
-                                            "sUrl": baseurl + "/lcr/margin-rate-export/csv/" + code,
-                                            sButtonClass: "save-collection btn-sm"
+                                            sButtonClass: "save-collection btn-sm",
+                                            "fnClick": function () {
+                                                $.ajax({
+                                                    type: "POST",
+                                                    dataType: 'json',
+                                                    url: baseurl + '/lcr/ajax_customer_rate_export/csv',
+                                                    data: {vendor:arr['vendor'],rate:arr['rate'],customer:response,type:'csv'},
+                                                    success: function (data) {
+                                                        document.location = baseurl + "/download_file?file="+data.fileurl;
+                                                    }
+                                                });
+                                            }
                                         }
                                     ]
                                 }
+                            });
+                            $(".dataTables_wrapper select").select2({
+                                minimumResultsForSearch: -1
                             });
                             $("div.toolbartitle").html('<b>'+caption+'</b>');
                             $("#margineDataTable_processing").css('visibility','hidden');
@@ -980,10 +1003,12 @@
 
 
             });
+
             /* show margine datatable end */
 
             /* Edit preference */
             $(document).on('click','.openPopup',function(){
+                var descriptioname = $(this).parent().siblings(":first").text();
                 Trunk = $("#lcr-search-form select[name='Trunk']").val();
                 CodeDeck = $("#lcr-search-form select[name='CodeDeckId']").val();
                 GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
@@ -995,6 +1020,7 @@
                 $.ajax({
                     type: "POST",
                     url: baseurl + '/lcr/edit_preference',
+                    dataType: 'json',
                     data: {
                         trunk: Trunk,
                         CodeDeckId: CodeDeck,
@@ -1003,10 +1029,11 @@
                         rowcode:rowcode,
                         preference:'',
                         id:'',
+                        description:descriptioname
                     },
                     success: function(data)
                     {
-                           // ShowToastr("success",data);
+
                             Trunk = $("#lcr-search-form select[name='Trunk']").val();
                             CodeDeck = $("#lcr-search-form select[name='CodeDeckId']").val();
                             GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
@@ -1018,10 +1045,11 @@
                                             '<div class="col-md-12">' +
                                                 '<div class="form-group">' +
                                                     '<label for="field-5" class="control-label">Enter Preference</label>' +
-                                                        '<input type="number" value="'+data+'" id="txtpreference" name="preference" class="form-control" placeholder="Enter Preference">' +
+                                                        '<input type="number" value="'+data.preference+'" id="txtpreference" name="preference" class="form-control" placeholder="Enter Preference">' +
                                                 '</div>' +
                                             '</div>' +
                                         '</div>' +
+                                    '<input type="hidden" name="description" value='+descriptioname+'>' +
                                     '<input type="hidden" name="id" value='+thisid+'>' +
                                     '<input type="hidden" name="acc_id" value='+thisaccid+'>' +
                                     '<input type="hidden" name="trunk" value='+Trunk+'>' +
@@ -1042,9 +1070,10 @@
                     type: "POST",
                     url: baseurl + '/lcr/edit_preference',
                     data: $("#edit-preference-form").serialize(),
+                    dataType: 'json',
                     success: function(data)
                     {
-                        ShowToastr("success",data);
+                        ShowToastr("success",data.message);
                         $('#myModal').modal('hide');
                         data_table.fnFilter('', 0);
                     }
@@ -1054,6 +1083,7 @@
 
 
         });
+
 
 
     </script>
