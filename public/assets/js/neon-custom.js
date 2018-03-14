@@ -1592,7 +1592,8 @@ toastr_opts = {
     $(".ddl_language").select2({
         formatResult: format,
         formatSelection: format,
-        escapeMarkup: function(m) { return m; }
+        escapeMarkup: function(m) { return m; },
+        minimumResultsForSearch: -1
     });
 })(jQuery, window);
 
@@ -1602,7 +1603,7 @@ function format(state) {
     if(img==""){
         return state.text;
     }
-    return "<img class='lang_flag' src='"+ baseurl+ "/assets/images/flag/" + img + "' />" + state.text;
+    return "<div class='lang_div'><img class='lang_flag' src='"+ baseurl+ "/assets/images/flag/" + img + "' />" + state.text + "</div>";
 }
 function buildselect2(el){
     var $this = $(el),
@@ -2594,19 +2595,6 @@ reloadJobsDrodown = function(reset){
     }
 	
 };
-checkFailingCronJob = function(){
-    if(typeof customer[0].customer != 'undefined' &&  customer[0].customer != 1 ){
-        $.get( baseurl + "/cronjobs/check_failing", function( response ) {
-            if(typeof response.message != 'undefined' ) {
-                if (response.message == '') {
-                    $(".notifications.cron_jobs.dropdown").find("#failing_placeholder").addClass("hidden");
-                } else {
-                    $(".notifications.cron_jobs.dropdown").find("#failing_placeholder").removeClass("hidden");
-                }
-            }
-        });
-    }
-};
 try{
     setTimeout(function(){ reloadJobsDrodown(0); reloadMsgDrodown(0); }, 2000);
     bindResetCounter();
@@ -2658,19 +2646,19 @@ $( document ).ajaxError(function( event, jqXHR, ajaxSettings, thrownError) {
     $('.btn[data-loading-text]').button('reset');
     switch(jqXHR.status) {
         case 500:
-            toastr.error('Oops Something went wrong please contact your system administrator', "Error", toastr_opts);
+            toastr.error(HTTP_STATUS_500_MSG, "Error", toastr_opts);
             break;
         case 503:
-            toastr.error('Service Unavailable', "Error", toastr_opts);
+            toastr.error(HTTP_STATUS_503_MSG, "Error", toastr_opts);
             break;
         case 504:
-            toastr.error('Gateway Timeout', "Error", toastr_opts);
+            toastr.error(HTTP_STATUS_504_MSG, "Error", toastr_opts);
             break;
         case 400:
-            toastr.error('Bad Request', "Error", toastr_opts);
+            toastr.error(HTTP_STATUS_400_MSG, "Error", toastr_opts);
             break;
         case 404:
-            toastr.error('Not Found', "Error", toastr_opts);
+            toastr.error(HTTP_STATUS_404_MSG, "Error", toastr_opts);
             break;
         case 401:
             console.log("event");
@@ -2688,13 +2676,13 @@ $( document ).ajaxError(function( event, jqXHR, ajaxSettings, thrownError) {
             }, 100);*/
             break;
         case 403:
-            toastr.error('Forbidden', "Error", toastr_opts);
+            toastr.error(HTTP_STATUS_403_MSG, "Error", toastr_opts);
             break;
         case 408:
-            toastr.error('Request Timeout', "Error", toastr_opts);
+            toastr.error(HTTP_STATUS_408_MSG, "Error", toastr_opts);
             break;
         case 410:
-            toastr.error('Gone', "Error", toastr_opts);
+            toastr.error(HTTP_STATUS_410_MSG, "Error", toastr_opts);
             break;
         default:
             if(thrownError != ''){
@@ -3203,16 +3191,6 @@ function select_all_top(selectallbutton,table,selectall) {
 function openInNewTab(url) {
     var redirectWindow = window.open(url, '_blank');
     redirectWindow.location;
-}
-
-try{
-    if(typeof customer[0].customer != 'undefined' &&  customer[0].customer != 1 && $(".notifications.cron_jobs.dropdown").has("#failing_placeholder").length > 0 ) {
-       /* setInterval(function () {
-            checkFailingCronJob();
-        }, 1000 * 10); // where X is your every X minutes*/
-    }
-}catch(er){
-    console.log(er.message);
 }
 
 show_summernote = function (element,options){

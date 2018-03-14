@@ -221,7 +221,9 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
             $searchFilter.EndDate += ' '+$("#cdr_filter [name='EndTime']").val();
 
             data_table = $("#table-4").dataTable({
-
+                "oLanguage": {
+                    "sUrl": baseurl + "/translate/datatable_Label"
+                },
                 "bProcessing":true,
                 "bDestroy": true,
                 "bServerSide":true,

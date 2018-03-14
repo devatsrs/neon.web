@@ -163,7 +163,7 @@ class StripeBilling {
 				$response['status'] = 'Success';
 			}else{
 				$response['status'] = 'fail';
-				$response['error'] = 'Problem deleting Payment Method Profile';
+				$response['error'] = cus_lang("PAYMENT_MSG_PROBLEM_DELETING_PAYMENT_METHOD_PROFILE");
 			}
 			//log::info(print_r($customer, true));
 		}catch (Exception $e) {
@@ -241,13 +241,13 @@ class StripeBilling {
 		if (date("Y") == $data['ExpirationYear'] && date("m") > $data['ExpirationMonth']) {
 
 			$ValidationResponse['status'] = 'failed';
-			$ValidationResponse['message'] = "Month must be after " . date("F");
+			$ValidationResponse['message'] = cus_lang("PAYMENT_MSG_MONTH_MUST_BE_AFTER") . date("F");
 			return $ValidationResponse;
 		}
 		$card = CreditCard::validCreditCard($data['CardNumber']);
 		if ($card['valid'] == 0) {
 			$ValidationResponse['status'] = 'failed';
-			$ValidationResponse['message'] = "Please enter valid card number";
+			$ValidationResponse['message'] = cus_lang("PAYMENT_MSG_ENTER_VALID_CARD_NUMBER");
 			return $ValidationResponse;
 		}
 
@@ -303,9 +303,9 @@ class StripeBilling {
 				'AccountID' => $CustomerID,
 				'PaymentGatewayID' => $PaymentGatewayID);
 			if (AccountPaymentProfile::create($CardDetail)) {
-				return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully Created"));
+				return Response::json(array("status" => "success", "message" => cus_lang("PAYMENT_MSG_PAYMENT_METHOD_PROFILE_SUCCESSFULLY_CREATED")));
 			} else {
-				return Response::json(array("status" => "failed", "message" => "Problem Saving Payment Method Profile."));
+				return Response::json(array("status" => "failed", "message" => cus_lang("PAYMENT_MSG_PROBLEM_SAVING_PAYMENT_METHOD_PROFILE")));
 			}
 		}else{
 			return Response::json(array("status" => "failed", "message" => $StripeResponse['error']));
@@ -325,11 +325,11 @@ class StripeBilling {
 			$CustomerProfileID = $options->CustomerProfileID;
 			$isDefault = $PaymentProfile->isDefault;
 		}else{
-			return Response::json(array("status" => "failed", "message" => "Record Not Found"));
+			return Response::json(array("status" => "failed", "message" => cus_lang("MESSAGE_RECORD_NOT_FOUND")));
 		}
 		if($isDefault==1){
 			if($count!=1){
-				return Response::json(array("status" => "failed", "message" => "You can not delete default profile. Please set as default an other profile first."));
+				return Response::json(array("status" => "failed", "message" => cus_lang("PAYMENT_MSG_NOT_DELETE_DEFAULT_PROFILE")));
 			}
 		}
 
@@ -337,9 +337,9 @@ class StripeBilling {
 
 		if($result["status"]=="Success"){
 			if($PaymentProfile->delete()) {
-				return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully deleted. Profile deleted too."));
+				return Response::json(array("status" => "success", "message" => cus_lang("PAYMENT_MSG_PAYMENT_METHOD_PROFILE_DELETED")));
 			} else {
-				return Response::json(array("status" => "failed", "message" => "Problem deleting Payment Method Profile."));
+				return Response::json(array("status" => "failed", "message" => cus_lang("PAYMENT_MSG_PROBLEM_DELETING_PAYMENT_METHOD_PROFILE")));
 			}
 		}else{
 			return Response::json(array("status" => "failed", "message" => $result['error']));
@@ -353,7 +353,7 @@ class StripeBilling {
 		$CurrencyCode = Currency::getCurrency($account->CurrencyId);
 		if(empty($CurrencyCode)){
 			$Response['status']='failed';
-			$Response['message']='No account currency available';
+			$Response['message']=cus_lang("PAYMENT_MSG_NO_ACCOUNT_CURRENCY_AVAILABLE");
 		}
 		return $Response;
 	}
@@ -429,7 +429,7 @@ class StripeBilling {
 		$CurrencyCode = Currency::getCurrency($account->CurrencyId);
 		if(empty($CurrencyCode)){
 			$Response['status']='failed';
-			$Response['message']='No account currency available';
+			$Response['message']=cus_lang("PAYMENT_MSG_NO_ACCOUNT_CURRENCY_AVAILABLE");
 		}
 		return $Response;
 	}
@@ -448,9 +448,7 @@ class StripeBilling {
 		$stripedata['amount'] = $data['GrandTotal'];
 		$stripedata['currency'] = strtolower($CurrencyCode);
 		$stripedata['description'] = $data['InvoiceNumber'].' (Invoice) Payment';
-
-		$Invoice = Invoice::where(["InvoiceID" => $data['InvoiceID'], "AccountID" => $data['AccountID']])->first();
-		$stripedata['CurrencyCode'] = Currency::getCurrency($Invoice->CurrencyID);
+		$stripedata['CurrencyCode'] = $CurrencyCode;
 
 		log::info('Payment with card start');
 		$StripeResponse = $this->create_charge($stripedata);

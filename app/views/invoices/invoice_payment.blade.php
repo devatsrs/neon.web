@@ -13,19 +13,25 @@
         <div class="x-content">
             <div class="x-row">
                 <div class="x-span8">
-                    <div>
-                        <div class="due">@if($Invoice->InvoiceStatus == Invoice::PAID) {{cus_lang('CUST_PANEL_PAGE_INVOICE_CVIEW_LBL_PAID')}} @else {{cus_lang('CUST_PANEL_PAGE_INVOICE_CVIEW_LBL_DUE')}} @endif</div>
-                    </div>
-                    <div class="amount">
-                        <span class="overdue">{{$CurrencySymbol}}{{number_format($Invoice->GrandTotal,get_round_decimal_places($Invoice->AccountID))}}</span>
-                    </div>
+                    @if(isset($Invoice))
+                        <div>
+                            <div class="due">@if($Invoice->InvoiceStatus == Invoice::PAID) {{cus_lang('CUST_PANEL_PAGE_INVOICE_CVIEW_LBL_PAID')}} @else {{cus_lang('CUST_PANEL_PAGE_INVOICE_CVIEW_LBL_DUE')}} @endif</div>
+                        </div>
+                        <div class="amount">
+                            <span class="overdue">{{$CurrencySymbol}}{{number_format($Invoice->GrandTotal,get_round_decimal_places($Invoice->AccountID))}}</span>
+                        </div>
+                    @elseif(isset($request["Amount"]))
+                        <div class="amount">
+                            <span class="overdue">{{$CurrencySymbol}}{{number_format($request["Amount"],get_round_decimal_places($Account->AccountID))}}</span>
+                        </div>
+                    @endif
                 </div>
                 <div class="x-span4 pull-left" > <h1 class="text-center"><h1 class="text-center">Payment</h1></h1></div>
             </div>
         </div>
     </div>
     </header>
-    @if($PaymentGatewayID==PaymentGateway::AuthorizeNet || $PaymentGatewayID==PaymentGateway::Stripe || $PaymentGatewayID==PaymentGateway::FideliPay))
+    @if($PaymentGatewayID==PaymentGateway::AuthorizeNet || $PaymentGatewayID==PaymentGateway::Stripe || $PaymentGatewayID==PaymentGateway::FideliPay || $PaymentGatewayID==PaymentGateway::PeleCard))
         @include('invoices.invoice_creditcard')
     @endif
     @if($PaymentGatewayID==PaymentGateway::StripeACH)

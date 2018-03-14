@@ -2,7 +2,7 @@
 
 @include('invoicetemplates.itemhtml')
 @section('content')
-<link rel="stylesheet" type="text/css" href="<?php echo URL::to('/'); ?>/assets/css/invoicetemplate/invoicestyle.css" />
+<link rel="stylesheet" type="text/css" href="<?php echo public_path('assets/css/invoicetemplate/invoicestyle.css'); ?>" />
 <style type="text/css">
 .invoice,
 .invoice table,.invoice table td,.invoice table th,

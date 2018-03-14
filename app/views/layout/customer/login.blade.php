@@ -23,10 +23,7 @@
        <script type="text/javascript">
            var baseurl = '<?php echo URL::to('/');?>';
            var customer_alignment = '<?php echo $customer_alignment ?>';
-           var MSG_DATA_NOT_AVAILABLE = '{{cus_lang("MESSAGE_DATA_NOT_AVAILABLE")}}';
-           var TABLE_TOTAL = '{{cus_lang("TABLE_TOTAL")}}';
-           var BUTTON_EXPORT_CSV_CAPTION = '{{cus_lang("BUTTON_EXPORT_CSV_CAPTION")}}';
-           var BUTTON_EXPORT_EXCEL_CAPTION = '{{cus_lang("BUTTON_EXPORT_EXCEL_CAPTION")}}';
+           {{js_labels()}}
        </script>
         @if(Session::get('user_site_configrations.CustomCss'))
             <style>

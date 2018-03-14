@@ -3,7 +3,7 @@
   <thead>
           <tr>
             <th colspan="2"> <?php if(count($result)>0){ ?>              
-              <div class="mail-select-options"> <span class="pull-left paginationTicket"> {{Form::select('page',$pagination,$iDisplayLength,array("class"=>"select2 small","id"=>"per_page"))}} </span><span class="pull-right per_page">records per page</span> </div>
+              <div class="mail-select-options"> <span class="pull-left paginationTicket"> {{Form::select('page',$pagination,$iDisplayLength,array("class"=>"select2 small","id"=>"per_page"))}} </span><span class="pull-right per_page">{{str_replace("_MENU_","", cus_lang("TABLE_LBL_RECORDS_PER_PAGE"))}}</span> </div>
               <div class="pull-right">
                 <div class="hidden mail-pagination"> <strong>
                   <?php   $current = ($data['currentpage']*$iDisplayLength); echo $current+1; ?>
@@ -69,9 +69,16 @@
       <th colspan="2"> 
           <?php if(count($result)>0){ ?>
           <div class="mail-pagination leftsideview">
-          <strong> <?php echo $current+1; ?>-
-          <?php  echo $current+count($result); ?>
-          </strong> <span>of {{$totalResults}}</span>
+          <span>
+              <?php
+                  $showing_records = cus_lang("TABLE_LBL_SHOWING_RECORDS");
+                  $showing_records = str_replace("_START_",$current+1, $showing_records);
+                  $showing_records = str_replace("_END_",$current+count($result), $showing_records);
+                  $showing_records = str_replace("_TOTAL_",$totalResults, $showing_records);
+                 echo $showing_records;
+              ?>
+          </span>
+
           <div class="btn-group">
             <?php if($data['clicktype']=='back'){ ?>
             <?php if(($current+1)>1){ ?>

@@ -9,7 +9,7 @@
 
                 @if(Session::get('customer') == 0)
                     <div class="panel-options ">
-                        <strong class="incident_time">Updated  {{\Carbon\Carbon::createFromTimeStamp(strtotime($NoticeBoardPost->updated_at))->diffForHumans() }}</strong>
+                        <strong class="incident_time">{{cus_lang("CUST_PANEL_PAGE_NOTICEBOARD_MSG_UPDATED")}}  {{\Carbon\Carbon::createFromTimeStamp(strtotime($NoticeBoardPost->updated_at))->diffForHumans() }}</strong>
                         @if(User::checkCategoryPermission('NoticeBoardPost','Edit'))
                             <a href="#" class="save_post" data-original-title="Save" title="" data-placement="top" data-toggle="tooltip" data-id="{{$NoticeBoardPost->NoticeBoardPostID}}"><i class="entypo-floppy"></i></a>
                         @endif
@@ -19,7 +19,7 @@
                     </div>
                 @else
                     <div class="panel-options ">
-                        <strong class="incident_time">Updated  {{\Carbon\Carbon::createFromTimeStamp(strtotime($NoticeBoardPost->updated_at))->diffForHumans() }}</strong>
+                        <strong class="incident_time">{{cus_lang("CUST_PANEL_PAGE_NOTICEBOARD_MSG_UPDATED")}}  {{\Carbon\Carbon::createFromTimeStamp(strtotime($NoticeBoardPost->updated_at))->diffForHumans() }}</strong>
                     </div>
                 @endif
             </div>

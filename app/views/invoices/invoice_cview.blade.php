@@ -64,7 +64,7 @@
                               @if(($PaymentMethod == 'Stripe') && (is_Stripe($Invoice->CompanyID)  ) )
                                   <li> <a class="generate_rate create" href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/Stripe');}}" id="pay_Stripe" href="javascript:;"> Stripe </a> </li>
                               @endif
-                              @if(is_FideliPay($Invoice->CompanyID))
+                              @if($PaymentMethod == 'FideliPay') && is_FideliPay($Invoice->CompanyID))
                                   <li> <a class="generate_rate create" href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/FideliPay');}}" id="pay_FideliPay" href="javascript:;"> FideliPay </a> </li>
                               @endif
                               @if(($PaymentMethod == 'StripeACH') && (is_StripeACH($Invoice->CompanyID) && $StripeACHCount==1 ) )
@@ -75,6 +75,9 @@
                               @endif
                               @if(($PaymentMethod == 'SagePay') && (is_sagepay($Invoice->CompanyID)  ) )
                                   <li> <a class="pay_now create" id="pay_SagePay" href="javascript:;"> SagePay </a> </li>
+                              @endif
+                              @if(($PaymentMethod == 'PeleCard') && (is_pelecard($Invoice->CompanyID)  ) )
+                                  <li> <a class="generate_rate create" href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/PeleCard');}}" id="pay_PeleCard" href="javascript:;"> PeleCard </a> </li>
                               @endif
                           @else
                               @if(is_authorize($Invoice->CompanyID))
@@ -95,6 +98,9 @@
                               @if(is_sagepay($Invoice->CompanyID))
                               <li> <a class="pay_now create" id="pay_SagePay" href="javascript:;"> SagePay </a> </li>
                               @endif
+                              @if(is_pelecard($Invoice->CompanyID))
+                              <li> <a class="generate_rate create" href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/PeleCard');}}" id="pay_PeleCard" href="javascript:;"> PeleCard </a> </li>
+                              @endif
                           @endif
                       </ul>
                   </div>
@@ -104,7 +110,7 @@
                   <a href="{{URL::to('/invoice/'.$Invoice->InvoiceID.'/invoice_chart/')}}" class="btn pull-right btn-success tooltip-primary" data-original-title="Management Reports" title="Management Reports" data-placement="top" data-toggle="tooltip"> <i class="entypo-chart-bar"></i></a>
                   <div class="pull-right"> &nbsp;</div>
               @endif
-          @if( !empty($Invoice->UsagePath)) <a href="{{$cdownload_usage}}" class="btn pull-right btn-success btn-sm btn-icon icon-left"> <i class="entypo-down"></i> @lang('routes.CUST_PANEL_PAGE_INVOICE_CVIEW_BUTTON_DOWNLOD_USAGE') </a>
+          @if( !empty($Invoice->UsagePath)) <a href="{{$cdownload_usage}}" class="btn pull-right btn-success btn-sm btn-icon icon-left"> <i class="entypo-down"></i> @lang('routes.CUST_PANEL_PAGE_INVOICE_CVIEW_BUTTON_DOWNLOAD_USAGE') </a>
           <div class="pull-right"> &nbsp;</div>
           @endif
 
@@ -140,6 +146,9 @@
         });
         $('#pay_SagePay').click( function(){
             $('#sagepayform').submit();
+        });
+        $('#pay_PeleCard').click( function(){
+            $('#pelecardform').submit();
         });
     });
 

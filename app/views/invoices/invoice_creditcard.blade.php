@@ -60,8 +60,17 @@
                 <div class="form-group">
                     <label for="field-5" class="control-label">{{cus_lang('CUST_PANEL_PAGE_CREDIT_CARD_FIELD_CREDIT_CARD_NUMBER')}}</label>
                     <input type="text" name="CardNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
-                    <input type="hidden" name="InvoiceID" value="{{$Invoice->InvoiceID}}" />
-                    <input type="hidden" name="AccountID" value="{{$Invoice->AccountID}}" />
+                    @if(isset($Invoice))
+                        <input type="hidden" name="InvoiceID" value="{{$Invoice->InvoiceID}}" />
+                        <input type="hidden" name="AccountID" value="{{$Invoice->AccountID}}" />
+                        <input type="hidden" name="isInvoicePay" value="1" />
+                    @elseif(isset($request["Amount"]))
+                        <input type="hidden" name="InvoiceID" value="{{$request["InvoiceID"]}}" />
+                        <input type="hidden" name="AccountID" value="{{$Account->AccountID}}" />
+                        <input type="hidden" name="GrandTotal" value="{{$request["Amount"]}}" />
+                        <input type="hidden" name="isInvoicePay" value="0" />
+                        <input type="hidden" name="custome_notes" value="{{$request["custome_notes"]}}" />
+                    @endif
                 </div>
             </div>
             <div class="col-md-12">
@@ -110,7 +119,7 @@
 <script>
 
 $(document).ready(function() {
-    @if($Invoice->InvoiceStatus == Invoice::PAID)
+    @if(isset($Invoice) && $Invoice->InvoiceStatus == Invoice::PAID)
     $('#add-credit-card-form').find('[type="submit"]').attr('disabled', true);
     @endif
 
@@ -127,7 +136,11 @@ $(document).ready(function() {
                 success: function (response) {
                     if(response.status =='success'){
                         toastr.success(response.message, "Success", toastr_opts);
-                        window.location = '{{URL::to('/')}}/invoice_thanks/{{$Invoice->AccountID}}-{{$Invoice->InvoiceID}}';
+                        @if(isset($Invoice))
+                            window.location = '{{URL::to('/')}}/invoice_thanks/{{$Invoice->AccountID}}-{{$Invoice->InvoiceID}}';
+                        @elseif(isset($request["Amount"]))
+                            window.location = '{{URL::to('/customer/payments')}}';
+                        @endif
                     }else{
                         $('#add-credit-card-form').find('[type="submit"]').attr('disabled', false);
                         toastr.error(response.message, "Error", toastr_opts);
