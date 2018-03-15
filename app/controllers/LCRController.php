@@ -119,31 +119,31 @@ class LCRController extends \BaseController {
 
     public function ajax_customer_rate_grid(){
         $postdata = Input::all();
-            if($postdata['GroupBy']=='code') {
-                //@TODO: change : add customer trunk active , account active
-                $result = DB::table("tblCustomerRate as cr")->select(DB::raw('max(cr.Rate) as Rate, acc.AccountName'))
-                    ->join('tblRate as r', 'cr.RateID', '=', 'r.RateID')
-                    ->join('tblAccount as acc', 'cr.CustomerID', '=', 'acc.AccountID')
-                    ->join('tblCustomerTrunk as ct', 'acc.AccountID', '=', 'ct.AccountID')
-                    ->where('r.Code', '=', $postdata['code'])
-                    ->where('acc.Status', '=', '1')
-                    ->groupby('acc.AccountName')
-                    ->where('ct.Status', '=', '1')
-                    ->get();
-            }else{
-                $result = DB::table("tblCustomerRate as cr")->select(DB::raw('max(cr.Rate) as Rate, acc.AccountName'))
-                    ->join('tblRate as r', 'cr.RateID', '=', 'r.RateID')
-                    ->join('tblAccount as acc', 'cr.CustomerID', '=', 'acc.AccountID')
-                    ->join('tblCustomerTrunk as ct', 'acc.AccountID', '=', 'ct.AccountID')
-                    ->where('r.Description', '=', $postdata['code'])
-                    ->where('acc.Status', '=', '1')
-                    ->where('ct.Status', '=', '1')
-                    ->groupby('acc.AccountName')
-                    ->get();
-            }
-            $data["decimalpoint"] =  get_round_decimal_places();
-            $data["result"] = $result;
-            return $data;
+        if($postdata['GroupBy']=='code') {
+            //@TODO: change : add customer trunk active , account active
+            $result = DB::table("tblCustomerRate as cr")->select(DB::raw('max(cr.Rate) as Rate, acc.AccountName'))
+                ->join('tblRate as r', 'cr.RateID', '=', 'r.RateID')
+                ->join('tblAccount as acc', 'cr.CustomerID', '=', 'acc.AccountID')
+                ->join('tblCustomerTrunk as ct', 'acc.AccountID', '=', 'ct.AccountID')
+                ->where('r.Code', '=', $postdata['code'])
+                ->where('acc.Status', '=', '1')
+                ->groupby('acc.AccountName')
+                ->where('ct.Status', '=', '1')
+                ->get();
+        }else{
+            $result = DB::table("tblCustomerRate as cr")->select(DB::raw('max(cr.Rate) as Rate, acc.AccountName'))
+                ->join('tblRate as r', 'cr.RateID', '=', 'r.RateID')
+                ->join('tblAccount as acc', 'cr.CustomerID', '=', 'acc.AccountID')
+                ->join('tblCustomerTrunk as ct', 'acc.AccountID', '=', 'ct.AccountID')
+                ->where('r.Description', '=', $postdata['code'])
+                ->where('acc.Status', '=', '1')
+                ->where('ct.Status', '=', '1')
+                ->groupby('acc.AccountName')
+                ->get();
+        }
+        $data["decimalpoint"] =  get_round_decimal_places();
+        $data["result"] = $result;
+        return $data;
     }
 
     public function marginRateExport($type,$id)
@@ -190,7 +190,7 @@ class LCRController extends \BaseController {
                 ->where('ct.Status', '=', '1')
                 ->get();
 
-         }else{
+        }else{
 
             $excel_data = DB::table("tblCustomerRate as cr")->select(DB::raw('max(cr.Rate) as Rate, acc.AccountName'))
                 ->join('tblRate as r', 'cr.RateID', '=', 'r.RateID')
@@ -254,9 +254,15 @@ class LCRController extends \BaseController {
                 $temp['CRate'] = $customers['Rate'];
                 $temp['Vendor'] = $vendor[$i];
                 $temp['Rate'] = $rate[$i];
-                $margin_percentage  = (floatval($customers['Rate'])) * 100/ floatval($rate[$i]) - 100;
-                $marginamt = floatval($customers['Rate']) - floatval($rate[$i]);
-                $margin = number_format((float)$marginamt, $decimalpoint, '.', '');
+                if($rate[$i] > 0){
+                    $margin_percentage  = (floatval($customers['Rate'])) * 100/ floatval($rate[$i]) - 100;
+                    $marginamt = floatval($customers['Rate']) - floatval($rate[$i]);
+                    $margin = number_format((float)$marginamt, $decimalpoint, '.', '');
+                }else{
+                    $margin_percentage  = 0;
+                    $margin = 0;
+                }
+
                 $temp['Margin'] = $margin ." ( ".sprintf('%0.2f', $margin_percentage) ."% )";
                 array_push($result, $temp);
             }
