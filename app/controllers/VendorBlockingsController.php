@@ -73,70 +73,33 @@ class VendorBlockingsController extends \BaseController {
             return View::make('vendorblockings.blockby_code', compact('id', 'trunks', 'trunk_keys', 'countries','Account'));
     }
 
+    /**
+     * @return mixed
+     */
     public function blockunblockcode()
     {
-
+        $postdata = Input::all();
+        $preference =  !empty($postdata['preference']) ? $postdata['preference'] : 0;
+        $acc_id =  $postdata['acc_id'];
+        $trunk =  $postdata['trunk'];
+        $rowcode = $postdata["rowcode"];
+        $CodeDeckId = $postdata["CodeDeckId"];
+        $description = $postdata["description"];
         $username = User::get_user_full_name();
-        $data = Input::all();
-        $test1 = '';
-        $test2 = '';
-        if ($data["GroupBy"] == 'description') {
-
-            $test1 = DB::table('tblVendorBlocking')
-                ->where('CountryId', '=', $data["id"])
-                ->where('AccountId', '=', $data["acc_id"])
-                ->limit(1)
-                ->get();
-
-            if (!empty($test1)) {
-
-                DB::table('tblVendorBlocking')->where('AccountId', '=', $data["acc_id"])->delete();
-                $result["message"] = "Vendor Unblocked";
-
-            } else {
-
-                $test2 = DB::table('tblRate')
-                    ->where('Code', '=', $data["rowcode"])
-                    ->limit(1)
-                    ->get();
-                $CountryID = $test2[0]->CountryID;
-                DB::table('tblVendorBlocking')->insert(
-                    ['AccountId' => $data["acc_id"], 'CountryId' => $CountryID, 'TrunkID' => $data["trunk"], 'BlockedBy' => $username]
-                );
-                $result["message"] = "Vendor Blocked";
-                $result["vendorblocingId"] = DB::getPdo()->lastInsertId();
-            }
-
-        }else{
-
-                $test = DB::table('tblVendorRate')
-                ->join('tblRate', 'tblVendorRate.RateId', '=', 'tblRate.RateId')
-                ->where('tblVendorRate.AccountId', '=', $data["acc_id"])
-                ->where('tblVendorRate.TrunkID', '=', $data["trunk"])
-                ->where('tblRate.Code', '=', $data["rowcode"])
-                ->limit(1)
-                ->get();
-
-                $RateId = $test[0]->RateID;
-                $message = "";
-                $vendorblocingId = "";
-                if ($data["id"] == 0)
-                {
-                DB::table('tblVendorBlocking')->insert(
-                ['AccountId' => $data["acc_id"], 'RateId' => $RateId, 'TrunkID' => $data["trunk"], 'BlockedBy' => $username]
-                );
-                $result["message"] = "Vendor Blocked";
-                $result["vendorblocingId"] = DB::getPdo()->lastInsertId();
-                }
-
-                else{
-                    DB::table('tblVendorBlocking')->where('VendorBlockingId', '=', $data["id"])->delete();
-                    $result["message"] = "Vendor Unblocked";
-                }
+        $blockId = $postdata["id"];
+        $query = "call prc_lcrBlockUnblock ('".$postdata["GroupBy"]."',".$blockId.",".$preference.",".$acc_id.",".$trunk.",".$rowcode.",".$CodeDeckId.",'".$description."','".$username."')";
+        DB::select($query);
+        //\Illuminate\Support\Facades\Log::info($query);
+        //$results = DB::select($query);
+        //$preference = isset($results[0]->Preference) ? $results[0]->Preference : '';
+        try{
+            $message =  "Vendor Blocked Successfully";
+            return json_encode(["status" => "success", "message" => $message]);
+        }catch ( Exception $ex ){
+            $message =  "Oops Somethings Wrong !";
+            return json_encode(["status" => "fail", "message" => $message]);
         }
 
-
-        return $result;
     }
 
     public function blockbycountry_exports($id,$type) {

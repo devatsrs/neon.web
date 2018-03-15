@@ -68,6 +68,7 @@ class LCRController extends \BaseController {
     }
 
     public function index() {
+
         $trunks = Trunk::getTrunkDropdownIDList();
         $trunk_keys = getDefaultTrunk($trunks);
         //$countries = Country::getCountryDropdownIDList();
@@ -116,55 +117,92 @@ class LCRController extends \BaseController {
 
     }
 
-    public function marginRate(){
+    public function ajax_customer_rate_grid(){
         $postdata = Input::all();
             if($postdata['GroupBy']=='code') {
-                $result = DB::table("tblCustomerRate as cr")->select('acc.AccountName','acc.AccountID', 'cr.Rate')
+                //@TODO: change : add customer trunk active , account active
+                $result = DB::table("tblCustomerRate as cr")->select(DB::raw('max(cr.Rate) as Rate, acc.AccountName'))
                     ->join('tblRate as r', 'cr.RateID', '=', 'r.RateID')
                     ->join('tblAccount as acc', 'cr.CustomerID', '=', 'acc.AccountID')
-                    ->where('r.Code', '=', $postdata['code'])->groupby('acc.AccountName')
+                    ->join('tblCustomerTrunk as ct', 'acc.AccountID', '=', 'ct.AccountID')
+                    ->where('r.Code', '=', $postdata['code'])
                     ->where('acc.Status', '=', '1')
+                    ->groupby('acc.AccountName')
+                    ->where('ct.Status', '=', '1')
                     ->get();
             }else{
-                $result = DB::table("tblCustomerRate as cr")->select('acc.AccountName' , 'cr.Rate')
+                $result = DB::table("tblCustomerRate as cr")->select(DB::raw('max(cr.Rate) as Rate, acc.AccountName'))
                     ->join('tblRate as r', 'cr.RateID', '=', 'r.RateID')
                     ->join('tblAccount as acc', 'cr.CustomerID', '=', 'acc.AccountID')
-                    ->where('r.Description', '=', $postdata['code'])->groupby('acc.AccountName')
+                    ->join('tblCustomerTrunk as ct', 'acc.AccountID', '=', 'ct.AccountID')
+                    ->where('r.Description', '=', $postdata['code'])
                     ->where('acc.Status', '=', '1')
+                    ->where('ct.Status', '=', '1')
+                    ->groupby('acc.AccountName')
                     ->get();
             }
             $data["decimalpoint"] =  get_round_decimal_places();
             $data["result"] = $result;
             return $data;
     }
-    public function marginRateExport($type,$id){
-        ini_set ( 'max_execution_time', 90);
+
+    public function marginRateExport($type,$id)
+    {
+
+        //@TODO: // use POST json grid data - to avoid using procedure.
+
+        ini_set('max_execution_time', 90);
         $companyID = User::get_companyID();
         $data = Input::all();
-        $AccountIDs = empty($data['Accounts'])?'':$data['Accounts'];
-        if($AccountIDs=='null'){
-            $AccountIDs='';
+        $AccountIDs = empty($data['Accounts']) ? '' : $data['Accounts'];
+        if ($AccountIDs == 'null') {
+            $AccountIDs = '';
         }
-        $data['Use_Preference'] = $data['Use_Preference'] == 'true' ? 1:0;
-        $data['vendor_block'] = $data['vendor_block'] == 'true' ? 1:0;
-        $data['iDisplayStart'] +=1;
+        $data['Use_Preference'] = $data['Use_Preference'] == 'true' ? 1 : 0;
+        $data['vendor_block'] = $data['vendor_block'] == 'true' ? 1 : 0;
+        $data['iDisplayStart'] += 1;
 
         $LCRPosition = Invoice::getCookie('LCRPosition');
-        if($data['LCRPosition'] != $LCRPosition){
-            NeonCookie::setCookie('LCRPosition',$data['LCRPosition'],60);
+        if ($data['LCRPosition'] != $LCRPosition) {
+            NeonCookie::setCookie('LCRPosition', $data['LCRPosition'], 60);
         }
         $LCRGroupBy = Invoice::getCookie('LCRGroupBy');
-        if($data['GroupBy'] != $LCRGroupBy){
-            NeonCookie::setCookie('LCRGroupBy',$data['GroupBy'],60);
+        if ($data['GroupBy'] != $LCRGroupBy) {
+            NeonCookie::setCookie('LCRGroupBy', $data['GroupBy'], 60);
         }
-        $query = "call prc_GetLCRwithPrefix (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".trim($id)."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."','".intval($data['vendor_block'])."','".$data['GroupBy']."','".$data['SelectedEffectiveDate']."' ";
-        $positiondata  = DB::select($query.',1)');
-        $postdata = Input::all();
-        /* use for export xls and csv */
-        $excel_data = DB::table("tblCustomerRate as cr")->select('acc.AccountName', 'cr.Rate')
-            ->join('tblRate as r', 'cr.RateID', '=', 'r.RateID')
-            ->join('tblAccount as acc', 'cr.CustomerID', '=', 'acc.AccountID')
-            ->where('r.Code', '=', $id)->get();
+        if( $data['Policy'] == LCR::LCR ) {
+            $query = "call prc_GetLCR (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."','".intval($data['vendor_block'])."','".$data['GroupBy']."','".$data['SelectedEffectiveDate']."' ";
+        } else {
+            $query = "call prc_GetLCRwithPrefix (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."','".intval($data['vendor_block'])."','".$data['GroupBy']."','".$data['SelectedEffectiveDate']."' ";
+        }
+        $positiondata = DB::select($query . ',1)');
+
+
+        if ($data['GroupBy'] == 'code'){
+
+            $excel_data = DB::table("tblCustomerRate as cr")->select(DB::raw('max(cr.Rate) as Rate, acc.AccountName'))
+                ->join('tblRate as r', 'cr.RateID', '=', 'r.RateID')
+                ->join('tblAccount as acc', 'cr.CustomerID', '=', 'acc.AccountID')
+                ->join('tblCustomerTrunk as ct', 'acc.AccountID', '=', 'ct.AccountID')
+                ->where('r.Code', '=', $id)
+                ->where('acc.Status', '=', '1')
+                ->groupby('acc.AccountName')
+                ->where('ct.Status', '=', '1')
+                ->get();
+
+         }else{
+
+            $excel_data = DB::table("tblCustomerRate as cr")->select(DB::raw('max(cr.Rate) as Rate, acc.AccountName'))
+                ->join('tblRate as r', 'cr.RateID', '=', 'r.RateID')
+                ->join('tblAccount as acc', 'cr.CustomerID', '=', 'acc.AccountID')
+                ->join('tblCustomerTrunk as ct', 'acc.AccountID', '=', 'ct.AccountID')
+                ->where('r.Description', '=', $id)
+                ->where('acc.Status', '=', '1')
+                ->where('ct.Status', '=', '1')
+                ->groupby('acc.AccountName')
+                ->get();
+        }
+
         $excel_data1 = json_decode(json_encode($excel_data), true);
         $result = array();
         $data = json_decode(json_encode($positiondata), true);
@@ -176,8 +214,8 @@ class LCRController extends \BaseController {
                 if(!empty($data[0][$keyname])) {
                     $temp['Customer'] = $rows['AccountName'];
                     $temp['Vendor'] = $vname[1];
-                    $temp['Rate'] = $vname[0];
                     $temp['CRate'] = $rows['Rate'];
+                    $temp['Rate'] = $vname[0];
                     $margin = floatval($vname[0]) - floatval($rows['Rate']);
                     $margin = number_format((float)$margin, 6, '.', '');
                     $margin_percentage  = 100 - (floatval($rows['Rate'])) * 100/ floatval($vname[0]);
@@ -195,53 +233,74 @@ class LCRController extends \BaseController {
             $NeonExcel = new NeonExcelIO($file_path);
             $NeonExcel->download_excel($result);
         }
-        /* use for export xls and csv */
+
+
+    }
+
+    public function ajax_customer_rate_export(){
+
+        $data = Input::all();
+        $type = $data["type"];
+        $decimalpoint = $data["customer"]["decimalpoint"];
+        $customer = $data["customer"]["result"];
+        $vendor = $data["vendor"];
+        $rate = $data["rate"];
+        $lenghtofarr =  sizeof($vendor);
+        $result = array();
+        foreach($customer as $customers){
+
+            for($i=0;$i<$lenghtofarr;$i++) {
+                $temp['Customer'] = $customers["AccountName"];
+                $temp['CRate'] = $customers['Rate'];
+                $temp['Vendor'] = $vendor[$i];
+                $temp['Rate'] = $rate[$i];
+                $margin_percentage  = (floatval($customers['Rate'])) * 100/ floatval($rate[$i]) - 100;
+                $marginamt = floatval($customers['Rate']) - floatval($rate[$i]);
+                $margin = number_format((float)$marginamt, $decimalpoint, '.', '');
+                $temp['Margin'] = $margin ." ( ".sprintf('%0.2f', $margin_percentage) ."% )";
+                array_push($result, $temp);
+            }
+
+        }
+
+        if ($type == 'csv') {
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') . '/LCR-Customer-Rate.csv';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->write_excel($result);
+            $filename = base64_encode('LCR-Customer-Rate.csv');
+        } elseif ($type == 'xlsx') {
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') . '/LCR-Customer-Rate.xls';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->write_excel($result);
+            $filename = base64_encode('LCR-Customer-Rate.xls');
+        }
+
+        return json_encode(["fileurl"=>$filename]);
+
+
+
     }
 
     public function editPreference(){
         $postdata = Input::all();
-        $preference =  $postdata['preference'];
+        $preference =  !empty($postdata['preference']) ? $postdata['preference'] : 0;
         $acc_id =  $postdata['acc_id'];
         $trunk =  $postdata['trunk'];
+        $rowcode = $postdata["rowcode"];
+        $CodeDeckId = $postdata["CodeDeckId"];
+        $description = $postdata["description"];
         $username = User::get_user_full_name();
-        /* Get rateid */
-        $test = DB::table('tblVendorRate')
-            ->join('tblRate', 'tblVendorRate.RateId', '=', 'tblRate.RateId')
-            ->where('tblVendorRate.AccountId', '=', $postdata["acc_id"])
-            ->where('tblVendorRate.TrunkID', '=', $postdata["trunk"])
-            ->where('tblRate.Code', '=', $postdata["rowcode"])
-            ->limit(1)
-            ->get();
-        $RateId = $test[0]->RateID;
-        /* Get rateid */
-        $checkPreference = DB::table('tblVendorPreference')->select('VendorPreferenceID','Preference')
-            ->where('AccountId','=',$acc_id)
-            ->where('RateId','=',$RateId)
-            ->where('TrunkID','=',$trunk)->get();
-
-            if (!empty($checkPreference)) {
-                if(!empty($preference)) {
-                    $VendorPreferenceID = $checkPreference[0]->VendorPreferenceID;
-                    $preference = $preference == '' ? 5 : $preference;
-                    DB::table('tblVendorPreference')->where('VendorPreferenceID', '=', $VendorPreferenceID)->update(["Preference" => $preference]);
-                    echo "Preference Update Successfully";
-                }else {
-                    $VendorPreferenceID = $checkPreference[0]->Preference;
-                    echo $preference = !empty($VendorPreferenceID) ? $VendorPreferenceID : '';
-                }
-            } else {
-                if(!empty($preference)) {
-                    $preference = $preference == '' ? 5 : $preference;
-                    DB::table('tblVendorPreference')->insert(
-                        ["AccountId" => $acc_id, "Preference" => $preference, "RateId" => $RateId, "TrunkID" => $trunk, "CreatedBy" => $username]
-                    );
-                    echo "Preference Insert Successfully";
-                }else{
-                    echo $preference = '';
-                }
-            }
-
-        exit;
+        $query = "call prc_editpreference ('".$postdata["GroupBy"]."',".$preference.",".$acc_id.",".$trunk.",".$rowcode.",".$CodeDeckId.",'".$description."','".$username."')";
+        //\Illuminate\Support\Facades\Log::info($query);
+        $results = DB::select($query);
+        $preference = isset($results[0]->Preference) ? $results[0]->Preference : '';
+        try{
+            $message =  "Preference Update Successfully";
+            return json_encode(["status" => "success", "message" => $message,"preference"=>$preference]);
+        }catch ( Exception $ex ){
+            $message =  "Oops Somethings Wrong !";
+            return json_encode(["status" => "fail", "message" => $message,"preference"=>$preference]);
+        }
     }
 
 }
