@@ -472,7 +472,7 @@ class Payment extends \Eloquent {
                 $billingemail = trim($billingemail);
                 if(filter_var($billingemail, FILTER_VALIDATE_EMAIL)) {
                     $data['EmailTo'] = $billingemail;
-                    $status = sendMail('emails.admin.payment', $data);
+                    sendMail('emails.admin.payment', $data);
                 }
             }
         }
