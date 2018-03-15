@@ -452,6 +452,16 @@ class Payment extends \Eloquent {
                     Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$paymentdata);
                 }
             }
+        }else{
+            $data=array();
+            $data['data']['AccountName'] = Customer::get_user_full_name();
+            $data['data']['Amount'] = $paymentdata['Amount'];
+            $data['data']['PaymentType'] = $paymentdata['PaymentType'];
+            $data['data']['Currency'] = Currency::getCurrencyCode($paymentdata['CurrencyID']);
+            $data['data']['PaymentDate'] = $paymentdata['PaymentDate'];
+            $data['data']['Notes']= $paymentdata['Notes'];
+            $data['data']['CreatedBy'] = $paymentdata['CreatedBy'];
+            sendMail('emails.admin.payment', $data);
         }
     }
 
