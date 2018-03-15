@@ -453,15 +453,28 @@ class Payment extends \Eloquent {
                 }
             }
         }else{
+            $companyID = $paymentdata['CompanyID'];
+            $PendingApprovalPayment = Notification::getNotificationMail(Notification::PendingApprovalPayment,$companyID);
+
+            $PendingApprovalPayment = explode(',', $PendingApprovalPayment);
             $data=array();
-            $data['data']['AccountName'] = Customer::get_user_full_name();
+            $data['EmailToName'] = Company::getName($companyID);
+            $data['AccountName'] = Customer::get_user_full_name();
+            $data['Subject']= Customer::get_accountName().' Payment verification';
             $data['data']['Amount'] = $paymentdata['Amount'];
             $data['data']['PaymentType'] = $paymentdata['PaymentType'];
-            $data['data']['Currency'] = Currency::getCurrencyCode($paymentdata['CurrencyID']);
             $data['data']['PaymentDate'] = $paymentdata['PaymentDate'];
             $data['data']['Notes']= $paymentdata['Notes'];
+            $data['data']['Currency'] = Currency::getCurrencyCode($paymentdata['CurrencyID']);
+            $data['data']['AccountName'] = Customer::get_accountName();
             $data['data']['CreatedBy'] = $paymentdata['CreatedBy'];
-            sendMail('emails.admin.payment', $data);
+            foreach($PendingApprovalPayment as $billingemail){
+                $billingemail = trim($billingemail);
+                if(filter_var($billingemail, FILTER_VALIDATE_EMAIL)) {
+                    $data['EmailTo'] = $billingemail;
+                    $status = sendMail('emails.admin.payment', $data);
+                }
+            }
         }
     }
 
