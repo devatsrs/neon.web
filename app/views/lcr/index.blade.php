@@ -111,6 +111,10 @@
         .table-responsive {
             overflow-x: unset;
         }
+        .exportbtn{
+            margin-left: -15px;
+            padding-right: 0;
+        }
 
     </style>
 
@@ -952,7 +956,7 @@
                         var margineDataTable = $('#margineDataTable').DataTable({
                             "bDestroy": true,
                             "bProcessing": true,
-                            "sDom": "<'row'<'col-md-push-4 col-md-4 col-xs-12 centercaption'<'toolbartitle'> ><'col-md-pull-4 col-md-4 col-xs-12 col-left'l ><'col-md-4 col-xs-12'<'export-data exbtn'T>f>r>t<'row'<'col-md-6 col-xs-12 col-left'i><'col-md-6 col-xs-12 col-right'p>>",
+                            "sDom": "<'row'<'col-md-push-4 col-md-4 col-xs-12 centercaption'<'toolbartitle'> ><'col-md-pull-4 col-md-4 col-xs-12 col-left'l ><'col-md-4 col-xs-12 exportbtn'<'export-data exbtn'T>f>r>t<'row'<'col-md-6 col-xs-12 col-left'i><'col-md-6 col-xs-12 col-right'p>>",
                             "aaSorting": [[0, "asc"]],
                             "oTableTools": {
                                 "aButtons": [
@@ -1033,7 +1037,7 @@
                     },
                     success: function(data)
                     {
-
+                        var codedescription = GroupBy=='description' ? descriptioname : rowcode;
                         Trunk = $("#lcr-search-form select[name='Trunk']").val();
                         CodeDeck = $("#lcr-search-form select[name='CodeDeckId']").val();
                         GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
@@ -1044,12 +1048,12 @@
                         var data = '<div class="row">' +
                                 '<div class="col-md-12">' +
                                 '<div class="form-group">' +
-                                '<label for="field-5" class="control-label">Enter Preference</label>' +
+                                '<label for="field-5" class="control-label">Enter Preference <strong>('+codedescription+')</strong></label>' +
                                 '<input type="number" value="'+data.preference+'" id="txtpreference" name="preference" class="form-control" placeholder="Enter Preference">' +
                                 '</div>' +
                                 '</div>' +
                                 '</div>' +
-                                '<input type="hidden" name="description" value='+descriptioname+'>' +
+                                '<input type="hidden" name="description" value="'+descriptioname+'">' +
                                 '<input type="hidden" name="id" value='+thisid+'>' +
                                 '<input type="hidden" name="acc_id" value='+thisaccid+'>' +
                                 '<input type="hidden" name="trunk" value='+Trunk+'>' +
