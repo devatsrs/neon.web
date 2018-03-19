@@ -2,7 +2,7 @@ USE `RMBilling3`;
 
 DROP PROCEDURE IF EXISTS `prc_DeleteCDR`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_DeleteCDR`(
+CREATE PROCEDURE `prc_DeleteCDR`(
 	IN `p_CompanyID` INT,
 	IN `p_GatewayID` INT,
 	IN `p_StartDate` DATETIME,
@@ -14,11 +14,8 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_DeleteCDR`(
 	IN `p_zerovaluecost` INT,
 	IN `p_CurrencyID` INT,
 	IN `p_area_prefix` VARCHAR(50),
-	IN `p_trunk` VARCHAR(50)
-
-,
+	IN `p_trunk` VARCHAR(50),
 	IN `p_ResellerID` INT
-
 )
 BEGIN
 
@@ -106,7 +103,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_GetCDR`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_GetCDR`(
+CREATE PROCEDURE `prc_GetCDR`(
 	IN `p_company_id` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_start_date` DATETIME,
@@ -125,10 +122,6 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_GetCDR`(
 	IN `p_lSortCol` VARCHAR(50),
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_isExport` INT
-
-
-
-
 )
 BEGIN
 
@@ -244,7 +237,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_InsertTempReRateCDR`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_InsertTempReRateCDR`(
+CREATE PROCEDURE `prc_InsertTempReRateCDR`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_StartDate` DATETIME,
@@ -259,16 +252,8 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_InsertTempReRateCDR`(
 	IN `p_CurrencyID` INT,
 	IN `p_area_prefix` VARCHAR(50),
 	IN `p_trunk` VARCHAR(50),
-	IN `p_RateMethod` VARCHAR(50)
-
-
-,
+	IN `p_RateMethod` VARCHAR(50),
 	IN `p_ResellerID` INT
-
-
-
-
-
 )
 BEGIN
 	DECLARE v_BillingTime_ INT;
@@ -406,6 +391,1115 @@ WHERE
 	EXECUTE stmt1;
 	DEALLOCATE PREPARE stmt1;
 
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+--- new
+
+DROP PROCEDURE IF EXISTS `prc_ApplyAuthRule`;
+DELIMITER //
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_ApplyAuthRule`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_ServiceID` INT
+)
+BEGIN
+	DECLARE p_NameFormat VARCHAR(10);
+	DECLARE v_pointer_ INT ;
+	DECLARE v_rowCount_ INT ;
+
+	SET v_pointer_ = 1;
+	SET v_rowCount_ = (SELECT COUNT(*)FROM tmp_AuthenticateRules_);
+
+	WHILE v_pointer_ <= v_rowCount_
+	DO
+
+		SET p_NameFormat = ( SELECT AuthRule FROM tmp_AuthenticateRules_  WHERE RowNo = v_pointer_ );
+
+		IF  p_NameFormat = 'NAMENUB'
+		THEN
+	
+			INSERT INTO tmp_ActiveAccount
+			SELECT DISTINCT
+				ga.AccountName,
+				ga.AccountNumber,
+				ga.AccountCLI,
+				ga.AccountIP,
+				a.AccountID,
+				ga.ServiceID,
+				a.CompanyId
+			FROM Ratemanagement3.tblAccount  a
+			INNER JOIN tblGatewayAccount ga
+				ON CONCAT(a.AccountName , '-' , a.Number) = ga.AccountName
+				-- AND ga.CompanyID = a.CompanyId 				
+			LEFT JOIN Ratemanagement3.tblAccountAuthenticate aa 
+				ON a.AccountID = aa.AccountID 
+				AND aa.ServiceID = ga.ServiceID
+			WHERE GatewayAccountID IS NOT NULL
+			AND ga.AccountID IS NULL
+		--	AND a.CompanyId = p_CompanyID
+			AND a.Status = 1
+			AND ga.CompanyGatewayID = p_CompanyGatewayID
+			AND ga.ServiceID = p_ServiceID
+			AND ( ( aa.AccountID IS NOT NULL AND (aa.CustomerAuthRule = 'NAMENUB' OR aa.VendorAuthRule ='NAMENUB' )) OR
+              aa.AccountID IS NULL
+          );
+	
+		END IF;
+	
+		IF p_NameFormat = 'NUBNAME'
+		THEN
+	
+			INSERT INTO tmp_ActiveAccount
+			SELECT DISTINCT
+				ga.AccountName,
+				ga.AccountNumber,
+				ga.AccountCLI,
+				ga.AccountIP,
+				a.AccountID,
+				ga.ServiceID,
+				a.CompanyId
+			FROM Ratemanagement3.tblAccount  a
+			INNER JOIN tblGatewayAccount ga
+				ON CONCAT(a.Number, '-' , a.AccountName) = ga.AccountName 
+				-- AND ga.CompanyID = a.CompanyId
+			LEFT JOIN Ratemanagement3.tblAccountAuthenticate aa 
+				ON a.AccountID = aa.AccountID 
+				AND aa.ServiceID = ga.ServiceID
+			WHERE GatewayAccountID IS NOT NULL
+			AND ga.AccountID IS NULL
+		--	AND a.CompanyId = p_CompanyID
+			AND a.Status = 1
+			AND ga.CompanyGatewayID = p_CompanyGatewayID
+			AND ga.ServiceID = p_ServiceID
+			AND ( ( aa.AccountID IS NOT NULL AND (aa.CustomerAuthRule = 'NUBNAME' OR aa.VendorAuthRule ='NUBNAME' )) OR
+              aa.AccountID IS NULL
+          );
+	
+		END IF;
+	
+		IF p_NameFormat = 'NUB'
+		THEN
+	
+			INSERT INTO tmp_ActiveAccount
+			SELECT DISTINCT
+				ga.AccountName,
+				ga.AccountNumber,
+				ga.AccountCLI,
+				ga.AccountIP,
+				a.AccountID,
+				ga.ServiceID,
+				a.CompanyId
+			FROM Ratemanagement3.tblAccount  a
+			INNER JOIN tblGatewayAccount ga
+				ON a.Number = ga.AccountNumber 
+				-- AND ga.CompanyID = a.CompanyId
+			LEFT JOIN Ratemanagement3.tblAccountAuthenticate aa 
+				ON a.AccountID = aa.AccountID 
+				AND aa.ServiceID = ga.ServiceID	
+			WHERE GatewayAccountID IS NOT NULL
+			AND ga.AccountID IS NULL
+			-- AND a.CompanyId = p_CompanyID
+			AND a.Status = 1
+			AND ga.CompanyGatewayID = p_CompanyGatewayID
+			AND ga.ServiceID = p_ServiceID
+			AND ( ( aa.AccountID IS NOT NULL AND (aa.CustomerAuthRule = 'NUB' OR aa.VendorAuthRule ='NUB' )) OR
+              aa.AccountID IS NULL
+          );
+	
+		END IF;
+	
+		IF p_NameFormat = 'IP'
+		THEN
+	
+			INSERT INTO tmp_ActiveAccount
+			SELECT DISTINCT
+				ga.AccountName,
+				ga.AccountNumber,
+				ga.AccountCLI,
+				ga.AccountIP,
+				a.AccountID,
+				aa.ServiceID,
+				a.CompanyId
+			FROM Ratemanagement3.tblAccount  a
+			INNER JOIN Ratemanagement3.tblAccountAuthenticate aa
+				ON a.AccountID = aa.AccountID AND (aa.CustomerAuthRule = 'IP' OR aa.VendorAuthRule ='IP')
+			INNER JOIN tblGatewayAccount ga
+				ON  ga.ServiceID = p_ServiceID
+				-- AND ga.CompanyID = a.CompanyId 
+				AND aa.ServiceID = ga.ServiceID 
+				AND ( (aa.CustomerAuthRule = 'IP' AND FIND_IN_SET(ga.AccountIP,aa.CustomerAuthValue) != 0) OR (aa.VendorAuthRule ='IP' AND FIND_IN_SET(ga.AccountIP,aa.VendorAuthValue) != 0) )
+			WHERE a.`Status` = 1
+			-- AND a.CompanyId = p_CompanyID 			 			
+			AND GatewayAccountID IS NOT NULL
+			AND ga.AccountID IS NULL
+			AND ga.CompanyGatewayID = p_CompanyGatewayID;
+	
+		END IF;
+	
+		IF p_NameFormat = 'CLI'
+		THEN
+	
+			INSERT INTO tmp_ActiveAccount
+			SELECT DISTINCT
+				ga.AccountName,
+				ga.AccountNumber,
+				ga.AccountCLI,
+				ga.AccountIP,
+				a.AccountID,
+				aa.ServiceID,
+				a.CompanyId
+			FROM Ratemanagement3.tblAccount  a
+			INNER JOIN tblGatewayAccount ga
+				ON ga.ServiceID = p_ServiceID
+				-- AND ga.CompanyID = a.CompanyId 				 				
+			INNER JOIN Ratemanagement3.tblCLIRateTable aa
+				ON a.AccountID = aa.AccountID
+				AND aa.ServiceID = ga.ServiceID 
+				AND ga.AccountCLI = aa.CLI
+			WHERE a.`Status` = 1
+			-- AND a.CompanyId = p_CompanyID			 			
+			AND GatewayAccountID IS NOT NULL
+			AND ga.AccountID IS NULL
+			AND ga.CompanyGatewayID = p_CompanyGatewayID;
+	
+		END IF;
+	
+		IF p_NameFormat = '' OR p_NameFormat IS NULL OR p_NameFormat = 'NAME'
+		THEN
+	
+			-- IF sippy add sippy gateway too
+			select count(*) into @IsSippy from Ratemanagement3.tblGateway g inner join Ratemanagement3.tblCompanyGateway cg
+			on cg.GatewayID = g.GatewayID
+			AND cg.`Status` = 1
+			AND cg.CompanyGatewayID = p_CompanyGatewayID
+			AND g.Name = 'SippySFTP';
+
+			IF (@IsSippy > 0 ) THEN
+
+		
+					INSERT INTO tmp_ActiveAccount
+					SELECT DISTINCT
+						ga.AccountName,
+						ga.AccountNumber,
+						ga.AccountCLI,
+						ga.AccountIP,
+						sa.AccountID,
+						ga.ServiceID,
+						a.CompanyId
+					FROM Ratemanagement3.tblAccount  a
+					LEFT JOIN Ratemanagement3.tblAccountAuthenticate aa
+						ON a.AccountID = aa.AccountID 
+					INNER JOIN tblGatewayAccount ga
+						ON aa.ServiceID = ga.ServiceID  
+					--	AND  ga.CompanyID = a.CompanyId
+					--	AND a.AccountName = ga.AccountName -- already comment by someone
+					INNER JOIN Ratemanagement3.tblAccountSippy sa
+						ON ( (a.IsCustomer = 1	AND ga.AccountNumber = sa.i_account)	OR	( a.IsVendor = 1	AND ga.AccountNumber = sa.i_vendor ) )
+						-- sa.CompanyID = a.CompanyId AND						 	
+					WHERE a.`Status` = 1 
+					-- AND a.CompanyId = p_CompanyID			
+					AND ga.ServiceID = p_ServiceID 
+					AND GatewayAccountID IS NOT NULL
+					AND ga.AccountID IS NULL
+					AND ga.CompanyGatewayID = p_CompanyGatewayID
+					AND ( ( aa.AccountID IS NOT NULL AND (aa.CustomerAuthRule = 'NAME' OR aa.VendorAuthRule ='NAME' )) OR
+		              aa.AccountID IS NULL
+		          );
+		 
+			ELSE 
+			
+			
+					INSERT INTO tmp_ActiveAccount
+					SELECT DISTINCT
+						ga.AccountName,
+						ga.AccountNumber,
+						ga.AccountCLI,
+						ga.AccountIP,
+						a.AccountID,
+						ga.ServiceID,
+						a.CompanyId
+					FROM Ratemanagement3.tblAccount  a
+					INNER JOIN tblGatewayAccount ga
+						ON a.AccountName = ga.AccountName  
+						-- AND ga.CompanyID = a.CompanyId
+					LEFT JOIN Ratemanagement3.tblAccountAuthenticate aa
+						ON a.AccountID = aa.AccountID 
+						AND aa.ServiceID = ga.ServiceID 
+					WHERE a.`Status` = 1 
+					-- AND a.CompanyId = p_CompanyID			
+					AND ga.ServiceID = p_ServiceID 
+					AND GatewayAccountID IS NOT NULL
+					AND ga.AccountID IS NULL
+					AND ga.CompanyGatewayID = p_CompanyGatewayID
+					AND ( ( aa.AccountID IS NOT NULL AND (aa.CustomerAuthRule = 'NAME' OR aa.VendorAuthRule ='NAME' )) OR
+		              aa.AccountID IS NULL
+		          );
+			
+				
+			END IF;
+	 
+	
+		END IF;
+		
+		IF p_NameFormat = 'Other'
+		THEN
+	
+			INSERT INTO tmp_ActiveAccount
+			SELECT DISTINCT
+				ga.AccountName,
+				ga.AccountNumber,
+				ga.AccountCLI,
+				ga.AccountIP,
+				a.AccountID,
+				aa.ServiceID,
+				a.CompanyId
+			FROM Ratemanagement3.tblAccount  a
+			INNER JOIN Ratemanagement3.tblAccountAuthenticate aa
+				ON a.AccountID = aa.AccountID AND (aa.CustomerAuthRule = 'Other' OR aa.VendorAuthRule ='Other')
+			INNER JOIN tblGatewayAccount ga
+				 ON ga.ServiceID = aa.ServiceID 
+				--  ga.CompanyID = a.CompanyId AND
+				AND ( (aa.VendorAuthRule ='Other' AND aa.VendorAuthValue = ga.AccountName) OR (aa.CustomerAuthRule = 'Other' AND aa.CustomerAuthValue = ga.AccountName) )
+			WHERE a.`Status` = 1 
+			-- AND a.CompanyId = p_CompanyID			
+			AND GatewayAccountID IS NOT NULL
+			AND ga.AccountID IS NULL
+			AND ga.CompanyGatewayID = p_CompanyGatewayID
+			AND ga.ServiceID = p_ServiceID;
+	
+		END IF;
+
+		SET v_pointer_ = v_pointer_ + 1;
+
+	END WHILE;
+
+END//
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_CreateRerateLog`;
+DELIMITER //
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_CreateRerateLog`(
+	IN `p_processId` INT,
+	IN `p_tbltempusagedetail_name` VARCHAR(200),
+	IN `p_RateCDR` INT
+)
+BEGIN
+	DECLARE v_CustomerIDs_ TEXT DEFAULT '';
+	DECLARE v_CustomerIDs_Count_ INT DEFAULT 0;
+
+	SELECT GROUP_CONCAT(AccountID) INTO v_CustomerIDs_ FROM tmp_Customers_ GROUP BY CompanyGatewayID;
+	SELECT COUNT(*) INTO v_CustomerIDs_Count_ FROM tmp_Customers_;
+
+	SET @stm = CONCAT('
+	INSERT INTO tmp_tblTempRateLog_ (CompanyID,CompanyGatewayID,MessageType,Message,RateDate)
+	SELECT DISTINCT ud.CompanyID,ud.CompanyGatewayID,1,  CONCAT( " Account Name : ( " , ga.AccountName ," ) Number ( " , ga.AccountNumber ," ) IP  ( " , ga.AccountIP ," ) CLI  ( " , ga.AccountCLI," ) - Gateway: ",cg.Title," - Doesnt exist in NEON") as Message ,DATE(NOW())
+	FROM RMCDR3.`' , p_tbltempusagedetail_name , '` ud
+	INNER JOIN tblGatewayAccount ga
+		ON  ga.AccountName = ud.AccountName
+		AND ga.AccountNumber = ud.AccountNumber
+		AND ga.AccountCLI = ud.AccountCLI
+		AND ga.AccountIP = ud.AccountIP
+		AND ga.CompanyGatewayID = ud.CompanyGatewayID
+		AND ga.ServiceID = ud.ServiceID
+	INNER JOIN Ratemanagement3.tblCompanyGateway cg ON cg.CompanyGatewayID = ud.CompanyGatewayID
+	WHERE ud.ProcessID = "' , p_processid  , '" and ud.AccountID IS NULL');
+
+	PREPARE stmt FROM @stm;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+
+	IF p_RateCDR = 1
+	THEN
+
+		IF ( SELECT COUNT(*) FROM tmp_Service_ ) > 0
+		THEN
+
+			SET @stm = CONCAT('
+			INSERT INTO tmp_tblTempRateLog_ (CompanyID,CompanyGatewayID,MessageType,Message,RateDate)
+			SELECT DISTINCT a.CompanyId,ud.CompanyGatewayID,2,  CONCAT( "Account:  " , a.AccountName ," - Service: ",IFNULL(s.ServiceName,"")," - Unable to Rerate number ",IFNULL(ud.cld,"")," - No Matching prefix found") as Message ,DATE(NOW())
+			FROM  RMCDR3.`' , p_tbltempusagedetail_name , '` ud
+			INNER JOIN Ratemanagement3.tblAccount a on  ud.AccountID = a.AccountID
+			LEFT JOIN Ratemanagement3.tblService s on  s.ServiceID = ud.ServiceID
+			WHERE ud.ProcessID = "' , p_processid  , '" and ud.is_inbound = 0 AND ud.is_rerated = 0 AND ud.billed_second <> 0');
+
+			PREPARE stmt FROM @stm;
+			EXECUTE stmt;
+			DEALLOCATE PREPARE stmt;
+
+		ELSE
+
+			SET @stm = CONCAT('
+			INSERT INTO tmp_tblTempRateLog_ (CompanyID,CompanyGatewayID,MessageType,Message,RateDate)
+			SELECT DISTINCT a.CompanyId,ud.CompanyGatewayID,2,  CONCAT( "Account:  " , a.AccountName ," - Trunk: ",ud.trunk," - Unable to Rerate number ",IFNULL(ud.cld,"")," - No Matching prefix found") as Message ,DATE(NOW())
+			FROM  RMCDR3.`' , p_tbltempusagedetail_name , '` ud
+			INNER JOIN Ratemanagement3.tblAccount a on  ud.AccountID = a.AccountID
+			WHERE ud.ProcessID = "' , p_processid  , '" and ud.is_inbound = 0 AND ud.is_rerated = 0 AND ud.billed_second <> 0 ');
+
+			PREPARE stmt FROM @stm;
+			EXECUTE stmt;
+			DEALLOCATE PREPARE stmt;
+
+		END IF;
+
+		SET @stm = CONCAT('
+		INSERT INTO tmp_tblTempRateLog_ (CompanyID,CompanyGatewayID,MessageType,Message,RateDate)
+		SELECT DISTINCT a.CompanyId,ud.CompanyGatewayID,3,  CONCAT( "Account:  " , a.AccountName ,  " - Unable to Rerate number ",IFNULL(ud.cld,"")," - No Matching prefix found") as Message ,DATE(NOW())
+		FROM  RMCDR3.`' , p_tbltempusagedetail_name , '` ud
+		INNER JOIN Ratemanagement3.tblAccount a on  ud.AccountID = a.AccountID
+		WHERE ud.ProcessID = "' , p_processid  , '" and ud.is_inbound = 1 AND ud.is_rerated = 0 AND ud.billed_second <> 0 ');
+
+		PREPARE stmt FROM @stm;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+
+		SET @stm = CONCAT('
+		INSERT INTO Ratemanagement3.tblTempRateLog (CompanyID,CompanyGatewayID,MessageType,Message,RateDate,SentStatus,created_at)
+		SELECT rt.CompanyID,rt.CompanyGatewayID,rt.MessageType,rt.Message,rt.RateDate,0 as SentStatus,NOW() as created_at FROM tmp_tblTempRateLog_ rt
+		LEFT JOIN Ratemanagement3.tblTempRateLog rt2
+			ON rt.CompanyGatewayID = rt2.CompanyGatewayID
+			AND rt.MessageType = rt2.MessageType
+			AND rt.Message = rt2.Message
+			AND rt.RateDate = rt2.RateDate
+		WHERE rt2.TempRateLogID IS NULL;
+		');
+
+		PREPARE stmt FROM @stm;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+
+	END IF;
+
+	SELECT DISTINCT Message FROM tmp_tblTempRateLog_;
+
+END//
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_getActiveGatewayAccount`;
+DELIMITER //
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getActiveGatewayAccount`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_NameFormat` VARCHAR(50)
+)
+BEGIN
+
+	DECLARE v_NameFormat_ VARCHAR(10);
+	DECLARE v_RTR_ INT;
+	DECLARE v_pointer_ INT ;
+	DECLARE v_rowCount_ INT ;
+	DECLARE v_ServiceID_ INT ;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_ActiveAccount;
+	CREATE TEMPORARY TABLE tmp_ActiveAccount (
+		AccountName varchar(100),
+		AccountNumber varchar(100),
+		AccountCLI varchar(100),
+		AccountIP varchar(100),
+		AccountID INT,
+		ServiceID INT,
+		CompanyID INT
+	);
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_AuthenticateRules_;
+	CREATE TEMPORARY TABLE tmp_AuthenticateRules_ (
+		RowNo INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		AuthRule VARCHAR(50)
+	);
+
+	
+	IF p_NameFormat = ''
+	THEN
+		INSERT INTO tmp_AuthenticateRules_  (AuthRule)
+		SELECT
+			CASE WHEN Settings LIKE '%"NameFormat":"NAMENUB"%'
+			THEN 'NAMENUB'
+			ELSE
+			CASE WHEN Settings LIKE '%"NameFormat":"NUBNAME"%'
+			THEN 'NUBNAME'
+			ELSE
+			CASE WHEN Settings LIKE '%"NameFormat":"NUB"%'
+			THEN 'NUB'
+			ELSE
+			CASE WHEN Settings LIKE '%"NameFormat":"IP"%'
+			THEN 'IP'
+			ELSE
+			CASE WHEN Settings LIKE '%"NameFormat":"CLI"%'
+			THEN 'CLI'
+			ELSE
+			CASE WHEN Settings LIKE '%"NameFormat":"NAME"%'
+			THEN 'NAME'
+			ELSE 'NAME' END END END END END END   AS  NameFormat
+		FROM Ratemanagement3.tblCompanyGateway
+		WHERE Settings LIKE '%NameFormat%' 
+		AND CompanyGatewayID = p_CompanyGatewayID
+		LIMIT 1;
+
+	END IF;
+
+	IF p_NameFormat != ''
+	THEN
+		INSERT INTO tmp_AuthenticateRules_  (AuthRule)
+		SELECT p_NameFormat;
+
+	END IF;
+	SET v_pointer_ = 1;
+	SET v_rowCount_ = (SELECT COUNT(*) FROM tmp_Service_);
+	 
+	IF v_rowCount_ > 0
+	THEN
+
+		WHILE v_pointer_ <= v_rowCount_
+		DO
+
+			SET v_ServiceID_ = (SELECT ServiceID FROM tmp_Service_ t WHERE t.RowID = v_pointer_);
+
+			INSERT INTO tmp_AuthenticateRules_  (AuthRule)
+			SELECT DISTINCT CustomerAuthRule FROM Ratemanagement3.tblAccountAuthenticate aa WHERE CustomerAuthRule IS NOT NULL AND ServiceID = v_ServiceID_ 
+			UNION
+			SELECT DISTINCT VendorAuthRule FROM Ratemanagement3.tblAccountAuthenticate aa WHERE VendorAuthRule IS NOT NULL AND ServiceID = v_ServiceID_; -- CompanyID = p_CompanyID AND
+
+			CALL prc_ApplyAuthRule(p_CompanyID,p_CompanyGatewayID,v_ServiceID_);
+
+			SET v_pointer_ = v_pointer_ + 1;
+
+		END WHILE;
+
+	END IF;
+
+	
+	IF (SELECT COUNT(*) FROM Ratemanagement3.tblAccountAuthenticate WHERE ServiceID = 0) > 0
+	THEN
+
+
+		INSERT INTO tmp_AuthenticateRules_  (AuthRule)
+		SELECT DISTINCT CustomerAuthRule FROM Ratemanagement3.tblAccountAuthenticate aa WHERE CustomerAuthRule IS NOT NULL AND ServiceID = 0
+		UNION
+		SELECT DISTINCT VendorAuthRule FROM Ratemanagement3.tblAccountAuthenticate aa WHERE VendorAuthRule IS NOT NULL AND ServiceID = 0;
+
+		CALL prc_ApplyAuthRule(p_CompanyID,p_CompanyGatewayID,0);
+
+	END IF;
+
+	CALL prc_ApplyAuthRule(p_CompanyID,p_CompanyGatewayID,0);
+
+	UPDATE tblGatewayAccount
+	INNER JOIN tmp_ActiveAccount a
+		ON a.AccountName = tblGatewayAccount.AccountName
+		AND a.AccountNumber = tblGatewayAccount.AccountNumber
+		AND a.AccountCLI = tblGatewayAccount.AccountCLI
+		AND a.AccountIP = tblGatewayAccount.AccountIP
+		AND tblGatewayAccount.CompanyGatewayID = p_CompanyGatewayID
+		AND tblGatewayAccount.ServiceID = a.ServiceID
+	SET tblGatewayAccount.AccountID = a.AccountID,tblGatewayAccount.CompanyID=a.CompanyID
+	WHERE tblGatewayAccount.AccountID IS NULL;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `prc_ProcessCDRAccount`;
+DELIMITER //
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_ProcessCDRAccount`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_processId` INT,
+	IN `p_tbltempusagedetail_name` VARCHAR(200),
+	IN `p_NameFormat` VARCHAR(50)
+)
+BEGIN
+
+	DECLARE v_NewAccountIDCount_ INT;
+
+	/* insert new account */
+	SET @stm = CONCAT('
+	INSERT INTO tblGatewayAccount (CompanyID, CompanyGatewayID, GatewayAccountID, AccountName,AccountNumber,AccountCLI,AccountIP,ServiceID)
+	SELECT
+		DISTINCT
+		ud.CompanyID,
+		ud.CompanyGatewayID,
+		ud.GatewayAccountID,
+		ud.AccountName,
+		ud.AccountNumber,
+		ud.AccountCLI,
+		ud.AccountIP,
+		ud.ServiceID
+	FROM RMCDR3.' , p_tbltempusagedetail_name , ' ud
+	LEFT JOIN tblGatewayAccount ga
+		ON ga.CompanyGatewayID = ud.CompanyGatewayID
+		AND ga.AccountName = ud.AccountName
+		AND ga.AccountNumber = ud.AccountNumber
+		AND ga.AccountCLI = ud.AccountCLI
+		AND ga.AccountIP = ud.AccountIP		 
+		AND ga.ServiceID = ud.ServiceID
+	WHERE ProcessID =  "' , p_processId , '"
+		AND ga.GatewayAccountID IS NULL
+		AND ud.GatewayAccountID IS NOT NULL;
+	');
+
+	PREPARE stmt FROM @stm;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+
+	/* update cdr account */
+	SET @stm = CONCAT('
+	UPDATE RMCDR3.`' , p_tbltempusagedetail_name , '` uh
+	INNER JOIN tblGatewayAccount ga
+		ON  ga.CompanyGatewayID = uh.CompanyGatewayID
+		AND ga.AccountName = uh.AccountName
+		AND ga.AccountNumber = uh.AccountNumber
+		AND ga.AccountCLI = uh.AccountCLI
+		AND ga.AccountIP = uh.AccountIP
+		AND ga.ServiceID = uh.ServiceID
+	SET uh.GatewayAccountPKID = ga.GatewayAccountPKID
+	WHERE uh.ProcessID = "' , p_processId , '" ;
+	');
+	PREPARE stmt FROM @stm;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+
+	/* active new account */
+	CALL  prc_getActiveGatewayAccount(p_CompanyID,p_CompanyGatewayID,p_NameFormat);
+
+	/* update cdr account */
+	SET @stm = CONCAT('
+	UPDATE RMCDR3.`' , p_tbltempusagedetail_name , '` uh
+	INNER JOIN tblGatewayAccount ga
+		ON  ga.CompanyGatewayID = uh.CompanyGatewayID
+		AND ga.AccountName = uh.AccountName
+		AND ga.AccountNumber = uh.AccountNumber
+		AND ga.AccountCLI = uh.AccountCLI
+		AND ga.AccountIP = uh.AccountIP
+		AND ga.ServiceID = uh.ServiceID
+	SET uh.AccountID = ga.AccountID,uh.CompanyID = ga.CompanyID
+	WHERE uh.AccountID IS NULL
+	AND ga.AccountID is not null
+	AND uh.ProcessID = "' , p_processId , '" ;
+	');
+	PREPARE stmt FROM @stm;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+
+	SELECT COUNT(*) INTO v_NewAccountIDCount_
+	FROM RMCDR3.tblUsageHeader uh
+	INNER JOIN tblGatewayAccount ga
+		ON  uh.GatewayAccountPKID = ga.GatewayAccountPKID
+	WHERE uh.AccountID IS NULL
+	AND ga.AccountID is not null
+--	AND uh.CompanyID = p_CompanyID
+	AND uh.CompanyGatewayID = p_CompanyGatewayID;
+
+	IF v_NewAccountIDCount_ > 0
+	THEN
+
+		/* update header cdr account */
+		UPDATE RMCDR3.tblUsageHeader uh
+		INNER JOIN tblGatewayAccount ga
+			ON  uh.GatewayAccountPKID = ga.GatewayAccountPKID
+		SET uh.AccountID = ga.AccountID
+		WHERE uh.AccountID IS NULL
+		AND ga.AccountID is not null
+--		AND uh.CompanyID = p_CompanyID
+		AND uh.CompanyGatewayID = p_CompanyGatewayID;
+
+	END IF;
+
+END//
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `prc_ProcessCDRService`;
+DELIMITER //
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_ProcessCDRService`(
+	IN `p_CompanyID` INT,
+	IN `p_processId` INT,
+	IN `p_tbltempusagedetail_name` VARCHAR(200)
+)
+BEGIN
+
+	DECLARE v_ServiceAccountID_CLI_Count_ INT;
+	DECLARE v_ServiceAccountID_IP_Count_ INT;
+
+	SELECT COUNT(*) INTO v_ServiceAccountID_CLI_Count_ 
+	FROM Ratemanagement3.tblAccountAuthenticate aa
+	INNER JOIN Ratemanagement3.tblCLIRateTable crt ON crt.AccountID = aa.AccountID
+	WHERE -- aa.CompanyID = p_CompanyID AND 
+	(CustomerAuthRule = 'CLI' OR VendorAuthRule = 'CLI') AND crt.ServiceID > 0 ;
+
+	IF v_ServiceAccountID_CLI_Count_ > 0
+	THEN
+
+		
+		SET @stm = CONCAT('
+		UPDATE RMCDR3.`' , p_tbltempusagedetail_name , '` uh
+		INNER JOIN Ratemanagement3.tblCLIRateTable ga
+			ON ga.CLI = uh.cli
+		SET uh.ServiceID = ga.ServiceID
+		WHERE ga.ServiceID > 0
+		AND uh.ProcessID = "' , p_processId , '" ;
+		');
+		PREPARE stmt FROM @stm;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+
+	END IF;
+	
+	SELECT COUNT(*) INTO v_ServiceAccountID_IP_Count_ 
+	FROM Ratemanagement3.tblAccountAuthenticate aa
+	WHERE -- aa.CompanyID = p_CompanyID AND
+	 (CustomerAuthRule = 'IP' OR VendorAuthRule = 'IP') AND ServiceID > 0;
+
+	IF v_ServiceAccountID_IP_Count_ > 0
+	THEN
+
+		
+		SET @stm = CONCAT('
+		UPDATE RMCDR3.`' , p_tbltempusagedetail_name , '` uh
+		INNER JOIN Ratemanagement3.tblAccountAuthenticate ga
+			ON  ( FIND_IN_SET(uh.GatewayAccountID,ga.CustomerAuthValue) != 0 OR FIND_IN_SET(uh.GatewayAccountID,ga.VendorAuthValue) != 0 )
+		SET uh.ServiceID = ga.ServiceID
+		WHERE ga.ServiceID > 0
+		AND uh.ProcessID = "' , p_processId , '" ;
+		');
+		PREPARE stmt FROM @stm;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+
+	END IF;
+
+END//
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `prc_ProcesssCDR`;
+DELIMITER //
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_ProcesssCDR`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_processId` INT,
+	IN `p_tbltempusagedetail_name` VARCHAR(200),
+	IN `p_RateCDR` INT,
+	IN `p_RateFormat` INT,
+	IN `p_NameFormat` VARCHAR(50),
+	IN `p_RateMethod` VARCHAR(50),
+	IN `p_SpecifyRate` DECIMAL(18,6),
+	IN `p_OutboundTableID` INT,
+	IN `p_InboundTableID` INT,
+	IN `p_RerateAccounts` INT
+)
+BEGIN
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+
+	CALL prc_autoAddIP(p_CompanyID,p_CompanyGatewayID); -- only if AutoAddIP is on
+	
+	CALL prc_ProcessCDRService(p_CompanyID,p_processId,p_tbltempusagedetail_name); -- update service ID based on IP or cli
+
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_Customers_;
+	CREATE TEMPORARY TABLE tmp_Customers_  (
+		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		AccountID INT,
+		CompanyGatewayID INT
+	);
+
+	IF p_RerateAccounts!=0
+	THEN
+		-- selected customer 
+      SET @sql1 = concat("insert into tmp_Customers_ (AccountID) values ('", replace(( select TRIM(REPLACE(group_concat(distinct IFNULL(REPLACE(REPLACE(json_extract(Settings, '$.Accounts'), '[', ''), ']', ''),0)),'"','')) as AccountID from Ratemanagement3.tblCompanyGateway), ",", "'),('"),"');");
+      PREPARE stmt1 FROM @sql1;
+      EXECUTE stmt1;
+      DEALLOCATE PREPARE stmt1;
+      DELETE FROM tmp_Customers_ WHERE AccountID=0;
+      UPDATE tmp_Customers_ SET CompanyGatewayID=p_CompanyGatewayID WHERE 1;
+  END IF;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_Service_;
+	CREATE TEMPORARY TABLE tmp_Service_  (
+		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		ServiceID INT
+	);
+	SET @stm = CONCAT('
+	INSERT INTO tmp_Service_ (ServiceID)
+	SELECT DISTINCT ServiceID FROM RMCDR3.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND ServiceID > 0;
+	');
+
+	PREPARE stm FROM @stm;
+	EXECUTE stm;
+	DEALLOCATE PREPARE stm;
+
+	SET @stm = CONCAT('
+	INSERT INTO tmp_Service_ (ServiceID)
+	SELECT DISTINCT tblService.ServiceID
+	FROM Ratemanagement3.tblService
+	LEFT JOIN  RMCDR3.`' , p_tbltempusagedetail_name , '` ud
+	ON tblService.ServiceID = ud.ServiceID AND ProcessID="' , p_processId , '"
+	WHERE tblService.ServiceID > 0 AND tblService.CompanyGatewayID > 0 AND ud.ServiceID IS NULL
+	');
+
+	PREPARE stm FROM @stm;
+	EXECUTE stm;
+	DEALLOCATE PREPARE stm;
+
+
+
+	CALL prc_ProcessCDRAccount(p_CompanyID,p_CompanyGatewayID,p_processId,p_tbltempusagedetail_name,p_NameFormat);
+
+	
+
+	-- p_OutboundTableID is for cdr upload
+	IF ( ( SELECT COUNT(*) FROM tmp_Service_ ) > 0 OR p_OutboundTableID > 0)
+	THEN
+
+
+		CALL prc_RerateOutboundService(p_processId,p_tbltempusagedetail_name,p_RateCDR,p_RateFormat,p_RateMethod,p_SpecifyRate,p_OutboundTableID);
+
+	ELSE
+
+
+		CALL prc_RerateOutboundTrunk(p_processId,p_tbltempusagedetail_name,p_RateCDR,p_RateFormat,p_RateMethod,p_SpecifyRate);
+
+
+		CALL prc_autoUpdateTrunk(p_CompanyID,p_CompanyGatewayID);
+
+	END IF;
+
+	 -- no rerate and prefix format
+
+	IF p_RateCDR = 0 AND p_RateFormat = 2
+	THEN
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_Accounts_;
+		CREATE TEMPORARY TABLE tmp_Accounts_  (
+			RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			AccountID INT
+		);
+		SET @stm = CONCAT('
+		INSERT INTO tmp_Accounts_(AccountID)
+		SELECT DISTINCT AccountID FROM RMCDR3.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND TrunkID IS NOT NULL;
+		');
+
+		PREPARE stm FROM @stm;
+		EXECUTE stm;
+		DEALLOCATE PREPARE stm;
+
+
+		CALL Ratemanagement3.prc_getDefaultCodes(p_CompanyID);
+
+
+		CALL prc_updateDefaultPrefix(p_processId, p_tbltempusagedetail_name);
+
+	END IF;
+
+
+	CALL prc_RerateInboundCalls(p_CompanyID,p_processId,p_tbltempusagedetail_name,p_RateCDR,p_RateMethod,p_SpecifyRate,p_InboundTableID);
+
+
+	-- for retail only
+	IF (  p_RateCDR = 1 ) 
+	THEN
+		-- update cost = 0 where cc_type = 4 (OUTNOCHARGE)
+	 	SET @stm = CONCAT('
+		UPDATE RMCDR3.`' , p_tbltempusagedetail_name , '` ud 
+		INNER JOIN  RMCDR3.`' , p_tbltempusagedetail_name ,'_Retail' , '` udr ON ud.TempUsageDetailID = udr.TempUsageDetailID AND ud.ProcessID = udr.ProcessID
+		SET cost = 0
+      WHERE ud.ProcessID="' , p_processId , '" AND udr.cc_type = 4 ; 
+		'); 
+
+		PREPARE stm FROM @stm;
+		EXECUTE stm;
+		DEALLOCATE PREPARE stm;
+	
+	END IF;
+	
+	
+	
+	CALL prc_CreateRerateLog(p_processId,p_tbltempusagedetail_name,p_RateCDR);
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_RerateInboundCalls`;
+DELIMITER //
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_RerateInboundCalls`(
+	IN `p_CompanyID` INT,
+	IN `p_processId` INT,
+	IN `p_tbltempusagedetail_name` VARCHAR(200),
+	IN `p_RateCDR` INT,
+	IN `p_RateMethod` VARCHAR(50),
+	IN `p_SpecifyRate` DECIMAL(18,6),
+	IN `p_InboundTableID` INT
+)
+BEGIN
+
+	DECLARE v_rowCount_ INT;
+	DECLARE v_pointer_ INT;
+	DECLARE v_AccountID_ INT;
+	DECLARE v_ServiceID_ INT;
+	DECLARE v_cld_ VARCHAR(500);
+	DECLARE v_CustomerIDs_ TEXT DEFAULT '';
+	DECLARE v_CustomerIDs_Count_ INT DEFAULT 0;
+
+	SELECT GROUP_CONCAT(AccountID) INTO v_CustomerIDs_ FROM tmp_Customers_ GROUP BY CompanyGatewayID;
+	SELECT COUNT(*) INTO v_CustomerIDs_Count_ FROM tmp_Customers_;
+
+	IF p_RateCDR = 1
+	THEN
+
+		IF (SELECT COUNT(*) FROM Ratemanagement3.tblCLIRateTable WHERE RateTableID > 0) > 0
+		THEN
+
+
+			DROP TEMPORARY TABLE IF EXISTS tmp_Account_;
+			CREATE TEMPORARY TABLE tmp_Account_  (
+				RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+				AccountID INT,
+				ServiceID INT,
+				cld VARCHAR(500) NULL DEFAULT NULL
+			);
+			SET @stm = CONCAT('
+			INSERT INTO tmp_Account_(AccountID,ServiceID,cld)
+			SELECT DISTINCT AccountID,ServiceID,cld FROM RMCDR3.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND ud.is_inbound = 1;
+			');
+
+			PREPARE stm FROM @stm;
+			EXECUTE stm;
+			DEALLOCATE PREPARE stm;
+			
+		END IF;
+
+		IF ( SELECT COUNT(*) FROM tmp_Service_ ) > 0
+		THEN
+
+
+			DROP TEMPORARY TABLE IF EXISTS tmp_Account_;
+			CREATE TEMPORARY TABLE tmp_Account_  (
+				RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+				AccountID INT,
+				ServiceID INT,
+				cld VARCHAR(500) NULL DEFAULT NULL
+			);
+			SET @stm = CONCAT('
+			INSERT INTO tmp_Account_(AccountID,ServiceID,cld)
+			SELECT DISTINCT AccountID,ServiceID,"" FROM RMCDR3.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND ud.is_inbound = 1;
+			');
+
+			PREPARE stm FROM @stm;
+			EXECUTE stm;
+			DEALLOCATE PREPARE stm;
+
+		ELSE
+
+
+			DROP TEMPORARY TABLE IF EXISTS tmp_Account_;
+			CREATE TEMPORARY TABLE tmp_Account_  (
+				RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+				AccountID INT,
+				ServiceID INT,
+				cld VARCHAR(500) NULL DEFAULT NULL
+			);
+			SET @stm = CONCAT('
+			INSERT INTO tmp_Account_(AccountID,ServiceID,cld)
+			SELECT DISTINCT AccountID,ServiceID,"" FROM RMCDR3.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND ud.is_inbound = 1;
+			');
+
+			PREPARE stm FROM @stm;
+			EXECUTE stm;
+			DEALLOCATE PREPARE stm;
+
+		END IF;
+		
+		IF (SELECT COUNT(*) FROM Ratemanagement3.tblCLIRateTable WHERE RateTableID > 0) > 0
+		THEN
+
+
+			DROP TEMPORARY TABLE IF EXISTS tmp_Account_;
+			CREATE TEMPORARY TABLE tmp_Account_  (
+				RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+				AccountID INT,
+				ServiceID INT,
+				cld VARCHAR(500) NULL DEFAULT NULL
+			);
+			SET @stm = CONCAT('
+			INSERT INTO tmp_Account_(AccountID,ServiceID,cld)
+			SELECT DISTINCT AccountID,ServiceID,cld FROM RMCDR3.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND ud.is_inbound = 1;
+			');
+
+			PREPARE stm FROM @stm;
+			EXECUTE stm;
+			DEALLOCATE PREPARE stm;
+			
+		END IF;
+
+		SET v_pointer_ = 1;
+		SET v_rowCount_ = (SELECT COUNT(*) FROM tmp_Account_);
+
+		IF p_InboundTableID > 0
+		THEN
+
+			CALL Ratemanagement3.prc_getCustomerInboundRate(v_AccountID_,p_RateCDR,p_RateMethod,p_SpecifyRate,v_cld_,p_InboundTableID);
+		END IF;
+
+		WHILE v_pointer_ <= v_rowCount_
+		DO
+
+			SET v_AccountID_ = (SELECT AccountID FROM tmp_Account_ t WHERE t.RowID = v_pointer_);
+			SET v_ServiceID_ = (SELECT ServiceID FROM tmp_Account_ t WHERE t.RowID = v_pointer_);
+			SET v_cld_ = (SELECT cld FROM tmp_Account_ t WHERE t.RowID = v_pointer_);
+
+			IF (v_CustomerIDs_Count_=0 OR (v_CustomerIDs_Count_>0 AND FIND_IN_SET(v_AccountID_,v_CustomerIDs_)>0))
+			THEN
+				IF p_InboundTableID =  0
+				THEN
+
+					SET p_InboundTableID = (SELECT RateTableID FROM Ratemanagement3.tblAccountTariff  WHERE AccountID = v_AccountID_ AND ServiceID = v_ServiceID_ AND Type = 2 LIMIT 1);
+					SET p_InboundTableID = IFNULL(p_InboundTableID,0);
+
+					CALL Ratemanagement3.prc_getCustomerInboundRate(v_AccountID_,p_RateCDR,p_RateMethod,p_SpecifyRate,v_cld_,p_InboundTableID);
+				END IF;
+
+
+				CALL prc_updateInboundPrefix(v_AccountID_, p_processId, p_tbltempusagedetail_name,v_cld_,v_ServiceID_);
+
+
+				CALL prc_updateInboundRate(v_AccountID_, p_processId, p_tbltempusagedetail_name,v_cld_,v_ServiceID_,p_RateMethod,p_SpecifyRate);
+			END IF;
+
+			SET v_pointer_ = v_pointer_ + 1;
+
+		END WHILE;
+
+	END IF;
+
+END//
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_reseller_ProcesssCDR`;
+DELIMITER //
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_reseller_ProcesssCDR`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_processId` INT,
+	IN `p_tbltempusagedetail_name` VARCHAR(200),
+	IN `p_RateCDR` INT,
+	IN `p_RateFormat` INT,
+	IN `p_NameFormat` VARCHAR(50),
+	IN `p_RateMethod` VARCHAR(50),
+	IN `p_SpecifyRate` DECIMAL(18,6),
+	IN `p_OutboundTableID` INT,
+	IN `p_InboundTableID` INT,
+	IN `p_RerateAccounts` INT
+
+)
+BEGIN
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+	
+	/* created in prc_autoAddIP */
+	DROP TEMPORARY TABLE IF EXISTS tmp_tblTempRateLog_;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblTempRateLog_(
+		`CompanyID` INT(11) NULL DEFAULT NULL,
+		`CompanyGatewayID` INT(11) NULL DEFAULT NULL,
+		`MessageType` INT(11) NOT NULL,
+		`Message` VARCHAR(500) NOT NULL,
+		`RateDate` DATE NOT NULL
+	);
+	
+	DROP TEMPORARY TABLE IF EXISTS tmp_Customers_;
+	CREATE TEMPORARY TABLE tmp_Customers_  (
+		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		AccountID INT,
+		CompanyGatewayID INT
+	);
+
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_Service_;
+	CREATE TEMPORARY TABLE tmp_Service_  (
+		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		ServiceID INT
+	);
+	SET @stm = CONCAT('
+	INSERT INTO tmp_Service_ (ServiceID)
+	SELECT DISTINCT ServiceID FROM RMCDR3.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND ServiceID > 0;
+	');
+
+	PREPARE stm FROM @stm;
+	EXECUTE stm;
+	DEALLOCATE PREPARE stm;
+
+	SET @stm = CONCAT('
+	INSERT INTO tmp_Service_ (ServiceID)
+	SELECT DISTINCT tblService.ServiceID
+	FROM Ratemanagement3.tblService
+	LEFT JOIN  RMCDR3.`' , p_tbltempusagedetail_name , '` ud
+	ON tblService.ServiceID = ud.ServiceID AND ProcessID="' , p_processId , '"
+	WHERE tblService.ServiceID > 0 AND tblService.CompanyGatewayID > 0 AND ud.ServiceID IS NULL
+	');
+
+	PREPARE stm FROM @stm;
+	EXECUTE stm;
+	DEALLOCATE PREPARE stm;
+
+
+	-- p_OutboundTableID is for cdr upload
+	IF ( ( SELECT COUNT(*) FROM tmp_Service_ ) > 0 OR p_OutboundTableID > 0)
+	THEN
+
+
+		CALL prc_RerateOutboundService(p_processId,p_tbltempusagedetail_name,p_RateCDR,p_RateFormat,p_RateMethod,p_SpecifyRate,p_OutboundTableID);
+
+	ELSE
+
+
+		CALL prc_RerateOutboundTrunk(p_processId,p_tbltempusagedetail_name,p_RateCDR,p_RateFormat,p_RateMethod,p_SpecifyRate);
+
+
+		CALL prc_autoUpdateTrunk(p_CompanyID,p_CompanyGatewayID);
+
+	END IF;
+
+	 -- no rerate and prefix format
+
+	IF p_RateCDR = 0 AND p_RateFormat = 2
+	THEN
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_Accounts_;
+		CREATE TEMPORARY TABLE tmp_Accounts_  (
+			RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			AccountID INT
+		);
+		SET @stm = CONCAT('
+		INSERT INTO tmp_Accounts_(AccountID)
+		SELECT DISTINCT AccountID FROM RMCDR3.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND TrunkID IS NOT NULL;
+		');
+
+		PREPARE stm FROM @stm;
+		EXECUTE stm;
+		DEALLOCATE PREPARE stm;
+
+
+		CALL Ratemanagement3.prc_getDefaultCodes(p_CompanyID);
+
+
+		CALL prc_updateDefaultPrefix(p_processId, p_tbltempusagedetail_name);
+
+	END IF;
+
+
+	CALL prc_RerateInboundCalls(p_CompanyID,p_processId,p_tbltempusagedetail_name,p_RateCDR,p_RateMethod,p_SpecifyRate,p_InboundTableID);
+
+
+	CALL prc_CreateRerateLog(p_processId,p_tbltempusagedetail_name,p_RateCDR);
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 

@@ -29,13 +29,15 @@ class CurrencyConversionController extends \BaseController {
         $CurrencyId = Company::getCompanyField($CompanyID,'CurrencyId');
         $code = Currency::getCurrency($CurrencyId);
         //$currencylist = Currency::getCurrencyDropdownIDList();
-        $currencylists = Currency::select('Code','CurrencyID','Description')->where("CompanyId",$CompanyID)->orderBy('Code','Asc')->get();
+        $currencylists = Currency::select('Code','CurrencyID','Description')
+                        //->where("CompanyId",$CompanyID)
+                        ->orderBy('Code','Asc')->get();
         $currencyarray=array();
         $defaultcurrency=array();
         $restcurrency=array();
         foreach($currencylists as $currencylist)
         {
-			$Amount = CurrencyConversion::where("CurrencyID",$currencylist['CurrencyID'])->pluck("Value");
+			$Amount = CurrencyConversion::where(array("CurrencyID"=>$currencylist['CurrencyID'],"CompanyID"=>$CompanyID))->pluck("Value");
 			$currencylist['Amount'] = $Amount;
             if($currencylist['CurrencyID']==$CurrencyId){
                 $defaultcurrency[]=$currencylist;

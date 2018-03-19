@@ -370,7 +370,7 @@ class CronJob extends \Eloquent {
     }
 
     public static function create_system_report_alert_job($CompanyID,$active){
-        $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('neonalerts');
+        $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('neonalerts',$CompanyID);
         $settings = CompanyConfiguration::get('NEON_ALERTS');
         $JobTitle = 'Neon System Alerts';
         $today = date('Y-m-d');
