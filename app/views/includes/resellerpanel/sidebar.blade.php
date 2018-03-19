@@ -60,10 +60,10 @@
         <li class="two-links"> <a href="{{Url::to('/report')}}" class="first"> <i class="fa fa-line-chart"></i><span>Reports</span></a> <a href="{{URL::to('report/create')}}" class="last"><i class="fa fa-plus-circle" style="color: #fff;"></i></a> </li>
         <li class="{{check_uri('Settings')}}"> <a href="#"> <i class="fa fa-cogs"></i> <span>Settings</span> </a>
             <ul>
-                <li> <a href="{{Url::to('/trunks')}}">  <span>Trunks</span> </a> </li>
+                <!--<li> <a href="{{Url::to('/trunks')}}">  <span>Trunks</span> </a> </li>-->
                 <li> <a href="{{Url::to('/codedecks')}}">  <span>Code Decks</span> </a> </li>
                 <li> <a href="{{URL::to('/dialstrings')}}">  <span>Dial String</span> </a> </li>
-                <li> <a href="{{Url::to('/currency')}}">  <span>Currency</span> </a> </li>
+                <!--<li> <a href="{{Url::to('/currency')}}">  <span>Currency</span> </a> </li>-->
                 <li> <a href="{{Url::to('/currency_conversion')}}">  <span>Exchange Rate</span> </a> </li>
                 <li><a href="{{URL::to('/destination_group_set')}}"><span>Destination Group</span></a></li>
             </ul>
