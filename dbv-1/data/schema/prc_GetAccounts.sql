@@ -4,6 +4,7 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_GetAccounts`(
 	IN `p_IsVendor` int ,
 	IN `p_isCustomer` int ,
 	IN `p_isReseller` INT,
+	IN `p_ResellerID` INT,
 	IN `p_activeStatus` int,
 	IN `p_VerificationStatus` int,
 	IN `p_AccountNo` VARCHAR(100),
@@ -20,18 +21,37 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_GetAccounts`(
 
 
 
-
-
-
 )
 BEGIN
 	DECLARE v_OffSet_ int;
 	DECLARE v_Round_ int;
+	DECLARE v_raccountids TEXT;
+	DECLARE v_resellercompanyid int;
+	SET v_raccountids = '';
+	SET v_resellercompanyid = 0;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+
+	IF p_ResellerID > 0
+	THEN
+		DROP TEMPORARY TABLE IF EXISTS tmp_reselleraccounts_;
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_reselleraccounts_(
+			AccountID int
+		);
+	
+		INSERT INTO tmp_reselleraccounts_
+		SELECT AccountID FROM tblAccountDetails WHERE ResellerOwner=p_ResellerID
+		UNION
+		SELECT AccountID FROM tblReseller WHERE ResellerID=p_ResellerID;
+		
+		SELECT ChildCompanyID INTO v_resellercompanyid FROM tblReseller WHERE ResellerID=p_ResellerID;		
+	
+		SELECT IFNULL(GROUP_CONCAT(AccountID),'') INTO v_raccountids FROM tmp_reselleraccounts_;
+		
+	END IF;
 
 	IF p_isExport = 0
 	THEN
@@ -75,14 +95,15 @@ BEGIN
 			ON tblAccountAuthenticate.AccountID = tblAccount.AccountID
 		LEFT JOIN tblCLIRateTable
 			ON tblCLIRateTable.AccountID = tblAccount.AccountID
-		WHERE   tblAccount.CompanyID = p_CompanyID
-			AND tblAccount.AccountType = 1
+		WHERE  -- tblAccount.CompanyID = p_CompanyID AND
+			 tblAccount.AccountType = 1
 			AND tblAccount.Status = p_activeStatus
 			AND tblAccount.VerificationStatus = p_VerificationStatus
 			AND (p_userID = 0 OR tblAccount.Owner = p_userID)
 			AND ((p_IsVendor = 0 OR tblAccount.IsVendor = 1))
 			AND ((p_isCustomer = 0 OR tblAccount.IsCustomer = 1))
 			AND ((p_isReseller = 0 OR tblAccount.IsReseller = 1))
+			AND (p_ResellerID = 0 OR tblAccount.CompanyID = v_resellercompanyid)
 			AND ((p_AccountNo = '' OR tblAccount.Number LIKE p_AccountNo))
 			AND ((p_AccountName = '' OR tblAccount.AccountName LIKE Concat('%',p_AccountName,'%')))
 			AND ((p_IPCLI = '' OR tblCLIRateTable.CLI LIKE CONCAT('%',p_IPCLI,'%') OR CONCAT(IFNULL(tblAccountAuthenticate.CustomerAuthValue,''),',',IFNULL(tblAccountAuthenticate.VendorAuthValue,'')) LIKE CONCAT('%',p_IPCLI,'%')))
@@ -154,14 +175,15 @@ BEGIN
 			ON tblAccountAuthenticate.AccountID = tblAccount.AccountID
 		LEFT JOIN tblCLIRateTable
 			ON tblCLIRateTable.AccountID = tblAccount.AccountID
-		WHERE   tblAccount.CompanyID = p_CompanyID
-			AND tblAccount.AccountType = 1
+		WHERE --  tblAccount.CompanyID = p_CompanyID AND
+			 tblAccount.AccountType = 1
 			AND tblAccount.Status = p_activeStatus
 			AND tblAccount.VerificationStatus = p_VerificationStatus
 			AND (p_userID = 0 OR tblAccount.Owner = p_userID)
 			AND ((p_IsVendor = 0 OR tblAccount.IsVendor = 1))
 			AND ((p_isCustomer = 0 OR tblAccount.IsCustomer = 1))
 			AND ((p_isReseller = 0 OR tblAccount.IsReseller = 1))
+			AND (p_ResellerID = 0 OR tblAccount.CompanyID = v_resellercompanyid)
 			AND ((p_AccountNo = '' OR tblAccount.Number LIKE p_AccountNo))
 			AND ((p_AccountName = '' OR tblAccount.AccountName LIKE Concat('%',p_AccountName,'%')))
 			AND ((p_IPCLI = '' OR tblCLIRateTable.CLI LIKE CONCAT('%',p_IPCLI,'%') OR CONCAT(IFNULL(tblAccountAuthenticate.CustomerAuthValue,''),',',IFNULL(tblAccountAuthenticate.VendorAuthValue,'')) LIKE CONCAT('%',p_IPCLI,'%')))
@@ -202,6 +224,7 @@ BEGIN
 			AND ((p_IsVendor = 0 OR tblAccount.IsVendor = 1))
 			AND ((p_isCustomer = 0 OR tblAccount.IsCustomer = 1))
 			AND ((p_isReseller = 0 OR tblAccount.IsReseller = 1))
+			AND (p_ResellerID = 0 OR tblAccount.CompanyID = v_resellercompanyid)
 			AND ((p_AccountNo = '' OR tblAccount.Number LIKE p_AccountNo))
 			AND ((p_AccountName = '' OR tblAccount.AccountName LIKE Concat('%',p_AccountName,'%')))
 			AND ((p_IPCLI = '' OR tblCLIRateTable.CLI LIKE CONCAT('%',p_IPCLI,'%') OR CONCAT(IFNULL(tblAccountAuthenticate.CustomerAuthValue,''),',',IFNULL(tblAccountAuthenticate.VendorAuthValue,'')) LIKE CONCAT('%',p_IPCLI,'%')))
@@ -234,6 +257,7 @@ BEGIN
 			AND ((p_IsVendor = 0 OR tblAccount.IsVendor = 1))
 			AND ((p_isCustomer = 0 OR tblAccount.IsCustomer = 1))
 			AND ((p_isReseller = 0 OR tblAccount.IsReseller = 1))
+			AND (p_ResellerID = 0 OR tblAccount.CompanyID = v_resellercompanyid)
 			AND ((p_AccountNo = '' OR tblAccount.Number LIKE p_AccountNo))
 			AND ((p_AccountName = '' OR tblAccount.AccountName LIKE Concat('%',p_AccountName,'%')))
 			AND ((p_IPCLI = '' OR tblCLIRateTable.CLI LIKE CONCAT('%',p_IPCLI,'%') OR CONCAT(IFNULL(tblAccountAuthenticate.CustomerAuthValue,''),',',IFNULL(tblAccountAuthenticate.VendorAuthValue,'')) LIKE CONCAT('%',p_IPCLI,'%')))

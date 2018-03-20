@@ -7,8 +7,6 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_copyResellerData`(
 	IN `p_subscription` TEXT,
 	IN `p_is_trunk` INT,
 	IN `p_trunk` TEXT
-
-
 )
 BEGIN
 	DECLARE v_resellerId_ INT; 
@@ -114,12 +112,13 @@ BEGIN
 					
 					SET v_resellerId_ = (SELECT ResellerCompanyID FROM tmp_resellers rr WHERE rr.RowNo = v_pointer_);			
 					
+							/*
 							INSERT INTO	tmp_currency(ResellerCompanyID,CompanyId,Code,CurrencyID)	
 							SELECT v_resellerId_ as ResellerCompanyID,p_companyid as CompanyId,Code, CurrencyId FROM `tblCurrency` WHERE CompanyId	= p_companyid;	
 							
 							UPDATE tmp_currency tc LEFT JOIN tblCurrency c ON tc.Code=c.Code AND tc.ResellerCompanyID = v_resellerId_ AND c.CompanyId = v_resellerId_
 									set NewCurrencyID = c.CurrencyId
-							WHERE c.CurrencyId IS NOT NULL;		
+							WHERE c.CurrencyId IS NOT NULL;		*/
 					
 					IF p_is_product =1
 					THEN	
@@ -140,7 +139,8 @@ BEGIN
 						WHERE CompanyID = p_companyid AND FIND_IN_SET(SubscriptionID,p_subscription);
 					
 					END IF;
-
+					
+					/*
 					IF p_is_trunk = 1
 					THEN
 					
@@ -149,7 +149,7 @@ BEGIN
 								FROM tblTrunk
 							WHERE CompanyId = p_companyid AND FIND_IN_SET(TrunkID,p_trunk);
 							
-					END IF;		
+					END IF;		*/
 					
 					 SET v_pointer_ = v_pointer_ + 1;			 
 			
@@ -174,7 +174,7 @@ BEGIN
 		THEN
 				
 				INSERT INTO NeonBillingDev.tblBillingSubscription(`CompanyID`,Name,Description,InvoiceLineDescription,ActivationFee,CurrencyID,AnnuallyFee,QuarterlyFee,MonthlyFee,WeeklyFee,DailyFee,Advance,created_at,updated_at,ModifiedBy,CreatedBy)
-				SELECT DISTINCT tb.ResellerCompanyID as `CompanyID`,tb.Name,tb.Description,tb.InvoiceLineDescription,tb.ActivationFee,(SELECT NewCurrencyID FROM tmp_currency tc WHERE tc.CurrencyID= tb.CurrencyID AND tc.ResellerCompanyID = tb.ResellerCompanyID) as CurrencyID,tb.AnnuallyFee,tb.QuarterlyFee,tb.MonthlyFee,tb.WeeklyFee,tb.DailyFee,tb.Advance,Now(),Now(),'system' as ModifiedBy,'system' as CreatedBy 
+				SELECT DISTINCT tb.ResellerCompanyID as `CompanyID`,tb.Name,tb.Description,tb.InvoiceLineDescription,tb.ActivationFee,CurrencyID,tb.AnnuallyFee,tb.QuarterlyFee,tb.MonthlyFee,tb.WeeklyFee,tb.DailyFee,tb.Advance,Now(),Now(),'system' as ModifiedBy,'system' as CreatedBy 
 					FROM tmp_BillingSubscription tb 
 						LEFT JOIN NeonBillingDev.tblBillingSubscription b
 						ON tb.ResellerCompanyID = b.CompanyID
@@ -182,7 +182,7 @@ BEGIN
 				WHERE b.SubscriptionID IS NULL;
 		
 		END IF;
-		
+		/*
 		IF p_is_trunk =1
 		THEN
 
@@ -192,7 +192,7 @@ BEGIN
 					LEFT JOIN tblTrunk tr ON tt.ResellerCompanyID = tr.CompanyId AND tt.Trunk = tr.Trunk
 				WHERE tr.TrunkID IS NULL;
 		
-		END IF;
+		END IF; */
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 

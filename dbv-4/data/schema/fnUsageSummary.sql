@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageSummary`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `fnUsageSummary`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_AccountID` INT,
@@ -11,10 +11,30 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageSummary`(
 	IN `p_CDRType` VARCHAR(50),
 	IN `p_UserID` INT ,
 	IN `p_isAdmin` INT,
-	IN `p_Detail` INT
+	IN `p_Detail` INT,
+	IN `p_ResellerID` INT
 )
 BEGIN
 	DECLARE v_TimeId_ INT;
+	DECLARE v_raccountids TEXT;
+	SET v_raccountids ='';
+	
+	IF p_ResellerID > 0
+	THEN
+		DROP TEMPORARY TABLE IF EXISTS tmp_reselleraccounts_;
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_reselleraccounts_(
+			AccountID int
+		);
+	
+		INSERT INTO tmp_reselleraccounts_
+		SELECT AccountID FROM NeonRMDev.tblAccountDetails WHERE ResellerOwner=p_ResellerID
+		UNION
+		SELECT AccountID FROM NeonRMDev.tblReseller WHERE ResellerID=p_ResellerID;
+	
+		SELECT IFNULL(GROUP_CONCAT(AccountID),'') INTO v_raccountids FROM tmp_reselleraccounts_;
+		
+	END IF;
+	
 
 	IF DATEDIFF(p_EndDate,p_StartDate) > 31 AND p_Detail = 2
 	THEN
@@ -75,8 +95,9 @@ BEGIN
 		AND (p_Trunk = '' OR us.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
 		AND (p_AreaPrefix = '' OR us.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
 		AND (p_CountryID = 0 OR us.CountryID = p_CountryID)
-		AND (p_CDRType = '' OR us.userfield LIKE REPLACE(p_CDRType, '*', '%'))
-		AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID);
+		AND (p_CDRType = '' OR us.userfield LIKE CONCAT('%',p_CDRType,'%'))
+		AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID)
+		AND (p_ResellerID = 0 OR FIND_IN_SET(sh.AccountID, v_raccountids) != 0);
 
 		INSERT INTO tmp_tblUsageSummary_
 		SELECT
@@ -110,8 +131,9 @@ BEGIN
 		AND (p_Trunk = '' OR us.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
 		AND (p_AreaPrefix = '' OR us.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
 		AND (p_CountryID = 0 OR us.CountryID = p_CountryID)
-		AND (p_CDRType = '' OR us.userfield LIKE REPLACE(p_CDRType, '*', '%'))
-		AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID);
+		AND (p_CDRType = '' OR us.userfield LIKE CONCAT('%',p_CDRType,'%'))
+		AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID)
+		AND (p_ResellerID = 0 OR FIND_IN_SET(sh.AccountID, v_raccountids) != 0);
 
 	END IF;
 
@@ -175,8 +197,9 @@ BEGIN
 		AND (p_Trunk = '' OR usd.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
 		AND (p_AreaPrefix = '' OR usd.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
 		AND (p_CountryID = 0 OR usd.CountryID = p_CountryID)
-		AND (p_CDRType = '' OR usd.userfield LIKE REPLACE(p_CDRType, '*', '%'))
-		AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID);
+		AND (p_CDRType = '' OR usd.userfield LIKE CONCAT('%',p_CDRType,'%'))
+		AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID)
+		AND (p_ResellerID = 0 OR FIND_IN_SET(sh.AccountID, v_raccountids) != 0);
 
 		INSERT INTO tmp_tblUsageSummary_
 		SELECT
@@ -214,8 +237,9 @@ BEGIN
 		AND (p_Trunk = '' OR usd.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
 		AND (p_AreaPrefix = '' OR usd.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
 		AND (p_CountryID = 0 OR usd.CountryID = p_CountryID)
-		AND (p_CDRType = '' OR usd.userfield LIKE REPLACE(p_CDRType, '*', '%'))
-		AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID);
+		AND (p_CDRType = '' OR usd.userfield LIKE CONCAT('%',p_CDRType,'%'))
+		AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID)
+		AND (p_ResellerID = 0 OR FIND_IN_SET(sh.AccountID, v_raccountids) != 0);
 
 	END IF;
 
