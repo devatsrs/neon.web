@@ -19,6 +19,7 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_insertResellerData`(
 	IN `p_allowwhitelabel` INT
 
 
+
 )
 BEGIN
 	
@@ -70,11 +71,11 @@ BEGIN
 		FROM tblTaxRate
 		WHERE CompanyId = p_companyid;
 
-
+		/*
 		INSERT INTO tblCurrency (CompanyId,Code,Description,Status,created_at,updated_at,Symbol)
 		SELECT DISTINCT p_childcompanyid as `CompanyId` ,Code,Description,Status,NOW(),NOW(),Symbol
 		FROM tblCurrency
-		WHERE CompanyId = p_companyid;
+		WHERE CompanyId = p_companyid; */
 		
 		IF p_is_product =1
 		THEN	
@@ -89,6 +90,7 @@ BEGIN
 		IF p_is_subscription = 1
 		THEN
 		
+		/*
 		INSERT INTO	tmp_currency(CompanyId,Code,CurrencyID)	
 		SELECT p_companyid as CompanyId,Code, CurrencyId FROM `tblCurrency` WHERE CompanyId	= p_companyid;	
 			
@@ -96,13 +98,16 @@ BEGIN
 				set NewCurrencyID = c.CurrencyId
 		WHERE c.CurrencyId IS NOT NULL;
 		
+		*/
+		
 		INSERT INTO NeonBillingDev.tblBillingSubscription(`CompanyID`,Name,Description,InvoiceLineDescription,ActivationFee,created_at,updated_at,ModifiedBy,CreatedBy,CurrencyID,AnnuallyFee,QuarterlyFee,MonthlyFee,WeeklyFee,DailyFee,Advance)
-		SELECT DISTINCT p_childcompanyid as `CompanyID`,Name,Description,InvoiceLineDescription,ActivationFee,created_at,updated_at,ModifiedBy,CreatedBy,(SELECT NewCurrencyID FROM tmp_currency tc WHERE tc.CurrencyID= tblBillingSubscription.CurrencyID ) as CurrencyID,AnnuallyFee,QuarterlyFee,MonthlyFee,WeeklyFee,DailyFee,Advance
+		SELECT DISTINCT p_childcompanyid as `CompanyID`,Name,Description,InvoiceLineDescription,ActivationFee,created_at,updated_at,ModifiedBy,CreatedBy,CurrencyID,AnnuallyFee,QuarterlyFee,MonthlyFee,WeeklyFee,DailyFee,Advance
 		FROM NeonBillingDev.tblBillingSubscription
 		WHERE CompanyID = p_companyid AND FIND_IN_SET(SubscriptionID,p_subscription);
 		
 		END IF;
 		
+		/*
 		IF p_is_trunk =1
 		THEN
 
@@ -112,6 +117,7 @@ BEGIN
 		WHERE CompanyId = p_companyid AND FIND_IN_SET(TrunkID,p_trunk);
 		
 		END IF;
+		*/
 		
 		INSERT INTO tblReseller(ResellerName,CompanyID,ChildCompanyID,AccountID,FirstName,LastName,Email,Password,Status,AllowWhiteLabel,created_at,updated_at,created_by)
 		SELECT p_accountname as ResellerName,p_companyid as CompanyID,p_childcompanyid as ChildCompanyID,p_accountid as AccountID,p_firstname as FirstName,p_lastname as LastName,p_email as Email,p_password as Password,'1' as Status,p_allowwhitelabel as AllowWhiteLabel,Now(),Now(),'system' as created_by;
