@@ -46,15 +46,23 @@ class AccountBalance extends \Eloquent {
     **/
     public static function getAccountBalance($AccountID){
         $AccountBalance = AccountBalance::where('AccountID',$AccountID)->pluck('BalanceAmount');
-        if($AccountBalance<0){
-            $BillingType = AccountBilling::where(['AccountID'=>$AccountID,'ServiceID'=>0])->pluck('BillingType');
-            if(isset($BillingType)){
-                if($BillingType==AccountApproval::BILLINGTYPE_PREPAID){
+        $BillingType = AccountBilling::where(['AccountID'=>$AccountID,'ServiceID'=>0])->pluck('BillingType');
+        if(isset($BillingType)){
+            if($BillingType==AccountApproval::BILLINGTYPE_PREPAID){
+                if($AccountBalance<0){
                     $AccountBalance=abs($AccountBalance);
-                    return $AccountBalance;
+                }else{
+                    $AccountBalance=($AccountBalance) * -1;
+                }
+            }else{
+                if($AccountBalance<0){
+                    $AccountBalance=0;
                 }
             }
-            return 0;
+        }else{
+            if($AccountBalance<0){
+                $AccountBalance=0;
+            }
         }
         return $AccountBalance;
     }
