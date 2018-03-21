@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`%` PROCEDURE `prc_CreateRerateLog`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_CreateRerateLog`(
 	IN `p_processId` INT,
 	IN `p_tbltempusagedetail_name` VARCHAR(200),
 	IN `p_RateCDR` INT
@@ -20,7 +20,6 @@ BEGIN
 		AND ga.AccountCLI = ud.AccountCLI
 		AND ga.AccountIP = ud.AccountIP
 		AND ga.CompanyGatewayID = ud.CompanyGatewayID
-		AND ga.CompanyID = ud.CompanyID
 		AND ga.ServiceID = ud.ServiceID
 	INNER JOIN NeonRMDev.tblCompanyGateway cg ON cg.CompanyGatewayID = ud.CompanyGatewayID
 	WHERE ud.ProcessID = "' , p_processid  , '" and ud.AccountID IS NULL');
@@ -37,7 +36,7 @@ BEGIN
 
 			SET @stm = CONCAT('
 			INSERT INTO tmp_tblTempRateLog_ (CompanyID,CompanyGatewayID,MessageType,Message,RateDate)
-			SELECT DISTINCT ud.CompanyID,ud.CompanyGatewayID,2,  CONCAT( "Account:  " , a.AccountName ," - Service: ",IFNULL(s.ServiceName,"")," - Unable to Rerate number ",IFNULL(ud.cld,"")," - No Matching prefix found") as Message ,DATE(NOW())
+			SELECT DISTINCT a.CompanyId,ud.CompanyGatewayID,2,  CONCAT( "Account:  " , a.AccountName ," - Service: ",IFNULL(s.ServiceName,"")," - Unable to Rerate number ",IFNULL(ud.cld,"")," - No Matching prefix found") as Message ,DATE(NOW())
 			FROM  NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
 			INNER JOIN NeonRMDev.tblAccount a on  ud.AccountID = a.AccountID
 			LEFT JOIN NeonRMDev.tblService s on  s.ServiceID = ud.ServiceID
@@ -51,7 +50,7 @@ BEGIN
 
 			SET @stm = CONCAT('
 			INSERT INTO tmp_tblTempRateLog_ (CompanyID,CompanyGatewayID,MessageType,Message,RateDate)
-			SELECT DISTINCT ud.CompanyID,ud.CompanyGatewayID,2,  CONCAT( "Account:  " , a.AccountName ," - Trunk: ",ud.trunk," - Unable to Rerate number ",IFNULL(ud.cld,"")," - No Matching prefix found") as Message ,DATE(NOW())
+			SELECT DISTINCT a.CompanyId,ud.CompanyGatewayID,2,  CONCAT( "Account:  " , a.AccountName ," - Trunk: ",ud.trunk," - Unable to Rerate number ",IFNULL(ud.cld,"")," - No Matching prefix found") as Message ,DATE(NOW())
 			FROM  NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
 			INNER JOIN NeonRMDev.tblAccount a on  ud.AccountID = a.AccountID
 			WHERE ud.ProcessID = "' , p_processid  , '" and ud.is_inbound = 0 AND ud.is_rerated = 0 AND ud.billed_second <> 0 ');
@@ -64,7 +63,7 @@ BEGIN
 
 		SET @stm = CONCAT('
 		INSERT INTO tmp_tblTempRateLog_ (CompanyID,CompanyGatewayID,MessageType,Message,RateDate)
-		SELECT DISTINCT ud.CompanyID,ud.CompanyGatewayID,3,  CONCAT( "Account:  " , a.AccountName ,  " - Unable to Rerate number ",IFNULL(ud.cld,"")," - No Matching prefix found") as Message ,DATE(NOW())
+		SELECT DISTINCT a.CompanyId,ud.CompanyGatewayID,3,  CONCAT( "Account:  " , a.AccountName ,  " - Unable to Rerate number ",IFNULL(ud.cld,"")," - No Matching prefix found") as Message ,DATE(NOW())
 		FROM  NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
 		INNER JOIN NeonRMDev.tblAccount a on  ud.AccountID = a.AccountID
 		WHERE ud.ProcessID = "' , p_processid  , '" and ud.is_inbound = 1 AND ud.is_rerated = 0 AND ud.billed_second <> 0 ');
@@ -77,8 +76,7 @@ BEGIN
 		INSERT INTO NeonRMDev.tblTempRateLog (CompanyID,CompanyGatewayID,MessageType,Message,RateDate,SentStatus,created_at)
 		SELECT rt.CompanyID,rt.CompanyGatewayID,rt.MessageType,rt.Message,rt.RateDate,0 as SentStatus,NOW() as created_at FROM tmp_tblTempRateLog_ rt
 		LEFT JOIN NeonRMDev.tblTempRateLog rt2
-			ON rt.CompanyID = rt2.CompanyID
-			AND rt.CompanyGatewayID = rt2.CompanyGatewayID
+			ON rt.CompanyGatewayID = rt2.CompanyGatewayID
 			AND rt.MessageType = rt2.MessageType
 			AND rt.Message = rt2.Message
 			AND rt.RateDate = rt2.RateDate

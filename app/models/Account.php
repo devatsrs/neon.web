@@ -230,7 +230,7 @@ class Account extends \Eloquent {
             $LastAccountNo = 1;//Account::where(["CompanyID"=> User::get_companyID()])->max('Number');
             CompanySetting::setKeyVal('LastAccountNo',$LastAccountNo);
         }
-        while(Account::where(["CompanyID"=> User::get_companyID(),'Number'=>$LastAccountNo])->count() >=1 ){
+        while(Account::where(['Number'=>$LastAccountNo])->count() >=1 ){
             $LastAccountNo++;
         }
         return $LastAccountNo;

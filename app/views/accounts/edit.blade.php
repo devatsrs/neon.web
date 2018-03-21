@@ -165,12 +165,8 @@
                     </div>
 
                     <label for="field-1" class="col-md-2 control-label">Account Reseller</label>
-                    <div class="col-md-4">
-                        @if(empty($accountdetails->ResellerOwner))
-                            {{Form::select('ResellerOwner',$reseller_owners,'',array("class"=>"select2"))}}
-                        @else
-                            {{Form::select('ResellerOwner',$reseller_owners,$accountdetails->ResellerOwner,array("class"=>"select2"))}}
-                        @endif
+                    <div class="col-md-4" id="disableresellerowner">
+                      {{Form::select('ResellerOwner',$reseller_owners,(isset($accountreseller)?$accountreseller:'') ,array("class"=>"select2"))}}
                     </div>
                 </div>
                 <div class="form-group">
@@ -218,7 +214,7 @@
 
                     <label for="field-1" class="col-md-2 control-label">Timezone</label>
                     <div class="col-md-4">
-                        {{Form::select('Timezone', $timezones, $account->TimeZone ,array("class"=>"form-control select2"))}}
+                        {{Form::select('TimeZone', $timezones, $account->TimeZone ,array("class"=>"form-control select2"))}}
                     </div>
                 </div>
 
@@ -703,16 +699,25 @@
     var BillingChanged;
     var FirstTimeTrigger = true;
     var ResellerCount = '{{$ResellerCount}}';
+    var AccountResellerCount = '{{$accountreseller}}';
     jQuery(document).ready(function ($) {
-        if($('[name="IsReseller"]').prop("checked") == true){
-            $('[name="IsCustomer"]').prop("checked", false).trigger('change');
-            $('[name="IsVendor"]').prop("checked", false).trigger('change');
-            $("#desablecustomer").addClass('deactivate');
-            $("#desablevendor").addClass('deactivate');
+        if(AccountResellerCount>0 || ResellerCount>0){
             $("#desablereseller").addClass('deactivate');
-        }else{
-            $("#desablecustomer").removeClass('deactivate');
-            $("#desablevendor").removeClass('deactivate');
+            $('#disableresellerowner select').attr("disabled", "disabled");
+        }else {
+            if ($('[name="IsReseller"]').prop("checked") == true) {
+                $('[name="IsCustomer"]').prop("checked", false).trigger('change');
+                $('[name="IsVendor"]').prop("checked", false).trigger('change');
+                $("#desablecustomer").addClass('deactivate');
+                $("#desablevendor").addClass('deactivate');
+                //$("#desablereseller").addClass('deactivate');
+                $('#disableresellerowner select').attr("disabled", "disabled");
+            } else {
+                $("#desablecustomer").removeClass('deactivate');
+                $("#desablevendor").removeClass('deactivate');
+                $("#desablereseller").removeClass('deactivate');
+                //$('#disableresellerowner select').removeAttr("disabled");
+            }
         }
 
         if(ResellerCount==0){
@@ -722,9 +727,11 @@
                     $('[name="IsVendor"]').prop("checked", false).trigger('change');
                     $("#desablecustomer").addClass('deactivate');
                     $("#desablevendor").addClass('deactivate');
+                    $('#disableresellerowner select').attr("disabled", "disabled");
                 }else{
                     $("#desablecustomer").removeClass('deactivate');
                     $("#desablevendor").removeClass('deactivate');
+                    $('#disableresellerowner select').removeAttr("disabled");
                 }
             });
         }
@@ -983,7 +990,14 @@
 
         });
 
+        $('[name="ResellerOwner"]').on( "change",function(e){
+            if($(this).val()>0) {
+                $("#desablereseller").addClass('deactivate');
+            }else{
+                $("#desablereseller").removeClass('deactivate');
+            }
 
+        });
 
         @if ($account->VerificationStatus == Account::NOT_VERIFIED)
         $(".btn-toolbar .btn").first().button("toggle");

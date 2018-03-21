@@ -1,7 +1,8 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getGatewayReportAll`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getGatewayReportAll`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_AccountID` INT,
+	IN `p_ResellerID` INT,
 	IN `p_CurrencyID` INT,
 	IN `p_StartDate` DATETIME,
 	IN `p_EndDate` DATETIME,
@@ -28,7 +29,7 @@ BEGIN
 	
 	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 	
-	CALL fnUsageSummary(p_CompanyID,p_CompanyGatewayID,p_AccountID,p_CurrencyID,p_StartDate,p_EndDate,p_AreaPrefix,p_Trunk,p_CountryID,p_CDRType,p_UserID,p_isAdmin,2);
+	CALL fnUsageSummary(p_CompanyID,p_CompanyGatewayID,p_AccountID,p_CurrencyID,p_StartDate,p_EndDate,p_AreaPrefix,p_Trunk,p_CountryID,p_CDRType,p_UserID,p_isAdmin,2,p_ResellerID);
 
 	
 	/* grid display*/

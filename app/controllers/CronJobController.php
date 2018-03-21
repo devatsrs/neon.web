@@ -174,11 +174,15 @@ class CronJobController extends \BaseController {
             }else if($CronJobCommand->Command == 'vendorratefileexport' || $CronJobCommand->Command == 'vendorratefilegeneration'){
                 $vendors = Account::getVendorIDList();
                 $vendors = array_diff($vendors, array('Select'));
+            }else if($CronJobCommand->Command == 'createsummary'){
+                $StartDateMessage = 'in order to create previous days summary please select start date and end date. Otherwise leave it bank. By default system creates last 4 days summary.'; // popup message
+            }else if($CronJobCommand->Command == 'resellerpbxaccountusage'){
+                $StartDateMessage = 'in order to generate previous days cdr please select start date and end date. Otherwise leave it bank. By default system generates today cdrs.'; // popup message
             }
 
             $commandconfig = json_decode($commandconfig,true);
 
-            return View::make('cronjob.ajax_config_html', compact('commandconfig','commandconfigval','hour_limit','rateGenerators','rateTables','CompanyGateway','day_limit','emailTemplates','accounts','customers','vendors'));
+            return View::make('cronjob.ajax_config_html', compact('commandconfig','commandconfigval','hour_limit','rateGenerators','rateTables','CompanyGateway','day_limit','emailTemplates','accounts','customers','vendors','StartDateMessage'));
         }
         return '';
     }

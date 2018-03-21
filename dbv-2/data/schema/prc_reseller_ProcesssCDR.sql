@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_ProcesssCDR`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_reseller_ProcesssCDR`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_processId` INT,
@@ -15,13 +15,17 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_ProcesssCDR`(
 BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-
-
-	CALL prc_autoAddIP(p_CompanyID,p_CompanyGatewayID); -- only if AutoAddIP is on
 	
-	CALL prc_ProcessCDRService(p_CompanyID,p_processId,p_tbltempusagedetail_name); -- update service ID based on IP or cli
-
-
+	/* created in prc_autoAddIP */
+	DROP TEMPORARY TABLE IF EXISTS tmp_tblTempRateLog_;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblTempRateLog_(
+		`CompanyID` INT(11) NULL DEFAULT NULL,
+		`CompanyGatewayID` INT(11) NULL DEFAULT NULL,
+		`MessageType` INT(11) NOT NULL,
+		`Message` VARCHAR(500) NOT NULL,
+		`RateDate` DATE NOT NULL
+	);
+	
 	DROP TEMPORARY TABLE IF EXISTS tmp_Customers_;
 	CREATE TEMPORARY TABLE tmp_Customers_  (
 		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -29,16 +33,6 @@ BEGIN
 		CompanyGatewayID INT
 	);
 
-	IF p_RerateAccounts!=0
-	THEN
-		-- selected customer 
-      SET @sql1 = concat("insert into tmp_Customers_ (AccountID) values ('", replace(( select TRIM(REPLACE(group_concat(distinct IFNULL(REPLACE(REPLACE(json_extract(Settings, '$.Accounts'), '[', ''), ']', ''),0)),'"','')) as AccountID from NeonRMDev.tblCompanyGateway), ",", "'),('"),"');");
-      PREPARE stmt1 FROM @sql1;
-      EXECUTE stmt1;
-      DEALLOCATE PREPARE stmt1;
-      DELETE FROM tmp_Customers_ WHERE AccountID=0;
-      UPDATE tmp_Customers_ SET CompanyGatewayID=p_CompanyGatewayID WHERE 1;
-  END IF;
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_Service_;
 	CREATE TEMPORARY TABLE tmp_Service_  (
@@ -67,11 +61,6 @@ BEGIN
 	EXECUTE stm;
 	DEALLOCATE PREPARE stm;
 
-
-
-	CALL prc_ProcessCDRAccount(p_CompanyID,p_CompanyGatewayID,p_processId,p_tbltempusagedetail_name,p_NameFormat);
-
-	
 
 	-- p_OutboundTableID is for cdr upload
 	IF ( ( SELECT COUNT(*) FROM tmp_Service_ ) > 0 OR p_OutboundTableID > 0)
@@ -121,25 +110,6 @@ BEGIN
 	CALL prc_RerateInboundCalls(p_CompanyID,p_processId,p_tbltempusagedetail_name,p_RateCDR,p_RateMethod,p_SpecifyRate,p_InboundTableID);
 
 
-	-- for retail only
-	IF (  p_RateCDR = 1 ) 
-	THEN
-		-- update cost = 0 where cc_type = 4 (OUTNOCHARGE)
-	 	SET @stm = CONCAT('
-		UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud 
-		INNER JOIN  NeonCDRDev.`' , p_tbltempusagedetail_name ,'_Retail' , '` udr ON ud.TempUsageDetailID = udr.TempUsageDetailID AND ud.ProcessID = udr.ProcessID
-		SET cost = 0
-      WHERE ud.ProcessID="' , p_processId , '" AND udr.cc_type = 4 ; 
-		'); 
-
-		PREPARE stm FROM @stm;
-		EXECUTE stm;
-		DEALLOCATE PREPARE stm;
-	
-	END IF;
-	
-	
-	
 	CALL prc_CreateRerateLog(p_processId,p_tbltempusagedetail_name,p_RateCDR);
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

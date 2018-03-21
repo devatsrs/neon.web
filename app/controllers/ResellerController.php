@@ -45,7 +45,8 @@ class ResellerController extends BaseController {
 
         $items = empty($data['reseller-item']) ? '' : array_filter($data['reseller-item']);
         $subscriptions = empty($data['reseller-subscription']) ? '' : array_filter($data['reseller-subscription']);
-        $trunks = empty($data['reseller-trunk']) ? '' : array_filter($data['reseller-trunk']);
+        //$trunks = empty($data['reseller-trunk']) ? '' : array_filter($data['reseller-trunk']);
+        $trunks='';
         $is_product = 0;
         $is_subscription = 0;
         $is_trunk = 0;
@@ -326,7 +327,8 @@ class ResellerController extends BaseController {
         $CompanyID = User::get_companyID();
         $items = empty($data['reseller-item']) ? '' : array_filter($data['reseller-item']);
         $subscriptions = empty($data['reseller-subscription']) ? '' : array_filter($data['reseller-subscription']);
-        $trunks = empty($data['reseller-trunk']) ? '' : array_filter($data['reseller-trunk']);
+        //$trunks = empty($data['reseller-trunk']) ? '' : array_filter($data['reseller-trunk']);
+        $trunks='';
 
         $is_product = 0;
         $is_subscription = 0;

@@ -20,8 +20,7 @@ class CronJobCommand extends \Eloquent {
         return CronJobCommand::where(['CronJobCommandID'=>$CronJobCommandID,'Status'=>1])->pluck('Settings');
     }
 
-    public static function getCronJobCommandIDByCommand($name){
-        $CompanyID = User::get_companyID();
+    public static function getCronJobCommandIDByCommand($name,$CompanyID){
         return CronJobCommand::where(['Command'=>$name,'CompanyID'=>$CompanyID,'Status'=>1])->pluck('CronJobCommandID');
     }
 }
