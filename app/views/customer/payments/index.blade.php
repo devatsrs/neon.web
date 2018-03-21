@@ -80,7 +80,7 @@
             <p style="text-align: right;">
                 <a href="#" id="add-new-payment" class="btn btn-primary ">
                     <i class="entypo-plus"></i>
-                    @lang('routes.BUTTON_ADD_CAPTION')
+                    @lang('routes.CUST_PANEL_PAGE_PAYMENTS_BUTTON_ADD_NEW')
                 </a>
             </p>
             @endif
