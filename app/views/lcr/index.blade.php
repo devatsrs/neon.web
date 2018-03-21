@@ -66,12 +66,12 @@
                         <input id="vendor_block" name="vendor_block" type="checkbox" value="1">
                     </p>
                 </div>
-             {{--   <div class="form-group">
-                    <label for="field-1" class="control-label">Show Customer Sell Rate</label>
-                    <p class="make-switch switch-small">
-                        <input id="show_customer_rate" name="show_customer_rate" type="checkbox" value="1">
-                    </p>
-                </div>--}}
+                {{--   <div class="form-group">
+                       <label for="field-1" class="control-label">Show Customer Sell Rate</label>
+                       <p class="make-switch switch-small">
+                           <input id="show_customer_rate" name="show_customer_rate" type="checkbox" value="1">
+                       </p>
+                   </div>--}}
                 <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
@@ -110,6 +110,10 @@
         }
         .table-responsive {
             overflow-x: unset;
+        }
+        .exportbtn{
+            margin-left: -15px;
+            padding-right: 0;
         }
 
     </style>
@@ -182,7 +186,7 @@
 
         </div>
     </div>
-  <script type="text/javascript">
+    <script type="text/javascript">
         jQuery(document).ready(function($) {
 
             $('#filter-button-toggle').show();
@@ -858,7 +862,7 @@
             }
 
             $('#table-4 tbody').on('click','.blockingbycode',function(){
-
+                var descriptioname = $(this).parent().siblings(":first").text();
                 Trunk = $("#lcr-search-form select[name='Trunk']").val();
                 CodeDeck = $("#lcr-search-form select[name='CodeDeckId']").val();
                 GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
@@ -869,16 +873,18 @@
                 $.ajax({
                     type: "POST",
                     url: baseurl + '/vendor_blocking_lrc/blockunblockcode',
+                    dataType: 'json',
                     data: {
                         id: thisid,
                         acc_id: thisaccid,
                         trunk: Trunk,
                         CodeDeckId: CodeDeck,
                         rowcode: rowcode,
-                        GroupBy: GroupBy
+                        GroupBy: GroupBy,
+                        description:descriptioname
                     },
-                    success: function(response){
-                        ShowToastr("success",response.message);
+                    success: function(data){
+                        ShowToastr("success",data.message);
                         data_table.fnFilter('', 0);
                     }
 
@@ -888,102 +894,125 @@
             /* show margine datatable */
             $('#table-4 tbody').on('click', 'td.destination', function () {
 
-
+                var LCRPosition = $("#lcr-search-form select[name='LCRPosition']").val();
                 $("#margineDataTable_processing").css('visibility','visible');
-                    GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
-                    var caption = $(this).html();
-                    var desinationdata = $(this).html().split(":");
-                    var code = desinationdata[0];
-                    var code_des = $(this).html();
-                    var allVendordata = $(this).next('td').html().split('<br>');
-                    var v_rate = allVendordata[0];
-                    var vendor = allVendordata[1];
-                    arr = [];
-                    arr['rate'] = [];
-                    arr['vendor'] = [];
-                    for (i = 1; i <= 5; i++) {
-                        var value = $(this).closest("tr").find("td:eq(" + i + ")").html().split('<br>');
-                        var valuetd = $.trim(value);
-                        if (valuetd.length != 0) {
-                            var td2_vrate = value[0];
-                            var td2_vendor = value[1];
-                            arr['rate'].push(td2_vrate);
-                            arr['vendor'].push(td2_vendor);
-                        }
+                var GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
+                var caption = $(this).html();
+                var desinationdata = $(this).html().split(":");
+                var code = desinationdata[0];
+                var code_des = $(this).html();
+                var allVendordata = $(this).next('td').html().split('<br>');
+                var v_rate = allVendordata[0];
+                var vendor = allVendordata[1];
+                arr = [];
+                arr['rate'] = [];
+                arr['vendor'] = [];
+                for (i = 1; i <= LCRPosition; i++) {
+                    var value = $(this).closest("tr").find("td:eq(" + i + ")").html().split('<br>');
+                    var valuetd = $.trim(value);
+                    if (valuetd.length != 0) {
+                        var td2_vrate = value[0];
+                        var td2_vendor = value[1];
+                        arr['rate'].push(td2_vrate);
+                        arr['vendor'].push(td2_vendor);
+                    }
+
+                }
+                $.ajax({
+                    type: "POST",
+                    url: baseurl + '/lcr/ajax_customer_rate_grid',
+                    data: {
+                        code: code,
+                        rate: v_rate,
+                        GroupBy: GroupBy,
+                    },
+                    success: function (response) {
+                        var decimalpoint = response.decimalpoint;
+                        var margindata = response.result;
+                        var result = '<div class="table-responsive"><table id="margineDataTable" class="table table-bordered datatable">' +
+                                '<thead><tr><th id="dt_col1">Customer</th><th id="dt_col1">CRate</th><th id="dt_col2">&nbsp;</th></tr>' +
+                                '</thead><tbody>';
+                        margindata.forEach(function (data) {
+                            var verate = '<table class="table table-bordered" style="background-color:#f8f8ff"><tr><th>Vendor</th><th>Rate</th><th>Margin (Percentage)</th></tr>';
+                            margin = "";
+                            margin_percentage = "";
+                            for (i = 0; i <= arr['rate'].length - 1; i++) {
+                                var margin = parseFloat(data.Rate) - parseFloat(arr['rate'][i]) ;
+                                var margincolor = parseFloat(data.Rate) < parseFloat(arr['rate'][i]) ? 'color:red' : '' ;
+                                var margin_percentage =  (parseFloat(data.Rate) * 100 / parseFloat(arr['rate'][i])) - 100;
+                                verate += '<tr><td>' + arr['vendor'][i] + '</td><td>' + arr['rate'][i] + '</td>' +
+                                        '<td style="'+ margincolor +'">' + margin.toFixed(decimalpoint) + ' (' + margin_percentage.toFixed(2) + '%)</td></tr>';
+                            }
+                            verate += '</table></div>';
+                            var linkurl = baseurl + "/customers_rates/" + data.AccountID;
+                            var accountNameLink = '<a target="_blank" href="'+linkurl+'">'+data.AccountName+'</a>';
+
+                            result += '<tr><td>'+accountNameLink+'</td><td>'+data.Rate+'</td><td colspan="3">' + verate + '</td></tr>';
+                        });
+                        result += '</tbody></table>';
+                        $(".vendorRateInfo").removeClass('hide');
+                        $(".vendorRateInfo").html(result);
+
+                        var margineDataTable = $('#margineDataTable').DataTable({
+                            "bDestroy": true,
+                            "bProcessing": true,
+                            "sDom": "<'row'<'col-md-push-4 col-md-4 col-xs-12 centercaption'<'toolbartitle'> ><'col-md-pull-4 col-md-4 col-xs-12 col-left'l ><'col-md-4 col-xs-12 exportbtn'<'export-data exbtn'T>f>r>t<'row'<'col-md-6 col-xs-12 col-left'i><'col-md-6 col-xs-12 col-right'p>>",
+                            "aaSorting": [[0, "asc"]],
+                            "oTableTools": {
+                                "aButtons": [
+                                    {
+                                        "sExtends": "download",
+                                        "sButtonText": "EXCEL",
+                                        sButtonClass: "save-collection btn-sm",
+                                        "fnClick": function (e, dt, node, config) {
+                                            $.ajax({
+                                                type: "POST",
+                                                dataType: 'json',
+                                                url: baseurl + '/lcr/ajax_customer_rate_export/xlsx',
+                                                data: {type:'xlsx',vendor:arr['vendor'],rate:arr['rate'],customer:response},
+                                                success: function (data) {
+                                                    document.location = baseurl + "/download_file?file="+data.fileurl;
+                                                }
+                                            });
+                                        }
+                                    },
+                                    {
+                                        "sExtends": "download",
+                                        "sButtonText": "CSV",
+                                        sButtonClass: "save-collection btn-sm",
+                                        "fnClick": function () {
+                                            $.ajax({
+                                                type: "POST",
+                                                dataType: 'json',
+                                                url: baseurl + '/lcr/ajax_customer_rate_export/csv',
+                                                data: {type:'csv',vendor:arr['vendor'],rate:arr['rate'],customer:response},
+                                                success: function (data) {
+                                                    document.location = baseurl + "/download_file?file="+data.fileurl;
+                                                }
+                                            });
+                                        }
+                                    }
+                                ]
+                            }
+                        });
+                        $(".dataTables_wrapper select").select2({
+                            minimumResultsForSearch: -1
+                        });
+                        $("div.toolbartitle").html('<b>'+caption+'</b>');
+                        $("#margineDataTable_processing").css('visibility','hidden');
 
                     }
-                    $.ajax({
-                        type: "POST",
-                        url: baseurl + '/lcr/margin-rate',
-                        data: {
-                            code: code,
-                            rate: v_rate,
-                            GroupBy: GroupBy,
-                        },
-                        success: function (response) {
-                            var decimalpoint = response.decimalpoint;
-                            var margindata = response.result;
-                            var verate = '';
-                            //var result = '<h5 class="text-center bold">' + caption + '</h5>' +
-                            var result = '<div class="table-responsive"><table id="margineDataTable" class="table table-bordered datatable">' +
-                                    '<thead><tr><th id="dt_col1">Customer</th><th id="dt_col1">CRate</th><th id="dt_col2">&nbsp;</th></tr>' +
-                                    '</thead><tbody>';
-                            margindata.forEach(function (data) {
-                                var verate = '<table class="table table-bordered" style="background-color:#f8f8ff"><tr><th>Vendor</th><th>Rate</th><th>Margin (Percentage)</th></tr>';
-                                margin = "";
-                                margin_percentage = "";
-                                for (i = 0; i <= arr['rate'].length - 1; i++) {
-                                    var margin = parseFloat(data.Rate) - parseFloat(arr['rate'][i]) ;
-                                    var margincolor = parseFloat(data.Rate) < parseFloat(arr['rate'][i]) ? 'color:red' : '' ;
-                                    var margin_percentage =  (parseFloat(data.Rate) * 100 / parseFloat(arr['rate'][i])) - 100;
-                                    verate += '<tr><td>' + arr['vendor'][i] + '</td><td>' + arr['rate'][i] + '</td>' +
-                                            '<td style="'+ margincolor +'">' + margin.toFixed(decimalpoint) + ' (' + margin_percentage.toFixed(2) + '%)</td></tr>';
-                                }
-                                verate += '</table></div>';
-                                var linkurl = baseurl + "/customers_rates/" + data.AccountID;
-                                var accountNameLink = '<a target="_blank" href="'+linkurl+'">'+data.AccountName+'</a>';
 
-                                result += '<tr><td>'+accountNameLink+'</td><td>'+data.Rate+'</td><td colspan="3">' + verate + '</td></tr>';
-                            });
-                            result += '</tbody></table>';
-                            $(".vendorRateInfo").removeClass('hide');
-                            $(".vendorRateInfo").html(result);
-
-                            var margineDataTable = $('#margineDataTable').DataTable({
-                                "bDestroy": true,
-                                "bProcessing": true,
-                                "sDom": "<'row'<'col-md-push-4 col-md-4 col-xs-12 centercaption'<'toolbartitle'> ><'col-md-pull-4 col-md-4 col-xs-12 col-left'l ><'col-md-4 col-xs-12'<'export-data exbtn'T>f>r>t<'row'<'col-md-6 col-xs-12 col-left'i><'col-md-6 col-xs-12 col-right'p>>",
-                                "aaSorting": [[0, "asc"]],
-                                "oTableTools": {
-                                    "aButtons": [
-                                        {
-                                            "sExtends": "download",
-                                            "sButtonText": "EXCEL",
-                                            "sUrl": baseurl + "/lcr/margin-rate-export/xlsx/" + code,
-                                            sButtonClass: "save-collection btn-sm",
-                                        },
-                                        {
-                                            "sExtends": "download",
-                                            "sButtonText": "CSV",
-                                            "sUrl": baseurl + "/lcr/margin-rate-export/csv/" + code,
-                                            sButtonClass: "save-collection btn-sm"
-                                        }
-                                    ]
-                                }
-                            });
-                            $("div.toolbartitle").html('<b>'+caption+'</b>');
-                            $("#margineDataTable_processing").css('visibility','hidden');
-
-                        }
-
-                    });
+                });
 
 
             });
+
             /* show margine datatable end */
 
             /* Edit preference */
             $(document).on('click','.openPopup',function(){
+                var descriptioname = $(this).parent().siblings(":first").text();
                 Trunk = $("#lcr-search-form select[name='Trunk']").val();
                 CodeDeck = $("#lcr-search-form select[name='CodeDeckId']").val();
                 GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
@@ -995,6 +1024,7 @@
                 $.ajax({
                     type: "POST",
                     url: baseurl + '/lcr/edit_preference',
+                    dataType: 'json',
                     data: {
                         trunk: Trunk,
                         CodeDeckId: CodeDeck,
@@ -1003,34 +1033,36 @@
                         rowcode:rowcode,
                         preference:'',
                         id:'',
+                        description:descriptioname
                     },
                     success: function(data)
                     {
-                           // ShowToastr("success",data);
-                            Trunk = $("#lcr-search-form select[name='Trunk']").val();
-                            CodeDeck = $("#lcr-search-form select[name='CodeDeckId']").val();
-                            GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
-                            //var thisclass = $(this);
-                           // var thisid = thisclass.attr("id");
-                           // var thisaccid = thisclass.attr("data-id");
-                           // var rowcode = thisclass.attr("data-rowcode");
-                            var data = '<div class="row">' +
-                                            '<div class="col-md-12">' +
-                                                '<div class="form-group">' +
-                                                    '<label for="field-5" class="control-label">Enter Preference</label>' +
-                                                        '<input type="number" value="'+data+'" id="txtpreference" name="preference" class="form-control" placeholder="Enter Preference">' +
-                                                '</div>' +
-                                            '</div>' +
-                                        '</div>' +
-                                    '<input type="hidden" name="id" value='+thisid+'>' +
-                                    '<input type="hidden" name="acc_id" value='+thisaccid+'>' +
-                                    '<input type="hidden" name="trunk" value='+Trunk+'>' +
-                                    '<input type="hidden" name="CodeDeckId" value='+CodeDeck+'>' +
-                                    '<input type="hidden" name="GroupBy" value='+GroupBy+'>' +
-                                    '<input type="hidden" name="rowcode" value='+rowcode+'>' +
-                                    '<input type="hidden" class="form-control">';
-                            $('.modal-body').html(data);
-                            $('#myModal').modal({show:true});
+                        var codedescription = GroupBy=='description' ? descriptioname : rowcode;
+                        Trunk = $("#lcr-search-form select[name='Trunk']").val();
+                        CodeDeck = $("#lcr-search-form select[name='CodeDeckId']").val();
+                        GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
+                        //var thisclass = $(this);
+                        // var thisid = thisclass.attr("id");
+                        // var thisaccid = thisclass.attr("data-id");
+                        // var rowcode = thisclass.attr("data-rowcode");
+                        var data = '<div class="row">' +
+                                '<div class="col-md-12">' +
+                                '<div class="form-group">' +
+                                '<label for="field-5" class="control-label">Enter Preference <strong>('+codedescription+')</strong></label>' +
+                                '<input type="number" value="'+data.preference+'" id="txtpreference" name="preference" class="form-control" placeholder="Enter Preference">' +
+                                '</div>' +
+                                '</div>' +
+                                '</div>' +
+                                '<input type="hidden" name="description" value="'+descriptioname+'">' +
+                                '<input type="hidden" name="id" value='+thisid+'>' +
+                                '<input type="hidden" name="acc_id" value='+thisaccid+'>' +
+                                '<input type="hidden" name="trunk" value='+Trunk+'>' +
+                                '<input type="hidden" name="CodeDeckId" value='+CodeDeck+'>' +
+                                '<input type="hidden" name="GroupBy" value='+GroupBy+'>' +
+                                '<input type="hidden" name="rowcode" value='+rowcode+'>' +
+                                '<input type="hidden" class="form-control">';
+                        $('.modal-body').html(data);
+                        $('#myModal').modal({show:true});
                     }
                 });
 
@@ -1042,18 +1074,20 @@
                     type: "POST",
                     url: baseurl + '/lcr/edit_preference',
                     data: $("#edit-preference-form").serialize(),
+                    dataType: 'json',
                     success: function(data)
                     {
-                        ShowToastr("success",data);
+                        ShowToastr("success",data.message);
                         $('#myModal').modal('hide');
                         data_table.fnFilter('', 0);
                     }
                 });
-               // return false;
+                // return false;
             });
 
 
         });
+
 
 
     </script>
@@ -1062,7 +1096,7 @@
             display:none !important;
         }
         .table-4_wrapper .export-data{
-           right: 30px !important;
+            right: 30px !important;
         }
         .rate1_class{
             background-color: #f5fea8;

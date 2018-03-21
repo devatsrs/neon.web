@@ -123,13 +123,13 @@
                     <div class="form-group">
                         <label class="col-md-2 control-label">Reseller</label>
                         <div class="col-md-4">
-                            <div class="make-switch switch-small">
+                            <div class="make-switch switch-small" id="desablereseller">
                                 <input type="checkbox" name="IsReseller"  @if(Input::old('IsReseller') == 1 )checked=""@endif value="1">
                             </div>
                         </div>
 
                         <label for="field-1" class="col-md-2 control-label">Account Reseller</label>
-                        <div class="col-md-4">
+                        <div class="col-md-4" id="disableresellerowner">
                             {{Form::select('ResellerOwner',$reseller_owners,'',array("class"=>"select2"))}}
                         </div>
 
@@ -169,7 +169,7 @@
 
                         <label for="field-1" class="col-md-2 control-label">Timezone</label>
                         <div class="col-md-4">
-                            {{Form::select('Timezone', $timezones, '' ,array("class"=>"form-control select2"))}}
+                            {{Form::select('TimeZone', $timezones, '' ,array("class"=>"form-control select2"))}}
                         </div>
                     </div>
                     <div class="form-group">
@@ -439,10 +439,22 @@
                 $('[name="IsVendor"]').prop("checked", false).trigger('change');
                 $("#desablecustomer").addClass('deactivate');
                 $("#desablevendor").addClass('deactivate');
+                $('#disableresellerowner select').attr("disabled", "disabled");
             }else{
                 $("#desablecustomer").removeClass('deactivate');
                 $("#desablevendor").removeClass('deactivate');
+                $("#desablereseller").removeClass('deactivate');
+                $('#disableresellerowner select').removeAttr("disabled");
             }
+        });
+
+        $('[name="ResellerOwner"]').on( "change",function(e){
+            if($(this).val()>0) {
+                $("#desablereseller").addClass('deactivate');
+            }else{
+                $("#desablereseller").removeClass('deactivate');
+            }
+
         });
 
     });

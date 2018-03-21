@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getActiveGatewayAccount`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getActiveGatewayAccount`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_NameFormat` VARCHAR(50)
@@ -20,7 +20,8 @@ BEGIN
 		AccountCLI varchar(100),
 		AccountIP varchar(100),
 		AccountID INT,
-		ServiceID INT
+		ServiceID INT,
+		CompanyID INT
 	);
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_AuthenticateRules_;
@@ -29,7 +30,7 @@ BEGIN
 		AuthRule VARCHAR(50)
 	);
 
-	/* gateway level authentication rule */
+	
 	IF p_NameFormat = ''
 	THEN
 		INSERT INTO tmp_AuthenticateRules_  (AuthRule)
@@ -67,7 +68,7 @@ BEGIN
 	END IF;
 	SET v_pointer_ = 1;
 	SET v_rowCount_ = (SELECT COUNT(*) FROM tmp_Service_);
-	/* service level authentication rule */ 
+	 
 	IF v_rowCount_ > 0
 	THEN
 
@@ -77,9 +78,9 @@ BEGIN
 			SET v_ServiceID_ = (SELECT ServiceID FROM tmp_Service_ t WHERE t.RowID = v_pointer_);
 
 			INSERT INTO tmp_AuthenticateRules_  (AuthRule)
-			SELECT DISTINCT CustomerAuthRule FROM NeonRMDev.tblAccountAuthenticate aa WHERE CompanyID = p_CompanyID AND CustomerAuthRule IS NOT NULL AND ServiceID = v_ServiceID_
+			SELECT DISTINCT CustomerAuthRule FROM NeonRMDev.tblAccountAuthenticate aa WHERE CustomerAuthRule IS NOT NULL AND ServiceID = v_ServiceID_ 
 			UNION
-			SELECT DISTINCT VendorAuthRule FROM NeonRMDev.tblAccountAuthenticate aa WHERE CompanyID = p_CompanyID AND VendorAuthRule IS NOT NULL AND ServiceID = v_ServiceID_;
+			SELECT DISTINCT VendorAuthRule FROM NeonRMDev.tblAccountAuthenticate aa WHERE VendorAuthRule IS NOT NULL AND ServiceID = v_ServiceID_; -- CompanyID = p_CompanyID AND
 
 			CALL prc_ApplyAuthRule(p_CompanyID,p_CompanyGatewayID,v_ServiceID_);
 
@@ -89,15 +90,15 @@ BEGIN
 
 	END IF;
 
-	/* account level authentication rule */
-	IF (SELECT COUNT(*) FROM NeonRMDev.tblAccountAuthenticate WHERE CompanyID = p_CompanyID AND ServiceID = 0) > 0
+	
+	IF (SELECT COUNT(*) FROM NeonRMDev.tblAccountAuthenticate WHERE ServiceID = 0) > 0
 	THEN
 
 
 		INSERT INTO tmp_AuthenticateRules_  (AuthRule)
-		SELECT DISTINCT CustomerAuthRule FROM NeonRMDev.tblAccountAuthenticate aa WHERE CompanyID = p_CompanyID AND CustomerAuthRule IS NOT NULL AND ServiceID = 0
+		SELECT DISTINCT CustomerAuthRule FROM NeonRMDev.tblAccountAuthenticate aa WHERE CustomerAuthRule IS NOT NULL AND ServiceID = 0
 		UNION
-		SELECT DISTINCT VendorAuthRule FROM NeonRMDev.tblAccountAuthenticate aa WHERE CompanyID = p_CompanyID AND VendorAuthRule IS NOT NULL AND ServiceID = 0;
+		SELECT DISTINCT VendorAuthRule FROM NeonRMDev.tblAccountAuthenticate aa WHERE VendorAuthRule IS NOT NULL AND ServiceID = 0;
 
 		CALL prc_ApplyAuthRule(p_CompanyID,p_CompanyGatewayID,0);
 
@@ -113,7 +114,7 @@ BEGIN
 		AND a.AccountIP = tblGatewayAccount.AccountIP
 		AND tblGatewayAccount.CompanyGatewayID = p_CompanyGatewayID
 		AND tblGatewayAccount.ServiceID = a.ServiceID
-	SET tblGatewayAccount.AccountID = a.AccountID
+	SET tblGatewayAccount.AccountID = a.AccountID,tblGatewayAccount.CompanyID=a.CompanyID
 	WHERE tblGatewayAccount.AccountID IS NULL;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

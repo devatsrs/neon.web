@@ -142,7 +142,7 @@
                     <thead>
                     <tr>
                         <th width="5%" class="hide"></th>
-                        <th width="15%" >@lang('routes.CUST_PANEL_PAGE_CDR_TBL_AC_NAME')</th>
+                        <th width="15%" class="hide">@lang('routes.CUST_PANEL_PAGE_CDR_TBL_AC_NAME')</th>
                         <th width="10%" >@lang('routes.CUST_PANEL_PAGE_CDR_TBL_CONNECT_TIME')</th>
                         <th width="10%" >@lang('routes.CUST_PANEL_PAGE_CDR_TBL_DISCONNECT_TIME')</th>
                         <th width="10%" >@lang('routes.CUST_PANEL_PAGE_CDR_TBL_BILLED_DURATION_SEC')</th>
@@ -282,7 +282,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                 "aoColumns":
                 [
                     { "bVisible": false, "bSortable": false  }, //0Checkbox
-                    { "bSortable": false },
+                    { "bVisible": false,"bSortable": false }, //AccountName
                     { "bSortable": false },
                     { "bSortable": false },
                     { "bSortable": false },
