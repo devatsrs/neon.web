@@ -11,12 +11,10 @@ class CDRTemplateController extends BaseController {
     /** CDR Upload
      * @return mixed
      */
-    public function index() {
-        $gateway = CompanyGateway::getCompanyGatewayIdList();
+    public function index($GatewayId) {
+        //$gateway = CompanyGateway::getCompanyGatewayIdList();
         $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_CDR);
-        $trunks = Trunk::getTrunkDropdownIDList();
-        $trunks = $trunks+array(0=>'Find From CustomerPrefix');
-        return View::make('cdrtemplate.upload',compact('dashboardData','account','gateway','UploadTemplate','trunks'));
+        return View::make('cdrtemplate.upload',compact('UploadTemplate'));
     }
 
     public function ajaxfilegrid(){
@@ -38,7 +36,7 @@ class CDRTemplateController extends BaseController {
             return Response::json(array("status" => "failed", "message" => $e->getMessage()));
         }
     }
-    public function storeTemplate() {
+    public function storeTemplate($GatewayId) {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
@@ -121,12 +119,9 @@ class CDRTemplateController extends BaseController {
         try {
             $data = Input::all();
             $rules = array(
-                'CompanyGatewayID' => 'required',
+                'excel' => 'required',
             );
-            if($data['RateCDR']){
-                $rules['TrunkID'] = 'required';
-                $rules['RateFormat'] = 'required';
-            }
+
             $validator = Validator::make($data, $rules);
             if ($validator->fails()) {
                 return json_validator_response($validator);

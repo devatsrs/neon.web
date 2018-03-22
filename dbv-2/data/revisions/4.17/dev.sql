@@ -417,6 +417,11 @@ BEGIN
 	);
 
 
+	/* For Mirta only */
+	DELETE ud.*
+	FROM `RMCDR3`.tblRetailUsageDetail ud
+	INNER JOIN tmp_tblUsageDetail_ uds
+		ON ud.UsageDetailID = uds.UsageDetailID;
 
 	DELETE ud.*
 	FROM `RMCDR3`.tblUsageDetails ud
@@ -635,3 +640,447 @@ BEGIN
 
 END//
 DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_ApplyAuthRule`;
+DELIMITER //
+CREATE PROCEDURE `prc_ApplyAuthRule`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_ServiceID` INT
+
+
+
+
+)
+	BEGIN
+		DECLARE p_NameFormat VARCHAR(10);
+		DECLARE v_pointer_ INT ;
+		DECLARE v_rowCount_ INT ;
+
+		SET v_pointer_ = 1;
+		SET v_rowCount_ = (SELECT COUNT(*)FROM tmp_AuthenticateRules_);
+
+		WHILE v_pointer_ <= v_rowCount_
+		DO
+
+			SET p_NameFormat = ( SELECT AuthRule FROM tmp_AuthenticateRules_  WHERE RowNo = v_pointer_ );
+
+			IF  p_NameFormat = 'NAMENUB'
+			THEN
+
+				INSERT INTO tmp_ActiveAccount
+					SELECT DISTINCT
+						ga.AccountName,
+						ga.AccountNumber,
+						ga.AccountCLI,
+						ga.AccountIP,
+						a.AccountID,
+						ga.ServiceID
+					FROM NeonRMDev.tblAccount  a
+						INNER JOIN tblGatewayAccount ga
+							ON ga.CompanyID = a.CompanyId
+								 AND CONCAT(a.AccountName , '-' , a.Number) = ga.AccountName
+						LEFT JOIN NeonRMDev.tblAccountAuthenticate aa
+							ON a.AccountID = aa.AccountID
+								 AND aa.ServiceID = ga.ServiceID
+					WHERE GatewayAccountID IS NOT NULL
+								AND ga.AccountID IS NULL
+								AND a.CompanyId = p_CompanyID
+								AND a.Status = 1
+								AND ga.CompanyGatewayID = p_CompanyGatewayID
+								AND ga.ServiceID = p_ServiceID
+								AND ( ( aa.AccountID IS NOT NULL AND (aa.CustomerAuthRule = 'NAMENUB' OR aa.VendorAuthRule ='NAMENUB' )) OR
+											aa.AccountID IS NULL
+								);
+
+			END IF;
+
+			IF p_NameFormat = 'NUBNAME'
+			THEN
+
+				INSERT INTO tmp_ActiveAccount
+					SELECT DISTINCT
+						ga.AccountName,
+						ga.AccountNumber,
+						ga.AccountCLI,
+						ga.AccountIP,
+						a.AccountID,
+						ga.ServiceID
+					FROM NeonRMDev.tblAccount  a
+						INNER JOIN tblGatewayAccount ga
+							ON ga.CompanyID = a.CompanyId
+								 AND CONCAT(a.Number, '-' , a.AccountName) = ga.AccountName
+						LEFT JOIN NeonRMDev.tblAccountAuthenticate aa
+							ON a.AccountID = aa.AccountID
+								 AND aa.ServiceID = ga.ServiceID
+					WHERE GatewayAccountID IS NOT NULL
+								AND ga.AccountID IS NULL
+								AND a.CompanyId = p_CompanyID
+								AND a.Status = 1
+								AND ga.CompanyGatewayID = p_CompanyGatewayID
+								AND ga.ServiceID = p_ServiceID
+								AND ( ( aa.AccountID IS NOT NULL AND (aa.CustomerAuthRule = 'NUBNAME' OR aa.VendorAuthRule ='NUBNAME' )) OR
+											aa.AccountID IS NULL
+								);
+
+			END IF;
+
+			IF p_NameFormat = 'NUB'
+			THEN
+
+				INSERT INTO tmp_ActiveAccount
+					SELECT DISTINCT
+						ga.AccountName,
+						ga.AccountNumber,
+						ga.AccountCLI,
+						ga.AccountIP,
+						a.AccountID,
+						ga.ServiceID
+					FROM NeonRMDev.tblAccount  a
+						INNER JOIN tblGatewayAccount ga
+							ON ga.CompanyID = a.CompanyId
+								 AND a.Number = ga.AccountNumber
+						LEFT JOIN NeonRMDev.tblAccountAuthenticate aa
+							ON a.AccountID = aa.AccountID
+								 AND aa.ServiceID = ga.ServiceID
+					WHERE GatewayAccountID IS NOT NULL
+								AND ga.AccountID IS NULL
+								AND a.CompanyId = p_CompanyID
+								AND a.Status = 1
+								AND ga.CompanyGatewayID = p_CompanyGatewayID
+								AND ga.ServiceID = p_ServiceID
+								AND ( ( aa.AccountID IS NOT NULL AND (aa.CustomerAuthRule = 'NUB' OR aa.VendorAuthRule ='NUB' )) OR
+											aa.AccountID IS NULL
+								);
+
+			END IF;
+
+			IF p_NameFormat = 'IP'
+			THEN
+
+				INSERT INTO tmp_ActiveAccount
+					SELECT DISTINCT
+						ga.AccountName,
+						ga.AccountNumber,
+						ga.AccountCLI,
+						ga.AccountIP,
+						a.AccountID,
+						aa.ServiceID
+					FROM NeonRMDev.tblAccount  a
+						INNER JOIN NeonRMDev.tblAccountAuthenticate aa
+							ON a.AccountID = aa.AccountID AND (aa.CustomerAuthRule = 'IP' OR aa.VendorAuthRule ='IP')
+						INNER JOIN tblGatewayAccount ga
+							ON ga.CompanyID = a.CompanyId
+								 AND ga.ServiceID = p_ServiceID AND aa.ServiceID = ga.ServiceID
+								 AND ( (aa.CustomerAuthRule = 'IP' AND FIND_IN_SET(ga.AccountIP,aa.CustomerAuthValue) != 0) OR (aa.VendorAuthRule ='IP' AND FIND_IN_SET(ga.AccountIP,aa.VendorAuthValue) != 0) )
+					WHERE a.CompanyId = p_CompanyID
+								AND a.`Status` = 1
+								AND GatewayAccountID IS NOT NULL
+								AND ga.AccountID IS NULL
+								AND ga.CompanyGatewayID = p_CompanyGatewayID;
+
+			END IF;
+
+			IF p_NameFormat = 'CLI'
+			THEN
+
+				INSERT INTO tmp_ActiveAccount
+					SELECT DISTINCT
+						ga.AccountName,
+						ga.AccountNumber,
+						ga.AccountCLI,
+						ga.AccountIP,
+						a.AccountID,
+						aa.ServiceID
+					FROM NeonRMDev.tblAccount  a
+						INNER JOIN tblGatewayAccount ga
+							ON ga.CompanyID = a.CompanyId
+						INNER JOIN NeonRMDev.tblCLIRateTable aa
+							ON a.AccountID = aa.AccountID
+								 AND ga.ServiceID = p_ServiceID AND aa.ServiceID = ga.ServiceID
+								 AND ga.AccountCLI = aa.CLI
+					WHERE a.CompanyId = p_CompanyID
+								AND a.`Status` = 1
+								AND GatewayAccountID IS NOT NULL
+								AND ga.AccountID IS NULL
+								AND ga.CompanyGatewayID = p_CompanyGatewayID;
+
+			END IF;
+
+			IF p_NameFormat = '' OR p_NameFormat IS NULL OR p_NameFormat = 'NAME'
+			THEN
+
+				-- IF sippy add sippy gateway too
+				select count(*) into @IsSippy from NeonRMDev.tblGateway g inner join NeonRMDev.tblCompanyGateway cg
+						on cg.GatewayID = g.GatewayID
+							 AND cg.`Status` = 1
+							 AND cg.CompanyGatewayID = p_CompanyGatewayID
+							 AND g.Name = 'SippySFTP';
+
+				IF (@IsSippy > 0 ) THEN
+
+
+					INSERT INTO tmp_ActiveAccount
+						SELECT DISTINCT
+							ga.AccountName,
+							ga.AccountNumber,
+							ga.AccountCLI,
+							ga.AccountIP,
+							sa.AccountID,
+							ga.ServiceID
+						FROM NeonRMDev.tblAccount  a
+							LEFT JOIN NeonRMDev.tblAccountAuthenticate aa
+								ON a.AccountID = aa.AccountID
+							INNER JOIN tblGatewayAccount ga
+								ON ga.CompanyID = a.CompanyId
+									 AND aa.ServiceID = ga.ServiceID
+							--	AND a.AccountName = ga.AccountName
+							INNER JOIN NeonRMDev.tblAccountSippy sa
+								ON sa.CompanyID = a.CompanyId
+									 AND 	( (a.IsCustomer = 1	AND ga.AccountNumber = sa.i_account)	OR	( a.IsVendor = 1	AND ga.AccountNumber = sa.i_vendor ) )
+						WHERE a.CompanyId = p_CompanyID
+									AND a.`Status` = 1
+									AND ga.ServiceID = p_ServiceID
+									AND GatewayAccountID IS NOT NULL
+									AND ga.AccountID IS NULL
+									AND ga.CompanyGatewayID = p_CompanyGatewayID
+									AND ( ( aa.AccountID IS NOT NULL AND (aa.CustomerAuthRule = 'NAME' OR aa.VendorAuthRule ='NAME' )) OR
+												aa.AccountID IS NULL
+									);
+
+				ELSE
+
+
+					INSERT INTO tmp_ActiveAccount
+						SELECT DISTINCT
+							ga.AccountName,
+							ga.AccountNumber,
+							ga.AccountCLI,
+							ga.AccountIP,
+							a.AccountID,
+							ga.ServiceID
+						FROM NeonRMDev.tblAccount  a
+							INNER JOIN tblGatewayAccount ga
+								ON ga.CompanyID = a.CompanyId
+									 AND a.AccountName = ga.AccountName
+							LEFT JOIN NeonRMDev.tblAccountAuthenticate aa
+								ON a.AccountID = aa.AccountID
+									 AND aa.ServiceID = ga.ServiceID
+						WHERE a.CompanyId = p_CompanyID
+									AND a.`Status` = 1
+									AND ga.ServiceID = p_ServiceID
+									AND GatewayAccountID IS NOT NULL
+									AND ga.AccountID IS NULL
+									AND ga.CompanyGatewayID = p_CompanyGatewayID
+									AND ( ( aa.AccountID IS NOT NULL AND (aa.CustomerAuthRule = 'NAME' OR aa.VendorAuthRule ='NAME' )) OR
+												aa.AccountID IS NULL
+									);
+
+
+				END IF;
+
+
+			END IF;
+
+			IF p_NameFormat = 'Other'
+			THEN
+
+				INSERT INTO tmp_ActiveAccount
+					SELECT DISTINCT
+						ga.AccountName,
+						ga.AccountNumber,
+						ga.AccountCLI,
+						ga.AccountIP,
+						a.AccountID,
+						aa.ServiceID
+					FROM NeonRMDev.tblAccount  a
+						INNER JOIN NeonRMDev.tblAccountAuthenticate aa
+							ON a.AccountID = aa.AccountID AND (aa.CustomerAuthRule = 'Other' OR aa.VendorAuthRule ='Other')
+						INNER JOIN tblGatewayAccount ga
+							ON ga.CompanyID = a.CompanyId
+								 AND ga.ServiceID = aa.ServiceID
+								 AND ( (aa.VendorAuthRule ='Other' AND aa.VendorAuthValue = ga.AccountName) OR (aa.CustomerAuthRule = 'Other' AND aa.CustomerAuthValue = ga.AccountName) )
+					WHERE a.CompanyId = p_CompanyID
+								AND a.`Status` = 1
+								AND GatewayAccountID IS NOT NULL
+								AND ga.AccountID IS NULL
+								AND ga.CompanyGatewayID = p_CompanyGatewayID
+								AND ga.ServiceID = p_ServiceID;
+
+			END IF;
+
+			SET v_pointer_ = v_pointer_ + 1;
+
+		END WHILE;
+
+	END//
+DELIMITER ;
+
+
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_ProcesssCDR`;
+DELIMITER //
+CREATE PROCEDURE `prc_ProcesssCDR`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_processId` INT,
+	IN `p_tbltempusagedetail_name` VARCHAR(200),
+	IN `p_RateCDR` INT,
+	IN `p_RateFormat` INT,
+	IN `p_NameFormat` VARCHAR(50),
+	IN `p_RateMethod` VARCHAR(50),
+	IN `p_SpecifyRate` DECIMAL(18,6),
+	IN `p_OutboundTableID` INT,
+	IN `p_InboundTableID` INT,
+	IN `p_RerateAccounts` INT
+
+
+
+
+
+
+
+
+
+
+
+)
+	BEGIN
+
+		SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+
+		CALL prc_autoAddIP(p_CompanyID,p_CompanyGatewayID); -- only if AutoAddIP is on
+
+		CALL prc_ProcessCDRService(p_CompanyID,p_processId,p_tbltempusagedetail_name); -- update service ID based on IP or cli
+
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_Customers_;
+		CREATE TEMPORARY TABLE tmp_Customers_  (
+			RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			AccountID INT,
+			CompanyGatewayID INT
+		);
+
+		IF p_RerateAccounts!=0
+		THEN
+			-- selected customer
+			SET @sql1 = concat("insert into tmp_Customers_ (AccountID) values ('", replace(( select TRIM(REPLACE(group_concat(distinct IFNULL(REPLACE(REPLACE(json_extract(Settings, '$.Accounts'), '[', ''), ']', ''),0)),'"','')) as AccountID from NeonRMDev.tblCompanyGateway), ",", "'),('"),"');");
+			PREPARE stmt1 FROM @sql1;
+			EXECUTE stmt1;
+			DEALLOCATE PREPARE stmt1;
+			DELETE FROM tmp_Customers_ WHERE AccountID=0;
+			UPDATE tmp_Customers_ SET CompanyGatewayID=p_CompanyGatewayID WHERE 1;
+		END IF;
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_Service_;
+		CREATE TEMPORARY TABLE tmp_Service_  (
+			RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			ServiceID INT
+		);
+		SET @stm = CONCAT('
+	INSERT INTO tmp_Service_ (ServiceID)
+	SELECT DISTINCT ServiceID FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND ServiceID > 0;
+	');
+
+		PREPARE stm FROM @stm;
+		EXECUTE stm;
+		DEALLOCATE PREPARE stm;
+
+		SET @stm = CONCAT('
+	INSERT INTO tmp_Service_ (ServiceID)
+	SELECT DISTINCT tblService.ServiceID
+	FROM NeonRMDev.tblService
+	LEFT JOIN  NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
+	ON tblService.ServiceID = ud.ServiceID AND ProcessID="' , p_processId , '"
+	WHERE tblService.ServiceID > 0 AND tblService.CompanyGatewayID > 0 AND ud.ServiceID IS NULL
+	');
+
+		PREPARE stm FROM @stm;
+		EXECUTE stm;
+		DEALLOCATE PREPARE stm;
+
+
+
+		CALL prc_ProcessCDRAccount(p_CompanyID,p_CompanyGatewayID,p_processId,p_tbltempusagedetail_name,p_NameFormat);
+
+
+
+		-- p_OutboundTableID is for cdr upload
+		IF ( ( SELECT COUNT(*) FROM tmp_Service_ ) > 0 OR p_OutboundTableID > 0)
+		THEN
+
+
+			CALL prc_RerateOutboundService(p_processId,p_tbltempusagedetail_name,p_RateCDR,p_RateFormat,p_RateMethod,p_SpecifyRate,p_OutboundTableID);
+
+		ELSE
+
+
+			CALL prc_RerateOutboundTrunk(p_processId,p_tbltempusagedetail_name,p_RateCDR,p_RateFormat,p_RateMethod,p_SpecifyRate);
+
+
+			CALL prc_autoUpdateTrunk(p_CompanyID,p_CompanyGatewayID);
+
+		END IF;
+
+		-- no rerate and prefix format
+
+		IF p_RateCDR = 0 AND p_RateFormat = 2
+		THEN
+
+			DROP TEMPORARY TABLE IF EXISTS tmp_Accounts_;
+			CREATE TEMPORARY TABLE tmp_Accounts_  (
+				RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+				AccountID INT
+			);
+			SET @stm = CONCAT('
+		INSERT INTO tmp_Accounts_(AccountID)
+		SELECT DISTINCT AccountID FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND TrunkID IS NOT NULL;
+		');
+
+			PREPARE stm FROM @stm;
+			EXECUTE stm;
+			DEALLOCATE PREPARE stm;
+
+
+			CALL NeonRMDev.prc_getDefaultCodes(p_CompanyID);
+
+
+			CALL prc_updateDefaultPrefix(p_processId, p_tbltempusagedetail_name);
+
+		END IF;
+
+
+		CALL prc_RerateInboundCalls(p_CompanyID,p_processId,p_tbltempusagedetail_name,p_RateCDR,p_RateMethod,p_SpecifyRate,p_InboundTableID);
+
+
+		-- for mirta only
+		IF (  p_RateCDR = 1 )
+		THEN
+			-- update cost = 0 where cc_type = 4 (OUTNOCHARGE)
+			SET @stm = CONCAT('
+		UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
+		INNER JOIN  NeonCDRDev.`' , p_tbltempusagedetail_name ,'_Retail' , '` udr ON ud.TempUsageDetailID = udr.TempUsageDetailID AND ud.ProcessID = udr.ProcessID
+		SET cost = 0
+      WHERE ud.ProcessID="' , p_processId , '" AND udr.cc_type = 4 ;
+		');
+
+			PREPARE stm FROM @stm;
+			EXECUTE stm;
+			DEALLOCATE PREPARE stm;
+
+		END IF;
+
+
+
+
+		CALL prc_CreateRerateLog(p_processId,p_tbltempusagedetail_name,p_RateCDR);
+
+		SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+	END//
+DELIMITER ;
+
