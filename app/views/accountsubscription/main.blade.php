@@ -49,10 +49,12 @@
 @include('includes.errors')
 @include('includes.success')
 <div class="clear"></div>
-<div class="text-right"> <a  id="add-subscription" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
-  <div class="clear clearfix"><br>
-  </div>
-</div>
+@if(User::checkCategoryPermission('AccountSubscription','Add'))
+    <div class="text-right"> <a  id="add-subscription" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
+      <div class="clear clearfix"><br>
+      </div>
+    </div>
+@endif
 <table id="table-subscription" class="table table-bordered datatable">
   <thead>
     <tr>
@@ -200,8 +202,12 @@
 								 subscription_delete_url = subscription_delete_url.replace("{AccountID}",edit_account);
 								 
                                  action += '</div>';
+                                @if(User::checkCategoryPermission('AccountSubscription','Edit'))
                                  action += ' <a href="' + subscription_edit_url+'" title="Edit" class="edit-subscription btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
+                                @endif
+                                @if(User::checkCategoryPermission('AccountSubscription','Delete'))
                                  action += ' <a href="' + subscription_delete_url+'" title="Delete" class="delete-subscription btn btn-danger btn-sm"><i class="entypo-trash"></i></a>'
+                                @endif
                                  return action;
                             }
                           }
