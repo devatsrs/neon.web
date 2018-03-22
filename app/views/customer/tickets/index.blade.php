@@ -7,7 +7,7 @@
 <h3>@lang('routes.CUST_PANEL_PAGE_TICKETS_TITLE')</h3>
 <p class="text-right"> 
 <div class="btn-group pull-right">
-<button href="#" class="btn  btn-primary btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')">@lang('routes.BUTTON_ADD_CAPTION')&nbsp;&nbsp;<span class="caret"></span></button>
+<button href="#" class="btn  btn-primary btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')">@lang('routes.CUST_PANEL_PAGE_TICKETS_BUTTON_ADD_NEW')&nbsp;&nbsp;<span class="caret"></span></button>
  <ul class="dropdown-menu" style="background-color: #000; border-color: #000; margin-top:0px;" role="menu">
     <li><a href="{{URL::to('customer/tickets/add')}}">@lang('routes.CUST_PANEL_PAGE_TICKETS_ADD_TICKET')</a></li>
   </ul>
