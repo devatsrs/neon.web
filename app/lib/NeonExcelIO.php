@@ -17,6 +17,7 @@ class NeonExcelIO
 
 
     var $file ;
+    var $Sheet ;
     var $first_row ; // Read: skipp first row for column name
     var $sheet ; // default sheet to read
     var $row_cnt = 0; // set row counter to 0
@@ -37,9 +38,10 @@ class NeonExcelIO
     public static $CSV 	   			= 	'csv'; // csv file
 
 
-    public function __construct($file , $csvoption = array())
+    public function __construct($file , $csvoption = array(), $Sheet='')
     {
         $this->file = $file;
+        $this->Sheet = $Sheet;
         $this->sheet = 0;
         $this->first_row = self::$COLUMN_NAMES;
         $this->file_type = self::$CSV;
@@ -566,14 +568,20 @@ class NeonExcelIO
 
     }
 
-    public static function convertExcelToCSV($file_name, $data) {
+    public function convertExcelToCSV($data) {
         try {
+            $file_name = $this->file;
             $ext = pathinfo($file_name, PATHINFO_EXTENSION);
 
             if (in_array(strtolower($ext), array("xls", "xlsx"))) {
                 //reading from excel file and getting data from excel file starts
                 $start_time = date('Y-m-d H:i:s');
                 $objPHPExcelReader = PHPExcel_IOFactory::load($file_name);
+
+                if(!empty($this->Sheet)) {
+                    $objPHPExcelReader->setActiveSheetIndexByName($this->Sheet);
+                }
+
                 $ActiveSheet = $objPHPExcelReader->getActiveSheet();
                 $drow = $ActiveSheet->getHighestDataRow();
                 $dcol = $ActiveSheet->getHighestDataColumn();
@@ -651,6 +659,9 @@ class NeonExcelIO
         Log::info('load function call time : ' . $process_time1 . ' Seconds');
 
         $start_time1 = date('Y-m-d H:i:s');
+        if(!empty($this->Sheet)) {
+            $objPHPExcelReader->setActiveSheetIndexByName($this->Sheet);
+        }
         $ActiveSheet = $objPHPExcelReader->getActiveSheet();
         $end_time1 = date('Y-m-d H:i:s');
         $process_time1 = strtotime($end_time1) - strtotime($start_time1);
@@ -713,5 +724,11 @@ class NeonExcelIO
         //Log::info(print_r($result, true));
 
         return $result;
+    }
+
+    public static function getSheetNamesFromExcel($filepath) {
+        $objPHPExcelReader = PHPExcel_IOFactory::load($filepath);
+
+        return $objPHPExcelReader->getSheetNames();
     }
 }
