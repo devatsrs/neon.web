@@ -104,6 +104,9 @@
         @if(User::checkCategoryPermission('RateTables','View'))
         <li> <a href="{{URL::to('/rate_tables')}}">  <span>Rate Tables</span> </a> </li>
         @endif
+        @if(User::checkCategoryPermission('RateTables','View'))
+        <li> <a href="{{URL::to('/rate_upload')}}">  <span>Rate Upload</span> </a> </li>
+        @endif
         @if(User::checkCategoryPermission('LCR','All'))
         <li> <a href="{{URL::to('/lcr')}}">  <span>LCR List</span> </a> </li>
         @endif

@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`%` PROCEDURE `prc_WSProcessVendorRate`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_WSProcessVendorRate`(
 	IN `p_accountId` INT,
 	IN `p_trunkId` INT,
 	IN `p_replaceAllRates` INT,
@@ -58,6 +58,7 @@ CREATE DEFINER=`neon-user`@`%` PROCEDURE `prc_WSProcessVendorRate`(
 
 ,
 	IN `p_UserName` TEXT
+
 )
 ThisSP:BEGIN
 
@@ -686,7 +687,7 @@ ThisSP:BEGIN
 
 		/* 13. update currency   */
 
-            UPDATE tmp_TempVendorRate_ as tblTempVendorRate
+            /*UPDATE tmp_TempVendorRate_ as tblTempVendorRate
             JOIN tblRate
                 ON tblRate.Code = tblTempVendorRate.Code
                     AND tblRate.CompanyID = p_companyId
@@ -717,8 +718,26 @@ ThisSP:BEGIN
             WHERE tblTempVendorRate.Rate <> tblVendorRate.Rate
                 AND tblTempVendorRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')
                 AND DATE_FORMAT (tblVendorRate.EffectiveDate, '%Y-%m-%d') = DATE_FORMAT (tblTempVendorRate.EffectiveDate, '%Y-%m-%d');
+                
+ 				SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();*/
+ 				
+            UPDATE tmp_TempVendorRate_ as tblTempVendorRate
+            JOIN tblRate
+                ON tblRate.Code = tblTempVendorRate.Code
+                    AND tblRate.CompanyID = p_companyId
+                    AND tblRate.CodeDeckId = tblTempVendorRate.CodeDeckId
+            JOIN tblVendorRate
+                ON tblVendorRate.RateId = tblRate.RateId
+                    AND tblVendorRate.AccountId = p_accountId
+                    AND tblVendorRate.TrunkId = p_trunkId
+				    SET tblVendorRate.EndDate = NOW()
+            WHERE tblTempVendorRate.Rate <> tblVendorRate.Rate
+                AND tblTempVendorRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')
+                AND DATE_FORMAT (tblVendorRate.EffectiveDate, '%Y-%m-%d') = DATE_FORMAT (tblTempVendorRate.EffectiveDate, '%Y-%m-%d');
+		
+				-- archive rates which has EndDate <= today
+				call prc_ArchiveOldVendorRate(p_accountId,p_trunkId,p_UserName);
 
- 				SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();
  
 		/* 13. insert new rates   */
  
