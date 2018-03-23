@@ -730,8 +730,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('lcr/exports', 'LCRController@exports');
 	Route::resource('lcr', 'LCRController');
 	Route::resource('lcr', 'LCRController');
-	Route::any('lcr/margin-rate', 'LCRController@marginRate');
+	Route::any('lcr/ajax_customer_rate_grid', 'LCRController@ajax_customer_rate_grid');
 	Route::any('lcr/margin-rate-export/{type}/{id}', 'LCRController@marginRateExport');
+	Route::any('lcr/ajax_customer_rate_export/{type}', 'LCRController@ajax_customer_rate_export');
 	Route::any('lcr/edit_preference', 'LCRController@editPreference');
 
 	//Pages
@@ -897,12 +898,12 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/cdr_upload/storeVendorTemplate', 'CDRController@storeVendorTemplate');
 
 
-    //CDR Template
-    Route::any('/cdr_template', 'CDRTemplateController@index');;
-    Route::any('/cdr_template/upload', 'CDRTemplateController@upload');
-    Route::any('/cdr_template/check_upload', 'CDRTemplateController@check_upload');
-    Route::any('/cdr_template/ajaxfilegrid', 'CDRTemplateController@ajaxfilegrid');
-    Route::any('/cdr_template/storeTemplate', 'CDRTemplateController@storeTemplate');
+	//CDR Template - FTP Gateway cdr mapping
+	Route::any('/cdr_template/gateway/{id}', 'CDRTemplateController@index');
+	Route::any('/cdr_template/upload', 'CDRTemplateController@upload');
+	Route::any('/cdr_template/check_upload', 'CDRTemplateController@check_upload');
+	Route::any('/cdr_template/ajaxfilegrid', 'CDRTemplateController@ajaxfilegrid');
+	Route::any('/cdr_template/storeTemplate/gateway/{id}', 'CDRTemplateController@storeTemplate');
 
 	/////////////////
 	//Estimates

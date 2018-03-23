@@ -2,7 +2,7 @@ Use `StagingReport`;
 
 DROP PROCEDURE IF EXISTS `fnUsageSummary`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`%` PROCEDURE `fnUsageSummary`(
+CREATE PROCEDURE `fnUsageSummary`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_AccountID` INT,
@@ -15,11 +15,8 @@ CREATE DEFINER=`neon-user`@`%` PROCEDURE `fnUsageSummary`(
 	IN `p_CDRType` VARCHAR(50),
 	IN `p_UserID` INT ,
 	IN `p_isAdmin` INT,
-	IN `p_Detail` INT
-
-,
+	IN `p_Detail` INT,
 	IN `p_ResellerID` INT
-
 )
 BEGIN
 	DECLARE v_TimeId_ INT;
@@ -255,7 +252,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_getAccountReportAll`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getAccountReportAll`(
+CREATE PROCEDURE `prc_getAccountReportAll`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_AccountID` INT,
@@ -274,23 +271,6 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getAccountReportAll`(
 	IN `p_lSortCol` VARCHAR(50),
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_isExport` INT
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 )
 BEGIN
 
@@ -434,7 +414,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_getACD_ASR_Alert`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getACD_ASR_Alert`(
+CREATE PROCEDURE `prc_getACD_ASR_Alert`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` TEXT,
 	IN `p_AccountID` TEXT,
@@ -490,7 +470,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_getDescReportAll`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getDescReportAll`(
+CREATE PROCEDURE `prc_getDescReportAll`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_AccountID` INT,
@@ -509,14 +489,6 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getDescReportAll`(
 	IN `p_lSortCol` VARCHAR(50),
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_isExport` INT
-
-
-
-
-
-
-
-
 )
 BEGIN
 
@@ -667,7 +639,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_getDestinationReportAll`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getDestinationReportAll`(
+CREATE PROCEDURE `prc_getDestinationReportAll`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_AccountID` INT,
@@ -686,13 +658,6 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getDestinationReportAll`(
 	IN `p_lSortCol` VARCHAR(50),
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_isExport` INT
-
-
-
-
-
-
-
 )
 BEGIN
 
@@ -853,7 +818,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_getGatewayReportAll`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getGatewayReportAll`(
+CREATE PROCEDURE `prc_getGatewayReportAll`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_AccountID` INT,
@@ -872,13 +837,6 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getGatewayReportAll`(
 	IN `p_lSortCol` VARCHAR(50),
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_isExport` INT
-
-
-
-
-
-
-
 )
 BEGIN
 
@@ -1027,7 +985,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_getHourlyReport`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getHourlyReport`(
+CREATE PROCEDURE `prc_getHourlyReport`(
 	IN `p_CompanyID` INT,
 	IN `p_UserID` INT,
 	IN `p_isAdmin` INT,
@@ -1036,8 +994,6 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getHourlyReport`(
 	IN `p_StartDate` DATETIME,
 	IN `p_EndDate` DATETIME,
 	IN `p_CDRType` VARCHAR(50)
-
-
 )
 BEGIN
 	
@@ -1070,7 +1026,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_getPrefixReportAll`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getPrefixReportAll`(
+CREATE PROCEDURE `prc_getPrefixReportAll`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_AccountID` INT,
@@ -1089,20 +1045,6 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getPrefixReportAll`(
 	IN `p_lSortCol` VARCHAR(50),
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_isExport` INT
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 )
 BEGIN
 
@@ -1250,7 +1192,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_getReportByTime`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getReportByTime`(
+CREATE PROCEDURE `prc_getReportByTime`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_AccountID` INT,
@@ -1265,13 +1207,6 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getReportByTime`(
 	IN `p_UserID` INT,
 	IN `p_isAdmin` INT,
 	IN `p_ReportType` INT
-
-
-
-
-
-
-
 )
 BEGIN
 
@@ -1386,7 +1321,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_getTrunkReportAll`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getTrunkReportAll`(
+CREATE PROCEDURE `prc_getTrunkReportAll`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_AccountID` INT,
@@ -1405,12 +1340,6 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getTrunkReportAll`(
 	IN `p_lSortCol` VARCHAR(50),
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_isExport` INT
-
-
-
-
-
-
 )
 BEGIN
 
@@ -1558,7 +1487,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_getWorldMap`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getWorldMap`(
+CREATE PROCEDURE `prc_getWorldMap`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_AccountID` INT,
@@ -1572,11 +1501,6 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getWorldMap`(
 	IN `p_CDRType` VARCHAR(50),
 	IN `p_UserID` INT,
 	IN `p_isAdmin` INT
-
-
-
-
-
 )
 BEGIN
 
@@ -1617,7 +1541,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_verifySummary`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_verifySummary`(IN `p_CompanyID` INT, IN `p_AccountID` INT, IN `p_StartDate` DATETIME, IN `p_EndDate` DATETIME)
+CREATE PROCEDURE `prc_verifySummary`(IN `p_CompanyID` INT, IN `p_AccountID` INT, IN `p_StartDate` DATETIME, IN `p_EndDate` DATETIME)
 BEGIN
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_verify_;

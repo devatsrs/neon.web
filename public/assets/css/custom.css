@@ -3180,6 +3180,12 @@ select#user_language option {
     width: 30px;
     margin-right: 10px;
 }
+.lang_div{
+    padding: 5px 0;
+}
+.select2-chosen .lang_div {
+    padding: 0;
+}
 .btn-grey {
     background: grey;
     border-color: grey;
