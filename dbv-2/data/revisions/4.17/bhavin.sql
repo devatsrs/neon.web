@@ -92,9 +92,15 @@ BEGIN
 	);
 
 	DELETE ud.*
+	FROM `RMCDR3`.tblRetailUsageDetail ud
+	INNER JOIN tmp_tblUsageDetail_ uds
+		ON ud.UsageDetailID = uds.UsageDetailID;
+
+
+	DELETE ud.*
 	FROM `RMCDR3`.tblUsageDetails ud
 	INNER JOIN tmp_tblUsageDetail_ uds
-		ON ud.UsageDetailID = uds.UsageDetailID; 
+		ON ud.UsageDetailID = uds.UsageDetailID;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END//
@@ -309,7 +315,8 @@ BEGIN
 		AccountName,
 		AccountNumber,
 		AccountCLI,
-		AccountIP
+		AccountIP,
+		cc_type
 	)
 
 	SELECT
@@ -397,11 +404,11 @@ WHERE
 END//
 DELIMITER ;
 
---- new
+
 
 DROP PROCEDURE IF EXISTS `prc_ApplyAuthRule`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_ApplyAuthRule`(
+CREATE PROCEDURE `prc_ApplyAuthRule`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_ServiceID` INT
@@ -682,7 +689,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_CreateRerateLog`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_CreateRerateLog`(
+CREATE PROCEDURE `prc_CreateRerateLog`(
 	IN `p_processId` INT,
 	IN `p_tbltempusagedetail_name` VARCHAR(200),
 	IN `p_RateCDR` INT
@@ -780,7 +787,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_getActiveGatewayAccount`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getActiveGatewayAccount`(
+CREATE PROCEDURE `prc_getActiveGatewayAccount`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_NameFormat` VARCHAR(50)
@@ -907,7 +914,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_ProcessCDRAccount`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_ProcessCDRAccount`(
+CREATE PROCEDURE `prc_ProcessCDRAccount`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_processId` INT,
@@ -1017,7 +1024,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_ProcessCDRService`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_ProcessCDRService`(
+CREATE PROCEDURE `prc_ProcessCDRService`(
 	IN `p_CompanyID` INT,
 	IN `p_processId` INT,
 	IN `p_tbltempusagedetail_name` VARCHAR(200)
@@ -1080,7 +1087,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_ProcesssCDR`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_ProcesssCDR`(
+CREATE PROCEDURE `prc_ProcesssCDR`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_processId` INT,
@@ -1203,21 +1210,21 @@ BEGIN
 	CALL prc_RerateInboundCalls(p_CompanyID,p_processId,p_tbltempusagedetail_name,p_RateCDR,p_RateMethod,p_SpecifyRate,p_InboundTableID);
 
 
-	-- for retail only
-	IF (  p_RateCDR = 1 ) 
+	-- for mirta only
+	IF (  p_RateCDR = 1 )
 	THEN
 		-- update cost = 0 where cc_type = 4 (OUTNOCHARGE)
-	 	SET @stm = CONCAT('
-		UPDATE RMCDR3.`' , p_tbltempusagedetail_name , '` ud 
-		INNER JOIN  RMCDR3.`' , p_tbltempusagedetail_name ,'_Retail' , '` udr ON ud.TempUsageDetailID = udr.TempUsageDetailID AND ud.ProcessID = udr.ProcessID
-		SET cost = 0
-      WHERE ud.ProcessID="' , p_processId , '" AND udr.cc_type = 4 ; 
-		'); 
+		SET @stm = CONCAT('
+	UPDATE RMCDR3.`' , p_tbltempusagedetail_name , '` ud
+	INNER JOIN  RMCDR3.`' , p_tbltempusagedetail_name ,'_Retail' , '` udr ON ud.TempUsageDetailID = udr.TempUsageDetailID AND ud.ProcessID = udr.ProcessID
+	SET cost = 0
+  WHERE ud.ProcessID="' , p_processId , '" AND udr.cc_type = 4 ;
+	');
 
 		PREPARE stm FROM @stm;
 		EXECUTE stm;
 		DEALLOCATE PREPARE stm;
-	
+
 	END IF;
 	
 	
@@ -1231,7 +1238,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_RerateInboundCalls`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_RerateInboundCalls`(
+CREATE PROCEDURE `prc_RerateInboundCalls`(
 	IN `p_CompanyID` INT,
 	IN `p_processId` INT,
 	IN `p_tbltempusagedetail_name` VARCHAR(200),
@@ -1386,7 +1393,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_reseller_ProcesssCDR`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_reseller_ProcesssCDR`(
+CREATE PROCEDURE `prc_reseller_ProcesssCDR`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_processId` INT,

@@ -257,8 +257,8 @@ class AccountsController extends \BaseController {
             }
         }
 
-            Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,CompanyID,' . $data['CompanyID'].',AccountType,1';
-            Account::$rules['Number'] = 'required|unique:tblAccount,Number,NULL,CompanyID,CompanyID,' . $data['CompanyID'];
+            Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,AccountType,1';
+            Account::$rules['Number'] = 'required|unique:tblAccount,Number,NULL,CompanyID';
 
             if(DynamicFields::where(['CompanyID' => $companyID, 'Type' => 'account', 'FieldSlug' => 'vendorname', 'Status' => 1])->count() > 0 && $data['IsVendor'] == 1) {
                 Account::$rules['vendorname'] = 'required';
@@ -671,8 +671,8 @@ class AccountsController extends \BaseController {
             }
         }
 
-        Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,' . $account->AccountID . ',AccountID,CompanyID,'.$data['CompanyID'].',AccountType,1';
-        Account::$rules['Number'] = 'required|unique:tblAccount,Number,' . $account->AccountID . ',AccountID,CompanyID,'.$data['CompanyID'];
+        Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,' . $account->AccountID . ',AccountID,AccountType,1';
+        Account::$rules['Number'] = 'required|unique:tblAccount,Number,' . $account->AccountID . ',AccountID';
 
         if(DynamicFields::where(['CompanyID' => $companyID, 'Type' => 'account', 'FieldSlug' => 'vendorname', 'Status' => 1])->count() > 0 && $data['IsVendor'] == 1) {
             Account::$rules['vendorname'] = 'required';
@@ -685,6 +685,7 @@ class AccountsController extends \BaseController {
             return json_validator_response($validator);
             exit;
         }
+
         $invoice_count = Account::getInvoiceCount($id);
         if($invoice_count == 0){
             $data['LastInvoiceDate'] = $data['BillingStartDate'];

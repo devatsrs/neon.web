@@ -530,7 +530,6 @@ class CompanyGateway extends \Eloquent {
 
     }
 
-    /* not using */
     public static function createDefaultCronJobs($CompanyID){
         log::info('-- Active CronJob --');
         $today = date('Y-m-d');
