@@ -148,6 +148,7 @@ class ResellerController extends BaseController {
                             $ResellerDomain = CompanyConfiguration::where(['CompanyID'=>$CompanyID,'Key'=>'WEB_URL'])->pluck('Value');
                             CompanyConfiguration::where(['Key'=>'WEB_URL','CompanyID'=>$ChildCompany->CompanyID])->update(['Value'=>$ResellerDomain]);
                         }
+                        CompanyGateway::createDefaultCronJobs($ChildCompanyID);
                         DB::commit();
                         return Response::json(array("status" => "success", "message" => "Reseller Successfully Created" ));
                     }
