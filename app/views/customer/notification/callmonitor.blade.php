@@ -2,7 +2,7 @@
 <p class="col-md-12 text-right">
     <a class=" btn btn-primary btn-sm btn-icon icon-left" id="add-call-alert">
         <i class="entypo-plus"></i>
-        @lang('routes.BUTTON_ADD_CAPTION')
+        @lang('routes.CUST_PANEL_PAGE_NOTIFICATIONS_BUTTON_ADD_NEW')
     </a>
 </p>
 <table class="table table-bordered datatable" id="table-6">

@@ -47,6 +47,9 @@
         Add New RateTable
     </a>
 @endif
+    <a href="{{URL::to('rate_tables/multiaccounts')}}" id="add-new-rate-table" class="btn btn-primary ">
+        Rate Table - Apply to Multiple Accounts
+    </a>
 </p>
 
 <div class="cler row">

@@ -31,6 +31,14 @@ class Reseller extends \Eloquent
         return $DropdownIDList;
     }
 
+    public static function getResellerDetails($ResellerID){
+        return Reseller::where('ResellerID',$ResellerID)->first();
+    }
+
+    public static function getResellerID(){
+        return Reseller::where('ChildCompanyID',Auth::user()->CompanyID)->pluck('ResellerID');
+    }
+
     public static function getAllReseller($CompanyID){
         $Services = Reseller::where(array("CompanyID"=>$CompanyID,"Status"=>1))->get();
         return $Services;

@@ -29,7 +29,8 @@ class Service extends \Eloquent
     }
 
     public static function getAllServices($CompanyID){
-        $Services = Service::where(array("CompanyID"=>$CompanyID,"Status"=>1))->get();
+        //$Services = Service::where(array("CompanyID"=>$CompanyID,"Status"=>1))->get();
+        $Services = Service::where(array("Status"=>1))->get();
         return $Services;
     }
 

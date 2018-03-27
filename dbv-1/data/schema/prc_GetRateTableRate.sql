@@ -20,6 +20,8 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_GetRateTableRate`(
 
 
 
+
+
 )
 BEGIN
 	DECLARE v_OffSet_ int;
@@ -38,6 +40,7 @@ BEGIN
         PreviousRate DECIMAL(18, 6),
         Rate DECIMAL(18, 6),
         EffectiveDate DATE,
+        EndDate DATE,
         updated_at DATETIME,
         ModifiedBy VARCHAR(50),
         RateTableRateID INT,
@@ -58,6 +61,7 @@ BEGIN
         IFNULL(tblRateTableRate.PreviousRate, 0) as PreviousRate,
         IFNULL(tblRateTableRate.Rate, 0) as Rate,
         IFNULL(tblRateTableRate.EffectiveDate, NOW()) as EffectiveDate,
+        tblRateTableRate.EndDate,
         tblRateTableRate.updated_at,
         tblRateTableRate.ModifiedBy,
         RateTableRateID,
@@ -69,9 +73,9 @@ BEGIN
     INNER JOIN tblRateTable
         ON tblRateTable.RateTableId = tblRateTableRate.RateTableId
     WHERE		(tblRate.CompanyID = p_companyid)
-		AND (p_contryID = '' OR CountryID = p_contryID)
-		AND (p_code = '' OR Code LIKE REPLACE(p_code, '*', '%'))
-		AND (p_description = '' OR Description LIKE REPLACE(p_description, '*', '%'))
+		AND (p_contryID is null OR CountryID = p_contryID)
+		AND (p_code is null OR Code LIKE REPLACE(p_code, '*', '%'))
+		AND (p_description is null OR Description LIKE REPLACE(p_description, '*', '%'))
 		AND TrunkID = p_trunkID
 		AND (
 			p_effective = 'All'
@@ -135,6 +139,12 @@ BEGIN
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateASC') THEN EffectiveDate
                 END ASC,
                 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateDESC') THEN EndDate
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateASC') THEN EndDate
+                END ASC,
+                CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atDESC') THEN updated_at
                 END DESC,
                 CASE
@@ -165,7 +175,7 @@ BEGIN
         	FROM tmp_RateTableRate_;
 
 		ELSE
-			SELECT group_concat(ID) AS ID, group_concat(Code) AS Code,ANY_VALUE(Description),ANY_VALUE(Interval1),ANY_VALUE(Intervaln),ANY_VALUE(ConnectionFee),ANY_VALUE(PreviousRate),ANY_VALUE(Rate),ANY_VALUE(EffectiveDate),MAX(updated_at) AS updated_at,MAX(ModifiedBy) AS ModifiedBy,group_concat(ID) AS RateTableRateID,group_concat(RateID) AS RateID FROM tmp_RateTableRate_
+			SELECT group_concat(ID) AS ID, group_concat(Code) AS Code,ANY_VALUE(Description),ANY_VALUE(Interval1),ANY_VALUE(Intervaln),ANY_VALUE(ConnectionFee),ANY_VALUE(PreviousRate),ANY_VALUE(Rate),ANY_VALUE(EffectiveDate),ANY_VALUE(EndDate),MAX(updated_at) AS updated_at,MAX(ModifiedBy) AS ModifiedBy,group_concat(ID) AS RateTableRateID,group_concat(RateID) AS RateID FROM tmp_RateTableRate_
 					GROUP BY Description, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate
 					ORDER BY
                 CASE
@@ -203,6 +213,12 @@ BEGIN
                 END DESC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateASC') THEN ANY_VALUE(EffectiveDate)
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateDESC') THEN EndDate
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateASC') THEN EndDate
                 END ASC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atDESC') THEN ANY_VALUE(updated_at)

@@ -228,3 +228,26 @@ CREATE TABLE `tblTranslation` (
 	ENGINE=InnoDB
 	AUTO_INCREMENT=1
 ;
+
+-- All
+INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES ('AccountSubscription.All', 1, 3);
+UPDATE `tblResource` SET `CategoryID`=(SELECT LAST_INSERT_ID()) WHERE  `ResourceName`='AccountSubscription.*';
+
+-- View
+INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES ('AccountSubscription.View', 1, 3);
+UPDATE `tblResource` SET `CategoryID`=(SELECT LAST_INSERT_ID()) WHERE  `ResourceName`='AccountSubscription.main';
+UPDATE `tblResource` SET `CategoryID`=(SELECT LAST_INSERT_ID()) WHERE  `ResourceName`='AccountSubscription.GetAccountSubscriptions';
+UPDATE `tblResource` SET `CategoryID`=(SELECT LAST_INSERT_ID()) WHERE  `ResourceName`='AccountSubscription.ajax_datagrid_page';
+UPDATE `tblResource` SET `CategoryID`=(SELECT LAST_INSERT_ID()) WHERE  `ResourceName`='AccountSubscription.ajax_datagrid';
+
+-- Delete
+INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES ('AccountSubscription.Delete', 1, 3);
+UPDATE `tblResource` SET `CategoryID`=(SELECT LAST_INSERT_ID()) WHERE  `ResourceName`='AccountSubscription.delete';
+
+-- Edit
+INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES ('AccountSubscription.Edit', 1, 3);
+UPDATE `tblResource` SET `CategoryID`=(SELECT LAST_INSERT_ID()) WHERE  `ResourceName`='AccountSubscription.update';
+
+-- Add
+INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES ('AccountSubscription.Add', 1, 3);
+UPDATE `tblResource` SET `CategoryID`=(SELECT LAST_INSERT_ID()) WHERE  `ResourceName`='AccountSubscription.store';

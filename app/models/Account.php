@@ -230,7 +230,7 @@ class Account extends \Eloquent {
             $LastAccountNo = 1;//Account::where(["CompanyID"=> User::get_companyID()])->max('Number');
             CompanySetting::setKeyVal('LastAccountNo',$LastAccountNo);
         }
-        while(Account::where(["CompanyID"=> User::get_companyID(),'Number'=>$LastAccountNo])->count() >=1 ){
+        while(Account::where(['Number'=>$LastAccountNo])->count() >=1 ){
             $LastAccountNo++;
         }
         return $LastAccountNo;
@@ -559,6 +559,25 @@ class Account extends \Eloquent {
         if(!empty($row)){
             $row = array(""=> "Select")+$row;
         }
+        return $row;
+    }
+    public static function getOnlyCustomerIDList($data=array()){
+        if(User::is('AccountManager')){
+            $data['Owner'] = User::get_userID();
+        }
+        if(User::is_admin() && isset($data['UserID'])){
+            $data['Owner'] = $data['UserID'];
+        }
+        $data['Status'] = 1;
+        $data['AccountType'] = 1;
+        $data['VerificationStatus'] = Account::VERIFIED;
+        $data['CompanyID']=User::get_companyID();
+        $row = Account::where($data)
+            ->where(function($where){
+                $where->Where(['IsCustomer'=>1]);
+            })
+            ->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
+
         return $row;
     }
     public static function getVendorIDList($data=array()){

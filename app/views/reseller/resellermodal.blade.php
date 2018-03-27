@@ -129,11 +129,12 @@
                                     <div class="clear"></div>
                                     <div class="col-md-6 margin-top">
                                         <div class="form-group">
-                                            <label for="field-1" class="col-sm-3 control-label">Panel Url:</label>
-                                            <div class="col-sm-6">
+                                            <label for="field-1" class="col-sm-4 control-label">Panel Url:
+                                                <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Panel Url will be url + /reseller/login" data-original-title="Panel Url" class="label label-info popover-primary">?</span>
+                                            </label>
+                                            <div class="col-sm-8">
                                                 <input type="text" name="DomainUrl"  class="form-control" id="field-5" placeholder="">
                                             </div>
-                                            <label for="field-2" class="col-sm-3 control-label">/reseller/login</label>
                                         </div>
                                     </div>
                                     <div class="clear"></div>
@@ -168,15 +169,6 @@
                                             <label for="field-1" class="col-sm-4 control-label">Subscriptions</label>
                                             <div class="col-sm-12">
                                                 {{ Form::select('reseller-subscription[]', $BillingSubscription, '', array("class"=>"multi-select","multiple"=>"multiple")) }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="clear"></div>
-                                    <div class="col-md-6 margin-top">
-                                        <div class="form-group">
-                                            <label for="field-1" class="col-sm-4 control-label">Trunks:</label>
-                                            <div class="col-sm-12">
-                                                {{ Form::select('reseller-trunk[]', $Trunks, '', array("class"=>"multi-select","multiple"=>"multiple")) }}
                                             </div>
                                         </div>
                                     </div>
@@ -237,15 +229,6 @@
                                             <label for="field-1" class="col-sm-4 control-label">Subscriptions</label>
                                             <div class="col-sm-12">
                                                 {{ Form::select('reseller-subscription[]', $BillingSubscription, '', array("class"=>"multi-select","multiple"=>"multiple")) }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="clear"></div>
-                                    <div class="col-md-6 margin-top">
-                                        <div class="form-group">
-                                            <label for="field-1" class="col-sm-4 control-label">Trunks:</label>
-                                            <div class="col-sm-12">
-                                                {{ Form::select('reseller-trunk[]', $Trunks, '', array("class"=>"multi-select","multiple"=>"multiple")) }}
                                             </div>
                                         </div>
                                     </div>
