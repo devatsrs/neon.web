@@ -100,11 +100,10 @@ BEGIN
 END//
 DELIMITER ;
 
--- new
 
 DROP PROCEDURE IF EXISTS `prc_DeleteDuplicateUniqueID`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_DeleteDuplicateUniqueID`(
+CREATE PROCEDURE `prc_DeleteDuplicateUniqueID`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_ProcessID` VARCHAR(200),
@@ -144,7 +143,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_InsertTemptResellerCDR`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_InsertTemptResellerCDR`(
+CREATE PROCEDURE `prc_InsertTemptResellerCDR`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_ProcessID` INT,
@@ -307,7 +306,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_reseller_insertCDR`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_reseller_insertCDR`(
+CREATE PROCEDURE `prc_reseller_insertCDR`(
 	IN `p_processId` varchar(200),
 	IN `p_tbltempusagedetail_name` VARCHAR(200)
 )

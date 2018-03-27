@@ -20,6 +20,8 @@ class FileUploadTemplate extends \Eloquent {
     const TEMPLATE_ITEM = 7;
     const TEMPLATE_VENDOR_RATE = 8;
     const TEMPLATE_PAYMENT = 9;
+    const TEMPLATE_RATETABLE_RATE = 10;
+    const TEMPLATE_CUSTOMER_RATE = 11;
 
     public static $template_type = array(
                                         1=>'CDR',
@@ -31,6 +33,8 @@ class FileUploadTemplate extends \Eloquent {
                                         7=>'Item',
                                         8=>'Vendor Rate',
                                         9=>'Payment',
+                                        10=>'Ratetable',
+                                        11=>'Customer',
                                     );
 
     public static $upload_dir = array(
@@ -43,6 +47,8 @@ class FileUploadTemplate extends \Eloquent {
                                         7=>'ITEM_UPLOAD',
                                         8=>'VENDOR_UPLOAD',
                                         9=>'PAYMENT_UPLOAD',
+                                        10=>'RATETABLE_UPLOAD',
+                                        11=>'CUSTOMER_UPLOAD',
                                     );
 
     public static function getTemplateIDList($Type){
@@ -92,6 +98,8 @@ class FileUploadTemplate extends \Eloquent {
 
             $save                   = ['CompanyID' => $CompanyID, 'Title' => $data['TemplateName'], 'TemplateFile' => $amazonPath . basename($file_name)];
             $save['created_by']     = User::get_user_full_name();
+            $option["skipRows"]     = array( "start_row"=>!empty($data["start_row"]) ? $data["start_row"] : 0, "end_row"=>!empty($data["end_row"]) ? $data["end_row"] : 0 );
+            $option["Sheet"]        = !empty($data['Sheet']) ? $data['Sheet'] : '';
             $option["option"]       = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
             $option["selection"]    = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
             $save['Options']        = str_replace('Skip loading','',json_encode($option));
@@ -150,6 +158,8 @@ class FileUploadTemplate extends \Eloquent {
                 }
 
                 $save['updated_by']     = User::get_user_full_name();
+                $option["skipRows"]     = array( "start_row"=>!empty($data["start_row"]) ? $data["start_row"] : 0, "end_row"=>!empty($data["end_row"]) ? $data["end_row"] : 0 );
+                $option["Sheet"]        = !empty($data['Sheet']) ? $data['Sheet'] : '';
                 $option["option"]       = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
                 $option["selection"]    = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
                 $save['Options']        = str_replace('Skip loading','',json_encode($option));

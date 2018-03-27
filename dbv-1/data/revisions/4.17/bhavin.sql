@@ -15,14 +15,13 @@ COLLATE='utf8_unicode_ci'
 ENGINE=InnoDB
 ;
 
---- new start
 
 INSERT INTO `tblCronJobCommand` ( `CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, 4, 'Reseller PBX CDR', 'resellerpbxaccountusage', '[[{"title":"Start Date","type":"text","datepicker":"","value":"","name":"StartDate"},{"title":"End Date","type":"text","value":"","datepicker":"","name":"EndDate"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2018-03-13 15:00:00', 'RateManagementSystem');
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'PBX_RESELLER_CRONJOB', '{"StartDate":"","EndDate":"","ThresholdTime":"120","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"10","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":""}');
 
 DROP PROCEDURE IF EXISTS `prc_copyResellerData`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_copyResellerData`(
+CREATE PROCEDURE `prc_copyResellerData`(
 	IN `p_companyid` INT,
 	IN `p_resellerids` TEXT,
 	IN `p_is_product` INT,
@@ -225,7 +224,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_GetAccounts`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_GetAccounts`(
+CREATE PROCEDURE `prc_GetAccounts`(
 	IN `p_CompanyID` int,
 	IN `p_userID` int ,
 	IN `p_IsVendor` int ,
@@ -497,7 +496,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_insertResellerData`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_insertResellerData`(
+CREATE PROCEDURE `prc_insertResellerData`(
 	IN `p_companyid` INT,
 	IN `p_childcompanyid` INT,
 	IN `p_accountname` VARCHAR(100),
