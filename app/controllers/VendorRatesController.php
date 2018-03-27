@@ -234,7 +234,7 @@ class VendorRatesController extends \BaseController
                     }
                 }
             }
-
+            echo $json_result;
         } else {
             echo json_encode(array("status" => "failed", "message" => "Access not allowed"));
         }

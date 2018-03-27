@@ -683,10 +683,11 @@ Route::group(array('before' => 'auth'), function () {
 	Route::controller('rategenerators', 'RateGeneratorsController');
 
 	//RateTables
+
 	Route::any('/rate_tables/multiaccounts', array('as' => 'customer_rates', 'uses' => 'RateTablesMultiAccController@index'));
 	Route::any('/rate_tables/multiaccounts/store', 'RateTablesMultiAccController@store');
 	Route::any('/rate_tables/multiaccounts/ajax_datagrid/{type}', 'RateTablesMultiAccController@ajax_datagrid');
-
+	Route::any('/rate_tables/{id}/search_ajax_datagrid_archive_rates', 'RateTablesController@search_ajax_datagrid_archive_rates'); // get archive rates for vendor rates grid
     Route::any('/rate_tables', array('as' => 'customer_rates', 'uses' => 'RateTablesController@index'));
 	Route::any('/rate_tables/{id}/search_ajax_datagrid', array('as' => 'customer_rates_search', 'uses' => 'RateTablesController@search_ajax_datagrid'));
 	Route::any('/rate_tables/ajax_datagrid', 'RateTablesController@ajax_datagrid');
@@ -711,6 +712,21 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rate_tables/getCodeByAjax', 'RateTablesController@getCodeByAjax');
     Route::resource('rate_tables', 'RateTablesController');
 	Route::controller('rate_tables', 'RateTablesController');
+
+	//centralize rate uploader
+	Route::any('/rate_upload/getSheetNamesFromExcel', 'RateUploadController@getSheetNamesFromExcel');
+	Route::any('/rate_upload/updateTempReviewRates', 'RateUploadController@updateTempReviewRates');
+	Route::any('/rate_upload/reviewRates', 'RateUploadController@reviewRates');
+	Route::any('/rate_upload/getReviewRates', 'RateUploadController@getReviewRates');
+	Route::any('/rate_upload/getReviewRates/exports/{type}', 'RateUploadController@reviewRatesExports');
+	Route::any('/rate_upload/storeTemplate', 'RateUploadController@storeTemplate');
+	Route::any('/rate_upload/ajaxfilegrid', 'RateUploadController@ajaxfilegrid');
+	Route::any('/rate_upload/checkUpload', 'RateUploadController@checkUpload');
+	Route::any('/rate_upload/getTrunk/{type}', 'RateUploadController@getTrunk');
+	Route::any('/rate_upload/getUploadTemplates/{type}', 'RateUploadController@getUploadTemplates');
+	Route::any('/rate_upload/{id}/{type}', 'RateUploadController@index');
+	Route::resource('rate_upload', 'RateUploadController');
+	Route::controller('rate_upload', 'RateUploadController');
 
 	//LCR
 	Route::any('/lcr', 'LCRController@index');
@@ -886,12 +902,12 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/cdr_upload/storeVendorTemplate', 'CDRController@storeVendorTemplate');
 
 
-    //CDR Template
-    Route::any('/cdr_template', 'CDRTemplateController@index');;
-    Route::any('/cdr_template/upload', 'CDRTemplateController@upload');
-    Route::any('/cdr_template/check_upload', 'CDRTemplateController@check_upload');
-    Route::any('/cdr_template/ajaxfilegrid', 'CDRTemplateController@ajaxfilegrid');
-    Route::any('/cdr_template/storeTemplate', 'CDRTemplateController@storeTemplate');
+	//CDR Template - FTP Gateway cdr mapping
+	Route::any('/cdr_template/gateway/{id}', 'CDRTemplateController@index');
+	Route::any('/cdr_template/upload', 'CDRTemplateController@upload');
+	Route::any('/cdr_template/check_upload', 'CDRTemplateController@check_upload');
+	Route::any('/cdr_template/ajaxfilegrid', 'CDRTemplateController@ajaxfilegrid');
+	Route::any('/cdr_template/storeTemplate/gateway/{id}', 'CDRTemplateController@storeTemplate');
 
 	/////////////////
 	//Estimates

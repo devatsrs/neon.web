@@ -40,7 +40,8 @@ class Currency extends \Eloquent {
             self::$cache['currency_dropdown1_cache'] = $admin_defaults['currency_dropdown1_cache'];
         } else {
             $CompanyId = $CompanyID>0?$CompanyID : User::get_companyID();
-            self::$cache['currency_dropdown1_cache'] = Currency::where("CompanyId",$CompanyId)->lists('Code','CurrencyID');
+            //self::$cache['currency_dropdown1_cache'] = Currency::where("CompanyId",$CompanyId)->lists('Code','CurrencyID');
+            self::$cache['currency_dropdown1_cache'] = Currency::lists('Code','CurrencyID');
             self::$cache['currency_dropdown1_cache'] = array('' => "Select")+ self::$cache['currency_dropdown1_cache'];
             Cache::forever('currency_dropdown1_cache', array('currency_dropdown1_cache' => self::$cache['currency_dropdown1_cache']));
         }
@@ -55,7 +56,8 @@ class Currency extends \Eloquent {
             self::$cache['currency_dropdown2_cache'] = $admin_defaults['currency_dropdown2_cache'];
         } else {
             $CompanyId = User::get_companyID();
-            self::$cache['currency_dropdown2_cache'] = Currency::where("CompanyId",$CompanyId)->lists('Code','Code');
+            //self::$cache['currency_dropdown2_cache'] = Currency::where("CompanyId",$CompanyId)->lists('Code','Code');
+            self::$cache['currency_dropdown2_cache'] = Currency::lists('Code','Code');
             self::$cache['currency_dropdown2_cache'] = array('' => "Select")+ self::$cache['currency_dropdown2_cache'];
             Cache::forever('currency_dropdown2_cache', array('currency_dropdown2_cache' => self::$cache['currency_dropdown2_cache']));
         }

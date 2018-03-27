@@ -447,7 +447,7 @@
                                  	action += '&nbsp;<button redirecto="'+authenticate_+'" title="Authentication Rule" class="btn small_icons btn-default btn-xs"><i class="entypo-lock"></i></button>';
                                 }
 
-								<?php if(User::checkCategoryPermission('AccountService','View') && CompanyConfiguration::get('ACCOUNT_SUB') == 1) { ?>
+								<?php if(User::checkCategoryPermission('AccountSubscription','View') && CompanyConfiguration::get('ACCOUNT_SUB') == 1) { ?>
                                 action +='&nbsp;<button class="btn btn-default small_icons btn-xs " redirecto="'+subscriptions_+'" title="View Account Subscriptions" data-id="'+full[0]+'" type="button"> <i class="fa fa-refresh"></i> </button>';
                                 <?php } ?>
 								
@@ -1049,6 +1049,7 @@
             $("#BulkAction-form [name='BillingCycleType']").select2().select2('val', '');
             $("#BulkAction-form [name='SendInvoiceSetting']").select2().select2('val', '');
             $("#BulkAction-form [name='AutoPaymentSetting']").select2().select2('val', 'never');
+            $("#BulkAction-form [name='ResellerOwner']").select2().select2('val', '');
             $('.save').button('reset');
             el.modal('show');
         });
@@ -1287,6 +1288,18 @@
             }
 
         });
+
+        $("#BulkAction-form [name='ResellerCheck']").on("change",function(e){
+            if($("#BulkAction-form [name='ResellerCheck']").prop("checked") == true){
+                $("#BulkAction-form [name='ResellerOwnerAddCheck']").prop("checked", false).trigger('change');
+            }
+        });
+
+        $("#BulkAction-form [name='ResellerOwnerAddCheck']").on("change",function(e){
+            if($("#BulkAction-form [name='ResellerOwnerAddCheck']").prop("checked") == true){
+                $("#BulkAction-form [name='ResellerCheck']").prop("checked", false).trigger('change');
+            }
+        });
 		
     }); // main script over
 
@@ -1435,10 +1448,10 @@
                 <div id="" class="col-md-6">
                     <div class="form-group">
                         <label for="field-3" class="control-label">
-                            <input type="checkbox"  name="CustomerPaymentAddCheck">
-                            <span>Customer Payment Add</span></label><br>
+                            <input type="checkbox"  name="ResellerCheck">
+                            <span>Reseller</span></label><br>
                         <p class="make-switch switch-small">
-                            <input id="BulkCustomerPaymentAdd" name="customerpayment_on_off" type="checkbox" value="1">
+                            <input id="BulkResellerChange" name="Reseller_on_off" type="checkbox" value="1">
                         </p>
                     </div>
                 </div>
@@ -1448,6 +1461,18 @@
                             <input type="checkbox"  name="ResellerOwnerAddCheck">
                             <span>Account Reseller</span></label><br>
                             {{Form::select('ResellerOwner', $reseller_owners, '' ,array("id"=>"ResellerOwner_id","class"=>"select2 small form-control1"));}}
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div id="" class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-3" class="control-label">
+                            <input type="checkbox"  name="CustomerPaymentAddCheck">
+                            <span>Customer Payment Add</span></label><br>
+                        <p class="make-switch switch-small">
+                            <input id="BulkCustomerPaymentAdd" name="customerpayment_on_off" type="checkbox" value="1">
+                        </p>
                     </div>
                 </div>
             </div>

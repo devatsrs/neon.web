@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getACD_ASR_Alert`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getACD_ASR_Alert`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` TEXT,
 	IN `p_AccountID` TEXT,

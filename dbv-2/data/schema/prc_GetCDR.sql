@@ -1,9 +1,10 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCDR`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_GetCDR`(
 	IN `p_company_id` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_start_date` DATETIME,
 	IN `p_end_date` DATETIME,
 	IN `p_AccountID` INT ,
+	IN `p_ResellerID` INT,
 	IN `p_CDRType` VARCHAR(50),
 	IN `p_CLI` VARCHAR(50),
 	IN `p_CLD` VARCHAR(50),
@@ -17,12 +18,14 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCDR`(
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_isExport` INT
 )
-BEGIN 
+BEGIN
 
 	DECLARE v_OffSet_ INT;
 	DECLARE v_BillingTime_ INT;
 	DECLARE v_Round_ INT;
+	DECLARE v_raccountids TEXT;
 	DECLARE v_CurrencyCode_ VARCHAR(50);
+	SET v_raccountids = '';
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
@@ -34,9 +37,25 @@ BEGIN
 	SELECT fnGetBillingTime(p_CompanyGatewayID,p_AccountID) INTO v_BillingTime_;
 
 	Call fnUsageDetail(p_company_id,p_AccountID,p_CompanyGatewayID,p_start_date,p_end_date,0,1,v_BillingTime_,p_CDRType,p_CLI,p_CLD,p_zerovaluecost);
+	
+	IF p_ResellerID > 0
+	THEN
+		DROP TEMPORARY TABLE IF EXISTS tmp_reselleraccounts_;
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_reselleraccounts_(
+			AccountID int
+		);
+	
+		INSERT INTO tmp_reselleraccounts_
+		SELECT AccountID FROM NeonRMDev.tblAccountDetails WHERE ResellerOwner=p_ResellerID
+		UNION
+		SELECT AccountID FROM NeonRMDev.tblReseller WHERE ResellerID=p_ResellerID;
+	
+		SELECT IFNULL(GROUP_CONCAT(AccountID),'') INTO v_raccountids FROM tmp_reselleraccounts_;
+		
+	END IF;
 
 	IF p_isExport = 0
-	THEN 
+	THEN
 		SELECT
 			uh.UsageDetailID,
 			uh.AccountName,
@@ -63,6 +82,11 @@ BEGIN
 		WHERE  (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID)
 			AND (p_area_prefix = '' OR area_prefix LIKE REPLACE(p_area_prefix, '*', '%'))
 			AND (p_trunk = '' OR trunk = p_trunk )
+			AND (p_ResellerID = 0 OR FIND_IN_SET(uh.AccountID, v_raccountids) != 0)
+			
+-- for mirta 
+			AND disposition='ANSWERED' 
+			
 		LIMIT p_RowspPage OFFSET v_OffSet_;
 
 		SELECT
@@ -75,7 +99,13 @@ BEGIN
 			ON uh.AccountID = a.AccountID
 		WHERE  (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID)
 			AND (p_area_prefix = '' OR area_prefix LIKE REPLACE(p_area_prefix, '*', '%'))
-			AND (p_trunk = '' OR trunk = p_trunk );
+			AND (p_trunk = '' OR trunk = p_trunk )
+			AND (p_ResellerID = 0 OR FIND_IN_SET(uh.AccountID, v_raccountids) != 0)
+
+
+-- for mirta 
+			AND disposition='ANSWERED' 			
+			;
 
 	END IF;
 
@@ -99,7 +129,13 @@ BEGIN
 			ON uh.AccountID = a.AccountID
 		WHERE  (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID)
 			AND (p_area_prefix = '' OR area_prefix LIKE REPLACE(p_area_prefix, '*', '%'))
-			AND (p_trunk = '' OR trunk = p_trunk );
+			AND (p_trunk = '' OR trunk = p_trunk )
+			AND (p_ResellerID = 0 OR FIND_IN_SET(uh.AccountID, v_raccountids) != 0)
+			
+			
+-- for mirta 
+			AND disposition='ANSWERED' 
+			;
 	END IF;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
