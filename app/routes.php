@@ -683,6 +683,10 @@ Route::group(array('before' => 'auth'), function () {
 	Route::controller('rategenerators', 'RateGeneratorsController');
 
 	//RateTables
+	Route::any('/rate_tables/multiaccounts', array('as' => 'customer_rates', 'uses' => 'RateTablesMultiAccController@index'));
+	Route::any('/rate_tables/multiaccounts/store', 'RateTablesMultiAccController@store');
+	Route::any('/rate_tables/multiaccounts/ajax_datagrid/{type}', 'RateTablesMultiAccController@ajax_datagrid');
+
     Route::any('/rate_tables', array('as' => 'customer_rates', 'uses' => 'RateTablesController@index'));
 	Route::any('/rate_tables/{id}/search_ajax_datagrid', array('as' => 'customer_rates_search', 'uses' => 'RateTablesController@search_ajax_datagrid'));
 	Route::any('/rate_tables/ajax_datagrid', 'RateTablesController@ajax_datagrid');
