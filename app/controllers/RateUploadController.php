@@ -56,15 +56,17 @@ class RateUploadController extends \BaseController {
 
             $options=json_decode($val["Options"], true);
 
-            if(array_key_exists("skipRows", $options))
-            {
+            if(array_key_exists("skipRows", $options)) {
                 $arrUploadTmp["start_row"]=$options["skipRows"]["start_row"];
                 $arrUploadTmp["end_row"]=$options["skipRows"]["end_row"];
-            }
-            else
-            {
+            } else {
                 $arrUploadTmp["start_row"]="0";
                 $arrUploadTmp["end_row"]="0";
+            }
+            if(array_key_exists("Sheet", $options)) {
+                $arrUploadTmp["Sheet"]=$options["Sheet"];
+            } else {
+                $arrUploadTmp["Sheet"]="";
             }
             $uploadtemplate[]=$arrUploadTmp;
         }

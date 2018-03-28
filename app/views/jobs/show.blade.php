@@ -195,45 +195,53 @@
             @if (isset($Options->Trunk))
                 <div class="row">
                     <div class="col-md-12">
-            <div class="form-group">
-                <label for="field-1" class="control-label  bold">Trunk</label>
-                <div >{{Trunk::getTrunkName($Options->Trunk)}}</div>
-            </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-            <div class="form-group">
-                <label for="field-1" class="control-label  bold">Settings</label>
-                @if( isset($Options->checkbox_replace_all) && $Options->checkbox_replace_all =='1')
-                    <div>Replace all of the existing rates with the rates from the file</div>
-                @endif
-                @if(isset($Options->checkbox_rates_with_effected_from) )
-                    <div>Rates with 'effective from' date in the past should be uploaded as effective immediately</div>
-                @endif
-                @if(isset($Options->checkbox_add_new_codes_to_code_decks) && $Options->checkbox_add_new_codes_to_code_decks == 1)
-                <div>Add new codes from the file to code decks</div>
-                @endif
-                @if(isset($Options->checkbox_review_rates) && $Options->checkbox_review_rates == 1)
-                <div>Review Rates</div>
-                @endif
-                @if(isset($Options->radio_list_option) && $Options->radio_list_option == 1)
-                    <div>Complete File</div>
-                @else
-                    <div>Partial File</div>
-                @endif
-                <?php $skipRows = json_decode($Options->Options); ?>
-                @if(isset($skipRows->skipRows->start_row) && (int) $skipRows->skipRows->start_row > 0)
-                    <div>Skips rows from Start - {{$skipRows->skipRows->start_row}}</div>
-                @endif
-                @if(isset($skipRows->skipRows->end_row) && (int) $skipRows->skipRows->end_row > 0)
-                    <div>Skips rows from Bottom - {{$skipRows->skipRows->end_row}}</div>
-                @endif
-            </div>
+                        <div class="form-group">
+                            <label for="field-1" class="control-label  bold">Trunk</label>
+                            <div >{{Trunk::getTrunkName($Options->Trunk)}}</div>
+                        </div>
                     </div>
                 </div>
             @endif
 
+            @endif
+        @endif
+        @if($job->Type == 'Vendor Rate Upload' || $job->Type == 'Rate Table Upload')
+            @if(isset($job_file->Options))
+                <?php $Options = json_decode($job_file->Options);?>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="field-1" class="control-label  bold">Settings</label>
+                            @if( isset($Options->checkbox_replace_all) && $Options->checkbox_replace_all =='1')
+                                <div>Replace all of the existing rates with the rates from the file</div>
+                            @endif
+                            @if(isset($Options->checkbox_rates_with_effected_from) )
+                                <div>Rates with 'effective from' date in the past should be uploaded as effective immediately</div>
+                            @endif
+                            @if(isset($Options->checkbox_add_new_codes_to_code_decks) && $Options->checkbox_add_new_codes_to_code_decks == 1)
+                            <div>Add new codes from the file to code decks</div>
+                            @endif
+                            @if(isset($Options->checkbox_review_rates) && $Options->checkbox_review_rates == 1)
+                            <div>Review Rates</div>
+                            @endif
+                            @if(isset($Options->radio_list_option) && $Options->radio_list_option == 1)
+                                <div>Complete File</div>
+                            @else
+                                <div>Partial File</div>
+                            @endif
+                            <?php $Options = json_decode($Options->Options); ?>
+                            @if(isset($Options->skipRows->start_row) && (int) $Options->skipRows->start_row > 0)
+                                <div>Skips rows from Start - {{$skipRows->skipRows->start_row}}</div>
+                            @endif
+                            @if(isset($Options->skipRows->end_row) && (int) $Options->skipRows->end_row > 0)
+                                <div>Skips rows from Bottom - {{$skipRows->skipRows->end_row}}</div>
+                            @endif
+                            @if(!empty($Options->Sheet))
+                                <div>Sheet Name : {{$Options->Sheet}}</div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
             @endif
         @endif
         @if( isset($job_file->FilePath) && !empty($job_file->FilePath))

@@ -129,7 +129,7 @@
             <th width="5%">Previous Rate ({{$code}})</th>
             <th width="5%">Rate ({{$code}})</th>
             <th width="8%">Effective Date</th>
-            <th width="8%">End Date</th>
+            <th width="9%">End Date</th>
             <th width="8%">Modified Date</th>
             <th width="10%">Modified By</th>
             <th width="20%" > Action</th>
@@ -410,6 +410,12 @@
                 $(".EffectiveBox").show();
             }
         });
+
+        $(document).on('click', '.btn-history', function() {
+            var $this   = $(this);
+            var Codes   = $this.prevAll("div.hiddenRowData").find("input[name='Code']").val();
+            getArchiveRateTableRates($this,Codes);
+        });
     });
 
     function rateDataTable(view) {
@@ -499,7 +505,7 @@
                                     }
                                 <?php } ?>
 
-                                action += ' <a href="Javascript:;" title="History" class="btn btn-default btn-xs details-control" style="display: none;"><i class="entypo-back-in-time"></i>&nbsp;</a>';
+                                action += ' <a href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</a>';
 
                                 if (id != null && id != 0) {
                                     <?php if(User::checkCategoryPermission('RateTables','Delete')) { ?>
@@ -530,8 +536,6 @@
                 ]
             },
             "fnDrawCallback": function() {
-                getArchiveRateTableRates(); //rate history for plus button
-
                 if(view==1){
                     $('#Code-Header').html('Code');
                 }else{
@@ -677,70 +681,86 @@
         return false;
     }
 
-    function getArchiveRateTableRates() {
-        var Codes = new Array();
+    function getArchiveRateTableRates($clickedButton,Codes) {
+        //var Codes = new Array();
         var ArchiveRates;
-        $("#table-4 tr td:nth-child(2)").each(function(){
+        /*$("#table-4 tr td:nth-child(2)").each(function(){
             Codes.push($(this).html());
-        });
+        });*/
 
-        $.ajax({
-            url : baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid_archive_rates",
-            type : 'POST',
-            data : "Codes="+Codes,
-            dataType : 'json',
-            cache: false,
-            success : function(response){
-                if (response.status == 'success') {
-                    ArchiveRates = response.data;
-                    $('.details-control').show();
-                } else {
-                    ArchiveRates = {};
-                    toastr.error(response.message, "Error", toastr_opts);
-                }
-            }
-        });
+        var tr  = $clickedButton.closest('tr');
+        var row = data_table.row(tr);
 
-        // to show/hide child row archive rates
-        $('#table-4 tbody').off('click.toggleArchiveRates');
-        $('#table-4 tbody').on('click.toggleArchiveRates', 'td .details-control', function () {
-            var tr = $(this).closest('tr');
-            var row = data_table.row(tr);
+        if (row.child.isShown()) {
+            tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
+            row.child.hide();
+            tr.removeClass('shown');
+        } else {
+            tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
+            $clickedButton.attr('disabled','disabled');
 
-            if (row.child.isShown()) {
-                $(this).find('i').toggleClass('entypo-plus-squared entypo-minus-squared');
-                row.child.hide();
-                tr.removeClass('shown');
+            var view = 1;
+            var ratetableview = getCookie('ratetableview');
+            if(ratetableview=='GroupByDesc'){
+                view = 2;
             } else {
-                $(this).find('i').toggleClass('entypo-plus-squared entypo-minus-squared');
-                var hiddenRowData = tr.find('.hiddenRowData');
-                var Code = hiddenRowData.find('input[name="Code"]').val();
-                var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
-                table.append("<thead><tr><th>Code</th><th>Description</th><th>Interval 1</th><th>Interval N</th><th>Rate</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
-                var tbody = $("<tbody></tbody>");
-
-                ArchiveRates.forEach(function(data){
-                    if(data['Code'] == Code) {
-                        var html = "";
-                        html += "<tr class='no-selection'>";
-                        html += "<td>" + data['Code'] + "</td>";
-                        html += "<td>" + data['Description'] + "</td>";
-                        html += "<td>" + data['Interval1'] + "</td>";
-                        html += "<td>" + data['IntervalN'] + "</td>";
-                        html += "<td>" + data['Rate'] + "</td>";
-                        html += "<td>" + data['EffectiveDate'] + "</td>";
-                        html += "<td>" + data['EndDate'] + "</td>";
-                        html += "<td>" + data['ModifiedDate'] + "</td>";
-                        html += "<td>" + data['ModifiedBy'] + "</td>";
-                        html += "</tr>";
-                        table.append(html);
-                    }
-                });
-                table.append(tbody);
-                row.child(table).show();
-                tr.addClass('shown');
+                view = 1;
             }
-        });
+
+            $.ajax({
+                url: baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid_archive_rates",
+                type: 'POST',
+                data: "Codes=" + Codes + "&view=" + view,
+                dataType: 'json',
+                cache: false,
+                success: function (response) {
+                    $clickedButton.removeAttr('disabled');
+
+                    if (response.status == 'success') {
+                        ArchiveRates = response.data;
+                        //$('.details-control').show();
+                    } else {
+                        ArchiveRates = {};
+                        toastr.error(response.message, "Error", toastr_opts);
+                    }
+
+                    $clickedButton.find('i').toggleClass('entypo-plus-squared entypo-minus-squared');
+                    var hiddenRowData = tr.find('.hiddenRowData');
+                    var Code = hiddenRowData.find('input[name="Code"]').val();
+                    var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
+                    if(view == 1) {
+                        table.append("<thead><tr><th>Code</th><th>Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                    } else {
+                        table.append("<thead><tr><th>Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                    }
+                    var tbody = $("<tbody></tbody>");
+
+                    ArchiveRates.forEach(function (data) {
+                        //if (data['Code'] == Code) {
+                            var html = "";
+                            html += "<tr class='no-selection'>";
+                            if(view == 1) {
+                                html += "<td>" + data['Code'] + "</td>";
+                            }
+                            html += "<td>" + data['Description'] + "</td>";
+                            html += "<td>" + data['Interval1'] + "</td>";
+                            html += "<td>" + data['IntervalN'] + "</td>";
+                            html += "<td>" + data['ConnectionFee'] + "</td>";
+                            html += "<td>" + data['Rate'] + "</td>";
+                            html += "<td>" + data['EffectiveDate'] + "</td>";
+                            html += "<td>" + data['EndDate'] + "</td>";
+                            html += "<td>" + data['ModifiedDate'] + "</td>";
+                            html += "<td>" + data['ModifiedBy'] + "</td>";
+                            html += "</tr>";
+                            table.append(html);
+                        //}
+                    });
+                    table.append(tbody);
+                    row.child(table).show();
+                    tr.addClass('shown');
+                }
+            });
+        }
     }
 
 </script>
