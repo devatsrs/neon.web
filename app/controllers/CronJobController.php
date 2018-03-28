@@ -177,7 +177,7 @@ class CronJobController extends \BaseController {
             }else if($CronJobCommand->Command == 'createsummary'){
                 $StartDateMessage = 'in order to create previous days summary please select start date and end date. Otherwise leave it bank. By default system creates last 4 days summary.'; // popup message
             }else if($CronJobCommand->Command == 'resellerpbxaccountusage'){
-                $StartDateMessage = 'in order to generate previous days cdr please select start date and end date. Otherwise leave it bank. By default system generates today cdrs.'; // popup message
+                $StartDateMessage = "In order to process Reseller's CDRs for previous days please select start and end date. If blank system will process today's CDRs."; // popup message
             }
 
             $commandconfig = json_decode($commandconfig,true);

@@ -2,7 +2,7 @@
 <?php
     $editable = 1;
 ?>
-<link rel="stylesheet" type="text/css" href="<?php echo public_path('assets/css/invoicetemplate/invoicestyle.css'); ?>" />
+<link rel="stylesheet" type="text/css" href="<?php echo URL::to('/'); ?>/assets/css/invoicetemplate/invoicestyle.css" />
 
 @include('invoicetemplates.itemhtml')
 @section('content')
