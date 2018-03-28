@@ -5,10 +5,10 @@
             <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
         <li class="active">
-            <strong>Rate Upload</strong>
+            <strong>Upload Rates</strong>
         </li>
     </ol>
-    <h3>Rate Upload</h3><br/>
+    <h3>Upload Rates</h3><br/>
     {{--@include('accounts.errormessage')--}}
     <div class="row">
         <div class="col-md-12">
@@ -16,7 +16,7 @@
                 <div class="panel panel-primary" data-collapsed="0">
                     <div class="panel-heading">
                         <div class="panel-title">
-                            Upload Rate sheet
+                            Upload Rate Sheet
                         </div>
 
                         <div class="panel-options">
@@ -53,12 +53,6 @@
                                 {{ Form::select('Customer', $Customers, $CustomerID , array("class"=>"select2","id"=>RateUpload::customer)) }}
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="field-1" class="col-sm-2 control-label">Upload Template</label>
-                            <div class="col-sm-4">
-                                {{ Form::select('uploadtemplate', [], "" , array("class"=>"select2","id"=>"uploadtemplate")) }}
-                            </div>
-                        </div>
                         <div class="form-group {{RateUpload::vendor.'content'}} typecontentbox {{ $RateUploadType != RateUpload::vendor ? 'hidden' : '' }}">
                             <label for="field-1" class="col-sm-2 control-label">Trunk</label>
                             <div class="col-sm-4">
@@ -67,12 +61,15 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label for="field-1" class="col-sm-2 control-label">Upload Template</label>
+                            <div class="col-sm-4">
+                                {{ Form::select('uploadtemplate', [], "" , array("class"=>"select2","id"=>"uploadtemplate")) }}
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label for="field-1" class="col-sm-2 control-label">Upload (.xls, .xlsx, .csv)</label>
                             <div class="col-sm-1">
-                                <input name="excel" type="file" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
-                            </div>
-                            <div class="col-sm-2">
-                                <button class="btn btn-primary btn-sm btn-icon icon-left" id="btnGetSheetNames" type="button"><i class="entypo-arrows-ccw"></i>Get Sheet Names</button>
+                                <input name="excel" id="excel" type="file" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
                             </div>
                         </div>
                         <div class="form-group hidden" id="SheetBox">
@@ -313,8 +310,7 @@
                 getTrunk(Type,id);
             });*/
 
-            $('#btnGetSheetNames').on('click', function(e) {
-                e.preventDefault();
+            $(document).on('change','#excel', function() {
                 var formData = new FormData($('#form-upload')[0]);
                 show_loading_bar(0);
                 $.ajax({
@@ -322,7 +318,6 @@
                     type: 'POST',
                     dataType: 'json',
                     beforeSend: function(){
-                        $('#btnGetSheetNames').button('loading');
                         show_loading_bar({
                             pct: 50,
                             delay: 5
@@ -333,7 +328,6 @@
                             pct: 100,
                             delay: 2
                         });
-                        $('#btnGetSheetNames').button('reset');
                         if (response.status == 'success') {
                             var SheetNames = response.SheetNames;
                             var html = '';
@@ -348,6 +342,11 @@
                             $('#Sheet').html(html);
                             $('#SheetBox').removeClass('hidden');
                             $('#SheetBox').show();
+
+                            var Sheet = $('option:selected', $('#uploadtemplate')).attr('Sheet');
+                            if(Sheet != undefined && Sheet != '') {
+                                $('#Sheet').val(Sheet);
+                            }
                             $('#Sheet').trigger('change');
                         } else {
                             toastr.error(response.message, "Error", toastr_opts);
@@ -372,11 +371,14 @@
 
             $("#form-upload select[name='uploadtemplate']").change(function(){
                 var option=$(this).find("option[value='"+$(this).val()+"']");
-                var start_row= option.attr("start_row");
-                var end_row= option.attr("end_row");
+                var start_row   = option.attr("start_row");
+                var end_row     = option.attr("end_row");
+                var Sheet       = option.attr("Sheet");
 
                 $("#form-upload input[name=start_row]").val(start_row);
                 $("#form-upload input[name=end_row]").val(end_row);
+                $("#form-upload select[name=Sheet]").val(Sheet);
+                $("#form-upload select[name='Sheet']").trigger('change');
             });
 
             $("#form-upload [name='checkbox_replace_all']").change(function(){
@@ -1311,9 +1313,9 @@
 
                         for(key in Templates) {
                             if(Templates[key]["Title"] == 'Select') {
-                                html += '<option value="'+Templates[key]["FileUploadTemplateID"]+'" start_row="'+Templates[key]["start_row"]+'" end_row="'+Templates[key]["end_row"]+'" selected>'+Templates[key]["Title"]+'</option>';
+                                html += '<option value="'+Templates[key]["FileUploadTemplateID"]+'" start_row="'+Templates[key]["start_row"]+'" end_row="'+Templates[key]["end_row"]+'" Sheet="'+Templates[key]["Sheet"]+'" selected>'+Templates[key]["Title"]+'</option>';
                             } else {
-                                html += '<option value="'+Templates[key]["FileUploadTemplateID"]+'" start_row="'+Templates[key]["start_row"]+'" end_row="'+Templates[key]["end_row"]+'">'+Templates[key]["Title"]+'</option>';
+                                html += '<option value="'+Templates[key]["FileUploadTemplateID"]+'" start_row="'+Templates[key]["start_row"]+'" end_row="'+Templates[key]["end_row"]+'" Sheet="'+Templates[key]["Sheet"]+'">'+Templates[key]["Title"]+'</option>';
                             }
                         }
                         $('#uploadtemplate').html(html).trigger('change');
