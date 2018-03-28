@@ -36,7 +36,7 @@ class CDRTemplateController extends BaseController {
             return Response::json(array("status" => "failed", "message" => $e->getMessage()));
         }
     }
-    public function storeTemplate($GatewayId) {
+    public function storeTemplate() {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
