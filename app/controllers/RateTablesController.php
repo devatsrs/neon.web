@@ -27,13 +27,21 @@ class RateTablesController extends \BaseController {
 
         $data = Input::all();
         $data['iDisplayStart'] +=1;
-        $columns = array('RateTableRateID','Code','Description','Interval1','IntervalN','ConnectionFee','PreviousRate','Rate','EffectiveDate','updated_at','ModifiedBy','RateTableRateID');
+        $data['Country']        = $data['Country'] != '' && $data['Country'] != 'All'?$data['Country']:'null';
+        $data['Code']           = $data['Code'] != ''?"'".$data['Code']."'":'null';
+        $data['Description']    = $data['Description'] != ''?"'".$data['Description']."'":'null';
+
+        $columns = array('RateTableRateID','Code','Description','Interval1','IntervalN','ConnectionFee','PreviousRate','Rate','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableRateID');
         $sort_column = $columns[$data['iSortCol_0']];
 
         $view = isset($data['view']) && $data['view'] == 2 ? $data['view'] : 1;
 
-        $query = "call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",'".$data['Country']."','".$data['Code']."','".$data['Description']."','".$data['Effective']."',".$view.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
-
+        if(!empty($data['DiscontinuedRates'])) {
+            $query = "call prc_getDiscontinuedRateTableRateGrid (" . $companyID . "," . $id . "," . $data['Country'] . "," . $data['Code'] . "," . $data['Description'] . ",".$view."," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "',0)";
+        } else {
+            $query = "call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$view.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
+        }
+        Log::info($query);
 
         return DataTableSql::of($query)->make();
     }
@@ -670,4 +678,27 @@ class RateTablesController extends \BaseController {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Rate Table."));
         }
     }
+
+    public function search_ajax_datagrid_archive_rates($RateTableID) {
+
+        $data       = Input::all();
+        $companyID  = User::get_companyID();
+        $view       = isset($data['view']) && $data['view'] == 2 ? $data['view'] : 1;
+
+        if(!empty($data['Codes'])) {
+            $Codes = $data['Codes'];
+            $query = 'call prc_GetRateTableRatesArchiveGrid ('.$companyID.','.$RateTableID.',"'.$Codes.'",'.$view.')';
+            //Log::info($query);
+            $response['status']     = "success";
+            $response['message']    = "Data fetched successfully!";
+            $response['data']       = DB::select($query);
+        } else {
+            $response['status']     = "success";
+            $response['message']    = "Data fetched successfully!";
+            $response['data']       = [];
+        }
+
+        return json_encode($response);
+    }
+
 }

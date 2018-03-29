@@ -457,8 +457,8 @@ var postdata;
 
         $('#cdrtemplatelink').click(function(e){
             e.preventDefault();
-            var GatewayID = $('#add-new-config-form [name="CompanyGatewayID"]').val();
-            var url = "{{URL::to('cdr_template')}}"+"?gateway="+GatewayID;
+            var CompanyGatewayID = $('#add-new-config-form [name="CompanyGatewayID"]').val();
+            var url = "{{URL::to('cdr_template/gateway')}}/"+CompanyGatewayID;
             openInNewTab(url);
         });
 
@@ -581,14 +581,15 @@ var postdata;
                         <input type="hidden"  name="Status" value="0">
                     </div>
                 </div>
-                    <div id="CDRMapping" class="row hidden">
-                        <label for="field-5" class="control-label col-md-3">CDR Mapping</label>
-                        <div class="clear col-md-3">
-                            <a id="cdrtemplatelink" href="#" target="_blank" class="btn btn-primary btn-sm btn-icon icon-left">
-                                <i class="entypo-link"></i>CDR Mapping
-                            </a>
-                        </div>
+                <div id="CDRMapping" class="row hidden">
+                    <label for="field-5" class="control-label col-md-3">CDR Mapping</label>
+                    <div class="clear col-md-3">
+                        <a id="cdrtemplatelink" href="#" target="_blank" class="btn btn-primary btn-sm btn-icon icon-left">
+                            <i class="entypo-link"></i>CDR Mapping
+                        </a>
                     </div>
+                </div>
+                <div class="row"><br></div>
                 <div class="modal-footer">
                     <input type="hidden" name="CompanyGatewayID" value="">
                     <button type="submit" id="config-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">

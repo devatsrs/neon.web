@@ -44,22 +44,33 @@
                         <label for="field-1" class="control-label col-sm-12 bold">Settings</label>
 
 
-                        @if( isset($Options->checkbox_add_rate)  && $Options->checkbox_add_rate =='1')
-                            <div class="col-sm-12">Add rates from the file to the existing rates</div>
-                        @endif
-                        @if( isset($Options->checkbox_replace_all) && $Options->checkbox_replace_all =='1')
-                            <div class="col-sm-12">Replace all of the existing rates with the rates from the file</div>
-                        @endif
-
-                        @if(isset($Options->checkbox_rates_with_effected_from) )
-                            <div class="col-sm-12">Rates with 'effective from' date in the past should be uploaded as effective immediately</div>
-                        @endif
-                        @if(isset($Options->checkbox_skip_rates_with_same_date))
-                           <div class="col-sm-12">Skip rates with the same date</div>
-                        @endif
-                        @if(isset($Options->checkbox_add_new_codes_to_code_decks) && $Options->checkbox_add_new_codes_to_code_decks == 1)
-                        <div class="col-sm-12">Add new codes from the file to code decks</div>
-                        @endif
+                            @if( isset($Options->checkbox_replace_all) && $Options->checkbox_replace_all =='1')
+                                <div class="col-sm-12">Replace all of the existing rates with the rates from the file</div>
+                            @endif
+                            @if(isset($Options->checkbox_rates_with_effected_from) )
+                                <div class="col-sm-12">Rates with 'effective from' date in the past should be uploaded as effective immediately</div>
+                            @endif
+                            @if(isset($Options->checkbox_add_new_codes_to_code_decks) && $Options->checkbox_add_new_codes_to_code_decks == 1)
+                                <div class="col-sm-12">Add new codes from the file to code decks</div>
+                            @endif
+                            @if(isset($Options->checkbox_review_rates) && $Options->checkbox_review_rates == 1)
+                                <div class="col-sm-12">Review Rates</div>
+                            @endif
+                            @if(isset($Options->radio_list_option) && $Options->radio_list_option == 1)
+                                <div class="col-sm-12">Complete File</div>
+                            @else
+                                <div class="col-sm-12">Partial File</div>
+                            @endif
+                            <?php $Options = json_decode($Options->Options); ?>
+                            @if(isset($Options->skipRows->start_row) && (int) $Options->skipRows->start_row > 0)
+                                <div class="col-sm-12">Skips rows from Start - {{$skipRows->skipRows->start_row}}</div>
+                            @endif
+                            @if(isset($Options->skipRows->end_row) && (int) $Options->skipRows->end_row > 0)
+                                <div class="col-sm-12">Skips rows from Bottom - {{$skipRows->skipRows->end_row}}</div>
+                            @endif
+                            @if(!empty($Options->Sheet))
+                                <div class="col-sm-12">Sheet Name : {{$Options->Sheet}}</div>
+                            @endif
                         </div>
                      @endif
             @endif

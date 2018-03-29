@@ -530,7 +530,7 @@ function get_image_data($path){
 }
 
 
-function getFileContent($file_name, $data){
+function getFileContent($file_name, $data, $Sheet=''){
     $columns = [];
     $grid = [];
     $flag = 0;
@@ -540,7 +540,7 @@ function getFileContent($file_name, $data){
         NeonExcelIO::$end_row=$data["end_row"];
     }
 
-    $NeonExcel = new NeonExcelIO($file_name, $data);
+    $NeonExcel = new NeonExcelIO($file_name, $data, $Sheet);
     $results = $NeonExcel->read(10);
     /*
     if (!empty($data['Delimiter'])) {

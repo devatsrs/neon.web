@@ -234,7 +234,7 @@ class VendorRatesController extends \BaseController
                     }
                 }
             }
-
+            echo $json_result;
         } else {
             echo json_encode(array("status" => "failed", "message" => "Access not allowed"));
         }
@@ -258,7 +258,9 @@ class VendorRatesController extends \BaseController
                                    ->whereRaw("(tblRateSheetHistory.Type = 'VU' OR tblRateSheetHistory.Type = 'VD') ")
                                    ->select(array('tblJob.Title', 
                                                 'tblRateSheetHistory.created_at as created_date','tblRateSheetHistory.CreatedBy',
-                                                'tblRateSheetHistory.RateSheetHistoryID','tblRateSheetHistory.Type','tblJob.JobID','tblJob.OutputFilePath'));
+                                                DB::raw('(CASE WHEN tblRateSheetHistory.Type = "VU" THEN "Upload" ELSE "Download" END) AS Type1'),
+                                                'tblRateSheetHistory.RateSheetHistoryID','tblRateSheetHistory.Type','tblJob.JobID','tblJob.OutputFilePath'))
+                                    ->orderBy('tblRateSheetHistory.created_at', 'desc');
         
         return Datatables::of($RateSheetHistory)->make();
     }
@@ -403,7 +405,7 @@ class VendorRatesController extends \BaseController
 
         $rules = array(
             'VendorRateID' => 'required',
-            'EffectiveDate' => 'required',
+            //'EffectiveDate' => 'required',
             'Rate' => 'required|numeric',
             'Interval1' => 'required|numeric',
             'IntervalN' => 'required|numeric',
@@ -427,14 +429,14 @@ class VendorRatesController extends \BaseController
             $VendorRates[$i]['updated_by']      = $username;
             $VendorRates[$i]['updated_at']      = date('Y-m-d');
             $VendorRates[$i]['ConnectionFee']   = floatval($data['ConnectionFee']);
-            $VendorRates[$i]['EffectiveDate']   = $data['EffectiveDate'];
+            //$VendorRates[$i]['EffectiveDate']   = $data['EffectiveDate'];
             $VendorRates[$i]['Rate']            = $data['Rate'];
         }
 
         //'Interval1'=> $data['Interval1'],'IntervalN'=> $data['IntervalN'],
         try {
             DB::beginTransaction();
-            VendorRate::whereIn('VendorRateID',$VendorIDs)->update(['EndDate'=> date('Y-m-d')]);
+            VendorRate::whereIn('VendorRateID',$VendorIDs)->update(['EndDate'=> date('Y-m-d H:i:s')]);
 
             $username = User::get_user_full_name();
             DB::statement("call prc_WSCronJobDeleteOldVendorRate('".$username."')");
@@ -455,7 +457,11 @@ class VendorRatesController extends \BaseController
         $data = Input::all();
         $company_id = User::get_companyID();
         $data['vendor'] = $id;
-        $rules = array('EffectiveDate' => 'required','Rate' => 'required|numeric', 'Trunk' => 'required|numeric');//'Interval1' => 'required|numeric','IntervalN' => 'required|numeric'
+        $rules = array(
+                        //'EffectiveDate' => 'required',
+                        'Rate' => 'required|numeric',
+                        'Trunk' => 'required|numeric'
+                    );//'Interval1' => 'required|numeric','IntervalN' => 'required|numeric'
         $validator = Validator::make($data, $rules);
         if ($validator->fails()) {
             return json_validator_response($validator);
@@ -464,6 +470,8 @@ class VendorRatesController extends \BaseController
         $data['Code'] =  $data['Code'] == ''?'NULL':"'".$data['Code']."'";
         $data['Description'] = $data['Description'] == ''?'NULL':"'".$data['Description']."'";
         $username = User::get_user_full_name();
+        $data['EffectiveDate'] = date('Y-m-d'); //just to send in procedure
+
         //Inserting Job Log
         $results = DB::statement("call prc_VendorBulkRateUpdate ('".$data['vendor']."',".$data['Trunk'].",".$data['Code'].",".$data['Description'].",".$data['Country'].",".$company_id.",".$data['Rate'].",'".$data['EffectiveDate']."','".floatval($data['ConnectionFee'])."',".intval($data['Interval1']).",".intval($data['IntervalN']).",'".$username."','".$data['Effective']."',1)");
 

@@ -102,6 +102,9 @@
     <li class="{{check_uri('Rates')}}"> <a href="#"> <i class="fa fa-table"></i> <span>&nbsp;Rate Management</span> </a>
       <ul>
         @if(User::checkCategoryPermission('RateTables','View'))
+          <li> <a href="{{URL::to('/rate_upload')}}">  <span>Upload Rates</span> </a> </li>
+        @endif
+        @if(User::checkCategoryPermission('RateTables','View'))
         <li> <a href="{{URL::to('/rate_tables')}}">  <span>Rate Tables</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('LCR','All'))

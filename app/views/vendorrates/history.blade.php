@@ -71,6 +71,7 @@
             <th>Title</th>
             <th>Created Date</th>
             <th>Created by</th>
+            <th>Type</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -92,9 +93,10 @@
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-            "aaSorting": [[2, 'desc']],
+            "aaSorting": [[1, 'desc']],
             "aoColumns":
                     [
+                        {},
                         {},
                         {},
                         {},
@@ -103,21 +105,21 @@
                                 var action, show_;
                                 show_ = "/vendor_rates/{{$id}}/history/{id}/view";
                                 show_ = show_.replace('{id}', id);
-                                var download_upload_type = full[4] ;
-                                var jobID = full[5] ;
+                                var download_upload_type = full[5] ;
+                                var jobID = full[6] ;
                                 var download_ = "";
 
                                 action = '<a  onclick=" return showAjaxModal(\''+show_+'\',\'modal-customer-rate-history\');" href="javascript:;" title="View"   class="btn btn-default btn-sm"><i class="fa fa-eye"></i></a>';
                                 if( jobID != null ){
                                     /*Customer Upload*/
-                                    if(download_upload_type == 'VU' && full[5]!= ''){
+                                    if(download_upload_type == 'VU' && full[6]!= ''){
                                         download_ = baseurl +   "/jobs/"+jobID+"/download_excel";
                                         download_ = download_.replace('{id}', jobID);
 
                                         action += ' <a  href="'+  download_ +'" class="btn btn-success btn-sm btn-icon icon-left"><i class="entypo-down"></i>Download</a>';
                                     }
                                     /*Customer Download*/
-                                     if(download_upload_type == 'VD' && full[6] != '' &&  full[6] != null && full[6] != 'No data found!' ){
+                                     if(download_upload_type == 'VD' && full[7] != '' &&  full[7] != null && full[7] != 'No data found!' ){
                                         download_= baseurl +"/jobs/"+jobID+"/downloaoutputfile";
                                         action += ' <a  href="'+  download_ +'" class="btn btn-success btn-sm btn-icon icon-left"><i class="entypo-down"></i>Download</a>';
                                     }

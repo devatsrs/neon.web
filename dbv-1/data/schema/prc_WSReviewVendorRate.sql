@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`%` PROCEDURE `prc_WSReviewVendorRate`(
+CREATE DEFINER=`neon-user`@`192.168.1.25` PROCEDURE `prc_WSReviewVendorRate`(
 	IN `p_accountId` INT,
 	IN `p_trunkId` INT,
 	IN `p_replaceAllRates` INT,
@@ -12,28 +12,6 @@ CREATE DEFINER=`neon-user`@`%` PROCEDURE `prc_WSReviewVendorRate`(
 	IN `p_dialcodeSeparator` VARCHAR(50),
 	IN `p_CurrencyID` INT,
 	IN `p_list_option` INT
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 )
 ThisSP:BEGIN
 
@@ -283,7 +261,7 @@ ThisSP:BEGIN
 												AND vr2.EffectiveDate  = @EffectiveDate
 			                          where
 			                          vr1.AccountID = p_accountId AND vr1.TrunkID = p_trunkId
-			                          and vr1.EffectiveDate < COALESCE(vr2.EffectiveDate,@EffectiveDate)   
+			                          and vr1.EffectiveDate <= COALESCE(vr2.EffectiveDate,@EffectiveDate)   -- <= because if same day rate change need to log
 			                          order by vr1.RateID desc ,vr1.EffectiveDate desc
 			                        
                          	
@@ -300,7 +278,7 @@ ThisSP:BEGIN
                          ON tblTempVendorRate.Code = tblRate.Code 
 								 	AND tblTempVendorRate.ProcessID=p_processId
                          --	AND  tblTempVendorRate.EffectiveDate <> '0000-00-00 00:00:00' 
-								 AND  VendorRate.EffectiveDate < tblTempVendorRate.EffectiveDate
+								 AND  VendorRate.EffectiveDate <= tblTempVendorRate.EffectiveDate -- <= because if same day rate change need to log
                				  AND tblTempVendorRate.EffectiveDate =  @EffectiveDate
                				 
                				   AND VendorRate.RowID = 1
