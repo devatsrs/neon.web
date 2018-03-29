@@ -2610,7 +2610,7 @@ checkFailingCronJob = function(){
     var diffMs = (today - oldDate);
     var diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000);
     console.log("diffMins "+diffMins+" isf "+isFirstTime);
-    if((diffMins>=timeDelay || isFirstTime) && typeof customer[0].customer != 'undefined' &&  customer[0].customer != 1){
+    if((diffMins>timeDelay || isFirstTime) && typeof customer[0].customer != 'undefined' &&  customer[0].customer != 1){
         $.get( baseurl + "/cronjobs/check_failing", function( response ) {
             if(typeof response.message != 'undefined' ) {
                 setCookie("lastCronJobCheckingDate",today,365);
