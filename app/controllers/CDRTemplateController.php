@@ -50,7 +50,7 @@ class CDRTemplateController extends BaseController {
                 'CompanyGatewayID' => 'required'
                 );
         }
-        $rules['connect_datetime'] = 'required';
+
         $rules['billed_duration'] = 'required';
         $rules['cld'] = 'required';
 
@@ -93,6 +93,7 @@ class CDRTemplateController extends BaseController {
         $save['created_by'] = User::get_user_full_name();
         $option["option"]= $data['option'];//['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
         $option["selection"] = $data['selection'];//['connect_time'=>$data['connect_time'],'disconnect_time'=>$data['disconnect_time'],'billed_duration'=>$data['billed_duration'],'duration'=>$data['duration'],'cld'=>$data['cld'],'cli'=>$data['cli'],'Account'=>$data['Account'],'cost'=>$data['cost']];
+        $option["CompanyGatewayID"] = $data['CompanyGatewayID'];
         $save['Options'] = json_encode($option);
         $save['Type'] = FileUploadTemplate::TEMPLATE_CDR;
         if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
