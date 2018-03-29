@@ -16,7 +16,7 @@ class RateTablesMultiAccController extends \BaseController {
         $data['iDisplayStart'] +=1;
         $columns = array('AccountID','AccountName','InRateTableName','OutRateTableName','ServiceName','ServiceID');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_getRateTableByAccount (".$CompanyID.",'".$data["level"]."',".$TrunkID.",".$ratetableeid.",'".$SourceCustomers."',".$services.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."' ";
+        $query = "call prc_getRateTableByAccount (".$CompanyID.",'".$data["level"]."',".$TrunkID.",".$data["Currency"].",".$ratetableeid.",'".$SourceCustomers."',".$services.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."' ";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
@@ -54,14 +54,14 @@ class RateTablesMultiAccController extends \BaseController {
         $codedecks = array(""=>"Select Codedeck")+$codedecks;
         $rate_tables = RateTable::getRateTables();
         $allservice = Service::getDropdownIDList($companyID);
-
-        return View::make('ratetables.rates_multi_account', compact('all_customers','trunks','codedecks','rate_tables','allservice'));
+        $currencies = Currency::getCurrencyDropdownIDList();
+        $CurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");
+        return View::make('ratetables.rates_multi_account', compact('all_customers','trunks','codedecks','currencies','CurrencyID','rate_tables','allservice'));
     }
 
     public function store() {
 
         $data = Input::all();
-        // $selected_customer = explode(",",$data["selected_customer"]);
         $companyID = User::get_companyID();
         $creaedBy = User::get_user_full_name();
 
@@ -69,8 +69,25 @@ class RateTablesMultiAccController extends \BaseController {
 
             $RateTable_Id = $data["RateTable_Id"];
             $TrunkID = $data["TrunkID"];
+            /* for select all pages parameter start */
 
+            $chk_SourceCustomers = empty($data['chk_SourceCustomers']) ? '' : $data['chk_SourceCustomers'];
+            if ($chk_SourceCustomers == 'null') {
+                $chk_SourceCustomers = '';
+            }
+            $chk_RateTableId = empty($data['chk_RateTableId']) ? 0 : $data['chk_RateTableId'];
+            $chk_Trunkid = empty($data['chk_Trunkid']) ? 0 : $data['chk_Trunkid'];
+            $chk_services = empty($data['chk_services']) ? 0 : $data['chk_services'];
+            /* for select all pages parameter start */
             if ($data["selected_level"] == 'T') {
+
+                if($data["chk_allpageschecked"]=="Y"){
+                    $selected_customer = "";
+                    $queryAllAcc = " 'Y',".$chk_Trunkid.",".$data["chk_Currency"].",".$chk_RateTableId.",'".$chk_SourceCustomers."' " ;
+                }else{
+                    $selected_customer = $data["selected_customer"];
+                    $queryAllAcc = " 'N',0,0,0,'' " ;
+                }
 
                 $rules = array(
                     'RateTable_Id' => 'required',
@@ -83,7 +100,7 @@ class RateTablesMultiAccController extends \BaseController {
                 if ($validator->fails()) {
                     return json_validator_response($validator);
                 }
-                $query = "call prc_applyRateTableTomultipleAccByTrunk (".$companyID.",'".$data["selected_customer"]."','".$TrunkID."','".$RateTable_Id."','".$creaedBy."')";
+                $query = "call prc_applyRateTableTomultipleAccByTrunk (".$companyID.",'".$selected_customer."','".$TrunkID."','".$RateTable_Id."','".$creaedBy."',$queryAllAcc)";
                 DataTableSql::of($query)->make();
                 \Illuminate\Support\Facades\Log::info($query);
                 try{
@@ -95,6 +112,13 @@ class RateTablesMultiAccController extends \BaseController {
 
             } else {
 
+                if($data["chk_allpageschecked"]=="Y"){
+                    $selected_customer = "";
+                    $queryAllAcc = " 'Y',".$chk_services.",".$data["chk_Currency"].",".$chk_RateTableId.",'".$chk_SourceCustomers."' " ;
+                }else{
+                    $selected_customer = $data["selected_customer"];
+                    $queryAllAcc = " 'N',0,0,0,'' " ;
+                }
                 $rules = array(
                     'ServiceID' => 'required',
                 );
@@ -110,7 +134,7 @@ class RateTablesMultiAccController extends \BaseController {
                 if(!empty($data["InboundRateTable"]) || !empty($data["InboundRateTable"]) ){
                     $InboundRateTable = (!empty($data["InboundRateTable"]) && $data["InboundRateTable"] > 0 ) ? $data["InboundRateTable"] : 0;
                     $OutboundRateTable = (!empty($data["OutboundRateTable"]) && $data["OutboundRateTable"] > 0 ) ? $data["OutboundRateTable"] : 0;
-                    $query = "call prc_applyRateTableTomultipleAccByService (".$companyID.",'".$data["selected_customer"]."','".$ServiceID."','".$InboundRateTable."','".$OutboundRateTable."','".$creaedBy."')";
+                    $query = "call prc_applyRateTableTomultipleAccByService (".$companyID.",'".$selected_customer."','".$ServiceID."','".$InboundRateTable."','".$OutboundRateTable."','".$creaedBy."',$queryAllAcc)";
                     DataTableSql::of($query)->make();
                     log::info($query);
                     try{
@@ -132,6 +156,19 @@ class RateTablesMultiAccController extends \BaseController {
         }
 
     }
+
+    public static function getRateTableAndAccountByCurrency(){
+        $data = Input::all();
+        $ratetable = RateTable::getRateTableList(["CurrencyID"=>$data["id"]]);
+        $data["ratetablelist"] =  $ratetable;
+
+        $accounts = Account::getAccountList(["CurrencyID"=>$data["id"]]);
+        $data["accountlist"] =  $accounts;
+        return $data;
+        //account::getAccountList()
+    }
+
+
 
 
 }

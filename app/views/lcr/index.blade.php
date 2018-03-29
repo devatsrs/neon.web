@@ -61,7 +61,7 @@
                     </p>
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="control-label">Show Block Vendor</label>
+                    <label for="field-1" class="control-label">Show Blocked Vendors</label>
                     <p class="make-switch switch-small">
                         <input id="vendor_block" name="vendor_block" type="checkbox" value="1">
                     </p>
