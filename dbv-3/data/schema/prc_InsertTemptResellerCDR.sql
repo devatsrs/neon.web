@@ -61,7 +61,7 @@ ThisSP:BEGIN
 	select distinct uh.*
 	From NeonCDRDev.tblUsageHeader uh
 	WHERE uh.CompanyGatewayID = p_CompanyGatewayID
-	AND ((p_Today = 1 AND DATE(uh.created_at) = DATE(now())) OR p_Today =0 AND uh.StartDate BETWEEN p_StartDate AND p_EndDate );
+	AND ((p_Today = 1 AND uh.StartDate BETWEEN DATE_FORMAT(SUBDATE(Now(),INTERVAL 2 hour) ,"%Y-%m-%d") AND DATE_FORMAT(Now() ,"%Y-%m-%d") ) OR (p_Today =0 AND uh.StartDate BETWEEN p_StartDate AND p_EndDate ));
 	
 	INSERT INTO tmp_resellers(ResellerID,CompanyID,ChildCompanyID,AccountID,TotalAccount)
 	SELECT DISTINCT

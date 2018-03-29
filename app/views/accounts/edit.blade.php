@@ -156,6 +156,8 @@
                         <input type="text" name="Employee" class="form-control" id="field-1" placeholder="" value="{{$account->Employee}}" />
                     </div>
                 </div>
+                @if(is_reseller())
+                @else
                 <div class="form-group">
                     <label class="col-md-2 control-label">Reseller</label>
                     <div class="col-md-4">
@@ -169,6 +171,7 @@
                       {{Form::select('ResellerOwner',$reseller_owners,(isset($accountreseller)?$accountreseller:'') ,array("class"=>"select2"))}}
                     </div>
                 </div>
+                @endif
                 <div class="form-group">
                     <label for="field-1" class="col-md-2 control-label">Email</label>
                     <div class="col-md-4">
