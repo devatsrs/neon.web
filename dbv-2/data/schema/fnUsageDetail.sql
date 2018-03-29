@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageDetail`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `fnUsageDetail`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountID` INT,
 	IN `p_GatewayID` INT,
@@ -68,7 +68,7 @@ BEGIN
 		(p_cdr_type = '' OR  ud.userfield LIKE CONCAT('%',p_cdr_type,'%'))
 		AND  StartDate >= DATE_ADD(p_StartDate,INTERVAL -1 DAY)
 		AND StartDate <= DATE_ADD(p_EndDate,INTERVAL 1 DAY)
-		AND uh.CompanyID = p_CompanyID
+		AND a.CompanyId = p_CompanyID
 		AND uh.AccountID IS NOT NULL
 		AND (p_AccountID = 0 OR uh.AccountID = p_AccountID)
 		AND (p_GatewayID = 0 OR CompanyGatewayID = p_GatewayID)
@@ -77,10 +77,10 @@ BEGIN
 		AND (p_CLD = '' OR cld LIKE REPLACE(p_CLD, '*', '%'))
 		AND (p_zerovaluecost = 0 OR ( p_zerovaluecost = 1 AND cost = 0) OR ( p_zerovaluecost = 2 AND cost > 0))
 	) tbl
-	WHERE 
-	(p_billing_time =1 AND connect_time >= p_StartDate AND connect_time <= p_EndDate)
-	OR 
-	(p_billing_time =2 AND disconnect_time >= p_StartDate AND disconnect_time <= p_EndDate)
+	WHERE
+	( (p_billing_time =1 OR p_billing_time =3) AND connect_time >= p_StartDate AND connect_time <= p_EndDate)
+	OR
+	(p_billing_time =2 AND disconnect_time >= p_StartDate AND disconnect_time <= p_EndDate)	
 	AND billed_duration > 0
 	ORDER BY disconnect_time DESC;
 END

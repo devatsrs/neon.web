@@ -457,8 +457,8 @@ var postdata;
 
         $('#cdrtemplatelink').click(function(e){
             e.preventDefault();
-            var GatewayID = $('#add-new-config-form [name="CompanyGatewayID"]').val();
-            var url = "{{URL::to('cdr_template/gateway')}}/"+GatewayID;
+            var CompanyGatewayID = $('#add-new-config-form [name="CompanyGatewayID"]').val();
+            var url = "{{URL::to('cdr_template/gateway')}}/"+CompanyGatewayID;
             openInNewTab(url);
         });
 
