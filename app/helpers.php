@@ -2245,7 +2245,7 @@ function get_ticket_status_date_array($result_data) {
 
 
     } else {
-        $the_date = TicketLog::where(['TicketID'=>$result_data->TicketID,"Action"=>TicketLog::TICKET_ACTION_STATUS_CHANGED])->orderby("TicketLogID","DESC")->pluck("created_at");
+        $the_date = TicketLog::where(['TicketID'=>$result_data->TicketID])->orderby("TicketLogID","DESC")->pluck("created_at");
     }
 
 
