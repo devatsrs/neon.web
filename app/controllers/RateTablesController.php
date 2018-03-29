@@ -681,12 +681,13 @@ class RateTablesController extends \BaseController {
 
     public function search_ajax_datagrid_archive_rates($RateTableID) {
 
-        $data = Input::all();
-        $companyID = User::get_companyID();
+        $data       = Input::all();
+        $companyID  = User::get_companyID();
+        $view       = isset($data['view']) && $data['view'] == 2 ? $data['view'] : 1;
 
         if(!empty($data['Codes'])) {
             $Codes = $data['Codes'];
-            $query = 'call prc_GetRateTableRatesArchiveGrid ('.$companyID.','.$RateTableID.',"'.$Codes.'")';
+            $query = 'call prc_GetRateTableRatesArchiveGrid ('.$companyID.','.$RateTableID.',"'.$Codes.'",'.$view.')';
             //Log::info($query);
             $response['status']     = "success";
             $response['message']    = "Data fetched successfully!";
