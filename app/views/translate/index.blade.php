@@ -33,7 +33,7 @@
                                 <i class="entypo-floppy"></i>
                                 Save
                             </a>
-                            <a class="btn btn-primary btn-sm btn-icon icon-left" onclick="refresh_label();" href="javascript:;" >
+                            <a class="btn btn-primary btn-sm btn-icon icon-left" onclick="refresh_label(this);" href="javascript:;" >
                                 <i class="entypo-arrows-ccw"></i>
                                 Refresh
                             </a>
@@ -249,12 +249,16 @@
             });
 
         }
-        function refresh_label(){
+        function refresh_label(ele){
+            $(ele).button('loading');
+            loading('.loading',1);
             $.ajax({
                 url: baseurl + "/translate/refresh_label",
                 type: 'POST',
                 dataType: 'JSON',
                 success: function(response) {
+                    loading('.loading',0);
+                    $(ele).button('reset');
                     if (response.status == 'success') {
                         toastr.success(response.message, "Success", toastr_opts);
                         rebindLanguageTable();
