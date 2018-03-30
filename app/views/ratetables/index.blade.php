@@ -47,7 +47,7 @@
         Add New RateTable
     </a>
 @endif
-    <a href="{{URL::to('rate_tables/multiaccounts')}}" id="add-new-rate-table" class="btn btn-primary ">
+    <a href="{{URL::to('rate_tables/apply_rate_table')}}" id="add-new-rate-table" class="btn btn-primary ">
         Apply Rate Table
     </a>
 </p>

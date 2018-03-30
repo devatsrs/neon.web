@@ -116,7 +116,7 @@
     </div>
 
     <script type="text/javascript">
-
+        var checked = '';
         jQuery(document).ready(function($) {
 
             var levellbl = $("#ratetable_filter select[name='level']").val();
@@ -185,7 +185,7 @@
                         {
                             mRender: function(id, type, full) {
                                 var action;
-                                action = '<a title="Edit" data-id="'+ full[0] +'" data-OutboundRatetable="'+full[7]+'" data-inboundRatetable="'+full[6]+'" data-serviceId="'+full[5]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
+                                action = '<a title="Edit" data-id="'+ full[0] +'" data-OutboundRatetable="'+full[8]+'" data-inboundRatetable="'+full[7]+'" data-serviceId="'+full[5]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
 
                                 return action;
                             }
@@ -205,7 +205,7 @@
                     "bDestroy": true,
                     "bProcessing": true,
                     "bServerSide": true,
-                    "sAjaxSource": baseurl + "/rate_tables/multiaccounts/ajax_datagrid/type",
+                    "sAjaxSource": baseurl + "/rate_tables/apply_rate_table/ajax_datagrid/type",
                     "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                     "sPaginationType": "bootstrap",
                     "sDom": "<'row'<'col-xs-6 col-left'<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
@@ -239,45 +239,37 @@
                             {
                                 "sExtends": "download",
                                 "sButtonText": "EXCEL",
-                                "sUrl": baseurl + "/rate_tables/multiaccounts/ajax_datagrid/xlsx",
+                                "sUrl": baseurl + "/rate_tables/apply_rate_table/ajax_datagrid/xlsx",
                                 sButtonClass: "save-collection btn-sm"
                             },
                             {
                                 "sExtends": "download",
                                 "sButtonText": "CSV",
-                                "sUrl": baseurl + "/rate_tables/multiaccounts/ajax_datagrid/csv",
+                                "sUrl": baseurl + "/rate_tables/apply_rate_table/ajax_datagrid/csv",
                                 sButtonClass: "save-collection btn-sm"
                             }
                         ]
                     },
                     "fnDrawCallback": function() {
 
-
-                        /*$("#"+tableid +' tbody .rowcheckbox').click(function () {
-                            if( $(this).prop("checked")){
-                                $(this).parent().parent().parent().addClass('selected');
-                            }else{
-                                $(this).parent().parent().parent().removeClass('selected');
+                        $('#'+tableid +' tbody tr').each(function (i, el) {
+                            if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                                if (checked != '') {
+                                    $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                                    $(this).addClass('selected');
+                                    $('#selectallbutton').prop("checked", true);
+                                } else {
+                                    $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                                    $(this).removeClass('selected');
+                                }
                             }
-                        });*/
+                        });
 
                         default_row_selected(tableid,'selectall','selectallbutton');
                         select_all_top('selectallbutton',tableid,'selectall');
                         selected_all('selectall_trunk',tableid);
+                        selected_all('selectall_service',tableid);
                         table_row_select(tableid,'selectallbutton');
-
-                        /*$(".selectallcust").click(function(ev) {
-                            var is_checked = $(this).is(':checked');
-                            $("#"+tableid +' tbody tr').each(function(i, el) {
-                                if (is_checked) {
-                                    $(this).find('.rowcheckbox').prop("checked", true);
-                                    $(this).addClass('selected');
-                                } else {
-                                    $(this).find('.rowcheckbox').prop("checked", false);
-                                    $(this).removeClass('selected');
-                                }
-                            });
-                        });*/
 
                         $('#selectallbutton').click(function (ev) {
                             if ($(this).is(':checked')) {
@@ -312,8 +304,6 @@
 
             });
 
-
-
             $('table tbody').on('click','.edit-ratetable',function(ev){
 
                 $("#add-new-form").trigger("reset");
@@ -321,10 +311,13 @@
                 ev.stopPropagation();
                 $('#modal-add-new-rate-table').trigger("reset");
 
+                $('#ServiceID').select2('disable');
+                $("#modal-add-new-rate-table [name='AccountServiceId']").val($(this).attr('data-serviceId'));
 
                 /* For Service Level */
                 $("#modal-add-new-rate-table [name='selected_customer']").val($(this).attr('data-id'));
                 var dataInBound = $(this).attr('data-inboundRatetable')!= 'null' ?  $(this).attr('data-inboundRatetable') : '';
+
                 $("#modal-add-new-rate-table [name='InboundRateTable']").select2('val', dataInBound);
                 var dataOutBound = $(this).attr('data-OutboundRatetable')!= 'null' ?  $(this).attr('data-OutboundRatetable') : '';
                 $("#modal-add-new-rate-table [name='OutboundRateTable']").select2('val', dataOutBound);
@@ -346,6 +339,8 @@
             $("#add-new-rate-table").click(function(ev) {
 
                 ev.preventDefault();
+                $('#ServiceID').select2('enable');
+                $("#modal-add-new-rate-table [name='AccountServiceId']").val('');
                 $('#modal-add-new-rate-table').modal('show', {backdrop: 'static'});
                 /* Get selected Customer */
                 var favorite = [];
@@ -363,7 +358,7 @@
 
             $("#add-new-form").submit(function(ev){
                 ev.preventDefault();
-                update_new_url = baseurl + '/rate_tables/multiaccounts/store';
+                update_new_url = baseurl + '/rate_tables/apply_rate_table/store';
                 submit_ajax(update_new_url,$("#add-new-form").serialize());
             });
 
@@ -385,13 +380,11 @@
             });
             getRateTableAndAccountByCurrency('{{$CurrencyID}}');
 
-
-
         });
 
         function getRateTableAndAccountByCurrency(currencyID){
             $.ajax({
-                url: baseurl + "/rate_tables/multiaccounts/ajax_getRateTableAndAccountByCurrency",
+                url: baseurl + "/rate_tables/apply_rate_table/ajax_getRateTableAndAccountByCurrency",
                 dataType: 'json',
                 type: 'post',
                 data: {id: currencyID},
@@ -477,7 +470,8 @@
                             <div class="col-md-12">
                                 <div class="form-group ">
                                     <label for="field-5" class="control-label">Select Service</label>
-                                    {{ Form::select('ServiceID', $allservice, '', array("class"=>"select2","data-type"=>"service")) }}
+                                    {{ Form::select('ServiceID', $allservice, '', array("class"=>"select2","data-type"=>"service","id"=>"ServiceID")) }}
+                                    <span id="AccountServiceIdspan"><input type="hidden" name="AccountServiceId" value=""> </span>
                                 </div>
                             </div>
                             <div class="col-md-6">

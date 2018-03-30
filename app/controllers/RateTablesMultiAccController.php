@@ -28,11 +28,11 @@ class RateTablesMultiAccController extends \BaseController {
             }
 
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/LCR.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/ApplyRateTable.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/LCR.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/ApplyRateTable.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -62,6 +62,9 @@ class RateTablesMultiAccController extends \BaseController {
     public function store() {
 
         $data = Input::all();
+        if(!empty( $data["AccountServiceId"]) ){
+            $data["ServiceID"]=$data["AccountServiceId"];
+        }
         $companyID = User::get_companyID();
         $creaedBy = User::get_user_full_name();
 
@@ -79,6 +82,7 @@ class RateTablesMultiAccController extends \BaseController {
             $chk_Trunkid = empty($data['chk_Trunkid']) ? 0 : $data['chk_Trunkid'];
             $chk_services = empty($data['chk_services']) ? 0 : $data['chk_services'];
             /* for select all pages parameter start */
+
             if ($data["selected_level"] == 'T') {
 
                 if($data["chk_allpageschecked"]=="Y"){
@@ -165,7 +169,7 @@ class RateTablesMultiAccController extends \BaseController {
         $accounts = Account::getAccountList(["CurrencyID"=>$data["id"]]);
         $data["accountlist"] =  $accounts;
         return $data;
-        //account::getAccountList()
+        
     }
 
 
