@@ -339,6 +339,11 @@
             $("#add-new-rate-table").click(function(ev) {
 
                 ev.preventDefault();
+
+                $("#modal-add-new-rate-table [name='InboundRateTable']").select2('val', '');
+                $("#modal-add-new-rate-table [name='OutboundRateTable']").select2('val', '');
+                $("#modal-add-new-rate-table [name='ServiceID']").select2('val', '');
+
                 $('#ServiceID').select2('enable');
                 $("#modal-add-new-rate-table [name='AccountServiceId']").val('');
                 $('#modal-add-new-rate-table').modal('show', {backdrop: 'static'});
