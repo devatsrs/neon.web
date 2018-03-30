@@ -14,12 +14,12 @@
                     <input class="form-control" name="Search" id="Search"  type="text" >
                 </div>--}}
                 <div class="form-group">
-                    <label class="control-label" for="field-1">Level</label>
-                    {{ Form::select('level', ["T"=>"Trunk Level","S"=>"Service Level"], 'T', array("class"=>"select2 level","data-type"=>"level")) }}
+                    <label class="control-label" for="field-1">Apply To</label>
+                    {{ Form::select('level', ["T"=>"Trunk","S"=>"Service"], 'T', array("class"=>"select2 level","data-type"=>"level")) }}
                 </div>
 
                 <div class="form-group hidden S">
-                    <label class="control-label" for="field-1">Services</label>
+                    <label class="control-label" for="field-1">Service</label>
                     {{ Form::select('services', $allservice, '', array("class"=>"select2","data-type"=>"service")) }}
                 </div>
                 <div class="form-group T">
@@ -27,13 +27,16 @@
                     {{ Form::select('TrunkID', $trunks, '', array("class"=>"select2","data-type"=>"trunk")) }}
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="control-label">Customers</label>
-                    {{Form::select('SourceCustomers[]', $all_customers, array() ,array("class"=>"form-control select2",'multiple'))}}
+                    <label for="field-1" class="control-label">Currency</label>
+                    {{Form::select('Currency', $currencies, $CurrencyID ,array("class"=>"form-control select2 currency"))}}
                 </div>
-
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Account</label>
+                    {{Form::select('SourceCustomers[]', $all_customers, array() ,array("class"=>"form-control select2",'multiple','id'=>"Customerlist"))}}
+                </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Rate Table</label>
-                    {{Form::select('RateTableId', $rate_tables, array() ,array("class"=>"form-control select2"))}}
+                    {{Form::select('RateTableId', $rate_tables, array() ,array("class"=>"form-control select2","id"=>"RateTableId"))}}
                 </div>
 
                 <div class="form-group">
@@ -55,15 +58,14 @@
             <a href="{{URL::to('/dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
         <li class="active">
-            <strong>Rate Table For Multi Acoount</strong>
+            <strong>Apply Rate Table</strong>
         </li>
     </ol>
-    <h3>Rate Table For Multi Acoount</h3>
+    <h3>Apply Rate Table</h3>
     <p style="text-align: right;">
         @if(User::checkCategoryPermission('RateTables','Add'))
-            <a href="#" id="add-new-rate-table" class="btn btn-primary ">
-                <i class="entypo-plus"></i>
-                Bulk Changes Selected
+            <a href="#" id="add-new-rate-table" class="btn btn-primary" title="Apply Rate table to Bulk Accounts">
+                Change Selected
             </a>
         @endif
 
@@ -72,59 +74,49 @@
     <div class="cler row">
         <div class="col-md-12">
             <form role="form" id="form1" method="post" class="form-horizontal form-groups-bordered validate" novalidate>
-                <div class="panel panel-primary" data-collapsed="0">
-                    <div class="panel-heading">
-                        <div class="panel-title">
-                            Rate Table For Multi Account
-                        </div>
-                        <div class="panel-options">
-                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                        </div>
-                    </div>
-                    <div class="panel-body">
-                        <div class="form-group">
-                            <div class="col-md-12">
-                                {{-- Service Level --}}
-                                <table class="table table-bordered datatable" id="table-service">
-                                    <thead>
-                                    <tr>
-                                        <th><input type="checkbox" class="selectallcust" name="customer[]" /></th>
-                                        <th>Customer Name</th>
-                                        <th>Inbound Rate Table</th>
-                                        <th>Outbound Rate Table</th>
-                                        <th id="servicenametd">Service Name</th>
-                                        <th >Action</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                                {{-- Trunk Level--}}
-                                <table class="table table-bordered datatable" id="table-trunk">
-                                    <thead>
-                                    <tr>
-                                        <th><input type="checkbox" class="selectallcust" name="customer[]" /></th>
-                                        <th>Customer Name</th>
-                                        <th>Rate Table</th>
-                                        <th>Trunk</th>
-                                        <th>Action</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
+
+                <div class="form-group">
+                    <div class="col-md-12">
+                        {{-- Service Level --}}
+                        <table class="table table-bordered datatable" id="table-service">
+                            <thead>
+                            <tr>
+                                <th><input type="checkbox" class="selectallcust" id="selectall" name="customer[]" /></th>
+                                <th>Account Name</th>
+                                <th>Inbound Rate Table</th>
+                                <th>Outbound Rate Table</th>
+                                <th id="servicenametd">Service Name</th>
+                                <th >Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                        {{-- Trunk Level--}}
+                        <table class="table table-bordered datatable" id="table-trunk">
+                            <thead>
+                            <tr>
+                                <th><input type="checkbox" class="selectallcust" id="selectall_trunk" name="customer[]" /></th>
+                                <th>Account Name</th>
+                                <th>Rate Table</th>
+                                <th>Trunk</th>
+                                <th>Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
 
 
-                            </div>
-                        </div>
                     </div>
                 </div>
+
             </form>
         </div>
     </div>
 
     <script type="text/javascript">
-
+        var checked = '';
         jQuery(document).ready(function($) {
 
             var levellbl = $("#ratetable_filter select[name='level']").val();
@@ -143,6 +135,7 @@
                 $searchFilter.SourceCustomers = $("#ratetable_filter select[name='SourceCustomers[]']").val();
                 $searchFilter.services = $('#ratetable_filter [name="services"]').val();
                 $searchFilter.level = $('#ratetable_filter [name="level"]').val();
+                $searchFilter.Currency = $("#ratetable_filter select[name='Currency']").val();
                 if(jQuery.isEmptyObject($searchFilter.SourceCustomers) == false){
                     $searchFilter.SourceCustomers = $searchFilter.SourceCustomers.join(",");}
 
@@ -192,7 +185,7 @@
                         {
                             mRender: function(id, type, full) {
                                 var action;
-                                action = '<a title="Edit" data-id="'+ full[0] +'" data-OutboundRatetable="'+full[7]+'" data-inboundRatetable="'+full[6]+'" data-serviceId="'+full[5]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
+                                action = '<a title="Edit" data-id="'+ full[0] +'" data-OutboundRatetable="'+full[8]+'" data-inboundRatetable="'+full[7]+'" data-serviceId="'+full[5]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
 
                                 return action;
                             }
@@ -200,19 +193,28 @@
                     ]
                 }
 
+                if(typeof $searchFilter.Currency  == 'undefined' || $searchFilter.Currency == '' ){
+                    setTimeout(function(){
+                        $('.btn').button('reset');
+                    },10);
+                    toastr.error("Please Select a Currency", "Error", toastr_opts);
+                    return false;
+                }
+
                 data_table = $("#"+tableid).dataTable({
                     "bDestroy": true,
                     "bProcessing": true,
                     "bServerSide": true,
-                    "sAjaxSource": baseurl + "/rate_tables/multiaccounts/ajax_datagrid/type",
+                    "sAjaxSource": baseurl + "/rate_tables/apply_rate_table/ajax_datagrid/type",
                     "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                     "sPaginationType": "bootstrap",
-                    "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                    "sDom": "<'row'<'col-xs-6 col-left'<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                     "oTableTools": {},
-                    "aaSorting": [[1, "desc"]],
+                    "aaSorting": [[1, "asc"]],
                     "fnServerParams": function(aoData) {
                         aoData.push(
                                 {"name":"TrunkID","value":$searchFilter.TrunkID},
+                                {"name":"Currency","value":$searchFilter.Currency},
                                 {"name":"RateTableId","value":$searchFilter.RateTableId},
                                 {"name":"SourceCustomers","value":$searchFilter.SourceCustomers},
                                 {"name":"level","value":$searchFilter.level},
@@ -221,6 +223,7 @@
                         data_table_extra_params.length = 0;
                         data_table_extra_params.push(
                                 {"name":"TrunkID","value":$searchFilter.TrunkID},
+                                {"name":"Currency","value":$searchFilter.Currency},
                                 {"name":"RateTableId","value":$searchFilter.RateTableId},
                                 {"name":"SourceCustomers","value":$searchFilter.SourceCustomers},
                                 {"name":"level","value":$searchFilter.level},
@@ -236,27 +239,57 @@
                             {
                                 "sExtends": "download",
                                 "sButtonText": "EXCEL",
-                                "sUrl": baseurl + "/rate_tables/multiaccounts/ajax_datagrid/xlsx",
+                                "sUrl": baseurl + "/rate_tables/apply_rate_table/ajax_datagrid/xlsx",
                                 sButtonClass: "save-collection btn-sm"
                             },
                             {
                                 "sExtends": "download",
                                 "sButtonText": "CSV",
-                                "sUrl": baseurl + "/rate_tables/multiaccounts/ajax_datagrid/csv",
+                                "sUrl": baseurl + "/rate_tables/apply_rate_table/ajax_datagrid/csv",
                                 sButtonClass: "save-collection btn-sm"
                             }
                         ]
                     },
                     "fnDrawCallback": function() {
-                        $(".selectallcust").click(function(ev) {
-                            var is_checked = $(this).is(':checked');
-                            $("#"+tableid +' tbody tr').each(function(i, el) {
-                                if (is_checked) {
-                                    $(this).find('.rowcheckbox').prop("checked", true);
+
+                        $('#'+tableid +' tbody tr').each(function (i, el) {
+                            if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                                if (checked != '') {
+                                    $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                                    $(this).addClass('selected');
+                                    $('#selectallbutton').prop("checked", true);
                                 } else {
-                                    $(this).find('.rowcheckbox').prop("checked", false);
+                                    $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                                    $(this).removeClass('selected');
                                 }
-                            });
+                            }
+                        });
+
+                        default_row_selected(tableid,'selectall','selectallbutton');
+                        select_all_top('selectallbutton',tableid,'selectall');
+                        selected_all('selectall_trunk',tableid);
+                        selected_all('selectall_service',tableid);
+                        table_row_select(tableid,'selectallbutton');
+
+                        $('#selectallbutton').click(function (ev) {
+                            if ($(this).is(':checked')) {
+                                checked = 'checked=checked disabled';
+                                $("#selectall_trunk").prop("checked", true).prop('disabled', true);
+                                $("#selectall").prop("checked", true).prop('disabled', true);
+                                $(".allpage").html('<input type="hidden" name="chk_Currency" value=' + $searchFilter.Currency + ' >' +
+                                        '<input type="hidden" name="chk_RateTableId" value=' + $searchFilter.RateTableId + ' >' +
+                                        '<input type="hidden" name="chk_SourceCustomers" value=' + $searchFilter.SourceCustomers + ' >' +
+                                        '<input type="hidden" name="chk_Trunkid" value=' + $searchFilter.TrunkID + ' >' +
+                                        '<input type="hidden" name="chk_services" value=' + $searchFilter.services + ' >' +
+                                        '<input type="hidden" name="chk_allpageschecked" value="Y" >');
+
+                            } else {
+                                checked = '';
+                                $("#selectall_trunk").prop("checked", false).prop('disabled', false);
+                                $("#selectall").prop("checked", false).prop('disabled', false);
+                                $("input[name='chk_allpageschecked']").val('N');
+
+                            }
                         });
 
                         $(".dataTables_wrapper select").select2({
@@ -266,6 +299,7 @@
 
                     }
                 });
+                $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
                 return false;
 
             });
@@ -277,9 +311,13 @@
                 ev.stopPropagation();
                 $('#modal-add-new-rate-table').trigger("reset");
 
+                $('#ServiceID').select2('disable');
+                $("#modal-add-new-rate-table [name='AccountServiceId']").val($(this).attr('data-serviceId'));
+
                 /* For Service Level */
                 $("#modal-add-new-rate-table [name='selected_customer']").val($(this).attr('data-id'));
                 var dataInBound = $(this).attr('data-inboundRatetable')!= 'null' ?  $(this).attr('data-inboundRatetable') : '';
+
                 $("#modal-add-new-rate-table [name='InboundRateTable']").select2('val', dataInBound);
                 var dataOutBound = $(this).attr('data-OutboundRatetable')!= 'null' ?  $(this).attr('data-OutboundRatetable') : '';
                 $("#modal-add-new-rate-table [name='OutboundRateTable']").select2('val', dataOutBound);
@@ -293,6 +331,7 @@
 
                 var level = $("#ratetable_filter select[name='level']").val();
                 $("input[name='selected_level']").val(level);
+
                 $('#modal-add-new-rate-table').modal('show');
 
             });
@@ -300,23 +339,26 @@
             $("#add-new-rate-table").click(function(ev) {
 
                 ev.preventDefault();
+                $('#ServiceID').select2('enable');
+                $("#modal-add-new-rate-table [name='AccountServiceId']").val('');
                 $('#modal-add-new-rate-table').modal('show', {backdrop: 'static'});
                 /* Get selected Customer */
                 var favorite = [];
                 $.each($("input[name='customer[]']:checked"), function(){
                     favorite.push($(this).val());
                 });
-                favorite.shift()
                 $.unique(favorite);
                 $("input[name='selected_customer']").val(favorite.join(","));
                 var level = $("#ratetable_filter select[name='level']").val();
                 $("input[name='selected_level']").val(level);
                 /* Get selected Customer */
+
+
             });
 
             $("#add-new-form").submit(function(ev){
                 ev.preventDefault();
-                update_new_url = baseurl + '/rate_tables/multiaccounts/store';
+                update_new_url = baseurl + '/rate_tables/apply_rate_table/store';
                 submit_ajax(update_new_url,$("#add-new-form").serialize());
             });
 
@@ -329,7 +371,56 @@
 
             });
 
+            $(".currency").change(function(){
+                var currencyID = $(this).val();
+                if(currencyID > 0) {
+                    $("#Customerlist").select2("val", "");
+                    getRateTableAndAccountByCurrency(currencyID);
+                }
+            });
+            getRateTableAndAccountByCurrency('{{$CurrencyID}}');
+
         });
+
+        function getRateTableAndAccountByCurrency(currencyID){
+            $.ajax({
+                url: baseurl + "/rate_tables/apply_rate_table/ajax_getRateTableAndAccountByCurrency",
+                dataType: 'json',
+                type: 'post',
+                data: {id: currencyID},
+                success: function (response) {
+                    var ratetable = response.ratetablelist;
+                    var key = "";
+                    delete ratetable[key];
+                    $('#RateTableId').html();
+                    var $select = $('#RateTableId');
+                    var $RateTable_Id = $('#RateTable_Id');
+                    var $InboundRateTable = $('#InboundRateTable');
+                    var $OutboundRateTable = $('#OutboundRateTable');
+                    var select = '<option value="">Select</option>';
+                    $.each(ratetable, function (key, value) {
+                        select += '<option value=' + key + '>' + value + '</option>';
+                    });
+                    $select.html(select);
+                    $RateTable_Id.html(select);
+                    $InboundRateTable.html(select);
+                    $OutboundRateTable.html(select);
+
+
+                    /* Accountlist as per Currency selected */
+                    var accountlist = response.accountlist;
+                    delete accountlist[key];
+                    $('#RateTableId').html();
+                    var $select = $('#Customerlist');
+                    var select = '<option value="">Select</option>';
+                    $.each(accountlist, function (key, value) {
+                        select += '<option value=' + key + '>' + value + '</option>';
+                    });
+                    $select.html(select);
+
+                }
+            });
+        }
 
     </script>
 
@@ -337,8 +428,13 @@
     @include('includes.success')
     @include('trunk.trunkmodal')
     @include('currencies.currencymodal')
-
+    <style>
+        #selectcheckbox{
+            padding: 15px 10px;
+        }
+    </style>
 @stop
+
 @section('footer_ext')
     @parent
     <div class="modal fade" id="modal-add-new-rate-table">
@@ -347,22 +443,25 @@
                 <form id="add-new-form" method="post">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Apply RateTable to Customer</h4>
+                        <h4 class="modal-title">Bulk Apply Rate Table</h4>
                     </div>
                     <div class="modal-body">
                         <input type="hidden" name="selected_customer">
                         <input type="hidden" name="selected_level">
+                        <div class="allpage"><input type="hidden" name="chk_allpageschecked" value="N" ></div>
                         <div class="row T">
                             <div class="col-md-6">
                                 <div class="form-group ">
                                     <label for="field-5" class="control-label">Trunk</label>
-                                    {{Form::SelectControl('trunk')}}
+                                    {{--{{Form::SelectControl('trunk')}}--}}
+                                    {{Form::select('TrunkID', $trunks, '',array("class"=>"form-control select2","id"=>"select2trunk"))}}
+
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group ">
                                     <label for="field-5" class="control-label">Rate Table</label>
-                                    {{Form::select('RateTable_Id', $rate_tables, '',array("class"=>"form-control select2"))}}
+                                    {{Form::select('RateTable_Id', $rate_tables, '',array("class"=>"form-control select2","id"=>"RateTable_Id"))}}
                                 </div>
                             </div>
 
@@ -371,21 +470,22 @@
                             <div class="col-md-12">
                                 <div class="form-group ">
                                     <label for="field-5" class="control-label">Select Service</label>
-                                    {{ Form::select('ServiceID', $allservice, '', array("class"=>"select2","data-type"=>"service")) }}
+                                    {{ Form::select('ServiceID', $allservice, '', array("class"=>"select2","data-type"=>"service","id"=>"ServiceID")) }}
+                                    <span id="AccountServiceIdspan"><input type="hidden" name="AccountServiceId" value=""> </span>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group ">
                                     {{-- <input type="checkbox" class="form-group" name="inboundcheck">--}}
                                     <label for="field-5" class="control-label">Inbound Rate Table</label>
-                                    {{Form::select('InboundRateTable', $rate_tables, '',array("class"=>"form-control select2"))}}
+                                    {{Form::select('InboundRateTable', $rate_tables, '',array("class"=>"form-control select2","id"=>"InboundRateTable"))}}
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     {{-- <input type="checkbox" class="form-group" name="outboundcheck">--}}
                                     <label for="field-5" class="control-label">Outbound Rate Table</label>
-                                    {{Form::select('OutboundRateTable', $rate_tables, '',array("class"=>"form-control select2"))}}
+                                    {{Form::select('OutboundRateTable', $rate_tables, '',array("class"=>"form-control select2","id"=>"OutboundRateTable"))}}
                                 </div>
                             </div>
 
