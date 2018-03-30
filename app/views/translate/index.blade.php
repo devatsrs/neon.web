@@ -29,6 +29,10 @@
                                 <i class="entypo-plus"></i>
                                 Add Label
                             </a>--}}
+                            <a class="btn btn-primary btn-sm btn-icon icon-left" id="save_trnslation" href="javascript:;"  data-loading-text="Loading...">
+                                <i class="entypo-floppy"></i>
+                                Save
+                            </a>
                             <a class="btn btn-primary btn-sm btn-icon icon-left" onclick="refresh_label();" href="javascript:;" >
                                 <i class="entypo-arrows-ccw"></i>
                                 Refresh
@@ -52,7 +56,7 @@
     </div>
 
 
-    <table class="table table-bordered datatable" id="table-4">
+    <table class="table table-bordered datatable loading" id="table-4">
         <thead>
         <tr>
             <th>System Name</th>
@@ -111,6 +115,51 @@
                 return false;
             });
 
+            $("#save_trnslation").click(function(){
+                var listLabels=new Array();
+                loading('.loading',1);
+                $(this).button('loading');
+                $(".text_language").each(function(){
+                    var label=$(this).parent().find("label");
+                    var text_val=$(this).val();
+                    var language=$(this).attr("data-languages");
+                    if(text_val==""){
+                        $(this).val(label.html());
+                        return false;
+                    }
+                    if(label.html() != text_val){
+                        label.html(text_val);
+                        if(language=="en"){
+                            label.parents("tr").find("td:eq(1)").html(text_val);
+                        }
+                        listLabels.push({ "system_name" : label.attr("data-system-name"), "value" : text_val});
+                    }
+                });
+
+                var postdata={ "language":$("#language").val(), "listLabels":listLabels}
+
+                if(listLabels.length){
+                    $.ajax({
+                        url: baseurl + "/translate/update",
+                        type: 'POST',
+                        dataType: 'JSON',
+                        success: function(response) {
+                            loading('.loading',0);
+                            $('#save_trnslation').button('reset');
+                            if (response.status == 'success') {
+                                toastr.success(response.message, "Success", toastr_opts);
+                            } else {
+                                toastr.error(response.message, "Error", toastr_opts);
+                            }
+                        },
+                        data: postdata
+                    });
+                }else{
+                    toastr.error("Please Change Translation Column", "Error", toastr_opts);
+                    loading('.loading',0);
+                    $('#save_trnslation').button('reset');
+                }
+            });
 
         });
         function rebindLanguageTable(){
@@ -155,9 +204,7 @@
                     ]
                 },
                 "fnDrawCallback": function() {
-                    $(".text_language").blur(function(){
-                        updateLanguageData(this);
-                    });
+
                     $(".text_delete").click(function(){
                         deleteLanguageData(this);
                     });
@@ -169,38 +216,16 @@
             } );
 
         }
-        function updateLanguageData(ele){
-
-            var label=$(ele).parent().find("label");
-            var text_val=$(ele).val();
-            var language=$(ele).attr("data-languages");
-            if(text_val==""){
-                $(ele).val(label.html());
-                return false;
-            }
-            if(label.html() != text_val){
-                label.html(text_val);
-                if(language=="en"){
-                    label.parents("tr").find("td:eq(1)").html(text_val);
-                }
-
-                var post_data = { "language" : language, "system_name" : label.attr("data-system-name"), "value" : text_val};
-                $.ajax({
-                    url: baseurl + "/translate/single_update",
-                    type: 'POST',
-                    dataType: 'JSON',
-                    success: function(response) {
-                        if (response.status == 'success') {
-                            toastr.success(response.message, "Success", toastr_opts);
-                        } else {
-                            toastr.error(response.message, "Error", toastr_opts);
-                        }
-                    },
-                    data: post_data
-                });
+        function loading(table,bit){
+            var panel = jQuery(table).closest('.loading');
+            if(bit==1){
+                blockUI(panel);
+                panel.addClass('reloading');
+            }else{
+                unblockUI(panel);
+                panel.removeClass('reloading');
             }
         }
-
         function deleteLanguageData(ele){
             if (!confirm("Are you sure?")) {
                 return ;
