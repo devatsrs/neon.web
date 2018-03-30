@@ -76,7 +76,7 @@
 										<div class="col-md-1">&nbsp;</div>
 										<div class="col-md-2">
 											<div class="make-switch switch-small">
-												<input type="checkbox" value="1" name="Status"  @if($valuesData['Status'] == 1 )checked=""@endif>
+												<input type="checkbox" value="1" name="Status"  @if($valuesData['Status'] == 1 )checked=""@endif autocomplete="off">
 											</div>
 										</div>
 									</div>
