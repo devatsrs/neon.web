@@ -1,23 +1,20 @@
 Use Ratemanagement3;
-
+/* insert order field at the last in table */
 ALTER TABLE `tblRateRule`
 ADD COLUMN `Order` INT(11) NULL AFTER `ModifiedBy`;
 
+/* update order for all old values in table as per ID */
+UPDATE tblRateRule SET `Order` = RateRuleId;
 
+/* update max+1 when clone raterule table items */
 DROP PROCEDURE IF EXISTS `prc_CloneRateRuleInRateGenerator`;
 DELIMITER //
 CREATE PROCEDURE `prc_CloneRateRuleInRateGenerator`(
-	IN `p_RateRuleID` INT
-,
+	IN `p_RateRuleID` INT,
 	IN `p_CreatedBy` VARCHAR(100)
-
 )
 BEGIN
-
-
-
 		select max(`Order`) into @max_order from tblRateRule 		where RateGeneratorId  = (		select RateGeneratorId 		from tblRateRule 		where RateRuleID  = p_RateRuleID	limit 1) ;
-
 
 		insert into tblRateRule
 		(	RateGeneratorId,	Code,	Description, `Order`,	created_at,	CreatedBy)
@@ -25,8 +22,6 @@ BEGIN
 				RateGeneratorId,	Code,	Description, (@max_order+1) , 	now(),	p_CreatedBy
 		from tblRateRule
 		where RateRuleID  = p_RateRuleID;
-
-
 
 		select LAST_INSERT_ID() into @NewRateRuleID;
 
@@ -36,7 +31,6 @@ BEGIN
 				@NewRateRuleID,AccountId,	now(), p_CreatedBy
 		from tblRateRuleSource
 		where RateRuleID  = p_RateRuleID;
-
 
 		insert into tblRateRuleMargin
 		(	RateRuleId,MinRate,MaxRate,AddMargin,FixedValue,created_at,CreatedBy )
