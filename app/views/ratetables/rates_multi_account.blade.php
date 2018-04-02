@@ -57,6 +57,9 @@
         <li>
             <a href="{{URL::to('/dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
+        <li>
+            <a href="{{URL::to('/rate_tables')}}">Rate Table</a>
+        </li>
         <li class="active">
             <strong>Apply Rate Table</strong>
         </li>
