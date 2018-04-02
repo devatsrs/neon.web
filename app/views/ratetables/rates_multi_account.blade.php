@@ -81,7 +81,7 @@
                         <table class="table table-bordered datatable" id="table-service">
                             <thead>
                             <tr>
-                                <th><input type="checkbox" class="selectallcust" id="selectall" name="customer[]" /></th>
+                                <th><input type="checkbox" class="table-service_selectall" id="table-service_selectall" name="service_selectall[]" /></th>
                                 <th>Account Name</th>
                                 <th>Inbound Rate Table</th>
                                 <th>Outbound Rate Table</th>
@@ -96,17 +96,17 @@
                         <table class="table table-bordered datatable" id="table-trunk">
                             <thead>
                             <tr>
-                                <th><input type="checkbox" class="selectallcust" id="selectall_trunk" name="customer[]" /></th>
+                                <th><input type="checkbox" class="table-trunk_selectall" id="table-trunk_selectall" name="trunk_selectall[]" /></th>
                                 <th>Account Name</th>
                                 <th>Rate Table</th>
                                 <th>Trunk</th>
+                                <th>Status</th>
                                 <th>Action</th>
                             </tr>
                             </thead>
                             <tbody>
                             </tbody>
                         </table>
-
 
                     </div>
                 </div>
@@ -140,7 +140,7 @@
                     $searchFilter.SourceCustomers = $searchFilter.SourceCustomers.join(",");}
 
                 if($searchFilter.level =='T'){
-
+                    var checknoxid = 'trunk_selectcheckbox';
                     var tableid = 'table-trunk';
                     $("#table-service").addClass('hidden');
                     $("#table-trunk").removeClass('hidden');
@@ -149,7 +149,8 @@
                     aoColumns = [
                         {"bSortable": false, //RateID
                             mRender: function(id, type, full) {
-                                return '<div class="checkbox "><input type="checkbox" name="customer[]" value="' + full[0] + '" class="rowcheckbox" ></div>';
+                                var account_trunk = full[0]+'_'+full[5];
+                                return '<div class="checkbox "><input type="checkbox" name="customer[]" value="' + account_trunk + '" class="rowcheckbox" ></div>';
                             }
                         },
                         {"bSortable": true},
@@ -158,14 +159,23 @@
                         {
                             mRender: function(id, type, full) {
                                 var action;
-                                action = '<a title="Edit" data-id="'+  full[0] +'" data-rateTableName="'+full[4]+'" data-TrunkID="'+full[5]+'"  class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
+                                var status = full[6] == 1 ? '<span class="btn btn-xs btn-success">Active</span>' : '<span class="btn btn-xs btn-danger">Inactive</span>';
+                                action = status;
+                                return action;
+                            }
+                        },
+                        {
+                            mRender: function(id, type, full) {
+                                var action;
+                                var account_trunk = full[0]+'_'+full[5];
+                                action = '<a title="Edit" data-id="'+  account_trunk +'" data-rateTableName="'+full[4]+'" data-TrunkID="'+full[5]+'"  class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
                                 return action;
                             }
                         },
                     ]
 
                 }else{
-
+                    var checknoxid = 'service_selectcheckbox';
                     var tableid = 'table-service';
                     $("#table-service").removeClass('hidden');
                     $("#table-trunk").addClass('hidden');
@@ -175,7 +185,8 @@
                     aoColumns = [
                         {"bSortable": false,
                             mRender: function(id, type, full) {
-                                return '<div class="checkbox "><input type="checkbox" name="customer[]" value="' + full[0] + '" class="rowcheckbox" ></div>';
+                                var account_service = full[0]+'_'+full[5];
+                                return '<div class="checkbox "><input type="checkbox" name="customer[]" value="' + account_service + '" class="rowcheckbox" ></div>';
                             }
                         },
                         {"bSortable": true},
@@ -185,8 +196,8 @@
                         {
                             mRender: function(id, type, full) {
                                 var action;
-                                action = '<a title="Edit" data-id="'+ full[0] +'" data-OutboundRatetable="'+full[8]+'" data-inboundRatetable="'+full[7]+'" data-serviceId="'+full[5]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
-
+                                var account_service = full[0]+'_'+full[5];
+                                action = '<a title="Edit" data-id="'+ account_service +'" data-OutboundRatetable="'+full[8]+'" data-inboundRatetable="'+full[7]+'" data-serviceId="'+full[5]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
                                 return action;
                             }
                         },
@@ -208,7 +219,7 @@
                     "sAjaxSource": baseurl + "/rate_tables/apply_rate_table/ajax_datagrid/type",
                     "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                     "sPaginationType": "bootstrap",
-                    "sDom": "<'row'<'col-xs-6 col-left'<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                    "sDom": "<'row'<'col-xs-6 col-left'<'#"+checknoxid+".col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                     "oTableTools": {},
                     "aaSorting": [[1, "asc"]],
                     "fnServerParams": function(aoData) {
@@ -251,31 +262,43 @@
                         ]
                     },
                     "fnDrawCallback": function() {
-
+                        var table_select_all = tableid+'_selectall';
                         $('#'+tableid +' tbody tr').each(function (i, el) {
-                            if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
-                                if (checked != '') {
-                                    $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
-                                    $(this).addClass('selected');
-                                    $('#selectallbutton').prop("checked", true);
-                                } else {
-                                    $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
-                                    $(this).removeClass('selected');
-                                }
+                            if (checked != '') {
+
+                                $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                                $(this).addClass('selected');
+                                $('.selectallbutton').prop("checked", true);
+                                $("#"+table_select_all).prop("checked", true).prop('disabled', true);
+
+                            } else {
+
+                                $("#"+table_select_all).prop("checked", false).prop('disabled', false);
+                                $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                                $(this).removeClass('selected');
+
                             }
                         });
+
+                       /*
+
 
                         default_row_selected(tableid,'selectall','selectallbutton');
                         select_all_top('selectallbutton',tableid,'selectall');
                         selected_all('selectall_trunk',tableid);
                         selected_all('selectall_service',tableid);
-                        table_row_select(tableid,'selectallbutton');
+                        table_row_select(tableid,'selectallbutton');*/
 
-                        $('#selectallbutton').click(function (ev) {
+                        $('.selectallbutton').click(function (ev) {
                             if ($(this).is(':checked')) {
                                 checked = 'checked=checked disabled';
-                                $("#selectall_trunk").prop("checked", true).prop('disabled', true);
-                                $("#selectall").prop("checked", true).prop('disabled', true);
+                                
+                                $("#"+table_select_all).prop("checked", true).prop('disabled', true);
+                                $('#'+tableid +' tbody tr').each(function (i, el) {
+                                    $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                                    $(this).addClass('selected');
+                                });
+
                                 $(".allpage").html('<input type="hidden" name="chk_Currency" value=' + $searchFilter.Currency + ' >' +
                                         '<input type="hidden" name="chk_RateTableId" value=' + $searchFilter.RateTableId + ' >' +
                                         '<input type="hidden" name="chk_SourceCustomers" value=' + $searchFilter.SourceCustomers + ' >' +
@@ -285,8 +308,11 @@
 
                             } else {
                                 checked = '';
-                                $("#selectall_trunk").prop("checked", false).prop('disabled', false);
-                                $("#selectall").prop("checked", false).prop('disabled', false);
+                                $("#"+table_select_all).prop("checked", false).prop('disabled', false);
+                                $('#'+tableid +' tbody tr').each(function (i, el) {
+                                    $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                                    $(this).removeClass('selected');
+                                });
                                 $("input[name='chk_allpageschecked']").val('N');
 
                             }
@@ -299,10 +325,63 @@
 
                     }
                 });
-                $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
+                $("#"+checknoxid).append('<input type="checkbox" class="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
                 return false;
 
             });
+
+
+            //Select Row on click
+            $('#table-trunk tbody').on('click', 'tr', function () {
+                if (checked == '') {
+                    $(this).toggleClass('selected');
+                    if ($(this).hasClass("selected")) {
+                        $(this).find('.rowcheckbox').prop("checked", true);
+                    } else {
+                        $(this).find('.rowcheckbox').prop("checked", false);
+                    }
+                }
+            });
+            //Select Row on click
+            $('#table-service tbody').on('click', 'tr', function () {
+                $(this).toggleClass('selected');
+                if ($(this).hasClass("selected")) {
+                    $(this).find('.rowcheckbox').prop("checked", true);
+                } else {
+                    $(this).find('.rowcheckbox').prop("checked", false);
+                }
+            });
+
+            // Select all by table-service
+            $("#table-service_selectall").click(function (ev) {
+                var is_checked = $(this).is(':checked');
+                $('#table-service tbody tr').each(function (i, el) {
+                    if (is_checked) {
+                        $(this).find('.rowcheckbox').prop("checked", true);
+                        $(this).addClass('selected');
+                    } else {
+                        $(this).find('.rowcheckbox').prop("checked", false);
+                        $(this).removeClass('selected');
+                    }
+                });
+            });
+
+            // Select all by table-trunk
+            $("#table-trunk_selectall").click(function (ev) {
+                var is_checked = $(this).is(':checked');
+                $('#table-trunk tbody tr').each(function (i, el) {
+                    if (is_checked) {
+                        $(this).find('.rowcheckbox').prop("checked", true);
+                        $(this).addClass('selected');
+                    } else {
+                        $(this).find('.rowcheckbox').prop("checked", false);
+                        $(this).removeClass('selected');
+                    }
+                });
+            });
+
+
+
 
             $('table tbody').on('click','.edit-ratetable',function(ev){
 
@@ -311,8 +390,8 @@
                 ev.stopPropagation();
                 $('#modal-add-new-rate-table').trigger("reset");
 
-                $('#ServiceID').select2('disable');
-                $("#modal-add-new-rate-table [name='AccountServiceId']").val($(this).attr('data-serviceId'));
+                /*$('#ServiceID').select2('disable');
+                $("#modal-add-new-rate-table [name='AccountServiceId']").val($(this).attr('data-serviceId'));*/
 
                 /* For Service Level */
                 $("#modal-add-new-rate-table [name='selected_customer']").val($(this).attr('data-id'));
@@ -344,8 +423,8 @@
                 $("#modal-add-new-rate-table [name='OutboundRateTable']").select2('val', '');
                 $("#modal-add-new-rate-table [name='ServiceID']").select2('val', '');
 
-                $('#ServiceID').select2('enable');
-                $("#modal-add-new-rate-table [name='AccountServiceId']").val('');
+                /*$('#ServiceID').select2('enable');
+                $("#modal-add-new-rate-table [name='AccountServiceId']").val('');*/
                 $('#modal-add-new-rate-table').modal('show', {backdrop: 'static'});
                 /* Get selected Customer */
                 var favorite = [];
@@ -369,10 +448,16 @@
 
             $(".level").click(function(){
 
+
                 var levellbl = $("#ratetable_filter select[name='level']").val();
                 var levelhidden =  levellbl=='T'?'S':'T';
                 $('.'+levellbl).removeClass('hidden');
                 $('.'+levelhidden).addClass('hidden');
+
+                if(  $('.table-trunk_selectall').prop("checked") == false || $('.table-service_selectall').prop("checked") == false );
+                {
+                    $(".rowcheckbox").prop('checked', false);
+                }
 
             });
 
@@ -434,7 +519,7 @@
     @include('trunk.trunkmodal')
     @include('currencies.currencymodal')
     <style>
-        #selectcheckbox{
+        #service_selectcheckbox , #trunk_selectcheckbox{
             padding: 15px 10px;
         }
     </style>
@@ -455,15 +540,8 @@
                         <input type="hidden" name="selected_level">
                         <div class="allpage"><input type="hidden" name="chk_allpageschecked" value="N" ></div>
                         <div class="row T">
-                            <div class="col-md-6">
-                                <div class="form-group ">
-                                    <label for="field-5" class="control-label">Trunk</label>
-                                    {{--{{Form::SelectControl('trunk')}}--}}
-                                    {{Form::select('TrunkID', $trunks, '',array("class"=>"form-control select2","id"=>"select2trunk"))}}
 
-                                </div>
-                            </div>
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group ">
                                     <label for="field-5" class="control-label">Rate Table</label>
                                     {{Form::select('RateTable_Id', $rate_tables, '',array("class"=>"form-control select2","id"=>"RateTable_Id"))}}
@@ -472,13 +550,13 @@
 
                         </div>
                         <div class="row S">
-                            <div class="col-md-12">
+                            {{--<div class="col-md-12">
                                 <div class="form-group ">
                                     <label for="field-5" class="control-label">Select Service</label>
                                     {{ Form::select('ServiceID', $allservice, '', array("class"=>"select2","data-type"=>"service","id"=>"ServiceID")) }}
                                     <span id="AccountServiceIdspan"><input type="hidden" name="AccountServiceId" value=""> </span>
                                 </div>
-                            </div>
+                            </div>--}}
                             <div class="col-md-6">
                                 <div class="form-group ">
                                     {{-- <input type="checkbox" class="form-group" name="inboundcheck">--}}
