@@ -322,6 +322,7 @@ BEGIN
 	SELECT
 	*
 	FROM (SELECT
+	  Distinct
 		uh.CompanyID,
 		uh.CompanyGatewayID,
 		uh.GatewayAccountID,
@@ -353,7 +354,7 @@ BEGIN
 		remote_ip,
 		duration,
 		"',p_ProcessID,'",
-		ID,
+		ud.ID,
 		is_inbound,
 		billed_second,
 		disposition,
@@ -361,10 +362,14 @@ BEGIN
 		IFNULL(ga.AccountName,""),
 		IFNULL(ga.AccountNumber,""),
 		IFNULL(ga.AccountCLI,""),
-		IFNULL(ga.AccountIP,"")
+		IFNULL(ga.AccountIP,""),
+    dr.cc_type
 	FROM RMCDR3.tblUsageDetails  ud
 	INNER JOIN RMCDR3.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
+	LEFT JOIN RMCDR3.tblRetailUsageDetail dr
+	  ON ud.UsageDetailID = dr.UsageDetailID
+	     AND ud.ID = dr.ID
 	INNER JOIN Ratemanagement3.tblAccount a
 		ON uh.AccountID = a.AccountID
 	LEFT JOIN tblGatewayAccount ga
