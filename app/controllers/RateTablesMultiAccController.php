@@ -93,7 +93,7 @@ class RateTablesMultiAccController extends \BaseController {
                     $queryAllAcc = " 'N',0,0,0,'' " ;
                 }
 
-                $rules = array(
+                /*$rules = array(
                     'RateTable_Id' => 'required'
                 );
                 $message = ['RateTable_Id.required'=>'Rate Table field is required'
@@ -101,7 +101,7 @@ class RateTablesMultiAccController extends \BaseController {
                 $validator = Validator::make($data, $rules, $message);
                 if ($validator->fails()) {
                     return json_validator_response($validator);
-                }
+                }*/
                 $query = "call prc_applyRateTableTomultipleAccByTrunk (".$companyID.",'".$selected_customer."','".$RateTable_Id."','".$creaedBy."',$queryAllAcc)";
                 DataTableSql::of($query)->make();
                 \Illuminate\Support\Facades\Log::info($query);
@@ -122,19 +122,10 @@ class RateTablesMultiAccController extends \BaseController {
                     $queryAllAcc = " 'N',0,0,0,'' " ;
                 }
 
-                /*$rules = array(
-                    'ServiceID' => 'required',
-                );
-                $message = ['InboundRateTable.required'=>'In Bound Rate Table field is required',
-                    'OutboundRateTable.required'=>'Out Bound Rate Table field is required',
-                    'ServiceID.required'=>'Service is required'
-                ];
-                $validator = Validator::make($data, $rules, $message);
-                if ($validator->fails()) {
-                    return json_validator_response($validator);
-                }*/
 
-                if(!empty($data["InboundRateTable"]) || !empty($data["InboundRateTable"]) ){
+
+                /*if(!empty($data["InboundRateTable"]) || !empty($data["InboundRateTable"]) ){*/
+
                     $InboundRateTable = (!empty($data["InboundRateTable"]) && $data["InboundRateTable"] > 0 ) ? $data["InboundRateTable"] : 0;
                     $OutboundRateTable = (!empty($data["OutboundRateTable"]) && $data["OutboundRateTable"] > 0 ) ? $data["OutboundRateTable"] : 0;
                     $query = "call prc_applyRateTableTomultipleAccByService (".$companyID.",'".$selected_customer."','".$InboundRateTable."','".$OutboundRateTable."','".$creaedBy."',$queryAllAcc)";
@@ -146,9 +137,11 @@ class RateTablesMultiAccController extends \BaseController {
                         $message =  "Oops Somethings Wrong !";
                         return json_encode(["status" => "fail", "message" => $message]);
                     }
-                }else{
+
+                /*}else{
+
                     return Response::json(array("status" => "fail", "message" => "Select Inbound Or Outbound Ratetable"));
-                }
+                }*/
 
             }
 
