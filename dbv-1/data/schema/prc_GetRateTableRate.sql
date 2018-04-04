@@ -22,6 +22,10 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_GetRateTableRate`(
 
 
 
+
+
+
+
 )
 BEGIN
 	DECLARE v_OffSet_ int;
@@ -58,7 +62,7 @@ BEGIN
         ifnull(tblRateTableRate.Interval1,1) as Interval1,
         ifnull(tblRateTableRate.IntervalN,1) as IntervalN,
 		  tblRateTableRate.ConnectionFee,
-        IFNULL(tblRateTableRate.PreviousRate, 0) as PreviousRate,
+        null as PreviousRate,
         IFNULL(tblRateTableRate.Rate, 0) as Rate,
         IFNULL(tblRateTableRate.EffectiveDate, NOW()) as EffectiveDate,
         tblRateTableRate.EndDate,
@@ -89,6 +93,19 @@ BEGIN
          DELETE n1 FROM tmp_RateTableRate_ n1, tmp_RateTableRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
 		   AND  n1.RateID = n2.RateID;
 		END IF;
+
+	-- update Previous Rates
+	UPDATE
+		tmp_RateTableRate_ tr
+	SET
+		PreviousRate = (SELECT Rate FROM tblRateTableRate WHERE RateTableID=p_RateTableId AND RateID=tr.RateID AND Code=tr.Code AND EffectiveDate<tr.EffectiveDate ORDER BY EffectiveDate DESC,RateTableRateID DESC LIMIT 1);
+
+	UPDATE
+		tmp_RateTableRate_ tr
+	SET
+		PreviousRate = (SELECT Rate FROM tblRateTableRateArchive WHERE RateTableID=p_RateTableId AND RateID=tr.RateID AND Code=tr.Code AND EffectiveDate<tr.EffectiveDate ORDER BY EffectiveDate DESC,RateTableRateID DESC LIMIT 1)
+	WHERE
+		PreviousRate is null;
 
     IF p_isExport = 0
     THEN
@@ -215,10 +232,10 @@ BEGIN
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateASC') THEN ANY_VALUE(EffectiveDate)
                 END ASC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateDESC') THEN EndDate
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateDESC') THEN ANY_VALUE(EndDate)
                 END DESC,
                 CASE
-                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateASC') THEN EndDate
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateASC') THEN ANY_VALUE(EndDate)
                 END ASC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atDESC') THEN ANY_VALUE(updated_at)
