@@ -684,9 +684,10 @@ Route::group(array('before' => 'auth'), function () {
 
 	//RateTables
 
-	Route::any('/rate_tables/multiaccounts', array('as' => 'customer_rates', 'uses' => 'RateTablesMultiAccController@index'));
-	Route::any('/rate_tables/multiaccounts/store', 'RateTablesMultiAccController@store');
-	Route::any('/rate_tables/multiaccounts/ajax_datagrid/{type}', 'RateTablesMultiAccController@ajax_datagrid');
+	Route::any('/rate_tables/apply_rate_table', array('as' => 'customer_rates', 'uses' => 'RateTablesMultiAccController@index'));
+	Route::any('/rate_tables/apply_rate_table/store', 'RateTablesMultiAccController@store');
+	Route::any('/rate_tables/apply_rate_table/ajax_datagrid/{type}', 'RateTablesMultiAccController@ajax_datagrid');
+	Route::any('/rate_tables/apply_rate_table/ajax_getRateTableAndAccountByCurrency', 'RateTablesMultiAccController@getRateTableAndAccountByCurrency');
 	Route::any('/rate_tables/{id}/search_ajax_datagrid_archive_rates', 'RateTablesController@search_ajax_datagrid_archive_rates'); // get archive rates for vendor rates grid
     Route::any('/rate_tables', array('as' => 'customer_rates', 'uses' => 'RateTablesController@index'));
 	Route::any('/rate_tables/{id}/search_ajax_datagrid', array('as' => 'customer_rates_search', 'uses' => 'RateTablesController@search_ajax_datagrid'));
@@ -907,7 +908,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/cdr_template/upload', 'CDRTemplateController@upload');
 	Route::any('/cdr_template/check_upload', 'CDRTemplateController@check_upload');
 	Route::any('/cdr_template/ajaxfilegrid', 'CDRTemplateController@ajaxfilegrid');
-	Route::any('/cdr_template/storeTemplate/gateway/{id}', 'CDRTemplateController@storeTemplate');
+	Route::any('/cdr_template/storeTemplate', 'CDRTemplateController@storeTemplate');
 
 	/////////////////
 	//Estimates
@@ -1234,7 +1235,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('translate', 'TranslateController@index');
 	Route::any('translate/change/{language}', 'TranslateController@changeLanguage');
 	Route::any('translate/search_ajax_datagrid', 'TranslateController@search_ajax_datagrid');
-	Route::any('translate/single_update', 'TranslateController@process_singleUpdate');
+	Route::any('translate/update', 'TranslateController@process_multipalUpdate');
 	Route::any('translate/single_delete', 'TranslateController@process_singleDelete');
 	Route::any('/translate/{languageCode}/exports/{type}', 'TranslateController@exports');
 	Route::any('translate/new_system_name', 'TranslateController@new_system_name');

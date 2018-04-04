@@ -11,10 +11,10 @@ class CDRTemplateController extends BaseController {
     /** CDR Upload
      * @return mixed
      */
-    public function index($GatewayId) {
+    public function index($CompanyGatewayID) {
         //$gateway = CompanyGateway::getCompanyGatewayIdList();
         $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_CDR);
-        return View::make('cdrtemplate.upload',compact('UploadTemplate'));
+        return View::make('cdrtemplate.upload',compact('UploadTemplate','CompanyGatewayID'));
     }
 
     public function ajaxfilegrid(){
@@ -36,7 +36,7 @@ class CDRTemplateController extends BaseController {
             return Response::json(array("status" => "failed", "message" => $e->getMessage()));
         }
     }
-    public function storeTemplate($GatewayId) {
+    public function storeTemplate() {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
@@ -50,14 +50,10 @@ class CDRTemplateController extends BaseController {
                 'CompanyGatewayID' => 'required'
                 );
         }
-        $rules['Account'] = 'required';
-        $rules['Authentication'] = 'required';
-        $rules['connect_datetime'] = 'required';
+
         $rules['billed_duration'] = 'required';
         $rules['cld'] = 'required';
-        if($data['RateFormat'] == Company::CHARGECODE) {
-            $rules['ChargeCode'] = 'required';
-        }
+
         if(!empty($data['selection']['ChargeCode'])){
             $data['ChargeCode'] = $data['selection']['ChargeCode'];
         }
@@ -97,9 +93,9 @@ class CDRTemplateController extends BaseController {
         $save['created_by'] = User::get_user_full_name();
         $option["option"]= $data['option'];//['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
         $option["selection"] = $data['selection'];//['connect_time'=>$data['connect_time'],'disconnect_time'=>$data['disconnect_time'],'billed_duration'=>$data['billed_duration'],'duration'=>$data['duration'],'cld'=>$data['cld'],'cli'=>$data['cli'],'Account'=>$data['Account'],'cost'=>$data['cost']];
+        $option["CompanyGatewayID"] = $data['CompanyGatewayID'];
         $save['Options'] = json_encode($option);
         $save['Type'] = FileUploadTemplate::TEMPLATE_CDR;
-        $save['CompanyGatewayID'] = $data['CompanyGatewayID'];
         if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
             $template = FileUploadTemplate::find($data['FileUploadTemplateID']);
             $template->update($save);

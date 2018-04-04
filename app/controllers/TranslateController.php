@@ -69,15 +69,13 @@ class TranslateController extends \BaseController {
 
     }
 
-    function process_singleUpdate(){
+    function process_multipalUpdate(){
 
         $request = Input::all();
-        if($request["value"]==""){
-            return json_encode(["status" => "fail", "message" => "Required Translation"]);
-        }
+        $language = $request["language"];
+        $listLabels = $request["listLabels"];
 
-        Translation::update_label($request["language"], $request["system_name"], $request["value"]);
-
+        Translation::multi_update_labels($language, $listLabels);
         return json_encode(["status" => "success", "message" => ""]);
     }
 

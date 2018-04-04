@@ -156,6 +156,8 @@
                         <input type="text" name="Employee" class="form-control" id="field-1" placeholder="" value="{{$account->Employee}}" />
                     </div>
                 </div>
+                @if(is_reseller())
+                @else
                 <div class="form-group">
                     <label class="col-md-2 control-label">Reseller</label>
                     <div class="col-md-4">
@@ -169,6 +171,7 @@
                       {{Form::select('ResellerOwner',$reseller_owners,(isset($accountreseller)?$accountreseller:'') ,array("class"=>"select2"))}}
                     </div>
                 </div>
+                @endif
                 <div class="form-group">
                     <label for="field-1" class="col-md-2 control-label">Email</label>
                     <div class="col-md-4">
@@ -477,7 +480,7 @@
                     }*/
                     ?>
                     <label for="field-1" class="col-md-2 control-label">Billing Start Date*</label>
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         @if($billing_disable == '' || ($billing_disable == '' && isset($AccountBilling->BillingCycleType) && $AccountBilling->BillingCycleType != 'manual'))
                             {{Form::text('BillingStartDate', $BillingStartDate,array('class'=>'form-control datepicker billing_start_date',"data-date-format"=>"yyyy-mm-dd"))}}
                         @else
@@ -485,6 +488,7 @@
                             {{$BillingStartDate}}
                         @endif
                     </div>
+                    <div class="col-md-2">Generate First Invoice on this Date &nbsp;&nbsp;<input type="checkbox" @if(isset($AccountBilling->FirstInvoiceSend) && $AccountBilling->FirstInvoiceSend  == 1)checked="" @endif name="FirstInvoiceSend" value="1"></div>
                 </div>
                 @if(!empty($AccountNextBilling))
                     <?php

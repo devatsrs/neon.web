@@ -1,5 +1,9 @@
 Use `StagingReport`;	
 
+ALTER TABLE `tblHeader`
+	DROP INDEX `Unique_key`,
+	ADD UNIQUE INDEX `Unique_key` (`DateID`, `AccountID`, `CompanyID`);
+
 DROP PROCEDURE IF EXISTS `fnUsageSummary`;
 DELIMITER //
 CREATE PROCEDURE `fnUsageSummary`(

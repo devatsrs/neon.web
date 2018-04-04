@@ -302,9 +302,10 @@
                             {{Form::select('BillingTimezone', $timezones, '' ,array("class"=>"form-control select2"))}}
                         </div>
                         <label for="field-1" class="col-md-2 control-label">Billing Start Date*</label>
-                        <div class="col-md-4">
+                        <div class="col-md-2">
                             {{Form::text('BillingStartDate','',array('class'=>'form-control datepicker billing_start_date',"data-date-format"=>"yyyy-mm-dd"))}}
                         </div>
+                        <div class="col-md-2">Generate First Invoice on this Date &nbsp;&nbsp;<input type="checkbox"  name="FirstInvoiceSend" value="1"></div>
                     </div>
                     <div class="form-group">
                         <label for="field-1" class="col-md-2 control-label">Billing Cycle*</label>

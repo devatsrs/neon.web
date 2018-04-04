@@ -1,5 +1,8 @@
 USE `RMBilling3`;
 
+ALTER TABLE `tblAccountSubscription`
+	ADD COLUMN `Status` TINYINT(3) NULL DEFAULT '1' AFTER `ServiceID`;
+
 DROP PROCEDURE IF EXISTS `prc_DeleteCDR`;
 DELIMITER //
 CREATE PROCEDURE `prc_DeleteCDR`(
@@ -322,6 +325,7 @@ BEGIN
 	SELECT
 	*
 	FROM (SELECT
+	  Distinct
 		uh.CompanyID,
 		uh.CompanyGatewayID,
 		uh.GatewayAccountID,
@@ -353,7 +357,7 @@ BEGIN
 		remote_ip,
 		duration,
 		"',p_ProcessID,'",
-		ID,
+		ud.ID,
 		is_inbound,
 		billed_second,
 		disposition,
@@ -361,10 +365,14 @@ BEGIN
 		IFNULL(ga.AccountName,""),
 		IFNULL(ga.AccountNumber,""),
 		IFNULL(ga.AccountCLI,""),
-		IFNULL(ga.AccountIP,"")
+		IFNULL(ga.AccountIP,""),
+    dr.cc_type
 	FROM RMCDR3.tblUsageDetails  ud
 	INNER JOIN RMCDR3.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
+	LEFT JOIN RMCDR3.tblRetailUsageDetail dr
+	  ON ud.UsageDetailID = dr.UsageDetailID
+	     AND ud.ID = dr.ID
 	INNER JOIN Ratemanagement3.tblAccount a
 		ON uh.AccountID = a.AccountID
 	LEFT JOIN tblGatewayAccount ga
@@ -1509,6 +1517,318 @@ BEGIN
 	CALL prc_CreateRerateLog(p_processId,p_tbltempusagedetail_name,p_RateCDR);
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `fnUsageDetail`;
+DELIMITER //
+CREATE PROCEDURE `fnUsageDetail`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_GatewayID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_UserID` INT,
+	IN `p_isAdmin` INT,
+	IN `p_billing_time` INT,
+	IN `p_cdr_type` VARCHAR(50),
+	IN `p_CLI` VARCHAR(50),
+	IN `p_CLD` VARCHAR(50),
+	IN `p_zerovaluecost` INT
+)
+BEGIN
+	DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageDetails_;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageDetails_(
+		AccountID int,
+		AccountName varchar(100),
+		GatewayAccountID varchar(100),
+		trunk varchar(50),
+		area_prefix varchar(50),
+		pincode VARCHAR(50),
+		extension VARCHAR(50),
+		UsageDetailID int,
+		duration int,
+		billed_duration int,
+		billed_second int,
+		cli varchar(500),
+		cld varchar(500),
+		cost decimal(18,6),
+		connect_time datetime,
+		disconnect_time datetime,
+		is_inbound tinyint(1) default 0,
+		ID INT,
+		ServiceID INT
+	);
+	INSERT INTO tmp_tblUsageDetails_
+	SELECT
+	*
+	FROM (
+		SELECT
+			uh.AccountID,
+			a.AccountName,
+			uh.GatewayAccountID,
+			trunk,
+			area_prefix,
+			pincode,
+			extension,
+			UsageDetailID,
+			duration,
+			billed_duration,
+			billed_second,
+			cli,
+			cld,
+			cost,
+			connect_time,
+			disconnect_time,
+			ud.is_inbound,
+			ud.ID,
+			uh.ServiceID
+		FROM RMCDR3.tblUsageDetails  ud
+		INNER JOIN RMCDR3.tblUsageHeader uh
+			ON uh.UsageHeaderID = ud.UsageHeaderID
+		INNER JOIN Ratemanagement3.tblAccount a
+			ON uh.AccountID = a.AccountID
+		WHERE
+		(p_cdr_type = '' OR  ud.userfield LIKE CONCAT('%',p_cdr_type,'%'))
+		AND  StartDate >= DATE_ADD(p_StartDate,INTERVAL -1 DAY)
+		AND StartDate <= DATE_ADD(p_EndDate,INTERVAL 1 DAY)
+		AND a.CompanyId = p_CompanyID
+		AND uh.AccountID IS NOT NULL
+		AND (p_AccountID = 0 OR uh.AccountID = p_AccountID)
+		AND (p_GatewayID = 0 OR CompanyGatewayID = p_GatewayID)
+		AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
+		AND (p_CLI = '' OR cli LIKE REPLACE(p_CLI, '*', '%'))
+		AND (p_CLD = '' OR cld LIKE REPLACE(p_CLD, '*', '%'))
+		AND (p_zerovaluecost = 0 OR ( p_zerovaluecost = 1 AND cost = 0) OR ( p_zerovaluecost = 2 AND cost > 0))
+	) tbl
+	WHERE
+	( (p_billing_time =1 OR p_billing_time =3) AND connect_time >= p_StartDate AND connect_time <= p_EndDate)
+	OR
+	(p_billing_time =2 AND disconnect_time >= p_StartDate AND disconnect_time <= p_EndDate)
+	
+	
+	AND billed_duration > 0
+	ORDER BY disconnect_time DESC;
+END//
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_getAccountSubscription`;
+DELIMITER //
+CREATE PROCEDURE `prc_getAccountSubscription`(
+	IN `p_AccountID` INT,
+	IN `p_ServiceID` INT
+)
+BEGIN
+
+SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SELECT
+		tblAccountSubscription.*
+	FROM tblAccountSubscription
+		INNER JOIN tblBillingSubscription
+			ON tblAccountSubscription.SubscriptionID = tblBillingSubscription.SubscriptionID
+		INNER JOIN Ratemanagement3.tblAccountService
+			ON tblAccountService.AccountID = tblAccountSubscription.AccountID AND tblAccountService.ServiceID = tblAccountSubscription.ServiceID 
+		LEFT JOIN Ratemanagement3.tblAccountBilling 
+			ON tblAccountBilling.AccountID = tblAccountSubscription.AccountID AND tblAccountBilling.ServiceID =  tblAccountSubscription.ServiceID
+	WHERE tblAccountSubscription.AccountID = p_AccountID
+		AND tblAccountSubscription.`Status` = 1
+		AND Ratemanagement3.tblAccountService.`Status`=1
+		AND ( (p_ServiceID = 0 AND tblAccountBilling.ServiceID IS NULL) OR  tblAccountBilling.ServiceID = p_ServiceID)
+	ORDER BY SequenceNo ASC;
+
+SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `prc_GetAccountSubscriptions`;
+DELIMITER //
+CREATE PROCEDURE `prc_GetAccountSubscriptions`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_ServiceID` VARCHAR(50),
+	IN `p_SubscriptionName` VARCHAR(50),
+	IN `p_Status` INT,
+	IN `p_Date` DATE,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
+BEGIN 
+	DECLARE v_OffSet_ INT;
+SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+	
+	IF p_isExport = 0
+	THEN 
+		SELECT
+			sa.SequenceNo,
+			a.AccountName,
+			s.ServiceName,
+			sb.Name,
+			sa.InvoiceDescription,
+			sa.Qty,
+			sa.StartDate,
+			IF(sa.EndDate = '0000-00-00','',sa.EndDate) as EndDate,
+			sa.ActivationFee,
+			sa.DailyFee,
+			sa.WeeklyFee,
+			sa.MonthlyFee,
+			sa.QuarterlyFee,
+			sa.AnnuallyFee,
+			sa.AccountSubscriptionID,
+			sa.SubscriptionID,	
+			sa.ExemptTax,
+			a.AccountID,
+			s.ServiceID,
+			sa.`Status`
+		FROM tblAccountSubscription sa
+			INNER JOIN tblBillingSubscription sb
+				ON sb.SubscriptionID = sa.SubscriptionID
+			INNER JOIN Ratemanagement3.tblAccount a
+				ON sa.AccountID = a.AccountID
+			INNER JOIN Ratemanagement3.tblService s
+				ON sa.ServiceID = s.ServiceID
+		WHERE 	(p_AccountID = 0 OR a.AccountID = p_AccountID)
+			AND (p_SubscriptionName is null OR sb.Name LIKE concat('%',p_SubscriptionName,'%'))
+			AND (p_Status = sa.`Status`)
+			AND (p_ServiceID = 0 OR s.ServiceID = p_ServiceID)
+		ORDER BY
+			CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SequenceNoASC') THEN sa.SequenceNo
+			END ASC,
+			CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SequenceNoDESC') THEN sa.SequenceNo
+			END DESC,
+			CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameASC') THEN a.AccountName
+			END ASC,
+			CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN a.AccountName
+			END DESC,			
+			CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ServiceNameASC') THEN s.ServiceName
+			END ASC,
+			CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ServiceNameDESC') THEN s.ServiceName
+			END DESC,			
+			CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'NameASC') THEN sb.Name
+			END ASC,
+			CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'NameDESC') THEN sb.Name
+			END DESC,
+			CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'QtyASC') THEN sa.Qty
+			END ASC,
+			CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'QtyDESC') THEN sa.Qty
+			END DESC,
+			CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'StartDateASC') THEN sa.StartDate
+			END ASC,
+			CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'StartDateDESC') THEN sa.StartDate
+			END DESC,
+			CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateASC') THEN sa.EndDate
+			END ASC,
+			CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateDESC') THEN sa.EndDate
+			END DESC,
+			CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ActivationFeeASC') THEN sa.ActivationFee
+			END ASC,
+			CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ActivationFeeDESC') THEN sa.ActivationFee
+			END DESC,
+			CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DailyFeeASC') THEN sa.DailyFee
+			END ASC,
+			CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DailyFeeDESC') THEN sa.DailyFee
+			END DESC,
+			CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'WeeklyFeeASC') THEN sa.WeeklyFee
+			END ASC,
+			CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'WeeklyFeeDESC') THEN sa.WeeklyFee
+			END DESC,
+			CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MonthlyFeeASC') THEN sa.MonthlyFee
+			END ASC,
+			CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MonthlyFeeDESC') THEN sa.MonthlyFee
+			END DESC,
+			CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'QuarterlyFeeASC') THEN sa.QuarterlyFee
+			END ASC,
+			CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'QuarterlyFeeDESC') THEN sa.QuarterlyFee
+			END DESC,
+			CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AnnuallyFeeASC') THEN sa.AnnuallyFee
+			END ASC,
+			CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AnnuallyFeeDESC') THEN sa.AnnuallyFee
+			END DESC
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+
+		SELECT
+			COUNT(*) AS totalcount
+		FROM tblAccountSubscription sa
+			INNER JOIN tblBillingSubscription sb
+				ON sb.SubscriptionID = sa.SubscriptionID
+			INNER JOIN Ratemanagement3.tblAccount a
+				ON sa.AccountID = a.AccountID
+			INNER JOIN Ratemanagement3.tblService s
+				ON sa.ServiceID = s.ServiceID
+		WHERE 	(p_AccountID = 0 OR a.AccountID = p_AccountID)
+			AND (p_SubscriptionName is null OR sb.Name LIKE concat('%',p_SubscriptionName,'%'))
+			AND (p_Status = sa.`Status`)
+			AND (p_ServiceID = 0 OR s.ServiceID = p_ServiceID);
+	END IF;
+
+	IF p_isExport = 1
+	THEN
+		SELECT
+			sa.SequenceNo,
+			a.AccountName,
+			s.ServiceName,
+			sb.Name,
+			sa.InvoiceDescription,
+			sa.Qty,
+			sa.StartDate,
+			IF(sa.EndDate = '0000-00-00','',sa.EndDate) as EndDate,
+			sa.ActivationFee,
+			sa.DailyFee,
+			sa.WeeklyFee,
+			sa.MonthlyFee,
+			sa.QuarterlyFee,
+			sa.AnnuallyFee,
+			sa.AccountSubscriptionID,
+			sa.SubscriptionID,	
+			sa.ExemptTax,
+			sa.`Status`
+		FROM tblAccountSubscription sa
+			INNER JOIN tblBillingSubscription sb
+				ON sb.SubscriptionID = sa.SubscriptionID
+			INNER JOIN Ratemanagement3.tblAccount a
+				ON sa.AccountID = a.AccountID
+			INNER JOIN Ratemanagement3.tblService s
+				ON sa.ServiceID = s.ServiceID
+		WHERE 	(p_AccountID = 0 OR a.AccountID = p_AccountID)
+			AND (p_SubscriptionName is null OR sb.Name LIKE concat('%',p_SubscriptionName,'%'))
+			AND (p_Status = sa.`Status`)
+			AND (p_ServiceID =0 OR s.ServiceID = p_ServiceID);
+	END IF;
+
+SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
 END//
 DELIMITER ;

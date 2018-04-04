@@ -124,6 +124,24 @@ class Translation extends \Eloquent {
             return true;
     }
 
+    public static function multi_update_labels($language, $labelArr){
+
+        $data_langs = Translation::get_language_labels($language);
+
+        $json_file = json_decode($data_langs->Translation, true);
+
+        foreach($labelArr as $label){
+            $system_name=strtoupper($label["system_name"]);
+            $json_file[$system_name]=$label["value"];
+        }
+        DB::table('tblTranslation')
+            ->where(['TranslationID'=>$data_langs->TranslationID])
+            ->update(['Translation' => json_encode($json_file)]);
+
+        Translation::create_language_file($data_langs->ISOCode,$json_file);
+        return true;
+    }
+
     public static function delete_label($language,$system_name){
 
         $data_langs = Translation::get_language_labels($language);
