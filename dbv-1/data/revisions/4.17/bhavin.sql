@@ -1,5 +1,8 @@
 USE `Ratemanagement3`;
 
+ALTER TABLE `tblAccountBilling`
+	ADD COLUMN `FirstInvoiceSend` INT NULL DEFAULT '0' AFTER `AutoPaymentSetting`;
+
 CREATE TABLE IF NOT EXISTS `tblAccountDetails` (
 	`AccountDetailID` INT(11) NOT NULL AUTO_INCREMENT,
 	`AccountID` INT(11) NOT NULL,
