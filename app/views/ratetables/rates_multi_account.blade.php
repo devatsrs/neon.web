@@ -562,14 +562,14 @@
                             </div>--}}
                             <div class="col-md-6">
                                 <div class="form-group ">
-                                    {{-- <input type="checkbox" class="form-group" name="inboundcheck">--}}
+                                    <input type="checkbox" class="form-group" name="inboundcheck">
                                     <label for="field-5" class="control-label">Inbound Rate Table</label>
                                     {{Form::select('InboundRateTable', $rate_tables, '',array("class"=>"form-control select2","id"=>"InboundRateTable"))}}
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    {{-- <input type="checkbox" class="form-group" name="outboundcheck">--}}
+                                    <input type="checkbox" class="form-group" name="outboundcheck">
                                     <label for="field-5" class="control-label">Outbound Rate Table</label>
                                     {{Form::select('OutboundRateTable', $rate_tables, '',array("class"=>"form-control select2","id"=>"OutboundRateTable"))}}
                                 </div>

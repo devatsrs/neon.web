@@ -2730,7 +2730,7 @@ BEGIN
 						
 						
 						
-						if(p_InboundRateTable > 0) THEN
+						-- if(p_InboundRateTable > 0) THEN
 							
 								
 							   update tblAccountTariff t
@@ -2762,10 +2762,10 @@ BEGIN
 								from tmp_tarrif;
 							
 							
-						END IF;
+						-- END IF;
 		
 		
-						if(p_OutboundRateTable > 0) THEN
+						-- if(p_OutboundRateTable > 0) THEN
 							
 								update tblAccountTariff t
 								inner join tmp_service_already act on t.CompanyID=act.CompanyID AND t.ServiceID=act.ServiceID AND t.AccountID=act.AccountID
@@ -2799,7 +2799,7 @@ BEGIN
 								from tmp_tarrif;
 							
 							
-						END IF; 
+						-- END IF; 
 						
 						
 						
@@ -2856,8 +2856,7 @@ BEGIN
 								
 						
 						
-						if(p_InboundRateTable > 0) THEN
-							
+								-- Insert Or Update in InBound Ratetable
 								
 							   update tblAccountTariff t
 								inner join tmp_service_already act on t.CompanyID=act.CompanyID AND t.ServiceID=act.ServiceID AND t.AccountID=act.AccountID
@@ -2889,10 +2888,7 @@ BEGIN
 								from tmp_tarrif;
 							
 							
-						END IF;
-		
-		
-						if(p_OutboundRateTable > 0) THEN
+								-- Insert Or Update in OutBound Ratetable
 							
 								update tblAccountTariff t
 								inner join tmp_service_already act on t.CompanyID=act.CompanyID AND t.ServiceID=act.ServiceID AND t.AccountID=act.AccountID
@@ -2927,7 +2923,7 @@ BEGIN
 								from tmp_tarrif;
 							
 							
-						END IF; 
+						 
 					
 					 
 					
