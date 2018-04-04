@@ -286,13 +286,21 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';;
+                                        var BlockingCountryId = blockdata[3];
+
+                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
                                         var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
+
+                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
                                                 '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
@@ -314,13 +322,21 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';;
+                                        var BlockingCountryId = blockdata[3];
+
+                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
                                         var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
+
+                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
                                                 '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
@@ -342,13 +358,21 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';;
+                                        var BlockingCountryId = blockdata[3];
+
+                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
                                         var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
+
+                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
                                                 '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
@@ -370,13 +394,21 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';;
+                                        var BlockingCountryId = blockdata[3];
+
+                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
                                         var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
+
+                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
                                                 '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
@@ -419,13 +451,21 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';;
+                                        var BlockingCountryId = blockdata[3];
+
+                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
                                         var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
+
+                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
                                                 '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
@@ -447,13 +487,21 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';;
+                                        var BlockingCountryId = blockdata[3];
+
+                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
                                         var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
+
+                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
                                                 '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
@@ -475,13 +523,21 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';;
+                                        var BlockingCountryId = blockdata[3];
+
+                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
                                         var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
+
+                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
                                                 '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
@@ -503,13 +559,21 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';;
+                                        var BlockingCountryId = blockdata[3];
+
+                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
                                         var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
+
+                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
                                                 '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
@@ -531,13 +595,21 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';;
+                                        var BlockingCountryId = blockdata[3];
+
+                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
                                         var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
+
+                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
                                                 '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
@@ -559,13 +631,21 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';;
+                                        var BlockingCountryId = blockdata[3];
+
+                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
                                         var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
+
+                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
                                                 '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
@@ -587,13 +667,21 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';;
+                                        var BlockingCountryId = blockdata[3];
+
+                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
                                         var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
+
+                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
                                                 '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
@@ -615,13 +703,21 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';;
+                                        var BlockingCountryId = blockdata[3];
+
+                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
                                         var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
+
+                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
                                                 '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
@@ -643,13 +739,21 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';;
+                                        var BlockingCountryId = blockdata[3];
+
+                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
                                         var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
+
+                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
                                                 '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
@@ -671,13 +775,21 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';;
+                                        var BlockingCountryId = blockdata[3];
+
+                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
                                         var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
+
+                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                 '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
                                                 '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
                                                 '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
@@ -920,12 +1032,15 @@
                 arr = [];
                 arr['rate'] = [];
                 arr['vendor'] = [];
+                var PolicyID = $("#lcr-search-form select[name='Policy']").val();
+                var ratekey = PolicyID == 1 ? 0 : 1;
+                var vendorkey = PolicyID == 1 ? 1 : 2;
                 for (i = 1; i <= LCRPosition; i++) {
                     var value = $(this).closest("tr").find("td:eq(" + i + ")").html().split('<br>');
                     var valuetd = $.trim(value);
                     if (valuetd.length != 0) {
-                        var td2_vrate = value[0];
-                        var td2_vendor = value[1];
+                        var td2_vrate = value[ratekey];
+                        var td2_vendor = value[vendorkey];
                         arr['rate'].push(td2_vrate);
                         arr['vendor'].push(td2_vendor);
                     }
@@ -961,7 +1076,7 @@
                             var linkurl = baseurl + "/customers_rates/" + data.AccountID;
                             var accountNameLink = '<a target="_blank" href="'+linkurl+'">'+data.AccountName+'</a>';
 
-                            result += '<tr><td>'+accountNameLink+'</td><td>'+data.Rate+'</td><td colspan="3">' + verate + '</td></tr>';
+                            result += '<tr><td>'+accountNameLink+'</td><td>'+data.Symbol+''+data.Rate+'</td><td colspan="3">' + verate + '</td></tr>';
                         });
                         result += '</tbody></table>';
                         $(".vendorRateInfo").removeClass('hide');
