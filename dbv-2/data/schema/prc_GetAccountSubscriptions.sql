@@ -10,6 +10,7 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_GetAccountSubscriptions`(
 	IN `p_lSortCol` VARCHAR(50),
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_isExport` INT
+
 )
 BEGIN 
 	DECLARE v_OffSet_ INT;
@@ -37,7 +38,8 @@ SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 			sa.SubscriptionID,	
 			sa.ExemptTax,
 			a.AccountID,
-			s.ServiceID
+			s.ServiceID,
+			sa.`Status`
 		FROM tblAccountSubscription sa
 			INNER JOIN tblBillingSubscription sb
 				ON sb.SubscriptionID = sa.SubscriptionID
@@ -164,7 +166,8 @@ SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 			sa.AnnuallyFee,
 			sa.AccountSubscriptionID,
 			sa.SubscriptionID,	
-			sa.ExemptTax
+			sa.ExemptTax,
+			sa.`Status`
 		FROM tblAccountSubscription sa
 			INNER JOIN tblBillingSubscription sb
 				ON sb.SubscriptionID = sa.SubscriptionID

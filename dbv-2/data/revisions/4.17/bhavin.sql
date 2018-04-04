@@ -1685,7 +1685,8 @@ SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 			sa.SubscriptionID,	
 			sa.ExemptTax,
 			a.AccountID,
-			s.ServiceID
+			s.ServiceID,
+			sa.`Status`
 		FROM tblAccountSubscription sa
 			INNER JOIN tblBillingSubscription sb
 				ON sb.SubscriptionID = sa.SubscriptionID
@@ -1812,7 +1813,8 @@ SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 			sa.AnnuallyFee,
 			sa.AccountSubscriptionID,
 			sa.SubscriptionID,	
-			sa.ExemptTax
+			sa.ExemptTax,
+			sa.`Status`
 		FROM tblAccountSubscription sa
 			INNER JOIN tblBillingSubscription sb
 				ON sb.SubscriptionID = sa.SubscriptionID
