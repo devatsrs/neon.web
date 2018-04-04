@@ -9,14 +9,17 @@ CREATE TABLE `tblAccountSubscription` (
   `ExemptTax` tinyint(3) unsigned DEFAULT NULL,
   `ActivationFee` decimal(18,2) DEFAULT NULL,
   `Discount` decimal(18,2) DEFAULT '0.00',
+  `AnnuallyFee` decimal(18,2) DEFAULT NULL,
+  `QuarterlyFee` decimal(18,2) DEFAULT NULL,
   `MonthlyFee` decimal(18,2) DEFAULT NULL,
   `WeeklyFee` decimal(18,2) DEFAULT NULL,
   `DailyFee` decimal(18,2) DEFAULT NULL,
-  `SequenceNo` int(11) DEFAULT '0',
+  `SequenceNo` int(11) NOT NULL DEFAULT '1',
   `CreatedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `ModifiedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `ServiceID` int(11) DEFAULT '0',
+  `Status` tinyint(3) DEFAULT '1',
   PRIMARY KEY (`AccountSubscriptionID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

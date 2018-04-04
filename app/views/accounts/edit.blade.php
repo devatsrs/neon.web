@@ -462,6 +462,14 @@
 
                 </div>
                 <div class="form-group">
+                    <label for="field-1" class="col-md-2 control-label">First Invoice Send</label>
+                    <div class="col-md-4">
+                        <div class="make-switch switch-small">
+                            <input type="checkbox" @if(isset($AccountBilling->FirstInvoiceSend) && $AccountBilling->FirstInvoiceSend  == 1)checked="" @endif name="FirstInvoiceSend" value="1">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
 
                     <label for="field-1" class="col-md-2 control-label">Billing Timezone*</label>
                     <div class="col-md-4">
@@ -480,7 +488,7 @@
                     }*/
                     ?>
                     <label for="field-1" class="col-md-2 control-label">Billing Start Date*</label>
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         @if($billing_disable == '' || ($billing_disable == '' && isset($AccountBilling->BillingCycleType) && $AccountBilling->BillingCycleType != 'manual'))
                             {{Form::text('BillingStartDate', $BillingStartDate,array('class'=>'form-control datepicker billing_start_date',"data-date-format"=>"yyyy-mm-dd"))}}
                         @else
@@ -488,6 +496,7 @@
                             {{$BillingStartDate}}
                         @endif
                     </div>
+                    <div class="col-md-2">Generate First Invoice on this Date &nbsp;&nbsp;<input type="checkbox" @if(isset($AccountBilling->FirstInvoiceSend) && $AccountBilling->FirstInvoiceSend  == 1)checked="" @endif name="FirstInvoiceSend" value="1"></div>
                 </div>
                 @if(!empty($AccountNextBilling))
                     <?php

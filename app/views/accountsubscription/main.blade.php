@@ -584,6 +584,18 @@
               </div>
             </div>
           </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="field-5" class="control-label">Active</label>
+                        <div class="clear">
+                            <p class="make-switch switch-small">
+                                <input type="checkbox" name="Status" value="0">
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <input type="hidden" name="AccountSubscriptionID">
         <div class="modal-footer">
@@ -713,6 +725,18 @@
                             </div>
                         </div>
                     </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Active</label>
+                                <div class="clear">
+                                    <p class="make-switch switch-small">
+                                        <input type="checkbox" name="Status" value="0">
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <input type="hidden" name="AccountSubscriptionID">
