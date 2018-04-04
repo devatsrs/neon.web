@@ -258,11 +258,10 @@
 
                             }else if(list_fields[i] == 'Status'){
                                 if(cur_obj.find("input[name='Status']").val() == 1 ){
-                                    $('[name="Status"]').prop('checked',true);
+                                    $('[name="Status"]').prop('checked',true).change();
                                 }else{
-                                    $('[name="Status"]').prop('checked',false);
+                                    $('[name="Status"]').prop('checked',false).change();
                                 }
-
                             }
                         }
                         $('#modal-subscription').modal('show');
