@@ -122,13 +122,15 @@ class RateTablesMultiAccController extends \BaseController {
                     $queryAllAcc = " 'N',0,0,0,'' " ;
                 }
 
+                $inboundcheck = isset($data["inboundcheck"]) ? $data["inboundcheck"] : 'off';
+                $outboundcheck = isset($data["outboundcheck"]) ? $data["outboundcheck"] : 'off';
 
 
                 /*if(!empty($data["InboundRateTable"]) || !empty($data["InboundRateTable"]) ){*/
 
                     $InboundRateTable = (!empty($data["InboundRateTable"]) && $data["InboundRateTable"] > 0 ) ? $data["InboundRateTable"] : 0;
                     $OutboundRateTable = (!empty($data["OutboundRateTable"]) && $data["OutboundRateTable"] > 0 ) ? $data["OutboundRateTable"] : 0;
-                    $query = "call prc_applyRateTableTomultipleAccByService (".$companyID.",'".$selected_customer."','".$InboundRateTable."','".$OutboundRateTable."','".$creaedBy."',$queryAllAcc)";
+                    $query = "call prc_applyRateTableTomultipleAccByService (".$companyID.",'".$selected_customer."','".$InboundRateTable."','".$OutboundRateTable."','".$creaedBy."','".$inboundcheck."','".$outboundcheck."',$queryAllAcc)";
                     DataTableSql::of($query)->make();
                     log::info($query);
                     try{

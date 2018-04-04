@@ -78,6 +78,7 @@ class VendorBlockingsController extends \BaseController {
      */
     public function blockunblockcode()
     {
+
         $postdata = Input::all();
         $preference =  !empty($postdata['preference']) ? $postdata['preference'] : 0;
         $acc_id =  $postdata['acc_id'];
@@ -87,9 +88,23 @@ class VendorBlockingsController extends \BaseController {
         $description = $postdata["description"];
         $username = User::get_user_full_name();
         $blockId = $postdata["id"];
-        $query = "call prc_lcrBlockUnblock ('".$postdata["GroupBy"]."',".$blockId.",".$preference.",".$acc_id.",".$trunk.",".$rowcode.",".$CodeDeckId.",'".$description."','".$username."')";
+
+
+        if( $postdata['countryBlockingID'] ==  'codewiseBlocking' ){
+            $p_action = '';
+            $countryBlockingID = 0;
+        }else{
+            if( $postdata['countryBlockingID'] > 0 ){
+                $p_action = 'country_unblock';
+                $countryBlockingID = $postdata['countryBlockingID'];
+            }else {
+                $p_action = 'country_block';
+                $countryBlockingID = 0;
+            }
+        }
+        $query = "call prc_lcrBlockUnblock ('".$postdata["GroupBy"]."',".$blockId.",".$preference.",".$acc_id.",".$trunk.",".$rowcode.",".$CodeDeckId.",'".$description."','".$username."','".$p_action."','".$countryBlockingID."')";
         DB::select($query);
-        //\Illuminate\Support\Facades\Log::info($query);
+        \Illuminate\Support\Facades\Log::info($query);
         //$results = DB::select($query);
         //$preference = isset($results[0]->Preference) ? $results[0]->Preference : '';
         $msgVendor = $blockId > 0 ? 'Unblocked' : 'Blocked';
