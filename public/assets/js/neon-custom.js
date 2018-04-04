@@ -2595,6 +2595,42 @@ reloadJobsDrodown = function(reset){
     }
 	
 };
+
+checkFailingCronJob = function(){
+
+    var timeDelay=30;//minutes
+    var today = new Date();
+    var isFirstTime=false;
+
+    if(getCookie("lastCronJobCheckingDate")==""){
+        setCookie("lastCronJobCheckingDate",today,365);
+        isFirstTime=true;
+    }
+    var oldDate = new Date(getCookie("lastCronJobCheckingDate"));
+    var diffMs = (today - oldDate);
+    var diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000);
+    console.log("diffMins "+diffMins+" isf "+isFirstTime);
+    if((diffMins>timeDelay || isFirstTime) && typeof customer[0].customer != 'undefined' &&  customer[0].customer != 1){
+        $.get( baseurl + "/cronjobs/check_failing", function( response ) {
+            if(typeof response.message != 'undefined' ) {
+                setCookie("lastCronJobCheckingDate",today,365);
+                if (response.message == '') {
+                    setCookie("CronJobNotifications",true,365);
+                    $(".notifications.cron_jobs.dropdown").find("#failing_placeholder").addClass("hidden");
+                } else {
+                    setCookie("CronJobNotifications",false,365);
+                    $(".notifications.cron_jobs.dropdown").find("#failing_placeholder").removeClass("hidden");
+                }
+            }
+        });
+    }else{
+        if (getCookie("CronJobNotifications")==true) {
+            $(".notifications.cron_jobs.dropdown").find("#failing_placeholder").addClass("hidden");
+        } else {
+            $(".notifications.cron_jobs.dropdown").find("#failing_placeholder").removeClass("hidden");
+        }
+    }
+};
 try{
     setTimeout(function(){ reloadJobsDrodown(0); reloadMsgDrodown(0); }, 2000);
     bindResetCounter();
@@ -3191,6 +3227,16 @@ function select_all_top(selectallbutton,table,selectall) {
 function openInNewTab(url) {
     var redirectWindow = window.open(url, '_blank');
     redirectWindow.location;
+}
+
+try{
+    if(typeof customer[0].customer != 'undefined' &&  customer[0].customer != 1 && $(".notifications.cron_jobs.dropdown").has("#failing_placeholder").length > 0 ) {
+        setInterval(function () {
+            checkFailingCronJob();
+        }, 1000 ); // where X is your every X minutes
+    }
+}catch(er){
+    console.log(er.message);
 }
 
 show_summernote = function (element,options){
