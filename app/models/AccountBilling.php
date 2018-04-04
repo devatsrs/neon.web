@@ -54,6 +54,9 @@ class AccountBilling extends \Eloquent {
             if (!empty($BillingStartDate)) {
                 $AccountBilling['NextInvoiceDate'] = next_billing_date($AccountBilling['BillingCycleType'], $AccountBilling['BillingCycleValue'], $BillingStartDate);
             }
+            if(isset($data['FirstInvoiceSend'])){
+                $AccountBilling['FirstInvoiceSend'] = $data['FirstInvoiceSend'];
+            }
             $AccountBilling['AccountID'] = $AccountID;
             $AccountBilling['ServiceID'] = $ServiceID;
             AccountBilling::create($AccountBilling);
@@ -107,6 +110,9 @@ class AccountBilling extends \Eloquent {
             }
             if (!empty($data['AutoPaymentSetting'])) {
                 $AccountBilling['AutoPaymentSetting'] = $data['AutoPaymentSetting'];
+            }
+            if(isset($data['FirstInvoiceSend'])){
+                $AccountBilling['FirstInvoiceSend'] = $data['FirstInvoiceSend'];
             }
             if(!empty($AccountBilling)){
                 AccountBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->update($AccountBilling);
