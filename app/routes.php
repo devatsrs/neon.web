@@ -698,8 +698,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rate_tables/{id}/view', 'RateTablesController@view');
     Route::any('/rate_tables/{id}/add_newrate', 'RateTablesController@add_newrate');
 	Route::any('/rate_tables/{id}/clear_rate', 'RateTablesController@clear_rate');
-	Route::any('/rate_tables/{id}/update_rate_table_rate/{RateTableRateID}', 'RateTablesController@update_rate_table_rate')->where('RateTableRateID', '(.[09]*)+');
-	Route::any('/rate_tables/{id}/bulk_update_rate_table_rate', 'RateTablesController@bulk_update_rate_table_rate');
+	Route::any('/rate_tables/{id}/update_rate_table_rate', 'RateTablesController@update_rate_table_rate');
+	//Route::any('/rate_tables/{id}/bulk_update_rate_table_rate', 'RateTablesController@bulk_update_rate_table_rate');
 	Route::any('/rate_tables/{id}/bulk_clear_rate_table_rate', 'RateTablesController@bulk_clear_rate_table_rate');
 	Route::any('/rate_tables/{id}/change_status/{status}', 'RateTablesController@change_status')->where('status', '(.[09]*)+');
 	Route::any('/rate_tables/exports/{type}', 'RateTablesController@exports');

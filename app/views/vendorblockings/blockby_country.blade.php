@@ -24,13 +24,13 @@
             <span class="hidden-xs">Vendor Rate</span>
         </a>
     </li>
-    @if(User::checkCategoryPermission('VendorRates','Upload'))
+    {{--@if(User::checkCategoryPermission('VendorRates','Upload'))
     <li>
         <a href="{{ URL::to('/vendor_rates/'.$id.'/upload') }}" >
             <span class="hidden-xs">Vendor Rate Upload</span>
         </a>
     </li>
-    @endif
+    @endif--}}
     @if(User::checkCategoryPermission('VendorRates','Download'))
     <li>
         <a href="{{ URL::to('/vendor_rates/'.$id.'/download') }}" >

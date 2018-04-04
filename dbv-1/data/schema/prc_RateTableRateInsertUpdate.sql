@@ -1,25 +1,56 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_RateTableRateInsertUpdate`(IN `p_CompanyID` INT, IN `p_RateTableRateID` LONGTEXT
-, IN `p_RateTableId` INT 
-, IN `p_Rate` DECIMAL(18, 6) 
-, IN `p_EffectiveDate` DATETIME
-, IN `p_ModifiedBy` VARCHAR(50)
-, IN `p_Interval1` INT
-, IN `p_IntervalN` INT
-, IN `p_ConnectionFee` DECIMAL(18, 6)
-, IN `p_Critearea` INT
-, IN `p_Critearea_TrunkID` INT
-, IN `p_Critearea_CountryID` INT
-, IN `p_Critearea_Code` VARCHAR(50)
-, IN `p_Critearea_Description` VARCHAR(50)
-, IN `p_Critearea_Effective` VARCHAR(50)
-, IN `p_Update_EffectiveDate` INT
-, IN `p_Update_Rate` INT
-, IN `p_Update_Interval1` INT
-, IN `p_Update_IntervalN` INT
-, IN `p_Update_ConnectionFee` INT
-, IN `p_Action` INT
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_RateTableRateInsertUpdate`(
+	IN `p_CompanyID` INT,
+	IN `p_RateTableRateID` LONGTEXT
+,
+	IN `p_RateTableId` INT 
+,
+	IN `p_Rate` DECIMAL(18, 6) 
+,
+	IN `p_EffectiveDate` DATETIME
+,
+	IN `p_EndDate` DATETIME,
+	IN `p_ModifiedBy` VARCHAR(50)
+,
+	IN `p_Interval1` INT
+,
+	IN `p_IntervalN` INT
+,
+	IN `p_ConnectionFee` DECIMAL(18, 6)
+,
+	IN `p_Critearea` INT
+,
+	IN `p_Critearea_TrunkID` INT
+,
+	IN `p_Critearea_CountryID` INT
+,
+	IN `p_Critearea_Code` VARCHAR(50)
+,
+	IN `p_Critearea_Description` VARCHAR(50)
+,
+	IN `p_Critearea_Effective` VARCHAR(50)
+,
+	IN `p_Update_EffectiveDate` INT
+,
+	IN `p_Update_EndDate` INT,
+	IN `p_Update_Rate` INT
+,
+	IN `p_Update_Interval1` INT
+,
+	IN `p_Update_IntervalN` INT
+,
+	IN `p_Update_ConnectionFee` INT
+,
+	IN `p_Action` INT
+
+
+
+
+
+
+
+
 )
-BEGIN
+ThisSP:BEGIN
               
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
@@ -139,18 +170,20 @@ BEGIN
 			 	 LEFT JOIN tmp_Update_RateTable_ ur
 					 ON r.RateID=ur.RateID
 			   WHERE ur.RateID is null ;
-				
-		
+
+	
 		INSERT INTO tblRateTableRate (
 			RateID,
 			RateTableId,
 			Rate,
+			PreviousRate,
 			EffectiveDate,
 			created_at,
 			CreatedBy,
 			Interval1,
 			IntervalN,
-			ConnectionFee
+			ConnectionFee,
+			EndDate
 		)
 	    SELECT DISTINCT  tr.RateID,
 		 						RateTableId,
@@ -161,6 +194,7 @@ BEGIN
 										tr.Rate
 									END
 								AS Rate,
+								tr.Rate AS PreviousRate,
 								p_EffectiveDate as EffectiveDate,
 								NOW() as created_at,
 								p_ModifiedBy as CreatedBy,
@@ -184,17 +218,51 @@ BEGIN
 									ELSE
 										tr.ConnectionFee
 									END
-								AS ConnectionFee	
+								AS ConnectionFee,
+								CASE WHEN p_Update_EndDate = 1
+									THEN    
+										p_EndDate									
+									ELSE
+										tr.EndDate
+									END
+								AS EndDate
 			 FROM tblRateTableRate tr
 		   	 INNER JOIN tmp_Insert_RateTable_ r
 			 		 ON  r.RateID = tr.RateID
 			 		 	AND r.RateTableRateID = tr.RateTableRateID
 	   		 		AND  RateTableId = p_RateTableId; 
 	
+	
+	
+	
+			-- update  previous rate with all latest recent entriy of previous effective date 
+			UPDATE tblRateTableRate rtr
+			inner join 
+			(
+				-- get all rates RowID = 1 to remove old to old effective date
+			
+				select distinct rt1.* ,
+				@row_num := IF(@prev_RateId = rt1.RateID AND @prev_EffectiveDate >= rt1.EffectiveDate, @row_num + 1, 1) AS RowID,
+				@prev_RateId := rt1.RateID,
+				@prev_EffectiveDate := rt1.EffectiveDate
+				from tblRateTableRate rt1
+				inner join tmp_Insert_RateTable_ rt2
+				on rt1.RateTableId = p_RateTableId and rt1.RateID = rt2.RateID
+				and rt1.EffectiveDate < rt2.EffectiveDate 
+				where 
+				rt1.RateTableID = p_RateTableId
+				order by rt1.RateID desc ,rt1.EffectiveDate desc
+			
+			) old_rtr on  old_rtr.RateTableID = rtr.RateTableID  and old_rtr.RateID = rtr.RateID and old_rtr.EffectiveDate < rtr.EffectiveDate AND rtr.EffectiveDate =  p_EffectiveDate AND old_rtr.RowID = 1
+			SET rtr.PreviousRate = old_rtr.Rate 
+			where 
+			rtr.RateTableID = p_RateTableId;
+		 
+			
 	END IF; 
 	
 	
-	-- bulk update
+	
 	SET @stm = '';		
 	
 	IF p_Update_Rate = 1
@@ -217,6 +285,11 @@ BEGIN
 		SET @stm = CONCAT(@stm,',ConnectionFee = ',p_ConnectionFee);		
 	END IF;	
 	
+	IF p_Update_EndDate = 1
+	THEN
+		SET @stm = CONCAT(@stm,',EndDate = ','"',p_EndDate,'"');		
+	END IF;	
+	
 	IF @stm != ''
 	THEN					
 			SET @stm = CONCAT('
@@ -231,10 +304,19 @@ BEGIN
 			PREPARE stmt FROM @stm;
 			EXECUTE stmt;
 			DEALLOCATE PREPARE stmt;
+			
+		 
+			
+			
 							
 	END IF;						
 		
-	CALL prc_ArchiveOldRateTableRate(p_RateTableId); 
+		
+	-- Update previous rate
+   call prc_RateTableRateUpdatePreviousRate(p_RateTableId,p_EffectiveDate);
+  
+  	
+	CALL prc_ArchiveOldRateTableRate(p_RateTableId,p_ModifiedBy); 
 	
 	END IF;
 	

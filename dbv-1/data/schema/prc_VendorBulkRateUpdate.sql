@@ -15,6 +15,7 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_VendorBulkRateUpdate`(
 ,
 	IN `p_EffectiveDate` DATETIME
 ,
+	IN `p_EndDate` DATETIME,
 	IN `p_ConnectionFee` decimal(18,6)
 ,
 	IN `p_Interval1` INT
@@ -26,6 +27,8 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_VendorBulkRateUpdate`(
 	IN `p_effective` VARCHAR(50)
 ,
 	IN `p_action` INT
+
+
 
 
 
@@ -85,8 +88,8 @@ BEGIN
 			v.TrunkID,
 			v.RateId,
 			p_Rate AS Rate,
-			p_EffectiveDate AS EffectiveDate,
-			v.EndDate,
+			v.EffectiveDate, -- p_EffectiveDate AS EffectiveDate,
+			IFNULL(p_EndDate,v.EndDate) AS EndDate,
 			NOW() AS updated_at,
 			v.created_at,
 			v.created_by,
