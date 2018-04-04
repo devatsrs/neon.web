@@ -11,12 +11,13 @@ public function main() {
 		$services 			=  Service::getDropdownIDList($companyID);
 	    return View::make('accountsubscription.main', compact('accounts','services','SelectedAccount','services'));
 
-    }	
+    }
 
+    /** Used in Account Service Edit Page */
     public function ajax_datagrid($id){
         $data = Input::all();        
         $id=$data['account_id'];
-        $select = ["tblAccountSubscription.SequenceNo","tblBillingSubscription.Name", "InvoiceDescription", "Qty" ,"tblAccountSubscription.StartDate",DB::raw("IF(tblAccountSubscription.EndDate = '0000-00-00','',tblAccountSubscription.EndDate) as EndDate"),"tblAccountSubscription.ActivationFee","tblAccountSubscription.DailyFee","tblAccountSubscription.WeeklyFee","tblAccountSubscription.MonthlyFee","tblAccountSubscription.QuarterlyFee","tblAccountSubscription.AnnuallyFee","tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SubscriptionID","tblAccountSubscription.ExemptTax"];
+        $select = ["tblAccountSubscription.SequenceNo","tblBillingSubscription.Name", "InvoiceDescription", "Qty" ,"tblAccountSubscription.StartDate",DB::raw("IF(tblAccountSubscription.EndDate = '0000-00-00','',tblAccountSubscription.EndDate) as EndDate"),"tblAccountSubscription.ActivationFee","tblAccountSubscription.DailyFee","tblAccountSubscription.WeeklyFee","tblAccountSubscription.MonthlyFee","tblAccountSubscription.QuarterlyFee","tblAccountSubscription.AnnuallyFee","tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SubscriptionID","tblAccountSubscription.ExemptTax","tblAccountSubscription.Status"];
         $subscriptions = AccountSubscription::join('tblBillingSubscription', 'tblAccountSubscription.SubscriptionID', '=', 'tblBillingSubscription.SubscriptionID')->where("tblAccountSubscription.AccountID",$id);        
         if(!empty($data['SubscriptionName'])){
             $subscriptions->where('tblBillingSubscription.Name','Like','%'.trim($data['SubscriptionName']).'%');
@@ -30,21 +31,17 @@ public function main() {
             $subscriptions->where('tblAccountSubscription.ServiceID','=',0);
         }
         if(!empty($data['SubscriptionActive']) && $data['SubscriptionActive'] == 'true'){
-            $subscriptions->where(function($query){
-                $query->where('tblAccountSubscription.EndDate','>=',date('Y-m-d'));
-                $query->orwhere('tblAccountSubscription.EndDate','=','0000-00-00');
-            });
+            $subscriptions->where('tblAccountSubscription.Status','=',1);
 
         }elseif(!empty($data['SubscriptionActive']) && $data['SubscriptionActive'] == 'false'){
-            $subscriptions->where('tblAccountSubscription.EndDate','<',date('Y-m-d'));
-            $subscriptions->where('tblAccountSubscription.EndDate','<>','0000-00-00') ;
+            $subscriptions->where('tblAccountSubscription.Status','=',0);
         }
         $subscriptions->select($select);
 
         return Datatables::of($subscriptions)->make();
     }
 
-
+    /** Used in Main Account Subscription Page */
 	public function ajax_datagrid_page($type=''){
         $data 						 = 	Input::all(); //Log::info(print_r($data,true));
         $data['iDisplayStart'] 		+=	1;
@@ -95,6 +92,7 @@ public function main() {
         $data["AccountID"] = $id;
         $data["CreatedBy"] = User::get_user_full_name();
         $data['ExemptTax'] = isset($data['ExemptTax']) ? 1 : 0;
+        $data['Status'] = isset($data['Status']) ? 1 : 0;
         AccountSubscription::$rules['SubscriptionID'] = 'required|unique:tblAccountSubscription,AccountSubscriptionID,NULL,SubscriptionID,'.$data['SubscriptionID'].',AccountID,'.$data["AccountID"];
 
         $verifier = App::make('validation.presence');
@@ -139,6 +137,7 @@ public function main() {
 	{
         if( $AccountID  > 0  && $AccountSubscriptionID > 0 ) {
             $data = Input::all();
+            $data['Status'] = isset($data['Status']) ? 1 : 0;
             $AccountSubscriptionID = $data['AccountSubscriptionID'];
             $AccountSubscription = AccountSubscription::find($AccountSubscriptionID);
             $data["AccountID"] = $AccountID;
