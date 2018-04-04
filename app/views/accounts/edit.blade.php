@@ -462,14 +462,6 @@
 
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="col-md-2 control-label">First Invoice Send</label>
-                    <div class="col-md-4">
-                        <div class="make-switch switch-small">
-                            <input type="checkbox" @if(isset($AccountBilling->FirstInvoiceSend) && $AccountBilling->FirstInvoiceSend  == 1)checked="" @endif name="FirstInvoiceSend" value="1">
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
 
                     <label for="field-1" class="col-md-2 control-label">Billing Timezone*</label>
                     <div class="col-md-4">
