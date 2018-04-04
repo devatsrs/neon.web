@@ -52,7 +52,11 @@ class AccountBilling extends \Eloquent {
                 $BillingStartDate = strtotime($AccountBilling['BillingStartDate']);
             }
             if (!empty($BillingStartDate)) {
-                $AccountBilling['NextInvoiceDate'] = next_billing_date($AccountBilling['BillingCycleType'], $AccountBilling['BillingCycleValue'], $BillingStartDate);
+                if(isset($data['FirstInvoiceSend']) && $data['FirstInvoiceSend']==1){
+                    $AccountBilling['NextInvoiceDate'] = $data['LastInvoiceDate'];
+                }else{
+                    $AccountBilling['NextInvoiceDate'] = next_billing_date($AccountBilling['BillingCycleType'], $AccountBilling['BillingCycleValue'], $BillingStartDate);
+                }
             }
             if(isset($data['FirstInvoiceSend'])){
                 $AccountBilling['FirstInvoiceSend'] = $data['FirstInvoiceSend'];
@@ -88,7 +92,11 @@ class AccountBilling extends \Eloquent {
                     $BillingStartDate = strtotime($AccountBilling['BillingStartDate']);
                 }
                 if (!empty($BillingStartDate) && $data['BillingCycleType'] != 'manual') {
-                    $AccountBilling['NextInvoiceDate'] = next_billing_date($AccountBilling['BillingCycleType'], $AccountBilling['BillingCycleValue'], $BillingStartDate);
+                    if(isset($data['FirstInvoiceSend']) && $data['FirstInvoiceSend']==1 && $invoice_count==0){
+                        $AccountBilling['NextInvoiceDate'] = $data['LastInvoiceDate'];
+                    }else{
+                        $AccountBilling['NextInvoiceDate'] = next_billing_date($AccountBilling['BillingCycleType'], $AccountBilling['BillingCycleValue'], $BillingStartDate);
+                    }
                 }else if($data['BillingCycleType'] == 'manual'){
                     $AccountBilling['NextInvoiceDate'] = null;
                 }
