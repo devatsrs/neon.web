@@ -358,6 +358,7 @@ var max_file_size_txt 	=	    '{{$max_file_size}}';
 var max_file_size	  	=	    '{{str_replace("M","",$max_file_size)}}';
 var emailFileListReply 	=		[];
 var CloseStatus			=		'{{$CloseStatus}}';
+var ticketPreMSG        =       '';
 $(document).ready(function(e) {
     var lightboxhtml = $('<a href="" data-type="image" data-toggle="lightbox" data-title="" data-footer=""></a>');
     $(".mail-body img").each(function(i){
@@ -406,6 +407,7 @@ $(document).ready(function(e) {
 			success: function(response){
 				$('#EmailAction-model .modal-content').html('');
 				$('#EmailAction-model .modal-content').html(response);				
+                ticketPreMSG=$('#EmailAction-model .modal-content').find('[name=Message]').val();
 					var mod =  $(document).find('.EmailAction_box');
 					$('#EmailAction-model').modal('show');
 
@@ -766,7 +768,7 @@ $(document).ready(function(e) {
         if(!Array.isArray(data)){
             var EmailTemplate = data['EmailTemplate'];
             doc.find('[name="Subject"]').val(EmailTemplate.Subject);
-            doc.find('[name="Message"]').val(EmailTemplate.TemplateBody + doc.find('[name="Message"]').val());
+            doc.find('[name="Message"]').val(EmailTemplate.TemplateBody + ticketPreMSG);
         }else{
             doc.find('[name="Subject"]').val('');
             doc.find('[name="Message"]').val('');
