@@ -742,8 +742,38 @@ $(document).ready(function(e) {
 			$('.change_duetime').click(function(e) {
                 $('.change_due_time').toggle();
             });
-			 
+
+            $( document ).on("change",'.email_template' ,function(e) {
+                var templateID = $(this).val();
+                if(templateID>0) {
+                    var url = baseurl + '/accounts/' + templateID + '/ajax_template';
+                    $.get(url, function (data, status) {
+                        if (Status = "success") {
+                            editor_reset(data);
+                        } else {
+                            toastr.error(status, "Error", toastr_opts);
+                        }
+                    });
+                }
+            });
 });
+
+    function editor_reset(data){
+        //var doc = $('.mail-compose');
+        var doc = $(document).find('#EmailActionform');
+        doc.find('#EmailActionbody').show();
+
+        if(!Array.isArray(data)){
+            var EmailTemplate = data['EmailTemplate'];
+            doc.find('[name="Subject"]').val(EmailTemplate.Subject);
+            doc.find('[name="Message"]').val(EmailTemplate.TemplateBody + doc.find('[name="Message"]').val());
+        }else{
+            doc.find('[name="Subject"]').val('');
+            doc.find('[name="Message"]').val('');
+        }
+        show_summernote(doc.find('[name="Message"]'),editor_options);
+
+    }
 //setTimeout(setagentval(),6000);
 	function setagentval(){
 		$('#TicketGroup').trigger('change');		
