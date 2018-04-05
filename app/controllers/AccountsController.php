@@ -188,6 +188,7 @@ class AccountsController extends \BaseController {
             $data = Input::all();
             $companyID = User::get_companyID();
             $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
+            $data['FirstInvoiceSend'] = empty($data['FirstInvoiceSend']) ? 0 : $data['FirstInvoiceSend'];
             if($ResellerOwner>0){
                 $Reseller = Reseller::getResellerDetails($ResellerOwner);
                 $ResellerCompanyID = $Reseller->ChildCompanyID;
@@ -723,6 +724,7 @@ class AccountsController extends \BaseController {
             }
 
             if($data['Billing'] == 1) {
+                $data['FirstInvoiceSend'] = empty($data['FirstInvoiceSend']) ? 0 : $data['FirstInvoiceSend'];
                 AccountBilling::insertUpdateBilling($id, $data,$ServiceID,$invoice_count);
                 if($ManualBilling == 0){
                     AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);

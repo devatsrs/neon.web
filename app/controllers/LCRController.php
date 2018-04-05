@@ -121,23 +121,27 @@ class LCRController extends \BaseController {
         $postdata = Input::all();
         if($postdata['GroupBy']=='code') {
             //@TODO: change : add customer trunk active , account active
-            $result = DB::table("tblCustomerRate as cr")->select(DB::raw('max(cr.Rate) as Rate, acc.AccountName'))
+            $result = DB::table("tblCustomerRate as cr")->select(DB::raw('max(cr.Rate) as Rate, acc.AccountName,c.Symbol'))
                 ->join('tblRate as r', 'cr.RateID', '=', 'r.RateID')
                 ->join('tblAccount as acc', 'cr.CustomerID', '=', 'acc.AccountID')
                 ->join('tblCustomerTrunk as ct', 'acc.AccountID', '=', 'ct.AccountID')
+                ->join('tblCurrency as c', 'c.CurrencyId', '=', 'acc.CurrencyId')
                 ->where('r.Code', '=', $postdata['code'])
                 ->where('acc.Status', '=', '1')
                 ->groupby('acc.AccountName')
                 ->where('ct.Status', '=', '1')
+                ->where ('cr.EffectiveDate', '<=' ,$postdata["effactdate"] )
                 ->get();
         }else{
-            $result = DB::table("tblCustomerRate as cr")->select(DB::raw('max(cr.Rate) as Rate, acc.AccountName'))
+            $result = DB::table("tblCustomerRate as cr")->select(DB::raw('max(cr.Rate) as Rate, acc.AccountName, acc.AccountID,c.Symbol'))
                 ->join('tblRate as r', 'cr.RateID', '=', 'r.RateID')
                 ->join('tblAccount as acc', 'cr.CustomerID', '=', 'acc.AccountID')
                 ->join('tblCustomerTrunk as ct', 'acc.AccountID', '=', 'ct.AccountID')
+                ->join('tblCurrency as c', 'c.CurrencyId', '=', 'acc.CurrencyId')
                 ->where('r.Description', '=', $postdata['code'])
                 ->where('acc.Status', '=', '1')
                 ->where('ct.Status', '=', '1')
+                ->where ('cr.EffectiveDate', '<=' ,$postdata["effactdate"] )
                 ->groupby('acc.AccountName')
                 ->get();
         }

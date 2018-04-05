@@ -12,7 +12,7 @@
             Back
         </a>
     </div>
-    <ul class="nav nav-tabs bordered">
+    {{--<ul class="nav nav-tabs bordered">
         <!-- available classes "bordered", "right-aligned" -->
         <li><a href="{{URL::to('/rate_tables/'.$id.'/view')}}"> <span
                         class="hidden-xs">Rate</span>
@@ -20,7 +20,7 @@
         <li class="active"><a href="{{URL::to('/rate_tables/'.$id.'/upload')}}"> <span
                         class="hidden-xs">Rate Upload</span>
             </a></li>
-    </ul>
+    </ul>--}}
 <div class="row">
 <div class="col-md-12">
     <form role="form" id="form-upload" name="form-upload" method="post" action="{{URL::to('rate_tables/'.$id.'/process_upload')}}" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">

@@ -70,12 +70,14 @@ BEGIN
 		AccountName,
 		AccountNumber,
 		AccountCLI,
-		AccountIP
+		AccountIP,
+		cc_type
 	)
 
 	SELECT
 	*
 	FROM (SELECT
+		Distinct 
 		uh.CompanyID,
 		uh.CompanyGatewayID,
 		uh.GatewayAccountID,
@@ -107,7 +109,7 @@ BEGIN
 		remote_ip,
 		duration,
 		"',p_ProcessID,'",
-		ID,
+		ud.ID,
 		is_inbound,
 		billed_second,
 		disposition,
@@ -115,10 +117,12 @@ BEGIN
 		IFNULL(ga.AccountName,""),
 		IFNULL(ga.AccountNumber,""),
 		IFNULL(ga.AccountCLI,""),
-		IFNULL(ga.AccountIP,"")
+		IFNULL(ga.AccountIP,""),
+        dr.cc_type
 	FROM NeonCDRDev.tblUsageDetails  ud
 	INNER JOIN NeonCDRDev.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
+	LEFT JOIN NeonCDRDev.tblRetailUsageDetail dr on ud.UsageDetailID = dr.UsageDetailID AND ud.ID = dr.ID	
 	INNER JOIN NeonRMDev.tblAccount a
 		ON uh.AccountID = a.AccountID
 	LEFT JOIN tblGatewayAccount ga

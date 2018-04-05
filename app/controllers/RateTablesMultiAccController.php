@@ -71,7 +71,7 @@ class RateTablesMultiAccController extends \BaseController {
         if(!empty($data["selected_customer"])) {
 
             $RateTable_Id = $data["RateTable_Id"];
-            $TrunkID = $data["TrunkID"];
+            // $TrunkID = $data["TrunkID"];
             /* for select all pages parameter start */
 
             $chk_SourceCustomers = empty($data['chk_SourceCustomers']) ? '' : $data['chk_SourceCustomers'];
@@ -93,18 +93,16 @@ class RateTablesMultiAccController extends \BaseController {
                     $queryAllAcc = " 'N',0,0,0,'' " ;
                 }
 
-                $rules = array(
-                    'RateTable_Id' => 'required',
-                    'TrunkID' => 'required',
+                /*$rules = array(
+                    'RateTable_Id' => 'required'
                 );
-                $message = ['RateTable_Id.required'=>'Rate Table field is required',
-                    'TrunkID.required'=>'Trunk field is required'
+                $message = ['RateTable_Id.required'=>'Rate Table field is required'
                 ];
                 $validator = Validator::make($data, $rules, $message);
                 if ($validator->fails()) {
                     return json_validator_response($validator);
-                }
-                $query = "call prc_applyRateTableTomultipleAccByTrunk (".$companyID.",'".$selected_customer."','".$TrunkID."','".$RateTable_Id."','".$creaedBy."',$queryAllAcc)";
+                }*/
+                $query = "call prc_applyRateTableTomultipleAccByTrunk (".$companyID.",'".$selected_customer."','".$RateTable_Id."','".$creaedBy."',$queryAllAcc)";
                 DataTableSql::of($query)->make();
                 \Illuminate\Support\Facades\Log::info($query);
                 try{
@@ -123,22 +121,16 @@ class RateTablesMultiAccController extends \BaseController {
                     $selected_customer = $data["selected_customer"];
                     $queryAllAcc = " 'N',0,0,0,'' " ;
                 }
-                $rules = array(
-                    'ServiceID' => 'required',
-                );
-                $message = ['InboundRateTable.required'=>'In Bound Rate Table field is required',
-                    'OutboundRateTable.required'=>'Out Bound Rate Table field is required',
-                    'ServiceID.required'=>'Service is required'
-                ];
-                $validator = Validator::make($data, $rules, $message);
-                if ($validator->fails()) {
-                    return json_validator_response($validator);
-                }
-                $ServiceID = $data["ServiceID"];
-                if(!empty($data["InboundRateTable"]) || !empty($data["InboundRateTable"]) ){
+
+                $inboundcheck = isset($data["inboundcheck"]) ? $data["inboundcheck"] : 'off';
+                $outboundcheck = isset($data["outboundcheck"]) ? $data["outboundcheck"] : 'off';
+
+
+                /*if(!empty($data["InboundRateTable"]) || !empty($data["InboundRateTable"]) ){*/
+
                     $InboundRateTable = (!empty($data["InboundRateTable"]) && $data["InboundRateTable"] > 0 ) ? $data["InboundRateTable"] : 0;
                     $OutboundRateTable = (!empty($data["OutboundRateTable"]) && $data["OutboundRateTable"] > 0 ) ? $data["OutboundRateTable"] : 0;
-                    $query = "call prc_applyRateTableTomultipleAccByService (".$companyID.",'".$selected_customer."','".$ServiceID."','".$InboundRateTable."','".$OutboundRateTable."','".$creaedBy."',$queryAllAcc)";
+                    $query = "call prc_applyRateTableTomultipleAccByService (".$companyID.",'".$selected_customer."','".$InboundRateTable."','".$OutboundRateTable."','".$creaedBy."','".$inboundcheck."','".$outboundcheck."',$queryAllAcc)";
                     DataTableSql::of($query)->make();
                     log::info($query);
                     try{
@@ -147,9 +139,11 @@ class RateTablesMultiAccController extends \BaseController {
                         $message =  "Oops Somethings Wrong !";
                         return json_encode(["status" => "fail", "message" => $message]);
                     }
-                }else{
-                    return Response::json(array("status" => "fail", "message" => "Select Inbound or Outbound Ratetable"));
-                }
+
+                /*}else{
+
+                    return Response::json(array("status" => "fail", "message" => "Select Inbound Or Outbound Ratetable"));
+                }*/
 
             }
 
