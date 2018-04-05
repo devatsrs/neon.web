@@ -20,6 +20,8 @@ CREATE DEFINER=`neon-user`@`192.168.1.25` PROCEDURE `prc_RateTableRateUpdateDele
 
 
 
+
+
 )
 ThisSP:BEGIN
 
@@ -65,7 +67,18 @@ ThisSP:BEGIN
 	INNER JOIN 
 		tblRate r ON r.RateID = rtr.RateId
 	WHERE
-		(p_EffectiveDate IS NULL OR rtr.RateID NOT IN (SELECT RateID FROM tblRateTableRate WHERE EffectiveDate=p_EffectiveDate)) AND
+		(
+			p_EffectiveDate IS NULL OR rtr.RateID NOT IN (
+				SELECT 
+					RateID 
+				FROM 
+					tblRateTableRate 
+				WHERE 
+					EffectiveDate=p_EffectiveDate AND
+					((p_Critearea = 0 AND (FIND_IN_SET(RateTableRateID,p_RateTableRateID) = 0 )) OR p_Critearea = 1)
+			)
+		) 
+		AND
 		(
 			(p_Critearea = 0 AND (FIND_IN_SET(rtr.RateTableRateID,p_RateTableRateID) != 0 )) OR
 			(
@@ -84,13 +97,12 @@ ThisSP:BEGIN
 		) AND 
 		rtr.RateTableId = p_RateTableId;
 
-	
+	-- if Effective Date needs to change then remove duplicate codes
 	IF p_action = 1 AND p_EffectiveDate IS NOT NULL
 	THEN
 		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_TempRateTableRate_2 as (select * from tmp_TempRateTableRate_);
 		
-      DELETE n1 FROM tmp_TempRateTableRate_ n1, tmp_TempRateTableRate_2 n2 WHERE n1.RateTableRateID < n2.RateTableRateID
-	   AND  n1.RateID = n2.RateID;
+      DELETE n1 FROM tmp_TempRateTableRate_ n1, tmp_TempRateTableRate_2 n2 WHERE n1.RateTableRateID < n2.RateTableRateID AND  n1.RateID = n2.RateID;
 	END IF;
 	
 	-- select * from tmp_TempRateTableRate_;leave ThisSP;

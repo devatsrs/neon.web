@@ -470,10 +470,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/vendor_rates/{id}/update_settings', 'VendorRatesController@update_settings');
 	Route::any('/vendor_rates/{id}/download/download_excel_file/{JobID}', 'VendorRatesController@downloaded_excel_file_download')->where('JobID', '(.[09]*)+');
 	Route::any('/vendor_rates/{id}/upload/download_excel_file/{JobID}', 'VendorRatesController@uploaded_excel_file_download')->where('JobID', '(.[09]*)+');
-	Route::any('/vendor_rates/bulk_clear_rate/{id}', array('as' => 'vendor_bulk_clear_rate', 'uses' => 'VendorRatesController@bulk_clear_rate'));
-	Route::any('/vendor_rates/clear_all_vendorrate/{id}', array('as' => 'clear_all_vendorrate', 'uses' => 'VendorRatesController@clear_all_vendorrate'));
-	Route::any('/vendor_rates/bulk_update/{id}', array('as' => 'vendor_rates_bulk_update', 'uses' => 'VendorRatesController@bulk_update'));
-	Route::any('/vendor_rates/bulk_update_new/{id}', array('as' => 'vendor_rates_bulk_update_new', 'uses' => 'VendorRatesController@bulk_update_new'));
+	Route::any('/vendor_rates/{id}/clear_rate', array('as' => 'clear_rate', 'uses' => 'VendorRatesController@clear_rate'));
+	Route::any('/vendor_rates/{id}/update_vendor_rate', array('as' => 'update_vendor_rate', 'uses' => 'VendorRatesController@update_vendor_rate'));
 	Route::any('/vendor_rates/vendor_preference/{id}', 'VendorRatesController@vendor_preference');
 	Route::any('/vendor_rates/{id}/search_ajax_datagrid_preference/{type}', 'VendorRatesController@search_ajax_datagrid_preference');
 	Route::any('/vendor_rates/bulk_update_preference/{id}', 'VendorRatesController@bulk_update_preference');
