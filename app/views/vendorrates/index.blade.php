@@ -22,13 +22,13 @@
         <span class="hidden-xs">Vendor Rate</span>
     </a>
 </li>
-@if(User::checkCategoryPermission('VendorRates','Upload'))
+{{--@if(User::checkCategoryPermission('VendorRates','Upload'))
 <li>
     <a href="{{ URL::to('/vendor_rates/'.$id.'/upload') }}" >
         <span class="hidden-xs">Vendor Rate Upload</span>
     </a>
 </li>
-@endif
+@endif--}}
 @if(User::checkCategoryPermission('VendorRates','Download'))
 <li>
     <a href="{{ URL::to('/vendor_rates/'.$id.'/download') }}" >
@@ -64,6 +64,14 @@
     </a>
 </li>
 @endif
+{{--@if(User::checkCategoryPermission('VendorRates','History'))--}}
+<li class="pull-right" style="margin-right: 10px;">
+    <button class="btn btn-primary btn-sm btn-icon icon-left" onclick="location.href='{{ URL::to('/rate_upload/'.$id.'/'.RateUpload::vendor) }}'">
+        <i class="fa fa-upload"></i>
+        Upload Rates
+    </button>
+</li>
+{{--@endif--}}
 </ul>
 <div class="row">
 <div class="col-md-12">
@@ -809,7 +817,7 @@ jQuery(document).ready(function($) {
                     <div id="bulk-update-params-show">
                     </div>
                     <div class="row">
-                        {{--<div class="col-md-6">
+                        <div class="col-md-6">
 
                             <div class="form-group">
                                 <label for="field-4" class="control-label">Effective Date</label>
@@ -817,7 +825,7 @@ jQuery(document).ready(function($) {
                                 <input type="text" name="EffectiveDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}"  data-date-format="yyyy-mm-dd" value="" />
                             </div>
 
-                        </div>--}}
+                        </div>
 
                         <div class="col-md-6">
 
@@ -859,6 +867,16 @@ jQuery(document).ready(function($) {
 
                                 <input type="text" name="IntervalN" class="form-control" id="field-5" placeholder="">
 
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="form-group">
+                                <label for="field-4" class="control-label">End Date</label>
+
+                                <input type="text" name="EndDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}"  data-date-format="yyyy-mm-dd" value="" />
                             </div>
 
                         </div>

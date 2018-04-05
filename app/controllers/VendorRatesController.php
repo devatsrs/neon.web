@@ -405,7 +405,7 @@ class VendorRatesController extends \BaseController
 
         $rules = array(
             'VendorRateID' => 'required',
-            //'EffectiveDate' => 'required',
+            'EffectiveDate' => 'required',
             'Rate' => 'required|numeric',
             'Interval1' => 'required|numeric',
             'IntervalN' => 'required|numeric',
@@ -429,7 +429,8 @@ class VendorRatesController extends \BaseController
             $VendorRates[$i]['updated_by']      = $username;
             $VendorRates[$i]['updated_at']      = date('Y-m-d');
             $VendorRates[$i]['ConnectionFee']   = floatval($data['ConnectionFee']);
-            //$VendorRates[$i]['EffectiveDate']   = $data['EffectiveDate'];
+            $VendorRates[$i]['EffectiveDate']   = $data['EffectiveDate'];
+            $VendorRates[$i]['EndDate']         = !empty($data['EndDate']) ? $data['EndDate'] : $VendorRates[$i]['EndDate'];
             $VendorRates[$i]['Rate']            = $data['Rate'];
         }
 
@@ -458,7 +459,7 @@ class VendorRatesController extends \BaseController
         $company_id = User::get_companyID();
         $data['vendor'] = $id;
         $rules = array(
-                        //'EffectiveDate' => 'required',
+                        'EffectiveDate' => 'required',
                         'Rate' => 'required|numeric',
                         'Trunk' => 'required|numeric'
                     );//'Interval1' => 'required|numeric','IntervalN' => 'required|numeric'
@@ -469,11 +470,12 @@ class VendorRatesController extends \BaseController
         $data['Country'] = $data['Country'] == 'All'?'NULL':$data['Country'];
         $data['Code'] =  $data['Code'] == ''?'NULL':"'".$data['Code']."'";
         $data['Description'] = $data['Description'] == ''?'NULL':"'".$data['Description']."'";
+        $data['EndDate'] = $data['EndDate'] == ''?'NULL':$data['EndDate'];
         $username = User::get_user_full_name();
-        $data['EffectiveDate'] = date('Y-m-d'); //just to send in procedure
+        //$data['EffectiveDate'] = date('Y-m-d'); //just to send in procedure
 
         //Inserting Job Log
-        $results = DB::statement("call prc_VendorBulkRateUpdate ('".$data['vendor']."',".$data['Trunk'].",".$data['Code'].",".$data['Description'].",".$data['Country'].",".$company_id.",".$data['Rate'].",'".$data['EffectiveDate']."','".floatval($data['ConnectionFee'])."',".intval($data['Interval1']).",".intval($data['IntervalN']).",'".$username."','".$data['Effective']."',1)");
+        $results = DB::statement("call prc_VendorBulkRateUpdate ('".$data['vendor']."',".$data['Trunk'].",".$data['Code'].",".$data['Description'].",".$data['Country'].",".$company_id.",".$data['Rate'].",'".$data['EffectiveDate']."','".$data['EndDate']."','".floatval($data['ConnectionFee'])."',".intval($data['Interval1']).",".intval($data['IntervalN']).",'".$username."','".$data['Effective']."',1)");
 
         if ($results) {
             return Response::json(array("status" => "success", "message" => "Vendors Rate Successfully Updated"));
@@ -572,6 +574,7 @@ class VendorRatesController extends \BaseController
     //Delete vendor rate when codedeck change in setting page
     public function  delete_vendorrates($id){
             $data = Input::all();
+            $username = User::get_user_full_name();
             $rules = array('Trunkid' => 'required');
             $validator = Validator::make($data, $rules);
             if ($validator->fails()) {
@@ -582,7 +585,7 @@ class VendorRatesController extends \BaseController
             }
 
             $CompanyID = User::get_companyID();
-            $results = DB::statement("call prc_VendorBulkRateDelete ('".$CompanyID."','".$id."','".$data['Trunkid']."',NULL,NULL,NULL,NULL,NULL,2)");
+            $results = DB::statement("call prc_VendorBulkRateDelete ('".$CompanyID."','".$id."','".$data['Trunkid']."',NULL,NULL,NULL,NULL,NULL,'".$username."',2)");
             if ($results) {
                 return Response::json(array("status" => "success", "message" => "Vendor Rates Successfully Deleted."));
             } else {
