@@ -370,145 +370,157 @@ class VendorRatesController extends \BaseController
 
     }
 
-    // Delete single and selected vendor rate
-    public function bulk_clear_rate($id){
-        $data = Input::all();
-        $rules = array('VendorRateID' => 'required', 'Trunk' => 'required',);
+    public function  update_vendor_rate($id){
+        if ($id > 0) {
+            $data       = Input::all();//echo "<pre>";print_r($data);exit();
+            $username   = User::get_user_full_name();
+            $CompanyID  = User::get_companyID();
+            $error      = 0;
 
-        $validator = Validator::make($data, $rules);
+            $EffectiveDate = $EndDate = $Rate = $Interval1 = $IntervalN = $ConnectionFee = 'NULL';
 
-        if ($validator->fails()) {
-            return json_validator_response($validator);
-            //return Redirect::back()->withInput(Input::all())->withErrors($validator);
-        }
+            if(!empty($data['updateEffectiveDate']) || !empty($data['updateRate']) || !empty($data['updateInterval1']) || !empty($data['updateIntervalN']) || !empty($data['updateConnectionFee']) || !empty($data['EndDate'])) {
+                if(!empty($data['updateEffectiveDate'])) {
+                    if(!empty($data['EffectiveDate'])) {
+                        $EffectiveDate = "'".$data['EffectiveDate']."'";
+                    } else {
+                        $error=1;
+                    }
+                }
+                if(!empty($data['updateEndDate'])) {
+                    if(!empty($data['EndDate'])) {
+                        $EndDate = "'".$data['EndDate']."'";
+                    } else if (empty($data['updateType'])) {
+                        $error=1;
+                    }
+                }
+                if(!empty($data['updateRate'])) {
+                    if(!empty($data['Rate'])) {
+                        $Rate = "'".floatval($data['Rate'])."'";
+                    } else {
+                        $error=1;
+                    }
+                }
+                if(!empty($data['updateInterval1'])) {
+                    if(!empty($data['Interval1'])) {
+                        $Interval1 = "'".$data['Interval1']."'";
+                    } else {
+                        $error=1;
+                    }
+                }
+                if(!empty($data['updateIntervalN'])) {
+                    if(!empty($data['IntervalN'])) {
+                        $IntervalN = "'".$data['IntervalN']."'";
+                    } else {
+                        $error=1;
+                    }
+                }
+                if(!empty($data['updateConnectionFee'])) {
+                    if(!empty($data['ConnectionFee'])) {
+                        $ConnectionFee = "'".$data['ConnectionFee']."'";
+                    } else if (empty($data['updateType'])) {
+                        $error=1;
+                    }
+                }
+                if(isset($error) && $error==1) {
+                    return Response::json(array("status" => "failed", "message" => "Please Select Checked Field Data"));
+                }
 
-        $CompanyID = User::get_companyID();
-        $username = User::get_user_full_name();
-
-        $results = DB::statement("call prc_VendorBulkRateDelete ('".$CompanyID."','".$id."','".$data['Trunk']."','".$data['VendorRateID']."',NULL,NULL,NULL,NULL,'".$username."',2)");
-        if ($results) {
-            return Response::json(array("status" => "success", "message" => "Vendors Rate Successfully Deleted"));
-        } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Deleting Vendor Rate."));
-        }
-        /*
-        $VendorIDs = explode(",", $data['VendorRateID']);
-        if (VendorRate::whereIn('VendorRateID',$VendorIDs)->delete()) {
-            return Response::json(array("status" => "success", "message" => "Vendor Rates Successfully Deleted."));
-        } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Deleting Vendor Rates."));
-        }*/
-
-    }
-    public function bulk_update($id){
-        $data = Input::all();
-
-        $rules = array(
-            'VendorRateID' => 'required',
-            'EffectiveDate' => 'required',
-            'Rate' => 'required|numeric',
-            'Interval1' => 'required|numeric',
-            'IntervalN' => 'required|numeric',
-        );
-
-        $validator = Validator::make($data, $rules);
-
-        if ($validator->fails()) {
-            //return Redirect::back()->withInput(Input::all())->withErrors($validator);
-            return json_validator_response($validator);
-        }
-        $username = User::get_user_full_name();
-        $VendorIDs = explode(",", $data['VendorRateID']);
-
-        $VendorRates = VendorRate::whereIn('VendorRateID',$VendorIDs)->get()->toArray();
-
-        for($i=0; $i<count($VendorRates);$i++) {
-            unset($VendorRates[$i]['VendorRateID']);
-            $VendorRates[$i]['Interval1']       = $data['Interval1'];
-            $VendorRates[$i]['IntervalN']       = $data['IntervalN'];
-            $VendorRates[$i]['updated_by']      = $username;
-            $VendorRates[$i]['updated_at']      = date('Y-m-d');
-            $VendorRates[$i]['ConnectionFee']   = floatval($data['ConnectionFee']);
-            $VendorRates[$i]['EffectiveDate']   = $data['EffectiveDate'];
-            $VendorRates[$i]['EndDate']         = !empty($data['EndDate']) ? $data['EndDate'] : $VendorRates[$i]['EndDate'];
-            $VendorRates[$i]['Rate']            = $data['Rate'];
-        }
-
-        //'Interval1'=> $data['Interval1'],'IntervalN'=> $data['IntervalN'],
-        try {
-            DB::beginTransaction();
-            VendorRate::whereIn('VendorRateID',$VendorIDs)->update(['EndDate'=> date('Y-m-d H:i:s')]);
-
-            $username = User::get_user_full_name();
-            DB::statement("call prc_WSCronJobDeleteOldVendorRate('".$username."')");
-
-            if (VendorRate::insert($VendorRates)) {
-                DB::commit();
-                return Response::json(array("status" => "success", "message" => "Vendor Rates Successfully Updated."));
             } else {
-                return Response::json(array("status" => "failed", "message" => "Problem Updating Vendor Rates."));
+                return Response::json(array("status" => "failed", "message" => "No Rate selected to Update."));
             }
-        } catch (Exception $ex) {
-            DB::rollback();
-            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
-        }
 
-    }
-    public function  bulk_update_new($id){
-        $data = Input::all();
-        $company_id = User::get_companyID();
-        $data['vendor'] = $id;
-        $rules = array(
-                        'EffectiveDate' => 'required',
-                        'Rate' => 'required|numeric',
-                        'Trunk' => 'required|numeric'
-                    );//'Interval1' => 'required|numeric','IntervalN' => 'required|numeric'
-        $validator = Validator::make($data, $rules);
-        if ($validator->fails()) {
-            return json_validator_response($validator);
-        }
-        $data['Country'] = $data['Country'] == 'All'?'NULL':$data['Country'];
-        $data['Code'] =  $data['Code'] == ''?'NULL':"'".$data['Code']."'";
-        $data['Description'] = $data['Description'] == ''?'NULL':"'".$data['Description']."'";
-        $data['EndDate'] = $data['EndDate'] == ''?'NULL':$data['EndDate'];
-        $username = User::get_user_full_name();
-        //$data['EffectiveDate'] = date('Y-m-d'); //just to send in procedure
+            try {
+                DB::beginTransaction();
+                $p_criteria = 0;
+                $action     = 1; //update action
+                $criteria   = json_decode($data['criteria'], true);
 
-        //Inserting Job Log
-        $results = DB::statement("call prc_VendorBulkRateUpdate ('".$data['vendor']."',".$data['Trunk'].",".$data['Code'].",".$data['Description'].",".$data['Country'].",".$company_id.",".$data['Rate'].",'".$data['EffectiveDate']."','".$data['EndDate']."','".floatval($data['ConnectionFee'])."',".intval($data['Interval1']).",".intval($data['IntervalN']).",'".$username."','".$data['Effective']."',1)");
+                $criteria['Code']           = !empty($criteria['Code']) && $criteria['Code'] != '' ? "'" . $criteria['Code'] . "'" : 'NULL';
+                $criteria['Description']    = !empty($criteria['Description']) && $criteria['Description'] != '' ? "'" . $criteria['Description'] . "'" : 'NULL';
+                $criteria['Country']        = !empty($criteria['Country']) && $criteria['Country'] != '' && $criteria['Country'] != 'All' ? "'" . $criteria['Country'] . "'" : 'NULL';
+                $criteria['Effective']      = !empty($criteria['Effective']) && $criteria['Effective'] != '' ? "'" . $criteria['Effective'] . "'" : 'NULL';
+                $criteria['TrunkID']        = !empty($criteria['Trunk']) && $criteria['Trunk'] != '' ? "'" . $criteria['Trunk'] . "'" : 'NULL';
 
-        if ($results) {
-            return Response::json(array("status" => "success", "message" => "Vendors Rate Successfully Updated"));
+                if(empty($criteria['TrunkID']) || $criteria['TrunkID'] == 'NULL') {
+                    $criteria['TrunkID'] = $data['TrunkID'];
+                }
+
+                $AccountID                  = $id;
+                $VendorRateID               = $data['VendorRateID'];
+
+                if (empty($data['VendorRateID']) && !empty($data['criteria'])) {
+                    $p_criteria = 1;
+                }
+
+                $query = "call prc_VendorRateUpdateDelete (" . $CompanyID . "," . $AccountID . ",'" . $VendorRateID . "'," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['Effective'] . "," . $criteria['TrunkID'] . ",'" . $username . "',".$p_criteria.",".$action.")";
+                Log::info($query);
+                $results = DB::statement($query);
+
+                if ($results) {
+                    DB::commit();
+                    return Response::json(array("status" => "success", "message" => "Rates Successfully Updated"));
+                } else {
+                    return Response::json(array("status" => "failed", "message" => "Problem Updating Vendor Rate."));
+                }
+            } catch (Exception $ex) {
+                DB::rollback();
+                return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+            }
+
         } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Updating Vendor Rate."));
+            return Response::json(array("status" => "failed", "message" => "No RateTable Found."));
         }
     }
 
-    // Delete All vendor rate by criteria
-    public function clear_all_vendorrate($id){
-        $data = Input::all();
-        $rules = array('Trunk' => 'required',);
+    //delete rate table rates
+    public function clear_rate($id) {
+        if ($id > 0) {
+            $data           = Input::all();//echo "<pre>";print_r($data);exit();
+            $CompanyID      = User::get_companyID();
+            $username       = User::get_user_full_name();
+            $EffectiveDate  = $EndDate = $Rate = $Interval1 = $IntervalN = $ConnectionFee = 'NULL';
+            try {
+                DB::beginTransaction();
+                $p_criteria = 0;
+                $action     = 2; //delete action
+                $criteria   = json_decode($data['criteria'], true);
 
-        $validator = Validator::make($data, $rules);
-        if ($validator->fails()) {
-            return json_validator_response($validator);
-        }
+                $criteria['Code']           = !empty($criteria['Code']) && $criteria['Code'] != '' ? "'" . $criteria['Code'] . "'" : 'NULL';
+                $criteria['Description']    = !empty($criteria['Description']) && $criteria['Description'] != '' ? "'" . $criteria['Description'] . "'" : 'NULL';
+                $criteria['Country']        = !empty($criteria['Country']) && $criteria['Country'] != '' && $criteria['Country'] != 'All' ? "'" . $criteria['Country'] . "'" : 'NULL';
+                $criteria['Effective']      = !empty($criteria['Effective']) && $criteria['Effective'] != '' ? "'" . $criteria['Effective'] . "'" : 'NULL';
+                $criteria['TrunkID']        = !empty($criteria['Trunk']) && $criteria['Trunk'] != '' ? "'" . $criteria['Trunk'] . "'" : 'NULL';
 
-        $CompanyID = User::get_companyID();
-        if(!empty($data['criteria'])){
-            $criteria = json_decode($data['criteria'],true);
-            $criteria['Country'] = $criteria['Country'] == 'All'?'NULL':$criteria['Country'];
-            $criteria['Code'] =  $criteria['Code'] == ''?'NULL':"'".$criteria['Code']."'";
-            $criteria['Description'] = $criteria['Description'] == ''?'NULL':"'".$criteria['Description']."'";
-            $username = User::get_user_full_name();
-            $results = DB::statement("call prc_VendorBulkRateDelete ('".$CompanyID."','".$id."','".$data['Trunk']."',NULL,".$criteria['Code'].",".$criteria['Description'].",".$criteria['Country'].",'".$criteria['Effective']."','".$username."',1)");
-            if ($results) {
-                return Response::json(array("status" => "success", "message" => "Vendor Rates Successfully Deleted."));
-            } else {
-                return Response::json(array("status" => "failed", "message" => "Problem Deleting Vendor Rate."));
+                if(empty($criteria['TrunkID']) || $criteria['TrunkID'] == 'NULL') {
+                    $criteria['TrunkID'] = $data['TrunkID'];
+                }
+
+                $AccountID                  = $id;
+                $VendorRateID               = $data['VendorRateID'];
+
+                if (empty($data['VendorRateID']) && !empty($data['criteria'])) {
+                    $p_criteria = 1;
+                }
+
+                $query = "call prc_VendorRateUpdateDelete (" . $CompanyID . "," . $AccountID . ",'" . $VendorRateID . "'," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['Effective'] . "," . $criteria['TrunkID'] . ",'" . $username . "',".$p_criteria.",".$action.")";
+                Log::info($query);
+                $results = DB::statement($query);
+
+                if ($results) {
+                    DB::commit();
+                    return Response::json(array("status" => "success", "message" => "Rates Successfully Deleted"));
+                } else {
+                    return Response::json(array("status" => "failed", "message" => "Problem Deleting Vendor Rates."));
+                }
+            } catch (Exception $ex) {
+                DB::rollback();
+                return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
             }
+
         }
     }
+
     public function settings($id){
             $codedecklist = BaseCodeDeck::getCodedeckIDList();
             $trunks = Trunk::getTrunkCacheObj();
