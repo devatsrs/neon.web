@@ -67,6 +67,7 @@
     </a>
 </li>
 @endif
+@include('vendorrates.upload_rates_button')
 </ul>
 
 
