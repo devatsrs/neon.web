@@ -1,10 +1,9 @@
-CREATE DEFINER=`neon-user`@`%` PROCEDURE `prc_checkDialstringAndDupliacteCode`(
+CREATE DEFINER=`neon-user`@`192.168.1.25` PROCEDURE `prc_checkDialstringAndDupliacteCode`(
 	IN `p_companyId` INT,
 	IN `p_processId` VARCHAR(200) ,
 	IN `p_dialStringId` INT,
 	IN `p_effectiveImmediately` INT,
 	IN `p_dialcodeSeparator` VARCHAR(50)
-
 )
 ThisSP:BEGIN
 
@@ -247,7 +246,49 @@ ThisSP:BEGIN
          IF totaldialstringcode > 0
          THEN
 
-				INSERT INTO tmp_JobLog_ (Message)
+				/*INSERT INTO tmp_JobLog_ (Message)
+				  SELECT DISTINCT CONCAT(Code ,' ', vr.DialStringPrefix , ' No PREFIX FOUND')
+				  	FROM tmp_TempVendorRate_ vr
+						LEFT JOIN tmp_DialString_ ds
+
+							ON ((vr.Code = ds.ChargeCode and vr.DialStringPrefix = '') OR (vr.DialStringPrefix != '' and vr.DialStringPrefix =  ds.DialString and vr.Code = ds.ChargeCode  ))
+						WHERE vr.ProcessId = p_processId
+							AND ds.DialStringID IS NULL
+							AND vr.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');*/
+							
+			INSERT INTO tblDialStringCode (DialStringID,DialString,ChargeCode,created_by)
+			  SELECT DISTINCT p_dialStringId,vr.DialStringPrefix, Code, 'RMService'
+				FROM tmp_TempVendorRate_ vr
+					LEFT JOIN tmp_DialString_ ds
+
+						ON ((vr.Code = ds.ChargeCode and vr.DialStringPrefix = '') OR (vr.DialStringPrefix != '' and vr.DialStringPrefix =  ds.DialString and vr.Code = ds.ChargeCode  ))
+					WHERE vr.ProcessId = p_processId
+						AND ds.DialStringID IS NULL
+						AND vr.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block')
+						AND (vr.DialStringPrefix is not null AND vr.DialStringPrefix != '')
+						AND (Code is not null AND Code != '');
+			
+			TRUNCATE tmp_DialString_;
+			INSERT INTO tmp_DialString_
+				SELECT DISTINCT
+					`DialStringID`,
+					`DialString`,
+					`ChargeCode`,
+					`Description`,
+					`Forbidden`
+				FROM tblDialStringCode
+					WHERE DialStringID = p_dialstringid;
+						
+			SELECT  COUNT(*) as count INTO totaldialstringcode
+			FROM tmp_TempVendorRate_ vr
+				LEFT JOIN tmp_DialString_ ds
+					ON ((vr.Code = ds.ChargeCode and vr.DialStringPrefix = '') OR (vr.DialStringPrefix != '' and vr.DialStringPrefix =  ds.DialString and vr.Code = ds.ChargeCode  ))
+
+				WHERE vr.ProcessId = p_processId
+					AND ds.DialStringID IS NULL
+					AND vr.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
+					
+			INSERT INTO tmp_JobLog_ (Message)
 				  SELECT DISTINCT CONCAT(Code ,' ', vr.DialStringPrefix , ' No PREFIX FOUND')
 				  	FROM tmp_TempVendorRate_ vr
 						LEFT JOIN tmp_DialString_ ds
