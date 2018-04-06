@@ -63,6 +63,7 @@
         <span class="hidden-xs">Vendor Rate History</span>
     </a>
 </li>
+@include('vendorrates.upload_rates_button')
 </ul>
 
 <table class="table table-bordered datatable" id="table-4">
