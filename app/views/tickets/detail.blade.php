@@ -358,6 +358,7 @@ var max_file_size_txt 	=	    '{{$max_file_size}}';
 var max_file_size	  	=	    '{{str_replace("M","",$max_file_size)}}';
 var emailFileListReply 	=		[];
 var CloseStatus			=		'{{$CloseStatus}}';
+var ticketPreMSG        =       '';
 $(document).ready(function(e) {
     var lightboxhtml = $('<a href="" data-type="image" data-toggle="lightbox" data-title="" data-footer=""></a>');
     $(".mail-body img").each(function(i){
@@ -406,6 +407,7 @@ $(document).ready(function(e) {
 			success: function(response){
 				$('#EmailAction-model .modal-content').html('');
 				$('#EmailAction-model .modal-content').html(response);				
+                ticketPreMSG=$('#EmailAction-model .modal-content').find('[name=Message]').val();
 					var mod =  $(document).find('.EmailAction_box');
 					$('#EmailAction-model').modal('show');
 
@@ -742,8 +744,38 @@ $(document).ready(function(e) {
 			$('.change_duetime').click(function(e) {
                 $('.change_due_time').toggle();
             });
-			 
+
+            $( document ).on("change",'.email_template' ,function(e) {
+                var templateID = $(this).val();
+                if(templateID>0) {
+                    var url = baseurl + '/accounts/' + templateID + '/ajax_template';
+                    $.get(url, function (data, status) {
+                        if (Status = "success") {
+                            editor_reset(data);
+                        } else {
+                            toastr.error(status, "Error", toastr_opts);
+                        }
+                    });
+                }
+            });
 });
+
+    function editor_reset(data){
+        //var doc = $('.mail-compose');
+        var doc = $(document).find('#EmailActionform');
+        doc.find('#EmailActionbody').show();
+
+        if(!Array.isArray(data)){
+            var EmailTemplate = data['EmailTemplate'];
+            doc.find('[name="Subject"]').val(EmailTemplate.Subject);
+            doc.find('[name="Message"]').val(EmailTemplate.TemplateBody + ticketPreMSG);
+        }else{
+            doc.find('[name="Subject"]').val('');
+            doc.find('[name="Message"]').val('');
+        }
+        show_summernote(doc.find('[name="Message"]'),editor_options);
+
+    }
 //setTimeout(setagentval(),6000);
 	function setagentval(){
 		$('#TicketGroup').trigger('change');		

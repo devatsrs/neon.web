@@ -203,6 +203,20 @@
                         <div class="form-group">
                             <br />
                             <br />
+                            <label class="col-sm-2 control-label" for="field-1">Service</label>
+                            <div class="col-sm-4">
+                                {{ Form::select('selection[ServiceID]',$Services,'', array("class"=>"select2")) }}
+                            </div>
+
+                            <label class="col-sm-2 control-label" for="field-1">Trunk</label>
+                            <div class="col-sm-4">
+                                {{ Form::select('selection[TrunkID]',$Trunks,'', array("class"=>"select2")) }}
+                            </div>
+
+                        </div>
+                        <div class="form-group">
+                            <br />
+                            <br />
                             <label for=" field-1" class="col-sm-2 control-label">Date Format</label>
                             <div class="col-sm-4">
                                 {{Form::select('selection[DateFormat]',Company::$date_format ,'',array("class"=>"select2 small"))}}
@@ -389,6 +403,8 @@ var click_btn;
             $('select[name=TrunkID]').select2("val","");
             $('select[name=RateFormat]').select2("val","");
             $('select[name=RateFormat]').trigger('change');
+            $('select[name=ServiceID]').select2("val","");
+
         });
         $('#RateCDR').trigger('change');
     });
@@ -416,9 +432,13 @@ var click_btn;
             body.append(tr);
         });
         $("#mapping select").each(function(i, el){
-            if(el.name !='selection[DateFormat]' && el.name != 'selection[Authentication]'){
+            if(el.name !='selection[DateFormat]' && el.name != 'selection[Authentication]' && el.name != 'selection[InboundRateTableID]' && el.name != 'selection[OutboundRateTableID]' && el.name != 'selection[ServiceID]' && el.name != 'selection[TrunkID]'){
                 var self = $('#add-template-form [name="'+el.name+'"]');
                 rebuildSelect2(self,data.columns,'Skip loading');
+            }else if( el.name == 'selection[ServiceID]' || el.name == 'selection[TrunkID]'){
+                var self = $('#add-template-form [name="'+el.name+'"]');
+                var label = 'Map From File';
+                rebuildSelectComposite(self,data.columns,label);
             }
         });
         if(data.FileUploadTemplate){
