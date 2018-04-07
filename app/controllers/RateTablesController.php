@@ -222,7 +222,7 @@ class RateTablesController extends \BaseController {
                     DB::commit();
                     return Response::json(array("status" => "success", "message" => "Rates Successfully Deleted"));
                 } else {
-                    return Response::json(array("status" => "failed", "message" => "Problem Deleting Rate Table Rate."));
+                    return Response::json(array("status" => "failed", "message" => "Problem Deleting Rate Table Rates."));
                 }
             } catch (Exception $ex) {
                 DB::rollback();
@@ -299,10 +299,10 @@ class RateTablesController extends \BaseController {
                 $action     = 1; //update action
                 $criteria   = json_decode($data['criteria'], true);
 
-                $criteria['Code']           = !empty($criteria['Code']) && $criteria['Code'] != '' ? "'" . $criteria['Code'] . "'" : 'null';
-                $criteria['Description']    = !empty($criteria['Description']) && $criteria['Description'] != '' ? "'" . $criteria['Description'] . "'" : 'null';
-                $criteria['Country']        = !empty($criteria['Country']) && $criteria['Country'] != '' ? "'" . $criteria['Country'] . "'" : 'null';
-                $criteria['Effective']      = !empty($criteria['Effective']) && $criteria['Effective'] != '' ? "'" . $criteria['Effective'] . "'" : 'null';
+                $criteria['Code']           = !empty($criteria['Code']) && $criteria['Code'] != '' ? "'" . $criteria['Code'] . "'" : 'NULL';
+                $criteria['Description']    = !empty($criteria['Description']) && $criteria['Description'] != '' ? "'" . $criteria['Description'] . "'" : 'NULL';
+                $criteria['Country']        = !empty($criteria['Country']) && $criteria['Country'] != '' ? "'" . $criteria['Country'] . "'" : 'NULL';
+                $criteria['Effective']      = !empty($criteria['Effective']) && $criteria['Effective'] != '' ? "'" . $criteria['Effective'] . "'" : 'NULL';
 
                 $RateTableID                = $id;
                 $RateTableRateID            = $data['RateTableRateID'];
@@ -326,6 +326,8 @@ class RateTablesController extends \BaseController {
                 return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
             }
 
+        } else {
+            return Response::json(array("status" => "failed", "message" => "No RateTable Found."));
         }
     }
 

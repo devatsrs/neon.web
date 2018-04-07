@@ -260,9 +260,9 @@
             }
         });
 
-
-            //Bulk Edit Button
-        $("#change-bulk-rate").click(function(ev) {
+        //Bulk Edit Button
+        $(document).off('click.change-bulk-rate','#change-bulk-rate');
+        $(document).on('click.change-bulk-rate','#change-bulk-rate',function(ev) {
 
             var RateTableRateIDs = [];
             var RateIDs = [];
@@ -274,8 +274,6 @@
                 RateTableRateIDs[i] = RateTableRateID;
                 RateID = $(this).parents("tr").find("div.hiddenRowData").find("input[name='RateID']").val();
                 RateIDs[i] = RateID;
-
-
                 i++;
             });
             date = new Date();
@@ -283,12 +281,20 @@
             var day = date.getDate();
             currentDate = date.getFullYear() + '-' +   (month<10 ? '0' : '') + month + '-' +     (day<10 ? '0' : '') + day;
             $("#bulk-edit-rate-table-form")[0].reset();
-            $("#bulk-edit-rate-table-form").find("input[name='RateTableRateID']").val(RateTableRateIDs.join(","));
             $("#bulk-edit-rate-table-form").find("input[name='RateID']").val(RateIDs.join(","));
             $("#bulk-edit-rate-table-form").find("input[name='Interval1']").val(1);
             $("#bulk-edit-rate-table-form").find("input[name='IntervalN']").val(1);
             $("#bulk-edit-rate-table-form").find("input[name='EffectiveDate']").val(currentDate);
 
+            var criteria = '';
+            if ($('#selectallbutton').is(':checked')) {
+                criteria = JSON.stringify($searchFilter);
+                $("#bulk-edit-rate-table-form").find("input[name='RateTableRateID']").val('');
+                $("#bulk-edit-rate-table-form").find("input[name='criteria']").val(criteria);
+            } else {
+                $("#bulk-edit-rate-table-form").find("input[name='RateTableRateID']").val(RateTableRateIDs.join(","));
+                $("#bulk-edit-rate-table-form").find("input[name='criteria']").val('');
+            }
 
             if(RateIDs.length){
                 jQuery('#modal-bulk-rate-table').modal('show', {backdrop: 'static'});
@@ -298,15 +304,6 @@
 
         //Bulk Form and Edit Single Form Submit
         $("#bulk-edit-rate-table-form,#edit-rate-table-form").submit(function() {
-            if($(this).attr('id') == 'bulk-edit-rate-table-form') {
-                var criteria = '';
-                if ($('#selectallbutton').is(':checked')) {
-                    criteria = JSON.stringify($searchFilter);
-                    $("#bulk-edit-rate-table-form").find("input[name='RateTableRateID']").val('');
-                    $("#bulk-edit-rate-table-form").find("input[name='criteria']").val(criteria);
-                }
-            }
-
             var formData = new FormData($(this)[0]);
             $.ajax({
                 url: baseurl + '/rate_tables/{{$id}}/update_rate_table_rate', //Server script to process data
@@ -317,6 +314,7 @@
 
                     if (response.status == 'success') {
                         $('#modal-bulk-rate-table').modal('hide');
+                        $('#modal-rate-table').modal('hide');
                         toastr.success(response.message, "Success", toastr_opts);
                         //data_table.fnFilter('', 0);
                         rateDataTable(view);
@@ -766,47 +764,33 @@
 
                     <div class="row">
                         <div class="col-md-6">
-
                             <div class="form-group">
                                 <label for="field-4" class="control-label">Effective Date</label>
-
                                 <input type="text"  name="EffectiveDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
                             </div>
-
                         </div>
 
                         <div class="col-md-6">
-
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Rate</label>
                                 <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
-
                             </div>
-
                         </div>
-
                     </div>
                     <div class="row">
                         <div class="col-md-6">
-
                             <div class="form-group">
                                 <label for="field-4" class="control-label">Interval 1</label>
                                 <input type="text" name="Interval1" class="form-control" value="" />
-
                             </div>
-
                         </div>
 
                         <div class="col-md-6">
-
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Interval N</label>
                                 <input type="text" name="IntervalN" class="form-control" id="field-5" placeholder="">
-
                             </div>
-
                         </div>
-
                     </div>
                     <div class="row">
                         <div class="col-md-6">
@@ -867,49 +851,37 @@
 
                     <div class="row">
                         <div class="col-md-6">
-
                             <div class="form-group">
                                 <input type="checkbox" name="updateEffectiveDate" class="" />
                                 <label for="field-4" class="control-label">Effective Date</label>
-
                                 <input type="text" name="EffectiveDate" class="form-control datepicker"  data-startdate="{{date('Y-m-d')}}" data-date-format="yyyy-mm-dd" value="" />
                             </div>
-
                         </div>
 
                         <div class="col-md-6">
-
                             <div class="form-group">
                                 <input type="checkbox" name="updateRate" class="" />
                                 <label for="field-5" class="control-label">Rate</label>
-
                                 <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
                             </div>
-
                         </div>
 
                     </div>
                     <div class="row">
                         <div class="col-md-6">
-
                             <div class="form-group">
                                 <input type="checkbox" name="updateInterval1" class="" />
                                 <label for="field-4" class="control-label">Interval 1</label>
                                 <input type="text" name="Interval1" class="form-control" value="" />
-
                             </div>
-
                         </div>
 
                         <div class="col-md-6">
-
                             <div class="form-group">
                                 <input type="checkbox" name="updateIntervalN" class="" />
                                 <label for="field-5" class="control-label">Interval N</label>
                                 <input type="text" name="IntervalN" class="form-control" id="field-5" placeholder="">
-
                             </div>
-
                         </div>
 
                     </div>

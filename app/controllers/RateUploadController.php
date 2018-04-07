@@ -377,6 +377,7 @@ class RateUploadController extends \BaseController {
         }
     }
 
+    //if you change anything in this method then you need to change also in VendorRateUpload.php and RateTableRateUpload.php in service
     public function reviewRates() {
         $data               = Input::all();
         $CompanyID          = User::get_companyID();
@@ -690,7 +691,8 @@ class RateUploadController extends \BaseController {
                         $tempdata['Change'] = 'I';
                     }
 
-                    if (isset($attrselection->Rate) && !empty($attrselection->Rate) && is_numeric(trim($temp_row[$attrselection->Rate]))  ) {
+                    if (isset($attrselection->Rate) && !empty($attrselection->Rate)) {
+                        $temp_row[$attrselection->Rate] = preg_replace('/[^.0-9\-]/', '', $temp_row[$attrselection->Rate]); //remove anything but numbers and 0 (only allow numbers,-dash,.dot)
                         if (is_numeric(trim($temp_row[$attrselection->Rate]))) {
                             $tempdata['Rate'] = trim($temp_row[$attrselection->Rate]);
                         } else {

@@ -62,6 +62,7 @@
     </a>
 </li>
 @endif
+@include('vendorrates.upload_rates_button')
 </ul>
 <div class="row">
 <div class="col-md-12">
