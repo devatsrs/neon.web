@@ -242,7 +242,6 @@
 </style>
 <script>
 var editor_options 	 	=  		{};
-var a;
 $(document).ready(function(e) {
 	 $('.useremails').select2({
             tags:{{$AllEmails}}
