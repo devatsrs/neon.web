@@ -92,9 +92,12 @@
                            data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse"/>
                      <span>
                     <?php
+                     if(isset($gatewayconfigval->$configkey))
+                     {
                          $tmparr = explode("/",$gatewayconfigval->$configkey);
                          echo end($tmparr);
-                         ?>
+                     }
+                     ?>
                 </span>
                 </div>
 
