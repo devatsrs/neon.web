@@ -1,5 +1,13 @@
 Use Ratemanagement3;
 
+insert into tblGatewayConfig (GatewayId, Title, Name, Status) VALUES ('7', 'Key', 'key', '1');
+UPDATE `NeonRMDev`.`tblGatewayConfig` SET `Created_at`='2018-04-07 17:44:39' WHERE  `GatewayConfigID`=174;
+UPDATE `NeonRMDev`.`tblGatewayConfig` SET `CreatedBy`='RateManagementSystem' WHERE  `GatewayConfigID`=174;
+
+insert into tblGatewayConfig (GatewayId, Title, Name, Status) VALUES ('7', 'Key Phrase', 'keyphrase', '1');
+UPDATE `NeonRMDev`.`tblGatewayConfig` SET `Created_at`='2018-04-10 17:44:39' WHERE  `GatewayConfigID`=174;
+UPDATE `NeonRMDev`.`tblGatewayConfig` SET `CreatedBy`='RateManagementSystem' WHERE  `GatewayConfigID`=174;
+
 ALTER TABLE `tblRateRule`
 ADD COLUMN `Order` INT(11) NULL AFTER `ModifiedBy`;
 
@@ -7,17 +15,11 @@ ADD COLUMN `Order` INT(11) NULL AFTER `ModifiedBy`;
 DROP PROCEDURE IF EXISTS `prc_CloneRateRuleInRateGenerator`;
 DELIMITER //
 CREATE PROCEDURE `prc_CloneRateRuleInRateGenerator`(
-	IN `p_RateRuleID` INT
-,
+	IN `p_RateRuleID` INT,
 	IN `p_CreatedBy` VARCHAR(100)
-
 )
 BEGIN
-
-
-
 		select max(`Order`) into @max_order from tblRateRule 		where RateGeneratorId  = (		select RateGeneratorId 		from tblRateRule 		where RateRuleID  = p_RateRuleID	limit 1) ;
-
 
 		insert into tblRateRule
 		(	RateGeneratorId,	Code,	Description, `Order`,	created_at,	CreatedBy)
@@ -25,8 +27,6 @@ BEGIN
 				RateGeneratorId,	Code,	Description, (@max_order+1) , 	now(),	p_CreatedBy
 		from tblRateRule
 		where RateRuleID  = p_RateRuleID;
-
-
 
 		select LAST_INSERT_ID() into @NewRateRuleID;
 
@@ -36,7 +36,6 @@ BEGIN
 				@NewRateRuleID,AccountId,	now(), p_CreatedBy
 		from tblRateRuleSource
 		where RateRuleID  = p_RateRuleID;
-
 
 		insert into tblRateRuleMargin
 		(	RateRuleId,MinRate,MaxRate,AddMargin,FixedValue,created_at,CreatedBy )
@@ -48,4 +47,3 @@ BEGIN
 		select @NewRateRuleID as RateRuleID;
 END//
 DELIMITER ;
-
