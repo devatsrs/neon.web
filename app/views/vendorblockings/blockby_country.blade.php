@@ -64,6 +64,7 @@
         </a>
     </li>
     @endif
+    @include('vendorrates.upload_rates_button')
 </ul>
 
 <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
