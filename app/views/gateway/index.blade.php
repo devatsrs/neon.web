@@ -264,6 +264,9 @@ var postdata;
             url: update_new_url,  //Server script to process data
             type: 'POST',
             dataType: 'json',
+            data: new FormData(this),
+            processData: false,
+            contentType: false,
             success: function (response) {
                 if(response.status =='success'){
                     toastr.success(response.message, "Success", toastr_opts);
@@ -275,7 +278,7 @@ var postdata;
                 $("#config-update").button('reset');
             },
             // Form data
-            data: $('#add-new-config-form').serialize(),
+            //data: $('#add-new-config-form').serialize(),
             //Options to tell jQuery not to process data or worry about content-type.
             cache: false
         });
@@ -525,7 +528,7 @@ var postdata;
 <div class="modal fade" id="add-new-modal-config">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form id="add-new-config-form" method="post">
+            <form id="add-new-config-form" method="post" enctype="multipart/form-data">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     <h4 class="modal-title">Add New Config</h4>

@@ -107,7 +107,7 @@ class RateGeneratorsController extends \BaseController {
                 ])->first();
                 $rategenerator_rules = RateRule::with('RateRuleMargin', 'RateRuleSource')->where([
                     "RateGeneratorId" => $id
-                ])->get();
+                ]) ->orderBy("Order", "asc")->get();
                 $array_op= array();
                 $codedecklist = BaseCodeDeck::getCodedeckIDList();
                 $currencylist = Currency::getCurrencyDropdownIDList();
@@ -354,4 +354,26 @@ class RateGeneratorsController extends \BaseController {
             return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
         }
     }
+
+    function Update_Fields_Sorting(){
+        $postdata    =  Input::all();
+        if(isset($postdata['main_fields_sort']) && !empty($postdata['main_fields_sort']))
+        {
+           // print_R($postdata);exit;
+            try
+            {
+                DB::beginTransaction();
+                $main_fields_sort = json_decode($postdata['main_fields_sort']);
+                foreach($main_fields_sort as $main_fields_sort_Data){
+                    RateRule::find($main_fields_sort_Data->data_id)->update(array("Order"=>$main_fields_sort_Data->Order));
+                }
+                DB::commit();
+                return Response::json(["status" => "success", "message" => "Order Successfully updated."]);
+            } catch (Exception $ex) {
+                DB::rollback();
+                return Response::json(["status" => "failed", "message" => " Exception: " . $ex->getMessage()]);
+            }
+        }
+    }
+
 }
