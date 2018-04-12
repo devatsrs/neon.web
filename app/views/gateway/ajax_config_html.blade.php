@@ -86,11 +86,12 @@
                 {{Form::select($configkey,Company::$rerate_format,$selectd_val,$options)}}
 
             @elseif($configkey == 'key')
-                <div class="col-md-6 pull-right">
+                    <br/>
+                    <input type="hidden" name="oldkey" value="{{$gatewayconfigval->$configkey}}">
                     <input id="field-5" name="{{$configkey}}" type="file"
                            class="form-control file2 inline btn btn-primary"
                            data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse"/>
-                     <span>
+                 <span class="file-input-name">
                     <?php
                      if(isset($gatewayconfigval->$configkey))
                      {
@@ -98,8 +99,7 @@
                          echo end($tmparr);
                      }
                      ?>
-                </span>
-                </div>
+                 </span>
 
             @else
                 @if($configkey != 'AllowAccountIPImport')
@@ -173,6 +173,7 @@
         {
             $(".fileinput").fileinput()
         }
+
     });
 
 </script>

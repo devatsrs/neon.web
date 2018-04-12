@@ -152,6 +152,8 @@ class GatewayController extends \BaseController {
 
             $CompanyGateway = CompanyGateway::findOrFail($id);
             $data = Input::all();
+            $companyID = User::get_companyID();
+            $data['CompanyID'] = $companyID;
             //$file_key = Input::file('key');
             if (Input::hasFile('key')) {
                 //$upload_path = CompanyConfiguration::get('UPLOAD_PATH');
@@ -167,11 +169,23 @@ class GatewayController extends \BaseController {
                 if(!AmazonS3::upload($destinationPath.$file_name,$amazonPath)){
                     return Response::json(array("status" => "failed", "message" => "Failed to upload."));
                 }
-                $file_name = $destinationPath.$file_name;
+                $file_name = $amazonPath.$file_name;
                 $data['key'] = $file_name;
+                $settings = json_decode($CompanyGateway->Settings,true);
+                //Delete old picture
+                //echo "<pre>";print_R($settings);exit;
+                if(!empty($settings['key'])){
+                    AmazonS3::delete($settings['key'],$companyID);
+                }
             }
-            $companyID = User::get_companyID();
-            $data['CompanyID'] = $companyID;
+            else
+            {
+                if(isset($data['oldkey']))
+                    $data['key'] = $data['oldkey'];
+                else
+                    $data['key'] = '';
+            }
+
             $rules = array(
                 'Title' => 'required|unique:tblCompanyGateway,Title,'.$id.',CompanyGatewayID,CompanyID,'.$data['CompanyID'],
                 'GatewayID'=>'required',
