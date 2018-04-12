@@ -66,7 +66,11 @@ class RateGeneratorRuleController extends \BaseController {
     // CreateCode
     public function store_code($id) {
         if ($id > 0) {
+            $last_max_order =  RateRule::where(["RateGeneratorId" => $id])->max('Order');
+
             $data = Input::all();
+            $data['Order'] = $last_max_order+1;
+           // print_R($data);exit;
             $data ['CreatedBy'] = User::get_user_full_name();
             $data ['RateGeneratorId'] = $id;
             $rules = array(

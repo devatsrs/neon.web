@@ -45,6 +45,7 @@ class AmazonS3 {
         'ITEM_UPLOAD'=>'ITEMUPload',
         'RATESHEET_TEMPLATE'=>'RatesheetTemplate',
         'XERO_UPLOAD'=>'XeroUpload',
+        'GATEWAY_KEY'=>'GatewayKey',
     );
 
     // Instantiate an S3 client
