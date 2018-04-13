@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCustomerRate`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_GetCustomerRate`(
 	IN `p_companyid` INT,
 	IN `p_AccountID` INT,
 	IN `p_trunkID` INT,
@@ -13,6 +13,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCustomerRate`(
 	IN `p_lSortCol` VARCHAR(50),
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_isExport` INT 
+
 )
 BEGIN
    DECLARE v_codedeckid_ INT;
@@ -55,6 +56,7 @@ BEGIN
         Rate DECIMAL(18, 6),
         ConnectionFee DECIMAL(18, 6),
         EffectiveDate DATE,
+        EndDate DATE,
         LastModifiedDate DATETIME,
         LastModifiedBy VARCHAR(50),
         CustomerRateId INT,
@@ -83,7 +85,7 @@ BEGIN
         INDEX tmp_RateTableRate__EffectiveDate (`EffectiveDate`)
 
     );
-    /* if you chnage this table ,change in all sheet download and customer rate  */
+    
     DROP TEMPORARY TABLE IF EXISTS tmp_customerrate_;
     CREATE TEMPORARY TABLE tmp_customerrate_ (
         RateID INT,
@@ -95,6 +97,7 @@ BEGIN
         RoutinePlanName VARCHAR(50),
         Rate DECIMAL(18, 6),
         EffectiveDate DATE,
+        EndDate DATE,
         LastModifiedDate DATETIME,
         LastModifiedBy VARCHAR(50),
         CustomerRateId INT,
@@ -117,6 +120,7 @@ BEGIN
                 tblCustomerRate.Rate,
                 tblCustomerRate.ConnectionFee,
                 tblCustomerRate.EffectiveDate,
+                tblCustomerRate.EndDate,
                 tblCustomerRate.LastModifiedDate,
                 tblCustomerRate.LastModifiedBy,
                 tblCustomerRate.CustomerRateId,
@@ -242,6 +246,7 @@ BEGIN
                 allRates.RoutinePlanName,
                 allRates.Rate,
                 allRates.EffectiveDate,
+                allRates.EndDate,
                 allRates.LastModifiedDate,
                 allRates.LastModifiedBy,
                 allRates.CustomerRateId,
@@ -275,6 +280,7 @@ BEGIN
                 CustomerRates.ConnectionFee,
                 CustomerRates.Rate,
                 CustomerRates.EffectiveDate,
+                CustomerRates.EndDate,
                 CustomerRates.LastModifiedDate,
                 CustomerRates.LastModifiedBy,
                 CustomerRates.CustomerRateId,
@@ -303,6 +309,7 @@ BEGIN
                 rtr.ConnectionFee,
                 rtr.Rate,
                 rtr.EffectiveDate,
+                NULL,
                 NULL,
                 NULL,
                 NULL AS CustomerRateId,
@@ -373,6 +380,7 @@ BEGIN
                 RoutinePlanName,
                 Rate,
                 EffectiveDate,
+                EndDate,
                 LastModifiedDate,
                 LastModifiedBy,
                 CustomerRateId,
@@ -423,6 +431,12 @@ BEGIN
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateASC') THEN EffectiveDate
                 END ASC,
                 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateDESC') THEN EndDate
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateASC') THEN EndDate
+                END ASC,
+                CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'LastModifiedDateDESC') THEN LastModifiedDate
                 END DESC,
                 CASE
@@ -463,9 +477,8 @@ BEGIN
             LastModifiedBy from tmp_customerrate_;
 
     END IF;
-
-
-	-- for customer panel export
+    
+    
 	IF p_isExport = 2
     THEN
 			 
@@ -478,7 +491,7 @@ BEGIN
             Rate,
             EffectiveDate from tmp_customerrate_;
 
-    END IF;    
+    END IF;
     
  
     SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
