@@ -1,6 +1,10 @@
 use Ratemanagement3;
 
 
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1333, 'CustomersRates.Create', 1, 3);
+
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('CustomersRates.create', 'CustomersRatesController.create', 1, 'Vasim Seta', NULL, '2018-04-13 09:37:36.000', '2018-04-13 09:37:36.000', 1333);
+
 ALTER TABLE `tblCustomerRate`
 	ADD COLUMN `CreatedBy` VARCHAR(50) NULL DEFAULT NULL AFTER `CreatedDate`,
 	ADD COLUMN `EndDate` DATE NULL DEFAULT NULL AFTER `EffectiveDate`;
