@@ -5,6 +5,7 @@ ALTER TABLE `tblCustomerRate`
 	ADD COLUMN `CreatedBy` VARCHAR(50) NULL DEFAULT NULL AFTER `CreatedDate`,
 	ADD COLUMN `EndDate` DATE NULL DEFAULT NULL AFTER `EffectiveDate`;
 
+RENAME TABLE `tblCustomerRateArchive` TO `tblCustomerRateArchive_old`;
 CREATE TABLE IF NOT EXISTS `tblCustomerRateArchive` (
   `CustomerRateArchiveID` int(11) NOT NULL AUTO_INCREMENT,
   `CustomerRateID` int(11) DEFAULT NULL,
