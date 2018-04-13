@@ -37,6 +37,8 @@
             $NameFormat = GatewayConfig::$VoipNow_NameFormat;
         }
     ?>
+
+
     @if($count%2 == 0)
             <div class="clear"></div>
     @endif
@@ -82,6 +84,22 @@
                 ?>
                 <input type="hidden" name="RateFormat" value="{{$selectd_val}}">
                 {{Form::select($configkey,Company::$rerate_format,$selectd_val,$options)}}
+
+            @elseif($configkey == 'key')
+                    <br/>
+                    <input type="hidden" name="oldkey" value="{{$gatewayconfigval->$configkey}}">
+                    <input id="field-5" name="{{$configkey}}" type="file"
+                           class="form-control file2 inline btn btn-primary"
+                           data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse"/>
+                 <span class="file-input-name">
+                    <?php
+                     if(isset($gatewayconfigval->$configkey))
+                     {
+                         $tmparr = explode("/",$gatewayconfigval->$configkey);
+                         echo end($tmparr);
+                     }
+                     ?>
+                 </span>
 
             @else
                 @if($configkey != 'AllowAccountIPImport')
@@ -140,5 +158,22 @@
         $(document).on('change', 'select[name="NameFormat"]', function() {
 
         });
+
+        // Replaced File Input
+        $("input.file2[type=file]").each(function(i, el)
+        {
+            var $this = $(el),
+                    label = attrDefault($this, 'label', 'Browse');
+
+            $this.bootstrapFileInput(label);
+        });
+
+        // Jasny Bootstrap | Fileinput
+        if ($.isFunction($.fn.fileinput))
+        {
+            $(".fileinput").fileinput()
+        }
+
     });
+
 </script>
