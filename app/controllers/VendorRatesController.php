@@ -31,7 +31,7 @@ class VendorRatesController extends \BaseController
         } else {
             $query = "call prc_GetVendorRates (" . $companyID . "," . $id . "," . $data['Trunk'] . "," . $data['Country'] . "," . $data['Code'] . "," . $data['Description'] . ",'" . $data['Effective'] . "'," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "',0)";
         }
-        Log::info($query);
+        //Log::info($query);
 
         return DataTableSql::of($query)->make();
 
