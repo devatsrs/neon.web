@@ -87,18 +87,14 @@
 
             @elseif($configkey == 'key')
                     <br/>
-                    <input type="hidden" name="oldkey" value="{{$gatewayconfigval->$configkey}}">
+                    <input type="hidden" name="oldkey" value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey)){{$gatewayconfigval->$configkey}}@endif">
                     <input id="field-5" name="{{$configkey}}" type="file"
                            class="form-control file2 inline btn btn-primary"
                            data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse"/>
                  <span class="file-input-name">
-                    <?php
-                     if(isset($gatewayconfigval->$configkey))
-                     {
-                         $tmparr = explode("/",$gatewayconfigval->$configkey);
-                         echo end($tmparr);
-                     }
-                     ?>
+                        @if(isset($gatewayconfigval->$configkey))
+                            {{basename($gatewayconfigval->$configkey)}}
+                        @endif
                  </span>
 
             @else
