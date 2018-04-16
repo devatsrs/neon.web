@@ -54,7 +54,17 @@ class CompaniesController extends \BaseController {
             $SSH['password'] = '';
         }
 
-        return View::make('companies.edit')->with(compact('company', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile','AccountVerification','SSH','COMPANY_SSH_VISIBLE'));
+        $DigitalSignature = CompanySetting::getKeyVal('DigitalSignature', $company_id);
+        $UseDigitalSignature = CompanySetting::getKeyVal('UseDigitalSignature', $company_id);
+        if($DigitalSignature=="Invalid Key"){
+            $DigitalSignature=array();
+            $DigitalSignature['positionLX']=0;
+            $DigitalSignature['positionBY']=0;
+            $DigitalSignature['positionRX']=0;
+            $DigitalSignature['positionTY']=0;
+        }
+
+        return View::make('companies.edit')->with(compact('company', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile','AccountVerification','SSH','COMPANY_SSH_VISIBLE', 'DigitalSignature', 'UseDigitalSignature'));
 
     }
 
@@ -93,6 +103,58 @@ class CompaniesController extends \BaseController {
         if(empty($data['SMTPPassword'])){
             unset($data['SMTPPassword']);
         }
+        $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
+        $arrSignatureCertFile=CompanySetting::getKeyVal('DigitalSignature');
+        if($arrSignatureCertFile=="Invalid Key"){
+            $arrSignatureCertFile=array();
+        }else{
+            $arrSignatureCertFile=json_decode($arrSignatureCertFile);
+        }
+
+        if (Input::hasFile('signatureCertFile')) {
+            $signatureCertFile = Input::file('signatureCertFile');
+            $ext = $signatureCertFile->getClientOriginalExtension();
+            if (strtolower($ext)=="pfx" || strtolower($ext)=="p12") {
+                $file_name = GUID::generate() . '.' . $signatureCertFile->getClientOriginalExtension();
+                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY']);
+                $destinationPath = $upload_path . '/' . $amazonPath;
+                $signatureCertFile->move($destinationPath, $file_name);
+                if(!AmazonS3::upload($destinationPath.$file_name,$amazonPath)){
+                    return Response::json(array("status" => "failed", "message" => "Failed to upload."));
+                }
+                $fullPath = $amazonPath . $file_name;
+                $arrSignatureCertFile['signatureCert'] = $fullPath;
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Please select excel or csv file."));
+            }
+        }else{
+            $arrSignatureCertFile['signatureCert'] = '';
+        }
+
+        if (Input::hasFile('signatureImage')) {
+            $signatureImage = Input::file('signatureImage');
+            $file_name = GUID::generate() . '.' . $signatureImage->getClientOriginalExtension();
+            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY']);
+            $destinationPath = $upload_path . '/' . $amazonPath;
+            $signatureImage->move($destinationPath, $file_name);
+            if(!AmazonS3::upload($destinationPath.$file_name,$amazonPath)){
+                return Response::json(array("status" => "failed", "message" => "Failed to upload."));
+            }
+            $fullPath = $amazonPath . $file_name;
+            $arrSignatureCertFile['image'] = $fullPath;
+        }else{
+            $arrSignatureCertFile['image'] = '';
+        }
+
+        $arrSignatureCertFile['password'] = $data['signatureCertPassword'];
+        $arrSignatureCertFile['positionLX'] = $data['signatureCertpPositionLX'];
+        $arrSignatureCertFile['positionBY'] = $data['signatureCertpPositionBY'];
+        $arrSignatureCertFile['positionRX'] = $data['signatureCertpPositionRX'];
+        $arrSignatureCertFile['positionTY'] = $data['signatureCertpPositionTY'];
+        $RateSheetTemplateData = json_encode($arrSignatureCertFile);
+        CompanySetting::setKeyVal('DigitalSignature',$arrSignatureCertFile, $companyID);
+        CompanySetting::setKeyVal('UseDigitalSignature',$data["UseDigitalSignature"], $companyID);
+        $data = cleanarray($data,['signatureCert','signatureImage','signatureCertPassword','signatureCertpPositionLX','signatureCertpPositionBY','signatureCertpPositionRX','signatureCertpPositionTY','UseDigitalSignature']);
 
         if (Input::hasFile('RateSheetTemplateFile')) {
             $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
@@ -189,6 +251,30 @@ class CompaniesController extends \BaseController {
         }
 		
         if ($company->update($data)) {
+
+            if(CompanySetting::getKeyVal('UseDigitalSignature', $companyID)){
+                $DigitalSignature=CompanySetting::getKeyVal('DigitalSignature', $companyID);
+                $DigitalSignature=json_decode($DigitalSignature);
+                $signaturePath =$upload_path. AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY']);
+
+                $mypdfsigner="
+                #MyPDFSigner test configuration file
+                extrarange=5300
+                embedcrl=on
+                certfile=".$DigitalSignature["signatureCert"]."
+                certstore=PKCS12 KEYSTORE FILE
+                sigrect=[".$DigitalSignature["positionLX"]." ".$DigitalSignature["positionBY"]." ".$DigitalSignature["positionRX"]." ".$DigitalSignature["positionTY"]."]
+                tsaurl=http://adobe-timestamp.geotrust.com/tsa
+                ";
+
+                if(!empty($DigitalSignature["image"])){
+                    $mypdfsigner.="
+                    sigimage=".$DigitalSignature["image"];
+                }
+
+                File::put($signaturePath.'/mypdfsigner.conf',$mypdfsigner);
+            }
+
             return Response::json(array("status" => "success", "message" => "Company Successfully Updated"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Company."));

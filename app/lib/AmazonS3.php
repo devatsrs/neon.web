@@ -46,6 +46,7 @@ class AmazonS3 {
         'RATESHEET_TEMPLATE'=>'RatesheetTemplate',
         'XERO_UPLOAD'=>'XeroUpload',
         'GATEWAY_KEY'=>'GatewayKey',
+        'DIGITAL_SIGNATURE_KEY'=>'DigitalSignature',
     );
 
     // Instantiate an S3 client

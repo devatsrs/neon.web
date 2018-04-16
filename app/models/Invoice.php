@@ -180,6 +180,15 @@ class Invoice extends \Eloquent {
 			 if(getenv('APP_OS') == 'Linux'){
                 exec (base_path(). '/wkhtmltox/bin/wkhtmltopdf --header-spacing 3 --footer-spacing 1 --header-html "'.$header_html.'" --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
 
+                 if(CompanySetting::getKeyVal('UseDigitalSignature', $Account->CurrencyId)){
+                     $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
+                     $DigitalSignature=CompanySetting::getKeyVal('DigitalSignature', $Account->CurrencyId);
+                     $DigitalSignature=json_decode($DigitalSignature);
+                     $signaturePath =$upload_path. AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY']);
+                     exec ('mypdfsigner -i '.$local_file.' -o '.$local_file.' -z '.$signaturePath.'/mypdfsigner.conf -v -c -q',$mypdfsignerOutput);
+                     Log::info($mypdfsignerOutput);
+                 }
+
             }else{
                 exec (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe --header-spacing 3 --footer-spacing 1 --header-html "'.$header_html.'" --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
             }

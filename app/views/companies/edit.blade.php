@@ -291,6 +291,64 @@
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
+                        Digital signature PDF
+                    </div>
+
+                    <div class="panel-options">
+                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Certificate File (.pfx)</label>
+                        <div class="col-sm-4">
+                            <input name="signatureCertFile" type="file" accept=".pfx" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;Browse" />
+                        </div>
+                        <label for="field-1" class="col-sm-2 control-label">Use Certificate</label>
+                        <p class="make-switch switch-small">
+                            <input name="UseDigitalSignature" type="checkbox" value="1" @if($UseDigitalSignature == 1) checked="checked" @endif>
+                        </p>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Signature Image</label>
+                        <div class="col-sm-4">
+                            <input name="signatureImage" type="file" accept="image/*" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;Browse" />
+                        </div>
+                        <label class="col-sm-2 control-label">Certificate Password</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" name="signatureCertPassword" value="" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Signatures position </label>
+                        <div class="col-sm-10">
+                            <div class="input-spinner pull-left">
+                                <button type="button" class="btn btn-default">-</button>
+                                <input class="form-control" placeholder="" data-mask="decimal" name="signatureCertpPositionLX" value="{{$DigitalSignature['positionLX']}}" type="text">
+                                <button type="button" class="btn btn-default">+</button>
+                            </div>
+                            <div class="input-spinner col-sm-3">
+                                <button type="button" class="btn btn-default">-</button>
+                                <input class="form-control" placeholder="" data-mask="decimal" name="signatureCertpPositionBY" value="{{$DigitalSignature['positionBY']}}" type="text">
+                                <button type="button" class="btn btn-default">+</button>
+                            </div>
+                            <div class="input-spinner col-sm-3">
+                                <button type="button" class="btn btn-default">-</button>
+                                <input class="form-control" placeholder="" data-mask="decimal" name="signatureCertpPositionRX" value="{{$DigitalSignature['positionRX']}}" type="text">
+                                <button type="button" class="btn btn-default">+</button>
+                            </div>
+                            <div class="input-spinner col-sm-3">
+                                <button type="button" class="btn btn-default">-</button>
+                                <input class="form-control" placeholder="" data-mask="decimal" name="signatureCertpPositionTY" value="{{$DigitalSignature['positionTY']}}" type="text">
+                                <button type="button" class="btn btn-default">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-primary" data-collapsed="0">
+                <div class="panel-heading">
+                    <div class="panel-title">
                         Mail Settings  <button data-loading-text="Loading..." title="Validate Mail Settings"  type="button" class="ValidateSmtp btn btn-primary">Test</button> 
                     </div>
 
