@@ -570,7 +570,7 @@ function getFileContent($file_name, $data, $Sheet=''){
     $counter = 1;
     //$results[0] = array_filter($results[0]);
     foreach ($results[0] as $index => $value) {
-        if (isset($data['Firstrow']) && $data['Firstrow'] == 'data') {
+        if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
             $columns[$counter] = 'Col' . $counter;
         } else {
             if(!is_null($index))
