@@ -1,12 +1,7 @@
 Use Ratemanagement3;
 
-insert into tblGatewayConfig (GatewayId, Title, Name, Status) VALUES ('7', 'Key', 'key', '1');
-UPDATE `tblGatewayConfig` SET `Created_at`='2018-04-07 17:44:39' WHERE  `GatewayConfigID`=174;
-UPDATE `tblGatewayConfig` SET `CreatedBy`='RateManagementSystem' WHERE  `GatewayConfigID`=174;
-
-insert into tblGatewayConfig (GatewayId, Title, Name, Status) VALUES ('7', 'Key Phrase', 'keyphrase', '1');
-UPDATE `tblGatewayConfig` SET `Created_at`='2018-04-10 17:44:39' WHERE  `GatewayConfigID`=174;
-UPDATE `tblGatewayConfig` SET `CreatedBy`='RateManagementSystem' WHERE  `GatewayConfigID`=174;
+insert into tblGatewayConfig (GatewayId, Title, Name, Status, Created_at, CreatedBy) VALUES ('7', 'Key', 'key', '1','2018-04-10 17:44:39','RateManagementSystem');
+insert into tblGatewayConfig (GatewayId, Title, Name, Status, Created_at, CreatedBy) VALUES ('7', 'Key Phrase', 'keyphrase', '1','2018-04-10 17:44:39','RateManagementSystem');
 
 ALTER TABLE `tblRateRule`
 ADD COLUMN `Order` INT(11) NULL AFTER `ModifiedBy`;
