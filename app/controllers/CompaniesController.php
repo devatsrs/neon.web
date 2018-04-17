@@ -108,7 +108,7 @@ class CompaniesController extends \BaseController {
         if($arrSignatureCertFile=="Invalid Key"){
             $arrSignatureCertFile=array();
         }else{
-            $arrSignatureCertFile=json_decode($arrSignatureCertFile);
+            $arrSignatureCertFile=json_decode($arrSignatureCertFile, true);
         }
 
         if (Input::hasFile('signatureCertFile')) {
@@ -151,10 +151,10 @@ class CompaniesController extends \BaseController {
         $arrSignatureCertFile['positionBY'] = $data['signatureCertpPositionBY'];
         $arrSignatureCertFile['positionRX'] = $data['signatureCertpPositionRX'];
         $arrSignatureCertFile['positionTY'] = $data['signatureCertpPositionTY'];
-        $RateSheetTemplateData = json_encode($arrSignatureCertFile);
+        $arrSignatureCertFile = json_encode($arrSignatureCertFile);
         CompanySetting::setKeyVal('DigitalSignature',$arrSignatureCertFile, $companyID);
         CompanySetting::setKeyVal('UseDigitalSignature',$data["UseDigitalSignature"], $companyID);
-        $data = cleanarray($data,['signatureCert','signatureImage','signatureCertPassword','signatureCertpPositionLX','signatureCertpPositionBY','signatureCertpPositionRX','signatureCertpPositionTY','UseDigitalSignature']);
+        $data = cleanarray($data,['signatureCertFile','signatureCert','signatureImage','signatureCertPassword','signatureCertpPositionLX','signatureCertpPositionBY','signatureCertpPositionRX','signatureCertpPositionTY','UseDigitalSignature']);
 
         if (Input::hasFile('RateSheetTemplateFile')) {
             $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
@@ -254,7 +254,7 @@ class CompaniesController extends \BaseController {
 
             if(CompanySetting::getKeyVal('UseDigitalSignature', $companyID)){
                 $DigitalSignature=CompanySetting::getKeyVal('DigitalSignature', $companyID);
-                $DigitalSignature=json_decode($DigitalSignature);
+                $DigitalSignature=json_decode($DigitalSignature, true);
                 $signaturePath =$upload_path. AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY']);
 
                 $mypdfsigner="
@@ -272,7 +272,7 @@ class CompaniesController extends \BaseController {
                     sigimage=".$DigitalSignature["image"];
                 }
 
-                File::put($signaturePath.'/mypdfsigner.conf',$mypdfsigner);
+                RemoteSSH::run('echo "'.$mypdfsigner.'" > ' . $signaturePath.'/mypdfsigner.conf');
             }
 
             return Response::json(array("status" => "success", "message" => "Company Successfully Updated"));

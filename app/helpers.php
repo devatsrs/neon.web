@@ -2664,9 +2664,6 @@ function js_labels(){
     return $html;
 }
 function cleanarray($data = [],$unset=[]){
-    $unset[]= 'LicenceKey';
-    $unset[]= 'CompanyName';
-    $unset[]= 'LoginType';
     foreach($unset as $item){
         if(isset($data[$item])){
             unset($data[$item]);
