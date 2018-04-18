@@ -181,10 +181,17 @@ class Invoice extends \Eloquent {
                 exec (base_path(). '/wkhtmltox/bin/wkhtmltopdf --header-spacing 3 --footer-spacing 1 --header-html "'.$header_html.'" --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
 
                  if(CompanySetting::getKeyVal('UseDigitalSignature', $Account->CurrencyId)){
+                     $newlocal_file = $destination_dir . str_replace(".pdf","-signature.pdf",$file_name);
+
                      $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
                      $signaturePath =$upload_path.'/'. AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY']);
-                     exec ('mypdfsigner -i '.$local_file.' -o '.$local_file.' -z '.$signaturePath.'mypdfsigner.conf -v -c -q',$mypdfsignerOutput);
-                     Log::info($mypdfsignerOutput);
+                      //exec ('mypdfsigner -i '.$local_file.' -o '.$newlocal_file.' -z '.$signaturePath.'mypdfsigner.conf -v -c -q',$mypdfsignerOutput);
+					 $mypdfsignerOutput=RemoteSSH::run('mypdfsigner -i '.$local_file.' -o '.$newlocal_file.' -z '.$signaturePath.'mypdfsigner.conf -v -c -q');
+					 Log::info($mypdfsignerOutput);
+                     if(file_exists($newlocal_file)){
+                         RemoteSSH::run('rm '.$local_file);
+                         RemoteSSH::run('mv '.$newlocal_file.' '.$local_file);						 
+                     }
                  }
 
             }else{

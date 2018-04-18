@@ -310,7 +310,7 @@
                         </p>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">Image</label>
+                        <label class="col-sm-2 control-label">Image(.png)</label>
                         <div class="col-sm-4">
                             <input name="signatureImage" type="file" accept="image/*" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;Browse" />
                         </div>
