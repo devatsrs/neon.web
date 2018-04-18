@@ -97,6 +97,21 @@
                         @endif
                  </span>
 
+            @elseif($configkey == 'protocol_type')
+                    {{Form::select($configkey,Gateway::$protocol_type,$selectd_val,array( "class"=>"select2 small","id"=>$configkey))}}
+            @elseif($configkey == 'passive_mode')
+                <div class="clear col-md-13">
+                    <p class="make-switch switch-small">
+                        <input id="{{$configkey}}"  type="checkbox"   @if($selectd_val == 1) checked=""  @endif name="{{$configkey}}" value="1">
+                    </p>
+                </div>
+
+            @elseif($configkey == 'ssl')
+                <div class="clear col-md-13">
+                    <p class="make-switch switch-small">
+                        <input id="{{$configkey}}"  type="checkbox"   @if($selectd_val == 1) checked=""  @endif name="{{$configkey}}" value="1">
+                    </p>
+                </div>
             @else
                 @if($configkey != 'AllowAccountIPImport')
                     <input @if($configkey == 'password' || $configkey == 'dbpassword' || $configkey == 'sshpassword' || $configkey == 'api_password') type="password" @else type="text" @endif  value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && !empty($gatewayconfigval->$configkey) && ($configkey == 'password' || $configkey == 'dbpassword' || $configkey == 'sshpassword' || $configkey == 'api_password')){{''}}@elseif(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey)){{$gatewayconfigval->$configkey}}@endif" name="{{$configkey}}" class="form-control" id="field-5" placeholder="">
@@ -150,6 +165,26 @@
                 $popover.addClass(popover_class);
             });
         });
+
+
+        $(document).on('change', 'select[name="protocol_type"]', function() {
+
+            if ($(this).val() == '{{Gateway::SSH_FILE_TRANSFER}}' ){
+
+                $("input[name='port']").val("").parents(".form-group").parent().addClass("hidden");
+                $("input[name='ssl']").parents(".form-group").parent().addClass("hidden");
+                $("input[name='passive_mode']").parents(".form-group").parent().addClass("hidden");
+
+            }else {
+
+                $("input[name='port']").parents(".form-group").parent().removeClass("hidden");
+                $("input[name='ssl']").parents(".form-group").parent().removeClass("hidden");
+                $("input[name='passive_mode']").parents(".form-group").parent().removeClass("hidden");
+
+            }
+        });
+        $('select[name="protocol_type"]').trigger('change');
+
 
         $(document).on('change', 'select[name="NameFormat"]', function() {
 
