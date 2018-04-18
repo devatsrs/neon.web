@@ -13,6 +13,12 @@ class Gateway extends \Eloquent {
     const GATEWAY_SippySFTP = 'SippySFTP';
     const GATEWAY_FTP = 'FTP';
 
+    const FTP_CLASSIC = "classic";
+    const FTP_OVER_TLS_SSL = "ftps"; // FTP over TLS/SSL
+    const SSH_FILE_TRANSFER = "ssh"; // SSH File Transfer Protocol
+
+    public static $protocol_type = [self::FTP_CLASSIC=>"FTP CLASSIC",self::FTP_OVER_TLS_SSL=>"FTP OVER TLS/SSL",self::SSH_FILE_TRANSFER=>"SSH"];
+
     public static $ftp_array = [self::GATEWAY_VOS,self::GATEWAY_SippySFTP,self::GATEWAY_FTP,self::GATEWAY_VOS5000];
 
     public  static  function getGatewayListID(){

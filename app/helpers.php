@@ -542,35 +542,12 @@ function getFileContent($file_name, $data, $Sheet=''){
 
     $NeonExcel = new NeonExcelIO($file_name, $data, $Sheet);
     $results = $NeonExcel->read(10);
-    /*
-    if (!empty($data['Delimiter'])) {
-        Config::set('excel::csv.delimiter', $data['Delimiter']);
-    }
-    if (!empty($data['Enclosure'])) {
-        Config::set('excel::csv.enclosure', $data['Enclosure']);
-    }
-    if (!empty($data['Escape'])) {
-        Config::set('excel::csv.line_ending', $data['Escape']);
-    }
-    if(!empty($data['Firstrow'])){
-        $data['option']['Firstrow'] = $data['Firstrow'];
-    }
 
-    if (!empty($data['option']['Firstrow'])) {
-        if ($data['option']['Firstrow'] == 'data') {
-            $flag = 1;
-        }
-    }
-    $isExcel = in_array(pathinfo($file_name, PATHINFO_EXTENSION),['xls','xlsx'])?true:false;
-    $results = Excel::selectSheetsByIndex(0)->load($file_name, function ($reader) use ($flag,$isExcel) {
-        if ($flag == 1) {
-            $reader->noHeading();
-        }
-    })->take(10)->toArray();*/
+    // Get columns
+
     $counter = 1;
-    //$results[0] = array_filter($results[0]);
     foreach ($results[0] as $index => $value) {
-        if (isset($data['Firstrow']) && $data['Firstrow'] == 'data') {
+        if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
             $columns[$counter] = 'Col' . $counter;
         } else {
             if(!is_null($index))
@@ -586,25 +563,40 @@ function getFileContent($file_name, $data, $Sheet=''){
         $counter++;
     }
 
+    // Get data into array.
+    $grid_array = array();
     foreach ($results as $outindex => $datarow) {
-        //$datarow = array_filter($datarow);
-        //$results[$outindex] =  array_filter($datarow);
+
+        $i = 1;
         foreach ($datarow as $index => $singlerow) {
+
             $results[$outindex][$index] = $singlerow;
+
             if (strpos(strtolower($index), 'date') !== false) {
+
                 $singlerow = str_replace('/', '-', $singlerow);
                 $results[$outindex][$index] = $singlerow;
             }
+
+            if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
+                $grid_array[$outindex][$columns[$i++]] = $singlerow;
+            }
+
+
         }
     }
+    //print_r($grid_array);
+    //exit;
+
     try {
     } catch (\Exception $ex) {
         Log::error($ex);
     }
 
     $grid['columns'] = $columns;
-    $grid['rows'] = $results;
+    $grid['rows'] = $grid_array;
     $grid['filename'] = $file_name;
+
     return $grid;
 }
 
