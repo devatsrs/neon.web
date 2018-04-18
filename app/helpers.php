@@ -2665,7 +2665,7 @@ function js_labels(){
 }
 function cleanarray($data = [],$unset=[]){
     foreach($unset as $item){
-        if(isset($data[$item])){
+        if(array_key_exists($item,$data)){
             unset($data[$item]);
         }
     }

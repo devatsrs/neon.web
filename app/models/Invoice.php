@@ -182,10 +182,8 @@ class Invoice extends \Eloquent {
 
                  if(CompanySetting::getKeyVal('UseDigitalSignature', $Account->CurrencyId)){
                      $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
-                     $DigitalSignature=CompanySetting::getKeyVal('DigitalSignature', $Account->CurrencyId);
-                     $DigitalSignature=json_decode($DigitalSignature);
-                     $signaturePath =$upload_path. AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY']);
-                     exec ('mypdfsigner -i '.$local_file.' -o '.$local_file.' -z '.$signaturePath.'/mypdfsigner.conf -v -c -q',$mypdfsignerOutput);
+                     $signaturePath =$upload_path.'/'. AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY']);
+                     exec ('mypdfsigner -i '.$local_file.' -o '.$local_file.' -z '.$signaturePath.'mypdfsigner.conf -v -c -q',$mypdfsignerOutput);
                      Log::info($mypdfsignerOutput);
                  }
 

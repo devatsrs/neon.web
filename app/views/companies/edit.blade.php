@@ -310,36 +310,47 @@
                         </p>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">Signature Image</label>
+                        <label class="col-sm-2 control-label">Image</label>
                         <div class="col-sm-4">
                             <input name="signatureImage" type="file" accept="image/*" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;Browse" />
                         </div>
                         <label class="col-sm-2 control-label">Certificate Password</label>
                         <div class="col-sm-4">
-                            <input type="text" class="form-control" name="signatureCertPassword" value="" />
+                            <input type="password" class="form-control" name="signatureCertPassword" value="" />
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">Signatures position </label>
-                        <div class="col-sm-10">
+                        <label class="col-sm-2 control-label">Image position Right X</label>
+                        <div class="col-sm-4">
+                            <div class="input-spinner pull-left">
+                                <button type="button" class="btn btn-default">-</button>
+                                <input class="form-control" placeholder="" data-mask="decimal" name="signatureCertpPositionRX" value="{{$DigitalSignature['positionRX']}}" type="text">
+                                <button type="button" class="btn btn-default">+</button>
+                            </div>
+                        </div>
+                        <label class="col-sm-2 control-label">Image position Top Y</label>
+                        <div class="col-sm-4">
+                            <div class="input-spinner pull-left">
+                                <button type="button" class="btn btn-default">-</button>
+                                <input class="form-control" placeholder="" data-mask="decimal" name="signatureCertpPositionTY" value="{{$DigitalSignature['positionTY']}}" type="text">
+                                <button type="button" class="btn btn-default">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Image position Left X</label>
+                        <div class="col-sm-4">
                             <div class="input-spinner pull-left">
                                 <button type="button" class="btn btn-default">-</button>
                                 <input class="form-control" placeholder="" data-mask="decimal" name="signatureCertpPositionLX" value="{{$DigitalSignature['positionLX']}}" type="text">
                                 <button type="button" class="btn btn-default">+</button>
                             </div>
-                            <div class="input-spinner col-sm-3">
+                        </div>
+                        <label class="col-sm-2 control-label">Image position Button Y</label>
+                        <div class="col-sm-4">
+                            <div class="input-spinner pull-left">
                                 <button type="button" class="btn btn-default">-</button>
                                 <input class="form-control" placeholder="" data-mask="decimal" name="signatureCertpPositionBY" value="{{$DigitalSignature['positionBY']}}" type="text">
-                                <button type="button" class="btn btn-default">+</button>
-                            </div>
-                            <div class="input-spinner col-sm-3">
-                                <button type="button" class="btn btn-default">-</button>
-                                <input class="form-control" placeholder="" data-mask="decimal" name="signatureCertpPositionRX" value="{{$DigitalSignature['positionRX']}}" type="text">
-                                <button type="button" class="btn btn-default">+</button>
-                            </div>
-                            <div class="input-spinner col-sm-3">
-                                <button type="button" class="btn btn-default">-</button>
-                                <input class="form-control" placeholder="" data-mask="decimal" name="signatureCertpPositionTY" value="{{$DigitalSignature['positionTY']}}" type="text">
                                 <button type="button" class="btn btn-default">+</button>
                             </div>
                         </div>

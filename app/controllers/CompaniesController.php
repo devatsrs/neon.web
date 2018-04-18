@@ -62,6 +62,8 @@ class CompaniesController extends \BaseController {
             $DigitalSignature['positionBY']=0;
             $DigitalSignature['positionRX']=0;
             $DigitalSignature['positionTY']=0;
+        }else{
+            $DigitalSignature=json_decode($DigitalSignature, true);
         }
 
         return View::make('companies.edit')->with(compact('company', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile','AccountVerification','SSH','COMPANY_SSH_VISIBLE', 'DigitalSignature', 'UseDigitalSignature'));
@@ -146,7 +148,11 @@ class CompaniesController extends \BaseController {
             $arrSignatureCertFile['image'] = '';
         }
 
-        $arrSignatureCertFile['password'] = $data['signatureCertPassword'];
+        if(!empty($data['signatureCertPassword'])){
+            $arrSignatureCertFile['password'] = $data['signatureCertPassword'];
+        }else{
+            $arrSignatureCertFile['password'] = "";
+        }
         $arrSignatureCertFile['positionLX'] = $data['signatureCertpPositionLX'];
         $arrSignatureCertFile['positionBY'] = $data['signatureCertpPositionBY'];
         $arrSignatureCertFile['positionRX'] = $data['signatureCertpPositionRX'];
@@ -255,13 +261,15 @@ class CompaniesController extends \BaseController {
             if(CompanySetting::getKeyVal('UseDigitalSignature', $companyID)){
                 $DigitalSignature=CompanySetting::getKeyVal('DigitalSignature', $companyID);
                 $DigitalSignature=json_decode($DigitalSignature, true);
-                $signaturePath =$upload_path. AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY']);
-
+                $signaturePath =$upload_path.'/'. AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY']);
+                $certpasswd=RemoteSSH::run(["mypdfsigner -e ".$DigitalSignature["password"]]);
+                $certpasswd=str_replace("Encrypted password: ", "", $certpasswd[0]);
                 $mypdfsigner="
                 #MyPDFSigner test configuration file
                 extrarange=5300
                 embedcrl=on
                 certfile=".$DigitalSignature["signatureCert"]."
+                certpasswd=".$certpasswd."
                 certstore=PKCS12 KEYSTORE FILE
                 sigrect=[".$DigitalSignature["positionLX"]." ".$DigitalSignature["positionBY"]." ".$DigitalSignature["positionRX"]." ".$DigitalSignature["positionTY"]."]
                 tsaurl=http://adobe-timestamp.geotrust.com/tsa
