@@ -1,3 +1,9 @@
+<ul class="nav nav-tabs">
+    <li class="active"><a href="#tab1" data-toggle="tab">Sheet 1</a></li>
+    <li><a href="#tab2" data-toggle="tab">Sheet 2</a></li>
+</ul>
+<div class="tab-content" style="overflow: hidden;margin-top: 15px;">
+<div class="tab-pane active" id="tab1">
 <div class="form-group">
     <label for="field-1" class="col-sm-2 control-label">Country Code</label>
     <div class="col-sm-4">
@@ -96,5 +102,40 @@
     <label for=" field-1" class="col-sm-2 control-label">Currency Conversion <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Select currency to convert rates to your base currency" data-original-title="Currency Conversion">?</span></label>
     <div class="col-sm-4">
         {{Form::select('selection[FromCurrency]', $currencies ,(isset($attrselection->FromCurrency)?$attrselection->FromCurrency:''),array("class"=>"select2 small"))}}
+    </div>
+</div>
+</div>
+    <div class="tab-pane " id="tab2">
+        <div class="form-group">
+            <label for="field-1" class="col-sm-2 control-label">Country Code</label>
+            <div class="col-sm-4">
+                {{Form::select('selection2[CountryCode]', $columns,(isset($attrselection2->CountryCode)?$attrselection2->CountryCode:''),array("class"=>"select2 small"))}}
+            </div>
+            <label for="field-1" class="col-sm-2 control-label">Code* </label>
+            <div class="col-sm-2">
+                {{Form::select('selection2[Code]', $columns,(isset($attrselection2->Code)?$attrselection2->Code:''),array("class"=>"select2 small"))}}
+            </div>
+            <div class="col-sm-2 popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Use this to split codes in one line" data-original-title="Code Separator">
+                {{Form::select('selection2[DialCodeSeparator]',Company::$dialcode_separator ,(isset($attrselection2->DialCodeSeparator)?$attrselection2->DialCodeSeparator:''),array("class"=>"select2 small"))}}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="field-1" class="col-sm-2 control-label">Description*</label>
+            <div class="col-sm-4">
+                {{Form::select('selection2[Description]', $columns,(isset($attrselection2->Description)?$attrselection2->Description:''),array("class"=>"select2 small"))}}
+            </div>
+            <label for="field-1" class="col-sm-2 control-label">EffectiveDate <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If not selected then rates will be uploaded as effective immediately" data-original-title="EffectiveDate">?</span></label>
+            <div class="col-sm-4">
+                {{Form::select('selection2[EffectiveDate]', $columns,(isset($attrselection2->EffectiveDate)?$attrselection2->EffectiveDate:''),array("class"=>"select2 small"))}}
+            </div>
+        </div>
+
+        <div class="form-group">
+        <label for=" field-1" class="col-sm-2 control-label">Date Format <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Please check date format selected and date displays in grid." data-original-title="Date Format">?</span></label>
+        <div class="col-sm-4">
+            {{Form::select('selection2[DateFormat]',Company::$date_format ,(isset($attrselection2->DateFormat)?$attrselection2->DateFormat:''),array("class"=>"select2 small"))}}
+        </div>
+
     </div>
 </div>

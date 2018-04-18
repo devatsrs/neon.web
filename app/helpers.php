@@ -585,6 +585,62 @@ function getFileContent($file_name, $data, $Sheet=''){
         }
         $counter++;
     }
+    $columns = array_filter($columns);
+    foreach ($results as $outindex => $datarow) {
+        //unset($results[$outindex][""]);
+        //$datarow = array_filter($datarow);
+        //$results[$outindex] =  array_filter($datarow);
+        foreach ($datarow as $index => $singlerow) {
+            $results[$outindex][$index] = $singlerow;
+            if (strpos(strtolower($index), 'date') !== false) {
+                $singlerow = str_replace('/', '-', $singlerow);
+                $results[$outindex][$index] = $singlerow;
+            }
+        }
+        unset($results[$outindex][""]);
+    }
+    try {
+    } catch (\Exception $ex) {
+        Log::error($ex);
+    }
+
+    $grid['columns'] = $columns;
+    $grid['rows'] = $results;
+    $grid['filename'] = $file_name;
+    return $grid;
+}
+
+function getFileContentSheet2($file_name, $data, $Sheet=''){
+    $columns = [];
+    $grid = [];
+    $flag = 0;
+
+    if(isset($data["start_row_sheet2"]) && isset($data["end_row_sheet2"])){
+        NeonExcelIO::$start_row=$data["start_row_sheet2"];
+        NeonExcelIO::$end_row=$data["end_row_sheet2"];
+    }
+
+    $NeonExcel = new NeonExcelIO($file_name, $data, $Sheet);
+    $results = $NeonExcel->read(10);
+
+    $counter = 1;
+    //$results[0] = array_filter($results[0]);
+    foreach ($results[0] as $index => $value) {
+        if (isset($data['Firstrow']) && $data['Firstrow'] == 'data') {
+            $columns[$counter] = 'Col' . $counter;
+        } else {
+            if(!is_null($index))
+            {
+                $columns[$index] = $index;
+            }
+            else
+            {
+                $columns[""]="";
+            }
+
+        }
+        $counter++;
+    }
 
     foreach ($results as $outindex => $datarow) {
         //$datarow = array_filter($datarow);
