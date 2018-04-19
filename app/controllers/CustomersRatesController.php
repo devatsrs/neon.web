@@ -622,7 +622,7 @@ class CustomersRatesController extends \BaseController {
 
     //get ajax code for add new rate
     public function getCodeByAjax(){
-        $CompanyID  = User::get_companyID();
+        //$CompanyID  = User::get_companyID();
         $list       = array();
         $data       = Input::all();
         $rate       = $data['q'].'%';
@@ -630,7 +630,8 @@ class CustomersRatesController extends \BaseController {
         $TrunkID    = $data['trunk'];
         $CodeDeckId = Account::getCodeDeckId($AccountID,$TrunkID);
 
-        $codes = CodeDeck::where(["CompanyID" => $CompanyID,'CodeDeckId'=>$CodeDeckId])
+        //$codes = CodeDeck::where(["CompanyID" => $CompanyID,'CodeDeckId'=>$CodeDeckId])
+        $codes = CodeDeck::where(['CodeDeckId'=>$CodeDeckId])
             ->where('Code','like',$rate)->take(100)->lists('Code', 'RateID');
 
         if(count($codes) > 0){
