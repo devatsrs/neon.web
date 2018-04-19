@@ -182,10 +182,7 @@ class Invoice extends \Eloquent {
 
                  if(CompanySetting::getKeyVal('UseDigitalSignature', $Account->CurrencyId)){
                      $newlocal_file = $destination_dir . str_replace(".pdf","-signature.pdf",$file_name);
-
-                     $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
-                     $signaturePath =$upload_path.'/'. AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY']);
-                      //exec ('mypdfsigner -i '.$local_file.' -o '.$newlocal_file.' -z '.$signaturePath.'mypdfsigner.conf -v -c -q',$mypdfsignerOutput);
+                     $signaturePath = AmazonS3::preSignedUrl(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY']);
 					 $mypdfsignerOutput=RemoteSSH::run('mypdfsigner -i '.$local_file.' -o '.$newlocal_file.' -z '.$signaturePath.'mypdfsigner.conf -v -c -q');
 					 Log::info($mypdfsignerOutput);
                      if(file_exists($newlocal_file)){

@@ -117,17 +117,16 @@ class CompaniesController extends \BaseController {
             $signatureCertFile = Input::file('signatureCertFile');
             $ext = $signatureCertFile->getClientOriginalExtension();
             if (strtolower($ext)=="pfx" || strtolower($ext)=="p12") {
-                $file_name = GUID::generate() . '.' . $signatureCertFile->getClientOriginalExtension();
-                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY']);
+                $file_name = 'signatureCert.' . $signatureCertFile->getClientOriginalExtension();
+                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY'], '', $companyID, true);
                 $destinationPath = $upload_path . $amazonPath;
                 $signatureCertFile->move($destinationPath, $file_name);
                 if(!AmazonS3::upload($destinationPath.$file_name,$amazonPath)){
                     return Response::json(array("status" => "failed", "message" => "Failed to upload."));
                 }
-                $fullPath = $amazonPath . $file_name;
-                $arrSignatureCertFile['signatureCert'] = $fullPath;
+                $arrSignatureCertFile['signatureCert'] = $file_name;
             } else {
-                return Response::json(array("status" => "failed", "message" => "Please select excel or csv file."));
+                return Response::json(array("status" => "failed", "message" => "Please select pfx or p12 file."));
             }
         }else{
 			if(!array_key_exists("signatureCert",$arrSignatureCertFile)){
@@ -137,15 +136,20 @@ class CompaniesController extends \BaseController {
 
         if (Input::hasFile('signatureImage')) {
             $signatureImage = Input::file('signatureImage');
-            $file_name = GUID::generate() . '.' . $signatureImage->getClientOriginalExtension();
-            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY']);
-            $destinationPath = $upload_path . $amazonPath;
-            $signatureImage->move($destinationPath, $file_name);
-            if(!AmazonS3::upload($destinationPath.$file_name,$amazonPath)){
-                return Response::json(array("status" => "failed", "message" => "Failed to upload."));
+            $ext = $signatureCertFile->getClientOriginalExtension();
+            if (strtolower($ext)=="png") {
+                $file_name = 'signatureImage.' . $signatureImage->getClientOriginalExtension();
+                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY'], '', $companyID, true);
+                $destinationPath = $upload_path . $amazonPath;
+                $signatureImage->move($destinationPath, $file_name);
+                if(!AmazonS3::upload($destinationPath.$file_name,$amazonPath)){
+                    return Response::json(array("status" => "failed", "message" => "Failed to upload."));
+                }
+                $arrSignatureCertFile['image'] = $file_name;
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Please select png file."));
             }
-            $fullPath = $amazonPath . $file_name;
-            $arrSignatureCertFile['image'] = $fullPath;
+
         }else{
 			if(!array_key_exists("signatureCert",$arrSignatureCertFile)){
 				$arrSignatureCertFile['image'] = '';
@@ -266,14 +270,14 @@ class CompaniesController extends \BaseController {
             if(CompanySetting::getKeyVal('UseDigitalSignature', $companyID)){
                 $DigitalSignature=CompanySetting::getKeyVal('DigitalSignature', $companyID);
                 $DigitalSignature=json_decode($DigitalSignature, true);
-                $signaturePath =$upload_path . AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY']);
+                $signaturePath =$upload_path . AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY'], '', $companyID, true);
                 $certpasswd=RemoteSSH::run(["mypdfsigner -e ".$DigitalSignature["password"]]);
                 $certpasswd=str_replace("Encrypted password: ", "", $certpasswd[0]);
                 $mypdfsigner="
                 #MyPDFSigner test configuration file
                 extrarange=5300
                 embedcrl=on
-                certfile=".$upload_path . $DigitalSignature["signatureCert"]."
+                certfile=".$DigitalSignature["signatureCert"]."
                 certpasswd=".$certpasswd."
                 certstore=PKCS12 KEYSTORE FILE
                 sigrect=[".$DigitalSignature["positionLX"]." ".$DigitalSignature["positionBY"]." ".$DigitalSignature["positionRX"]." ".$DigitalSignature["positionTY"]."]
@@ -282,10 +286,10 @@ class CompaniesController extends \BaseController {
 
                 if(!empty($DigitalSignature["image"])){
                 $mypdfsigner.="
-                sigimage=".$upload_path . $DigitalSignature["image"];
+                sigimage=".$DigitalSignature["image"];
                 }
 
-                RemoteSSH::run('echo "'.$mypdfsigner.'" > ' . $signaturePath.'/mypdfsigner.conf');
+                RemoteSSH::run('echo "'.$mypdfsigner.'" > ' . $signaturePath.'mypdfsigner.conf');
             }
 
             return Response::json(array("status" => "success", "message" => "Company Successfully Updated"));
