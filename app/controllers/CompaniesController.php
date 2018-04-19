@@ -121,9 +121,6 @@ class CompaniesController extends \BaseController {
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY'], '', $companyID, true);
                 $destinationPath = $upload_path . $amazonPath;
                 $signatureCertFile->move($destinationPath, $file_name);
-                if(!AmazonS3::upload($destinationPath.$file_name,$amazonPath)){
-                    return Response::json(array("status" => "failed", "message" => "Failed to upload."));
-                }
                 $arrSignatureCertFile['signatureCert'] = $file_name;
             } else {
                 return Response::json(array("status" => "failed", "message" => "Please select pfx or p12 file."));
@@ -142,9 +139,6 @@ class CompaniesController extends \BaseController {
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY'], '', $companyID, true);
                 $destinationPath = $upload_path . $amazonPath;
                 $signatureImage->move($destinationPath, $file_name);
-                if(!AmazonS3::upload($destinationPath.$file_name,$amazonPath)){
-                    return Response::json(array("status" => "failed", "message" => "Failed to upload."));
-                }
                 $arrSignatureCertFile['image'] = $file_name;
             } else {
                 return Response::json(array("status" => "failed", "message" => "Please select png file."));
