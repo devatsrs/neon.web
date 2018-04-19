@@ -136,7 +136,7 @@ class CompaniesController extends \BaseController {
 
         if (Input::hasFile('signatureImage')) {
             $signatureImage = Input::file('signatureImage');
-            $ext = $signatureCertFile->getClientOriginalExtension();
+            $ext = $signatureImage->getClientOriginalExtension();
             if (strtolower($ext)=="png") {
                 $file_name = 'signatureImage.' . $signatureImage->getClientOriginalExtension();
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY'], '', $companyID, true);
@@ -169,7 +169,7 @@ class CompaniesController extends \BaseController {
         $arrSignatureCertFile['positionTY'] = $data['signatureCertpPositionTY'];
         $arrSignatureCertFile = json_encode($arrSignatureCertFile);
         CompanySetting::setKeyVal('DigitalSignature',$arrSignatureCertFile, $companyID);
-        CompanySetting::setKeyVal('UseDigitalSignature',$data["UseDigitalSignature"], $companyID);
+        CompanySetting::setKeyVal('UseDigitalSignature',isset($data["UseDigitalSignature"])?$data["UseDigitalSignature"]:0, $companyID);
         $data = cleanarray($data,['signatureCertFile','signatureCert','signatureImage','signatureCertPassword','signatureCertpPositionLX','signatureCertpPositionBY','signatureCertpPositionRX','signatureCertpPositionTY','UseDigitalSignature']);
 
         if (Input::hasFile('RateSheetTemplateFile')) {
@@ -277,7 +277,7 @@ class CompaniesController extends \BaseController {
                 #MyPDFSigner test configuration file
                 extrarange=5300
                 embedcrl=on
-                certfile=".$DigitalSignature["signatureCert"]."
+                certfile=". $signaturePath . $DigitalSignature["signatureCert"]."
                 certpasswd=".$certpasswd."
                 certstore=PKCS12 KEYSTORE FILE
                 sigrect=[".$DigitalSignature["positionLX"]." ".$DigitalSignature["positionBY"]." ".$DigitalSignature["positionRX"]." ".$DigitalSignature["positionTY"]."]
@@ -286,7 +286,7 @@ class CompaniesController extends \BaseController {
 
                 if(!empty($DigitalSignature["image"])){
                 $mypdfsigner.="
-                sigimage=".$DigitalSignature["image"];
+                sigimage=". $signaturePath .$DigitalSignature["image"];
                 }
 
                 RemoteSSH::run('echo "'.$mypdfsigner.'" > ' . $signaturePath.'mypdfsigner.conf');

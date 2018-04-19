@@ -180,7 +180,7 @@ class Invoice extends \Eloquent {
 			 if(getenv('APP_OS') == 'Linux'){
                 exec (base_path(). '/wkhtmltox/bin/wkhtmltopdf --header-spacing 3 --footer-spacing 1 --header-html "'.$header_html.'" --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
 
-                 if(CompanySetting::getKeyVal('UseDigitalSignature', $Account->CurrencyId)){
+                 if(CompanySetting::getKeyVal('UseDigitalSignature', $Account->CurrencyId)!="Invalid Key"){
                      $newlocal_file = $destination_dir . str_replace(".pdf","-signature.pdf",$file_name);
                      $signaturePath = AmazonS3::preSignedUrl(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY']);
 					 $mypdfsignerOutput=RemoteSSH::run('mypdfsigner -i '.$local_file.' -o '.$newlocal_file.' -z '.$signaturePath.'mypdfsigner.conf -v -c -q');

@@ -310,7 +310,7 @@
                         </p>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">Image(.png)</label>
+                        <label class="col-sm-2 control-label">Image(.png)<br>( Default Size 542 x 167 Px )</label>
                         <div class="col-sm-4">
                             <input name="signatureImage" type="file" accept=".png" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;Browse" />
                         </div>
