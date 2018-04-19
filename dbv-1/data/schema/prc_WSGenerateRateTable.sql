@@ -6,7 +6,10 @@ CREATE DEFINER=`neon-user`@`192.168.1.25` PROCEDURE `prc_WSGenerateRateTable`(
 	IN `p_EffectiveDate` VARCHAR(10),
 	IN `p_delete_exiting_rate` INT,
 	IN `p_EffectiveRate` VARCHAR(50),
+	IN `p_GroupBy` VARCHAR(50),
 	IN `p_ModifiedBy` VARCHAR(50)
+
+
 
 
 )
@@ -42,6 +45,7 @@ GenerateRateTable:BEGIN
 		DECLARE v_Commit int;
 		DECLARE EXIT HANDLER FOR SQLEXCEPTION
 		BEGIN
+			SHOW WARNINGS;
 			ROLLBACK;
 			CALL prc_WSJobStatusUpdate(p_jobId, 'F', 'RateTable generation failed', '');
 
@@ -433,21 +437,45 @@ GenerateRateTable:BEGIN
 					 ) tbl
 			order by Code asc;
 
-		INSERT INTO tmp_VendorCurrentRates_
-			Select AccountId,AccountName,Code,Description, Rate,ConnectionFee,EffectiveDate,TrunkID,CountryID,RateID,Preference
-			FROM (
-						 SELECT * ,
-							 @row_num := IF(@prev_AccountId = AccountID AND @prev_TrunkID = TrunkID AND @prev_RateId = RateID AND @prev_EffectiveDate >= EffectiveDate, @row_num + 1, 1) AS RowID,
-							 @prev_AccountId := AccountID,
-							 @prev_TrunkID := TrunkID,
-							 @prev_RateId := RateID,
-							 @prev_EffectiveDate := EffectiveDate
-						 FROM tmp_VendorCurrentRates1_
-							 ,(SELECT @row_num := 1,  @prev_AccountId := '',@prev_TrunkID := '', @prev_RateId := '', @prev_EffectiveDate := '') x
-						 ORDER BY AccountId, TrunkID, RateId, EffectiveDate DESC
-					 ) tbl
-			WHERE RowID = 1
-			order by Code asc;
+		IF p_GroupBy = 'Desc' -- Group By Description
+		THEN
+
+			INSERT INTO tmp_VendorCurrentRates_
+				Select AccountId,max(AccountName),max(Code),Description,max(Rate),max(ConnectionFee),max(EffectiveDate),TrunkID,max(CountryID),max(RateID),max(Preference)
+				FROM (
+							 SELECT * ,
+								 @row_num := IF(@prev_AccountId = AccountID AND @prev_TrunkID = TrunkID AND @prev_RateId = RateID AND @prev_EffectiveDate >= EffectiveDate, @row_num + 1, 1) AS RowID,
+								 @prev_AccountId := AccountID,
+								 @prev_TrunkID := TrunkID,
+								 @prev_RateId := RateID,
+								 @prev_EffectiveDate := EffectiveDate
+							 FROM tmp_VendorCurrentRates1_
+								 ,(SELECT @row_num := 1,  @prev_AccountId := '',@prev_TrunkID := '', @prev_RateId := '', @prev_EffectiveDate := '') x
+							 ORDER BY AccountId, TrunkID, RateId, EffectiveDate DESC
+						 ) tbl
+				WHERE RowID = 1
+				GROUP BY AccountId, TrunkID, Description
+				order by Description asc;
+				
+		ELSE
+		
+			INSERT INTO tmp_VendorCurrentRates_
+				Select AccountId,AccountName,Code,Description, Rate,ConnectionFee,EffectiveDate,TrunkID,CountryID,RateID,Preference
+				FROM (
+							 SELECT * ,
+								 @row_num := IF(@prev_AccountId = AccountID AND @prev_TrunkID = TrunkID AND @prev_RateId = RateID AND @prev_EffectiveDate >= EffectiveDate, @row_num + 1, 1) AS RowID,
+								 @prev_AccountId := AccountID,
+								 @prev_TrunkID := TrunkID,
+								 @prev_RateId := RateID,
+								 @prev_EffectiveDate := EffectiveDate
+							 FROM tmp_VendorCurrentRates1_
+								 ,(SELECT @row_num := 1,  @prev_AccountId := '',@prev_TrunkID := '', @prev_RateId := '', @prev_EffectiveDate := '') x
+							 ORDER BY AccountId, TrunkID, RateId, EffectiveDate DESC
+						 ) tbl
+				WHERE RowID = 1
+				order by Code asc;
+				
+		END IF;
 
 
 
