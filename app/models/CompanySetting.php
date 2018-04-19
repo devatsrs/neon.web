@@ -8,8 +8,11 @@ class CompanySetting extends \Eloquent {
     const ACCOUT_VARIFICATION_ON = 1;
     const ACCOUT_VARIFICATION_OFF = 0;
 
-    public static function getKeyVal($key){
-        $CompanySetting = CompanySetting::where(["CompanyID"=> User::get_companyID(),'key'=>$key])->first();
+    public static function getKeyVal($key, $CompanyID=0){
+        if(empty($CompanyID)){
+            $CompanyID=User::get_companyID();
+        }
+        $CompanySetting = CompanySetting::where(["CompanyID"=> $CompanyID,'key'=>$key])->first();
         if(count($CompanySetting)>0 && isset($CompanySetting->Value)){
             return $CompanySetting->Value;
         }else{
@@ -17,12 +20,17 @@ class CompanySetting extends \Eloquent {
         }
     }
 
-    public static function  setKeyVal($key,$val){
-        $CompanySetting = CompanySetting::where(["CompanyID"=> User::get_companyID(),'key'=>$key])->first();
+    public static function  setKeyVal($key,$val,$CompanyID=0){
+
+        if(empty($CompanyID)){
+            $CompanyID=User::get_companyID();
+        }
+
+        $CompanySetting = CompanySetting::where(["CompanyID"=> $CompanyID,'key'=>$key])->first();
         if(count($CompanySetting)>0){
-            CompanySetting::where(["CompanyID"=> User::get_companyID(),'key'=>$key])->update(array('Value'=>$val));
+            CompanySetting::where(["CompanyID"=> $CompanyID,'key'=>$key])->update(array('Value'=>$val));
         }else{
-            CompanySetting::insert(array('CompanyID' => User::get_companyID(), 'key' => $key,'Value'=>$val));
+            CompanySetting::insert(array('CompanyID' => $CompanyID, 'key' => $key,'Value'=>$val));
         }
     }
 }
