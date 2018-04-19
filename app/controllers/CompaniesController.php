@@ -159,7 +159,7 @@ class CompaniesController extends \BaseController {
         if(!empty($data['signatureCertPassword'])){
             $arrSignatureCertFile['password'] = $data['signatureCertPassword'];
         }else{
-			if(!array_key_exists("signatureCert",$arrSignatureCertFile)){
+			if(!array_key_exists("password",$arrSignatureCertFile)){
 				$arrSignatureCertFile['password'] = "";
 			}
         }
