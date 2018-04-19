@@ -1,25 +1,13 @@
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_WSGenerateRateTable`(
+CREATE DEFINER=`neon-user`@`192.168.1.25` PROCEDURE `prc_WSGenerateRateTable`(
 	IN `p_jobId` INT,
 	IN `p_RateGeneratorId` INT,
 	IN `p_RateTableId` INT,
 	IN `p_rateTableName` VARCHAR(200),
 	IN `p_EffectiveDate` VARCHAR(10),
 	IN `p_delete_exiting_rate` INT,
-	IN `p_EffectiveRate` VARCHAR(50)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	IN `p_EffectiveRate` VARCHAR(50),
+	IN `p_GroupBy` VARCHAR(50),
+	IN `p_ModifiedBy` VARCHAR(50)
 
 
 
@@ -57,6 +45,7 @@ GenerateRateTable:BEGIN
 		DECLARE v_Commit int;
 		DECLARE EXIT HANDLER FOR SQLEXCEPTION
 		BEGIN
+			SHOW WARNINGS;
 			ROLLBACK;
 			CALL prc_WSJobStatusUpdate(p_jobId, 'F', 'RateTable generation failed', '');
 
@@ -97,6 +86,8 @@ GenerateRateTable:BEGIN
 			code VARCHAR(50) COLLATE utf8_unicode_ci,
 			rate DECIMAL(18, 6),
 			ConnectionFee DECIMAL(18, 6),
+			PreviousRate DECIMAL(18, 6),
+			EffectiveDate DATE DEFAULT NULL,
 			INDEX tmp_Rates_code (`code`) ,
 			UNIQUE KEY `unique_code` (`code`)
 
@@ -106,6 +97,8 @@ GenerateRateTable:BEGIN
 			code VARCHAR(50) COLLATE utf8_unicode_ci,
 			rate DECIMAL(18, 6),
 			ConnectionFee DECIMAL(18, 6),
+			PreviousRate DECIMAL(18, 6),
+			EffectiveDate DATE DEFAULT NULL,
 			INDEX tmp_Rates2_code (`code`)
 		);
 
@@ -121,6 +114,7 @@ GenerateRateTable:BEGIN
 			code VARCHAR(50) COLLATE utf8_unicode_ci,
 			description VARCHAR(200) COLLATE utf8_unicode_ci,
 			RowNo INT,
+			`Order` INT,
 			INDEX tmp_Raterules_code (`code`,`description`),
 			INDEX tmp_Raterules_rateruleid (`rateruleid`),
 			INDEX tmp_Raterules_RowNo (`RowNo`)
@@ -132,6 +126,7 @@ GenerateRateTable:BEGIN
 			code VARCHAR(50) COLLATE utf8_unicode_ci,
 			description VARCHAR(200) COLLATE utf8_unicode_ci,
 			RowNo INT,
+			`Order` INT,
 			INDEX tmp_Raterules_code (`code`,`description`),
 			INDEX tmp_Raterules_rateruleid (`rateruleid`),
 			INDEX tmp_Raterules_RowNo (`RowNo`)
@@ -305,14 +300,15 @@ GenerateRateTable:BEGIN
 				rateruleid,
 				tblRateRule.Code,
 				tblRateRule.Description,
-				@row_num := @row_num+1 AS RowID
+				@row_num := @row_num+1 AS RowID,
+				tblRateRule.`Order`
 			FROM tblRateRule,(SELECT @row_num := 0) x
 			WHERE rategeneratorid = p_RateGeneratorId
-			ORDER BY tblRateRule.rateruleid ASC;  -- <== order of rule is important
+			ORDER BY tblRateRule.`Order` ASC;  -- <== order of rule is important
 
 		-- v 4.17 fix process rules in order  -- NEON-1292 		Otto Rate Generator issue
-		insert into tmp_Raterules_dup (			rateruleid ,		code ,		description ,		RowNo 		)
-		select rateruleid ,		code ,		description ,		RowNo from tmp_Raterules_;
+		insert into tmp_Raterules_dup (			rateruleid ,		code ,		description ,		RowNo 	,	`Order`)
+		select rateruleid ,		code ,		description ,		RowNo, `Order` from tmp_Raterules_;
 
 		INSERT INTO tmp_Codedecks_
 			SELECT DISTINCT
@@ -441,21 +437,45 @@ GenerateRateTable:BEGIN
 					 ) tbl
 			order by Code asc;
 
-		INSERT INTO tmp_VendorCurrentRates_
-			Select AccountId,AccountName,Code,Description, Rate,ConnectionFee,EffectiveDate,TrunkID,CountryID,RateID,Preference
-			FROM (
-						 SELECT * ,
-							 @row_num := IF(@prev_AccountId = AccountID AND @prev_TrunkID = TrunkID AND @prev_RateId = RateID AND @prev_EffectiveDate >= EffectiveDate, @row_num + 1, 1) AS RowID,
-							 @prev_AccountId := AccountID,
-							 @prev_TrunkID := TrunkID,
-							 @prev_RateId := RateID,
-							 @prev_EffectiveDate := EffectiveDate
-						 FROM tmp_VendorCurrentRates1_
-							 ,(SELECT @row_num := 1,  @prev_AccountId := '',@prev_TrunkID := '', @prev_RateId := '', @prev_EffectiveDate := '') x
-						 ORDER BY AccountId, TrunkID, RateId, EffectiveDate DESC
-					 ) tbl
-			WHERE RowID = 1
-			order by Code asc;
+		IF p_GroupBy = 'Desc' -- Group By Description
+		THEN
+
+			INSERT INTO tmp_VendorCurrentRates_
+				Select AccountId,max(AccountName),max(Code),Description,max(Rate),max(ConnectionFee),max(EffectiveDate),TrunkID,max(CountryID),max(RateID),max(Preference)
+				FROM (
+							 SELECT * ,
+								 @row_num := IF(@prev_AccountId = AccountID AND @prev_TrunkID = TrunkID AND @prev_RateId = RateID AND @prev_EffectiveDate >= EffectiveDate, @row_num + 1, 1) AS RowID,
+								 @prev_AccountId := AccountID,
+								 @prev_TrunkID := TrunkID,
+								 @prev_RateId := RateID,
+								 @prev_EffectiveDate := EffectiveDate
+							 FROM tmp_VendorCurrentRates1_
+								 ,(SELECT @row_num := 1,  @prev_AccountId := '',@prev_TrunkID := '', @prev_RateId := '', @prev_EffectiveDate := '') x
+							 ORDER BY AccountId, TrunkID, RateId, EffectiveDate DESC
+						 ) tbl
+				WHERE RowID = 1
+				GROUP BY AccountId, TrunkID, Description
+				order by Description asc;
+				
+		ELSE
+		
+			INSERT INTO tmp_VendorCurrentRates_
+				Select AccountId,AccountName,Code,Description, Rate,ConnectionFee,EffectiveDate,TrunkID,CountryID,RateID,Preference
+				FROM (
+							 SELECT * ,
+								 @row_num := IF(@prev_AccountId = AccountID AND @prev_TrunkID = TrunkID AND @prev_RateId = RateID AND @prev_EffectiveDate >= EffectiveDate, @row_num + 1, 1) AS RowID,
+								 @prev_AccountId := AccountID,
+								 @prev_TrunkID := TrunkID,
+								 @prev_RateId := RateID,
+								 @prev_EffectiveDate := EffectiveDate
+							 FROM tmp_VendorCurrentRates1_
+								 ,(SELECT @row_num := 1,  @prev_AccountId := '',@prev_TrunkID := '', @prev_RateId := '', @prev_EffectiveDate := '') x
+							 ORDER BY AccountId, TrunkID, RateId, EffectiveDate DESC
+						 ) tbl
+				WHERE RowID = 1
+				order by Code asc;
+				
+		END IF;
 
 
 
@@ -641,7 +661,7 @@ GenerateRateTable:BEGIN
 																												 OR
 																												 ( rr.description != '' AND tmpvr.Description LIKE (REPLACE(rr.description,'*', '%%')) )
 																											 )
-											 left JOIN tmp_Raterules_dup rr2 ON rr2.RateRuleId > v_rateRuleId_ and
+											 left JOIN tmp_Raterules_dup rr2 ON rr2.Order > rr.Order and
 																											 (
 																												 ( rr2.code != '' AND tmpvr.RowCode LIKE (REPLACE(rr2.code,'*', '%%')) )
 																												 OR
@@ -700,7 +720,7 @@ GenerateRateTable:BEGIN
 																										OR
 																										( rr.description != '' AND tmpvr.Description LIKE (REPLACE(rr.description,'*', '%%')) )
 																									)
-									left JOIN tmp_Raterules_dup rr2 ON rr2.RateRuleId > v_rateRuleId_ and
+									left JOIN tmp_Raterules_dup rr2 ON rr2.Order > rr.Order and
 																											(
 																												( rr2.code != '' AND tmpvr.RowCode LIKE (REPLACE(rr2.code,'*', '%%')) )
 																												OR
@@ -750,7 +770,7 @@ GenerateRateTable:BEGIN
 						INNER JOIN tmp_dupVRatesstage2_ vr2
 							ON (vr.RowCode = vr2.RowCode AND  vr.FinalRankNumber = vr2.FinalRankNumber);
 
-				INSERT IGNORE INTO tmp_Rates_
+				INSERT IGNORE INTO tmp_Rates_ (code,rate,ConnectionFee,PreviousRate)
                 SELECT RowCode,
                     CASE WHEN rule_mgn.RateRuleId is not null
                         THEN
@@ -764,7 +784,8 @@ GenerateRateTable:BEGIN
                     ELSE
                         vRate.rate
                     END as Rate,
-                    ConnectionFee
+                    ConnectionFee,
+					null AS PreviousRate
                 FROM tmp_Vendorrates_stage3_ vRate
                 LEFT join tblRateRuleMargin rule_mgn on  rule_mgn.RateRuleId = v_rateRuleId_ and vRate.rate Between rule_mgn.MinRate and rule_mgn.MaxRate;
 
@@ -773,7 +794,7 @@ GenerateRateTable:BEGIN
 
 			ELSE
 
-				INSERT IGNORE INTO tmp_Rates_
+				INSERT IGNORE INTO tmp_Rates_ (code,rate,ConnectionFee,PreviousRate)
                 SELECT RowCode,
                     CASE WHEN rule_mgn.RateRuleId is not null
                         THEN
@@ -787,7 +808,8 @@ GenerateRateTable:BEGIN
                     ELSE
                         vRate.rate
                     END as Rate,
-                    ConnectionFee
+                    ConnectionFee,
+					null AS PreviousRate
                 FROM 
                 (
                     select RowCode,
@@ -845,12 +867,72 @@ GenerateRateTable:BEGIN
 
 			IF p_delete_exiting_rate = 1
 			THEN
-				DELETE tblRateTableRate
-				FROM tblRateTableRate
-				WHERE tblRateTableRate.RateTableId = p_RateTableId;
+				-- delete all rate table rates of this rate table
+				UPDATE 
+					tblRateTableRate
+				SET
+					EndDate = NOW()
+				WHERE 
+					tblRateTableRate.RateTableId = p_RateTableId;
+					
+				-- delete and archive rates which rate's EndDate <= NOW()
+				CALL prc_ArchiveOldRateTableRate(p_RateTableId,CONCAT(p_ModifiedBy,'|RateGenerator')); -- p_ModifiedBy
 			END IF;
 
+			-- set EffectiveDate for which date rates need to generate
+			UPDATE tmp_Rates_ SET EffectiveDate = p_EffectiveDate;
+			
+			-- update Previous Rates By Vasim Seta Start
+			UPDATE
+				tmp_Rates_ tr
+			SET
+				PreviousRate = (SELECT rtr.Rate FROM tblRateTableRate rtr JOIN tblRate r ON r.RateID=rtr.RateID WHERE rtr.RateTableID=p_RateTableId AND r.Code=tr.Code AND rtr.EffectiveDate<tr.EffectiveDate ORDER BY rtr.EffectiveDate DESC,rtr.RateTableRateID DESC LIMIT 1);
 
+			UPDATE
+				tmp_Rates_ tr
+			SET
+				PreviousRate = (SELECT rtr.Rate FROM tblRateTableRateArchive rtr JOIN tblRate r ON r.RateID=rtr.RateID WHERE rtr.RateTableID=p_RateTableId AND r.Code=tr.Code AND rtr.EffectiveDate<tr.EffectiveDate ORDER BY rtr.EffectiveDate DESC,rtr.RateTableRateID DESC LIMIT 1)
+			WHERE
+				PreviousRate is null;
+			-- update Previous Rates By Vasim Seta End
+			
+			-- update increase decrease effective date starts
+			IF v_IncreaseEffectiveDate_ != v_DecreaseEffectiveDate_ THEN
+
+				UPDATE tmp_Rates_
+				SET
+					tmp_Rates_.EffectiveDate =
+					CASE WHEN tmp_Rates_.PreviousRate < tmp_Rates_.Rate THEN
+						v_IncreaseEffectiveDate_
+					WHEN tmp_Rates_.PreviousRate > tmp_Rates_.Rate THEN
+						v_DecreaseEffectiveDate_
+					ELSE p_EffectiveDate
+					END
+				;
+
+			END IF;
+			-- update increase decrease effective date ends
+
+			-- delete rates which needs to insert and with same EffectiveDate and rate is not same
+			UPDATE 
+				tblRateTableRate
+			INNER JOIN 
+				tblRate ON tblRate.RateId = tblRateTableRate.RateId
+					AND tblRateTableRate.RateTableId = p_RateTableId
+				--	AND tblRateTableRate.EffectiveDate = p_EffectiveDate
+			INNER JOIN 
+				tmp_Rates_ as rate ON rate.code = tblRate.Code AND tblRateTableRate.EffectiveDate = rate.EffectiveDate
+			SET 
+				tblRateTableRate.EndDate = NOW()
+			WHERE 
+				tblRateTableRate.RateTableId = p_RateTableId AND
+				tblRate.CodeDeckId = v_codedeckid_ AND 
+				rate.rate != tblRateTableRate.Rate;
+				
+			-- delete and archive rates which rate's EndDate <= NOW()
+			CALL prc_ArchiveOldRateTableRate(p_RateTableId,CONCAT(p_ModifiedBy,'|RateGenerator')); -- p_ModifiedBy
+
+			-- insert rates
 			INSERT INTO tblRateTableRate (RateID,
 																		RateTableId,
 																		Rate,
@@ -864,8 +946,8 @@ GenerateRateTable:BEGIN
 					tblRate.RateId,
 					p_RateTableId RateTableId,
 					rate.Rate,
-					p_EffectiveDate EffectiveDate,
-					rate.Rate,
+					rate.EffectiveDate,
+					rate.PreviousRate,
 					tblRate.Interval1,
 					tblRate.IntervalN,
 					rate.ConnectionFee
@@ -877,99 +959,59 @@ GenerateRateTable:BEGIN
 							 AND tbl1.RateTableId = p_RateTableId
 					LEFT JOIN tblRateTableRate tbl2
 						ON tblRate.RateId = tbl2.RateId
-							 and tbl2.EffectiveDate = p_EffectiveDate
+							 and tbl2.EffectiveDate = rate.EffectiveDate
 							 AND tbl2.RateTableId = p_RateTableId
 				WHERE  (    tbl1.RateTableRateID IS NULL
 										OR
 										(
 											tbl2.RateTableRateID IS NULL
-											AND  tbl1.EffectiveDate != p_EffectiveDate
+											AND  tbl1.EffectiveDate != rate.EffectiveDate
 
 										)
 							 )
 							 AND tblRate.CodeDeckId = v_codedeckid_;
 
-			UPDATE tblRateTableRate
-				INNER JOIN tblRate
-					ON tblRate.RateId = tblRateTableRate.RateId
-						 AND tblRateTableRate.RateTableId = p_RateTableId
-						 AND tblRateTableRate.EffectiveDate = p_EffectiveDate
-				INNER JOIN tmp_Rates_ as rate
-					ON  rate.code  = tblRate.Code
-			SET tblRateTableRate.PreviousRate = tblRateTableRate.Rate,
-				tblRateTableRate.EffectiveDate = p_EffectiveDate,
-				tblRateTableRate.Rate = rate.Rate,
-				tblRateTableRate.ConnectionFee = rate.ConnectionFee,
-				tblRateTableRate.updated_at = NOW(),
-				tblRateTableRate.ModifiedBy = 'RateManagementService',
-				tblRateTableRate.Interval1 = tblRate.Interval1,
-				tblRateTableRate.IntervalN = tblRate.IntervalN
-			WHERE tblRate.CodeDeckId = v_codedeckid_
-						AND rate.rate != tblRateTableRate.Rate;
-
-
-			-- update  previous rate with all latest recent entriy of previous effective date
-			UPDATE tblRateTableRate rtr
-				inner join
-				(
-					-- get all rates RowID = 1 to remove old to old effective date
-
-					select distinct rt1.* ,
-						@row_num := IF(@prev_RateId = rt1.RateID AND @prev_EffectiveDate >= rt1.EffectiveDate, @row_num + 1, 1) AS RowID,
-						@prev_RateId := rt1.RateID,
-						@prev_EffectiveDate := rt1.EffectiveDate
-					from tblRateTableRate rt1
-						inner join tblRateTableRate rt2
-							on rt1.RateTableId = rt2.RateTableId and rt1.RateID = rt2.RateID
-								 and rt1.EffectiveDate < rt2.EffectiveDate
-					where
-						rt1.RateTableID = p_RateTableId
-					order by rt1.RateID desc ,rt1.EffectiveDate desc
-
-				) old_rtr on  old_rtr.RateTableID = rtr.RateTableID  and old_rtr.RateID = rtr.RateID and old_rtr.EffectiveDate < rtr.EffectiveDate AND rtr.EffectiveDate =  p_EffectiveDate AND old_rtr.RowID = 1
-			SET rtr.PreviousRate = old_rtr.Rate
-			where
-				rtr.RateTableID = p_RateTableId;
-
-
-			-- Update previous rate
-			call prc_RateTableRateUpdatePreviousRate(p_RateTableId,'');
-
-
-			-- update increase decrease effective date
-			IF v_IncreaseEffectiveDate_ != v_DecreaseEffectiveDate_ THEN
-
-				UPDATE tblRateTableRate
-				SET
-					tblRateTableRate.EffectiveDate =
-					CASE WHEN tblRateTableRate.PreviousRate < tblRateTableRate.Rate THEN
-						v_IncreaseEffectiveDate_
-					WHEN tblRateTableRate.PreviousRate > tblRateTableRate.Rate THEN
-						v_DecreaseEffectiveDate_
-					ELSE p_EffectiveDate
-					END
-				WHERE
-					RateTableId = p_RateTableId
-					AND EffectiveDate = p_EffectiveDate;
-
-			END IF;
-
-
-			DELETE tblRateTableRate
-			FROM tblRateTableRate
-			WHERE tblRateTableRate.RateTableId = p_RateTableId
-						AND RateId NOT IN (SELECT DISTINCT
-																 RateId
-															 FROM tmp_Rates_ rate
-																 INNER JOIN tblRate
-																	 ON rate.code  = tblRate.Code
-															 WHERE tblRate.CodeDeckId = v_codedeckid_)
-						AND tblRateTableRate.EffectiveDate = p_EffectiveDate;
-
+			-- delete same date's rates which are not in tmp_Rates_
+			UPDATE 
+				tblRateTableRate rtr
+			INNER JOIN 
+				tblRate ON rtr.RateId  = tblRate.RateId
+			LEFT JOIN
+				tmp_Rates_ rate ON rate.Code=tblRate.Code
+			SET 
+				rtr.EndDate = NOW()
+			WHERE 
+				rate.Code is null AND rtr.RateTableId = p_RateTableId AND rtr.EffectiveDate = rate.EffectiveDate AND tblRate.CodeDeckId = v_codedeckid_;
+			
+			-- delete and archive rates which rate's EndDate <= NOW()
+			CALL prc_ArchiveOldRateTableRate(p_RateTableId,CONCAT(p_ModifiedBy,'|RateGenerator')); -- p_ModifiedBy
 
 		END IF;
+		
+		-- update EndDate of all Rates of this RateTable By Vasim Seta Starts
+		DROP TEMPORARY TABLE IF EXISTS tmp_ALL_RateTableRate_;
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_ALL_RateTableRate_ AS (SELECT * FROM tblRateTableRate WHERE RateTableID=p_RateTableId);
 
+		UPDATE
+			tmp_ALL_RateTableRate_ temp
+		SET
+			EndDate = (SELECT EffectiveDate FROM tblRateTableRate rtr WHERE rtr.RateTableID=p_RateTableId AND rtr.RateID=temp.RateID AND rtr.EffectiveDate>temp.EffectiveDate ORDER BY rtr.EffectiveDate ASC,rtr.RateTableRateID ASC LIMIT 1)
+		WHERE
+			temp.RateTableId = p_RateTableId;
+			
+		UPDATE
+			tblRateTableRate rtr
+		INNER JOIN
+			tmp_ALL_RateTableRate_ temp ON rtr.RateTableRateID=temp.RateTableRateID
+		SET
+			rtr.EndDate=temp.EndDate
+		WHERE
+			rtr.RateTableId=p_RateTableId;
+		-- update EndDate of all Rates of this RateTable By Vasim Seta Ends
 
+		-- delete and archive rates which rate's EndDate <= NOW()
+		CALL prc_ArchiveOldRateTableRate(p_RateTableId,CONCAT(p_ModifiedBy,'|RateGenerator')); -- p_ModifiedBy
+		
 		UPDATE tblRateTable
 		SET RateGeneratorID = p_RateGeneratorId,
 			TrunkID = v_trunk_,
