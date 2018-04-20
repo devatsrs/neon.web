@@ -3,7 +3,7 @@
 class AutoRateImportController extends \BaseController {
 
 	public function __construct(){
-		parent::validateTicketLicence();		 
+	
 	 }
 	/* AutoInbox Setting  */
 	public function index()
@@ -11,8 +11,7 @@ class AutoRateImportController extends \BaseController {
 		$companyID = User::get_companyID();
 		$autoimportSetting = AutoImportInboxSetting::getAutoImportSetting($companyID);
 		$autoimportSetting['copyNotification'] = $autoimportSetting[0]->SendCopyToAccount == 'Y' ? 'checked' : '';
-		$autoimportSetting['SuccessNotify'] = $autoimportSetting[0]->emailNotification == 'S' ? 'checked' : '';
-		$autoimportSetting['FailNotify'] = $autoimportSetting[0]->emailNotification == 'F' ? 'checked' : '';
+		$autoimportSetting['encryption'] = $autoimportSetting[0]->encryption == 'ssl' ? 'checked' : '';
 		return View::make('autoimport.auto_import_inbox_setting', compact('autoimportSetting'));
 
 	}
@@ -20,7 +19,8 @@ class AutoRateImportController extends \BaseController {
 	{
 		$data = Input::all();
 		$data['SendCopyToAccount'] = isset($data['SendCopyToAccount'])?'Y':'N';
-		$data['emailNotification'] = isset($data['emailNotification']) ? $data['emailNotification'] : '' ;
+		$data['encryption'] = isset($data['encryption']) ? 'ssl' : 'tls' ;
+		$data['validate_cert'] = 'false';
 		$rules = array(
 			'port' => 'required',
 			'host'=>'required',
@@ -253,7 +253,7 @@ class AutoRateImportController extends \BaseController {
 	public function Delete($id) {
 
 		if ($id > 0) {
-			AutoImportSetting::DeleteautiimportSetting($id);
+			AutoImportSetting::DeleteautoimportSetting($id);
 			return Response::json(array("status" => "success", "message" => "Auto Import Setting Delete Successfully"));
 		}
 

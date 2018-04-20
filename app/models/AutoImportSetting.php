@@ -42,7 +42,7 @@ class AutoImportSetting extends \Eloquent
             ]);
     }
 
-    public static function DeleteautiimportSetting($AutoImportSettingID){
+    public static function DeleteautoimportSetting($AutoImportSettingID){
         AutoImportSetting::where('AutoImportSettingID', '=', $AutoImportSettingID)->delete();
     }
 	
