@@ -245,7 +245,7 @@
                             <div class="col-md-12">
                                 <div class="form-group ">
                                     <label for="field-5" class="control-label">RateTable</label>
-                                    {{Form::select('TypePKID', $rateTable, array("class"=>"form-control select2"))}}
+                                    {{Form::select('TypePKID', $rateTable,'', array("class"=>"form-control select2"))}}
                                     <input type="hidden" name="Type" value="2">
                                     <input type="hidden" name="AutoImportSettingID">
                                 </div>
