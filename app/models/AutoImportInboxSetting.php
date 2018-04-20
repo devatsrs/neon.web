@@ -16,6 +16,19 @@ class AutoImportInboxSetting extends \Eloquent
     }
 
     public static function updateInboxImportSetting($CompanyID,$data){
-        return AutoImportInboxSetting::where('CompanyID','=',$CompanyID)->update([ 'port' => $data['port'],'host' => $data['host'] ]);
+
+        return AutoImportInboxSetting::where('CompanyID','=',$CompanyID)->update(
+            [
+              'port' => $data['port'],
+              'host' => $data['host'],
+              'encryption' => $data['encryption'],
+              'validate_cert' => $data['validate_cert'],
+              'username' => $data['username'],
+              'password' => $data['password'],
+              'emailNotification' => $data['emailNotification'],
+              'SendCopyToAccount' => $data['SendCopyToAccount'],
+              'updated_at' => date('Y-m-d H:i:s')
+            ]);
+
     }
 }
