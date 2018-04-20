@@ -188,7 +188,6 @@ class AccountsController extends \BaseController {
             $data = Input::all();
             $companyID = User::get_companyID();
             $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
-            $data['FirstInvoiceSend'] = empty($data['FirstInvoiceSend']) ? 0 : $data['FirstInvoiceSend'];
             if($ResellerOwner>0){
                 $Reseller = Reseller::getResellerDetails($ResellerOwner);
                 $ResellerCompanyID = $Reseller->ChildCompanyID;
@@ -724,7 +723,6 @@ class AccountsController extends \BaseController {
             }
 
             if($data['Billing'] == 1) {
-                $data['FirstInvoiceSend'] = empty($data['FirstInvoiceSend']) ? 0 : $data['FirstInvoiceSend'];
                 AccountBilling::insertUpdateBilling($id, $data,$ServiceID,$invoice_count);
                 if($ManualBilling == 0){
                     AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
@@ -1878,5 +1876,18 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
         return $selectedIDs;
 
+    }
+
+    public function getNextBillingDate(){
+        $data = Input::all();
+        $BillingStartDate= strtotime($data['BillingStartDate']);
+        $BillingCycleType= $data['BillingCycleType'];
+        $BillingCycleValue= $data['BillingCycleValue'];
+        $NextChargedDate='';
+        $NextBillingDate = next_billing_date($BillingCycleType, $BillingCycleValue, $BillingStartDate);
+        if($NextBillingDate!=''){
+            $NextChargedDate = date('Y-m-d', strtotime('-1 day', strtotime($NextBillingDate)));
+        }
+        return Response::json(array("status" => "success", "NextBillingDate" => $NextBillingDate,"NextChargedDate" => $NextChargedDate));
     }
 }

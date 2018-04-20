@@ -305,7 +305,6 @@
                         <div class="col-md-2">
                             {{Form::text('BillingStartDate','',array('class'=>'form-control datepicker billing_start_date',"data-date-format"=>"yyyy-mm-dd"))}}
                         </div>
-                        <div class="col-md-2">Generate First Invoice on this Date &nbsp;&nbsp;<input type="checkbox"  name="FirstInvoiceSend" value="1"></div>
                     </div>
                     <div class="form-group">
                         <label for="field-1" class="col-md-2 control-label">Billing Cycle*</label>
@@ -343,6 +342,16 @@
                             <div class="col-md-4">
                                 {{Form::text('BillingCycleValue', '' ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"dd-mm-yyyy", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
                             </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="field-1" class="col-md-2 control-label">Next Invoice Date</label>
+                        <div class="col-md-4">
+                            {{Form::text('NextInvoiceDate', '',array('class'=>'form-control datepicker next_invoice_date',"data-date-format"=>"yyyy-mm-dd"))}}
+                        </div>
+                        <label for="field-1" class="col-md-2 control-label">Next Charge Date</label>
+                        <div class="col-md-4">
+                            {{Form::text('NextChargeDate', '',array('class'=>'form-control datepicker next_charged_date',"data-date-format"=>"yyyy-mm-dd"))}}
                         </div>
                     </div>
                 <div class="form-group">
@@ -397,6 +406,11 @@
                 case "manual":
                     $(".billing_start_date").attr('readonly','true');
                     break;
+            }
+            if(selection=='weekly' || selection=='monthly_anniversary' || selection=='in_specific_days' || selection=='subscription' || selection=='manual'){
+                //nothing change
+            }else{
+                changeBillingDates('');
             }
         });
 
@@ -457,6 +471,48 @@
             }
 
         });
+
+        $('[name="BillingStartDate"]').on("change",function(e){
+            changeBillingDates('');
+        });
+
+        $('[name="BillingCycleValue"]').on( "change",function(e){
+            changeBillingDates($(this).val());
+        });
+
+        function changeBillingDates(BillingCycleValue){
+            var BillingStartDate;
+            var BillingCycleType;
+            //var BillingCycleValue;
+            BillingStartDate = $('[name="BillingStartDate"]').val();
+            BillingCycleType = $('select[name="BillingCycleType"]').val();
+            if(BillingCycleType==''){
+                BillingCycleValue = $('[name="BillingCycleValue"]').val();
+            }
+            //alert(BillingCycleValue);
+            if(BillingStartDate=='' || BillingCycleType==''){
+                return true;
+            }
+
+            getNextBillingDatec_url =  '{{ URL::to('accounts/getNextBillingDate')}}';
+            $.ajax({
+                url: getNextBillingDatec_url,
+                type: 'POST',
+                dataType: 'json',
+                success: function(response) {
+                    $('[name="NextInvoiceDate"]').val(response.NextBillingDate);
+                    $('[name="NextChargeDate"]').val(response.NextBillingDate);
+                },
+                data: {
+                    "BillingStartDate":BillingStartDate,
+                    "BillingCycleType":BillingCycleType,
+                    "BillingCycleValue":BillingCycleValue
+                }
+
+            });
+
+            return true;
+        }
 
     });
 function ajax_form_success(response){
