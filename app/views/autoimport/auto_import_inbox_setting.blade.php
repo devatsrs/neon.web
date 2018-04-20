@@ -51,7 +51,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group ">
-                                        <label for="field-5" class="control-label">SMTP User</label>
+                                        <label for="field-5" class="control-label">Username</label>
                                         <input type="text" name="username" class="form-control" value="{{$autoimportSetting[0]->username}}" />
                                     </div>
                                 </div>
@@ -84,16 +84,24 @@
                         <div class="panel-options">
                             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                         </div>
-                        Error Notification
+                        Notification
                     </div>
                     <div class="panel-body">
                         <div class="col-md-12">
                             <input type="hidden" name="CompanyID" value="{{$autoimportSetting[0]->CompanyID}}">
                             <div class="col-md-6">
                                 <div class="form-group ">
-                                    <label for="field-5" class="control-label">Notification Email</label>
+                                    <label for="field-5" class="control-label">Success Notification on Email</label>
                                     <br>
-                                    <input type="text" name="emailNotification" class="form-control" value="{{$autoimportSetting[0]->emailNotification}}" />
+                                    <input type="text" name="emailNotificationOnSuccess" class="form-control" value="{{$autoimportSetting[0]->emailNotificationOnSuccess}}" />
+                                </div>
+
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group ">
+                                    <label for="field-5" class="control-label">Fail Notification on Email</label>
+                                    <br>
+                                    <input type="text" name="emailNotificationOnFail" class="form-control" value="{{$autoimportSetting[0]->emailNotificationOnFail}}" />
                                 </div>
 
                             </div>

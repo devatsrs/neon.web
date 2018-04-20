@@ -25,7 +25,8 @@ class AutoImportInboxSetting extends \Eloquent
               'validate_cert' => $data['validate_cert'],
               'username' => $data['username'],
               'password' => $data['password'],
-              'emailNotification' => $data['emailNotification'],
+              'emailNotificationOnSuccess' => $data['emailNotificationOnSuccess'],
+              'emailNotificationOnFail' => $data['emailNotificationOnFail'],
               'SendCopyToAccount' => $data['SendCopyToAccount'],
               'updated_at' => date('Y-m-d H:i:s')
             ]);
