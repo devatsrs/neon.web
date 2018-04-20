@@ -51,26 +51,31 @@ class AccountBilling extends \Eloquent {
             } else if (!empty($AccountBilling['BillingStartDate'])) {
                 $BillingStartDate = strtotime($AccountBilling['BillingStartDate']);
             }
+            if (!empty($data['LastChargeDate'])) {
+                $AccountBilling['LastChargeDate'] = $data['LastChargeDate'];
+            } elseif (!empty($data['BillingStartDate'])) {
+                $AccountBilling['LastChargeDate'] = $data['BillingStartDate'];
+            }
             if (!empty($BillingStartDate)) {
-                if(isset($data['FirstInvoiceSend']) && $data['FirstInvoiceSend']==1){
-                    if (!empty($data['LastInvoiceDate'])) {
-                        $AccountBilling['NextInvoiceDate'] = $data['LastInvoiceDate'];
-                    }else{
-                        $AccountBilling['NextInvoiceDate'] = $data['BillingStartDate'];
-                    }
+                //$AccountBilling['NextInvoiceDate'] = next_billing_date($AccountBilling['BillingCycleType'], $AccountBilling['BillingCycleValue'], $BillingStartDate);
+                if(!empty($data['NextInvoiceDate'])){
+                    $AccountBilling['NextInvoiceDate'] = $data['NextInvoiceDate'];
                 }else{
                     $AccountBilling['NextInvoiceDate'] = next_billing_date($AccountBilling['BillingCycleType'], $AccountBilling['BillingCycleValue'], $BillingStartDate);
                 }
-            }
-            if(isset($data['FirstInvoiceSend'])){
-                $AccountBilling['FirstInvoiceSend'] = $data['FirstInvoiceSend'];
+
+                if(!empty($data['NextChargeDate'])){
+                    $AccountBilling['NextChargeDate'] = $data['NextChargeDate'];
+                }else{
+                    $AccountBilling['NextChargeDate'] = next_billing_date($AccountBilling['BillingCycleType'], $AccountBilling['BillingCycleValue'], $BillingStartDate);
+                }
             }
             $AccountBilling['AccountID'] = $AccountID;
             $AccountBilling['ServiceID'] = $ServiceID;
             AccountBilling::create($AccountBilling);
         }else{
             $AccountBillingObj =  AccountBilling::getBilling($AccountID,$ServiceID);
-            if($AccountBillingObj->BillingCycleType != 'manual' && $data['BillingCycleType'] != 'manual' && (AccountDiscountPlan::checkDiscountPlan($AccountID) > 0 || $invoice_count > 0)) {
+            if($AccountBillingObj->BillingCycleType != 'manual' && $data['BillingCycleType'] != 'manual' && (AccountDiscountPlan::checkDiscountPlan($AccountID) > 0)) {
                 AccountNextBilling::insertUpdateBilling($AccountID, $data, $ServiceID);
             }else{
                 if($data['BillingCycleType'] == 'manual') {
@@ -90,23 +95,31 @@ class AccountBilling extends \Eloquent {
                 } elseif (!empty($data['BillingStartDate'])) {
                     $AccountBilling['LastInvoiceDate'] = $data['BillingStartDate'];
                 }
+                if (!empty($data['LastChargeDate'])) {
+                    $AccountBilling['LastChargeDate'] = $data['LastChargeDate'];
+                } elseif (!empty($data['BillingStartDate'])) {
+                    $AccountBilling['LastChargeDate'] = $data['BillingStartDate'];
+                }
                 if (!empty($AccountBilling['LastInvoiceDate'])) {
                     $BillingStartDate = strtotime($AccountBilling['LastInvoiceDate']);
                 } else if (!empty($AccountBilling['BillingStartDate'])) {
                     $BillingStartDate = strtotime($AccountBilling['BillingStartDate']);
                 }
                 if (!empty($BillingStartDate) && $data['BillingCycleType'] != 'manual') {
-                    if(isset($data['FirstInvoiceSend']) && $data['FirstInvoiceSend']==1 && $invoice_count==0){
-                        if (!empty($data['LastInvoiceDate'])) {
-                            $AccountBilling['NextInvoiceDate'] = $data['LastInvoiceDate'];
-                        }else{
-                            $AccountBilling['NextInvoiceDate'] = $data['BillingStartDate'];
-                        }
+                    if(!empty($data['NextInvoiceDate'])){
+                        $AccountBilling['NextInvoiceDate'] = $data['NextInvoiceDate'];
                     }else{
                         $AccountBilling['NextInvoiceDate'] = next_billing_date($AccountBilling['BillingCycleType'], $AccountBilling['BillingCycleValue'], $BillingStartDate);
                     }
+
+                    if(!empty($data['NextChargeDate'])){
+                        $AccountBilling['NextChargeDate'] = $data['NextChargeDate'];
+                    }else{
+                        $AccountBilling['NextChargeDate'] = next_billing_date($AccountBilling['BillingCycleType'], $AccountBilling['BillingCycleValue'], $BillingStartDate);
+                    }
                 }else if($data['BillingCycleType'] == 'manual'){
                     $AccountBilling['NextInvoiceDate'] = null;
+                    $AccountBilling['NextChargeDate'] = null;
                 }
 
             }
@@ -126,9 +139,6 @@ class AccountBilling extends \Eloquent {
             }
             if (!empty($data['AutoPaymentSetting'])) {
                 $AccountBilling['AutoPaymentSetting'] = $data['AutoPaymentSetting'];
-            }
-            if(isset($data['FirstInvoiceSend'])){
-                $AccountBilling['FirstInvoiceSend'] = $data['FirstInvoiceSend'];
             }
             if(!empty($AccountBilling)){
                 AccountBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->update($AccountBilling);
