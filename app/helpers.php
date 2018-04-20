@@ -2655,3 +2655,11 @@ function js_labels(){
     }
     return $html;
 }
+function cleanarray($data = [],$unset=[]){
+    foreach($unset as $item){
+        if(array_key_exists($item,$data)){
+            unset($data[$item]);
+        }
+    }
+    return $data;
+}

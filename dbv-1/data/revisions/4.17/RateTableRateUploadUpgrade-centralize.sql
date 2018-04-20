@@ -4461,7 +4461,7 @@ ThisSP:BEGIN
 					((p_Critearea_Code IS NULL) OR (p_Critearea_Code IS NOT NULL AND r.Code LIKE REPLACE(p_Critearea_Code,'*', '%'))) AND
 					((p_Critearea_Description IS NULL) OR (p_Critearea_Description IS NOT NULL AND r.Description LIKE REPLACE(p_Critearea_Description,'*', '%'))) AND
 					(
-					--	p_Critearea_Effective = 'All' OR
+						p_Critearea_Effective = 'All' OR
 						(p_Critearea_Effective = 'Now' AND v.EffectiveDate <= NOW() ) OR
 						(p_Critearea_Effective = 'Future' AND v.EffectiveDate > NOW() )
 					)
@@ -4695,7 +4695,7 @@ ThisSP:BEGIN
 					((p_Critearea_Code IS NULL) OR (p_Critearea_Code IS NOT NULL AND r.Code LIKE REPLACE(p_Critearea_Code,'*', '%'))) AND
 					((p_Critearea_Description IS NULL) OR (p_Critearea_Description IS NOT NULL AND r.Description LIKE REPLACE(p_Critearea_Description,'*', '%'))) AND
 					(
-					--	p_Critearea_Effective = 'All' OR
+						p_Critearea_Effective = 'All' OR
 						(p_Critearea_Effective = 'Now' AND rtr.EffectiveDate <= NOW() ) OR
 						(p_Critearea_Effective = 'Future' AND rtr.EffectiveDate > NOW() )
 					)
