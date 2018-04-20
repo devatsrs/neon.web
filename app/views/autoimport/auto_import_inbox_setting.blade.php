@@ -22,6 +22,7 @@
             <form id="add-new-form" method="post">
 
 
+
                 <div class="panel panel-primary" data-collapsed="0">
                     <div class="panel-heading">
                         <div class="panel-options">
@@ -32,42 +33,42 @@
                     <div class="panel-body">
 
 
-                            <div class="col-md-3">
+
+                            <div class="col-md-12">
+
                                 <input type="hidden" name="CompanyID" value="{{$autoimportSetting[0]->CompanyID}}">
-                                <div class="col-md-12">
+                                <div class="col-md-6">
                                     <div class="form-group ">
-                                        <label for="field-5" class="control-label">Host</label>
+                                        <label for="field-5" class="control-label">SMTP Server (Host)</label>
                                         <input type="text" name="host" class="form-control" value="{{$autoimportSetting[0]->host}}" />
                                     </div>
                                 </div>
-                                <div class="col-md-12">
+                                <div class="col-md-6">
                                     <div class="form-group ">
                                         <label for="field-5" class="control-label">Port</label>
                                         <input type="text" name="port" class="form-control" value="{{$autoimportSetting[0]->port}}" />
                                     </div>
                                 </div>
-                                <div class="col-md-12">
+                                <div class="col-md-6">
                                     <div class="form-group ">
-                                        <label for="field-5" class="control-label">Encryption</label>
-                                        <input type="text" name="encryption" class="form-control" value="{{$autoimportSetting[0]->encryption}}" />
-                                    </div>
-                                </div>
-                                <div class="col-md-12">
-                                    <div class="form-group ">
-                                        <label for="field-5" class="control-label">Validate_cert</label>
-                                        <input type="text" name="validate_cert" class="form-control" value="{{$autoimportSetting[0]->validate_cert}}" />
-                                    </div>
-                                </div>
-                                <div class="col-md-12">
-                                    <div class="form-group ">
-                                        <label for="field-5" class="control-label">Username</label>
+                                        <label for="field-5" class="control-label">SMTP User</label>
                                         <input type="text" name="username" class="form-control" value="{{$autoimportSetting[0]->username}}" />
                                     </div>
                                 </div>
-                                <div class="col-md-12">
+                                <div class="col-md-6">
                                     <div class="form-group ">
                                         <label for="field-5" class="control-label">Password</label>
-                                        <input type="text" name="password" class="form-control" value="{{$autoimportSetting[0]->password}}" />
+                                        <input type="password" name="password" class="form-control" value="{{$autoimportSetting[0]->password}}" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group ">
+                                        <label for="field-5" class="control-label">Enable SSL</label>
+                                        <div class="clear">
+                                            <p class="make-switch switch-small">
+                                                <input type="checkbox" {{$autoimportSetting["encryption"]}}  name="encryption" >
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -86,18 +87,17 @@
                         Error Notification
                     </div>
                     <div class="panel-body">
-                        <div class="col-md-3">
+                        <div class="col-md-12">
                             <input type="hidden" name="CompanyID" value="{{$autoimportSetting[0]->CompanyID}}">
-                            <div class="col-md-12">
+                            <div class="col-md-6">
                                 <div class="form-group ">
                                     <label for="field-5" class="control-label">Notification Email</label>
                                     <br>
-                                    <label class="radio-inline"><input type="radio" {{$autoimportSetting["SuccessNotify"]}} name="emailNotification" value="S">Success</label>
-                                    <label class="radio-inline"><input type="radio" {{$autoimportSetting["FailNotify"]}} name="emailNotification" value="F">Fail</label>
+                                    <input type="text" name="emailNotification" class="form-control" value="{{$autoimportSetting[0]->emailNotification}}" />
                                 </div>
 
                             </div>
-                            <div class="col-md-12">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Send a copy to Account Owner </label>
                                     <div class="clear">
