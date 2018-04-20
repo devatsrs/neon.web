@@ -120,6 +120,26 @@
         <li> <a href="{{URL::to('/vendor_profiling')}}">  <span>Vendor Profiling</span> </a> </li>
         @endif
 
+        {{--  for the Auto import link  --}}
+        @if(User::checkCategoryPermission('TicketImportRules','View'))
+          <li class="{{check_uri('AutoImport')}}"> <a href="#">  <span>Rate Import </span>
+              <span onclick="location.href=$(this).attr('href');" href="{{URL::to('tickets/add')}}" class="last"></span></a>
+
+            <ul >
+              @if(User::checkCategoryPermission('TicketDashboard','View'))
+                <li> <a href="{{URL::to('/auto_rate_import/import_inbox_setting')}}">  <span>Import Inbox Settings</span> </a> </li>
+              @endif
+              @if(User::checkCategoryPermission('TicketDashboard','View'))
+                <li> <a href="{{URL::to('/auto_rate_import/account_setting')}}">  <span>Account Settings</span> </a> </li>
+              @endif
+              @if(User::checkCategoryPermission('AutoRateImportController','View'))
+                <li> <a href="{{URL::to('/auto_rate_import/ratetable_setting')}}">  <span>Rate Table Settings </span> </a> </li>
+              @endif
+            </ul>
+          </li>
+        @endif
+        {{--  for the Auto import link  --}}
+
       </ul>
     </li>
     @endif
