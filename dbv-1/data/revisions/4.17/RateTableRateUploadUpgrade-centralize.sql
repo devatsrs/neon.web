@@ -1,5 +1,30 @@
 use Ratemanagement3;
 
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1332, 'RateUpload.All', 1, 5);
+
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('RateUpload.missingMethod', 'RateUploadController.missingMethod', 1, 'Sumera Saeed', NULL, '2018-03-27 17:44:01.000', '2018-03-27 17:44:01.000', 1332);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('RateUpload.getAllowedActions', 'RateUploadController.getAllowedActions', 1, 'Sumera Saeed', NULL, '2018-03-27 17:44:01.000', '2018-03-27 17:44:01.000', 1332);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('RateUpload.get', 'RateUploadController.get', 1, 'Sumera Saeed', NULL, '2018-03-27 17:44:01.000', '2018-03-27 17:44:01.000', 1332);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('RateUpload.destroy', 'RateUploadController.destroy', 1, 'Sumera Saeed', NULL, '2018-03-27 17:44:01.000', '2018-03-27 17:44:01.000', 1332);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('RateUpload.update', 'RateUploadController.update', 1, 'Sumera Saeed', NULL, '2018-03-27 17:44:01.000', '2018-03-27 17:44:01.000', 1332);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('RateUpload.edit', 'RateUploadController.edit', 1, 'Sumera Saeed', NULL, '2018-03-27 17:44:01.000', '2018-03-27 17:44:01.000', 1332);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('RateUpload.show', 'RateUploadController.show', 1, 'Sumera Saeed', NULL, '2018-03-27 17:44:01.000', '2018-03-27 17:44:01.000', 1332);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('RateUpload.store', 'RateUploadController.store', 1, 'Sumera Saeed', NULL, '2018-03-27 17:44:01.000', '2018-03-27 17:44:01.000', 1332);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('RateUpload.create', 'RateUploadController.create', 1, 'Sumera Saeed', NULL, '2018-03-27 17:44:01.000', '2018-03-27 17:44:01.000', 1332);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('RateUpload.*', 'RateUploadController.*', 1, 'Sumera Saeed', NULL, '2018-03-27 17:44:00.000', '2018-03-27 17:44:00.000', 1332);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('RateUpload.index', 'RateUploadController.index', 1, 'Sumera Saeed', NULL, '2018-03-27 17:44:00.000', '2018-03-27 17:44:00.000', 1332);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('RateUpload.getUploadTemplates', 'RateUploadController.getUploadTemplates', 1, 'Sumera Saeed', NULL, '2018-03-27 17:44:00.000', '2018-03-27 17:44:00.000', 1332);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('RateUpload.getTrunk', 'RateUploadController.getTrunk', 1, 'Sumera Saeed', NULL, '2018-03-27 17:44:00.000', '2018-03-27 17:44:00.000', 1332);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('RateUpload.checkUpload', 'RateUploadController.checkUpload', 1, 'Sumera Saeed', NULL, '2018-03-27 17:44:00.000', '2018-03-27 17:44:00.000', 1332);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('RateUpload.ajaxfilegrid', 'RateUploadController.ajaxfilegrid', 1, 'Sumera Saeed', NULL, '2018-03-27 17:44:00.000', '2018-03-27 17:44:00.000', 1332);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('RateUpload.storeTemplate', 'RateUploadController.storeTemplate', 1, 'Sumera Saeed', NULL, '2018-03-27 17:44:00.000', '2018-03-27 17:44:00.000', 1332);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('RateUpload.reviewRatesExports', 'RateUploadController.reviewRatesExports', 1, 'Sumera Saeed', NULL, '2018-03-27 17:44:00.000', '2018-03-27 17:44:00.000', 1332);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('RateUpload.getReviewRates', 'RateUploadController.getReviewRates', 1, 'Sumera Saeed', NULL, '2018-03-27 17:44:00.000', '2018-03-27 17:44:00.000', 1332);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('RateUpload.reviewRates', 'RateUploadController.reviewRates', 1, 'Sumera Saeed', NULL, '2018-03-27 17:44:00.000', '2018-03-27 17:44:00.000', 1332);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('RateUpload.updateTempReviewRates', 'RateUploadController.updateTempReviewRates', 1, 'Sumera Saeed', NULL, '2018-03-27 17:44:00.000', '2018-03-27 17:44:00.000', 1332);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('RateUpload.getSheetNamesFromExcel', 'RateUploadController.getSheetNamesFromExcel', 1, 'Sumera Saeed', NULL, '2018-03-27 17:44:00.000', '2018-03-27 17:44:00.000', 1332);
+
+
 -- set sql_mode='';
 ALTER TABLE `tblRateTableRate`
 	ADD COLUMN `EndDate` DATE NULL AFTER `EffectiveDate`;
@@ -692,14 +717,56 @@ ThisSP:BEGIN
 			IF totaldialstringcode > 0
 			THEN
 
-				INSERT INTO tmp_JobLog_ (Message)
+				/*INSERT INTO tmp_JobLog_ (Message)
 				SELECT DISTINCT CONCAT(Code ,' ', vr.DialStringPrefix , ' No PREFIX FOUND')
 				FROM tmp_TempRateTableRate_ vr
 				LEFT JOIN tmp_DialString_ ds
 					ON ((vr.Code = ds.ChargeCode and vr.DialStringPrefix = '') OR (vr.DialStringPrefix != '' and vr.DialStringPrefix =  ds.DialString and vr.Code = ds.ChargeCode  ))
 				WHERE vr.ProcessId = p_processId
 					AND ds.DialStringID IS NULL
-					AND vr.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
+					AND vr.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');*/
+
+				-- Insert new dialstring if not exist
+				INSERT INTO tblDialStringCode (DialStringID,DialString,ChargeCode,created_by)
+				  SELECT DISTINCT p_dialStringId,vr.DialStringPrefix, Code, 'RMService'
+					FROM tmp_TempRateTableRate_ vr
+						LEFT JOIN tmp_DialString_ ds
+
+							ON ((vr.Code = ds.ChargeCode and vr.DialStringPrefix = '') OR (vr.DialStringPrefix != '' and vr.DialStringPrefix =  ds.DialString and vr.Code = ds.ChargeCode  ))
+						WHERE vr.ProcessId = p_processId
+							AND ds.DialStringID IS NULL
+							AND vr.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
+
+				TRUNCATE tmp_DialString_;
+				INSERT INTO tmp_DialString_
+					SELECT DISTINCT
+						`DialStringID`,
+						`DialString`,
+						`ChargeCode`,
+						`Description`,
+						`Forbidden`
+					FROM tblDialStringCode
+						WHERE DialStringID = p_dialstringid;
+
+				SELECT  COUNT(*) as count INTO totaldialstringcode
+				FROM tmp_TempRateTableRate_ vr
+					LEFT JOIN tmp_DialString_ ds
+						ON ((vr.Code = ds.ChargeCode and vr.DialStringPrefix = '') OR (vr.DialStringPrefix != '' and vr.DialStringPrefix =  ds.DialString and vr.Code = ds.ChargeCode  ))
+
+					WHERE vr.ProcessId = p_processId
+						AND ds.DialStringID IS NULL
+						AND vr.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
+
+				INSERT INTO tmp_JobLog_ (Message)
+					  SELECT DISTINCT CONCAT(Code ,' ', vr.DialStringPrefix , ' No PREFIX FOUND')
+					  	FROM tmp_TempRateTableRate_ vr
+							LEFT JOIN tmp_DialString_ ds
+
+								ON ((vr.Code = ds.ChargeCode and vr.DialStringPrefix = '') OR (vr.DialStringPrefix != '' and vr.DialStringPrefix =  ds.DialString and vr.Code = ds.ChargeCode  ))
+							WHERE vr.ProcessId = p_processId
+								AND ds.DialStringID IS NULL
+								AND vr.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
+
 			END IF;
 
 			IF totaldialstringcode = 0
@@ -3395,7 +3462,7 @@ BEGIN
         ifnull(tblRateTableRate.Interval1,1) as Interval1,
         ifnull(tblRateTableRate.IntervalN,1) as IntervalN,
 		  tblRateTableRate.ConnectionFee,
-        IFNULL(tblRateTableRate.PreviousRate, 0) as PreviousRate,
+        null as PreviousRate,
         IFNULL(tblRateTableRate.Rate, 0) as Rate,
         IFNULL(tblRateTableRate.EffectiveDate, NOW()) as EffectiveDate,
         tblRateTableRate.EndDate,
@@ -3426,6 +3493,19 @@ BEGIN
          DELETE n1 FROM tmp_RateTableRate_ n1, tmp_RateTableRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
 		   AND  n1.RateID = n2.RateID;
 		END IF;
+
+	-- update Previous Rates
+	UPDATE
+		tmp_RateTableRate_ tr
+	SET
+		PreviousRate = (SELECT Rate FROM tblRateTableRate WHERE RateTableID=p_RateTableId AND RateID=tr.RateID AND Code=tr.Code AND EffectiveDate<tr.EffectiveDate ORDER BY EffectiveDate DESC,RateTableRateID DESC LIMIT 1);
+
+	UPDATE
+		tmp_RateTableRate_ tr
+	SET
+		PreviousRate = (SELECT Rate FROM tblRateTableRateArchive WHERE RateTableID=p_RateTableId AND RateID=tr.RateID AND Code=tr.Code AND EffectiveDate<tr.EffectiveDate ORDER BY EffectiveDate DESC,RateTableRateID DESC LIMIT 1)
+	WHERE
+		PreviousRate is null;
 
     IF p_isExport = 0
     THEN
@@ -3955,5 +4035,1172 @@ BEGIN
 		FIND_IN_SET (r.Code, p_Codes) != 0
 	ORDER BY
 		vra.EffectiveDate DESC, vra.created_at DESC;
+END//
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_RateTableRateInsertUpdate`;
+DELIMITER //
+CREATE PROCEDURE `prc_RateTableRateInsertUpdate`(
+	IN `p_CompanyID` INT,
+	IN `p_RateTableRateID` LONGTEXT,
+	IN `p_RateTableId` INT ,
+	IN `p_Rate` DECIMAL(18, 6) ,
+	IN `p_EffectiveDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_ModifiedBy` VARCHAR(50),
+	IN `p_Interval1` INT,
+	IN `p_IntervalN` INT,
+	IN `p_ConnectionFee` DECIMAL(18, 6),
+	IN `p_Critearea` INT,
+	IN `p_Critearea_TrunkID` INT,
+	IN `p_Critearea_CountryID` INT,
+	IN `p_Critearea_Code` VARCHAR(50),
+	IN `p_Critearea_Description` VARCHAR(50),
+	IN `p_Critearea_Effective` VARCHAR(50),
+	IN `p_Update_EffectiveDate` INT,
+	IN `p_Update_EndDate` INT,
+	IN `p_Update_Rate` INT,
+	IN `p_Update_Interval1` INT,
+	IN `p_Update_IntervalN` INT,
+	IN `p_Update_ConnectionFee` INT,
+	IN `p_Action` INT
+)
+ThisSP:BEGIN
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+    DROP TEMPORARY TABLE IF EXISTS tmp_Update_RateTable_;
+    CREATE TEMPORARY TABLE tmp_Update_RateTable_ (
+      RateID INT,
+      EffectiveDate DATE,
+      RateTableRateID INT
+    );
+
+    DROP TEMPORARY TABLE IF EXISTS tmp_Insert_RateTable_;
+    CREATE TEMPORARY TABLE tmp_Insert_RateTable_ (
+      RateID INT,
+      EffectiveDate DATE,
+      RateTableRateID INT
+    );
+
+    DROP TEMPORARY TABLE IF EXISTS tmp_all_RateId_;
+    CREATE TEMPORARY TABLE tmp_all_RateId_ (
+      RateID INT,
+      EffectiveDate DATE,
+      RateTableRateID INT
+	  );
+
+
+    DROP TEMPORARY TABLE IF EXISTS tmp_RateTable_;
+      CREATE TEMPORARY TABLE tmp_RateTable_ (
+         RateID INT,
+         EffectiveDate DATE,
+         RateTableRateID INT,
+			INDEX tmp_RateTable_RateId (`RateId`)
+     );
+
+   IF p_Critearea = 0
+	THEN
+ 		INSERT INTO tmp_RateTable_
+			  SELECT RateID,EffectiveDate,RateTableRateID
+			   FROM tblRateTableRate
+					WHERE (FIND_IN_SET(RateTableRateID,p_RateTableRateID) != 0 );
+
+	END IF;
+
+
+	IF p_Critearea = 1
+	THEN
+
+
+		 INSERT INTO tmp_RateTable_
+				SELECT
+					 tblRateTableRate.RateID,
+                IFNULL(tblRateTableRate.EffectiveDate, NOW()) as EffectiveDate,
+                tblRateTableRate.RateTableRateID
+            FROM tblRate
+            LEFT JOIN tblRateTableRate
+                ON tblRateTableRate.RateID = tblRate.RateID
+                AND tblRateTableRate.RateTableId = p_RateTableId
+            INNER JOIN tblRateTable
+                ON tblRateTable.RateTableId = tblRateTableRate.RateTableId
+            WHERE		(tblRate.CompanyID = p_CompanyID)
+					AND (p_Critearea_CountryID = 0 OR CountryID = p_Critearea_CountryID)
+					AND (p_Critearea_Code IS NULL OR Code LIKE REPLACE(p_Critearea_Code, '*', '%'))
+					AND (p_Critearea_Description IS NULL OR Description LIKE REPLACE(p_Critearea_Description, '*', '%'))
+					AND TrunkID = p_Critearea_TrunkID
+					AND (
+							p_Critearea_Effective = 'All'
+						OR (p_Critearea_Effective = 'Now' AND EffectiveDate <= NOW() )
+						OR (p_Critearea_Effective = 'Future' AND EffectiveDate > NOW())
+						);
+
+		  IF p_Critearea_Effective = 'Now'
+		  THEN
+			 CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTable4_ as (select * from tmp_RateTable_);
+          DELETE n1 FROM tmp_RateTable_ n1, tmp_RateTable4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
+	 	   AND  n1.RateId = n2.RateId;
+
+		  END IF;
+
+	END IF;
+
+	IF p_action = 1
+	THEN
+
+	IF p_Update_EffectiveDate = 0
+	THEN
+
+	INSERT INTO tmp_Update_RateTable_
+		SELECT RateID,EffectiveDate,RateTableRateID
+			 FROM tmp_RateTable_ ;
+
+	END IF;
+
+	IF p_Update_EffectiveDate = 1
+	THEN
+
+
+		INSERT INTO tmp_Update_RateTable_
+		SELECT tblRateTableRate.RateID,
+				p_EffectiveDate,
+				tblRateTableRate.RateTableRateID
+			 FROM tblRateTableRate
+			 	INNER JOIN tmp_RateTable_ r on tblRateTableRate.RateID = r.RateID
+			 	 WHERE RateTableId = p_RateTableId
+					AND tblRateTableRate.EffectiveDate = p_EffectiveDate;
+
+		INSERT INTO tmp_all_RateId_
+		SELECT  tblRateTableRate.RateID,
+					MAX(tblRateTableRate.EffectiveDate),
+					MAX(tblRateTableRate.RateTableRateID)
+				 FROM tblRateTableRate
+				 	 INNER JOIN tmp_RateTable_ r on tblRateTableRate.RateID = r.RateID
+					 	 WHERE tblRateTableRate.RateTableId = p_RateTableId
+						  GROUP BY tblRateTableRate.RateID;
+
+		INSERT INTO tmp_Insert_RateTable_
+		SELECT r.RateID,p_EffectiveDate,r.RateTableRateID
+			 FROM tmp_all_RateId_ r
+			 	 LEFT JOIN tmp_Update_RateTable_ ur
+					 ON r.RateID=ur.RateID
+			   WHERE ur.RateID is null ;
+
+
+		INSERT INTO tblRateTableRate (
+			RateID,
+			RateTableId,
+			Rate,
+			PreviousRate,
+			EffectiveDate,
+			created_at,
+			CreatedBy,
+			Interval1,
+			IntervalN,
+			ConnectionFee,
+			EndDate
+		)
+	    SELECT DISTINCT  tr.RateID,
+		 						RateTableId,
+		 						CASE WHEN p_Update_Rate = 1
+									THEN
+										p_Rate
+									ELSE
+										tr.Rate
+									END
+								AS Rate,
+								tr.Rate AS PreviousRate,
+								p_EffectiveDate as EffectiveDate,
+								NOW() as created_at,
+								p_ModifiedBy as CreatedBy,
+								CASE WHEN p_Update_Interval1 = 1
+									THEN
+										p_Interval1
+									ELSE
+										tr.Interval1
+									END
+								AS Interval1,
+								CASE WHEN p_Update_IntervalN = 1
+									THEN
+										p_IntervalN
+									ELSE
+										tr.IntervalN
+									END
+								AS IntervalN,
+								CASE WHEN p_Update_ConnectionFee = 1
+									THEN
+										p_ConnectionFee
+									ELSE
+										tr.ConnectionFee
+									END
+								AS ConnectionFee,
+								CASE WHEN p_Update_EndDate = 1
+									THEN
+										p_EndDate
+									ELSE
+										tr.EndDate
+									END
+								AS EndDate
+			 FROM tblRateTableRate tr
+		   	 INNER JOIN tmp_Insert_RateTable_ r
+			 		 ON  r.RateID = tr.RateID
+			 		 	AND r.RateTableRateID = tr.RateTableRateID
+	   		 		AND  RateTableId = p_RateTableId;
+
+
+
+
+			-- update  previous rate with all latest recent entriy of previous effective date
+			UPDATE tblRateTableRate rtr
+			inner join
+			(
+				-- get all rates RowID = 1 to remove old to old effective date
+
+				select distinct rt1.* ,
+				@row_num := IF(@prev_RateId = rt1.RateID AND @prev_EffectiveDate >= rt1.EffectiveDate, @row_num + 1, 1) AS RowID,
+				@prev_RateId := rt1.RateID,
+				@prev_EffectiveDate := rt1.EffectiveDate
+				from tblRateTableRate rt1
+				inner join tmp_Insert_RateTable_ rt2
+				on rt1.RateTableId = p_RateTableId and rt1.RateID = rt2.RateID
+				and rt1.EffectiveDate < rt2.EffectiveDate
+				where
+				rt1.RateTableID = p_RateTableId
+				order by rt1.RateID desc ,rt1.EffectiveDate desc
+
+			) old_rtr on  old_rtr.RateTableID = rtr.RateTableID  and old_rtr.RateID = rtr.RateID and old_rtr.EffectiveDate < rtr.EffectiveDate AND rtr.EffectiveDate =  p_EffectiveDate AND old_rtr.RowID = 1
+			SET rtr.PreviousRate = old_rtr.Rate
+			where
+			rtr.RateTableID = p_RateTableId;
+
+
+	END IF;
+
+
+
+	SET @stm = '';
+
+	IF p_Update_Rate = 1
+	THEN
+		SET @stm = CONCAT(@stm,',Rate = ',p_Rate);
+	END IF;
+
+	IF p_Update_Interval1 = 1
+	THEN
+		SET @stm = CONCAT(@stm,',Interval1 = ',p_Interval1);
+	END IF;
+
+	IF p_Update_IntervalN = 1
+	THEN
+		SET @stm = CONCAT(@stm,',IntervalN = ',p_IntervalN);
+	END IF;
+
+	IF p_Update_ConnectionFee = 1
+	THEN
+		SET @stm = CONCAT(@stm,',ConnectionFee = ',p_ConnectionFee);
+	END IF;
+
+	IF p_Update_EndDate = 1
+	THEN
+		SET @stm = CONCAT(@stm,',EndDate = ','"',p_EndDate,'"');
+	END IF;
+
+	IF @stm != ''
+	THEN
+			SET @stm = CONCAT('
+							UPDATE tblRateTableRate tr
+						    INNER JOIN tmp_Update_RateTable_ r
+							 	 ON  r.RateID = tr.RateID
+							 	 	AND r.RateTableRateID = tr.RateTableRateID
+										SET updated_at=NOW(),ModifiedBy="',p_ModifiedBy,'"',@stm,'
+								    WHERE  RateTableId = ',p_RateTableId,';
+						');
+
+			PREPARE stmt FROM @stm;
+			EXECUTE stmt;
+			DEALLOCATE PREPARE stmt;
+
+
+
+
+
+	END IF;
+
+
+	-- Update previous rate
+   call prc_RateTableRateUpdatePreviousRate(p_RateTableId,p_EffectiveDate);
+
+
+	CALL prc_ArchiveOldRateTableRate(p_RateTableId,p_ModifiedBy);
+
+	END IF;
+
+	IF p_action = 2
+	THEN
+		DELETE tblRateTableRate
+			 FROM tblRateTableRate
+				INNER JOIN tmp_RateTable_
+					ON tblRateTableRate.RateTableRateID = tmp_RateTable_.RateTableRateID;
+
+
+	END IF;
+
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_VendorRateUpdateDelete`;
+DELIMITER //
+CREATE PROCEDURE `prc_VendorRateUpdateDelete`(
+	IN `p_CompanyId` INT,
+	IN `p_AccountId` INT,
+	IN `p_VendorRateId` LONGTEXT,
+	IN `p_EffectiveDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_Rate` decimal(18,6),
+	IN `p_Interval1` INT,
+	IN `p_IntervalN` INT,
+	IN `p_ConnectionFee` decimal(18,6),
+	IN `p_Critearea_CountryId` INT,
+	IN `p_Critearea_Code` varchar(50),
+	IN `p_Critearea_Description` varchar(200),
+	IN `p_Critearea_Effective` VARCHAR(50),
+	IN `p_TrunkId` INT,
+	IN `p_ModifiedBy` varchar(50),
+	IN `p_Critearea` INT,
+	IN `p_action` INT
+)
+ThisSP:BEGIN
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	--	p_action = 1 = update rates
+	--	p_action = 2 = delete rates
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_TempVendorRate_;
+	CREATE TEMPORARY TABLE tmp_TempVendorRate_ (
+		`VendorRateId` int(11) NOT NULL,
+		`RateId` int(11) NOT NULL,
+		`AccountId` int(11) NOT NULL,
+		`TrunkID` int(11) NOT NULL,
+		`Rate` decimal(18,6) NOT NULL DEFAULT '0.000000',
+		`EffectiveDate` datetime NOT NULL,
+		`EndDate` datetime DEFAULT NULL,
+		`updated_at` datetime DEFAULT NULL,
+		`created_at` datetime DEFAULT NULL,
+		`created_by` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`updated_by` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`Interval1` int(11) DEFAULT NULL,
+		`IntervalN` int(11) DEFAULT NULL,
+		`ConnectionFee` decimal(18,6) DEFAULT NULL,
+		`MinimumCost` decimal(18,6) DEFAULT NULL
+	);
+
+	INSERT INTO tmp_TempVendorRate_
+	SELECT
+		v.VendorRateId,
+		v.RateId,
+		v.AccountId,
+		v.TrunkID,
+		IFNULL(p_Rate,v.Rate) AS Rate,
+		IFNULL(p_EffectiveDate,v.EffectiveDate) AS EffectiveDate,
+		IFNULL(p_EndDate,v.EndDate) AS EndDate,
+		NOW() AS updated_at,
+		v.created_at,
+		v.created_by,
+		p_ModifiedBy AS updated_by,
+		IFNULL(p_Interval1,v.Interval1) AS Interval1,
+		IFNULL(p_IntervalN,v.IntervalN) AS IntervalN,
+		IFNULL(p_ConnectionFee,v.ConnectionFee) AS ConnectionFee,
+		v.MinimumCost
+	FROM
+		tblVendorRate v
+	INNER JOIN
+		tblRate r ON r.RateID = v.RateId
+	INNER JOIN
+		tblVendorTrunk vt on vt.trunkID = p_TrunkId AND vt.AccountID = p_AccountId AND vt.CodeDeckId = r.CodeDeckId
+	WHERE
+		(
+			p_EffectiveDate IS NULL OR v.RateID NOT IN (
+				SELECT
+					RateID
+				FROM
+					tblVendorRate
+				WHERE
+					EffectiveDate=p_EffectiveDate AND
+					((p_Critearea = 0 AND (FIND_IN_SET(VendorRateID,p_VendorRateID) = 0 )) OR p_Critearea = 1)
+			)
+		)
+		AND
+		(
+			(p_Critearea = 0 AND (FIND_IN_SET(v.VendorRateID,p_VendorRateID) != 0 )) OR
+			(
+				p_Critearea = 1 AND
+				(
+					((p_Critearea_CountryId IS NULL) OR (p_Critearea_CountryId IS NOT NULL AND r.CountryId = p_Critearea_CountryId)) AND
+					((p_Critearea_Code IS NULL) OR (p_Critearea_Code IS NOT NULL AND r.Code LIKE REPLACE(p_Critearea_Code,'*', '%'))) AND
+					((p_Critearea_Description IS NULL) OR (p_Critearea_Description IS NOT NULL AND r.Description LIKE REPLACE(p_Critearea_Description,'*', '%'))) AND
+					(
+						p_Critearea_Effective = 'All' OR
+						(p_Critearea_Effective = 'Now' AND v.EffectiveDate <= NOW() ) OR
+						(p_Critearea_Effective = 'Future' AND v.EffectiveDate > NOW() )
+					)
+				)
+			)
+		) AND
+		v.AccountId = p_AccountId AND
+		v.TrunkID = p_TrunkId;
+
+--	select * from tmp_TempVendorRate_;LEAVE ThisSP;
+
+	-- if Effective Date needs to change then remove duplicate codes
+	IF p_action = 1 AND p_EffectiveDate IS NOT NULL
+	THEN
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_TempVendorRate_2 as (select * from tmp_TempVendorRate_);
+
+		DELETE n1 FROM tmp_TempVendorRate_ n1, tmp_TempVendorRate_2 n2 WHERE n1.VendorRateID < n2.VendorRateID AND  n1.RateID = n2.RateID;
+	END IF;
+
+	-- archive and delete rates if action is 2 and also delete rates if action is 1 and rates are updating
+	UPDATE
+		tblVendorRate v
+	INNER JOIN
+		tmp_TempVendorRate_ temp ON temp.VendorRateID = v.VendorRateID
+	SET
+		v.EndDate = NOW()
+	WHERE
+		temp.VendorRateID = v.VendorRateID;
+
+	CALL prc_ArchiveOldVendorRate(p_AccountId,p_TrunkId,p_ModifiedBy);
+
+	IF p_action = 1
+	THEN
+
+		INSERT INTO tblVendorRate (
+			RateId,
+			AccountId,
+			TrunkID,
+			Rate,
+			EffectiveDate,
+			EndDate,
+			updated_at,
+			created_at,
+			created_by,
+			updated_by,
+			Interval1,
+			IntervalN,
+			ConnectionFee,
+			MinimumCost
+		)
+		select
+			RateId,
+			AccountId,
+			TrunkID,
+			Rate,
+			EffectiveDate,
+			EndDate,
+			updated_at,
+			created_at,
+			created_by,
+			updated_by,
+			Interval1,
+			IntervalN,
+			ConnectionFee,
+		MinimumCost
+		from
+			tmp_TempVendorRate_;
+
+	END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_WSCronJobDeleteOldRateTableRate`;
+DELIMITER //
+CREATE PROCEDURE `prc_WSCronJobDeleteOldRateTableRate`(
+	IN `p_DeletedBy` TEXT
+)
+ThisSP:BEGIN
+
+/*	 SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+   DELETE rtr
+      FROM tblRateTableRate rtr
+      INNER JOIN tblRateTableRate rtr2
+      ON rtr.RateTableId = rtr2.RateTableId
+      AND rtr.RateID = rtr2.RateID
+      WHERE rtr.EffectiveDate <= NOW()
+			AND rtr2.EffectiveDate <= NOW()
+         AND rtr.EffectiveDate < rtr2.EffectiveDate;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;      */
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	-- UPDATE tblRateTableRate SET EndDate=NULL where EndDate='0000-00-00';
+
+	INSERT INTO tblRateTableRateArchive
+   SELECT DISTINCT  null , -- Primary Key column
+							vr.`RateTableRateID`,
+							vr.`RateTableId`,
+							vr.`RateId`,
+							vr.`Rate`,
+							vr.`EffectiveDate`,
+							IFNULL(vr.`EndDate`,date(now())) as EndDate,
+							vr.`updated_at`,
+							now() as created_at,
+							p_DeletedBy AS `created_by`,
+							vr.`ModifiedBy`,
+							vr.`Interval1`,
+							vr.`IntervalN`,
+							vr.`ConnectionFee`,
+	   					concat('Ends Today rates @ ' , now() ) as `Notes`
+      FROM
+			tblRateTableRate vr
+		WHERE
+			vr.EndDate <= NOW();
+
+
+	DELETE  vr
+	FROM tblRateTableRate vr
+   inner join tblRateTableRateArchive vra
+   on vr.RateTableRateID = vra.RateTableRateID;
+
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
+
+
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_RateTableRateUpdateDelete`;
+DELIMITER //
+CREATE PROCEDURE `prc_RateTableRateUpdateDelete`(
+	IN `p_RateTableId` INT,
+	IN `p_RateTableRateId` LONGTEXT,
+	IN `p_EffectiveDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_Rate` decimal(18,6),
+	IN `p_Interval1` INT,
+	IN `p_IntervalN` INT,
+	IN `p_ConnectionFee` decimal(18,6),
+	IN `p_Critearea_CountryId` INT,
+	IN `p_Critearea_Code` varchar(50),
+	IN `p_Critearea_Description` varchar(200),
+	IN `p_Critearea_Effective` VARCHAR(50),
+	IN `p_ModifiedBy` varchar(50),
+	IN `p_Critearea` INT,
+	IN `p_action` INT
+)
+ThisSP:BEGIN
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	--	p_action = 1 = update rates
+	--	p_action = 2 = delete rates
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_TempRateTableRate_;
+	CREATE TEMPORARY TABLE tmp_TempRateTableRate_ (
+		`RateTableRateId` int(11) NOT NULL,
+		`RateId` int(11) NOT NULL,
+		`RateTableId` int(11) NOT NULL,
+		`Rate` decimal(18,6) NOT NULL DEFAULT '0.000000',
+		`EffectiveDate` datetime NOT NULL,
+		`EndDate` datetime DEFAULT NULL,
+		`created_at` datetime DEFAULT NULL,
+		`updated_at` datetime DEFAULT NULL,
+		`CreatedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`ModifiedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`Interval1` int(11) DEFAULT NULL,
+		`IntervalN` int(11) DEFAULT NULL,
+		`ConnectionFee` decimal(18,6) DEFAULT NULL
+	);
+
+	INSERT INTO tmp_TempRateTableRate_
+	SELECT
+		rtr.RateTableRateId,
+		rtr.RateId,
+		rtr.RateTableId,
+		IFNULL(p_Rate,rtr.Rate) AS Rate,
+		IFNULL(p_EffectiveDate,rtr.EffectiveDate) AS EffectiveDate,
+		IFNULL(p_EndDate,rtr.EndDate) AS EndDate,
+		rtr.created_at,
+		NOW() AS updated_at,
+		rtr.CreatedBy,
+		p_ModifiedBy AS ModifiedBy,
+		IFNULL(p_Interval1,rtr.Interval1) AS Interval1,
+		IFNULL(p_IntervalN,rtr.IntervalN) AS IntervalN,
+		IFNULL(p_ConnectionFee,rtr.ConnectionFee) AS ConnectionFee
+	FROM
+		tblRateTableRate rtr
+	INNER JOIN
+		tblRate r ON r.RateID = rtr.RateId
+	WHERE
+		(
+			p_EffectiveDate IS NULL OR rtr.RateID NOT IN (
+				SELECT
+					RateID
+				FROM
+					tblRateTableRate
+				WHERE
+					EffectiveDate=p_EffectiveDate AND
+					((p_Critearea = 0 AND (FIND_IN_SET(RateTableRateID,p_RateTableRateID) = 0 )) OR p_Critearea = 1)
+			)
+		)
+		AND
+		(
+			(p_Critearea = 0 AND (FIND_IN_SET(rtr.RateTableRateID,p_RateTableRateID) != 0 )) OR
+			(
+				p_Critearea = 1 AND
+				(
+					((p_Critearea_CountryId IS NULL) OR (p_Critearea_CountryId IS NOT NULL AND r.CountryId = p_Critearea_CountryId)) AND
+					((p_Critearea_Code IS NULL) OR (p_Critearea_Code IS NOT NULL AND r.Code LIKE REPLACE(p_Critearea_Code,'*', '%'))) AND
+					((p_Critearea_Description IS NULL) OR (p_Critearea_Description IS NOT NULL AND r.Description LIKE REPLACE(p_Critearea_Description,'*', '%'))) AND
+					(
+						p_Critearea_Effective = 'All' OR
+						(p_Critearea_Effective = 'Now' AND rtr.EffectiveDate <= NOW() ) OR
+						(p_Critearea_Effective = 'Future' AND rtr.EffectiveDate > NOW() )
+					)
+				)
+			)
+		) AND
+		rtr.RateTableId = p_RateTableId;
+
+	-- if Effective Date needs to change then remove duplicate codes
+	IF p_action = 1 AND p_EffectiveDate IS NOT NULL
+	THEN
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_TempRateTableRate_2 as (select * from tmp_TempRateTableRate_);
+
+      DELETE n1 FROM tmp_TempRateTableRate_ n1, tmp_TempRateTableRate_2 n2 WHERE n1.RateTableRateID < n2.RateTableRateID AND  n1.RateID = n2.RateID;
+	END IF;
+
+	-- select * from tmp_TempRateTableRate_;leave ThisSP;
+	-- archive and delete rates if action is 2 and also delete rates if action is 1 and rates are updating
+
+	UPDATE
+		tblRateTableRate rtr
+	INNER JOIN
+		tmp_TempRateTableRate_ temp ON temp.RateTableRateID = rtr.RateTableRateID
+	SET
+		rtr.EndDate = NOW()
+	WHERE
+		temp.RateTableRateID = rtr.RateTableRateID;
+
+	CALL prc_ArchiveOldRateTableRate(p_RateTableId,p_ModifiedBy);
+
+	IF p_action = 1
+	THEN
+
+		INSERT INTO tblRateTableRate (
+			RateId,
+			RateTableId,
+			Rate,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			Interval1,
+			IntervalN,
+			ConnectionFee
+		)
+		select
+			RateId,
+			RateTableId,
+			Rate,
+			EffectiveDate,
+			EndDate,
+			created_at,
+			updated_at,
+			CreatedBy,
+			ModifiedBy,
+			Interval1,
+			IntervalN,
+			ConnectionFee
+		from
+			tmp_TempRateTableRate_;
+
+	END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_checkDialstringAndDupliacteCode`;
+DELIMITER //
+CREATE PROCEDURE `prc_checkDialstringAndDupliacteCode`(
+	IN `p_companyId` INT,
+	IN `p_processId` VARCHAR(200) ,
+	IN `p_dialStringId` INT,
+	IN `p_effectiveImmediately` INT,
+	IN `p_dialcodeSeparator` VARCHAR(50)
+)
+ThisSP:BEGIN
+
+    DECLARE totaldialstringcode INT(11) DEFAULT 0;
+    DECLARE     v_CodeDeckId_ INT ;
+  	 DECLARE totalduplicatecode INT(11);
+  	 DECLARE errormessage longtext;
+	 DECLARE errorheader longtext;
+
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_VendorRateDialString_ ;
+	 CREATE TEMPORARY TABLE `tmp_VendorRateDialString_` (
+    					`TempVendorRateID` int,
+						`CodeDeckId` int ,
+						`Code` varchar(50) ,
+						`Description` varchar(200) ,
+						`Rate` decimal(18, 6) ,
+						`EffectiveDate` Datetime ,
+						`EndDate` Datetime ,
+						`Change` varchar(100) ,
+						`ProcessId` varchar(200) ,
+						`Preference` varchar(100) ,
+						`ConnectionFee` decimal(18, 6),
+						`Interval1` int,
+						`IntervalN` int,
+						`Forbidden` varchar(100) ,
+						`DialStringPrefix` varchar(500),
+						INDEX IX_code (code),
+						INDEX IX_CodeDeckId (CodeDeckId),
+						INDEX IX_Description (Description),
+						INDEX IX_EffectiveDate (EffectiveDate),
+						INDEX IX_DialStringPrefix (DialStringPrefix)
+					);
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_VendorRateDialString_2 ;
+	 CREATE TEMPORARY TABLE `tmp_VendorRateDialString_2` (
+    					`TempVendorRateID` int,
+						`CodeDeckId` int ,
+						`Code` varchar(50) ,
+						`Description` varchar(200) ,
+						`Rate` decimal(18, 6) ,
+						`EffectiveDate` Datetime ,
+						`EndDate` Datetime ,
+						`Change` varchar(100) ,
+						`ProcessId` varchar(200) ,
+						`Preference` varchar(100) ,
+						`ConnectionFee` decimal(18, 6),
+						`Interval1` int,
+						`IntervalN` int,
+						`Forbidden` varchar(100) ,
+						`DialStringPrefix` varchar(500),
+						INDEX IX_code (code),
+						INDEX IX_CodeDeckId (CodeDeckId),
+						INDEX IX_Description (Description),
+						INDEX IX_EffectiveDate (EffectiveDate),
+						INDEX IX_DialStringPrefix (DialStringPrefix)
+					);
+
+					DROP TEMPORARY TABLE IF EXISTS tmp_VendorRateDialString_3 ;
+	 CREATE TEMPORARY TABLE `tmp_VendorRateDialString_3` (
+    					`TempVendorRateID` int,
+						`CodeDeckId` int ,
+						`Code` varchar(50) ,
+						`Description` varchar(200) ,
+						`Rate` decimal(18, 6) ,
+						`EffectiveDate` Datetime ,
+						`EndDate` Datetime ,
+						`Change` varchar(100) ,
+						`ProcessId` varchar(200) ,
+						`Preference` varchar(100) ,
+						`ConnectionFee` decimal(18, 6),
+						`Interval1` int,
+						`IntervalN` int,
+						`Forbidden` varchar(100) ,
+						`DialStringPrefix` varchar(500),
+						INDEX IX_code (code),
+						INDEX IX_CodeDeckId (CodeDeckId),
+						INDEX IX_Description (Description),
+						INDEX IX_EffectiveDate (EffectiveDate),
+						INDEX IX_DialStringPrefix (DialStringPrefix)
+					);
+
+	CALL prc_SplitVendorRate(p_processId,p_dialcodeSeparator);
+
+		IF  p_effectiveImmediately = 1
+      THEN
+         UPDATE tmp_split_VendorRate_
+     	     	SET EffectiveDate = DATE_FORMAT (NOW(), '%Y-%m-%d')
+     		   WHERE EffectiveDate < DATE_FORMAT (NOW(), '%Y-%m-%d');
+
+
+   		UPDATE tmp_split_VendorRate_
+     	   	SET EndDate = DATE_FORMAT (NOW(), '%Y-%m-%d')
+     		   WHERE EndDate < DATE_FORMAT (NOW(), '%Y-%m-%d');
+
+      END IF;
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_split_VendorRate_2;
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_split_VendorRate_2 as (SELECT * FROM tmp_split_VendorRate_);
+
+ 		/*DELETE n1 FROM tmp_split_VendorRate_ n1
+			  INNER JOIN
+			(
+			  SELECT MAX(TempVendorRateID) AS TempVendorRateID,EffectiveDate,Code
+			  FROM tmp_split_VendorRate_2 WHERE ProcessId = p_processId
+				GROUP BY Code,EffectiveDate
+			HAVING COUNT(*)>1
+			)n2
+			ON n1.Code = n2.Code
+			AND n2.EffectiveDate = n1.EffectiveDate AND n1.TempVendorRateID < n2.TempVendorRateID
+			WHERE n1.ProcessId = p_processId;*/
+
+ 		-- v4.16
+		  INSERT INTO tmp_TempVendorRate_
+	        SELECT DISTINCT
+					    		 `TempVendorRateID`,
+								 `CodeDeckId`,
+			  						`Code`,
+									`Description`,
+									`Rate`,
+									`EffectiveDate`,
+									`EndDate`,
+									`Change`,
+									`ProcessId`,
+									`Preference`,
+									`ConnectionFee`,
+									`Interval1`,
+									`IntervalN`,
+									`Forbidden`,
+									`DialStringPrefix`
+						 FROM tmp_split_VendorRate_
+						 	 WHERE tmp_split_VendorRate_.ProcessId = p_processId;
+
+		     SELECT CodeDeckId INTO v_CodeDeckId_
+					FROM tmp_TempVendorRate_
+						 WHERE ProcessId = p_processId  LIMIT 1;
+
+            UPDATE tmp_TempVendorRate_ as tblTempVendorRate
+            LEFT JOIN tblRate
+                ON tblRate.Code = tblTempVendorRate.Code
+                AND tblRate.CompanyID = p_companyId
+                AND tblRate.CodeDeckId = tblTempVendorRate.CodeDeckId
+                AND tblRate.CodeDeckId =  v_CodeDeckId_
+            SET
+                tblTempVendorRate.Interval1 = CASE WHEN tblTempVendorRate.Interval1 is not null  and tblTempVendorRate.Interval1 > 0
+                                            THEN
+                                                tblTempVendorRate.Interval1
+                                            ELSE
+	                                            	CASE WHEN tblRate.Interval1 is not null
+	                                            	THEN
+	                                                tblRate.Interval1
+	                                            	ELSE
+	                                            		1
+                                             	END
+                                            END,
+                tblTempVendorRate.IntervalN = CASE WHEN tblTempVendorRate.IntervalN is not null  and tblTempVendorRate.IntervalN > 0
+                                            	THEN
+                                             	tblTempVendorRate.IntervalN
+                                            	ELSE
+                                             	CASE WHEN tblRate.IntervalN is not null
+		                                          THEN
+		                                        		tblRate.IntervalN
+		                                          ElSE
+		                                            	1
+		                                          END
+                                          	END;
+
+
+			IF  p_effectiveImmediately = 1
+            THEN
+               UPDATE tmp_TempVendorRate_
+           	     	SET EffectiveDate = DATE_FORMAT (NOW(), '%Y-%m-%d')
+           		   WHERE EffectiveDate < DATE_FORMAT (NOW(), '%Y-%m-%d');
+
+
+         		UPDATE tmp_TempVendorRate_
+           	   	SET EndDate = DATE_FORMAT (NOW(), '%Y-%m-%d')
+           		   WHERE EndDate < DATE_FORMAT (NOW(), '%Y-%m-%d');
+
+            END IF;
+
+
+			SELECT count(*) INTO totalduplicatecode FROM(
+				SELECT count(code) as c,code FROM tmp_TempVendorRate_  GROUP BY Code,EffectiveDate,DialStringPrefix HAVING c>1) AS tbl;
+
+
+			IF  totalduplicatecode > 0
+			THEN
+
+
+				SELECT GROUP_CONCAT(code) into errormessage FROM(
+					SELECT DISTINCT code, 1 as a FROM(
+						SELECT   count(code) as c,code FROM tmp_TempVendorRate_  GROUP BY Code,EffectiveDate,DialStringPrefix HAVING c>1) AS tbl) as tbl2 GROUP by a;
+
+				INSERT INTO tmp_JobLog_ (Message)
+				  SELECT DISTINCT
+				  CONCAT(code , ' DUPLICATE CODE')
+				  	FROM(
+						SELECT   count(code) as c,code FROM tmp_TempVendorRate_  GROUP BY Code,EffectiveDate,DialStringPrefix HAVING c>1) AS tbl;
+
+			END IF;
+
+   IF	totalduplicatecode = 0
+   THEN
+
+
+    IF p_dialstringid >0
+    THEN
+
+    		DROP TEMPORARY TABLE IF EXISTS tmp_DialString_;
+    		CREATE TEMPORARY TABLE tmp_DialString_ (
+				`DialStringID` INT,
+				`DialString` VARCHAR(250),
+				`ChargeCode` VARCHAR(250),
+				`Description` VARCHAR(250),
+				`Forbidden` VARCHAR(50),
+				INDEX tmp_DialStringID (`DialStringID`),
+	         INDEX tmp_DialStringID_ChargeCode (`DialStringID`,`ChargeCode`)
+         );
+
+         INSERT INTO tmp_DialString_
+			SELECT DISTINCT
+				`DialStringID`,
+				`DialString`,
+				`ChargeCode`,
+				`Description`,
+				`Forbidden`
+			FROM tblDialStringCode
+				WHERE DialStringID = p_dialstringid;
+
+         SELECT  COUNT(*) as count INTO totaldialstringcode
+			FROM tmp_TempVendorRate_ vr
+				LEFT JOIN tmp_DialString_ ds
+					ON ((vr.Code = ds.ChargeCode and vr.DialStringPrefix = '') OR (vr.DialStringPrefix != '' and vr.DialStringPrefix =  ds.DialString and vr.Code = ds.ChargeCode  ))
+
+				WHERE vr.ProcessId = p_processId
+					AND ds.DialStringID IS NULL
+					AND vr.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
+
+         IF totaldialstringcode > 0
+         THEN
+
+				/*INSERT INTO tmp_JobLog_ (Message)
+				  SELECT DISTINCT CONCAT(Code ,' ', vr.DialStringPrefix , ' No PREFIX FOUND')
+				  	FROM tmp_TempVendorRate_ vr
+						LEFT JOIN tmp_DialString_ ds
+
+							ON ((vr.Code = ds.ChargeCode and vr.DialStringPrefix = '') OR (vr.DialStringPrefix != '' and vr.DialStringPrefix =  ds.DialString and vr.Code = ds.ChargeCode  ))
+						WHERE vr.ProcessId = p_processId
+							AND ds.DialStringID IS NULL
+							AND vr.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');*/
+
+			INSERT INTO tblDialStringCode (DialStringID,DialString,ChargeCode,created_by)
+			  SELECT DISTINCT p_dialStringId,vr.DialStringPrefix, Code, 'RMService'
+				FROM tmp_TempVendorRate_ vr
+					LEFT JOIN tmp_DialString_ ds
+
+						ON ((vr.Code = ds.ChargeCode and vr.DialStringPrefix = '') OR (vr.DialStringPrefix != '' and vr.DialStringPrefix =  ds.DialString and vr.Code = ds.ChargeCode  ))
+					WHERE vr.ProcessId = p_processId
+						AND ds.DialStringID IS NULL
+						AND vr.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block')
+						AND (vr.DialStringPrefix is not null AND vr.DialStringPrefix != '')
+						AND (Code is not null AND Code != '');
+
+			TRUNCATE tmp_DialString_;
+			INSERT INTO tmp_DialString_
+				SELECT DISTINCT
+					`DialStringID`,
+					`DialString`,
+					`ChargeCode`,
+					`Description`,
+					`Forbidden`
+				FROM tblDialStringCode
+					WHERE DialStringID = p_dialstringid;
+
+			SELECT  COUNT(*) as count INTO totaldialstringcode
+			FROM tmp_TempVendorRate_ vr
+				LEFT JOIN tmp_DialString_ ds
+					ON ((vr.Code = ds.ChargeCode and vr.DialStringPrefix = '') OR (vr.DialStringPrefix != '' and vr.DialStringPrefix =  ds.DialString and vr.Code = ds.ChargeCode  ))
+
+				WHERE vr.ProcessId = p_processId
+					AND ds.DialStringID IS NULL
+					AND vr.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
+
+			INSERT INTO tmp_JobLog_ (Message)
+				  SELECT DISTINCT CONCAT(Code ,' ', vr.DialStringPrefix , ' No PREFIX FOUND')
+				  	FROM tmp_TempVendorRate_ vr
+						LEFT JOIN tmp_DialString_ ds
+
+							ON ((vr.Code = ds.ChargeCode and vr.DialStringPrefix = '') OR (vr.DialStringPrefix != '' and vr.DialStringPrefix =  ds.DialString and vr.Code = ds.ChargeCode  ))
+						WHERE vr.ProcessId = p_processId
+							AND ds.DialStringID IS NULL
+							AND vr.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
+
+         END IF;
+
+         IF totaldialstringcode = 0
+         THEN
+
+				 	INSERT INTO tmp_VendorRateDialString_
+					 SELECT DISTINCT
+    						`TempVendorRateID`,
+							`CodeDeckId`,
+							`DialString`,
+							CASE WHEN ds.Description IS NULL OR ds.Description = ''
+								THEN
+									tblTempVendorRate.Description
+								ELSE
+									ds.Description
+							END
+								AS Description,
+							`Rate`,
+							`EffectiveDate`,
+							`EndDate`,
+							`Change`,
+							`ProcessId`,
+							`Preference`,
+							`ConnectionFee`,
+							`Interval1`,
+							`IntervalN`,
+							tblTempVendorRate.Forbidden as Forbidden ,
+							tblTempVendorRate.DialStringPrefix as DialStringPrefix
+					   FROM tmp_TempVendorRate_ as tblTempVendorRate
+							INNER JOIN tmp_DialString_ ds
+
+							  	ON ( (tblTempVendorRate.Code = ds.ChargeCode AND tblTempVendorRate.DialStringPrefix = '') OR (tblTempVendorRate.DialStringPrefix != '' AND tblTempVendorRate.DialStringPrefix =  ds.DialString AND tblTempVendorRate.Code = ds.ChargeCode  ))
+
+						 WHERE tblTempVendorRate.ProcessId = p_processId
+							AND tblTempVendorRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
+
+
+				--	DROP TEMPORARY TABLE IF EXISTS tmp_VendorRateDialString_2;
+				--	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorRateDialString_2 as (SELECT * FROM tmp_VendorRateDialString_);
+
+				INSERT INTO tmp_VendorRateDialString_2
+				SELECT * FROM tmp_VendorRateDialString_;
+
+
+			/*	 DROP TEMPORARY TABLE IF EXISTS tmp_VendorRateDialString_3;
+					CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorRateDialString_3 as (
+					 SELECT vrs1.* from tmp_VendorRateDialString_2 vrs1
+					 LEFT JOIN tmp_VendorRateDialString_ vrs2 ON vrs1.Code=vrs2.Code AND vrs1.CodeDeckId=vrs2.CodeDeckId AND vrs1.Description=vrs2.Description AND vrs1.EffectiveDate=vrs2.EffectiveDate AND vrs1.DialStringPrefix != vrs2.DialStringPrefix
+					 WHERE ( (vrs1.DialStringPrefix ='' AND vrs2.Code IS NULL) OR (vrs1.DialStringPrefix!='' AND vrs2.Code IS NOT NULL))
+					);
+			*/
+
+			INSERT INTO tmp_VendorRateDialString_3
+			SELECT vrs1.* from tmp_VendorRateDialString_2 vrs1
+					 LEFT JOIN tmp_VendorRateDialString_ vrs2 ON vrs1.Code=vrs2.Code AND vrs1.CodeDeckId=vrs2.CodeDeckId AND vrs1.Description=vrs2.Description AND vrs1.EffectiveDate=vrs2.EffectiveDate AND vrs1.DialStringPrefix != vrs2.DialStringPrefix
+					 WHERE ( (vrs1.DialStringPrefix ='' AND vrs2.Code IS NULL) OR (vrs1.DialStringPrefix!='' AND vrs2.Code IS NOT NULL));
+
+
+					DELETE  FROM tmp_TempVendorRate_ WHERE  ProcessId = p_processId;
+
+					INSERT INTO tmp_TempVendorRate_(
+				    		`TempVendorRateID`,
+							CodeDeckId,
+							Code,
+							Description,
+							Rate,
+							EffectiveDate,
+							EndDate,
+							`Change`,
+							ProcessId,
+							Preference,
+							ConnectionFee,
+							Interval1,
+							IntervalN,
+							Forbidden,
+							DialStringPrefix
+						)
+					SELECT DISTINCT
+			    		`TempVendorRateID`,
+						`CodeDeckId`,
+						`Code`,
+						`Description`,
+						`Rate`,
+						`EffectiveDate`,
+						`EndDate`,
+						`Change`,
+						`ProcessId`,
+						`Preference`,
+						`ConnectionFee`,
+						`Interval1`,
+						`IntervalN`,
+						`Forbidden`,
+						DialStringPrefix
+					 FROM tmp_VendorRateDialString_3;
+
+				  	UPDATE tmp_TempVendorRate_ as tblTempVendorRate
+					JOIN tmp_DialString_ ds
+
+					  ON ( (tblTempVendorRate.Code = ds.ChargeCode and tblTempVendorRate.DialStringPrefix = '') OR (tblTempVendorRate.DialStringPrefix != '' and tblTempVendorRate.DialStringPrefix =  ds.DialString and tblTempVendorRate.Code = ds.ChargeCode  ))
+							AND tblTempVendorRate.ProcessId = p_processId
+							AND ds.Forbidden = 1
+					SET tblTempVendorRate.Forbidden = 'B';
+
+					UPDATE tmp_TempVendorRate_ as  tblTempVendorRate
+					JOIN tmp_DialString_ ds
+
+						ON ( (tblTempVendorRate.Code = ds.ChargeCode and tblTempVendorRate.DialStringPrefix = '') OR (tblTempVendorRate.DialStringPrefix != '' and tblTempVendorRate.DialStringPrefix =  ds.DialString and tblTempVendorRate.Code = ds.ChargeCode  ))
+							AND tblTempVendorRate.ProcessId = p_processId
+							AND ds.Forbidden = 0
+					SET tblTempVendorRate.Forbidden = 'UB';
+
+			END IF;
+
+    END IF;
+
+END IF;
+
+
+
 END//
 DELIMITER ;

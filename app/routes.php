@@ -402,12 +402,15 @@ Route::group(array('before' => 'auth'), function () {
 	Route::resource('contacts', 'ContactsController');
 
 	//CustomersRates
+	Route::any('/customers_rates/getCodeByAjax', 'CustomersRatesController@getCodeByAjax');
+	Route::any('/customers_rates/{id}/search_ajax_datagrid_archive_rates', 'CustomersRatesController@search_ajax_datagrid_archive_rates'); // get archive rates for customer rates grid
 	Route::any('/customers_rates/{id}', array('as' => 'customer_rates', 'uses' => 'CustomersRatesController@index'));
 	Route::any('/customers_rates/{id}/search_ajax_datagrid/{type}', 'CustomersRatesController@search_ajax_datagrid');
 	Route::any('/customers_rates/{id}/search_customer_grid', 'CustomersRatesController@search_customer_grid');
 	Route::any('/customers_rates/{id}/download', array('as' => 'customer_rates_download', 'uses' => 'CustomersRatesController@download'));
 	Route::any('/customers_rates/{id}/process_download', array('as' => 'customer_rates_process_download', 'uses' => 'CustomersRatesController@process_download'));
 	Route::any('/customers_rates/update/{id}', array('as' => 'customer_rates_update', 'uses' => 'CustomersRatesController@update'));
+	Route::any('/customers_rates/store/{id}', array('as' => 'customer_rates_store', 'uses' => 'CustomersRatesController@store'));
 	Route::any('/customers_rates/process_bulk_rate_update/{id}', array('as' => 'process_bulk_rate_update', 'uses' => 'CustomersRatesController@process_bulk_rate_update'));
 	Route::any('/customers_rates/process_bulk_rate_clear/{id}', array('as' => 'process_bulk_rate_clear', 'uses' => 'CustomersRatesController@process_bulk_rate_clear'));
 	Route::any('/customers_rates/settings/{id}', array('as' => 'customer_rates_settings', 'uses' => 'CustomersRatesController@settings'));
@@ -415,8 +418,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/customers_rates/delete_customerrates/{id}', array('as' => 'customer_rates_delete_customerrates', 'uses' => 'CustomersRatesController@delete_customerrates'));
 	Route::any('/customers_rates/bulk_update/{id}', array('as' => 'customer_rates_bulk_update', 'uses' => 'CustomersRatesController@bulk_update'));
 	Route::any('/customers_rates/ajax_datagrid_search_customer_rate/{id}', 'CustomersRatesController@ajax_datagrid_search_customer_rate');
-	Route::any('/customers_rates/clear_rate/{id}', array('as' => 'customer_clear_rate', 'uses' => 'CustomersRatesController@clear_rate'));
-	Route::any('/customers_rates/bulk_clear_rate/{id}', array('as' => 'customer_bulk_clear_rate', 'uses' => 'CustomersRatesController@bulk_clear_rate'));
+	Route::any('/customers_rates/{id}/clear_rate', array('as' => 'customer_clear_rate', 'uses' => 'CustomersRatesController@clear_rate'));
 	Route::any('/customers_rates/{id}/history', array('as' => 'customer_rates_history', 'uses' => 'CustomersRatesController@history'));
 	Route::any('/customers_rates/{id}/history_ajax_datagrid', 'CustomersRatesController@history_ajax_datagrid');
 	Route::any('/customers_rates/{id}/history/{hid}/view', 'CustomersRatesController@show_history')->where('hid', '(.[09]*)+');
@@ -470,10 +472,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/vendor_rates/{id}/update_settings', 'VendorRatesController@update_settings');
 	Route::any('/vendor_rates/{id}/download/download_excel_file/{JobID}', 'VendorRatesController@downloaded_excel_file_download')->where('JobID', '(.[09]*)+');
 	Route::any('/vendor_rates/{id}/upload/download_excel_file/{JobID}', 'VendorRatesController@uploaded_excel_file_download')->where('JobID', '(.[09]*)+');
-	Route::any('/vendor_rates/bulk_clear_rate/{id}', array('as' => 'vendor_bulk_clear_rate', 'uses' => 'VendorRatesController@bulk_clear_rate'));
-	Route::any('/vendor_rates/clear_all_vendorrate/{id}', array('as' => 'clear_all_vendorrate', 'uses' => 'VendorRatesController@clear_all_vendorrate'));
-	Route::any('/vendor_rates/bulk_update/{id}', array('as' => 'vendor_rates_bulk_update', 'uses' => 'VendorRatesController@bulk_update'));
-	Route::any('/vendor_rates/bulk_update_new/{id}', array('as' => 'vendor_rates_bulk_update_new', 'uses' => 'VendorRatesController@bulk_update_new'));
+	Route::any('/vendor_rates/{id}/clear_rate', array('as' => 'clear_rate', 'uses' => 'VendorRatesController@clear_rate'));
+	Route::any('/vendor_rates/{id}/update_vendor_rate', array('as' => 'update_vendor_rate', 'uses' => 'VendorRatesController@update_vendor_rate'));
 	Route::any('/vendor_rates/vendor_preference/{id}', 'VendorRatesController@vendor_preference');
 	Route::any('/vendor_rates/{id}/search_ajax_datagrid_preference/{type}', 'VendorRatesController@search_ajax_datagrid_preference');
 	Route::any('/vendor_rates/bulk_update_preference/{id}', 'VendorRatesController@bulk_update_preference');
@@ -664,6 +664,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/rategenerators/{id}/ajax_existing_rategenerator_cronjob', 'RateGeneratorsController@ajax_existing_rategenerator_cronjob');
     Route::any('/rategenerators/{id}/deletecronjob', 'RateGeneratorsController@deleteCronJob');
     Route::any('/rategenerators/{id}/delete', 'RateGeneratorsController@delete');
+	Route::any('/rategenerators/update_fields_sorting', "RateGeneratorsController@Update_Fields_Sorting");
 
 	Route::any('/rategenerators/ajax_margin_datagrid', 'RateGeneratorRuleController@ajax_margin_datagrid');
 	Route::any('/rategenerators/{id}/rule/{rule_id}/delete', 'RateGeneratorRuleController@delete_rule')->where('rule_id', '(.[09]*)+');
@@ -699,8 +700,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rate_tables/{id}/view', 'RateTablesController@view');
     Route::any('/rate_tables/{id}/add_newrate', 'RateTablesController@add_newrate');
 	Route::any('/rate_tables/{id}/clear_rate', 'RateTablesController@clear_rate');
-	Route::any('/rate_tables/{id}/update_rate_table_rate/{RateTableRateID}', 'RateTablesController@update_rate_table_rate')->where('RateTableRateID', '(.[09]*)+');
-	Route::any('/rate_tables/{id}/bulk_update_rate_table_rate', 'RateTablesController@bulk_update_rate_table_rate');
+	Route::any('/rate_tables/{id}/update_rate_table_rate', 'RateTablesController@update_rate_table_rate');
+	//Route::any('/rate_tables/{id}/bulk_update_rate_table_rate', 'RateTablesController@bulk_update_rate_table_rate');
 	Route::any('/rate_tables/{id}/bulk_clear_rate_table_rate', 'RateTablesController@bulk_clear_rate_table_rate');
 	Route::any('/rate_tables/{id}/change_status/{status}', 'RateTablesController@change_status')->where('status', '(.[09]*)+');
 	Route::any('/rate_tables/exports/{type}', 'RateTablesController@exports');

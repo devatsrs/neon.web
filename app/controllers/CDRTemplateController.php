@@ -12,9 +12,17 @@ class CDRTemplateController extends BaseController {
      * @return mixed
      */
     public function index($CompanyGatewayID) {
-        //$gateway = CompanyGateway::getCompanyGatewayIdList();
+
+        $CompanyID = User::get_companyID();
+
+        $Trunks = Trunk::getTrunkDropdownIDList($CompanyID);
+        $Trunks = $Trunks+array(0=>'Find From CustomerPrefix');
+        $Trunks = array('Trunk'=>$Trunks);
+        $Services = Service::getDropdownIDList($CompanyID);
+        $Services = array('Service'=>$Services);
+
         $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_CDR);
-        return View::make('cdrtemplate.upload',compact('UploadTemplate','CompanyGatewayID'));
+        return View::make('cdrtemplate.upload',compact('UploadTemplate','CompanyGatewayID','Trunks','Services'));
     }
 
     public function ajaxfilegrid(){

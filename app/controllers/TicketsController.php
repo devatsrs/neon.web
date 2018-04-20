@@ -512,7 +512,8 @@ class TicketsController extends \BaseController {
 			$FromEmails	 				=  TicketGroups::GetGroupsFrom();			
 			$AllEmailsTo 				= 	json_encode(Messages::GetAllSystemEmails(0,true)); 	
 	//		$AllEmails 					= 	json_encode(Messages::GetAllSystemEmails(0,true)); 
-			return View::make('tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id','FromEmails','cc','bcc','GroupEmail','conversation','AllEmailsTo'));  
+			$emailTemplates 	= 	EmailTemplate::GetUserDefinedTemplates();
+			return View::make('tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id','FromEmails','cc','bcc','GroupEmail','conversation','AllEmailsTo', 'emailTemplates'));
 		}else{
             return view_response_api($response);
         }		

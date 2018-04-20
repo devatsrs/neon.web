@@ -231,10 +231,10 @@
                             @endif
                             <?php $Options = json_decode($Options->Options); ?>
                             @if(isset($Options->skipRows->start_row) && (int) $Options->skipRows->start_row > 0)
-                                <div>Skips rows from Start - {{$skipRows->skipRows->start_row}}</div>
+                                <div>Skips rows from Start - {{$Options->skipRows->start_row}}</div>
                             @endif
                             @if(isset($Options->skipRows->end_row) && (int) $Options->skipRows->end_row > 0)
-                                <div>Skips rows from Bottom - {{$skipRows->skipRows->end_row}}</div>
+                                <div>Skips rows from Bottom - {{$Options->skipRows->end_row}}</div>
                             @endif
                             @if(!empty($Options->Sheet))
                                 <div>Sheet Name : {{$Options->Sheet}}</div>

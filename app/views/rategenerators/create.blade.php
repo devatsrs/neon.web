@@ -96,14 +96,14 @@
                         </div>
 
                     </div>
-                    <input type="hidden" name="GroupBy" value="Code">
-                    <!--
+                    {{--<input type="hidden" name="GroupBy" value="Code">--}}
+
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Group By</label>
                         <div class="col-sm-4">
                             {{ Form::select('GroupBy', array('Code'=>'Code','Desc'=>'Description'), 'Code' , array("class"=>"select2")) }}
                         </div>
-                    </div>-->
+                    </div>
                 </div>
             </div>
 

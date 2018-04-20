@@ -1,4 +1,21 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_CustomerBulkRateUpdate`(IN `p_AccountIdList` LONGTEXT , IN `p_TrunkId` INT , IN `p_CodeDeckId` int, IN `p_code` VARCHAR(50) , IN `p_description` VARCHAR(200) , IN `p_CountryId` INT , IN `p_CompanyId` INT , IN `p_Rate` DECIMAL(18, 6) , IN `p_ConnectionFee` DECIMAL(18, 6) , IN `p_EffectiveDate` DATETIME , IN `p_Interval1` INT, IN `p_IntervalN` INT, IN `p_RoutinePlan` INT, IN `p_ModifiedBy` VARCHAR(50))
+CREATE DEFINER=`neon-user`@`192.168.1.25` PROCEDURE `prc_CustomerBulkRateUpdate`(
+	IN `p_AccountIdList` LONGTEXT ,
+	IN `p_TrunkId` INT ,
+	IN `p_CodeDeckId` int,
+	IN `p_code` VARCHAR(50) ,
+	IN `p_description` VARCHAR(200) ,
+	IN `p_CountryId` INT ,
+	IN `p_CompanyId` INT ,
+	IN `p_Rate` DECIMAL(18, 6) ,
+	IN `p_ConnectionFee` DECIMAL(18, 6) ,
+	IN `p_EffectiveDate` DATETIME ,
+	IN `p_EndDate` DATETIME ,
+	IN `p_Interval1` INT,
+	IN `p_IntervalN` INT,
+	IN `p_RoutinePlan` INT,
+	IN `p_ModifiedBy` VARCHAR(50)
+
+)
 BEGIN
 
  	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
@@ -27,17 +44,19 @@ BEGIN
 				AND c.TrunkID = p_TrunkId
 	         AND FIND_IN_SET(c.CustomerID,p_AccountIdList) != 0
 			) cr ON cr.CustomerRateID = tblCustomerRate.CustomerRateID and cr.EffectiveDate = p_EffectiveDate
-		 SET tblCustomerRate.PreviousRate = Rate ,
+		 SET /*tblCustomerRate.PreviousRate = Rate ,
            tblCustomerRate.Rate = p_Rate ,
 			  tblCustomerRate.ConnectionFee = p_ConnectionFee ,
            tblCustomerRate.EffectiveDate = p_EffectiveDate ,
            tblCustomerRate.Interval1 = p_Interval1, 
 			  tblCustomerRate.IntervalN = p_IntervalN,
-			  tblCustomerRate.RoutinePlan = cr.RoutinePlan,
+			  tblCustomerRate.RoutinePlan = cr.RoutinePlan,*/
            tblCustomerRate.LastModifiedBy = p_ModifiedBy ,
-           tblCustomerRate.LastModifiedDate = NOW();
+           tblCustomerRate.LastModifiedDate = NOW(),
+		   tblCustomerRate.EndDate = NOW();
 
-
+				
+     CALL prc_ArchiveOldCustomerRate(p_AccountIdList, p_TrunkId, p_ModifiedBy);
 
         INSERT  INTO tblCustomerRate
                 ( RateID ,
@@ -46,6 +65,7 @@ BEGIN
                   Rate ,
 				  		ConnectionFee,
                   EffectiveDate ,
+                  EndDate ,
                   Interval1, 
 				  		IntervalN ,
 				  		RoutinePlan,
@@ -59,6 +79,7 @@ BEGIN
                         p_Rate ,
 								p_ConnectionFee,
                         p_EffectiveDate ,
+                        p_EndDate ,
                         p_Interval1, 
 					    		p_IntervalN,
 								RoutinePlan,
@@ -106,7 +127,7 @@ BEGIN
 						AND ( ( p_CountryId IS NULL )  OR ( p_CountryId IS NOT NULL AND r.CountryID = p_CountryId ) )
       				AND cr.RateID IS NULL; 
       				
-     CALL prc_ArchiveOldCustomerRate(p_AccountIdList, p_TrunkId);
+     CALL prc_ArchiveOldCustomerRate(p_AccountIdList, p_TrunkId, p_ModifiedBy);
 
     	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ; 
 END

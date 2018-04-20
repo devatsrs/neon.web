@@ -863,4 +863,8 @@ class Account extends \Eloquent {
         }
     }
 
+    public static function getCodeDeckId($AccountID,$TrunkID){
+        return  CustomerTrunk::where(["AccountID"=>$AccountID,"TrunkID" => $TrunkID])->pluck('CodeDeckId');
+    }
+
 }
