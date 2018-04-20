@@ -3,7 +3,7 @@
 class AutoRateImportController extends \BaseController {
 
 	public function __construct(){
-	
+
 	 }
 	/* AutoInbox Setting  */
 	public function index()

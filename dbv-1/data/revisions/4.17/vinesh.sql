@@ -35,7 +35,8 @@ CREATE TABLE IF NOT EXISTS `tblAutoImportInboxSetting` (
   `validate_cert` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `username` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `password` varchar(300) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `emailNotification` varchar(15) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `emailNotificationOnSuccess` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `emailNotificationOnFail` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `SendCopyToAccount` enum('Y','N') COLLATE utf8_unicode_ci DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`AutoImportInboxSettingID`)
