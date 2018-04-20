@@ -501,7 +501,7 @@
                 dataType: 'json',
                 success: function(response) {
                     $('[name="NextInvoiceDate"]').val(response.NextBillingDate);
-                    $('[name="NextChargeDate"]').val(response.NextBillingDate);
+                    $('[name="NextChargeDate"]').val(response.NextChargedDate);
                 },
                 data: {
                     "BillingStartDate":BillingStartDate,
