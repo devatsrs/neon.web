@@ -1,6 +1,180 @@
 Use Ratemanagement3;
 
 
+
+/* For auto rate import table and procedure Start */
+
+CREATE TABLE IF NOT EXISTS `tblAutoImport` (
+  `AutoImportID` int(11) NOT NULL AUTO_INCREMENT,
+  `CompanyID` int(11) NOT NULL DEFAULT '0',
+  `AccountName` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `To` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `From` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `CC` varchar(300) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `AccountID` int(11) NOT NULL DEFAULT '0',
+  `Subject` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Description` longtext COLLATE utf8_unicode_ci NOT NULL,
+  `MessageId` text COLLATE utf8_unicode_ci NOT NULL,
+  `MailDateTime` datetime NOT NULL,
+  `Attachment` text COLLATE utf8_unicode_ci,
+  `created_at` datetime DEFAULT NULL,
+  `created_by` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `updated_by` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`AutoImportID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+
+CREATE TABLE IF NOT EXISTS `tblAutoImportInboxSetting` (
+  `AutoImportInboxSettingID` int(11) NOT NULL AUTO_INCREMENT,
+  `CompanyID` int(11) NOT NULL DEFAULT '0',
+  `port` int(11) DEFAULT NULL,
+  `host` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `encryption` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `validate_cert` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `username` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `password` varchar(300) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `emailNotification` varchar(15) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `SendCopyToAccount` enum('Y','N') COLLATE utf8_unicode_ci DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`AutoImportInboxSettingID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+
+
+CREATE TABLE IF NOT EXISTS `tblAutoImportSetting` (
+  `AutoImportSettingID` int(11) NOT NULL AUTO_INCREMENT,
+  `CompanyID` int(11) NOT NULL DEFAULT '0',
+  `Type` tinyint(1) NOT NULL COMMENT '1=Vendor,2=RateTable',
+  `TypePKID` int(11) DEFAULT NULL COMMENT 'Type:1 = AccountID ,Type:2 = VendorID',
+  `TrunkID` int(11) DEFAULT NULL,
+  `ImportFileTempleteID` int(11) DEFAULT NULL,
+  `Subject` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `FileName` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `SendorEmail` varchar(300) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `created_by` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `updated_by` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`AutoImportSettingID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+-- Dumping structure for procedure NeonRMDev.prc_ImportSettingMatch
+DROP PROCEDURE IF EXISTS `prc_ImportSettingMatch`;
+DELIMITER //
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_ImportSettingMatch`(
+	IN `p_FromEmail` TEXT,
+	IN `p_subject` TEXT,
+	IN `p_attachment` TEXT
+)
+BEGIN
+
+	DECLARE v_Trunk VARCHAR(200);
+	DECLARE v_RateTableId VARCHAR(200);
+	DECLARE v_AccountID int;
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	
+	DROP TEMPORARY TABLE IF EXISTS tmp_subject;
+	CREATE TEMPORARY TABLE tmp_subject(	
+		SubjectLength INT,
+		Trunk VARCHAR(100),
+		TrunkId INT
+	);	
+	
+	DROP TEMPORARY TABLE IF EXISTS tmp_matchAccount;
+	CREATE TEMPORARY TABLE tmp_matchAccount(	
+		AccountID INT,
+		CompanyId INT
+		
+	);	
+	
+	DROP TEMPORARY TABLE IF EXISTS tmp_finalMatch;
+	CREATE TEMPORARY TABLE tmp_finalMatch(	
+		TypePKID INT,
+		TrunkID INT,
+		ImportFileTempleteID INT,
+		Attachment VARCHAR(100),
+		Type INT
+		
+	);	
+		
+		
+		
+	
+		/* 
+		* Use For Auto Vendor Rate Upload  :   Type = 1 
+		*/
+		
+				/* Get Trunk By Matching Subject and Attachment Name */	
+				insert tmp_subject (SubjectLength,Trunk,TrunkId)
+				select CHAR_LENGTH(Trunk) as SubjectLength,tblTrunk.Trunk,tblTrunk.TrunkID from tblTrunk WHERE p_subject LIKE  CONCAT('%',Trunk, '%') OR  p_attachment LIKE  CONCAT('%',Trunk, '%') ;
+		
+				/* Get Only Trunk ID If TrunkID is multiple */
+				select TrunkID INTO v_Trunk  from tmp_subject Order by SubjectLength desc limit 1;		
+				select AccountID INTO v_AccountID  from tblAccount where tblAccount.Email=p_FromEmail AND tblAccount.IsVendor=1 ;
+				
+				/* Get only Matching Account */		
+				insert tmp_matchAccount (AccountID,CompanyId)
+				select AccountID,CompanyId from tblAccount where tblAccount.Email=p_FromEmail ;
+				
+				
+				/* Get Record from Setting Match with Email  ( Vendor Rate Upload (Type = 1) ) */
+				insert tmp_finalMatch (TypePKID,TrunkID,ImportFileTempleteID,Attachment,Type)
+				select ais.TypePKID as TypePKID ,
+						 v_Trunk as TrunkID,
+						 ais.ImportFileTempleteID as ImportFileTempleteID,
+						 p_attachment as  Attachment,
+						 ais.`Type` as Type
+						 from tblAutoImportSetting ais where ais.TypePKID=v_AccountID AND ais.TrunkID=v_Trunk AND ais.`Type`= 1 ;
+		
+		/*
+		* Use For Auto RateTable Upload  : Type = 2 
+		*/
+		
+		
+				
+				DROP TEMPORARY TABLE IF EXISTS tmp_subject_ratetable;
+				CREATE TEMPORARY TABLE tmp_subject_ratetable(	
+					SubjectLength INT,
+					RateTableName VARCHAR(100),
+					RateTableId INT
+				);	
+					
+				insert tmp_subject_ratetable (SubjectLength,RateTableName,RateTableId)
+				select CHAR_LENGTH(RateTableName) as SubjectLength,tblRateTable.RateTableName,tblRateTable.RateTableId from tblRateTable WHERE p_subject LIKE  CONCAT('%',RateTableName, '%') OR  p_attachment LIKE  CONCAT('%',RateTableName, '%') ;
+				
+				/* Get Only one RateTable ID If RateTableId is multiple */
+				select RateTableId INTO v_RateTableId  from tmp_subject_ratetable Order by SubjectLength desc limit 1;		
+				
+				/* Get Record from Setting Match with Email  ( RateTable (Type = 2) ) */
+				insert tmp_finalMatch (TypePKID,ImportFileTempleteID,Attachment,Type)
+				select ais.TypePKID as TypePKID ,
+						 ais.ImportFileTempleteID as ImportFileTempleteID,
+						 p_attachment as  Attachment,
+						 ais.`Type` as Type
+						 from tblAutoImportSetting ais where ais.TypePKID=v_RateTableId AND ais.`Type`= 2 ;
+				 
+				 
+				 
+		
+		
+		select * from tmp_finalMatch;		 
+				 
+		
+	
+		
+SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+/* For auto rate import table and procedure END  */
+
+
 DROP PROCEDURE IF EXISTS `prc_GetLCR`;
 DELIMITER //
 CREATE  PROCEDURE `prc_GetLCR`(
@@ -19,8 +193,7 @@ CREATE  PROCEDURE `prc_GetLCR`(
 	IN `p_vendor_block` INT,
 	IN `p_groupby` VARCHAR(50),
 	IN `p_SelectedEffectiveDate` DATE,
-	IN `p_isExport` INT
-)
+	IN `p_isExport` INT)
 BEGIN
 
 
@@ -225,7 +398,7 @@ BEGIN
 			Select DISTINCT AccountId,BlockingId,BlockingCountryId ,AccountName,Code,Description, Rate,ConnectionFee,EffectiveDate,TrunkID,CountryID,RateID,Preference
 			FROM (
 						 SELECT distinct tblVendorRate.AccountId,
-						    CASE WHEN p_groupby = 'description' THEN IFNULL(blockCountry.CountryId, 0) ELSE IFNULL(blockCode.VendorBlockingId, 0) END AS BlockingId,
+						    CASE WHEN p_groupby = 'description' THEN IFNULL(blockCode.VendorBlockingId, 0) ELSE IFNULL(blockCode.VendorBlockingId, 0) END AS BlockingId,
 						    IFNULL(blockCountry.CountryId, 0)  as BlockingCountryId,
 							 tblAccount.AccountName, tblRate.Code, tblRate.Description,
 							 CASE WHEN  tblAccount.CurrencyId = p_CurrencyID
@@ -358,6 +531,7 @@ BEGIN
 											INNER JOIN tmp_search_code_ AS f
 												ON  x.RowNo   <= LENGTH(f.Code)
 														AND ( CHAR_LENGTH(RTRIM(p_code)) = 0  OR Code LIKE REPLACE(p_code,'*', '%') )
+											INNER JOIN tblRate as tr on f.Code=tr.Code AND tr.CodeDeckId=p_codedeckID
 										order by RowCode desc,  LENGTH(loopCode) DESC
 									) tbl1
 							 , ( Select @RowNo := 0 ) x
@@ -389,7 +563,7 @@ BEGIN
 				SELECT
 					AccountID,
 					BlockingId ,
-					BlockingCountryId
+					BlockingCountryId,
 					AccountName,
 					Code,
 					Rate,
@@ -511,11 +685,13 @@ BEGIN
 				v.Rate ,
 				v.ConnectionFee,
 				v.EffectiveDate ,
-				v.Description ,
+				tr.Description,
+				-- (select Description from tblRate where tblRate.Code =RowCode AND  tblRate.CodeDeckId=p_codedeckID ) as Description ,
 				v.Preference
 			FROM tmp_VendorRateByRank_ v
 				left join  tmp_all_code_
 									 SplitCode   on v.Code = SplitCode.Code
+				inner join tblRate tr  on  RowCode = tr.Code AND  tr.CodeDeckId=p_codedeckID
 			where  SplitCode.Code is not null and rankname <= p_Position
 			order by AccountID,SplitCode.RowCode desc ,LENGTH(SplitCode.RowCode), v.Code desc, LENGTH(v.Code)  desc;
 
@@ -602,8 +778,9 @@ BEGIN
 
 				insert into tmp_final_VendorRate_
 					SELECT
-						AccountId ,
-						BlockingId ,
+						AccountId ,						
+						(CASE WHEN (select COUNT(*) from tmp_VendorCurrentRates1_ where tmp_VendorCurrentRates1_.AccountId=tbl1.AccountId AND tmp_VendorCurrentRates1_.Description=tbl1.Description AND BlockingId=0) > 0 THEN 0 ELSE 1 END) AS  BlockingId,
+						-- (CASE WHEN (select COUNT(*) from tmp_VendorCurrentRates1_ where tmp_VendorCurrentRates1_.AccountId=tbl1.AccountId AND tmp_VendorCurrentRates1_.Description=tbl1.Description AND BlockingId=0) > 0 THEN 0 ELSE 1 END) AS  BlockingId,
 						BlockingCountryId,
 						AccountName ,
 						Code ,
@@ -618,7 +795,7 @@ BEGIN
 						(
 							SELECT
 								AccountId ,
-								(CASE WHEN (select COUNT(*) from tmp_VendorCurrentRates1_ where AccountId=tmp_VendorRate_.AccountId AND Description=tmp_VendorRate_.Description AND BlockingId=0) > 0 THEN 0 ELSE 1 END) AS  BlockingId,
+								BlockingId,
 								BlockingCountryId,
 								AccountName ,
 								Code ,
@@ -699,7 +876,8 @@ BEGIN
 				insert into tmp_final_VendorRate_
 					SELECT
 						AccountId ,
-						BlockingId ,
+						(CASE WHEN (select COUNT(*) from tmp_VendorCurrentRates1_ where tmp_VendorCurrentRates1_.AccountId=tbl1.AccountId AND tmp_VendorCurrentRates1_.Description=tbl1.Description AND BlockingId=0) > 0 THEN 0 ELSE 1 END) AS  BlockingId,
+						-- (CASE WHEN (select COUNT(*) from tmp_VendorCurrentRates1_ where tmp_VendorCurrentRates1_.AccountId=AccountId AND tmp_VendorCurrentRates1_.Description=Description AND BlockingId=0) > 0 THEN 0 ELSE 1 END) AS  BlockingId,
 						BlockingCountryId,
 						AccountName ,
 						Code ,
@@ -714,7 +892,7 @@ BEGIN
 						(
 							SELECT
 								AccountId ,
-								(CASE WHEN (select COUNT(*) from tmp_VendorCurrentRates1_ where AccountId=tmp_VendorRate_.AccountId AND Description=tmp_VendorRate_.Description AND BlockingId=0) > 0 THEN 0 ELSE 1 END) AS  BlockingId,
+								BlockingId,
 								BlockingCountryId,
 								AccountName ,
 								Code ,
@@ -793,11 +971,11 @@ BEGIN
 				IF p_groupby = 'description' THEN
 					SELECT
 						CONCAT(max(t.Description)) as Destination,						
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 1, CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 1`,
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 2, CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 2`,
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 3, CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 3`,
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 4, CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 4`,
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 5, CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 5`
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 1, CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 1`,
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 2, CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 2`,
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 3, CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 3`,
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 4, CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 4`,
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 5, CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 5`
 					FROM tmp_final_VendorRate_  t
 					GROUP BY  t.Description
 					ORDER BY t.Description ASC
@@ -808,11 +986,11 @@ BEGIN
 					SELECT
 						CONCAT(ANY_VALUE(t.RowCode) , ' : ' , ANY_VALUE(t.Description)) as Destination,
 						
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 1, CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 1`,
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 2, CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 2`,
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 3, CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 3`,
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 4, CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 4`,
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 5, CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 5`
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 1, CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 1`,
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 2, CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 2`,
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 3, CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 3`,
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 4, CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 4`,
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 5, CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 5`
 					FROM tmp_final_VendorRate_  t
 					GROUP BY  RowCode
 					ORDER BY RowCode ASC
@@ -847,16 +1025,16 @@ BEGIN
 				IF p_groupby = 'description' THEN				
 					SELECT
 						CONCAT(max(t.Description)) as Destination,
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 1,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 1`,
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 2,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 2`,
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 3,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 3`,
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 4,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 4`,
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 5,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 5`,
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 6,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 6`,
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 7,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 7`,
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 8,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 8`,
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 9,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 9`,
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 10, CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 10`
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 1,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 1`,
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 2,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 2`,
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 3,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 3`,
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 4,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 4`,
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 5,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 5`,
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 6,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 6`,
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 7,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 7`,
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 8,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 8`,
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 9,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 9`,
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 10, CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 10`
 					FROM tmp_final_VendorRate_  t
 					GROUP BY  t.Description
 					ORDER BY t.Description ASC
@@ -866,16 +1044,16 @@ BEGIN
 					
 					SELECT
 						CONCAT(ANY_VALUE(t.RowCode) , ' : ' , ANY_VALUE(t.Description)) as Destination,
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 1,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 1`,
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 2,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 2`,
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 3,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 3`,
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 4,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 4`,
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 5,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 5`,
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 6,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 6`,
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 7,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 7`,
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 8,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 8`,
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 9,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 9`,
-						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 10, CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 10`
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 1,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 1`,
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 2,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 2`,
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 3,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 3`,
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 4,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 4`,
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 5,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 5`,
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 6,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 6`,
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 7,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 7`,
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 8,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 8`,
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 9,  CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 9`,
+						GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = 10, CONCAT(ANY_VALUE(t.Code), '<br>', ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName), '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.BlockingId), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.Code), '-', ANY_VALUE(t.BlockingCountryId) ), NULL))AS `POSITION 10`
 					FROM tmp_final_VendorRate_  t
 					GROUP BY  RowCode
 					ORDER BY RowCode ASC
@@ -925,8 +1103,6 @@ DELIMITER ;
 
 
 
-
-
 DROP PROCEDURE IF EXISTS `prc_GetLCRwithPrefix`;
 DELIMITER //
 CREATE  PROCEDURE `prc_GetLCRwithPrefix`(
@@ -946,7 +1122,7 @@ CREATE  PROCEDURE `prc_GetLCRwithPrefix`(
 	IN `p_groupby` VARCHAR(50),
 	IN `p_SelectedEffectiveDate` DATE,
 	IN `p_isExport` INT
-	)
+)
 BEGIN
 
 		DECLARE v_OffSet_ int;
@@ -1142,7 +1318,7 @@ BEGIN
 						 SELECT distinct tblVendorRate.AccountId,
 						 		CASE WHEN p_groupby = 'description' THEN IFNULL(blockCode.VendorBlockingId, 0) ELSE IFNULL(blockCode.VendorBlockingId, 0) END AS BlockingId,
 						 		IFNULL(blockCountry.CountryId, 0)  as BlockingCountryId,
-								tblAccount.AccountName, tblRate.Code, tblRate.Description,
+								tblAccount.AccountName, tblRate.Code, tmpselectedcd.Description,
 								CASE WHEN  tblAccount.CurrencyId = p_CurrencyID
 									THEN
 										tblVendorRate.Rate
@@ -1169,6 +1345,7 @@ BEGIN
 							 INNER JOIN tblRate ON tblRate.CompanyID = p_companyid   AND    tblVendorRate.RateId = tblRate.RateID  AND vt.CodeDeckId = tblRate.CodeDeckId 
 
 
+						    INNER JOIN 	(select Code,Description from tblRate where CodeDeckId=p_codedeckID ) tmpselectedcd on tmpselectedcd.Code=tblRate.Code
 
 							 LEFT JOIN tblVendorPreference vp
 								 ON vp.AccountId = tblVendorRate.AccountId
@@ -1395,7 +1572,8 @@ BEGIN
 						(
 							SELECT
 								AccountId,
-								(CASE WHEN (select COUNT(*) from tmp_VendorCurrentRates1_ where AccountId=tmp_VendorRate_.AccountId AND Description=tmp_VendorRate_.Description AND BlockingId=0) > 0 THEN 0 ELSE 1 END) AS  BlockingId,
+								-- (CASE WHEN (select COUNT(*) from tmp_VendorCurrentRates1_ where AccountId=tmp_VendorRate_.AccountId AND Description=tmp_VendorRate_.Description AND BlockingId=0) > 0 THEN 0 ELSE 1 END) AS  BlockingId,
+								(CASE WHEN (select COUNT(*) from tmp_VendorCurrentRates1_ where tmp_VendorCurrentRates1_.AccountId=AccountId AND tmp_VendorCurrentRates1_.Description=Description AND BlockingId=0) > 0 THEN 0 ELSE 1 END) AS  BlockingId,
 								BlockingCountryId,
 						      AccountName ,
 								Code ,
@@ -1481,7 +1659,8 @@ BEGIN
 				insert into tmp_final_VendorRate_
 					SELECT
 						AccountId ,
-						(CASE WHEN (select COUNT(*) from tmp_VendorCurrentRates1_ where AccountId=tmp_VendorRate_.AccountId AND Description=tmp_VendorRate_.Description AND BlockingId=0) > 0 THEN 0 ELSE 1 END) AS  BlockingId,
+						(CASE WHEN (select COUNT(*) from tmp_VendorCurrentRates1_ where tmp_VendorCurrentRates1_.AccountId=tbl1.AccountId AND tmp_VendorCurrentRates1_.Description=tbl1.Description AND BlockingId=0) > 0 THEN 0 ELSE 1 END) AS  BlockingId,
+						-- (CASE WHEN (select COUNT(*) from tmp_VendorCurrentRates1_ where tmp_VendorCurrentRates1_.AccountId = AccountId  AND tmp_VendorCurrentRates1_.Description=Description AND BlockingId=0) > 0 THEN 0 ELSE 1 END) AS  BlockingId,
 						BlockingCountryId,
 						AccountName ,
 						Code ,
@@ -1784,120 +1963,124 @@ BEGIN
 		RateId INT(11)
 	);	
 	
-		IF p_groupby = 'description' THEN
-				
-				
-				INSERT INTO tmp_block0
-						select RateId
-						FROM (
-						select vr.RateId
-							 from tblVendorRate vr
-						 	 inner join tblRate r on vr.RateId=r.RateID 
-						    where vr.AccountId = p_accountId AND vr.TrunkID=p_trunk AND r.Description = p_description) tbl;
-				
-							 	
-					IF (p_blockId = 0) THEN
-					
-						/* insert into Vendor Blocking by description */								 
-						 insert into tblVendorBlocking (AccountId,RateId,TrunkID,BlockedBy,BlockedDate)    
-							    select p_accountId as AccountId, tmp0.RateID as RateId,p_trunk as TrunkID ,p_username as BlockedBy,NOW() as BlockedDate
+		IF(p_action = '') THEN 
+		
+				IF p_groupby = 'description' THEN
+						
+						
+						INSERT INTO tmp_block0
+								select RateId
+								FROM (
+								select vr.RateId
+									 from tblVendorRate vr
+								 	 inner join tblRate r on vr.RateId=r.RateID 
+								    where vr.AccountId = p_accountId AND vr.TrunkID=p_trunk AND r.Description = p_description) tbl;
+						
+									 	
+							IF (p_blockId = 0) THEN
+							
+								/* insert into Vendor Blocking by description */								 
+								 insert into tblVendorBlocking (AccountId,RateId,TrunkID,BlockedBy,BlockedDate)    
+									    select p_accountId as AccountId, tmp0.RateID as RateId,p_trunk as TrunkID ,p_username as BlockedBy,NOW() as BlockedDate
+										 from  tmp_block0 tmp0
+										 	 left join tblVendorBlocking vb
+											   on vb.RateId=tmp0.RateID 
+											   AND vb.AccountId = p_accountId AND vb.TrunkID=p_trunk
+									    where  vb.VendorBlockingId IS NULL;
+							ELSE 
+								select * from tmp_block0;
+								/* Delete from Vendor Blocking by description  */
+							
+								DELETE vb
+								FROM tblVendorBlocking vb
+								INNER JOIN tmp_block0 t
+								  ON vb.RateId = t.RateID
+								WHERE vb.AccountId = p_accountId AND vb.TrunkID = p_trunk ; 
+		
+							END IF;	
+							 
+								    
+								    
+								    
+				ELSE
+					  				
+						INSERT INTO tmp_block0
+								select RateId
+								FROM (						
+								select vr.RateId
+									 from tblVendorRate vr
+								 	 inner join tblRate r on vr.RateId=r.RateID 
+								    where vr.AccountId = p_accountId AND vr.TrunkID=p_trunk AND r.Code = p_rowcode) tbl;
+									 
+						
+						IF	(select COUNT(*)
+									 from tblVendorRate vr
+									 	 inner join tblRate r
+										   on vr.RateId=r.RateID 
+										 inner join tblVendorBlocking vb
+										   on r.RateID=vb.RateId
+								    where vb.AccountId = p_accountId AND vr.TrunkID=p_trunk AND r.Code = p_rowcode)	= 0		
+						THEN 
+						
+						
+							 insert into tblVendorBlocking (AccountId,RateId,TrunkID,BlockedBy)    
+							    select p_accountId as AccountId,tmp0.RateID as RateId,p_trunk as TrunkID ,p_username as BlockedBy
 								 from  tmp_block0 tmp0
 								 	 left join tblVendorBlocking vb
 									   on vb.RateId=tmp0.RateID 
 									   AND vb.AccountId = p_accountId AND vb.TrunkID=p_trunk
 							    where  vb.VendorBlockingId IS NULL;
-					ELSE 
-						select * from tmp_block0;
-						/* Delete from Vendor Blocking by description  */
-					
-						DELETE vb
-						FROM tblVendorBlocking vb
-						INNER JOIN tmp_block0 t
-						  ON vb.RateId = t.RateID
-						WHERE vb.AccountId = p_accountId AND vb.TrunkID = p_trunk ; 
-
-					END IF;	
-					 
-						    
-						    
-						    
-		ELSE
-			  				
-				INSERT INTO tmp_block0
-						select RateId
-						FROM (						
-						select vr.RateId
-							 from tblVendorRate vr
-						 	 inner join tblRate r on vr.RateId=r.RateID 
-						    where vr.AccountId = p_accountId AND vr.TrunkID=p_trunk AND r.Code = p_rowcode) tbl;
-							 
+							    
+							    
+						ELSE
+							    
+							    DELETE FROM `tblVendorBlocking`
+								   WHERE VendorBlockingId = p_blockId ;
+								/* DELETE FROM `tblVendorBlocking`
+								   WHERE AccountId = p_accountId
+								    AND TrunkID = p_trunk AND RateId = (select RateId from tmp_block0);*/
+								    
+								    
+						END IF;
+						
 				
-				IF	(select COUNT(*)
-							 from tblVendorRate vr
-							 	 inner join tblRate r
-								   on vr.RateId=r.RateID 
-								 inner join tblVendorBlocking vb
-								   on r.RateID=vb.RateId
-						    where vb.AccountId = p_accountId AND vr.TrunkID=p_trunk AND r.Code = p_rowcode)	= 0		
-				THEN 
-				
-				
-					 insert into tblVendorBlocking (AccountId,RateId,TrunkID,BlockedBy)    
-					    select p_accountId as AccountId,tmp0.RateID as RateId,p_trunk as TrunkID ,p_username as BlockedBy
-						 from  tmp_block0 tmp0
-						 	 left join tblVendorBlocking vb
-							   on vb.RateId=tmp0.RateID 
-							   AND vb.AccountId = p_accountId AND vb.TrunkID=p_trunk
-					    where  vb.VendorBlockingId IS NULL;
-					    
-					    
-				ELSE
-					    
-					    DELETE FROM `tblVendorBlocking`
-						   WHERE VendorBlockingId = p_blockId ;
-						/* DELETE FROM `tblVendorBlocking`
-						   WHERE AccountId = p_accountId
-						    AND TrunkID = p_trunk AND RateId = (select RateId from tmp_block0);*/
-						    
-						    
 				END IF;
+	
+		ELSE
+		
+			   /* Country Blocking Code Start */
+			   if(p_action ='country_block')
+				  THEN
+		
+							  select distinct CountryID into v_countryID from tblRate where Code=p_rowcode AND tblRate.CountryID is not null AND tblRate.CountryID!=0;
+							  INSERT INTO tblVendorBlocking
+							  (
+									 `AccountId`
+									 ,CountryId
+									 ,`TrunkID`
+									 ,`BlockedBy`
+							  ) 
+							  SELECT  
+								p_accountId as AccountId
+								,tblCountry.CountryID as CountryId
+								,p_trunk as TrunkID
+								,p_username as BlockedBy
+								FROM    tblCountry
+								LEFT JOIN tblVendorBlocking ON tblVendorBlocking.CountryId = tblCountry.CountryID AND TrunkID = p_trunk AND AccountId = p_accountId
+								WHERE  tblCountry.CountryID=v_countryID  AND tblVendorBlocking.VendorBlockingId is null;
+											  
+				  END IF;
+				  
+				  if(p_action ='country_unblock')
+				  THEN
+				  
+				  	delete  from tblVendorBlocking 
+					WHERE  AccountId = p_accountId AND TrunkID = p_trunk AND ( p_countryBlockingID ='' OR FIND_IN_SET(CountryId, p_countryBlockingID) );
+							
 				
-		
-		END IF;
-	
-	
-	   /* Country Blocking Code Start */
-	   if(p_action ='country_block')
-		  THEN
-				  select distinct CountryID into v_countryID from tblRate where Code=p_rowcode;
-
-					  INSERT INTO tblVendorBlocking
-					  (
-							 `AccountId`
-							 ,CountryId
-							 ,`TrunkID`
-							 ,`BlockedBy`
-					  ) 
-					  SELECT  
-						p_accountId as AccountId
-						,tblCountry.CountryID as CountryId
-						,p_trunk as TrunkID
-						,p_username as BlockedBy
-						FROM    tblCountry
-						LEFT JOIN tblVendorBlocking ON tblVendorBlocking.CountryId = tblCountry.CountryID AND TrunkID = p_trunk AND AccountId = p_accountId
-						WHERE  tblCountry.CountryID=v_countryID  AND tblVendorBlocking.VendorBlockingId is null;
-									  
-		  END IF;
-		  
-		  if(p_action ='country_unblock')
-		  THEN
-		  
-		  	delete  from tblVendorBlocking 
-			WHERE  AccountId = p_accountId AND TrunkID = p_trunk AND ( p_countryBlockingID ='' OR FIND_IN_SET(CountryId, p_countryBlockingID) );
-					
-		
-		  END IF;
-	   /* Country Blocking Code End */
+				  END IF;
+			   /* Country Blocking Code End */
+	    END IF;
 	
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
