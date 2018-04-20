@@ -641,7 +641,7 @@ function getFileContentSheet2($file_name, $data, $Sheet=''){
         }
         $counter++;
     }
-
+    $columns = array_filter($columns);
     foreach ($results as $outindex => $datarow) {
         //$datarow = array_filter($datarow);
         //$results[$outindex] =  array_filter($datarow);
@@ -652,6 +652,7 @@ function getFileContentSheet2($file_name, $data, $Sheet=''){
                 $results[$outindex][$index] = $singlerow;
             }
         }
+        unset($results[$outindex][""]);
     }
     try {
     } catch (\Exception $ex) {
