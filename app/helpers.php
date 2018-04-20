@@ -1145,7 +1145,8 @@ function check_uri($parent_link=''){
     $array_settings   =    array("Users","Trunk","CodeDecks","Gateway","Currencies","CurrencyConversion","DestinationGroup","DialString");
     $array_admin	  =	   array("Users","Role","Themes","AccountApproval","FileUploadTemplate","EmailTemplate","Notification","ServerInfo","Retention","NoticeBoard");
     $array_summary    =    array("Summary");
-    $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling");
+    $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling","AutoRateImport");
+    $array_autoImport =	   array("AutoRateImport");
 	$array_tickets	  =	   array("Tickets","TicketsFields","TicketsGroup","Dashboard","TicketsSla","TicketsBusinessHours","TicketImportRules");
     $array_template   =    array("");
     $array_dashboard  =    array("Dashboard");
@@ -1184,6 +1185,10 @@ function check_uri($parent_link=''){
         }
 
         if(in_array($controller,$array_rates) && $parent_link =='Rates')
+        {
+            return 'opened';
+        }
+        if(in_array($controller,$array_autoImport) && $parent_link =='AutoImport')
         {
             return 'opened';
         }
