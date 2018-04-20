@@ -10,12 +10,17 @@ class AutoRateImportController extends \BaseController {
 	{
 		$companyID = User::get_companyID();
 		$autoimportSetting = AutoImportInboxSetting::getAutoImportSetting($companyID);
+		$autoimportSetting['copyNotification'] = $autoimportSetting[0]->SendCopyToAccount == 'Y' ? 'checked' : '';
+		$autoimportSetting['SuccessNotify'] = $autoimportSetting[0]->emailNotification == 'S' ? 'checked' : '';
+		$autoimportSetting['FailNotify'] = $autoimportSetting[0]->emailNotification == 'F' ? 'checked' : '';
 		return View::make('autoimport.auto_import_inbox_setting', compact('autoimportSetting'));
 
 	}
 	public function inboxSettingStoreAndUpdate()
 	{
 		$data = Input::all();
+		$data['SendCopyToAccount'] = isset($data['SendCopyToAccount'])?'Y':'N';
+		$data['emailNotification'] = isset($data['emailNotification']) ? $data['emailNotification'] : '' ;
 		$rules = array(
 			'port' => 'required',
 			'host'=>'required',
