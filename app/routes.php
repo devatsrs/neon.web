@@ -261,6 +261,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accounts/expense_top_destination/{id}', 'AccountsController@expense_top_destination');
 	Route::any('accounts/unbilledreport/{id}', 'AccountsController@unbilledreport');
 	Route::any('accounts/activity_pdf_download/{id}', 'AccountsController@activity_pdf_download');
+	Route::any('accounts/getNextBillingDate', 'AccountsController@getNextBillingDate');
 
 	//Account Subscription
 	Route::any('account_subscription', 'AccountSubscriptionController@main');
@@ -729,6 +730,19 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rate_upload/{id}/{type}', 'RateUploadController@index');
 	Route::resource('rate_upload', 'RateUploadController');
 	Route::controller('rate_upload', 'RateUploadController');
+
+	// Auto Rate import (Account And RateTable Setting page)
+	Route::any('/auto_rate_import/ajax_datagrid/{type}','AutoRateImportController@ajax_datagrid');
+	Route::any('/auto_rate_import/import_inbox_setting','AutoRateImportController@index');
+	Route::any('/auto_rate_import/storeAndUpdate','AutoRateImportController@inboxSettingStoreAndUpdate');
+
+	Route::any('/auto_rate_import/account_setting','AutoRateImportController@accountSetting');
+	Route::any('/auto_rate_import/account_setting/store','AutoRateImportController@accountSettingStore');
+
+	Route::any('/auto_rate_import/rateTable_setting/store','AutoRateImportController@RateTableSettingStore');
+	Route::any('/auto_rate_import/ratetable_setting','AutoRateImportController@ratetableSetting');
+
+	Route::any('/auto_rate_import/{id}/delete','AutoRateImportController@Delete');
 
 	//LCR
 	Route::any('/lcr', 'LCRController@index');

@@ -457,7 +457,7 @@
                                 <label for="field-5" class="control-label">Active</label>
                                 <div class="clear">
                                     <p class="make-switch switch-small">
-                                        <input type="checkbox" name="Status" value="0">
+                                        <input type="checkbox" name="Status" value="1" checked="checked">
                                     </p>
                                 </div>
                             </div>

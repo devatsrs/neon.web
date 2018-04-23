@@ -1,7 +1,10 @@
 USE `Ratemanagement3`;
 
 ALTER TABLE `tblAccountBilling`
-	ADD COLUMN `FirstInvoiceSend` INT NULL DEFAULT '0' AFTER `AutoPaymentSetting`;
+	ADD COLUMN `LastChargeDate` DATE NULL DEFAULT NULL AFTER `NextInvoiceDate`,
+	ADD COLUMN `NextChargeDate` DATE NULL DEFAULT NULL AFTER `LastChargeDate`;
+	
+UPDATE tblAccountBilling SET LastChargeDate=LastInvoiceDate,NextChargeDate=NextInvoiceDate;
 
 CREATE TABLE IF NOT EXISTS `tblAccountDetails` (
 	`AccountDetailID` INT(11) NOT NULL AUTO_INCREMENT,
