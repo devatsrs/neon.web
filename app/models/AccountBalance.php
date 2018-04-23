@@ -66,6 +66,28 @@ class AccountBalance extends \Eloquent {
         }
         return $AccountBalance;
     }
+
+    public static function getAccountOutstandingBalance($AccountID,$AccountOutstandingBalance){
+        $BillingType = AccountBilling::where(['AccountID'=>$AccountID,'ServiceID'=>0])->pluck('BillingType');
+        if(isset($BillingType)){
+            if($BillingType==AccountApproval::BILLINGTYPE_PREPAID){
+                if($AccountOutstandingBalance<0){
+                    $AccountOutstandingBalance=abs($AccountOutstandingBalance);
+                }else{
+                    $AccountOutstandingBalance=($AccountOutstandingBalance) * -1;
+                }
+            }else{
+                if($AccountOutstandingBalance<0){
+                    $AccountOutstandingBalance=0;
+                }
+            }
+        }else{
+            if($AccountOutstandingBalance<0){
+                $AccountOutstandingBalance=0;
+            }
+        }
+        return $AccountOutstandingBalance;
+    }
 	
 
 }
