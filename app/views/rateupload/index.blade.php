@@ -328,7 +328,7 @@
         jQuery(document).ready(function ($) {
             getUploadTemplates('{{$RateUploadType}}'); //get templates by type for ex. vendor,customer,ratetable rate upload template
 
-            $("input[name=RateUploadType]").on('change', function(){
+            $("input[name='RateUploadType']").on('change', function(){
                 var Type = $("input[name=RateUploadType]:checked").val();
                 var id   = $("#"+Type).val();
                 $('.typecontentbox').hide().addClass('hidden');
@@ -337,7 +337,7 @@
                 getTrunk(Type,id);
                 $('.btn.upload').removeAttr('disabled');
             });
-            $("select[name=Vendor]").on('change', function(){
+            $("select[name='Vendor']").on('change', function(){
                 var Type = $("input[name=RateUploadType]:checked").val();
                 var id   = $("select[name=Vendor]").val();
 
@@ -377,29 +377,46 @@
                         });
                         if (response.status == 'success') {
                             var SheetNames = response.SheetNames;
+                            var Extension = response.FileExtesion;
                             var html = '';
 
-                            for(var i=0;i<SheetNames.length;i++) {
-                                if(i==0)
-                                    html += '<option value="'+SheetNames[i]+'" selected="selected">'+SheetNames[i]+'</option>';
+                            for (var i = 0; i < SheetNames.length; i++) {
+                                if (i == 0)
+                                    html += '<option value="' + SheetNames[i] + '" selected="selected">' + SheetNames[i] + '</option>';
                                 else
-                                    html += '<option value="'+SheetNames[i]+'">'+SheetNames[i]+'</option>';
+                                    html += '<option value="' + SheetNames[i] + '">' + SheetNames[i] + '</option>';
                             }
 
                             /*$('#Sheet').html(html);
-                            $('#SheetBox').removeClass('hidden');
-                            $('#SheetBox').show();
-                            var Sheet = $('option:selected', $('#uploadtemplate')).attr('Sheet');
+                             $('#SheetBox').removeClass('hidden');
+                             $('#SheetBox').show();
+                             var Sheet = $('option:selected', $('#uploadtemplate')).attr('Sheet');
                              if(Sheet != undefined && Sheet != '') {
                              $('#Sheet').val(Sheet);
                              }
                              $('#Sheet').trigger('change');*/
 
+                            $("#importrate").select2("val", "");
                             $('#importrate').html(html);
                             $('#rateBox').removeClass('hidden');
 
-                            $('#importdialcodes').html(html);
-                            $('#dialcodesBox').removeClass('hidden');
+                            if (SheetNames.length > 1)
+                            {
+                                $("#importdialcodes").select2("val", "");
+                                $('#importdialcodes').html(html);
+                                $('#dialcodesBox').removeClass('hidden');
+                            }
+                            else
+                            {
+                                if(!$("#dialcodesBox").hasClass("hidden")){
+                                    $('#dialcodesBox').addClass('hidden');
+                                }
+                            }
+
+                            var isMobileVersion = document.getElementsByClassName('snake--mobile');
+                            if (isMobileVersion.length > 0) {
+                                // elements with class "snake--mobile" exist
+                            }
 
                             var importratesheet = $('option:selected', $('#uploadtemplate')).attr('importratesheet');
                             if(importratesheet != undefined && importratesheet != '') {
@@ -407,11 +424,16 @@
                             }
                             $('#importrate').trigger('change');
 
-                            var importdialcodessheet = $('option:selected', $('#uploadtemplate')).attr('importdialcodessheet');
-                            if(importdialcodessheet != undefined && importdialcodessheet != '') {
-                                $('#importdialcodes').val(importdialcodessheet);
+                            var dialcodeopt = $('#uploadtemplate').attr('importdialcodessheet');
+                            if(dialcodeopt !== "undefined") {
+                                var importdialcodessheet = $('option:selected', $('#uploadtemplate')).attr('importdialcodessheet');
+                                if (importdialcodessheet != '') {
+                                    if (importdialcodessheet != undefined && importdialcodessheet != '') {
+                                        $('#importdialcodes').val(importdialcodessheet);
+                                    }
+                                    $('#importdialcodes').trigger('change');
+                                }
                             }
-                            $('#importdialcodes').trigger('change');
 
                         } else {
                             toastr.error(response.message, "Error", toastr_opts);
@@ -436,8 +458,8 @@
                 }
             });
             $("#importdialcodes, #importrate").change(function() {
-                var sheet1 = $('#importdialcodes').val();
-                var sheet2 = $('#importrate').val();
+                var sheet1 = $('#importrate').val();
+                var sheet2 = $('#importdialcodes').val();
                 if(sheet1 == sheet2)
                 {
                     $("a[href='#tab2']").hide();
@@ -445,8 +467,10 @@
                 }
                 else
                 {
-                    $("a[href='#tab2']").show();
-                    $("a[href='#tabs2']").show();
+                    if(sheet2 != null) {
+                        $("a[href='#tab2']").show();
+                        $("a[href='#tabs2']").show();
+                    }
                 }
             });
 
@@ -520,7 +544,11 @@
                             var data = response.data;
                             createGrid(data);
                             var data2 = response.data2;
-                            createGrid2(data2);
+                            if(data2 != '')
+                            {
+                                createGrid2(data2);
+                            }
+
                             $('#add-template').removeClass('hidden');
                             var scrollTo = $('#add-template').offset().top;
                             $('html, body').animate({scrollTop:scrollTo}, 1000);
@@ -570,7 +598,10 @@
                             var data = response.data;
                             createGrid(data);
                             var data2 = response.data2;
-                            createGrid2(data2);
+                            if(data2 != '')
+                            {
+                                createGrid2(data2);
+                            }
                         } else {
                             toastr.error(response.message, "Error", toastr_opts);
                         }
