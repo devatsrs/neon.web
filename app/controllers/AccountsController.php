@@ -704,6 +704,14 @@ class AccountsController extends \BaseController {
         }else{
             $VendorName = '';
         }
+        if($data['Billing'] == 1) {
+            if($data['NextInvoiceDate']<$data['LastInvoiceDate']){
+                return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
+            }
+            if($data['NextChargeDate']<$data['LastChargeDate']){
+                return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
+            }
+        }
 
         if ($account->update($data)) {
 
@@ -723,6 +731,12 @@ class AccountsController extends \BaseController {
             }
 
             if($data['Billing'] == 1) {
+                if($data['NextInvoiceDate']<$data['LastInvoiceDate']){
+                    return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
+                }
+                if($data['NextChargeDate']<$data['LastChargeDate']){
+                    return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
+                }
                 AccountBilling::insertUpdateBilling($id, $data,$ServiceID,$invoice_count);
                 if($ManualBilling == 0){
                     AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
