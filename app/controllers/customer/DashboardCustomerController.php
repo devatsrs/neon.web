@@ -115,6 +115,7 @@ class DashboardCustomerController extends BaseController {
         $query = "call prc_getDashboardTotalOutStanding ('". $companyID  . "',  '". $CurrencyID  . "',".$CustomerID.")";
         $InvoiceExpenseResult = DB::connection('sqlsrv2')->select($query);
         if(!empty($InvoiceExpenseResult) && isset($InvoiceExpenseResult[0])) {
+            $InvoiceExpenseResult[0]->TotalOutstanding=AccountBalance::getAccountOutstandingBalance($CustomerID,$InvoiceExpenseResult[0]->TotalOutstanding);
             return Response::json(array("data" =>$InvoiceExpenseResult[0],'CurrencyCode'=>$CurrencyCode,'CurrencySymbol'=>$CurrencySymbol));
         }
     }
