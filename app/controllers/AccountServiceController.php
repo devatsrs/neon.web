@@ -145,6 +145,12 @@ class AccountServiceController extends \BaseController {
             }
 
             if(!empty($data['BillingStartDate']) || !empty($data['BillingCycleType']) || !empty($data['BillingCycleValue'])  || !empty($data['BillingClassID'])){
+                if($data['NextInvoiceDate']<$data['LastInvoiceDate']){
+                    return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
+                }
+                if($data['NextChargeDate']<$data['LastChargeDate']){
+                    return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
+                }
                 AccountBilling::insertUpdateBilling($AccountID, $data,$ServiceID,$invoice_count);
                 AccountBilling::storeFirstTimeInvoicePeriod($AccountID,$ServiceID);
                 $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'),$ServiceID);

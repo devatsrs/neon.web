@@ -285,11 +285,48 @@
                         {{$LastInvoiceDate}}
                     </div>
                     <label for="field-1" class="col-md-2 control-label">Next Invoice Date</label>
+                    <div class="col-md-3">
+                        <?php
+                        $NextInvoiceDate = isset($AccountBilling->NextInvoiceDate)?$AccountBilling->NextInvoiceDate:'';
+                        ?>
+                        @if($hiden_class != '' && isset($NextInvoiceDate) )
+                            <div class="next_invoice_edit_text"> {{$NextInvoiceDate}} </div>
+                        @endif
+                        {{Form::text('NextInvoiceDate', $NextInvoiceDate,array('class'=>'form-control '.$hiden_class.' datepicker next_invoice_date',"data-date-format"=>"yyyy-mm-dd"))}}
+                    </div>
+                    <div class="col-md-1">
+                        @if($hiden_class != '')
+                            <button class="btn btn-sm btn-primary tooltip-primary" id="next_invoice_edit" data-original-title="Edit Next Invoice Date" title="" data-placement="top" data-toggle="tooltip">
+                                <i class="entypo-pencil"></i>
+                            </button>
+                        @endif
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="col-md-2 control-label">Last Charge Date</label>
                     <div class="col-md-4">
                         <?php
-                        $NextInvoiceDate = isset($AccountBilling->NextInvoiceDate)?$AccountBilling->NextInvoiceDate:''; ?>
-                        {{Form::hidden('NextInvoiceDate', $NextInvoiceDate)}}
-                        {{$NextInvoiceDate}}
+                        $LastChargeDate = isset($AccountBilling->LastChargeDate)?$AccountBilling->LastChargeDate:'';
+                        ?>
+                        {{Form::hidden('LastChargeDate', $LastChargeDate)}}
+                        {{$LastChargeDate}}
+                    </div>
+                    <label for="field-1" class="col-md-2 control-label">Next Charge Date</label>
+                    <div class="col-md-3">
+                        <?php
+                        $NextChargeDate = isset($AccountBilling->NextChargeDate)?$AccountBilling->NextChargeDate:'';
+                        ?>
+                        @if($hiden_class != '' && isset($NextChargeDate) )
+                            <div class="next_charged_edit_text"> {{$NextChargeDate}} </div>
+                        @endif
+                        {{Form::text('NextChargeDate', $NextChargeDate,array('class'=>'form-control '.$hiden_class.' datepicker next_charged_date',"data-date-format"=>"yyyy-mm-dd"))}}
+                    </div>
+                    <div class="col-md-1">
+                        @if($hiden_class != '')
+                            <button class="btn btn-sm btn-primary tooltip-primary" id="next_charged_edit" data-original-title="Edit Next charged Date" title="" data-placement="top" data-toggle="tooltip">
+                                <i class="entypo-pencil"></i>
+                            </button>
+                        @endif
                     </div>
                 </div>
 
@@ -423,12 +460,25 @@
             }else{
                 BillingChanged = true;
             }
+            if(selection=='weekly' || selection=='monthly_anniversary' || selection=='in_specific_days' || selection=='subscription' || selection=='manual'){
+                //nothing
+            }else{
+                changeBillingDates('');
+            }
         });
         $('[name="BillingStartDate"]').on( "change",function(e){
             BillingChanged = true;
+            billing_disable='{{$billing_disable}}';
+            if(billing_disable==''){
+                $('#billing_edit').trigger("click");
+                $('#next_invoice_edit').trigger("click");
+                $('#next_charged_edit').trigger("click");
+            }
+            changeBillingDates('');
         });
         $('[name="BillingCycleValue"]').on( "change",function(e){
             BillingChanged = true;
+            changeBillingDates($(this).val());
         });
 
         $('#billing_edit').on( "click",function(e){
@@ -437,10 +487,28 @@
             $('body').find(".billing_options_active").removeClass('hidden');
             $('.billing_edit_text').addClass('hidden');
             $(this).addClass('hidden');
+            $('#next_invoice_edit').trigger("click");
+            $('#next_charged_edit').trigger("click");
             return false;
         });
 
         $('select[name="BillingCycleType"]').trigger( "change" );
+
+        $('#next_invoice_edit').on( "click",function(e){
+            e.preventDefault();
+            $('[name="NextInvoiceDate"]').removeClass('hidden');
+            $('.next_invoice_edit_text').addClass('hidden');
+            $(this).addClass('hidden');
+            return false;
+        });
+
+        $('#next_charged_edit').on( "click",function(e){
+            e.preventDefault();
+            $('[name="NextChargeDate"]').removeClass('hidden');
+            $('.next_charged_edit_text').addClass('hidden');
+            $(this).addClass('hidden');
+            return false;
+        });
 
         /*Account service breadcum*/
         $('#drp_accountservice_jump').on('change',function(){
@@ -451,6 +519,47 @@
                 window.location.href = baseurl + url;
             }
         });
+
+        function changeBillingDates(BillingCycleValue){
+            var BillingStartDate;
+            var BillingCycleType;
+            var billing_disable;
+            //var BillingCycleValue;
+
+            billing_disable = '{{$billing_disable}}';
+            //BillingStartDate = $('[name="LastInvoiceDate"]').val();
+            if(billing_disable==''){
+                BillingStartDate = $('[name="BillingStartDate"]').val();
+            }else{
+                BillingStartDate = $('[name="LastInvoiceDate"]').val();
+            }
+            BillingCycleType = $('select[name="BillingCycleType"]').val();
+            if(BillingCycleValue==''){
+                BillingCycleValue = $('[name="BillingCycleValue"]').val();
+            }
+            if(BillingStartDate=='' || BillingCycleType==''){
+                return true;
+            }
+
+            getNextBillingDatec_url =  '{{ URL::to('accounts/getNextBillingDate')}}';
+            $.ajax({
+                url: getNextBillingDatec_url,
+                type: 'POST',
+                dataType: 'json',
+                success: function(response) {
+                    $('[name="NextInvoiceDate"]').val(response.NextBillingDate);
+                    $('[name="NextChargeDate"]').val(response.NextChargedDate);
+                },
+                data: {
+                    "BillingStartDate":BillingStartDate,
+                    "BillingCycleType":BillingCycleType,
+                    "BillingCycleValue":BillingCycleValue
+                }
+
+            });
+
+            return true;
+        }
 
 
     });
