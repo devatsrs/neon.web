@@ -5,6 +5,7 @@ CREATE DEFINER=`neon-user`@`192.168.1.25` PROCEDURE `prc_RateTableCheckDialstrin
 	IN `p_effectiveImmediately` INT,
 	IN `p_dialcodeSeparator` VARCHAR(50)
 
+
 )
 ThisSP:BEGIN
 
@@ -306,13 +307,23 @@ ThisSP:BEGIN
 				WHERE tblTempRateTableRate.ProcessId = p_processId
 					AND tblTempRateTableRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
 
-				INSERT INTO tmp_RateTableRateDialString_2
-				SELECT * FROM tmp_RateTableRateDialString_;
+				/*INSERT INTO tmp_RateTableRateDialString_2
+				SELECT * FROM tmp_RateTableRateDialString_;*/
+	
+				INSERT INTO tmp_VendorRateDialString_2
+				SELECT *  FROM tmp_VendorRateDialString_ where DialStringPrefix!='';
+	
+				Delete From tmp_VendorRateDialString_
+				Where DialStringPrefix = ''
+				And Code IN (Select DialStringPrefix From tmp_VendorRateDialString_2);
+	
+				INSERT INTO tmp_VendorRateDialString_3
+				SELECT * FROM tmp_VendorRateDialString_;
 
-				INSERT INTO tmp_RateTableRateDialString_3
+				/*INSERT INTO tmp_RateTableRateDialString_3
 				SELECT vrs1.* from tmp_RateTableRateDialString_2 vrs1
 				LEFT JOIN tmp_RateTableRateDialString_ vrs2 ON vrs1.Code=vrs2.Code AND vrs1.CodeDeckId=vrs2.CodeDeckId AND vrs1.Description=vrs2.Description AND vrs1.EffectiveDate=vrs2.EffectiveDate AND vrs1.DialStringPrefix != vrs2.DialStringPrefix
-				WHERE ( (vrs1.DialStringPrefix ='' AND vrs2.Code IS NULL) OR (vrs1.DialStringPrefix!='' AND vrs2.Code IS NOT NULL));
+				WHERE ( (vrs1.DialStringPrefix ='' AND vrs2.Code IS NULL) OR (vrs1.DialStringPrefix!='' AND vrs2.Code IS NOT NULL));*/
 
 				DELETE  FROM tmp_TempRateTableRate_ WHERE  ProcessId = p_processId;
 
