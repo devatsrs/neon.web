@@ -173,7 +173,7 @@
                 <input name="start_row" type="hidden" value="0" min="0">
                 <input name="end_row" type="hidden" value="0" min="0">
                 <input type="hidden" name="ProcessID" id="ProcessID" value="" />
-                <input type="hidden" name="TemplateType" id="TemplateType" value="{{FileUploadTemplate::TEMPLATE_VENDOR_RATE}}" />
+                <input type="hidden" name="TemplateType" id="TemplateType" value="{{FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_VENDOR_RATE)}}" />
                 <input type="hidden" name="FileUploadTemplateID" id="FileUploadTemplateID" value="" />
 
                 <div class="panel panel-primary" data-collapsed="0">

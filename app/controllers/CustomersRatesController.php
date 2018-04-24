@@ -23,10 +23,16 @@ class CustomersRatesController extends \BaseController {
         $sort_column = $columns[$data['iSortCol_0']];
         $companyID = User::get_companyID();
 
+        if($data['Effective'] == 'CustomDate') {
+            $CustomDate = $data['CustomDate'];
+        } else {
+            $CustomDate = date('Y-m-d');
+        }
+
         if(!empty($data['DiscontinuedRates'])) {
             $query = "call prc_getDiscontinuedCustomerRateGrid (" . $companyID . "," . $id . "," . $data['Trunk'] . "," . $data['Country'] . "," . $data['Code'] . "," . $data['Description'] . "," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "'";
         } else {
-            $query = "call prc_GetCustomerRate (".$companyID.",".$id.",".$data['Trunk'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$data['Effected_Rates_on_off'].",'".intval($data['RoutinePlanFilter'])."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+            $query = "call prc_GetCustomerRate (".$companyID.",".$id.",".$data['Trunk'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."','".$CustomDate."',".$data['Effected_Rates_on_off'].",'".intval($data['RoutinePlanFilter'])."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         }
 
         if(isset($data['Export']) && $data['Export'] == 1) {
@@ -275,13 +281,18 @@ class CustomersRatesController extends \BaseController {
         if (Request::ajax()) {
             $data = Input::all();
             $test = 0;
+            $message = array();
             $rules = array('isMerge' => 'required', 'Trunks' => 'required', 'Format' => 'required','filetype'=> 'required');
 
             if (!isset($data['isMerge'])) {
                 $data['isMerge'] = 0;
             }
+            if($data['Effective'] == 'CustomDate') {
+                $rules['CustomDate'] = "required|date|date_format:Y-m-d|after:".date('Y-m-d', strtotime('-1 day', strtotime(date('Y-m-d'))));
+                $message['CustomDate.after'] = "Custom Date must be today or future date, you can not download past date's rate";
+            }
 
-            $validator = Validator::make($data, $rules);
+            $validator = Validator::make($data, $rules, $message);
 
             if ($validator->fails()) {
                 return json_validator_response($validator);
@@ -529,7 +540,13 @@ class CustomersRatesController extends \BaseController {
             $sort_column = $columns[$data['iSortCol_0']];
             $companyID = User::get_companyID();
 
-            $query = "call prc_GetCustomerRate (".$companyID.",".$id.",".$data['Trunk'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',1)";
+            if($data['Effective'] == 'CustomDate') {
+                $CustomDate = $data['CustomDate'];
+            } else {
+                $CustomDate = date('Y-m-d');
+            }
+
+            $query = "call prc_GetCustomerRate (".$companyID.",".$id.",".$data['Trunk'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."','".$CustomDate."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',1)";
 
             DB::setFetchMode( PDO::FETCH_ASSOC );
             $rate_table_rates  = DB::select($query);
@@ -622,7 +639,7 @@ class CustomersRatesController extends \BaseController {
 
     //get ajax code for add new rate
     public function getCodeByAjax(){
-        $CompanyID  = User::get_companyID();
+        //$CompanyID  = User::get_companyID();
         $list       = array();
         $data       = Input::all();
         $rate       = $data['q'].'%';
@@ -630,7 +647,8 @@ class CustomersRatesController extends \BaseController {
         $TrunkID    = $data['trunk'];
         $CodeDeckId = Account::getCodeDeckId($AccountID,$TrunkID);
 
-        $codes = CodeDeck::where(["CompanyID" => $CompanyID,'CodeDeckId'=>$CodeDeckId])
+        //$codes = CodeDeck::where(["CompanyID" => $CompanyID,'CodeDeckId'=>$CodeDeckId])
+        $codes = CodeDeck::where(['CodeDeckId'=>$CodeDeckId])
             ->where('Code','like',$rate)->take(100)->lists('Code', 'RateID');
 
         if(count($codes) > 0){

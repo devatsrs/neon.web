@@ -11,6 +11,7 @@ class AmazonS3 {
 
     public static $isAmazonS3;
     public static $dir = array(
+        'AUTOIMPORT_UPLOAD' =>  'AutoImportUploads',
         'CODEDECK_UPLOAD' =>  'CodedecksUploads',
         'VENDOR_UPLOAD' =>  'VendorUploads',
         'VENDOR_DOWNLOAD' =>  'VendorDownloads',
@@ -46,6 +47,7 @@ class AmazonS3 {
         'RATESHEET_TEMPLATE'=>'RatesheetTemplate',
         'XERO_UPLOAD'=>'XeroUpload',
         'GATEWAY_KEY'=>'GatewayKey',
+        'DIGITAL_SIGNATURE_KEY'=>'DigitalSignature',
     );
 
     // Instantiate an S3 client
@@ -101,27 +103,31 @@ class AmazonS3 {
      * Generate Path
      * Ex. WaveTell/18-Y/VendorUploads/2015/05
      * */
-    static function generate_upload_path($dir ='',$accountId = '',$CompanyID=0 ) {
+    static function generate_upload_path($dir ='',$accountId = '',$CompanyID=0 , $noDateFolders=false) {
 
         if(empty($dir))
             return false;
         if(empty($CompanyID)) {
             $CompanyID = User::get_companyID();//   Str::slug(Company::getName());
         }
-        $path = self::generate_path($dir,$CompanyID,$accountId);
+        $path = self::generate_path($dir,$CompanyID,$accountId, $noDateFolders);
 
         return $path;
     }
 
-    static function generate_path($dir ='',$companyId , $accountId = '' ) {
+    static function generate_path($dir ='',$companyId , $accountId = '' , $noDateFolders=false) {
 
         $path = $companyId  ."/";
 
         if($accountId > 0){
             $path .= $accountId ."/";
         }
+        if($noDateFolders){
+            $path .=  $dir . "/";
+        }else{
+            $path .=  $dir . "/". date("Y")."/".date("m") ."/" .date("d") ."/";
+        }
 
-        $path .=  $dir . "/". date("Y")."/".date("m") ."/" .date("d") ."/";
         $dir = CompanyConfiguration::get('UPLOAD_PATH',$companyId) . '/'. $path;
         if (!file_exists($dir)) {
             RemoteSSH::run("mkdir -p " . $dir);

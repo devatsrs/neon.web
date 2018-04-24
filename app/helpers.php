@@ -542,35 +542,12 @@ function getFileContent($file_name, $data, $Sheet=''){
 
     $NeonExcel = new NeonExcelIO($file_name, $data, $Sheet);
     $results = $NeonExcel->read(10);
-    /*
-    if (!empty($data['Delimiter'])) {
-        Config::set('excel::csv.delimiter', $data['Delimiter']);
-    }
-    if (!empty($data['Enclosure'])) {
-        Config::set('excel::csv.enclosure', $data['Enclosure']);
-    }
-    if (!empty($data['Escape'])) {
-        Config::set('excel::csv.line_ending', $data['Escape']);
-    }
-    if(!empty($data['Firstrow'])){
-        $data['option']['Firstrow'] = $data['Firstrow'];
-    }
 
-    if (!empty($data['option']['Firstrow'])) {
-        if ($data['option']['Firstrow'] == 'data') {
-            $flag = 1;
-        }
-    }
-    $isExcel = in_array(pathinfo($file_name, PATHINFO_EXTENSION),['xls','xlsx'])?true:false;
-    $results = Excel::selectSheetsByIndex(0)->load($file_name, function ($reader) use ($flag,$isExcel) {
-        if ($flag == 1) {
-            $reader->noHeading();
-        }
-    })->take(10)->toArray();*/
+    // Get columns
+
     $counter = 1;
-    //$results[0] = array_filter($results[0]);
     foreach ($results[0] as $index => $value) {
-        if (isset($data['Firstrow']) && $data['Firstrow'] == 'data') {
+        if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
             $columns[$counter] = 'Col' . $counter;
         } else {
             if(!is_null($index))
@@ -585,28 +562,41 @@ function getFileContent($file_name, $data, $Sheet=''){
         }
         $counter++;
     }
-    $columns = array_filter($columns);
+
+    // Get data into array.
+    $grid_array = array();
     foreach ($results as $outindex => $datarow) {
-        //unset($results[$outindex][""]);
-        //$datarow = array_filter($datarow);
-        //$results[$outindex] =  array_filter($datarow);
+
+        $i = 1;
         foreach ($datarow as $index => $singlerow) {
-            $results[$outindex][$index] = $singlerow;
+
+            $grid_array[$outindex][$index] = $singlerow;
+
             if (strpos(strtolower($index), 'date') !== false) {
+
                 $singlerow = str_replace('/', '-', $singlerow);
-                $results[$outindex][$index] = $singlerow;
+                $grid_array[$outindex][$index] = $singlerow;
             }
+
+            if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
+                $grid_array[$outindex][$columns[$i++]] = $singlerow;
+            }
+
+
         }
-        unset($results[$outindex][""]);
     }
+    //print_r($grid_array);
+    //exit;
+
     try {
     } catch (\Exception $ex) {
         Log::error($ex);
     }
 
     $grid['columns'] = $columns;
-    $grid['rows'] = $results;
+    $grid['rows'] = $grid_array;
     $grid['filename'] = $file_name;
+
     return $grid;
 }
 
@@ -615,7 +605,7 @@ function getFileContentSheet2($file_name, $data, $Sheet=''){
     $grid = [];
     $flag = 0;
 
-    if(isset($data["start_row_sheet2"]) && isset($data["end_row_sheet2"])){
+     if(isset($data["start_row_sheet2"]) && isset($data["end_row_sheet2"])){
         NeonExcelIO::$start_row=$data["start_row_sheet2"];
         NeonExcelIO::$end_row=$data["end_row_sheet2"];
     }
@@ -623,10 +613,11 @@ function getFileContentSheet2($file_name, $data, $Sheet=''){
     $NeonExcel = new NeonExcelIO($file_name, $data, $Sheet);
     $results = $NeonExcel->read(10);
 
+    // Get columns
+
     $counter = 1;
-    //$results[0] = array_filter($results[0]);
     foreach ($results[0] as $index => $value) {
-        if (isset($data['Firstrow']) && $data['Firstrow'] == 'data') {
+        if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
             $columns[$counter] = 'Col' . $counter;
         } else {
             if(!is_null($index))
@@ -641,27 +632,41 @@ function getFileContentSheet2($file_name, $data, $Sheet=''){
         }
         $counter++;
     }
-    $columns = array_filter($columns);
+
+    // Get data into array.
+    $grid_array = array();
     foreach ($results as $outindex => $datarow) {
-        //$datarow = array_filter($datarow);
-        //$results[$outindex] =  array_filter($datarow);
+
+        $i = 1;
         foreach ($datarow as $index => $singlerow) {
-            $results[$outindex][$index] = $singlerow;
+
+            $grid_array[$outindex][$index] = $singlerow;
+
             if (strpos(strtolower($index), 'date') !== false) {
+
                 $singlerow = str_replace('/', '-', $singlerow);
-                $results[$outindex][$index] = $singlerow;
+                $grid_array[$outindex][$index] = $singlerow;
             }
+
+            if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
+                $grid_array[$outindex][$columns[$i++]] = $singlerow;
+            }
+
+
         }
-        unset($results[$outindex][""]);
     }
+    //print_r($grid_array);
+    //exit;
+
     try {
     } catch (\Exception $ex) {
         Log::error($ex);
     }
 
     $grid['columns'] = $columns;
-    $grid['rows'] = $results;
+    $grid['rows'] = $grid_array;
     $grid['filename'] = $file_name;
+
     return $grid;
 }
 
@@ -1202,7 +1207,8 @@ function check_uri($parent_link=''){
     $array_settings   =    array("Users","Trunk","CodeDecks","Gateway","Currencies","CurrencyConversion","DestinationGroup","DialString");
     $array_admin	  =	   array("Users","Role","Themes","AccountApproval","FileUploadTemplate","EmailTemplate","Notification","ServerInfo","Retention","NoticeBoard");
     $array_summary    =    array("Summary");
-    $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling");
+    $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling","AutoRateImport");
+    $array_autoImport =	   array("AutoRateImport");
 	$array_tickets	  =	   array("Tickets","TicketsFields","TicketsGroup","Dashboard","TicketsSla","TicketsBusinessHours","TicketImportRules");
     $array_template   =    array("");
     $array_dashboard  =    array("Dashboard");
@@ -1241,6 +1247,10 @@ function check_uri($parent_link=''){
         }
 
         if(in_array($controller,$array_rates) && $parent_link =='Rates')
+        {
+            return 'opened';
+        }
+        if(in_array($controller,$array_autoImport) && $parent_link =='AutoImport')
         {
             return 'opened';
         }
@@ -2719,4 +2729,12 @@ function js_labels(){
         $html.=" var ".$key." = '".$val."';  \n\r";
     }
     return $html;
+}
+function cleanarray($data = [],$unset=[]){
+    foreach($unset as $item){
+        if(array_key_exists($item,$data)){
+            unset($data[$item]);
+        }
+    }
+    return $data;
 }

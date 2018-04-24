@@ -74,7 +74,7 @@ class VendorRatesController extends \BaseController
     
     public function upload($id) {
 //            $uploadtemplate = VendorFileUploadTemplate::getTemplateIDList();
-            $arrData = FileUploadTemplate::where(['CompanyID'=>User::get_companyID(),'Type'=>FileUploadTemplate::TEMPLATE_VENDOR_RATE])->orderBy('Title')->get(['Title', 'FileUploadTemplateID', 'Options'])->toArray();
+            $arrData = FileUploadTemplate::where(['CompanyID'=>User::get_companyID(),'Type'=>FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_VENDOR_RATE)])->orderBy('Title')->get(['Title', 'FileUploadTemplateID', 'Options'])->toArray();
 
             $uploadtemplate=[];
             $uploadtemplate[]=[
@@ -193,16 +193,18 @@ class VendorRatesController extends \BaseController
             
             $data = Input::all();
 
+            $message = array();
             $rules = array( 'isMerge' => 'required', 'Trunks' => 'required', 'Format' => 'required','filetype' => 'required' );
             if (!isset($data['isMerge'])) {
                 $data['isMerge'] = 0;
             }
             if($data['Effective'] == 'CustomDate') {
-                $rules['CustomDate'] = "required|date|date_format:Y-m-d";
+                $rules['CustomDate'] = "required|date|date_format:Y-m-d|after:".date('Y-m-d', strtotime('-1 day', strtotime(date('Y-m-d'))));
+                $message['CustomDate.after'] = "Custom Date must be today or future date, you can not download past date's rate";
             }
 
 
-            $validator = Validator::make($data, $rules);
+            $validator = Validator::make($data, $rules, $message);
             
             if ($validator->fails()) {
                 return json_validator_response($validator);

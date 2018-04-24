@@ -81,7 +81,7 @@
 
             <div class="panel-body">
                 <div class="form-group">
-                    <label for="field-1" class="col-md-2 control-label">Account Owner</label>
+                    <label class="col-md-2 control-label">Account Owner</label>
                     <div class="col-md-4">
                        {{Form::select('Owner',$account_owners,$account->Owner,array("class"=>"select2"))}}
                     </div>
@@ -94,37 +94,37 @@
 
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="col-md-2 control-label">First Name</label>
+                    <label class="col-md-2 control-label">First Name</label>
                     <div class="col-md-4">
                         <input type="text" name="FirstName" class="form-control" id="field-1" placeholder="" value="{{$account->FirstName}}" />
                     </div>
 
-                    <label for="field-1" class="col-md-2 control-label">Last Name</label>
+                    <label class="col-md-2 control-label">Last Name</label>
                     <div class="col-md-4">
                         <input type="text" name="LastName" class="form-control" id="field-1" placeholder="" value="{{$account->LastName}}" />
                     </div>
 
                 </div>
                 <div class="form-group ">
-                    <label for="field-1" class="col-md-2 control-label">Account Number</label>
+                    <label class="col-md-2 control-label">Account Number</label>
                     <div class="col-md-4 account_number_disable">
                         <input type="text" name="Number" class="form-control" id="field-1" placeholder="AUTO" value="{{$account->Number}}" />
                         <label class="label_disable form-control" disabled="disabled">{{$account->Number}}</label>
                     </div>
 
-                    <label for="field-1" class="col-md-2 control-label">Website</label>
+                    <label class="col-md-2 control-label">Website</label>
                     <div class="col-md-4">
                         <input type="text" name="Website" class="form-control" id="field-1" placeholder="" value="{{$account->Website}}" />
                     </div>
 
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="col-md-2 control-label">*Account Name</label>
+                    <label class="col-md-2 control-label">*Account Name</label>
                     <div class="col-md-4">
                         <input type="text" class="form-control" name="AccountName" data-validate="required" data-message-required="This is custom message for required field." id="field-1" placeholder=""  value="{{$account->AccountName}}"/>
                     </div>
 
-                    <label for="field-1" class="col-md-2 control-label">Phone</label>
+                    <label class="col-md-2 control-label">Phone</label>
                     <div class="col-md-4">
                         <input type="text" class="form-control"  name="Phone" id="field-1" placeholder="" value="{{$account->Phone}}" />
                     </div>
@@ -138,7 +138,7 @@
                         </div>
                     </div>
 
-                    <label for="field-1" class="col-md-2 control-label">Fax</label>
+                    <label class="col-md-2 control-label">Fax</label>
                     <div class="col-md-4">
                         <input type="text" name="Fax" class="form-control" id="field-1" placeholder="" value="{{$account->Fax}}" />
                     </div>
@@ -151,7 +151,7 @@
                         </div>
                     </div>
 
-                    <label for="field-1" class="col-md-2 control-label">Employee</label>
+                    <label class="col-md-2 control-label">Employee</label>
                     <div class="col-md-4">
                         <input type="text" name="Employee" class="form-control" id="field-1" placeholder="" value="{{$account->Employee}}" />
                     </div>
@@ -166,18 +166,18 @@
                         </div>
                     </div>
 
-                    <label for="field-1" class="col-md-2 control-label">Account Reseller</label>
+                    <label class="col-md-2 control-label">Account Reseller</label>
                     <div class="col-md-4" id="disableresellerowner">
                       {{Form::select('ResellerOwner',$reseller_owners,(isset($accountreseller)?$accountreseller:'') ,array("class"=>"select2"))}}
                     </div>
                 </div>
                 @endif
                 <div class="form-group">
-                    <label for="field-1" class="col-md-2 control-label">Email</label>
+                    <label class="col-md-2 control-label">Email</label>
                     <div class="col-md-4">
                         <input type="text" class="form-control" name="Email" data-validate="required" data-message-required="This is custom message for required field." id="field-1" placeholder="" value="{{$account->Email}}" />
                     </div>
-                    <label for="field-1" class="col-md-2 control-label">Billing Email</label>
+                    <label class="col-md-2 control-label">Billing Email</label>
                     <div class="col-md-4">
                         <input type="text" class="form-control"  name="BillingEmail" id="field-1" placeholder="" value="{{$account->BillingEmail}}" />
                     </div>
@@ -192,12 +192,12 @@
  
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="col-md-2 control-label">Account Tags</label>
+                    <label class="col-md-2 control-label">Account Tags</label>
                     <div class="col-md-4">
                         <input type="text" class="form-control" id="tags" name="tags" value="{{$account->tags}}" />
                     </div>
                     
-                     <label for="field-1" class="col-md-2 control-label">VAT Number</label>
+                     <label class="col-md-2 control-label">VAT Number</label>
                     <div class="col-md-4">
                         <input type="text" class="form-control"  name="VatNumber" id="field-1" placeholder="" value="{{$account->VatNumber}}" />
                     </div>
@@ -215,7 +215,7 @@
                             @endif
                     </div>
 
-                    <label for="field-1" class="col-md-2 control-label">Timezone</label>
+                    <label class="col-md-2 control-label">Timezone</label>
                     <div class="col-md-4">
                         {{Form::select('TimeZone', $timezones, $account->TimeZone ,array("class"=>"form-control select2"))}}
                     </div>
@@ -254,7 +254,7 @@
                     </div>
                 @endif
                 <div class="form-group">
-                    <label for="field-1" class="col-md-2 control-label">Language</label>
+                    <label class="col-md-2 control-label">Language</label>
                     <div class="col-md-4">
                         {{ddl_language("", "LanguageID", ( isset($account->LanguageID)?$account->LanguageID:Translation::$default_lang_id ),"", "id")}}
                     </div>
@@ -384,29 +384,29 @@
 
             <div class="panel-body">
                 <div class="form-group">
-                    <label for="field-1" class="col-md-2 control-label">Address Line 1</label>
+                    <label class="col-md-2 control-label">Address Line 1</label>
                     <div class="col-md-4">
                         <input type="text" name="Address1" class="form-control" id="field-1" placeholder="" value="{{$account->Address1}}" />
                     </div>
 
-                    <label for="field-1" class="col-md-2 control-label">City</label>
+                    <label class="col-md-2 control-label">City</label>
                     <div class="col-md-4">
                         <input type="text" name="City" class="form-control" id="field-1" placeholder="" value="{{$account->City}}" />
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="col-md-2 control-label">Address Line 2</label>
+                    <label class="col-md-2 control-label">Address Line 2</label>
                     <div class="col-md-4">
                         <input type="text" name="Address2" class="form-control" id="field-1" placeholder="" value="{{$account->Address2}}" />
                     </div>
 
-                    <label for="field-1" class="col-md-2 control-label">Post/Zip Code</label>
+                    <label class="col-md-2 control-label">Post/Zip Code</label>
                     <div class="col-md-4">
                         <input type="text" name="PostCode" class="form-control" id="field-1" placeholder="" value="{{$account->PostCode}}" />
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="col-md-2 control-label">Address Line 3</label>
+                    <label class="col-md-2 control-label">Address Line 3</label>
                     <div class="col-md-4">
                         <input type="text" name="Address3" class="form-control" id="field-1" placeholder="" value="{{$account->Address3}}" />
                     </div>
@@ -451,11 +451,11 @@
 
             <div class="panel-body billing-section">
                 <div class="form-group">
-                    <label for="field-1" class="col-md-2 control-label">Billing Class*</label>
+                    <label class="col-md-2 control-label">Billing Class*</label>
                     <div class="col-md-4">
                         {{Form::select('BillingClassID', $BillingClass, (  isset($AccountBilling->BillingClassID)?$AccountBilling->BillingClassID:'' ) ,array("class"=>"select2 small form-control1"));}}
                     </div>
-                    <label for="field-1" class="col-md-2 control-label">Billing Type*</label>
+                    <label class="col-md-2 control-label">Billing Type*</label>
                     <div class="col-md-4">
                         {{Form::select('BillingType', AccountApproval::$billing_type, AccountBilling::getBillingKey($AccountBilling,'BillingType'),array('id'=>'billing_type',"class"=>"select2 small"))}}
                     </div>
@@ -463,7 +463,7 @@
                 </div>
                 <div class="form-group">
 
-                    <label for="field-1" class="col-md-2 control-label">Billing Timezone*</label>
+                    <label class="col-md-2 control-label">Billing Timezone*</label>
                     <div class="col-md-4">
                         {{Form::select('BillingTimezone', $timezones, (isset($AccountBilling->BillingTimezone)?$AccountBilling->BillingTimezone:'' ),array("class"=>"form-control select2",$billing_disable))}}
                         @if($billing_disable)
@@ -479,7 +479,7 @@
                         $BillingStartDate = date('Y-m-d',strtotime($account->created_at));
                     }*/
                     ?>
-                    <label for="field-1" class="col-md-2 control-label">Billing Start Date*</label>
+                    <label class="col-md-2 control-label">Billing Start Date*</label>
                     <div class="col-md-2">
                         @if($billing_disable == '' || ($billing_disable == '' && isset($AccountBilling->BillingCycleType) && $AccountBilling->BillingCycleType != 'manual'))
                             {{Form::text('BillingStartDate', $BillingStartDate,array('class'=>'form-control datepicker billing_start_date',"data-date-format"=>"yyyy-mm-dd"))}}
@@ -488,7 +488,6 @@
                             {{$BillingStartDate}}
                         @endif
                     </div>
-                    <div class="col-md-2">Generate First Invoice on this Date &nbsp;&nbsp;<input type="checkbox" @if(isset($AccountBilling->FirstInvoiceSend) && $AccountBilling->FirstInvoiceSend  == 1)checked="" @endif name="FirstInvoiceSend" value="1"></div>
                 </div>
                 @if(!empty($AccountNextBilling))
                     <?php
@@ -499,14 +498,14 @@
                     }
                     ?>
                     <div class="form-group">
-                        <label for="field-1" class="col-md-2 control-label">Current Billing Cycle</label>
+                        <label class="col-md-2 control-label">Current Billing Cycle</label>
                         <div class="col-md-4">{{$BillingCycleTypeArray[$AccountBilling->BillingCycleType]}}@if(!empty($oldBillingCycleValue)) {{'('.$oldBillingCycleValue.')'}} @endif</div>
-                        <label for="field-1" class="col-md-2 control-label">New Billing Cycle Effective From</label>
+                        <label class="col-md-2 control-label">New Billing Cycle Effective From</label>
                         <div class="col-md-4">{{$AccountNextBilling->LastInvoiceDate}}</div>
                     </div>
                 @endif
                 <div class="form-group">
-                    <label for="field-1" class="col-md-2 control-label">@if(!empty($AccountNextBilling)) New @endif Billing Cycle*</label>
+                    <label class="col-md-2 control-label">@if(!empty($AccountNextBilling)) New @endif Billing Cycle*</label>
                     <div class="col-md-3">
                         <?php
                         if(!empty($AccountNextBilling)){
@@ -542,7 +541,7 @@
                     }
                     ?>
                     <div id="billing_cycle_weekly" class="billing_options" >
-                        <label for="field-1" class="col-md-2 control-label">Billing Cycle - Start of Day*</label>
+                        <label class="col-md-2 control-label">Billing Cycle - Start of Day*</label>
                         <div class="col-md-4">
                             @if($hiden_class != '' && $BillingCycleType =='weekly' )
                                 <div class="billing_edit_text"> {{$Days[$BillingCycleValue]}} </div>
@@ -553,7 +552,7 @@
                         </div>
                     </div>
                     <div id="billing_cycle_in_specific_days" class="billing_options" style="display: none">
-                    <label for="field-1" class="col-md-2 control-label">Billing Cycle - for Days*</label>
+                    <label class="col-md-2 control-label">Billing Cycle - for Days*</label>
                         <div class="col-md-4">
                             @if($hiden_class != '' && $BillingCycleType =='in_specific_days' )
                                 <div class="billing_edit_text"> {{$BillingCycleValue}} </div>
@@ -562,7 +561,7 @@
                         </div>
                     </div>
                     <div id="billing_cycle_subscription" class="billing_options" style="display: none">
-                    <label for="field-1" class="col-md-2 control-label">Billing Cycle - Subscription Qty</label>
+                    <label class="col-md-2 control-label">Billing Cycle - Subscription Qty</label>
                         <div class="col-md-4">
                             @if($hiden_class != '' && $BillingCycleType =='subscription' )
                                 <div class="billing_edit_text"> {{$BillingCycleValue}} </div>
@@ -571,7 +570,7 @@
                         </div>
                     </div>
                     <div id="billing_cycle_monthly_anniversary" class="billing_options" style="display: none">
-                        <label for="field-1" class="col-md-2 control-label">Billing Cycle - Monthly Anniversary Date*</label>
+                        <label class="col-md-2 control-label">Billing Cycle - Monthly Anniversary Date*</label>
                         <div class="col-md-4">
                             @if($hiden_class != '' && $BillingCycleType =='monthly_anniversary' )
                                 <div class="billing_edit_text"> {{$BillingCycleValue}} </div>
@@ -581,18 +580,18 @@
                     </div>
                 </div>
                  <div class="form-group">
-                     <label for="field-1" class="col-md-2 control-label">Send Invoice via Email</label>
+                     <label class="col-md-2 control-label">Send Invoice via Email</label>
                      <div class="col-md-4">
                          {{Form::select('SendInvoiceSetting', BillingClass::$SendInvoiceSetting, ( isset($AccountBilling->SendInvoiceSetting)?$AccountBilling->SendInvoiceSetting:'after_admin_review' ),array("class"=>"form-control select2"))}}
                      </div>
-                     <label for="field-1" class="col-md-2 control-label">Auto Pay</label>
+                     <label class="col-md-2 control-label">Auto Pay</label>
                      <div class="col-md-4">
                          {{Form::select('AutoPaymentSetting', BillingClass::$AutoPaymentSetting, ( isset($AccountBilling->AutoPaymentSetting)?$AccountBilling->AutoPaymentSetting:'never' ),array("class"=>"form-control select2 small"))}}
                      </div>
 
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="col-md-2 control-label">Last Invoice Date</label>
+                    <label class="col-md-2 control-label">Last Invoice Date</label>
                     <div class="col-md-4">
                         <?php
                         $LastInvoiceDate = isset($AccountBilling->LastInvoiceDate)?$AccountBilling->LastInvoiceDate:'';
@@ -600,12 +599,49 @@
                         {{Form::hidden('LastInvoiceDate', $LastInvoiceDate)}}
                         {{$LastInvoiceDate}}
                     </div>
-                    <label for="field-1" class="col-md-2 control-label">Next Invoice Date</label>
+                    <label class="col-md-2 control-label">Next Invoice Date</label>
+                    <div class="col-md-3">
+                        <?php
+                        $NextInvoiceDate = isset($AccountBilling->NextInvoiceDate)?$AccountBilling->NextInvoiceDate:'';
+                        ?>
+                        @if($hiden_class != '' && isset($NextInvoiceDate) )
+                            <div class="next_invoice_edit_text"> {{$NextInvoiceDate}} </div>
+                        @endif
+                            {{Form::text('NextInvoiceDate', $NextInvoiceDate,array('class'=>'form-control '.$hiden_class.' datepicker next_invoice_date',"data-date-format"=>"yyyy-mm-dd"))}}
+                    </div>
+                    <div class="col-md-1">
+                        @if($hiden_class != '')
+                        <button class="btn btn-sm btn-primary tooltip-primary" id="next_invoice_edit" data-original-title="Edit Next Invoice Date" title="" data-placement="top" data-toggle="tooltip">
+                            <i class="entypo-pencil"></i>
+                        </button>
+                        @endif
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label">Last Charge Date</label>
                     <div class="col-md-4">
                         <?php
-                        $NextInvoiceDate = isset($AccountBilling->NextInvoiceDate)?$AccountBilling->NextInvoiceDate:''; ?>
-                        {{Form::hidden('NextInvoiceDate', $NextInvoiceDate)}}
-                        {{$NextInvoiceDate}}
+                        $LastChargeDate = isset($AccountBilling->LastChargeDate)?$AccountBilling->LastChargeDate:'';
+                        ?>
+                        {{Form::hidden('LastChargeDate', $LastChargeDate)}}
+                        {{$LastChargeDate}}
+                    </div>
+                    <label class="col-md-2 control-label">Next Charge Date</label>
+                    <div class="col-md-3">
+                        <?php
+                        $NextChargeDate = isset($AccountBilling->NextChargeDate)?$AccountBilling->NextChargeDate:'';
+                        ?>
+                       @if($hiden_class != '' && isset($NextChargeDate) )
+                           <div class="next_charged_edit_text"> {{$NextChargeDate}} </div>
+                       @endif
+                           {{Form::text('NextChargeDate', $NextChargeDate,array('class'=>'form-control '.$hiden_class.' datepicker next_charged_date',"data-date-format"=>"yyyy-mm-dd"))}}
+                    </div>
+                    <div class="col-md-1">
+                        @if($hiden_class != '')
+                        <button class="btn btn-sm btn-primary tooltip-primary" id="next_charged_edit" data-original-title="Edit Next charged Date" title="" data-placement="top" data-toggle="tooltip">
+                            <i class="entypo-pencil"></i>
+                        </button>
+                        @endif
                     </div>
                 </div>
 
@@ -868,12 +904,25 @@
             }else{
                 BillingChanged = true;
             }
+            if(selection=='weekly' || selection=='monthly_anniversary' || selection=='in_specific_days' || selection=='subscription' || selection=='manual'){
+                //nothing
+            }else{
+                changeBillingDates('');
+            }
         });
         $('[name="BillingStartDate"]').on( "change",function(e){
             BillingChanged = true;
+            billing_disable='{{$billing_disable}}';
+            if(billing_disable==''){
+                $('#billing_edit').trigger("click");
+                $('#next_invoice_edit').trigger("click");
+                $('#next_charged_edit').trigger("click");
+            }
+            changeBillingDates('');
         });
         $('[name="BillingCycleValue"]').on( "change",function(e){
             BillingChanged = true;
+            changeBillingDates($(this).val());
         });
         $('[name="Billing"]').on( "change",function(e){
             if($('[name="Billing"]').prop("checked") == true){
@@ -899,10 +948,28 @@
             $('body').find(".billing_options_active").removeClass('hidden');
             $('.billing_edit_text').addClass('hidden');
             $(this).addClass('hidden');
+            $('#next_invoice_edit').trigger("click");
+            $('#next_charged_edit').trigger("click");
             return false;
         });
 
         $('select[name="BillingCycleType"]').trigger( "change" );
+
+        $('#next_invoice_edit').on( "click",function(e){
+            e.preventDefault();
+            $('[name="NextInvoiceDate"]').removeClass('hidden');
+            $('.next_invoice_edit_text').addClass('hidden');
+            $(this).addClass('hidden');
+            return false;
+        });
+
+        $('#next_charged_edit').on( "click",function(e){
+            e.preventDefault();
+            $('[name="NextChargeDate"]').removeClass('hidden');
+            $('.next_charged_edit_text').addClass('hidden');
+            $(this).addClass('hidden');
+            return false;
+        });
 
         $('.upload-doc').click(function(ev){
             ev.preventDefault();
@@ -1008,6 +1075,47 @@
         @elseif ($account->VerificationStatus == Account::VERIFIED)
         $(".btn-toolbar .btn").last().button("toggle");
         @endif
+
+        function changeBillingDates(BillingCycleValue){
+            var BillingStartDate;
+            var BillingCycleType;
+            var billing_disable;
+            //var BillingCycleValue;
+
+            billing_disable = '{{$billing_disable}}';
+            //BillingStartDate = $('[name="LastInvoiceDate"]').val();
+            if(billing_disable==''){
+                BillingStartDate = $('[name="BillingStartDate"]').val();
+            }else{
+                BillingStartDate = $('[name="LastInvoiceDate"]').val();
+            }
+            BillingCycleType = $('select[name="BillingCycleType"]').val();
+            if(BillingCycleValue==''){
+                BillingCycleValue = $('[name="BillingCycleValue"]').val();
+            }
+            if(BillingStartDate=='' || BillingCycleType==''){
+                return true;
+            }
+
+            getNextBillingDatec_url =  '{{ URL::to('accounts/getNextBillingDate')}}';
+            $.ajax({
+                url: getNextBillingDatec_url,
+                type: 'POST',
+                dataType: 'json',
+                success: function(response) {
+                    $('[name="NextInvoiceDate"]').val(response.NextBillingDate);
+                    $('[name="NextChargeDate"]').val(response.NextChargedDate);
+                },
+                data: {
+                    "BillingStartDate":BillingStartDate,
+                    "BillingCycleType":BillingCycleType,
+                    "BillingCycleValue":BillingCycleValue
+                }
+
+            });
+
+            return true;
+        }
     });
 </script>
 
