@@ -9,9 +9,18 @@ CREATE TABLE `tblAccountBilling` (
   `BillingStartDate` date DEFAULT NULL,
   `LastInvoiceDate` date DEFAULT NULL,
   `NextInvoiceDate` date DEFAULT NULL,
+  `LastChargeDate` date DEFAULT NULL,
+  `NextChargeDate` date DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `BillingClassID` int(11) DEFAULT NULL,
+  `TaxRateId_delete` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `PaymentDueInDays_delete` int(11) DEFAULT NULL,
+  `RoundChargesAmount_delete` int(11) DEFAULT NULL,
+  `CDRType_delete` int(11) DEFAULT NULL,
+  `InvoiceTemplateID_delete` int(11) DEFAULT NULL,
+  `ServiceID` int(11) DEFAULT '0',
+  `AutoPaymentSetting` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`AccountBillingID`),
-  UNIQUE KEY `AccountID` (`AccountID`)
+  UNIQUE KEY `AccountID` (`ServiceID`,`AccountID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
