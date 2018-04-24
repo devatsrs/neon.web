@@ -161,7 +161,7 @@ class ImportsController extends \BaseController {
             $option["option"] = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
             $option["selection"] = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
             $save['Options'] = json_encode($option);
-            $save['Type'] = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_Account);
+            $save['FileUploadTemplateTypeID'] = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_Account);
             if (isset($data['uploadtemplate']) && $data['uploadtemplate'] > 0) {
                 $template = FileUploadTemplate::find($data['uploadtemplate']);
                 $template->update($save);
@@ -553,7 +553,7 @@ class ImportsController extends \BaseController {
             $option["option"] = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
             $option["selection"] = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
             $save['Options'] = json_encode($option);
-            $save['Type'] = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_Leads);
+            $save['FileUploadTemplateTypeID'] = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_Leads);
             if (isset($data['uploadtemplate']) && $data['uploadtemplate'] > 0) {
                 $template = FileUploadTemplate::find($data['uploadtemplate']);
                 $template->update($save);
@@ -859,7 +859,7 @@ class ImportsController extends \BaseController {
             $option["option"] = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
             $option["selection"] = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
             $save['Options'] = json_encode($option);
-            $save['Type'] = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_IPS);
+            $save['FileUploadTemplateTypeID'] = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_IPS);
             if (isset($data['UploadTemplate']) && $data['UploadTemplate'] > 0) {
                 $template = FileUploadTemplate::find($data['UploadTemplate']);
                 $template->update($save);

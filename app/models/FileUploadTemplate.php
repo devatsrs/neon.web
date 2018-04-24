@@ -76,7 +76,7 @@ class FileUploadTemplate extends \Eloquent {
             $option["option"]       = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
             $option["selection"]    = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
             $save['Options']        = str_replace('Skip loading','',json_encode($option));
-            $save['Type']           = $data['TemplateType'];
+            $save['FileUploadTemplateTypeID']           = $data['TemplateType'];
 
             try {
                 if ($result = FileUploadTemplate::create($save)) {
@@ -137,7 +137,7 @@ class FileUploadTemplate extends \Eloquent {
                 $option["option"]       = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
                 $option["selection"]    = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
                 $save['Options']        = str_replace('Skip loading','',json_encode($option));
-                $save['Type']           = $data['TemplateType'];
+                $save['FileUploadTemplateTypeID']           = $data['TemplateType'];
 
                 try {
                     if ($template->update($save)) {
