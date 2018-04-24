@@ -11,49 +11,21 @@ class FileUploadTemplate extends \Eloquent {
     protected $guarded = array();
     protected $table = 'tblFileUploadTemplate';
     protected $primaryKey = "FileUploadTemplateID";
-    const TEMPLATE_CDR = 1;
-    const TEMPLATE_VENDORCDR = 2;
-    const TEMPLATE_Account = 3;
-    const TEMPLATE_Leads = 4;
-    const TEMPLATE_DIALSTRING = 5;
-    const TEMPLATE_IPS = 6;
-    const TEMPLATE_ITEM = 7;
-    const TEMPLATE_VENDOR_RATE = 8;
-    const TEMPLATE_PAYMENT = 9;
-    const TEMPLATE_RATETABLE_RATE = 10;
-    const TEMPLATE_CUSTOMER_RATE = 11;
-
-    public static $template_type = array(
-                                        1=>'CDR',
-                                        2=>'Vendor CDR',
-                                        3=>'Account',
-                                        4=>'Leads',
-                                        5=>'DialString',
-                                        6=>'IPs',
-                                        7=>'Item',
-                                        8=>'Vendor Rate',
-                                        9=>'Payment',
-                                        10=>'Ratetable',
-                                        11=>'Customer',
-                                    );
-
-    public static $upload_dir = array(
-                                        1=>'CDR_UPLOAD',
-                                        2=>'CDR_UPLOAD',
-                                        3=>'ACCOUNT_DOCUMENT',
-                                        4=>'ACCOUNT_DOCUMENT',
-                                        5=>'DIALSTRING_UPLOAD',
-                                        6=>'IP_UPLOAD',
-                                        7=>'ITEM_UPLOAD',
-                                        8=>'VENDOR_UPLOAD',
-                                        9=>'PAYMENT_UPLOAD',
-                                        10=>'RATETABLE_UPLOAD',
-                                        11=>'CUSTOMER_UPLOAD',
-                                    );
+    const TEMPLATE_CDR = 'CDR';
+    const TEMPLATE_VENDORCDR = 'VendorCDR';
+    const TEMPLATE_Account = 'Account';
+    const TEMPLATE_Leads = 'Leads';
+    const TEMPLATE_DIALSTRING = 'DialString';
+    const TEMPLATE_IPS = 'IPs';
+    const TEMPLATE_ITEM = 'Item';
+    const TEMPLATE_VENDOR_RATE = 'VendorRate';
+    const TEMPLATE_PAYMENT = 'Payment';
+    const TEMPLATE_RATETABLE_RATE = 'RatetableRate';
+    const TEMPLATE_CUSTOMER_RATE = 'CustomerRate';
 
     public static function getTemplateIDList($Type){
         if(!empty($Type)) {
-            $where = ['CompanyID'=>User::get_companyID(), 'Type'=>$Type];
+            $where = ['CompanyID'=>User::get_companyID(), 'FileUploadTemplateTypeID'=>$Type];
         } else {
             $where = ['CompanyID'=>User::get_companyID()];
         }
@@ -89,7 +61,8 @@ class FileUploadTemplate extends \Eloquent {
             }
 
             $file_name = $data['TemplateFile'];
-            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir[FileUploadTemplate::$upload_dir[$data['TemplateType']]]);
+            $UploadDir = FileUploadTemplateType::getTemplateUploadDir($data['TemplateType']);
+            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir[$UploadDir]);
             $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
             copy($file_name, $destinationPath . basename($file_name));
             if (!AmazonS3::upload($destinationPath . basename($file_name), $amazonPath)) {
@@ -145,7 +118,8 @@ class FileUploadTemplate extends \Eloquent {
 
                 if(isset($data['TemplateFile']) && !empty($data['TemplateFile'])) {
                     $file_name = $data['TemplateFile'];
-                    $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir[FileUploadTemplate::$upload_dir[$data['TemplateType']]]);
+                    $UploadDir = FileUploadTemplateType::getTemplateUploadDir($data['TemplateType']);
+                    $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir[$UploadDir]);
                     $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
                     copy($file_name, $destinationPath . basename($file_name));
                     if (!AmazonS3::upload($destinationPath . basename($file_name), $amazonPath)) {

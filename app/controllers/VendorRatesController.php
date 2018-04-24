@@ -74,7 +74,7 @@ class VendorRatesController extends \BaseController
     
     public function upload($id) {
 //            $uploadtemplate = VendorFileUploadTemplate::getTemplateIDList();
-            $arrData = FileUploadTemplate::where(['CompanyID'=>User::get_companyID(),'Type'=>FileUploadTemplate::TEMPLATE_VENDOR_RATE])->orderBy('Title')->get(['Title', 'FileUploadTemplateID', 'Options'])->toArray();
+            $arrData = FileUploadTemplate::where(['CompanyID'=>User::get_companyID(),'Type'=>FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_VENDOR_RATE)])->orderBy('Title')->get(['Title', 'FileUploadTemplateID', 'Options'])->toArray();
 
             $uploadtemplate=[];
             $uploadtemplate[]=[

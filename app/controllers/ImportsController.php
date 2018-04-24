@@ -20,7 +20,7 @@ class ImportsController extends \BaseController {
             $check_quickbook = $Quickbook->check_quickbook($CompanyID);
             $gatewaylist = CompanyGateway::importgatewaylist();
             $templateoption = ['' => 'Select', 1 => 'Create new', 2 => 'Update existing'];
-            $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_Account);
+            $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_Account));
             return View::make('imports.index', compact('UploadTemplate','gatewaylist','check_quickbook'));
     }
 
@@ -161,7 +161,7 @@ class ImportsController extends \BaseController {
             $option["option"] = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
             $option["selection"] = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
             $save['Options'] = json_encode($option);
-            $save['Type'] = FileUploadTemplate::TEMPLATE_Account;
+            $save['Type'] = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_Account);
             if (isset($data['uploadtemplate']) && $data['uploadtemplate'] > 0) {
                 $template = FileUploadTemplate::find($data['uploadtemplate']);
                 $template->update($save);
@@ -448,7 +448,7 @@ class ImportsController extends \BaseController {
 
     //leads import
     public function import_leads() {
-        $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_Leads);
+        $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_Leads));
         return View::make('imports.leads', compact('UploadTemplate'));
     }
 
@@ -553,7 +553,7 @@ class ImportsController extends \BaseController {
             $option["option"] = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
             $option["selection"] = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
             $save['Options'] = json_encode($option);
-            $save['Type'] = FileUploadTemplate::TEMPLATE_Leads;
+            $save['Type'] = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_Leads);
             if (isset($data['uploadtemplate']) && $data['uploadtemplate'] > 0) {
                 $template = FileUploadTemplate::find($data['uploadtemplate']);
                 $template->update($save);
@@ -744,7 +744,7 @@ class ImportsController extends \BaseController {
         $customerslist  = Account::getCustomerIDList();
         $vendorslist    = Account::getVendorIDList();
         $gatewaylist    = CompanyGateway::importIPGatewayList();
-        $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_IPS);
+        $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_IPS));
         return View::make('imports.ips', compact('UploadTemplate','gatewaylist','customerslist','vendorslist'));
     }
 
@@ -859,7 +859,7 @@ class ImportsController extends \BaseController {
             $option["option"] = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
             $option["selection"] = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
             $save['Options'] = json_encode($option);
-            $save['Type'] = FileUploadTemplate::TEMPLATE_IPS;
+            $save['Type'] = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_IPS);
             if (isset($data['UploadTemplate']) && $data['UploadTemplate'] > 0) {
                 $template = FileUploadTemplate::find($data['UploadTemplate']);
                 $template->update($save);
