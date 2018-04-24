@@ -9,6 +9,9 @@ ALTER TABLE `tblCustomerRate`
 	ADD COLUMN `CreatedBy` VARCHAR(50) NULL DEFAULT NULL AFTER `CreatedDate`,
 	ADD COLUMN `EndDate` DATE NULL DEFAULT NULL AFTER `EffectiveDate`;
 
+ALTER TABLE `tblRateSheetDetails`
+	ADD COLUMN `EndDate` DATETIME NULL AFTER `EffectiveDate`;
+
 RENAME TABLE `tblCustomerRateArchive` TO `tblCustomerRateArchive_old`;
 CREATE TABLE IF NOT EXISTS `tblCustomerRateArchive` (
   `CustomerRateArchiveID` int(11) NOT NULL AUTO_INCREMENT,
@@ -214,7 +217,7 @@ CREATE PROCEDURE `prc_CustomerRateUpdateBySelectedRateId`(
 	IN `p_RoutinePlan` INT,
 	IN `p_ModifiedBy` VARCHAR(50)
 )
-BEGIN
+ThisSP:BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	UPDATE  tblCustomerRate
 	INNER JOIN (
@@ -320,9 +323,9 @@ BEGIN
                  r.CompanyID = p_CompanyId
                  and cr.RateID is NULL;
 
-      CALL prc_ArchiveOldCustomerRate(p_AccountIdList, p_TrunkId, p_ModifiedBy);
+ --  	CALL prc_ArchiveOldCustomerRate(p_AccountIdList, p_TrunkId, p_ModifiedBy);
 
-       SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+      SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END//
 DELIMITER ;
 
@@ -489,6 +492,7 @@ CREATE PROCEDURE `prc_GetCustomerRate`(
 	IN `p_code` VARCHAR(50),
 	IN `p_description` VARCHAR(50),
 	IN `p_Effective` VARCHAR(50),
+	IN `p_CustomDate` DATE,
 	IN `p_effectedRates` INT,
 	IN `p_RoutinePlan` INT,
 	IN `p_PageNumber` INT,
@@ -507,6 +511,12 @@ BEGIN
    DECLARE v_Prefix_ VARCHAR(50);
    DECLARE v_RatePrefix_ VARCHAR(50);
    DECLARE v_AreaPrefix_ VARCHAR(50);
+
+   -- set custome date = current date if custom date is past date
+   IF(p_CustomDate < DATE(NOW()))
+	THEN
+		SET p_CustomDate=DATE(NOW());
+	END IF;
 
    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
    SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
@@ -557,6 +567,7 @@ BEGIN
         Rate DECIMAL(18, 6),
         ConnectionFee DECIMAL(18, 6),
         EffectiveDate DATE,
+        EndDate DATE,
         LastModifiedDate DATETIME,
         LastModifiedBy VARCHAR(50),
         CustomerRateId INT,
@@ -636,8 +647,12 @@ BEGIN
 			DELETE n1 FROM tmp_CustomerRates_ n1, tmp_CustomerRates4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
 			AND n1.TrunkID = n2.TrunkID
 			AND  n1.RateID = n2.RateID
-			AND  n1.EffectiveDate <= NOW()
-			AND  n2.EffectiveDate <= NOW();
+			AND
+			(
+				(p_Effective = 'CustomDate' AND n1.EffectiveDate <= p_CustomDate AND n2.EffectiveDate <= p_CustomDate)
+				OR
+				(p_Effective != 'CustomDate' AND n1.EffectiveDate <= NOW() AND n2.EffectiveDate <= NOW())
+			);
 
 	 	DROP TEMPORARY TABLE IF EXISTS tmp_CustomerRates2_;
 		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates2_ as (select * from tmp_CustomerRates_);
@@ -663,6 +678,7 @@ BEGIN
                 tblRateTableRate.ConnectionFee,
 
       			 tblRateTableRate.EffectiveDate,
+      			 tblRateTableRate.EndDate,
                 NULL AS LastModifiedDate,
                 NULL AS LastModifiedBy,
                 NULL AS CustomerRateId,
@@ -700,8 +716,12 @@ BEGIN
         DELETE n1 FROM tmp_RateTableRate_ n1, tmp_RateTableRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
 	 	  AND n1.TrunkID = n2.TrunkID
 		  AND  n1.RateID = n2.RateID
-		  AND  n1.EffectiveDate <= NOW()
-		  AND  n2.EffectiveDate <= NOW();
+		  AND
+			(
+				(p_Effective = 'CustomDate' AND n1.EffectiveDate <= p_CustomDate AND n2.EffectiveDate <= p_CustomDate)
+				OR
+				(p_Effective != 'CustomDate' AND n1.EffectiveDate <= NOW() AND n2.EffectiveDate <= NOW())
+			);
 
 
 
@@ -775,8 +795,11 @@ BEGIN
                 (
 					 	( p_Effective = 'Now' AND CustomerRates.EffectiveDate <= NOW() )
 					 	OR
-					 	( p_Effective = 'Future' AND CustomerRates.EffectiveDate > NOW())
-					 	OR p_Effective = 'All'
+					 	( p_Effective = 'Future' AND CustomerRates.EffectiveDate > NOW() )
+						OR
+						( p_Effective = 'CustomDate' AND CustomerRates.EffectiveDate <= p_CustomDate AND (CustomerRates.EndDate IS NULL OR CustomerRates.EndDate > p_CustomDate) )
+					 	OR
+						p_Effective = 'All'
 					 )
 
 
@@ -791,7 +814,7 @@ BEGIN
                 rtr.ConnectionFee,
                 rtr.Rate,
                 rtr.EffectiveDate,
-                NULL,
+                rtr.EndDate,
                 NULL,
                 NULL,
                 NULL AS CustomerRateId,
@@ -805,7 +828,10 @@ BEGIN
 						 	( p_Effective = 'Now' AND cr.EffectiveDate <= NOW() )
 						 	OR
 						 	( p_Effective = 'Future' AND cr.EffectiveDate > NOW())
-						 	OR p_Effective = 'All'
+						 	OR
+							( p_Effective = 'CustomDate' AND cr.EffectiveDate <= p_CustomDate AND (cr.EndDate IS NULL OR cr.EndDate > p_CustomDate) )
+						 	OR
+							 p_Effective = 'All'
 						 )
             WHERE (
                 (
@@ -831,6 +857,15 @@ BEGIN
                             )
                         )
                 )
+				OR
+				(
+					p_Effective = 'CustomDate' AND rtr.EffectiveDate <= p_CustomDate AND (rtr.EndDate IS NULL OR rtr.EndDate > p_CustomDate)
+					AND (
+                            (cr.RateID IS NULL)
+                            OR
+                            (cr.RateID IS NOT NULL AND rtr.RateTableRateID IS NULL)
+                        )
+				)
             OR p_Effective = 'All'
 
             )
@@ -1227,3 +1262,947 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END//
 DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+DROP PROCEDURE IF EXISTS `vwCustomerRate`;
+DELIMITER //
+CREATE PROCEDURE `vwCustomerRate`(
+	IN `p_CustomerID` INT,
+	IN `p_Trunks` VARCHAR(200),
+	IN `p_Effective` VARCHAR(20),
+	IN `p_CustomDate` DATE
+)
+BEGIN
+
+	DECLARE v_codedeckid_ INT;
+    DECLARE v_ratetableid_ INT;
+    DECLARE v_RateTableAssignDate_ DATETIME;
+    DECLARE v_NewA2ZAssign_ INT;
+    DECLARE v_companyid_ INT;
+    DECLARE v_TrunkID_ INT;
+    DECLARE v_pointer_ INT ;
+    DECLARE v_rowCount_ INT ;
+
+    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+
+    DROP TEMPORARY TABLE IF EXISTS tmp_customerrateall_;
+    CREATE TEMPORARY TABLE tmp_customerrateall_ (
+        RateID INT,
+        Code VARCHAR(50),
+        Description VARCHAR(200),
+        Interval1 INT,
+        IntervalN INT,
+        ConnectionFee DECIMAL(18, 6),
+        RoutinePlanName VARCHAR(50),
+        Rate DECIMAL(18, 6),
+        EffectiveDate DATE,
+        EndDate DATE,
+        LastModifiedDate DATETIME,
+        LastModifiedBy VARCHAR(50),
+        CustomerRateId INT,
+        TrunkID INT,
+        RateTableRateId INT,
+        IncludePrefix TINYINT,
+        Prefix VARCHAR(50),
+        RatePrefix VARCHAR(50),
+        AreaPrefix VARCHAR(50)
+    );
+
+    DROP TEMPORARY TABLE IF EXISTS tmp_customerrateall_archive_;
+    CREATE TEMPORARY TABLE tmp_customerrateall_archive_ (
+        RateID INT,
+        Code VARCHAR(50),
+        Description VARCHAR(200),
+        Interval1 INT,
+        IntervalN INT,
+        ConnectionFee DECIMAL(18, 6),
+        RoutinePlanName VARCHAR(50),
+        Rate DECIMAL(18, 6),
+        EffectiveDate DATE,
+        EndDate DATE,
+        LastModifiedDate DATETIME,
+        LastModifiedBy VARCHAR(50),
+        CustomerRateId INT,
+        TrunkID INT,
+        RateTableRateId INT,
+        IncludePrefix TINYINT,
+        Prefix VARCHAR(50),
+        RatePrefix VARCHAR(50),
+        AreaPrefix VARCHAR(50)
+    );
+
+    DROP TEMPORARY TABLE IF EXISTS tmp_trunks_;
+    CREATE TEMPORARY TABLE tmp_trunks_  (
+        TrunkID INT,
+        RowNo INT
+    );
+
+    SELECT
+        CompanyId INTO v_companyid_
+    FROM tblAccount
+    WHERE AccountID = p_CustomerID;
+
+    INSERT INTO tmp_trunks_
+    SELECT TrunkID,
+        @row_num := @row_num+1 AS RowID
+    FROM tblCustomerTrunk,(SELECT @row_num := 0) x
+    WHERE  FIND_IN_SET(tblCustomerTrunk.TrunkID,p_Trunks)!= 0
+        AND tblCustomerTrunk.AccountID = p_CustomerID;
+
+    SET v_pointer_ = 1;
+    SET v_rowCount_ = (SELECT COUNT(*)FROM tmp_trunks_);
+
+    WHILE v_pointer_ <= v_rowCount_
+    DO
+        SET v_TrunkID_ = (SELECT TrunkID FROM tmp_trunks_ t WHERE t.RowNo = v_pointer_);
+
+        CALL prc_GetCustomerRate(v_companyid_,p_CustomerID,v_TrunkID_,null,null,null,p_Effective,p_CustomDate,1,0,0,0,'','',-1);
+
+        INSERT INTO tmp_customerrateall_
+        SELECT * FROM tmp_customerrate_;
+
+        CALL vwCustomerArchiveCurrentRates(v_companyid_,p_CustomerID,v_TrunkID_,p_Effective,p_CustomDate);
+
+        INSERT INTO tmp_customerrateall_archive_
+        SELECT * FROM tmp_customerrate_archive_;
+
+        SET v_pointer_ = v_pointer_ + 1;
+    END WHILE;
+
+    SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_WSGenerateSippySheet`;
+DELIMITER //
+CREATE PROCEDURE `prc_WSGenerateSippySheet`(
+	IN `p_CustomerID` INT ,
+	IN `p_Trunks` VARCHAR(200),
+	IN `p_Effective` VARCHAR(50),
+	IN `p_CustomDate` DATE
+)
+BEGIN
+
+	-- get customer rates
+	CALL vwCustomerRate(p_CustomerID,p_Trunks,p_Effective,p_CustomDate);
+
+	SELECT
+		CASE WHEN EndDate IS NOT NULL THEN
+			'SA'
+		ELSE
+			'A'
+		END AS `Action [A|D|U|S|SA`,
+		'' as id,
+		Concat(IFNULL(Prefix,''), Code) as Prefix,
+		Description as COUNTRY ,
+		Interval1 as `Interval 1`,
+		IntervalN as `Interval N`,
+		Rate as `Price 1`,
+		Rate as `Price N`,
+		0  as Forbidden,
+		0 as `Grace Period`,
+		DATE_FORMAT( EffectiveDate, '%Y-%m-%d %H:%i:%s' ) AS `Activation Date`,
+		DATE_FORMAT( EndDate, '%Y-%m-%d %H:%i:%s' )  AS `Expiration Date`
+	FROM
+		tmp_customerrateall_
+	ORDER BY
+		Prefix;
+
+END//
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_WSGenerateVersion3VosSheet`;
+DELIMITER //
+CREATE PROCEDURE `prc_WSGenerateVersion3VosSheet`(
+	IN `p_CustomerID` INT ,
+	IN `p_trunks` varchar(200) ,
+	IN `p_Effective` VARCHAR(50),
+	IN `p_CustomDate` DATE,
+	IN `p_Format` VARCHAR(50)
+)
+BEGIN
+
+	-- get customer rates
+	CALL vwCustomerRate(p_CustomerID,p_Trunks,p_Effective,p_CustomDate);
+
+	IF p_Effective = 'Now' OR p_Format = 'Vos 2.0'
+	THEN
+
+		SELECT distinct
+			IFNULL(RatePrefix, '') as `Rate Prefix` ,
+			Concat(IFNULL(AreaPrefix,''), Code) as `Area Prefix` ,
+			'International' as `Rate Type` ,
+			Description  as `Area Name`,
+			Rate / 60  as `Billing Rate`,
+			IntervalN as `Billing Cycle`,
+			Rate as `Minute Cost` ,
+			'No Lock'  as `Lock Type`,
+			CASE WHEN Interval1 != IntervalN
+			THEN
+				Concat('0,', Rate, ',',Interval1)
+			ELSE
+				''
+			END as `Section Rate`,
+			0 AS `Billing Rate for Calling Card Prompt`,
+			0  as `Billing Cycle for Calling Card Prompt`
+		FROM   tmp_customerrateall_
+		ORDER BY `Rate Prefix`;
+
+	END IF;
+
+	IF (p_Effective = 'Future' OR  p_Effective = 'All' OR p_Effective = 'CustomDate') AND p_Format = 'Vos 3.2'
+	THEN
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_customerrateall_2_ ;
+		CREATE TEMPORARY TABLE tmp_customerrateall_2_ SELECT * FROM tmp_customerrateall_;
+
+		SELECT
+			`Time of timing replace`,
+			`Mode of timing replace`,
+			`Rate Prefix` ,
+			`Area Prefix` ,
+			`Rate Type` ,
+			`Area Name` ,
+			`Billing Rate` ,
+			`Billing Cycle`,
+			`Minute Cost` ,
+			`Lock Type` ,
+			`Section Rate` ,
+			`Billing Rate for Calling Card Prompt` ,
+			`Billing Cycle for Calling Card Prompt`
+		FROM
+		(
+			SELECT distinct
+				CONCAT(EffectiveDate,' 00:00') as `Time of timing replace`,
+				'Append replace' as `Mode of timing replace`,
+				IFNULL(RatePrefix, '') as `Rate Prefix` ,
+				Concat(IFNULL(AreaPrefix,''), Code) as `Area Prefix` ,
+				'International' as `Rate Type` ,
+				Description  as `Area Name`,
+				Rate / 60  as `Billing Rate`,
+				IntervalN as `Billing Cycle`,
+				Rate as `Minute Cost` ,
+				'No Lock'  as `Lock Type`,
+				CASE WHEN Interval1 != IntervalN
+				THEN
+					Concat('0,', Rate, ',',Interval1)
+				ELSE
+					''
+				END as `Section Rate`,
+				0 AS `Billing Rate for Calling Card Prompt`,
+				0  as `Billing Cycle for Calling Card Prompt`
+			FROM   tmp_customerrateall_2_
+			-- ORDER BY `Rate Prefix`;
+
+			UNION ALL
+
+			SELECT distinct
+				CONCAT(EffectiveDate,' 00:00') as `Time of timing replace`,
+				'Delete' as `Mode of timing replace`,
+				IFNULL(RatePrefix, '') as `Rate Prefix` ,
+				Concat(IFNULL(AreaPrefix,''), Code) as `Area Prefix` ,
+				'International' as `Rate Type` ,
+				Description  as `Area Name`,
+				Rate / 60  as `Billing Rate`,
+				IntervalN as `Billing Cycle`,
+				Rate as `Minute Cost` ,
+				'No Lock'  as `Lock Type`,
+				CASE WHEN Interval1 != IntervalN
+				THEN
+					Concat('0,', Rate, ',',Interval1)
+				ELSE
+					''
+				END as `Section Rate`,
+				0 AS `Billing Rate for Calling Card Prompt`,
+				0  as `Billing Cycle for Calling Card Prompt`
+			FROM   tmp_customerrateall_
+			WHERE  EndDate IS NOT NULL
+
+			UNION ALL
+
+			SELECT distinct
+				CONCAT(EffectiveDate,' 00:00') as `Time of timing replace`,
+				'Delete' as `Mode of timing replace`,
+				IFNULL(RatePrefix, '') as `Rate Prefix` ,
+				Concat(IFNULL(AreaPrefix,''), Code) as `Area Prefix` ,
+				'International' as `Rate Type` ,
+				Description  as `Area Name`,
+				Rate / 60  as `Billing Rate`,
+				IntervalN as `Billing Cycle`,
+				Rate as `Minute Cost` ,
+				'No Lock'  as `Lock Type`,
+				CASE WHEN Interval1 != IntervalN
+				THEN
+					Concat('0,', Rate, ',',Interval1)
+				ELSE
+					''
+				END as `Section Rate`,
+				0 AS `Billing Rate for Calling Card Prompt`,
+				0  as `Billing Cycle for Calling Card Prompt`
+			FROM   tmp_customerrateall_archive_
+		) tmp
+		ORDER BY `Rate Prefix`;
+
+	END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_CronJobGenerateMorSheet`;
+DELIMITER //
+CREATE PROCEDURE `prc_CronJobGenerateMorSheet`(
+	IN `p_CustomerID` INT ,
+	IN `p_trunks` VARCHAR(200) ,
+	IN `p_Effective` VARCHAR(50),
+	IN `p_CustomDate` DATE
+)
+BEGIN
+
+	-- get customer rates
+	CALL vwCustomerRate(p_CustomerID,p_Trunks,p_Effective,p_CustomDate);
+
+    DROP TEMPORARY TABLE IF EXISTS tmp_morrateall_;
+    CREATE TEMPORARY TABLE tmp_morrateall_ (
+        RateID INT,
+        Country VARCHAR(155),
+        CountryCode VARCHAR(50),
+        Code VARCHAR(50),
+        Description VARCHAR(200),
+        Interval1 INT,
+        IntervalN INT,
+        ConnectionFee DECIMAL(18, 6),
+        RoutinePlanName VARCHAR(50),
+        Rate DECIMAL(18, 6),
+        EffectiveDate DATE,
+        LastModifiedDate DATETIME,
+        LastModifiedBy VARCHAR(50),
+        CustomerRateId INT,
+        TrunkID INT,
+        RateTableRateId INT,
+        IncludePrefix TINYINT,
+        Prefix VARCHAR(50),
+        RatePrefix VARCHAR(50),
+        AreaPrefix VARCHAR(50),
+        SubCode VARCHAR(50)
+    );
+
+    INSERT INTO tmp_morrateall_
+     SELECT
+		  tc.RateID,
+	  	  c.Country,
+		  c.ISO3,
+		  tc.Code,
+		  tc.Description,
+		  tc.Interval1,
+        tc.IntervalN,
+        tc.ConnectionFee,
+        tc.RoutinePlanName,
+        tc.Rate,
+        tc.EffectiveDate,
+        tc.LastModifiedDate,
+        tc.LastModifiedBy,
+        tc.CustomerRateId,
+        tc.TrunkID,
+        tc.RateTableRateId,
+        tc.IncludePrefix,
+        tc.Prefix,
+        tc.RatePrefix,
+        tc.AreaPrefix,
+        'FIX' as `SubCode`
+	  	 FROM tmp_customerrateall_ tc
+	  			 INNER JOIN tblRate r ON tc.RateID = r.RateID
+				 LEFT JOIN tblCountry c ON r.CountryID = c.CountryID
+					;
+
+	  UPDATE tmp_morrateall_
+	  			SET SubCode='MOB'
+	  			WHERE Description LIKE '%Mobile%';
+
+
+		SELECT DISTINCT
+	      Country as `Direction` ,
+	      Description  as `Destination`,
+		   Code as `Prefix`,
+		   SubCode as `Subcode`,
+		   CountryCode as `Country code`,
+		   Rate as `Rate(EUR)`,
+		   ConnectionFee as `Connection Fee(EUR)`,
+		   Interval1 as `Increment`,
+		   IntervalN as `Minimal Time`,
+		   '0:00:00 'as `Start Time`,
+		   '23:59:59' as `End Time`,
+		   '' as `Week Day`
+     FROM tmp_morrateall_;
+
+		SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_CronJobGenerateM2Sheet`;
+DELIMITER //
+CREATE PROCEDURE `prc_CronJobGenerateM2Sheet`(
+	IN `p_CustomerID` INT ,
+	IN `p_trunks` VARCHAR(200) ,
+	IN `p_Effective` VARCHAR(50),
+	IN `p_CustomDate` DATE
+)
+BEGIN
+
+	-- get customer rates
+	CALL vwCustomerRate(p_CustomerID,p_Trunks,p_Effective,p_CustomDate);
+
+		SELECT DISTINCT
+	       Description  as `Destination`,
+		   Code as `Prefix`,
+		   Rate as `Rate(USD)`,
+		   ConnectionFee as `Connection Fee(USD)`,
+		   Interval1 as `Increment`,
+		   IntervalN as `Minimal Time`,
+		   '0:00:00 'as `Start Time`,
+		   '23:59:59' as `End Time`,
+		   '' as `Week Day`,
+		   EffectiveDate  as `Effective from`,
+			RoutinePlanName as `Routing through`
+     FROM tmp_customerrateall_ ;
+
+		SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_WSGenerateRateSheet`;
+DELIMITER //
+CREATE PROCEDURE `prc_WSGenerateRateSheet`(
+	IN `p_CustomerID` INT,
+	IN `p_Trunk` VARCHAR(100)
+)
+BEGIN
+		DECLARE v_trunkDescription_ VARCHAR(50);
+		DECLARE v_lastRateSheetID_ INT ;
+		DECLARE v_IncludePrefix_ TINYINT;
+		DECLARE v_Prefix_ VARCHAR(50);
+		DECLARE v_codedeckid_  INT;
+		DECLARE v_ratetableid_ INT;
+		DECLARE v_RateTableAssignDate_  DATETIME;
+		DECLARE v_NewA2ZAssign_ INT;
+
+		SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+
+		SELECT trunk INTO v_trunkDescription_
+		FROM   tblTrunk
+		WHERE  TrunkID = p_Trunk;
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_RateSheetRate_;
+		CREATE TEMPORARY TABLE tmp_RateSheetRate_(
+			RateID        INT,
+			Destination   VARCHAR(200),
+			Codes         VARCHAR(50),
+			Interval1     INT,
+			IntervalN     INT,
+			Rate          DECIMAL(18, 6),
+			`level`         VARCHAR(50),
+			`change`        VARCHAR(50),
+			EffectiveDate  DATE,
+			EndDate  DATE,
+			INDEX tmp_RateSheetRate_RateID (`RateID`)
+		);
+		DROP TEMPORARY TABLE IF EXISTS tmp_CustomerRates_;
+		CREATE TEMPORARY TABLE tmp_CustomerRates_ (
+			RateID INT,
+			Interval1 INT,
+			IntervalN  INT,
+			Rate DECIMAL(18, 6),
+			EffectiveDate DATE,
+			EndDate DATE,
+			LastModifiedDate DATETIME,
+			INDEX tmp_CustomerRates_RateId (`RateID`)
+		);
+		DROP TEMPORARY TABLE IF EXISTS tmp_RateTableRate_;
+		CREATE TEMPORARY TABLE tmp_RateTableRate_ (
+			RateID INT,
+			Interval1 INT,
+			IntervalN  INT,
+			Rate DECIMAL(18, 6),
+			EffectiveDate DATE,
+			EndDate DATE,
+			updated_at DATETIME,
+			INDEX tmp_RateTableRate_RateId (`RateID`)
+		);
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_RateSheetDetail_;
+		CREATE TEMPORARY TABLE tmp_RateSheetDetail_ (
+			ratesheetdetailsid int,
+			RateID int ,
+			RateSheetID int,
+			Destination varchar(200),
+			Code varchar(50),
+			Rate DECIMAL(18, 6),
+			`change` varchar(50),
+			EffectiveDate Date,
+			EndDate DATE,
+			INDEX tmp_RateSheetDetail_RateId (`RateID`,`RateSheetID`)
+		);
+		SELECT RateSheetID INTO v_lastRateSheetID_
+		FROM   tblRateSheet
+		WHERE  CustomerID = p_CustomerID
+					 AND level = v_trunkDescription_
+		ORDER  BY RateSheetID DESC LIMIT 1 ;
+
+		SELECT includeprefix INTO v_IncludePrefix_
+		FROM   tblCustomerTrunk
+		WHERE  AccountID = p_CustomerID
+					 AND TrunkID = p_Trunk;
+
+		SELECT prefix INTO v_Prefix_
+		FROM   tblCustomerTrunk
+		WHERE  AccountID = p_CustomerID
+					 AND TrunkID = p_Trunk;
+
+
+		SELECT
+			CodeDeckId,
+			RateTableID,
+			RateTableAssignDate
+		INTO v_codedeckid_, v_ratetableid_, v_RateTableAssignDate_
+		FROM tblCustomerTrunk
+		WHERE tblCustomerTrunk.TrunkID = p_Trunk
+					AND tblCustomerTrunk.AccountID = p_CustomerID
+					AND tblCustomerTrunk.Status = 1;
+
+		INSERT INTO tmp_CustomerRates_
+			SELECT  tblCustomerRate.RateID,
+				tblCustomerRate.Interval1,
+				tblCustomerRate.IntervalN,
+				tblCustomerRate.Rate,
+				effectivedate,
+				tblCustomerRate.EndDate,
+				lastmodifieddate
+			FROM   tblAccount
+				JOIN tblCustomerRate
+					ON tblAccount.AccountID = tblCustomerRate.CustomerID
+				JOIN tblRate
+					ON tblRate.RateId = tblCustomerRate.RateId
+						 AND tblRate.CodeDeckId = v_codedeckid_
+			WHERE  tblAccount.AccountID = p_CustomerID
+						 AND tblCustomerRate.TrunkID = p_Trunk
+			ORDER BY tblCustomerRate.CustomerID,tblCustomerRate.TrunkID,tblCustomerRate.RateID,tblCustomerRate.EffectiveDate DESC;
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_CustomerRates4_;
+		DROP TEMPORARY TABLE IF EXISTS tmp_CustomerRates2_;
+
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates4_ as (select * from tmp_CustomerRates_);
+		DELETE n1 FROM tmp_CustomerRates_ n1, tmp_CustomerRates4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
+																																			 AND  n1.RateId = n2.RateId;
+
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates2_ as (select * from tmp_CustomerRates_);
+
+		INSERT INTO tmp_RateTableRate_
+			SELECT
+				tblRateTableRate.RateID,
+				tblRateTableRate.Interval1,
+				tblRateTableRate.IntervalN,
+				tblRateTableRate.Rate,
+				tblRateTableRate.EffectiveDate,
+				tblRateTableRate.EndDate,
+				tblRateTableRate.updated_at
+			FROM tblAccount
+				JOIN tblCustomerTrunk
+					ON tblCustomerTrunk.AccountID = tblAccount.AccountID
+				JOIN tblRateTable
+					ON tblCustomerTrunk.ratetableid = tblRateTable.ratetableid
+				JOIN tblRateTableRate
+					ON tblRateTableRate.ratetableid = tblRateTable.ratetableid
+				LEFT JOIN tmp_CustomerRates_ trc1
+					ON trc1.RateID = tblRateTableRate.RateID
+			WHERE  tblAccount.AccountID = p_CustomerID
+
+						 AND tblCustomerTrunk.TrunkID = p_Trunk
+						 AND (( tblRateTableRate.EffectiveDate <= Now()
+										AND ( ( trc1.RateID IS NULL )
+													OR ( trc1.RateID IS NOT NULL
+															 AND tblRateTableRate.ratetablerateid IS NULL )
+										) )
+									OR ( tblRateTableRate.EffectiveDate > Now()
+											 AND ( ( trc1.RateID IS NULL )
+														 OR ( trc1.RateID IS NOT NULL
+																	AND tblRateTableRate.EffectiveDate < (SELECT
+																																					IFNULL(MIN(crr.EffectiveDate),
+																																								 tblRateTableRate.EffectiveDate)
+																																				FROM   tmp_CustomerRates2_ crr
+																																				WHERE  crr.RateID =
+																																							 tblRateTableRate.RateID
+			) ) ) ) )
+			ORDER BY tblRateTableRate.RateID,tblRateTableRate.EffectiveDate desc;
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_RateTableRate4_;
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTableRate4_ as (select * from tmp_RateTableRate_);
+		DELETE n1 FROM tmp_RateTableRate_ n1, tmp_RateTableRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
+																																			 AND  n1.RateId = n2.RateId;
+
+		INSERt INTO tmp_RateSheetDetail_
+			SELECT ratesheetdetailsid,
+				RateID,
+				RateSheetID,
+				Destination,
+				Code,
+				Rate,
+				`change`,
+				effectivedate,
+				EndDate
+			FROM   tblRateSheetDetails
+			WHERE  RateSheetID = v_lastRateSheetID_
+			ORDER BY RateID,effectivedate desc;
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_RateSheetDetail4_;
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateSheetDetail4_ as (select * from tmp_RateSheetDetail_);
+		DELETE n1 FROM tmp_RateSheetDetail_ n1, tmp_RateSheetDetail4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
+																																					 AND  n1.RateId = n2.RateId;
+
+
+		DROP TABLE IF EXISTS tmp_CloneRateSheetDetail_ ;
+		CREATE TEMPORARY TABLE tmp_CloneRateSheetDetail_ LIKE tmp_RateSheetDetail_;
+		INSERT tmp_CloneRateSheetDetail_ SELECT * FROM tmp_RateSheetDetail_;
+
+
+		INSERT INTO tmp_RateSheetRate_
+			SELECT tbl.RateID,
+				description,
+				Code,
+				tbl.Interval1,
+				tbl.IntervalN,
+				tbl.Rate,
+				v_trunkDescription_,
+				'NEW' as `change`,
+				tbl.EffectiveDate,
+				tbl.EndDate
+			FROM   (
+							 SELECT
+								 rt.RateID,
+								 rt.Interval1,
+								 rt.IntervalN,
+								 rt.Rate,
+								 rt.EffectiveDate,
+								 rt.EndDate
+							 FROM   tmp_RateTableRate_ rt
+								 LEFT JOIN tblRateSheet
+									 ON tblRateSheet.RateSheetID =
+											v_lastRateSheetID_
+								 LEFT JOIN tmp_RateSheetDetail_ as  rsd
+									 ON rsd.RateID = rt.RateID AND rsd.RateSheetID = v_lastRateSheetID_
+							 WHERE  rsd.ratesheetdetailsid IS NULL
+
+							 UNION
+
+							 SELECT
+								 trc2.RateID,
+								 trc2.Interval1,
+								 trc2.IntervalN,
+								 trc2.Rate,
+								 trc2.EffectiveDate,
+								 trc2.EndDate
+							 FROM   tmp_CustomerRates_ trc2
+								 LEFT JOIN tblRateSheet
+									 ON tblRateSheet.RateSheetID =
+											v_lastRateSheetID_
+								 LEFT JOIN tmp_CloneRateSheetDetail_ as  rsd2
+									 ON rsd2.RateID = trc2.RateID AND rsd2.RateSheetID = v_lastRateSheetID_
+							 WHERE  rsd2.ratesheetdetailsid IS NULL
+
+						 ) AS tbl
+				INNER JOIN tblRate
+					ON tbl.RateID = tblRate.RateID;
+
+		INSERT INTO tmp_RateSheetRate_
+			SELECT tbl.RateID,
+				description,
+				Code,
+				tbl.Interval1,
+				tbl.IntervalN,
+				tbl.Rate,
+				v_trunkDescription_,
+				tbl.`change`,
+				tbl.EffectiveDate,
+				tbl.EndDate
+			FROM   (SELECT rt.RateID,
+								description,
+								tblRate.Code,
+								rt.Interval1,
+								rt.IntervalN,
+								rt.Rate,
+								rsd5.Rate AS rate2,
+								rt.EffectiveDate,
+								rt.EndDate,
+								CASE
+								WHEN rsd5.Rate > rt.Rate
+										 AND rsd5.Destination !=
+												 description THEN
+									'NAME CHANGE & DECREASE'
+								ELSE
+									CASE
+									WHEN rsd5.Rate > rt.Rate
+											 AND rt.EffectiveDate <= Now() THEN
+										'DECREASE'
+									ELSE
+										CASE
+										WHEN ( rsd5.Rate >
+													 rt.Rate
+													 AND rt.EffectiveDate > Now()
+										)
+											THEN
+												'PENDING DECREASE'
+										ELSE
+											CASE
+											WHEN ( rsd5.Rate <
+														 rt.Rate
+														 AND rt.EffectiveDate <=
+																 Now() )
+												THEN
+													'INCREASE'
+											ELSE
+												CASE
+												WHEN ( rsd5.Rate
+															 <
+															 rt.Rate
+															 AND rt.EffectiveDate >
+																	 Now() )
+													THEN
+														'PENDING INCREASE'
+												ELSE
+													CASE
+													WHEN
+														rsd5.Destination !=
+														description THEN
+														'NAME CHANGE'
+													ELSE 'NO CHANGE'
+													END
+												END
+											END
+										END
+									END
+								END as `Change`
+							FROM   tblRate
+								INNER JOIN tmp_RateTableRate_ rt
+									ON rt.RateID = tblRate.RateID
+								INNER JOIN tblRateSheet
+									ON tblRateSheet.RateSheetID = v_lastRateSheetID_
+								INNER JOIN tmp_RateSheetDetail_ as  rsd5
+									ON rsd5.RateID = rt.RateID
+										 AND rsd5.RateSheetID =
+												 v_lastRateSheetID_
+							UNION
+							SELECT trc4.RateID,
+								description,
+								tblRate.Code,
+								trc4.Interval1,
+								trc4.IntervalN,
+								trc4.Rate,
+								rsd6.Rate AS rate2,
+								trc4.EffectiveDate,
+								trc4.EndDate,
+								CASE
+								WHEN rsd6.Rate > trc4.Rate
+										 AND rsd6.Destination !=
+												 description THEN
+									'NAME CHANGE & DECREASE'
+								ELSE
+									CASE
+									WHEN rsd6.Rate > trc4.Rate
+											 AND trc4.EffectiveDate <= Now() THEN
+										'DECREASE'
+									ELSE
+										CASE
+										WHEN ( rsd6.Rate >
+													 trc4.Rate
+													 AND trc4.EffectiveDate > Now()
+										)
+											THEN
+												'PENDING DECREASE'
+										ELSE
+											CASE
+											WHEN ( rsd6.Rate <
+														 trc4.Rate
+														 AND trc4.EffectiveDate <=
+																 Now() )
+												THEN
+													'INCREASE'
+											ELSE
+												CASE
+												WHEN ( rsd6.Rate
+															 <
+															 trc4.Rate
+															 AND trc4.EffectiveDate >
+																	 Now() )
+													THEN
+														'PENDING INCREASE'
+												ELSE
+													CASE
+													WHEN
+														rsd6.Destination !=
+														description THEN
+														'NAME CHANGE'
+													ELSE 'NO CHANGE'
+													END
+												END
+											END
+										END
+									END
+								END as  `Change`
+							FROM   tblRate
+								INNER JOIN tmp_CustomerRates_ trc4
+									ON trc4.RateID = tblRate.RateID
+								INNER JOIN tblRateSheet
+									ON tblRateSheet.RateSheetID = v_lastRateSheetID_
+								INNER JOIN tmp_CloneRateSheetDetail_ as rsd6
+									ON rsd6.RateID = trc4.RateID
+										 AND rsd6.RateSheetID =
+												 v_lastRateSheetID_
+						 ) AS tbl ;
+
+		INSERT INTO tmp_RateSheetRate_
+			SELECT tblRateSheetDetails.RateID,
+				tblRateSheetDetails.Destination,
+				tblRateSheetDetails.Code,
+				tblRateSheetDetails.Interval1,
+				tblRateSheetDetails.IntervalN,
+				tblRateSheetDetails.Rate,
+				v_trunkDescription_,
+				'DELETE',
+				tblRateSheetDetails.EffectiveDate,
+				tblRateSheetDetails.EndDate
+			FROM   tblRate
+				INNER JOIN tblRateSheetDetails
+					ON tblRate.RateID = tblRateSheetDetails.RateID
+						 AND tblRateSheetDetails.RateSheetID = v_lastRateSheetID_
+				LEFT JOIN (SELECT DISTINCT RateID,
+										 effectivedate
+									 FROM   tmp_RateTableRate_
+									 UNION
+									 SELECT DISTINCT RateID,
+										 effectivedate
+									 FROM tmp_CustomerRates_) AS TBL
+					ON TBL.RateID = tblRateSheetDetails.RateID
+			WHERE  `change` != 'DELETE'
+						 AND TBL.RateID IS NULL ;
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_RateSheetRate4_;
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateSheetRate4_ as (select * from tmp_RateSheetRate_);
+		DELETE n1 FROM tmp_RateSheetRate_ n1, tmp_RateSheetRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
+																																			 AND  n1.RateId = n2.RateId;
+
+		IF v_IncludePrefix_ = 1
+		THEN
+			SELECT rsr.RateID AS rateid,
+						 rsr.Interval1 AS interval1,
+						 rsr.IntervalN AS intervaln,
+						 rsr.Destination AS destination,
+						 rsr.Codes AS codes,
+						 v_Prefix_ AS `tech prefix`,
+						 CONCAT(rsr.Interval1,'/',rsr.IntervalN) AS `interval`,
+						 FORMAT(rsr.Rate,6) AS `rate per minute (usd)`,
+				rsr.`level`,
+				rsr.`change`,
+						 rsr.EffectiveDate AS `effective date`,
+						 rsr.EndDate AS `end date`
+			FROM   tmp_RateSheetRate_ rsr
+
+			ORDER BY rsr.Destination,rsr.Codes desc;
+		ELSE
+			SELECT rsr.RateID AS rateid ,
+						 rsr.Interval1 AS interval1,
+						 rsr.IntervalN AS intervaln,
+						 rsr.Destination AS destination,
+						 rsr.Codes AS codes,
+						 CONCAT(rsr.Interval1,'/',rsr.IntervalN) AS  `interval`,
+						 FORMAT(rsr.Rate, 6) AS `rate per minute (usd)`,
+				rsr.`level`,
+				rsr.`change`,
+						 rsr.EffectiveDate AS `effective date`,
+						 rsr.EndDate AS `end date`
+			FROM   tmp_RateSheetRate_ rsr
+
+			ORDER BY rsr.Destination,rsr.Codes DESC;
+		END IF;
+
+		SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+	END//
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+

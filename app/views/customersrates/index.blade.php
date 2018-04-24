@@ -208,6 +208,7 @@
             var list_fields  = ['RateID','Code','Description','Interval1','IntervalN','ConnectionFee','RoutinePlanName','Rate','EffectiveDate','EndDate','LastModifiedDate','LastModifiedBy','CustomerRateId','TrunkID','RateTableRateId'];
             var routinejson ='{{json_encode($routine)}}';
                     jQuery(document).ready(function($) {
+                        checkrouting($("#customer-rate-table-search select[name='Trunk']").val());
                         //var data_table;
 
                         //$searchFilter.Code = $("#customer-rate-table-search input[name='Code']").val();
@@ -263,12 +264,8 @@
                                             {}, //2Description
                                             {}, //3Interval1
                                             {}, //4IntervalN
-                                            {@if(count($trunks_routing) ==0 || count($routine)  == 0)
-                                                "visible": false
-                                               @endif
-
-                                            }, //4IntervalN
                                             {}, //5 ConnectionFee
+                                            {}, //4IntervalN
                                             {}, //5Rate
                                             {}, //6Effective Date
                                             {}, //6End Date
