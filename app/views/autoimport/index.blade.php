@@ -137,7 +137,7 @@ jQuery(document).ready(function($) {
                         {
                             mRender: function(id, type, full) {
                                 var jobId = id > 0 ? id : ' ';
-                                action ='<a style="margin-left:3px" href="{{URL::to('/jobs/')}}" >' +jobId+'</i></a>';
+                                action ='<a onclick=" return showJobAjaxModal(' + id + ');" href="javascript:;" style="margin-left:3px" href="{{URL::to('/jobs/')}}" >' +jobId+'</i></a>';
                                 return action;
                             }
                         },
@@ -288,18 +288,20 @@ jQuery(document).ready(function($) {
                 {
                     var edata = data.data;
                     $('.mail-title').html(edata.Subject+' #'+edata.AutoImportID);
-                    $('.mail-date').html('To : '+edata.To+'<br>From : '+edata.From+'<br>'+time_ago(edata.MailDateTime)+' ('+edata.MailDateTime+')' );
+                    var cc = edata.CC;
+                    cc = cc.length > 0 ? '<br>CC : '+cc : '';
+                    $('.mail-date').html('To : '+edata.To+'<br>From : '+edata.From+ cc+'<br>'+time_ago(edata.MailDateTime)+' ('+edata.MailDateTime+')' );
                     $('.mail-text').html(edata.Description);
                     var Attachment = edata.Attachment;
                     var attchment_array = Attachment.split(',');
-                    var attch = '';
+                    var attach = '';
                     $(".totAttach").html(attchment_array.length);
                     $.each(attchment_array, function (index, value) {
-                        attch += '<li><a download src="'+data.path+'">'+value+'</a></li>' +
+                        attach += '<li><a download src="'+data.path+'">'+value+'</a></li>' +
                                 '<div class="links"><a href="'+data.path+'.'+value+ '">@lang('routes.BUTTON_DOWNLOAD_CAPTION')</a> </div>';
                         return (value !== 'three');
                     });
-                    $('.attachmentList').html(attch)
+                    $('.attachmentList').html(attach)
                     $('#modal-add-new-account-setting').modal('show', {backdrop: 'static'});
                   //  $('#myModal').modal({show:true});
                 }
@@ -388,11 +390,7 @@ jQuery(document).ready(function($) {
                         <div class="mail-text"></div>
                         <div class="mail-attachments last_data">
                             <h4><i class="entypo-attach"></i> Attachments (<span class="totAttach"></span>) </h4>
-                            <ul class="attachmentList">
-                                <li> <a target="_blank" href="http://localhost/girish/neon/web/girish/public/tickets/119/getattachment/0" class="thumb download"> <a href="http://localhost/girish/neon/web/girish/public/assets/images/icons/csv.png" data-type="image" data-toggle="lightbox" data-title="" data-footer=""><img width="75" src="http://localhost/girish/neon/web/girish/public/assets/images/icons/csv.png" class="img-rounded img-fluid"></a> </a> <a target="_blank" href="http://localhost/girish/neon/web/girish/public/tickets/119/getattachment/0" class="shortnamewrap name"> Invoice (1).csv </a>
-                                    <div class="links"><a href="http://localhost/girish/neon/web/girish/public/tickets/119/getattachment/0">Download</a> </div>
-                                </li>
-                            </ul>
+                            <ul class="attachmentList"></ul>
                         </div>
                     </div>
 

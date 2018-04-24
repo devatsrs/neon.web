@@ -14,8 +14,8 @@ class AutoImportController extends \BaseController {
 		$RateGenerators = RateGenerator::where(["Status" => 1, "CompanyID" => $companyID])->lists("RateGeneratorName", "RateGeneratorId");
 		$jobTypes  = JobType::getJobTypeIDListByWhere();
 		$jobStatus = JobStatus::getJobStatusIDList();
-		$uploadtemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_VENDOR_RATE);
-		return View::make('autoimport.index', compact('trunks','jobStatus','jobTypes','trunk_keys','uploadtemplate'));
+		//$uploadtemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_VENDOR_RATE);
+		return View::make('autoimport.index', compact('trunks','jobStatus','jobTypes'));
 
 	}
 

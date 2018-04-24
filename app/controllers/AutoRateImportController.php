@@ -125,19 +125,22 @@ class AutoRateImportController extends \BaseController {
 	public function accountSettingStore(){
 
 		$data = Input::all();
+		if( !empty($data['Subject']) || !empty($data['FileName']) ) {
+			$data['file_subject_required'] = 'fill';
+		}else{
+			$data['file_subject_required'] = '';
+		}
 		$rules = array(
 			'TypePKID' => 'required',
 			'TrunkID'=>'required',
 			'ImportFileTempleteID'=>'required',
-			'Subject'=>'required',
-			'FileName'=>'required',
+			'file_subject_required'=>'required',
 			'SendorEmail'=>'required'
 		);
 		$message = ['TypePKID.required'=>'Vendor field is required',
 			'TrunkID.required'=>'Trunk field is required',
 			'ImportFileTempleteID.required'=>'Upload Template field is required',
-			'Subject.required'=>'Subject field is required',
-			'FileName.required'=>'FileName field is required',
+			'file_subject_required.required'=>'FileName Or Subject field is required',
 			'SendorEmail.required'=>'SendorEmail field is required'
 		];
 
@@ -145,11 +148,11 @@ class AutoRateImportController extends \BaseController {
 		if ($validator->fails()) {
 			return json_validator_response($validator);
 		}
-
+		unset($data['file_subject_required']);
 		if (!empty($data["AutoImportSettingID"])){
 
 			if (AutoImportSetting::updateAccountImportSetting($data["AutoImportSettingID"],$data)) {
-				return Response::json(array("status" => "success", "message" => "Account Auto Import Setting Created Successfully"));
+				return Response::json(array("status" => "success", "message" => "AutoImport Rate Setting Updated Successfully"));
 			} else {
 				return Response::json(array("status" => "failed", "message" => "Problem Updating AutoImport Inbox Setting."));
 			}
@@ -159,7 +162,7 @@ class AutoRateImportController extends \BaseController {
 			$companyID = User::get_companyID();
 			$data["CompanyID"] = $companyID ;
 			if (AutoImportSetting::insert($data)) {
-				return Response::json(array("status" => "success", "message" => "Account AutoImport Setting created Successfully"));
+				return Response::json(array("status" => "success", "message" => "AutoImport Rate Setting created Successfully"));
 			} else {
 				return Response::json(array("status" => "failed", "message" => "Problem Insert AutoImport Setting."));
 			}
@@ -181,20 +184,23 @@ class AutoRateImportController extends \BaseController {
 	public function RateTableSettingStore(){
 
 		$data = Input::all();
+
+		if( !empty($data['Subject']) || !empty($data['FileName']) ) {
+			$data['file_subject_required'] = 'fill';
+		}else{
+			$data['file_subject_required'] = '';
+		}
 		$rules = array(
 			'TypePKID' => 'required',
 			'ImportFileTempleteID'=>'required',
-			'Subject'=>'required',
-			'FileName'=>'required',
+			'file_subject_required'=>'required',
 			'SendorEmail'=>'required'
 		);
 		$message = ['TypePKID.required'=>'Vendor field is required',
 			'ImportFileTempleteID.required'=>'Upload Template field is required',
-			'Subject.required'=>'Subject field is required',
-			'FileName.required'=>'FileName field is required',
+			'file_subject_required.required'=>'FileName Or Subject field is required',
 			'SendorEmail.required'=>'SendorEmail field is required'
 		];
-
 		$validator = Validator::make($data, $rules, $message);
 		if ($validator->fails()) {
 			return json_validator_response($validator);
@@ -203,7 +209,7 @@ class AutoRateImportController extends \BaseController {
 		if (!empty($data["AutoImportSettingID"])){
 
 			if (AutoImportSetting::updateRateTableImportSetting($data["AutoImportSettingID"],$data)) {
-				return Response::json(array("status" => "success", "message" => "RateTable  AutoImport Setting Update Successfully"));
+				return Response::json(array("status" => "success", "message" => "AutoImport Rate Setting Updated Successfully"));
 			} else {
 				return Response::json(array("status" => "failed", "message" => "Problem Updating AutoImport Inbox Setting."));
 			}
@@ -213,7 +219,7 @@ class AutoRateImportController extends \BaseController {
 			$companyID = User::get_companyID();
 			$data["CompanyID"] = $companyID ;
 			if (AutoImportSetting::insert($data)) {
-				return Response::json(array("status" => "success", "message" => "RateTable AutoImport Setting created Successfully"));
+				return Response::json(array("status" => "success", "message" => "AutoImport Rate Setting Created Successfully"));
 			} else {
 				return Response::json(array("status" => "failed", "message" => "Problem Insert AutoImport Setting."));
 			}
