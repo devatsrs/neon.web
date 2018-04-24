@@ -88,7 +88,7 @@ class FileUploadTemplate extends \Eloquent {
             $option['Settings']['radio_list_option']                      = $data['radio_list_option'];
             $option['Trunk']            = $data['Trunk'];
             $save['Options']          = str_replace('Skip loading','',json_encode($option));
-            $save['Type']               = $data['TemplateType'];
+            $save['FileUploadTemplateTypeID']               = $data['TemplateType'];
 
             //echo "<pre>";print_r($option);exit;
             try {
@@ -162,7 +162,7 @@ class FileUploadTemplate extends \Eloquent {
                 $option['Settings']['radio_list_option']                      = $data['radio_list_option'];
                 $option['Trunk']            = $data['Trunk'];
                 $save['Options']            = str_replace('Skip loading','',json_encode($option));
-                $save['Type']               = $data['TemplateType'];
+                $save['FileUploadTemplateTypeID']               = $data['TemplateType'];
 
                 try {
                     if ($template->update($save)) {

@@ -389,7 +389,7 @@ class CDRController extends BaseController {
         $option["option"]= $data['option'];//['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
         $option["selection"] = $data['selection'];//['connect_time'=>$data['connect_time'],'disconnect_time'=>$data['disconnect_time'],'billed_duration'=>$data['billed_duration'],'duration'=>$data['duration'],'cld'=>$data['cld'],'cli'=>$data['cli'],'Account'=>$data['Account'],'cost'=>$data['cost']];
         $save['Options'] = json_encode($option);
-        $save['Type'] = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_CDR);
+        $save['FileUploadTemplateTypeID'] = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_CDR);
         if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
             $template = FileUploadTemplate::find($data['FileUploadTemplateID']);
             $template->update($save);
@@ -645,7 +645,7 @@ class CDRController extends BaseController {
         $option["option"]= $data['option'];//['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
         $option["selection"] = $data['selection'];//['connect_time'=>$data['connect_time'],'disconnect_time'=>$data['disconnect_time'],'billed_duration'=>$data['billed_duration'],'duration'=>$data['duration'],'cld'=>$data['cld'],'cli'=>$data['cli'],'Account'=>$data['Account'],'cost'=>$data['cost']];
         $save['Options'] = json_encode($option);
-        $save['Type'] = FileUploadTemplate::TEMPLATE_VENDORCDR;
+        $save['FileUploadTemplateTypeID'] = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_VENDORCDR);
         if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
             $template = FileUploadTemplate::find($data['FileUploadTemplateID']);
             $template->update($save);
