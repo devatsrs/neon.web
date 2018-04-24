@@ -5,7 +5,7 @@ class AutoRateImportController extends \BaseController {
 	public function __construct(){
 
 	 }
-	/* AutoInbox Setting  */
+	/* AutoInbox Setting  Start */
 	public function index()
 	{
 		$companyID = User::get_companyID();
@@ -67,57 +67,27 @@ class AutoRateImportController extends \BaseController {
 	}
 
 
-
-
 	/* Search Grid for Setting (RateTable and Account )*/
 	public function ajax_datagrid($type)
 	{
 		$CompanyID = User::get_companyID();
 		$data = Input::all();
+		$data['iDisplayStart'] +=1;
+		$columns = array('AccountName','Trunk','Import File Templete','Subject Match','Sendor Match');
+		$sort_column = $columns[$data['iSortCol_0']];
+		$trunkId = ( !empty($data['TrunkID']) && $data['TrunkID'] != 'undefined' ) ? $data['TrunkID'] : 0;
+		$TypePKID = !empty($data['TypePKID']) ? $data['TypePKID'] : 0;
+		$search = !empty($data['Search']) ? $data['Search'] : '';
+		$query = "call prc_getAutoImportSetting_AccountAndRateTable (".$data["SettingType"].",".$CompanyID.",".$trunkId.",".$TypePKID.",'".$search."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."' ";
 
-		if ($data["SettingType"] == 1) {  // AccountSetting
-
-
-			$AutoImportSetting = AutoImportSetting::
-			Join('tblTrunk', 'tblTrunk.TrunkID', '=', 'tblAutoImportSetting.TrunkID')
-				->Join('tblAccount', 'tblAccount.AccountID', '=', 'tblAutoImportSetting.TypePKID')
-				->Join('tblFileUploadTemplate', 'tblFileUploadTemplate.FileUploadTemplateID', '=', 'tblAutoImportSetting.ImportFileTempleteID');
-				if($type=='csv' || $type=='xlsx') {
-					$AutoImportSetting->select('tblAccount.AccountName', 'tblTrunk.Trunk as trunkName', 'tblFileUploadTemplate.Title', 'Subject', 'SendorEmail', 'FileName');
-				}else{
-					$AutoImportSetting->select('tblAccount.AccountName', 'tblTrunk.Trunk as trunkName', 'tblFileUploadTemplate.Title', 'Subject', 'SendorEmail', 'tblAccount.AccountID', 'tblTrunk.TrunkID', 'tblFileUploadTemplate.FileUploadTemplateID', 'FileName', 'AutoImportSettingID');
+		if( isset($data['Export']) && $data['Export'] == 1) {
+			$excel_data  = DB::select($query.',1)');
+			$excel_data = json_decode(json_encode($excel_data),true);
+			foreach($excel_data as $rowno => $rows){
+				foreach($rows as $colno => $colval){
+					$excel_data[$rowno][$colno] = str_replace( "<br>" , "\n" ,$colval );
 				}
-				$AutoImportSetting->where("tblAutoImportSetting.CompanyId", $CompanyID)->where('tblAutoImportSetting.Type', '=', $data["SettingType"]);
-			if ($data['TrunkID']) {
-				$AutoImportSetting->where('tblAutoImportSetting.TrunkID', $data['TrunkID']);
 			}
-
-		}else { // RateTable Setting = 2
-
-			$AutoImportSetting = AutoImportSetting::
-				Join('tblRateTable', 'tblRateTable.RateTableId', '=', 'tblAutoImportSetting.TypePKID')
-				->Join('tblFileUploadTemplate', 'tblFileUploadTemplate.FileUploadTemplateID', '=', 'tblAutoImportSetting.ImportFileTempleteID');
-				if($type=='csv' || $type=='xlsx') {
-					$AutoImportSetting->select('tblRateTable.RateTableName', 'tblFileUploadTemplate.Title', 'Subject', 'SendorEmail', 'FileName');
-				}else{
-					$AutoImportSetting->select('tblRateTable.RateTableName', 'tblFileUploadTemplate.Title', 'Subject', 'SendorEmail','tblRateTable.RateTableId', 'tblFileUploadTemplate.FileUploadTemplateID', 'FileName','AutoImportSettingID');
-				}
-				$AutoImportSetting->where("tblAutoImportSetting.CompanyId", $CompanyID)->where('tblAutoImportSetting.Type', '=', $data["SettingType"]);
-
-		}
-
-		if($data['TypePKID']){
-			$AutoImportSetting->where('tblAutoImportSetting.TypePKID',$data['TypePKID']);
-		}
-		if($data['Search']!=''){
-			$AutoImportSetting->WhereRaw('tblAutoImportSetting.Subject like "%'.$data['Search'].'%"');
-		}
-
-		/* Use for Export */
-		if($type=='csv' || $type=='xlsx'){
-			$AutoImportSetting = $AutoImportSetting->get();
-			$excel_data = json_decode(json_encode($AutoImportSetting),true);
-
 
 			if($type=='csv'){
 				$file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/AutoImportSetting.csv';
@@ -129,11 +99,13 @@ class AutoRateImportController extends \BaseController {
 				$NeonExcel->download_excel($excel_data);
 			}
 		}
-		/* Use for Export */
+		$query .=',0)';
 
-		return Datatables::of($AutoImportSetting)->make();
+		\Illuminate\Support\Facades\Log::info($query);
+
+		return DataTableSql::of($query)->make();
+
 	}
-
 
 
 	/* Use in Account Setting page*/
@@ -144,25 +116,28 @@ class AutoRateImportController extends \BaseController {
 		$RateGenerators = RateGenerator::where(["Status" => 1, "CompanyID" => $companyID])->lists("RateGeneratorName", "RateGeneratorId");
 		$all_accounts = Account::getAccountIDList(['IsVendor'=>1]);
 		$uploadtemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_VENDOR_RATE));
-		return View::make('autoimport.index', compact('trunks','RateGenerators','all_accounts','trunk_keys','uploadtemplate'));
+		return View::make('autoimport.account_setting', compact('trunks','RateGenerators','all_accounts','trunk_keys','uploadtemplate'));
 	}
 
 	public function accountSettingStore(){
 
 		$data = Input::all();
+		if( !empty($data['Subject']) || !empty($data['FileName']) ) {
+			$data['file_subject_required'] = 'fill';
+		}else{
+			$data['file_subject_required'] = '';
+		}
 		$rules = array(
 			'TypePKID' => 'required',
 			'TrunkID'=>'required',
 			'ImportFileTempleteID'=>'required',
-			'Subject'=>'required',
-			'FileName'=>'required',
+			'file_subject_required'=>'required',
 			'SendorEmail'=>'required'
 		);
 		$message = ['TypePKID.required'=>'Vendor field is required',
 			'TrunkID.required'=>'Trunk field is required',
 			'ImportFileTempleteID.required'=>'Upload Template field is required',
-			'Subject.required'=>'Subject field is required',
-			'FileName.required'=>'FileName field is required',
+			'file_subject_required.required'=>'FileName Or Subject field is required',
 			'SendorEmail.required'=>'SendorEmail field is required'
 		];
 
@@ -170,11 +145,11 @@ class AutoRateImportController extends \BaseController {
 		if ($validator->fails()) {
 			return json_validator_response($validator);
 		}
-
+		unset($data['file_subject_required']);
 		if (!empty($data["AutoImportSettingID"])){
 
 			if (AutoImportSetting::updateAccountImportSetting($data["AutoImportSettingID"],$data)) {
-				return Response::json(array("status" => "success", "message" => "Account Auto Import Setting Created Successfully"));
+				return Response::json(array("status" => "success", "message" => "AutoImport Rate Setting Updated Successfully"));
 			} else {
 				return Response::json(array("status" => "failed", "message" => "Problem Updating AutoImport Inbox Setting."));
 			}
@@ -184,7 +159,7 @@ class AutoRateImportController extends \BaseController {
 			$companyID = User::get_companyID();
 			$data["CompanyID"] = $companyID ;
 			if (AutoImportSetting::insert($data)) {
-				return Response::json(array("status" => "success", "message" => "Account AutoImport Setting created Successfully"));
+				return Response::json(array("status" => "success", "message" => "AutoImport Rate Setting created Successfully"));
 			} else {
 				return Response::json(array("status" => "failed", "message" => "Problem Insert AutoImport Setting."));
 			}
@@ -206,29 +181,33 @@ class AutoRateImportController extends \BaseController {
 	public function RateTableSettingStore(){
 
 		$data = Input::all();
+
+		if( !empty($data['Subject']) || !empty($data['FileName']) ) {
+			$data['file_subject_required'] = 'fill';
+		}else{
+			$data['file_subject_required'] = '';
+		}
 		$rules = array(
 			'TypePKID' => 'required',
 			'ImportFileTempleteID'=>'required',
-			'Subject'=>'required',
-			'FileName'=>'required',
+			'file_subject_required'=>'required',
 			'SendorEmail'=>'required'
 		);
 		$message = ['TypePKID.required'=>'Vendor field is required',
 			'ImportFileTempleteID.required'=>'Upload Template field is required',
-			'Subject.required'=>'Subject field is required',
-			'FileName.required'=>'FileName field is required',
+			'file_subject_required.required'=>'FileName Or Subject field is required',
 			'SendorEmail.required'=>'SendorEmail field is required'
 		];
-
 		$validator = Validator::make($data, $rules, $message);
 		if ($validator->fails()) {
 			return json_validator_response($validator);
 		}
 
+		unset($data['file_subject_required']);
 		if (!empty($data["AutoImportSettingID"])){
 
 			if (AutoImportSetting::updateRateTableImportSetting($data["AutoImportSettingID"],$data)) {
-				return Response::json(array("status" => "success", "message" => "RateTable  AutoImport Setting Update Successfully"));
+				return Response::json(array("status" => "success", "message" => "AutoImport Rate Setting Updated Successfully"));
 			} else {
 				return Response::json(array("status" => "failed", "message" => "Problem Updating AutoImport Inbox Setting."));
 			}
@@ -238,7 +217,7 @@ class AutoRateImportController extends \BaseController {
 			$companyID = User::get_companyID();
 			$data["CompanyID"] = $companyID ;
 			if (AutoImportSetting::insert($data)) {
-				return Response::json(array("status" => "success", "message" => "RateTable AutoImport Setting created Successfully"));
+				return Response::json(array("status" => "success", "message" => "AutoImport Rate Setting Created Successfully"));
 			} else {
 				return Response::json(array("status" => "failed", "message" => "Problem Insert AutoImport Setting."));
 			}
@@ -249,7 +228,7 @@ class AutoRateImportController extends \BaseController {
 	}
 
 
-	/* Use in Acccount Setting and RateTable Setting */
+	/* Use in Account Setting and RateTable Setting */
 	public function Delete($id) {
 
 		if ($id > 0) {

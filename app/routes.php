@@ -732,6 +732,10 @@ Route::group(array('before' => 'auth'), function () {
 	Route::controller('rate_upload', 'RateUploadController');
 
 	// Auto Rate import (Account And RateTable Setting page)
+	Route::any('/auto_rate_import/autoimport','AutoImportController@index');
+	Route::any('/auto_rate_import/autoimport/ajax_datagrid/{type}','AutoImportController@ajax_datagrid');
+	Route::any('/auto_rate_import/autoimport/readmail/{id}','AutoImportController@GetemailReadById');
+
 	Route::any('/auto_rate_import/ajax_datagrid/{type}','AutoRateImportController@ajax_datagrid');
 	Route::any('/auto_rate_import/import_inbox_setting','AutoRateImportController@index');
 	Route::any('/auto_rate_import/storeAndUpdate','AutoRateImportController@inboxSettingStoreAndUpdate');
@@ -741,7 +745,6 @@ Route::group(array('before' => 'auth'), function () {
 
 	Route::any('/auto_rate_import/rateTable_setting/store','AutoRateImportController@RateTableSettingStore');
 	Route::any('/auto_rate_import/ratetable_setting','AutoRateImportController@ratetableSetting');
-
 	Route::any('/auto_rate_import/{id}/delete','AutoRateImportController@Delete');
 
 	//LCR

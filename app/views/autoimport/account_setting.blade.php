@@ -14,13 +14,13 @@
                     <input class="form-control" name="Search" id="Search"  type="text" >
                 </div>
                 <div class="form-group">
-                    <label class="control-label" for="field-1">Status</label>
-                    {{ Form::select('jobStatus', $jobStatus, '', array("class"=>"select2","data-type"=>"trunk")) }}
+                    <label class="control-label" for="field-1">Trunk</label>
+                    {{ Form::select('TrunkID', $trunks, '', array("class"=>"select2","data-type"=>"trunk")) }}
                 </div>
 
                 <div class="form-group">
-                    <label for="Search" class="control-label">Type</label>
-                    {{Form::select('jobType', $jobTypes, '' ,array("class"=>"form-control select2"))}}
+                    <label for="Search" class="control-label">Vendor</label>
+                    {{Form::select('TypePKIDVendorReteTable', $all_accounts, '' ,array("class"=>"form-control select2"))}}
                 </div>
                 <div class="form-group">
                     <br/>
@@ -40,21 +40,19 @@
     <li>
         <a href="{{URL::to('/dashboard')}}"><i class="entypo-home"></i>Home</a>
     </li>
+    <li>
+        <a href="{{URL::to('/auto_rate_import/autoimport')}}">Auto Import</a>
+    </li>
     <li class="active">
-        <strong>Auto Import </strong>
+        <strong>Account Settings </strong>
     </li>
 </ol>
-<h3>Auto Import</h3>
+<h3>Account Setting</h3>
 <p style="text-align: right;">
 @if(User::checkCategoryPermission('RateTables','Add'))
-    <a href="{{URL::to('/auto_rate_import/import_inbox_setting')}}"  class="btn btn-primary ">
-        Import Inbox Settings
-    </a>
-    <a href="{{URL::to('/auto_rate_import/account_setting')}}"  class="btn btn-primary ">
-        Account Settings
-    </a>
-    <a href="{{URL::to('/auto_rate_import/ratetable_setting')}}"  class="btn btn-primary ">
-        Rate Table Settings
+    <a href="#" id="add-new-account-setting" class="btn btn-primary ">
+        <i class="entypo-plus"></i>
+        Add New Setting
     </a>
 @endif
 
@@ -68,12 +66,13 @@
                             <table class="table table-bordered datatable" id="table-4">
                                 <thead>
                                     <tr>
-                                        <th >Type</th>
-                                        <th >Header</th>
-                                        <th >Created</th>
-                                        <th >Job ID</th>
-                                        <th >Status</th>
-                                         <th >Action</th>
+                                        <th >Vendor Name</th>
+                                        <th >Trunk</th>
+                                        <th >Import File Template</th>
+                                        <th >Subject Match</th>
+                                        <th >Filename Match</th>
+                                        <th >Sender Match</th>
+                                        <th >Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -93,24 +92,24 @@ jQuery(document).ready(function($) {
 
     var $searchFilter = {};
     var update_new_url;
-        $searchFilter.jobStatus = $("#ratetable_filter [name='jobStatus']").val();
-        $searchFilter.jobType = $("#ratetable_filter [name='jobType']").val();
+        $searchFilter.TrunkID = $("#ratetable_filter [name='TrunkID']").val();
+        $searchFilter.TypePKID = $("#ratetable_filter [name='TypePKIDVendorReteTable']").val();
 		$searchFilter.Search = $('#ratetable_filter [name="Search"]').val();
         $searchFilter.SettingType = 1;
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
             "bProcessing": true,
             "bServerSide": true,
-            "sAjaxSource": baseurl + "/auto_rate_import/autoimport/ajax_datagrid/1",
+            "sAjaxSource": baseurl + "/auto_rate_import/ajax_datagrid/1",
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "oTableTools": {},
             "aaSorting": [[3, "desc"]],
             "fnServerParams": function(aoData) {
-                aoData.push({"name":"jobStatus","value":$searchFilter.jobStatus},{"name":"jobType","value":$searchFilter.jobType},{"name":"TypePKID","value":$searchFilter.TypePKID},{"name":"Search","value":$searchFilter.Search});
+                aoData.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"SettingType","value":$searchFilter.SettingType},{"name":"TypePKID","value":$searchFilter.TypePKID},{"name":"Search","value":$searchFilter.Search});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name":"jobStatus","value":$searchFilter.jobStatus},{"name":"jobType","value":$searchFilter.jobType},{"name":"TypePKID","value":$searchFilter.TypePKID},{"name":"Search","value":$searchFilter.Search},{"name":"Export","value":1});
+                data_table_extra_params.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"SettingType","value":$searchFilter.SettingType},{"name":"TypePKID","value":$searchFilter.TypePKID},{"name":"Search","value":$searchFilter.Search},{"name":"Export","value":1});
             },
             "fnRowCallback": function(nRow, aData) {
                 $(nRow).attr("id", "host_row_" + aData[2]);
@@ -118,43 +117,25 @@ jQuery(document).ready(function($) {
             "aoColumns":
                     [
                         {},
-                        {
-                            mRender: function(id, type, full) {
-                                var array = id.split("<br>");
-                                var subject = array[0];
-                                var action = "";
-                                action +='<a class="add-new-account-setting" id='+full[5]+' style="margin-left:3px" href="javascript:;" >' +subject+'</i></a>';
-                                action +='<br>&nbsp;From : '+array[1];
-                                action +='<br>&nbsp;('+array[2]+')';
-                                return action;
-                            }
-                        },
-                        {
-                            mRender: function(id, type, full) {
-                                return time_ago(id);
-                            }
-                        },
-                        {
-                            mRender: function(id, type, full) {
-                                var jobId = id > 0 ? id : ' ';
-                                action ='<a onclick=" return showJobAjaxModal(' + id + ');" href="javascript:;" style="margin-left:3px" href="{{URL::to('/jobs/')}}" >' +jobId+'</i></a>';
-                                return action;
-                            }
-                        },
+                        {},
+                        {},
+                        {},
+                        {},
                         {},
                         {
                             mRender: function(id, type, full) {
-                                var Status = full[4].toLowerCase();
-                                if( Status == 'failed'){
-                                    action = ' <button data-id="'+ full[3] +'" title="Start" class="job_restart btn btn-primary btn-sm" type="button" data-loading-text="Loading...">' +
-                                            '<i class="glyphicon glyphicon-repeat"></i>' +
-                                            '</button>';
+                                var action, delete_;
+                                delete_ = "{{ URL::to('/auto_rate_import/{id}/delete')}}";
 
-                                }else{
-                                    action= '';
-                                }
+                                delete_ = delete_.replace('{id}', full[9]);
+
+                                action = '<a title="Edit" data-id="'+id+'" data-AutoImportSettingID="'+full[9]+'" data-TrunkID="'+full[7]+'" data-uploadtemplate="'+full[8]+'" data-subject="'+full[3]+'" data-sendor="'+full[5]+'" data-fileName="'+full[4]+'" class="edit-autoImportSetting btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
+
+                                <?php if(User::checkCategoryPermission('RateTables','Delete') ) { ?>
+                                    action += ' <a title="Delete" href="' + delete_ + '" data-redirect="{{URL::to("/rate_tables")}}"  class="btn btn-default delete btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';
+                                <?php } ?>
+                                //action += status_link;
                                 return action;
-
                             }
                         },
                     ],
@@ -164,13 +145,13 @@ jQuery(document).ready(function($) {
                             {
                                 "sExtends": "download",
                                 "sButtonText": "EXCEL",
-                                "sUrl": baseurl + "/auto_rate_import/autoimport/ajax_datagrid/xlsx",
+                                "sUrl": baseurl + "/auto_rate_import/ajax_datagrid/xlsx",
                                 sButtonClass: "save-collection btn-sm"
                             },
                             {
                                 "sExtends": "download",
                                 "sButtonText": "CSV",
-                                "sUrl": baseurl + "/auto_rate_import/autoimport/ajax_datagrid/csv",
+                                "sUrl": baseurl + "/auto_rate_import/ajax_datagrid/csv",
                                 sButtonClass: "save-collection btn-sm"
                             }
                         ]
@@ -241,21 +222,33 @@ jQuery(document).ready(function($) {
                 });
             }
         });
-
+        $('table tbody').on('click','.edit-autoImportSetting',function(ev){
+            ev.preventDefault();
+            ev.stopPropagation();
+            $('#modal-add-new-account-setting').trigger("reset");
+            $("#modal-add-new-account-setting [name='TypePKID']").select2('val', $(this).attr('data-id'));
+            $("#modal-add-new-account-setting [name='ImportFileTempleteID']").select2('val', $(this).attr('data-uploadtemplate'));
+            $("#modal-add-new-account-setting [name='TrunkID']").select2('val', $(this).attr('data-TrunkID'));
+            $("#modal-add-new-account-setting [name='Subject']").val($(this).attr('data-subject'));
+            $("#modal-add-new-account-setting [name='FileName']").val($(this).attr('data-fileName'));
+            $("#modal-add-new-account-setting [name='SendorEmail']").val($(this).attr('data-sendor'));
+            $("#modal-add-new-account-setting [name='AutoImportSettingID']").val($(this).attr('data-AutoImportSettingID'));
+            $('#modal-add-new-account-setting').modal('show');
+        });
         $("#ratetable_filter").submit(function(e) {
             e.preventDefault();
-            $searchFilter.jobStatus = $("#ratetable_filter [name='jobStatus']").val();
-            $searchFilter.jobType = $("#ratetable_filter [name='jobType']").val();
+            $searchFilter.TrunkID = $("#ratetable_filter [name='TrunkID']").val();
+            $searchFilter.TypePKID = $("#ratetable_filter [name='TypePKIDVendorReteTable']").val();
 			$searchFilter.Search = $('#ratetable_filter [name="Search"]').val();
+            $searchFilter.SettingType = 1;
             data_table.fnFilter('', 0);
             return false;
          });
-       /* $(".add-new-account-setting").click(function() {
-            alert('hi');
-
+        $("#add-new-account-setting").click(function(ev) {
+             ev.preventDefault();
              $("#modal-add-new-account-setting [name='AutoImportSettingID']").val('');
              $('#modal-add-new-account-setting').modal('show', {backdrop: 'static'});
-         });*/
+         });
          $("#add-new-form").submit(function(ev){
             ev.preventDefault();
             update_new_url = baseurl + '/auto_rate_import/account_setting/store';
@@ -264,106 +257,6 @@ jQuery(document).ready(function($) {
 
     });
 
-
-    //Restart a job
-    $('table tbody').on('click','.job_restart',function(ev){
-        result = confirm("Are you Sure?");
-        if(result){
-            id = $(this).attr('data-id');
-            submit_ajax(baseurl+'/jobs/'+id + '/restart');
-            data_table.fnFilter('', 0);
-        }
-    });
-
-    $('table tbody').on('click','.add-new-account-setting',function(){
-            var emailId= $(this).attr("id");
-            $.ajax({
-                type: "POST",
-                url: baseurl + '/auto_rate_import/autoimport/readmail/'+emailId,
-                dataType: 'json',
-                data: {
-                    emailId: emailId
-                },
-                success: function(data)
-                {
-                    var edata = data.data;
-                    $('.mail-title').html(edata.Subject+' #'+edata.AutoImportID);
-                    var cc = edata.CC;
-                    cc = cc.length > 0 ? '<br>CC : '+cc : '';
-                    $('.mail-date').html('To : '+edata.To+'<br>From : '+edata.From+ cc+'<br>'+time_ago(edata.MailDateTime)+' ('+edata.MailDateTime+')' );
-                    $('.mail-text').html(edata.Description);
-                    var Attachment = edata.Attachment;
-                    var attchment_array = Attachment.split(',');
-                    var attach = '';
-                    $(".totAttach").html(attchment_array.length);
-                    $.each(attchment_array, function (index, value) {
-                        attach += '<li><a download src="'+data.path+'">'+value+'</a></li>' +
-                                '<div class="links"><a href="'+data.path+'.'+value+ '">@lang('routes.BUTTON_DOWNLOAD_CAPTION')</a> </div>';
-                        return (value !== 'three');
-                    });
-                    $('.attachmentList').html(attach)
-                    $('#modal-add-new-account-setting').modal('show', {backdrop: 'static'});
-                  //  $('#myModal').modal({show:true});
-                }
-            });
-    });
-
-
-    function time_ago(time) {
-
-    switch (typeof time) {
-        case 'number':
-            break;
-        case 'string':
-            time = +new Date(time);
-            break;
-        case 'object':
-            if (time.constructor === Date) time = time.getTime();
-            break;
-        default:
-            time = +new Date();
-    }
-    var time_formats = [
-        [60, 'seconds', 1], // 60
-        [120, '1 minute ago', '1 minute from now'], // 60*2
-        [3600, 'minutes', 60], // 60*60, 60
-        [7200, '1 hour ago', '1 hour from now'], // 60*60*2
-        [86400, 'hours', 3600], // 60*60*24, 60*60
-        [172800, 'Yesterday', 'Tomorrow'], // 60*60*24*2
-        [604800, 'days', 86400], // 60*60*24*7, 60*60*24
-        [1209600, 'Last week', 'Next week'], // 60*60*24*7*4*2
-        [2419200, 'weeks', 604800], // 60*60*24*7*4, 60*60*24*7
-        [4838400, 'Last month', 'Next month'], // 60*60*24*7*4*2
-        [29030400, 'months', 2419200], // 60*60*24*7*4*12, 60*60*24*7*4
-        [58060800, 'Last year', 'Next year'], // 60*60*24*7*4*12*2
-        [2903040000, 'years', 29030400], // 60*60*24*7*4*12*100, 60*60*24*7*4*12
-        [5806080000, 'Last century', 'Next century'], // 60*60*24*7*4*12*100*2
-        [58060800000, 'centuries', 2903040000] // 60*60*24*7*4*12*100*20, 60*60*24*7*4*12*100
-    ];
-    var seconds = (+new Date() - time) / 1000,
-            token = 'ago',
-            list_choice = 1;
-
-    if (seconds == 0) {
-        return 'Just now'
-    }
-    if (seconds < 0) {
-        seconds = Math.abs(seconds);
-        token = 'from now';
-        list_choice = 2;
-    }
-    var i = 0,
-            format;
-    while (format = time_formats[i++])
-        if (seconds < format[0]) {
-            if (typeof format[2] == 'string')
-                return format[list_choice];
-            else
-                return Math.floor(seconds / format[2]) + ' ' + format[1] + ' ' + token;
-        }
-    return time;
-}
-
 </script>
 @include('includes.errors')
 @include('includes.success')
@@ -371,33 +264,66 @@ jQuery(document).ready(function($) {
 @section('footer_ext')
 @parent
 <div class="modal fade" id="modal-add-new-account-setting">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog">
         <div class="modal-content">
             <form id="add-new-form" method="post">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     <h4 class="modal-title">Add New Account Setting</h4>
                 </div>
-                <div class=" mail-env">
-
-
-                    <div class="mail-body pull-left" style="width: 100%">
-                        <div class="mail-header">
-                            <div class="mail-title"></div>
-                            <div class="clear mail-date"></div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label for="field-5" class="control-label">Vendor</label>
+                                {{Form::select('TypePKID', $all_accounts, '' ,array("class"=>"form-control select2"))}}
+                                <input type="hidden" name="Type" value="1">
+                                <input type="hidden" name="AutoImportSettingID">
+                            </div>
+                        </div>
+                         <div class="col-md-6">
+                            <div class="form-group ">
+                                <label for="field-5" class="control-label">Trunk</label>
+                                {{Form::SelectControl('trunk')}}
+                            </div>
+                        </div>
+                         </div>
+                    <div class="row">
+                       <div class="col-md-6">
+                           <div class="form-group ">
+                               <label for="field-5" class="control-label">Upload Template</label>
+                               {{ Form::select('ImportFileTempleteID', $uploadtemplate, '' , array("class"=>"select2")) }}
+                           </div>
+                       </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-4" class="control-label">Subject</label>
+                                <input type="text" name="Subject" class="form-control" value="" />
+                            </div>
                         </div>
 
-                        <div class="mail-text"></div>
-                        <div class="mail-attachments last_data">
-                            <h4><i class="entypo-attach"></i> Attachments (<span class="totAttach"></span>) </h4>
-                            <ul class="attachmentList"></ul>
-                        </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label for="field-5" class="control-label">FileName</label>
+                                <input type="text" name="FileName" class="form-control" value="" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-4" class="control-label">Sendor Email</label>
+                                <input type="text" name="SendorEmail" class="form-control" value="" />
+                            </div>
+                        </div>
 
-
-
+                    </div>
                 </div>
                 <div class="modal-footer">
+                    <button type="submit" id="codedeck-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <i class="entypo-floppy"></i>
+                        Save
+                    </button>
                     <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
                         <i class="entypo-cancel"></i>
                         Close
