@@ -9,7 +9,7 @@
 
 require_once 'utilities/xmlrpc/xmlrpc.inc';
 
-class SippySFTP {
+class Sippy {
     private static $config = array();
     private static $cli;
     private static $timeout=0; /* 60 seconds timeout */
@@ -28,7 +28,7 @@ class SippySFTP {
        if(count(self::$config)>0) {
            self::$cli = new xmlrpc_client(self::$config['api_url']);
            self::$cli->return_type = 'phpvals';
-           //self::$cli->debug =2;
+           self::$cli->debug =2;
            self::$cli->setSSLVerifyPeer(false);
            self::$cli->setSSLVerifyHost(2);
            self::$cli->setCredentials(self::$config['username'], self::$config['password'], CURLAUTH_DIGEST);
