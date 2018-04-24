@@ -11,7 +11,7 @@ class AutoRateImportController extends \BaseController {
 		$companyID = User::get_companyID();
 		$autoimportSetting = AutoImportInboxSetting::getAutoImportSetting($companyID);
 		$autoimportSetting['copyNotification'] = $autoimportSetting[0]->SendCopyToAccount == 'Y' ? 'checked' : '';
-		$autoimportSetting['encryption'] = $autoimportSetting[0]->encryption == 'ssl' ? 'checked' : '';
+		$autoimportSetting['IsSSL'] = $autoimportSetting[0]->IsSSL == 1 ? 'checked' : '';
 		return View::make('autoimport.auto_import_inbox_setting', compact('autoimportSetting'));
 
 	}
@@ -19,20 +19,25 @@ class AutoRateImportController extends \BaseController {
 	{
 		$data = Input::all();
 		$data['SendCopyToAccount'] = isset($data['SendCopyToAccount'])?'Y':'N';
-		$data['encryption'] = isset($data['encryption']) ? 'ssl' : 'tls' ;
-		$data['validate_cert'] = 'false';
+		$data['IsSSL'] = isset($data['IsSSL']) ? 1 : 0 ;
+
 		$rules = array(
 			'port' => 'required',
 			'host'=>'required',
-			'encryption'=>'required',
-			'validate_cert'=>'required',
-			'username'=>'required',
-			'password'=>'required'
+			'IsSSL'=>'required',
+			'username'=>'required'
 		);
+		if (!empty($data["CompanyID"])){
+			if(empty($data["password"]))
+			{
+				unset($data["password"]);
+			}
+		}else{
+			$rules['password']='required';
+		}
 		$message = ['port.required'=>'Port field is required',
 			'host.required'=>'host field is required',
-			'encryption.required'=>'encryption field is required',
-			'validate_cert.required'=>'validate_cert field is required',
+			'IsSSL.required'=>'IsSSL field is required',
 			'username.required'=>'Username field is required',
 			'password.required'=>'Password field is required'
 		];
@@ -56,7 +61,7 @@ class AutoRateImportController extends \BaseController {
 			$companyID = User::get_companyID();
 			$data["CompanyID"] = $companyID ;
 			if (AutoImportInboxSetting::insert($data)) {
-			return Response::json(array("status" => "success", "message" => "Import Setting Update Successfully"));
+				return Response::json(array("status" => "success", "message" => "Import Setting Update Successfully"));
 			} else {
 				return Response::json(array("status" => "failed", "message" => "Problem Insert AutoImport Setting."));
 			}
