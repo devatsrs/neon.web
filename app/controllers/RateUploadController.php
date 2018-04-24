@@ -45,7 +45,9 @@ class RateUploadController extends \BaseController {
             "Title" => "Select",
             "FileUploadTemplateID" => "",
             "start_row" => "",
-            "end_row" => ""
+            "end_row" => "",
+            "start_row_sheet2" => "",
+            "end_row_sheet2" => ""
         ];
 
         foreach($arrData as $val)
@@ -55,19 +57,35 @@ class RateUploadController extends \BaseController {
             $arrUploadTmp["FileUploadTemplateID"]=$val["FileUploadTemplateID"];
 
             $options=json_decode($val["Options"], true);
-
+           // print_R($options);exit;
             if(array_key_exists("skipRows", $options)) {
                 $arrUploadTmp["start_row"]=$options["skipRows"]["start_row"];
                 $arrUploadTmp["end_row"]=$options["skipRows"]["end_row"];
-            } else {
+            }
+            else {
                 $arrUploadTmp["start_row"]="0";
+                $arrUploadTmp["start_row_sheet2"]="0";
                 $arrUploadTmp["end_row"]="0";
+                $arrUploadTmp["end_row_sheet2"]="0";
             }
-            if(array_key_exists("Sheet", $options)) {
-                $arrUploadTmp["Sheet"]=$options["Sheet"];
+
+            if(array_key_exists("skipRows_sheet2", $options)){
+                $arrUploadTmp["start_row_sheet2"]=$options["skipRows_sheet2"]["start_row"];
+                $arrUploadTmp["end_row_sheet2"]=$options["skipRows_sheet2"]["end_row"];
+            }
+
+            if(array_key_exists("importratesheet", $options)) {
+                $arrUploadTmp["importratesheet"]=$options["importratesheet"];
             } else {
-                $arrUploadTmp["Sheet"]="";
+                $arrUploadTmp["importratesheet"]="";
             }
+
+            if(array_key_exists("importdialcodessheet", $options)) {
+                $arrUploadTmp["importdialcodessheet"]=$options["importdialcodessheet"];
+            } else {
+                $arrUploadTmp["importdialcodessheet"]="";
+            }
+
             $uploadtemplate[]=$arrUploadTmp;
         }
 
@@ -108,8 +126,15 @@ class RateUploadController extends \BaseController {
         try {
             $Sheet  = '';
             $data   = Input::all();
-            if(!empty($data['Sheet'])) {
+
+           /* if(!empty($data['Sheet'])) {
                 $Sheet = $data['Sheet'];
+            }*/
+            if(!empty($data['importratesheet'])) {
+                $Sheet = $data['importratesheet'];
+            }
+            if(!empty($data['importdialcodessheet'])) {
+                $Sheet2 = $data['importdialcodessheet'];
             }
             if ($data['RateUploadType'] == RateUpload::vendor && (!isset($data['Trunk']) || empty($data['Trunk']))) {
                 return json_encode(["status" => "failed", "message" => 'Please Select a Trunk']);
@@ -119,14 +144,14 @@ class RateUploadController extends \BaseController {
                 $ext = $excel->getClientOriginalExtension();
                 if (in_array(strtolower($ext), array("csv", "xls", "xlsx"))) {
                     $file_name_without_ext = GUID::generate();
-                    $file_name = $file_name_without_ext . '.' . $excel->getClientOriginalExtension();
+                    $file_name = $file_name_without_ext . '.' . strtolower($excel->getClientOriginalExtension());
                     $excel->move($upload_path, $file_name);
                     $file_name = $upload_path . '/' . $file_name;
 
-                    if (!empty($data['checkbox_review_rates']) && $data['checkbox_review_rates'] == 1) {
+                    /*if (!empty($data['checkbox_review_rates']) && $data['checkbox_review_rates'] == 1) {
                         $NeonExcel = new NeonExcelIO($file_name, $data, $Sheet);
                         $file_name = $NeonExcel->convertExcelToCSV($data);
-                    }
+                    }*/
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Please select excel or csv file."));
                 }
@@ -146,10 +171,22 @@ class RateUploadController extends \BaseController {
                 }
 
                 $grid = getFileContent($file_name, $data, $Sheet);
+                $grid2 = array();
+                if(isset($data['importdialcodessheet'])) {
+                    $grid2 = getFileContentSheet2($file_name, $data, $Sheet2);
+                }
+                //echo "<pre>";print_R($grid);exit;
                 $grid['tempfilename'] = $file_name;//$upload_path.'\\'.'temp.'.$ext;
                 $grid['filename'] = $file_name;
                 $grid['start_row'] = $data["start_row"];
                 $grid['end_row'] = $data["end_row"];
+
+                if(isset($data['importdialcodessheet'])) {
+                    $grid2['tempfilename'] = $file_name;//$upload_path.'\\'.'temp.'.$ext;
+                    $grid2['filename'] = $file_name;
+                    $grid2['start_row_sheet2'] = $data["start_row_sheet2"];
+                    $grid2['end_row_sheet2'] = $data["end_row_sheet2"];
+                }
 
                 $TemplateType = '';
                 if ($data['RateUploadType'] == RateUpload::vendor) {
@@ -166,8 +203,11 @@ class RateUploadController extends \BaseController {
                 if (!empty($FileUploadTemplate)) {
                     $grid['FileUploadTemplate'] = json_decode(json_encode($FileUploadTemplate), true);
                     $grid['FileUploadTemplate']['Options'] = json_decode($FileUploadTemplate->Options, true);
+                    if(isset($data['importdialcodessheet'])) {
+                        $grid2['FileUploadTemplate']['Options'] = json_decode($FileUploadTemplate->Options, true);
+                    }
                 }
-                return Response::json(array("status" => "success", "data" => $grid));
+                return Response::json(array("status" => "success", "data" => $grid, "data2" => $grid2));
             }
         } catch (Exception $ex) {
             Log::info($ex);
@@ -178,18 +218,33 @@ class RateUploadController extends \BaseController {
     public function ajaxfilegrid(){
         try {
             $data = Input::all();
+            //print_R($data);exit;
             $data['Delimiter']      = $data['option']['Delimiter'];
             $data['Enclosure']      = $data['option']['Enclosure'];
             $data['Escape']         = $data['option']['Escape'];
             $data['Firstrow']       = $data['option']['Firstrow'];
             $file_name              = $data['TempFileName'];
-            $grid                   = getFileContent($file_name, $data);
+            $importratesheet        = $data['importratesheet'];
+            $grid                   = getFileContent($file_name, $data , $importratesheet);
+
             $grid['filename']       = $data['TemplateFile'];
             $grid['tempfilename']   = $data['TempFileName'];
+
+            $grid2 = array();
+            if(isset($data['importdialcodessheet']))
+            {
+                $importdialcodessheet   = $data['importdialcodessheet'];
+                $grid2                  = getFileContentSheet2($file_name, $data , $importdialcodessheet);
+                $grid2['filename']       = $data['TemplateFile'];
+                $grid2['tempfilename']   = $data['TempFileName'];
+            }
 
             if ($data['uploadtemplate'] > 0) {
                 $FileUploadTemplate         = FileUploadTemplate::find($data['uploadtemplate']);
                 $grid['FileUploadTemplate'] = json_decode(json_encode($FileUploadTemplate), true);
+                if(isset($data['importdialcodessheet'])) {
+                    $grid2['FileUploadTemplate'] = json_decode(json_encode($FileUploadTemplate), true);
+                }
                 //$grid['VendorFileUploadTemplate']['Options'] = json_decode($VendorFileUploadTemplate->Options,true);
             }
 
@@ -197,7 +252,12 @@ class RateUploadController extends \BaseController {
             $grid['FileUploadTemplate']['Options']['option']    = $data['option'];
             $grid['FileUploadTemplate']['Options']['selection'] = $data['selection'];
 
-            return Response::json(array("status" => "success", "data" => $grid));
+            if(isset($data['importdialcodessheet'])) {
+                $grid2['FileUploadTemplate']['Options'] = array();
+                $grid2['FileUploadTemplate']['Options']['option'] = $data['option'];
+                $grid2['FileUploadTemplate']['Options']['selection2'] = $data['selection2'];
+            }
+            return Response::json(array("status" => "success", "data" => $grid, "data2" => $grid2));
         } catch (Exception $ex) {
             return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
         }
@@ -302,11 +362,28 @@ class RateUploadController extends \BaseController {
                 $file_name              = $uploadresult['file_name'];
             }
         } else {
-            $rules['selection.Code']        = 'required';
-            $rules['selection.Description'] = 'required';
-            $rules['selection.Rate']        = 'required';
-            //$rules['selection.EffectiveDate'] = 'required';
-            $validator = Validator::make($data, $rules);
+            //$rules['selection.Code']        = 'required';
+            //$rules['selection.Description'] = 'required';
+            //$rules['selection.Rate']        = 'required';
+            if(isset($data['importdialcodessheet'])) {
+                $rules_for_type['selection.Code'] = 'required_without:selection2.Code';
+                $rules_for_type['selection2.Code'] = 'required_without:selection.Code';
+                $rules_for_type['selection.Description'] = 'required_without:selection2.Description';
+                $rules_for_type['selection2.Description'] = 'required_without:selection.Description';
+                $message_for_type['selection.Code.required_without'] = "Code field is required of sheet1 when Code is not present of sheet2";
+                $message_for_type['selection2.Code.required_without'] = "Code field is required of sheet2 when Code is not present of sheet1";
+                $message_for_type['selection.Description.required_without'] = "Description field is required of sheet1 when Description is not present of sheet2";
+                $message_for_type['selection2.Description.required_without'] = "Description field is required of sheet2 when Description is not present of sheet1";
+
+            }else{
+                $rules_for_type['selection.Code']        = 'required';
+                $rules_for_type['selection.Description'] = 'required';
+            }
+            $rules_for_type['selection.Rate']            = 'required';
+            $message_for_type['selection.Rate.required'] = "Rate Field is required";
+
+            $tempdata = json_decode(str_replace('Skip loading','',json_encode($data,true)),true);
+            $validator = Validator::make($tempdata, $rules_for_type, $message_for_type);
 
             if ($validator->fails()) {
                 return json_validator_response($validator);
@@ -319,12 +396,18 @@ class RateUploadController extends \BaseController {
                 return Response::json(array("status" => "failed", "message" => "Failed to upload rate file."));
             }
         }
-        $option["skipRows"] = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
-        $option["Sheet"]    = !empty($data['Sheet']) ? $data['Sheet'] : '';
+        $option["skipRows"]              = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
+        //$option["Sheet"]               = !empty($data['Sheet']) ? $data['Sheet'] : '';
+        $option["importratesheet"]       = !empty($data['importratesheet']) ? $data['importratesheet'] : '';
 
         $save = array();
         $option["option"]       = $data['option'];
         $option["selection"]    = $data['selection'];
+        if(isset($data['importdialcodessheet'])){
+            $option["skipRows_sheet2"] = array("start_row" => $data["start_row_sheet2"], "end_row" => $data["end_row_sheet2"]);
+            $option["importdialcodessheet"] = !empty($data['importdialcodessheet']) ? $data['importdialcodessheet'] : '';
+            $option["selection2"] = $data['selection2'];
+        }
         $save['Options']        = str_replace('Skip loading','',json_encode($option));//json_encode($option);
         $fullPath               = $amazonPath . $file_name; //$destinationPath . $file_name;
         $save['full_path']      = $fullPath;
@@ -470,6 +553,7 @@ class RateUploadController extends \BaseController {
         $FileUploadTemplateID   = "";
         $temp_path              = CompanyConfiguration::get('TEMP_PATH').'/' ;
 
+        //echo "<pre>";print_R($data);exit;
         if(!empty($data['TemplateName'])){
             if(!empty($data['uploadtemplate'])) {
                 $data['FileUploadTemplateID'] = $data['uploadtemplate'];
@@ -486,11 +570,28 @@ class RateUploadController extends \BaseController {
                 $file_name              = $uploadresult['file_name'];
             }
         } else {
-            $rules['selection.Code']        = 'required';
-            $rules['selection.Description'] = 'required';
-            $rules['selection.Rate']        = 'required';
 
-            $validator = Validator::make($data, $rules);
+            if(isset($data['importdialcodessheet'])) {
+                $rules_for_type['selection.Code'] = 'required_without:selection2.Code';
+                $rules_for_type['selection2.Code'] = 'required_without:selection.Code';
+                $rules_for_type['selection.Description'] = 'required_without:selection2.Description';
+                $rules_for_type['selection2.Description'] = 'required_without:selection.Description';
+                $message_for_type['selection.Code.required_without'] = "Code field is required of sheet1 when Code is not present of sheet2";
+                $message_for_type['selection2.Code.required_without'] = "Code field is required of sheet2 when Code is not present of sheet1";
+                $message_for_type['selection.Description.required_without'] = "Description field is required of sheet1 when Description is not present of sheet2";
+                $message_for_type['selection2.Description.required_without'] = "Description field is required of sheet2 when Description is not present of sheet1";
+                $option["skipRows_sheet2"] = array("start_row" => $data["start_row_sheet2"], "end_row" => $data["end_row_sheet2"]);
+            }else{
+                $rules_for_type['selection.Code']        = 'required';
+                $rules_for_type['selection.Description'] = 'required';
+            }
+            $rules_for_type['selection.Rate']            = 'required';
+            $message_for_type['selection.Rate.required'] = "Rate Field is required";
+            $option["skipRows"] = array("start_row" => $data["start_row"], "end_row" => $data["end_row"]);
+
+            $tempdata = json_decode(str_replace('Skip loading','',json_encode($data,true)),true);
+
+            $validator = Validator::make($tempdata, $rules_for_type, $message_for_type);
 
             if ($validator->fails()) {
                 return json_validator_response($validator);
@@ -498,16 +599,25 @@ class RateUploadController extends \BaseController {
             $file_name          = basename($data['TemplateFile']);
             $destinationPath    = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
             copy($temp_path . $file_name, $destinationPath . $file_name);
+
             if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
                 return Response::json(array("status" => "failed", "message" => "Failed to upload rate file."));
             }
         }
-        $option["skipRows"] = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
-        $option["Sheet"]    = !empty($data['Sheet']) ? $data['Sheet'] : '';
+
+        $option["skipRows"]              = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
+        //$option["Sheet"]               = !empty($data['Sheet']) ? $data['Sheet'] : '';
+        $option["importratesheet"]       = !empty($data['importratesheet']) ? $data['importratesheet'] : '';
 
         $save = array();
-        $option["option"]       =  $data['option'];
+        $option["option"]       = $data['option'];
         $option["selection"]    = $data['selection'];
+        if(isset($data['importdialcodessheet']))
+        {
+            $option["skipRows_sheet2"]       = array( "start_row"=>$data["start_row_sheet2"], "end_row"=>$data["end_row_sheet2"] );
+            $option["importdialcodessheet"]  = !empty($data['importdialcodessheet']) ? $data['importdialcodessheet'] : '';
+            $option["selection2"]   = $data['selection2'];
+        }
         $save['Options']        = str_replace('Skip loading','',json_encode($option));//json_encode($option);
         $fullPath               = $amazonPath . $file_name; //$destinationPath . $file_name;
         $save['full_path']      = $fullPath;
@@ -557,8 +667,12 @@ class RateUploadController extends \BaseController {
             }else{
                 $templateoptions    = json_decode($joboptions->Options);
             }
+
             $csvoption      = $templateoptions->option;
             $attrselection  = $templateoptions->selection;
+            if(isset($data['importdialcodessheet'])) {
+                $attrselection2 = $templateoptions->selection2;
+            }
 
             // check dialstring mapping or not
             if(isset($attrselection->DialString) && !empty($attrselection->DialString)) {
@@ -579,8 +693,13 @@ class RateUploadController extends \BaseController {
                 }else{
                     $dialcode_separator = $attrselection->DialCodeSeparator;
                 }
-            }else{
-                $dialcode_separator = 'null';
+            }
+            if(isset($attrselection2->DialCodeSeparator)){
+                if($attrselection2->DialCodeSeparator == ''){
+                    $dialcode_separator = 'null';
+                }else{
+                    $dialcode_separator = $attrselection2->DialCodeSeparator;
+                }
             }
 
             if (isset($attrselection->FromCurrency) && !empty($attrselection->FromCurrency)) {
@@ -602,25 +721,51 @@ class RateUploadController extends \BaseController {
                 }
             };
 
-            if(isset($templateoptions->skipRows) && $csvoption->Firstrow == 'columnname') {
-                $skiptRows              = $templateoptions->skipRows;
-                NeonExcelIO::$start_row = intval($skiptRows->start_row);
-                NeonExcelIO::$end_row   = intval($skiptRows->end_row);
-                $lineno                 = intval($skiptRows->start_row) + 2;
-            } else if (isset($templateoptions->skipRows) && $csvoption->Firstrow == 'data') {
-                $skiptRows              = $templateoptions->skipRows;
-                NeonExcelIO::$start_row = intval($skiptRows->start_row);
-                NeonExcelIO::$end_row   = intval($skiptRows->end_row);
-                $lineno                 = intval($skiptRows->start_row) + 1;
+            //convert excel to CSV
+            $file_name_with_path = $temp_path.$file_name;
+            $NeonExcel = new NeonExcelIO($file_name_with_path, $data, $data['importratesheet']);
+            $file_name = $NeonExcel->convertExcelToCSV($data);
+
+            if(isset($data['importdialcodessheet'])) {
+                $NeonExcelSheet2 = new NeonExcelIO($file_name_with_path, $data, $data['importdialcodessheet']);
+                $file_name2 = $NeonExcelSheet2->convertExcelToCSV($data);
+            }
+            //echo $file_name.'<br/>'.$file_name2;exit;
+
+            if(isset($templateoptions->skipRows)) {
+                $skipRows              = $templateoptions->skipRows;
+
+                if($csvoption->Firstrow == 'columnname'){
+                    $lineno                 = intval($skipRows->start_row) + 2;
+                }
+                if($csvoption->Firstrow == 'data'){
+                    $lineno                 = intval($skipRows->start_row) + 1;
+                }
+                NeonExcelIO::$start_row = intval($skipRows->start_row);
+                NeonExcelIO::$end_row   = intval($skipRows->end_row);
+                $NeonExcel = new NeonExcelIO($file_name, (array) $csvoption);
+                $ratesheet = $NeonExcel->read();
+
+                if(isset($data['importdialcodessheet'])) {
+                    $skipRows_sheet2 = $templateoptions->skipRows_sheet2;
+                    NeonExcelIO::$start_row = intval($skipRows_sheet2->start_row);
+                    NeonExcelIO::$end_row = intval($skipRows_sheet2->end_row);
+                    $NeonExcel2 = new NeonExcelIO($file_name2, (array)$csvoption);
+                    $dialcodessheet = $NeonExcel2->read();
+                }
+
             } else if ($csvoption->Firstrow == 'data') {
                 $lineno = 1;
             } else {
                 $lineno = 2;
             }
-
-            $NeonExcel = new NeonExcelIO($FilePath, (array) $csvoption);
-            $results = $NeonExcel->read();
-
+            //echo "<pre>";print_r($ratesheet);print_r($dialcodessheet);exit;
+            if(isset($data['importdialcodessheet'])) {
+                $results = $this->merge_arrays($ratesheet, $dialcodessheet);
+            }else{
+                $results = $ratesheet;
+            }
+            //echo "<pre>";print_r($results);exit;
 
             $error = array();
             // if EndDate is mapped and not empty than data will store in and insert from $batch_insert_array
@@ -632,6 +777,13 @@ class RateUploadController extends \BaseController {
                 $attrselection->$key = str_replace("\n",'',$attrselection->$key);
             }
 
+            if(isset($data['importdialcodessheet'])) {
+                foreach ($attrselection2 as $key => $value) {
+                    $attrselection2->$key = str_replace("\r", '', $value);
+                    $attrselection2->$key = str_replace("\n", '', $attrselection2->$key);
+                }
+            }
+            //echo "<pre>";print_r($attrselection);print_r($attrselection2);exit;
             foreach ($results as $index=>$temp_row) {
 
                 if ($csvoption->Firstrow == 'data') {
@@ -651,26 +803,49 @@ class RateUploadController extends \BaseController {
 
                 //check empty row
                 $checkemptyrow = array_filter(array_values($temp_row));
-                if(!empty($checkemptyrow)){
-                    if (isset($attrselection->CountryCode) && !empty($attrselection->CountryCode) && !empty($temp_row[$attrselection->CountryCode])) {
-                        $tempdata['CountryCode'] = trim($temp_row[$attrselection->CountryCode]);
-                    }else{
-                        $tempdata['CountryCode'] = '';
+                if(!empty($checkemptyrow)) {
+
+                    if (!empty($attrselection->CountryCode) || !empty($attrselection2->CountryCode)) {
+                        if(!empty($attrselection->CountryCode)) {
+                            $selection_CountryCode = $attrselection->CountryCode;
+                        } else if(!empty($attrselection2->CountryCode)) {
+                            $selection_CountryCode = $attrselection2->CountryCode;
+                        }
+                        if (isset($selection_CountryCode) && !empty($selection_CountryCode) && !empty($temp_row[$selection_CountryCode])) {
+                            $tempdata['CountryCode'] = trim($temp_row[$selection_CountryCode]);
+                        } else {
+                            $tempdata['CountryCode'] = '';
+                        }
                     }
 
-                    if (isset($attrselection->Code) && !empty($attrselection->Code) && trim($temp_row[$attrselection->Code]) != '') {
-                        $tempdata['Code'] = trim($temp_row[$attrselection->Code]);
-                    }else if (isset($attrselection->CountryCode) && !empty($attrselection->CountryCode) && !empty($temp_row[$attrselection->CountryCode])) {
-                        $tempdata['Code'] = "";  // if code is blank but country code is not blank than mark code as blank., it will be merged with countr code later ie 91 - 1 -> 911
-                    } else {
-                        $error[] = 'Code is blank at line no:'.$lineno;
+                    if (!empty($attrselection->Code) || !empty($attrselection2->Code)) {
+                        if(!empty($attrselection->Code)) {
+                            $selection_Code = $attrselection->Code;
+                        } else if(!empty($attrselection2->Code)) {
+                            $selection_Code = $attrselection2->Code;
+                        }
+                        if (isset($selection_Code) && !empty($selection_Code) && trim($temp_row[$selection_Code]) != '') {
+                            $tempdata['Code'] = trim($temp_row[$selection_Code]);
+                        } else if (isset($selection_Code) && !empty($selection_Code) && !empty($temp_row[$selection_Code])) {
+                            $tempdata['Code'] = "";  // if code is blank but country code is not blank than mark code as blank., it will be merged with countr code later ie 91 - 1 -> 911
+                        } else {
+                            $error[] = 'Code is blank at line no:' . $lineno;
+                        }
                     }
 
-                    if (isset($attrselection->Description) && !empty($attrselection->Description) && !empty($temp_row[$attrselection->Description])) {
-                        $tempdata['Description'] = $temp_row[$attrselection->Description];
-                    }else{
-                        $error[] = 'Description is blank at line no:'.$lineno;
+                    if (!empty($attrselection->Description) || !empty($attrselection2->Description)) {
+                        if(!empty($attrselection->Description)) {
+                            $selection_Description = $attrselection->Description;
+                        } else if(!empty($attrselection2->Description)) {
+                            $selection_Description = $attrselection2->Description;
+                        }
+                        if (isset($selection_Description) && !empty($selection_Description) && !empty($temp_row[$selection_Description])) {
+                            $tempdata['Description'] = $temp_row[$selection_Description];
+                        } else {
+                            $error[] = 'Description is blank at line no:' . $lineno;
+                        }
                     }
+
                     if (isset($attrselection->Action) && !empty($attrselection->Action)) {
                         if(empty($temp_row[$attrselection->Action])){
                             $tempdata['Change'] = 'I';
@@ -703,19 +878,31 @@ class RateUploadController extends \BaseController {
                     }elseif($tempdata['Change'] != 'D') {
                         $error[] = 'Rate is blank at line no:'.$lineno;
                     }
-                    if (isset($attrselection->EffectiveDate) && !empty($attrselection->EffectiveDate) && !empty($temp_row[$attrselection->EffectiveDate])) {
-                        try {
-                            $tempdata['EffectiveDate'] = formatSmallDate(str_replace( '/','-',$temp_row[$attrselection->EffectiveDate]), $attrselection->DateFormat);
-                        }catch (\Exception $e){
-                            $error[] = 'Date format is Wrong  at line no:'.$lineno;
+
+                    if(!empty($attrselection->EffectiveDate) || !empty($attrselection2->EffectiveDate)) {
+                        if(!empty($attrselection->EffectiveDate)) {
+                            $selection_EffectiveDate = $attrselection->EffectiveDate;
+                        } else if(!empty($attrselection2->EffectiveDate)) {
+                            $selection_EffectiveDate = $attrselection->EffectiveDate;
                         }
-                    }elseif(empty($attrselection->EffectiveDate)){
+
+                        if (isset($selection_EffectiveDate) && !empty($selection_EffectiveDate) && !empty($temp_row[$selection_EffectiveDate])) {
+                            try {
+                                $tempdata['EffectiveDate'] = formatSmallDate(str_replace('/', '-', $temp_row[$selection_EffectiveDate]), $attrselection->DateFormat);
+                            } catch (\Exception $e) {
+                                $error[] = 'Date format is Wrong  at line no:' . $lineno;
+                            }
+                        } elseif (empty($selection_EffectiveDate)) {
+                            $tempdata['EffectiveDate'] = date('Y-m-d');
+                        } elseif ($tempdata['Change'] == 'D') {
+                            $tempdata['EffectiveDate'] = date('Y-m-d');
+                        } elseif ($tempdata['Change'] != 'D') {
+                            $error[] = 'EffectiveDate is blank at line no:' . $lineno;
+                        }
+                    } else {
                         $tempdata['EffectiveDate'] = date('Y-m-d');
-                    }elseif($tempdata['Change'] == 'D') {
-                        $tempdata['EffectiveDate'] = date('Y-m-d');
-                    }elseif($tempdata['Change'] != 'D') {
-                        $error[] = 'EffectiveDate is blank at line no:'.$lineno;
                     }
+
                     if (isset($attrselection->EndDate) && !empty($attrselection->EndDate) && !empty($temp_row[$attrselection->EndDate])) {
                         try {
                             $tempdata['EndDate'] = formatSmallDate(str_replace( '/','-',$temp_row[$attrselection->EndDate]), $attrselection->DateFormat);
@@ -723,15 +910,19 @@ class RateUploadController extends \BaseController {
                             $error[] = 'Date format is Wrong  at line no:'.$lineno;
                         }
                     }
+
                     if (isset($attrselection->ConnectionFee) && !empty($attrselection->ConnectionFee)) {
                         $tempdata['ConnectionFee'] = trim($temp_row[$attrselection->ConnectionFee]);
                     }
+
                     if (isset($attrselection->Interval1) && !empty($attrselection->Interval1)) {
                         $tempdata['Interval1'] = intval(trim($temp_row[$attrselection->Interval1]));
                     }
+
                     if (isset($attrselection->IntervalN) && !empty($attrselection->IntervalN)) {
                         $tempdata['IntervalN'] = intval(trim($temp_row[$attrselection->IntervalN]));
                     }
+
                     if(!empty($DialStringId)){
                         if (isset($attrselection->DialStringPrefix) && !empty($attrselection->DialStringPrefix)) {
                             $tempdata['DialStringPrefix'] = trim($temp_row[$attrselection->DialStringPrefix]);
@@ -739,6 +930,7 @@ class RateUploadController extends \BaseController {
                             $tempdata['DialStringPrefix'] = '';
                         }
                     }
+
                     if(isset($tempdata['Code']) && isset($tempdata['Description']) && ( isset($tempdata['Rate'])  || $tempdata['Change'] == 'D') && ( isset($tempdata['EffectiveDate']) || $tempdata['Change'] == 'D') ){
                         if(isset($tempdata['EndDate'])) {
                             $batch_insert_array[]   = $tempdata;
@@ -748,7 +940,7 @@ class RateUploadController extends \BaseController {
                         $counter++;
                     }
                 }
-
+                //print_R($tempdata);exit;
                 if($counter==$bacth_insert_limit){
                     Log::info('Batch insert start');
                     Log::info('global counter'.$lineno);
@@ -973,7 +1165,7 @@ class RateUploadController extends \BaseController {
                 $ext = $excel->getClientOriginalExtension();
                 if (in_array(strtolower($ext), array("csv", "xls", "xlsx"))) {
                     $file_name_without_ext = GUID::generate();
-                    $file_name = $file_name_without_ext . '.' . $excel->getClientOriginalExtension();
+                    $file_name = $file_name_without_ext . '.' . strtolower($excel->getClientOriginalExtension());
                     $excel->move($upload_path, $file_name);
                     $file_name = $upload_path . '/' . $file_name;
 
@@ -988,7 +1180,7 @@ class RateUploadController extends \BaseController {
             }
             if (!empty($file_name)) {
                 $SheetNames = NeonExcelIO::getSheetNamesFromExcel($file_name);
-                return Response::json(array("status" => "success", "SheetNames" => $SheetNames));
+                return Response::json(array("status" => "success", "SheetNames" => $SheetNames , "FileExtesion" => strtolower($excel->getClientOriginalExtension())));
             }
         } catch (Exception $ex) {
             Log::info($ex);
@@ -996,4 +1188,13 @@ class RateUploadController extends \BaseController {
         }
     }
 
+    public function merge_arrays(&$array1, &$array2) {
+        $result = Array();
+        foreach($array1 as $key => &$value) {
+            $result[$key] = array_merge($value, $array2[$key]);
+            //remove null index from arrays
+            unset($result[$key][""]);
+        }
+        return $result;
+    }
 }

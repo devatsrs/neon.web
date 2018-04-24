@@ -600,6 +600,76 @@ function getFileContent($file_name, $data, $Sheet=''){
     return $grid;
 }
 
+function getFileContentSheet2($file_name, $data, $Sheet=''){
+    $columns = [];
+    $grid = [];
+    $flag = 0;
+
+     if(isset($data["start_row_sheet2"]) && isset($data["end_row_sheet2"])){
+        NeonExcelIO::$start_row=$data["start_row_sheet2"];
+        NeonExcelIO::$end_row=$data["end_row_sheet2"];
+    }
+
+    $NeonExcel = new NeonExcelIO($file_name, $data, $Sheet);
+    $results = $NeonExcel->read(10);
+
+    // Get columns
+
+    $counter = 1;
+    foreach ($results[0] as $index => $value) {
+        if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
+            $columns[$counter] = 'Col' . $counter;
+        } else {
+            if(!is_null($index))
+            {
+                $columns[$index] = $index;
+            }
+            else
+            {
+                $columns[""]="";
+            }
+
+        }
+        $counter++;
+    }
+
+    // Get data into array.
+    $grid_array = array();
+    foreach ($results as $outindex => $datarow) {
+
+        $i = 1;
+        foreach ($datarow as $index => $singlerow) {
+
+            $grid_array[$outindex][$index] = $singlerow;
+
+            if (strpos(strtolower($index), 'date') !== false) {
+
+                $singlerow = str_replace('/', '-', $singlerow);
+                $grid_array[$outindex][$index] = $singlerow;
+            }
+
+            if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
+                $grid_array[$outindex][$columns[$i++]] = $singlerow;
+            }
+
+
+        }
+    }
+    //print_r($grid_array);
+    //exit;
+
+    try {
+    } catch (\Exception $ex) {
+        Log::error($ex);
+    }
+
+    $grid['columns'] = $columns;
+    $grid['rows'] = $grid_array;
+    $grid['filename'] = $file_name;
+
+    return $grid;
+}
+
 function estimate_date_fomat($DateFormat){
     if(empty($DateFormat)){
         $DateFormat = 'd-m-Y';
