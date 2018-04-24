@@ -72,12 +72,28 @@
                                 <input name="excel" id="excel" type="file" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
                             </div>
                         </div>
-                        <div class="form-group hidden" id="SheetBox">
-                            <label for="field-1" class="col-sm-2 control-label">Select Sheet</label>
+                        <div class="form-group hidden" id="rateBox">
+                            <label class="col-sm-2 control-label">
+                                <input id="checkbox_import_rate" name="checkbox_import_rate" value="1" checked="" type="checkbox"/> Import Rates From Sheet
+                            </label>
                             <div class="col-sm-4">
-                                {{ Form::select('Sheet', [], "" , array("class"=>"select2 small","id"=>"Sheet")) }}
+                                {{ Form::select('importratesheet', [], "" , array("class"=>"select2","id"=>"importrate")) }}
                             </div>
                         </div>
+                        <div class="form-group hidden" id="dialcodesBox">
+                            <label class="col-sm-2 control-label">
+                                <input id="checkbox_import_dialcodes" name="checkbox_import_dialcodes" value="0" type="checkbox"/> Import Dial Codes From Sheet
+                            </label>
+                            <div class="col-sm-4">
+                                {{ Form::select('importdialcodessheet', [], "" , array("class"=>"select2","id"=>"importdialcodes")) }}
+                            </div>
+                        </div>
+                        <!--<div class="form-group hidden" id="SheetBox">
+                            <label for="field-1" class="col-sm-2 control-label">Select Sheet</label>
+                            <div class="col-sm-4">
+                                {{-- Form::select('Sheet', [], "" , array("class"=>"select2 small","id"=>"Sheet")) --}}
+                            </div>
+                        </div>-->
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Settings</label>
                             <div class="col-sm-10">
@@ -109,19 +125,32 @@
                                     <div class="col-sm-3" style="padding-left:40px;">
                                         <input name="start_row" type="number" class="form-control" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" style="" placeholder="Skips rows from Start" min="0" value="0">
                                     </div>
-                                    <label class="col-sm-2 control-label" style="text-align: right;">Skips rows from Bottom </label>
+                                    <label class="col-sm-3 control-label" style="text-align: right;">Skips rows from Bottom </label>
                                     <div class="col-sm-3">
                                         <input name="end_row" type="number" class="form-control" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" placeholder="Skips rows from Bottom" min="0" value="0">
                                     </div>
                                 </div>
+                                <br/><br/>
+                                <div class="skip_div_2" style="margin-top:10px;display:none;">
+                                    <label for="field-1" class="col-sm-2 control-label" style="text-align: right;">Skips rows from Start (Sheet2)</label>
+                                    <div class="col-sm-3" style="padding-left:40px;">
+                                        <input name="start_row_sheet2" type="number" class="form-control" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" style="" placeholder="Skips rows from Start" min="0" value="0">
+                                    </div>
+                                    <label class="col-sm-3 control-label" style="text-align: right;">Skips rows from Bottom (Sheet2)</label>
+                                    <div class="col-sm-3">
+                                        <input name="end_row_sheet2" type="number" class="form-control" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" placeholder="Skips rows from Bottom" min="0" value="0">
+                                    </div>
+                                </div>
+
+                            </div>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Note</label>
                             <div class="col-sm-8">
                                 <p><i class="glyphicon glyphicon-minus"></i><strong>Allowed Extension</strong> .xls, .xlsx, .csv</p>
-                                <p>Please upload the file in given <span style="cursor: pointer" onclick="jQuery('#modal-fileformat').modal('show');" class="label label-info">Format</span></p>
-                                <p>Sample File <a class="btn btn-success btn-sm btn-icon icon-left" href="{{URL::to('vendor_rates/download_sample_excel_file')}}"><i class="entypo-down"></i>Download</a></p>
+                               <!-- <p>Please upload the file in given <span style="cursor: pointer" onclick="jQuery('#modal-fileformat').modal('show');" class="label label-info">Format</span></p>
+                                <p>Sample File <a class="btn btn-success btn-sm btn-icon icon-left" href="{{URL::to('vendor_rates/download_sample_excel_file')}}"><i class="entypo-down"></i>Download</a></p>-->
                                 <i class="glyphicon glyphicon-minus"></i> <strong>Replace all of the existing rates with the rates from the file -</strong> The default option is to add new rates. If there is at least one parameter that differentiates a new rate from the existent one then the new rate will override it. If a rate for a certain prefix exists in the tariff but is not present in the file you received from the carrier, it will remain unchanged. The replace mode uploads all the new rates from the file and marks all the existent rates as discontinued. <br><br>
                                 <i class="glyphicon glyphicon-minus"></i> <strong>Rates with 'effective from' date in the past should be uploaded as 'effective immediately' - </strong> Sometimes you might receive a file with rates later than expected, when the moment at which the rates were supposed to become effective has already passed. By default this check box is disabled and a rate that has an 'effective from' date that has passed will be rejected and not included in the tariff. Altematively, you may choose to insert these rates into the tariff and make them effective from the current moment; to do so enable this check box. <br><br>
                             </div>
@@ -240,14 +269,32 @@
 
                             <div class="panel-body scrollx">
                                 <div id="table-4_processing" class="dataTables_processing hidden">Processing...</div>
-                                <table class="table table-bordered datatable" id="table-4">
-                                    <thead>
-                                    <tr>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
+                                <ul class="nav nav-tabs">
+                                    <li class="active"><a href="#tabs1" data-toggle="tab">Sheet 1</a></li>
+                                    <li><a href="#tabs2" data-toggle="tab">Sheet 2</a></li>
+                                </ul>
+                                <div class="tab-content" style="overflow: hidden;margin-top: 15px;">
+                                    <div class="tab-pane active" id="tabs1">
+                                    <table class="table table-bordered datatable" id="table-4">
+                                        <thead>
+                                        <tr>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                    </div>
+                                    <div class="tab-pane" id="tabs2">
+                                        <table class="table table-bordered datatable" id="table-5">
+                                            <thead>
+                                            <tr>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <p style="text-align: right;">
@@ -281,7 +328,7 @@
         jQuery(document).ready(function ($) {
             getUploadTemplates('{{$RateUploadType}}'); //get templates by type for ex. vendor,customer,ratetable rate upload template
 
-            $("input[name=RateUploadType]").on('change', function(){
+            $("input[name='RateUploadType']").on('change', function(){
                 var Type = $("input[name=RateUploadType]:checked").val();
                 var id   = $("#"+Type).val();
                 $('.typecontentbox').hide().addClass('hidden');
@@ -290,7 +337,7 @@
                 getTrunk(Type,id);
                 $('.btn.upload').removeAttr('disabled');
             });
-            $("select[name=Vendor]").on('change', function(){
+            $("select[name='Vendor']").on('change', function(){
                 var Type = $("input[name=RateUploadType]:checked").val();
                 var id   = $("select[name=Vendor]").val();
 
@@ -330,24 +377,64 @@
                         });
                         if (response.status == 'success') {
                             var SheetNames = response.SheetNames;
+                            var Extension = response.FileExtesion;
                             var html = '';
 
-                            for(var i=0;i<SheetNames.length;i++) {
-                                if(i==0)
-                                    html += '<option value="'+SheetNames[i]+'" selected="selected">'+SheetNames[i]+'</option>';
+                            for (var i = 0; i < SheetNames.length; i++) {
+                                if (i == 0)
+                                    html += '<option value="' + SheetNames[i] + '" selected="selected">' + SheetNames[i] + '</option>';
                                 else
-                                    html += '<option value="'+SheetNames[i]+'">'+SheetNames[i]+'</option>';
+                                    html += '<option value="' + SheetNames[i] + '">' + SheetNames[i] + '</option>';
                             }
 
-                            $('#Sheet').html(html);
-                            $('#SheetBox').removeClass('hidden');
-                            $('#SheetBox').show();
+                            /*$('#Sheet').html(html);
+                             $('#SheetBox').removeClass('hidden');
+                             $('#SheetBox').show();
+                             var Sheet = $('option:selected', $('#uploadtemplate')).attr('Sheet');
+                             if(Sheet != undefined && Sheet != '') {
+                             $('#Sheet').val(Sheet);
+                             }
+                             $('#Sheet').trigger('change');*/
 
-                            var Sheet = $('option:selected', $('#uploadtemplate')).attr('Sheet');
-                            if(Sheet != undefined && Sheet != '') {
-                                $('#Sheet').val(Sheet);
+                            $("#importrate").select2("val", "");
+                            $('#importrate').html(html);
+                            $('#rateBox').removeClass('hidden');
+
+                            if (SheetNames.length > 1)
+                            {
+                                $("#importdialcodes").select2("val", "");
+                                $('#importdialcodes').html(html);
+                                $('#dialcodesBox').removeClass('hidden');
                             }
-                            $('#Sheet').trigger('change');
+                            else
+                            {
+                                if(!$("#dialcodesBox").hasClass("hidden")){
+                                    $('#dialcodesBox').addClass('hidden');
+                                }
+                            }
+
+                            var isMobileVersion = document.getElementsByClassName('snake--mobile');
+                            if (isMobileVersion.length > 0) {
+                                // elements with class "snake--mobile" exist
+                            }
+
+                            var importratesheet = $('option:selected', $('#uploadtemplate')).attr('importratesheet');
+                            if(importratesheet != undefined && importratesheet != '') {
+                                $('#importrate').val(importratesheet);
+                            }
+                            $('#importrate').trigger('change');
+
+                            var dialcodeopt = $('#uploadtemplate').attr('importdialcodessheet');
+                            if(dialcodeopt !== "undefined") {
+                                var importdialcodessheet = $('option:selected', $('#uploadtemplate')).attr('importdialcodessheet');
+                                if (importdialcodessheet != '') {
+                                    if (importdialcodessheet != undefined && importdialcodessheet != '') {
+                                        $('#importdialcodes').val(importdialcodessheet);
+                                    }
+                                    $('#importdialcodes').trigger('change');
+                                }
+                            }
+
                         } else {
                             toastr.error(response.message, "Error", toastr_opts);
                         }
@@ -361,6 +448,32 @@
                 });
             });
 
+            $("#checkbox_import_dialcodes").change(function() {
+                if(this.checked) {
+                    $(".skip_div_2").show();
+                }
+                else
+                {
+                    $(".skip_div_2").hide();
+                }
+            });
+            $("#importdialcodes, #importrate").change(function() {
+                var sheet1 = $('#importrate').val();
+                var sheet2 = $('#importdialcodes').val();
+                if(sheet1 == sheet2)
+                {
+                    $("a[href='#tab2']").hide();
+                    $("a[href='#tabs2']").hide();
+                }
+                else
+                {
+                    if(sheet2 != null) {
+                        $("a[href='#tab2']").show();
+                        $("a[href='#tabs2']").show();
+                    }
+                }
+            });
+
             $(".numbercheck").keypress(function (e) {
                 //if the letter is not digit then display error and don't type anything
                 if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
@@ -372,13 +485,23 @@
             $("#form-upload select[name='uploadtemplate']").change(function(){
                 var option=$(this).find("option[value='"+$(this).val()+"']");
                 var start_row   = option.attr("start_row");
+                var start_row_sheet2   = option.attr("start_row_sheet2");
                 var end_row     = option.attr("end_row");
-                var Sheet       = option.attr("Sheet");
+                var end_row_sheet2    = option.attr("end_row_sheet2");
+                //var Sheet       = option.attr("Sheet");
+                var importratesheet       = option.attr("importratesheet");
+                var importdialcodessheet       = option.attr("importdialcodessheet");
 
                 $("#form-upload input[name=start_row]").val(start_row);
+                $("#form-upload input[name=start_row_sheet2]").val(start_row_sheet2);
                 $("#form-upload input[name=end_row]").val(end_row);
-                $("#form-upload select[name=Sheet]").val(Sheet);
-                $("#form-upload select[name='Sheet']").trigger('change');
+                $("#form-upload input[name=end_row_sheet2]").val(end_row_sheet2);
+                //$("#form-upload select[name=Sheet]").val(Sheet);
+                $("#form-upload select[name=importratesheet]").val(importratesheet);
+                $("#form-upload select[name=importdialcodessheet]").val(importdialcodessheet);
+
+                $("#form-upload select[name='importratesheet']").trigger('change');
+                $("#form-upload select[name='importdialcodessheet']").trigger('change');
             });
 
             $("#form-upload [name='checkbox_replace_all']").change(function(){
@@ -420,6 +543,12 @@
                         if (response.status == 'success') {
                             var data = response.data;
                             createGrid(data);
+                            var data2 = response.data2;
+                            if(data2 != '')
+                            {
+                                createGrid2(data2);
+                            }
+
                             $('#add-template').removeClass('hidden');
                             var scrollTo = $('#add-template').offset().top;
                             $('html, body').animate({scrollTop:scrollTo}, 1000);
@@ -447,7 +576,8 @@
 
             $('.btn.check').click(function(e){
                 e.preventDefault();
-                $('#table-4_processing').removeClass('hidden');
+                //$('#table-4_processing').removeClass('hidden');
+               // $('#table-5_processing').removeClass('hidden');
                 var formData = new FormData($('#add-template-form')[0]);
                 var poData = $(document.forms['form-upload']).serializeArray();
                 for (var i=0; i<poData.length; i++){
@@ -467,10 +597,16 @@
                         if (response.status == 'success') {
                             var data = response.data;
                             createGrid(data);
+                            var data2 = response.data2;
+                            if(data2 != '')
+                            {
+                                createGrid2(data2);
+                            }
                         } else {
                             toastr.error(response.message, "Error", toastr_opts);
                         }
-                        $('#table-4_processing').addClass('hidden');
+                       // $('#table-4_processing').addClass('hidden');
+                       // $('#table-5_processing').addClass('hidden');
                     },
                     data: formData,
                     cache: false,
@@ -787,7 +923,7 @@
                 tr += '</tr>';
                 body.append(tr);
             });
-            $("#mapping select").each(function(i, el){
+            $("#mapping #tab1 select").each(function(i, el){
                 if(el.name !='selection[DateFormat]' && el.name !='selection[DialString]' && el.name != 'selection[DialCodeSeparator]' && el.name != 'selection[FromCurrency]'){
                     var self = $('#add-template-form [name="'+el.name+'"]');
                     rebuildSelect2(self,data.columns,'Skip loading');
@@ -800,14 +936,12 @@
                     }
                     if(optionskey == 'Options'){
                         $.each( option_value.option, function( key, value ) {
-
                             if(typeof $("#add-template-form [name='option["+key+"]']").val() != 'undefined'){
                                 $('#add-template-form').find('[name="option['+key+']"]').val(value)
                                 if(key == 'Firstrow'){
                                     $("#add-template-form [name='option["+key+"]']").val(value).trigger("change");
                                 }
                             }
-
                         });
                         $.each( option_value.selection, function( key, value ) {
                             if(typeof $("#add-template-form input[name='selection["+key+"]']").val() != 'undefined'){
@@ -822,6 +956,71 @@
 
             $('#add-template-form').find('[name="start_row"]').val(data.start_row);
             $('#add-template-form').find('[name="end_row"]').val(data.end_row);
+            $('#add-template-form').find('[name="TemplateFile"]').val(data.filename);
+            $('#add-template-form').find('[name="TempFileName"]').val(data.tempfilename);
+
+            if(typeof data.TemplateType !== 'undefined') {
+                $('#add-template-form').find('[name="TemplateType"]').val(data.TemplateType);
+            }
+        }
+        function createGrid2(data){
+            var tr = $('#table-5 thead tr');
+            var body = $('#table-5 tbody');
+            tr.empty();
+            body.empty();
+
+            $.each( data.columns, function( key, value ) {
+                tr.append('<th>'+value+'</th>');
+            });
+
+            $.each( data.rows, function(key, row) {
+                var tr = '<tr>';
+
+                $.each( row, function(key, item) {
+                    if(typeof item == 'object' && item != null ){
+                        tr+='<td>'+item.date+'</td>';
+                    }else{
+                        tr+='<td>'+item+'</td>';
+                    }
+                });
+
+                tr += '</tr>';
+                body.append(tr);
+            });
+            $("#mapping #tab2 select").each(function(i, el){
+                if(el.name !='selection2[DateFormat]' && el.name != 'selection2[DialCodeSeparator]'){
+                    var self = $('#add-template-form [name="'+el.name+'"]');
+                    rebuildSelect2(self,data.columns,'Skip loading');
+                }
+            });
+            if(data.FileUploadTemplate){
+                //alert(JSON.stringify(data.FileUploadTemplate));
+                $.each( data.FileUploadTemplate, function( optionskey, option_value ) {
+                    if(optionskey == 'Title'){
+                        $('#add-template-form').find('[name="TemplateName"]').val(option_value)
+                    }
+                    if(optionskey == 'Options'){
+                       /* $.each( option_value.option, function( key, value ) {
+                            if(typeof $("#add-template-form [name='option["+key+"]']").val() != 'undefined'){
+                                $('#add-template-form').find('[name="option['+key+']"]').val(value)
+                                if(key == 'Firstrow'){
+                                    $("#add-template-form [name='option["+key+"]']").val(value).trigger("change");
+                                }
+                            }
+                        });*/
+                        $.each( option_value.selection2, function( key, value ) {
+                            if(typeof $("#add-template-form input[name='selection2["+key+"]']").val() != 'undefined'){
+                                $('#add-template-form').find('input[name="selection2['+key+']"]').val(value)
+                            }else if(typeof $("#add-template-form select[name='selection2["+key+"]']").val() != 'undefined'){
+                                $("#add-template-form [name='selection2["+key+"]']").val(value).trigger("change");
+                            }
+                        });
+                    }
+                });
+            }
+
+            $('#add-template-form').find('[name="start_row_sheet2"]').val(data.start_row);
+            $('#add-template-form').find('[name="end_row_sheet2"]').val(data.end_row);
             $('#add-template-form').find('[name="TemplateFile"]').val(data.filename);
             $('#add-template-form').find('[name="TempFileName"]').val(data.tempfilename);
 
@@ -1310,12 +1509,12 @@
                     if (response.status == 'success') {
                         var html = '';
                         var Templates = response.FileUploadTemplates;
-
+                        //alert (JSON.stringify(Templates));
                         for(key in Templates) {
                             if(Templates[key]["Title"] == 'Select') {
-                                html += '<option value="'+Templates[key]["FileUploadTemplateID"]+'" start_row="'+Templates[key]["start_row"]+'" end_row="'+Templates[key]["end_row"]+'" Sheet="'+Templates[key]["Sheet"]+'" selected>'+Templates[key]["Title"]+'</option>';
+                                html += '<option value="'+Templates[key]["FileUploadTemplateID"]+'" start_row="'+Templates[key]["start_row"]+'" end_row="'+Templates[key]["end_row"]+'" start_row_sheet2="'+Templates[key]["start_row_sheet2"]+'" end_row_sheet2="'+Templates[key]["end_row_sheet2"]+'" importratesheet="'+Templates[key]["importratesheet"]+'" importdialcodessheet="'+Templates[key]["importdialcodessheet"]+'" selected>'+Templates[key]["Title"]+'</option>';
                             } else {
-                                html += '<option value="'+Templates[key]["FileUploadTemplateID"]+'" start_row="'+Templates[key]["start_row"]+'" end_row="'+Templates[key]["end_row"]+'" Sheet="'+Templates[key]["Sheet"]+'">'+Templates[key]["Title"]+'</option>';
+                                html += '<option value="'+Templates[key]["FileUploadTemplateID"]+'" start_row="'+Templates[key]["start_row"]+'" end_row="'+Templates[key]["end_row"]+'" start_row_sheet2="'+Templates[key]["start_row_sheet2"]+'" end_row_sheet2="'+Templates[key]["end_row_sheet2"]+'" importratesheet="'+Templates[key]["importratesheet"]+'" importdialcodessheet="'+Templates[key]["importdialcodessheet"]+'" >'+Templates[key]["Title"]+'</option>';
                             }
                         }
                         $('#uploadtemplate').html(html).trigger('change');
