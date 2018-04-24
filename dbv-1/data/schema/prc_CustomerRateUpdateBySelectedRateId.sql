@@ -13,8 +13,14 @@ CREATE DEFINER=`neon-user`@`192.168.1.25` PROCEDURE `prc_CustomerRateUpdateBySel
 	IN `p_ModifiedBy` VARCHAR(50)
 
 
+
+
+
+
+
+
 )
-BEGIN
+ThisSP:BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	UPDATE  tblCustomerRate
 	INNER JOIN ( 
@@ -49,7 +55,7 @@ BEGIN
 	WHERE tblCustomerRate.TrunkID = p_TrunkId
 		AND FIND_IN_SET(tblCustomerRate.RateID,p_RateIDList) != 0
 		AND FIND_IN_SET(tblCustomerRate.CustomerID,p_AccountIdList) != 0;
-                              
+                          
    CALL prc_ArchiveOldCustomerRate(p_AccountIdList, p_TrunkId, p_ModifiedBy);
 	   
         INSERT  INTO tblCustomerRate
@@ -120,7 +126,7 @@ BEGIN
                  r.CompanyID = p_CompanyId       
                  and cr.RateID is NULL;
   
-   CALL prc_ArchiveOldCustomerRate(p_AccountIdList, p_TrunkId, p_ModifiedBy);
+ --  	CALL prc_ArchiveOldCustomerRate(p_AccountIdList, p_TrunkId, p_ModifiedBy);
 
-       SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;                            
+      SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;                            
 END

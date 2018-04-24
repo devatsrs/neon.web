@@ -570,12 +570,12 @@ function getFileContent($file_name, $data, $Sheet=''){
         $i = 1;
         foreach ($datarow as $index => $singlerow) {
 
-            $results[$outindex][$index] = $singlerow;
+            $grid_array[$outindex][$index] = $singlerow;
 
             if (strpos(strtolower($index), 'date') !== false) {
 
                 $singlerow = str_replace('/', '-', $singlerow);
-                $results[$outindex][$index] = $singlerow;
+                $grid_array[$outindex][$index] = $singlerow;
             }
 
             if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
