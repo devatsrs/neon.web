@@ -8,13 +8,9 @@ class AutoImportController extends \BaseController {
 
 	public function index()
 	{
-		$companyID = User::get_companyID();
 		$trunks = Trunk::getTrunkDropdownIDList();
-		$trunk_keys = getDefaultTrunk($trunks);
-		$RateGenerators = RateGenerator::where(["Status" => 1, "CompanyID" => $companyID])->lists("RateGeneratorName", "RateGeneratorId");
 		$jobTypes  = JobType::getJobTypeIDListByWhere();
 		$jobStatus = JobStatus::getJobStatusIDList();
-		//$uploadtemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_VENDOR_RATE);
 		return View::make('autoimport.index', compact('trunks','jobStatus','jobTypes'));
 
 	}
@@ -71,7 +67,6 @@ class AutoImportController extends \BaseController {
 		$path = AmazonS3::unSignedUrl($amazonPath, $CompanyID);
 		//echo $fullPath = $upload_path . "/". $amazonPath;
 		return Response::json(array("data" => $result[0], "path" => $path));
-		//return Response::json($result[0]);
 	}
 
 
