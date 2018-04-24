@@ -66,7 +66,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group ">
                                         <label for="field-5" class="control-label">Password</label>
-                                        <input type="password" name="password" class="form-control" value="{{$autoimportSetting[0]->password}}" />
+                                        <input type="password" name="password" class="form-control" placeholder="Password" />
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -74,7 +74,7 @@
                                         <label for="field-5" class="control-label">Enable SSL</label>
                                         <div class="clear">
                                             <p class="make-switch switch-small">
-                                                <input type="checkbox" {{$autoimportSetting["encryption"]}}  name="encryption" >
+                                                <input type="checkbox" {{$autoimportSetting["IsSSL"]}}  name="IsSSL" >
                                             </p>
                                         </div>
                                     </div>
