@@ -47,7 +47,7 @@
                                 <input type="hidden" name="CompanyID" value="{{$autoimportSetting[0]->CompanyID}}">
                                 <div class="col-md-6">
                                     <div class="form-group ">
-                                        <label for="field-5" class="control-label">SMTP Server (Host)</label>
+                                        <label for="field-5" class="control-label">Imap/Pop3</label>
                                         <input type="text" name="host" class="form-control" value="{{$autoimportSetting[0]->host}}" />
                                     </div>
                                 </div>
