@@ -11,7 +11,7 @@ class FTPCDRTemplateController extends BaseController {
      */
     public function index() {
         $gateway = CompanyGateway::getCompanyGatewayIdList();
-        $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_CDR);
+        $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_CDR));
         $trunks = Trunk::getTrunkDropdownIDList();
         $trunks = $trunks+array(0=>'Find From CustomerPrefix');
         return View::make('ftpcdrtemplate.customer_upload',compact('dashboardData','account','gateway','UploadTemplate','trunks'));
@@ -19,7 +19,7 @@ class FTPCDRTemplateController extends BaseController {
 	
 	 public function Vendorindex() {
         $gateway = CompanyGateway::getCompanyGatewayIdList();
-        $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_CDR);
+        $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_CDR));
         $trunks = Trunk::getTrunkDropdownIDList();
         $trunks = $trunks+array(0=>'Find From CustomerPrefix');
         return View::make('ftpcdrtemplate.vendor_upload',compact('dashboardData','account','gateway','UploadTemplate','trunks'));
@@ -102,7 +102,7 @@ class FTPCDRTemplateController extends BaseController {
         $option["option"]= $data['option'];//['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
         $option["selection"] = $data['selection'];//['connect_time'=>$data['connect_time'],'disconnect_time'=>$data['disconnect_time'],'billed_duration'=>$data['billed_duration'],'duration'=>$data['duration'],'cld'=>$data['cld'],'cli'=>$data['cli'],'Account'=>$data['Account'],'cost'=>$data['cost']];
         $save['Options'] = json_encode($option);
-        $save['Type'] = FileUploadTemplate::TEMPLATE_CDR;
+        $save['FileUploadTemplateTypeID'] = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_CDR);
         $save['CompanyGatewayID'] = $data['CompanyGatewayID'];
         if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
             $template = FileUploadTemplate::find($data['FileUploadTemplateID']);
@@ -227,7 +227,7 @@ class FTPCDRTemplateController extends BaseController {
         $option["option"]= $data['option'];//['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
         $option["selection"] = $data['selection'];//['connect_time'=>$data['connect_time'],'disconnect_time'=>$data['disconnect_time'],'billed_duration'=>$data['billed_duration'],'duration'=>$data['duration'],'cld'=>$data['cld'],'cli'=>$data['cli'],'Account'=>$data['Account'],'cost'=>$data['cost']];
         $save['Options'] = json_encode($option);
-        $save['Type'] = FileUploadTemplate::TEMPLATE_CDR;
+        $save['FileUploadTemplateTypeID'] = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_CDR);
         $save['CompanyGatewayID'] = $data['CompanyGatewayID'];
         if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
             $template = FileUploadTemplate::find($data['FileUploadTemplateID']);
