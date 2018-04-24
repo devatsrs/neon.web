@@ -105,7 +105,7 @@
                 "fnServerParams": function(aoData) {
                     aoData.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"SettingType","value":$searchFilter.SettingType},{"name":"TypePKID","value":$searchFilter.TypePKID},{"name":"Search","value":$searchFilter.Search});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"SettingType","value":$searchFilter.SettingType},{"name":"TypePKID","value":$searchFilter.TypePKID},{"name":"Search","value":$searchFilter.Search});
+                    data_table_extra_params.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"SettingType","value":$searchFilter.SettingType},{"name":"TypePKID","value":$searchFilter.TypePKID},{"name":"Search","value":$searchFilter.Search},{"name":"Export","value":1});
                 },
                 "fnRowCallback": function(nRow, aData) {
                     $(nRow).attr("id", "host_row_" + aData[2]);

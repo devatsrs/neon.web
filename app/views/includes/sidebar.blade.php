@@ -122,8 +122,7 @@
 
         {{--  for the Auto import link  --}}
         @if(User::checkCategoryPermission('TicketImportRules','View'))
-          <li class="{{check_uri('AutoImport')}}"> <a href="#">  <span>Rate Import </span>
-              <span onclick="location.href=$(this).attr('href');" href="{{URL::to('tickets/add')}}" class="last"></span></a>
+            <li> <a href="{{URL::to('/auto_rate_import/autoimport')}}">  <span>Rate Import</span> </a> </li>
 
             <ul >
               @if(User::checkCategoryPermission('TicketDashboard','View'))

@@ -74,50 +74,22 @@ class AutoRateImportController extends \BaseController {
 	{
 		$CompanyID = User::get_companyID();
 		$data = Input::all();
+		$data['iDisplayStart'] +=1;
+		$columns = array('AccountName','Trunk','Import File Templete','Subject Match','Sendor Match');
+		$sort_column = $columns[$data['iSortCol_0']];
+		$trunkId = ( !empty($data['TrunkID']) && $data['TrunkID'] != 'undefined' ) ? $data['TrunkID'] : 0;
+		$TypePKID = !empty($data['TypePKID']) ? $data['TypePKID'] : 0;
+		$search = !empty($data['Search']) ? $data['Search'] : '';
+		$query = "call prc_getAutoImportSetting_AccountAndRateTable (".$data["SettingType"].",".$CompanyID.",".$trunkId.",".$TypePKID.",'".$search."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."' ";
 
-		if ($data["SettingType"] == 1) {  // AccountSetting
-
-
-			$AutoImportSetting = AutoImportSetting::
-			Join('tblTrunk', 'tblTrunk.TrunkID', '=', 'tblAutoImportSetting.TrunkID')
-				->Join('tblAccount', 'tblAccount.AccountID', '=', 'tblAutoImportSetting.TypePKID')
-				->Join('tblFileUploadTemplate', 'tblFileUploadTemplate.FileUploadTemplateID', '=', 'tblAutoImportSetting.ImportFileTempleteID');
-				if($type=='csv' || $type=='xlsx') {
-					$AutoImportSetting->select('tblAccount.AccountName', 'tblTrunk.Trunk as trunkName', 'tblFileUploadTemplate.Title', 'Subject', 'SendorEmail', 'FileName');
-				}else{
-					$AutoImportSetting->select('tblAccount.AccountName', 'tblTrunk.Trunk as trunkName', 'tblFileUploadTemplate.Title', 'Subject', 'SendorEmail', 'tblAccount.AccountID', 'tblTrunk.TrunkID', 'tblFileUploadTemplate.FileUploadTemplateID', 'FileName', 'AutoImportSettingID');
+		if( isset($data['Export']) && $data['Export'] == 1) {
+			$excel_data  = DB::select($query.',1)');
+			$excel_data = json_decode(json_encode($excel_data),true);
+			foreach($excel_data as $rowno => $rows){
+				foreach($rows as $colno => $colval){
+					$excel_data[$rowno][$colno] = str_replace( "<br>" , "\n" ,$colval );
 				}
-				$AutoImportSetting->where("tblAutoImportSetting.CompanyId", $CompanyID)->where('tblAutoImportSetting.Type', '=', $data["SettingType"]);
-			if ($data['TrunkID']) {
-				$AutoImportSetting->where('tblAutoImportSetting.TrunkID', $data['TrunkID']);
 			}
-
-		}else { // RateTable Setting = 2
-
-			$AutoImportSetting = AutoImportSetting::
-				Join('tblRateTable', 'tblRateTable.RateTableId', '=', 'tblAutoImportSetting.TypePKID')
-				->Join('tblFileUploadTemplate', 'tblFileUploadTemplate.FileUploadTemplateID', '=', 'tblAutoImportSetting.ImportFileTempleteID');
-				if($type=='csv' || $type=='xlsx') {
-					$AutoImportSetting->select('tblRateTable.RateTableName', 'tblFileUploadTemplate.Title', 'Subject', 'SendorEmail', 'FileName');
-				}else{
-					$AutoImportSetting->select('tblRateTable.RateTableName', 'tblFileUploadTemplate.Title', 'Subject', 'SendorEmail','tblRateTable.RateTableId', 'tblFileUploadTemplate.FileUploadTemplateID', 'FileName','AutoImportSettingID');
-				}
-				$AutoImportSetting->where("tblAutoImportSetting.CompanyId", $CompanyID)->where('tblAutoImportSetting.Type', '=', $data["SettingType"]);
-
-		}
-
-		if($data['TypePKID']){
-			$AutoImportSetting->where('tblAutoImportSetting.TypePKID',$data['TypePKID']);
-		}
-		if($data['Search']!=''){
-			$AutoImportSetting->WhereRaw('tblAutoImportSetting.Subject like "%'.$data['Search'].'%"');
-		}
-
-		/* Use for Export */
-		if($type=='csv' || $type=='xlsx'){
-			$AutoImportSetting = $AutoImportSetting->get();
-			$excel_data = json_decode(json_encode($AutoImportSetting),true);
-
 
 			if($type=='csv'){
 				$file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/AutoImportSetting.csv';
@@ -129,9 +101,12 @@ class AutoRateImportController extends \BaseController {
 				$NeonExcel->download_excel($excel_data);
 			}
 		}
-		/* Use for Export */
+		$query .=',0)';
 
-		return Datatables::of($AutoImportSetting)->make();
+		\Illuminate\Support\Facades\Log::info($query);
+
+		return DataTableSql::of($query)->make();
+
 	}
 
 
@@ -144,7 +119,7 @@ class AutoRateImportController extends \BaseController {
 		$RateGenerators = RateGenerator::where(["Status" => 1, "CompanyID" => $companyID])->lists("RateGeneratorName", "RateGeneratorId");
 		$all_accounts = Account::getAccountIDList(['IsVendor'=>1]);
 		$uploadtemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_VENDOR_RATE);
-		return View::make('autoimport.index', compact('trunks','RateGenerators','all_accounts','trunk_keys','uploadtemplate'));
+		return View::make('autoimport.account_setting', compact('trunks','RateGenerators','all_accounts','trunk_keys','uploadtemplate'));
 	}
 
 	public function accountSettingStore(){
