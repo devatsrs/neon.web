@@ -365,21 +365,25 @@ class RateUploadController extends \BaseController {
             //$rules['selection.Code']        = 'required';
             //$rules['selection.Description'] = 'required';
             //$rules['selection.Rate']        = 'required';
-            $rules['selection.Code']                               = 'required_without:selection2.Code';
-            $rules['selection2.Code']                              = 'required_without:selection.Code';
-            $rules['selection.Description']                        = 'required_without:selection2.Description';
-            $rules['selection2.Description']                       = 'required_without:selection.Description';
-            $rules['selection.Rate']                               = 'required';
+            if(isset($data['importdialcodessheet'])) {
+                $rules_for_type['selection.Code'] = 'required_without:selection2.Code';
+                $rules_for_type['selection2.Code'] = 'required_without:selection.Code';
+                $rules_for_type['selection.Description'] = 'required_without:selection2.Description';
+                $rules_for_type['selection2.Description'] = 'required_without:selection.Description';
+                $message_for_type['selection.Code.required_without'] = "Code field is required of sheet1 when Code is not present of sheet2";
+                $message_for_type['selection2.Code.required_without'] = "Code field is required of sheet2 when Code is not present of sheet1";
+                $message_for_type['selection.Description.required_without'] = "Description field is required of sheet1 when Description is not present of sheet2";
+                $message_for_type['selection2.Description.required_without'] = "Description field is required of sheet2 when Description is not present of sheet1";
 
-            $message_for_type['selection.Code.required_without'] = "Code field is required of sheet1 when Code is not present of sheet2";
-            $message_for_type['selection2.Code.required_without'] = "Code field is required of sheet2 when Code is not present of sheet1";
-            $message_for_type['selection.Description.required_without'] = "Description field is required of sheet1 when Description is not present of sheet2";
-            $message_for_type['selection2.Description.required_without'] = "Description field is required of sheet2 when Description is not present of sheet1";
+            }else{
+                $rules_for_type['selection.Code']        = 'required';
+                $rules_for_type['selection.Description'] = 'required';
+            }
+            $rules_for_type['selection.Rate']            = 'required';
             $message_for_type['selection.Rate.required'] = "Rate Field is required";
 
             $tempdata = json_decode(str_replace('Skip loading','',json_encode($data,true)),true);
-
-            $validator = Validator::make($tempdata, $rules, $message_for_type);
+            $validator = Validator::make($tempdata, $rules_for_type, $message_for_type);
 
             if ($validator->fails()) {
                 return json_validator_response($validator);
@@ -393,15 +397,17 @@ class RateUploadController extends \BaseController {
             }
         }
         $option["skipRows"]              = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
-        $option["skipRows_sheet2"]       = array( "start_row"=>$data["start_row_sheet2"], "end_row"=>$data["end_row_sheet2"] );
         //$option["Sheet"]               = !empty($data['Sheet']) ? $data['Sheet'] : '';
         $option["importratesheet"]       = !empty($data['importratesheet']) ? $data['importratesheet'] : '';
-        $option["importdialcodessheet"]  = !empty($data['importdialcodessheet']) ? $data['importdialcodessheet'] : '';
 
         $save = array();
         $option["option"]       = $data['option'];
         $option["selection"]    = $data['selection'];
-        $option["selection2"]   = $data['selection2'];
+        if(isset($data['importdialcodessheet'])){
+            $option["skipRows_sheet2"] = array("start_row" => $data["start_row_sheet2"], "end_row" => $data["end_row_sheet2"]);
+            $option["importdialcodessheet"] = !empty($data['importdialcodessheet']) ? $data['importdialcodessheet'] : '';
+            $option["selection2"] = $data['selection2'];
+        }
         $save['Options']        = str_replace('Skip loading','',json_encode($option));//json_encode($option);
         $fullPath               = $amazonPath . $file_name; //$destinationPath . $file_name;
         $save['full_path']      = $fullPath;
@@ -578,7 +584,6 @@ class RateUploadController extends \BaseController {
             }else{
                 $rules_for_type['selection.Code']        = 'required';
                 $rules_for_type['selection.Description'] = 'required';
-                $rules_for_type['selection.Rate']        = 'required';
             }
             $rules_for_type['selection.Rate']            = 'required';
             $message_for_type['selection.Rate.required'] = "Rate Field is required";
@@ -719,8 +724,8 @@ class RateUploadController extends \BaseController {
             //convert excel to CSV
             $file_name_with_path = $temp_path.$file_name;
             $NeonExcel = new NeonExcelIO($file_name_with_path, $data, $data['importratesheet']);
-
             $file_name = $NeonExcel->convertExcelToCSV($data);
+
             if(isset($data['importdialcodessheet'])) {
                 $NeonExcelSheet2 = new NeonExcelIO($file_name_with_path, $data, $data['importdialcodessheet']);
                 $file_name2 = $NeonExcelSheet2->convertExcelToCSV($data);
