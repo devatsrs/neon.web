@@ -294,7 +294,7 @@ BEGIN
 		IF (p_isExport = 0) THEN
 				
 					
-				select r.RateTableName,ut.Title,Subject,SendorEmail,r.RateTableId,ut.FileUploadTemplateID,FileName,AutoImportSettingID from tblAutoImportSetting as s
+				select r.RateTableName,ut.Title,Subject,FileName,SendorEmail,r.RateTableId,ut.FileUploadTemplateID,AutoImportSettingID from tblAutoImportSetting as s
 				inner join tblRateTable as r on s.TypePKID = r.RateTableId
 				inner join tblFileUploadTemplate as ut on ut.FileUploadTemplateID=s.ImportFileTempleteID
 				
