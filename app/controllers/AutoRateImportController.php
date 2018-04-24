@@ -5,7 +5,7 @@ class AutoRateImportController extends \BaseController {
 	public function __construct(){
 
 	 }
-	/* AutoInbox Setting  */
+	/* AutoInbox Setting  Start */
 	public function index()
 	{
 		$companyID = User::get_companyID();
@@ -67,8 +67,6 @@ class AutoRateImportController extends \BaseController {
 	}
 
 
-
-
 	/* Search Grid for Setting (RateTable and Account )*/
 	public function ajax_datagrid($type)
 	{
@@ -108,7 +106,6 @@ class AutoRateImportController extends \BaseController {
 		return DataTableSql::of($query)->make();
 
 	}
-
 
 
 	/* Use in Account Setting page*/
@@ -206,6 +203,7 @@ class AutoRateImportController extends \BaseController {
 			return json_validator_response($validator);
 		}
 
+		unset($data['file_subject_required']);
 		if (!empty($data["AutoImportSettingID"])){
 
 			if (AutoImportSetting::updateRateTableImportSetting($data["AutoImportSettingID"],$data)) {
@@ -230,7 +228,7 @@ class AutoRateImportController extends \BaseController {
 	}
 
 
-	/* Use in Acccount Setting and RateTable Setting */
+	/* Use in Account Setting and RateTable Setting */
 	public function Delete($id) {
 
 		if ($id > 0) {
