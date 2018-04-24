@@ -39,7 +39,7 @@
             <a href="{{URL::to('/dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
         <li>
-            <a>Auto Import</a>
+            <a href="{{URL::to('/auto_rate_import/autoimport')}}">Auto Import</a>
         </li>
         <li class="active">
             <strong>RateTable Settings </strong>

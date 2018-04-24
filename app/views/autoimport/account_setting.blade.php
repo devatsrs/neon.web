@@ -41,7 +41,7 @@
         <a href="{{URL::to('/dashboard')}}"><i class="entypo-home"></i>Home</a>
     </li>
     <li>
-        <a>Auto Import</a>
+        <a href="{{URL::to('/auto_rate_import/autoimport')}}">Auto Import</a>
     </li>
     <li class="active">
         <strong>Account Settings </strong>
@@ -70,8 +70,9 @@
                                         <th >Trunk</th>
                                         <th >Import File Template</th>
                                         <th >Subject Match</th>
+                                        <th >Filename Match</th>
                                         <th >Sender Match</th>
-                                         <th >Action</th>
+                                        <th >Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -120,6 +121,7 @@ jQuery(document).ready(function($) {
                         {},
                         {},
                         {},
+                        {},
                         {
                             mRender: function(id, type, full) {
                                 var action, delete_;
@@ -127,7 +129,7 @@ jQuery(document).ready(function($) {
 
                                 delete_ = delete_.replace('{id}', full[9]);
 
-                                action = '<a title="Edit" data-id="'+id+'" data-AutoImportSettingID="'+full[9]+'" data-TrunkID="'+full[6]+'" data-uploadtemplate="'+full[7]+'" data-subject="'+full[3]+'" data-sendor="'+full[4]+'" data-fileName="'+full[8]+'" class="edit-autoImportSetting btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
+                                action = '<a title="Edit" data-id="'+id+'" data-AutoImportSettingID="'+full[9]+'" data-TrunkID="'+full[7]+'" data-uploadtemplate="'+full[8]+'" data-subject="'+full[3]+'" data-sendor="'+full[5]+'" data-fileName="'+full[4]+'" class="edit-autoImportSetting btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
 
                                 <?php if(User::checkCategoryPermission('RateTables','Delete') ) { ?>
                                     action += ' <a title="Delete" href="' + delete_ + '" data-redirect="{{URL::to("/rate_tables")}}"  class="btn btn-default delete btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';

@@ -8,7 +8,7 @@
             <a href="{{URL::to('/dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
         <li>
-            <a>Auto Import</a>
+            <a href="{{URL::to('/auto_rate_import/autoimport')}}">Auto Import</a>
         </li>
         <li class="active">
             <strong>Account Settings </strong>
@@ -21,7 +21,15 @@
         <div class="col-md-12">
             <form id="add-new-form" method="post">
 
-
+                <div class="float-right">
+                    <button type="button" id="autoImportInboxSetting-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <i class="entypo-floppy"></i>
+                        Save
+                    </button>
+                    <a href="{{URL::to('/auto_rate_import/autoimport')}}" class="btn btn-danger btn-sm btn-icon icon-left">Close
+                        <i class="entypo-cancel"></i>
+                    </a>
+                </div><br><br>
 
                 <div class="panel panel-primary" data-collapsed="0">
                     <div class="panel-heading">
@@ -118,16 +126,10 @@
                             </div>
                         </div>
 
-                        <div class="col-md-12">
-                            <button type="button" id="autoImportInboxSetting-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                                <i class="entypo-floppy"></i>
-                                Save
-                            </button>
-                            <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                                <i class="entypo-cancel"></i>
-                                Close
-                            </button>
-                        </div>
+
+
+
+
 
                     </div>
 
