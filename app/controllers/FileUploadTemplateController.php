@@ -5,23 +5,34 @@ class FileUploadTemplateController extends \BaseController {
     public function ajax_datagrid($type) {
         $data = Input::all();
         $CompanyID = User::get_companyID();
-        $select = ['Title','created_at','FileUploadTemplateID'];
-        $fileuploadtemplate = FileUploadTemplate::select($select)->where(['CompanyID'=>$CompanyID]);
-        if(isset($data['Export']) && $data['Export'] == 1) {
-            $template = FileUploadTemplate::where(["CompanyID" => $CompanyID])->orderBy("Title", "asc")->get(["Title", "created_at as Created at"]);
-            $excel_data = json_decode(json_encode($template),true);
 
+        $data['iDisplayStart'] +=1;
+        $data['Title']  = $data['Title']!= '' ? "'".$data['Title']."'" : 'null';
+        $data['Type']   = $data['Type'] != '' ? $data['Type'] : 'null';
+
+        $columns = array('Title','Type','created_at','FileUploadTemplateID');
+
+        $sort_column = $columns[$data['iSortCol_0']];
+
+        $query = "call prc_GetFileUploadTemplates (" . $CompanyID . "," . $data['Title'] . "," . $data['Type'] . "," . ( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+
+        if(isset($data['Export']) && $data['Export'] == 1) {
+            $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
+            $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Upload Template.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/FileUploadTemplates-'.strtotime(date('Y-m-d H:i:s')).'.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Upload Template.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/FileUploadTemplates-'.strtotime(date('Y-m-d H:i:s')).'.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
         }
-        return Datatables::of($fileuploadtemplate)->make();
+
+        $query .=',0)';
+//echo "<pre>";print_r($query);exit();
+        return DataTableSql::of($query)->make();
     }
 
     /**
@@ -31,7 +42,8 @@ class FileUploadTemplateController extends \BaseController {
      * @return Response
      */
     public function index() {
-        return View::make('fileuploadtemplates.index', compact('account_owners'));
+        $fileUploadTemplates = FileUploadTemplateType::getTemplateTypeIDList();
+        return View::make('fileuploadtemplates.index', compact('account_owners','fileUploadTemplates'));
     }
 
     /**
@@ -104,8 +116,7 @@ class FileUploadTemplateController extends \BaseController {
         }
         $heading = 'New Template';
         $templateID = '';
-        $Types = array(""=>"select");
-        $Types += FileUploadTemplate::$template_type;
+        $Types = FileUploadTemplateType::getTemplateTypeIDList();
 
         return View::make('fileuploadtemplates.create',compact('columns','rows','message','csvoption','attrselection','file_name','templateID','heading','TemplateName','dialstring','currencies','attrskiprows','Types','TemplateType','DynamicFields','trunks','Services','ratetables'));
     }
@@ -207,8 +218,7 @@ class FileUploadTemplateController extends \BaseController {
         }
         $heading = 'Update Template';
 
-        $Types = array(""=>"select");
-        $Types += FileUploadTemplate::$template_type;
+        $Types = FileUploadTemplateType::getTemplateTypeIDList();
 
         // for item template
         $Type =  Product::DYNAMIC_TYPE;

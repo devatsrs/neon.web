@@ -31,14 +31,14 @@ class RateUploadController extends \BaseController {
         $response = array();
 
         if($RateUploadType == RateUpload::vendor) {
-            $TemplateType = FileUploadTemplate::TEMPLATE_VENDOR_RATE;
+            $TemplateType = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_VENDOR_RATE);
         } else if($RateUploadType == RateUpload::customer) {
-            $TemplateType = FileUploadTemplate::TEMPLATE_CUSTOMER_RATE;
+            $TemplateType = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_CUSTOMER_RATE);
         } else if($RateUploadType == RateUpload::ratetable) {
-            $TemplateType = FileUploadTemplate::TEMPLATE_RATETABLE_RATE;
+            $TemplateType = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_RATETABLE_RATE);
         }
 
-        $arrData = FileUploadTemplate::where(['CompanyID'=>User::get_companyID(),'Type'=>$TemplateType])->orderBy('Title')->get(['Title', 'FileUploadTemplateID', 'Options'])->toArray();
+        $arrData = FileUploadTemplate::where(['CompanyID'=>User::get_companyID(),'FileUploadTemplateTypeID'=>$TemplateType])->orderBy('Title')->get(['Title', 'FileUploadTemplateID', 'Options'])->toArray();
 
         $uploadtemplate=[];
         $uploadtemplate[]=[
@@ -153,11 +153,11 @@ class RateUploadController extends \BaseController {
 
                 $TemplateType = '';
                 if ($data['RateUploadType'] == RateUpload::vendor) {
-                    $TemplateType = FileUploadTemplate::TEMPLATE_VENDOR_RATE;
+                    $TemplateType = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_VENDOR_RATE);
                 } else if ($data['RateUploadType'] == RateUpload::customer) {
-                    $TemplateType = FileUploadTemplate::TEMPLATE_CUSTOMER_RATE;
+                    $TemplateType = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_CUSTOMER_RATE);
                 } else if ($data['RateUploadType'] == RateUpload::ratetable) {
-                    $TemplateType = FileUploadTemplate::TEMPLATE_RATETABLE_RATE;
+                    $TemplateType = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_RATETABLE_RATE);
                 }
 
                 $grid['RateUploadType'] = $data['RateUploadType'];

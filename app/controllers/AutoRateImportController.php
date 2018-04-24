@@ -115,7 +115,7 @@ class AutoRateImportController extends \BaseController {
 		$trunk_keys = getDefaultTrunk($trunks);
 		$RateGenerators = RateGenerator::where(["Status" => 1, "CompanyID" => $companyID])->lists("RateGeneratorName", "RateGeneratorId");
 		$all_accounts = Account::getAccountIDList(['IsVendor'=>1]);
-		$uploadtemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_VENDOR_RATE);
+		$uploadtemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_VENDOR_RATE));
 		return View::make('autoimport.account_setting', compact('trunks','RateGenerators','all_accounts','trunk_keys','uploadtemplate'));
 	}
 
@@ -174,7 +174,7 @@ class AutoRateImportController extends \BaseController {
 	/* Use In RateTable Setting page  */
 	public function ratetableSetting() {
 		$rateTable = RateTable::getRateTables();
-		$uploadtemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_VENDOR_RATE);
+		$uploadtemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_VENDOR_RATE));
 		return View::make('autoimport.rate_table_setting', compact('rateTable','uploadtemplate'));
 	}
 

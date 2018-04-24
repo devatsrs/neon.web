@@ -107,6 +107,38 @@ CREATE TABLE IF NOT EXISTS `tblRateTableRateArchive` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
+CREATE TABLE IF NOT EXISTS `tblFileUploadTemplateType` (
+  `FileUploadTemplateTypeID` int(11) NOT NULL AUTO_INCREMENT,
+  `TemplateType` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `Title` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `UploadDir` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `created_by` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Status` int(11) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`FileUploadTemplateTypeID`),
+  UNIQUE KEY `IXUnique_TemplateType` (`TemplateType`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+INSERT INTO `tblFileUploadTemplateType` (`FileUploadTemplateTypeID`, `TemplateType`, `Title`, `UploadDir`, `created_at`, `created_by`, `Status`) VALUES
+	(1, 'CDR', 'CDR', 'CDR_UPLOAD', '2018-04-24 13:59:54', 'Vasim Seta', 1),
+	(2, 'VendorCDR', 'Vendor CDR', 'CDR_UPLOAD', '2018-04-24 13:59:54', 'Vasim Seta', 1),
+	(3, 'Account', 'Account', 'ACCOUNT_DOCUMENT', '2018-04-24 13:59:54', 'Vasim Seta', 1),
+	(4, 'Leads', 'Leads', 'ACCOUNT_DOCUMENT', '2018-04-24 13:59:54', 'Vasim Seta', 1),
+	(5, 'DialString', 'DialString', 'DIALSTRING_UPLOAD', '2018-04-24 13:59:54', 'Vasim Seta', 1),
+	(6, 'IPs', 'IPs', 'IP_UPLOAD', '2018-04-24 13:59:54', 'Vasim Seta', 1),
+	(7, 'Item', 'Item', 'ITEM_UPLOAD', '2018-04-24 13:59:54', 'Vasim Seta', 1),
+	(8, 'VendorRate', 'Vendor Rate', 'VENDOR_UPLOAD', '2018-04-24 13:59:54', 'Vasim Seta', 1),
+	(9, 'Payment', 'Payment', 'PAYMENT_UPLOAD', '2018-04-24 13:59:54', 'Vasim Seta', 1),
+	(10, 'RatetableRate', 'Ratetable Rate', 'RATETABLE_UPLOAD', '2018-04-24 13:59:54', 'Vasim Seta', 1),
+	(11, 'CustomerRate', 'Customer Rate', 'CUSTOMER_UPLOAD', '2018-04-24 13:59:54', 'Vasim Seta', 0);
+
+ALTER TABLE `tblFileUploadTemplate`
+	CHANGE COLUMN `Type` `FileUploadTemplateTypeID` TINYINT(3) UNSIGNED NULL DEFAULT NULL AFTER `FileUploadTemplateID`;
+
+
+
+
+
 
 
 DROP PROCEDURE IF EXISTS `prc_WSReviewRateTableRate`;
@@ -5216,6 +5248,98 @@ ThisSP:BEGIN
 
 	END IF;
 
+
+END//
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_GetFileUploadTemplates`;
+DELIMITER //
+CREATE PROCEDURE `prc_GetFileUploadTemplates`(
+	IN `p_CompanyID` INT,
+	IN `p_Title` VARCHAR(255),
+	IN `p_Type` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_IsExport` INT
+)
+BEGIN
+	DECLARE v_OffSet_ int;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+
+	IF p_IsExport = 0
+	THEN
+		SELECT
+			t.`Title` AS TemplateName,
+			tt.`Title` AS TemplateType,
+			t.`created_at`,
+			t.`FileUploadTemplateID`
+		FROM
+			tblFileUploadTemplate t
+		LEFT JOIN
+			tblFileUploadTemplateType tt ON t.FileUploadTemplateTypeID=tt.FileUploadTemplateTypeID
+		WHERE
+			t.CompanyID = p_CompanyID AND
+			(p_Title IS NULL OR t.Title LIKE REPLACE(p_Title, '*', '%')) AND
+			(p_Type IS NULL OR t.FileUploadTemplateTypeID = p_Type)
+		ORDER BY
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TitleASC') THEN t.Title
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TitleDESC') THEN t.Title
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TypeASC') THEN tt.Title
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TypeDESC') THEN tt.Title
+			END DESC
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+
+		-- total counts for datatable
+		SELECT
+			COUNT(t.Title) AS totalcount
+		FROM
+			tblFileUploadTemplate t
+		LEFT JOIN
+			tblFileUploadTemplateType tt ON t.FileUploadTemplateTypeID=tt.FileUploadTemplateTypeID
+		WHERE
+			t.CompanyID = p_CompanyID AND
+			(p_Title IS NULL OR t.Title LIKE REPLACE(p_Title, '*', '%')) AND
+			(p_Type IS NULL OR t.FileUploadTemplateTypeID = p_Type);
+
+	END IF;
+
+	IF p_IsExport = 1
+	THEN
+		SELECT
+			t.`Title` AS TemplateName,
+			tt.`Title` AS TemplateType,
+			t.`created_at`
+		FROM
+			tblFileUploadTemplate t
+		LEFT JOIN
+			tblFileUploadTemplateType tt ON t.FileUploadTemplateTypeID=tt.FileUploadTemplateTypeID
+		WHERE
+			t.CompanyID = p_CompanyID;
+	END IF;
 
 END//
 DELIMITER ;

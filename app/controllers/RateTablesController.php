@@ -461,7 +461,7 @@ class RateTablesController extends \BaseController {
     }
 
     public function upload($id) {
-        $uploadtemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_VENDOR_RATE);
+        $uploadtemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_VENDOR_RATE));
         $rateTable = RateTable::where(["RateTableId" => $id])->get(array('TrunkID','CodeDeckId'));
         $rate_sheet_formates = RateSheetFormate::getVendorRateSheetFormatesDropdownList();
         return View::make('ratetables.upload', compact('id','rateTable','rate_sheet_formates','uploadtemplate'));
