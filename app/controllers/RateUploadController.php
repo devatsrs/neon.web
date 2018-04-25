@@ -130,10 +130,10 @@ class RateUploadController extends \BaseController {
            /* if(!empty($data['Sheet'])) {
                 $Sheet = $data['Sheet'];
             }*/
-            if(!empty($data['importratesheet'])) {
+            if(isset($data['importratesheet'])) {
                 $Sheet = $data['importratesheet'];
             }
-            if(!empty($data['importdialcodessheet'])) {
+            if(isset($data['importdialcodessheet'])) {
                 $Sheet2 = $data['importdialcodessheet'];
             }
             if ($data['RateUploadType'] == RateUpload::vendor && (!isset($data['Trunk']) || empty($data['Trunk']))) {
