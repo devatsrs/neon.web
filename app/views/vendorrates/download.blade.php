@@ -133,7 +133,7 @@
             <div class="form-group DateFilter" style="display: none;">
                 <label for="field-1" class="col-sm-3 control-label">Date</label>
                 <div class="col-sm-5">
-                    {{ Form::text('CustomDate', date('Y-m-d'), array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd","placeholder"=>date('Y-m-d'))) }} {{--  ,"data-enddate"=>date('Y-m-d') --}}
+                    {{ Form::text('CustomDate', date('Y-m-d'), array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd","placeholder"=>date('Y-m-d'),"data-startdate"=>date('Y-m-d'))) }} {{--  ,"data-enddate"=>date('Y-m-d') --}}
                 </div>
             </div>
             <div class="form-group">

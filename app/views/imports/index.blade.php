@@ -130,7 +130,7 @@
                 <input type="hidden" name="CompanyGatewayID" value="">
                 <input type="hidden" name="importprocessid" value="">
                 <input type="hidden" name="importaccountsuccess" value="">
-                <input type="hidden" name="TemplateType" id="TemplateType" value="{{FileUploadTemplate::TEMPLATE_Account}}" />
+                <input type="hidden" name="TemplateType" id="TemplateType" value="{{FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_Account)}}" />
                 <span id="gateway_filter"></span>
                 <span id="get_account"></span>
                 <span id="get_accounts_sippy"></span>

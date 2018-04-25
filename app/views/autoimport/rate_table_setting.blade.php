@@ -39,7 +39,7 @@
             <a href="{{URL::to('/dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
         <li>
-            <a>Auto Import</a>
+            <a href="{{URL::to('/auto_rate_import/autoimport')}}">Auto Import</a>
         </li>
         <li class="active">
             <strong>RateTable Settings </strong>
@@ -67,6 +67,7 @@
                                 <th >RateTable</th>
                                 <th >Import File Template</th>
                                 <th >Subject Match</th>
+                                <th >Filename Match</th>
                                 <th >Sender Match</th>
                                 <th >Action</th>
                             </tr>
@@ -105,13 +106,14 @@
                 "fnServerParams": function(aoData) {
                     aoData.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"SettingType","value":$searchFilter.SettingType},{"name":"TypePKID","value":$searchFilter.TypePKID},{"name":"Search","value":$searchFilter.Search});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"SettingType","value":$searchFilter.SettingType},{"name":"TypePKID","value":$searchFilter.TypePKID},{"name":"Search","value":$searchFilter.Search});
+                    data_table_extra_params.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"SettingType","value":$searchFilter.SettingType},{"name":"TypePKID","value":$searchFilter.TypePKID},{"name":"Search","value":$searchFilter.Search},{"name":"Export","value":1});
                 },
                 "fnRowCallback": function(nRow, aData) {
                     $(nRow).attr("id", "host_row_" + aData[2]);
                 },
                 "aoColumns":
                         [
+                            {},
                             {},
                             {},
                             {},
@@ -123,7 +125,7 @@
 
                                     delete_ = delete_.replace('{id}', full[7]);
 
-                                    action = '<a title="Edit" data-id="'+full[4]+'" data-AutoImportSettingID="'+full[7]+'" data-uploadtemplate="'+full[5]+'" data-subject="'+full[2]+'" data-sendor="'+full[3]+'" data-fileName="'+full[6]+'" class="edit-RateTableSetting btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
+                                    action = '<a title="Edit" data-id="'+full[5]+'" data-AutoImportSettingID="'+full[7]+'" data-uploadtemplate="'+full[6]+'" data-subject="'+full[2]+'" data-sendor="'+full[4]+'" data-fileName="'+full[3]+'" class="edit-RateTableSetting btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
 
                                     <?php if(User::checkCategoryPermission('RateTables','Delete') ) { ?>
                                             action += ' <a title="Delete" href="' + delete_ + '" data-redirect="{{URL::to("/rate_tables")}}"  class="btn btn-default delete btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';

@@ -11,6 +11,7 @@ class AmazonS3 {
 
     public static $isAmazonS3;
     public static $dir = array(
+        'AUTOIMPORT_UPLOAD' =>  'AutoImportUploads',
         'CODEDECK_UPLOAD' =>  'CodedecksUploads',
         'VENDOR_UPLOAD' =>  'VendorUploads',
         'VENDOR_DOWNLOAD' =>  'VendorDownloads',
