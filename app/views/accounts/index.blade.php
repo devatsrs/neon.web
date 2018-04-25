@@ -1575,7 +1575,7 @@
                     <div class="form-group">
                         <label for="field-3" class="control-label">
                             <span>Billing Cycle - Monthly Anniversary Date*</span></label><br>
-                        {{Form::text('BillingCycleValue', '' ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"dd-mm-yyyy", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
+                        {{Form::text('BillingCycleValue', '' ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
                     </div>
                 </div>
             </div>

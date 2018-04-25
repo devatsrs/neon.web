@@ -340,7 +340,7 @@
                         <div id="billing_cycle_monthly_anniversary" class="billing_options" style="display: none">
                             <label class="col-md-2 control-label">Billing Cycle - Monthly Anniversary Date*</label>
                             <div class="col-md-4">
-                                {{Form::text('BillingCycleValue', '' ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"dd-mm-yyyy", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
+                                {{Form::text('BillingCycleValue', '' ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
                             </div>
                         </div>
                     </div>
