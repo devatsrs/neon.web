@@ -441,22 +441,21 @@
                 });
             });
 
-            $("#importdialcodes").change(function() {
-                var sheetval = $("#importdialcodes").val();
-                if(sheetval == "" || sheetval == null) {
-                    $("input[name=start_row_sheet2]").val('');
-                    $("input[name=end_row_sheet2]").val('');
-                    $(".skip_div_2").hide();
-                }
-                else
-                {
-                    $(".skip_div_2").show();
-                }
-            });
-
             $("#importdialcodes, #importrate").change(function() {
                 var sheet1 = $('#importrate').val();
                 var sheet2 = $('#importdialcodes').val();
+                dialcodeid = $(this).attr('id');
+                if(dialcodeid == 'importdialcodes') {
+                    if (sheet2 == "" || sheet2 == null) {
+                        $("input[name=start_row_sheet2]").val('');
+                        $("input[name=end_row_sheet2]").val('');
+                        $(".skip_div_2").hide();
+                    }
+                    else {
+                        $(".skip_div_2").show();
+                    }
+                }
+
                 if(sheet1 == sheet2)
                 {
                     $("a[href='#tab2']").hide();
