@@ -27,11 +27,11 @@
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Issue Date Start</label>
-                    {{ Form::text('IssueDateStart', '', array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
+                    {{ Form::text('IssueDateStart', date('Y-m-d'), array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Issue Date End</label>
-                    {{ Form::text('IssueDateEnd', '', array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
+                    {{ Form::text('IssueDateEnd', date('Y-m-d'), array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
                 </div>
                 <div class="form-group">
                     <br/>

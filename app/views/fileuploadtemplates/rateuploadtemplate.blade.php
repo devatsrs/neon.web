@@ -1,6 +1,6 @@
 <ul class="nav nav-tabs">
-    <li class="active"><a href="#tab1" data-toggle="tab">Sheet 1</a></li>
-    <li><a href="#tab2" data-toggle="tab">Sheet 2</a></li>
+    <li class="active"><a href="#tab1" data-toggle="tab">Rates</a></li>
+    <li><a href="#tab2" data-toggle="tab">Dial Codes</a></li>
 </ul>
 <div class="tab-content" style="overflow: hidden;margin-top: 15px;">
 <div class="tab-pane active" id="tab1">
