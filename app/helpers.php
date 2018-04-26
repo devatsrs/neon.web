@@ -564,6 +564,7 @@ function getFileContent($file_name, $data, $Sheet=''){
     }
 
     // Get data into array.
+    $columns = array_filter($columns);
     $grid_array = array();
     foreach ($results as $outindex => $datarow) {
 
@@ -581,9 +582,9 @@ function getFileContent($file_name, $data, $Sheet=''){
             if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
                 $grid_array[$outindex][$columns[$i++]] = $singlerow;
             }
-
-
         }
+        unset($grid_array[$outindex][""]);
+
     }
     //print_r($grid_array);
     //exit;
@@ -634,6 +635,7 @@ function getFileContentSheet2($file_name, $data, $Sheet=''){
     }
 
     // Get data into array.
+    $columns = array_filter($columns);
     $grid_array = array();
     foreach ($results as $outindex => $datarow) {
 
@@ -651,9 +653,8 @@ function getFileContentSheet2($file_name, $data, $Sheet=''){
             if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
                 $grid_array[$outindex][$columns[$i++]] = $singlerow;
             }
-
-
         }
+        unset($grid_array[$outindex][""]);
     }
     //print_r($grid_array);
     //exit;
