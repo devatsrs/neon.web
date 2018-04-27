@@ -74,7 +74,7 @@
                         </div>
                         <div class="form-group hidden" id="rateBox">
                             <label class="col-sm-2 control-label">
-                                <input id="checkbox_import_rate" name="checkbox_import_rate" value="1" checked="" type="checkbox"/> Import Rates From Sheet
+                               <!-- <input id="checkbox_import_rate" name="checkbox_import_rate" value="1" checked="" type="checkbox"/> --> Import Rates From Sheet
                             </label>
                             <div class="col-sm-4">
                                 {{ Form::select('importratesheet', [], "" , array("class"=>"select2","id"=>"importrate")) }}
@@ -82,7 +82,8 @@
                         </div>
                         <div class="form-group hidden" id="dialcodesBox">
                             <label class="col-sm-2 control-label">
-                                <input id="checkbox_import_dialcodes" name="checkbox_import_dialcodes" value="0" type="checkbox"/> Import Dial Codes From Sheet
+                                <!--<input id="checkbox_import_dialcodes" name="checkbox_import_dialcodes" value="0" type="checkbox"/>-->
+                                Import Dial Codes From Sheet
                             </label>
                             <div class="col-sm-4">
                                 {{ Form::select('importdialcodessheet', [], "" , array("class"=>"select2","id"=>"importdialcodes")) }}
@@ -121,22 +122,22 @@
                                     <label><input type="radio" name="radio_list_option" value="2">Partial File</label> <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="if partial file, codes only in the file will be processed." data-original-title="Partial List">?</span>
                                 </div>
                                 <div style="margin-top:10px;">
-                                    <label for="field-1" class="col-sm-2 control-label" style="text-align: right;">Skips rows from Start</label>
+                                    <label for="field-1" class="col-sm-2 control-label" style="text-align: right;">Skips rows from Start (Rate)</label>
                                     <div class="col-sm-3" style="padding-left:40px;">
                                         <input name="start_row" type="number" class="form-control" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" style="" placeholder="Skips rows from Start" min="0" value="0">
                                     </div>
-                                    <label class="col-sm-3 control-label" style="text-align: right;">Skips rows from Bottom </label>
+                                    <label class="col-sm-3 control-label" style="text-align: right;">Skips rows from Bottom (Rate)</label>
                                     <div class="col-sm-3">
                                         <input name="end_row" type="number" class="form-control" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" placeholder="Skips rows from Bottom" min="0" value="0">
                                     </div>
                                 </div>
                                 <br/><br/>
                                 <div class="skip_div_2" style="margin-top:10px;display:none;">
-                                    <label for="field-1" class="col-sm-2 control-label" style="text-align: right;">Skips rows from Start (Sheet2)</label>
+                                    <label for="field-1" class="col-sm-2 control-label" style="text-align: right;">Skips rows from Start (DialCodes)</label>
                                     <div class="col-sm-3" style="padding-left:40px;">
                                         <input name="start_row_sheet2" type="number" class="form-control" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" style="" placeholder="Skips rows from Start" min="0" value="0">
                                     </div>
-                                    <label class="col-sm-3 control-label" style="text-align: right;">Skips rows from Bottom (Sheet2)</label>
+                                    <label class="col-sm-3 control-label" style="text-align: right;">Skips rows from Bottom (DialCodes)</label>
                                     <div class="col-sm-3">
                                         <input name="end_row_sheet2" type="number" class="form-control" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" placeholder="Skips rows from Bottom" min="0" value="0">
                                     </div>
@@ -270,8 +271,8 @@
                             <div class="panel-body scrollx">
                                 <div id="table-4_processing" class="dataTables_processing hidden">Processing...</div>
                                 <ul class="nav nav-tabs">
-                                    <li class="active"><a href="#tabs1" data-toggle="tab">Sheet 1</a></li>
-                                    <li><a href="#tabs2" data-toggle="tab">Sheet 2</a></li>
+                                    <li class="active"><a href="#tabs1" data-toggle="tab">Rates</a></li>
+                                    <li><a href="#tabs2" data-toggle="tab">Dial Codes</a></li>
                                 </ul>
                                 <div class="tab-content" style="overflow: hidden;margin-top: 15px;">
                                     <div class="tab-pane active" id="tabs1">
@@ -378,7 +379,7 @@
                         if (response.status == 'success') {
                             var SheetNames = response.SheetNames;
                             var Extension = response.FileExtesion;
-                            var html = '';
+                            var html = '<option value="">Please Select Sheet</option>';
 
                             for (var i = 0; i < SheetNames.length; i++) {
                                 if (i == 0)
@@ -387,17 +388,9 @@
                                     html += '<option value="' + SheetNames[i] + '">' + SheetNames[i] + '</option>';
                             }
 
-                            /*$('#Sheet').html(html);
-                             $('#SheetBox').removeClass('hidden');
-                             $('#SheetBox').show();
-                             var Sheet = $('option:selected', $('#uploadtemplate')).attr('Sheet');
-                             if(Sheet != undefined && Sheet != '') {
-                             $('#Sheet').val(Sheet);
-                             }
-                             $('#Sheet').trigger('change');*/
-
                             $("#importrate").select2("val", "");
                             $('#importrate').html(html);
+                           // $("#importrate").select2("destroy").select2({placeholder: "Select a state"});
                             $('#rateBox').removeClass('hidden');
 
                             if (SheetNames.length > 1)
@@ -448,18 +441,21 @@
                 });
             });
 
-            $("#checkbox_import_dialcodes").change(function() {
-                if(this.checked) {
-                    $(".skip_div_2").show();
-                }
-                else
-                {
-                    $(".skip_div_2").hide();
-                }
-            });
             $("#importdialcodes, #importrate").change(function() {
                 var sheet1 = $('#importrate').val();
                 var sheet2 = $('#importdialcodes').val();
+                dialcodeid = $(this).attr('id');
+                if(dialcodeid == 'importdialcodes') {
+                    if (sheet2 == "" || sheet2 == null) {
+                        $("input[name=start_row_sheet2]").val('');
+                        $("input[name=end_row_sheet2]").val('');
+                        $(".skip_div_2").hide();
+                    }
+                    else {
+                        $(".skip_div_2").show();
+                    }
+                }
+
                 if(sheet1 == sheet2)
                 {
                     $("a[href='#tab2']").hide();
@@ -470,6 +466,10 @@
                     if(sheet2 != null) {
                         $("a[href='#tab2']").show();
                         $("a[href='#tabs2']").show();
+                    }
+                    if(sheet2 == '') {
+                        $("a[href='#tab2']").hide();
+                        $("a[href='#tabs2']").hide();
                     }
                 }
             });
@@ -996,18 +996,9 @@
             if(data.FileUploadTemplate){
                 //alert(JSON.stringify(data.FileUploadTemplate));
                 $.each( data.FileUploadTemplate, function( optionskey, option_value ) {
-                    if(optionskey == 'Title'){
-                        $('#add-template-form').find('[name="TemplateName"]').val(option_value)
-                    }
+
                     if(optionskey == 'Options'){
-                       /* $.each( option_value.option, function( key, value ) {
-                            if(typeof $("#add-template-form [name='option["+key+"]']").val() != 'undefined'){
-                                $('#add-template-form').find('[name="option['+key+']"]').val(value)
-                                if(key == 'Firstrow'){
-                                    $("#add-template-form [name='option["+key+"]']").val(value).trigger("change");
-                                }
-                            }
-                        });*/
+
                         $.each( option_value.selection2, function( key, value ) {
                             if(typeof $("#add-template-form input[name='selection2["+key+"]']").val() != 'undefined'){
                                 $('#add-template-form').find('input[name="selection2['+key+']"]').val(value)
