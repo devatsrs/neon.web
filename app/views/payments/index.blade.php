@@ -19,7 +19,7 @@
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label small_label">Status</label>
-                    {{ Form::select('Status', Payment::$status, (!empty(Input::get('Status'))?Input::get('Status'):'Pending Approval'), array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
+                    {{ Form::select('Status', Payment::$status, (!empty(Input::get('Status'))?Input::get('Status'):''), array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label small_label">Action</label>
@@ -36,7 +36,7 @@
                     <label class="control-label small_label" for="PaymentDate_StartDate">Date From</label>
                     <div class="row">
                         <div class="col-sm-6" >
-                            <input autocomplete="off" type="text" name="PaymentDate_StartDate" id="PaymentDate_StartDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="{{Input::get('StartDate', date('Y-m-d'))}}" data-enddate="{{date('Y-m-d')}}" />
+                            <input autocomplete="off" type="text" name="PaymentDate_StartDate" id="PaymentDate_StartDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="{{Input::get('StartDate')}}" data-enddate="{{date('Y-m-d')}}" />
                         </div>
                         <div class="col-sm-6">
                             <input type="text" name="PaymentDate_StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:00" data-show-seconds="true" data-template="dropdown" placeholder="00:00:00" class="form-control timepicker">
@@ -47,7 +47,7 @@
                     <label  class="control-label small_label" for="PaymentDate_EndDate">End Date</label>
                     <div class="row">
                         <div class="col-sm-6" >
-                            <input autocomplete="off" type="text" name="PaymentDate_EndDate" id="PaymentDate_EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{Input::get('EndDate', date('Y-m-d'))}}" data-enddate="{{date('Y-m-d')}}" />
+                            <input autocomplete="off" type="text" name="PaymentDate_EndDate" id="PaymentDate_EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{Input::get('EndDate')}}" data-enddate="{{date('Y-m-d')}}" />
                         </div>
                         <div class="col-sm-6">
                             <input type="text" name="PaymentDate_EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" placeholder="00:00:00" data-template="dropdown" class="form-control timepicker">
