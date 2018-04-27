@@ -145,7 +145,7 @@
 
                             </div>
                             </div>
-                        </div>
+
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Note</label>
                             <div class="col-sm-8">
@@ -156,12 +156,14 @@
                                 <i class="glyphicon glyphicon-minus"></i> <strong>Rates with 'effective from' date in the past should be uploaded as 'effective immediately' - </strong> Sometimes you might receive a file with rates later than expected, when the moment at which the rates were supposed to become effective has already passed. By default this check box is disabled and a rate that has an 'effective from' date that has passed will be rejected and not included in the tariff. Altematively, you may choose to insert these rates into the tariff and make them effective from the current moment; to do so enable this check box. <br><br>
                             </div>
                         </div>
+
                         <p style="text-align: right;">
                             <button  type="submit" class="btn upload btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                                 <i class="glyphicon glyphicon-circle-arrow-up"></i>
                                 Upload
                             </button>
                         </p>
+
                     </div>
                 </div>
             </form>
@@ -444,7 +446,7 @@
             $("#importdialcodes, #importrate").change(function() {
                 var sheet1 = $('#importrate').val();
                 var sheet2 = $('#importdialcodes').val();
-                dialcodeid = $(this).attr('id');
+                var dialcodeid = $(this).attr('id');
                 if(dialcodeid == 'importdialcodes') {
                     if (sheet2 == "" || sheet2 == null) {
                         $("input[name=start_row_sheet2]").val('');
@@ -517,6 +519,12 @@
 
             $('.btn.upload').click(function(e){
                 e.preventDefault();
+                var ratesheet = $('#importrate').val();
+                alert(ratesheet)
+                if(ratesheet == null || ratesheet == ''){
+                    toastr.error("Please Select a Rate Sheet", "Error", toastr_opts);
+                    return false;
+                }
                 var formData = new FormData($('#form-upload')[0]);
                 show_loading_bar(0);
                 $.ajax({
