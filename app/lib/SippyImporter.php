@@ -8,7 +8,7 @@
  */
 //namespace App\Lib;
 
-//use App\Lib\SippySFTP;
+//use App\Lib\Sippy;
 use \Illuminate\Support\Facades\DB;
 
 class SippyImporter
@@ -558,7 +558,7 @@ class SippyImporter
 
         //Log:info('AddParam '.print_r($addparam,true));
         try{
-            $sippy = new Sippy();
+            $sippy = new SippySFTP();
 
             $isAccountExist = self::isAccountExist($account->AccountName);
             $Currency = \Currency::find($account->CurrencyId)->Code;

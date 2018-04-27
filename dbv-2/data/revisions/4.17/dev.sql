@@ -50,7 +50,7 @@ BEGIN
 		connect_time datetime,
 		disconnect_time datetime,
 		is_inbound tinyint(1) default 0,
-		ID INT,
+		ID BIGINT(20),
 		ServiceID INT
 	);
 	INSERT INTO tmp_tblUsageDetails_
@@ -141,7 +141,7 @@ BEGIN
 			connect_time datetime,
 			disconnect_time datetime,
 			is_inbound tinyint(1) default 0,
-			ID INT
+			ID BIGINT(20)
 	);
 	INSERT INTO tmp_tblUsageDetails_
 	SELECT
