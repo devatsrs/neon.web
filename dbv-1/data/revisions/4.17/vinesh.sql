@@ -2259,6 +2259,7 @@ DELIMITER ;
 DROP PROCEDURE IF EXISTS `prc_lcrBlockUnblock`;
 DELIMITER //
 CREATE  PROCEDURE `prc_lcrBlockUnblock`(
+  IN `p_companyId` INT,
 	IN `p_groupby` VARCHAR(200),
 	IN `p_blockId` INT,
 	IN `p_preference` INT,
