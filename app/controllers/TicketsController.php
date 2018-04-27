@@ -289,9 +289,10 @@ class TicketsController extends \BaseController {
 		   if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); 	}	
 		    $response_extensions		=	json_encode($response_api_extensions['allowed_extensions']);
 			$max_file_size				=	get_max_file_size();	
-			$ticketSavedData['AttachmentPaths']	=	UploadFile::DownloadFileLocal($ticketdata->AttachmentPaths);	
+			$ticketSavedData['AttachmentPaths']	=	UploadFile::DownloadFileLocal($ticketdata->AttachmentPaths);
+			$RequesterCC=$ticketdata->RequesterCC;
 			
-			return View::make('tickets.edit', compact('data','AllUsers','Agents','Ticketfields','CompanyID','agentsAll','htmlgroupID','htmlagentID','random_token','response_extensions','max_file_size','AllEmails','ticketSavedData','TicketID'));  
+			return View::make('tickets.edit', compact('RequesterCC','data','AllUsers','Agents','Ticketfields','CompanyID','agentsAll','htmlgroupID','htmlagentID','random_token','response_extensions','max_file_size','AllEmails','ticketSavedData','TicketID'));
 		}
 		else
 		{
