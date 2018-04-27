@@ -9,7 +9,7 @@
 
 require_once 'utilities/xmlrpc/xmlrpc.inc';
 
-class Sippy {
+class SippySFTP {
     private static $config = array();
     private static $cli;
     private static $timeout=0; /* 60 seconds timeout */
