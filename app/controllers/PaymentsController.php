@@ -14,11 +14,11 @@ class PaymentsController extends \BaseController {
 			$data['InvoiceNo']				 =		$data['InvoiceNo']!= ''?"'".$data['InvoiceNo']."'":'null';
 			$data['Status'] 				 = 		$data['Status'] != ''?"'".$data['Status']."'":'null';
 			$data['type'] 					 = 		$data['type'] != ''?"'".$data['type']."'":'null';
-			$data['paymentmethod'] 			 = 		$data['paymentmethod'] != ''?"'".$data['paymentmethod']."'":'null';		
-			$data['p_paymentstartdate'] 	 = 		$data['PaymentDate_StartDate']!=''?"".$data['PaymentDate_StartDate']."":'null';
-			$data['p_paymentstartTime'] 	 = 		$data['PaymentDate_StartTime']!=''?"".$data['PaymentDate_StartTime']."":'00:00:00';		
-			$data['p_paymentenddate'] 	 	 = 		$data['PaymentDate_EndDate']!=''?"".$data['PaymentDate_EndDate']."":'null';
-			$data['p_paymentendtime'] 	 	 = 		$data['PaymentDate_EndTime']!=''?"".$data['PaymentDate_EndTime']."":'00:00:00';
+			$data['paymentmethod'] 			 = 		$data['paymentmethod'] != ''?"'".$data['paymentmethod']."'":'null';
+			$data['p_paymentstartdate'] 	 = 		empty($data['PaymentDate_StartDate']) ?'null':"".$data['PaymentDate_StartDate']."";
+			$data['p_paymentenddate'] 	     = 		empty($data['p_paymentenddate']) ?'null':"".$data['p_paymentenddate']."";
+            $data['p_paymentstartTime'] 	 = 		empty($data['PaymentDate_StartTime'])?'00:00:00':"".$data['PaymentDate_StartTime']."";
+            $data['p_paymentendtime']   	 = 		empty($data['p_paymentendtime'])?'00:00:00':"".$data['p_paymentendtime']."";
 			$data['p_paymentstart']			 =		'null';		
 			$data['p_paymentend']			 =		'null';
 			$data['CurrencyID'] 			 = 		empty($data['CurrencyID'])?'0':$data['CurrencyID'];

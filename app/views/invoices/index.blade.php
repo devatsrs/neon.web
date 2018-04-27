@@ -32,24 +32,13 @@
                     {{ Form::text('InvoiceNumber', '', array("class"=>"form-control")) }}
                 </div>
                 <div class="form-group">
-                    <?php
-                    $StartDate=!empty(Input::get('StartDate'))?Input::get('StartDate'):$data['StartDateDefault'];
-                    if(empty($StartDate)){
-                        $StartDate=date('Y-m-d');
-                    }
-                    ?>
                     <label for="field-1" class="control-label">Issue Date Start</label>
-                    {{ Form::text('IssueDateStart', $StartDate, array("class"=>"form-control small-date-input datepicker", "data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
+                        {{ Form::text('IssueDateStart', !empty(Input::get('StartDate'))?Input::get('StartDate'):$data['StartDateDefault'], array("class"=>"form-control small-date-input datepicker", "data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
                 </div>
                 <div class="form-group">
-                    <?php
-                    $EndDate=!empty(Input::get('EndDate'))?Input::get('EndDate'):$data['IssueDateEndDefault'];
-                    if(empty($EndDate)){
-                        $EndDate=date('Y-m-d');
-                    }
                     ?>
                     <label for="field-1" class="control-label">Issue Date End</label>
-                    {{ Form::text('IssueDateEnd', $EndDate, array("class"=>"form-control small-date-input datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
+                        {{ Form::text('IssueDateEnd', !empty(Input::get('EndDate'))?Input::get('EndDate'):$data['IssueDateEndDefault'], array("class"=>"form-control small-date-input datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Currency</label>
