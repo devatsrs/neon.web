@@ -1,5 +1,9 @@
 Use Ratemanagement3;
 
+-- Sippy Account Name match
+INSERT INTO `Ratemanagement3`.`tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'AUTO_SIPPY_ACCOUNT_IMPORT_INTERVAL', '1');
+
+
 -- For FTP Gateway
 INSERT IGNORE INTO `tblGateway` (`GatewayID`, `Title`, `Name`, `Status`, `CreatedBy`, `created_at`, `ModifiedBy`, `updated_at`) VALUES (7, 'FTP', 'FTP', 1, 'RateManagementSystem', '2017-04-21 12:20:01', NULL, '2017-04-21 12:20:01');
 UPDATE `tblGateway` SET `Status`  = 1 WHERE `Name` = 'FTP';
@@ -3397,4 +3401,54 @@ CREATE PROCEDURE `vwVendorSippySheet`(
 
 
 	END//
+DELIMITER ;
+
+
+
+DROP PROCEDURE IF EXISTS `prc_checkSippyAutoAccountImportJobInterval`;
+DELIMITER //
+CREATE PROCEDURE `prc_checkSippyAutoAccountImportJobInterval`(
+	IN `p_CompanyID` INT,
+	IN `p_CurrentTime` DATETIME
+)
+BEGIN
+
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	-- get after how many minutes next auto account import job to run.
+	select value into @Interval from tblCompanyConfiguration where CompanyID = p_CompanyID AND `Key` = 'AUTO_SIPPY_ACCOUNT_IMPORT_INTERVAL';
+
+	IF @Interval  > 0 THEN
+
+		select DATE_ADD(created_at , INTERVAL @Interval MINUTE) into @NextRunTime from
+		(
+			select created_at from tblJob j
+			inner join tblJobType t on j.JobTypeID = t.JobTypeID AND t.Code = 'MGA' -- Missing Gateway Account
+			where j.CreatedBy = 'System'
+			order by created_at desc limit 1
+		) tmp	;
+
+		IF @NextRunTime is not null AND @NextRunTime <= p_CurrentTime THEN
+
+			select '1' as result , 'Run' as message;
+
+		ELSE
+
+			select '0' as result , concat( 'Wait till ' , @NextRunTime ) as message;
+
+		END IF ;
+
+	ELSE
+
+		select '0' as result, 'Interval is not set' as message;
+
+
+	END IF ;
+
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+
+END//
 DELIMITER ;

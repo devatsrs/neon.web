@@ -8,7 +8,7 @@
  */
 //namespace App\Lib;
 
-//use App\Lib\SippySFTP;
+//use App\Lib\Sippy;
 use \Illuminate\Support\Facades\DB;
 
 class SippyImporter
@@ -18,7 +18,7 @@ class SippyImporter
         $isAccountExist = 0;
         $addparam['username'] = $username;
         try{
-            $sippy = new SippySFTP();
+            $sippy = new Sippy();
             $response = $sippy->getAccountInfo($addparam);
             if (!empty($response) && !isset($response['faultCode'])) {
                 if(!empty($response['authname'])){
@@ -43,7 +43,7 @@ class SippyImporter
 
         //Log:info('AddParam '.print_r($addparam,true));
         try {
-            $sippy = new SippySFTP($addparams['CompanyGatewayID']);
+            $sippy = new Sippy($addparams['CompanyGatewayID']);
             $account_list = $sippy->listAccounts();
             if (!isset($account_list['faultCode'])) {
                 if (isset($account_list['accounts'])) {
@@ -151,7 +151,7 @@ class SippyImporter
 
         //Log:info('AddParam '.print_r($addparam,true));
         try {
-            $sippy = new SippySFTP($addparams['CompanyGatewayID']);
+            $sippy = new Sippy($addparams['CompanyGatewayID']);
             $vendor_list = $sippy->listVendors();
             if (!isset($vendor_list['faultCode'])) {
                 if (isset($vendor_list['vendors'])) {
@@ -261,7 +261,7 @@ class SippyImporter
             $bacth_insert_limit = 1000;
             $counter = 0;
 
-            $sippy = new SippySFTP($CompanyGatewayID);
+            $sippy = new Sippy($CompanyGatewayID);
 
             $start_time = date('Y-m-d H:i:s');
             Log::info("start time listAuthRules API Call : ".$start_time);
@@ -436,7 +436,7 @@ class SippyImporter
             $counter = 0;
             $bacth_insert_limit = 1000;
 
-            $sippy = new SippySFTP($CompanyGatewayID);
+            $sippy = new Sippy($CompanyGatewayID);
 
             $start_time = date('Y-m-d H:i:s');
             Log::info("start time listVendors API Call : ".$start_time);
