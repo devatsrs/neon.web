@@ -520,7 +520,7 @@
             $('.btn.upload').click(function(e){
                 e.preventDefault();
                 var ratesheet = $('#importrate').val();
-                alert(ratesheet)
+
                 if(ratesheet == null || ratesheet == ''){
                     toastr.error("Please Select a Rate Sheet", "Error", toastr_opts);
                     return false;
@@ -632,6 +632,19 @@
             $("#save_template").click(function(e){
                 e.preventDefault();
                 if($("#save_template").hasClass('reviewrates')) {
+                    var dialcodesheet = $('#importdialcodes').val();
+                    if(dialcodesheet != null || dialcodesheet != '' ){
+                        var Join1 = $("#Join1").val();
+                        var Join2 = $("#Join2").val();
+                        if(Join2 == "" || Join2 == 'Skip loading') {
+                            toastr.error("Please Select Join Sheet Field For DialCodeSheet", "Error", toastr_opts);
+                            return false;
+                        }
+                        if(Join1 == "" || Join1 == 'Skip loading') {
+                            toastr.error("Please Select Join Sheet Field For RateSheet", "Error", toastr_opts);
+                            return false;
+                        }
+                    }
                     var formData = new FormData($('#add-template-form')[0]);
                     var poData = $(document.forms['form-upload']).serializeArray();
                     for (var i = 0; i < poData.length; i++) {
