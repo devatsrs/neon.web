@@ -15,7 +15,7 @@ class SippySFTP {
     private static $timeout=0; /* 60 seconds timeout */
 
    public function __construct($CompanyGatewayID){
-       $setting = GatewayAPI::getSetting($CompanyGatewayID,'Sippy');
+       $setting = GatewayAPI::getSetting($CompanyGatewayID,'SippySFTP');
        foreach((array)$setting as $configkey => $configval){
            if($configkey == 'api_password'){
                self::$config['password'] = Crypt::decrypt($configval);
