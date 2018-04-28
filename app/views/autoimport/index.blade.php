@@ -14,6 +14,10 @@
                     <input class="form-control" name="Search" id="Search"  type="text" >
                 </div>
                 <div class="form-group">
+                    <label class="control-label">Account</label>
+                    {{ Form::select('AccountID',$accounts,Input::get('AccountID'), array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                </div>
+                <div class="form-group">
                     <label class="control-label" for="field-1">Status</label>
                     {{ Form::select('jobStatus', $jobStatus, '', array("class"=>"select2","data-type"=>"trunk")) }}
                 </div>
@@ -51,7 +55,7 @@
         Import Inbox Settings
     </a>
     <a href="{{URL::to('/auto_rate_import/account_setting')}}"  class="btn btn-primary ">
-        Account Settings
+        Vendor Settings
     </a>
     <a href="{{URL::to('/auto_rate_import/ratetable_setting')}}"  class="btn btn-primary ">
         Rate Table Settings
@@ -93,6 +97,7 @@ jQuery(document).ready(function($) {
 
     var $searchFilter = {};
     var update_new_url;
+        $searchFilter.AccountID = $('#ratetable_filter [name="AccountID"]').val();
         $searchFilter.jobStatus = $("#ratetable_filter [name='jobStatus']").val();
         $searchFilter.jobType = $("#ratetable_filter [name='jobType']").val();
 		$searchFilter.Search = $('#ratetable_filter [name="Search"]').val();
@@ -108,7 +113,7 @@ jQuery(document).ready(function($) {
             "oTableTools": {},
             "aaSorting": [[3, "desc"]],
             "fnServerParams": function(aoData) {
-                aoData.push({"name":"jobStatus","value":$searchFilter.jobStatus},{"name":"jobType","value":$searchFilter.jobType},{"name":"TypePKID","value":$searchFilter.TypePKID},{"name":"Search","value":$searchFilter.Search});
+                aoData.push({"name":"AccountID","value":$searchFilter.AccountID}, {"name":"jobStatus","value":$searchFilter.jobStatus},{"name":"jobType","value":$searchFilter.jobType},{"name":"TypePKID","value":$searchFilter.TypePKID},{"name":"Search","value":$searchFilter.Search});
                 data_table_extra_params.length = 0;
                 data_table_extra_params.push({"name":"jobStatus","value":$searchFilter.jobStatus},{"name":"jobType","value":$searchFilter.jobType},{"name":"TypePKID","value":$searchFilter.TypePKID},{"name":"Search","value":$searchFilter.Search},{"name":"Export","value":1});
             },
@@ -125,7 +130,7 @@ jQuery(document).ready(function($) {
                                 var action = "";
                                 action +='<a class="add-new-account-setting" id='+full[5]+' style="margin-left:3px" href="javascript:;" >' +subject+'</i></a>';
                                 action +='<br>&nbsp;From : '+array[1];
-                                action +='<br>&nbsp;('+array[2]+')';
+                                action +='<br><b>'+full[7]+'&nbsp;('+array[2]+')';
                                 return action;
                             }
                         },
@@ -244,6 +249,7 @@ jQuery(document).ready(function($) {
 
         $("#ratetable_filter").submit(function(e) {
             e.preventDefault();
+            $searchFilter.AccountID = $('#ratetable_filter [name="AccountID"]').val();
             $searchFilter.jobStatus = $("#ratetable_filter [name='jobStatus']").val();
             $searchFilter.jobType = $("#ratetable_filter [name='jobType']").val();
 			$searchFilter.Search = $('#ratetable_filter [name="Search"]').val();
