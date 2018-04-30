@@ -676,11 +676,11 @@ CREATE PROCEDURE `prc_ApplyAuthRule`(
 						ga.AccountIP,
 						a.AccountID,
 						ga.ServiceID
-					FROM NeonRMDev.tblAccount  a
+					FROM Ratemanagement3.tblAccount  a
 						INNER JOIN tblGatewayAccount ga
 							ON ga.CompanyID = a.CompanyId
 								 AND CONCAT(a.AccountName , '-' , a.Number) = ga.AccountName
-						LEFT JOIN NeonRMDev.tblAccountAuthenticate aa
+						LEFT JOIN Ratemanagement3.tblAccountAuthenticate aa
 							ON a.AccountID = aa.AccountID
 								 AND aa.ServiceID = ga.ServiceID
 					WHERE GatewayAccountID IS NOT NULL
@@ -706,11 +706,11 @@ CREATE PROCEDURE `prc_ApplyAuthRule`(
 						ga.AccountIP,
 						a.AccountID,
 						ga.ServiceID
-					FROM NeonRMDev.tblAccount  a
+					FROM Ratemanagement3.tblAccount  a
 						INNER JOIN tblGatewayAccount ga
 							ON ga.CompanyID = a.CompanyId
 								 AND CONCAT(a.Number, '-' , a.AccountName) = ga.AccountName
-						LEFT JOIN NeonRMDev.tblAccountAuthenticate aa
+						LEFT JOIN Ratemanagement3.tblAccountAuthenticate aa
 							ON a.AccountID = aa.AccountID
 								 AND aa.ServiceID = ga.ServiceID
 					WHERE GatewayAccountID IS NOT NULL
@@ -736,11 +736,11 @@ CREATE PROCEDURE `prc_ApplyAuthRule`(
 						ga.AccountIP,
 						a.AccountID,
 						ga.ServiceID
-					FROM NeonRMDev.tblAccount  a
+					FROM Ratemanagement3.tblAccount  a
 						INNER JOIN tblGatewayAccount ga
 							ON ga.CompanyID = a.CompanyId
 								 AND a.Number = ga.AccountNumber
-						LEFT JOIN NeonRMDev.tblAccountAuthenticate aa
+						LEFT JOIN Ratemanagement3.tblAccountAuthenticate aa
 							ON a.AccountID = aa.AccountID
 								 AND aa.ServiceID = ga.ServiceID
 					WHERE GatewayAccountID IS NOT NULL
@@ -766,8 +766,8 @@ CREATE PROCEDURE `prc_ApplyAuthRule`(
 						ga.AccountIP,
 						a.AccountID,
 						aa.ServiceID
-					FROM NeonRMDev.tblAccount  a
-						INNER JOIN NeonRMDev.tblAccountAuthenticate aa
+					FROM Ratemanagement3.tblAccount  a
+						INNER JOIN Ratemanagement3.tblAccountAuthenticate aa
 							ON a.AccountID = aa.AccountID AND (aa.CustomerAuthRule = 'IP' OR aa.VendorAuthRule ='IP')
 						INNER JOIN tblGatewayAccount ga
 							ON ga.CompanyID = a.CompanyId
@@ -792,10 +792,10 @@ CREATE PROCEDURE `prc_ApplyAuthRule`(
 						ga.AccountIP,
 						a.AccountID,
 						aa.ServiceID
-					FROM NeonRMDev.tblAccount  a
+					FROM Ratemanagement3.tblAccount  a
 						INNER JOIN tblGatewayAccount ga
 							ON ga.CompanyID = a.CompanyId
-						INNER JOIN NeonRMDev.tblCLIRateTable aa
+						INNER JOIN Ratemanagement3.tblCLIRateTable aa
 							ON a.AccountID = aa.AccountID
 								 AND ga.ServiceID = p_ServiceID AND aa.ServiceID = ga.ServiceID
 								 AND ga.AccountCLI = aa.CLI
@@ -811,7 +811,7 @@ CREATE PROCEDURE `prc_ApplyAuthRule`(
 			THEN
 
 				-- IF sippy add sippy gateway too
-				select count(*) into @IsSippy from NeonRMDev.tblGateway g inner join NeonRMDev.tblCompanyGateway cg
+				select count(*) into @IsSippy from Ratemanagement3.tblGateway g inner join Ratemanagement3.tblCompanyGateway cg
 						on cg.GatewayID = g.GatewayID
 							 AND cg.`Status` = 1
 							 AND cg.CompanyGatewayID = p_CompanyGatewayID
@@ -828,14 +828,14 @@ CREATE PROCEDURE `prc_ApplyAuthRule`(
 							ga.AccountIP,
 							sa.AccountID,
 							ga.ServiceID
-						FROM NeonRMDev.tblAccount  a
-							LEFT JOIN NeonRMDev.tblAccountAuthenticate aa
+						FROM Ratemanagement3.tblAccount  a
+							LEFT JOIN Ratemanagement3.tblAccountAuthenticate aa
 								ON a.AccountID = aa.AccountID
 							INNER JOIN tblGatewayAccount ga
 								ON ga.CompanyID = a.CompanyId
 									 AND aa.ServiceID = ga.ServiceID
 							--	AND a.AccountName = ga.AccountName
-							INNER JOIN NeonRMDev.tblAccountSippy sa
+							INNER JOIN Ratemanagement3.tblAccountSippy sa
 								ON sa.CompanyID = a.CompanyId
 									 AND 	( (a.IsCustomer = 1	AND ga.AccountNumber = sa.i_account)	OR	( a.IsVendor = 1	AND ga.AccountNumber = sa.i_vendor ) )
 						WHERE a.CompanyId = p_CompanyID
@@ -859,11 +859,11 @@ CREATE PROCEDURE `prc_ApplyAuthRule`(
 							ga.AccountIP,
 							a.AccountID,
 							ga.ServiceID
-						FROM NeonRMDev.tblAccount  a
+						FROM Ratemanagement3.tblAccount  a
 							INNER JOIN tblGatewayAccount ga
 								ON ga.CompanyID = a.CompanyId
 									 AND a.AccountName = ga.AccountName
-							LEFT JOIN NeonRMDev.tblAccountAuthenticate aa
+							LEFT JOIN Ratemanagement3.tblAccountAuthenticate aa
 								ON a.AccountID = aa.AccountID
 									 AND aa.ServiceID = ga.ServiceID
 						WHERE a.CompanyId = p_CompanyID
@@ -893,8 +893,8 @@ CREATE PROCEDURE `prc_ApplyAuthRule`(
 						ga.AccountIP,
 						a.AccountID,
 						aa.ServiceID
-					FROM NeonRMDev.tblAccount  a
-						INNER JOIN NeonRMDev.tblAccountAuthenticate aa
+					FROM Ratemanagement3.tblAccount  a
+						INNER JOIN Ratemanagement3.tblAccountAuthenticate aa
 							ON a.AccountID = aa.AccountID AND (aa.CustomerAuthRule = 'Other' OR aa.VendorAuthRule ='Other')
 						INNER JOIN tblGatewayAccount ga
 							ON ga.CompanyID = a.CompanyId
@@ -968,7 +968,7 @@ CREATE PROCEDURE `prc_ProcesssCDR`(
 		IF p_RerateAccounts!=0
 		THEN
 			-- selected customer
-			SET @sql1 = concat("insert into tmp_Customers_ (AccountID) values ('", replace(( select TRIM(REPLACE(group_concat(distinct IFNULL(REPLACE(REPLACE(json_extract(Settings, '$.Accounts'), '[', ''), ']', ''),0)),'"','')) as AccountID from NeonRMDev.tblCompanyGateway), ",", "'),('"),"');");
+			SET @sql1 = concat("insert into tmp_Customers_ (AccountID) values ('", replace(( select TRIM(REPLACE(group_concat(distinct IFNULL(REPLACE(REPLACE(json_extract(Settings, '$.Accounts'), '[', ''), ']', ''),0)),'"','')) as AccountID from Ratemanagement3.tblCompanyGateway), ",", "'),('"),"');");
 			PREPARE stmt1 FROM @sql1;
 			EXECUTE stmt1;
 			DEALLOCATE PREPARE stmt1;
@@ -993,7 +993,7 @@ CREATE PROCEDURE `prc_ProcesssCDR`(
 		SET @stm = CONCAT('
 	INSERT INTO tmp_Service_ (ServiceID)
 	SELECT DISTINCT tblService.ServiceID
-	FROM NeonRMDev.tblService
+	FROM Ratemanagement3.tblService
 	LEFT JOIN  NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
 	ON tblService.ServiceID = ud.ServiceID AND ProcessID="' , p_processId , '"
 	WHERE tblService.ServiceID > 0 AND tblService.CompanyGatewayID > 0 AND ud.ServiceID IS NULL
@@ -1046,7 +1046,7 @@ CREATE PROCEDURE `prc_ProcesssCDR`(
 			DEALLOCATE PREPARE stm;
 
 
-			CALL NeonRMDev.prc_getDefaultCodes(p_CompanyID);
+			CALL Ratemanagement3.prc_getDefaultCodes(p_CompanyID);
 
 
 			CALL prc_updateDefaultPrefix(p_processId, p_tbltempusagedetail_name);
