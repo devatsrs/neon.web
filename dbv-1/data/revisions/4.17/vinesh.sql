@@ -71,104 +71,22 @@ CREATE TABLE IF NOT EXISTS `tblAutoImportSetting` (
 DROP PROCEDURE IF EXISTS `prc_ImportSettingMatch`;
 DELIMITER //
 CREATE  PROCEDURE `prc_ImportSettingMatch`(
+	IN `p_companyID` INT,
 	IN `p_FromEmail` TEXT,
-	IN `p_subject` TEXT,
-	IN `p_attachment` TEXT
+	IN `p_subject` TEXT
 )
 BEGIN
 
-	DECLARE v_Trunk VARCHAR(200);
-	DECLARE v_RateTableId VARCHAR(200);
-	DECLARE v_AccountID int;
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
-	
-	DROP TEMPORARY TABLE IF EXISTS tmp_subject;
-	CREATE TEMPORARY TABLE tmp_subject(	
-		SubjectLength INT,
-		Trunk VARCHAR(100),
-		TrunkId INT
-	);	
-	
-	DROP TEMPORARY TABLE IF EXISTS tmp_matchAccount;
-	CREATE TEMPORARY TABLE tmp_matchAccount(	
-		AccountID INT,
-		CompanyId INT
-		
-	);	
-	
-	DROP TEMPORARY TABLE IF EXISTS tmp_finalMatch;
-	CREATE TEMPORARY TABLE tmp_finalMatch(	
-		TypePKID INT,
-		TrunkID INT,
-		ImportFileTempleteID INT,
-		Attachment VARCHAR(100),
-		Type INT
-		
-	);	
-		
-		
-		
-	
-	
-		/* 
-		* Use For Auto Vendor Rate Upload  :   Type = 1 
-		*/
-		
-				/* Get Trunk By Matching Subject and Attachment Name */	
-				insert tmp_subject (SubjectLength,Trunk,TrunkId)
-				select CHAR_LENGTH(Trunk) as SubjectLength,tblTrunk.Trunk,tblTrunk.TrunkID from tblTrunk WHERE p_subject LIKE  CONCAT('%',Trunk, '%') OR  p_attachment LIKE  CONCAT('%',Trunk, '%') ;
-				
+		   SELECT tblAutoImportSetting.*, TEMPLATE.Options
+			FROM tblAutoImportSetting
+			INNER JOIN tblFileUploadTemplate AS TEMPLATE ON tblAutoImportSetting.ImportFileTempleteID =TEMPLATE.FileUploadTemplateID
+			WHERE tblAutoImportSetting.CompanyID=p_companyID
+			  AND FIND_IN_SET(p_FromEmail, SendorEmail)
+			  AND Subject = p_subject;
 
-				/* Get Only Trunk ID If TrunkID is multiple */
-				select TrunkID INTO v_Trunk  from tmp_subject Order by SubjectLength desc limit 1;		
-				select AccountID INTO v_AccountID  from tblAccount where tblAccount.Email=p_FromEmail AND tblAccount.IsVendor=1 AND `Status`=1;
-			
-				/* Get only Matching Account */		
-				insert tmp_matchAccount (AccountID,CompanyId)
-				select AccountID,CompanyId from tblAccount where tblAccount.Email=p_FromEmail ;
-				
-				
-				/* Get Record from Setting Match with Email  ( Vendor Rate Upload (Type = 1) ) */
-				insert tmp_finalMatch (TypePKID,TrunkID,ImportFileTempleteID,Attachment,Type)
-				select ais.TypePKID as TypePKID ,
-						 v_Trunk as TrunkID,
-						 ais.ImportFileTempleteID as ImportFileTempleteID,
-						 p_attachment as  Attachment,
-						 ais.`Type` as Type
-						 from tblAutoImportSetting ais where ais.TypePKID=v_AccountID AND ais.TrunkID=v_Trunk AND ais.`Type`= 1 ;
-		
-		/*
-		* Use For Auto RateTable Upload  : Type = 2 
-		*/
-		
-		
-				
-				DROP TEMPORARY TABLE IF EXISTS tmp_subject_ratetable;
-				CREATE TEMPORARY TABLE tmp_subject_ratetable(	
-					SubjectLength INT,
-					RateTableName VARCHAR(100),
-					RateTableId INT
-				);	
-					
-				insert tmp_subject_ratetable (SubjectLength,RateTableName,RateTableId)
-				select CHAR_LENGTH(RateTableName) as SubjectLength,tblRateTable.RateTableName,tblRateTable.RateTableId from tblRateTable WHERE p_subject LIKE  CONCAT('%',RateTableName, '%') OR  p_attachment LIKE  CONCAT('%',RateTableName, '%') ;
-				
-				/* Get Only one RateTable ID If RateTableId is multiple */
-				select RateTableId INTO v_RateTableId  from tmp_subject_ratetable Order by SubjectLength desc limit 1;		
-				
-				/* Get Record from Setting Match with Email  ( RateTable (Type = 2) ) */
-				insert tmp_finalMatch (TypePKID,ImportFileTempleteID,Attachment,Type)
-				select ais.TypePKID as TypePKID ,
-						 ais.ImportFileTempleteID as ImportFileTempleteID,
-						 p_attachment as  Attachment,
-						 ais.`Type` as Type
-						 from tblAutoImportSetting ais where ais.TypePKID=v_RateTableId AND ais.`Type`= 2 ;
-		
-		select * from tmp_finalMatch;		 
-		
-		
-SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
 END//
 DELIMITER ;
@@ -383,6 +301,7 @@ CREATE  PROCEDURE `prc_getAutoImportMail`(
 	IN `p_jobStatus` INT,
 	IN `p_CompanyID` INT,
 	IN `p_search` TEXT,
+	IN `p_AccountID` INT,
 	IN `p_PageNumber` INT,
 	IN `p_RowspPage` INT,
 	IN `p_lSortCol` VARCHAR(50),
@@ -396,21 +315,19 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-	
-	
-	
-		
+
 					IF (p_isExport = 0) THEN
-							
-								
+
+
 							select IFNULL(jt.Title, 'Not Match') as jobType,
 							CONCAT(  a.Subject, '<br>', a.AccountName, '<br>', a.`From` )  AS header,
-							a.created_at,a.JobID,IFNULL(js.Title, 'Not Match') as jobstatus,a.AutoImportID from tblAutoImport a
+							a.created_at,a.JobID,IFNULL(js.Title, 'Not Match') as jobstatus,a.AutoImportID, a.AccountID, IFNULL(ac.AccountName, '') from tblAutoImport a
 							left join tblJob j on a.JobID=j.JobID
 							left join tblJobType jt on j.JobTypeID = jt.JobTypeID
 							left join tblJobStatus js on j.JobStatusID=js.JobStatusID
-							where 
-								CASE 
+							left join tblAccount ac on a.AccountID=ac.AccountID
+							where
+								CASE
 									WHEN (p_jobType > 0) THEN
 										jt.JobTypeID = p_jobType AND a.CompanyID=p_CompanyID
 									WHEN (p_jobStatus > 0) THEN
@@ -418,21 +335,35 @@ BEGIN
 									WHEN (p_search <> '') THEN
 										    (  a.Subject LIKE CONCAT('%',p_search,'%')  OR a.JobID LIKE CONCAT('%',p_search,'%') )  AND a.CompanyID=p_CompanyID
 								   ELSE
-										a.CompanyID=p_CompanyID				
+										a.CompanyID=p_CompanyID
 								END
+								AND ( p_AccountID = 0 OR a.AccountID=p_AccountID )
+								ORDER BY
+								  CASE WHEN p_lSortCol = 'Type' AND p_SortOrder = 'desc' THEN jobType END DESC,
+								  CASE WHEN p_lSortCol = 'Type' THEN jobType END,
+								  CASE WHEN p_lSortCol = 'Header' AND p_SortOrder = 'desc' THEN header END DESC,
+								  CASE WHEN p_lSortCol = 'Header' THEN header END,
+								  CASE WHEN p_lSortCol = 'Created' AND p_SortOrder = 'desc' THEN a.created_at END DESC,
+								  CASE WHEN p_lSortCol = 'Created' THEN a.created_at END,
+								  CASE WHEN p_lSortCol = 'Status' AND p_SortOrder = 'desc' THEN jobstatus END DESC,
+								  CASE WHEN p_lSortCol = 'Status' THEN jobstatus END,
+								  CASE WHEN p_lSortCol = 'JobId' AND p_SortOrder = 'desc' THEN a.JobID END DESC,
+								  CASE WHEN p_lSortCol = 'JobId' THEN a.JobID END
+
 							LIMIT p_RowspPage OFFSET v_OffSet_;
-							
+
 					ELSE
-							
-							
+
+
 							select IFNULL(jt.Title, 'Not Match') as jobType,
 							CONCAT(  a.Subject, '<br>', a.AccountName, '<br>', a.`From` )  AS header,
-							a.created_at,a.JobID,IFNULL(js.Title, 'Not Match') as jobstatus from tblAutoImport a
+							a.created_at,a.JobID,IFNULL(js.Title, 'Not Match') as jobstatus,a.AutoImportID, a.AccountID, IFNULL(ac.AccountName, '') from tblAutoImport a
 							left join tblJob j on a.JobID=j.JobID
 							left join tblJobType jt on j.JobTypeID = jt.JobTypeID
 							left join tblJobStatus js on j.JobStatusID=js.JobStatusID
-							where 
-								CASE 
+							left join tblAccount ac on a.AccountID=ac.AccountID
+							where
+								CASE
 									WHEN (p_jobType > 0) THEN
 										jt.JobTypeID = p_jobType AND a.CompanyID=p_CompanyID
 									WHEN (p_jobStatus > 0) THEN
@@ -440,19 +371,31 @@ BEGIN
 									WHEN (p_search <> '') THEN
 										    (  a.Subject LIKE CONCAT('%',p_search,'%')  OR a.JobID LIKE CONCAT('%',p_search,'%') )  AND a.CompanyID=p_CompanyID
 								   ELSE
-										a.CompanyID=p_CompanyID				
+										a.CompanyID=p_CompanyID
 								END
-							;			
-							
-							
+								ORDER BY
+								  CASE WHEN p_lSortCol = 'Type' AND p_SortOrder = 'desc' THEN jobType END DESC,
+								  CASE WHEN p_lSortCol = 'Type' THEN jobType END,
+								  CASE WHEN p_lSortCol = 'Header' AND p_SortOrder = 'desc' THEN header END DESC,
+								  CASE WHEN p_lSortCol = 'Header' THEN header END,
+								  CASE WHEN p_lSortCol = 'Created' AND p_SortOrder = 'desc' THEN a.created_at END DESC,
+								  CASE WHEN p_lSortCol = 'Created' THEN a.created_at END,
+								  CASE WHEN p_lSortCol = 'Status' AND p_SortOrder = 'desc' THEN jobstatus END DESC,
+								  CASE WHEN p_lSortCol = 'Status' THEN jobstatus END,
+								  CASE WHEN p_lSortCol = 'JobId' AND p_SortOrder = 'desc' THEN a.JobID END DESC,
+								  CASE WHEN p_lSortCol = 'JobId' THEN a.JobID END
+							;
+
+
 					END IF;
-		
-		
-					
+
+
+
 					select COUNT(*) AS `totalcount` from tblAutoImport a
 							left join tblJob j on a.JobID=j.JobID
 							left join tblJobType jt on j.JobTypeID = jt.JobTypeID
 							left join tblJobStatus js on j.JobStatusID=js.JobStatusID
+							left join tblAccount ac on a.AccountID=ac.AccountID
 							where 
 								CASE 
 									WHEN (p_jobType > 0) THEN

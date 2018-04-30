@@ -106,8 +106,7 @@ class AutoRateImportController extends \BaseController {
 		}
 		$query .=',0)';
 
-		\Illuminate\Support\Facades\Log::info($query);
-
+//		\Illuminate\Support\Facades\Log::info($query);
 		return DataTableSql::of($query)->make();
 
 	}
@@ -178,8 +177,8 @@ class AutoRateImportController extends \BaseController {
 
 	/* Use In RateTable Setting page  */
 	public function ratetableSetting() {
-		$rateTable = RateTable::getRateTables();
-		$uploadtemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_VENDOR_RATE));
+		$rateTable = RateTable::getRateTableList();
+		$uploadtemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_RATETABLE_RATE));
 		return View::make('autoimport.rate_table_setting', compact('rateTable','uploadtemplate'));
 	}
 
