@@ -1,7 +1,7 @@
 Use Ratemanagement3;
 
 -- Sippy Account Name match
-INSERT INTO `Ratemanagement3`.`tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'AUTO_SIPPY_ACCOUNT_IMPORT_INTERVAL', '1');
+INSERT INTO `Ratemanagement3`.`tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'AUTO_SIPPY_ACCOUNT_IMPORT_INTERVAL', '360');
 
 
 -- For FTP Gateway
