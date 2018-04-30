@@ -99,7 +99,7 @@
                             <input type="hidden" name="CompanyID" value="{{$autoimportSetting[0]->CompanyID}}">
                             <div class="col-md-6">
                                 <div class="form-group ">
-                                    <label for="field-5" class="control-label">Success Notification on Email</label>
+                                    <label for="field-5" class="control-label">On Success</label>
                                     <br>
                                     <input type="text" name="emailNotificationOnSuccess" class="form-control" value="{{$autoimportSetting[0]->emailNotificationOnSuccess}}" />
                                 </div>
@@ -107,7 +107,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group ">
-                                    <label for="field-5" class="control-label">Fail Notification on Email</label>
+                                    <label for="field-5" class="control-label">On Failure</label>
                                     <br>
                                     <input type="text" name="emailNotificationOnFail" class="form-control" value="{{$autoimportSetting[0]->emailNotificationOnFail}}" />
                                 </div>
