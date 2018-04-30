@@ -44,10 +44,10 @@
         <a href="{{URL::to('/auto_rate_import/autoimport')}}">Auto Import</a>
     </li>
     <li class="active">
-        <strong>Account Settings </strong>
+        <strong>Vendor Setting </strong>
     </li>
 </ol>
-<h3>Account Setting</h3>
+<h3>Vendor Setting</h3>
 <p style="text-align: right;">
 @if(User::checkCategoryPermission('RateTables','Add'))
     <a href="#" id="add-new-account-setting" class="btn btn-primary ">
@@ -225,7 +225,10 @@ jQuery(document).ready(function($) {
         $('table tbody').on('click','.edit-autoImportSetting',function(ev){
             ev.preventDefault();
             ev.stopPropagation();
+            $("#add-new-form").trigger("reset");
+            $("#add-new-form .select2").trigger("change.select2");
             $('#modal-add-new-account-setting').trigger("reset");
+            $('#modal-add-new-account-setting .modal-title').html("Edit New Vendor Setting");
             $("#modal-add-new-account-setting [name='TypePKID']").select2('val', $(this).attr('data-id'));
             $("#modal-add-new-account-setting [name='ImportFileTempleteID']").select2('val', $(this).attr('data-uploadtemplate'));
             $("#modal-add-new-account-setting [name='TrunkID']").select2('val', $(this).attr('data-TrunkID'));
@@ -246,6 +249,9 @@ jQuery(document).ready(function($) {
          });
         $("#add-new-account-setting").click(function(ev) {
              ev.preventDefault();
+             $("#add-new-form").trigger("reset");
+             $("#add-new-form .select2").trigger("change.select2");
+            $('#modal-add-new-account-setting .modal-title').html("Add New Vendor Setting");
              $("#modal-add-new-account-setting [name='AutoImportSettingID']").val('');
              $('#modal-add-new-account-setting').modal('show', {backdrop: 'static'});
          });
@@ -269,7 +275,7 @@ jQuery(document).ready(function($) {
             <form id="add-new-form" method="post">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Add New Account Setting</h4>
+                    <h4 class="modal-title">Add New Vendor Setting</h4>
                 </div>
                 <div class="modal-body">
                     <div class="row">
