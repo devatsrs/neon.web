@@ -99,8 +99,9 @@
             <table id="table-service" class="table table-bordered datatable">
                 <thead>
                 <tr>
-                    <th width="1%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
-                    <th width="60%">Service Name</th>
+                    <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
+                    <th width="35%">Service Name</th>
+                    <th width="30%">Service Title</th>
                     <th width="30%">Action</th>
                 </tr>
                 </thead>
@@ -169,6 +170,7 @@
                                     }
                                 }, //1   CurrencyDescription
                                 {  "bSortable": true },  // 0 Service Name
+                                {  "bSortable": false },  // 0 Service Name
                                // {  "bSortable": false },  // 1 Service Status
                                 //{  "bSortable": false },  // 2 Service ID
                                 //{  "bSortable": false },  // 3 Account Service ID
@@ -179,7 +181,7 @@
                                 var DeActive_Card = baseurl + "/accountservices/{id}/changestatus/deactive";
                                  action = '';
                                 <?php if(User::checkCategoryPermission('AccountService','Edit')) { ?>
-                                 if (full[2]=="1") {
+                                 if (full[3]=="1") {
                                     action += ' <button href="' + DeActive_Card.replace("{id}",full[0]) + '" title=""  class="btn activeservice btn-danger btn-sm tooltip-primary" data-original-title="Deactivate" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-minus-circled"></i></button>';
                                  } else {
                                     action += ' <button href="' + Active_Card.replace("{id}",full[0]) + '" title="" class="btn deactiveservice btn-success btn-sm tooltip-primary" data-original-title="Activate" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-check"></i></button>';

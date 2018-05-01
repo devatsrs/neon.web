@@ -130,10 +130,10 @@ class RateUploadController extends \BaseController {
            /* if(!empty($data['Sheet'])) {
                 $Sheet = $data['Sheet'];
             }*/
-            if(!empty($data['importratesheet'])) {
+            if(isset($data['importratesheet'])) {
                 $Sheet = $data['importratesheet'];
             }
-            if(!empty($data['importdialcodessheet'])) {
+            if(isset($data['importdialcodessheet'])) {
                 $Sheet2 = $data['importdialcodessheet'];
             }
             if ($data['RateUploadType'] == RateUpload::vendor && (!isset($data['Trunk']) || empty($data['Trunk']))) {
@@ -366,10 +366,15 @@ class RateUploadController extends \BaseController {
             //$rules['selection.Description'] = 'required';
             //$rules['selection.Rate']        = 'required';
             if(isset($data['importdialcodessheet'])) {
+                $rules_for_type['selection.Join1'] = 'required';
+                $rules_for_type['selection2.Join2'] = 'required';
                 $rules_for_type['selection.Code'] = 'required_without:selection2.Code';
                 $rules_for_type['selection2.Code'] = 'required_without:selection.Code';
                 $rules_for_type['selection.Description'] = 'required_without:selection2.Description';
                 $rules_for_type['selection2.Description'] = 'required_without:selection.Description';
+
+                $message_for_type['selection.Join1.required'] = "Please Select Join Sheet Field For RateSheet";
+                $message_for_type['selection2.Join2.required'] = "Please Select Join Sheet Field For DialCodeSheet";
                 $message_for_type['selection.Code.required_without'] = "Code field is required of sheet1 when Code is not present of sheet2";
                 $message_for_type['selection2.Code.required_without'] = "Code field is required of sheet2 when Code is not present of sheet1";
                 $message_for_type['selection.Description.required_without'] = "Description field is required of sheet1 when Description is not present of sheet2";
@@ -572,10 +577,15 @@ class RateUploadController extends \BaseController {
         } else {
 
             if(isset($data['importdialcodessheet'])) {
+                $rules_for_type['selection.Join1'] = 'required';
+                $rules_for_type['selection2.Join2'] = 'required';
                 $rules_for_type['selection.Code'] = 'required_without:selection2.Code';
                 $rules_for_type['selection2.Code'] = 'required_without:selection.Code';
                 $rules_for_type['selection.Description'] = 'required_without:selection2.Description';
                 $rules_for_type['selection2.Description'] = 'required_without:selection.Description';
+
+                $message_for_type['selection.Join1.required'] = "Please Select Join Sheet Field For RateSheet";
+                $message_for_type['selection2.Join2.required'] = "Please Select Join Sheet Field For DialCodeSheet";
                 $message_for_type['selection.Code.required_without'] = "Code field is required of sheet1 when Code is not present of sheet2";
                 $message_for_type['selection2.Code.required_without'] = "Code field is required of sheet2 when Code is not present of sheet1";
                 $message_for_type['selection.Description.required_without'] = "Description field is required of sheet1 when Description is not present of sheet2";
@@ -760,11 +770,27 @@ class RateUploadController extends \BaseController {
                 $lineno = 2;
             }
             //echo "<pre>";print_r($ratesheet);print_r($dialcodessheet);exit;
+
+            //echo "<pre>";print_r($option);exit;
             if(isset($data['importdialcodessheet'])) {
-                $results = $this->merge_arrays($ratesheet, $dialcodessheet);
+                $Join1 = $option["selection"]['Join1'];
+                $Join2 = $option["selection2"]['Join2'];
+
+                foreach($ratesheet as $key => $value)
+                {
+                    foreach($dialcodessheet as $key1 => $value1)
+                    {
+                        if($value[$Join1] == $value1[$Join2])
+                        {
+                            $results[$key1] = array_merge($value1, $ratesheet[$key]);
+                        }
+                        unset($results[$key1][""]);
+                    }
+                }
             }else{
                 $results = $ratesheet;
             }
+
             //echo "<pre>";print_r($results);exit;
 
             $error = array();
@@ -940,7 +966,7 @@ class RateUploadController extends \BaseController {
                         $counter++;
                     }
                 }
-                //print_R($tempdata);exit;
+                //echo "<pre>";print_R($tempdata);exit;
                 if($counter==$bacth_insert_limit){
                     Log::info('Batch insert start');
                     Log::info('global counter'.$lineno);

@@ -19,7 +19,7 @@
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label small_label">Status</label>
-                    {{ Form::select('Status', Payment::$status, (!empty(Input::get('Status'))?Input::get('Status'):'Pending Approval'), array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
+                    {{ Form::select('Status', Payment::$status, (!empty(Input::get('Status'))?Input::get('Status'):''), array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label small_label">Action</label>

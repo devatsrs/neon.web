@@ -564,13 +564,12 @@ function getFileContent($file_name, $data, $Sheet=''){
     }
 
     // Get data into array.
+    $columns = array_filter($columns);
     $grid_array = array();
     foreach ($results as $outindex => $datarow) {
 
         $i = 1;
         foreach ($datarow as $index => $singlerow) {
-
-            $grid_array[$outindex][$index] = $singlerow;
 
             if (strpos(strtolower($index), 'date') !== false) {
 
@@ -580,10 +579,12 @@ function getFileContent($file_name, $data, $Sheet=''){
 
             if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
                 $grid_array[$outindex][$columns[$i++]] = $singlerow;
+            }else{
+                $grid_array[$outindex][$index] = $singlerow;
             }
-
-
         }
+        unset($grid_array[$outindex][""]);
+
     }
     //print_r($grid_array);
     //exit;
@@ -634,13 +635,14 @@ function getFileContentSheet2($file_name, $data, $Sheet=''){
     }
 
     // Get data into array.
+    $columns = array_filter($columns);
     $grid_array = array();
     foreach ($results as $outindex => $datarow) {
 
         $i = 1;
         foreach ($datarow as $index => $singlerow) {
 
-            $grid_array[$outindex][$index] = $singlerow;
+            //$grid_array[$outindex][$index] = $singlerow;
 
             if (strpos(strtolower($index), 'date') !== false) {
 
@@ -651,9 +653,12 @@ function getFileContentSheet2($file_name, $data, $Sheet=''){
             if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
                 $grid_array[$outindex][$columns[$i++]] = $singlerow;
             }
-
-
+            else
+            {
+                $grid_array[$outindex][$index] = $singlerow;
+            }
         }
+        unset($grid_array[$outindex][""]);
     }
     //print_r($grid_array);
     //exit;

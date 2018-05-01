@@ -1,9 +1,15 @@
 <ul class="nav nav-tabs">
-    <li class="active"><a href="#tab1" data-toggle="tab">Sheet 1</a></li>
-    <li><a href="#tab2" data-toggle="tab">Sheet 2</a></li>
+    <li class="active"><a href="#tab1" data-toggle="tab">Rates</a></li>
+    <li><a href="#tab2" data-toggle="tab">Dial Codes</a></li>
 </ul>
 <div class="tab-content" style="overflow: hidden;margin-top: 15px;">
 <div class="tab-pane active" id="tab1">
+    <div class="form-group">
+        <label for="field-1" class="col-sm-2 control-label">Match Codes with DialCode On</label>
+        <div class="col-sm-4">
+            {{Form::select('selection[Join1]', $columns,(isset($attrselection->Join1)?$attrselection->Join1:''),array("class"=>"select2 small","id"=>"Join1"))}}
+        </div>
+    </div>
 <div class="form-group">
     <label for="field-1" class="col-sm-2 control-label">Country Code</label>
     <div class="col-sm-4">
@@ -106,6 +112,12 @@
 </div>
 </div>
     <div class="tab-pane " id="tab2">
+        <div class="form-group">
+            <label for="field-1" class="col-sm-2 control-label">Match Codes with Rates On</label>
+            <div class="col-sm-4">
+                {{Form::select('selection2[Join2]', $columns,(isset($attrselection2->Join2)?$attrselection2->Join2:''),array("class"=>"select2 small","id"=>"Join2"))}}
+            </div>
+        </div>
         <div class="form-group">
             <label for="field-1" class="col-sm-2 control-label">Country Code</label>
             <div class="col-sm-4">
