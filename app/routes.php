@@ -411,7 +411,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/customers_rates/{id}/download', array('as' => 'customer_rates_download', 'uses' => 'CustomersRatesController@download'));
 	Route::any('/customers_rates/{id}/process_download', array('as' => 'customer_rates_process_download', 'uses' => 'CustomersRatesController@process_download'));
 	Route::any('/customers_rates/update/{id}', array('as' => 'customer_rates_update', 'uses' => 'CustomersRatesController@update'));
+	Route::any('/customers_rates/add_selected_customer_rate/{id}', 'CustomersRatesController@addSelectedCustomerRate');
 	Route::any('/customers_rates/store/{id}', array('as' => 'customer_rates_store', 'uses' => 'CustomersRatesController@store'));
+	Route::any('/customers_rates/process_bulk_rate_insert/{id}', array('as' => 'process_bulk_rate_insert', 'uses' => 'CustomersRatesController@process_bulk_rate_insert'));
 	Route::any('/customers_rates/process_bulk_rate_update/{id}', array('as' => 'process_bulk_rate_update', 'uses' => 'CustomersRatesController@process_bulk_rate_update'));
 	Route::any('/customers_rates/process_bulk_rate_clear/{id}', array('as' => 'process_bulk_rate_clear', 'uses' => 'CustomersRatesController@process_bulk_rate_clear'));
 	Route::any('/customers_rates/settings/{id}', array('as' => 'customer_rates_settings', 'uses' => 'CustomersRatesController@settings'));

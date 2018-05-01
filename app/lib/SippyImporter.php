@@ -56,9 +56,9 @@ class SippyImporter
                         $CompanyID = $addparams['CompanyID'];
                         $ProcessID = $addparams['ProcessID'];
                         foreach ((array)$account_list['accounts'] as $row_account) {
-                            $count1 = DB::table('tblAccount')->where(["AccountName" => $row_account['username'], "AccountType" => 1,"CompanyId"=>$CompanyID])->count();
-                            $count2 = DB::table('tblAccountSippy')->where(["username" => $row_account['username'],"i_account" => $row_account['i_account'],"CompanyID"=>$CompanyID])->count();
-                            if($count1==0 && $count2==0){
+                            //$count1 = DB::table('tblAccount')->where(["AccountName" => $row_account['username'], "AccountType" => 1,"CompanyId"=>$CompanyID])->count();
+                            //$count2 = DB::table('tblAccountSippy')->where(["username" => $row_account['username'],"i_account" => $row_account['i_account'],"CompanyID"=>$CompanyID])->count();
+                            if(true){
                                 $params['i_account'] = $row_account['i_account'];
                                 $account_detail = $sippy->getAccountInfo($params);
 
@@ -164,9 +164,10 @@ class SippyImporter
                         $CompanyID = $addparams['CompanyID'];
                         $ProcessID = $addparams['ProcessID'];
                         foreach ((array)$vendor_list['vendors'] as $row_vendor) {
-                            $count1 = DB::table('tblAccount')->where(["AccountName" => $row_vendor['name'], "AccountType" => 1,"CompanyId"=>$CompanyID])->count();
-                            $count2 = DB::table('tblAccountSippy')->where(["username" => $row_vendor['name'],"i_vendor" => $row_vendor['i_vendor'],"CompanyID"=>$CompanyID])->count();
-                            if($count1==0 && $count2==0){
+                            //$count1 = DB::table('tblAccount')->where(["AccountName" => $row_vendor['name'], "AccountType" => 1,"CompanyId"=>$CompanyID])->count();
+                            //$count2 = DB::table('tblAccountSippy')->where(["username" => $row_vendor['name'],"i_vendor" => $row_vendor['i_vendor'],"CompanyID"=>$CompanyID])->count();
+                            //if($count1==0 && $count2==0){
+                            if(true){
                                 $params['i_vendor'] = $row_vendor['i_vendor'];
                                 $vendor_detail = $sippy->getVendorInfo($params);
 
