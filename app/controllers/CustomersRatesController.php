@@ -345,22 +345,17 @@ class CustomersRatesController extends \BaseController {
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     * PUT /customersrates/{id}
-     *
-     * @param  int  $id
-     * @return Response
-     */
+    //update single and selected rates
     public function update($id) {
 
         $data               = Input::all();//echo "<pre>";print_r($data);exit();
         $username           = User::get_user_full_name();
-        $company_id         = User::get_companyID();
+        //$company_id         = User::get_companyID();
         $data['customer'][] = $id;
 
+        $message = array();
         $rules = array(
-            'EffectiveDate' => 'required',
+            //'EffectiveDate' => 'required',
             'Rate' => 'required|numeric',
             'RateID' => 'required',
             'Trunk' => 'required',
@@ -368,16 +363,24 @@ class CustomersRatesController extends \BaseController {
             'IntervalN' => 'required|numeric'
         );
 
-        $validator = Validator::make($data, $rules);
+        //Type=1 means single edit else multiple selected edit
+        //Effective Date validations for single edit
+        if(!empty($data['Type']) && $data['Type'] == 1) {
+            $rules['EffectiveDate'] = 'required|date_format:Y-m-d|after:'.date('Y-m-d',strtotime('-1 day'));
+            $message['EffectiveDate.after'] = "Effective Date can not be past date, it must be today's date or future's date";
+        }
+
+        $validator = Validator::make($data, $rules, $message);
 
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
 
-        $EffectiveDate  = "'".date("Y-m-d", strtotime($data['EffectiveDate']))."'";
-        $EndDate        = !empty($data['EndDate']) ? "'".date("Y-m-d", strtotime($data['EndDate']))."'" : 'NULL';
+        $EffectiveDate  = !empty($data['EffectiveDate']) ? "'".date("Y-m-d", strtotime($data['EffectiveDate']))."'" : 'NULL';
+        //$EndDate        = !empty($data['EndDate']) ? "'".date("Y-m-d", strtotime($data['EndDate']))."'" : 'NULL';
         $Customers      = "'".implode(',',array_filter($data['customer'],'intval'))."'";
-        $RateIDs        = "'".implode(',',array_filter(explode(",",$data['RateID']),'intval'))."'";
+        //$RateIDs        = "'".implode(',',array_filter(explode(",",$data['RateID']),'intval'))."'";
+        $CustomerRateIDs= "'".implode(',',array_filter(explode(",",$data['CustomerRateId']),'intval'))."'";
         $Trunk          = intval($data['Trunk']);
         $Rate           = $data['Rate'];
         $Interval1      = intval($data['Interval1']);
@@ -385,39 +388,143 @@ class CustomersRatesController extends \BaseController {
         $ConnectionFee  = floatval($data['ConnectionFee']);
         $RoutinePlan    = intval($data['RoutinePlan']);
 
-        $query = "call prc_CustomerRateUpdateBySelectedRateId (".$company_id.",".$Customers.",".$RateIDs.",".$Trunk.",".$Rate.",".$ConnectionFee.",".$EffectiveDate.",".$EndDate."," .$Interval1.",".$IntervalN.",".$RoutinePlan.",'".$username."')";
-        //Log::info($query);
+        try {
+            DB::beginTransaction();
+            //$query = "call prc_CustomerRateUpdateBySelectedRateId (".$company_id.",".$Customers.",".$RateIDs.",".$CustomerRateIDs.",".$Trunk.",".$Rate.",".$ConnectionFee.",".$EffectiveDate.",".$EndDate."," .$Interval1.",".$IntervalN.",".$RoutinePlan.",'".$username."')";
+            $query = "call prc_CustomerRateUpdate (".$Customers.",".$Trunk.",".$CustomerRateIDs.",".$Rate.",".$ConnectionFee.",".$EffectiveDate."," .$Interval1.",".$IntervalN.",".$RoutinePlan.",'".$username."')";
+            //Log::info($query);
+            $results = DB::statement($query);
 
-        $results = DB::statement($query);
-
-        if ($results) {
-            //return Redirect::back()->with('success_message', ' Customer Rate Successfully Updated');
-            return Response::json(array("status" => "success", "message" => "Customer Rate Successfully Updated"));
-        } else {
-            //return Redirect::back()->with('success_message', 'Problem Updating Customer Rate');
-            return Response::json(array("status" => "failed", "message" => "Problem Updating Customer Rate."));
+            if ($results) {
+                DB::commit();
+                //return Redirect::back()->with('success_message', ' Customer Rate Successfully Updated');
+                return Response::json(array("status" => "success", "message" => "Customer Rate Successfully Updated"));
+            } else {
+                //return Redirect::back()->with('success_message', 'Problem Updating Customer Rate');
+                return Response::json(array("status" => "failed", "message" => "Problem Updating Customer Rate."));
+            }
+        } catch (Exception $ex) {
+            DB::rollback();
+            return Response::json(["status" => "failed", "message" => " Exception: " . $ex->getMessage()]);
         }
+
     }
 
+    //insert selected rates
+    public function addSelectedCustomerRate($id) {
+
+        $data               = Input::all();//echo "<pre>";print_r($data);exit();
+        $username           = User::get_user_full_name();
+        $CompanyID          = User::get_companyID();
+        $data['customer'][] = $id;
+
+        $message = array();
+        $rules = array(
+            'EffectiveDate' => 'required|date_format:Y-m-d|after:'.date('Y-m-d',strtotime('-1 day')),
+            'Rate' => 'required|numeric',
+            'RateID' => 'required',
+            'Trunk' => 'required',
+            'Interval1' => 'required|numeric',
+            'IntervalN' => 'required|numeric'
+        );
+        $message['EffectiveDate.after'] = "Effective Date can not be past date, it must be today's date or future's date";
+
+        $validator = Validator::make($data, $rules, $message);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+
+        $EffectiveDate  = "'".date("Y-m-d", strtotime($data['EffectiveDate']))."'";
+        $Customers      = "'".implode(',',array_filter($data['customer'],'intval'))."'";
+        $RateIDs        = "'".implode(',',array_unique(array_filter(explode(",",$data['RateID']),'intval')))."'";
+        $Trunk          = intval($data['Trunk']);
+        $Rate           = $data['Rate'];
+        $Interval1      = intval($data['Interval1']);
+        $IntervalN      = intval($data['IntervalN']);
+        $ConnectionFee  = floatval($data['ConnectionFee']);
+        $RoutinePlan    = intval($data['RoutinePlan']);
+
+        try {
+            DB::beginTransaction();
+            $query = "call prc_CustomerRateInsert (".$CompanyID.",".$Customers.",".$Trunk.",".$RateIDs.",".$Rate.",".$ConnectionFee.",".$EffectiveDate."," .$Interval1.",".$IntervalN.",".$RoutinePlan.",'".$username."')";
+            //Log::info($query);
+            $results = DB::statement($query);
+
+            if ($results) {
+                DB::commit();
+                //return Redirect::back()->with('success_message', ' Customer Rate Successfully Updated');
+                return Response::json(array("status" => "success", "message" => "Customer Rate Successfully Updated"));
+            } else {
+                //return Redirect::back()->with('success_message', 'Problem Updating Customer Rate');
+                return Response::json(array("status" => "failed", "message" => "Problem Updating Customer Rate."));
+            }
+        } catch (Exception $ex) {
+            DB::rollback();
+            return Response::json(["status" => "failed", "message" => " Exception: " . $ex->getMessage()]);
+        }
+
+    }
+
+    //bulk rate update
     public function process_bulk_rate_update($id) {
-        $data = Input::all();
+        $data       = Input::all();
         $company_id = User::get_companyID();
-        $rules = array('EffectiveDate' => 'required','Rate' => 'required', 'Trunk' => 'required',);
+        $rules      = array(
+            //'EffectiveDate' => 'required',
+            'Rate' => 'required',
+            'Trunk' => 'required'
+        );
         $validator = Validator::make($data, $rules);
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
-        $data['customer'][] = $id;
-        $codedeckid = CustomerTrunk::where(['AccountID'=>$id,'TrunkID'=>$data['Trunk']])->pluck('CodeDeckId');
-        $data['Country'] = $data['Country'] == ''?'NULL':$data['Country'];
-        $data['Code'] =  $data['Code'] == ''?'NULL':"'".$data['Code']."'";
-        $data['Description'] = $data['Description'] == ''?'NULL':"'".$data['Description']."'";
-        $data['customer'] = array_filter($data['customer'],'intval');
-        $EndDate        = !empty($data['EndDate']) ? "'".date("Y-m-d", strtotime($data['EndDate']))."'" : 'NULL';
-        $username = User::get_user_full_name();
-        //Inserting Job Log
-        //$results = DB::statement('prc_CustomerBulkRateUpdate ?,?,?,?,?,?,?,?,? ', array(implode(',',$data['customer']),$data['Trunk'],$data['Code'],$data['Description'],$data['Country'],$company_id,$data['Rate'],$data['EffectiveDate'],$username));
-        $results = DB::statement("call prc_CustomerBulkRateUpdate ('".implode(',',$data['customer'])."',".$data['Trunk'].",".$codedeckid.",".$data['Code'].",".$data['Description'].",".$data['Country'].",".$company_id.",".$data['Rate'].",".floatval($data['ConnectionFee']).",'".$data['EffectiveDate']."',".$EndDate.",".intval($data['Interval1']).",".intval($data['IntervalN']).",'".intval($data['RoutinePlan'])."','".$username."')");
+        $data['customer'][]     = $id;
+        $codedeckid             = CustomerTrunk::where(['AccountID'=>$id,'TrunkID'=>$data['Trunk']])->pluck('CodeDeckId');
+        $data['Country']        = $data['Country'] == ''?'NULL':$data['Country'];
+        $data['Code']           = $data['Code'] == ''?'NULL':"'".$data['Code']."'";
+        $data['Description']    = $data['Description'] == ''?'NULL':"'".$data['Description']."'";
+        $data['customer']       = array_filter($data['customer'],'intval');
+        $data['EffectiveDate']  = 'NULL'; // not update EffectiveDate
+        $EndDate                = !empty($data['EndDate']) ? "'".date("Y-m-d", strtotime($data['EndDate']))."'" : 'NULL';
+        $username               = User::get_user_full_name();
+
+        $query      = "call prc_CustomerBulkRateUpdate ('".implode(',',$data['customer'])."',".$data['Trunk'].",".$codedeckid.",".$data['Code'].",".$data['Description'].",".$data['Country'].",".$company_id.",'".$data['Effective']."','".$data['CustomDate']."',".$data['Rate'].",".floatval($data['ConnectionFee']).",".$data['EffectiveDate'].",".$EndDate.",".intval($data['Interval1']).",".intval($data['IntervalN']).",".intval($data['RoutinePlan']).",'".$username."')";
+        $results    = DB::statement($query);
+        if ($results) {
+            return Response::json(array("status" => "success", "message" => "Customers Rate Successfully Updated"));
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Problem Updating Customer Rate."));
+        }
+
+    }
+
+    //bulk rate insert
+    public function process_bulk_rate_insert($id) {
+        $data       = Input::all();
+        $company_id = User::get_companyID();
+        $rules      = array(
+            'EffectiveDate' => 'required|date_format:Y-m-d|after:'.date('Y-m-d',strtotime('-1 day')),
+            'Rate' => 'required',
+            'Trunk' => 'required'
+        );
+        $message['EffectiveDate.after'] = "Effective Date can not be past date, it must be today's date or future's date";
+
+        $validator = Validator::make($data, $rules, $message);
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+        $data['customer'][]     = $id;
+        $codedeckid             = CustomerTrunk::where(['AccountID'=>$id,'TrunkID'=>$data['Trunk']])->pluck('CodeDeckId');
+        $data['Country']        = $data['Country'] == ''?'NULL':$data['Country'];
+        $data['Code']           = $data['Code'] == ''?'NULL':"'".$data['Code']."'";
+        $data['Description']    = $data['Description'] == ''?'NULL':"'".$data['Description']."'";
+        $data['customer']       = array_filter($data['customer'],'intval');
+        $EndDate                = !empty($data['EndDate']) ? "'".date("Y-m-d", strtotime($data['EndDate']))."'" : 'NULL';
+        $username               = User::get_user_full_name();
+
+        $query      = "call prc_CustomerBulkRateInsert ('".implode(',',$data['customer'])."',".$data['Trunk'].",".$codedeckid.",".$data['Code'].",".$data['Description'].",".$data['Country'].",".$company_id.",".$data['Rate'].",".floatval($data['ConnectionFee']).",'".$data['EffectiveDate']."',".$EndDate.",".intval($data['Interval1']).",".intval($data['IntervalN']).",".intval($data['RoutinePlan']).",'".$username."')";
+        $results    = DB::statement($query);
         if ($results) {
             return Response::json(array("status" => "success", "message" => "Customers Rate Successfully Updated"));
         } else {
@@ -685,7 +792,7 @@ class CustomersRatesController extends \BaseController {
         }
 
         $idata['EffectiveDate'] = date("Y-m-d", strtotime($data['EffectiveDate']));
-        $idata['EndDate']       = !empty($data['EndDate']) ? date("Y-m-d", strtotime($data['EndDate'])) : null;
+        //$idata['EndDate']       = !empty($data['EndDate']) ? date("Y-m-d", strtotime($data['EndDate'])) : null;
         $idata['RateID']        = intval($data['RateID']);
         $idata['CustomerID']    = intval($id);
         $idata['TrunkID']       = intval($data['TrunkID']);
@@ -710,4 +817,5 @@ class CustomersRatesController extends \BaseController {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Customer Rate."));
         }
     }
+
 }

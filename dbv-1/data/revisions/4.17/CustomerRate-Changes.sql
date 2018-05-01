@@ -2206,3 +2206,776 @@ DELIMITER ;
 
 
 
+DROP PROCEDURE IF EXISTS `vwCustomerArchiveCurrentRates`;
+DELIMITER //
+CREATE PROCEDURE `vwCustomerArchiveCurrentRates`(
+	IN `p_CompanyID` INT,
+	IN `p_CustomerID` INT,
+	IN `p_TrunkID` INT,
+	IN `p_Effective` VARCHAR(20),
+	IN `p_CustomDate` DATE
+)
+BEGIN
+	DECLARE v_codedeckid_ INT;
+	DECLARE v_IncludePrefix_ INT;
+	DECLARE v_Prefix_ VARCHAR(50);
+	DECLARE v_RatePrefix_ VARCHAR(50);
+	DECLARE v_AreaPrefix_ VARCHAR(50);
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	-- set custome date = current date if custom date is past date
+	IF(p_CustomDate < DATE(NOW()))
+	THEN
+		SET p_CustomDate=DATE(NOW());
+	END IF;
+
+    SELECT
+        CodeDeckId,
+		IncludePrefix
+		INTO v_codedeckid_,v_IncludePrefix_
+    FROM tblCustomerTrunk
+    WHERE CompanyID = p_CompanyID
+    AND tblCustomerTrunk.TrunkID = p_TrunkID
+    AND tblCustomerTrunk.AccountID = p_CustomerID
+    AND tblCustomerTrunk.Status = 1;
+
+	SELECT
+		Prefix,RatePrefix,AreaPrefix INTO v_Prefix_,v_RatePrefix_,v_AreaPrefix_
+	FROM tblTrunk
+	WHERE CompanyID = p_CompanyID
+		AND tblTrunk.TrunkID = p_TrunkID
+		AND tblTrunk.Status = 1;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_customerrate_archive_;
+	CREATE TEMPORARY TABLE tmp_customerrate_archive_ (
+		RateID INT,
+        Code VARCHAR(50),
+        Description VARCHAR(200),
+        Interval1 INT,
+        IntervalN INT,
+        ConnectionFee DECIMAL(18, 6),
+        RoutinePlanName VARCHAR(50),
+        Rate DECIMAL(18, 6),
+        EffectiveDate DATE,
+        EndDate DATE,
+        LastModifiedDate DATETIME,
+        LastModifiedBy VARCHAR(50),
+        CustomerRateId INT,
+        TrunkID INT,
+        RateTableRateId INT,
+        IncludePrefix TINYINT,
+        Prefix VARCHAR(50),
+        RatePrefix VARCHAR(50),
+        AreaPrefix VARCHAR(50)
+	);
+
+
+	INSERT INTO tmp_customerrate_archive_
+	(
+		RateID,
+        Code,
+        Description,
+        Interval1,
+        IntervalN,
+        ConnectionFee,
+        RoutinePlanName,
+        Rate,
+        EffectiveDate,
+        EndDate,
+        LastModifiedDate,
+        LastModifiedBy,
+        CustomerRateId,
+        TrunkID,
+        RateTableRateId,
+        IncludePrefix,
+        `Prefix`,
+        RatePrefix,
+        AreaPrefix
+	)
+	SELECT
+		cra.RateId,
+		r.Code,
+		r.Description,
+		CASE WHEN cra.Interval1 IS NOT NULL THEN cra.Interval1 ELSE r.Interval1 END AS Interval1,
+		CASE WHEN cra.IntervalN IS NOT NULL THEN cra.IntervalN ELSE r.IntervalN END AS IntervalN,
+		IFNULL(cra.ConnectionFee,'') AS ConnectionFee,
+		cra.RoutinePlan,
+		cra.Rate,
+		cra.EffectiveDate,
+		IFNULL(cra.EndDate,'') AS EndDate,
+		IFNULL(cra.created_at,'') AS ModifiedDate,
+		IFNULL(cra.created_by,'') AS ModifiedBy,
+		cra.CustomerRateID,
+		cra.TrunkID,
+		NULL AS RateTableRateId,
+		v_IncludePrefix_ as IncludePrefix,
+		CASE  WHEN tblTrunk.TrunkID is not null
+		THEN
+			tblTrunk.Prefix
+		ELSE
+			v_Prefix_
+		END AS Prefix,
+		CASE  WHEN tblTrunk.TrunkID is not null
+		THEN
+			tblTrunk.RatePrefix
+		ELSE
+			v_RatePrefix_
+		END AS RatePrefix,
+		CASE  WHEN tblTrunk.TrunkID is not null
+		THEN
+			tblTrunk.AreaPrefix
+		ELSE
+			v_AreaPrefix_
+		END AS AreaPrefix
+	FROM
+		tblCustomerRateArchive cra
+	JOIN
+		tblRate r ON r.RateID=cra.RateId
+	LEFT JOIN
+		tblTrunk ON tblTrunk.TrunkID = cra.RoutinePlan
+	WHERE
+		r.CompanyID = p_CompanyID AND
+		cra.AccountId = p_CustomerID AND
+		r.CodeDeckId = v_codedeckid_ AND
+		(
+			cra.EffectiveDate <= NOW() AND date(cra.EndDate) = date(NOW())
+			/*( p_Effective = 'Now' AND cra.EffectiveDate <= NOW() )
+			OR
+			( p_Effective = 'Future' AND cra.EffectiveDate > NOW() )
+			OR
+			( p_Effective = 'CustomDate' AND cra.EffectiveDate <= p_CustomDate AND (cra.EndDate IS NULL OR cra.EndDate > p_CustomDate) )
+			OR
+			p_Effective = 'All'*/
+		);
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_customerrate_archive_2_;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_customerrate_archive_2_ as (select * from tmp_customerrate_archive_);
+	DELETE n1 FROM tmp_customerrate_archive_ n1, tmp_customerrate_archive_2_ n2 WHERE n1.LastModifiedDate > n2.LastModifiedDate
+	AND n1.EffectiveDate = n2.EffectiveDate
+	AND n1.TrunkID = n2.TrunkID
+	AND  n1.RateID = n2.RateID;
+
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_CustomerRateUpdate`;
+DELIMITER //
+CREATE PROCEDURE `prc_CustomerRateUpdate`(
+	IN `p_AccountIdList` LONGTEXT ,
+	IN `p_TrunkId` VARCHAR(100) ,
+	IN `p_CustomerRateIDList` LONGTEXT,
+	IN `p_Rate` DECIMAL(18, 6) ,
+	IN `p_ConnectionFee` DECIMAL(18, 6) ,
+	IN `p_EffectiveDate` DATETIME ,
+	IN `p_Interval1` INT,
+	IN `p_IntervalN` INT,
+	IN `p_RoutinePlan` INT,
+	IN `p_ModifiedBy` VARCHAR(50)
+)
+ThisSP:BEGIN
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_CustomerRates_;
+    CREATE TEMPORARY TABLE tmp_CustomerRates_ (
+        CustomerRateID INT,
+        RateID INT,
+        CustomerID INT,
+        Interval1 INT,
+        IntervalN  INT,
+        Rate DECIMAL(18, 6),
+        PreviousRate DECIMAL(18, 6),
+        ConnectionFee DECIMAL(18, 6),
+        EffectiveDate DATE,
+        EndDate DATE,
+        CreatedDate DATETIME,
+        CreatedBy VARCHAR(50),
+        LastModifiedDate DATETIME,
+        LastModifiedBy VARCHAR(50),
+        TrunkID INT,
+        RoutinePlan INT,
+        INDEX tmp_CustomerRates__CustomerRateID (`CustomerRateID`)/*,
+        INDEX tmp_CustomerRates__RateID (`RateID`),
+        INDEX tmp_CustomerRates__TrunkID (`TrunkID`),
+        INDEX tmp_CustomerRates__EffectiveDate (`EffectiveDate`)*/
+    );
+
+	-- if p_EffectiveDate null means multiple rates update
+	-- and if multiple rates update then we don't allow to change EffectiveDate
+	-- we only allow EffectiveDate change when single edit
+
+	-- insert rates in temp table which needs to update
+	INSERT INTO tmp_CustomerRates_
+	(
+		CustomerRateID,
+		RateID,
+		CustomerID,
+		Interval1,
+		IntervalN,
+		Rate,
+		PreviousRate,
+		ConnectionFee,
+		EffectiveDate,
+		EndDate,
+		CreatedDate,
+		CreatedBy,
+		LastModifiedDate,
+		LastModifiedBy,
+		TrunkID,
+		RoutinePlan
+	)
+	SELECT
+		cr.CustomerRateID,
+		cr.RateID,
+		cr.CustomerID,
+		p_Interval1 AS Interval1,
+		p_IntervalN AS IntervalN,
+		p_Rate AS Rate,
+		cr.PreviousRate,
+		p_ConnectionFee AS ConnectionFee,
+		IFNULL(p_EffectiveDate,cr.EffectiveDate) AS EffectiveDate, -- if p_EffectiveDate null take exiting EffectiveDate
+		cr.EndDate,
+		cr.CreatedDate,
+		cr.CreatedBy,
+		NOW() AS LastModifiedDate,
+		p_ModifiedBy AS LastModifiedBy,
+		cr.TrunkID,
+		CASE WHEN ctr.TrunkID IS NOT NULL
+		THEN p_RoutinePlan
+		ELSE NULL
+		END AS RoutinePlan
+	FROM
+		tblCustomerRate cr
+	LEFT JOIN tblCustomerTrunk ctr
+		ON ctr.TrunkID = cr.TrunkID
+		AND ctr.AccountID = cr.CustomerID
+		AND ctr.RoutinePlanStatus = 1
+	LEFT JOIN
+	(
+		SELECT
+			RateID,CustomerID
+		FROM
+			tblCustomerRate
+		WHERE
+			EffectiveDate = p_EffectiveDate AND
+			FIND_IN_SET(tblCustomerRate.CustomerRateID,p_CustomerRateIDList) = 0
+	) crc ON crc.RateID=cr.RateID AND crc.CustomerID=cr.CustomerID
+	WHERE
+		FIND_IN_SET(cr.CustomerRateID,p_CustomerRateIDList) != 0 AND crc.RateID IS NULL;
+
+	-- update EndDate to Archive rates which needs to update
+	UPDATE
+		tblCustomerRate cr
+	JOIN
+		tmp_CustomerRates_ temp ON cr.CustomerRateID=temp.CustomerRateID
+	SET
+		cr.EndDate = NOW();
+
+	-- archive rates which rates' EndDate < NOW()
+	CALL prc_ArchiveOldCustomerRate(p_AccountIdList, p_TrunkId, p_ModifiedBy);
+
+	-- insert rates in tblCustomerRate with updated values
+	INSERT INTO tblCustomerRate
+	(
+		CustomerRateID,
+		RateID,
+		CustomerID,
+		Interval1,
+		IntervalN,
+		Rate,
+		PreviousRate,
+		ConnectionFee,
+		EffectiveDate,
+		EndDate,
+		CreatedDate,
+		CreatedBy,
+		LastModifiedDate,
+		LastModifiedBy,
+		TrunkID,
+		RoutinePlan
+	)
+	SELECT
+		NULL, -- primary key
+		RateID,
+		CustomerID,
+		Interval1,
+		IntervalN,
+		Rate,
+		PreviousRate,
+		ConnectionFee,
+		EffectiveDate,
+		EndDate,
+		CreatedDate,
+		CreatedBy,
+		LastModifiedDate,
+		LastModifiedBy,
+		TrunkID,
+		RoutinePlan
+	FROM
+		tmp_CustomerRates_;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_CustomerRateInsert`;
+DELIMITER //
+CREATE PROCEDURE `prc_CustomerRateInsert`(
+	IN `p_CompanyId` INT,
+	IN `p_AccountIdList` LONGTEXT ,
+	IN `p_TrunkId` VARCHAR(100) ,
+	IN `p_RateIDList` LONGTEXT,
+	IN `p_Rate` DECIMAL(18, 6) ,
+	IN `p_ConnectionFee` DECIMAL(18, 6) ,
+	IN `p_EffectiveDate` DATETIME ,
+	IN `p_Interval1` INT,
+	IN `p_IntervalN` INT,
+	IN `p_RoutinePlan` INT,
+	IN `p_ModifiedBy` VARCHAR(50)
+)
+ThisSP:BEGIN
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	INSERT  INTO tblCustomerRate
+	(
+		RateID ,
+		CustomerID ,
+		TrunkID ,
+		Rate ,
+		ConnectionFee,
+		EffectiveDate ,
+		EndDate,
+		Interval1,
+		IntervalN ,
+		RoutinePlan,
+		CreatedDate ,
+		LastModifiedBy ,
+		LastModifiedDate
+	)
+	SELECT
+		r.RateID,
+		r.AccountId ,
+		p_TrunkId ,
+		p_Rate ,
+		p_ConnectionFee,
+		p_EffectiveDate ,
+		NULL AS EndDate,
+		p_Interval1,
+		p_IntervalN,
+		RoutinePlan,
+		NOW() ,
+		p_ModifiedBy ,
+		NOW()
+	FROM
+	(
+		SELECT
+			tblRate.RateID ,
+			a.AccountId,
+			tblRate.CompanyID,
+			RoutinePlan
+		FROM
+			tblRate ,
+			(
+				SELECT
+					a.AccountId,
+					CASE WHEN ctr.TrunkID IS NOT NULL
+					THEN p_RoutinePlan
+					ELSE 0
+					END AS RoutinePlan
+				FROM
+					tblAccount a
+				INNER JOIN tblCustomerTrunk ON TrunkID = p_TrunkId
+					AND a.AccountId = tblCustomerTrunk.AccountID
+					AND tblCustomerTrunk.Status = 1
+				LEFT JOIN tblCustomerTrunk ctr
+					ON ctr.TrunkID = p_TrunkId
+					AND ctr.AccountID = a.AccountID
+					AND ctr.RoutinePlanStatus = 1
+				WHERE  FIND_IN_SET(a.AccountID,p_AccountIdList) != 0
+			) a
+		WHERE FIND_IN_SET(tblRate.RateID,p_RateIDList) != 0
+	) r
+	LEFT JOIN
+	(
+		SELECT DISTINCT
+			c.RateID,
+			c.CustomerID as AccountId ,
+			c.TrunkID,
+			c.EffectiveDate
+		FROM
+			tblCustomerRate c
+		INNER JOIN tblCustomerTrunk ON tblCustomerTrunk.TrunkID = c.TrunkID
+			AND tblCustomerTrunk.AccountID = c.CustomerID
+			AND tblCustomerTrunk.Status = 1
+		WHERE FIND_IN_SET(c.CustomerID,p_AccountIdList) != 0 AND c.TrunkID = p_TrunkId
+	) cr ON r.RateID = cr.RateID
+		AND r.AccountId = cr.AccountId
+		AND r.CompanyID = p_CompanyId
+		and cr.EffectiveDate = p_EffectiveDate
+	WHERE
+		r.CompanyID = p_CompanyId
+		and cr.RateID is NULL;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_CustomerBulkRateUpdate`;
+DELIMITER //
+CREATE PROCEDURE `prc_CustomerBulkRateUpdate`(
+	IN `p_AccountIdList` LONGTEXT ,
+	IN `p_TrunkId` INT ,
+	IN `p_CodeDeckId` int,
+	IN `p_code` VARCHAR(50) ,
+	IN `p_description` VARCHAR(200) ,
+	IN `p_CountryId` INT ,
+	IN `p_CompanyId` INT ,
+	IN `p_Effective` VARCHAR(50),
+	IN `p_CustomDate` DATE,
+	IN `p_Rate` DECIMAL(18, 6) ,
+	IN `p_ConnectionFee` DECIMAL(18, 6) ,
+	IN `p_EffectiveDate` DATETIME ,
+	IN `p_EndDate` DATETIME ,
+	IN `p_Interval1` INT,
+	IN `p_IntervalN` INT,
+	IN `p_RoutinePlan` INT,
+	IN `p_ModifiedBy` VARCHAR(50)
+)
+BEGIN
+
+ 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_CustomerRates_;
+    CREATE TEMPORARY TABLE tmp_CustomerRates_ (
+        CustomerRateID INT,
+        RateID INT,
+        CustomerID INT,
+        Interval1 INT,
+        IntervalN  INT,
+        Rate DECIMAL(18, 6),
+        PreviousRate DECIMAL(18, 6),
+        ConnectionFee DECIMAL(18, 6),
+        EffectiveDate DATE,
+        EndDate DATE,
+        CreatedDate DATETIME,
+        CreatedBy VARCHAR(50),
+        LastModifiedDate DATETIME,
+        LastModifiedBy VARCHAR(50),
+        TrunkID INT,
+        RoutinePlan INT,
+        INDEX tmp_CustomerRates__CustomerRateID (`CustomerRateID`)/*,
+        INDEX tmp_CustomerRates__RateID (`RateID`),
+        INDEX tmp_CustomerRates__TrunkID (`TrunkID`),
+        INDEX tmp_CustomerRates__EffectiveDate (`EffectiveDate`)*/
+    );
+
+	-- insert rates in temp table which needs to update (based on grid filter)
+	INSERT INTO tmp_CustomerRates_
+	(
+		CustomerRateID,
+		RateID,
+		CustomerID,
+		Interval1,
+		IntervalN,
+		Rate,
+		PreviousRate,
+		ConnectionFee,
+		EffectiveDate,
+		EndDate,
+		CreatedDate,
+		CreatedBy,
+		LastModifiedDate,
+		LastModifiedBy,
+		TrunkID,
+		RoutinePlan
+	)
+	SELECT
+		tblCustomerRate.CustomerRateID,
+		tblCustomerRate.RateID,
+		tblCustomerRate.CustomerID,
+		p_Interval1 AS Interval1,
+		p_IntervalN AS IntervalN,
+		p_Rate AS Rate,
+		tblCustomerRate.PreviousRate,
+		p_ConnectionFee AS ConnectionFee,
+		tblCustomerRate.EffectiveDate,
+		tblCustomerRate.EndDate,
+		tblCustomerRate.CreatedDate,
+		tblCustomerRate.CreatedBy,
+		NOW() AS LastModifiedDate,
+		p_ModifiedBy AS LastModifiedBy,
+		tblCustomerRate.TrunkID,
+		tblCustomerRate.RoutinePlan
+	FROM
+		tblCustomerRate
+	INNER JOIN (
+		SELECT c.CustomerRateID,
+			c.EffectiveDate,
+			CASE WHEN ctr.TrunkID IS NOT NULL
+			THEN p_RoutinePlan
+			ELSE NULL
+			END AS RoutinePlan
+		FROM   tblCustomerRate c
+		INNER JOIN tblCustomerTrunk
+			ON tblCustomerTrunk.TrunkID = c.TrunkID
+			AND tblCustomerTrunk.AccountID = c.CustomerID
+			AND tblCustomerTrunk.Status = 1
+		INNER JOIN tblRate r
+			ON c.RateID = r.RateID and r.CodeDeckId=p_CodeDeckId
+		LEFT JOIN tblCustomerTrunk ctr
+			ON ctr.TrunkID = c.TrunkID
+			AND ctr.AccountID = c.CustomerID
+			AND ctr.RoutinePlanStatus = 1
+		WHERE  ( ( p_code IS NULL ) OR ( p_code IS NOT NULL AND r.Code LIKE REPLACE(p_code,'*', '%')))
+			AND ( ( p_description IS NULL ) OR ( p_description IS NOT NULL AND r.Description LIKE REPLACE(p_description,'*', '%')))
+			AND ( ( p_CountryId IS NULL )  OR ( p_CountryId IS NOT NULL AND r.CountryID = p_CountryId ) )
+			AND
+			(
+				( p_Effective = 'Now' AND c.EffectiveDate <= NOW() )
+				OR
+				( p_Effective = 'Future' AND c.EffectiveDate > NOW() )
+				OR
+				( p_Effective = 'CustomDate' AND c.EffectiveDate <= p_CustomDate AND (c.EndDate IS NULL OR c.EndDate > p_CustomDate) )
+				OR
+				p_Effective = 'All'
+			)
+			AND c.TrunkID = p_TrunkId
+			AND FIND_IN_SET(c.CustomerID,p_AccountIdList) != 0
+	) cr ON cr.CustomerRateID = tblCustomerRate.CustomerRateID; -- and cr.EffectiveDate = p_EffectiveDate;
+
+	-- if custom date then remove duplicate rates of earlier date
+	-- for examle custom date is 2018-05-03 today's date is 2018-05-01 and there are 2 rates available for 1 code
+	-- Code	Date
+	-- 1204	2018-05-01
+	-- 1204	2018-05-03
+	-- then it will delete 2018-05-01 from temp table and keeps only 2018-05-03 rate to update
+	IF p_Effective = 'CustomDate'
+	THEN
+		DROP TEMPORARY TABLE IF EXISTS tmp_CustomerRates_2_;
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates_2_ AS (SELECT * FROM tmp_CustomerRates_);
+
+		DELETE
+			n1
+		FROM
+			tmp_CustomerRates_ n1,
+			tmp_CustomerRates_2_ n2
+		WHERE
+			n1.EffectiveDate < n2.EffectiveDate AND
+			n1.RateID = n2.RateID AND
+			n1.CustomerID = n2.CustomerID AND
+			(
+				(p_Effective = 'CustomDate' AND n1.EffectiveDate <= p_CustomDate AND n2.EffectiveDate <= p_CustomDate)
+				OR
+				(p_Effective != 'CustomDate' AND n1.EffectiveDate <= NOW() AND n2.EffectiveDate <= NOW())
+			);
+	END IF;
+
+	-- update EndDate to Archive rates which needs to update
+	UPDATE
+		tblCustomerRate cr
+	JOIN
+		tmp_CustomerRates_ temp ON cr.CustomerRateID=temp.CustomerRateID
+	SET
+		cr.EndDate = NOW();
+
+	-- archive rates which rates' EndDate < NOW()
+	CALL prc_ArchiveOldCustomerRate(p_AccountIdList, p_TrunkId, p_ModifiedBy);
+
+	-- insert rates in tblCustomerRate with updated values
+	INSERT INTO tblCustomerRate
+	(
+		CustomerRateID,
+		RateID,
+		CustomerID,
+		Interval1,
+		IntervalN,
+		Rate,
+		PreviousRate,
+		ConnectionFee,
+		EffectiveDate,
+		EndDate,
+		CreatedDate,
+		CreatedBy,
+		LastModifiedDate,
+		LastModifiedBy,
+		TrunkID,
+		RoutinePlan
+	)
+	SELECT
+		NULL, -- primary key
+		RateID,
+		CustomerID,
+		Interval1,
+		IntervalN,
+		Rate,
+		PreviousRate,
+		ConnectionFee,
+		EffectiveDate,
+		EndDate,
+		CreatedDate,
+		CreatedBy,
+		LastModifiedDate,
+		LastModifiedBy,
+		TrunkID,
+		RoutinePlan
+	FROM
+		tmp_CustomerRates_;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
+
+
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_CustomerBulkRateInsert`;
+DELIMITER //
+CREATE PROCEDURE `prc_CustomerBulkRateInsert`(
+	IN `p_AccountIdList` LONGTEXT ,
+	IN `p_TrunkId` INT ,
+	IN `p_CodeDeckId` int,
+	IN `p_code` VARCHAR(50) ,
+	IN `p_description` VARCHAR(200) ,
+	IN `p_CountryId` INT ,
+	IN `p_CompanyId` INT ,
+	IN `p_Rate` DECIMAL(18, 6) ,
+	IN `p_ConnectionFee` DECIMAL(18, 6) ,
+	IN `p_EffectiveDate` DATETIME ,
+	IN `p_EndDate` DATETIME ,
+	IN `p_Interval1` INT,
+	IN `p_IntervalN` INT,
+	IN `p_RoutinePlan` INT,
+	IN `p_ModifiedBy` VARCHAR(50)
+)
+BEGIN
+
+ 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	INSERT  INTO tblCustomerRate
+	(
+		RateID ,
+		CustomerID ,
+		TrunkID ,
+		Rate ,
+		ConnectionFee,
+		EffectiveDate ,
+		EndDate ,
+		Interval1,
+		IntervalN ,
+		RoutinePlan,
+		CreatedDate ,
+		LastModifiedBy ,
+		LastModifiedDate
+	)
+	SELECT
+		r.RateID ,
+		r.AccountId ,
+		p_TrunkId ,
+		p_Rate ,
+		p_ConnectionFee,
+		p_EffectiveDate ,
+		p_EndDate ,
+		p_Interval1,
+		p_IntervalN,
+		RoutinePlan,
+		NOW() ,
+		p_ModifiedBy ,
+		NOW()
+	FROM
+	(
+		SELECT
+			RateID,Code,AccountId,CompanyID,CodeDeckId,Description,CountryID,RoutinePlan
+		FROM
+			tblRate ,
+			(
+				SELECT
+					a.AccountId,
+					CASE WHEN ctr.TrunkID IS NOT NULL
+					THEN p_RoutinePlan
+					ELSE NULL
+					END AS RoutinePlan
+				FROM tblAccount a
+				INNER JOIN tblCustomerTrunk
+					ON TrunkID = p_TrunkId
+					AND a.AccountID    = tblCustomerTrunk.AccountID
+					AND tblCustomerTrunk.Status = 1
+				LEFT JOIN tblCustomerTrunk ctr
+					ON ctr.TrunkID = p_TrunkId
+					AND ctr.AccountID = a.AccountID
+					AND ctr.RoutinePlanStatus = 1
+				WHERE
+					FIND_IN_SET(a.AccountID,p_AccountIdList) != 0
+			) a
+	) r
+	LEFT OUTER JOIN
+	(
+		SELECT DISTINCT
+			RateID ,
+			c.CustomerID as AccountId ,
+			c.TrunkID,
+			c.EffectiveDate
+		FROM
+			tblCustomerRate c
+		INNER JOIN tblCustomerTrunk
+			ON tblCustomerTrunk.TrunkID = c.TrunkID
+			AND tblCustomerTrunk.AccountID = c.CustomerID
+			AND tblCustomerTrunk.Status = 1
+		WHERE
+			FIND_IN_SET(c.CustomerID,p_AccountIdList) != 0 AND c.TrunkID = p_TrunkId
+	) cr ON r.RateID = cr.RateID
+		AND r.AccountId = cr.AccountId
+		AND r.CompanyID = p_CompanyId
+		and cr.EffectiveDate = p_EffectiveDate
+	WHERE
+		r.CompanyID = p_CompanyId
+		AND r.CodeDeckId=p_CodeDeckId
+		AND ( ( p_code IS NULL ) OR ( p_code IS NOT NULL AND r.Code LIKE REPLACE(p_code,'*', '%')))
+		AND ( ( p_description IS NULL ) OR ( p_description IS NOT NULL AND r.Description LIKE REPLACE(p_description,'*', '%')))
+		AND ( ( p_CountryId IS NULL )  OR ( p_CountryId IS NOT NULL AND r.CountryID = p_CountryId ) )
+		AND cr.RateID IS NULL;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;

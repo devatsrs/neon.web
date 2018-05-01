@@ -18,6 +18,8 @@ CREATE DEFINER=`neon-user`@`192.168.1.25` PROCEDURE `prc_VendorRateUpdateDelete`
 	IN `p_action` INT
 
 
+
+
 )
 ThisSP:BEGIN
 
@@ -77,7 +79,8 @@ ThisSP:BEGIN
 					tblVendorRate 
 				WHERE 
 					EffectiveDate=p_EffectiveDate AND
-					((p_Critearea = 0 AND (FIND_IN_SET(VendorRateID,p_VendorRateID) = 0 )) OR p_Critearea = 1)
+					((p_Critearea = 0 AND (FIND_IN_SET(VendorRateID,p_VendorRateID) = 0 )) OR p_Critearea = 1) AND 
+					AccountId = p_AccountId
 			)
 		) 
 		AND
@@ -90,7 +93,7 @@ ThisSP:BEGIN
 					((p_Critearea_Code IS NULL) OR (p_Critearea_Code IS NOT NULL AND r.Code LIKE REPLACE(p_Critearea_Code,'*', '%'))) AND 
 					((p_Critearea_Description IS NULL) OR (p_Critearea_Description IS NOT NULL AND r.Description LIKE REPLACE(p_Critearea_Description,'*', '%'))) AND  
 					(
-					--	p_Critearea_Effective = 'All' OR
+						p_Critearea_Effective = 'All' OR
 						(p_Critearea_Effective = 'Now' AND v.EffectiveDate <= NOW() ) OR 
 						(p_Critearea_Effective = 'Future' AND v.EffectiveDate > NOW() ) 
 					)
