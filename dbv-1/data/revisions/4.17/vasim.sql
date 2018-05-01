@@ -4196,6 +4196,7 @@ CREATE PROCEDURE `prc_WSGenerateRateTable`(
 GenerateRateTable:BEGIN
 
 
+		DECLARE i INTEGER;
 		DECLARE v_RTRowCount_ INT;
 		DECLARE v_RatePosition_ INT;
 		DECLARE v_Use_Preference_ INT;
@@ -4233,6 +4234,8 @@ GenerateRateTable:BEGIN
 
 		SET @@session.collation_connection='utf8_unicode_ci';
 		SET @@session.character_set_client='utf8';
+		SET SESSION group_concat_max_len = 1000000; -- change group_concat limit for group by
+
 
 		SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
@@ -4404,6 +4407,23 @@ GenerateRateTable:BEGIN
 			RowCode VARCHAR(50) COLLATE utf8_unicode_ci,
 			FinalRankNumber int,
 			INDEX IX_CODE (RowCode)
+		);
+
+		-- when group by description this table use to insert comma seperated codes
+		DROP TEMPORARY TABLE IF EXISTS tmp_VendorCurrentRates_GroupBy_;
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorCurrentRates_GroupBy_(
+			AccountId int,
+			AccountName varchar(200),
+			Code LONGTEXT,
+			Description varchar(200) ,
+			Rate DECIMAL(18,6) ,
+			ConnectionFee DECIMAL(18,6) ,
+			EffectiveDate date,
+			TrunkID int,
+			CountryID int,
+			RateID int,
+			Preference int,
+			INDEX IX_CODE (Code)
 		);
 
 		DROP TEMPORARY TABLE IF EXISTS tmp_VendorCurrentRates_;
@@ -4619,9 +4639,9 @@ GenerateRateTable:BEGIN
 
 		IF p_GroupBy = 'Desc' -- Group By Description
 		THEN
-
-			INSERT INTO tmp_VendorCurrentRates_
-				Select AccountId,max(AccountName),max(Code),Description,max(Rate),max(ConnectionFee),max(EffectiveDate),TrunkID,max(CountryID),max(RateID),max(Preference)
+			-- insert all rates and if code is multiple then insert it as comma seperated values
+			INSERT INTO tmp_VendorCurrentRates_GroupBy_
+				Select AccountId,max(AccountName),GROUP_CONCAT(Code),Description,max(Rate),max(ConnectionFee),max(EffectiveDate),TrunkID,max(CountryID),max(RateID),max(Preference)
 				FROM (
 							 SELECT * ,
 								 @row_num := IF(@prev_AccountId = AccountID AND @prev_TrunkID = TrunkID AND @prev_RateId = RateID AND @prev_EffectiveDate >= EffectiveDate, @row_num + 1, 1) AS RowID,
@@ -4636,6 +4656,21 @@ GenerateRateTable:BEGIN
 				WHERE RowID = 1
 				GROUP BY AccountId, TrunkID, Description
 				order by Description asc;
+
+				-- split and insert comma seperated codes
+				SET i = 1;
+				REPEAT
+					INSERT INTO tmp_VendorCurrentRates_ (AccountId,AccountName,Code,Description, Rate,ConnectionFee,EffectiveDate,TrunkID,CountryID,RateID,Preference)
+				  	SELECT
+					  	AccountId,AccountName,FnStringSplit(Code, ',', i),Description, Rate,ConnectionFee,EffectiveDate,TrunkID,CountryID,RateID,Preference
+					FROM
+						tmp_VendorCurrentRates_GroupBy_
+				  	WHERE
+					  	FnStringSplit(Code, ',' , i) IS NOT NULL;
+
+					SET i = i + 1;
+				  	UNTIL ROW_COUNT() = 0
+				END REPEAT;
 
 		ELSE
 
