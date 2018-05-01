@@ -293,7 +293,8 @@ jQuery(document).ready(function($) {
                 success: function(data)
                 {
                     var edata = data.data;
-                    $('.mail-title').html(edata.Subject+' #'+edata.AutoImportID);
+                    var ele=$("#modal-add-new-account-setting");
+                    ele.find('.modal-title').html('<b>'+edata.Subject+'<b> #'+edata.AutoImportID);
                     var cc = edata.CC;
                     cc = cc.length > 0 ? '<br>CC : '+cc : '';
                     $('.mail-date').html('To : '+edata.To+'<br>From : '+edata.From+ cc+'<br>'+time_ago(edata.MailDateTime)+' ('+edata.MailDateTime+')' );
@@ -303,8 +304,8 @@ jQuery(document).ready(function($) {
                     var attach = '';
                     $(".totAttach").html(attchment_array.length);
                     $.each(attchment_array, function (index, value) {
-                        attach += '<li><a download src="'+data.path+'">'+value+'</a></li>' +
-                                '<div class="links"><a href="'+data.path+'.'+value+ '">@lang('routes.BUTTON_DOWNLOAD_CAPTION')</a> </div>';
+                        attach += '<li> <a download src="'+data.path+'">'+value+'</a></li>' +
+                                '<div class="links"><a href="'+data.path+'.'+value+ '" target="_blank" class="btn btn-success btn-sm btn-icon icon-left"><i class="entypo-down"></i>@lang('routes.BUTTON_DOWNLOAD_CAPTION')</a> </div>';
                         return (value !== 'three');
                     });
                     $('.attachmentList').html(attach)
@@ -382,7 +383,7 @@ jQuery(document).ready(function($) {
             <form id="add-new-form" method="post">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Add New Account Setting</h4>
+                    <h4 class="modal-title"></h4>
                 </div>
                 <div class=" mail-env">
 
