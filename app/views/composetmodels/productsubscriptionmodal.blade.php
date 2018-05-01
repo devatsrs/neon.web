@@ -26,6 +26,9 @@
                                 </li>
                             </ul>
                             <div class="tab-content">
+                                <form id="add-edit-product-subscription" method="post">
+                                    <input type="hidden" name="productsubscription" value="1">
+                                </form>
                                 <div class="tab-pane active" id="product">
                                     @include('products.productform')
                                 </div>
