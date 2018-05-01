@@ -80,13 +80,12 @@
                                    <input type="text" name="Description" class="form-control" id="field-1" placeholder="" value="{{Input::get('Description')}}" />
 
                                </div>
-                               <label for="field-1" class="col-sm-1 control-label EffectiveBox">Effective</label>
-                               <div class="col-sm-2 EffectiveBox">
-                                   <select name="Effective" class="select2 small" data-allow-clear="true" data-placeholder="Select Effective">
-                                       <option value="Now">Now</option>
-                                       <option value="Future">Future</option>
-                                       <option value="All">All</option>
-                                   </select>
+
+                               <label for="field-1" class="col-sm-1 control-label">Discontinued Codes</label>
+                               <div class="col-sm-2">
+                                   <p class="make-switch switch-small">
+                                       {{Form::checkbox('DiscontinuedRates', '1', false, array("id"=>"DiscontinuedRates"))}}
+                                   </p>
                                </div>
 
                               <label class="col-sm-2 control-label EffectiveBox">Show Applied Rates</label>
@@ -97,20 +96,28 @@
                            </div>
                            <div class="form-group">
                                <label for="field-1" class="col-sm-1 control-label">Country</label>
-                               <div class="col-sm-3">
+                               <div class="col-sm-2">
                                    {{ Form::select('Country', $countries, Input::get('Country') , array("class"=>"select2")) }}
                                </div>
 
                                <label for="field-1" class="col-sm-1 control-label">Trunk</label>
-                               <div class="col-sm-3">
+                               <div class="col-sm-2">
                                    {{ Form::select('Trunk', $trunks, $trunk_keys, array("class"=>"select2",'id'=>'ct_trunk')) }}
                                </div>
 
-                               <label for="field-1" class="col-sm-1 control-label">Discontinued Codes</label>
-                               <div class="col-sm-3">
-                                   <p class="make-switch switch-small">
-                                       {{Form::checkbox('DiscontinuedRates', '1', false, array("id"=>"DiscontinuedRates"))}}
-                                   </p>
+                               <label for="field-1" class="col-sm-1 control-label EffectiveBox">Effective</label>
+                               <div class="col-sm-2 EffectiveBox">
+                                   <select name="Effective" class="select2 small" data-allow-clear="true" data-placeholder="Select Effective">
+                                       <option value="Now">Now</option>
+                                       <option value="Future">Future</option>
+                                       <option value="All">All</option>
+                                       <option value="CustomDate">Custom Date</option>
+                                   </select>
+                               </div>
+
+                               <label for="field-1" class="col-sm-1 control-label EffectiveBox CustomDateBox" style="display: none">Custom Date</label>
+                               <div class="col-sm-2 EffectiveBox CustomDateBox" style="display: none">
+                                   <input type="text" name="CustomDate" data-date-format="yyyy-mm-dd" placeholder="{{date('Y-m-d')}}" data-startdate="{{date('Y-m-d')}}" value="{{date('Y-m-d')}}" class="form-control datepicker">
                                </div>
 
                            </div>
@@ -142,20 +149,33 @@
                     <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
                     <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                         @if(User::checkCategoryPermission('CustomersRates','Edit'))
-                        <li><a class="generate_rate create" id="bulk_set_cust_rate" href="javascript:;" style="width:100%">
-                                Bulk update
-                            </a>
-                        </li>
-                        <li><a class="generate_rate create" id="changeSelectedCustomerRates" href="javascript:;" >
-                                Change Selected Rates
-                            </a></li>
+                            <li>
+                                <a class="generate_rate create" id="addSelectedCustomerRates" href="javascript:;" >
+                                    New Offer Selected
+                                </a>
+                            </li>
+                            <li>
+                                <a class="generate_rate create" id="insertBulkCustomerRates" href="javascript:;" >
+                                    Bulk New Offer
+                                </a>
+                            </li>
+                            <li>
+                                <a class="generate_rate create" id="changeSelectedCustomerRates" href="javascript:;" >
+                                    Change Selected Rates
+                                </a>
+                            </li>
+                            <li>
+                                <a class="generate_rate create" id="bulk_set_cust_rate" href="javascript:;" style="width:100%">
+                                    Bulk Update
+                                </a>
+                            </li>
                         @endif
                         @if(User::checkCategoryPermission('CustomersRates','ClearRate'))
                         <li><a class="generate_rate create" id="clear-bulk-rate" href="javascript:;" style="width:100%">
                                 Clear Selected Rates
                             </a></li>
                         <li><a class="generate_rate create" id="bulk_clear_cust_rate" href="javascript:;" style="width:100%">
-                                Bulk clear
+                                Bulk Clear
                             </a></li>
                         @endif
                     </ul>
@@ -165,12 +185,12 @@
                         <input type="hidden" name="TrunkID" value="">
                     </form>
                 </div><!-- /btn-group -->
-                 @if( User::checkCategoryPermission('CustomersRates','Create'))
+                 {{--@if( User::checkCategoryPermission('CustomersRates','Create'))
                      <button id="add-new-rate" class="btn btn-primary btn-icon icon-left pull-right">
                          <i class="fa fa-plus"></i>
                          Add New
                      </button>
-                 @endif
+                 @endif--}}
          </div>
             <div class="clear"></div>
             </div>
@@ -188,7 +208,7 @@
                     <th width="5%" class="routng_plan_cl">Routing plan</th>
                     <th width="5%">Rate ({{$CurrencySymbol}})</th>
                     <th width="8%">Effective Date</th>
-                    <th width="8%">End Date</th>
+                    <th width="8%" class="hidden">End Date</th>
                     <th width="10%">Modified Date</th>
                     <th width="10%">Modified By</th>
                     <th width="20%">Action</th>
@@ -226,16 +246,15 @@
                             $searchFilter.Country = $("#customer-rate-table-search select[name='Country']").val();
                             $searchFilter.Trunk = $("#customer-rate-table-search select[name='Trunk']").val();
                             $searchFilter.Effective = $("#customer-rate-table-search select[name='Effective']").val();
+                            $searchFilter.CustomDate = $("#customer-rate-table-search input[name='CustomDate']").val();
                             $searchFilter.Effected_Rates_on_off = $("#customer-rate-table-search input[name='Effected_Rates_on_off']").prop("checked");
                             $searchFilter.RoutinePlanFilter = $("#customer-rate-table-search select[name='RoutinePlanFilter']").val();
                             $searchFilter.DiscontinuedRates = DiscontinuedRates = $("#customer-rate-table-search input[name='DiscontinuedRates']").is(':checked') ? 1 : 0;
-
 
                             if($searchFilter.Trunk == '' || typeof $searchFilter.Trunk  == 'undefined'){
                                toastr.error("Please Select a Trunk", "Error", toastr_opts);
                                return false;
                             }
-
 
                             data_table = $("#table-4").DataTable({
                                 "bDestroy": true, // Destroy when resubmit form
@@ -243,11 +262,9 @@
                                 "bServerSide": true,
                                 "sAjaxSource": baseurl + "/customers_rates/{{$id}}/search_ajax_datagrid/type",
                                 "fnServerParams": function(aoData) {
-                                    aoData.push({"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country}, {"name": "Trunk", "value": $searchFilter.Trunk}, {"name": "Effective", "value": $searchFilter.Effective},{"name": "Effected_Rates_on_off", "value": $searchFilter.Effected_Rates_on_off},{"name": "RoutinePlanFilter", "value": $searchFilter.RoutinePlanFilter}, {"name": "DiscontinuedRates", "value": DiscontinuedRates});
+                                    aoData.push({"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country}, {"name": "Trunk", "value": $searchFilter.Trunk}, {"name": "Effective", "value": $searchFilter.Effective},{"name": "Effected_Rates_on_off", "value": $searchFilter.Effected_Rates_on_off},{"name": "RoutinePlanFilter", "value": $searchFilter.RoutinePlanFilter}, {"name": "DiscontinuedRates", "value": DiscontinuedRates}, {"name": "CustomDate", "value": $searchFilter.CustomDate});
                                     data_table_extra_params.length = 0;
-                                    data_table_extra_params.push({"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country}, {"name": "Trunk", "value": $searchFilter.Trunk}, {"name": "Effective", "value": $searchFilter.Effective},{"name": "RoutinePlanFilter", "value": $searchFilter.RoutinePlanFilter},{"name":"Export","value":1},{"name": "Effected_Rates_on_off", "value": $searchFilter.Effected_Rates_on_off}, {"name": "DiscontinuedRates", "value": DiscontinuedRates});
-                                    console.log($searchFilter);
-                                    console.log("Perm sent...");
+                                    data_table_extra_params.push({"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country}, {"name": "Trunk", "value": $searchFilter.Trunk}, {"name": "Effective", "value": $searchFilter.Effective},{"name": "RoutinePlanFilter", "value": $searchFilter.RoutinePlanFilter},{"name":"Export","value":1},{"name": "Effected_Rates_on_off", "value": $searchFilter.Effected_Rates_on_off}, {"name": "DiscontinuedRates", "value": DiscontinuedRates}, {"name": "CustomDate", "value": $searchFilter.CustomDate});
                                 },
                                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                                 "sPaginationType": "bootstrap",
@@ -268,7 +285,7 @@
                                             {}, //4IntervalN
                                             {}, //5Rate
                                             {}, //6Effective Date
-                                            {}, //6End Date
+                                            {"bVisible": false}, //6End Date
                                             {}, //7LastModifiedDate
                                             {}, //8LastModifiedBy
                                             {// 9 CustomerRateId
@@ -480,7 +497,7 @@
                                 $(this).find('.rowcheckbox').prop("checked", false);
                             }
                         });
-                         $('#table-6 tbody').on('click', 'tr', function() {
+                         $('#table-6 tbody,#table-7 tbody').on('click', 'tr', function() {
                             $(this).toggleClass('selected');
                             if ($(this).hasClass('selected')) {
                                 $(this).find('.rowcheckbox').prop("checked", true);
@@ -504,8 +521,7 @@
                                         $("#modal-CustomerRate").modal("hide");
                                         $("#modal-BulkCustomerRate").modal("hide");
                                         toastr.success(response.message, "Success", toastr_opts);
-                                        //console.log($searchFilter);
-                                        data_table.fnFilter('', 0);
+                                        $("#customer-rate-table-search").submit();
                                     } else {
                                         toastr.error(response.message, "Error", toastr_opts);
                                     }
@@ -524,6 +540,37 @@
                             return false;
                         });
 
+                        //Add selected Form Submit
+                        $("#add-selected-customer-rate-form").submit(function() {
+
+                            var formData = new FormData($(this)[0]);
+                            $.ajax({
+                                url: baseurl + '/customers_rates/add_selected_customer_rate/{{$id}}', //Server script to process data
+                                type: 'POST',
+                                dataType: 'json',
+                                success: function(response) {
+                                    $(".save.btn").button('reset');
+
+                                    if (response.status == 'success') {
+                                        $("#add-selected-customer-rate-modal").modal("hide");
+                                        toastr.success(response.message, "Success", toastr_opts);
+                                        $("#customer-rate-table-search").submit();
+                                    } else {
+                                        toastr.error(response.message, "Error", toastr_opts);
+                                    }
+                                },
+                                error: function(error) {
+                                    $("#add-selected-customer-rate-modal").modal("hide");
+                                },
+                                // Form data
+                                data: formData,
+                                //Options to tell jQuery not to process data or worry about content-type.
+                                cache: false,
+                                contentType: false,
+                                processData: false
+                            });
+                            return false;
+                        });
 
                         // Replace Checboxes
                         $(".pagination a").click(function(ev) {
@@ -531,7 +578,6 @@
                         });
 
 
-                //console.log(toastr_opts);
 
                 //Bulk Edit Button
                 $("#changeSelectedCustomerRates").click(function(ev) {
@@ -539,30 +585,36 @@
                         $( "#bulk_set_cust_rate" ).trigger( "click" );
                     }else{
                         var RateIDs = [];
+                        var CustomerRateIDs = [];
                         var i = 0;
                         $('#table-4 tr .rowcheckbox:checked').each(function(i, el) {
-                            console.log($(this).val());
                             RateID = $(this).val();
-                            RateIDs[i++] = RateID;
+                            RateIDs[i] = RateID;
+                            CustomerRateID = $(this).closest('tr').find('td div.hiddenRowData input[name="CustomerRateId"]').val();
+                            CustomerRateIDs[i] = CustomerRateID;
+                            i++;
                         });
                         //Trunk = $("#customer-rate-table-search").find("select[name='Trunk']").val();
                         $("#bulk-edit-customer-rate-form").find("input[name='RateID']").val(RateIDs.join(","));
+                        $("#bulk-edit-customer-rate-form").find("input[name='CustomerRateId']").val(CustomerRateIDs.join(","));
                         $("#bulk-edit-customer-rate-form").find("input[name='Trunk']").val($searchFilter.Trunk);
 
                         $("#bulk-edit-customer-rate-form")[0].reset();
                         $("#bulk-edit-customer-rate-form [name='Interval1']").val(1);
                         $("#bulk-edit-customer-rate-form [name='IntervalN']").val(1);
                         $("#bulk-edit-customer-rate-form [name='RoutinePlan']").select2().select2('val','');
-                        date = new Date();
+                        /*date = new Date();
                         var month = date.getMonth()+1;
                         var day = date.getDate();
                         currentDate = date.getFullYear() + '-' +   (month<10 ? '0' : '') + month + '-' +     (day<10 ? '0' : '') + day;
-                        $("#bulk-edit-customer-rate-form [name='EffectiveDate']").val(currentDate);
+                        $("#bulk-edit-customer-rate-form [name='EffectiveDate']").val(currentDate);*/
                         /*$("#bulk-edit-customer-rate-form").find("input[name='EffectiveDate']").val("");
                          $("#bulk-edit-customer-rate-form").find("input[name='Rate']").val("");
                          $("#bulk-edit-customer-rate-form").find("input[name='Interval1']").val("");
                          $("#bulk-edit-customer-rate-form").find("input[name='IntervalN']").val("");*/
-                        if(RateIDs.length){
+
+                        CustomerRateIDs = CustomerRateIDs.filter(Boolean);
+                        if(CustomerRateIDs.length){
                             var display_routine = false;
                             if(typeof routinejson != 'undefined' && routinejson != ''){
                                 $.each($.parseJSON(routinejson), function(key,value){
@@ -582,6 +634,48 @@
                     initCustomerGrid('table-6');
                     }
                 });
+                //Add selected rates
+                $("#addSelectedCustomerRates").click(function(ev) {
+                    if($('#selectallbutton').is(':checked')){
+                        $( "#insertBulkCustomerRates" ).trigger( "click" );
+                    }else{
+                        var RateIDs = [];
+                        var i = 0;
+                        $('#table-4 tr .rowcheckbox:checked').each(function(i, el) {
+                            RateID = $(this).val();
+                            RateIDs[i] = RateID;
+                            i++;
+                        });
+                        //Trunk = $("#customer-rate-table-search").find("select[name='Trunk']").val();
+                        $("#add-selected-customer-rate-form").find("input[name='RateID']").val(RateIDs.join(","));
+                        $("#add-selected-customer-rate-form").find("input[name='Trunk']").val($searchFilter.Trunk);
+
+                        $("#add-selected-customer-rate-form")[0].reset();
+                        $("#add-selected-customer-rate-form [name='Interval1']").val(1);
+                        $("#add-selected-customer-rate-form [name='IntervalN']").val(1);
+                        $("#add-selected-customer-rate-form [name='RoutinePlan']").select2().select2('val','');
+
+                        if(RateIDs.length){
+                            var display_routine = false;
+                            if(typeof routinejson != 'undefined' && routinejson != ''){
+                                $.each($.parseJSON(routinejson), function(key,value){
+                                    if(key!= '' && $searchFilter.Trunk != ''  && key == $searchFilter.Trunk){
+                                        display_routine = true;
+                                    }
+                                });
+                            }
+                            // Routine Plan dropdown in modal show/hide condition
+                            if(display_routine ==  true){
+                                $('#add-selected-customer-rate-modal .RoutinePlan-modal').show();
+                            }else{
+                                $('#add-selected-customer-rate-modal .RoutinePlan-modal').hide();
+                            }
+                            $('#add-selected-customer-rate-modal').modal('show', {backdrop: 'static'});
+                        }
+
+                        initCustomerGrid('table-7');
+                    }
+                });
                 $("#account_owners").change(function(ev) {
                     var account_owners = $(this).val();
                     if(account_owners!=""){
@@ -589,7 +683,7 @@
                     }else if(first_call ==false ){
                         initCustomerGrid('table-5','');
                     }
-                    first_call = false;;
+                    first_call = false;
                     //$('#table-5_filter').remove();
                 });
                 $("#account_owners_6").change(function(ev) {
@@ -598,6 +692,15 @@
                         initCustomerGrid('table-6',account_owners);
                     }else if(first_call ==false ){
                         initCustomerGrid('table-6','');
+                    }
+                    first_call = false;
+                });
+                $("#account_owners_7").change(function(ev) {
+                    var account_owners = $(this).val();
+                    if(account_owners!=""){
+                        initCustomerGrid('table-7',account_owners);
+                    }else if(first_call ==false ){
+                        initCustomerGrid('table-7','');
                     }
                     first_call = false;
                 });
@@ -610,7 +713,6 @@
                     var RateIDs = [];
                     var i = 0;
                     $('#table-4 tr .rowcheckbox:checked').each(function(i, el) {
-                        console.log($(this).val());
                         RateID = $(this).val();
                         RateIDs[i++] = RateID;
                     });
@@ -625,7 +727,7 @@
                     replaceCheckboxes();
                 });
 
-                $("#bulk_set_cust_rate,#bulk_clear_cust_rate").click(function(ev) {
+                $("#bulk_set_cust_rate,#bulk_clear_cust_rate,#insertBulkCustomerRates").click(function(ev) {
                     var self = $(this);
                     var search_html='<div class="row">';
                     var col_count=1;
@@ -647,6 +749,24 @@
                         if(col_count == 3){
                             search_html +='</div><div class="row">';
                             col_count=1;
+                        }
+                    }
+                    if(self.attr('id')=='bulk_set_cust_rate') {
+                        if ($searchFilter.Effective != '') {
+                            search_html += '<div class="col-md-6"><div class="form-group"><label for="field-1" class="control-label">Effective</label><div class=""><p class="form-control-static" >' + $searchFilter.Effective + '</p></div></div></div>';
+                            col_count++;
+                            if (col_count == 3) {
+                                search_html += '</div><div class="row">';
+                                col_count = 1;
+                            }
+                        }
+                        if ($searchFilter.Effective == 'CustomDate') {
+                            search_html += '<div class="col-md-6"><div class="form-group"><label for="field-1" class="control-label">Custom Date</label><div class=""><p class="form-control-static" >' + $searchFilter.CustomDate + '</p></div></div></div>';
+                            col_count++;
+                            if (col_count == 3) {
+                                search_html += '</div><div class="row">';
+                                col_count = 1;
+                            }
                         }
                     }
                     if($searchFilter.Trunk != ''){
@@ -694,10 +814,17 @@
                     $("#bulk-edit-customer-rate-form-new [name='EffectiveDate']").val(currentDate);
                     $('#modal-BulkCustomerRate-new').modal('show');
                     if(self.attr('id')=="bulk_clear_cust_rate") {
-                        $('#modal-BulkCustomerRate-new .modal-header h4').text('Bulk Clear Customer Rates');
+                        $('#modal-BulkCustomerRate-new .modal-header h4').text('Bulk Clear');
                         $('#submit-bulk-data-new').html('<i class="entypo-cancel"></i> Clear');
+                        $('#BulkInsert-EffectiveBox').hide();
+                    }else if(self.attr('id')=='insertBulkCustomerRates'){
+                        $('#modal-BulkCustomerRate-new .modal-header h4').text('Bulk New Offer');
+                        $('#submit-bulk-data-new').html('<i class="entypo-floppy"></i> Save');
+                        $('#BulkInsert-EffectiveBox').show();
                     }else{
-                        $('#modal-BulkCustomerRate-new .modal-header h4').text('Bulk Update Customer Rates');
+                        $('#modal-BulkCustomerRate-new .modal-header h4').text('Bulk Update');
+                        $('#submit-bulk-data-new').html('<i class="entypo-floppy"></i> Save');
+                        $('#BulkInsert-EffectiveBox').hide();
                     }
                     $('#modal-BulkCustomerRate-new .modal-body').show();
 
@@ -706,6 +833,9 @@
                         $("#bulk-edit-customer-rate-form-new").submit(function() {
                             if(self.attr('id')=="bulk_clear_cust_rate"){
                                 update_new_url = baseurl + '/customers_rates/process_bulk_rate_clear/{{$id}}';
+                                bulk_update_or_clear(update_new_url,$searchFilter);
+                            }else if(self.attr('id')=='insertBulkCustomerRates'){
+                                update_new_url = baseurl + '/customers_rates/process_bulk_rate_insert/{{$id}}';
                                 bulk_update_or_clear(update_new_url,$searchFilter);
                             }else{
                                 update_new_url = baseurl + '/customers_rates/process_bulk_rate_update/{{$id}}';
@@ -716,7 +846,7 @@
                         });
                         initCustomerGrid('table-5');
 
-                        });
+                });
 
 
                         $("#add-new-rate").click(function(e){
@@ -863,8 +993,10 @@
                         $("#DiscontinuedRates").on('change', function (event, state) {
                             if($("#DiscontinuedRates").is(':checked')) {
                                 $(".EffectiveBox").hide();
+                                $("#btn-action").hide();
                             } else {
                                 $(".EffectiveBox").show();
+                                $("#btn-action").show();
                             }
                         });
 
@@ -874,6 +1006,16 @@
                             getArchiveRateTableRates($this,Codes);
                         });
 
+                        $('#customer-rate-table-search select[name="Effective"]').on('change', function() {
+                            var val = $(this).val();
+
+                            if(val == 'CustomDate') {
+                                $('.CustomDateBox').show();
+                            } else {
+                                $('.CustomDateBox').hide();
+                            }
+                        });
+                        $('#customer-rate-table-search select[name="Effective"]').val('Now').trigger('change');
             });
             function bulk_update_or_clear(fullurl,searchFilter){
                 $.ajax({
@@ -886,7 +1028,7 @@
 
                         if (response.status == 'success') {
                             toastr.success(response.message, "Success", toastr_opts);
-                            data_table.fnFilter('', 0);
+                            $("#customer-rate-table-search").submit();
                         } else {
                             toastr.error(response.message, "Error", toastr_opts);
                         }
@@ -1100,113 +1242,6 @@
                             <div class="form-group">
                                 <label for="field-4" class="control-label">Effective Date</label>
 
-                                <input type="text" name="EffectiveDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
-                            </div>
-
-                        </div>
-
-                        <div class="col-md-6">
-
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Rate</label>
-
-                                <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
-
-                            </div>
-
-                        </div>
-
-                        <div class="col-md-6">
-
-                            <div class="form-group">
-                                <label for="field-4" class="control-label">Interval 1</label>
-
-                                <input type="text" name="Interval1" class="form-control" value="" />
-                            </div>
-
-                        </div>
-
-                        <div class="col-md-6">
-
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Interval N</label>
-
-                                <input type="text" name="IntervalN" class="form-control" id="field-5" placeholder="">
-
-                            </div>
-
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Connection Fee</label>
-                                <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-
-                            <div class="form-group">
-                                <label for="field-4" class="control-label">End Date</label>
-
-                                <input type="text" name="EndDate" class="form-control datepicker"  data-startdate="{{date('Y-m-d')}}" data-date-format="yyyy-mm-dd" value="" />
-                            </div>
-
-                        </div>
-
-                         <div class="col-md-6 RoutinePlan-modal">
-
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Routing plan</label>
-
-                                {{ Form::select('RoutinePlan', $trunks_routing, '', array("class"=>"select2")) }}
-
-                            </div>
-
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="modal-footer">
-                    <input type="hidden" name="RateID" value="">
-                    <input type="hidden" name="Trunk" value="{{Input::get('Trunk')}}">
-
-                    <button type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                        <i class="entypo-floppy"></i>
-                        Save
-                    </button>
-                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                        <i class="entypo-cancel"></i>
-                        Close
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-
-
-<!-- Bulk Update -->
-<div class="modal fade" id="modal-BulkCustomerRate">
-    <div class="modal-dialog">
-        <div class="modal-content">
-
-            <form id="bulk-edit-customer-rate-form" method="post" action="{{URL::to('customers_rates/bulk_update/'.$id)}}">
-
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Bulk Edit Customer Rates</h4>
-                </div>
-
-                <div class="modal-body">
-
-                    <div class="row">
-                        <div class="col-md-6">
-
-                            <div class="form-group">
-                                <label for="field-4" class="control-label">Effective Date</label>
-
                                 <input type="text" name="EffectiveDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-date-format="yyyy-mm-dd" value="" />
                             </div>
 
@@ -1250,7 +1285,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-6">
+                        {{--<div class="col-md-6">
 
                             <div class="form-group">
                                 <label for="field-4" class="control-label">End Date</label>
@@ -1258,7 +1293,220 @@
                                 <input type="text" name="EndDate" class="form-control datepicker"  data-startdate="{{date('Y-m-d')}}" data-date-format="yyyy-mm-dd" value="" />
                             </div>
 
+                        </div>--}}
+
+                         <div class="col-md-6 RoutinePlan-modal">
+
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Routing plan</label>
+
+                                {{ Form::select('RoutinePlan', $trunks_routing, '', array("class"=>"select2")) }}
+
+                            </div>
+
                         </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <input type="hidden" name="RateID" value="">
+                    <input type="hidden" name="CustomerRateId" value="">
+                    <input type="hidden" name="Type" value="1">
+                    <input type="hidden" name="Trunk" value="{{Input::get('Trunk')}}">
+
+                    <button type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <i class="entypo-floppy"></i>
+                        Save
+                    </button>
+                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                        <i class="entypo-cancel"></i>
+                        Close
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Add Selected Rates -->
+<div class="modal fade" id="add-selected-customer-rate-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <form id="add-selected-customer-rate-form" method="post" action="{{URL::to('customers_rates/add_selected/'.$id)}}">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Add Selected Customer Rates</h4>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-4" class="control-label">Effective Date</label>
+                                <input type="text" name="EffectiveDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Rate</label>
+                                <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-4" class="control-label">Interval 1</label>
+                                <input type="text" name="Interval1" class="form-control" value="" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Interval N</label>
+                                <input type="text" name="IntervalN" class="form-control" id="field-5" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Connection Fee</label>
+                                <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 RoutinePlan-modal">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Routing plan</label>
+                                {{ Form::select('RoutinePlan', $trunks_routing, '', array("class"=>"select2")) }}
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div style="max-height: 500px; overflow-y: auto; overflow-x: hidden;" >
+                        <h4 > Click <span class="label label-info" onclick="$('.my_account_table-7').toggle();$('#table-7_wrapper').toggle();"  style="cursor: pointer">here</span> to select additional customer accounts you want to update.</h4>
+
+                        <div class="row my_account_table-7">
+                            @if(User::is_admin())
+                                <div class="col-sm-4" style="float: right">
+                                    {{Form::select('account_owners',$account_owners,Input::get('account_owners'),array("id"=>"account_owners_7","class"=>"select2"))}}
+
+                                </div>
+                                @else
+                                <!-- For Account Manager -->
+                                <input type="hidden" name="account_owners" value="{{User::get_userID()}}">
+                            @endif
+                        </div>
+
+                        <table class="table table-bordered datatable" id="table-7">
+                            <thead>
+                            <tr>
+                                <th><input type="checkbox" class="selectallcust" name="customer[]" /></th>
+                                <th>Customer Name</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <input type="hidden" name="RateID" value="">
+                    <input type="hidden" name="Trunk" value="">
+
+                    <button type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <i class="entypo-floppy"></i>
+                        Save
+                    </button>
+                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                        <i class="entypo-cancel"></i>
+                        Close
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Bulk Update -->
+<div class="modal fade" id="modal-BulkCustomerRate">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <form id="bulk-edit-customer-rate-form" method="post" action="{{URL::to('customers_rates/bulk_update/'.$id)}}">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Bulk Edit Customer Rates</h4>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="row">
+                        {{--<div class="col-md-6">
+
+                            <div class="form-group">
+                                <label for="field-4" class="control-label">Effective Date</label>
+
+                                <input type="text" name="EffectiveDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-date-format="yyyy-mm-dd" value="" />
+                            </div>
+
+                        </div>--}}
+
+                        <div class="col-md-6">
+
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Rate</label>
+
+                                <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="form-group">
+                                <label for="field-4" class="control-label">Interval 1</label>
+
+                                <input type="text" name="Interval1" class="form-control" value="" />
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Interval N</label>
+
+                                <input type="text" name="IntervalN" class="form-control" id="field-5" placeholder="">
+
+                            </div>
+
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Connection Fee</label>
+                                <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
+                            </div>
+                        </div>
+
+                        {{--<div class="col-md-6">
+
+                            <div class="form-group">
+                                <label for="field-4" class="control-label">End Date</label>
+
+                                <input type="text" name="EndDate" class="form-control datepicker"  data-startdate="{{date('Y-m-d')}}" data-date-format="yyyy-mm-dd" value="" />
+                            </div>
+
+                        </div>--}}
 
                         <div class="col-md-6 RoutinePlan-modal">
 
@@ -1274,38 +1522,39 @@
 
 
                     </div>
-                    <div style="max-height: 500px; overflow-y: auto; overflow-x: hidden;" >
-                          <h4 > Click <span class="label label-info" onclick="$('.my_account_table-6').toggle();$('#table-6_wrapper').toggle();"  style="cursor: pointer">here</span> to select additional customer accounts you want to update.</h4>
+                    {{--<div style="max-height: 500px; overflow-y: auto; overflow-x: hidden;" >
+                        <h4 > Click <span class="label label-info" onclick="$('.my_account_table-6').toggle();$('#table-6_wrapper').toggle();"  style="cursor: pointer">here</span> to select additional customer accounts you want to update.</h4>
 
-                          <div class="row my_account_table-6">
-                            @if(User::is_admin())
-                               <div class="col-sm-4" style="float: right">
-                               {{Form::select('account_owners',$account_owners,Input::get('account_owners'),array("id"=>"account_owners_6","class"=>"select2"))}}
+                        <div class="row my_account_table-6">
+                            --}}{{--@if(User::is_admin())--}}{{--
+                                <div class="col-sm-4" style="float: right">
+                                    --}}{{--{{Form::select('account_owners',$account_owners,Input::get('account_owners'),array("id"=>"account_owners_6","class"=>"select2"))}}--}}{{--
 
-                                   </div>
-                                @else
-                                   <!-- For Account Manager -->
-                                  <input type="hidden" name="account_owners" value="{{User::get_userID()}}">
-                                @endif
-                            </div>
+                                </div>
+                                --}}{{--@else--}}{{--
+                                        <!-- For Account Manager -->
+                                --}}{{--<input type="hidden" name="account_owners" value="{{User::get_userID()}}">--}}{{--
+                            --}}{{--@endif--}}{{--
+                        </div>
 
 
                         <table class="table table-bordered datatable" id="table-6">
                             <thead>
-                                <tr>
-                                    <th><input type="checkbox" class="selectallcust" name="customer[]" /></th>
-                                    <th>Customer Name</th>
-                                </tr>
+                            <tr>
+                                <th><input type="checkbox" class="selectallcust" name="customer[]" /></th>
+                                <th>Customer Name</th>
+                            </tr>
                             </thead>
                             <tbody>
                             </tbody>
                         </table>
-                        </div>
+                    </div>--}}
 
                 </div>
 
                 <div class="modal-footer">
                     <input type="hidden" name="RateID" value="">
+                    <input type="hidden" name="CustomerRateId" value="">
                     <input type="hidden" name="Trunk" value="">
 
                     <button type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
@@ -1337,7 +1586,7 @@
                     <div id="search_static_val">
                     </div>
                     <div id="text-boxes" class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-6" style="display: none;" id="BulkInsert-EffectiveBox">
 
                             <div class="form-group">
                                 <label for="field-4" class="control-label">Effective Date</label>
@@ -1395,7 +1644,7 @@
                             </div>
 
                         </div>
-                        <div class="col-md-6">
+                        {{--<div class="col-md-6">
 
                             <div class="form-group">
                                 <label for="field-4" class="control-label">End Date</label>
@@ -1403,7 +1652,7 @@
                                 <input type="text" name="EndDate" class="form-control datepicker"  data-startdate="{{date('Y-m-d')}}" data-date-format="yyyy-mm-dd" value="" />
                             </div>
 
-                        </div>
+                        </div>--}}
                     </div>
 
 
@@ -1479,12 +1728,12 @@
                                 <input type="text" name="EffectiveDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        {{--<div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label">End Date</label>
                                 <input type="text" name="EndDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
                             </div>
-                        </div>
+                        </div>--}}
                         <div class="col-md-6 clear">
                             <div class="form-group">
                                 <label class="control-label">Rate</label>
