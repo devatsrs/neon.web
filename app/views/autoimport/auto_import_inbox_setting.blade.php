@@ -44,23 +44,23 @@
 
                             <div class="col-md-12">
 
-                                <input type="hidden" name="CompanyID" value="{{$autoimportSetting[0]->CompanyID}}">
+                                <input type="hidden" name="CompanyID" value="{{isset($autoimportSetting[0]->CompanyID)?$autoimportSetting[0]->CompanyID:'';}}">
                                 <div class="col-md-6">
                                     <div class="form-group ">
                                         <label for="field-5" class="control-label">Imap/Pop3</label>
-                                        <input type="text" name="host" class="form-control" value="{{$autoimportSetting[0]->host}}" />
+                                        <input type="text" name="host" class="form-control" value="{{isset($autoimportSetting[0]->host)?$autoimportSetting[0]->host:'';}}" />
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group ">
                                         <label for="field-5" class="control-label">Port</label>
-                                        <input type="text" name="port" class="form-control" value="{{$autoimportSetting[0]->port}}" />
+                                        <input type="text" name="port" class="form-control" value="{{isset($autoimportSetting[0]->port)?$autoimportSetting[0]->port:'';}}" />
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group ">
                                         <label for="field-5" class="control-label">Username</label>
-                                        <input type="text" name="username" class="form-control" value="{{$autoimportSetting[0]->username}}" />
+                                        <input type="text" name="username" class="form-control" value="{{isset($autoimportSetting[0]->username)?$autoimportSetting[0]->username:'';}}" />
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -74,7 +74,7 @@
                                         <label for="field-5" class="control-label">Enable SSL</label>
                                         <div class="clear">
                                             <p class="make-switch switch-small">
-                                                <input type="checkbox" {{$autoimportSetting["IsSSL"]}}  name="IsSSL" >
+                                                <input type="checkbox" {{isset($autoimportSetting["IsSSL"])?$autoimportSetting["IsSSL"]:'';}}  name="IsSSL" >
                                             </p>
                                         </div>
                                     </div>
@@ -96,20 +96,20 @@
                     </div>
                     <div class="panel-body">
                         <div class="col-md-12">
-                            <input type="hidden" name="CompanyID" value="{{$autoimportSetting[0]->CompanyID}}">
+                            <input type="hidden" name="CompanyID" value="{{$companyID}}">
                             <div class="col-md-6">
                                 <div class="form-group ">
-                                    <label for="field-5" class="control-label">Success Notification on Email</label>
+                                    <label for="field-5" class="control-label">On Success</label>
                                     <br>
-                                    <input type="text" name="emailNotificationOnSuccess" class="form-control" value="{{$autoimportSetting[0]->emailNotificationOnSuccess}}" />
+                                    <input type="text" name="emailNotificationOnSuccess" class="form-control" value="{{isset($autoimportSetting[0]->emailNotificationOnSuccess)?$autoimportSetting[0]->emailNotificationOnSuccess:'';}}" />
                                 </div>
 
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group ">
-                                    <label for="field-5" class="control-label">Fail Notification on Email</label>
+                                    <label for="field-5" class="control-label">On Failure</label>
                                     <br>
-                                    <input type="text" name="emailNotificationOnFail" class="form-control" value="{{$autoimportSetting[0]->emailNotificationOnFail}}" />
+                                    <input type="text" name="emailNotificationOnFail" class="form-control" value="{{isset($autoimportSetting[0]->emailNotificationOnFail)?$autoimportSetting[0]->emailNotificationOnFail:'';}}" />
                                 </div>
 
                             </div>
@@ -118,7 +118,7 @@
                                     <label for="field-5" class="control-label">Send a copy to Account Owner </label>
                                     <div class="clear">
                                         <p class="make-switch switch-small">
-                                            <input type="checkbox" {{$autoimportSetting["copyNotification"]}}  name="SendCopyToAccount" >
+                                            <input type="checkbox" {{isset($autoimportSetting["copyNotification"])?$autoimportSetting["copyNotification"]:'';}}  name="SendCopyToAccount" >
                                         </p>
                                     </div>
                                 </div>

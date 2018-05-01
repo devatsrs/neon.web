@@ -195,7 +195,10 @@
             $('table tbody').on('click','.edit-RateTableSetting',function(ev){
                 ev.preventDefault();
                 ev.stopPropagation();
+                $("#add-new-form").trigger("reset");
+                $("#add-new-form .select2").trigger("change.select2");
                 $('#modal-add-new-rate-table-setting').trigger("reset");
+                $('#modal-add-new-rate-table-setting .modal-title').html("Edit RateTable Setting");
                 $("#modal-add-new-rate-table-setting [name='TypePKID']").select2('val', $(this).attr('data-id'));
                 $("#modal-add-new-rate-table-setting [name='ImportFileTempleteID']").select2('val', $(this).attr('data-uploadtemplate'));
                 $("#modal-add-new-rate-table-setting [name='Subject']").val($(this).attr('data-subject'));
@@ -217,6 +220,10 @@
             $("#add-new-rate-table-setting").click(function(ev) {
 
                 ev.preventDefault();
+
+                $("#add-new-form").trigger("reset");
+                $("#add-new-form .select2").trigger("change.select2");
+                $('#modal-add-new-rate-table-setting .modal-title').html("Add New RateTable Setting");
                 $("#modal-add-new-rate-table-setting [name='AutoImportSettingID']").val('');
                 $('#modal-add-new-rate-table-setting').modal('show', {backdrop: 'static'});
             });

@@ -11,7 +11,8 @@ class AutoImportController extends \BaseController {
 		$trunks = Trunk::getTrunkDropdownIDList();
 		$jobTypes  = JobType::getJobTypeIDListByWhere();
 		$jobStatus = JobStatus::getJobStatusIDList();
-		return View::make('autoimport.index', compact('trunks','jobStatus','jobTypes'));
+		$accounts = Account::getAccountIDList();
+		return View::make('autoimport.index', compact('trunks','jobStatus','jobTypes', 'accounts'));
 
 	}
 
@@ -29,7 +30,8 @@ class AutoImportController extends \BaseController {
 		$jobType = !empty($data["jobType"]) ? $data["jobType"] : 0;
 		$jobStatus = !empty($data["jobStatus"]) ? $data["jobStatus"] : 0;
 		$search = !empty($data['Search']) ? $data['Search'] : '';
-		$query = "call prc_getAutoImportMail (".$jobType.",".$jobStatus.",".$CompanyID.",'".$search."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."' ";
+		$AccountID = !empty($data['AccountID']) ? $data['AccountID'] : 0;
+		$query = "call prc_getAutoImportMail (".$jobType.",".$jobStatus.",".$CompanyID.",'".$search."','".$AccountID."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."' ";
 
 		if( isset($data['Export']) && $data['Export'] == 1) {
 			$excel_data  = DB::select($query.',1)');
