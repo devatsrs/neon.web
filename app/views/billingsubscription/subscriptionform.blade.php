@@ -1,6 +1,7 @@
 <script type="text/javascript">
     $(document).ready(function(){
         var txtSubscription = '{{Product::$TypetoProducts[Product::SUBSCRIPTION]}}';
+        var productsubscription = $("#add-edit-product-subscription [name='productsubscription']").val();
         $('#add-new-billing_subscription-form').submit(function(e){
             e.preventDefault();
             var modal = $(this).parents('.modal');
@@ -33,10 +34,16 @@
                             }else{
                                 var self = $(el).clone();
                             }
-                            if (self.attr('data-active') == 1) {
-                                var newState = new Option(response.newcreated.Name, response.newcreated.SubscriptionID, true, true);
-                            } else {
-                                var newState = new Option(response.newcreated.Name, response.newcreated.SubscriptionID, false, false);
+
+                            if(productsubscription==1){
+                                NewProductID = '3-' + response.newcreated.SubscriptionID;
+                                var newState= $('<option>').val(NewProductID).text(response.newcreated.Name).attr({'item_subscription_txt':'Subscription','item_subscription_type':'3','selected':'selected'});
+                            }else{
+                                if (self.attr('data-active') == 1) {
+                                    var newState = new Option(response.newcreated.Name, NewProductID, true, true);
+                                } else {
+                                    var newState = new Option(response.newcreated.Name, NewProductID, false, false);
+                                }
                             }
                             $(el).append(newState);
                             self.trigger('change');
