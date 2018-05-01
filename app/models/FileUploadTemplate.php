@@ -238,8 +238,8 @@ class FileUploadTemplate extends \Eloquent {
                 $rules_for_type['selection.Description'] = 'required_without:selection2.Description';
                 $rules_for_type['selection2.Description'] = 'required_without:selection.Description';
 
-                $message_for_type['selection.Join1.required'] = "Please Select Join Sheet Field For RateSheet";
-                $message_for_type['selection2.Join2.required'] = "Please Select Join Sheet Field For DialCodeSheet";
+                $message_for_type['selection.Join1.required'] = "Please Select Match Codes with DialCode On For Ratesheet";
+                $message_for_type['selection2.Join2.required'] = "Please Select Match Codes with Rates On For DialCodeSheet";
                 $message_for_type['selection.Code.required_without'] = "Code field is required of sheet1 when Code is not present of sheet2";
                 $message_for_type['selection2.Code.required_without'] = "Code field is required of sheet2 when Code is not present of sheet1";
                 $message_for_type['selection.Description.required_without'] = "Description field is required of sheet1 when Description is not present of sheet2";
