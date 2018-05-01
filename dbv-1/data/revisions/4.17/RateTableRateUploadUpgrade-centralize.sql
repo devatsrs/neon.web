@@ -4497,7 +4497,8 @@ ThisSP:BEGIN
 					tblVendorRate
 				WHERE
 					EffectiveDate=p_EffectiveDate AND
-					((p_Critearea = 0 AND (FIND_IN_SET(VendorRateID,p_VendorRateID) = 0 )) OR p_Critearea = 1)
+					((p_Critearea = 0 AND (FIND_IN_SET(VendorRateID,p_VendorRateID) = 0 )) OR p_Critearea = 1) AND
+					AccountId = p_AccountId
 			)
 		)
 		AND
@@ -4731,7 +4732,8 @@ ThisSP:BEGIN
 					tblRateTableRate
 				WHERE
 					EffectiveDate=p_EffectiveDate AND
-					((p_Critearea = 0 AND (FIND_IN_SET(RateTableRateID,p_RateTableRateID) = 0 )) OR p_Critearea = 1)
+					((p_Critearea = 0 AND (FIND_IN_SET(RateTableRateID,p_RateTableRateID) = 0 )) OR p_Critearea = 1) AND
+					RateTableId = p_RateTableId
 			)
 		)
 		AND
