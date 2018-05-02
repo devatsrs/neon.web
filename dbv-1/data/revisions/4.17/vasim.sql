@@ -4422,8 +4422,8 @@ GenerateRateTable:BEGIN
 			TrunkID int,
 			CountryID int,
 			RateID int,
-			Preference int,
-			INDEX IX_CODE (Code)
+			Preference int/*,
+			INDEX IX_CODE (Code)*/
 		);
 
 		DROP TEMPORARY TABLE IF EXISTS tmp_VendorCurrentRates_;
@@ -5500,8 +5500,8 @@ GenerateRateTable:BEGIN
 			TrunkID int,
 			CountryID int,
 			RateID int,
-			Preference int,
-			INDEX IX_CODE (Code)
+			Preference int/*,
+			INDEX IX_CODE (Code)*/
 		);
 
 		DROP TEMPORARY TABLE IF EXISTS tmp_VendorCurrentRates_;
