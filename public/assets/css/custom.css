@@ -3196,3 +3196,6 @@ select#user_language option {
     border-color: #615e5e;
     color: #fff;
 }
+.child-row {
+    background-color: #f8f8f8;
+}

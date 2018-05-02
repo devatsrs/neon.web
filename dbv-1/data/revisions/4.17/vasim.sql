@@ -2576,7 +2576,7 @@ ThisSP:BEGIN
 						 SELECT distinct tblVendorRate.AccountId,
 						    CASE WHEN p_groupby = 'description' THEN IFNULL(blockCode.VendorBlockingId, 0) ELSE IFNULL(blockCode.VendorBlockingId, 0) END AS BlockingId,
 						    IFNULL(blockCountry.CountryId, 0)  as BlockingCountryId,
-							 tblAccount.AccountName, tblRate.Code, tblRate.Description,
+							 tblAccount.AccountName, tblRate.Code, tmpselectedcd.Description,
 							 CASE WHEN  tblAccount.CurrencyId = p_CurrencyID
 								 THEN
 									 tblVendorRate.Rate
@@ -2602,6 +2602,9 @@ ThisSP:BEGIN
 							 INNER JOIN tblAccount   ON  tblAccount.CompanyID = p_companyid AND tblVendorRate.AccountId = tblAccount.AccountID and tblAccount.IsVendor = 1
 							 INNER JOIN tblRate ON tblRate.CompanyID = p_companyid     AND    tblVendorRate.RateId = tblRate.RateID   AND vt.CodeDeckId = tblRate.CodeDeckId
 							 INNER JOIN tmp_search_code_  SplitCode   on tblRate.Code = SplitCode.Code
+
+							  INNER JOIN 	(select Code,Description from tblRate where CodeDeckId=p_codedeckID ) tmpselectedcd on tmpselectedcd.Code=tblRate.Code
+
 							 LEFT JOIN tblVendorPreference vp
 								 ON vp.AccountId = tblVendorRate.AccountId
 										AND vp.TrunkID = tblVendorRate.TrunkID
