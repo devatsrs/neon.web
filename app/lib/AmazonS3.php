@@ -156,7 +156,7 @@ class AmazonS3 {
             $resource = fopen($file, 'r');
             $s3->upload($bucket, $dir.basename($file), $resource, 'public-read');
             if($delete==1){
-                @unlink($file); // delete from local
+                @unlink($file); // delete from local if amazon is on
             }
             return true;
         } catch (S3Exception $e) {
