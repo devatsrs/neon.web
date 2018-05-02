@@ -1016,8 +1016,8 @@ function getDashBoardController($key){
 }
 
 function formatSmallDate($date,$dateformat='d-m-y') {
-
-    if(ctype_digit($date) && strlen($date)==5){
+    return formatDate($date,$dateformat,true);
+    /*if(ctype_digit($date) && strlen($date)==5){
         $UNIX_DATE = ($date - 25569) * 86400;
         $datetime = gmdate("Y-m-d", $UNIX_DATE);
     }else {
@@ -1052,7 +1052,7 @@ function formatSmallDate($date,$dateformat='d-m-y') {
                     /*if (strpos($date, ' ') !== false) {
                         $date = str_replace(' ', '-', $date);
                     }*/
-                    if ($dateformat == 'd-m-Y' && strpos($date, '/') !== false) {
+                   /* if ($dateformat == 'd-m-Y' && strpos($date, '/') !== false) {
                         $date = str_replace('/', '-', $date);
                         $datetime = date('Y-m-d', strtotime($date));
                     } else if ($dateformat == 'm-d-Y' && strpos($date, '-') !== false) {
@@ -1069,7 +1069,7 @@ function formatSmallDate($date,$dateformat='d-m-y') {
     if ($datetime == '1970-01-01') {
         $datetime = '';
     }
-    return $datetime;
+    return $datetime;*/
 }
 
 function SortBillingType($account=0){
