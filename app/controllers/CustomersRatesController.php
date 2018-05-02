@@ -700,23 +700,34 @@ class CustomersRatesController extends \BaseController {
     }
 
     public function  delete_customerrates($id){
-            $data = Input::all();
-            $rules = array('Trunkid' => 'required');
-            $validator = Validator::make($data, $rules);
-            if ($validator->fails()) {
-                return json_validator_response($validator);
-            }
-            if(isset($data['action']) && $data['action']=='check_count'){
-                return CustomerRate::where(["CustomerID" =>$id ,'TrunkID'=>$data['Trunkid']])->count();
-            }
+        $data = Input::all();
+        $rules = array('Trunkid' => 'required');
+        $validator = Validator::make($data, $rules);
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+        if(isset($data['action']) && $data['action']=='check_count'){
+            return CustomerRate::where(["CustomerID" =>$id ,'TrunkID'=>$data['Trunkid']])->count();
+        }
 
-            CustomerTrunk::where(["AccountID" =>$id ,'TrunkID'=>$data['Trunkid']])->update(['RateTableID'=>'0']);
-            if (CustomerRate::where(["CustomerID" =>$id ,'TrunkID'=>$data['Trunkid']])->count()  == 0 || CustomerRate::where(["CustomerID" =>$id ,'TrunkID'=>$data['Trunkid']])->delete()) {
-                return Response::json(array("status" => "success", "message" => "Customer Rates Deleted Successfully"));
-            } else {
-                return Response::json(array("status" => "failed", "message" => "Problem Deleting Customer Rates."));
-            }
+        DB::beginTransaction();
+        try {
+            $username = User::get_user_full_name();
+            //$tempdata = CustomerTrunk::where(["AccountID" => $id, 'TrunkID' => $data['Trunkid']])->get();
+            // print_R($tempdata);exit;
+            CustomerTrunk::where(["AccountID" => $id, 'TrunkID' => $data['Trunkid']])->update(['RateTableID' => '0']);
+            CustomerRate::where(["CustomerID" => $id, 'TrunkID' => $data['Trunkid']])->update(['EndDate' => date('Y-m-d')]);
+            $query = "call prc_ArchiveOldCustomerRate ('".$id."','".$data['Trunkid']."','".$username."')";
+            DB::statement($query);
+            DB::commit();
+            return Response::json(array("status" => "success", "message" => "Customer Rates Deleted Successfully"));
+        } catch (Exception $ex) {
+            DB::rollback();
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+            //return Response::json(array("status" => "failed", "message" => "Problem Deleting Customer Rates."));
+        }
     }
+
     public function vendor_merge(){
 
         DB::statement("update vendor_merge  set vendor_merge.is_vendor_customer = 1 from vendor_merge inner join tblAccount a on a.AccountName = vendor_merge.customer      and a.IsCustomer = 1 and a.IsVendor = 1");
