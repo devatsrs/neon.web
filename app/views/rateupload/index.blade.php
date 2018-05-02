@@ -632,19 +632,19 @@
             $("#save_template").click(function(e){
                 e.preventDefault();
                 if($("#save_template").hasClass('reviewrates')) {
-                    var dialcodesheet = $('#importdialcodes').val();
-                    if(dialcodesheet != null || dialcodesheet != '' ){
+                   /* var dialcodesheet = $('#importdialcodes').val();
+                    if(dialcodesheet != 'null' || dialcodesheet != '' ){
                         var Join1 = $("#Join1").val();
                         var Join2 = $("#Join2").val();
                         if(Join2 == "" || Join2 == 'Skip loading') {
-                            toastr.error("Please Select Join Sheet Field For DialCodeSheet", "Error", toastr_opts);
+                            toastr.error("Please Select Match Codes with Rates On For DialCodeSheet", "Error", toastr_opts);
                             return false;
                         }
                         if(Join1 == "" || Join1 == 'Skip loading') {
-                            toastr.error("Please Select Join Sheet Field For RateSheet", "Error", toastr_opts);
+                            toastr.error("Please Select Match Codes with DialCode On For Ratesheet", "Error", toastr_opts);
                             return false;
                         }
-                    }
+                    }*/
                     var formData = new FormData($('#add-template-form')[0]);
                     var poData = $(document.forms['form-upload']).serializeArray();
                     for (var i = 0; i < poData.length; i++) {
@@ -1019,14 +1019,15 @@
                 $.each( data.FileUploadTemplate, function( optionskey, option_value ) {
 
                     if(optionskey == 'Options'){
-
-                        $.each( option_value.selection2, function( key, value ) {
-                            if(typeof $("#add-template-form input[name='selection2["+key+"]']").val() != 'undefined'){
-                                $('#add-template-form').find('input[name="selection2['+key+']"]').val(value)
-                            }else if(typeof $("#add-template-form select[name='selection2["+key+"]']").val() != 'undefined'){
-                                $("#add-template-form [name='selection2["+key+"]']").val(value).trigger("change");
-                            }
-                        });
+                        if(option_value.selection2 != undefined) {
+                            $.each(option_value.selection2, function (key, value) {
+                                if (typeof $("#add-template-form input[name='selection2[" + key + "]']").val() != 'undefined') {
+                                    $('#add-template-form').find('input[name="selection2[' + key + ']"]').val(value)
+                                } else if (typeof $("#add-template-form select[name='selection2[" + key + "]']").val() != 'undefined') {
+                                    $("#add-template-form [name='selection2[" + key + "]']").val(value).trigger("change");
+                                }
+                            });
+                        }
                     }
                 });
             }

@@ -166,7 +166,7 @@ class GatewayController extends \BaseController {
                 $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
                 $key->move($destinationPath, $file_name);
 
-                if(!AmazonS3::upload($destinationPath.$file_name,$amazonPath)){
+                if(!AmazonS3::upload($destinationPath.$file_name,$amazonPath,0)){
                     return Response::json(array("status" => "failed", "message" => "Failed to upload."));
                 }
                 $file_name = $amazonPath.$file_name;
