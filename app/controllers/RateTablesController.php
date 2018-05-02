@@ -240,7 +240,7 @@ class RateTablesController extends \BaseController {
 
             $EffectiveDate = $EndDate = $Rate = $Interval1 = $IntervalN = $ConnectionFee = 'null';
 
-            if(!empty($data['updateEffectiveDate']) || !empty($data['updateRate']) || !empty($data['updateInterval1']) || !empty($data['updateIntervalN']) || !empty($data['updateConnectionFee']) || !empty($data['EndDate'])) {
+            if(!empty($data['updateEffectiveDate']) || !empty($data['updateRate']) || !empty($data['updateInterval1']) || !empty($data['updateIntervalN']) || !empty($data['updateConnectionFee'])) {// || !empty($data['EndDate'])
                 if(!empty($data['updateEffectiveDate'])) {
                     if(!empty($data['EffectiveDate'])) {
                         $EffectiveDate = "'".$data['EffectiveDate']."'";
@@ -248,13 +248,13 @@ class RateTablesController extends \BaseController {
                         $error=1;
                     }
                 }
-                if(!empty($data['updateEndDate'])) {
+                /*if(!empty($data['updateEndDate'])) {
                     if(!empty($data['EndDate'])) {
                         $EndDate = "'".$data['EndDate']."'";
                     } else if (empty($data['updateType'])) {
                         $error=1;
                     }
-                }
+                }*/
                 if(!empty($data['updateRate'])) {
                     if(!empty($data['Rate'])) {
                         $Rate = "'".floatval($data['Rate'])."'";
