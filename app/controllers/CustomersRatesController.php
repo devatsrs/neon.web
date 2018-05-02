@@ -167,85 +167,98 @@ class CustomersRatesController extends \BaseController {
 
             $companyID = User::get_companyID();
             foreach ($post_data['CustomerTrunk'] as $trunk => $data) {
+                DB::beginTransaction();
+                try {
 
-                if (isset($data['Status']) && $data['Status'] == 1) {
+                    if (isset($data['Status']) && $data['Status'] == 1) {
 
-                    $CustomerTrunk = new CustomerTrunk();
+                        $CustomerTrunk = new CustomerTrunk();
 
-                    $data['AccountID'] = $id;
-                    $data['CompanyID'] = $companyID;
-                    $data['TrunkID'] = $trunk;
+                        $data['AccountID'] = $id;
+                        $data['CompanyID'] = $companyID;
+                        $data['TrunkID'] = $trunk;
 
-                    //$data['Prefix'] = $Prefix;
-                    $data['IncludePrefix'] = isset($data['IncludePrefix']) ? 1 : 0;
-                    $data['RoutinePlanStatus'] = isset($data['RoutinePlanStatus']) ? 1 : 0;
-                    $data['UseInBilling'] = isset($data['UseInBilling']) ? 1 : 0;
+                        //$data['Prefix'] = $Prefix;
+                        $data['IncludePrefix'] = isset($data['IncludePrefix']) ? 1 : 0;
+                        $data['RoutinePlanStatus'] = isset($data['RoutinePlanStatus']) ? 1 : 0;
+                        $data['UseInBilling'] = isset($data['UseInBilling']) ? 1 : 0;
 
-                    //$data['Status'] = $data['Status'];
-                    $data['CreatedBy'] = User::get_user_full_name();
-                    $data['ModifiedBy'] = !empty($data['CustomerTrunkID']) ? User::get_user_full_name() : '';
-                    $TrunkName = Trunk::where(["TrunkID"=>$trunk])->pluck("Trunk");
-                    if (!empty($data['CustomerTrunkID']) && trim($data['Prefix']) == '') {
-                        // On Update Validate Prefix
-                        return Redirect::back()->with('error_message', "Please Add Prefix for " . $TrunkName . " Trunk");
-                        //return Response::json(array("status" => "failed", "message" => "Please Add Prefix for " . $trunk . " Trunk"));
-                    } else if (empty($data['CustomerTrunkID']) && $data['Prefix'] == '') {
-                        $data['Prefix'] = $LastPrefixNo = LastPrefixNo::getLastPrefix();
-                    }
-
-                    // when no prefix after all above conditions
-                    /*if ((int) $data['Prefix'] == 0) {
-
-                        return Redirect::back()->with('error_message', "Please Add Prefix for " . $trunk . " Trunk");
-                        //return  Response::json(array("status" => "failed", "message" => "Please Add Prefix for " . $trunk ." Trunk" ));
-                    }*/
-
-                    //check if duplicate
-                    /*if (CustomerTrunk::isPrefixExists($id,$data['Prefix'], !empty($data['CustomerTrunkID']) ? $data['CustomerTrunkID'] : '')) {
-
-                        return Redirect::back()->with('error_message', "Duplicate Prefix " . $data['Prefix'] . " for " . $TrunkName . " Trunk");
-                        //return  Response::json(array("status" => "failed", "message" => "duplicate Prefix ".$data['Prefix']." for " . $trunk ." Trunk" ));
-                    }*/
-
-                    $rules = array("CodeDeckId"=>"required","AccountID" => "required", "CompanyID" => "required", "TrunkID" => "required", "IncludePrefix" => "required", "Status" => "required",);
-
-                    if (!empty($data['CustomerTrunkID'])) {
-                        $rules = array_merge($rules, array("CustomerTrunkID" => "required"));
-                    }
-
-                    $validator = Validator::make($data, $rules);
-
-                    if ($validator->fails()) {
-                        return Redirect::back()->withInput(Input::all())->withErrors($validator);
-                        //return json_validator_response($validator);
-                    }
-
-                    if (isset($data['CustomerTrunkID']) && $data['CustomerTrunkID'] > 0) {
-                        $CustomerTrunkID = $data['CustomerTrunkID'];
-                        unset($data['CustomerTrunkID']);
-                        if((int)CustomerTrunk::find($CustomerTrunkID)->RateTableID != (int)$data['RateTableID'] && $data['RateTableID']>0){
-                            CustomerTrunk::find($CustomerTrunkID)->update(array('RateTableAssignDate'=>date('Y-m-d')));
+                        //$data['Status'] = $data['Status'];
+                        $data['CreatedBy'] = User::get_user_full_name();
+                        $data['ModifiedBy'] = !empty($data['CustomerTrunkID']) ? User::get_user_full_name() : '';
+                        $TrunkName = Trunk::where(["TrunkID" => $trunk])->pluck("Trunk");
+                        if (!empty($data['CustomerTrunkID']) && trim($data['Prefix']) == '') {
+                            // On Update Validate Prefix
+                            return Redirect::back()->with('error_message', "Please Add Prefix for " . $TrunkName . " Trunk");
+                            //return Response::json(array("status" => "failed", "message" => "Please Add Prefix for " . $trunk . " Trunk"));
+                        } else if (empty($data['CustomerTrunkID']) && $data['Prefix'] == '') {
+                            $data['Prefix'] = $LastPrefixNo = LastPrefixNo::getLastPrefix();
                         }
-                        $CustomerTrunk = CustomerTrunk::find($CustomerTrunkID)->update($data);
-                    } else {
-                        unset($data['CustomerTrunkID']);
-                        if ($CustomerTrunk->insert($data)) {
-                            if(isset($LastPrefixNo)){
- 								//Update last prefix no.
-                                LastPrefixNo::updateLastPrefixNo($LastPrefixNo);
+
+                        // when no prefix after all above conditions
+                        /*if ((int) $data['Prefix'] == 0) {
+
+                            return Redirect::back()->with('error_message', "Please Add Prefix for " . $trunk . " Trunk");
+                            //return  Response::json(array("status" => "failed", "message" => "Please Add Prefix for " . $trunk ." Trunk" ));
+                        }*/
+
+                        //check if duplicate
+                        /*if (CustomerTrunk::isPrefixExists($id,$data['Prefix'], !empty($data['CustomerTrunkID']) ? $data['CustomerTrunkID'] : '')) {
+
+                            return Redirect::back()->with('error_message', "Duplicate Prefix " . $data['Prefix'] . " for " . $TrunkName . " Trunk");
+                            //return  Response::json(array("status" => "failed", "message" => "duplicate Prefix ".$data['Prefix']." for " . $trunk ." Trunk" ));
+                        }*/
+
+                        $rules = array("CodeDeckId" => "required", "AccountID" => "required", "CompanyID" => "required", "TrunkID" => "required", "IncludePrefix" => "required", "Status" => "required",);
+
+                        if (!empty($data['CustomerTrunkID'])) {
+                            $rules = array_merge($rules, array("CustomerTrunkID" => "required"));
+                        }
+
+                        $validator = Validator::make($data, $rules);
+
+                        if ($validator->fails()) {
+                            return Redirect::back()->withInput(Input::all())->withErrors($validator);
+                            //return json_validator_response($validator);
+                        }
+
+                        if (isset($data['CustomerTrunkID']) && $data['CustomerTrunkID'] > 0) {
+                            $CustomerTrunkID = $data['CustomerTrunkID'];
+                            unset($data['CustomerTrunkID']);
+                            $username = User::get_user_full_name();
+                            $Action = 2; // change ratetable | $Action = 1 change codedeck
+                            $RateTableID = (int)CustomerTrunk::find($CustomerTrunkID)->RateTableID;
+                            if ($RateTableID != (int)$data['RateTableID'] && $data['RateTableID'] > 0) {
+                                $query = "call prc_ChangeCodeDeckRateTable (" . $id . "," . $trunk . ",$RateTableID,'" . $username . "'," . $Action . ")";
+                                DB::statement($query);
+
+                                CustomerTrunk::find($CustomerTrunkID)->update(array('RateTableAssignDate' => date('Y-m-d')));
                             }
+                            $CustomerTrunk = CustomerTrunk::find($CustomerTrunkID)->update($data);
                         } else {
-                            return Redirect::back()->with('error_message', "Problem Creating Customer Trunk for " . $TrunkName . " Trunk");
-                            ///return  Response::json(array("status" => "failed", "message" => "Problem Creating Customer Trunk for " . $trunk ." Trunk" )); // For Ajax
+                            unset($data['CustomerTrunkID']);
+                            if ($CustomerTrunk->insert($data)) {
+                                if (isset($LastPrefixNo)) {
+                                    //Update last prefix no.
+                                    LastPrefixNo::updateLastPrefixNo($LastPrefixNo);
+                                }
+                            } else {
+                                return Redirect::back()->with('error_message', "Problem Creating Customer Trunk for " . $TrunkName . " Trunk");
+                                ///return  Response::json(array("status" => "failed", "message" => "Problem Creating Customer Trunk for " . $trunk ." Trunk" )); // For Ajax
+                            }
+                        }
+                    } else {
+
+                        // if Unselect Status = 0
+                        if (isset($data['CustomerTrunkID']) && $data['CustomerTrunkID'] > 0) {
+                            $CustomerTrunkID = $data['CustomerTrunkID'];
+                            CustomerTrunk::find($CustomerTrunkID)->update(['Status' => 0]);
                         }
                     }
-                } else {
 
-                    // if Unselect Status = 0
-                    if (isset($data['CustomerTrunkID']) && $data['CustomerTrunkID'] > 0) {
-                        $CustomerTrunkID = $data['CustomerTrunkID'];
-                        CustomerTrunk::find($CustomerTrunkID)->update(['Status' => 0]);
-                    }
+                    DB::commit();
+                } catch (Exception $ex) {
+                    DB::rollback();
                 }
             }
             //forloop
@@ -712,12 +725,12 @@ class CustomersRatesController extends \BaseController {
 
         DB::beginTransaction();
         try {
+            $Action = 1; // change codedeck | $Action = 2 change ratetable
             $username = User::get_user_full_name();
-            //$tempdata = CustomerTrunk::where(["AccountID" => $id, 'TrunkID' => $data['Trunkid']])->get();
-            // print_R($tempdata);exit;
-            CustomerTrunk::where(["AccountID" => $id, 'TrunkID' => $data['Trunkid']])->update(['RateTableID' => '0']);
-            CustomerRate::where(["CustomerID" => $id, 'TrunkID' => $data['Trunkid']])->update(['EndDate' => date('Y-m-d')]);
-            $query = "call prc_ArchiveOldCustomerRate ('".$id."','".$data['Trunkid']."','".$username."')";
+            $RateTableID = CustomerTrunk::where(["AccountID" => $id, 'TrunkID' => $data['Trunkid']])->pluck('RateTableID');
+
+            $query = "call prc_ChangeCodeDeckRateTable (".$id.",".$data['Trunkid'].",$RateTableID,'".$username."',".$Action.")";
+
             DB::statement($query);
             DB::commit();
             return Response::json(array("status" => "success", "message" => "Customer Rates Deleted Successfully"));
