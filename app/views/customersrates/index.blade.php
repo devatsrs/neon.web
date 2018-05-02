@@ -322,12 +322,12 @@
                                                         action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                                     }
                                                     action += '</div>';
-                                                    <?php if(User::checkCategoryPermission('CustomersRates','Edit')) { ?>
+                                                    if (CustomerRateID > 0) {
+                                                        <?php if(User::checkCategoryPermission('CustomersRates','Edit')) { ?>
                                                         if(DiscontinuedRates == 0) {
                                                             action += ' <a href="Javascript:;" class="edit-customer-rate btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</a>';
                                                         }
-                                                    <?php } ?>
-                                                    if (CustomerRateID > 0) {
+                                                        <?php } ?>
                                                         action += ' <a href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</a>';
                                                         <?php if(User::checkCategoryPermission('CustomersRates','ClearRate')) { ?>
                                                             if(DiscontinuedRates == 0) {
@@ -918,75 +918,83 @@
 
 
                         //Clear Rate Button
+                        // click.clear-rate is specific event if we want to on/off perticuler event
+                        var clear_rate_processing = 0;
                         $(document).off('click.clear-rate','.btn.clear-customer-rate,#clear-bulk-rate');
-                        $(document).on('click.clear-rate','.btn.clear-customer-rate,#clear-bulk-rate',function(ev) {
+                        $(document).on('click.clear-rate','.btn.clear-customer-rate,#clear-bulk-rate',function(e) {
+                            //to prevent multiple request, only allow second request after first request's response
+                            if(clear_rate_processing == 0) {
+                                clear_rate_processing = 1;
+                                e.preventDefault();
+                                var CustomerRateIDs = [];
+                                var TrunkID = $searchFilter.Trunk;
+                                var i = 0;
+                                $('#table-4 tr.selected td div.hiddenRowData input[name="CustomerRateId').each(function (i, el) {
+                                    CustomerRateID = $(this).val();
+                                    CustomerRateIDs[i++] = CustomerRateID;
+                                });
 
-                            var CustomerRateIDs = [];
-                            var TrunkID         = $searchFilter.Trunk;
-                            var i = 0;
-                            $('#table-4 tr.selected td div.hiddenRowData input[name="CustomerRateId').each(function(i, el) {
-                                CustomerRateID          = $(this).val();
-                                CustomerRateIDs[i++]    = CustomerRateID;
-                            });
+                                $("#clear-bulk-rate-form").find("input[name='TrunkID']").val(TrunkID);
 
-                            $("#clear-bulk-rate-form").find("input[name='TrunkID']").val(TrunkID);
-
-                            if(CustomerRateIDs.length || $(this).hasClass('clear-customer-rate')) {
-                                response = confirm('Are you sure?');
-                                if (response) {
-
-                                    if($(this).hasClass('clear-customer-rate')) {
-                                        var CustomerRateID = $(this).parent().find('.hiddenRowData input[name="CustomerRateId"]').val();
-                                        $("#clear-bulk-rate-form").find("input[name='CustomerRateID']").val(CustomerRateID);
-                                        $("#clear-bulk-rate-form").find("input[name='criteria']").val('');
-                                    }
-
-                                    if($(this).attr('id') == 'clear-bulk-rate') {
-                                        var criteria='';
-                                        if($('#selectallbutton').is(':checked')){
-                                            criteria = JSON.stringify($searchFilter);
-                                            $("#clear-bulk-rate-form").find("input[name='CustomerRateID']").val('');
-                                            $("#clear-bulk-rate-form").find("input[name='criteria']").val(criteria);
-                                        }else{
-                                            var CustomerRateIDs = [];
-                                            var i = 0;
-                                            $('#table-4 tr.selected td div.hiddenRowData input[name="CustomerRateId').each(function(i, el) {
-                                                CustomerRateID = $(this).val();
-                                                CustomerRateIDs[i++] = CustomerRateID;
-                                            });
-                                            $("#clear-bulk-rate-form").find("input[name='CustomerRateID']").val(CustomerRateIDs.join(","))
+                                if (CustomerRateIDs.length || $(this).hasClass('clear-customer-rate')) {
+                                    response = confirm('Are you sure?');
+                                    if (response) {
+                                        $('.btn.clear-customer-rate,#clear-bulk-rate').attr('disabled', 'disabled');
+                                        if ($(this).hasClass('clear-customer-rate')) {
+                                            var CustomerRateID = $(this).parent().find('.hiddenRowData input[name="CustomerRateId"]').val();
+                                            $("#clear-bulk-rate-form").find("input[name='CustomerRateID']").val(CustomerRateID);
                                             $("#clear-bulk-rate-form").find("input[name='criteria']").val('');
                                         }
-                                    }
 
-                                    var formData = new FormData($('#clear-bulk-rate-form')[0]);
-
-                                    $.ajax({
-                                        url: baseurl + '/customers_rates/{{$id}}/clear_rate', //Server script to process data
-                                        type: 'POST',
-                                        dataType: 'json',
-                                        success: function(response) {
-                                            $(".save.btn").button('reset');
-
-                                            if (response.status == 'success') {
-                                                toastr.success(response.message, "Success", toastr_opts);
-                                                $("#customer-rate-table-search").submit();
+                                        if ($(this).attr('id') == 'clear-bulk-rate') {
+                                            var criteria = '';
+                                            if ($('#selectallbutton').is(':checked')) {
+                                                criteria = JSON.stringify($searchFilter);
+                                                $("#clear-bulk-rate-form").find("input[name='CustomerRateID']").val('');
+                                                $("#clear-bulk-rate-form").find("input[name='criteria']").val(criteria);
                                             } else {
-                                                toastr.error(response.message, "Error", toastr_opts);
+                                                var CustomerRateIDs = [];
+                                                var i = 0;
+                                                $('#table-4 tr.selected td div.hiddenRowData input[name="CustomerRateId').each(function (i, el) {
+                                                    CustomerRateID = $(this).val();
+                                                    CustomerRateIDs[i++] = CustomerRateID;
+                                                });
+                                                $("#clear-bulk-rate-form").find("input[name='CustomerRateID']").val(CustomerRateIDs.join(","))
+                                                $("#clear-bulk-rate-form").find("input[name='criteria']").val('');
                                             }
-                                        },
-                                        // Form data
-                                        data: formData,
-                                        //Options to tell jQuery not to process data or worry about content-type.
-                                        cache: false,
-                                        contentType: false,
-                                        processData: false
-                                    });
+                                        }
+
+                                        var formData = new FormData($('#clear-bulk-rate-form')[0]);
+
+                                        $.ajax({
+                                            url: baseurl + '/customers_rates/{{$id}}/clear_rate', //Server script to process data
+                                            type: 'POST',
+                                            dataType: 'json',
+                                            success: function (response) {
+                                                clear_rate_processing = 0;
+                                                $(".save.btn").button('reset');
+                                                $('.btn.clear-customer-rate,#clear-bulk-rate').removeAttr('disabled');
+
+                                                if (response.status == 'success') {
+                                                    toastr.success(response.message, "Success", toastr_opts);
+                                                    $("#customer-rate-table-search").submit();
+                                                } else {
+                                                    toastr.error(response.message, "Error", toastr_opts);
+                                                }
+                                            },
+                                            // Form data
+                                            data: formData,
+                                            //Options to tell jQuery not to process data or worry about content-type.
+                                            cache: false,
+                                            contentType: false,
+                                            processData: false
+                                        });
+                                        return false;
+                                    }
+                                    return false;
+                                } else {
                                     return false;
                                 }
-                                return false;
-                            } else {
-                                return false;
                             }
                         });
 
