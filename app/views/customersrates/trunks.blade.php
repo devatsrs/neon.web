@@ -251,7 +251,6 @@ var ratabale = '{{json_encode($rate_tables)}}';
                 if(filtereddata.length != 0) {
                     filtereddata= filtereddata.map(({id, text}) =>  ({[id]: text}));
                     var filtereddata = Object.assign(...filtereddata);
-                    alert(JSON.stringify(filtereddata));
                 }
 
                 self.parent().next().find('.ratetableid').select2('destroy');
