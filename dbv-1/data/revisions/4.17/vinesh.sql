@@ -79,12 +79,12 @@ BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
-		   SELECT tblAutoImportSetting.*, TEMPLATE.Options
-			FROM tblAutoImportSetting
-			INNER JOIN tblFileUploadTemplate AS TEMPLATE ON tblAutoImportSetting.ImportFileTempleteID =TEMPLATE.FileUploadTemplateID
-			WHERE tblAutoImportSetting.CompanyID=p_companyID
-			  AND (FIND_IN_SET(p_FromEmail, SendorEmail) OR FIND_IN_SET(CONCAT('*@',substring_index(p_FromEmail,'@',-1)) , SendorEmail))
-			  AND Subject = p_subject;
+		  SELECT AutoImportSettingID, acimp.CompanyID, TYPE, TypePKID, TrunkID, acimp.ImportFileTempleteID, Subject, FileName, SendorEmail, TEMPLATE.Options
+			FROM tblAutoImportSetting AS acimp
+			INNER JOIN tblFileUploadTemplate AS TEMPLATE ON acimp.ImportFileTempleteID =TEMPLATE.FileUploadTemplateID
+			WHERE
+			(FIND_IN_SET(LOWER(p_FromEmail), LOWER(SendorEmail)) OR FIND_IN_SET(CONCAT('*@', SUBSTRING_INDEX(LOWER(p_FromEmail),'@',-1)), LOWER(SendorEmail)))
+			AND subject=p_subject  order by FileName desc;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
