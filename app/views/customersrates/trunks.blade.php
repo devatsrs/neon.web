@@ -241,14 +241,19 @@ var ratabale = '{{json_encode($rate_tables)}}';
 	        //var RateTableID = self.parent().next().find('[name="[CustomerTrunk['+trunkid+'][RateTableID]"]');
             var RateTableID = self.parent().next().find('.ratetableid');
             var json = JSON.parse(ratabale);
-            //alert(JSON.stringify(json));
+            
             if( typeof  json[trunkid] != 'undefined'){
                 var filtereddata = [];
                 if(typeof json[trunkid][self.val()] !='undefined'){
                     filtereddata = json[trunkid][self.val()];
-                    //filtereddata = filtereddata[0];
                 }
-                //alert(JSON.stringify(filtereddata));
+                //convert json
+                if(filtereddata.length != 0) {
+                    filtereddata= filtereddata.map(({id, text}) =>  ({[id]: text}));
+                    let obj = Object.assign(...filtereddata);
+                    var filtereddata = Object.keys(obj).map(function(k) { return obj[k] });
+                }
+
                 self.parent().next().find('.ratetableid').select2('destroy');
                 rebuildSelect2(RateTableID,filtereddata,'Select');
                 opts = {
