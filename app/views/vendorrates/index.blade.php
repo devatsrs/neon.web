@@ -435,6 +435,7 @@ jQuery(document).ready(function($) {
                     });
                     table.append(tbody);
                     row.child(table).show();
+                    row.child().addClass('no-selection child-row');
                     tr.addClass('shown');
                 }
             });
