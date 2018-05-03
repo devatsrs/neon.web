@@ -97,6 +97,8 @@ class RateTablesController extends \BaseController {
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
         $data['CreatedBy'] = User::get_user_full_name();
+        $data['RateTableName'] = trim($data['RateTableName']);
+
         /*$data['RateGeneratorId'] = isset($data['RateGeneratorId'])?$data['RateGeneratorId']:0;
         if($data['RateGeneratorId'] > 0) {
             $rateGenerator = RateGenerator::where(["RateGeneratorId" => $data['RateGeneratorId']])->get();
@@ -645,6 +647,8 @@ class RateTablesController extends \BaseController {
         $data = Input::all();
         $rateTableId = RateTable::findOrFail($id);
         $data['CompanyID'] = User::get_companyID();
+        $data['RateTableName'] = trim($data['RateTableName']);
+
 
         $rules = array(
             'RateTableName' => 'required|unique:tblRateTable,RateTableName,'.$id.',RateTableId,CompanyID,'.$data['CompanyID'],

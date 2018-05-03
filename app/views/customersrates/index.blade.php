@@ -161,7 +161,7 @@
                             </li>
                             <li>
                                 <a class="generate_rate create" id="changeSelectedCustomerRates" href="javascript:;" >
-                                    Change Selected Rates
+                                    Update Selected Rates
                                 </a>
                             </li>
                             <li>
@@ -1192,7 +1192,7 @@
                             });
                             //table.append(tbody);
                             row.child(table).show();
-                            row.child().addClass('no-selection');
+                            row.child().addClass('no-selection child-row');
                             tr.addClass('shown');
                         }
                     });
