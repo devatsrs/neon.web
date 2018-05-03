@@ -241,7 +241,7 @@ var ratabale = '{{json_encode($rate_tables)}}';
 	        //var RateTableID = self.parent().next().find('[name="[CustomerTrunk['+trunkid+'][RateTableID]"]');
             var RateTableID = self.parent().next().find('.ratetableid');
             var json = JSON.parse(ratabale);
-            
+
             if( typeof  json[trunkid] != 'undefined'){
                 var filtereddata = [];
                 if(typeof json[trunkid][self.val()] !='undefined'){
@@ -250,8 +250,8 @@ var ratabale = '{{json_encode($rate_tables)}}';
                 //convert json
                 if(filtereddata.length != 0) {
                     filtereddata= filtereddata.map(({id, text}) =>  ({[id]: text}));
-                    let obj = Object.assign(...filtereddata);
-                    var filtereddata = Object.keys(obj).map(function(k) { return obj[k] });
+                    var filtereddata = Object.assign(...filtereddata);
+                    alert(JSON.stringify(filtereddata));
                 }
 
                 self.parent().next().find('.ratetableid').select2('destroy');
@@ -276,8 +276,7 @@ var ratabale = '{{json_encode($rate_tables)}}';
                                 current_obj.prop('selected', prev_val);
                                 //current_obj.parent().find('select.select2').select2().select2('val',prev_val);
                                 current_obj.parent().find('select.codedeckid').select2().select2('val',prev_val);
-                                //RateTableID.select2().select2('val','');
-                                $('.ratetableid').select2('val','');
+                                RateTableID.select2().select2('val','');
                                 //selectBox.selectOption('');
                                 current_obj.parent().find('[name="codedeckid"]').val(prev_val);
                                 current_obj.select2().select2('val',prev_val);
