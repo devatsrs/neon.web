@@ -142,6 +142,24 @@
             </div>
         </div>
         <div class="clear"></div>
+
+        {{--<div class="row">
+            <div class="col-md-12">
+                <blockquote class="blockquote-red" style="padding: 6px;">
+                    --}}{{--<p> <strong>Note</strong> </p>--}}{{--
+                    <p> <small>In order to offer new rates use 'Bulk New Offer' OR 'New Offer Selected'.  In order to update rates use 'Update Selected Rates' OR 'Bulk Update'. To Delete rates use 'Bulk Clear' OR 'Clear Selected Rates'.</small> </p>
+                </blockquote>
+            </div>
+        </div>--}}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="alert alert-danger" style="padding: 6px;">
+                    In order to offer new rates use 'Bulk New Offer' OR 'New Offer Selected'.  In order to update rates use 'Update Selected Rates' OR 'Bulk Update'. To Delete rates use 'Bulk Clear' OR 'Clear Selected Rates'.
+                </div>
+            </div>
+        </div>
+
+        <div class="clear"></div>
         <div class="row">
          <div  class="col-md-12">
                 <div class="input-group-btn pull-right" style="width:76px;" id="btn-action">
