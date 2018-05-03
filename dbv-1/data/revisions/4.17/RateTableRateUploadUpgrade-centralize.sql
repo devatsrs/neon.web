@@ -1999,6 +1999,25 @@ CREATE PROCEDURE `prc_ArchiveOldRateTableRate`(
 BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
+	/* SET EndDate of current time to older rates */
+	-- for example there are 3 rates, today's date is 2018-04-11
+	-- 1. Code 	Rate 	EffectiveDate
+	-- 1. 91 	0.1 	2018-04-09
+	-- 2. 91 	0.2 	2018-04-10
+	-- 3. 91 	0.3 	2018-04-11
+	/* Then it will delete 2018-04-09 and 2018-04-10 date's rate */
+	UPDATE
+		tblRateTableRate rtr
+	INNER JOIN tblRateTableRate rtr2
+		ON rtr2.RateTableId = rtr.RateTableId
+		AND rtr2.RateID = rtr.RateID
+	SET
+		rtr.EndDate=NOW()
+	WHERE
+		FIND_IN_SET(rtr.RateTableId,p_RateTableIds) != 0 AND rtr.EffectiveDate <= NOW() AND
+		FIND_IN_SET(rtr2.RateTableId,p_RateTableIds) != 0 AND rtr2.EffectiveDate <= NOW() AND
+		rtr.EffectiveDate < rtr2.EffectiveDate AND rtr.RateTableRateID != rtr2.RateTableRateID;
+
 	/*1. Move Rates which EndDate <= now() */
 
 	INSERT INTO tblRateTableRateArchive
@@ -4497,7 +4516,8 @@ ThisSP:BEGIN
 					tblVendorRate
 				WHERE
 					EffectiveDate=p_EffectiveDate AND
-					((p_Critearea = 0 AND (FIND_IN_SET(VendorRateID,p_VendorRateID) = 0 )) OR p_Critearea = 1)
+					((p_Critearea = 0 AND (FIND_IN_SET(VendorRateID,p_VendorRateID) = 0 )) OR p_Critearea = 1) AND
+					AccountId = p_AccountId
 			)
 		)
 		AND
@@ -4620,6 +4640,18 @@ ThisSP:BEGIN
 
 	-- UPDATE tblRateTableRate SET EndDate=NULL where EndDate='0000-00-00';
 
+	UPDATE
+		tblRateTableRate rtr
+	INNER JOIN tblRateTableRate rtr2
+		ON rtr2.RateTableId = rtr.RateTableId
+		AND rtr2.RateID = rtr.RateID
+	SET
+		rtr.EndDate=NOW()
+	WHERE
+		rtr.EffectiveDate <= NOW() AND
+		rtr2.EffectiveDate <= NOW() AND
+		rtr.EffectiveDate < rtr2.EffectiveDate;
+
 	INSERT INTO tblRateTableRateArchive
    SELECT DISTINCT  null , -- Primary Key column
 							vr.`RateTableRateID`,
@@ -4731,7 +4763,8 @@ ThisSP:BEGIN
 					tblRateTableRate
 				WHERE
 					EffectiveDate=p_EffectiveDate AND
-					((p_Critearea = 0 AND (FIND_IN_SET(RateTableRateID,p_RateTableRateID) = 0 )) OR p_Critearea = 1)
+					((p_Critearea = 0 AND (FIND_IN_SET(RateTableRateID,p_RateTableRateID) = 0 )) OR p_Critearea = 1) AND
+					RateTableId = p_RateTableId
 			)
 		)
 		AND

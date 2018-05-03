@@ -58,29 +58,31 @@ class RateUploadController extends \BaseController {
 
             $options=json_decode($val["Options"], true);
            // print_R($options);exit;
-            if(array_key_exists("skipRows", $options)) {
+            if(!empty($options['skipRows'])) {
                 $arrUploadTmp["start_row"]=$options["skipRows"]["start_row"];
                 $arrUploadTmp["end_row"]=$options["skipRows"]["end_row"];
             }
             else {
                 $arrUploadTmp["start_row"]="0";
-                $arrUploadTmp["start_row_sheet2"]="0";
                 $arrUploadTmp["end_row"]="0";
-                $arrUploadTmp["end_row_sheet2"]="0";
             }
 
-            if(array_key_exists("skipRows_sheet2", $options)){
+            if(!empty($options['skipRows_sheet2'])){
                 $arrUploadTmp["start_row_sheet2"]=$options["skipRows_sheet2"]["start_row"];
                 $arrUploadTmp["end_row_sheet2"]=$options["skipRows_sheet2"]["end_row"];
             }
+            else{
+                $arrUploadTmp["start_row_sheet2"]="0";
+                $arrUploadTmp["end_row_sheet2"]="0";
+            }
 
-            if(array_key_exists("importratesheet", $options)) {
+            if(!empty($options['importratesheet'])) {
                 $arrUploadTmp["importratesheet"]=$options["importratesheet"];
             } else {
                 $arrUploadTmp["importratesheet"]="";
             }
 
-            if(array_key_exists("importdialcodessheet", $options)) {
+            if(!empty($options['importdialcodessheet'])) {
                 $arrUploadTmp["importdialcodessheet"]=$options["importdialcodessheet"];
             } else {
                 $arrUploadTmp["importdialcodessheet"]="";
@@ -373,8 +375,8 @@ class RateUploadController extends \BaseController {
                 $rules_for_type['selection.Description'] = 'required_without:selection2.Description';
                 $rules_for_type['selection2.Description'] = 'required_without:selection.Description';
 
-                $message_for_type['selection.Join1.required'] = "Please Select Join Sheet Field For RateSheet";
-                $message_for_type['selection2.Join2.required'] = "Please Select Join Sheet Field For DialCodeSheet";
+                $message_for_type['selection.Join1.required'] = "Please Select Match Codes with DialCode On For Ratesheet";
+                $message_for_type['selection2.Join2.required'] = "Please Select Match Codes with Rates On For DialCodeSheet";
                 $message_for_type['selection.Code.required_without'] = "Code field is required of sheet1 when Code is not present of sheet2";
                 $message_for_type['selection2.Code.required_without'] = "Code field is required of sheet2 when Code is not present of sheet1";
                 $message_for_type['selection.Description.required_without'] = "Description field is required of sheet1 when Description is not present of sheet2";
@@ -584,8 +586,8 @@ class RateUploadController extends \BaseController {
                 $rules_for_type['selection.Description'] = 'required_without:selection2.Description';
                 $rules_for_type['selection2.Description'] = 'required_without:selection.Description';
 
-                $message_for_type['selection.Join1.required'] = "Please Select Join Sheet Field For RateSheet";
-                $message_for_type['selection2.Join2.required'] = "Please Select Join Sheet Field For DialCodeSheet";
+                $message_for_type['selection.Join1.required'] = "Please Select Match Codes with DialCode On For Ratesheet";
+                $message_for_type['selection2.Join2.required'] = "Please Select Match Codes with Rates On For DialCodeSheet";
                 $message_for_type['selection.Code.required_without'] = "Code field is required of sheet1 when Code is not present of sheet2";
                 $message_for_type['selection2.Code.required_without'] = "Code field is required of sheet2 when Code is not present of sheet1";
                 $message_for_type['selection.Description.required_without'] = "Description field is required of sheet1 when Description is not present of sheet2";
@@ -791,7 +793,7 @@ class RateUploadController extends \BaseController {
                 $results = $ratesheet;
             }
 
-            //echo "<pre>";print_r($results);exit;
+            //echo "<pre>";print_r($results);print_r($attrselection);exit;
 
             $error = array();
             // if EndDate is mapped and not empty than data will store in and insert from $batch_insert_array
@@ -847,12 +849,16 @@ class RateUploadController extends \BaseController {
                     if (!empty($attrselection->Code) || !empty($attrselection2->Code)) {
                         if(!empty($attrselection->Code)) {
                             $selection_Code = $attrselection->Code;
+                            $selection_CountryCode = $attrselection->CountryCode;
                         } else if(!empty($attrselection2->Code)) {
                             $selection_Code = $attrselection2->Code;
+                            $selection_CountryCode = $attrselection2->CountryCode;
                         }
+
                         if (isset($selection_Code) && !empty($selection_Code) && trim($temp_row[$selection_Code]) != '') {
                             $tempdata['Code'] = trim($temp_row[$selection_Code]);
-                        } else if (isset($selection_Code) && !empty($selection_Code) && !empty($temp_row[$selection_Code])) {
+
+                        } else if (isset($selection_CountryCode) && !empty($selection_CountryCode) && !empty($temp_row[$selection_CountryCode])) {
                             $tempdata['Code'] = "";  // if code is blank but country code is not blank than mark code as blank., it will be merged with countr code later ie 91 - 1 -> 911
                         } else {
                             $error[] = 'Code is blank at line no:' . $lineno;
@@ -908,13 +914,15 @@ class RateUploadController extends \BaseController {
                     if(!empty($attrselection->EffectiveDate) || !empty($attrselection2->EffectiveDate)) {
                         if(!empty($attrselection->EffectiveDate)) {
                             $selection_EffectiveDate = $attrselection->EffectiveDate;
+                            $selection_dateformat = $attrselection->DateFormat;
                         } else if(!empty($attrselection2->EffectiveDate)) {
                             $selection_EffectiveDate = $attrselection->EffectiveDate;
+                            $selection_dateformat = $attrselection2->DateFormat;
                         }
 
                         if (isset($selection_EffectiveDate) && !empty($selection_EffectiveDate) && !empty($temp_row[$selection_EffectiveDate])) {
                             try {
-                                $tempdata['EffectiveDate'] = formatSmallDate(str_replace('/', '-', $temp_row[$selection_EffectiveDate]), $attrselection->DateFormat);
+                                $tempdata['EffectiveDate'] = formatSmallDate(str_replace('/', '-', $temp_row[$selection_EffectiveDate]), $selection_dateformat);
                             } catch (\Exception $e) {
                                 $error[] = 'Date format is Wrong  at line no:' . $lineno;
                             }

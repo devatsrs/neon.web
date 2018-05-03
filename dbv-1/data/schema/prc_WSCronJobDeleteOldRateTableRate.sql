@@ -1,5 +1,6 @@
 CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_WSCronJobDeleteOldRateTableRate`(
 	IN `p_DeletedBy` TEXT
+
 )
 ThisSP:BEGIN
     
@@ -20,6 +21,18 @@ ThisSP:BEGIN
 	
 	-- UPDATE tblRateTableRate SET EndDate=NULL where EndDate='0000-00-00';
 	
+	UPDATE 
+		tblRateTableRate rtr
+	INNER JOIN tblRateTableRate rtr2
+		ON rtr2.RateTableId = rtr.RateTableId
+		AND rtr2.RateID = rtr.RateID
+	SET
+		rtr.EndDate=NOW()
+	WHERE  
+		rtr.EffectiveDate <= NOW() AND 
+		rtr2.EffectiveDate <= NOW() AND 
+		rtr.EffectiveDate < rtr2.EffectiveDate;
+         
 	INSERT INTO tblRateTableRateArchive
    SELECT DISTINCT  null , -- Primary Key column
 							vr.`RateTableRateID`,

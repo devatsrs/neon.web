@@ -241,11 +241,14 @@ var ratabale = '{{json_encode($rate_tables)}}';
 	        //var RateTableID = self.parent().next().find('[name="[CustomerTrunk['+trunkid+'][RateTableID]"]');
             var RateTableID = self.parent().next().find('.ratetableid');
             var json = JSON.parse(ratabale);
+            //alert(JSON.stringify(json));
             if( typeof  json[trunkid] != 'undefined'){
                 var filtereddata = [];
                 if(typeof json[trunkid][self.val()] !='undefined'){
                     filtereddata = json[trunkid][self.val()];
+                    //filtereddata = filtereddata[0];
                 }
+                //alert(JSON.stringify(filtereddata));
                 self.parent().next().find('.ratetableid').select2('destroy');
                 rebuildSelect2(RateTableID,filtereddata,'Select');
                 opts = {
@@ -268,11 +271,13 @@ var ratabale = '{{json_encode($rate_tables)}}';
                                 current_obj.prop('selected', prev_val);
                                 //current_obj.parent().find('select.select2').select2().select2('val',prev_val);
                                 current_obj.parent().find('select.codedeckid').select2().select2('val',prev_val);
-                                RateTableID.select2().select2('val','');
+                                //RateTableID.select2().select2('val','');
+                                $('.ratetableid').select2('val','');
                                 //selectBox.selectOption('');
                                 current_obj.parent().find('[name="codedeckid"]').val(prev_val);
                                 current_obj.select2().select2('val',prev_val);
-                                submit_ajax(baseurl + '/customers_rates/delete_customerrates/{{$id}}','Trunkid='+trunkid)
+                                submit_ajax(baseurl + '/customers_rates/delete_customerrates/{{$id}}','Trunkid='+trunkid);
+                                rebuildSelect2(RateTableID,filtereddata,'Select');
                             }else{
                                 current_obj.val(prev_val);
                                 current_obj.prop('selected', prev_val);
