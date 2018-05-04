@@ -1935,7 +1935,7 @@ BEGIN
 					SUM(duration ) as DurationInSec,
 					SUM(billed_duration ) as BillDurationInSec,
 					ud.ServiceID,
-					ud.AvgRate
+					ud.AvgRate as AvgRatePerMin
 				FROM tmp_tblSummaryUsageDetails_ ud
 				GROUP BY ud.area_prefix,ud.Trunk,ud.AccountID,ud.ServiceID,ud.AvgRate;
 
