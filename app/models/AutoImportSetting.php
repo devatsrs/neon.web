@@ -45,6 +45,27 @@ class AutoImportSetting extends \Eloquent
     public static function DeleteautoimportSetting($AutoImportSettingID){
         AutoImportSetting::where('AutoImportSettingID', '=', $AutoImportSettingID)->delete();
     }
-	
+
+    public static function validate($data){
+        $arrWhere=[];
+
+        $AutoImportSettingID=$data["AutoImportSettingID"];
+        $arrWhere["FileName"]=trim($data["FileName"]);
+        $arrWhere["SendorEmail"]=trim($data["SendorEmail"]);
+        $arrWhere["Subject"]=trim($data["Subject"]);
+        $arrWhere["TypePKID"]=$data["TypePKID"];
+//        $arrWhere["ImportFileTempleteID"]=$data["ImportFileTempleteID"];
+
+        if($data["Type"]==1){
+            $arrWhere["TrunkID"]=$data["TrunkID"];
+        }
+
+        if(!empty($AutoImportSettingID)){
+            $result = AutoImportSetting::where($arrWhere)->where("AutoImportSettingID",'!=', $AutoImportSettingID)->count();
+        }else{
+            $result = AutoImportSetting::where($arrWhere)->count();
+        }
+        return $result;
+    }
 
 }
