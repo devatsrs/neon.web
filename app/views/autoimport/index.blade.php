@@ -311,9 +311,7 @@ jQuery(document).ready(function($) {
                     var attach = '';
                     $(".totAttach").html(attchment_array.length);
                     $.each(attchment_array, function (index, value) {
-                        attach += '<li> <a download src="'+data.path+'">'+value+'</a></li>' +
-                                '<div class="links"><a href="'+data.path+'.'+value+ '" target="_blank" class="btn btn-success btn-sm btn-icon icon-left"><i class="entypo-down"></i>@lang('routes.BUTTON_DOWNLOAD_CAPTION')</a> </div>';
-                        return (value !== 'three');
+                        attach += '<div> <a href="javascript:void(0)">'+value+'</a></div>';
                     });
                     $('.attachmentList').html(attach)
                     $('#modal-add-new-account-setting').modal('show', {backdrop: 'static'});
@@ -404,7 +402,7 @@ jQuery(document).ready(function($) {
                         <div class="mail-text"></div>
                         <div class="mail-attachments last_data">
                             <h4><i class="entypo-attach"></i> Attachments (<span class="totAttach"></span>) </h4>
-                            <ul class="attachmentList"></ul>
+                            <div class="attachmentList"></div>
                         </div>
                     </div>
 
