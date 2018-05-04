@@ -97,6 +97,8 @@ class RateTablesController extends \BaseController {
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
         $data['CreatedBy'] = User::get_user_full_name();
+        $data['RateTableName'] = trim($data['RateTableName']);
+
         /*$data['RateGeneratorId'] = isset($data['RateGeneratorId'])?$data['RateGeneratorId']:0;
         if($data['RateGeneratorId'] > 0) {
             $rateGenerator = RateGenerator::where(["RateGeneratorId" => $data['RateGeneratorId']])->get();
@@ -240,7 +242,7 @@ class RateTablesController extends \BaseController {
 
             $EffectiveDate = $EndDate = $Rate = $Interval1 = $IntervalN = $ConnectionFee = 'null';
 
-            if(!empty($data['updateEffectiveDate']) || !empty($data['updateRate']) || !empty($data['updateInterval1']) || !empty($data['updateIntervalN']) || !empty($data['updateConnectionFee']) || !empty($data['EndDate'])) {
+            if(!empty($data['updateEffectiveDate']) || !empty($data['updateRate']) || !empty($data['updateInterval1']) || !empty($data['updateIntervalN']) || !empty($data['updateConnectionFee'])) {// || !empty($data['EndDate'])
                 if(!empty($data['updateEffectiveDate'])) {
                     if(!empty($data['EffectiveDate'])) {
                         $EffectiveDate = "'".$data['EffectiveDate']."'";
@@ -248,13 +250,13 @@ class RateTablesController extends \BaseController {
                         $error=1;
                     }
                 }
-                if(!empty($data['updateEndDate'])) {
+                /*if(!empty($data['updateEndDate'])) {
                     if(!empty($data['EndDate'])) {
                         $EndDate = "'".$data['EndDate']."'";
                     } else if (empty($data['updateType'])) {
                         $error=1;
                     }
-                }
+                }*/
                 if(!empty($data['updateRate'])) {
                     if(!empty($data['Rate'])) {
                         $Rate = "'".floatval($data['Rate'])."'";
@@ -645,6 +647,8 @@ class RateTablesController extends \BaseController {
         $data = Input::all();
         $rateTableId = RateTable::findOrFail($id);
         $data['CompanyID'] = User::get_companyID();
+        $data['RateTableName'] = trim($data['RateTableName']);
+
 
         $rules = array(
             'RateTableName' => 'required|unique:tblRateTable,RateTableName,'.$id.',RateTableId,CompanyID,'.$data['CompanyID'],

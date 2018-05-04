@@ -167,7 +167,7 @@
 <script type="text/javascript">
 var ratabale = '{{json_encode($rate_tables)}}';
     jQuery(document).ready(function ($) {
-        
+
 
         $(".dataTables_wrapper select").select2({
             minimumResultsForSearch: -1
@@ -241,13 +241,21 @@ var ratabale = '{{json_encode($rate_tables)}}';
 	        //var RateTableID = self.parent().next().find('[name="[CustomerTrunk['+trunkid+'][RateTableID]"]');
             var RateTableID = self.parent().next().find('.ratetableid');
             var json = JSON.parse(ratabale);
+
             if( typeof  json[trunkid] != 'undefined'){
                 var filtereddata = [];
                 if(typeof json[trunkid][self.val()] !='undefined'){
                     filtereddata = json[trunkid][self.val()];
                 }
+                //convert json
+                if(filtereddata.length != 0) {
+                    filtereddata= filtereddata.map(({id, text}) =>  ({[id]: text}));
+                    var filtereddata = Object.assign(...filtereddata);
+                }
+
                 self.parent().next().find('.ratetableid').select2('destroy');
                 rebuildSelect2(RateTableID,filtereddata,'Select');
+                RateTableID = self.parent().next().find('.ratetableid');
                 opts = {
                     allowClear: false,
                     minimumResultsForSearch:Infinity,
@@ -272,7 +280,9 @@ var ratabale = '{{json_encode($rate_tables)}}';
                                 //selectBox.selectOption('');
                                 current_obj.parent().find('[name="codedeckid"]').val(prev_val);
                                 current_obj.select2().select2('val',prev_val);
-                                submit_ajax(baseurl + '/customers_rates/delete_customerrates/{{$id}}','Trunkid='+trunkid)
+                                submit_ajax(baseurl + '/customers_rates/delete_customerrates/{{$id}}','Trunkid='+trunkid);
+                                rebuildSelect2(RateTableID,filtereddata,'Select');
+                                RateTableID = self.parent().next().find('.ratetableid');
                             }else{
                                 current_obj.val(prev_val);
                                 current_obj.prop('selected', prev_val);

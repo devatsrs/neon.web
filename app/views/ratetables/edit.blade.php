@@ -135,7 +135,7 @@
             <th width="5%">Previous Rate ({{$code}})</th>
             <th width="5%">Rate ({{$code}})</th>
             <th width="8%">Effective Date</th>
-            <th width="9%">End Date</th>
+            <th width="9%" style="display: none;">End Date</th>
             <th width="8%">Modified Date</th>
             <th width="10%">Modified By</th>
             <th width="20%" > Action</th>
@@ -173,7 +173,7 @@
                 return rateDataTable2(view);
             else
                 return rateDataTable(view);*/
-            return rateDataTable(view);
+            return rateDataTable();
         });
 
         $('#table-4 tbody').on('click', 'tr', function() {
@@ -240,7 +240,7 @@
                             if (response.status == 'success') {
                                 toastr.success(response.message, "Success", toastr_opts);
                                 //data_table.fnFilter('', 0);
-                                rateDataTable(view);
+                                rateDataTable();
                             } else {
                                 toastr.error(response.message, "Error", toastr_opts);
                             }
@@ -317,7 +317,7 @@
                         $('#modal-rate-table').modal('hide');
                         toastr.success(response.message, "Success", toastr_opts);
                         //data_table.fnFilter('', 0);
-                        rateDataTable(view);
+                        rateDataTable();
                     } else {
                         toastr.error(response.message, "Error", toastr_opts);
                     }
@@ -348,7 +348,29 @@
         $("#new-rate-form").submit(function(e){
             e.preventDefault();
             fullurl = baseurl+'/rate_tables/{{$id}}/add_newrate';
-            submit_ajax(fullurl,$("#new-rate-form").serialize());
+
+            $.ajax({
+                url:fullurl, //Server script to process data
+                type: 'POST',
+                dataType: 'json',
+                success: function(response) {
+                    $(".btn").button('reset');
+                    if (response.status == 'success') {
+                        $('.modal').modal('hide');
+                        toastr.success(response.message, "Success", toastr_opts);
+                        if( typeof data_table !=  'undefined'){
+                            rateDataTable();
+                        }
+                    } else {
+                        toastr.error(response.message, "Error", toastr_opts);
+                    }
+                },
+                data: $("#new-rate-form").serialize(),
+                //Options to tell jQuery not to process data or worry about content-type.
+                cache: false
+            });
+
+            //submit_ajax(fullurl,$("#new-rate-form").serialize());
         return false;
         });
         $('#rateid_list').select2({
@@ -416,7 +438,7 @@
         });
     });
 
-    function rateDataTable(view) {
+    function rateDataTable() {
         var GroupBy = $('#rate-table-search #GroupBy').val();
         if(GroupBy == 'GroupByDesc'){
             setCookie('ratetableview','GroupByDesc','30');
@@ -483,7 +505,9 @@
                             }
                         }, //7 Rate
                         {}, //8 Effective Date
-                        {}, //9 End Date
+                        {
+                            "bVisible" : false
+                        }, //9 End Date
                         {}, //10 ModifiedDate
                         {}, //11 ModifiedBy
                         {
@@ -553,7 +577,7 @@
                                 $(".btn.delete").button('reset');
                                 if (response.status == 'success') {
                                     //data_table.fnFilter('', 0);
-                                    rateDataTable(view);
+                                    rateDataTable();
                                 } else {
                                     toastr.error(response.message, "Error", toastr_opts);
                                 }
@@ -735,6 +759,7 @@
                     });
                     table.append(tbody);
                     row.child(table).show();
+                    row.child().addClass('no-selection child-row');
                     tr.addClass('shown');
                 }
             });
@@ -799,12 +824,12 @@
                                 <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        {{--<div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-4" class="control-label">End Date</label>
                                 <input type="text"  name="EndDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
                             </div>
-                        </div>
+                        </div>--}}
                      </div>
 
                 </div>
@@ -893,13 +918,13 @@
                                 <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        {{--<div class="col-md-6">
                             <div class="form-group">
                                 <input type="checkbox" name="updateEndDate" class="" />
                                 <label for="field-4" class="control-label">End Date</label>
                                 <input type="text" name="EndDate" class="form-control datepicker"  data-startdate="{{date('Y-m-d')}}" data-date-format="yyyy-mm-dd" value="" />
                             </div>
-                        </div>
+                        </div>--}}
                      </div>
 
                 </div>
@@ -996,7 +1021,7 @@
 
                         </div>
 
-                        <div class="col-md-6">
+                        {{--<div class="col-md-6">
 
                             <div class="form-group">
                                 <label for="field-4" class="control-label">End Date</label>
@@ -1004,7 +1029,7 @@
                                 <input type="text" name="EndDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
                             </div>
 
-                        </div>
+                        </div>--}}
 
                     </div>
 
