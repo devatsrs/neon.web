@@ -161,7 +161,7 @@
 <div class="tab-content" style="padding:0;">
     <div class="tab-pane active">
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-12" style="overflow-x: scroll">
                 <table class="table table-bordered datatable" id="table-4">
                     <thead>
                     <tr>
@@ -181,6 +181,7 @@
                         <th width="6%" >Prefix</th>
                         <th width="8%" >Trunk</th>
                         <th width="10%" >Service</th>
+                        <th width="10%" >Type</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -337,7 +338,21 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                     { "bSortable": false },
                     { "bSortable": false },
                     { "bSortable": false },
-                    { "bSortable": false }
+                    { "bSortable": false },
+                    {
+                        "bSortable": false,
+                        mRender: function(id, type, full) {
+                            if(full[16] == 0)
+                            {
+                                return "OutBound";
+                            }
+                            else
+                            {
+                                return "InBound";
+                            }
+
+                        }
+                    }
                 ],
                 "fnDrawCallback": function() {
 					$(".dataTables_wrapper select").select2({

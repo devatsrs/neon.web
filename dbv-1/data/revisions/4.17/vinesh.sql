@@ -67,37 +67,102 @@ CREATE TABLE IF NOT EXISTS `tblAutoImportSetting` (
 
 
 
-
 DROP PROCEDURE IF EXISTS `prc_ImportSettingMatch`;
 DELIMITER //
-CREATE  PROCEDURE `prc_ImportSettingMatch`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_ImportSettingMatch`(
 	IN `p_companyID` INT,
 	IN `p_FromEmail` TEXT,
-	IN `p_subject` TEXT
+	IN `p_subject` TEXT,
+	IN `p_filenames` TEXT
 )
 BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
-		   SELECT tblAutoImportSetting.*, TEMPLATE.Options
-			FROM tblAutoImportSetting
-			INNER JOIN tblFileUploadTemplate AS TEMPLATE ON tblAutoImportSetting.ImportFileTempleteID =TEMPLATE.FileUploadTemplateID
-			WHERE tblAutoImportSetting.CompanyID=p_companyID
-			  AND (FIND_IN_SET(p_FromEmail, SendorEmail) OR FIND_IN_SET(CONCAT('*@',substring_index(p_FromEmail,'@',-1)) , SendorEmail))
-			  AND Subject = p_subject;
+		DROP TEMPORARY TABLE IF EXISTS tmp_matchRecord;
+		CREATE TEMPORARY TABLE tmp_matchRecord(
+			`AutoImportSettingID` INT(11),
+			`CompanyID` INT(11) DEFAULT '0',
+			`Type` TINYINT(1),
+			`TypePKID` INT(11),
+			`TrunkID` INT(11),
+			`ImportFileTempleteID` INT(11),
+			`Subject` VARCHAR(255),
+			`FileName` VARCHAR(255),
+			`SendorEmail` TEXT,
+			`options` TEXT
+		);
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_receivedFiles;
+		CREATE TEMPORARY TABLE tmp_receivedFiles(
+			`fileID` INT(11) AUTO_INCREMENT,
+			`receivedFilename` text,
+			PRIMARY KEY (`fileID`)
+		);
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_matchFileLangth;
+		CREATE TEMPORARY TABLE tmp_matchFileLangth(
+			`lognFileName` TEXT,
+			`sortFileName` TEXT,
+			`matchlength` INT(11)
+		);
+
+		  DROP TEMPORARY TABLE IF EXISTS tmp_finalMatch;
+		CREATE TEMPORARY TABLE tmp_finalMatch(
+			`AutoImportSettingID` INT(11),
+			`CompanyID` INT(11) DEFAULT '0',
+			`Type` TINYINT(1),
+			`TypePKID` INT(11),
+			`TrunkID` INT(11),
+			`ImportFileTempleteID` INT(11),
+			`Subject` VARCHAR(255),
+			`FileName` VARCHAR(255),
+			`SendorEmail` TEXT,
+			`options` TEXT,
+			`lognFileName` TEXT,
+			`matchlength` INT(11)
+		);
+
+		SET @values = CONCAT('("', REPLACE(p_filenames, ',', '"), ("'), '")');
+		SET @insert = CONCAT('INSERT INTO tmp_receivedFiles(receivedFilename) VALUES', @values);
+		PREPARE stmt FROM @insert;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+
+		insert tmp_matchRecord (AutoImportSettingID, CompanyID, Type, TypePKID, TrunkID, ImportFileTempleteID, Subject, FileName, SendorEmail, options)
+					SELECT AutoImportSettingID, acimp.CompanyID, TYPE, TypePKID, TrunkID, acimp.ImportFileTempleteID, Subject, FileName, SendorEmail, TEMPLATE.Options
+					FROM tblAutoImportSetting AS acimp
+					INNER JOIN tblFileUploadTemplate AS TEMPLATE ON acimp.ImportFileTempleteID =TEMPLATE.FileUploadTemplateID
+					WHERE
+					(FIND_IN_SET(LOWER(p_FromEmail), LOWER(SendorEmail)) OR FIND_IN_SET(CONCAT('*@', SUBSTRING_INDEX(LOWER(p_FromEmail),'@',-1)), LOWER(SendorEmail)))
+					and
+					lower(Subject) LIKE CONCAT('%', lower(p_subject), '%')
+					order by FileName desc;
+
+		insert tmp_matchFileLangth
+			select t1.receivedFilename as lognFileName, MAX(t2.FileName) as sortFileName, length(MAX(t2.FileName)) AS matchlength from tmp_receivedFiles t1
+			right join tmp_matchRecord t2 ON t1.receivedFilename like concat('%',t2.FileName,'%')
+			where t1.receivedFilename is not null
+			group by t1.receivedFilename
+			order by matchlength desc;
+
+
+		  insert tmp_finalMatch
+		select tmp_matchRecord.*, tmp_matchFileLangth.lognFileName, tmp_matchFileLangth.matchlength from tmp_matchRecord inner join tmp_matchFileLangth on sortFileName=FileName;
+
+	  DROP TEMPORARY TABLE IF EXISTS tmp_finalMatch2;
+		CREATE TEMPORARY TABLE tmp_finalMatch2 as ( select * from tmp_finalMatch);
+
+		select * from tmp_finalMatch where FileName in( select FileName from tmp_finalMatch2 group by FileName having count(FileName)=1 );
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
 END//
 DELIMITER ;
 
-
-
-
-
 DROP PROCEDURE IF EXISTS `prc_getAutoImportSetting_AccountAndRateTable`;
 DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getAutoImportSetting_AccountAndRateTable`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getAutoImportSetting_AccountAndRateTable`(
 	IN `p_SettingType` INT,
 	IN `p_CompanyID` INT,
 	IN `p_TrunkID` INT,
@@ -108,8 +173,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getAutoImportSetting_AccountAnd
 	IN `p_lSortCol` VARCHAR(50),
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_isExport` INT
-
-
 )
 BEGIN
 
@@ -332,22 +395,15 @@ BEGIN
 
 	END IF;
 
-
-
-
-
-
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
 END//
 DELIMITER ;
 
 
-
-
 DROP PROCEDURE IF EXISTS `prc_getAutoImportMail`;
 DELIMITER //
-CREATE  PROCEDURE `prc_getAutoImportMail`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getAutoImportMail`(
 	IN `p_jobType` INT,
 	IN `p_jobStatus` INT,
 	IN `p_CompanyID` INT,
@@ -372,11 +428,10 @@ BEGIN
 
 							select IFNULL(jt.Title, 'Not Match') as jobType,
 							CONCAT(  a.Subject, '<br>', a.AccountName, '<br>', a.`From` )  AS header,
-							a.created_at,a.JobID,IFNULL(js.Title, 'Not Match') as jobstatus,a.AutoImportID, a.AccountID, IFNULL(ac.AccountName, '') from tblAutoImport a
+							a.created_at,a.JobID,IFNULL(js.Title, 'Not Match') as jobstatus,a.AutoImportID, a.AccountID, IFNULL(j.Title, '') as jobTitle from tblAutoImport a
 							left join tblJob j on a.JobID=j.JobID
 							left join tblJobType jt on j.JobTypeID = jt.JobTypeID
 							left join tblJobStatus js on j.JobStatusID=js.JobStatusID
-							left join tblAccount ac on a.AccountID=ac.AccountID
 							where
 								CASE
 									WHEN (p_jobType > 0) THEN
@@ -388,7 +443,7 @@ BEGIN
 								   ELSE
 										a.CompanyID=p_CompanyID
 								END
-								AND ( p_AccountID = 0 OR a.AccountID=p_AccountID )
+								AND ( p_AccountID = 0 OR j.AccountID=p_AccountID )
 								ORDER BY
 								  CASE WHEN p_lSortCol = 'Type' AND p_SortOrder = 'desc' THEN jobType END DESC,
 								  CASE WHEN p_lSortCol = 'Type' THEN jobType END,
@@ -408,11 +463,10 @@ BEGIN
 
 							select IFNULL(jt.Title, 'Not Match') as jobType,
 							CONCAT(  a.Subject, '<br>', a.AccountName, '<br>', a.`From` )  AS header,
-							a.created_at,a.JobID,IFNULL(js.Title, 'Not Match') as jobstatus,a.AutoImportID, a.AccountID, IFNULL(ac.AccountName, '') from tblAutoImport a
+							a.created_at,a.JobID,IFNULL(js.Title, 'Not Match') as jobstatus,a.AutoImportID, a.AccountID, IFNULL(j.Title, '') as jobTitle from tblAutoImport a
 							left join tblJob j on a.JobID=j.JobID
 							left join tblJobType jt on j.JobTypeID = jt.JobTypeID
 							left join tblJobStatus js on j.JobStatusID=js.JobStatusID
-							left join tblAccount ac on a.AccountID=ac.AccountID
 							where
 								CASE
 									WHEN (p_jobType > 0) THEN
@@ -424,6 +478,7 @@ BEGIN
 								   ELSE
 										a.CompanyID=p_CompanyID
 								END
+								AND ( p_AccountID = 0 OR j.AccountID=p_AccountID )
 								ORDER BY
 								  CASE WHEN p_lSortCol = 'Type' AND p_SortOrder = 'desc' THEN jobType END DESC,
 								  CASE WHEN p_lSortCol = 'Type' THEN jobType END,
@@ -446,9 +501,8 @@ BEGIN
 							left join tblJob j on a.JobID=j.JobID
 							left join tblJobType jt on j.JobTypeID = jt.JobTypeID
 							left join tblJobStatus js on j.JobStatusID=js.JobStatusID
-							left join tblAccount ac on a.AccountID=ac.AccountID
-							where 
-								CASE 
+							where
+								CASE
 									WHEN (p_jobType > 0) THEN
 										jt.JobTypeID = p_jobType AND a.CompanyID=p_CompanyID
 									WHEN (p_jobStatus > 0) THEN
@@ -456,12 +510,11 @@ BEGIN
 									WHEN (p_search <> '') THEN
 										    (  a.Subject LIKE CONCAT('%',p_search,'%')  OR a.JobID LIKE CONCAT('%',p_search,'%') )  AND a.CompanyID=p_CompanyID
 								   ELSE
-										a.CompanyID=p_CompanyID				
+										a.CompanyID=p_CompanyID
 								END
+								AND ( p_AccountID = 0 OR j.AccountID=p_AccountID )
 							LIMIT p_RowspPage OFFSET v_OffSet_;
-		
-		
-	
+
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
 END//
