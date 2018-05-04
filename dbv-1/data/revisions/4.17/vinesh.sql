@@ -136,7 +136,7 @@ BEGIN
 					WHERE
 					(FIND_IN_SET(LOWER(p_FromEmail), LOWER(SendorEmail)) OR FIND_IN_SET(CONCAT('*@', SUBSTRING_INDEX(LOWER(p_FromEmail),'@',-1)), LOWER(SendorEmail)))
 					and
-					lower(Subject) LIKE CONCAT('%', lower(p_subject), '%')
+					lower(p_subject) LIKE CONCAT('%', lower(Subject), '%')
 					order by FileName desc;
 
 		insert tmp_matchFileLangth
