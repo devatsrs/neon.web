@@ -382,12 +382,15 @@
                             var SheetNames = response.SheetNames;
                             var Extension = response.FileExtesion;
                             var html = '<option value="">Please Select Sheet</option>';
+                            var html2 = '<option value="">Please Select Sheet</option>';
 
                             for (var i = 0; i < SheetNames.length; i++) {
                                 if (i == 0)
                                     html += '<option value="' + SheetNames[i] + '" selected="selected">' + SheetNames[i] + '</option>';
                                 else
                                     html += '<option value="' + SheetNames[i] + '">' + SheetNames[i] + '</option>';
+
+                                html2 += '<option value="' + SheetNames[i] + '">' + SheetNames[i] + '</option>';
                             }
 
                             $("#importrate").select2("val", "");
@@ -398,7 +401,7 @@
                             if (SheetNames.length > 1)
                             {
                                 $("#importdialcodes").select2("val", "");
-                                $('#importdialcodes').html(html);
+                                $('#importdialcodes').html(html2);
                                 $('#dialcodesBox').removeClass('hidden');
                             }
                             else
