@@ -129,8 +129,15 @@ jQuery(document).ready(function($) {
                                 var subject = array[0];
                                 var action = "";
                                 action +='<a class="add-new-account-setting" id='+full[5]+' style="margin-left:3px" href="javascript:;" >' +subject+'</i></a>';
-                                action +='<br>&nbsp;From : '+array[1];
-                                action +='<br><b>'+full[7]+'&nbsp;('+array[2]+')';
+                                action +='<br>&nbsp;From : '+array[1]+'&nbsp;('+array[2]+')';
+                                if(full[0]=='Vendor Rate Upload'){
+                                    action +='<br>&nbsp;Account : <b>'+full[7]+'</b>';
+                                }else if(full[0]=='Rate Table Upload'){
+                                    action +='<br>&nbsp;Rate Table Name : <b>'+full[7]+'</b>';
+                                }else{
+                                    action +='<br>&nbsp;';
+                                }
+
                                 return action;
                             }
                         },
