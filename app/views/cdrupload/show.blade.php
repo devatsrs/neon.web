@@ -161,7 +161,7 @@
 <div class="tab-content" style="padding:0;">
     <div class="tab-pane active">
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-12" style="overflow-x: scroll">
                 <table class="table table-bordered datatable" id="table-4">
                     <thead>
                     <tr>

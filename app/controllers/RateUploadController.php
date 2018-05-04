@@ -367,7 +367,7 @@ class RateUploadController extends \BaseController {
             //$rules['selection.Code']        = 'required';
             //$rules['selection.Description'] = 'required';
             //$rules['selection.Rate']        = 'required';
-            if(isset($data['importdialcodessheet'])) {
+            if(!empty($data['importdialcodessheet'])) {
                 $rules_for_type['selection.Join1'] = 'required';
                 $rules_for_type['selection2.Join2'] = 'required';
                 $rules_for_type['selection.Code'] = 'required_without:selection2.Code';
@@ -410,7 +410,7 @@ class RateUploadController extends \BaseController {
         $save = array();
         $option["option"]       = $data['option'];
         $option["selection"]    = $data['selection'];
-        if(isset($data['importdialcodessheet'])){
+        if(!empty($data['importdialcodessheet'])){
             $option["skipRows_sheet2"] = array("start_row" => $data["start_row_sheet2"], "end_row" => $data["end_row_sheet2"]);
             $option["importdialcodessheet"] = !empty($data['importdialcodessheet']) ? $data['importdialcodessheet'] : '';
             $option["selection2"] = $data['selection2'];
@@ -578,7 +578,7 @@ class RateUploadController extends \BaseController {
             }
         } else {
 
-            if(isset($data['importdialcodessheet'])) {
+            if(!empty($data['importdialcodessheet'])) {
                 $rules_for_type['selection.Join1'] = 'required';
                 $rules_for_type['selection2.Join2'] = 'required';
                 $rules_for_type['selection.Code'] = 'required_without:selection2.Code';
@@ -624,7 +624,7 @@ class RateUploadController extends \BaseController {
         $save = array();
         $option["option"]       = $data['option'];
         $option["selection"]    = $data['selection'];
-        if(isset($data['importdialcodessheet']))
+        if(!empty($data['importdialcodessheet']))
         {
             $option["skipRows_sheet2"]       = array( "start_row"=>$data["start_row_sheet2"], "end_row"=>$data["end_row_sheet2"] );
             $option["importdialcodessheet"]  = !empty($data['importdialcodessheet']) ? $data['importdialcodessheet'] : '';
@@ -682,7 +682,7 @@ class RateUploadController extends \BaseController {
 
             $csvoption      = $templateoptions->option;
             $attrselection  = $templateoptions->selection;
-            if(isset($data['importdialcodessheet'])) {
+            if(!empty($data['importdialcodessheet'])) {
                 $attrselection2 = $templateoptions->selection2;
             }
 
@@ -738,7 +738,7 @@ class RateUploadController extends \BaseController {
             $NeonExcel = new NeonExcelIO($file_name_with_path, $data, $data['importratesheet']);
             $file_name = $NeonExcel->convertExcelToCSV($data);
 
-            if(isset($data['importdialcodessheet'])) {
+            if(!empty($data['importdialcodessheet'])) {
                 $NeonExcelSheet2 = new NeonExcelIO($file_name_with_path, $data, $data['importdialcodessheet']);
                 $file_name2 = $NeonExcelSheet2->convertExcelToCSV($data);
             }
@@ -758,7 +758,7 @@ class RateUploadController extends \BaseController {
                 $NeonExcel = new NeonExcelIO($file_name, (array) $csvoption);
                 $ratesheet = $NeonExcel->read();
 
-                if(isset($data['importdialcodessheet'])) {
+                if(!empty($data['importdialcodessheet'])) {
                     $skipRows_sheet2 = $templateoptions->skipRows_sheet2;
                     NeonExcelIO::$start_row = intval($skipRows_sheet2->start_row);
                     NeonExcelIO::$end_row = intval($skipRows_sheet2->end_row);
@@ -774,7 +774,7 @@ class RateUploadController extends \BaseController {
             //echo "<pre>";print_r($ratesheet);print_r($dialcodessheet);exit;
 
             //echo "<pre>";print_r($option);exit;
-            if(isset($data['importdialcodessheet'])) {
+            if(!empty($data['importdialcodessheet'])) {
                 $Join1 = $option["selection"]['Join1'];
                 $Join2 = $option["selection2"]['Join2'];
 
@@ -805,7 +805,7 @@ class RateUploadController extends \BaseController {
                 $attrselection->$key = str_replace("\n",'',$attrselection->$key);
             }
 
-            if(isset($data['importdialcodessheet'])) {
+            if(!empty($data['importdialcodessheet'])) {
                 foreach ($attrselection2 as $key => $value) {
                     $attrselection2->$key = str_replace("\r", '', $value);
                     $attrselection2->$key = str_replace("\n", '', $attrselection2->$key);
@@ -849,16 +849,14 @@ class RateUploadController extends \BaseController {
                     if (!empty($attrselection->Code) || !empty($attrselection2->Code)) {
                         if(!empty($attrselection->Code)) {
                             $selection_Code = $attrselection->Code;
-                            $selection_CountryCode = $attrselection->CountryCode;
                         } else if(!empty($attrselection2->Code)) {
                             $selection_Code = $attrselection2->Code;
-                            $selection_CountryCode = $attrselection2->CountryCode;
                         }
 
                         if (isset($selection_Code) && !empty($selection_Code) && trim($temp_row[$selection_Code]) != '') {
                             $tempdata['Code'] = trim($temp_row[$selection_Code]);
 
-                        } else if (isset($selection_CountryCode) && !empty($selection_CountryCode) && !empty($temp_row[$selection_CountryCode])) {
+                        } else if (!empty($tempdata['CountryCode'])) {
                             $tempdata['Code'] = "";  // if code is blank but country code is not blank than mark code as blank., it will be merged with countr code later ie 91 - 1 -> 911
                         } else {
                             $error[] = 'Code is blank at line no:' . $lineno;

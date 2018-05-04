@@ -76,7 +76,7 @@ class FileUploadTemplate extends \Eloquent {
             $option["importratesheet"]  = !empty($data['importratesheet']) ? $data['importratesheet'] : '';
             $option["option"]           = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
             $option["selection"]        = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
-            if(isset($data['importdialcodessheet'])) {
+            if(!empty($data['importdialcodessheet'])) {
                 $option["skipRows_sheet2"] = array("start_row" => !empty($data["start_row_sheet2"]) ? $data["start_row_sheet2"] : 0, "end_row" => !empty($data["end_row_sheet2"]) ? $data["end_row_sheet2"] : 0);
                 $option["importdialcodessheet"] = !empty($data['importdialcodessheet']) ? $data['importdialcodessheet'] : '';
                 $option["selection2"] = $data['selection2'];
@@ -150,7 +150,7 @@ class FileUploadTemplate extends \Eloquent {
                 $option["importratesheet"]  = !empty($data['importratesheet']) ? $data['importratesheet'] : '';
                 $option["option"]           = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
                 $option["selection"]        = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
-                if(isset($data['importdialcodessheet'])) {
+                if(!empty($data['importdialcodessheet'])) {
                     $option["skipRows_sheet2"] = array("start_row" => !empty($data["start_row_sheet2"]) ? $data["start_row_sheet2"] : 0, "end_row" => !empty($data["end_row_sheet2"]) ? $data["end_row_sheet2"] : 0);
                     $option["importdialcodessheet"] = !empty($data['importdialcodessheet']) ? $data['importdialcodessheet'] : '';
                     $option["selection2"] = $data['selection2'];
@@ -230,7 +230,7 @@ class FileUploadTemplate extends \Eloquent {
             $rules_for_type['selection.Amount']                             = 'required';
         }else if($data['TemplateType'] == 8) { //vendor rate
 
-            if(isset($data['importdialcodessheet'])) {
+            if(!empty($data['importdialcodessheet'])) {
                 $rules_for_type['selection.Join1'] = 'required';
                 $rules_for_type['selection2.Join2'] = 'required';
                 $rules_for_type['selection.Code'] = 'required_without:selection2.Code';
