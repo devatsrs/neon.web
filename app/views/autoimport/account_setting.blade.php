@@ -228,7 +228,7 @@ jQuery(document).ready(function($) {
             $("#add-new-form").trigger("reset");
             $("#add-new-form .select2").trigger("change.select2");
             $('#modal-add-new-account-setting').trigger("reset");
-            $('#modal-add-new-account-setting .modal-title').html("Edit New Vendor Setting");
+            $('#modal-add-new-account-setting .modal-title').html("Edit Vendor Setting");
             $("#modal-add-new-account-setting [name='TypePKID']").select2('val', $(this).attr('data-id'));
             $("#modal-add-new-account-setting [name='ImportFileTempleteID']").select2('val', $(this).attr('data-uploadtemplate'));
             $("#modal-add-new-account-setting [name='TrunkID']").select2('val', $(this).attr('data-TrunkID'));
@@ -261,8 +261,44 @@ jQuery(document).ready(function($) {
             submit_ajax(update_new_url,$("#add-new-form").serialize());
          });
 
-    });
+        $("select[name='TypePKID']").on('change', function(){
+            var TypePKID   = $("select[name=TypePKID]").val();
+            if(TypePKID!=""){
+                getTrunk("vendor",TypePKID);
+            }else{
+                toastr.error("Please Select One Vendor", "Error", toastr_opts);
+            }
+        });
 
+    });
+    function getTrunk($RateUploadType,id) {
+        return $.ajax({
+            url: '{{URL::to('rate_upload/getTrunk')}}/'+$RateUploadType,
+            data: 'Type='+$RateUploadType+'&id='+id,
+            type: 'POST',
+            dataType: 'json',
+            success: function (response) {
+                if (response.status == 'success') {
+                    var html = '';
+                    var Trunks = response.trunks;
+
+                    for(key in Trunks) {
+                        if(Trunks[key] == 'Select') {
+                            html += '<option value="'+key+'" selected>'+Trunks[key]+'</option>';
+                        } else {
+                            html += '<option value="'+key+'">'+Trunks[key]+'</option>';
+                        }
+                    }
+                    $("select[name=TrunkID]").html(html).trigger('change');
+                } else {
+                    toastr.error(response.message, "Error", toastr_opts);
+                }
+            },
+            error: function () {
+                toastr.error("error", "Error", toastr_opts);
+            }
+        });
+    }
 </script>
 @include('includes.errors')
 @include('includes.success')

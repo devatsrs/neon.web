@@ -157,6 +157,11 @@ class AutoRateImportController extends \BaseController {
 		if ($validator->fails()) {
 			return json_validator_response($validator);
 		}
+
+		if(AutoImportSetting::validate($data)){
+			return Response::json(array("status" => "failed", "message" => "Same data available. Please Change data"));
+		}
+
 		unset($data['file_subject_required']);
 		if (!empty($data["AutoImportSettingID"])){
 
