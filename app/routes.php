@@ -826,6 +826,7 @@ Route::group(array('before' => 'auth'), function () {
 
 	Route::any('/company/download_rate_sheet_template', 'CompaniesController@DownloadRateSheetTemplate');
 	Route::any('/company/download_rate_sheet_default_template', 'CompaniesController@DownloadRateSheetTemplateDefault');
+	Route::any('/company/download_digitalSignature/{file}', 'CompaniesController@DownloadDigitalSignature');
 	//Route::resource('Companies', 'CompaniesController');
 
 	//payment
