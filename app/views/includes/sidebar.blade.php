@@ -102,6 +102,9 @@
     <li class="{{check_uri('Rates')}}"> <a href="#"> <i class="fa fa-table"></i> <span>&nbsp;Rate Management</span> </a>
       <ul>
         @if(User::checkCategoryPermission('RateTables','View'))
+          <li> <a href="{{URL::to('/rate_upload')}}">  <span>Upload Rates</span> </a> </li>
+        @endif
+        @if(User::checkCategoryPermission('RateTables','View'))
         <li> <a href="{{URL::to('/rate_tables')}}">  <span>Rate Tables</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('LCR','All'))
@@ -116,6 +119,25 @@
         @if(User::checkCategoryPermission('VendorProfiling','All'))
         <li> <a href="{{URL::to('/vendor_profiling')}}">  <span>Vendor Profiling</span> </a> </li>
         @endif
+
+        {{--  for the Auto import link  --}}
+        @if(User::checkCategoryPermission('TicketImportRules','View'))
+            <li> <a href="{{URL::to('/auto_rate_import/autoimport')}}">  <span>Rate Import</span> </a> </li>
+
+            <ul >
+              @if(User::checkCategoryPermission('TicketDashboard','View'))
+                <li> <a href="{{URL::to('/auto_rate_import/import_inbox_setting')}}">  <span>Import Inbox Settings</span> </a> </li>
+              @endif
+              @if(User::checkCategoryPermission('TicketDashboard','View'))
+                <li> <a href="{{URL::to('/auto_rate_import/account_setting')}}">  <span>Account Settings</span> </a> </li>
+              @endif
+              @if(User::checkCategoryPermission('AutoRateImportController','View'))
+                <li> <a href="{{URL::to('/auto_rate_import/ratetable_setting')}}">  <span>Rate Table Settings </span> </a> </li>
+              @endif
+            </ul>
+          </li>
+        @endif
+        {{--  for the Auto import link  --}}
 
       </ul>
     </li>
@@ -291,6 +313,7 @@
          @if( User::checkCategoryPermission('ServerInfo','View'))
         <li> <a href="{{URL::to('/serverinfo')}}">  <span>Server Monitor</span> </a> </li>
     	@endif
+          <li> <a href="{{URL::to('/translate')}}">  <span>Translation</span> </a> </li>
       </ul>
     </li>
     @endif

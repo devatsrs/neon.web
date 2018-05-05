@@ -5,6 +5,8 @@ class AccountPaymentProfile extends \Eloquent
     protected $guarded = array('AccountPaymentProfileID');
     protected $table = 'tblAccountPaymentProfile';
     protected $primaryKey = "AccountPaymentProfileID";
+    public static $StatusActive = 1;
+    public static $StatusDeactive = 0;
 
     public static function getActiveProfile($AccountID,$PaymentGatewayID)
     {
@@ -118,10 +120,11 @@ class AccountPaymentProfile extends \Eloquent
 
     public static function paynow($CompanyID, $AccountID, $Invoiceids, $CreatedBy, $AccountPaymentProfileID)
     {
+        $account = Account::find($AccountID);
         $data = [];
         $data['CompanyName'] 		= 	Company::getName($CompanyID);
         $data['ComapnyID']          =   $CompanyID;
-        $data['EmailTemplate'] 		= 	EmailTemplate::where(["SystemType"=>EmailTemplate::InvoicePaidNotificationTemplate])->first();
+        $data['EmailTemplate'] 		= 	EmailTemplate::getSystemEmailTemplate($CompanyID, EmailTemplate::InvoicePaidNotificationTemplate, $account->LanguageID);
         $Invoices = explode(',', $Invoiceids);
         $fullnumber = '';
         if(count($Invoices)>0){
@@ -134,7 +137,7 @@ class AccountPaymentProfile extends \Eloquent
             $fullnumber = rtrim($fullnumber,',');
         }
 
-        $account = Account::find($AccountID);
+
         $AccountBilling = AccountBilling::getBilling($AccountID);
         /* removed account outstandig condition */
         //$outstanginamounttotal = Account::getOutstandingAmount($CompanyID,$account->AccountID,get_round_decimal_places($account->AccountID));

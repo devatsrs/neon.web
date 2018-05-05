@@ -82,11 +82,91 @@ class PaymentsCustomerController extends \BaseController {
         $companyID = Customer::get_companyID();
         $CurrencyId = Company::where("CompanyID", '=', $companyID)->pluck('CurrencyId');
         $currency = Currency::where('CurrencyId',$CurrencyId)->pluck('Code');
-        $AccountID = Customer::get_accountID();
-        $method = array(''=>'Select ','CASH'=>'CASH','PAYPAL'=>'PAYPAL','CHEQUE'=>'CHEQUE','CREDIT CARD'=>'CREDIT CARD','BANK TRANSFER'=>'BANK TRANSFER');
-        $action = array(''=>'Select ','Payment In'=>'Payment out','Payment Out'=>'Payment In');
-        $status = array(''=>'Select ','Pending Approval'=>'Pending Approval','Approved'=>'Approved','Rejected'=>'Rejected');
-        return View::make('customer.payments.index', compact('id','currency','method','type','status','action','AccountID'));
+
+        $Account = Customer::get_currentUser();
+
+        $StripeACHCount=0;
+        $AccountPaymentProfile = AccountPaymentProfile::where(['PaymentGatewayID'=> PaymentGateway::StripeACH,'AccountID'=>$Account->AccountID,'Status'=>1])->count();
+        if($AccountPaymentProfile>0){
+            $StripeACHCount=1;
+        }
+
+        $method = array(
+            ''=>cus_lang("DROPDOWN_OPTION_SELECT")
+        );
+        if(empty($Account->ShowAllPaymentMethod)){
+            if(($Account->PaymentMethod == 'AuthorizeNet') && (is_authorize($Account->CompanyID)  ) ){
+                $method["online_AuthorizeNet"]="AuthorizeNet";
+            }
+            if(($Account->PaymentMethod == 'Stripe') && (is_Stripe($Account->CompanyID)  ) ){
+                $method["online_Stripe"]="Stripe";
+            }
+            if(is_FideliPay($Account->CompanyID)){
+                $method["online_FideliPay"]="FideliPay";
+            }
+            if(($Account->PaymentMethod == 'StripeACH') && (is_StripeACH($Account->CompanyID) && $StripeACHCount==1 ) ){
+                $method["online_StripeACH"]="StripeACH";
+            }
+            if(($Account->PaymentMethod == 'Paypal') && (is_paypal($Account->CompanyID)  ) ){
+                $method["online_Paypal"]=cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_PAYPAL");
+            }
+            if(($Account->PaymentMethod == 'SagePay') && (is_sagepay($Account->CompanyID)  ) ){
+                $method["online_SagePay"]="SagePay";
+            }
+        }else{
+            /*$method = array_merge($method, array(
+                'CASH'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_CASH"),
+//                    'PAYPAL'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_PAYPAL"),
+                'CHEQUE'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_CHEQUE"),
+                'CREDIT CARD'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_CREDIT_CARD"),
+                'BANK TRANSFER'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_BANK_TRANSFER")
+            ));*/
+            
+            if(is_authorize($Account->CompanyId)){
+                $method["online_AuthorizeNet"]="AuthorizeNet";
+            }
+            if(is_Stripe($Account->CompanyID)){
+                $method["online_Stripe"]="Stripe";
+            }
+            if(is_FideliPay($Account->CompanyID)){
+                $method["online_FideliPay"]="FideliPay";
+            }
+            if(is_StripeACH($Account->CompanyID) && $StripeACHCount==1){
+                $method["online_StripeACH"]="StripeACH";
+            }
+            if(is_paypal($Account->CompanyID)){
+                $method["online_Paypal"]=cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD_DDL_PAYPAL");
+            }
+            if(is_sagepay($Account->CompanyID)){
+                $method["online_SagePay"]="SagePay";
+            }
+
+        }
+
+        $CurrencyCode 		= 	!empty($Currency) ? $Currency->Code : '';
+
+        $paypal_button = $sagepay_button = "";
+        $paypal = new PaypalIpn($Account->CompanyID);
+        if(!empty($paypal->status)){
+            $paypal->item_title =  Company::getName($Account->CompanyID);
+            $paypal->item_number =  0;
+            $paypal->curreny_code =  $CurrencyCode;
+            $paypal->amount = 0;
+            $paypal_button = $paypal->get_paynow_button($Account->AccountID, 0, url('/customer/payments'), url('/customer/payments'));
+        }
+        if ( (new SagePay($Account->CompanyID))->status()) {
+            $SagePay = new SagePay($Account->CompanyID);
+            $SagePay->item_title =  Company::getName($Account->CompanyID);
+            $SagePay->item_number =  0;
+            $SagePay->curreny_code =  $CurrencyCode;
+            $SagePay->amount = 0;
+            $sagepay_button = $SagePay->get_paynow_button($Account->AccountID, 0);
+        }
+
+        $action = array(''=>cus_lang("DROPDOWN_OPTION_SELECT"),'Payment In'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_ACTION_DDL_PAYMENT_OUT"),'Payment Out'=>cus_lang("CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_ACTION_DDL_PAYMENT_IN"));
+        $status = array(''=>cus_lang("DROPDOWN_OPTION_SELECT"),'Pending Approval'=>'Pending Approval','Approved'=>'Approved','Rejected'=>'Rejected');
+        $AccountDetailsID = AccountDetails::where('AccountID',$Account->AccountID)->pluck('CustomerPaymentAdd');
+        return View::make('customer.payments.index', compact('id','currency','method','type','status','action','Account','AccountDetailsID', 'paypal_button', 'sagepay_button'));
 	}
 
     /**
@@ -101,7 +181,7 @@ class PaymentsCustomerController extends \BaseController {
         if($isvalid['valid']==1) {
             $save = $isvalid['data'];
             unset($save['Currency']);
-            $save['Status'] = 'Pending Approval';
+            $save['Status'] = 'Approved';
             if(isset($save['InvoiceNo'])) {
                 $save['InvoiceID'] = (int)Invoice::where(array('FullInvoiceNumber'=>$save['InvoiceNo'],'AccountID'=>$save['AccountID']))->pluck('InvoiceID');
             }
@@ -111,13 +191,20 @@ class PaymentsCustomerController extends \BaseController {
 
                 $PendingApprovalPayment = explode(',', $PendingApprovalPayment);
                 $data['EmailToName'] = Company::getName($companyID);
-                $data['Subject']= 'Payment verification';
                 $save['AccountName'] = Customer::get_user_full_name();
+                $data['Subject']= Customer::get_accountName().' Payment verification';
                 $data['data'] = $save;
                 $data['data']['Currency'] = Currency::getCurrencyCode($save['CurrencyID']);
                 $data['data']['AccountName'] = Customer::get_accountName();
                 $data['data']['CreatedBy'] = Customer::get_accountName();
-                //$billingadminemails = User::where(["CompanyID" => $companyID, "Status" => 1])->where('Roles', 'like', '%Billing Admin%')->get(['EmailAddress']);
+                foreach($PendingApprovalPayment as $billingemail){
+                    $billingemail = trim($billingemail);
+                    if(filter_var($billingemail, FILTER_VALIDATE_EMAIL)) {
+                        $data['EmailTo'] = $billingemail;
+                        $status = sendMail('emails.admin.payment', $data);
+                    }
+                }
+                /*
                 $resource = DB::table('tblResourceCategories')->select('ResourceCategoryID')->where([ "ResourceCategoryName"=>'BillingAdmin',"CompanyID" => $companyID])->first();
                 $userid=[];
                 if(!empty($resource->ResourceCategoryID)){
@@ -129,15 +216,6 @@ class PaymentsCustomerController extends \BaseController {
                     }
                 }
                 $billingadminemails = User::where(["CompanyID" => $companyID, "Status" => 1])->whereIn('UserID', $userid)->get(['EmailAddress']);
-
-                foreach($PendingApprovalPayment as $billingemail){
-                    $billingemail = trim($billingemail);
-                    if(filter_var($billingemail, FILTER_VALIDATE_EMAIL)) {
-                        $data['EmailTo'] = $billingemail;
-                        $status = sendMail('emails.admin.payment', $data);
-                    }
-                }
-
                 foreach($billingadminemails as $billingadminemail){
                     $billingadminemail = trim($billingadminemail);
                     if(filter_var($billingadminemail->EmailAddress, FILTER_VALIDATE_EMAIL)) {
@@ -145,10 +223,13 @@ class PaymentsCustomerController extends \BaseController {
                         $status = sendMail('emails.admin.payment', $data);
                     }
                 }
+                */
+
+                //@TODO: swipe required - multiLanguage
                 $message = isset($status['message'])?' and '.$status['message']:'';
-                return Response::json(array("status" => "success", "message" => "Payment Successfully Created ". $message ));
+                return Response::json(array("status" => "success", "message" => cus_lang("CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MSG_PAYMENT_SUCCESSFULLY_CREATED")));
             } else {
-                return Response::json(array("status" => "failed", "message" => "Problem Creating Payment."));
+                return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MSG_PROBLEM_CREATING_PAYMENT')));
             }
         }else{
             return $isvalid['message'];
@@ -241,6 +322,16 @@ class PaymentsCustomerController extends \BaseController {
 
         return json_encode($result4,JSON_NUMERIC_CHECK);
 
+    }
+
+    public function  download_doc($id){
+        $FileName = Payment::where(["PaymentID"=>$id])->pluck('PaymentProof');
+        $CompanyID = Payment::where(["PaymentID"=>$id])->pluck('CompanyID');
+        log::info('FileName '.$FileName);
+        $FilePath =  AmazonS3::preSignedUrl($FileName,$CompanyID);
+        log::info('filepath '.$FilePath);
+        download_file($FilePath);
+        exit;
     }
 
 }

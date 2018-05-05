@@ -24,7 +24,13 @@ class RateCustomerController extends \BaseController {
         $sort_column = $columns[$data['iSortCol_0']];
         $companyID = Customer::get_companyID();
 
-        $query = "call prc_GetCustomerRate (".$companyID.",".$id.",".$data['Trunk'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$data['Effected_Rates_on_off'].",'".intval($data['RoutinePlanFilter'])."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        if($data['Effective'] == 'CustomDate') {
+            $CustomDate = $data['CustomDate'];
+        } else {
+            $CustomDate = date('Y-m-d');
+        }
+
+        $query = "call prc_GetCustomerRate (".$companyID.",".$id.",".$data['Trunk'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."','".$CustomDate."',".$data['Effected_Rates_on_off'].",'".intval($data['RoutinePlanFilter'])."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         //log::info("call prc_GetCustomerRate (".$companyID.",".$id.",".$data['Trunk'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$data['Effected_Rates_on_off'].",'".intval($data['RoutinePlanFilter'])."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)");
 
         if(isset($data['Export']) && $data['Export'] == 1) {
@@ -145,7 +151,7 @@ class RateCustomerController extends \BaseController {
             $displayinbound = 0;
         }
         if($displayinbound == 0){
-            return  Redirect::to('customer/customers_rates')->with('info_message', 'No Inbound Rate table assign');
+            return  Redirect::to('customer/customers_rates')->with('info_message', Lang::get("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_MSG_NO_INBOUND_RATE_TABLE_ASSIGN"));
         }
         $displayservice = 0;
         if($this->displayServiceRate($id)){

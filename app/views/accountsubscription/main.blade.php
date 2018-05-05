@@ -49,10 +49,12 @@
 @include('includes.errors')
 @include('includes.success')
 <div class="clear"></div>
-<div class="text-right"> <a  id="add-subscription" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
-  <div class="clear clearfix"><br>
-  </div>
-</div>
+@if(User::checkCategoryPermission('AccountSubscription','Add'))
+    <div class="text-right"> <a  id="add-subscription" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
+      <div class="clear clearfix"><br>
+      </div>
+    </div>
+@endif
 <table id="table-subscription" class="table table-bordered datatable">
   <thead>
     <tr>
@@ -132,7 +134,7 @@
                     $('#subscription-form [name="DailyFee"]').val(daily.toFixed(decimal_places));
                 });
 
-            var list_fields  = ["SequenceNo","AccountName","ServiceName", "Name", "InvoiceDescription", "Qty", "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee","tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee","tblBillingSubscription.MonthlyFee", "tblBillingSubscription.QuarterlyFee", "tblBillingSubscription.AnnuallyFee", "AccountSubscriptionID", "SubscriptionID","ExemptTax","AccountID",'ServiceID'];
+            var list_fields  = ["SequenceNo","AccountName","ServiceName", "Name", "InvoiceDescription", "Qty", "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee","tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee","tblBillingSubscription.MonthlyFee", "tblBillingSubscription.QuarterlyFee", "tblBillingSubscription.AnnuallyFee", "AccountSubscriptionID", "SubscriptionID","ExemptTax","AccountID",'ServiceID','Status'];
             public_vars.$body = $("body");
             var $search = {};
             var subscription_add_url = baseurl + "/account_subscription/{id}/store";            
@@ -200,8 +202,12 @@
 								 subscription_delete_url = subscription_delete_url.replace("{AccountID}",edit_account);
 								 
                                  action += '</div>';
+                                @if(User::checkCategoryPermission('AccountSubscription','Edit'))
                                  action += ' <a href="' + subscription_edit_url+'" title="Edit" class="edit-subscription btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
+                                @endif
+                                @if(User::checkCategoryPermission('AccountSubscription','Delete'))
                                  action += ' <a href="' + subscription_delete_url+'" title="Delete" class="delete-subscription btn btn-danger btn-sm"><i class="entypo-trash"></i></a>'
+                                @endif
                                  return action;
                             }
                           }
@@ -253,6 +259,7 @@
                 });
                 $('table tbody').on('click', '.edit-subscription', function (ev) {
                         ev.preventDefault();
+                        console.log('status');
                         $('#modal-edit-subscription').trigger("reset");
                         var edit_url  = $(this).attr("href");
                         $('#subscription-form-edit').attr("action",edit_url);
@@ -266,6 +273,13 @@
                                     $('[name="ExemptTax"]').prop('checked',true);
                                 }else{
                                     $('[name="ExemptTax"]').prop('checked',false);
+                                }
+
+                            }else if(list_fields[i] == 'Status'){
+                                if(cur_obj.find("input[name='Status']").val() == 1 ){
+                                    $('[name="Status"]').prop('checked',true).change();
+                                }else{
+                                    $('[name="Status"]').prop('checked',false).change();
                                 }
 
                             }
@@ -578,6 +592,18 @@
               </div>
             </div>
           </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="field-5" class="control-label">Active</label>
+                        <div class="clear">
+                            <p class="make-switch switch-small">
+                                <input type="checkbox" name="Status" value="0">
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <input type="hidden" name="AccountSubscriptionID">
         <div class="modal-footer">
@@ -707,6 +733,18 @@
                             </div>
                         </div>
                     </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Active</label>
+                                <div class="clear">
+                                    <p class="make-switch switch-small">
+                                        <input type="checkbox" name="Status" value="0">
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <input type="hidden" name="AccountSubscriptionID">

@@ -9,8 +9,12 @@ class AccountsController extends \BaseController {
     }
 
     public function ajax_datagrid($type) {
-        $CompanyID = User::get_companyID();
         $data = Input::all();
+        $CompanyID = User::get_companyID();
+        $data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
+        if(is_reseller()){
+            $data['ResellerOwner'] = Reseller::getResellerID();
+        }
         $data['iDisplayStart'] +=1;
         $userID = 0;
         if (User::is('AccountManager')) { // Account Manager
@@ -29,7 +33,7 @@ class AccountsController extends \BaseController {
         //$data['contact_name'] = $data['contact_name']!= ''?$data['contact_name']:'';
         $columns = array('AccountID','Number','AccountName','Ownername','Phone','OutStandingAmount','UnbilledAmount','PermanentCredit','AccountExposure','Email','AccountID');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['reseller_on_off'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data["ipclitext"]."','".$data['low_balance']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['reseller_on_off'].",".$data['ResellerOwner'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data["ipclitext"]."','".$data['low_balance']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             \Illuminate\Support\Facades\Log::info("Account query ".$query.',2)');
@@ -51,6 +55,8 @@ class AccountsController extends \BaseController {
             })->download('xls');*/
         }
         $query .=',0)';
+
+        log::info($query);
 
         return DataTableSql::of($query)->make();
     }
@@ -138,7 +144,8 @@ class AccountsController extends \BaseController {
 
         $BillingClass = BillingClass::getDropdownIDList(User::get_companyID());
         $timezones = TimeZone::getTimeZoneDropdownList();
-        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','bulk_type','Currencies','BillingClass','timezones'));
+        $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
+        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','bulk_type','Currencies','BillingClass','timezones','reseller_owners'));
 
     }
 
@@ -166,7 +173,8 @@ class AccountsController extends \BaseController {
                 unset($doc_status[Account::VERIFIED]);
             }
             $dynamicfields = Account::getDynamicfields('account',0);
-            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company'));
+            $reseller_owners = Reseller::getDropdownIDList($company_id);
+            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company','reseller_owners'));
     }
 
     /**
@@ -179,6 +187,15 @@ class AccountsController extends \BaseController {
             $ServiceID = 0;
             $data = Input::all();
             $companyID = User::get_companyID();
+            $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
+            if($ResellerOwner>0){
+                $Reseller = Reseller::getResellerDetails($ResellerOwner);
+                $ResellerCompanyID = $Reseller->ChildCompanyID;
+                $ResellerUser =User::where('CompanyID',$ResellerCompanyID)->first();
+                $ResellerUserID = $ResellerUser->UserID;
+                $companyID=$ResellerCompanyID;
+                $data['Owner'] = $ResellerUserID;
+            }
             $data['CompanyID'] = $companyID;
             $data['AccountType'] = 1;
             $data['IsVendor'] = isset($data['IsVendor']) ? 1 : 0;
@@ -200,7 +217,9 @@ class AccountsController extends \BaseController {
             if($data['IsReseller']==1){
                 $data['IsCustomer']=1;
                 $data['IsVendor']=0;
-            }
+             }
+
+            unset($data['ResellerOwner']);
 
             //when account varification is off in company setting then varified the account by default.
             $AccountVerification =  CompanySetting::getKeyVal('AccountVerification');
@@ -238,8 +257,8 @@ class AccountsController extends \BaseController {
             }
         }
 
-            Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,CompanyID,' . $data['CompanyID'].',AccountType,1';
-            Account::$rules['Number'] = 'required|unique:tblAccount,Number,NULL,CompanyID,CompanyID,' . $data['CompanyID'];
+            Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,AccountType,1';
+            Account::$rules['Number'] = 'required|unique:tblAccount,Number,NULL,CompanyID';
 
             if(DynamicFields::where(['CompanyID' => $companyID, 'Type' => 'account', 'FieldSlug' => 'vendorname', 'Status' => 1])->count() > 0 && $data['IsVendor'] == 1) {
                 Account::$rules['vendorname'] = 'required';
@@ -286,6 +305,13 @@ class AccountsController extends \BaseController {
                 if (trim(Input::get('Number')) == '') {
                     CompanySetting::setKeyVal('LastAccountNo', $account->Number);
                 }
+
+                $AccountDetails=array();
+                //$AccountDetails['ResellerOwner'] = $ResellerOwner;
+                $AccountDetails['AccountID'] = $account->AccountID;
+                AccountDetails::create($AccountDetails);
+
+
                 $account->update($data);
                 return Response::json(array("status" => "success", "message" => "Account Successfully Created", 'LastID' => $account->AccountID, 'redirect' => URL::to('/accounts/' . $account->AccountID . '/edit')));
             } else {
@@ -363,9 +389,14 @@ class AccountsController extends \BaseController {
 			$vendor   = $account->IsVendor?1:0;
 			$Customer = $account->IsCustomer?1:0;
 			$Reseller = $account->IsReseller?1:0;
+            $ResellerOwner=0;
+            $data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
+            if(is_reseller()){
+                $data['ResellerOwner'] = Reseller::getResellerID();
+            }
 
-			//get account card data
-             $sql 						= 	 "call prc_GetAccounts (".$companyID.",0,'".$vendor."','".$Customer."','".$Reseller."','".$account->Status."','".$account->VerificationStatus."','".$account->Number."','','".$account->AccountName."','".$account->tags."','',0,1 ,1,'AccountName','asc',0)";
+            //get account card data
+             $sql 						= 	 "call prc_GetAccounts (".$companyID.",0,'".$vendor."','".$Customer."','".$Reseller."','".$ResellerOwner."','".$account->Status."','".$account->VerificationStatus."','".$account->Number."','','".$account->AccountName."','".$account->tags."','',0,1 ,1,'AccountName','asc',0)";
             $Account_card  				= 	 DB::select($sql);
 			$Account_card  				=	 array_shift($Account_card);
 			
@@ -481,9 +512,11 @@ class AccountsController extends \BaseController {
 	}
 	 
     public function edit($id) {
+        Payment::multiLang_init();
         $ServiceID = 0;
         $account = Account::find($id);
-        $companyID = User::get_companyID();
+        $companyID = $account->CompanyId;
+        //$companyID = User::get_companyID();
         $account_owners = User::getOwnerUsersbyRole();
         $countries = $this->countries;
         $tags = json_encode(Tags::getTagsArray());
@@ -492,7 +525,7 @@ class AccountsController extends \BaseController {
         $currencies = Currency::getCurrencyDropdownIDList();
         $timezones = TimeZone::getTimeZoneDropdownList();
         $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
-        $BillingClass = BillingClass::getDropdownIDList(User::get_companyID());
+        $BillingClass = BillingClass::getDropdownIDList($companyID);
 
         $boards = CRMBoard::getBoards(CRMBoard::OpportunityBoard);
         $opportunityTags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
@@ -533,7 +566,10 @@ class AccountsController extends \BaseController {
         $ResellerCount = Reseller::where(['AccountID'=>$id,'Status'=>1])->count();
 
         $dynamicfields = Account::getDynamicfields('account',$id);
-        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount'));
+        $accountdetails = AccountDetails::where(['AccountID'=>$id])->first();
+        $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
+        $accountreseller = Reseller::where('ChildCompanyID',$companyID)->pluck('ResellerID');
+        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller'));
     }
 
     /**
@@ -546,14 +582,31 @@ class AccountsController extends \BaseController {
     public function update($id) {
         $ServiceID = 0;
         $data = Input::all();
+        $companyID = User::get_companyID();
+        $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
+        if($ResellerOwner>0){
+            $Reseller = Reseller::getResellerDetails($ResellerOwner);
+            $ResellerCompanyID = $Reseller->ChildCompanyID;
+            $ResellerUser =User::where('CompanyID',$ResellerCompanyID)->first();
+            $ResellerUserID = $ResellerUser->UserID;
+            $companyID=$ResellerCompanyID;
+            $data['Owner'] = $ResellerUserID;
+        }
         $account = Account::find($id);
         if(isset($data['tags'])){
             Tags::insertNewTags(['tags'=>$data['tags'],'TagType'=>Tags::Account_tag]);
         }
         //$DiscountPlanID = $data['DiscountPlanID'];
         //$InboundDiscountPlanID = $data['InboundDiscountPlanID'];
+
+        $AccountDetails=array();
+        $AccountDetails['CustomerPaymentAdd'] = isset($data['CustomerPaymentAdd']) ? 1 : 0;
+        //$AccountDetails['ResellerOwner'] = $ResellerOwner;
+        $AccountDetails['AccountID'] = $id;
+        unset($data['CustomerPaymentAdd']);
+        unset($data['ResellerOwner']);
+
         $message = $password = "";
-        $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
         $data['IsVendor'] = isset($data['IsVendor']) ? 1 : 0;
         $data['IsCustomer'] = isset($data['IsCustomer']) ? 1 : 0;
@@ -618,8 +671,8 @@ class AccountsController extends \BaseController {
             }
         }
 
-        Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,' . $account->AccountID . ',AccountID,CompanyID,'.$data['CompanyID'].',AccountType,1';
-        Account::$rules['Number'] = 'required|unique:tblAccount,Number,' . $account->AccountID . ',AccountID,CompanyID,'.$data['CompanyID'];
+        Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,' . $account->AccountID . ',AccountID,AccountType,1';
+        Account::$rules['Number'] = 'required|unique:tblAccount,Number,' . $account->AccountID . ',AccountID';
 
         if(DynamicFields::where(['CompanyID' => $companyID, 'Type' => 'account', 'FieldSlug' => 'vendorname', 'Status' => 1])->count() > 0 && $data['IsVendor'] == 1) {
             Account::$rules['vendorname'] = 'required';
@@ -632,6 +685,7 @@ class AccountsController extends \BaseController {
             return json_validator_response($validator);
             exit;
         }
+
         $invoice_count = Account::getInvoiceCount($id);
         if($invoice_count == 0){
             $data['LastInvoiceDate'] = $data['BillingStartDate'];
@@ -649,6 +703,14 @@ class AccountsController extends \BaseController {
             unset($data['vendorname']);
         }else{
             $VendorName = '';
+        }
+        if($data['Billing'] == 1) {
+            if($data['NextInvoiceDate']<$data['LastInvoiceDate']){
+                return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
+            }
+            if($data['NextChargeDate']<$data['LastChargeDate']){
+                return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
+            }
         }
 
         if ($account->update($data)) {
@@ -669,6 +731,12 @@ class AccountsController extends \BaseController {
             }
 
             if($data['Billing'] == 1) {
+                if($data['NextInvoiceDate']<$data['LastInvoiceDate']){
+                    return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
+                }
+                if($data['NextChargeDate']<$data['LastChargeDate']){
+                    return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
+                }
                 AccountBilling::insertUpdateBilling($id, $data,$ServiceID,$invoice_count);
                 if($ManualBilling == 0){
                     AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
@@ -689,6 +757,13 @@ class AccountsController extends \BaseController {
             }
             if(isset($data['password'])) {
                // $this->sendPasswordEmail($account, $password, $data);
+            }
+
+            $AccountDetailsID=AccountDetails::where('AccountID',$id)->pluck('AccountDetailID');
+            if(!empty($AccountDetailsID)){
+                AccountDetails::find($AccountDetailsID)->update($AccountDetails);
+            }else{
+                AccountDetails::create($AccountDetails);
             }
 
             if(!empty($data['PaymentMethod'])) {
@@ -715,6 +790,7 @@ class AccountsController extends \BaseController {
                     }
                 }
             }
+
             return Response::json(array("status" => "success", "message" => "Account Successfully Updated. " . $message));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Account."));
@@ -1522,12 +1598,17 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $accountbillngdata=0;
         $ManualBilling = isset($data['BillingCycleType']) && $data['BillingCycleType'] == 'manual'?1:0;
         $ServiceID = 0;
+        $ResellerOwner=0;
+        $ResellerAccountOwnerUpdate=0;
         if(
 		   !isset($data['OwnerCheck']) &&
 		   !isset($data['CurrencyCheck']) &&
            !isset($data['VendorCheck']) &&
            !isset($data['BillingCheck']) &&
            !isset($data['CustomerCheck'])&&
+           !isset($data['ResellerCheck'])&&
+           !isset($data['CustomerPaymentAddCheck'])&&
+           !isset($data['ResellerOwnerAddCheck'])&&
            !isset($data['BulkBillingClassCheck'])&&
            !isset($data['BulkBillingTypeCheck'])&&
            !isset($data['BulkBillingTimezoneCheck'])&&
@@ -1548,6 +1629,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $update = [];
         $billingupdate = array();
         $currencyupdate = array();
+        $AccountDetails = array();
+        $AccountDetailUpdate=0;
         if(isset($data['account_owners']) && $data['account_owners'] != 0 && isset($data['OwnerCheck'])){
             $update['Owner'] = $data['account_owners'];
         }
@@ -1560,10 +1643,18 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 		if(isset($data['CustomerCheck'])){
             $update['IsCustomer'] = isset($data['Customer_on_off'])?1:0;
         }
-        /*
 		if(isset($data['ResellerCheck'])){
-            $update['IsReseller'] = isset($data['reseller_on_off'])?1:0;
-        }*/
+            $update['IsReseller'] = isset($data['Reseller_on_off'])?1:0;
+        }
+        if(isset($data['CustomerPaymentAddCheck'])){
+            $AccountDetailUpdate=1;
+            $AccountDetails['CustomerPaymentAdd'] = isset($data['customerpayment_on_off'])?1:0;
+        }
+        if(isset($data['ResellerOwnerAddCheck']) && !empty($data['ResellerOwner'])){
+            $ResellerAccountOwnerUpdate=1;
+            $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
+        }
+
 		if(isset($data['BillingCheck'])){
             $billing_on_off = isset($data['billing_on_off'])?1:0;
             \Illuminate\Support\Facades\Log::info('billing -- '.$billing_on_off);
@@ -1666,6 +1757,32 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             //Implement loop because boot is triggering for each updated record to log the changes.
             foreach ($selectedIDs as $id)
 			{
+                $ResellerCount = Account::where("IsReseller",'=',1)->where("AccountID",$id)->count();
+
+                $ResellerCompanyID = Account::where("AccountID",$id)->pluck('CompanyId');
+                $CompanyID = User::get_companyID();
+                \Illuminate\Support\Facades\Log::info("reseller companyID".$CompanyID);
+                /*if current companyid and account companyid is differnt that means it reseller account*/
+                if($ResellerCompanyID!=$CompanyID){
+                    \Illuminate\Support\Facades\Log::info("reseller account");
+                    unset($update['IsReseller']);
+                    unset($update['Billing']);
+                    $billing_on_off=0;
+                    $update_billing=0;
+                }else{
+                    if($ResellerAccountOwnerUpdate==1 && $ResellerCount==0) {
+                        log::info('IsReseller is on');
+                        log::info('ResellerOwner '.$ResellerOwner);
+                        $Reseller = Reseller::getResellerDetails($ResellerOwner);
+                        $NewResellerCompanyID = $Reseller->ChildCompanyID;
+                        $ResellerUser = User::where('CompanyID', $NewResellerCompanyID)->first();
+                        $ResellerUserID = $ResellerUser->UserID;
+                        $update['Owner'] = $ResellerUserID;
+                        $update['CompanyID'] = $NewResellerCompanyID;
+                        unset($update['IsReseller']);
+                    }
+                }
+
                 \Illuminate\Support\Facades\Log::info('Account id -- '.$id);
                 \Illuminate\Support\Facades\Log::info(print_r($update,true));
 				DB::beginTransaction();
@@ -1676,6 +1793,19 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $upaccount = Account::find($id);
                 $upaccount->update($update);
                 //Account::where(['AccountID'=>$id])->update($update);
+                /** Account Details Update
+                */
+                if($AccountDetailUpdate==1) {
+                    $AccountDetailsID = AccountDetails::where('AccountID', $id)->pluck('AccountDetailID');
+                    $AccountDetails['AccountID']=$id;
+                    if (!empty($AccountDetailsID)) {
+                        AccountDetails::find($AccountDetailsID)->update($AccountDetails);
+                    } else {
+                        AccountDetails::create($AccountDetails);
+                    }
+                }
+
+
                 $invoice_count = Account::getInvoiceCount($id);
                 if(isset($data['BillingCheck']) && !empty($billing_on_off)) {
                     \Illuminate\Support\Facades\Log::info('--update billing--');
@@ -1705,7 +1835,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                             if(empty($billingupdate['BillingStartDate'])){
                                 $billingupdate['BillingStartDate'] = $abdata->BillingStartDate;
                             }
-                            AccountBilling::insertUpdateBilling($id, $billingupdate, $ServiceID);
+                            AccountBilling::insertUpdateBilling($id, $billingupdate, $ServiceID,$invoice_count);
                             if($ManualBilling ==0) {
                                 AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
                             }
@@ -1741,8 +1871,13 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $data['reseller_on_off'] = $data['reseller_on_off']== 'true'?1:0;
         $data['account_active'] = $data['account_active']== 'true'?1:0;
         $data['low_balance'] = $data['low_balance']== 'true'?1:0;
+        $data['ResellerOwner'] = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
+        $data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
+        if(is_reseller()){
+            $data['ResellerOwner'] = Reseller::getResellerID();
+        }
 
-        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['reseller_on_off'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data["ipclitext"]."','".$data['low_balance']."',1,50,'AccountName','asc',2)";
+        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['reseller_on_off'].",".$data['ResellerOwner'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data["ipclitext"]."','".$data['low_balance']."',1,50,'AccountName','asc',2)";
         $excel_data  = DB::select($query);
         $excel_datas = json_decode(json_encode($excel_data),true);
 
@@ -1755,5 +1890,18 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
         return $selectedIDs;
 
+    }
+
+    public function getNextBillingDate(){
+        $data = Input::all();
+        $BillingStartDate= strtotime($data['BillingStartDate']);
+        $BillingCycleType= $data['BillingCycleType'];
+        $BillingCycleValue= $data['BillingCycleValue'];
+        $NextChargedDate='';
+        $NextBillingDate = next_billing_date($BillingCycleType, $BillingCycleValue, $BillingStartDate);
+        if($NextBillingDate!=''){
+            $NextChargedDate = date('Y-m-d', strtotime('-1 day', strtotime($NextBillingDate)));
+        }
+        return Response::json(array("status" => "success", "NextBillingDate" => $NextBillingDate,"NextChargedDate" => $NextChargedDate));
     }
 }

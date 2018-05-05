@@ -37,7 +37,7 @@ class Account extends \Eloquent {
         'Twitter', 'SecondaryEmail', 'Email','IsVendor','IsCustomer',
         'IsReseller', 'Ownership', 'Website','Mobile','Phone',
         'Fax', 'Employee', 'Description','Address1','Address2',
-        'Address3', 'City', 'State','PostCode','Country',
+        'Address3', 'City', 'State','PostCode','Country', 'LanguageID',
         'RateEmail', 'BillingEmail', 'ResellerEmail','TechnicalEmail','VatNumber',
         'Status', 'PaymentMethod', 'PaymentDetail','Converted','ConvertedDate',
         'ConvertedBy', 'TimeZone', 'VerificationStatus','Subscription','SubscriptionQty',
@@ -230,7 +230,7 @@ class Account extends \Eloquent {
             $LastAccountNo = 1;//Account::where(["CompanyID"=> User::get_companyID()])->max('Number');
             CompanySetting::setKeyVal('LastAccountNo',$LastAccountNo);
         }
-        while(Account::where(["CompanyID"=> User::get_companyID(),'Number'=>$LastAccountNo])->count() >=1 ){
+        while(Account::where(['Number'=>$LastAccountNo])->count() >=1 ){
             $LastAccountNo++;
         }
         return $LastAccountNo;
@@ -462,7 +462,7 @@ class Account extends \Eloquent {
                 $ExpenseYearHTML .= "<tr><td>$year</td><td>".$total['CustomerTotal']."</td><td>".$total['VendorTotal']."</td></tr>";
             }
         }else{
-            $ExpenseYearHTML = '<h4>No Data</h4>';
+            $ExpenseYearHTML = '<h4>'.cus_lang("MESSAGE_DATA_NOT_AVAILABLE").'</h4>';
         }
 
         $response['customer'] =  implode(',',$customer);
@@ -513,7 +513,7 @@ class Account extends \Eloquent {
     }
 
     public static function getVendorLastInvoiceDate($AccountBilling,$account){
-        $invoiceDetail =   Invoice::join('tblInvoiceDetail','tblInvoiceDetail.InvoiceID','=','tblInvoice.InvoiceID')->where(array('AccountID'=>$account->AccountID,'InvoiceType'=>Invoice::INVOICE_IN))->orderBy('IssueDate','DESC')->limit(1)->first(['EndDate']);
+        $invoiceDetail =   Invoice::join('tblInvoiceDetail','tblInvoiceDetail.InvoiceID','=','tblInvoice.InvoiceID')->where(array('AccountID'=>$account->AccountID,'InvoiceType'=>Invoice::INVOICE_IN))->orderBy('EndDate','DESC')->limit(1)->first(['EndDate']);
         if(!empty($invoiceDetail)){
             $LastInvoiceDate = $invoiceDetail->EndDate;
         }else if(!empty($AccountBilling->BillingStartDate)) {
@@ -561,6 +561,25 @@ class Account extends \Eloquent {
         }
         return $row;
     }
+    public static function getOnlyCustomerIDList($data=array()){
+        if(User::is('AccountManager')){
+            $data['Owner'] = User::get_userID();
+        }
+        if(User::is_admin() && isset($data['UserID'])){
+            $data['Owner'] = $data['UserID'];
+        }
+        $data['Status'] = 1;
+        $data['AccountType'] = 1;
+        $data['VerificationStatus'] = Account::VERIFIED;
+        $data['CompanyID']=User::get_companyID();
+        $row = Account::where($data)
+            ->where(function($where){
+                $where->Where(['IsCustomer'=>1]);
+            })
+            ->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
+
+        return $row;
+    }
     public static function getVendorIDList($data=array()){
 
         if(User::is('AccountManager')){
@@ -586,8 +605,27 @@ class Account extends \Eloquent {
         }
         return $row;
     }
-	
-	 public static function GetAccountAllEmails($id,$ArrayReturn=false){
+    public static function getOnlyVendorIDList($data=array()){
+        if(User::is('AccountManager')){
+            $data['Owner'] = User::get_userID();
+        }
+        if(User::is_admin() && isset($data['UserID'])){
+            $data['Owner'] = $data['UserID'];
+        }
+        $data['Status'] = 1;
+        $data['AccountType'] = 1;
+        $data['VerificationStatus'] = Account::VERIFIED;
+        $data['CompanyID']=User::get_companyID();
+        $vendors = Account::where($data)
+            ->where(function($where){
+                $where->Where(['IsVendor'=>1]);
+            })
+            ->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
+
+        return $vendors;
+    }
+
+    public static function GetAccountAllEmails($id,$ArrayReturn=false){
 	  $array			 =  array();
 	  $accountemails	 = 	Account::where(array("AccountID"=>$id))->select(array('Email', 'BillingEmail'))->get();
 	  $acccountcontact 	 =  DB::table('tblContact')->where(array("AccountID"=>$id))->get(array("Email"));	
@@ -823,6 +861,10 @@ class Account extends \Eloquent {
             return $accounts->orderBy("AccountName", "ASC")->get(array('tblAccount.AccountID','AccountName'))->toArray();
 
         }
+    }
+
+    public static function getCodeDeckId($AccountID,$TrunkID){
+        return  CustomerTrunk::where(["AccountID"=>$AccountID,"TrunkID" => $TrunkID])->pluck('CodeDeckId');
     }
 
 }

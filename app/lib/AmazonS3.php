@@ -11,6 +11,7 @@ class AmazonS3 {
 
     public static $isAmazonS3;
     public static $dir = array(
+        'AUTOIMPORT_UPLOAD' =>  'AutoImportUploads',
         'CODEDECK_UPLOAD' =>  'CodedecksUploads',
         'VENDOR_UPLOAD' =>  'VendorUploads',
         'VENDOR_DOWNLOAD' =>  'VendorDownloads',
@@ -45,6 +46,8 @@ class AmazonS3 {
         'ITEM_UPLOAD'=>'ITEMUPload',
         'RATESHEET_TEMPLATE'=>'RatesheetTemplate',
         'XERO_UPLOAD'=>'XeroUpload',
+        'GATEWAY_KEY'=>'GatewayKey',
+        'DIGITAL_SIGNATURE_KEY'=>'DigitalSignature',
     );
 
     // Instantiate an S3 client
@@ -100,27 +103,31 @@ class AmazonS3 {
      * Generate Path
      * Ex. WaveTell/18-Y/VendorUploads/2015/05
      * */
-    static function generate_upload_path($dir ='',$accountId = '',$CompanyID=0 ) {
+    static function generate_upload_path($dir ='',$accountId = '',$CompanyID=0 , $noDateFolders=false) {
 
         if(empty($dir))
             return false;
         if(empty($CompanyID)) {
             $CompanyID = User::get_companyID();//   Str::slug(Company::getName());
         }
-        $path = self::generate_path($dir,$CompanyID,$accountId);
+        $path = self::generate_path($dir,$CompanyID,$accountId, $noDateFolders);
 
         return $path;
     }
 
-    static function generate_path($dir ='',$companyId , $accountId = '' ) {
+    static function generate_path($dir ='',$companyId , $accountId = '' , $noDateFolders=false) {
 
         $path = $companyId  ."/";
 
         if($accountId > 0){
             $path .= $accountId ."/";
         }
+        if($noDateFolders){
+            $path .=  $dir . "/";
+        }else{
+            $path .=  $dir . "/". date("Y")."/".date("m") ."/" .date("d") ."/";
+        }
 
-        $path .=  $dir . "/". date("Y")."/".date("m") ."/" .date("d") ."/";
         $dir = CompanyConfiguration::get('UPLOAD_PATH',$companyId) . '/'. $path;
         if (!file_exists($dir)) {
             RemoteSSH::run("mkdir -p " . $dir);
@@ -131,7 +138,7 @@ class AmazonS3 {
         return $path;
     }
 
-    static function upload($file,$dir,$CompanyID=0){
+    static function upload($file,$dir,$CompanyID=0,$delete = 1){
 
         // Instantiate an S3 client
         $s3 = self::getS3Client($CompanyID);
@@ -148,7 +155,9 @@ class AmazonS3 {
         try {
             $resource = fopen($file, 'r');
             $s3->upload($bucket, $dir.basename($file), $resource, 'public-read');
-            @unlink($file); // delete from local
+            if($delete==1){
+                @unlink($file); // delete from local if amazon is on
+            }
             return true;
         } catch (S3Exception $e) {
             return false ; //"There was an error uploading the file.\n";

@@ -2,19 +2,19 @@
 
 @section('content')
 <ol class="breadcrumb bc-3">
-  <li><a href="{{ URL::to('/customer/tickets') }}">Tickets</a></li>
-  <li class="active"> <strong>New Ticket</strong> </li>
+  <li><a href="{{ URL::to('/customer/tickets') }}">@lang('routes.CUST_PANEL_PAGE_TICKETS_TITLE')</a></li>
+  <li class="active"> <strong>@lang('routes.CUST_PANEL_PAGE_NEW_TICKET_TITLE')</strong> </li>
 </ol>
-<h3>New Ticket</h3>
-<p style="text-align: right;">
-  <button type='button' class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
-  <a href="{{URL::to('/customer/tickets')}}" class="btn btn-danger btn-sm btn-icon icon-left"> <i class="entypo-cancel"></i> Close </a> </p>
+<h3>@lang('routes.CUST_PANEL_PAGE_NEW_TICKET_TITLE')</h3>
+<p class="text-right">
+  <button type='button' class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')"> <i class="entypo-floppy"></i> @lang('routes.BUTTON_SAVE_CAPTION') </button>
+  <a href="{{URL::to('/customer/tickets')}}" class="btn btn-danger btn-sm btn-icon icon-left"> <i class="entypo-cancel"></i>  @lang('routes.BUTTON_CLOSE_CAPTION')  </a> </p>
 <br>
 <div class="row">
   <div class="col-md-12">
     <div class="panel panel-primary" data-collapsed="0">
       <div class="panel-heading">
-        <div class="panel-title"> Ticket Detail </div>
+        <div class="panel-title"> @lang('routes.CUST_PANEL_PAGE_NEW_TICKET_DETAIL_HEADER') </div>
         <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
       </div>
       <div class="panel-body">
@@ -22,6 +22,7 @@
           <?php  $required = array();
 			   foreach($Ticketfields as $TicketfieldsData)
 			   {
+				$TicketfieldsData->CustomerLabel = Lang::get('routes.CUST_PANEL_PAGE_TICKET_FIELDS_'.strtoupper($TicketfieldsData->TicketFieldsID) );
 				  $id		    =  'Ticket'.str_replace(" ","",$TicketfieldsData->FieldName);
 				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_TEXT)
 				 {
@@ -68,7 +69,7 @@
             </div>
           </div>
           <?php if($class_textarea == 'wysihtml5box'){ ?>
-          <p class="comment-box-options-activity"> <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)"> <i class="entypo-attach"></i> </a> </p>
+          <p class="comment-box-options-activity"> <a id="addTtachment" class="btn-sm btn-white btn-xs" title="@lang('routes.MESSAGE_ADD_AN_ATTACHMENT')" href="javascript:void(0)"> <i class="entypo-attach"></i> </a> </p>
           
           <?php } ?>
           <?php
@@ -108,13 +109,13 @@
             <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->CustomerLabel}}</label>
             <div class="col-sm-9">
               <select name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld select2" id="{{$id}}" >
-              <option value="0">Select</option>
+              <option value="0">{{cus_lang("DROPDOWN_OPTION_SELECT")}}</option>
                 <?php
 			  if($TicketfieldsData->FieldType == 'default_priority'){
 				$FieldValues = TicketPriority::orderBy('PriorityID', 'asc')->get(); 
 					foreach($FieldValues as $FieldValuesData){
 					?>
-                <option value="{{$FieldValuesData->PriorityID}}">{{$FieldValuesData->PriorityValue}}</option>
+                <option value="{{$FieldValuesData->PriorityID}}">{{cus_lang("CUST_PANEL_PAGE_TICKET_FIELDS_PRIORITY_VAL_".$FieldValuesData->PriorityValue)}}</option>
                 <?php 
 					}
 				}				
@@ -122,6 +123,7 @@
 				{	 
 					$FieldValues = TicketfieldsValues::where(["FieldsID"=>$TicketfieldsData->TicketFieldsID])->orderBy('FieldOrder', 'asc')->get();
 					foreach($FieldValues as $FieldValuesData){
+				  		$FieldValuesData->FieldValueCustomer = Lang::get('routes.CUST_PANEL_PAGE_TICKET_FIELDS_'.$FieldValuesData->FieldsID."_VALUE_".$FieldValuesData->ValuesID );
 					?>
                 <option value="{{$FieldValuesData->ValuesID}}">{{$FieldValuesData->FieldValueCustomer}}</option>
                 <?php
@@ -171,7 +173,7 @@
   </span>
   <input  hidden="" name="token_attachment" value="{{$random_token}}" />
   <input id="info1" type="hidden" name="attachmentsinfo" />
-  <button  class="pull-right save btn btn-primary btn-sm btn-icon icon-left hidden" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
+  <button  class="pull-right save btn btn-primary btn-sm btn-icon icon-left hidden" type="submit" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')"><i class="entypo-floppy"></i>Save</button>
 </form>
 <script type="text/javascript">
 var editor_options 	  =  		{};
@@ -195,7 +197,7 @@ var required_flds	  =          '{{json_encode($required)}}';
 				
 					if(CurrentElementVal=='' || CurrentElementVal==0)
 					{
-						error_msg += element.title+' field is required<br>';						
+						error_msg += element.title+' {{cus_lang("MESSAGE_FIELD_IS_REQUIRED")}}<br>';
 					}				
 				});
 				if(error_msg!='')
@@ -281,11 +283,11 @@ var required_flds	  =          '{{json_encode($required)}}';
 					var index_file = emailFileList.indexOf(f.name);
 					if(index_file >-1 )
 					{
-						ShowToastr("error",f.name+" file already selected.");							
+						ShowToastr("error",f.name+" {{cus_lang("CUST_PANEL_PAGE_TICKETS_MSG_FILE_ALREADY_SELECTED")}}");
 					}
 					else if(bytesToSize(f.size))
 					{						
-						ShowToastr("error",f.name+" file size exceeds then upload limit ("+max_file_size_txt+"). Please select files again.");						
+						ShowToastr("error","{{cus_lang("CUST_PANEL_PAGE_TICKETS_MSG_MAX_FILE_SIZE_ERROR")}} "+max_file_size_txt);
 						file_check = 0;
 						 return false;
 						
@@ -297,8 +299,7 @@ var required_flds	  =          '{{json_encode($required)}}';
 				}
 				else
 				{
-					ShowToastr("error",ext_current_file+" file type not allowed.");
-					
+					ShowToastr("error",ext_current_file+" @lang('routes.CUST_PANEL_PAGE_TICKETS_MSG_FILE_TYPE_NOT_ALLOWED')");
 				}
         });
         		if(local_array.length>0 && file_check==1)

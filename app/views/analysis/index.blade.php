@@ -68,15 +68,21 @@
                     {{ Form::select('CDRType',array(''=>'Both','inbound' => "Inbound", 'outbound' => "Outbound" ),'', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
-                    @if(User::is_admin())
+                    @if(User::is('AccountManager'))
+                        <input type="hidden" name="UserID" value="{{$UserID}}">
+                    @else
                         <label for="field-1" class="control-label">Owner</label>
                         {{Form::select('UserID',$account_owners,Input::get('account_owners'),array("class"=>"select2"))}}
-                    @else
-                        <input type="hidden" name="UserID" value="{{$UserID}}">
                     @endif
                 </div>
+                <!--
+                <div class="form-group">
+                    <label class="control-label" for="field-1">Reseller</label>
+                    {{ Form::select('ResellerOwner',$reseller_owners,'', array("class"=>"select2")) }}
+                </div>-->
                 <div class="form-group">
                     <br/>
+                    <input type="hidden" name="ResellerOwner" value="0">
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
                         <i class="entypo-search"></i>
                         Search

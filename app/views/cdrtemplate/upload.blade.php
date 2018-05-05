@@ -7,20 +7,13 @@
         <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
     </li>
     <li class="active">
-        <strong>CDR Template</strong>
+        <strong>FTP CDR Mapping</strong>
     </li>
 </ol>
-<h3>CDR Template</h3>
+<h3>FTP CDR Mapping</h3>
 
 @include('includes.errors')
 @include('includes.success')
-<ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
-    <li class="active">
-        <a href="{{ URL::to('/cdr_template') }}" >
-            <span class="hidden-xs">FTP CDR Mapping</span>
-        </a>
-    </li>
-</ul>
 <div class="tab-content">
     <div class="tab-pane active">
 <div class="row">
@@ -29,7 +22,7 @@
             <div data-collapsed="0" class="panel panel-primary">
                 <div class="panel-heading">
                     <div class="panel-title">
-                        CDR Upload
+                        FTP CDR Mapping
                     </div>
                 </div>
                 <div class="panel-body">
@@ -40,55 +33,14 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-2 control-label" for="field-1">Gateway</label>
-                        <div class="col-sm-3">
-                            {{ Form::select('CompanyGatewayID',$gateway,Input::get('gateway')?Input::get('gateway'):'', array("class"=>"select2")) }}
-                        </div>
-                    </div>
-                    <div id="trunk_dropdown" class="form-group hidden">
-                        <label class="col-sm-2 control-label" for="field-1">Trunk</label>
-                        <div class="col-sm-3">
-                            {{ Form::select('TrunkID',$trunks,'', array("class"=>"select2")) }}
-                        </div>
-                    </div>
-                    <div id="rate_dropdown" class="form-group hidden">
-                        <label class="col-sm-2 control-label" for="field-1">Rerate Format</label>
-                        <div class="col-sm-3">
-                            {{ Form::select('RateFormat',Company::$rerate_format,'', array("class"=>"select2")) }}
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Upload (.xls, .xlxs, .csv)</label>
+                        <label for="field-1" class="col-sm-2 control-label">CDR Upload (.csv)</label>
                         <div class="col-sm-4">
                             <input name="excel" type="file" class="form-control file2 inline btn btn-primary" data-label="
                             <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
 
                         </div>
                     </div>
-                     <div class="form-group">
-                        <label class="col-sm-2 control-label">Settings</label>
 
-                        <div class="col-sm-10">
-                            <div class="checkbox ">
-                                <label>
-                                <input type="hidden" name="RateCDR" value="0" >
-                                <input type="checkbox" id="RateCDR" name="RateCDR" value="1" > Rate CDR</label>
-
-                            </div>
-                            <div class="checkbox ">
-                                <input type="hidden" name="CheckFile" value="0" >
-                                <label><input type="checkbox" id="rd-1" name="CheckFile" checked value="1"> Verify this file</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Note</label>
-                        <div class="col-sm-8">
-                            <p><i class="glyphicon glyphicon-minus"></i><strong>Allowed Extension</strong> .xls, .xlxs, .csv</p>
-                            {{--<p>Please upload the file in given <span class="label label-info" onclick="jQuery('#modal-fileformat-detail').modal('show');" style="cursor: pointer">Detail File Format</span> </p>
-                            <p>Sample File <a href="{{URL::to('cdr_template/download_sample_excel_file',array('type'=>'detail'))}}" class="btn btn-success btn-sm btn-icon icon-left"><i class="entypo-down"></i>Detail File Download</a> </p>--}}
-                        </div>
-                    </div>
                     <p style="text-align: right;">
 
                         @if(User::checkCategoryPermission('CDR','Upload'))
@@ -181,7 +133,20 @@
 
                             <label for="field-1" class="col-sm-2 control-label">Disconnect DateTime</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[disconnect_time]', array(),'',array("class"=>"select2 small"))}}
+                                {{Form::select('selection[disconnect_datetime]', array(),'',array("class"=>"select2 small"))}}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <br />
+                            <br />
+                            <label for="field-1" class="col-sm-2 control-label">Connect Date</label>
+                            <div class="col-sm-4">
+                                {{Form::select('selection[connect_date]', array(),'',array("class"=>"select2 small"))}}
+                            </div>
+
+                            <label for="field-1" class="col-sm-2 control-label">Connect Time</label>
+                            <div class="col-sm-4">
+                                {{Form::select('selection[connect_time]', array(),'',array("class"=>"select2 small"))}}
                             </div>
                         </div>
                         <div class="form-group">
@@ -200,6 +165,19 @@
                         <div class="form-group">
                             <br />
                             <br />
+                            <label for="field-1" class="col-sm-2 control-label">Area Prefix</label>
+                            <div class="col-sm-4">
+                                {{Form::select('selection[area_prefix]', array(),'',array("class"=>"select2 small"))}}
+                            </div>
+
+                            <label for=" field-1" class="col-sm-2 control-label">Call ID</label>
+                            <div class="col-sm-4">
+                                {{Form::select('selection[CallID]',array(),'',array("class"=>"select2 small"))}}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <br />
+                            <br />
                             <label for=" field-1" class="col-sm-2 control-label">CLI</label>
                             <div class="col-sm-4">
                                 {{Form::select('selection[cli]', array(),'',array("class"=>"select2 small"))}}
@@ -207,18 +185,6 @@
                             <label for="field-1" class="col-sm-2 control-label">CLD</label>
                             <div class="col-sm-4">
                                 {{Form::select('selection[cld]', array(),'',array("class"=>"select2 small"))}}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <br />
-                            <br />
-                            <label for=" field-1" class="col-sm-2 control-label">CLI Translation Rule<span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Syntax: /<match what>/<replace with>/" data-original-title="CLI Translation Rule">?</span></label>
-                            <div class="col-sm-4">
-                                <input type="text" class="form-control" name="selection[CLITranslationRule]" value="" />
-                            </div>
-                            <label for=" field-1" class="col-sm-2 control-label">CLD Translation Rule<span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Syntax: /<match what>/<replace with>/" data-original-title="CLD Translation Rule">?</span></label>
-                            <div class="col-sm-4">
-                                <input type="text" class="form-control" name="selection[CLDTranslationRule]" value="" />
                             </div>
                         </div>
                         <div class="form-group">
@@ -233,6 +199,20 @@
                             <div class="col-sm-4">
                                 {{Form::select('selection[cost]', array(),'',array("class"=>"select2 small"))}}
                             </div>
+                        </div>
+                        <div class="form-group">
+                            <br />
+                            <br />
+                            <label class="col-sm-2 control-label" for="field-1">Service</label>
+                            <div class="col-sm-4">
+                                {{ Form::select('selection[ServiceID]',$Services,'', array("class"=>"select2")) }}
+                            </div>
+
+                            <label class="col-sm-2 control-label" for="field-1">Trunk</label>
+                            <div class="col-sm-4">
+                                {{ Form::select('selection[TrunkID]',$Trunks,'', array("class"=>"select2")) }}
+                            </div>
+
                         </div>
                         <div class="form-group">
                             <br />
@@ -254,20 +234,8 @@
                             <div class="col-sm-4">
                                 {{Form::select('selection[extension]',array() ,'',array("class"=>"select2 small"))}}
                             </div>
-                            <label for=" field-1" class="col-sm-2 control-label chargecode">Charge Code</label>
-                            <div class="col-sm-4 chargecode">
-                                {{Form::select('selection[ChargeCode]',array(),'',array("class"=>"select2 small"))}}
-                            </div>
                         </div>
-                        <div class="form-group">
-                            <br />
-                            <br />
-                            <?php $NameFormat = array(''=>'Select Authentication Rule')+GatewayConfig::$NameFormat;?>
-                            <label for=" field-1" class="col-sm-2 control-label">Authentication Rule</label>
-                            <div class="col-sm-4">
-                                {{Form::select('selection[Authentication]',$NameFormat ,'',array("class"=>"select2 small"))}}
-                            </div>
-                        </div>
+
                     </div>
                 </div>
                 <div class="panel panel-primary" data-collapsed="0">
@@ -293,6 +261,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <input type="hidden" name="CompanyGatewayID" value="{{$CompanyGatewayID}}"> 
                     <button id="save_template" type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i>
                         Save
@@ -434,6 +403,8 @@ var click_btn;
             $('select[name=TrunkID]').select2("val","");
             $('select[name=RateFormat]').select2("val","");
             $('select[name=RateFormat]').trigger('change');
+            $('select[name=ServiceID]').select2("val","");
+
         });
         $('#RateCDR').trigger('change');
     });
@@ -461,9 +432,13 @@ var click_btn;
             body.append(tr);
         });
         $("#mapping select").each(function(i, el){
-            if(el.name !='selection[DateFormat]' && el.name != 'selection[Authentication]'){
+            if(el.name !='selection[DateFormat]' && el.name != 'selection[Authentication]' && el.name != 'selection[InboundRateTableID]' && el.name != 'selection[OutboundRateTableID]' && el.name != 'selection[ServiceID]' && el.name != 'selection[TrunkID]'){
                 var self = $('#add-template-form [name="'+el.name+'"]');
                 rebuildSelect2(self,data.columns,'Skip loading');
+            }else if( el.name == 'selection[ServiceID]' || el.name == 'selection[TrunkID]'){
+                var self = $('#add-template-form [name="'+el.name+'"]');
+                var label = 'Map From File';
+                rebuildSelectComposite(self,data.columns,label);
             }
         });
         if(data.FileUploadTemplate){

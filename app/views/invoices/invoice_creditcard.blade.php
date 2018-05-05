@@ -3,13 +3,13 @@
 <div class="col-md-4">
 <form id="add-credit-card-form" method="post">
     <div class="modal-header">
-        <h4 class="modal-title">Credit Card Detail </h4>
+        <h4 class="modal-title">{{cus_lang('CUST_PANEL_PAGE_CREDIT_CARD_HEADING')}} </h4>
     </div>
     <div class="modal-body">
         <div class="row">
             <div class="col-md-12">
                 <div class="form-group">
-                    <label for="field-5" class="control-label">Name on card*</label>
+                    <label for="field-5" class="control-label">{{cus_lang('CUST_PANEL_PAGE_CREDIT_CARD_FIELD_NAME_ON_CARD')}}</label>
                     <input type="text" name="NameOnCard" autocomplete="off" class="form-control" id="field-5" placeholder="">
                     <input type="hidden" name="type" class="form-control" id="field-5" placeholder="" value="{{$type}}">
                 </div>
@@ -58,28 +58,37 @@
             </div>-->
             <div class="col-md-12">
                 <div class="form-group">
-                    <label for="field-5" class="control-label">Credit Card Number *</label>
+                    <label for="field-5" class="control-label">{{cus_lang('CUST_PANEL_PAGE_CREDIT_CARD_FIELD_CREDIT_CARD_NUMBER')}}</label>
                     <input type="text" name="CardNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
-                    <input type="hidden" name="InvoiceID" value="{{$Invoice->InvoiceID}}" />
-                    <input type="hidden" name="AccountID" value="{{$Invoice->AccountID}}" />
+                    @if(isset($Invoice))
+                        <input type="hidden" name="InvoiceID" value="{{$Invoice->InvoiceID}}" />
+                        <input type="hidden" name="AccountID" value="{{$Invoice->AccountID}}" />
+                        <input type="hidden" name="isInvoicePay" value="1" />
+                    @elseif(isset($request["Amount"]))
+                        <input type="hidden" name="InvoiceID" value="{{$request["InvoiceID"]}}" />
+                        <input type="hidden" name="AccountID" value="{{$Account->AccountID}}" />
+                        <input type="hidden" name="GrandTotal" value="{{$request["Amount"]}}" />
+                        <input type="hidden" name="isInvoicePay" value="0" />
+                        <input type="hidden" name="custome_notes" value="{{$request["custome_notes"]}}" />
+                    @endif
                 </div>
             </div>
             <div class="col-md-12">
                 <div class="form-group">
-                    <label for="field-5" class="control-label">Card Type*</label>
+                    <label for="field-5" class="control-label">{{cus_lang('CUST_PANEL_PAGE_CREDIT_CARD_FIELD_CARD_TYPE')}}</label>
                     {{ Form::select('CardType',Payment::$credit_card_type,'', array("class"=>"select2 small")) }}
                 </div>
             </div>
             <div class="col-md-12">
                 <div class="form-group">
-                    <label for="field-5" class="control-label">CVV Number*</label>
+                    <label for="field-5" class="control-label">{{cus_lang('CUST_PANEL_PAGE_CREDIT_CARD_FIELD_CVV_NUMBER')}}</label>
                     <input type="text" data-mask="decimal" name="CVVNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
                 </div>
             </div>
             <div class="col-md-12">
                 <div class="form-group">
                     <div class="col-md-4">
-                        <label for="field-5" class="control-label">Expiry Date *</label>
+                        <label for="field-5" class="control-label">{{cus_lang('CUST_PANEL_PAGE_CREDIT_CARD_FIELD_EXPIRY_DATE')}}</label>
                     </div>
                     <div class="col-md-4">
                         {{ Form::select('ExpirationMonth', getMonths(), date('m'), array("class"=>"select2 small")) }}
@@ -92,13 +101,13 @@
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" id="card-pay"  class="save btn btn-green btn-sm btn-icon icon-left" data-loading-text="Loading...">
+        <button type="submit" id="card-pay"  class="save btn btn-green btn-sm btn-icon icon-left" data-loading-text="{{cus_lang('BUTTON_LOADING_CAPTION')}}">
             <i class="entypo-floppy"></i>
-            Pay
+                {{cus_lang('BUTTON_PAY_CAPTION')}}
         </button>
         <a href="javascript:history.back()"><button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
             <i class="entypo-cancel"></i>
-            Back
+            {{cus_lang('BUTTON_BACK_CAPTION')}}
         </button>
         </a>
     </div>
@@ -110,7 +119,7 @@
 <script>
 
 $(document).ready(function() {
-    @if($Invoice->InvoiceStatus == Invoice::PAID)
+    @if(isset($Invoice) && $Invoice->InvoiceStatus == Invoice::PAID)
     $('#add-credit-card-form').find('[type="submit"]').attr('disabled', true);
     @endif
 
@@ -127,7 +136,11 @@ $(document).ready(function() {
                 success: function (response) {
                     if(response.status =='success'){
                         toastr.success(response.message, "Success", toastr_opts);
-                        window.location = '{{URL::to('/')}}/invoice_thanks/{{$Invoice->AccountID}}-{{$Invoice->InvoiceID}}';
+                        @if(isset($Invoice))
+                            window.location = '{{URL::to('/')}}/invoice_thanks/{{$Invoice->AccountID}}-{{$Invoice->InvoiceID}}';
+                        @elseif(isset($request["Amount"]))
+                            window.location = '{{URL::to('/customer/payments')}}';
+                        @endif
                     }else{
                         $('#add-credit-card-form').find('[type="submit"]').attr('disabled', false);
                         toastr.error(response.message, "Error", toastr_opts);

@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`%` PROCEDURE `prc_RerateInboundCalls`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_RerateInboundCalls`(
 	IN `p_CompanyID` INT,
 	IN `p_processId` INT,
 	IN `p_tbltempusagedetail_name` VARCHAR(200),
@@ -23,7 +23,7 @@ BEGIN
 	IF p_RateCDR = 1
 	THEN
 
-		IF (SELECT COUNT(*) FROM NeonRMDev.tblCLIRateTable WHERE CompanyID = p_CompanyID AND RateTableID > 0) > 0
+		IF (SELECT COUNT(*) FROM NeonRMDev.tblCLIRateTable WHERE RateTableID > 0) > 0
 		THEN
 
 
@@ -42,8 +42,10 @@ BEGIN
 			PREPARE stm FROM @stm;
 			EXECUTE stm;
 			DEALLOCATE PREPARE stm;
+			
+		END IF;
 
-		ELSEIF ( SELECT COUNT(*) FROM tmp_Service_ ) > 0
+		IF ( SELECT COUNT(*) FROM tmp_Service_ ) > 0
 		THEN
 
 
@@ -82,6 +84,28 @@ BEGIN
 			EXECUTE stm;
 			DEALLOCATE PREPARE stm;
 
+		END IF;
+		
+		IF (SELECT COUNT(*) FROM NeonRMDev.tblCLIRateTable WHERE RateTableID > 0) > 0
+		THEN
+
+
+			DROP TEMPORARY TABLE IF EXISTS tmp_Account_;
+			CREATE TEMPORARY TABLE tmp_Account_  (
+				RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+				AccountID INT,
+				ServiceID INT,
+				cld VARCHAR(500) NULL DEFAULT NULL
+			);
+			SET @stm = CONCAT('
+			INSERT INTO tmp_Account_(AccountID,ServiceID,cld)
+			SELECT DISTINCT AccountID,ServiceID,cld FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND ud.is_inbound = 1;
+			');
+
+			PREPARE stm FROM @stm;
+			EXECUTE stm;
+			DEALLOCATE PREPARE stm;
+			
 		END IF;
 
 		SET v_pointer_ = 1;

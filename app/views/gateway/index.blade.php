@@ -264,6 +264,9 @@ var postdata;
             url: update_new_url,  //Server script to process data
             type: 'POST',
             dataType: 'json',
+            data: new FormData(this),
+            processData: false,
+            contentType: false,
             success: function (response) {
                 if(response.status =='success'){
                     toastr.success(response.message, "Success", toastr_opts);
@@ -275,7 +278,7 @@ var postdata;
                 $("#config-update").button('reset');
             },
             // Form data
-            data: $('#add-new-config-form').serialize(),
+            //data: $('#add-new-config-form').serialize(),
             //Options to tell jQuery not to process data or worry about content-type.
             cache: false
         });
@@ -457,8 +460,8 @@ var postdata;
 
         $('#cdrtemplatelink').click(function(e){
             e.preventDefault();
-            var GatewayID = $('#add-new-config-form [name="CompanyGatewayID"]').val();
-            var url = "{{URL::to('cdr_template')}}"+"?gateway="+GatewayID;
+            var CompanyGatewayID = $('#add-new-config-form [name="CompanyGatewayID"]').val();
+            var url = "{{URL::to('cdr_template/gateway')}}/"+CompanyGatewayID;
             openInNewTab(url);
         });
 
@@ -525,7 +528,7 @@ var postdata;
 <div class="modal fade" id="add-new-modal-config">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form id="add-new-config-form" method="post">
+            <form id="add-new-config-form" method="post" enctype="multipart/form-data">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     <h4 class="modal-title">Add New Config</h4>
@@ -581,14 +584,15 @@ var postdata;
                         <input type="hidden"  name="Status" value="0">
                     </div>
                 </div>
-                    <div id="CDRMapping" class="row hidden">
-                        <label for="field-5" class="control-label col-md-3">CDR Mapping</label>
-                        <div class="clear col-md-3">
-                            <a id="cdrtemplatelink" href="#" target="_blank" class="btn btn-primary btn-sm btn-icon icon-left">
-                                <i class="entypo-link"></i>CDR Mapping
-                            </a>
-                        </div>
+                <div id="CDRMapping" class="row hidden">
+                    <label for="field-5" class="control-label col-md-3">CDR Mapping</label>
+                    <div class="clear col-md-3">
+                        <a id="cdrtemplatelink" href="#" target="_blank" class="btn btn-primary btn-sm btn-icon icon-left">
+                            <i class="entypo-link"></i>CDR Mapping
+                        </a>
                     </div>
+                </div>
+                <div class="row"><br></div>
                 <div class="modal-footer">
                     <input type="hidden" name="CompanyGatewayID" value="">
                     <button type="submit" id="config-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">

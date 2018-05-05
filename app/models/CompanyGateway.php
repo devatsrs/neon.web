@@ -122,8 +122,9 @@ class CompanyGateway extends \Eloquent {
     }
 
     public static function createCronJobsByCompanyGateway($CompanyGatewayID){
-        $CompanyID = User::get_companyID();
+        //$CompanyID = User::get_companyID();
         $CompanyGateway = CompanyGateway::find($CompanyGatewayID);
+        $CompanyID = $CompanyGateway->CompanyID;
         $GatewayID = $CompanyGateway->GatewayID;
         if(!empty($GatewayID)){
             $GatewayName = Gateway::getGatewayName($GatewayID);
@@ -132,8 +133,8 @@ class CompanyGateway extends \Eloquent {
                 log::info($GatewayName);
                 log::info('--SIPPYSFTP FILE DOWNLOAD CRONJOB START--');
 
-                $DownloadCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('sippydownloadcdr');
-                $DownloadSetting = CompanyConfiguration::get('SIPPYSFTP_DOWNLOAD_CRONJOB');
+                $DownloadCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('sippydownloadcdr',$CompanyID);
+                $DownloadSetting = CompanyConfiguration::getValueConfigurationByKey('SIPPYSFTP_DOWNLOAD_CRONJOB',$CompanyID);
                 $DownloadJobTitle = $CompanyGateway->Title.' CDR File Download';
                 $DownloadTag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
                 $DownloadSettings = str_replace('"CompanyGatewayID":""',$DownloadTag,$DownloadSetting);
@@ -144,8 +145,8 @@ class CompanyGateway extends \Eloquent {
 
                 log::info('--SIPPYSFTP FILE PROCESS CRONJOB START--');
 
-                $ProcessCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('sippyaccountusage');
-                $ProcessSetting = CompanyConfiguration::get('SIPPYSFTP_PROCESS_CRONJOB');
+                $ProcessCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('sippyaccountusage',$CompanyID);
+                $ProcessSetting = CompanyConfiguration::getValueConfigurationByKey('SIPPYSFTP_PROCESS_CRONJOB',$CompanyID);
                 $ProcessJobTitle = $CompanyGateway->Title.' CDR File Process';
                 $ProcessTag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
                 $ProcessSettings = str_replace('"CompanyGatewayID":""',$ProcessTag,$ProcessSetting);
@@ -154,14 +155,14 @@ class CompanyGateway extends \Eloquent {
                 CompanyGateway::createGatewayCronJob($CompanyGatewayID,$ProcessCronJobCommandID,$ProcessSettings,$ProcessJobTitle);
                 log::info('--SIPPYSFTP FILE PROCESS CRONJOB END--');
 
-                CompanyGateway::createSummaryCronJobs(1);
+                CompanyGateway::createSummaryCronJobs(1,$CompanyID);
 
             }elseif(isset($GatewayName) && $GatewayName == 'VOS'){
                 log::info($GatewayName);
                 log::info('--VOS FILE DOWNLOAD CRONJOB START--');
 
-                $DownloadCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vosdownloadcdr');
-                $DownloadSetting = CompanyConfiguration::get('VOS_DOWNLOAD_CRONJOB');
+                $DownloadCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vosdownloadcdr',$CompanyID);
+                $DownloadSetting = CompanyConfiguration::getValueConfigurationByKey('VOS_DOWNLOAD_CRONJOB',$CompanyID);
                 $DownloadJobTitle = $CompanyGateway->Title.' CDR File Download';
                 $DownloadTag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
                 $DownloadSettings = str_replace('"CompanyGatewayID":""',$DownloadTag,$DownloadSetting);
@@ -172,8 +173,8 @@ class CompanyGateway extends \Eloquent {
 
                 log::info('--VOS FILE PROCESS CRONJOB START--');
 
-                $ProcessCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vosaccountusage');
-                $ProcessSetting = CompanyConfiguration::get('VOS_PROCESS_CRONJOB');
+                $ProcessCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vosaccountusage',$CompanyID);
+                $ProcessSetting = CompanyConfiguration::getValueConfigurationByKey('VOS_PROCESS_CRONJOB',$CompanyID);
                 $ProcessJobTitle = $CompanyGateway->Title.' CDR File Process';
                 $ProcessTag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
                 $ProcessSettings = str_replace('"CompanyGatewayID":""',$ProcessTag,$ProcessSetting);
@@ -182,14 +183,14 @@ class CompanyGateway extends \Eloquent {
                 CompanyGateway::createGatewayCronJob($CompanyGatewayID,$ProcessCronJobCommandID,$ProcessSettings,$ProcessJobTitle);
                 log::info('--VOS FILE PROCESS CRONJOB END--');
 
-                CompanyGateway::createSummaryCronJobs(1);
+                CompanyGateway::createSummaryCronJobs(1,$CompanyID);
 
             }elseif(isset($GatewayName) && $GatewayName == 'PBX'){
                 log::info($GatewayName);
                 log::info('--PBX CRONJOB START--');
 
-                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('pbxaccountusage');
-                $setting = CompanyConfiguration::get('PBX_CRONJOB');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('pbxaccountusage',$CompanyID);
+                $setting = CompanyConfiguration::getValueConfigurationByKey('PBX_CRONJOB',$CompanyID);
                 $JobTitle = $CompanyGateway->Title.' CDR Download';
                 $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
                 $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
@@ -197,14 +198,26 @@ class CompanyGateway extends \Eloquent {
                 log::info($settings);
                 CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
                 log::info('--PBX CRONJOB END--');
+                log::info('--PBX Reseller CRONJOB START--');
 
-                CompanyGateway::createSummaryCronJobs(0);
+                $ResellerCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('resellerpbxaccountusage',$CompanyID);
+                $Resellersetting = CompanyConfiguration::getValueConfigurationByKey('PBX_RESELLER_CRONJOB',$CompanyID);
+                $ResellerJobTitle = $CompanyGateway->Title.' Reseller CDR Process';
+                $Resellertag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $Resellersettings = str_replace('"CompanyGatewayID":""',$Resellertag,$Resellersetting);
+
+                log::info($Resellersettings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$ResellerCronJobCommandID,$Resellersettings,$ResellerJobTitle);
+
+                log::info('--PBX Reselller CRONJOB END--');
+
+                CompanyGateway::createSummaryCronJobs(0,$CompanyID);
             }elseif(isset($GatewayName) && $GatewayName == 'Porta'){
                 log::info($GatewayName);
                 log::info('--PORTA CRONJOB START--');
 
-                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('portaaccountusage');
-                $setting = CompanyConfiguration::get('PORTA_CRONJOB');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('portaaccountusage',$CompanyID);
+                $setting = CompanyConfiguration::getValueConfigurationByKey('PORTA_CRONJOB',$CompanyID);
                 $JobTitle = $CompanyGateway->Title.' CDR Download';
                 $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
                 $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
@@ -213,20 +226,20 @@ class CompanyGateway extends \Eloquent {
                 CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
                 log::info('--PORTA CRONJOB START--');
 
-                CompanyGateway::createSummaryCronJobs(0);
+                CompanyGateway::createSummaryCronJobs(0,$CompanyID);
             }elseif(isset($GatewayName) && $GatewayName == 'ManualCDR'){
                 log::info($GatewayName);
                 log::info('--ManualCDR CRONJOB START--');
 
-                CompanyGateway::createSummaryCronJobs(0);
+                CompanyGateway::createSummaryCronJobs(0,$CompanyID);
 
                 log::info('--ManualCDR CRONJOB START--');
             }elseif(isset($GatewayName) && $GatewayName == 'MOR'){
                 log::info($GatewayName);
                 log::info('--MOR CRONJOB START--');
 
-                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('moraccountusage');
-                $setting = CompanyConfiguration::get('MOR_CRONJOB');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('moraccountusage',$CompanyID);
+                $setting = CompanyConfiguration::getValueConfigurationByKey('MOR_CRONJOB',$CompanyID);
                 $JobTitle = $CompanyGateway->Title.' CDR Download';
                 $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
                 $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
@@ -235,26 +248,26 @@ class CompanyGateway extends \Eloquent {
                 CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
                 log::info('--MOR CRONJOB END--');
 
-                CompanyGateway::createSummaryCronJobs(1);
+                CompanyGateway::createSummaryCronJobs(1,$CompanyID);
             }elseif(isset($GatewayName) && $GatewayName == 'CallShop'){
                 log::info($GatewayName);
                 log::info('--CallShop CRONJOB START--');
 
-                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('callshopaccountusage');
-                $setting = CompanyConfiguration::get('CALLSHOP_CRONJOB');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('callshopaccountusage',$CompanyID);
+                $setting = CompanyConfiguration::getValueConfigurationByKey('CALLSHOP_CRONJOB',$CompanyID);
                 $JobTitle = $CompanyGateway->Title.' CDR Download';
                 $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
                 $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
 
                 log::info($settings);
                 CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
-                CompanyGateway::createSummaryCronJobs(1);
+                CompanyGateway::createSummaryCronJobs(1,$CompanyID);
                 log::info('--CallShop CRONJOB END--');
             }elseif(isset($GatewayName) && $GatewayName == 'Streamco'){
                 log::info($GatewayName);
                 log::info('--Streamco download CDR CRONJOB START--');
-                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('streamcoaccountusage');
-                $setting = CompanyConfiguration::get('STREAMCO_DOWNLOAD_CDR_CRONJOB');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('streamcoaccountusage',$CompanyID);
+                $setting = CompanyConfiguration::getValueConfigurationByKey('STREAMCO_DOWNLOAD_CDR_CRONJOB',$CompanyID);
                 $JobTitle = $CompanyGateway->Title.' CDR Download';
                 $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
                 $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
@@ -263,8 +276,8 @@ class CompanyGateway extends \Eloquent {
                 log::info('--Streamco download CDR CRONJOB END--');
 
                 log::info('--Streamco Customer Rate File Export CRONJOB START--');
-                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('customerratefileexport');
-                $setting = CompanyConfiguration::get('STREAMCO_CUSTOMER_RATE_FILE_GEN_CRONJOB');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('customerratefileexport',$CompanyID);
+                $setting = CompanyConfiguration::getValueConfigurationByKey('STREAMCO_CUSTOMER_RATE_FILE_GEN_CRONJOB',$CompanyID);
                 $JobTitle = $CompanyGateway->Title.' Customer Rate File Export';
                 $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
                 $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
@@ -273,8 +286,8 @@ class CompanyGateway extends \Eloquent {
                 log::info('--Streamco Customer Rate File Export CRONJOB END--');
 
                 log::info('--Streamco Vendors Rate File Export CRONJOB START--');
-                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vendorratefileexport');
-                $setting = CompanyConfiguration::get('STREAMCO_VENDOR_RATE_FILE_GEN_CRONJOB');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vendorratefileexport',$CompanyID);
+                $setting = CompanyConfiguration::getValueConfigurationByKey('STREAMCO_VENDOR_RATE_FILE_GEN_CRONJOB',$CompanyID);
                 $JobTitle = $CompanyGateway->Title.' Vendors Rate File Export';
                 $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
                 $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
@@ -283,8 +296,8 @@ class CompanyGateway extends \Eloquent {
                 log::info('--Streamco Vendors Rate File Export CRONJOB END--');
 
                 log::info('--Streamco Customers Rate File Download CRONJOB START--');
-                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('customerratefiledownload');
-                $setting = CompanyConfiguration::get('STREAMCO_RATE_FILE_DOWNLOAD_CRONJOB');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('customerratefiledownload',$CompanyID);
+                $setting = CompanyConfiguration::getValueConfigurationByKey('STREAMCO_RATE_FILE_DOWNLOAD_CRONJOB',$CompanyID);
                 $JobTitle = $CompanyGateway->Title.' Customer Rate File Download';
                 $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
                 $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
@@ -293,8 +306,8 @@ class CompanyGateway extends \Eloquent {
                 log::info('--Streamco Customers Rate File Download CRONJOB END--');
 
                 log::info('--Streamco Vendors Rate File Download CRONJOB START--');
-                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vendorratefiledownload');
-                $setting = CompanyConfiguration::get('STREAMCO_RATE_FILE_DOWNLOAD_CRONJOB');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vendorratefiledownload',$CompanyID);
+                $setting = CompanyConfiguration::getValueConfigurationByKey('STREAMCO_RATE_FILE_DOWNLOAD_CRONJOB',$CompanyID);
                 $JobTitle = $CompanyGateway->Title.' Vendor Rate File Download';
                 $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
                 $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
@@ -303,8 +316,8 @@ class CompanyGateway extends \Eloquent {
                 log::info('--Streamco Vendors Rate File Download CRONJOB END--');
 
                 log::info('--Streamco Customers Rate File Process CRONJOB START--');
-                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('customerratefileprocess');
-                $setting = CompanyConfiguration::get('STREAMCO_RATE_FILE_PROCESS_CRONJOB');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('customerratefileprocess',$CompanyID);
+                $setting = CompanyConfiguration::getValueConfigurationByKey('STREAMCO_RATE_FILE_PROCESS_CRONJOB',$CompanyID);
                 $JobTitle = $CompanyGateway->Title.' Customer Rate File Process';
                 $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
                 $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
@@ -313,8 +326,8 @@ class CompanyGateway extends \Eloquent {
                 log::info('--Streamco Customers Rate File Process CRONJOB END--');
 
                 log::info('--Streamco Vendors Rate File Process CRONJOB START--');
-                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vendorratefileprocess');
-                $setting = CompanyConfiguration::get('STREAMCO_RATE_FILE_PROCESS_CRONJOB');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vendorratefileprocess',$CompanyID);
+                $setting = CompanyConfiguration::getValueConfigurationByKey('STREAMCO_RATE_FILE_PROCESS_CRONJOB',$CompanyID);
                 $JobTitle = $CompanyGateway->Title.' Vendor Rate File Process';
                 $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
                 $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
@@ -323,8 +336,8 @@ class CompanyGateway extends \Eloquent {
                 log::info('--Streamco Vendors Rate File Process CRONJOB END--');
 
                 log::info('--Streamco Account Import CRONJOB START--');
-                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('streamcoaccountimport');
-                $setting = CompanyConfiguration::get('STREAMCO_ACCOUNT_IMPORT');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('streamcoaccountimport',$CompanyID);
+                $setting = CompanyConfiguration::getValueConfigurationByKey('STREAMCO_ACCOUNT_IMPORT',$CompanyID);
                 $JobTitle = $CompanyGateway->Title.' Account Import';
                 $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
                 $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
@@ -333,8 +346,8 @@ class CompanyGateway extends \Eloquent {
                 log::info('--Streamco Account Import CRONJOB END--');
 
                 log::info('--Streamco Customer Rate file Import CRONJOB START--');
-                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('customerratefilegeneration');
-                $setting = CompanyConfiguration::get('CUSTOMER_RATE_FILE_IMPORT_CRONJOB');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('customerratefilegeneration',$CompanyID);
+                $setting = CompanyConfiguration::getValueConfigurationByKey('CUSTOMER_RATE_FILE_IMPORT_CRONJOB',$CompanyID);
                 $JobTitle = $CompanyGateway->Title.' Customer Rate file Import';
                 $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
                 $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
@@ -343,8 +356,8 @@ class CompanyGateway extends \Eloquent {
                 log::info('--Streamco Customer Rate file Import CRONJOB END--');
 
                 log::info('--Streamco Vendor Rate file Import CRONJOB START--');
-                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vendorratefilegeneration');
-                $setting = CompanyConfiguration::get('VENDOR_RATE_FILE_IMPORT_CRONJOB');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vendorratefilegeneration',$CompanyID);
+                $setting = CompanyConfiguration::getValueConfigurationByKey('VENDOR_RATE_FILE_IMPORT_CRONJOB',$CompanyID);
                 $JobTitle = $CompanyGateway->Title.' Vendor Rate file Import';
                 $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
                 $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
@@ -353,8 +366,8 @@ class CompanyGateway extends \Eloquent {
                 log::info('--Streamco Vendor Rate file Import CRONJOB END--');
 
                 log::info('--Streamco Rate File Export CRONJOB START--');
-                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('ratefileexport');
-                $setting = CompanyConfiguration::get('RATE_FILE_EXPORT_CRONJOB');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('ratefileexport',$CompanyID);
+                $setting = CompanyConfiguration::getValueConfigurationByKey('RATE_FILE_EXPORT_CRONJOB',$CompanyID);
                 $JobTitle = $CompanyGateway->Title.' Rate File Export';
                 $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
                 $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
@@ -362,13 +375,13 @@ class CompanyGateway extends \Eloquent {
                 CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
                 log::info('--Streamco Rate File Export Import CRONJOB END--');
 
-                CompanyGateway::createSummaryCronJobs(0);
+                CompanyGateway::createSummaryCronJobs(0,$CompanyID);
             }elseif(isset($GatewayName) && $GatewayName == 'FusionPBX'){
                 log::info($GatewayName);
                 log::info('--FusionPBX CRONJOB START--');
 
-                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('fusionpbxaccountusage');
-                $setting = CompanyConfiguration::get('FUSION_PBX_CRONJOB');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('fusionpbxaccountusage',$CompanyID);
+                $setting = CompanyConfiguration::getValueConfigurationByKey('FUSION_PBX_CRONJOB',$CompanyID);
                 $JobTitle = $CompanyGateway->Title.' CDR Download';
                 $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
                 $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
@@ -377,13 +390,13 @@ class CompanyGateway extends \Eloquent {
                 CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
                 log::info('--FusionPBX CRONJOB END--');
 
-                CompanyGateway::createSummaryCronJobs(0);
+                CompanyGateway::createSummaryCronJobs(0,$CompanyID);
             } elseif(isset($GatewayName) && $GatewayName == 'M2') {
                 log::info($GatewayName);
                 log::info('--M2 CRONJOB START--');
 
-                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('m2accountusage');
-                $setting = CompanyConfiguration::get('M2_CRONJOB');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('m2accountusage',$CompanyID);
+                $setting = CompanyConfiguration::getValueConfigurationByKey('M2_CRONJOB',$CompanyID);
                 $JobTitle = $CompanyGateway->Title.' CDR Download';
                 $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
                 $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
@@ -392,13 +405,13 @@ class CompanyGateway extends \Eloquent {
                 CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
                 log::info('--M2 CRONJOB END--');
 
-                CompanyGateway::createSummaryCronJobs(1);
+                CompanyGateway::createSummaryCronJobs(1,$CompanyID);
             }elseif(isset($GatewayName) && $GatewayName == 'VoipNow'){
                 log::info($GatewayName);
                 log::info('--VOIPNOW CRONJOB START--');
 
-                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('voipnowaccountusage');
-                $setting = CompanyConfiguration::get('VIOPNOW_PBX_CRONJOB');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('voipnowaccountusage',$CompanyID);
+                $setting = CompanyConfiguration::getValueConfigurationByKey('VIOPNOW_PBX_CRONJOB',$CompanyID);
                 $JobTitle = $CompanyGateway->Title.' CDR Download';
                 $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
                 $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
@@ -407,13 +420,13 @@ class CompanyGateway extends \Eloquent {
                 CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
                 log::info('--VOIPNOW CRONJOB END--');
 
-                CompanyGateway::createSummaryCronJobs(0);
+                CompanyGateway::createSummaryCronJobs(0,$CompanyID);
             }elseif(isset($GatewayName) && $GatewayName == 'VOS5000'){
                 log::info($GatewayName);
                 log::info('--VOS5000 FILE DOWNLOAD CRONJOB START--');
 
-                $DownloadCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vos5000downloadcdr');
-                $DownloadSetting = CompanyConfiguration::get('VOS5000_DOWNLOAD_CRONJOB');
+                $DownloadCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vos5000downloadcdr',$CompanyID);
+                $DownloadSetting = CompanyConfiguration::getValueConfigurationByKey('VOS5000_DOWNLOAD_CRONJOB',$CompanyID);
                 $DownloadJobTitle = $CompanyGateway->Title.' CDR File Download';
                 $DownloadTag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
                 $DownloadSettings = str_replace('"CompanyGatewayID":""',$DownloadTag,$DownloadSetting);
@@ -424,8 +437,8 @@ class CompanyGateway extends \Eloquent {
 
                 log::info('--VOS5000 FILE PROCESS CRONJOB START--');
 
-                $ProcessCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vos5000accountusage');
-                $ProcessSetting = CompanyConfiguration::get('VOS_PROCESS_CRONJOB');
+                $ProcessCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vos5000accountusage',$CompanyID);
+                $ProcessSetting = CompanyConfiguration::getValueConfigurationByKey('VOS_PROCESS_CRONJOB',$CompanyID);
                 $ProcessJobTitle = $CompanyGateway->Title.' CDR File Process';
                 $ProcessTag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
                 $ProcessSettings = str_replace('"CompanyGatewayID":""',$ProcessTag,$ProcessSetting);
@@ -434,24 +447,28 @@ class CompanyGateway extends \Eloquent {
                 CompanyGateway::createGatewayCronJob($CompanyGatewayID,$ProcessCronJobCommandID,$ProcessSettings,$ProcessJobTitle);
                 log::info('--VOS5000 FILE PROCESS CRONJOB END--');
 
-                CompanyGateway::createSummaryCronJobs(1);
+                CompanyGateway::createSummaryCronJobs(1,$CompanyID);
 
             }
         }else{
             log::info('--Other CRONJOB START--');
 
-            CompanyGateway::createSummaryCronJobs(0);
+            CompanyGateway::createSummaryCronJobs(0,$CompanyID);
 
             log::info('--Other CRONJOB START--');
         }
     }
 
     public static function createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle){
-        $CompanyID = User::get_companyID();
+        $CronJobCommand = CronJobCommand::find($CronJobCommandID);
+        $CompanyID = $CronJobCommand->CompanyID;
         $today = date('Y-m-d');
+        $Status = 1;
         if(!empty($CompanyGatewayID)){
             $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
             $cronJobs_count = CronJob::where('Settings','LIKE', '%'.$tag.'%')->where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$CronJobCommandID])->count();
+            $CompanyGateway = CompanyGateway::find($CompanyGatewayID);
+            $Status = $CompanyGateway->Status;
         }else{
             $cronJobs_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$CronJobCommandID])->count();
         }
@@ -462,7 +479,7 @@ class CompanyGateway extends \Eloquent {
             $cronjobdata['CompanyID'] = $CompanyID;
             $cronjobdata['CronJobCommandID'] = $CronJobCommandID;
             $cronjobdata['Settings'] = $settings;
-            $cronjobdata['Status'] = 1;
+            $cronjobdata['Status'] = $Status;
             $cronjobdata['created_by'] = User::get_user_full_name();
             $cronjobdata['created_at'] =  $today;
             $cronjobdata['JobTitle'] = $JobTitle;
@@ -471,11 +488,11 @@ class CompanyGateway extends \Eloquent {
         }
     }
 
-    public static function createSummaryCronJobs($type){
+    public static function createSummaryCronJobs($type,$CompanyID){
         $CompanyGatewayID = 0;
         log::info('--CUSTOMER SUMMARY DAILY CRONJOB START--');
-        $CustomerSummaryDailyCommandID = CronJobCommand::getCronJobCommandIDByCommand('createsummary');
-        $CustomerSummaryDailySetting = CompanyConfiguration::get('CUSTOMER_SUMMARYDAILY_CRONJOB');
+        $CustomerSummaryDailyCommandID = CronJobCommand::getCronJobCommandIDByCommand('createsummary',$CompanyID);
+        $CustomerSummaryDailySetting = CompanyConfiguration::getValueConfigurationByKey('CUSTOMER_SUMMARYDAILY_CRONJOB',$CompanyID);
         $CustomerSummaryDailyJobTitle = 'Create Customer Summary';
         log::info($CustomerSummaryDailySetting);
         CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CustomerSummaryDailyCommandID,$CustomerSummaryDailySetting,$CustomerSummaryDailyJobTitle);
@@ -483,8 +500,8 @@ class CompanyGateway extends \Eloquent {
         log::info('--CUSTOMER SUMMARY DAILY CRONJOB END--');
 
         log::info('--CUSTOMER SUMMARY LIVE CRONJOB START--');
-        $CustomerSummaryLiveCommandID = CronJobCommand::getCronJobCommandIDByCommand('createsummarylive');
-        $CustomerSummaryLiveSetting = CompanyConfiguration::get('CUSTOMER_SUMMARYLIVE_CRONJOB');
+        $CustomerSummaryLiveCommandID = CronJobCommand::getCronJobCommandIDByCommand('createsummarylive',$CompanyID);
+        $CustomerSummaryLiveSetting = CompanyConfiguration::getValueConfigurationByKey('CUSTOMER_SUMMARYLIVE_CRONJOB',$CompanyID);
         $CustomerSummaryLiveJobTitle = 'Create Customer Summary Live';
         log::info($CustomerSummaryLiveSetting);
         CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CustomerSummaryLiveCommandID,$CustomerSummaryLiveSetting,$CustomerSummaryLiveJobTitle);
@@ -493,8 +510,8 @@ class CompanyGateway extends \Eloquent {
 
         if($type=='1'){
            /* log::info('--VENDOR SUMMARY DAILY CRONJOB START--');
-            $VendorSummaryDailyCommandID = CronJobCommand::getCronJobCommandIDByCommand('createvendorsummary');
-            $VendorSummaryDailySetting = CompanyConfiguration::get('VENDOR_SUMMARYDAILY_CRONJOB');
+            $VendorSummaryDailyCommandID = CronJobCommand::getCronJobCommandIDByCommand('createvendorsummary',$CompanyID);
+            $VendorSummaryDailySetting = CompanyConfiguration::getValueConfigurationByKey('VENDOR_SUMMARYDAILY_CRONJOB',$CompanyID);
             $VendorSummaryDailyJobTitle = 'Create Vendor Summary';
             log::info($VendorSummaryDailySetting);
             CompanyGateway::createGatewayCronJob($CompanyGatewayID,$VendorSummaryDailyCommandID,$VendorSummaryDailySetting,$VendorSummaryDailyJobTitle);*/
@@ -502,14 +519,75 @@ class CompanyGateway extends \Eloquent {
             log::info('--VENDOR SUMMARY DAILY CRONJOB END--');
 
             log::info('--VENDOR SUMMARY LIVE CRONJOB START--');
-            $VendorSummaryLiveCommandID = CronJobCommand::getCronJobCommandIDByCommand('createvendorsummarylive');
-            $VendorSummaryLiveSetting = CompanyConfiguration::get('VENDOR_SUMMARYLIVE_CRONJOB');
+            $VendorSummaryLiveCommandID = CronJobCommand::getCronJobCommandIDByCommand('createvendorsummarylive',$CompanyID);
+            $VendorSummaryLiveSetting = CompanyConfiguration::getValueConfigurationByKey('VENDOR_SUMMARYLIVE_CRONJOB',$CompanyID);
             $VendorSummaryLiveJobTitle = 'Create Vendor Summary Live';
             log::info($VendorSummaryLiveSetting);
             CompanyGateway::createGatewayCronJob($CompanyGatewayID,$VendorSummaryLiveCommandID,$VendorSummaryLiveSetting,$VendorSummaryLiveJobTitle);
 
             log::info('--VENDOR SUMMARY LIVE CRONJOB END--');
         }
+
+    }
+
+    public static function createDefaultCronJobs($CompanyID){
+        log::info('-- Active CronJob --');
+        $today = date('Y-m-d');
+        $ActiveCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('activecronjobemail',$CompanyID);
+        $ActiveCronJob_Count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$ActiveCronJobCommandID])->count();
+        if($ActiveCronJob_Count == 0) {
+            $ActiveCronJobTitle = 'Active Cron Job Email';
+            $ActiveCronJobSetting = '{"AlertEmailInterval":"60","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM"}';
+            $ActiveCronJobdata = array();
+            $ActiveCronJobdata['CompanyID'] = $CompanyID;
+            $ActiveCronJobdata['CronJobCommandID'] = $ActiveCronJobCommandID;
+            $ActiveCronJobdata['Settings'] = $ActiveCronJobSetting;
+            $ActiveCronJobdata['Status'] = 1;
+            $ActiveCronJobdata['created_by'] = 'system';
+            $ActiveCronJobdata['created_at'] = $today;
+            $ActiveCronJobdata['JobTitle'] = $ActiveCronJobTitle;
+            log::info($ActiveCronJobdata);
+            CronJob::create($ActiveCronJobdata);
+        }
+        log::info('-- Active CronJob END--');
+
+        log::info('-- Activity Reminder --');
+        $ActivityReminderJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('accountactivityreminder',$CompanyID);
+        $ActivityReminder_Count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$ActivityReminderJobCommandID])->count();
+        if($ActivityReminder_Count == 0) {
+            $ActivityReminderJobTitle = 'Activity Reminder';
+            $ActivityReminderSetting = '{"ThresholdTime":"60","SuccessEmail":"","ErrorEmail":"","JobTime":"DAILY","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"8:00:00 AM"}';
+            $ActivityReminderdata = array();
+            $ActivityReminderdata['CompanyID'] = $CompanyID;
+            $ActivityReminderdata['CronJobCommandID'] = $ActivityReminderJobCommandID;
+            $ActivityReminderdata['Settings'] = $ActivityReminderSetting;
+            $ActivityReminderdata['Status'] = 1;
+            $ActivityReminderdata['created_by'] = 'system';
+            $ActivityReminderdata['created_at'] = $today;
+            $ActivityReminderdata['JobTitle'] = $ActivityReminderJobTitle;
+            log::info($ActivityReminderdata);
+            CronJob::create($ActivityReminderdata);
+        }
+        log::info('-- Activity Reminder END--');
+
+        log::info('-- Auto Invoice Generator --');
+        $AutoInvoiceGeneratorCommandID = CronJobCommand::getCronJobCommandIDByCommand('invoicegenerator',$CompanyID);
+        $AutoInvoiceGenerator_Count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$AutoInvoiceGeneratorCommandID])->count();
+        if($AutoInvoiceGenerator_Count == 0) {
+            $AutoInvoiceGeneratorJobTitle = 'Auto Invoice Generator';
+            $AutoInvoiceGeneratorSetting = '{"ThresholdTime":"120","SuccessEmail":"","ErrorEmail":"","JobTime":"DAILY","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"7:00:00 AM"}';
+            $AutoInvoiceGeneratordata = array();
+            $AutoInvoiceGeneratordata['CompanyID'] = $CompanyID;
+            $AutoInvoiceGeneratordata['CronJobCommandID'] = $AutoInvoiceGeneratorCommandID;
+            $AutoInvoiceGeneratordata['Settings'] = $AutoInvoiceGeneratorSetting;
+            $AutoInvoiceGeneratordata['Status'] = 1;
+            $AutoInvoiceGeneratordata['created_by'] = 'system';
+            $AutoInvoiceGeneratordata['created_at'] = $today;
+            $AutoInvoiceGeneratordata['JobTitle'] = $AutoInvoiceGeneratorJobTitle;
+            log::info($AutoInvoiceGeneratordata);
+            CronJob::create($AutoInvoiceGeneratordata);
+        }
+        log::info('-- Auto Invoice Generator END--');
 
     }
 

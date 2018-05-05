@@ -47,7 +47,7 @@
 
                 <div class="panel-body">
                     <div class="form-group">
-                        <label for="field-1" class="col-md-2 control-label">Account Owner</label>
+                        <label class="col-md-2 control-label">Account Owner</label>
                         <div class="col-md-4">
                             {{Form::select('Owner',$account_owners,User::get_userID(),array("class"=>"select2"))}}
                         </div>
@@ -60,36 +60,36 @@
 
                     </div>
                     <div class="form-group">
-                        <label for="field-1" class="col-md-2 control-label">First Name</label>
+                        <label class="col-md-2 control-label">First Name</label>
                         <div class="col-md-4">
                             <input type="text" name="FirstName" class="form-control" id="field-1" placeholder="" value="{{Input::old('FirstName')}}" />
                         </div>
 
-                        <label for="field-1" class="col-md-2 control-label">Last Name</label>
+                        <label class="col-md-2 control-label">Last Name</label>
                         <div class="col-md-4">
                             <input type="text" name="LastName" class="form-control" id="field-1" placeholder="" value="{{Input::old('LastName')}}" />
                         </div>
 
                     </div>
                     <div class="form-group">
-                        <label for="field-1" class="col-md-2 control-label">Account Number</label>
+                        <label class="col-md-2 control-label">Account Number</label>
                         <div class="col-md-4">
                             <input type="text" name="Number" class="form-control" id="field-1" placeholder="AUTO" value="{{ $LastAccountNo   }}" />
                         </div>
 
-                        <label for="field-1" class="col-md-2 control-label">Website</label>
+                        <label class="col-md-2 control-label">Website</label>
                         <div class="col-md-4">
                             <input type="text" name="Website" class="form-control" id="field-1" placeholder="" value="{{Input::old('Website')}}" />
                         </div>
 
                     </div>
                     <div class="form-group">
-                        <label for="field-1" class="col-md-2 control-label">*Account Name</label>
+                        <label class="col-md-2 control-label">*Account Name</label>
                         <div class="col-md-4">
                             <input type="text" class="form-control" name="AccountName" data-validate="required" data-message-required="This is custom message for required field." id="field-1" placeholder="" value="{{Input::old('AccountName')}}" />
                         </div>
 
-                        <label for="field-1" class="col-md-2 control-label">Phone</label>
+                        <label class="col-md-2 control-label">Phone</label>
                         <div class="col-md-4">
                             <input type="text" class="form-control"  name="Phone" id="field-1" placeholder="" value="{{Input::old('Phone')}}" />
                         </div>
@@ -102,7 +102,7 @@
                             </div>
                         </div>
 
-                        <label for="field-1" class="col-md-2 control-label">Fax</label>
+                        <label class="col-md-2 control-label">Fax</label>
                         <div class="col-md-4">
                             <input type="text" name="Fax" class="form-control" id="field-1" placeholder="" value="{{Input::old('Fax')}}" />
                         </div>
@@ -115,7 +115,7 @@
                             </div>
                         </div>
 
-                        <label for="field-1" class="col-md-2 control-label">Employee</label>
+                        <label class="col-md-2 control-label">Employee</label>
                         <div class="col-md-4">
                             <input type="text" name="Employee" class="form-control" id="field-1" placeholder="" value="{{Input::old('Employee')}}" />
                         </div>
@@ -123,19 +123,24 @@
                     <div class="form-group">
                         <label class="col-md-2 control-label">Reseller</label>
                         <div class="col-md-4">
-                            <div class="make-switch switch-small">
+                            <div class="make-switch switch-small" id="desablereseller">
                                 <input type="checkbox" name="IsReseller"  @if(Input::old('IsReseller') == 1 )checked=""@endif value="1">
                             </div>
                         </div>
 
+                        <label class="col-md-2 control-label">Account Reseller</label>
+                        <div class="col-md-4" id="disableresellerowner">
+                            {{Form::select('ResellerOwner',$reseller_owners,'',array("class"=>"select2"))}}
+                        </div>
+
                     </div>
                     <div class="form-group">
-                        <label for="field-1" class="col-md-2 control-label">Email</label>
+                        <label class="col-md-2 control-label">Email</label>
                         <div class="col-md-4">
                             <input type="text" class="form-control" name="Email" data-validate="required" data-message-required="" id="field-1" placeholder="" value="{{Input::old('Email')}}" />
                         </div>
 
-                        <label for="field-1" class="col-md-2 control-label">Billing Email</label>
+                        <label class="col-md-2 control-label">Billing Email</label>
                         <div class="col-md-4">
                             <input type="text" class="form-control"  name="BillingEmail" id="field-1" placeholder="" value="{{Input::old('BillingEmail')}}" />
                         </div>
@@ -150,7 +155,7 @@
                             </div>
                         </div>
 
-                        <label for="field-1" class="col-md-2 control-label">VAT Number</label>
+                        <label class="col-md-2 control-label">VAT Number</label>
                         <div class="col-md-4">
                             <input type="text" class="form-control"  name="VatNumber" id="field-1" placeholder="" value="{{Input::old('VatNumber')}}" />
                         </div>
@@ -162,9 +167,9 @@
                                 {{Form::SelectControl('currency',0,$company->CurrencyId,0,'CurrencyId')}}
                         </div>
 
-                        <label for="field-1" class="col-md-2 control-label">Timezone</label>
+                        <label class="col-md-2 control-label">Timezone</label>
                         <div class="col-md-4">
-                            {{Form::select('Timezone', $timezones, '' ,array("class"=>"form-control select2"))}}
+                            {{Form::select('TimeZone', $timezones, '' ,array("class"=>"form-control select2"))}}
                         </div>
                     </div>
                     <div class="form-group">
@@ -173,7 +178,7 @@
                             {{Form::select('VerificationStatus', Account::$doc_status,Account::NOT_VERIFIED,array("class"=>"select2 small",'disabled'=>'disabled'))}}
                              <input type="hidden" class="form-control"  name="VerificationStatus" value="{{Account::NOT_VERIFIED}}">
                         </div>
-                        <label for="field-1" class="col-md-2 control-label">Nominal Code</label>
+                        <label class="col-md-2 control-label">Nominal Code</label>
                         <div class="col-md-4">
                             <input type="text" class="form-control"  name="NominalAnalysisNominalAccountNumber" id="field-1" placeholder="" value="{{Input::old('NominalAnalysisNominalAccountNumber')}}" />
                         </div>
@@ -198,7 +203,12 @@
                             @endforeach
                         </div>
                     @endif
-
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">Languages</label>
+                        <div class="col-md-4">
+                            {{ddl_language("", "LanguageID", ( isset($AccountBilling->Language)?$AccountBilling->Language:Translation::$default_lang_id ),"", "id")}}
+                        </div>
+                    </div>
                     <div class="panel-title desc clear">
                         Description
                     </div>
@@ -222,29 +232,29 @@
 
                             <div class="panel-body">
                                 <div class="form-group">
-                                    <label for="field-1" class="col-md-2 control-label">Address Line 1</label>
+                                    <label class="col-md-2 control-label">Address Line 1</label>
                                     <div class="col-md-4">
                                         <input type="text" name="Address1" class="form-control" id="field-1" placeholder="" value="{{Input::old('Address1')}}" />
                                     </div>
 
-                                    <label for="field-1" class="col-md-2 control-label">City</label>
+                                    <label class="col-md-2 control-label">City</label>
                                     <div class="col-md-4">
                                         <input type="text" name="City" class="form-control" id="field-1" placeholder="" value="{{Input::old('City')}}" />
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="field-1" class="col-md-2 control-label">Address Line 2</label>
+                                    <label class="col-md-2 control-label">Address Line 2</label>
                                     <div class="col-md-4">
                                         <input type="text" name="Address2" class="form-control" id="field-1" placeholder="" value="{{Input::old('Address2')}}" />
                                     </div>
 
-                                    <label for="field-1" class="col-md-2 control-label">Post/Zip Code</label>
+                                    <label class="col-md-2 control-label">Post/Zip Code</label>
                                     <div class="col-md-4">
                                         <input type="text" name="PostCode" class="form-control" id="field-1" placeholder="" value="{{Input::old('PostCode')}}" />
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="field-1" class="col-md-2 control-label">Address Line 3</label>
+                                    <label class="col-md-2 control-label">Address Line 3</label>
                                     <div class="col-md-4">
                                         <input type="text" name="Address3" class="form-control" id="field-1" placeholder="" value="{{Input::old('Address3')}}" />
                                     </div>
@@ -274,12 +284,12 @@
 
                 <div class="panel-body billing-section">
                     <div class="form-group">
-                        <label for="field-1" class="col-md-2 control-label">Billing Class*</label>
+                        <label class="col-md-2 control-label">Billing Class*</label>
                         <div class="col-md-4">
                             {{Form::SelectControl('billing_class',1)}}
                             <!--{Form::select('BillingClassID', $BillingClass, '' ,array("class"=>"select2 small form-control1"));}}-->
                         </div>
-                        <label for="field-1" class="col-md-2 control-label">Billing Type*</label>
+                        <label class="col-md-2 control-label">Billing Type*</label>
                         <div class="col-md-4">
                             {{Form::select('BillingType', AccountApproval::$billing_type, '1',array('id'=>'billing_type',"class"=>"select2 small"))}}
                         </div>
@@ -287,22 +297,22 @@
                     </div>
                     <div class="form-group">
 
-                        <label for="field-1" class="col-md-2 control-label">Billing Timezone*</label>
+                        <label class="col-md-2 control-label">Billing Timezone*</label>
                         <div class="col-md-4">
                             {{Form::select('BillingTimezone', $timezones, '' ,array("class"=>"form-control select2"))}}
                         </div>
-                        <label for="field-1" class="col-md-2 control-label">Billing Start Date*</label>
-                        <div class="col-md-4">
+                        <label class="col-md-2 control-label">Billing Start Date*</label>
+                        <div class="col-md-2">
                             {{Form::text('BillingStartDate','',array('class'=>'form-control datepicker billing_start_date',"data-date-format"=>"yyyy-mm-dd"))}}
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="field-1" class="col-md-2 control-label">Billing Cycle*</label>
+                        <label class="col-md-2 control-label">Billing Cycle*</label>
                         <div class="col-md-4">
                             {{Form::select('BillingCycleType', SortBillingType(1), '' ,array("class"=>"form-control select2"))}}
                         </div>
                         <div id="billing_cycle_weekly" class="billing_options" style="display: none">
-                            <label for="field-1" class="col-md-2 control-label">Billing Cycle - Start of Day*</label>
+                            <label class="col-md-2 control-label">Billing Cycle - Start of Day*</label>
                             <div class="col-md-4">
                                 <?php $Days = array( ""=>"Select",
                                     "monday"=>"Monday",
@@ -316,30 +326,40 @@
                             </div>
                         </div>
                         <div id="billing_cycle_in_specific_days" class="billing_options" style="display: none">
-                        <label for="field-1" class="col-md-2 control-label">Billing Cycle - for Days*</label>
+                        <label class="col-md-2 control-label">Billing Cycle - for Days*</label>
                             <div class="col-md-4">
                                 {{Form::text('BillingCycleValue', '' ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Billing Days"))}}
                             </div>
                         </div>
                         <div id="billing_cycle_subscription" class="billing_options" style="display: none">
-                        <label for="field-1" class="col-md-2 control-label">Billing Cycle - Subscription Qty*</label>
+                        <label class="col-md-2 control-label">Billing Cycle - Subscription Qty*</label>
                             <div class="col-md-4">
                                 {{Form::text('BillingCycleValue', '' ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Subscription Qty"))}}
                             </div>
                         </div>
                         <div id="billing_cycle_monthly_anniversary" class="billing_options" style="display: none">
-                            <label for="field-1" class="col-md-2 control-label">Billing Cycle - Monthly Anniversary Date*</label>
+                            <label class="col-md-2 control-label">Billing Cycle - Monthly Anniversary Date*</label>
                             <div class="col-md-4">
-                                {{Form::text('BillingCycleValue', '' ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"dd-mm-yyyy", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
+                                {{Form::text('BillingCycleValue', '' ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
                             </div>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">Next Invoice Date</label>
+                        <div class="col-md-4">
+                            {{Form::text('NextInvoiceDate', '',array('class'=>'form-control datepicker next_invoice_date',"data-date-format"=>"yyyy-mm-dd"))}}
+                        </div>
+                        <label class="col-md-2 control-label">Next Charge Date</label>
+                        <div class="col-md-4">
+                            {{Form::text('NextChargeDate', '',array('class'=>'form-control datepicker next_charged_date',"data-date-format"=>"yyyy-mm-dd"))}}
+                        </div>
+                    </div>
                 <div class="form-group">
-                    <label for="field-1" class="col-md-2 control-label">Send Invoice via Email</label>
+                    <label class="col-md-2 control-label">Send Invoice via Email</label>
                     <div class="col-md-4">
                         {{Form::select('SendInvoiceSetting', BillingClass::$SendInvoiceSetting, "after_admin_review" ,array("class"=>"form-control select2"))}}
                     </div>
-                    <label for="field-1" class="col-md-2 control-label">Auto Pay</label>
+                    <label class="col-md-2 control-label">Auto Pay</label>
                     <div class="col-md-4">
                         {{Form::select('AutoPaymentSetting', BillingClass::$AutoPaymentSetting, "never" ,array("class"=>"form-control select2 small"))}}
                     </div>
@@ -387,6 +407,11 @@
                     $(".billing_start_date").attr('readonly','true');
                     break;
             }
+            if(selection=='weekly' || selection=='monthly_anniversary' || selection=='in_specific_days' || selection=='subscription' || selection=='manual'){
+                //nothing change
+            }else{
+                changeBillingDates('');
+            }
         });
 
 
@@ -429,11 +454,65 @@
                 $('[name="IsVendor"]').prop("checked", false).trigger('change');
                 $("#desablecustomer").addClass('deactivate');
                 $("#desablevendor").addClass('deactivate');
+                $('#disableresellerowner select').attr("disabled", "disabled");
             }else{
                 $("#desablecustomer").removeClass('deactivate');
                 $("#desablevendor").removeClass('deactivate');
+                $("#desablereseller").removeClass('deactivate');
+                $('#disableresellerowner select').removeAttr("disabled");
             }
         });
+
+        $('[name="ResellerOwner"]').on( "change",function(e){
+            if($(this).val()>0) {
+                $("#desablereseller").addClass('deactivate');
+            }else{
+                $("#desablereseller").removeClass('deactivate');
+            }
+
+        });
+
+        $('[name="BillingStartDate"]').on("change",function(e){
+            changeBillingDates('');
+        });
+
+        $('[name="BillingCycleValue"]').on( "change",function(e){
+            changeBillingDates($(this).val());
+        });
+
+        function changeBillingDates(BillingCycleValue){
+            var BillingStartDate;
+            var BillingCycleType;
+            //var BillingCycleValue;
+            BillingStartDate = $('[name="BillingStartDate"]').val();
+            BillingCycleType = $('select[name="BillingCycleType"]').val();
+            if(BillingCycleType==''){
+                BillingCycleValue = $('[name="BillingCycleValue"]').val();
+            }
+            //alert(BillingCycleValue);
+            if(BillingStartDate=='' || BillingCycleType==''){
+                return true;
+            }
+
+            getNextBillingDatec_url =  '{{ URL::to('accounts/getNextBillingDate')}}';
+            $.ajax({
+                url: getNextBillingDatec_url,
+                type: 'POST',
+                dataType: 'json',
+                success: function(response) {
+                    $('[name="NextInvoiceDate"]').val(response.NextBillingDate);
+                    $('[name="NextChargeDate"]').val(response.NextChargedDate);
+                },
+                data: {
+                    "BillingStartDate":BillingStartDate,
+                    "BillingCycleType":BillingCycleType,
+                    "BillingCycleValue":BillingCycleValue
+                }
+
+            });
+
+            return true;
+        }
 
     });
 function ajax_form_success(response){

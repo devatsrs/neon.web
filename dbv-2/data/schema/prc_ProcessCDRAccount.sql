@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_ProcessCDRAccount`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_ProcessCDRAccount`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_processId` INT,
@@ -24,12 +24,11 @@ BEGIN
 		ud.ServiceID
 	FROM NeonCDRDev.' , p_tbltempusagedetail_name , ' ud
 	LEFT JOIN tblGatewayAccount ga
-		ON  ga.AccountName = ud.AccountName
+		ON ga.CompanyGatewayID = ud.CompanyGatewayID
+		AND ga.AccountName = ud.AccountName
 		AND ga.AccountNumber = ud.AccountNumber
 		AND ga.AccountCLI = ud.AccountCLI
-		AND ga.AccountIP = ud.AccountIP
-		AND ga.CompanyGatewayID = ud.CompanyGatewayID
-		AND ga.CompanyID = ud.CompanyID
+		AND ga.AccountIP = ud.AccountIP		 
 		AND ga.ServiceID = ud.ServiceID
 	WHERE ProcessID =  "' , p_processId , '"
 		AND ga.GatewayAccountID IS NULL
@@ -44,16 +43,14 @@ BEGIN
 	SET @stm = CONCAT('
 	UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` uh
 	INNER JOIN tblGatewayAccount ga
-		ON  ga.CompanyID = uh.CompanyID
-		AND ga.CompanyGatewayID = uh.CompanyGatewayID
+		ON  ga.CompanyGatewayID = uh.CompanyGatewayID
 		AND ga.AccountName = uh.AccountName
 		AND ga.AccountNumber = uh.AccountNumber
 		AND ga.AccountCLI = uh.AccountCLI
 		AND ga.AccountIP = uh.AccountIP
 		AND ga.ServiceID = uh.ServiceID
 	SET uh.GatewayAccountPKID = ga.GatewayAccountPKID
-	WHERE uh.CompanyID = ' ,  p_CompanyID , '
-	AND uh.ProcessID = "' , p_processId , '" ;
+	WHERE uh.ProcessID = "' , p_processId , '" ;
 	');
 	PREPARE stmt FROM @stm;
 	EXECUTE stmt;
@@ -66,17 +63,15 @@ BEGIN
 	SET @stm = CONCAT('
 	UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` uh
 	INNER JOIN tblGatewayAccount ga
-		ON  ga.CompanyID = uh.CompanyID
-		AND ga.CompanyGatewayID = uh.CompanyGatewayID
+		ON  ga.CompanyGatewayID = uh.CompanyGatewayID
 		AND ga.AccountName = uh.AccountName
 		AND ga.AccountNumber = uh.AccountNumber
 		AND ga.AccountCLI = uh.AccountCLI
 		AND ga.AccountIP = uh.AccountIP
 		AND ga.ServiceID = uh.ServiceID
-	SET uh.AccountID = ga.AccountID
+	SET uh.AccountID = ga.AccountID,uh.CompanyID = ga.CompanyID
 	WHERE uh.AccountID IS NULL
 	AND ga.AccountID is not null
-	AND uh.CompanyID = ' ,  p_CompanyID , '
 	AND uh.ProcessID = "' , p_processId , '" ;
 	');
 	PREPARE stmt FROM @stm;
@@ -89,7 +84,7 @@ BEGIN
 		ON  uh.GatewayAccountPKID = ga.GatewayAccountPKID
 	WHERE uh.AccountID IS NULL
 	AND ga.AccountID is not null
-	AND uh.CompanyID = p_CompanyID
+--	AND uh.CompanyID = p_CompanyID
 	AND uh.CompanyGatewayID = p_CompanyGatewayID;
 
 	IF v_NewAccountIDCount_ > 0
@@ -102,7 +97,7 @@ BEGIN
 		SET uh.AccountID = ga.AccountID
 		WHERE uh.AccountID IS NULL
 		AND ga.AccountID is not null
-		AND uh.CompanyID = p_CompanyID
+--		AND uh.CompanyID = p_CompanyID
 		AND uh.CompanyGatewayID = p_CompanyGatewayID;
 
 	END IF;

@@ -20,7 +20,10 @@
 .phpdebugbar{display:none;}
 .antipattern{background:#f1f1f1 !important;}
 </style>
-<script type="text/javascript">	var baseurl = "{{URL::to('/')}}"; 	</script>
+<script type="text/javascript">
+    var baseurl = "{{URL::to('/')}}";
+    {{js_labels()}}
+</script>
 <script src="{{ URL::asset('assets/formbuilder/js/defaults.js')}}" type="text/javascript"></script>
 <script src="{{ URL::asset('assets/formbuilder/js/frameworks.js')}}" type="text/javascript"></script>
 <script src="{{ URL::asset('assets/formbuilder/js/workspace.js')}}" type="text/javascript"></script>

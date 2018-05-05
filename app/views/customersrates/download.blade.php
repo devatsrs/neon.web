@@ -100,8 +100,15 @@
                     <select name="Effective" class="select2 small" data-allow-clear="true" data-placeholder="Select Effective" id="fileeffective">
                         <option value="Now">Now</option>
                         <option value="Future">Future</option>
+                        <option value="CustomDate">Custom Date</option>
                         <option value="All">All</option>
                     </select>
+                </div>
+            </div>
+            <div class="form-group DateFilter" style="display: none;">
+                <label for="field-1" class="col-sm-3 control-label">Date</label>
+                <div class="col-sm-5">
+                    {{ Form::text('CustomDate', date('Y-m-d'), array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd","placeholder"=>date('Y-m-d'),"data-startdate"=>date('Y-m-d'))) }} {{--  ,"data-enddate"=>date('Y-m-d') --}}
                 </div>
             </div>
             <div class="form-group">
@@ -188,11 +195,11 @@ jQuery(document).ready(function ($) {
 
             if($(this).val()=='{{RateSheetFormate::RATESHEET_FORMAT_VOS20}}'){
                 $('#fileeffective').empty();
-                var html ='<option value="Now">Now</option><option value="Future">Future</option>';
+                var html ='<option value="Now">Now</option><option value="Future">Future</option><option value="CustomDate" selected="selected">Custom Date</option>';
                 $('#fileeffective').append(html);
             }else{
                 $('#fileeffective').empty();
-                var html ='<option value="Now">Now</option><option value="Future">Future</option><option value="All">All</option>';
+                var html ='<option value="Now">Now</option><option value="Future">Future</option><option value="CustomDate" selected="selected">Custom Date</option><option value="All">All</option>';
                 $('#fileeffective').append(html);
             }
 
@@ -448,14 +455,24 @@ jQuery(document).ready(function ($) {
         if($(this).val() == '{{RateSheetFormate::RATESHEET_FORMAT_RATESHEET}}'){
             $('.emailsend.btn').removeClass('hidden')
             $('.effective').addClass('hidden');
+            $('.CustomDate').addClass('hidden');
         }else{
             $('.emailsend.btn').addClass('hidden');
             $('.effective').removeClass('hidden');
+            $('.CustomDate').removeClass('hidden');
         }
 
     });
     $('#fileformat').trigger('change');
 
+
+    $("#fileeffective").on("change", function() {
+        if($(this).val() == "CustomDate") {
+            $(".DateFilter").show();
+        } else {
+            $(".DateFilter").hide();
+        }
+    });
 });
 function initCustomerGrid(tableID,OwnerFl){
 var OwnerFilter;

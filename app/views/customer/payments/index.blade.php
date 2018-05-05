@@ -4,11 +4,11 @@
 
     <ol class="breadcrumb bc-3">
         <li>
-            <a href="#"><i class="entypo-home"></i>Payments</a>
+            <a href="#"><i class="entypo-home"></i>@lang('routes.CUST_PANEL_PAGE_PAYMENTS_TITLE')</a>
         </li>
     </ol>
 
-    <h3>Payments</h3>
+    <h3>@lang('routes.CUST_PANEL_PAGE_PAYMENTS_TITLE')</h3>
     <div class="tab-content">
         <div class="tab-pane active" id="customer_rate_tab_content">
             <div class="row">
@@ -17,7 +17,7 @@
                         <div class="panel panel-primary" data-collapsed="0">
                             <div class="panel-heading">
                                 <div class="panel-title">
-                                    Search
+                                    @lang('routes.CUST_PANEL_FILTER_TITLE')
                                 </div>
 
                                 <div class="panel-options">
@@ -28,17 +28,17 @@
                             <div class="panel-body">
                                 <div class="form-group">
 
-                                    <label class="col-sm-1 control-label">Invoice No</label>
+                                    <label class="col-sm-1 control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_INVOICE_NO')</label>
                                     <div class="col-sm-2">
                                         <input type="text" name="InvoiceNo" class="form-control" id="field-1" placeholder="" value="{{Input::get('InvoiceNo')}}" />
 
                                     </div>
-                                    <label for="field-1" class="col-sm-1 control-label">Action</label>
+                                    <label for="field-1" class="col-sm-1 control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_ACTION')</label>
                                     <div class="col-sm-2">
                                         {{ Form::select('type', $action, Input::get('Type'), array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }}
                                     </div>
 
-                                    <label for="field-1" class="col-sm-1 control-label">Payment Method</label>
+                                    <label for="field-1" class="col-sm-1 control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD')</label>
                                     <div class="col-sm-2">
                                         {{ Form::select('paymentmethod', $method, Input::get('paymentmethod') , array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }}
                                     </div>
@@ -46,14 +46,14 @@
 
                                 <!--payment date start -->
                                 <div class="form-group">
-                                    <label class="col-sm-1 control-label small_label" for="PaymentDate_StartDate">Start Date</label>
+                                    <label class="col-sm-1 control-label small_label" for="PaymentDate_StartDate">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_START_DATE')</label>
                                     <div class="col-sm-2 col-sm-e2">
                                         <input autocomplete="off" type="text" name="PaymentDate_StartDate" id="PaymentDate_StartDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="{{Input::get('StartDate')}}" data-enddate="{{date('Y-m-d')}}" />
                                     </div>
                                     <div class="col-sm-2 col-sm-e2">
                                         <input type="text" name="PaymentDate_StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:00" data-show-seconds="true" data-template="dropdown" placeholder="00:00:00" class="form-control timepicker">
                                     </div>
-                                    <label  class="col-sm-1 control-label small_label" for="PaymentDate_EndDate">End Date</label>
+                                    <label  class="col-sm-1 control-label small_label" for="PaymentDate_EndDate">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_END_DATE')</label>
                                     <div class="col-sm-2 col-sm-e2">
                                         <input autocomplete="off" type="text" name="PaymentDate_EndDate" id="PaymentDate_EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{Input::get('EndDate')}}" data-enddate="{{date('Y-m-d')}}" />
                                     </div>
@@ -63,10 +63,10 @@
                                 </div>
                                 <!--payment date end -->
 
-                                <p style="text-align: right;">
+                                <p class="pull-right">
                                     <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
                                         <i class="entypo-search"></i>
-                                        Search
+                                        @lang('routes.BUTTON_SEARCH_CAPTION')
                                     </button>
                                 </p>
                             </div>
@@ -76,21 +76,23 @@
             </div>
             <div class="clear"></div>
             <br>
-            <!--<p style="text-align: right;">
+            @if(isset($AccountDetailsID) && $AccountDetailsID==1)
+            <p class="pull-right">
                 <a href="#" id="add-new-payment" class="btn btn-primary ">
                     <i class="entypo-plus"></i>
-                    Add New Payment Request
+                    @lang('routes.CUST_PANEL_PAGE_PAYMENTS_BUTTON_ADD_NEW')
                 </a>
-            </p>-->
+            </p>
+            @endif
             <table class="table table-bordered datatable" id="table-4">
                 <thead>
                 <tr>
-                    <th width="15%">Invoice No</th>
-                    <th width="20%">Amount</th>
-                    <th width="15%">Type</th>
-                    <th width="20%">Payment Date</th>
-                    <th width="15%">Status</th>
-                    <th width="15%">Action</th>
+                    <th width="15%">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_TBL_INVOICE_NO')</th>
+                    <th width="20%">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_TBL_AMOUNT')</th>
+                    <th width="15%">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_TBL_TYPE')</th>
+                    <th width="20%">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_TBL_PAYMENT_DATE')</th>
+                    <th width="15%">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_TBL_STATUS')</th>
+                    <th width="15%">@lang('routes.TABLE_COLUMN_ACTION')</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -115,6 +117,9 @@
                         $searchFilter.PaymentDate_EndDate   = $("#payment-table-search input[name='PaymentDate_EndDate']").val();
                         $searchFilter.PaymentDate_EndTime   = $("#payment-table-search input[name='PaymentDate_EndTime']").val();
                         data_table = $("#table-4").dataTable({
+                            "oLanguage": {
+                                "sUrl": baseurl + "/translate/datatable_Label"
+                            },
                             "bDestroy": true,
                             "bProcessing": true,
                             "bServerSide": true,
@@ -159,7 +164,8 @@
                                     mRender: function (id, type, full) {
                                         var a = parseFloat(Math.round(full[3] * 100) / 100).toFixed(2);
                                         a = a.toString();
-                                        return full[16]
+
+                                        return "<span class='leftsideview'>"+full[16]+"</span>"
                                     }
                                 },
                                 {
@@ -204,16 +210,18 @@
                                         action += '<input type = "hidden"  name = "PaymentMethod" value = "' + full[11] + '" / >';
                                         action += '<input type = "hidden"  name = "Notes" value = "' + full[12] + '" / >';
                                         action += '</div>';
-                                        action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="edit-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>'
+                                        action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="edit-payment btn btn-default btn-sm btn-icon icon-left"><i class="fa fa-eye"></i></i>@lang('routes.BUTTON_VIEW_CAPTION') </a>'
                                         <?php if(User::is('BillingAdmin')){?>
                                         if(full[7] != "Approved"){
-                                            action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Approve/Reject <span class="caret"></span></button>'
-                                            action += '<ul class="dropdown-menu dropdown-green" role="menu"><li><a href="' + Approve_Payment+ '" class="approvepayment" >Approve</a></li><li><a href="' + Reject_Payment + '" class="rejectpayment">Reject</a></li></ul></div>';
-                                        }
-                                        if(full[9]!= null){
-                                            action += '<span class="col-md-offset-1"><a class="btn btn-success btn-sm btn-icon icon-left"  href="{{URL::to('payments/download_doc')}}/'+full[0]+'" title="" ><i class="entypo-down"></i>Download</a></span>'
+
+                                            action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')">@lang('routes.BUTTON_APPROVE_CAPTION')/@lang('routes.BUTTON_REJECT_CAPTION') <span class="caret"></span></button>'
+                                            action += '<ul class="dropdown-menu dropdown-green" role="menu"><li><a href="' + Approve_Payment+ '" class="approvepayment" >@lang('routes.BUTTON_APPROVE_CAPTION')</a></li><li><a href="' + Reject_Payment + '" class="rejectpayment">@lang('routes.BUTTON_REJECT_CAPTION')</a></li></ul></div>';
                                         }
                                         <?php } ?>
+                                        if(full[9]!= null){
+                                            var Download = "@lang('routes.BUTTON_DOWNLOAD_CAPTION')";
+                                            action += '<span class="col-md-offset-1"><a class="btn btn-success btn-sm btn-icon icon-left"  href="{{URL::to('customer/payments/download_doc')}}/'+full[0]+'" title="" ><i class="entypo-down"></i>'+Download+'</a></span>'
+                                        }
                                         return action;
                                     }
                                 }
@@ -222,13 +230,13 @@
                                 "aButtons": [
                                     {
                                         "sExtends": "download",
-                                        "sButtonText": "EXCEL",
+                                        "sButtonText": "@lang('routes.BUTTON_EXPORT_EXCEL_CAPTION')",
                                         "sUrl": baseurl + "/customer/payments/ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
                                         sButtonClass: "save-collection btn-sm"
                                     },
                                     {
                                         "sExtends": "download",
-                                        "sButtonText": "CSV",
+                                        "sButtonText": "@lang('routes.BUTTON_EXPORT_CSV_CAPTION')",
                                         "sUrl": baseurl + "/customer/payments/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
                                         sButtonClass: "save-collection btn-sm"
                                     }
@@ -294,14 +302,41 @@
                         $('#add-edit-payment-form').trigger("reset");
                         $("#add-edit-payment-form [name='PaymentMethod']").val('').trigger("change");
                         $("#add-edit-payment-form [name='PaymentType']").val('').trigger("change");
-                        $("#add-edit-payment-form [name='PaymentID']").val('')
-                        $('#add-edit-modal-payment h4').html('Add New Payment');
+                        $("#add-edit-payment-form [name='PaymentID']").val('');
+                        $('#add-edit-modal-payment h4').html("@lang('routes.CUST_PANEL_PAGE_PAYMENTS_MODAL_ADD_PAYMENT_TITLE')");
                         $('#add-edit-modal-payment').modal('show');
                     });
 
                     $('#add-edit-payment-form').submit(function(e){
                         e.preventDefault();
-                        var PaymentID = $("#add-edit-payment-form [name='PaymentID']").val()
+                        var PaymentID = $("#add-edit-payment-form [name='PaymentID']").val();
+                        var PaymentMethod = $("#add-edit-payment-form [name='PaymentMethod']").val();
+
+                        if(PaymentMethod.indexOf("online_")==0){
+                            PaymentMethod = PaymentMethod.replace("online_", "");
+                            var Amount = $("#add-edit-payment-form [name='Amount']").val();
+                            var InvoiceNo = $("#add-edit-payment-form [name='InvoiceNo']").val();
+                            var custome_notes = $("#add-edit-payment-form [name='Notes']").val();
+                            if(PaymentMethod=="Paypal"  ){
+                                $('#pyapalform [name=notify_url]').val(baseurl + "/paypal_ipn/{{$Account->AccountID}}-0-"+InvoiceNo)
+                                $('#pyapalform [name=amount]').val(Amount)
+                                $('#pyapalform').submit();
+                                return false;
+                            }
+                            if(PaymentMethod=="SagePay"){
+                                $('#sagepayform [name=p4]').val(Amount)
+                                $('#sagepayform').submit();
+                                return false;
+                            }
+
+                            $("#frm_online_payment [name=Amount]").val(Amount);
+                            $("#frm_online_payment [name=InvoiceNo]").val(InvoiceNo);
+                            $("#frm_online_payment [name=custome_notes]").val(custome_notes);
+                            $("#frm_online_payment").attr("action", baseurl + "/invoice_payment/{{$Account->AccountID}}-0/"+PaymentMethod).submit();
+
+                            return false;
+                        }
+
                         if( typeof PaymentID != 'undefined' && PaymentID != ''){
                             update_new_url = baseurl + '/customer/payments/update/'+PaymentID;
                         }else{
@@ -309,6 +344,18 @@
                         }
                         ajax_Add_update(update_new_url);
                     });
+
+                    /*$("#add-edit-payment-form [name='PaymentMethod']").change(function(){
+                        var PaymentMethod = $("#add-edit-payment-form [name='PaymentMethod']").val();
+
+                        if(PaymentMethod.indexOf("online_")==0){
+                            if(PaymentMethod=="online_Paypal" || PaymentMethod=="online_SagePay" ){
+                                $("#add-edit-payment-form [name='Notes']").parents(".col-md-12").eq(0).hide();
+                            }else{
+                                $("#add-edit-payment-form [name='Notes']").parents(".col-md-12").eq(0).show();
+                            }
+                        }
+                    });*/
                     $("#payment-table-search").submit();
 
                 });
@@ -391,7 +438,7 @@
                             {
                                 $('.result_row').remove();
                                 $('.result_row').hide();
-                                $('#table-4 tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td><strong>'+response1.total_grand+'</strong></td><td align="right" colspan="3"></td><td></td><td colspan="2"></td></tr>');
+                                $('#table-4 tbody').append('<tr class="result_row"><td><strong>{{strtoupper(cus_lang("TABLE_TOTAL"))}}</strong></td><td><strong>'+response1.total_grand+'</strong></td><td align="right" colspan="3"></td><td></td><td colspan="2"></td></tr>');
                             }
                         }
                     });
@@ -409,7 +456,7 @@
                     display:none !important;
                 }
                 .dataTables_wrapper .export-data{
-                    right: 30px !important;
+                    right: 30px;
                 }
             </style>
 
@@ -429,13 +476,13 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">View Payment</h4>
+                    <h4 class="modal-title">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_MODAL_VIEW_PAYMENT_TITLE')</h4>
                 </div>
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Account Name</label>
+                                <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_MODAL_VIEW_PAYMENT_FIELD_AC_NAME')</label>
                                 <div class="col-sm-12" name="AccountName"></div>
                             </div>
                         </div>
@@ -447,38 +494,38 @@
                         </div>-->
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Invoice</label>
+                                <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_MODAL_VIEW_PAYMENT_FIELD_INVOICE')</label>
                                 <div class="col-sm-12" name="InvoiceNo"></div>
                             </div>
                         </div>
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Payment Date</label>
+                                <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_MODAL_VIEW_PAYMENT_FIELD_PAYMENT_DATE')</label>
                                 <div class="col-sm-12" name="PaymentDate"></div>
                             </div>
                         </div>
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Payment Method</label>
+                                <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_MODAL_VIEW_PAYMENT_FIELD_PAYMENT_METHOD')</label>
                                 <div class="col-sm-12" name="PaymentMethod"></div>
                             </div>
                         </div>
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Action</label>
+                                <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_MODAL_VIEW_PAYMENT_FIELD_ACTION')</label>
                                 <div class="col-sm-12" name="PaymentType"></div>
                             </div>
                         </div>
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Amount</label>
+                                <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_MODAL_VIEW_PAYMENT_FIELD_AMOUNT')</label>
                                 <div class="col-sm-12" name="Amount"></div>
                                 <input type="hidden" name="PaymentID" >
                             </div>
                         </div>
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Notes</label>
+                                <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_MODAL_VIEW_PAYMENT_FIELD_NOTES')</label>
                                 <div class="col-sm-12" name="Notes"></div>
                             </div>
                         </div>
@@ -493,27 +540,27 @@
             <form id="payment-status-form" method="post">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Payment Notes</h4>
+                    <h4 class="modal-title">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_MODAL_PAYMENT_NOTES_TITLE')</h4>
                 </div>
                 <div class="modal-body">
                 <div id="text-boxes" class="row">
                     <div class="col-md-12">
                         <div class="form-group">
-                            <label for="field-5" class="control-label">Notes</label>
+                            <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_MODAL_PAYMENT_NOTES_FIELD_NOTES')</label>
                             <input type="text" name="Notes" class="form-control"  value="" />
                         </div>
                     </div>
                 </div>
                 </div>
                 <div class="modal-footer">
-                     <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                     <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')">
                         <i class="entypo-floppy"></i>
                         <input type="hidden" name="URL" value="">
-                        Save
+                         @lang('routes.BUTTON_SAVE_CAPTION')
                      </button>
                     <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
                         <i class="entypo-cancel"></i>
-                        Close
+                        @lang('routes.BUTTON_CLOSE_CAPTION')
                     </button>
                 </div>
             </form>
@@ -530,71 +577,85 @@
                     </div>-->
                     <div class="modal-body">
                         <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-12 hidden">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Payment Date *</label>
-                                    <input type="text" name="PaymentDate" class="form-control datepicker" data-date-format="yyyy-mm-dd" id="field-5" placeholder="">
+                                    <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_MODAL_EDIT_PAYMENT_FIELD_PAYMENT_DATE')</label>
+                                    <input type="text" name="PaymentDate" class="form-control datepicker" data-date-format="yyyy-mm-dd" id="field-5" placeholder="" value="{{date('Y-m-d')}}">
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Payment Method *</label>
-                                    {{ Form::select('PaymentMethod', $method, '', array("class"=>"select2 small")) }}
+                                    <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_MODAL_EDIT_PAYMENT_FIELD_PAYMENT_METHOD')</label>
+                                    {{ Form::select('PaymentMethod', $method, '', array("class"=>"select2 small", "required")) }}
                                 </div>
                             </div>
+                            {{--
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Action *</label>
+                                    <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_MODAL_EDIT_PAYMENT_FIELD_ACTION')</label>
                                     {{ Form::select('PaymentType', $action, '', array("class"=>"select2 small")) }}
                                 </div>
                             </div>
+                            --}}
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Amount *</label>
-                                    <input type="text" name="Amount" class="form-control" id="field-5" placeholder="">
+                                    <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_MODAL_EDIT_PAYMENT_FIELD_AMOUNT')</label>
+                                    <input type="text" name="Amount" class="form-control" id="field-5" placeholder="" pattern="[0-9.]*" required>
                                     <input type="hidden" name="PaymentID" >
+                                    <input type="hidden" name="CustomerPaymentType" value="Payment In" >
                                     <input type="hidden" name="Currency" value="{{$currency}}" >
-                                    <input type="hidden" name="AccountID" value="{{$AccountID}}"></input>
+                                    <input type="hidden" name="AccountID" value="{{$Account->AccountID}}">
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Invoice</label>
+                                    <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_MODAL_EDIT_PAYMENT_FIELD_INVOICE')</label>
                                     <input type="text" name="InvoiceNo" class="form-control" id="field-5" placeholder="">
                                 </div>
                             </div>
                             <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Notes</label>
+                                <div class="form-group hidden">
+                                    <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_MODAL_EDIT_PAYMENT_FIELD_NOTES')</label>
                                     <textarea name="Notes" class="form-control" id="field-5" placeholder=""></textarea>
                                     <input type="hidden" name="PaymentID" >
                                 </div>
                             </div>
-                            @if(User::is_admin() OR User::is('AccountManager'))
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label for="PaymentProof" class="col-sm-2 control-label">Upload (.pdf, .jpg, .png, .gif)</label>
-                                        <div class="col-sm-6">
-                                            <input id="PaymentProof" name="PaymentProof" type="file" class="form-control file2 inline btn btn-primary" data-label="
-                            <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
-                                        </div>
+
+                            <div class="col-md-12 hidden">
+                                <div class="form-group">
+                                    <label for="PaymentProof" class="col-sm-2 control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_MODAL_EDIT_PAYMENT_FIELD_PROOF_UPLOAD_EXTENSION')</label>
+                                    <div class="col-sm-6">
+                                        <input id="PaymentProof" name="PaymentProof" type="file" class="form-control file2 inline btn btn-primary" data-label="
+                                            <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
                                     </div>
                                 </div>
-                            @endif
+                            </div>
+
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" id="payment-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <button type="submit" id="payment-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')">
                             <i class="entypo-floppy"></i>
-                            Save
+                            @lang('routes.BUTTON_SAVE_CAPTION')
                         </button>
                         <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
                             <i class="entypo-cancel"></i>
-                            Close
+                            @lang('routes.BUTTON_CLOSE_CAPTION')
                         </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+    <form action="" id="frm_online_payment" method="post">
+        <input type="hidden" name="Amount" class="form-control">
+        <input type="hidden" name="InvoiceNo" class="form-control">
+        <input type="hidden" name="custome_notes" class="form-control">
+    </form>
+@if(is_paypal($Account->CompanyId) )
+    {{$paypal_button}}
+@endif
+@if(is_sagepay($Account->CompanyId))
+    {{$sagepay_button}}
+@endif
 @stop

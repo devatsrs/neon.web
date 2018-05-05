@@ -22,7 +22,7 @@ class NoticeBoardCustomerController extends BaseController{
         $CompanyID = User::get_companyID();
         $NoticeBoardPosts = NoticeBoardPost::where("CompanyID", $CompanyID)->limit(10)->offset($data['iDisplayStart'])->orderBy('NoticeBoardPostID', 'Desc')->get();
         if (count($NoticeBoardPosts) == 0) {
-            return Response::json(array("status" => "failed", "message" => "No Result Found", "scroll" => "end"));
+            return Response::json(array("status" => "failed", "message" => Lang::get("routes.MESSAGE_NO_RESULT_FOUND"), "scroll" => "end"));
         }
         return View::make('noticeboard.list', compact('NoticeBoardPosts'));
     }
@@ -41,7 +41,7 @@ class NoticeBoardCustomerController extends BaseController{
             $NoticeBoardPost->Detail =  strlen(strip_tags($NoticeBoardPost->Detail))>250 ? substr(strip_tags($NoticeBoardPost->Detail),0,250).'...'.'<a href="'.URL::to('customer/noticeboard').'" data-cc-event="click:dismiss" target="_blank" class="tooltip-primary post_detail">more</a>':strip_tags($NoticeBoardPost->Detail);
         }
         if (count($NoticeBoardPost) == 0) {
-            return Response::json(array("status" => "failed", "message" => "No Result Found", "scroll" => "end"));
+            return Response::json(array("status" => "failed", "message" => Lang::get("routes.MESSAGE_NO_RESULT_FOUND"), "scroll" => "end"));
         }
         return $NoticeBoardPost;
     }

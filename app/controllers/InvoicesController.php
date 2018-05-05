@@ -134,6 +134,8 @@ class InvoicesController extends \BaseController {
      */
     public function index()
     {
+        Invoice::multiLang_init();
+        Payment::multiLang_init();
         $CompanyID = User::get_companyID();
         $accounts = Account::getAccountIDList();
 		$DefaultCurrencyID    	=   Company::where("CompanyID",$CompanyID)->pluck("CurrencyId");
@@ -737,7 +739,7 @@ class InvoicesController extends \BaseController {
                         $error = "No Invoice Template Assigned to Account";
                     }
                 } else {
-                    $error = "No Account Found";
+                    $error = "Billing Class Not Found, Please select Account and Billing Class both.";
                 }
                 if (empty($response)) {
                     $response = [
@@ -1295,10 +1297,11 @@ class InvoicesController extends \BaseController {
         if(!empty($Invoice)) {
             $Account = Account::find($Invoice->AccountID);
             $Currency = Currency::find($Account->CurrencyId);
+            $companyID = User::get_companyID();
             $CompanyName = Company::getName();
             if (!empty($Currency)) {
                // $Subject = "New Invoice " . $Invoice->FullInvoiceNumber . ' from ' . $CompanyName . ' ('.$Account->AccountName.')';
-			    $templateData	 	 = 	 EmailTemplate::where(["SystemType"=>Invoice::EMAILTEMPLATE])->first();
+			    $templateData	 	 = 	 EmailTemplate::getSystemEmailTemplate($Invoice->CompanyID, Invoice::EMAILTEMPLATE, $Account->LanguageID );
 				$data['InvoiceURL']	 =   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email=#email');
 			//	$Subject	 		 = 	 $templateData->Subject;
 			//	$Message 	 		 = 	 $templateData->TemplateBody;		
@@ -1669,13 +1672,18 @@ class InvoicesController extends \BaseController {
     }
     public function invoice_payment($id,$type)
     {
+        $request = Input::all();
+        Payment::multiLang_init();
         $stripeachprofiles=array();
         $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($type);
         $account_inv = explode('-', $id);
-        if (isset($account_inv[0]) && intval($account_inv[0]) > 0 && isset($account_inv[1]) && intval($account_inv[1]) > 0) {
+        if (isset($account_inv[0]) && intval($account_inv[0]) > 0 && (isset($account_inv[1]) && intval($account_inv[1]) > 0 || isset($request["Amount"]) && intval($request["Amount"]) > 0)) {
             $AccountID = intval($account_inv[0]);
-            $InvoiceID = intval($account_inv[1]);
-            $Invoice = Invoice::where(["InvoiceID" => $InvoiceID, "AccountID" => $AccountID])->first();
+            if(!isset($request["Amount"])){
+                $InvoiceID = intval($account_inv[1]);
+                $Invoice = Invoice::where(["InvoiceID" => $InvoiceID, "AccountID" => $AccountID])->first();
+            }
+
             $Account = Account::where(['AccountID'=>$AccountID])->first();
 
             /* stripe ach gateway */
@@ -1709,10 +1717,16 @@ class InvoicesController extends \BaseController {
                 }
             }
             /* stripe ach gateway end */
-            if (count($Invoice) > 0) {
+
+            if(isset($Invoice) && count($Invoice) > 0){
                 $CurrencyCode = Currency::getCurrency($Invoice->CurrencyID);
                 $CurrencySymbol =  Currency::getCurrencySymbol($Invoice->CurrencyID);
-                return View::make('invoices.invoice_payment', compact('Invoice','CurrencySymbol','Account','CurrencyCode','type','PaymentGatewayID','stripeachprofiles'));
+                return View::make('invoices.invoice_payment', compact('Invoice','CurrencySymbol','Account','CurrencyCode','type','PaymentGatewayID','stripeachprofiles', 'request'));
+            }else if (isset($request["Amount"])){
+                $CurrencyCode = Currency::getCurrency($Account->CurrencyID);
+                $CurrencySymbol =  Currency::getCurrencySymbol($Account->CurrencyId);
+                $request["InvoiceID"] = (int)Invoice::where(array('FullInvoiceNumber'=>$request['InvoiceNo'],'AccountID'=>$Account->AccountID))->pluck('InvoiceID');
+                return View::make('invoices.invoice_payment', compact('CurrencySymbol','Account','CurrencyCode','type','PaymentGatewayID','stripeachprofiles', 'request'));
             }
         }
     }
@@ -1792,7 +1806,8 @@ class InvoicesController extends \BaseController {
                 $transactiondata['Response'] = json_encode($response);
                 TransactionLog::insert($transactiondata);
                 $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
-                $paymentdata['EmailTemplate'] 		= 	EmailTemplate::where(["SystemType"=>EmailTemplate::InvoicePaidNotificationTemplate])->first();
+
+                $paymentdata['EmailTemplate'] 		= 	EmailTemplate::getSystemEmailTemplate($Invoice->CompanyId, Estimate::InvoicePaidNotificationTemplate, $account->LanguageID);
                 $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);
                 $paymentdata['Invoice'] = $Invoice;
                 Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$paymentdata);
@@ -1821,9 +1836,12 @@ class InvoicesController extends \BaseController {
     public function invoice_thanks($id)
     {
         $account_inv = explode('-', $id);
-        if (isset($account_inv[0]) && intval($account_inv[0]) > 0 && isset($account_inv[1]) && intval($account_inv[1]) > 0) {
+        if (isset($account_inv[0]) && intval($account_inv[0]) > 0 && isset($account_inv[1]) && intval($account_inv[1]) >= 0) {
             $AccountID = intval($account_inv[0]);
             $InvoiceID = intval($account_inv[1]);
+            if($InvoiceID==0){
+                return View::make('invoices.invoice_thanks');
+            }
             $Invoice = Invoice::where(["InvoiceID" => $InvoiceID, "AccountID" => $AccountID])->first();
             if (count($Invoice) > 0) {
                 return View::make('invoices.invoice_thanks', compact('Invoice'));
@@ -2077,12 +2095,26 @@ class InvoicesController extends \BaseController {
 
 
         $account_inv = explode('-', $id);
-        if (isset($account_inv[0]) && intval($account_inv[0]) > 0 && isset($account_inv[1]) && intval($account_inv[1]) > 0) {
+        if (isset($account_inv[0]) && intval($account_inv[0]) > 0 && isset($account_inv[1]) && intval($account_inv[1]) >= 0) {
             $AccountID = intval($account_inv[0]);
             $InvoiceID = intval($account_inv[1]);
 
-            $Invoice = Invoice::find($InvoiceID);
-            $CompanyID = $Invoice->CompanyID;
+            if($InvoiceID!=0){
+                $Invoice = Invoice::find($InvoiceID);
+                $CompanyID = $Invoice->CompanyID;
+            }else{
+                if(isset($account_inv[2])){
+                    $Invoice = Invoice::where(array('FullInvoiceNumber'=>$account_inv[2],'AccountID'=>$AccountID))->first();
+                    if(!empty($Invoice) && count($Invoice)){
+                        $CompanyID = $Invoice->CompanyID;
+                        $InvoiceID = $Invoice->InvoiceID;
+                    }
+                }
+            }
+            if(!isset($CompanyID)){
+                $account = Account::find($AccountID);
+                $CompanyID = $account->CompanyId;
+            }
 
             $paypal = new PaypalIpn($CompanyID);
 
@@ -2144,7 +2176,7 @@ class InvoicesController extends \BaseController {
         $transactionResponse['Transaction'] = $data["Transaction"];
         $transactionResponse['PaymentMethod'] = $data["PaymentMethod"];
 
-        if (isset($data["Success"]) && count($Invoice) > 0) {
+        if (isset($data["Success"]) && (count($Invoice) > 0) || intval($InvoiceID)==0 ) {
 
             $PaymentCount = Payment::where('Notes',$data["Notes"])->count();//@TODO: need to check this
             if($PaymentCount == 0) {
@@ -2157,7 +2189,7 @@ class InvoicesController extends \BaseController {
                 return Response::json(array("status" => "success", "message" => "Invoice Already paid successfully"));
             }
         } else {
-            $transactionResponse['Amount'] = floatval($Invoice->RemaingAmount);
+//            $transactionResponse['Amount'] = floatval($Invoice->RemaingAmount);
             Payment::paymentFail($transactionResponse);
             //$paypal->log();
             return Response::json(array("status" => "failed", "message" => "Failed to payment."));
@@ -2309,8 +2341,11 @@ class InvoicesController extends \BaseController {
 
             TransactionLog::insert($transactiondata);
 
+
+            $account = Account::find($AccountID);
+
             $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
-            $paymentdata['EmailTemplate'] 		= 	EmailTemplate::where(["SystemType"=>EmailTemplate::InvoicePaidNotificationTemplate])->first();
+            $paymentdata['EmailTemplate'] 		= 	EmailTemplate::getSystemEmailTemplate($Invoice->CompanyId, Estimate::InvoicePaidNotificationTemplate, $account->LanguageID);
             $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);
             $paymentdata['Invoice'] = $Invoice;
             Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$paymentdata);
@@ -2422,9 +2457,9 @@ class InvoicesController extends \BaseController {
                 $transactiondata['Response'] = json_encode($StripeResponse['response']);
 
                 TransactionLog::insert($transactiondata);
-
+                $account = Account::find($AccountID);
                 $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
-                $paymentdata['EmailTemplate'] 		= 	EmailTemplate::where(["SystemType"=>EmailTemplate::InvoicePaidNotificationTemplate])->first();
+                $paymentdata['EmailTemplate'] 		= 	EmailTemplate::getSystemEmailTemplate($Invoice->CompanyId, Estimate::InvoicePaidNotificationTemplate, $account->LanguageID);
                 $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);
                 $paymentdata['Invoice'] = $Invoice;
                 Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$paymentdata);
@@ -2627,6 +2662,9 @@ class InvoicesController extends \BaseController {
             $TransactionLog = TransactionLog::where(["AccountID" => $AccountnInvoice["AccountID"], "InvoiceID" => $AccountnInvoice["InvoiceID"]])->orderby("created_at", "desc")->first();
 
             $TransactionLog = json_decode(json_encode($TransactionLog),true);
+            if($AccountnInvoice["InvoiceID"]==0){
+                return Redirect::to(url('/customer/payments'));
+            }
             if($TransactionLog["Status"] == TransactionLog::SUCCESS ){
 
                 $Amount = $TransactionLog["Amount"];
@@ -2759,8 +2797,7 @@ class InvoicesController extends \BaseController {
         $InvoiceID = $data['InvoiceID'];
         $AccountID = $data['AccountID'];
         $Invoice = Invoice::where('InvoiceStatus','!=',Invoice::PAID)->where(["InvoiceID" => $InvoiceID, "AccountID" => $AccountID])->first();
-        if(!empty($Invoice)) {
-
+        if(!empty($Invoice) && intval($InvoiceID)>0 && $data['isInvoicePay']) {
             $payment_log = Payment::getPaymentByInvoice($Invoice->InvoiceID);
 
             $data['GrandTotal'] = $payment_log['final_payment'];
@@ -2773,8 +2810,22 @@ class InvoicesController extends \BaseController {
             $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $Invoice->CompanyID);
             $PaymentResponse = $PaymentIntegration->paymentWithCreditCard($data);
             return json_encode($PaymentResponse);
+        }elseif(isset($data['GrandTotal']) && intval($data['GrandTotal'])>0 && !$data['isInvoicePay']){
+            $account = Account::find($AccountID);
+            if(!empty($Invoice)){
+                $data['InvoiceNumber'] = $Invoice->FullInvoiceNumber;
+            }else{
+                $data['InvoiceNumber'] = '';
+            }
+            $data['CompanyID'] = $account->CompanyId;
+
+            $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($type);
+            $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
+            $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $account->CompanyID);
+            $PaymentResponse = $PaymentIntegration->paymentWithCreditCard($data);
+            return json_encode($PaymentResponse);
         }else{
-            return Response::json(array("status" => "failed", "message" => "Invoice not found"));
+            return Response::json(array("status" => "failed", "message" => cus_lang('PAGE_INVOICE_MSG_INVOICE_NOT_FOUND')));
         }
     }
 
@@ -2784,7 +2835,7 @@ class InvoicesController extends \BaseController {
         $InvoiceID = $data['InvoiceID'];
         $AccountID = $data['AccountID'];
         $Invoice = Invoice::where('InvoiceStatus','!=',Invoice::PAID)->where(["InvoiceID" => $InvoiceID, "AccountID" => $AccountID])->first();
-        if(!empty($Invoice)) {
+        if(!empty($Invoice) && intval($InvoiceID)>0) {
             $Invoice = Invoice::find($Invoice->InvoiceID);
 
             $payment_log = Payment::getPaymentByInvoice($Invoice->InvoiceID);
@@ -2799,7 +2850,18 @@ class InvoicesController extends \BaseController {
             $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $Invoice->CompanyID);
             $PaymentResponse = $PaymentIntegration->paymentWithBankDetail($data);
             return json_encode($PaymentResponse);
+        }elseif(isset($data['GrandTotal']) && intval($data['GrandTotal'])>0){
+            $account = Account::find($AccountID);
 
+            $data['InvoiceNumber'] = 0;
+            $data['CompanyID'] = $account->CompanyID;
+
+            $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($type);
+            $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
+
+            $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $account->CompanyID);
+            $PaymentResponse = $PaymentIntegration->paymentWithBankDetail($data);
+            return json_encode($PaymentResponse);
         }else{
             return Response::json(array("status" => "failed", "message" => "Invoice not found"));
         }
@@ -2814,7 +2876,7 @@ class InvoicesController extends \BaseController {
         $InvoiceID = $data['InvoiceID'];
         $AccountID = $data['AccountID'];
         $Invoice = Invoice::where('InvoiceStatus','!=',Invoice::PAID)->where(["InvoiceID" => $InvoiceID, "AccountID" => $AccountID])->first();
-        if(!empty($Invoice)) {
+        if(!empty($Invoice) && intval($InvoiceID)>0 && $data['isInvoicePay']) {
             $Invoice = Invoice::find($Invoice->InvoiceID);
             $payment_log = Payment::getPaymentByInvoice($Invoice->InvoiceID);
             $CustomerProfile = AccountPaymentProfile::find($data['AccountPaymentProfileID']);
@@ -2838,12 +2900,38 @@ class InvoicesController extends \BaseController {
                 return json_encode($PaymentResponse);
 
             }else{
-                return json_encode(array("status" => "failed", "message" => "Account Profile not set"));
+                return json_encode(array("status" => "failed", "message" => cus_lang('PAGE_INVOICE_MSG_ACCOUNT_PROFILE_NOT_SET')));
             }
+        }elseif(isset($data['GrandTotal']) && intval($data['GrandTotal'])>0 && !$data['isInvoicePay']){
+            $account = Account::find($AccountID);
 
+            $CustomerProfile = AccountPaymentProfile::find($data['AccountPaymentProfileID']);
+            if (!empty($CustomerProfile)) {
+                $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($type);
+                $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
 
+                $PaymentData = array();
+                $PaymentData['AccountID'] = $AccountID;
+                $PaymentData['CompanyID'] = $account->CompanyID;
+                $PaymentData['CreatedBy'] = 'customer';
+                $PaymentData['AccountPaymentProfileID'] = $data['AccountPaymentProfileID'];
+                $PaymentData['InvoiceIDs'] = $InvoiceID;
+                $PaymentData['InvoiceNumber'] = '';
+                $PaymentGateway = PaymentGateway::getName($CustomerProfile->PaymentGatewayID);
+                $PaymentData['PaymentGateway'] = $PaymentGateway;
+                $PaymentData['outstanginamount'] = $data['GrandTotal'];
+                $PaymentData['isInvoicePay'] = $data['isInvoicePay'];
+                $PaymentData['custome_notes'] = $data['custome_notes'];
+
+                $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $account->CompanyID);
+                $PaymentResponse = $PaymentIntegration->paymentWithProfile($PaymentData);
+                return json_encode($PaymentResponse);
+
+            }else{
+                return json_encode(array("status" => "failed", "message" => cus_lang('PAGE_INVOICE_MSG_ACCOUNT_PROFILE_NOT_SET')));
+            }
         }else{
-            return Response::json(array("status" => "failed", "message" => "Invoice not found"));
+            return Response::json(array("status" => "failed", "message" => cus_lang('PAGE_INVOICE_MSG_INVOICE_NOT_FOUND')));
         }
     }
     /**

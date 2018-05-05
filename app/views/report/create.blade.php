@@ -95,20 +95,23 @@
                                     <input type="hidden" id="hidden_cube" name="Cube" value="{{$report_settings['Cube'] or ''}}">
                                 @endif
                             </div>
-                            <div class="{{ Input::get('report')=='run'?'col-sm-12':'col-sm-10'}}  vertical-border border_left ">
+                            <div class="{{ Input::get('report')=='run'?'col-sm-12':'col-sm-10'}}  vertical-border border_left droppable ">
                                 <input type="hidden" id="hidden_row" name="row" value="{{$report_settings['row'] or ''}}">
                                 <input type="hidden" id="hidden_columns" name="column" value="{{$report_settings['column'] or ''}}">
                                 <input type="hidden" id="hidden_filter" name="filter" value="{{$report_settings['filter'] or ''}}">
                                 <input type="hidden" id="hidden_filter_col" name="filter_col_name" value="{{$report_settings['filter_col_name'] or ''}}">
                                 <input type="hidden" id="hidden_setting" name="filter_settings" value='{{$report_settings['filter_settings'] or ''}}'>
+                                <input type="hidden" id="hidden_setting_rename" name="setting_rename" value='{{$report_settings['setting_rename'] or ''}}'>
+                                <input type="hidden" id="hidden_setting_ag" name="setting_ag" value='{{$report_settings['setting_ag'] or ''}}'>
                                 <label for="field-5" class="control-label popover-primary {{Input::get('report')=='run'?'hidden':''}}" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="You can drop dimension or measures here which you want to see in columns. For example year or grand total you can select as column" data-original-title="Column">Columns</label>
-                                <div id="Columns_Drop" class="form-control {{Input::get('report')=='run'?'hidden':''}} tree ui-widget-content ui-state-default select2-container select2-container-multi">
+                                <div id="Columns_Drop" class="form-control {{Input::get('report')=='run'?'hidden':''}} report_multi_select row-fluid ui-droppable ui-sortable">
 
-                                    <ul class=" select2-choices ui-helper-reset">
+                                    <ul class=" multi_ul nav nav-pills span9">
                                         @if(isset($report_settings['column']) && $selectedColumns = array_filter(explode(',',$report_settings['column'])))
                                         @foreach($selectedColumns as $selectedColumn)
-                                            <li class="{{isset($measures[$report_settings['Cube']][$selectedColumn])?'measures':'dimension'}} ui-draggable" data-cube="{{$report_settings['Cube']}}" data-val="{{$selectedColumn}}">
-                                                <span><i class="fa fa-arrows"></i>
+                                            <li class="{{isset($measures[$report_settings['Cube']][$selectedColumn])?'measures':'dimension'}} dropdown ui-draggable" data-cube="{{$report_settings['Cube']}}" data-val="{{$selectedColumn}}">
+                                                <a class="dropdown-toggle" data-toggle="dropdown" data-text="">
+                                                    <span><i class="fa fa-arrows"></i>
                                                     <?php
                                                     $selected_dimension = '';
                                                     if(isset($measures[$report_settings['Cube']][$selectedColumn])){
@@ -129,21 +132,36 @@
                                                         $selected_dimension = $dimensions[$report_settings['Cube']]['Account'][$selectedColumn];
                                                     }
                                                     ?>
-                                                    {{$selected_dimension}}
+                                                        <span class="col-name">{{$selected_dimension}}</span>
+                                                        (<span class="col-agg">
+                                                            @if(isset($setting_ag[$selectedColumn]))
+                                                                {{$setting_ag[$selectedColumn]}}
+                                                            @elseif(isset($measures[$report_settings['Cube']][$selectedColumn]))
+                                                                Sum
+                                                            @else
+                                                                Actual
+                                                            @endif
+                                                            </span>)
 
                                                 </span>
+                                                    </a>
+                                                @if(isset($measures[$report_settings['Cube']][$selectedColumn]))
+                                                    <ul class="dropdown-menu" style="background-color: #000; border-color: #000; margin-top:0px; min-width: 0"><li><a class="column_function" data-action="">Actual</a></li><li><a class="column_function" data-action="sum">Sum</a></li><li><a class="column_function" data-action="avg">Average</a></li><li><a class="column_function" data-action="count">Count</a></li><li><a class="column_function" data-action="count_distinct">Count Distinct</a></li><li><a class="column_function" data-action="min">Min</a></li><li><a class="column_function" data-action="max">Max</a></li><li class="divider"></li><li><a class="add_label" >Rename Column</a></li></ul>
+                                                @else
+                                                    <ul class="dropdown-menu" style="background-color: #000; border-color: #000; margin-top:0px; min-width: 0"><li><a class="column_function" data-action="" >Actual</a></li><li><a class="column_function" data-action="top5" >Top 5</a></li><li><a class="column_function" data-action="top10" >Top 10</a></li><li><a class="column_function" data-action="bottom5" >Bottom 5</a></li><li><a class="column_function" data-action="bottom10" >Bottom 10</a></li></ul>
+                                                @endif
                                             </li>
                                         @endforeach
                                         @endif
                                     </ul>
                                 </div>
                                 <label for="field-5" class="control-label popover-primary {{Input::get('report')=='run'?'hidden':''}}" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="You can drop dimension here which you want to see in row. For example year you can select as row " data-original-title="Row">Row</label>
-                                <div id="Row_Drop" class="form-control {{Input::get('report')=='run'?'hidden':''}} tree ui-widget-content ui-state-default select2-container select2-container-multi">
-                                    <ul class=" select2-choices ui-helper-reset">
+                                <div id="Row_Drop" class="form-control {{Input::get('report')=='run'?'hidden':''}} report_multi_select row-fluid ui-droppable ui-sortable">
+                                    <ul class=" multi_ul nav nav-pills span9">
                                         @if(isset($report_settings['row']) && $selectedRows = array_filter(explode(',',$report_settings['row'])))
                                         @foreach($selectedRows as $selectedRow)
                                             <li class="{{isset($measures[$report_settings['Cube']][$selectedRow])?'measures':'dimension'}} ui-draggable" data-cube="{{$report_settings['Cube']}}" data-val="{{$selectedRow}}">
-                                                <span><i class="fa fa-arrows"></i>
+                                                <a class="dropdown-toggle" data-toggle="dropdown" data-text=""><span><i class="fa fa-arrows"></i>
                                                     <?php
                                                     $selected_measures = '';
                                                     if(isset($measures[$report_settings['Cube']][$selectedRow])){
@@ -164,16 +182,32 @@
                                                         $selected_measures = $dimensions[$report_settings['Cube']]['Account'][$selectedRow];
                                                     }
                                                     ?>
-                                                    {{$selected_measures}}
+                                                        <span class="col-name">{{$selected_measures}}</span>
+                                                        (<span class="col-agg">
+                                                        @if(isset($setting_ag[$selectedRow]))
+                                                            {{$setting_ag[$selectedRow]}}
+                                                        @elseif(isset($measures[$report_settings['Cube']][$selectedRow]))
+                                                            Sum
+                                                        @else
+                                                            Actual
+                                                        @endif
+                                                        </span>)
+
                                                 </span>
+                                                    </a>
+                                                @if(isset($measures[$report_settings['Cube']][$selectedRow]))
+                                                    <ul class="dropdown-menu" style="background-color: #000; border-color: #000; margin-top:0px; min-width: 0"><li><a class="column_function" data-action="">Actual</a></li><li><a class="column_function" data-action="sum">Sum</a></li><li><a class="column_function" data-action="avg">Average</a></li><li><a class="column_function" data-action="count">Count</a></li><li><a class="column_function" data-action="count_distinct">Count Distinct</a></li><li><a class="column_function" data-action="min">Min</a></li><li><a class="column_function" data-action="max">Max</a></li><li class="divider"></li><li><a class="add_label" >Rename Column</a></li></ul>
+                                                @else
+                                                    <ul class="dropdown-menu" style="background-color: #000; border-color: #000; margin-top:0px; min-width: 0"><li><a class="column_function" data-action="" >Actual</a></li><li><a class="column_function" data-action="top5" >Top 5</a></li><li><a class="column_function" data-action="top10" >Top 10</a></li><li><a class="column_function" data-action="bottom5" >Bottom 5</a></li><li><a class="column_function" data-action="bottom10" >Bottom 10</a></li></ul>
+                                                @endif
                                             </li>
                                         @endforeach
                                         @endif
                                     </ul>
                                 </div>
                                 <label for="field-5" class="control-label popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="You can apply filter by dropping dimension here. For example date you can select start date and end date filter" data-original-title="Filter">Filter</label>
-                                <div id="Filter_Drop" class="form-control tree ui-widget-content ui-state-default select2-container select2-container-multi">
-                                    <ul class=" select2-choices ui-helper-reset">
+                                <div id="Filter_Drop" class="form-control report_multi_select row-fluid ui-droppable ui-sortable">
+                                    <ul class="multi_ul nav nav-pills span9">
                                         @if(isset($report_settings['filter_settings']) && $selectedColumns = array_filter(json_decode($report_settings['filter_settings'],true)))
                                             @foreach($selectedColumns as $selectedColumn => $extraarray)
                                                 <li class="{{isset($measures[$report_settings['Cube']][$selectedColumn])?'measures':'dimension'}} ui-draggable" data-cube="{{$report_settings['Cube']}}" data-val="{{$selectedColumn}}">
@@ -313,6 +347,41 @@
         #selectcheckbox{
             padding: 15px 10px;
         }
+        .report_multi_select .multi_ul{
+            min-height:25px;
+            height:auto;
+            /*width:250px;*/
+            background:#ffffff;
+            margin:0px;
+            display:inline-block;
+            padding-left:6px;
+            padding-right:6px;
+            padding-top: 4px;
+            /*
+            border-radius:3px;
+            -webkit-border-radius:3px;
+            -moz-border-radius:3px;
+            */
+            vertical-align:center;
+        }
+
+        .report_multi_select .multi_ul li a{
+            padding:2px 2px 1px 15px;
+        }
+        .report_multi_select .multi_ul li a.dropdown-toggle,.report_multi_select .multi_ul li > span{
+            color:black;
+            padding-top:4px;
+            padding-bottom:4px;
+            padding-left:3px;
+            padding-right:3px;
+        }
+        .report_multi_select{
+            height: auto !important;
+            padding: 0px;
+        }
+        .dropdown-menu{
+            z-index: 1999;
+        }
 
         .li_active{display:none;}
         .table_report_overflow{
@@ -342,8 +411,8 @@
                             <li class="active filter_data_table"><a href="#general" data-toggle="tab">General</a></li>
                             <li class="filter_data_wildcard"><a href="#wildcard" data-toggle="tab" >Wildcard</a></li>
                             <li class="date_filters"><a href="#date_filter" data-toggle="tab" >Date Filter</a></li>
-                            {{--<li ><a href="#condition" data-toggle="tab">Condition</a></li>
-                            <li ><a href="#top" data-toggle="tab">Top</a></li>--}}
+                            <li class="number_filter"><a href="#number_filter" data-toggle="tab">Number Filter</a></li>
+                            {{--<li ><a href="#top" data-toggle="tab">Top</a></li>--}}
                         </ul>
                         <div class="tab-content">
                             <div class="tab-pane active" id="general" >
@@ -390,57 +459,33 @@
                                 </div>
                             </div>
 
-                            <div class="tab-pane" id="condition"  >
-                                <div class="row margin-top">
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <div class="radio">
-                                                <label>
-                                                    <input type="radio"  value="none" checked name="condition" class="condition_filter condition_filter_none" id="field-5" placeholder="">None
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <div class="radio">
-                                                <label>
-                                                    <input type="radio" name="condition" value="condition_active" class="condition_filter" id="field-5" placeholder="">
-                                                    By Field
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 clear">
-                                        <div class="form-group">
-                                            {{Form::select('condition_col',$Columns,'',array("class"=>"select2 small condition_filter_data"))}}
-                                        </div>
-                                    </div>
+                            <div class="tab-pane" id="number_filter"  >
+                                <div class="row margin-top number_filter">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            {{Form::select('condition_agg',Report::$aggregator,'',array("class"=>"select2 small condition_filter_data"))}}
+                                            {{Form::select('number_agg',Report::$aggregator,'',array("class"=>"select2 small number_filter_data"))}}
                                         </div>
                                     </div>
                                     <div class="col-md-6 clear">
                                         <div class="form-group">
-                                            {{Form::select('Condition_sign',Report::$condition,'',array("class"=>"select2 small condition_filter_data"))}}
+                                            {{Form::select('number_sign',Report::$condition,'',array("class"=>"select2 small number_filter_data"))}}
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-6 number_agg_val">
                                         <div class="form-group">
-                                            <input type="text" name="condition_agg_val" value="" class="form-control condition_filter_data" id="field-5" placeholder="">
+                                            <input type="text" name="number_agg_val" value="" class="form-control number_filter_data" id="field-5" placeholder="">
                                         </div>
                                     </div>
-                                    <div class="col-md-6 clear">
+                                    <div class="col-md-6 clear number_filter_range">
                                         <div class="form-group">
                                             <label for="field-5" class="control-label">Range Min</label>
-                                            <input type="text" name="condition_agg_range_min" value="" class="form-control condition_filter_data" id="field-5" placeholder="">
+                                            <input type="text" name="number_agg_range_min" value="" class="form-control number_filter_data" id="field-5" placeholder="">
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-6 number_filter_range">
                                         <div class="form-group">
                                             <label for="field-5" class="control-label">Range Max</label>
-                                            <input type="text" name="condition_agg_range_max" value="" class="form-control condition_filter_data" id="field-5" placeholder="">
+                                            <input type="text" name="number_agg_range_max" value="" class="form-control number_filter_data" id="field-5" placeholder="">
                                         </div>
                                     </div>
                                 </div>
@@ -538,4 +583,37 @@
         </div>
     </div>
 </div>
+    <div class="modal fade" id="rename-column-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="report-rename-form" method="post">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Column</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row margin-top">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Name</label>
+                                    <input type="text"  name="Name" class="form-control" id="field-5" placeholder="" value="">
+                                    <input type="hidden"  name="ActualName" class="form-control" id="field-5" placeholder="" value="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" id="report-rename-col"  class="save btn btn-primary btn-sm btn-icon icon-left">
+                            <i class="entypo-floppy"></i>
+                            Save
+                        </button>
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @stop

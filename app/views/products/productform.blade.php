@@ -1,6 +1,7 @@
 <script>
     $(document).ready(function ($) {
         var txtItem = '{{Product::$TypetoProducts[Product::ITEM]}}';
+        var productsubscription = $("#add-edit-product-subscription [name='productsubscription']").val();
         $('#add-edit-product-form').submit(function(e){
             e.preventDefault();
             var modal = $(this).parents('.modal');
@@ -33,11 +34,17 @@
                             }else{
                                 var self = $(el).clone();
                             }
-                            if (self.attr('data-active') == 1) {
-                                var newState = new Option(response.newcreated.Name, response.newcreated.ProductID, true, true);
-                            } else {
-                                var newState = new Option(response.newcreated.Name, response.newcreated.ProductID, false, false);
+                            if(productsubscription==1){
+                                NewProductID = '1-' + response.newcreated.ProductID;
+                                var newState = $('<option>').val(NewProductID).text(response.newcreated.Name).attr({'item_subscription_txt':'Item','item_subscription_type':'1','selected':'selected'});
+                            }else{
+                                if (self.attr('data-active') == 1) {
+                                    var newState = new Option(response.newcreated.Name, NewProductID, true, true);
+                                } else {
+                                    var newState = new Option(response.newcreated.Name, NewProductID, false, false);
+                                }
                             }
+
                             $(el).append(newState);
                             self.trigger('change');
                             $(el).append($(el).find("option:gt(1)").sort(function (a, b) {

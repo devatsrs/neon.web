@@ -84,7 +84,7 @@ class AccountServiceController extends \BaseController {
     public function ajax_datagrid($id){
         $data = Input::all();
         $id=$data['account_id'];
-        $select = ["tblAccountService.ServiceID","tblService.ServiceName","tblAccountService.Status","tblAccountService.ServiceID","tblAccountService.AccountServiceID"];
+        $select = ["tblAccountService.ServiceID","tblService.ServiceName","tblAccountService.ServiceTitle","tblAccountService.Status","tblAccountService.ServiceID","tblAccountService.AccountServiceID"];
         $services = AccountService::join('tblService', 'tblAccountService.ServiceID', '=', 'tblService.ServiceID')->where("tblAccountService.AccountID",$id);
         if(!empty($data['ServiceName'])){
             $services->where('tblService.ServiceName','Like','%'.trim($data['ServiceName']).'%');
@@ -145,6 +145,12 @@ class AccountServiceController extends \BaseController {
             }
 
             if(!empty($data['BillingStartDate']) || !empty($data['BillingCycleType']) || !empty($data['BillingCycleValue'])  || !empty($data['BillingClassID'])){
+                if($data['NextInvoiceDate']<$data['LastInvoiceDate']){
+                    return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
+                }
+                if($data['NextChargeDate']<$data['LastChargeDate']){
+                    return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
+                }
                 AccountBilling::insertUpdateBilling($AccountID, $data,$ServiceID,$invoice_count);
                 AccountBilling::storeFirstTimeInvoicePeriod($AccountID,$ServiceID);
                 $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'),$ServiceID);

@@ -22,7 +22,15 @@
                     <label for="field-1" class="control-label">Country</label>
                     {{ Form::select('Country', $countries, Input::old('Country') , array("class"=>"select2")) }}
                 </div>
+
                 <div class="form-group">
+                    <label for="field-1" class="control-label">Discontinued Codes</label>
+                    <p class="make-switch switch-small">
+                        {{Form::checkbox('DiscontinuedRates', '1', false, array("id"=>"DiscontinuedRates"))}}
+                    </p>
+                </div>
+
+                <div class="form-group EffectiveBox">
                     <label for="field-1" class="control-label">Effective</label>
                     <select name="Effective" class="select2" data-allow-clear="true" data-placeholder="Select Effective">
                         <option value="Now">Now</option>
@@ -64,7 +72,7 @@
 </ol>
 <h3>View Rate Table</h3>
 
-<div class="row">
+<div class="row" style="margin-bottom: 10px;">
     <div  class="col-md-12">
         <div class="float-right" >
             <a href="{{URL::to('/rate_tables')}}"  class="btn btn-primary btn-sm btn-icon icon-left" >
@@ -86,11 +94,17 @@
                 <button id="add-new-rate" class="btn btn-primary btn-sm btn-icon icon-left pull-right" data-loading-text="Loading..."> <i class="entypo-plus"></i> Add New</button>
             @endif
         @endif
+        {{--@if(User::checkCategoryPermission('VendorRates','History'))--}}
+        <button class="btn btn-primary btn-sm btn-icon icon-left pull-right" onclick="location.href='{{ URL::to('/rate_upload/'.$id.'/'.RateUpload::ratetable) }}'">
+            <i class="fa fa-upload"></i>
+            Upload Rates
+        </button>
+        {{--@endif--}}
     </div>
 </div>
 <form id="clear-bulk-rate-form" ><input type="hidden" name="RateTableRateID" /><input type="hidden" name="criteria" /></form>
 
-<div class="row">
+{{--<div class="row">
     <div class="col-md-12">
         <ul class="nav nav-tabs bordered">
             <!-- available classes "bordered", "right-aligned" -->
@@ -102,28 +116,29 @@
                 </a></li>
         </ul>
     </div>
-</div>
+</div>--}}
 
 
 <table class="table table-bordered datatable" id="table-4">
     <thead>
         <tr>
-            <th width="4%">
+            <th width="3%">
                 <div class="checkbox ">
                     <input type="checkbox" id="selectall" name="checkbox[]" />
                 </div>
             </th>
             <th width="4%" id="Code-Header">Code</th>
             <th width="20%">Description</th>
-            <th width="5%">Interval 1</th>
-            <th width="5%">Interval N</th>
+            <th width="3%">Interval 1</th>
+            <th width="3%">Interval N</th>
             <th width="5%">Connection Fee</th>
             <th width="5%">Previous Rate ({{$code}})</th>
             <th width="5%">Rate ({{$code}})</th>
-            <th width="10%">Effective Date</th>
-            <th width="10%">Modified Date</th>
+            <th width="8%">Effective Date</th>
+            <th width="9%" style="display: none;">End Date</th>
+            <th width="8%">Modified Date</th>
             <th width="10%">Modified By</th>
-            <th width="12%" > Action</th>
+            <th width="20%" > Action</th>
         </tr>
         </thead>
         <tbody>
@@ -138,7 +153,7 @@
         var $searchFilter = {};
         var checked='';
         var codedeckid = '{{$id}}';
-        var list_fields  = ['ID','Code','Description','Interval1','IntervalN','ConnectionFee','PreviousRate','Rate','EffectiveDate','updated_at','ModifiedBy','RateTableRateID','RateID'];
+        var list_fields  = ['ID','Code','Description','Interval1','IntervalN','ConnectionFee','PreviousRate','Rate','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableRateID','RateID'];
         jQuery(document).ready(function($) {
 
         $('#filter-button-toggle').show();
@@ -158,7 +173,7 @@
                 return rateDataTable2(view);
             else
                 return rateDataTable(view);*/
-            return rateDataTable(view);
+            return rateDataTable();
         });
 
         $('#table-4 tbody').on('click', 'tr', function() {
@@ -174,58 +189,80 @@
             }
         });
 
-        //Bulk Clear Submit
-        $("#clear-bulk-rate").click(function() {
-            var responsecheck = confirm('Are you sure?');
-            if(!responsecheck){
-                return false;
-            }
+        //Clear Rate Button
+        $(document).off('click.clear-rate','.btn.clear-rate-table,#clear-bulk-rate');
+        $(document).on('click.clear-rate','.btn.clear-rate-table,#clear-bulk-rate',function(ev) {
 
             var RateTableRateIDs = [];
             var i = 0;
             $('#table-4 tr .rowcheckbox:checked').each(function(i, el) {
-                //console.log($(this).val());
                 RateTableRateID = $(this).val();
                 RateTableRateIDs[i++] = RateTableRateID;
             });
-            var criteria='';
-            if($('#selectallbutton').is(':checked')){
-                criteria = JSON.stringify($searchFilter);
-                $("#clear-bulk-rate-form").find("input[name='RateTableRateID']").val('');
-                $("#clear-bulk-rate-form").find("input[name='criteria']").val(criteria);
-            }else{
-                $("#clear-bulk-rate-form").find("input[name='RateTableRateID']").val(RateTableRateIDs.join(","))
-                $("#clear-bulk-rate-form").find("input[name='criteria']").val('');
-            }
 
+            if(RateTableRateIDs.length || $(this).hasClass('clear-rate-table')) {
+                response = confirm('Are you sure?');
+                if (response) {
 
-            var formData = new FormData($('#clear-bulk-rate-form')[0]);
-
-            $.ajax({
-                url: baseurl + '/rate_tables/{{$id}}/bulk_clear_rate_table_rate', //Server script to process data
-                type: 'POST',
-                dataType: 'json',
-                success: function(response) {
-                    $("#clear-bulk-rate").button('reset');
-                    if (response.status == 'success') {
-                        toastr.success(response.message, "Success", toastr_opts);
-                        //data_table.fnFilter('', 0);
-                        rateDataTable(view);
-                    } else {
-                        toastr.error(response.message, "Error", toastr_opts);
+                    if($(this).hasClass('clear-rate-table')) {
+                        var RateTableRateID = $(this).parent().find('.hiddenRowData input[name="RateTableRateID"]').val();
+                        $("#clear-bulk-rate-form").find("input[name='RateTableRateID']").val(RateTableRateID);
+                        $("#clear-bulk-rate-form").find("input[name='criteria']").val('');
                     }
-                },
-                // Form data
-                data: formData,
-                //Options to tell jQuery not to process data or worry about content-type.
-                cache: false,
-                contentType: false,
-                processData: false
-            });
-            return false;
+
+                    if($(this).attr('id') == 'clear-bulk-rate') {
+                        var criteria='';
+                        if($('#selectallbutton').is(':checked')){
+                            criteria = JSON.stringify($searchFilter);
+                            $("#clear-bulk-rate-form").find("input[name='RateTableRateID']").val('');
+                            $("#clear-bulk-rate-form").find("input[name='criteria']").val(criteria);
+                        }else{
+                            var RateTableRateIDs = [];
+                            var i = 0;
+                            $('#table-4 tr .rowcheckbox:checked').each(function(i, el) {
+                                RateTableRateID = $(this).val();
+                                RateTableRateIDs[i++] = RateTableRateID;
+                            });
+                            $("#clear-bulk-rate-form").find("input[name='RateTableRateID']").val(RateTableRateIDs.join(","))
+                            $("#clear-bulk-rate-form").find("input[name='criteria']").val('');
+                        }
+                    }
+
+                    var formData = new FormData($('#clear-bulk-rate-form')[0]);
+
+                    $.ajax({
+                        url: baseurl + '/rate_tables/{{$id}}/clear_rate', //Server script to process data
+                        type: 'POST',
+                        dataType: 'json',
+                        success: function(response) {
+                            $(".save.btn").button('reset');
+
+                            if (response.status == 'success') {
+                                toastr.success(response.message, "Success", toastr_opts);
+                                //data_table.fnFilter('', 0);
+                                rateDataTable();
+                            } else {
+                                toastr.error(response.message, "Error", toastr_opts);
+                            }
+                        },
+                        // Form data
+                        data: formData,
+                        //Options to tell jQuery not to process data or worry about content-type.
+                        cache: false,
+                        contentType: false,
+                        processData: false
+                    });
+                    return false;
+                }
+                return false;
+            } else {
+                return false;
+            }
         });
+
         //Bulk Edit Button
-        $("#change-bulk-rate").click(function(ev) {
+        $(document).off('click.change-bulk-rate','#change-bulk-rate');
+        $(document).on('click.change-bulk-rate','#change-bulk-rate',function(ev) {
 
             var RateTableRateIDs = [];
             var RateIDs = [];
@@ -237,8 +274,6 @@
                 RateTableRateIDs[i] = RateTableRateID;
                 RateID = $(this).parents("tr").find("div.hiddenRowData").find("input[name='RateID']").val();
                 RateIDs[i] = RateID;
-
-
                 i++;
             });
             date = new Date();
@@ -246,61 +281,32 @@
             var day = date.getDate();
             currentDate = date.getFullYear() + '-' +   (month<10 ? '0' : '') + month + '-' +     (day<10 ? '0' : '') + day;
             $("#bulk-edit-rate-table-form")[0].reset();
-            $("#bulk-edit-rate-table-form").find("input[name='RateTableRateID']").val(RateTableRateIDs.join(","));
             $("#bulk-edit-rate-table-form").find("input[name='RateID']").val(RateIDs.join(","));
             $("#bulk-edit-rate-table-form").find("input[name='Interval1']").val(1);
             $("#bulk-edit-rate-table-form").find("input[name='IntervalN']").val(1);
             $("#bulk-edit-rate-table-form").find("input[name='EffectiveDate']").val(currentDate);
 
+            var criteria = '';
+            if ($('#selectallbutton').is(':checked')) {
+                criteria = JSON.stringify($searchFilter);
+                $("#bulk-edit-rate-table-form").find("input[name='RateTableRateID']").val('');
+                $("#bulk-edit-rate-table-form").find("input[name='criteria']").val(criteria);
+            } else {
+                $("#bulk-edit-rate-table-form").find("input[name='RateTableRateID']").val(RateTableRateIDs.join(","));
+                $("#bulk-edit-rate-table-form").find("input[name='criteria']").val('');
+            }
 
             if(RateIDs.length){
                 jQuery('#modal-bulk-rate-table').modal('show', {backdrop: 'static'});
             }
 
         });
-        //Edit Form Submit
-        $("#edit-rate-table-form").submit(function() {
 
-            var formData = new FormData($('#edit-rate-table-form')[0]);
-            RateTableRateID = $("#edit-rate-table-form").find("input[name='RateTableRateID']").val();
+        //Bulk Form and Edit Single Form Submit
+        $("#bulk-edit-rate-table-form,#edit-rate-table-form").submit(function() {
+            var formData = new FormData($(this)[0]);
             $.ajax({
-                url: baseurl + '/rate_tables/{{$id}}/update_rate_table_rate/'+RateTableRateID, //Server script to process data
-                type: 'POST',
-                dataType: 'json',
-                success: function(response) {
-                    $(".save.btn").button('reset');
-
-                    if (response.status == 'success') {
-                        $('#modal-rate-table').modal('hide');
-                        toastr.success(response.message, "Success", toastr_opts);
-                        //data_table.fnFilter('', 0);
-                        rateDataTable(view);
-                    } else {
-                        toastr.error(response.message, "Error", toastr_opts);
-                    }
-                },
-                // Form data
-                data: formData,
-                //Options to tell jQuery not to process data or worry about content-type.
-                cache: false,
-                contentType: false,
-                processData: false
-            });
-            return false;
-        });
-
-        //Bulk Form Submit
-        $("#bulk-edit-rate-table-form").submit(function() {
-            var criteria='';
-            if($('#selectallbutton').is(':checked')){
-                criteria = JSON.stringify($searchFilter);
-                $("#bulk-edit-rate-table-form").find("input[name='RateTableRateID']").val('');
-                $("#bulk-edit-rate-table-form").find("input[name='criteria']").val(criteria);
-            }
-
-            var formData = new FormData($('#bulk-edit-rate-table-form')[0]);
-            $.ajax({
-                url: baseurl + '/rate_tables/{{$id}}/bulk_update_rate_table_rate', //Server script to process data
+                url: baseurl + '/rate_tables/{{$id}}/update_rate_table_rate', //Server script to process data
                 type: 'POST',
                 dataType: 'json',
                 success: function(response) {
@@ -308,9 +314,10 @@
 
                     if (response.status == 'success') {
                         $('#modal-bulk-rate-table').modal('hide');
+                        $('#modal-rate-table').modal('hide');
                         toastr.success(response.message, "Success", toastr_opts);
                         //data_table.fnFilter('', 0);
-                        rateDataTable(view);
+                        rateDataTable();
                     } else {
                         toastr.error(response.message, "Error", toastr_opts);
                     }
@@ -341,7 +348,29 @@
         $("#new-rate-form").submit(function(e){
             e.preventDefault();
             fullurl = baseurl+'/rate_tables/{{$id}}/add_newrate';
-            submit_ajax(fullurl,$("#new-rate-form").serialize());
+
+            $.ajax({
+                url:fullurl, //Server script to process data
+                type: 'POST',
+                dataType: 'json',
+                success: function(response) {
+                    $(".btn").button('reset');
+                    if (response.status == 'success') {
+                        $('.modal').modal('hide');
+                        toastr.success(response.message, "Success", toastr_opts);
+                        if( typeof data_table !=  'undefined'){
+                            rateDataTable();
+                        }
+                    } else {
+                        toastr.error(response.message, "Error", toastr_opts);
+                    }
+                },
+                data: $("#new-rate-form").serialize(),
+                //Options to tell jQuery not to process data or worry about content-type.
+                cache: false
+            });
+
+            //submit_ajax(fullurl,$("#new-rate-form").serialize());
         return false;
         });
         $('#rateid_list').select2({
@@ -394,10 +423,22 @@
             }
         });
 
+        $("#DiscontinuedRates").on('change', function (event, state) {
+            if($("#DiscontinuedRates").is(':checked')) {
+                $(".EffectiveBox").hide();
+            } else {
+                $(".EffectiveBox").show();
+            }
+        });
 
+        $(document).on('click', '.btn-history', function() {
+            var $this   = $(this);
+            var Codes   = $this.prevAll("div.hiddenRowData").find("input[name='Code']").val();
+            getArchiveRateTableRates($this,Codes);
+        });
     });
 
-    function rateDataTable(view) {
+    function rateDataTable() {
         var GroupBy = $('#rate-table-search #GroupBy').val();
         if(GroupBy == 'GroupByDesc'){
             setCookie('ratetableview','GroupByDesc','30');
@@ -411,102 +452,112 @@
         $searchFilter.Description = $("#rate-table-search input[name='Description']").val();
         $searchFilter.Country = $("#rate-table-search select[name='Country']").val();
         $searchFilter.TrunkID = $("#rate-table-search [name='TrunkID']").val();
-        $searchFilter.Effective = $("#rate-table-search [name='Effective']").val();
+        $searchFilter.Effective = Effective = $("#rate-table-search [name='Effective']").val();
+        $searchFilter.DiscontinuedRates = DiscontinuedRates = $("#rate-table-search input[name='DiscontinuedRates']").is(':checked') ? 1 : 0;
 
-            data_table = $("#table-4").DataTable({
-                "bDestroy": true, // Destroy when resubmit form
-                "bProcessing": true,
-                "bServerSide": true,
-                "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                "sAjaxSource": baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid",
-                "fnServerParams": function(aoData) {
-                    aoData.push({"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective},{"name": "view", "value": view});
-                    data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective},{"name": "view", "value": view});
-                },
-                "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
-                "sPaginationType": "bootstrap",
-                //  "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                "aaSorting": [[view==2 ? 2 : 1, "asc"]],
-                "aoColumns":
-                        [
-                            {"bSortable": false,
-                                mRender: function(id, type, full) {
-                                    return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
-                                }
-                            }, //0Checkbox
-                            {
-                                mRender: function(id, type, full) {
-                                    if(view==1) {
-                                        return full[1];
-                                    }else
-                                        return '<div class="details-control" style="text-align: center; cursor: pointer;"><i class="entypo-plus-squared" style="font-size: 20px;"></i></div>';
-                                },
-                                "className":      'details-control',
-                                "orderable":      false,
-                                "data": null,
-                                "defaultContent": ''
-                            }, //1 code
-                            {}, //2 description
-                            {}, //3 interval 1
-                            {}, //4 interval n
-                            {}, //5 ConnectionFee
-                            {}, //6 PreviousRate
-                            {
-                                mRender: function(id, type, full) {
-                                    if(full[7] > full[6])
-                                        return full[7]+'<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
-                                    else if(full[7] < full[6])
-                                        return full[7]+'<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
-                                    else
-                                        return full[7]
-                                }
-                            }, //7 Rate
-                            {}, //8 Effective Date
-                            {}, //9 ModifiedDate
-                            {}, //10 ModifiedBy
-                            {
-                                mRender: function(id, type, full) {
-                                    var action, edit_, delete_;
-                                    clerRate_ = "{{ URL::to('/rate_tables/{id}/clear_rate')}}";
-
-                                    clerRate_ = clerRate_.replace('{id}', id);
-                                    action = '<div class = "hiddenRowData" >';
-                                    for(var i = 0 ; i< list_fields.length; i++){
-                                        action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
-                                    }
-                                    action += '</div>';
-                                    <?php if(User::checkCategoryPermission('RateTables','Edit')) { ?>
-                                            action += ' <a href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
-                                    <?php } ?>
-                                    if (id != null && id != 0) {
-                                        <?php if(User::checkCategoryPermission('RateTables','Delete')) { ?>
-                                                action += ' <button title="Delete" href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
-                                        <?php } ?>
-                                    }
-                                    return action;
-                                }
+        data_table = $("#table-4").DataTable({
+            "bDestroy": true, // Destroy when resubmit form
+            "bProcessing": true,
+            "bServerSide": true,
+            "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+            "sAjaxSource": baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid",
+            "fnServerParams": function(aoData) {
+                aoData.push({"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view});
+                data_table_extra_params.length = 0;
+                data_table_extra_params.push({"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view});
+            },
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
+            "sPaginationType": "bootstrap",
+            //  "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+            "aaSorting": [[view==2 ? 2 : 1, "asc"]],
+            "aoColumns":
+                    [
+                        {"bSortable": false,
+                            mRender: function(id, type, full) {
+                                return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
                             }
-                        ],
-                "oTableTools":
-                {
-                    "aButtons": [
+                        }, //0Checkbox
                         {
-                            "sExtends": "download",
-                            "sButtonText": "EXCEL",
-                            "sUrl": baseurl + "/rate_tables/{{$id}}/rate_exports/xlsx",
-                            sButtonClass: "save-collection btn-sm"
-                        },
+                            mRender: function(id, type, full) {
+                                if(view==1) {
+                                    return full[1];
+                                }else
+                                    return '<div class="details-control" style="text-align: center; cursor: pointer;"><i class="entypo-plus-squared" style="font-size: 20px;"></i></div>';
+                            },
+                            "className":      'details-control',
+                            "orderable":      false,
+                            "data": null,
+                            "defaultContent": ''
+                        }, //1 code
+                        {}, //2 description
+                        {}, //3 interval 1
+                        {}, //4 interval n
+                        {}, //5 ConnectionFee
+                        {}, //6 PreviousRate
                         {
-                            "sExtends": "download",
-                            "sButtonText": "CSV",
-                            "sUrl": baseurl + "/rate_tables/{{$id}}/rate_exports/csv",
-                            sButtonClass: "save-collection btn-sm"
-                        }
-                    ]
-                },
-                "fnDrawCallback": function() {
+                            mRender: function(id, type, full) {
+                                if(full[7] > full[6])
+                                    return full[7]+'<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
+                                else if(full[7] < full[6])
+                                    return full[7]+'<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
+                                else
+                                    return full[7]
+                            }
+                        }, //7 Rate
+                        {}, //8 Effective Date
+                        {
+                            "bVisible" : false
+                        }, //9 End Date
+                        {}, //10 ModifiedDate
+                        {}, //11 ModifiedBy
+                        {
+                            mRender: function(id, type, full) {
+                                var action, edit_, delete_;
+                                clerRate_ = "{{ URL::to('/rate_tables/{id}/clear_rate')}}";
 
+                                clerRate_ = clerRate_.replace('{id}', id);
+                                action = '<div class = "hiddenRowData" >';
+                                for(var i = 0 ; i< list_fields.length; i++){
+                                    action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
+                                }
+                                action += '</div>';
+                                <?php if(User::checkCategoryPermission('RateTables','Edit')) { ?>
+                                    if(DiscontinuedRates == 0) {
+                                        action += ' <a href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</a>';
+                                    }
+                                <?php } ?>
+
+                                action += ' <a href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</a>';
+
+                                if (id != null && id != 0) {
+                                    <?php if(User::checkCategoryPermission('RateTables','Delete')) { ?>
+                                        if(DiscontinuedRates == 0) {
+                                            action += ' <button title="Delete" href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-xs" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
+                                        }
+                                    <?php } ?>
+                                }
+                                return action;
+                            }
+                        }
+                    ],
+            "oTableTools":
+            {
+                "aButtons": [
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "EXCEL",
+                        "sUrl": baseurl + "/rate_tables/{{$id}}/rate_exports/xlsx",
+                        sButtonClass: "save-collection btn-sm"
+                    },
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "CSV",
+                        "sUrl": baseurl + "/rate_tables/{{$id}}/rate_exports/csv",
+                        sButtonClass: "save-collection btn-sm"
+                    }
+                ]
+            },
+            "fnDrawCallback": function() {
                 if(view==1){
                     $('#Code-Header').html('Code');
                 }else{
@@ -526,7 +577,7 @@
                                 $(".btn.delete").button('reset');
                                 if (response.status == 'success') {
                                     //data_table.fnFilter('', 0);
-                                    rateDataTable(view);
+                                    rateDataTable();
                                 } else {
                                     toastr.error(response.message, "Error", toastr_opts);
                                 }
@@ -543,6 +594,7 @@
                     return false;
 
                 });
+                $("#selectall").off('click');
                 $("#selectall").click(function(ev) {
                     var is_checked = $(this).is(':checked');
                     $('#table-4 tbody tr').each(function(i, el) {
@@ -557,6 +609,7 @@
                 });
 
                 //Edit Button
+                $(".edit-rate-table.btn").off('click');
                 $(".edit-rate-table.btn").click(function(ev) {
                     ev.stopPropagation();
                     var cur_obj = $(this).prev("div.hiddenRowData");
@@ -569,30 +622,7 @@
                 $(".dataTables_wrapper select").select2({
                     minimumResultsForSearch: -1
                 });
-                //Clear Button
-                $(".clear-rate-table.btn").click(function(ev) {
-                    response = confirm('Are you sure?');
-                    if (response) {
-                        var clear_url;
-                        clear_url = $(this).attr("href");
-                        $(this).button('loading');
-                        //get
-                        $.get(clear_url, function (response) {
-                            if (response.status == 'success') {
-                                $(this).button('reset');
-                                //data_table.fnFilter('', 0);
-                                rateDataTable(view);
-                                toastr.success(response.message, "Success", toastr_opts);
-                            } else {
-                                $(this).button('reset');
-                                toastr.error(response.message, "Error", toastr_opts);
-                            }
-                        });
-                    }
-                    return false;
 
-
-                });
                 //select all button
                 $('#table-4 tbody tr').each(function(i, el) {
                     if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
@@ -608,6 +638,7 @@
                     }
                 });
 
+                $("#selectallbutton").off('click');
                 $('#selectallbutton').click(function(ev) {
                     if($(this).is(':checked')){
                         checked = 'checked=checked disabled';
@@ -633,10 +664,106 @@
                         }
                     }
                 });
+
+                if(Effective == 'All' || DiscontinuedRates == 1) {//if(Effective == 'All' || DiscontinuedRates == 1) {
+                    $('#change-bulk-rate').hide();
+                } else {
+                    $('#change-bulk-rate').show();
+                }
+
+                if(DiscontinuedRates == 1) {
+                    $('#clear-bulk-rate').hide();
+                } else {
+                    $('#clear-bulk-rate').show();
+                }
             }
         });
+
         $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
         return false;
+    }
+
+    function getArchiveRateTableRates($clickedButton,Codes) {
+        //var Codes = new Array();
+        var ArchiveRates;
+        /*$("#table-4 tr td:nth-child(2)").each(function(){
+            Codes.push($(this).html());
+        });*/
+
+        var tr  = $clickedButton.closest('tr');
+        var row = data_table.row(tr);
+
+        if (row.child.isShown()) {
+            tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
+            row.child.hide();
+            tr.removeClass('shown');
+        } else {
+            tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
+            $clickedButton.attr('disabled','disabled');
+
+            var view = 1;
+            var ratetableview = getCookie('ratetableview');
+            if(ratetableview=='GroupByDesc'){
+                view = 2;
+            } else {
+                view = 1;
+            }
+
+            $.ajax({
+                url: baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid_archive_rates",
+                type: 'POST',
+                data: "Codes=" + Codes + "&view=" + view,
+                dataType: 'json',
+                cache: false,
+                success: function (response) {
+                    $clickedButton.removeAttr('disabled');
+
+                    if (response.status == 'success') {
+                        ArchiveRates = response.data;
+                        //$('.details-control').show();
+                    } else {
+                        ArchiveRates = {};
+                        toastr.error(response.message, "Error", toastr_opts);
+                    }
+
+                    $clickedButton.find('i').toggleClass('entypo-plus-squared entypo-minus-squared');
+                    var hiddenRowData = tr.find('.hiddenRowData');
+                    var Code = hiddenRowData.find('input[name="Code"]').val();
+                    var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
+                    if(view == 1) {
+                        table.append("<thead><tr><th>Code</th><th>Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                    } else {
+                        table.append("<thead><tr><th>Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                    }
+                    var tbody = $("<tbody></tbody>");
+
+                    ArchiveRates.forEach(function (data) {
+                        //if (data['Code'] == Code) {
+                            var html = "";
+                            html += "<tr class='no-selection'>";
+                            if(view == 1) {
+                                html += "<td>" + data['Code'] + "</td>";
+                            }
+                            html += "<td>" + data['Description'] + "</td>";
+                            html += "<td>" + data['Interval1'] + "</td>";
+                            html += "<td>" + data['IntervalN'] + "</td>";
+                            html += "<td>" + data['ConnectionFee'] + "</td>";
+                            html += "<td>" + data['Rate'] + "</td>";
+                            html += "<td>" + data['EffectiveDate'] + "</td>";
+                            html += "<td>" + data['EndDate'] + "</td>";
+                            html += "<td>" + data['ModifiedDate'] + "</td>";
+                            html += "<td>" + data['ModifiedBy'] + "</td>";
+                            html += "</tr>";
+                            table.append(html);
+                        //}
+                    });
+                    table.append(tbody);
+                    row.child(table).show();
+                    row.child().addClass('no-selection child-row');
+                    tr.addClass('shown');
+                }
+            });
+        }
     }
 
 </script>
@@ -662,47 +789,33 @@
 
                     <div class="row">
                         <div class="col-md-6">
-
                             <div class="form-group">
                                 <label for="field-4" class="control-label">Effective Date</label>
-
                                 <input type="text"  name="EffectiveDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
                             </div>
-
                         </div>
 
                         <div class="col-md-6">
-
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Rate</label>
                                 <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
-
                             </div>
-
                         </div>
-
                     </div>
                     <div class="row">
                         <div class="col-md-6">
-
                             <div class="form-group">
                                 <label for="field-4" class="control-label">Interval 1</label>
                                 <input type="text" name="Interval1" class="form-control" value="" />
-
                             </div>
-
                         </div>
 
                         <div class="col-md-6">
-
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Interval N</label>
                                 <input type="text" name="IntervalN" class="form-control" id="field-5" placeholder="">
-
                             </div>
-
                         </div>
-
                     </div>
                     <div class="row">
                         <div class="col-md-6">
@@ -711,12 +824,27 @@
                                 <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
                             </div>
                         </div>
+                        {{--<div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-4" class="control-label">End Date</label>
+                                <input type="text"  name="EndDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
+                            </div>
+                        </div>--}}
                      </div>
+
                 </div>
 
                 <div class="modal-footer">
                     <input type="hidden" name="RateTableRateID" value="">
                     <input type="hidden" name="RateID" value="">
+                    <input type="hidden" name="criteria" value="">
+                    <input type="hidden" name="updateEffectiveDate" value="on">
+                    <input type="hidden" name="updateRate" value="on">
+                    <input type="hidden" name="updateInterval1" value="on">
+                    <input type="hidden" name="updateIntervalN" value="on">
+                    <input type="hidden" name="updateConnectionFee" value="on">
+                    <input type="hidden" name="updateEndDate" value="on">
+                    <input type="hidden" name="updateType" value="singleEdit">
 
                     <button type="submit" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i> Save
@@ -748,49 +876,37 @@
 
                     <div class="row">
                         <div class="col-md-6">
-
                             <div class="form-group">
                                 <input type="checkbox" name="updateEffectiveDate" class="" />
                                 <label for="field-4" class="control-label">Effective Date</label>
-
                                 <input type="text" name="EffectiveDate" class="form-control datepicker"  data-startdate="{{date('Y-m-d')}}" data-date-format="yyyy-mm-dd" value="" />
                             </div>
-
                         </div>
 
                         <div class="col-md-6">
-
                             <div class="form-group">
                                 <input type="checkbox" name="updateRate" class="" />
                                 <label for="field-5" class="control-label">Rate</label>
-
                                 <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
                             </div>
-
                         </div>
 
                     </div>
                     <div class="row">
                         <div class="col-md-6">
-
                             <div class="form-group">
                                 <input type="checkbox" name="updateInterval1" class="" />
                                 <label for="field-4" class="control-label">Interval 1</label>
                                 <input type="text" name="Interval1" class="form-control" value="" />
-
                             </div>
-
                         </div>
 
                         <div class="col-md-6">
-
                             <div class="form-group">
                                 <input type="checkbox" name="updateIntervalN" class="" />
                                 <label for="field-5" class="control-label">Interval N</label>
                                 <input type="text" name="IntervalN" class="form-control" id="field-5" placeholder="">
-
                             </div>
-
                         </div>
 
                     </div>
@@ -802,6 +918,13 @@
                                 <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
                             </div>
                         </div>
+                        {{--<div class="col-md-6">
+                            <div class="form-group">
+                                <input type="checkbox" name="updateEndDate" class="" />
+                                <label for="field-4" class="control-label">End Date</label>
+                                <input type="text" name="EndDate" class="form-control datepicker"  data-startdate="{{date('Y-m-d')}}" data-date-format="yyyy-mm-dd" value="" />
+                            </div>
+                        </div>--}}
                      </div>
 
                 </div>
@@ -897,6 +1020,16 @@
                             </div>
 
                         </div>
+
+                        {{--<div class="col-md-6">
+
+                            <div class="form-group">
+                                <label for="field-4" class="control-label">End Date</label>
+
+                                <input type="text" name="EndDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
+                            </div>
+
+                        </div>--}}
 
                     </div>
 

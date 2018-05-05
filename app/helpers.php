@@ -498,6 +498,15 @@ function is_paypal($CompanyID){
     return false;
 }
 
+function is_pelecard($CompanyID){
+
+    $pelecard = new PeleCard($CompanyID);
+    if($pelecard->status){
+        return true;
+    }
+    return false;
+}
+
 function is_sagepay($CompanyID){
 
     $sagepay = new SagePay($CompanyID);
@@ -521,7 +530,7 @@ function get_image_data($path){
 }
 
 
-function getFileContent($file_name, $data){
+function getFileContent($file_name, $data, $Sheet=''){
     $columns = [];
     $grid = [];
     $flag = 0;
@@ -531,37 +540,14 @@ function getFileContent($file_name, $data){
         NeonExcelIO::$end_row=$data["end_row"];
     }
 
-    $NeonExcel = new NeonExcelIO($file_name, $data);
+    $NeonExcel = new NeonExcelIO($file_name, $data, $Sheet);
     $results = $NeonExcel->read(10);
-    /*
-    if (!empty($data['Delimiter'])) {
-        Config::set('excel::csv.delimiter', $data['Delimiter']);
-    }
-    if (!empty($data['Enclosure'])) {
-        Config::set('excel::csv.enclosure', $data['Enclosure']);
-    }
-    if (!empty($data['Escape'])) {
-        Config::set('excel::csv.line_ending', $data['Escape']);
-    }
-    if(!empty($data['Firstrow'])){
-        $data['option']['Firstrow'] = $data['Firstrow'];
-    }
 
-    if (!empty($data['option']['Firstrow'])) {
-        if ($data['option']['Firstrow'] == 'data') {
-            $flag = 1;
-        }
-    }
-    $isExcel = in_array(pathinfo($file_name, PATHINFO_EXTENSION),['xls','xlsx'])?true:false;
-    $results = Excel::selectSheetsByIndex(0)->load($file_name, function ($reader) use ($flag,$isExcel) {
-        if ($flag == 1) {
-            $reader->noHeading();
-        }
-    })->take(10)->toArray();*/
+    // Get columns
+
     $counter = 1;
-    //$results[0] = array_filter($results[0]);
     foreach ($results[0] as $index => $value) {
-        if (isset($data['Firstrow']) && $data['Firstrow'] == 'data') {
+        if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
             $columns[$counter] = 'Col' . $counter;
         } else {
             if(!is_null($index))
@@ -577,25 +563,115 @@ function getFileContent($file_name, $data){
         $counter++;
     }
 
+    // Get data into array.
+    $columns = array_filter($columns);
+    $grid_array = array();
     foreach ($results as $outindex => $datarow) {
-        //$datarow = array_filter($datarow);
-        //$results[$outindex] =  array_filter($datarow);
+
+        $i = 1;
         foreach ($datarow as $index => $singlerow) {
-            $results[$outindex][$index] = $singlerow;
+
             if (strpos(strtolower($index), 'date') !== false) {
+
                 $singlerow = str_replace('/', '-', $singlerow);
-                $results[$outindex][$index] = $singlerow;
+                $grid_array[$outindex][$index] = $singlerow;
+            }
+
+            if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
+                $grid_array[$outindex][$columns[$i++]] = $singlerow;
+            }else{
+                $grid_array[$outindex][$index] = $singlerow;
             }
         }
+        unset($grid_array[$outindex][""]);
+
     }
+    //print_r($grid_array);
+    //exit;
+
     try {
     } catch (\Exception $ex) {
         Log::error($ex);
     }
 
     $grid['columns'] = $columns;
-    $grid['rows'] = $results;
+    $grid['rows'] = $grid_array;
     $grid['filename'] = $file_name;
+
+    return $grid;
+}
+
+function getFileContentSheet2($file_name, $data, $Sheet=''){
+    $columns = [];
+    $grid = [];
+    $flag = 0;
+
+     if(isset($data["start_row_sheet2"]) && isset($data["end_row_sheet2"])){
+        NeonExcelIO::$start_row=$data["start_row_sheet2"];
+        NeonExcelIO::$end_row=$data["end_row_sheet2"];
+    }
+
+    $NeonExcel = new NeonExcelIO($file_name, $data, $Sheet);
+    $results = $NeonExcel->read(10);
+
+    // Get columns
+
+    $counter = 1;
+    foreach ($results[0] as $index => $value) {
+        if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
+            $columns[$counter] = 'Col' . $counter;
+        } else {
+            if(!is_null($index))
+            {
+                $columns[$index] = $index;
+            }
+            else
+            {
+                $columns[""]="";
+            }
+
+        }
+        $counter++;
+    }
+
+    // Get data into array.
+    $columns = array_filter($columns);
+    $grid_array = array();
+    foreach ($results as $outindex => $datarow) {
+
+        $i = 1;
+        foreach ($datarow as $index => $singlerow) {
+
+            //$grid_array[$outindex][$index] = $singlerow;
+
+            if (strpos(strtolower($index), 'date') !== false) {
+
+                $singlerow = str_replace('/', '-', $singlerow);
+                $grid_array[$outindex][$index] = $singlerow;
+            }
+
+            if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
+                $grid_array[$outindex][$columns[$i++]] = $singlerow;
+            }
+            else
+            {
+                $grid_array[$outindex][$index] = $singlerow;
+            }
+        }
+        unset($grid_array[$outindex][""]);
+    }
+    //print_r($grid_array);
+    //exit;
+
+    try {
+    } catch (\Exception $ex) {
+        Log::error($ex);
+    }
+
+    $grid['columns'] = $columns;
+    $grid['rows'] = $grid_array;
+    $grid['filename'] = $file_name;
+
     return $grid;
 }
 
@@ -940,8 +1016,8 @@ function getDashBoardController($key){
 }
 
 function formatSmallDate($date,$dateformat='d-m-y') {
-
-    if(ctype_digit($date) && strlen($date)==5){
+    return formatDate($date,$dateformat,true);
+    /*if(ctype_digit($date) && strlen($date)==5){
         $UNIX_DATE = ($date - 25569) * 86400;
         $datetime = gmdate("Y-m-d", $UNIX_DATE);
     }else {
@@ -976,7 +1052,7 @@ function formatSmallDate($date,$dateformat='d-m-y') {
                     /*if (strpos($date, ' ') !== false) {
                         $date = str_replace(' ', '-', $date);
                     }*/
-                    if ($dateformat == 'd-m-Y' && strpos($date, '/') !== false) {
+                   /* if ($dateformat == 'd-m-Y' && strpos($date, '/') !== false) {
                         $date = str_replace('/', '-', $date);
                         $datetime = date('Y-m-d', strtotime($date));
                     } else if ($dateformat == 'm-d-Y' && strpos($date, '-') !== false) {
@@ -993,7 +1069,7 @@ function formatSmallDate($date,$dateformat='d-m-y') {
     if ($datetime == '1970-01-01') {
         $datetime = '';
     }
-    return $datetime;
+    return $datetime;*/
 }
 
 function SortBillingType($account=0){
@@ -1033,7 +1109,7 @@ function create_site_configration_cache(){
         $cache['Title']				=	'Neon';
         $cache['FooterText']		=	'&copy; '.date('Y').' Code Desk';
         $cache['FooterUrl']			=	'http://www.code-desk.com';
-        $cache['LoginMessage']		=	'Dear user, Please login below!';
+        $cache['LoginMessage']		=	Lang::get("routes.CUST_PANEL_PAGE_LOGIN_LBL_LOGIN_MSG");
         $cache['CustomCss']			=	'';
     }
 
@@ -1054,7 +1130,7 @@ function chart_reponse($alldata){
     $response['ChartColors'] = implode(',',$chartColor);
 
     if(empty($alldata['call_count'])) {
-        $response['CallCountHtml'] = '<h4>No Data</h4>';
+        $response['CallCountHtml'] = '<h4>'.Lang::get('routes.MESSAGE_DATA_NOT_AVAILABLE').'</h4>';
         $response['CallCount'] = '';
         $response['CallCountVal'] = '';
     }else{
@@ -1063,7 +1139,7 @@ function chart_reponse($alldata){
         $response['CallCountHtml'] =  $alldata['call_count_html'];
     }
     if(empty($alldata['call_cost'])) {
-        $response['CallCostHtml'] = '<h4>No Data</h4>';
+        $response['CallCostHtml'] = '<h4>'.Lang::get('routes.MESSAGE_DATA_NOT_AVAILABLE').'</h4>';
         $response['CallCost'] = '';
         $response['CallCostVal'] = '';
     }else{
@@ -1072,7 +1148,7 @@ function chart_reponse($alldata){
         $response['CallCostHtml'] = $alldata['call_cost_html'];
     }
     if(empty($alldata['call_minutes'])) {
-        $response['CallMinutesHtml'] = '<h4>No Data</h4>';
+        $response['CallMinutesHtml'] = '<h4>'.Lang::get('routes.MESSAGE_DATA_NOT_AVAILABLE').'</h4>';
         $response['CallMinutes'] = '';
         $response['CallMinutesVal'] = '';
     }else{
@@ -1136,7 +1212,8 @@ function check_uri($parent_link=''){
     $array_settings   =    array("Users","Trunk","CodeDecks","Gateway","Currencies","CurrencyConversion","DestinationGroup","DialString");
     $array_admin	  =	   array("Users","Role","Themes","AccountApproval","FileUploadTemplate","EmailTemplate","Notification","ServerInfo","Retention","NoticeBoard");
     $array_summary    =    array("Summary");
-    $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling");
+    $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling","AutoRateImport");
+    $array_autoImport =	   array("AutoRateImport");
 	$array_tickets	  =	   array("Tickets","TicketsFields","TicketsGroup","Dashboard","TicketsSla","TicketsBusinessHours","TicketImportRules");
     $array_template   =    array("");
     $array_dashboard  =    array("Dashboard");
@@ -1175,6 +1252,10 @@ function check_uri($parent_link=''){
         }
 
         if(in_array($controller,$array_rates) && $parent_link =='Rates')
+        {
+            return 'opened';
+        }
+        if(in_array($controller,$array_autoImport) && $parent_link =='AutoImport')
         {
             return 'opened';
         }
@@ -2038,6 +2119,7 @@ function table_html($data,$table_data){
     $col_count = count($data['column']);
     $table_header = $table_header_colgroup = $table_row = $table_footer = '';
     $table_data['table_footer_sum'] = array();
+    $setting_rename = isset($data['setting_rename'])?json_decode($data['setting_rename'],true):array();
     $chartColor = array('#C5CAE9','#BBDEFB','#B3E5FC','#B2EBF2','#C8E6C9','#DCEDC8','#F0F4C3','#FFCCBC','#D7CCC8','#F5F5F5','#CFD8DC');
     if($row_count) {
         $table_header_colgroup .= '<colgroup span="' . $row_count . '" style="background-color:' . $chartColor[0] . '"></colgroup>';
@@ -2085,7 +2167,7 @@ function table_html($data,$table_data){
         foreach ($table_data['columns'][$key_count] as $row_val) {
             foreach ($row_val['name'] as $row_name) {
                 if(array_key_exists($row_name,Report::$measures[$cube])){
-                    $table_header .= '<th colspan="' . 1 . '" scope="colgroup">' . Report::$measures[$cube][$row_name] . '</th>';
+                    $table_header .= '<th colspan="' . 1 . '" scope="colgroup">' . (isset($setting_rename[$row_name])?$setting_rename[$row_name]:Report::$measures[$cube][$row_name])  . '</th>';
                 }else{
                     $table_header .= '<th colspan="' . 1 . '" scope="colgroup">' . $row_name . '</th>';
                 }
@@ -2122,12 +2204,16 @@ function table_html($data,$table_data){
                 $table_col_row .= '<td rowspan="' . $table_data['row'][$explode_row_count-1][$datakey]['rowspan'] . '">' . $table_data['row'][$explode_row_count-1][$datakey]['name'] . '</td>';
             }
             if ($explode_row_count == $row_count && $explode_count >= $col_count) {
+                $round_decimal = get_round_decimal_places();
+                if(!is_apply_number_format($col_name)){
+                    $round_decimal = 0;
+                }
                 if($key_index > 0 && $col_count == 0){
-                    $table_single_row .= '<td class="col">' . (is_numeric($col_val) && is_apply_number_format($col_name) ?number_format($col_val,get_round_decimal_places()):$col_val) . '</td>';
+                    $table_single_row .= '<td class="col">' . (is_numeric($col_val) ?number_format($col_val,$round_decimal):$col_val) . '</td>';
                 } else if($key_index == 0 && $col_count == 0 && $row_count == 0 ){
-                    $table_single_row .= '<td class="col">' . (is_numeric($col_val) && is_apply_number_format($col_name) ?number_format($col_val,get_round_decimal_places()):$col_val) . '</td>';
+                    $table_single_row .= '<td class="col">' . (is_numeric($col_val) ?number_format($col_val,$round_decimal):$col_val) . '</td>';
                 } else if($col_count > 0){
-                    $table_single_row .= '<td class="col">' . (is_numeric($col_val) && is_apply_number_format($col_name) ?number_format($col_val,get_round_decimal_places()):$col_val) . '</td>';
+                    $table_single_row .= '<td class="col">' . (is_numeric($col_val) ?number_format($col_val,$round_decimal):$col_val) . '</td>';
                 }
 
             }
@@ -2154,10 +2240,14 @@ function table_html($data,$table_data){
         $footer_col_count = 0;
         foreach ($table_data['table_footer_sum'] as $foot_col_name => $foot_col_val) {
             if($footer_col_count >= $row_col_count) {
+                $round_decimal = get_round_decimal_places();
+                if(!is_apply_number_format($foot_col_name)){
+                    $round_decimal = 0;
+                }
                 if(is_apply_total($foot_col_name)){
                     $table_footer .= '<td class="col" style="background-color: #91c5d4"><strong></strong></td>';
                 }else{
-                    $table_footer .= '<td class="col" style="background-color: #91c5d4"><strong>' . (is_numeric($foot_col_val) && is_apply_number_format($foot_col_name)?number_format($foot_col_val,get_round_decimal_places()):$foot_col_val) . '</strong></td>';
+                    $table_footer .= '<td class="col" style="background-color: #91c5d4"><strong>' . (is_numeric($foot_col_val) ?number_format($foot_col_val,$round_decimal):$foot_col_val) . '</strong></td>';
                 }
             }
             $footer_col_count++;
@@ -2227,7 +2317,7 @@ function get_ticket_status_date_array($result_data) {
 
 
     } else {
-        $the_date = TicketLog::where(['TicketID'=>$result_data->TicketID,"Action"=>TicketLog::TICKET_ACTION_STATUS_CHANGED])->orderby("TicketLogID","DESC")->pluck("created_at");
+        $the_date = TicketLog::where(['TicketID'=>$result_data->TicketID])->orderby("TicketLogID","DESC")->pluck("created_at");
     }
 
 
@@ -2333,6 +2423,7 @@ function get_client_ip() {
 
 function generate_manual_datatable_response($ColName){
     $response_data = array();
+    Invoice::multiLang_init();
     switch ($ColName) {
         case 'InvoiceType':
             foreach (Invoice::$invoice_type as $row_key => $row_title) {
@@ -2418,7 +2509,7 @@ function report_join($data){
     return $account_join;
 }
 function getInvoicePayments($CompanyID){
-    if(is_authorize($CompanyID) || is_Stripe($CompanyID) || is_StripeACH($CompanyID) || is_paypal($CompanyID) || is_sagepay($CompanyID) || is_FideliPay($CompanyID)){
+    if(is_authorize($CompanyID) || is_Stripe($CompanyID) || is_StripeACH($CompanyID) || is_paypal($CompanyID) || is_sagepay($CompanyID) || is_FideliPay($CompanyID) || is_pelecard($CompanyID)){
         return true;
     }
     return false;
@@ -2487,4 +2578,168 @@ function get_contact_view_url($ContactID) {
 function get_user_edit_url($UserID) {
 
     return URL::to('users/edit/'.$UserID);
+}
+
+function check_apply_limit($setting_ag){
+    $response_array = array(
+        'applylimit' => false,
+        'limit' => 0,
+        'order' => 'ASC',
+    );
+    foreach((array)$setting_ag as $col => $column_action) {
+        if ($column_action == 'top5' || $column_action == 'top10' || $column_action == 'bottom5' || $column_action == 'bottom10') {
+            $response_array['applylimit'] = true;
+        }
+        if ($column_action == 'top5' || $column_action == 'bottom5'){
+            $response_array['limit'] = 5 ;
+        }else if($column_action == 'top10' || $column_action == 'bottom10'){
+            $response_array['limit'] = 10 ;
+        }
+        if ($column_action == 'top5' || $column_action == 'top10'){
+            $response_array['order'] = 'DESC';
+        }
+    }
+    return $response_array;
+}
+
+function get_col_full_name($setting_ag,$Table,$colname){
+    $aggregator = 'SUM';
+    $aggregator2 = '';
+    if(!empty($Table)) {
+        $Table = $Table . ".";
+    }
+    if(!empty($setting_ag[$colname]) && $setting_ag[$colname] ==  'count_distinct' ){
+        $aggregator2 = 'distinct';
+        $aggregator = 'count';
+    }else if(!empty($setting_ag[$colname])){
+        $aggregator = $setting_ag[$colname];
+    }
+
+    return $aggregator."(".$aggregator2." ".$Table. $colname . ") as " . $colname;
+}
+
+function get_measure_name($colname,$Table){
+    $measure_name = '';
+    $col_TotalCharges = 'TotalCharges';
+    $col_TotalCost = 'TotalCost';
+    if (strpos($Table, 'Vendor') !== false) {
+        $col_TotalCharges = 'TotalSales';
+        $col_TotalCost = 'TotalCharges';
+    }
+    if($colname == 'Margin'){
+        $measure_name = "COALESCE(SUM(".$Table.".".$col_TotalCharges."),0) - COALESCE(SUM(".$Table.".".$col_TotalCost."),0)";
+    }else if($colname == 'MarginPercentage'){
+        $measure_name = "(COALESCE(SUM(".$Table.".".$col_TotalCharges."),0) - COALESCE(SUM(".$Table.".".$col_TotalCost."),0)) / SUM(".$Table.".".$col_TotalCharges.")*100 ";
+    }else if($colname == 'ACD'){
+        $measure_name = "IF(SUM(".$Table.".NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(".$Table.".TotalBilledDuration),0)/SUM(".$Table.".NoOfCalls)),0) ";
+    }else if($colname == 'ASR'){
+        $measure_name = "SUM(".$Table.".NoOfCalls)/(SUM(".$Table.".NoOfCalls)+SUM(".$Table.".NoOfFailCalls))*100 ";
+    }else if($colname == 'BilledDuration'){
+        $measure_name = "ROUND(COALESCE(SUM(".$Table.".TotalBilledDuration),0)/ 60,0) ";
+    }else if($colname == 'TotalDuration2'){
+        $measure_name = "ROUND(COALESCE(SUM(".$Table.".TotalDuration),0)/ 60,0)";
+    }else if($colname == 'UsageDetailID'){
+        $measure_name = "COUNT(".$Table.".UsageDetailID) ";
+    }else if($colname == 'VendorCDRID'){
+        $measure_name = "COUNT(".$Table.".VendorCDRID) ";
+    }else if($colname == 'duration2'){
+        $measure_name = "ROUND(COALESCE(SUM(".$Table.".duration),0)/ 60,0) ";
+    }else if($colname == 'duration1'){
+        $measure_name ="ROUND(COALESCE(SUM(".$Table.".billed_duration),0)/ 60,0) ";
+    }
+    return $measure_name;
+}
+
+function set_cus_language($language){
+
+    NeonCookie::deleteCookie("customer_language");
+    NeonCookie::deleteCookie("customer_alignment");
+
+    App::setLocale($language);
+    NeonCookie::setCookie('customer_language',$language,365);
+
+    if( DB::table('tblLanguage')->where(['ISOCode'=>$language, "is_rtl"=>"y"])->count()){
+        NeonCookie::setCookie('customer_alignment',"right",365);
+    }else{
+        NeonCookie::setCookie('customer_alignment',"left",365);
+    }
+}
+
+function ddl_language($id="",$name="",$defaultVal="",$class="",$valuetype="isocode",$selectOne=""){
+    $return = '<select id="'.$id.'" name="'.$name.'" class="ddl_language '.$class.'">';
+                if($selectOne!=""){
+                    $return .= '<option data-flag="" value="" >Select</option>';
+                }
+                foreach(Translation::getLanguageDropdownWithFlagList() as $key=>$value){
+                    $selected="";
+                    if($valuetype=="isocode"){
+                        $opt_value=$key;
+                    }else if($valuetype=="id"){
+                        $opt_value=$value["languageId"];
+                    }
+                    if($defaultVal==$opt_value){
+                        $selected="selected";
+                    }
+                    $return .= '<option data-flag="'.$value["languageFlag"].'" value="'.$opt_value.'" '.$selected.' >'.$value["languageName"].'</option>';
+                }
+    $return .= '</select>';
+
+    return $return;
+}
+
+function cus_lang($key=""){
+    return trans('routes.'.strtoupper($key));
+}
+
+function getSql($model)
+{
+    $replace = function ($sql, $bindings)
+    {
+        $needle = '?';
+        foreach ($bindings as $replace){
+            $pos = strpos($sql, $needle);
+            if ($pos !== false) {
+                if (gettype($replace) === "string") {
+                    $replace = ' "'.addslashes($replace).'" ';
+                }
+                $sql = substr_replace($sql, $replace, $pos, strlen($needle));
+            }
+        }
+        return $sql;
+    };
+    $sql = $replace($model->toSql(), $model->getBindings());
+
+    return $sql;
+}
+
+function js_labels(){
+    $arrJsLabel= array();
+    $arrJsLabel["MSG_DATA_NOT_AVAILABLE"]=cus_lang("MESSAGE_DATA_NOT_AVAILABLE");
+    $arrJsLabel["TABLE_TOTAL"]=cus_lang("TABLE_TOTAL");
+    $arrJsLabel["BUTTON_EXPORT_CSV_CAPTION"]=cus_lang("BUTTON_EXPORT_CSV_CAPTION");
+    $arrJsLabel["BUTTON_EXPORT_EXCEL_CAPTION"]=cus_lang("BUTTON_EXPORT_EXCEL_CAPTION");
+
+    $arrJsLabel["HTTP_STATUS_400_MSG"]=cus_lang("HTTP_STATUS_400_MSG");
+    $arrJsLabel["HTTP_STATUS_403_MSG"]=cus_lang("HTTP_STATUS_403_MSG");
+    $arrJsLabel["HTTP_STATUS_404_MSG"]=cus_lang("HTTP_STATUS_404_MSG");
+    $arrJsLabel["HTTP_STATUS_408_MSG"]=cus_lang("HTTP_STATUS_408_MSG");
+    $arrJsLabel["HTTP_STATUS_410_MSG"]=cus_lang("HTTP_STATUS_410_MSG");
+    $arrJsLabel["HTTP_STATUS_500_MSG"]=cus_lang("HTTP_STATUS_500_MSG");
+    $arrJsLabel["HTTP_STATUS_503_MSG"]=cus_lang("HTTP_STATUS_503_MSG");
+    $arrJsLabel["HTTP_STATUS_504_MSG"]=cus_lang("HTTP_STATUS_504_MSG");
+
+
+    $html="";
+    foreach($arrJsLabel as $key=>$val){
+        $html.=" var ".$key." = '".$val."';  \n\r";
+    }
+    return $html;
+}
+function cleanarray($data = [],$unset=[]){
+    foreach($unset as $item){
+        if(array_key_exists($item,$data)){
+            unset($data[$item]);
+        }
+    }
+    return $data;
 }

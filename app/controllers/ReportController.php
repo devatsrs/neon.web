@@ -42,6 +42,8 @@ class ReportController extends \BaseController {
         $ReportSchedule = ReportSchedule::where('ReportID',$id)->first();
         $reports = Report::getDropdownIDList($report->CompanyID);
         $report_settings = json_decode($report->Settings,true);
+        $setting_rename = isset($report_settings['setting_rename'])?json_decode($report_settings['setting_rename'],true):array();
+        $setting_ag = isset($report_settings['setting_ag'])?json_decode($report_settings['setting_ag'],true):array();
         $schedule_settings = array();
         if(!empty($ReportSchedule)) {
             $schedule_settings = json_decode($ReportSchedule->Settings, true);
@@ -57,7 +59,7 @@ class ReportController extends \BaseController {
             $layout = 'layout.main_only_sidebar';
         }*/
 
-        return View::make('report.create', compact('report','dimensions','measures','Columns','report_settings','report','disable','layout','schedule_settings','reports','ReportSchedule'));
+        return View::make('report.create', compact('report','dimensions','measures','Columns','report_settings','report','disable','layout','schedule_settings','reports','ReportSchedule','setting_rename','setting_ag'));
     }
 
     public function report_store(){
@@ -107,22 +109,31 @@ class ReportController extends \BaseController {
     }
 
     public function getdatagrid($id=0){
-        $data = Input::all();
+        $data = $data2 = Input::all();
         if($id>0){
             $report = Report::find($id);
             $data = json_decode($report->Settings,true);
             $filters = json_decode($data['filter_settings'],true);
 			$StartDate = Input::get('StartDate');
+			$EndDate = Input::get('EndDate');
             if(!empty($StartDate)) {
                 if (isset($filters['date'])) {
-                    $filters['date']['start_date'] = Input::get('StartDate');
-                    $filters['date']['end_date'] = Input::get('EndDate');
+                    $filters['date']['start_date'] = date('Y-m-d',strtotime($StartDate));
+                    $filters['date']['end_date'] = date('Y-m-d',strtotime($EndDate));
                 } else {
                     $filters['date']['wildcard_match_val'] = '';
-                    $filters['date']['start_date'] = Input::get('StartDate');
-                    $filters['date']['end_date'] = Input::get('EndDate');
+                    $filters['date']['start_date'] = date('Y-m-d',strtotime($StartDate));
+                    $filters['date']['end_date'] = date('Y-m-d',strtotime($EndDate));
                     $filters['date']['condition'] = 'none';
                     $filters['date']['top'] = 'none';
+                }
+                if(isset($data2['Time']) && $data2['Time'] == 'HOUR') {
+                    if (date('Y-m-d', strtotime($StartDate)) == date('Y-m-d', strtotime($EndDate))) {
+                        $filters['Hour']['Hour'] = range(date('H', strtotime($StartDate)), date('H', strtotime($EndDate)));
+                    } else {
+                        $filters['multiday_hour']['StartDate'] = range(date('H', strtotime($StartDate)), 23);
+                        $filters['multiday_hour']['EndDate'] = range(0, date('H', strtotime($EndDate)));
+                    }
                 }
             }
             $data['filter_settings'] = json_encode($filters);
@@ -170,7 +181,8 @@ class ReportController extends \BaseController {
         $all_data_list['Currency'] = Currency::getCurrencyDropdownIDList($CompanyID);
         $all_data_list['Tax'] = TaxRate::getTaxRateDropdownIDList($CompanyID);
         $all_data_list['Product'] = Product::getProductDropdownList($CompanyID);
-        $all_data_list['Account'] = Account::getAccountIDList();
+        $all_data_list['Account'] = Account::where(['Status'=>1,'CompanyID'=>$CompanyID,'AccountType'=>1,'VerificationStatus'=>Account::VERIFIED])->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
+        //$all_data_list['Account'] = Account::getAccountIDList();
         $all_data_list['AccountIP'] = GatewayAccount::getAccountIPList($CompanyID);
         $all_data_list['AccountCLI'] = GatewayAccount::getAccountCLIList($CompanyID);
         $all_data_list['Service'] = Service::getDropdownIDList($CompanyID);
@@ -195,9 +207,9 @@ class ReportController extends \BaseController {
                 $local_file = $temp_path . $file2;
                 file_put_contents($local_htmlfile, $table);
                 if (getenv('APP_OS') == 'Linux') {
-                    exec(base_path() . '/wkhtmltox/bin/wkhtmltopdf "' . $local_htmlfile . '" "' . $local_file . '"', $output);
+                    exec(base_path() . '/wkhtmltox/bin/wkhtmltopdf -O landscape "' . $local_htmlfile . '" "' . $local_file . '"', $output);
                 } else {
-                    exec(base_path() . '/wkhtmltopdf/bin/wkhtmltopdf.exe "' . $local_htmlfile . '" "' . $local_file . '"', $output);
+                    exec(base_path() . '/wkhtmltopdf/bin/wkhtmltopdf.exe -O landscape "' . $local_htmlfile . '" "' . $local_file . '"', $output);
                 }
                 download_file($local_file);
             }else if($Type == Report::PNG) {
@@ -238,6 +250,7 @@ class ReportController extends \BaseController {
         $Accountschema = array_keys(Report::$dimension['summary']['Customer']);
         if(in_array($ColName,$Accountschema) && $ColName != 'AccountID'){
             $accounts = Account::where(["AccountType" => 1, "CompanyID" => $CompanyID, "Status" => 1])
+				->whereNotNull($ColName)
                 ->select(array($ColName.' as 2',$ColName))
                 ->distinct()
                 ->orderBy($ColName);
@@ -340,5 +353,19 @@ class ReportController extends \BaseController {
         CronJob::create_system_report_alert_job($CompanyID,$Schedule);
         $response =  NeonAPI::request('report/delete_schedule/'.$id,$postdata,'put',false,false);
         return json_response_api($response);
+    }
+    public function schedule_download($index){
+        $CompanyID = User::get_companyID();
+        $explods_array = explode('-',$index);
+
+        $AttachmentPaths = AccountEmailLog::where("AccountEmailLogID", $explods_array[0])->pluck('AttachmentPaths');
+        $OutputFilePath = isset(explode(',',$AttachmentPaths)[$explods_array[1]])?explode(',',$AttachmentPaths)[$explods_array[1]]:'';
+        $FilePath =  AmazonS3::preSignedUrl($OutputFilePath,$CompanyID);
+        if(file_exists($FilePath)){
+            download_file($FilePath);
+        }elseif(is_amazon($CompanyID) == true){
+            header('Location: '.$FilePath);
+        }
+        exit;
     }
 }

@@ -57,11 +57,21 @@ $privacy = EmailTemplate::$privacy;
                                 </div>
                             </div>
                             <div class="form-group">
+                                <label for="field-1" class="col-sm-2 control-label">Round Charged CDR (123.45)*</label>
+                                <div class="col-sm-4">
+                                    <div class="input-spinner">
+                                        <button type="button" class="btn btn-default">-</button>
+                                        {{Form::text('RoundChargesCDR', ( isset($BillingClass->RoundChargesCDR)?$BillingClass->RoundChargesCDR:'2' ),array("class"=>"form-control", "maxlength"=>"1", "data-min"=>0,"data-max"=>6,"Placeholder"=>"Add Numeric value" , "data-mask"=>"decimal"))}}
+                                        <button type="button" class="btn btn-default">+</button>
+                                    </div>
+                                </div>
                                 <label for="field-1" class="col-sm-2 control-label">Invoice Template*</label>
                                 <div class="col-sm-4">
                                     {{Form::SelectControl('invoice_template',1,( isset($BillingClass->InvoiceTemplateID)?$BillingClass->InvoiceTemplateID:'' ))}}
-                                    <!--{Form::select('InvoiceTemplateID', $InvoiceTemplates, ( isset($BillingClass->InvoiceTemplateID)?$BillingClass->InvoiceTemplateID:'' ),array('id'=>'billing_type',"class"=>"select2 select2Add small"))}}-->
+                                            <!--{Form::select('InvoiceTemplateID', $InvoiceTemplates, ( isset($BillingClass->InvoiceTemplateID)?$BillingClass->InvoiceTemplateID:'' ),array('id'=>'billing_type',"class"=>"select2 select2Add small"))}}-->
                                 </div>
+                            </div>
+                            <div class="form-group">
                                 <label for="field-1" class="col-sm-2 control-label">Send Invoice via Email*</label>
                                 <div class="col-sm-4">
                                     {{Form::select('SendInvoiceSetting', BillingClass::$SendInvoiceSetting, ( isset($BillingClass->SendInvoiceSetting)?$BillingClass->SendInvoiceSetting:'' ),array("class"=>"form-control select2"))}}

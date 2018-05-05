@@ -66,11 +66,11 @@
                     {{ Form::select('TimeZone',$timezones,'', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
-                    @if(User::is_admin())
+                    @if(User::is('AccountManager'))
+                        <input type="hidden" name="UserID" value="{{$UserID}}">
+                    @else
                         <label for="field-1" class="control-label">Owner</label>
                         {{Form::select('UserID',$account_owners,Input::get('account_owners'),array("class"=>"select2"))}}
-                    @else
-                        <input type="hidden" name="UserID" value="{{$UserID}}">
                     @endif
                 </div>
                 <div class="form-group">

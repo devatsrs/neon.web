@@ -53,6 +53,23 @@ class GatewayController extends \BaseController {
     {
         $data = Input::all();
         $companyID = User::get_companyID();
+        if (Input::hasFile('key')) {
+            //$upload_path = CompanyConfiguration::get('UPLOAD_PATH');
+            $key = Input::file('key');
+            $ext = $key->getClientOriginalExtension();
+            $file_name_without_ext = GUID::generate();
+            $file_name = $file_name_without_ext . '.' . $key->getClientOriginalExtension();
+
+            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['GATEWAY_KEY']) ;
+            $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+            $key->move($destinationPath, $file_name);
+
+            if(!AmazonS3::upload($destinationPath.$file_name,$amazonPath)){
+                return Response::json(array("status" => "failed", "message" => "Failed to upload."));
+            }
+            $file_name = $amazonPath.$file_name;
+            $data['key'] = $file_name;
+        }
         $data['CompanyID'] = $companyID;
         $rules = array(
             'Title' => 'required|unique:tblCompanyGateway,Title,NULL,CompanyGatewayID,CompanyID,'.$data['CompanyID'],
@@ -137,6 +154,38 @@ class GatewayController extends \BaseController {
             $data = Input::all();
             $companyID = User::get_companyID();
             $data['CompanyID'] = $companyID;
+            //$file_key = Input::file('key');
+            if (Input::hasFile('key')) {
+                //$upload_path = CompanyConfiguration::get('UPLOAD_PATH');
+                $key = Input::file('key');
+                $ext = $key->getClientOriginalExtension();
+                $file_name_without_ext = GUID::generate();
+                $file_name = $file_name_without_ext . '.' . $key->getClientOriginalExtension();
+
+                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['GATEWAY_KEY']) ;
+                $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+                $key->move($destinationPath, $file_name);
+
+                if(!AmazonS3::upload($destinationPath.$file_name,$amazonPath,0)){
+                    return Response::json(array("status" => "failed", "message" => "Failed to upload."));
+                }
+                $file_name = $amazonPath.$file_name;
+                $data['key'] = $file_name;
+                $settings = json_decode($CompanyGateway->Settings,true);
+                //Delete old picture
+                //echo "<pre>";print_R($settings);exit;
+                if(!empty($settings['key'])){
+                    AmazonS3::delete($settings['key'],$companyID);
+                }
+            }
+            else
+            {
+                if(isset($data['oldkey']))
+                    $data['key'] = $data['oldkey'];
+                else
+                    $data['key'] = '';
+            }
+
             $rules = array(
                 'Title' => 'required|unique:tblCompanyGateway,Title,'.$id.',CompanyGatewayID,CompanyID,'.$data['CompanyID'],
                 'GatewayID'=>'required',
@@ -254,6 +303,7 @@ class GatewayController extends \BaseController {
             $GatewayName = Gateway::getGatewayName($data['GatewayID']);
             $Accounts   = Account::getAccountIDList();
             $Accounts   = array_diff($Accounts,array('Select'));
+            //echo "<pre>";print_R($gatewayconfig);exit;
             return View::make('gateway.ajax_config_html', compact('gatewayconfig','gatewayconfigval','GatewayName','Accounts'));
         }
         return '';

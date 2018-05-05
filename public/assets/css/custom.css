@@ -3173,3 +3173,29 @@ button.btn.btn-xs.small_icons{
     overflow-y: auto;
 
 }
+select#user_language option {
+    color: black;
+}
+.lang_flag{
+    width: 30px;
+    margin-right: 10px;
+}
+.lang_div{
+    padding: 5px 0;
+}
+.select2-chosen .lang_div {
+    padding: 0;
+}
+.btn-grey {
+    background: grey;
+    border-color: grey;
+    color: #fff;
+}
+.btn-grey:hover {
+    background: #615e5e;
+    border-color: #615e5e;
+    color: #fff;
+}
+.child-row {
+    background-color: #f8f8f8;
+}

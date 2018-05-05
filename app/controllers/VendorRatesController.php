@@ -15,6 +15,7 @@ class VendorRatesController extends \BaseController
     public function search_ajax_datagrid($id) {
 
         $data = Input::all();
+
         $data['iDisplayStart'] +=1;
         $data['Country']=$data['Country']!= 'All'?$data['Country']:'null';
         $data['Code'] = $data['Code'] != ''?"'".$data['Code']."'":'null';
@@ -25,10 +26,36 @@ class VendorRatesController extends \BaseController
         $sort_column = $columns[$data['iSortCol_0']];
         $companyID = User::get_companyID();
 
-        $query = "call prc_GetVendorRates (".$companyID.",".$id.",".$data['Trunk'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
+        if(!empty($data['DiscontinuedRates'])) {
+            $query = "call prc_getDiscontinuedVendorRateGrid (" . $companyID . "," . $id . "," . $data['Trunk'] . "," . $data['Country'] . "," . $data['Code'] . "," . $data['Description'] . "," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "',0)";
+        } else {
+            $query = "call prc_GetVendorRates (" . $companyID . "," . $id . "," . $data['Trunk'] . "," . $data['Country'] . "," . $data['Code'] . "," . $data['Description'] . ",'" . $data['Effective'] . "'," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "',0)";
+        }
+        //Log::info($query);
 
         return DataTableSql::of($query)->make();
-        
+
+    }
+
+    public function search_ajax_datagrid_archive_rates($AccountID) {
+
+        $data = Input::all();
+        $companyID = User::get_companyID();
+
+        if(!empty($data['Codes'])) {
+            $Codes = $data['Codes'];
+            $query = 'call prc_GetVendorRatesArchiveGrid ('.$companyID.','.$AccountID.',"'.$Codes.'")';
+            //Log::info($query);
+            $response['status']     = "success";
+            $response['message']    = "Data fetched successfully!";
+            $response['data']       = DB::select($query);
+        } else {
+            $response['status']     = "success";
+            $response['message']    = "Data fetched successfully!";
+            $response['data']       = [];
+        }
+
+        return json_encode($response);
     }
 
     public function index($id) {
@@ -47,7 +74,7 @@ class VendorRatesController extends \BaseController
     
     public function upload($id) {
 //            $uploadtemplate = VendorFileUploadTemplate::getTemplateIDList();
-            $arrData = FileUploadTemplate::where(['CompanyID'=>User::get_companyID(),'Type'=>FileUploadTemplate::TEMPLATE_VENDOR_RATE])->orderBy('Title')->get(['Title', 'FileUploadTemplateID', 'Options'])->toArray();
+            $arrData = FileUploadTemplate::where(['CompanyID'=>User::get_companyID(),'Type'=>FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_VENDOR_RATE)])->orderBy('Title')->get(['Title', 'FileUploadTemplateID', 'Options'])->toArray();
 
             $uploadtemplate=[];
             $uploadtemplate[]=[
@@ -146,30 +173,38 @@ class VendorRatesController extends \BaseController
             echo json_encode(array("status" => "failed", "message" => "Please upload excel/csv file <5MB."));
         }
     }
-    
+
     public function download($id) {
             $Account = Account::find($id);
+            $Vendors = Account::getOnlyVendorIDList();
+            unset($Vendors[$id]);
             $trunks = VendorTrunk::getTrunkDropdownIDList($id);
             if(count($trunks) == 0){
                 return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
             }
             $rate_sheet_formates = $this->rate_sheet_formates;
             $downloadtype = [''=>'Select','xlsx'=>'EXCEL','csv'=>'CSV'];
-            return View::make('vendorrates.download', compact('id', 'trunks', 'rate_sheet_formates','Account','downloadtype'));
+
+            return View::make('vendorrates.download', compact('id', 'trunks', 'rate_sheet_formates','Account','downloadtype','Vendors'));
     }
     
     public function process_download($id) {
         if (Request::ajax()) {
             
             $data = Input::all();
-            
+
+            $message = array();
             $rules = array( 'isMerge' => 'required', 'Trunks' => 'required', 'Format' => 'required','filetype' => 'required' );
             if (!isset($data['isMerge'])) {
                 $data['isMerge'] = 0;
             }
+            if($data['Effective'] == 'CustomDate') {
+                $rules['CustomDate'] = "required|date|date_format:Y-m-d|after:".date('Y-m-d', strtotime('-1 day', strtotime(date('Y-m-d'))));
+                $message['CustomDate.after'] = "Custom Date must be today or future date, you can not download past date's rate";
+            }
 
 
-            $validator = Validator::make($data, $rules);
+            $validator = Validator::make($data, $rules, $message);
             
             if ($validator->fails()) {
                 return json_validator_response($validator);
@@ -179,24 +214,29 @@ class VendorRatesController extends \BaseController
                 unset($data['filetype']);
             }
 
-            
-            //Inserting Job Log
-            try {
-                DB::beginTransaction();
-                $data["AccountID"] = $id;
-                $result = Job::logJob("VD", $data);
-                
-                if ($result['status'] != "success") {
-                    DB::rollback();
-                    return json_encode(["status" => "failed", "message" => $result['message']]);
+            $data['vendor'][] = $id;
+            foreach($data['vendor'] as $vendorID) {
+                if ((int)$vendorID) {
+                    //Inserting Job Log
+                    try {
+                        DB::beginTransaction();
+                        $data["AccountID"] = $vendorID;
+                        $result = Job::logJob("VD", $data);
+
+                        if ($result['status'] != "success") {
+                            DB::rollback();
+                            $json_result = json_encode(["status" => "failed", "message" => $result['message']]);
+                        }
+                        DB::commit();
+                        $json_result = json_encode(["status" => "success", "message" => "File is added to queue for processing. You will be notified once file creation is completed. "]);
+                    }
+                    catch(Exception $ex) {
+                        DB::rollback();
+                        $json_result = json_encode(["status" => "failed", "message" => " Exception: " . $ex->getMessage() ]);
+                    }
                 }
-                DB::commit();
-                return json_encode(["status" => "success", "message" => "File is added to queue for processing. You will be notified once file creation is completed. "]);
             }
-            catch(Exception $ex) {
-                DB::rollback();
-                return json_encode(["status" => "failed", "message" => " Exception: " . $ex->getMessage() ]);
-            }
+            echo $json_result;
         } else {
             echo json_encode(array("status" => "failed", "message" => "Access not allowed"));
         }
@@ -220,7 +260,9 @@ class VendorRatesController extends \BaseController
                                    ->whereRaw("(tblRateSheetHistory.Type = 'VU' OR tblRateSheetHistory.Type = 'VD') ")
                                    ->select(array('tblJob.Title', 
                                                 'tblRateSheetHistory.created_at as created_date','tblRateSheetHistory.CreatedBy',
-                                                'tblRateSheetHistory.RateSheetHistoryID','tblRateSheetHistory.Type','tblJob.JobID','tblJob.OutputFilePath'));
+                                                DB::raw('(CASE WHEN tblRateSheetHistory.Type = "VU" THEN "Upload" ELSE "Download" END) AS Type1'),
+                                                'tblRateSheetHistory.RateSheetHistoryID','tblRateSheetHistory.Type','tblJob.JobID','tblJob.OutputFilePath'))
+                                    ->orderBy('tblRateSheetHistory.created_at', 'desc');
         
         return Datatables::of($RateSheetHistory)->make();
     }
@@ -330,110 +372,157 @@ class VendorRatesController extends \BaseController
 
     }
 
-    // Delete single and selected vendor rate
-    public function bulk_clear_rate($id){
-        $data = Input::all();
-        $rules = array('VendorRateID' => 'required', 'Trunk' => 'required',);
+    public function  update_vendor_rate($id){
+        if ($id > 0) {
+            $data       = Input::all();//echo "<pre>";print_r($data);exit();
+            $username   = User::get_user_full_name();
+            $CompanyID  = User::get_companyID();
+            $error      = 0;
 
-        $validator = Validator::make($data, $rules);
+            $EffectiveDate = $EndDate = $Rate = $Interval1 = $IntervalN = $ConnectionFee = 'NULL';
 
-        if ($validator->fails()) {
-            return json_validator_response($validator);
-            //return Redirect::back()->withInput(Input::all())->withErrors($validator);
-        }
+            if(!empty($data['updateEffectiveDate']) || !empty($data['updateRate']) || !empty($data['updateInterval1']) || !empty($data['updateIntervalN']) || !empty($data['updateConnectionFee']) || !empty($data['EndDate'])) {
+                if(!empty($data['updateEffectiveDate'])) {
+                    if(!empty($data['EffectiveDate'])) {
+                        $EffectiveDate = "'".$data['EffectiveDate']."'";
+                    } else {
+                        $error=1;
+                    }
+                }
+                if(!empty($data['updateEndDate'])) {
+                    if(!empty($data['EndDate'])) {
+                        $EndDate = "'".$data['EndDate']."'";
+                    } else if (empty($data['updateType'])) {
+                        $error=1;
+                    }
+                }
+                if(!empty($data['updateRate'])) {
+                    if(!empty($data['Rate'])) {
+                        $Rate = "'".floatval($data['Rate'])."'";
+                    } else {
+                        $error=1;
+                    }
+                }
+                if(!empty($data['updateInterval1'])) {
+                    if(!empty($data['Interval1'])) {
+                        $Interval1 = "'".$data['Interval1']."'";
+                    } else {
+                        $error=1;
+                    }
+                }
+                if(!empty($data['updateIntervalN'])) {
+                    if(!empty($data['IntervalN'])) {
+                        $IntervalN = "'".$data['IntervalN']."'";
+                    } else {
+                        $error=1;
+                    }
+                }
+                if(!empty($data['updateConnectionFee'])) {
+                    if(!empty($data['ConnectionFee'])) {
+                        $ConnectionFee = "'".$data['ConnectionFee']."'";
+                    } else if (empty($data['updateType'])) {
+                        $error=1;
+                    }
+                }
+                if(isset($error) && $error==1) {
+                    return Response::json(array("status" => "failed", "message" => "Please Select Checked Field Data"));
+                }
 
-        $CompanyID = User::get_companyID();
-
-        $results = DB::statement("call prc_VendorBulkRateDelete ('".$CompanyID."','".$id."','".$data['Trunk']."','".$data['VendorRateID']."',NULL,NULL,NULL,NULL,2)");
-        if ($results) {
-            return Response::json(array("status" => "success", "message" => "Vendors Rate Successfully Deleted"));
-        } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Deleting Vendor Rate."));
-        }
-        /*
-        $VendorIDs = explode(",", $data['VendorRateID']);
-        if (VendorRate::whereIn('VendorRateID',$VendorIDs)->delete()) {
-            return Response::json(array("status" => "success", "message" => "Vendor Rates Successfully Deleted."));
-        } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Deleting Vendor Rates."));
-        }*/
-
-    }
-    public function bulk_update($id){
-        $data = Input::all();
-
-        $rules = array(
-            'VendorRateID' => 'required',
-            'EffectiveDate' => 'required',
-            'Rate' => 'required|numeric',
-            'Interval1' => 'required|numeric',
-            'IntervalN' => 'required|numeric',
-        );
-
-        $validator = Validator::make($data, $rules);
-
-        if ($validator->fails()) {
-            //return Redirect::back()->withInput(Input::all())->withErrors($validator);
-            return json_validator_response($validator);
-        }
-        $username = User::get_user_full_name();
-        $VendorIDs = explode(",", $data['VendorRateID']);
-        //'Interval1'=> $data['Interval1'],'IntervalN'=> $data['IntervalN'],
-        if (VendorRate::whereIn('VendorRateID',$VendorIDs)->update(['Interval1'=> $data['Interval1'],'IntervalN'=> $data['IntervalN'], 'updated_by'=>$username,'ConnectionFee'=>floatval($data['ConnectionFee']), 'EffectiveDate' => $data['EffectiveDate'],'Rate'=>$data['Rate']])) {
-            return Response::json(array("status" => "success", "message" => "Vendor Rates Successfully Updated."));
-        } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Updating Vendor Rates."));
-        }
-
-    }
-    public function  bulk_update_new($id){
-        $data = Input::all();
-        $company_id = User::get_companyID();
-        $data['vendor'] = $id;
-        $rules = array('EffectiveDate' => 'required','Rate' => 'required|numeric', 'Trunk' => 'required|numeric');//'Interval1' => 'required|numeric','IntervalN' => 'required|numeric'
-        $validator = Validator::make($data, $rules);
-        if ($validator->fails()) {
-            return json_validator_response($validator);
-        }
-        $data['Country'] = $data['Country'] == 'All'?'NULL':$data['Country'];
-        $data['Code'] =  $data['Code'] == ''?'NULL':"'".$data['Code']."'";
-        $data['Description'] = $data['Description'] == ''?'NULL':"'".$data['Description']."'";
-        $username = User::get_user_full_name();
-        //Inserting Job Log
-        $results = DB::statement("call prc_VendorBulkRateUpdate ('".$data['vendor']."',".$data['Trunk'].",".$data['Code'].",".$data['Description'].",".$data['Country'].",".$company_id.",".$data['Rate'].",'".$data['EffectiveDate']."','".floatval($data['ConnectionFee'])."',".intval($data['Interval1']).",".intval($data['IntervalN']).",'".$username."','".$data['Effective']."',1)");
-
-        if ($results) {
-            return Response::json(array("status" => "success", "message" => "Vendors Rate Successfully Updated"));
-        } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Updating Vendor Rate."));
-        }
-    }
-
-    // Delete All vendor rate by criteria
-    public function clear_all_vendorrate($id){
-        $data = Input::all();
-        $rules = array('Trunk' => 'required',);
-
-        $validator = Validator::make($data, $rules);
-        if ($validator->fails()) {
-            return json_validator_response($validator);
-        }
-
-        $CompanyID = User::get_companyID();
-        if(!empty($data['criteria'])){
-            $criteria = json_decode($data['criteria'],true);
-            $criteria['Country'] = $criteria['Country'] == 'All'?'NULL':$criteria['Country'];
-            $criteria['Code'] =  $criteria['Code'] == ''?'NULL':"'".$criteria['Code']."'";
-            $criteria['Description'] = $criteria['Description'] == ''?'NULL':"'".$criteria['Description']."'";
-            $username = User::get_user_full_name();
-            $results = DB::statement("call prc_VendorBulkRateDelete ('".$CompanyID."','".$id."','".$data['Trunk']."',NULL,".$criteria['Code'].",".$criteria['Description'].",".$criteria['Country'].",'".$criteria['Effective']."',1)");
-            if ($results) {
-                return Response::json(array("status" => "success", "message" => "Vendor Rates Successfully Deleted."));
             } else {
-                return Response::json(array("status" => "failed", "message" => "Problem Deleting Vendor Rate."));
+                return Response::json(array("status" => "failed", "message" => "No Rate selected to Update."));
             }
+
+            try {
+                DB::beginTransaction();
+                $p_criteria = 0;
+                $action     = 1; //update action
+                $criteria   = json_decode($data['criteria'], true);
+
+                $criteria['Code']           = !empty($criteria['Code']) && $criteria['Code'] != '' ? "'" . $criteria['Code'] . "'" : 'NULL';
+                $criteria['Description']    = !empty($criteria['Description']) && $criteria['Description'] != '' ? "'" . $criteria['Description'] . "'" : 'NULL';
+                $criteria['Country']        = !empty($criteria['Country']) && $criteria['Country'] != '' && $criteria['Country'] != 'All' ? "'" . $criteria['Country'] . "'" : 'NULL';
+                $criteria['Effective']      = !empty($criteria['Effective']) && $criteria['Effective'] != '' ? "'" . $criteria['Effective'] . "'" : 'NULL';
+                $criteria['TrunkID']        = !empty($criteria['Trunk']) && $criteria['Trunk'] != '' ? "'" . $criteria['Trunk'] . "'" : 'NULL';
+
+                if(empty($criteria['TrunkID']) || $criteria['TrunkID'] == 'NULL') {
+                    $criteria['TrunkID'] = $data['TrunkID'];
+                }
+
+                $AccountID                  = $id;
+                $VendorRateID               = $data['VendorRateID'];
+
+                if (empty($data['VendorRateID']) && !empty($data['criteria'])) {
+                    $p_criteria = 1;
+                }
+
+                $query = "call prc_VendorRateUpdateDelete (" . $CompanyID . "," . $AccountID . ",'" . $VendorRateID . "'," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['Effective'] . "," . $criteria['TrunkID'] . ",'" . $username . "',".$p_criteria.",".$action.")";
+                Log::info($query);
+                $results = DB::statement($query);
+
+                if ($results) {
+                    DB::commit();
+                    return Response::json(array("status" => "success", "message" => "Rates Successfully Updated"));
+                } else {
+                    return Response::json(array("status" => "failed", "message" => "Problem Updating Vendor Rate."));
+                }
+            } catch (Exception $ex) {
+                DB::rollback();
+                return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+            }
+
+        } else {
+            return Response::json(array("status" => "failed", "message" => "No RateTable Found."));
         }
     }
+
+    //delete rate table rates
+    public function clear_rate($id) {
+        if ($id > 0) {
+            $data           = Input::all();//echo "<pre>";print_r($data);exit();
+            $CompanyID      = User::get_companyID();
+            $username       = User::get_user_full_name();
+            $EffectiveDate  = $EndDate = $Rate = $Interval1 = $IntervalN = $ConnectionFee = 'NULL';
+            try {
+                DB::beginTransaction();
+                $p_criteria = 0;
+                $action     = 2; //delete action
+                $criteria   = json_decode($data['criteria'], true);
+
+                $criteria['Code']           = !empty($criteria['Code']) && $criteria['Code'] != '' ? "'" . $criteria['Code'] . "'" : 'NULL';
+                $criteria['Description']    = !empty($criteria['Description']) && $criteria['Description'] != '' ? "'" . $criteria['Description'] . "'" : 'NULL';
+                $criteria['Country']        = !empty($criteria['Country']) && $criteria['Country'] != '' && $criteria['Country'] != 'All' ? "'" . $criteria['Country'] . "'" : 'NULL';
+                $criteria['Effective']      = !empty($criteria['Effective']) && $criteria['Effective'] != '' ? "'" . $criteria['Effective'] . "'" : 'NULL';
+                $criteria['TrunkID']        = !empty($criteria['Trunk']) && $criteria['Trunk'] != '' ? "'" . $criteria['Trunk'] . "'" : 'NULL';
+
+                if(empty($criteria['TrunkID']) || $criteria['TrunkID'] == 'NULL') {
+                    $criteria['TrunkID'] = $data['TrunkID'];
+                }
+
+                $AccountID                  = $id;
+                $VendorRateID               = $data['VendorRateID'];
+
+                if (empty($data['VendorRateID']) && !empty($data['criteria'])) {
+                    $p_criteria = 1;
+                }
+
+                $query = "call prc_VendorRateUpdateDelete (" . $CompanyID . "," . $AccountID . ",'" . $VendorRateID . "'," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['Effective'] . "," . $criteria['TrunkID'] . ",'" . $username . "',".$p_criteria.",".$action.")";
+                Log::info($query);
+                $results = DB::statement($query);
+
+                if ($results) {
+                    DB::commit();
+                    return Response::json(array("status" => "success", "message" => "Rates Successfully Deleted"));
+                } else {
+                    return Response::json(array("status" => "failed", "message" => "Problem Deleting Vendor Rates."));
+                }
+            } catch (Exception $ex) {
+                DB::rollback();
+                return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+            }
+
+        }
+    }
+
     public function settings($id){
             $codedecklist = BaseCodeDeck::getCodedeckIDList();
             $trunks = Trunk::getTrunkCacheObj();
@@ -499,6 +588,7 @@ class VendorRatesController extends \BaseController
     //Delete vendor rate when codedeck change in setting page
     public function  delete_vendorrates($id){
             $data = Input::all();
+            $username = User::get_user_full_name();
             $rules = array('Trunkid' => 'required');
             $validator = Validator::make($data, $rules);
             if ($validator->fails()) {
@@ -509,7 +599,7 @@ class VendorRatesController extends \BaseController
             }
 
             $CompanyID = User::get_companyID();
-            $results = DB::statement("call prc_VendorBulkRateDelete ('".$CompanyID."','".$id."','".$data['Trunkid']."',NULL,NULL,NULL,NULL,NULL,2)");
+            $results = DB::statement("call prc_VendorBulkRateDelete ('".$CompanyID."','".$id."','".$data['Trunkid']."',NULL,NULL,NULL,NULL,NULL,'".$username."',2)");
             if ($results) {
                 return Response::json(array("status" => "success", "message" => "Vendor Rates Successfully Deleted."));
             } else {
@@ -726,8 +816,8 @@ class VendorRatesController extends \BaseController
             if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
                 return Response::json(array("status" => "failed", "message" => "Failed to upload vendor rates file."));
             }
-            $option["skipRows"] = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
         }
+        $option["skipRows"] = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
 
         /*$file_name = basename($data['TemplateFile']);
 
@@ -763,7 +853,7 @@ class VendorRatesController extends \BaseController
         $save = array();
         $option["option"]=  $data['option'];
         $option["selection"] = $data['selection'];
-        $save['Options'] = json_encode($option);
+        $save['Options'] = str_replace('Skip loading','',json_encode($option));
         $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
         $save['full_path'] = $fullPath;
         $save["AccountID"] = $id;
@@ -1038,8 +1128,8 @@ class VendorRatesController extends \BaseController
             if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
                 return Response::json(array("status" => "failed", "message" => "Failed to upload vendor rates file."));
             }
-            $option["skipRows"] = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
         }
+        $option["skipRows"] = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
 
         /*$file_name = basename($data['TemplateFile']);
 
@@ -1076,7 +1166,7 @@ class VendorRatesController extends \BaseController
         $save = array();
         $option["option"]=  $data['option'];
         $option["selection"] = $data['selection'];
-        $save['Options'] = json_encode($option);
+        $save['Options'] = str_replace('Skip loading','',json_encode($option));
         $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
         $save['full_path'] = $fullPath;
         $save["AccountID"] = $id;
@@ -1348,7 +1438,7 @@ class VendorRatesController extends \BaseController
                 Log::info($JobStatusMessage);
                 Log::info(count($JobStatusMessage));
 
-                if(!empty($error) || count($JobStatusMessage) > 1){
+                if(!empty($error) || count($JobStatusMessage) >= 1){
                     $prc_error = array();
                     foreach ($JobStatusMessage as $JobStatusMessage1) {
                         $prc_error[] = $JobStatusMessage1['Message'];
@@ -1360,7 +1450,7 @@ class VendorRatesController extends \BaseController
                     // if duplicate code exit job will fail
                     if($duplicatecode == 1){
                         $error = array_merge($prc_error,$error);
-                        unset($error[0]);
+                        //unset($error[0]);
                         $jobdata['message'] = implode('<br>',fix_jobstatus_meassage($error));
                         $jobdata['JobStatusID'] = DB::table('tblJobStatus')->where('Code','F')->pluck('JobStatusID');
                     }else{

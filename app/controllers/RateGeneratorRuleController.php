@@ -54,6 +54,7 @@ class RateGeneratorRuleController extends \BaseController {
                 'MinRate',
                 'MaxRate',
                 'AddMargin',
+                'FixedValue',
                 'RateRuleMarginId',
             ))->orderBy('MinRate', 'ASC');
             return Datatables::of($rategenerator_margins)->make();
@@ -65,7 +66,11 @@ class RateGeneratorRuleController extends \BaseController {
     // CreateCode
     public function store_code($id) {
         if ($id > 0) {
+            $last_max_order =  RateRule::where(["RateGeneratorId" => $id])->max('Order');
+
             $data = Input::all();
+            $data['Order'] = $last_max_order+1;
+           // print_R($data);exit;
             $data ['CreatedBy'] = User::get_user_full_name();
             $data ['RateGeneratorId'] = $id;
             $rules = array(
@@ -198,14 +203,23 @@ class RateGeneratorRuleController extends \BaseController {
             $data ['RateRuleId'] = $RateRuleId;
             $data ['MinRate'] = doubleval($data ['MinRate']);
             $data ['MaxRate'] = doubleval($data ['MaxRate']);
+            $data ['FixedValue'] = doubleval($data ['FixedValue']);
             $rules = array(
                 'MinRate' => 'numeric|unique:tblRateRuleMargin,MinRate,'.$RateRuleMarginId.',RateRuleMarginId,RateRuleId,'.$RateRuleId,
                 'MaxRate' => 'numeric|unique:tblRateRuleMargin,MaxRate,'.$RateRuleMarginId.',RateRuleMarginId,RateRuleId,'.$RateRuleId,
-                'AddMargin' => 'required',
+                'AddMargin' => 'required_without:FixedValue',
+                'FixedValue' => 'required_without:AddMargin',
                 'RateRuleId' => 'required',
                 'RateRuleMarginId' => 'required',
                 'ModifiedBy' => 'required'
             );
+
+            if(!empty($data['AddMargin']) && !empty($data['FixedValue'])) {
+                return Response::json(array(
+                    "status" => "failed",
+                    "message" => "Add Margin or Fixed Rate, Both are not allowed"
+                ));
+            }
 
             $minRateCount = RateRuleMargin::whereBetween('MinRate', array($data ['MinRate'], $data ['MaxRate']))
                 ->where(['RateRuleId'=>$RateRuleId])
@@ -265,13 +279,23 @@ class RateGeneratorRuleController extends \BaseController {
             $data ['RateRuleId'] = $RateRuleId;
             $data ['MinRate'] = doubleval($data ['MinRate']);
             $data ['MaxRate'] = doubleval($data ['MaxRate']);
+            $data ['FixedValue'] = doubleval($data ['FixedValue']);
             $rules = array(
                 'MinRate' => 'numeric|unique:tblRateRuleMargin,MinRate,NULL,RateRuleMarginId,RateRuleId,'.$RateRuleId,
                 'MaxRate' => 'numeric|unique:tblRateRuleMargin,MaxRate,NULL,RateRuleMarginId,RateRuleId,'.$RateRuleId,
-                'AddMargin' => 'required',
+                'AddMargin' => 'required_without:FixedValue',
+                'FixedValue' => 'required_without:AddMargin',
                 'RateRuleId' => 'required',
                 'CreatedBy' => 'required'
             );
+
+            if(!empty($data['AddMargin']) && !empty($data['FixedValue'])) {
+                return Response::json(array(
+                    "status" => "failed",
+                    "message" => "Add Margin or Fixed Rate, Both are not allowed"
+                ));
+            }
+
 
             $minRateCount = RateRuleMargin::whereBetween('MinRate', array(doubleval($data['MinRate']), doubleval($data['MaxRate'])))
                 ->where(['RateRuleId'=>$RateRuleId])
@@ -357,5 +381,36 @@ class RateGeneratorRuleController extends \BaseController {
                 // return Redirect::back()->with('error_message', "Problem Deleting RateGenerator Rule.");
             }
         }
+    }
+
+    //clone rule
+    public function clone_rule($id, $RateRuleID) {
+
+        if ($id > 0 && $RateRuleID > 0) {
+
+            $CreatedBy = User::get_user_full_name();
+
+            $query = "call prc_CloneRateRuleInRateGenerator (?,?)";
+
+            $NewRateRuleObj = DB::select($query,array($RateRuleID,$CreatedBy));
+
+            if(isset($NewRateRuleObj[0]->RateRuleID)  ) {
+                $RateRuleID = $NewRateRuleObj[0]->RateRuleID;
+
+                return json_encode([
+                    "status" => "success",
+                    "message" => "RateGenerator Rule Successfully Cloned",
+                    "RateRuleID" => $RateRuleID
+                ]);
+            }
+
+        }
+
+        return json_encode([
+            "status" => "failed",
+            "message" => "Problem Cloning RateGenerator Rule"
+        ]);
+
+
     }
 }

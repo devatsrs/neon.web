@@ -28,7 +28,7 @@
   <div class="mail-body">
     <div class="mail-header"> 
       <!-- title -->
-      <div class="mail-title">{{$ticketdata->Subject}} #{{$ticketdata->TicketID}}</div>
+        <div class="mail-title">{{imap_mime_header_decode($ticketdata->Subject)[0]->text}} #{{$ticketdata->TicketID}}</div>
       <div class="mail-date">
         To: {{$ticketdata->EmailTo}} <br>
         From: <a class="" href="{{$Requester['URL']}}">{{$Requester['Title']}}</a> ({{$Requester['Email']}})<br>
@@ -50,7 +50,7 @@
       <div class="panel-heading panel-heading-convesation">        
           <div class="panel-title col-md-10" ><span><?php
 		  if($TicketConversationData->EmailCall==Messages::Received){
-		   ?>From <?php if(!empty($TicketConversationData->EmailfromName)){ echo $TicketConversationData->EmailfromName." (".$TicketConversationData->Emailfrom.")"; ?> <?php }else{ ?> <?php echo $TicketConversationData->Emailfrom; } ?><br>to (<?php echo $TicketConversationData->EmailTo; ?>)
+		   ?>From <?php if(!empty($TicketConversationData->EmailfromName)){ echo imap_mime_header_decode($TicketConversationData->EmailfromName)[0]->text." (".$TicketConversationData->Emailfrom.")"; ?> <?php }else{ ?> <?php echo $TicketConversationData->Emailfrom; } ?><br>to (<?php echo $TicketConversationData->EmailTo; ?>)
 		 <?php }elseif($TicketConversationData->EmailCall==Messages::Sent){ echo $TicketConversationData->CreatedBy; ?> (<?php echo $TicketConversationData->Emailfrom; ?>) replied<br>to (<?php echo $TicketConversationData->EmailTo; ?>) <?php } ?></span>
           
           <?php if(!empty($TicketConversationData->EmailCc)){ ?><br>cc:  <?php echo str_replace(',',', ',$TicketConversationData->EmailCc); ?> <?php } ?>
@@ -218,7 +218,7 @@
                   <label for="field-1" class="col-sm-3 control-label">Contact Owner</label>
                   <div class="col-sm-9">
                     <?php
-                                $selected_owner = $Requester['Contact'];
+                                $selected_owner = $Requester['Owner'];
                             ?>
                     <select name="Owner" class="select2" data-allow-clear="true" data-placeholder="Account Owner...">
                       <option></option>
@@ -358,6 +358,7 @@ var max_file_size_txt 	=	    '{{$max_file_size}}';
 var max_file_size	  	=	    '{{str_replace("M","",$max_file_size)}}';
 var emailFileListReply 	=		[];
 var CloseStatus			=		'{{$CloseStatus}}';
+var ticketPreMSG        =       '';
 $(document).ready(function(e) {
     var lightboxhtml = $('<a href="" data-type="image" data-toggle="lightbox" data-title="" data-footer=""></a>');
     $(".mail-body img").each(function(i){
@@ -406,6 +407,7 @@ $(document).ready(function(e) {
 			success: function(response){
 				$('#EmailAction-model .modal-content').html('');
 				$('#EmailAction-model .modal-content').html(response);				
+                ticketPreMSG=$('#EmailAction-model .modal-content').find('[name=Message]').val();
 					var mod =  $(document).find('.EmailAction_box');
 					$('#EmailAction-model').modal('show');
 
@@ -742,8 +744,38 @@ $(document).ready(function(e) {
 			$('.change_duetime').click(function(e) {
                 $('.change_due_time').toggle();
             });
-			 
+
+            $( document ).on("change",'.email_template' ,function(e) {
+                var templateID = $(this).val();
+                if(templateID>0) {
+                    var url = baseurl + '/accounts/' + templateID + '/ajax_template';
+                    $.get(url, function (data, status) {
+                        if (Status = "success") {
+                            editor_reset(data);
+                        } else {
+                            toastr.error(status, "Error", toastr_opts);
+                        }
+                    });
+                }
+            });
 });
+
+    function editor_reset(data){
+        //var doc = $('.mail-compose');
+        var doc = $(document).find('#EmailActionform');
+        doc.find('#EmailActionbody').show();
+
+        if(!Array.isArray(data)){
+            var EmailTemplate = data['EmailTemplate'];
+            doc.find('[name="Subject"]').val(EmailTemplate.Subject);
+            doc.find('[name="Message"]').val(EmailTemplate.TemplateBody + ticketPreMSG);
+        }else{
+            doc.find('[name="Subject"]').val('');
+            doc.find('[name="Message"]').val('');
+        }
+        show_summernote(doc.find('[name="Message"]'),editor_options);
+
+    }
 //setTimeout(setagentval(),6000);
 	function setagentval(){
 		$('#TicketGroup').trigger('change');		

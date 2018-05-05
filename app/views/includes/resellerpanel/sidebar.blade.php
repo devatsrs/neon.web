@@ -32,7 +32,7 @@
 
     <ul id="main-menu" class="">
         <li class="two-links"> <a href="{{URL::to('/accounts')}}" class="first"> <i class="fa fa-users"></i> <span>&nbsp;Accounts</span> </a> <a href="{{URL::to('accounts/create')}}" class="last"><i class="fa fa-plus-circle" style="color: #fff;"></i></a> </li>
-        <li> <a href="{{URL::to('/reseller')}}"><i class="entypo-users"></i>  <span>Reseller</span> </a> </li>
+        <!--<li> <a href="{{URL::to('/reseller')}}"><i class="entypo-users"></i>  <span>Reseller</span> </a> </li>-->
         <li class="{{check_uri('Rates')}}"> <a href="#"> <i class="fa fa-table"></i> <span>&nbsp;Rate Management</span> </a>
             <ul>
                 <li> <a href="{{URL::to('/rate_tables')}}">  <span>Rate Tables</span> </a> </li>
@@ -60,10 +60,10 @@
         <li class="two-links"> <a href="{{Url::to('/report')}}" class="first"> <i class="fa fa-line-chart"></i><span>Reports</span></a> <a href="{{URL::to('report/create')}}" class="last"><i class="fa fa-plus-circle" style="color: #fff;"></i></a> </li>
         <li class="{{check_uri('Settings')}}"> <a href="#"> <i class="fa fa-cogs"></i> <span>Settings</span> </a>
             <ul>
-                <li> <a href="{{Url::to('/trunks')}}">  <span>Trunks</span> </a> </li>
+                <!--<li> <a href="{{Url::to('/trunks')}}">  <span>Trunks</span> </a> </li>-->
                 <li> <a href="{{Url::to('/codedecks')}}">  <span>Code Decks</span> </a> </li>
                 <li> <a href="{{URL::to('/dialstrings')}}">  <span>Dial String</span> </a> </li>
-                <li> <a href="{{Url::to('/currency')}}">  <span>Currency</span> </a> </li>
+                <!--<li> <a href="{{Url::to('/currency')}}">  <span>Currency</span> </a> </li>-->
                 <li> <a href="{{Url::to('/currency_conversion')}}">  <span>Exchange Rate</span> </a> </li>
                 <li><a href="{{URL::to('/destination_group_set')}}"><span>Destination Group</span></a></li>
             </ul>
@@ -72,7 +72,9 @@
         <li class="{{check_uri('Admin')}}"> <a href="#"> <i class="fa fa-lock"></i> <span>&nbsp;&nbsp;&nbsp;Admin</span> </a>
             <ul>
                 <li> <a href="{{Url::to('/notification')}}">  <span>Notifications</span> </a> </li>
-                <li> <a href="{{Url::to('/themes')}}">  <span>Themes</span> </a> </li>
+                @if(Reseller::is_AllowWhiteLabel())
+                    <li> <a href="{{Url::to('/themes')}}">  <span>Themes</span> </a> </li>
+                @endif
                 <li> <a href="{{URL::to('/email_template')}}">  <span>Email Templates</span> </a> </li>
                 <li> <a href="{{URL::to('/noticeboard')}}">  <span>Notice Board</span> </a> </li>
             </ul>

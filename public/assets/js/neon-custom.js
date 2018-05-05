@@ -1546,6 +1546,26 @@ toastr_opts = {
             radioClass: 'iradio_minimal'
         });
 
+
+        $("#user_language ul li").click(function(){
+            var language=$(this).attr("lang-key");
+
+            $.ajax({
+                url: baseurl + "/translate/change/"+language,
+                type: 'POST',
+                dataType: "json",
+                success:function(data) {
+                    location.reload();
+                },
+                cache: false
+            });
+        });
+        $("#user_language.language-selector .dropdown-toggle img").attr("src",$("#user_language ul li.active img").attr("src"));
+        $("#user_language.language-selector .dropdown-toggle span").html($("#user_language ul li.active span").html());
+        if(typeof customer_alignment!="undefined" && customer_alignment=="right"){
+            $('.pull-right, .pull-left').addClass('flip');
+        }
+
     });
 
 
@@ -1569,12 +1589,22 @@ toastr_opts = {
 			  value: 0
 			});
         }
-
+    $(".ddl_language").select2({
+        formatResult: format,
+        formatSelection: format,
+        escapeMarkup: function(m) { return m; },
+        minimumResultsForSearch: -1
+    });
 })(jQuery, window);
 
-
 /* Functions */
-
+function format(state) {
+    var img = $(state.element).data('flag');
+    if(img==""){
+        return state.text;
+    }
+    return "<div class='lang_div'><img class='lang_flag' src='"+ baseurl+ "/assets/images/flag/" + img + "' />" + state.text + "</div>";
+}
 function buildselect2(el){
     var $this = $(el),
         opts = {
@@ -2565,17 +2595,40 @@ reloadJobsDrodown = function(reset){
     }
 	
 };
+
 checkFailingCronJob = function(){
-    if(typeof customer[0].customer != 'undefined' &&  customer[0].customer != 1 ){
+
+    var timeDelay=30;//minutes
+    var today = new Date();
+    var isFirstTime=false;
+
+    if(getCookie("lastCronJobCheckingDate")==""){
+        setCookie("lastCronJobCheckingDate",today,365);
+        isFirstTime=true;
+    }
+    var oldDate = new Date(getCookie("lastCronJobCheckingDate"));
+    var diffMs = (today - oldDate);
+    var diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000);
+    //console.log("diffMins "+diffMins+" isf "+isFirstTime);
+    if((diffMins>timeDelay || isFirstTime) && typeof customer[0].customer != 'undefined' &&  customer[0].customer != 1){
         $.get( baseurl + "/cronjobs/check_failing", function( response ) {
             if(typeof response.message != 'undefined' ) {
+                setCookie("lastCronJobCheckingDate",today,365);
                 if (response.message == '') {
+                    setCookie("CronJobNotifications",true,365);
                     $(".notifications.cron_jobs.dropdown").find("#failing_placeholder").addClass("hidden");
                 } else {
+                    setCookie("CronJobNotifications",false,365);
                     $(".notifications.cron_jobs.dropdown").find("#failing_placeholder").removeClass("hidden");
                 }
             }
         });
+    }else{
+        if (getCookie("CronJobNotifications")==true) {
+            $(".notifications.cron_jobs.dropdown").find("#failing_placeholder").addClass("hidden");
+        } else {
+            $(".notifications.cron_jobs.dropdown").find("#failing_placeholder").removeClass("hidden");
+        }
     }
 };
 try{
@@ -2629,19 +2682,19 @@ $( document ).ajaxError(function( event, jqXHR, ajaxSettings, thrownError) {
     $('.btn[data-loading-text]').button('reset');
     switch(jqXHR.status) {
         case 500:
-            toastr.error('Oops Something went wrong please contact your system administrator', "Error", toastr_opts);
+            toastr.error(HTTP_STATUS_500_MSG, "Error", toastr_opts);
             break;
         case 503:
-            toastr.error('Service Unavailable', "Error", toastr_opts);
+            toastr.error(HTTP_STATUS_503_MSG, "Error", toastr_opts);
             break;
         case 504:
-            toastr.error('Gateway Timeout', "Error", toastr_opts);
+            toastr.error(HTTP_STATUS_504_MSG, "Error", toastr_opts);
             break;
         case 400:
-            toastr.error('Bad Request', "Error", toastr_opts);
+            toastr.error(HTTP_STATUS_400_MSG, "Error", toastr_opts);
             break;
         case 404:
-            toastr.error('Not Found', "Error", toastr_opts);
+            toastr.error(HTTP_STATUS_404_MSG, "Error", toastr_opts);
             break;
         case 401:
             console.log("event");
@@ -2659,13 +2712,13 @@ $( document ).ajaxError(function( event, jqXHR, ajaxSettings, thrownError) {
             }, 100);*/
             break;
         case 403:
-            toastr.error('Forbidden', "Error", toastr_opts);
+            toastr.error(HTTP_STATUS_403_MSG, "Error", toastr_opts);
             break;
         case 408:
-            toastr.error('Request Timeout', "Error", toastr_opts);
+            toastr.error(HTTP_STATUS_408_MSG, "Error", toastr_opts);
             break;
         case 410:
-            toastr.error('Gone', "Error", toastr_opts);
+            toastr.error(HTTP_STATUS_410_MSG, "Error", toastr_opts);
             break;
         default:
             if(thrownError != ''){
@@ -2796,20 +2849,23 @@ function showHideControls(form){
 
 function rebuildSelect2(el,data,defualtText){
     el.empty();
-    options = [];
+
+    if(defualtText.length > 0){
+        $('<option />').html(defualtText).appendTo(el);
+    }
+
     $.each(data,function(key,value){
         if(typeof value == 'object'){
-            key = value.id;
-            value = value.text;
+            var group = $('<optgroup label="' + key + '" />');
+            $.each(value, function(key2,value2){
+                $('<option />').val(key2).html(value2).appendTo(group);
+            });
+            group.appendTo(el);
+        }else{
+            $('<option />').val(key).html(value).appendTo(el);
         }
-        options.push(new Option(value, key, false, false));
     });
-    if(defualtText.length > 0){
-        options.push(new Option(defualtText, '', true, true));
-    }
-//    options.sort();
-//    options.reverse();
-    el.append(options);
+
     if(el.hasClass('select2add')){
         el.prepend('<option value="select2-add" disabled="disabled">Add</option>');
     }
@@ -3177,7 +3233,7 @@ try{
     if(typeof customer[0].customer != 'undefined' &&  customer[0].customer != 1 && $(".notifications.cron_jobs.dropdown").has("#failing_placeholder").length > 0 ) {
         setInterval(function () {
             checkFailingCronJob();
-        }, 1000 * 10); // where X is your every X minutes
+        }, 1000 ); // where X is your every X minutes
     }
 }catch(er){
     console.log(er.message);

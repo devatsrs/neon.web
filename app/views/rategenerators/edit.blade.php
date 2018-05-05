@@ -127,14 +127,14 @@
                             {{ Form::select('Policy', LCR::$policy, $rategenerators->Policy , array("class"=>"select2")) }}
                         </div>
                     </div>
-                    <input type="hidden" name="GroupBy" value="Code">
-                    <!--
+                    {{--<input type="hidden" name="GroupBy" value="Code">--}}
+
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Group By</label>
                         <div class="col-sm-4">
                             {{ Form::select('GroupBy', array('Code'=>'Code','Desc'=>'Description'), $rategenerators->GroupBy , array("class"=>"select2")) }}
                         </div>
-                    </div>-->
+                    </div>
 
                 </div>
             </div>
@@ -157,14 +157,17 @@
             <div class="panel-body">
 
                             <div class="pull-right">
+
                                 <a  href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/rule/add" class="btn addnew btn-primary btn-sm btn-icon icon-left" >
                                     <i class="entypo-floppy"></i>
                                     Add New
                                 </a>
+                                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Rules will be applied in the order they are setup. Keep * at the top." data-original-title="Add New Rule">?</span>
                                 <br><br>
                             </div>
 
                     @if(count($rategenerator_rules))
+                    <form id="RateRulesDataFrom" method="POST" />
                         <div class="dataTables_wrapper clear-both">
                             <table class="table table-bordered datatable" id="table-4">
                                 <thead>
@@ -175,9 +178,9 @@
                                         <th>Action</th>
                                     </tr>
                                 </thead>
+                                <tbody id="sortable">
                                 @foreach($rategenerator_rules as $rategenerator_rule)
-                                <tbody>
-                                    <tr class="odd gradeX">
+                                    <tr class="odd gradeX" data-id="{{$rategenerator_rule->RateRuleId}}">
                                         <td>
                                             {{$rategenerator_rule->Code}}@if(!empty($rategenerator_rule->Code)) <br/> @endif
                                             {{$rategenerator_rule->Description}}
@@ -194,8 +197,9 @@
 
                                             @if(count($rategenerator_rule['RateRuleMargin']))
                                             @foreach($rategenerator_rule['RateRuleMargin'] as $index=>$materulemargin )
-                                                {{$materulemargin->MinRate}} {{$index!=0?'<':'<='}}  rate <= {{$materulemargin->MaxRate}} {{$materulemargin->AddMargin}} <br>
-                                            @endforeach
+                                                {{$materulemargin->MinRate}} {{$index!=0?'<':'<='}}  rate <= {{$materulemargin->MaxRate}} {{$materulemargin->AddMargin}} {{$materulemargin->FixedValue}} <br>
+
+                                                @endforeach
                                             @endif
 
 
@@ -206,17 +210,23 @@
                                                 <i class="entypo-pencil"></i>
                                             </a>
 
+                                            <a href="{{URL::to('/rategenerators/'.$id. '/rule/' . $rategenerator_rule->RateRuleId .'/clone_rule' )}}" data-rate-generator-id="{{$id}}" id="clone-rule" class="clone_rule btn btn-default  btn-sm" data-original-title="Clone" title="" data-placement="top" data-toggle="tooltip" data-loading-text="...">
+                                                <i class="fa fa-clone"></i>
+                                            </a>
+
                                             <a href="{{URL::to('/rategenerators/'.$id. '/rule/' . $rategenerator_rule->RateRuleId .'/delete' )}}" class="btn delete btn-danger btn-sm" data-redirect="{{Request::url()}}">
                                                 <i class="entypo-trash"></i>
                                             </a>
                                         </td>
                                     </tr>
 
-                                </tbody>
+
                                 @endforeach
+                                </tbody>
                             </table>
                         </div>
-
+                    <input type="hidden" name="main_fields_sort" id="main_fields_sort" value="">
+                    </form>
                     @endif
 
                 </div>
@@ -224,17 +234,81 @@
         </div>
 
     </div>
-
+<style>
+    #sortable tr:hover {
+        cursor: all-scroll;
+    }
+</style>
 <script type="text/javascript">
     jQuery(document).ready(function($) {
         /*$(".btn.addnew").click(function(ev) {
             jQuery('#modal-rate-generator-rule').modal('show', {backdrop: 'static'});
         });*/
+       // $( "#sortable" ).sortable();
+        function initSortable(){
+            // Code using $ as usual goes here.
+            $('#sortable').sortable({
+                connectWith: '#sortable',
+                placeholder: 'placeholder',
+                start: function() {
+                    //setting current draggable item
+                    currentDrageable = $('#sortable');
+                },
+                stop: function(ev,ui) {
+                    saveOrder();
+                    //de-setting draggable item after submit order.
+                    currentDrageable = '';
+                }
+            });
+        }
+        function saveOrder() {
+            var Ticketfields_array   = 	new Array();
+            $('#sortable tr').each(function(index, element) {
+                var TicketfieldsSortArray  =  {};
+                TicketfieldsSortArray["data_id"] = $(element).attr('data-id');
+                TicketfieldsSortArray["Order"] = index+1;
+
+                Ticketfields_array.push(TicketfieldsSortArray);
+            });
+            var data_sort_fields =  JSON.stringify(Ticketfields_array);
+            $('#main_fields_sort').val(data_sort_fields);
+            $('#RateRulesDataFrom').submit();
+        }
+
+        $('#RateRulesDataFrom').submit(function(e){
+            e.stopPropagation();
+            e.preventDefault();
+
+            var formData = new FormData($(this)[0]);
+            var url		 = baseurl + '/rategenerators/update_fields_sorting';
+
+            $.ajax({
+                url: url,  //Server script to process data
+                type: 'POST',
+                dataType: 'json',
+                success: function (response) {
+                    if(response.status =='success'){
+                        toastr.success(response.message, "Success", toastr_opts);
+                    }else{
+                        toastr.error(response.message, "Error", toastr_opts);
+                    }
+                },
+                // Form data
+                data: formData,
+                //Options to tell jQuery not to process data or worry about content-type.
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+            return false;
+        });
+
+        initSortable();
 
         $(".update_form.btn").click(function(ev) {
             $("#rategenerator-from").submit();
         });
-		
+
 		        $(".btn.change_status").click(function (e) {
                         //redirect = ($(this).attr("data-redirect") == 'undefined') ? "{{URL::to('/rate_tables')}}" : $(this).attr("data-redirect");
                         $(this).button('loading');
@@ -381,7 +455,41 @@
                         return false;
 
                     });
-					
+        $(".btn.clone_rule").click(function (e) {
+            e.preventDefault();
+            $(this).button('loading');
+            var url = $(this).attr('href');
+            var rate_generator_id = $(this).attr('data-rate-generator-id');
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+
+                        if (response.status == 'success') {
+                            toastr.success(response.message, "Success", toastr_opts);
+                             var new_rule_url = baseurl + '/rategenerators/' + rate_generator_id + '/rule/' + response.RateRuleID + '/edit';
+
+                            setTimeout( function() {  window.location = new_rule_url } ,1000 );
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                        $(".btn.clone_rule").button('reset');
+
+
+                    },
+
+                    // Form data
+                    //data: {},
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            return false;
+
+        });
+
 					
         $('#delete-rate-generator-form').submit(function (e) {
             e.preventDefault();

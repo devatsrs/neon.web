@@ -6,5 +6,6 @@ class CustomerRate extends \Eloquent {
     protected $table = 'tblCustomerRate';
 
     protected  $primaryKey = "CustomerRateID";
+    public  $timestamps  = false;
 
 }

@@ -54,7 +54,19 @@ class CompaniesController extends \BaseController {
             $SSH['password'] = '';
         }
 
-        return View::make('companies.edit')->with(compact('company', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile','AccountVerification','SSH','COMPANY_SSH_VISIBLE'));
+        $DigitalSignature = CompanySetting::getKeyVal('DigitalSignature', $company_id);
+        $UseDigitalSignature = CompanySetting::getKeyVal('UseDigitalSignature', $company_id);
+        if($DigitalSignature=="Invalid Key"){
+            $DigitalSignature=array();
+            $DigitalSignature['positionLX']=0;
+            $DigitalSignature['positionBY']=0;
+            $DigitalSignature['positionRX']=0;
+            $DigitalSignature['positionTY']=0;
+        }else{
+            $DigitalSignature=json_decode($DigitalSignature, true);
+        }
+
+        return View::make('companies.edit')->with(compact('company', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile','AccountVerification','SSH','COMPANY_SSH_VISIBLE', 'DigitalSignature', 'UseDigitalSignature'));
 
     }
 
@@ -93,15 +105,74 @@ class CompaniesController extends \BaseController {
         if(empty($data['SMTPPassword'])){
             unset($data['SMTPPassword']);
         }
+        $upload_path = CompanyConfiguration::get('UPLOAD_PATH')."/";
+        $arrSignatureCertFile=CompanySetting::getKeyVal('DigitalSignature');
+        if($arrSignatureCertFile=="Invalid Key"){
+            $arrSignatureCertFile=array();
+        }else{
+            $arrSignatureCertFile=json_decode($arrSignatureCertFile, true);
+        }
+
+        if (Input::hasFile('signatureCertFile')) {
+            $signatureCertFile = Input::file('signatureCertFile');
+            $ext = $signatureCertFile->getClientOriginalExtension();
+            if (strtolower($ext)=="pfx" || strtolower($ext)=="p12") {
+                $file_name = 'signatureCert.' . $signatureCertFile->getClientOriginalExtension();
+                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY'], '', $companyID, true);
+                $destinationPath = $upload_path . $amazonPath;
+                $signatureCertFile->move($destinationPath, $file_name);
+                $arrSignatureCertFile['signatureCert'] = $file_name;
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Please select pfx or p12 file."));
+            }
+        }else{
+			if(!array_key_exists("signatureCert",$arrSignatureCertFile)){
+				$arrSignatureCertFile['signatureCert'] = '';
+			}            
+        }
+
+        if (Input::hasFile('signatureImage')) {
+            $signatureImage = Input::file('signatureImage');
+            $ext = $signatureImage->getClientOriginalExtension();
+            if (strtolower($ext)=="png") {
+                $file_name = 'signatureImage.' . $signatureImage->getClientOriginalExtension();
+                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY'], '', $companyID, true);
+                $destinationPath = $upload_path . $amazonPath;
+                $signatureImage->move($destinationPath, $file_name);
+                $arrSignatureCertFile['image'] = $file_name;
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Please select png file."));
+            }
+
+        }else{
+			if(!array_key_exists("signatureCert",$arrSignatureCertFile)){
+				$arrSignatureCertFile['image'] = '';
+			}
+        }
+
+        if(!empty($data['signatureCertPassword'])){
+            $arrSignatureCertFile['password'] = $data['signatureCertPassword'];
+        }else{
+			if(!array_key_exists("password",$arrSignatureCertFile)){
+				$arrSignatureCertFile['password'] = "";
+			}
+        }
+        $arrSignatureCertFile['positionLX'] = $data['signatureCertpPositionLX'];
+        $arrSignatureCertFile['positionBY'] = $data['signatureCertpPositionBY'];
+        $arrSignatureCertFile['positionRX'] = $data['signatureCertpPositionRX'];
+        $arrSignatureCertFile['positionTY'] = $data['signatureCertpPositionTY'];
+        $arrSignatureCertFile = json_encode($arrSignatureCertFile);
+        CompanySetting::setKeyVal('DigitalSignature',$arrSignatureCertFile, $companyID);
+        CompanySetting::setKeyVal('UseDigitalSignature',isset($data["UseDigitalSignature"])?$data["UseDigitalSignature"]:0, $companyID);
+        $data = cleanarray($data,['signatureCertFile','signatureCert','signatureImage','signatureCertPassword','signatureCertpPositionLX','signatureCertpPositionBY','signatureCertpPositionRX','signatureCertpPositionTY','UseDigitalSignature']);
 
         if (Input::hasFile('RateSheetTemplateFile')) {
-            $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
             $excel = Input::file('RateSheetTemplateFile');
             $ext = $excel->getClientOriginalExtension();
             if (in_array(strtolower($ext), array("xls", "xlsx"))) {
                 $file_name = GUID::generate() . '.' . $excel->getClientOriginalExtension();
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['RATESHEET_TEMPLATE']);
-                $destinationPath = $upload_path . '/' . $amazonPath;
+                $destinationPath = $upload_path . $amazonPath;
                 $excel->move($destinationPath, $file_name);
                 if(!AmazonS3::upload($destinationPath.$file_name,$amazonPath)){
                     return Response::json(array("status" => "failed", "message" => "Failed to upload."));
@@ -189,6 +260,32 @@ class CompaniesController extends \BaseController {
         }
 		
         if ($company->update($data)) {
+
+            if(CompanySetting::getKeyVal('UseDigitalSignature', $companyID)){
+                $DigitalSignature=CompanySetting::getKeyVal('DigitalSignature', $companyID);
+                $DigitalSignature=json_decode($DigitalSignature, true);
+                $signaturePath =$upload_path . AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY'], '', $companyID, true);
+                $certpasswd=RemoteSSH::run(["mypdfsigner -e ".$DigitalSignature["password"]]);
+                $certpasswd=str_replace("Encrypted password: ", "", $certpasswd[0]);
+                $mypdfsigner="
+                #MyPDFSigner test configuration file
+                extrarange=5300
+                embedcrl=on
+                certfile=". $signaturePath . $DigitalSignature["signatureCert"]."
+                certpasswd=".$certpasswd."
+                certstore=PKCS12 KEYSTORE FILE
+                sigrect=[".$DigitalSignature["positionLX"]." ".$DigitalSignature["positionBY"]." ".$DigitalSignature["positionRX"]." ".$DigitalSignature["positionTY"]."]
+                tsaurl=http://adobe-timestamp.geotrust.com/tsa
+                remoteurl=".URL::to('/');
+
+                if(!empty($DigitalSignature["image"])){
+                $mypdfsigner.="
+                sigimage=". $signaturePath .$DigitalSignature["image"];
+                }
+
+                RemoteSSH::run('echo "'.$mypdfsigner.'" > ' . $signaturePath.'mypdfsigner.conf');
+            }
+
             return Response::json(array("status" => "success", "message" => "Company Successfully Updated"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Company."));
@@ -252,5 +349,16 @@ class CompaniesController extends \BaseController {
 		
 	}
 
+    public function DownloadDigitalSignature($file){
+        $companyID = User::get_companyID();
+        $upload_path = CompanyConfiguration::get('UPLOAD_PATH')."/";
+        $signaturePath =$upload_path . AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY'], '', $companyID, true);
 
+        $DigitalSignature=CompanySetting::getKeyVal('DigitalSignature', $companyID);
+        $DigitalSignature=json_decode($DigitalSignature, true);
+        if(isset($DigitalSignature[$file])){
+            $filePath = $signaturePath . $DigitalSignature[$file];
+            download_file($filePath);
+        }
+    }
 }

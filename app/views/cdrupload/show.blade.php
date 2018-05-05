@@ -13,7 +13,7 @@
                     <label class="control-label small_label" for="field-1">Start Date</label>
                     <div class="row">
                         <div class="col-sm-6">
-                            <input type="text" name="StartDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{Input::get('StartDate')!=null?substr(Input::get('StartDate'),0,10):'' }}" data-enddate="{{date('Y-m-d')}}" />
+                            <input type="text" name="StartDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{Input::get('StartDate')!=null?substr(Input::get('StartDate'),0,10):date('Y-m-d') }}" data-enddate="{{date('Y-m-d')}}" />
                         </div>
                         <div class="col-sm-6">
                             <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:00" value="{{Input::get('StartDate')!=null && strlen(Input::get('StartDate'))> 10 && substr(Input::get('StartDate'),11,8) != '00:00:00' ?substr(Input::get('StartDate'),11,8):'00:00:00'}}" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
@@ -24,7 +24,7 @@
                     <label class="col-md-1 control-label small_label" for="field-1" style="padding-left: 0px;">End Date</label>
                     <div class="row">
                         <div class="col-sm-6">
-                            <input type="text" name="EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{Input::get('EndDate')!=null?substr(Input::get('EndDate'),0,10):'' }}" data-enddate="{{date('Y-m-d')}}" />
+                            <input type="text" name="EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{Input::get('EndDate')!=null?substr(Input::get('EndDate'),0,10):date('Y-m-d') }}" data-enddate="{{date('Y-m-d')}}" />
                         </div>
                         <div class="col-sm-6">
                             <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="{{Input::get('EndDate')!=null && strlen(Input::get('EndDate'))> 10?substr(Input::get('EndDate'),11,2).':59:59':'23:59:59'}}" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
@@ -74,8 +74,14 @@
                     <label class="control-label" for="field-1">Trunk</label>
                     {{ Form::select('Trunk',$trunks,$trunk, array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                 </div>
+                <!--
+                <div class="form-group">
+                    <label class="control-label" for="field-1">Reseller</label>
+                    {{ Form::select('ResellerOwner',$reseller_owners,Input::get('ResellerOwner'), array("class"=>"select2","id"=>"bluk_ResellerOwner")) }}
+                </div>-->
                 <div class="form-group">
                     <br/>
+                    <input type="hidden" name="ResellerOwner" value="0">
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
                         <i class="entypo-search"></i>
                         Search
@@ -155,7 +161,7 @@
 <div class="tab-content" style="padding:0;">
     <div class="tab-pane active">
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-12" style="overflow-x: scroll">
                 <table class="table table-bordered datatable" id="table-4">
                     <thead>
                     <tr>
@@ -175,6 +181,7 @@
                         <th width="6%" >Prefix</th>
                         <th width="8%" >Trunk</th>
                         <th width="10%" >Service</th>
+                        <th width="10%" >Type</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -235,7 +242,8 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
             $searchFilter.EndDate 				= 		$("#cdr_filter [name='EndDate']").val();
             $searchFilter.CompanyGatewayID 		= 		$("#cdr_filter [name='CompanyGatewayID']").val();
             $searchFilter.AccountID 			= 		$("#cdr_filter [name='AccountID']").val();
-            $searchFilter.CDRType 				= 		$("#cdr_filter [name='CDRType']").val();			
+            $searchFilter.ResellerOwner 		= 		$("#cdr_filter [name='ResellerOwner']").val();
+            $searchFilter.CDRType 				= 		$("#cdr_filter [name='CDRType']").val();
 			$searchFilter.CLI 					= 		$("#cdr_filter [name='CLI']").val();
 			$searchFilter.CLD 					= 		$("#cdr_filter [name='CLD']").val();			
 			$searchFilter.zerovaluecost 		= 		$("#cdr_filter [name='zerovaluecost']").val();
@@ -268,6 +276,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                             {"name":"EndDate","value":$searchFilter.EndDate},
                             {"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},
                             {"name":"AccountID","value":$searchFilter.AccountID},
+                            {"name":"ResellerOwner","value":$searchFilter.ResellerOwner},
                             {"name":"CDRType","value":$searchFilter.CDRType},
                             {"name":"CLI","value":$searchFilter.CLI},
                             {"name":"CLD","value":$searchFilter.CLD},
@@ -282,6 +291,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                             {"name":"EndDate","value":$searchFilter.EndDate},
                             {"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},
                             {"name":"AccountID","value":$searchFilter.AccountID},
+                            {"name":"ResellerOwner","value":$searchFilter.ResellerOwner},
                             {"name":"CDRType","value":$searchFilter.CDRType},
                             {"name":"Export","value":1},
                             {"name":"CLI","value":$searchFilter.CLI},
@@ -328,7 +338,21 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                     { "bSortable": false },
                     { "bSortable": false },
                     { "bSortable": false },
-                    { "bSortable": false }
+                    { "bSortable": false },
+                    {
+                        "bSortable": false,
+                        mRender: function(id, type, full) {
+                            if(full[16] == 0)
+                            {
+                                return "OutBound";
+                            }
+                            else
+                            {
+                                return "InBound";
+                            }
+
+                        }
+                    }
                 ],
                 "fnDrawCallback": function() {
 					$(".dataTables_wrapper select").select2({

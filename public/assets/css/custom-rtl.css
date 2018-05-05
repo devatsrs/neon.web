@@ -1,0 +1,114 @@
+.bordersideHigh {
+    border-right-color: #ffb613;
+    border-left-color: unset !important;
+}
+.borderside {
+    border-right-style: solid;
+    border-right-width: 8px;
+    border-left-style: none !important;
+    border-left-width: unset !important;
+}
+.col-time {
+    text-align: unset !important;
+}
+.bordersideLow{border-right-color:#00A651;}
+.bordersideMedium{border-right-color:#008ff9;}
+.bordersideHigh{border-right-color:#ffb613;}
+.bordersideUrgent{border-right-color:#CC2424;}
+
+.panel-title{float: right;}
+.panel-heading > .panel-options {
+    float: left;
+}
+.select2-choice {
+    text-align: right !important;
+}
+.page-body .select2-container .select2-choice{
+    padding-right: 20px;
+    padding-left: 0px;
+}
+.toast-top-right {
+    top: 12px;
+    right:unset;
+    left: 12px;
+}
+.toast-close-button{
+    float: left;
+}
+#toast-container > div{
+    padding: 15px 50px 15px 15px;
+    background-position:right 15px center;
+}
+.pull-right>.dropdown-menu {
+    right: auto;
+    left: 0;
+}
+.dataTables_wrapper .export-data{
+    left: 30px !important;
+    right:unset !important;
+}
+.dataTables_wrapper .col-right{
+    padding-left: 15px;
+    padding-right: 0px;
+}
+.dataTables_wrapper .col-left{
+    padding-left: 0px;
+    padding-right:15px;
+}
+.dataTables_wrapper .dataTables_filter {
+    border-right: 0;
+    border-left: 1px solid #ebebeb;
+}
+.dataTables_wrapper .dataTables_length{
+    border-right: 1px solid #ebebeb;
+    border-left: 0;
+}
+.dataTables_wrapper .dataTables_info.dataTables_paginate, .dataTables_wrapper .dataTables_paginate.dataTables_paginate{
+    border-left:1px solid #ebebeb;
+    border-right:0;
+    text-align: left !important;
+}
+.dataTables_wrapper .dataTables_info.dataTables_info, .dataTables_wrapper .dataTables_paginate.dataTables_info{
+    border-left:0;
+    border-right:1px solid #ebebeb;
+}
+.pagination>li>a>i.entypo-left-open:before{
+    content: '\e875';
+}
+.pagination>li>a>i.entypo-right-open:before{
+    content: '\e874';
+}
+.dataTables_wrapper table thead tr th.sorting_asc:before, .dataTables_wrapper table thead tr th.sorting_desc:before{
+    float: left;
+}
+.leftsideview{
+    direction: ltr;
+}
+.text-right {
+    text-align: left;
+}
+.text-left {
+    text-align: right;
+}
+.select2-search-choice-close{
+    right: unset;
+    left: 3px;
+}
+.datepicker-dropdown.dropdown-menu,.bootstrap-timepicker-widget.dropdown-menu {
+    right:unset;
+}
+.ddl-language, .ddl-language .dropdown-toggle{
+    margin-right: 5px;
+    padding-left: 0px;
+    padding-right: 10px;
+}
+.ddl-language .language-selector.open > .dropdown-toggle{
+    border-radius:3px 0px 0 0px;
+}
+.ddl-language .language-selector .dropdown-menu.pull-right{
+    border-radius: 0px 3px 3px 0px;
+}
+.ddl-language .dropdown-menu.pull-right{
+    left: 5px;
+    right: auto;
+}

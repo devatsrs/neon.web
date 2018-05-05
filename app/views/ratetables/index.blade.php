@@ -47,6 +47,9 @@
         Add New RateTable
     </a>
 @endif
+    <a href="{{URL::to('rate_tables/apply_rate_table')}}" id="add-new-rate-table" class="btn btn-primary ">
+        Apply Rate Table
+    </a>
 </p>
 
 <div class="cler row">
@@ -105,7 +108,7 @@ jQuery(document).ready(function($) {
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "oTableTools": {},
-            "aaSorting": [[3, "desc"]],
+            "aaSorting": [[0, "asc"]],
             "fnServerParams": function(aoData) {
                 aoData.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"Search","value":$searchFilter.Search});
                 data_table_extra_params.length = 0;

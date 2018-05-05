@@ -11,12 +11,18 @@ class CDRTemplateController extends BaseController {
     /** CDR Upload
      * @return mixed
      */
-    public function index() {
-        $gateway = CompanyGateway::getCompanyGatewayIdList();
-        $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_CDR);
-        $trunks = Trunk::getTrunkDropdownIDList();
-        $trunks = $trunks+array(0=>'Find From CustomerPrefix');
-        return View::make('cdrtemplate.upload',compact('dashboardData','account','gateway','UploadTemplate','trunks'));
+    public function index($CompanyGatewayID) {
+
+        $CompanyID = User::get_companyID();
+
+        $Trunks = Trunk::getTrunkDropdownIDList($CompanyID);
+        $Trunks = $Trunks+array(0=>'Find From CustomerPrefix');
+        $Trunks = array('Trunk'=>$Trunks);
+        $Services = Service::getDropdownIDList($CompanyID);
+        $Services = array('Service'=>$Services);
+
+        $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_CDR));
+        return View::make('cdrtemplate.upload',compact('UploadTemplate','CompanyGatewayID','Trunks','Services'));
     }
 
     public function ajaxfilegrid(){
@@ -52,14 +58,10 @@ class CDRTemplateController extends BaseController {
                 'CompanyGatewayID' => 'required'
                 );
         }
-        $rules['Account'] = 'required';
-        $rules['Authentication'] = 'required';
-        $rules['connect_datetime'] = 'required';
+
         $rules['billed_duration'] = 'required';
         $rules['cld'] = 'required';
-        if($data['RateFormat'] == Company::CHARGECODE) {
-            $rules['ChargeCode'] = 'required';
-        }
+
         if(!empty($data['selection']['ChargeCode'])){
             $data['ChargeCode'] = $data['selection']['ChargeCode'];
         }
@@ -99,9 +101,9 @@ class CDRTemplateController extends BaseController {
         $save['created_by'] = User::get_user_full_name();
         $option["option"]= $data['option'];//['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
         $option["selection"] = $data['selection'];//['connect_time'=>$data['connect_time'],'disconnect_time'=>$data['disconnect_time'],'billed_duration'=>$data['billed_duration'],'duration'=>$data['duration'],'cld'=>$data['cld'],'cli'=>$data['cli'],'Account'=>$data['Account'],'cost'=>$data['cost']];
+        $option["CompanyGatewayID"] = $data['CompanyGatewayID'];
         $save['Options'] = json_encode($option);
-        $save['Type'] = FileUploadTemplate::TEMPLATE_CDR;
-        $save['CompanyGatewayID'] = $data['CompanyGatewayID'];
+        $save['FileUploadTemplateTypeID'] = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_CDR);
         if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
             $template = FileUploadTemplate::find($data['FileUploadTemplateID']);
             $template->update($save);
@@ -121,12 +123,9 @@ class CDRTemplateController extends BaseController {
         try {
             $data = Input::all();
             $rules = array(
-                'CompanyGatewayID' => 'required',
+                'excel' => 'required',
             );
-            if($data['RateCDR']){
-                $rules['TrunkID'] = 'required';
-                $rules['RateFormat'] = 'required';
-            }
+
             $validator = Validator::make($data, $rules);
             if ($validator->fails()) {
                 return json_validator_response($validator);

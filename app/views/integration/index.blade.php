@@ -573,6 +573,55 @@
             </div>
         </div>
       <!-- FideliPay End -->
+      <!-- PeleCard Start -->
+        <?php
+        $PeleCardDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$PeleCardSlug);
+        $PeleCardData   = isset($PeleCardDbData->Settings)?json_decode($PeleCardDbData->Settings):"";
+        ?>
+        <div class="subcategorycontent" id="subcategorycontent{{$PeleCardDbData->Slug}}">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">* Terminal:</label>
+                        <input type="text"  class="form-control" name="terminalNumber" value="{{isset($PeleCardData->terminalNumber)?$PeleCardData->terminalNumber:''}}" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">* User:</label>
+                        <input type="text"  class="form-control" name="user" value="{{isset($PeleCardData->user)?$PeleCardData->user:''}}" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">* Password:</label>
+                        <input type="password"  class="form-control" name="password" value="" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">Live:</label>
+                        <div id="PeleCardLiveDiv">
+                            <input id="PeleCardLive" class="subcatstatus" Divid="PeleCardLiveDiv" name="PeleCardLive" type="checkbox" value="1" <?php if(isset($PeleCardDbData->PeleCardLive) && $PeleCardDbData->PeleCardLive==1){ ?>   checked="checked"<?php } ?> >
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">Active:</label>
+                        <div id="PeleCardStatusDiv">
+                            <input id="PeleCardStatus" class="subcatstatus" Divid="PeleCardStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($PeleCardDbData->Status) && $PeleCardDbData->Status==1){ ?>   checked="checked"<?php } ?> >
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+      <!-- PeleCard End -->
 
       <!-- Mandril start -->
        <?php 

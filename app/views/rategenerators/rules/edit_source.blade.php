@@ -84,15 +84,20 @@
             $("#selectall").click(function(ev) {
 
                 var is_checked = $(this).is(':checked');
+                var s = $("#vendorSearch").val();
 
                 $('#table-4 tbody tr').each(function(i, el) {
                     if (is_checked) {
-                        $(this).find('.checkbox input').prop("checked", true);
-                        $(this).addClass('selected');
+                        if(this.getAttribute("search").indexOf(s.toLowerCase()) != 0){
+                            $(this).find('.checkbox input').prop("checked", false);
+                            $(this).removeClass('selected');
+                        } else {
+                            $(this).find('.checkbox input').prop("checked", true);
+                            $(this).addClass('selected');
+                        }
                     } else {
                         $(this).find('.checkbox input').prop("checked", false);
                         $(this).removeClass('selected');
-
                     }
 
                 });

@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCustomerRate`(
+CREATE DEFINER=`neon-user`@`192.168.1.25` PROCEDURE `prc_GetCustomerRate`(
 	IN `p_companyid` INT,
 	IN `p_AccountID` INT,
 	IN `p_trunkID` INT,
@@ -6,6 +6,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCustomerRate`(
 	IN `p_code` VARCHAR(50),
 	IN `p_description` VARCHAR(50),
 	IN `p_Effective` VARCHAR(50),
+	IN `p_CustomDate` DATE,
 	IN `p_effectedRates` INT,
 	IN `p_RoutinePlan` INT,
 	IN `p_PageNumber` INT,
@@ -13,6 +14,9 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCustomerRate`(
 	IN `p_lSortCol` VARCHAR(50),
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_isExport` INT 
+
+
+
 )
 BEGIN
    DECLARE v_codedeckid_ INT;
@@ -24,6 +28,12 @@ BEGIN
    DECLARE v_Prefix_ VARCHAR(50);
    DECLARE v_RatePrefix_ VARCHAR(50);
    DECLARE v_AreaPrefix_ VARCHAR(50);
+   
+   -- set custome date = current date if custom date is past date
+   IF(p_CustomDate < DATE(NOW())) 
+	THEN 
+		SET p_CustomDate=DATE(NOW());
+	END IF;
    
    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
    SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
@@ -55,6 +65,7 @@ BEGIN
         Rate DECIMAL(18, 6),
         ConnectionFee DECIMAL(18, 6),
         EffectiveDate DATE,
+        EndDate DATE,
         LastModifiedDate DATETIME,
         LastModifiedBy VARCHAR(50),
         CustomerRateId INT,
@@ -73,6 +84,7 @@ BEGIN
         Rate DECIMAL(18, 6),
         ConnectionFee DECIMAL(18, 6),
         EffectiveDate DATE,
+        EndDate DATE,
         LastModifiedDate DATETIME,
         LastModifiedBy VARCHAR(50),
         CustomerRateId INT,
@@ -83,7 +95,7 @@ BEGIN
         INDEX tmp_RateTableRate__EffectiveDate (`EffectiveDate`)
 
     );
-    /* if you chnage this table ,change in all sheet download and customer rate  */
+    
     DROP TEMPORARY TABLE IF EXISTS tmp_customerrate_;
     CREATE TEMPORARY TABLE tmp_customerrate_ (
         RateID INT,
@@ -95,6 +107,7 @@ BEGIN
         RoutinePlanName VARCHAR(50),
         Rate DECIMAL(18, 6),
         EffectiveDate DATE,
+        EndDate DATE,
         LastModifiedDate DATETIME,
         LastModifiedBy VARCHAR(50),
         CustomerRateId INT,
@@ -117,6 +130,7 @@ BEGIN
                 tblCustomerRate.Rate,
                 tblCustomerRate.ConnectionFee,
                 tblCustomerRate.EffectiveDate,
+                tblCustomerRate.EndDate,
                 tblCustomerRate.LastModifiedDate,
                 tblCustomerRate.LastModifiedBy,
                 tblCustomerRate.CustomerRateId,
@@ -150,8 +164,12 @@ BEGIN
 			DELETE n1 FROM tmp_CustomerRates_ n1, tmp_CustomerRates4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
 			AND n1.TrunkID = n2.TrunkID
 			AND  n1.RateID = n2.RateID
-			AND  n1.EffectiveDate <= NOW()
-			AND  n2.EffectiveDate <= NOW();
+			AND
+			(
+				(p_Effective = 'CustomDate' AND n1.EffectiveDate <= p_CustomDate AND n2.EffectiveDate <= p_CustomDate)
+				OR
+				(p_Effective != 'CustomDate' AND n1.EffectiveDate <= NOW() AND n2.EffectiveDate <= NOW())
+			);
 	 	
 	 	DROP TEMPORARY TABLE IF EXISTS tmp_CustomerRates2_;
 		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates2_ as (select * from tmp_CustomerRates_);
@@ -177,6 +195,7 @@ BEGIN
                 tblRateTableRate.ConnectionFee,
             	 
       			 tblRateTableRate.EffectiveDate,
+      			 tblRateTableRate.EndDate,
                 NULL AS LastModifiedDate,
                 NULL AS LastModifiedBy,
                 NULL AS CustomerRateId,
@@ -214,8 +233,12 @@ BEGIN
         DELETE n1 FROM tmp_RateTableRate_ n1, tmp_RateTableRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
 	 	  AND n1.TrunkID = n2.TrunkID
 		  AND  n1.RateID = n2.RateID
-		  AND  n1.EffectiveDate <= NOW()
-		  AND  n2.EffectiveDate <= NOW();
+		  AND
+			(
+				(p_Effective = 'CustomDate' AND n1.EffectiveDate <= p_CustomDate AND n2.EffectiveDate <= p_CustomDate)
+				OR
+				(p_Effective != 'CustomDate' AND n1.EffectiveDate <= NOW() AND n2.EffectiveDate <= NOW())
+			);
 		 
 
 		
@@ -242,6 +265,7 @@ BEGIN
                 allRates.RoutinePlanName,
                 allRates.Rate,
                 allRates.EffectiveDate,
+                allRates.EndDate,
                 allRates.LastModifiedDate,
                 allRates.LastModifiedBy,
                 allRates.CustomerRateId,
@@ -275,6 +299,7 @@ BEGIN
                 CustomerRates.ConnectionFee,
                 CustomerRates.Rate,
                 CustomerRates.EffectiveDate,
+                CustomerRates.EndDate,
                 CustomerRates.LastModifiedDate,
                 CustomerRates.LastModifiedBy,
                 CustomerRates.CustomerRateId,
@@ -287,8 +312,11 @@ BEGIN
                 (
 					 	( p_Effective = 'Now' AND CustomerRates.EffectiveDate <= NOW() )
 					 	OR
-					 	( p_Effective = 'Future' AND CustomerRates.EffectiveDate > NOW())
-					 	OR p_Effective = 'All'
+					 	( p_Effective = 'Future' AND CustomerRates.EffectiveDate > NOW() )
+						OR
+						( p_Effective = 'CustomDate' AND CustomerRates.EffectiveDate <= p_CustomDate AND (CustomerRates.EndDate IS NULL OR CustomerRates.EndDate > p_CustomDate) )
+					 	OR 
+						p_Effective = 'All'
 					 )
 
 
@@ -303,6 +331,7 @@ BEGIN
                 rtr.ConnectionFee,
                 rtr.Rate,
                 rtr.EffectiveDate,
+                rtr.EndDate,
                 NULL,
                 NULL,
                 NULL AS CustomerRateId,
@@ -316,7 +345,10 @@ BEGIN
 						 	( p_Effective = 'Now' AND cr.EffectiveDate <= NOW() )
 						 	OR
 						 	( p_Effective = 'Future' AND cr.EffectiveDate > NOW())
-						 	OR p_Effective = 'All'
+						 	OR
+							( p_Effective = 'CustomDate' AND cr.EffectiveDate <= p_CustomDate AND (cr.EndDate IS NULL OR cr.EndDate > p_CustomDate) )
+						 	OR 
+							 p_Effective = 'All'
 						 )
             WHERE (
                 (
@@ -342,6 +374,15 @@ BEGIN
                             )
                         )
                 )
+				OR
+				( 
+					p_Effective = 'CustomDate' AND rtr.EffectiveDate <= p_CustomDate AND (rtr.EndDate IS NULL OR rtr.EndDate > p_CustomDate)
+					AND (
+                            (cr.RateID IS NULL) 
+                            OR
+                            (cr.RateID IS NOT NULL AND rtr.RateTableRateID IS NULL) 
+                        )
+				)
             OR p_Effective = 'All'
 
             )
@@ -373,6 +414,7 @@ BEGIN
                 RoutinePlanName,
                 Rate,
                 EffectiveDate,
+                EndDate,
                 LastModifiedDate,
                 LastModifiedBy,
                 CustomerRateId,
@@ -423,6 +465,12 @@ BEGIN
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateASC') THEN EffectiveDate
                 END ASC,
                 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateDESC') THEN EndDate
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateASC') THEN EndDate
+                END ASC,
+                CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'LastModifiedDateDESC') THEN LastModifiedDate
                 END DESC,
                 CASE
@@ -463,9 +511,8 @@ BEGIN
             LastModifiedBy from tmp_customerrate_;
 
     END IF;
-
-
-	-- for customer panel export
+    
+    
 	IF p_isExport = 2
     THEN
 			 
@@ -478,7 +525,7 @@ BEGIN
             Rate,
             EffectiveDate from tmp_customerrate_;
 
-    END IF;    
+    END IF;
     
  
     SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

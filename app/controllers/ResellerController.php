@@ -45,7 +45,8 @@ class ResellerController extends BaseController {
 
         $items = empty($data['reseller-item']) ? '' : array_filter($data['reseller-item']);
         $subscriptions = empty($data['reseller-subscription']) ? '' : array_filter($data['reseller-subscription']);
-        $trunks = empty($data['reseller-trunk']) ? '' : array_filter($data['reseller-trunk']);
+        //$trunks = empty($data['reseller-trunk']) ? '' : array_filter($data['reseller-trunk']);
+        $trunks='';
         $is_product = 0;
         $is_subscription = 0;
         $is_trunk = 0;
@@ -104,6 +105,15 @@ class ResellerController extends BaseController {
                 $LastName = 'Reseller';
             }
 
+            if(!empty($data['AllowWhiteLabel'])){
+                if(empty($data['DomainUrl'])){
+                    $data['DomainUrl'] = CompanyConfiguration::where(['CompanyID'=>$CompanyID,'Key'=>'WEB_URL'])->pluck('Value');
+                }
+                if(!Reseller::IsAllowDomainUrl($data['DomainUrl'],'')){
+                    return  Response::json(array("status" => "failed", "message" => "please setup different domain for your reseller."));
+                }
+            }
+
             try {
 
                 $CompanyData = array();
@@ -131,6 +141,14 @@ class ResellerController extends BaseController {
                     if(count($JobStatusMessage)){
                         throw  new \Exception($JobStatusMessage[0]->Message);
                     }else{
+                        if(!empty($data['DomainUrl'])){
+                            $DomainUrl = rtrim($data['DomainUrl'],"/");
+                            CompanyConfiguration::where(['Key'=>'WEB_URL','CompanyID'=>$ChildCompany->CompanyID])->update(['Value'=>$DomainUrl]);
+                        }else{
+                            $ResellerDomain = CompanyConfiguration::where(['CompanyID'=>$CompanyID,'Key'=>'WEB_URL'])->pluck('Value');
+                            CompanyConfiguration::where(['Key'=>'WEB_URL','CompanyID'=>$ChildCompany->CompanyID])->update(['Value'=>$ResellerDomain]);
+                        }
+                        CompanyGateway::createDefaultCronJobs($ChildCompanyID);
                         DB::commit();
                         return Response::json(array("status" => "success", "message" => "Reseller Successfully Created" ));
                     }
@@ -189,6 +207,16 @@ class ResellerController extends BaseController {
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
+
+        if(!empty($data['AllowWhiteLabel'])){
+            if(empty($data['DomainUrl'])){
+                $data['DomainUrl'] = CompanyConfiguration::where(['CompanyID'=>$data['CompanyID'],'Key'=>'WEB_URL'])->pluck('Value');
+            }
+            if(!Reseller::IsAllowDomainUrl($data['DomainUrl'],$id)){
+                return  Response::json(array("status" => "failed", "message" => "please setup different domain for your reseller."));
+            }
+        }
+
         $updatedata = array();
         $ResellerData['ResellerName'] = $AccountName;
         $ResellerData['FirstName'] = $FirstName;
@@ -221,6 +249,13 @@ class ResellerController extends BaseController {
             $Result = $Reseller->update($ResellerData);
             DB::commit();
             if($Result){
+                if(!empty($data['DomainUrl'])){
+                    $DomainUrl = rtrim($data['DomainUrl'],"/");
+                    CompanyConfiguration::where(['Key'=>'WEB_URL','CompanyID'=>$Reseller->ChildCompanyID])->update(['Value'=>$DomainUrl]);
+                }else{
+                    $ResellerDomain = CompanyConfiguration::where(['CompanyID'=>$Reseller->CompanyID,'Key'=>'WEB_URL'])->pluck('Value');
+                    CompanyConfiguration::where(['Key'=>'WEB_URL','CompanyID'=>$Reseller->ChildCompanyID])->update(['Value'=>$ResellerDomain]);
+                }
                 return  Response::json(array("status" => "success", "message" => "Reseller Successfully Updated"));
             } else {
                 return  Response::json(array("status" => "failed", "message" => "Problem Updating Reseller."));
@@ -293,7 +328,8 @@ class ResellerController extends BaseController {
         $CompanyID = User::get_companyID();
         $items = empty($data['reseller-item']) ? '' : array_filter($data['reseller-item']);
         $subscriptions = empty($data['reseller-subscription']) ? '' : array_filter($data['reseller-subscription']);
-        $trunks = empty($data['reseller-trunk']) ? '' : array_filter($data['reseller-trunk']);
+        //$trunks = empty($data['reseller-trunk']) ? '' : array_filter($data['reseller-trunk']);
+        $trunks='';
 
         $is_product = 0;
         $is_subscription = 0;
@@ -388,6 +424,11 @@ class ResellerController extends BaseController {
         }
 
         return $ResellerIDs;
+    }
+
+    public function getdomainurl($ResellerID){
+        $DomainUrl = Reseller::ResellerDomainUrl($ResellerID);
+        return Response::json(array("DomainUrl" => $DomainUrl));
     }
 
     public function view($id) {

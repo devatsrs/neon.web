@@ -6,8 +6,8 @@ class CurrenciesController extends \BaseController {
 
         $CompanyID = User::get_companyID();
         $currencies = Currency::
-                select('Code','Symbol', 'Description',  'CurrencyId')
-                ->where("CompanyID", $CompanyID);
+                select('Code','Symbol', 'Description',  'CurrencyId');
+                //->where("CompanyID", $CompanyID);
 
         return Datatables::of($currencies)->make();
     }

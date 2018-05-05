@@ -73,6 +73,52 @@ class VendorBlockingsController extends \BaseController {
             return View::make('vendorblockings.blockby_code', compact('id', 'trunks', 'trunk_keys', 'countries','Account'));
     }
 
+    /**
+     * @return mixed
+     */
+    public function blockunblockcode()
+    {
+
+        $postdata = Input::all();
+        $CompanyID = User::get_companyID();
+        $preference =  !empty($postdata['preference']) ? $postdata['preference'] : 0;
+        $acc_id =  $postdata['acc_id'];
+        $trunk =  $postdata['trunk'];
+        $rowcode = $postdata["rowcode"];
+        $CodeDeckId = $postdata["CodeDeckId"];
+        $description = $postdata["description"];
+        $username = User::get_user_full_name();
+        $blockId = $postdata["id"];
+
+
+        if( $postdata['countryBlockingID'] ==  'codewiseBlocking' ){
+            $p_action = '';
+            $countryBlockingID = 0;
+        }else{
+            if( $postdata['countryBlockingID'] > 0 ){
+                $p_action = 'country_unblock';
+                $countryBlockingID = $postdata['countryBlockingID'];
+            }else {
+                $p_action = 'country_block';
+                $countryBlockingID = 0;
+            }
+        }
+        $query = "call prc_lcrBlockUnblock (".$CompanyID.",'".$postdata["GroupBy"]."',".$blockId.",".$preference.",".$acc_id.",".$trunk.",".$rowcode.",".$CodeDeckId.",'".$description."','".$username."','".$p_action."','".$countryBlockingID."')";
+        DB::select($query);
+        \Illuminate\Support\Facades\Log::info($query);
+        //$results = DB::select($query);
+        //$preference = isset($results[0]->Preference) ? $results[0]->Preference : '';
+        $msgVendor = $blockId > 0 ? 'Unblocked' : 'Blocked';
+        try{
+            $message =  "Vendor ".$msgVendor." Successfully";
+            return json_encode(["status" => "success", "message" => $message]);
+        }catch ( Exception $ex ){
+            $message =  "Oops Somethings Wrong !";
+            return json_encode(["status" => "fail", "message" => $message]);
+        }
+
+    }
+
     public function blockbycountry_exports($id,$type) {
             $data = Input::all();
 

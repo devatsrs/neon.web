@@ -47,8 +47,9 @@ class Trunk extends \Eloquent  {
         } else {
              //if the cache doesn't have it yet
             $company_id = $CompanyID>0?$CompanyID : User::get_companyID();
-            self::$cache['trunk_dropdown1_cache'] = Trunk::where([ "Status" => 1 , "CompanyID" => $company_id])->lists('Trunk', 'Trunk');
-            self::$cache['trunk_dropdown1_cache'] = array(""=>"Select") + self::$cache['trunk_dropdown1_cache'];
+            //self::$cache['trunk_dropdown1_cache'] = Trunk::where([ "Status" => 1 , "CompanyID" => $company_id])->lists('Trunk', 'Trunk');
+            self::$cache['trunk_dropdown1_cache'] = Trunk::where([ "Status" => 1 ])->lists('Trunk', 'Trunk');
+            self::$cache['trunk_dropdown1_cache'] = array(""=>cus_lang("DROPDOWN_OPTION_SELECT")) + self::$cache['trunk_dropdown1_cache'];
             
             //cache the database results so we won't need to fetch them again for 10 minutes at least
             Cache::forever('trunk_dropdown1_cache', array('trunk_dropdown1_cache' => self::$cache['trunk_dropdown1_cache']));
@@ -69,12 +70,13 @@ class Trunk extends \Eloquent  {
         } else {
              //if the cache doesn't have it yet
             $company_id = $CompanyID>0?$CompanyID : User::get_companyID();
-            self::$cache['trunk_dropdown2_cache'] = Trunk::where(["Status" => 1 , "CompanyID" => $company_id])->lists( 'Trunk','TrunkID');
-            self::$cache['trunk_dropdown2_cache'] =  array(""=> "Select") + self::$cache['trunk_dropdown2_cache'] ;
+            //self::$cache['trunk_dropdown2_cache'] = Trunk::where(["Status" => 1 , "CompanyID" => $company_id])->lists( 'Trunk','TrunkID');
+            self::$cache['trunk_dropdown2_cache'] = Trunk::where(["Status" => 1 ])->lists( 'Trunk','TrunkID');
 
             //cache the database results so we won't need to fetch them again for 10 minutes at least
             Cache::forever('trunk_dropdown2_cache', array('trunk_dropdown2_cache' => self::$cache['trunk_dropdown2_cache']));
         }
+        self::$cache['trunk_dropdown2_cache'] =  array(""=> cus_lang("DROPDOWN_OPTION_SELECT")) + self::$cache['trunk_dropdown2_cache'] ;
 
         return self::$cache['trunk_dropdown2_cache'];
     }
@@ -89,7 +91,8 @@ class Trunk extends \Eloquent  {
         } else {
              //if the cache doesn't have it yet
             $company_id = $CompanyID>0?$CompanyID : User::get_companyID();
-            self::$cache['trunk_cache'] = Trunk::where(["Status" => 1 , "CompanyID" => $company_id])->get();
+            //self::$cache['trunk_cache'] = Trunk::where(["Status" => 1 , "CompanyID" => $company_id])->get();
+            self::$cache['trunk_cache'] = Trunk::where(["Status" => 1 ])->get();
             Cache::forever('trunk_cache', array('trunk_cache' => self::$cache['trunk_cache']));
         }
 

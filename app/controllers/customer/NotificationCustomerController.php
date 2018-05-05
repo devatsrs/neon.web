@@ -28,6 +28,8 @@ class NotificationCustomerController extends \BaseController {
     }
 
     public function index(){
+
+        Alert::multiLang_init();
         asort(Notification::$type);
         $notificationType = array(""=> "Select") + Notification::$type;
         $gateway = CompanyGateway::getCompanyGatewayIdList();
@@ -72,9 +74,9 @@ class NotificationCustomerController extends \BaseController {
         }
         $data = self::convert_data($data)+$data;
         if ($Notification = Alert::create($data)) {
-            return Response::json(array("status" => "success", "message" => "Notification Successfully Created",'redirect'=>URL::to('/notification/edit/' . $Notification->NotificationID)));
+            return Response::json(array("status" => "success", "message" => Lang::get('routes.CUST_PANEL_PAGE_NOTIFICATIONS_MSG_NOTIFICATION_SUCCESSFULLY_CREATED'),'redirect'=>URL::to('/notification/edit/' . $Notification->NotificationID)));
         } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Creating Notification."));
+            return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_NOTIFICATIONS_MSG_PROBLEM_CREATING_NOTIFICATION')));
         }
 	}
 
@@ -96,9 +98,9 @@ class NotificationCustomerController extends \BaseController {
             }
             $data = self::convert_data($data)+$data;
             if ($Notification->update($data)) {
-                return Response::json(array("status" => "success", "message" => "Notification Successfully Updated"));
+                return Response::json(array("status" => "success", "message" => Lang::get('routes.CUST_PANEL_PAGE_NOTIFICATIONS_MSG_NOTIFICATION_SUCCESSFULLY_UPDATED')));
             } else {
-                return Response::json(array("status" => "failed", "message" => "Problem Updating Notification."));
+                return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_NOTIFICATIONS_MSG_PROBLEM_UPDATING_NOTIFICATION')));
             }
         }
 	}
@@ -112,12 +114,12 @@ class NotificationCustomerController extends \BaseController {
                 $Notification = Alert::find($AlertID);
                 $result = $Notification->delete();
                 if ($result) {
-                    return Response::json(array("status" => "success", "message" => "Notification Successfully Deleted"));
+                    return Response::json(array("status" => "success", "message" => Lang::get('routes.CUST_PANEL_PAGE_NOTIFICATIONS_MSG_NOTIFICATION_SUCCESSFULLY_DELETED')));
                 } else {
-                    return Response::json(array("status" => "failed", "message" => "Problem Deleting Notification."));
+                    return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_NOTIFICATIONS_MSG_PROBLEM_DELETING_NOTIFICATION')));
                 }
             }catch (Exception $ex){
-                return Response::json(array("status" => "failed", "message" => "Problem Deleting. Exception:". $ex->getMessage()));
+                return Response::json(array("status" => "failed", "message" => Lang::get('routes.MESSAGE_PROBLEM_DELETING_EXCEPTION'). $ex->getMessage()));
             }
         }
 	}
@@ -157,44 +159,44 @@ class NotificationCustomerController extends \BaseController {
 
         if ($post_data['AlertGroup'] == Alert::GROUP_QOS) {
             if (empty($post_data['QosAlert']['Interval'])) {
-                $error_message = 'Qos Alert Interval is required.';
+                $error_message = Lang::get('routes.CUST_PANEL_PAGE_NOTIFICATIONS_MSG_QOS_ALERT_INTERVAL_IS_REQUIRED');
             }
             if (empty($post_data['QosAlert']['Time'])) {
-                $error_message = 'Qos Alert Time is required.';
+                $error_message = Lang::get('routes.CUST_PANEL_PAGE_NOTIFICATIONS_MSG_QOS_ALERT_TIME_IS_REQUIRED');
             }
         } else if ($post_data['AlertGroup'] == Alert::GROUP_CALL) {
 
             if ($post_data['AlertType'] == 'block_destination') {
                 if(empty($post_data['CallAlert']['BlacklistDestination'])) {
-                    $error_message = 'At least one blacklist destination is required.';
+                    $error_message = Lang::get('routes.CUST_PANEL_PAGE_NOTIFICATIONS_MSG_AT_LEAST_ONE_BLACKLIST_DESTINATION_IS_REQUIRED');
                 }
                 if(empty($post_data['CallAlert']['ReminderEmail'])){
-                    $error_message = 'Email Address is required.';
+                    $error_message = Lang::get('routes.CUST_PANEL_PAGE_NOTIFICATIONS_MSG_EMAIL_ADDRESS_IS_REQUIRED');
                 }
             } else if ($post_data['AlertType'] == 'call_duration' || $post_data['AlertType'] == 'call_cost' || $post_data['AlertType'] == 'call_after_office') {
                 if (empty($post_data['CallAlert']['AccountID'])) {
-                    $error_message = 'Account is required.';
+                    $error_message = Lang::get('routes.CUST_PANEL_PAGE_NOTIFICATIONS_MSG_ACCOUNT_IS_REQUIRED');
                 }else{
                     $tag = '"AccountID":"' . $post_data['CallAlert']['AccountID'] . '"';
                     if (!empty($post_data['AlertID'])) {
                         if (Alert::where('Settings', 'LIKE', '%' . $tag . '%')->where(['AlertType'=>$post_data['AlertType'],'CreatedByCustomer'=>1])->where('AlertID', '<>', $post_data['AlertID'])->count() > 0) {
-                            $error_message = 'AlertType is already taken.';
+                            $error_message = Lang::get('routes.CUST_PANEL_PAGE_NOTIFICATIONS_MSG_ALERTTYPE_IS_ALREADY_TAKEN');
                         }
                     }else{
                         if (Alert::where('Settings', 'LIKE', '%' . $tag . '%')->where(['AlertType'=>$post_data['AlertType'],'CreatedByCustomer'=>1])->count() > 0) {
-                            $error_message = 'AlertType is already taken.';
+                            $error_message = Lang::get('routes.CUST_PANEL_PAGE_NOTIFICATIONS_MSG_ALERTTYPE_IS_ALREADY_TAKEN');
                         }
                     }
                 }
 
                 if ($post_data['AlertType'] == 'call_duration' && empty($post_data['CallAlert']['Duration'])) {
-                    $error_message = 'Duration is required.';
+                    $error_message = Lang::get('routes.CUST_PANEL_PAGE_NOTIFICATIONS_MSG_DURATION_IS_REQUIRED');
                 } else if ($post_data['AlertType'] == 'call_cost' && empty($post_data['CallAlert']['Cost'])) {
-                    $error_message = 'Cost is required.';
+                    $error_message = Lang::get('routes.CUST_PANEL_PAGE_NOTIFICATIONS_MSG_COST_IS_REQUIRED');
                 } else if ($post_data['AlertType'] == 'call_after_office' && empty($post_data['CallAlert']['OpenTime'])) {
-                    $error_message = 'Open Time is required.';
+                    $error_message = Lang::get('routes.CUST_PANEL_PAGE_NOTIFICATIONS_MSG_OPEN_TIME_IS_REQUIRED');
                 } else if ($post_data['AlertType'] == 'call_after_office' && empty($post_data['CallAlert']['CloseTime'])) {
-                    $error_message = 'Close Time is required.';
+                    $error_message = Lang::get('routes.CUST_PANEL_PAGE_NOTIFICATIONS_MSG_CLOSE_TIME_IS_REQUIRED');
                 }
 
             }

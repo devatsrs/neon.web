@@ -22,13 +22,13 @@
         <span class="hidden-xs">Vendor Rate</span>
     </a>
 </li>
-@if(User::checkCategoryPermission('VendorRates','Upload'))
+{{--@if(User::checkCategoryPermission('VendorRates','Upload'))
 <li>
     <a href="{{ URL::to('/vendor_rates/'.$id.'/upload') }}" >
         <span class="hidden-xs">Vendor Rate Upload</span>
     </a>
 </li>
-@endif
+@endif--}}
 @if(User::checkCategoryPermission('VendorRates','Download'))
 <li>
     <a href="{{ URL::to('/vendor_rates/'.$id.'/download') }}" >
@@ -64,10 +64,11 @@
     </a>
 </li>
 @endif
+@include('vendorrates.upload_rates_button')
 </ul>
 <div class="row">
 <div class="col-md-12">
-       <form role="form" id="vendor-rate-search" method="get"  action="{{URL::to('vendor_rates/'.$id.'/search')}}" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+       <form role="form" id="vendor-rate-search" method="get" action="javascript:void(0);" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
         <div class="panel panel-primary" data-collapsed="0">
             <div class="panel-heading">
                 <div class="panel-title">
@@ -91,8 +92,8 @@
                         <input type="text" name="Description" class="form-control" id="field-1" placeholder="" value="{{Input::get('Description')}}" />
 
                     </div>
-                    <label for="field-1" class="col-sm-1 control-label">Effective</label>
-                    <div class="col-sm-3">
+                    <label for="field-1" class="col-sm-1 control-label EffectiveBox">Effective</label>
+                    <div class="col-sm-3 EffectiveBox">
                         <select name="Effective" class="select2" data-allow-clear="true" data-placeholder="Select Effective">
                             <option value="Now">Now</option>
                             <option value="Future">Future</option>
@@ -112,6 +113,13 @@
                         {{ Form::select('Trunk', $trunks, $trunk_keys, array("class"=>"select2")) }}
                     </div>
 
+                    <label for="field-1" class="col-sm-1 control-label">Discontinued Codes</label>
+                    <div class="col-sm-3">
+                        <p class="make-switch switch-small">
+                            {{Form::checkbox('DiscontinuedRates', '1', false, array("id"=>"DiscontinuedRates"))}}
+                        </p>
+                    </div>
+
                 </div>
                 <p style="text-align: right;">
                     <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
@@ -126,10 +134,6 @@
 </div>
 <div style="text-align: right;padding:10px 0 ">
     @if(User::checkCategoryPermission('VendorRates','Edit'))
-    <a class="btn btn-primary btn-sm btn-icon icon-left" id="bulk_set_vendor_rate" href="javascript:;">
-        <i class="entypo-floppy"></i>
-        Bulk update
-    </a>
     <a class="btn btn-primary btn-sm btn-icon icon-left" id="changeSelectedVendorRates" href="javascript:;">
         <i class="entypo-floppy"></i>
         Change Selected
@@ -143,9 +147,8 @@
     @endif
     <form id="clear-bulk-rate-form" >
         <input type="hidden" name="VendorRateID" value="">
-        <input type="hidden" name="Trunk" value="">
+        <input type="hidden" name="TrunkID" value="">
         <input type="hidden" name="criteria" value="">
-
     </form>
 </div>
 
@@ -173,43 +176,304 @@
 </table>
  
 <script type="text/javascript">
-jQuery(document).ready(function($) {
-    //var data_table;
-    var Code, Description, Country,Trunk,Effective,update_new_url;
     var $searchFilter = {};
     var checked='';
     var list_fields  = ['VendorRateID','Code','Description','ConnectionFee','Interval1','IntervalN','Rate','EffectiveDate','EndDate','updated_at','updated_by'];
+    var Code, Description, Country,Trunk,Effective,update_new_url;
+
+jQuery(document).ready(function($) {
+    var ArchiveRates;
+    //var data_table;
+
     $("#vendor-rate-search").submit(function(e) {
+        return rateDataTable();
+    });
+
+               $('#table-4 tbody').on('click', 'tr', function() {
+                   if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                       if (checked == '') {
+                           $(this).toggleClass('selected');
+                           if ($(this).hasClass('selected')) {
+                               $(this).find('.rowcheckbox').prop("checked", true);
+                           } else {
+                               $(this).find('.rowcheckbox').prop("checked", false);
+                           }
+                       }
+                   }
+               });
+
+    // Replace Checboxes
+    $(".pagination a").click(function(ev) {
+        replaceCheckboxes();
+    });
+
+    //Clear Rate Button
+    $(document).off('click.clear-rate','.btn.clear-vendor-rate,#clear-bulk-rate');
+    $(document).on('click.clear-rate','.btn.clear-vendor-rate,#clear-bulk-rate',function(ev) {
+
+        var VendorRateIDs   = [];
+        var TrunkID         = $searchFilter.Trunk;
+        var i = 0;
+        $('#table-4 tr .rowcheckbox:checked').each(function(i, el) {
+            VendorRateID = $(this).val();
+            VendorRateIDs[i++] = VendorRateID;
+        });
+
+        $("#clear-bulk-rate-form").find("input[name='TrunkID']").val(TrunkID);
+
+        if(VendorRateIDs.length || $(this).hasClass('clear-vendor-rate')) {
+            response = confirm('Are you sure?');
+            if (response) {
+
+                if($(this).hasClass('clear-vendor-rate')) {
+                    var VendorRateID = $(this).parent().find('.hiddenRowData input[name="VendorRateID"]').val();
+                    $("#clear-bulk-rate-form").find("input[name='VendorRateID']").val(VendorRateID);
+                    $("#clear-bulk-rate-form").find("input[name='criteria']").val('');
+                }
+
+                if($(this).attr('id') == 'clear-bulk-rate') {
+                    var criteria='';
+                    if($('#selectallbutton').is(':checked')){
+                        criteria = JSON.stringify($searchFilter);
+                        $("#clear-bulk-rate-form").find("input[name='VendorRateID']").val('');
+                        $("#clear-bulk-rate-form").find("input[name='criteria']").val(criteria);
+                    }else{
+                        var VendorRateIDs = [];
+                        var i = 0;
+                        $('#table-4 tr .rowcheckbox:checked').each(function(i, el) {
+                            VendorRateID = $(this).val();
+                            VendorRateIDs[i++] = VendorRateID;
+                        });
+                        $("#clear-bulk-rate-form").find("input[name='VendorRateID']").val(VendorRateIDs.join(","))
+                        $("#clear-bulk-rate-form").find("input[name='criteria']").val('');
+                    }
+                }
+
+                var formData = new FormData($('#clear-bulk-rate-form')[0]);
+
+                $.ajax({
+                    url: baseurl + '/vendor_rates/{{$id}}/clear_rate', //Server script to process data
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function(response) {
+                        $(".save.btn").button('reset');
+
+                        if (response.status == 'success') {
+                            toastr.success(response.message, "Success", toastr_opts);
+                            rateDataTable();
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                    },
+                    // Form data
+                    data: formData,
+                    //Options to tell jQuery not to process data or worry about content-type.
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+                return false;
+            }
+            return false;
+        } else {
+            return false;
+        }
+    });
+
+    //Bulk Edit Button
+    $(document).off('click.changeSelectedVendorRates','#changeSelectedVendorRates');
+    $(document).on('click.changeSelectedVendorRates','#changeSelectedVendorRates',function(ev) {
+
+        var VendorRateIDs   = [];
+        var TrunkID         = $searchFilter.Trunk;
+
+        var i = 0;
+        $('#table-4 tr .rowcheckbox:checked').each(function(i, el) {
+            //console.log($(this).val());
+            VendorRateID = $(this).val();
+            VendorRateIDs[i] = VendorRateID;
+            i++;
+        });
+        date = new Date();
+        var month = date.getMonth()+1;
+        var day = date.getDate();
+        currentDate = date.getFullYear() + '-' +   (month<10 ? '0' : '') + month + '-' +     (day<10 ? '0' : '') + day;
+        $("#bulk-edit-vendor-rate-form")[0].reset();
+        $("#bulk-edit-vendor-rate-form").find("input[name='Interval1']").val(1);
+        $("#bulk-edit-vendor-rate-form").find("input[name='IntervalN']").val(1);
+        $("#bulk-edit-vendor-rate-form").find("input[name='EffectiveDate']").val(currentDate);
+        $("#bulk-edit-vendor-rate-form").find("input[name='TrunkID']").val(TrunkID);
+
+        var criteria = '';
+        if ($('#selectallbutton').is(':checked')) {
+            criteria = JSON.stringify($searchFilter);
+            $("#bulk-edit-vendor-rate-form").find("input[name='VendorRateID']").val('');
+            $("#bulk-edit-vendor-rate-form").find("input[name='criteria']").val(criteria);
+        } else {
+            $("#bulk-edit-vendor-rate-form").find("input[name='VendorRateID']").val(VendorRateIDs.join(","));
+            $("#bulk-edit-vendor-rate-form").find("input[name='criteria']").val('');
+        }
+
+        if(VendorRateIDs.length){
+            jQuery('#modal-BulkVendorRate').modal('show', {backdrop: 'static'});
+        }
+    });
+
+    //Bulk Form and Edit Single Form Submit
+    $("#bulk-edit-vendor-rate-form,#edit-vendor-rate-form").submit(function() {
+        var formData = new FormData($(this)[0]);
+        $.ajax({
+            url: baseurl + '/vendor_rates/{{$id}}/update_vendor_rate', //Server script to process data
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                $(".save.btn").button('reset');
+
+                if (response.status == 'success') {
+                    $('#modal-BulkVendorRate').modal('hide');
+                    $('#modal-VendorRate').modal('hide');
+                    toastr.success(response.message, "Success", toastr_opts);
+                    //data_table.fnFilter('', 0);
+                    rateDataTable();
+                } else {
+                    toastr.error(response.message, "Error", toastr_opts);
+                }
+            },
+            error: function(error) {
+                $("#modal-BulkVendorRate").modal("hide");
+                $("#modal-VendorRate").modal("hide");
+                toastr.error(error, "Error", toastr_opts);
+            },
+            // Form data
+            data: formData,
+            //Options to tell jQuery not to process data or worry about content-type.
+            cache: false,
+            contentType: false,
+            processData: false
+        });
+        return false;
+    });
+
+    $("#DiscontinuedRates").on('change', function (event, state) {
+        if($("#DiscontinuedRates").is(':checked')) {
+            $(".EffectiveBox").hide();
+        } else {
+            $(".EffectiveBox").show();
+        }
+    });
+
+    $(document).on('click', '.btn-history', function() {
+        var $this   = $(this);
+        var Codes   = $this.prevAll("div.hiddenRowData").find("input[name='Code']").val();
+        getArchiveVendorRates($this,Codes);
+    });
+});
+
+    function getArchiveVendorRates($clickedButton,Codes) {
+        //var Codes = new Array();
+        var ArchiveRates;
+        /*$("#table-4 tr td:nth-child(2)").each(function(){
+            Codes.push($(this).html());
+        });*/
+
+        var tr = $clickedButton.closest('tr');
+        var row = data_table.row(tr);
+
+        if (row.child.isShown()) {
+            tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
+            row.child.hide();
+            tr.removeClass('shown');
+        } else {
+            tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
+            $clickedButton.attr('disabled','disabled');
+
+            $.ajax({
+                url : baseurl + "/vendor_rates/{{$id}}/search_ajax_datagrid_archive_rates",
+                type : 'POST',
+                data : "Codes="+Codes,
+                dataType : 'json',
+                cache: false,
+                success : function(response){
+                    $clickedButton.removeAttr('disabled');
+
+                    if (response.status == 'success') {
+                        ArchiveRates = response.data;
+                        //$('.details-control').show();
+                    } else {
+                        ArchiveRates = {};
+                        toastr.error(response.message, "Error", toastr_opts);
+                    }
+
+                    $clickedButton.find('i').toggleClass('entypo-plus-squared entypo-minus-squared');
+                    var hiddenRowData = tr.find('.hiddenRowData');
+                    var Code = hiddenRowData.find('input[name="Code"]').val();
+                    var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
+                    table.append("<thead><tr><th>Code</th><th>Description</th><th>Connection Fee</th><th>Interval 1</th><th>Interval N</th><th>Rate</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                    var tbody = $("<tbody></tbody>");
+
+                    /*ArchiveRates.sort(function(obj1, obj2) {
+                     // Ascending: first age less than the previous
+                     return new Date(obj2.EffectiveDate).getTime() - new Date(obj1.EffectiveDate).getTime();
+                     });*/
+                    ArchiveRates.forEach(function(data){
+                        if(data['Code'] == Code) {
+                            var html = "";
+                            html += "<tr class='no-selection'>";
+                            html += "<td>" + data['Code'] + "</td>";
+                            html += "<td>" + data['Description'] + "</td>";
+                            html += "<td>" + data['ConnectionFee'] + "</td>";
+                            html += "<td>" + data['Interval1'] + "</td>";
+                            html += "<td>" + data['IntervalN'] + "</td>";
+                            html += "<td>" + data['Rate'] + "</td>";
+                            html += "<td>" + data['EffectiveDate'] + "</td>";
+                            html += "<td>" + data['EndDate'] + "</td>";
+                            html += "<td>" + data['ModifiedDate'] + "</td>";
+                            html += "<td>" + data['ModifiedBy'] + "</td>";
+                            html += "</tr>";
+                            table.append(html);
+                        }
+                    });
+                    table.append(tbody);
+                    row.child(table).show();
+                    row.child().addClass('no-selection child-row');
+                    tr.addClass('shown');
+                }
+            });
+        }
+    }
+
+    function rateDataTable() {
         $searchFilter.Trunk = Trunk = $("#vendor-rate-search select[name='Trunk']").val();
         $searchFilter.Country = Country = $("#vendor-rate-search select[name='Country']").val();
         $searchFilter.Effective = Effective = $("#vendor-rate-search select[name='Effective']").val();
         $searchFilter.Code = Code = $("#vendor-rate-search input[name='Code']").val();
         $searchFilter.Description = Description = $("#vendor-rate-search input[name='Description']").val();
+        $searchFilter.DiscontinuedRates = DiscontinuedRates = $("#vendor-rate-search input[name='DiscontinuedRates']").is(':checked') ? 1 : 0;
 
         if(Trunk == '' || typeof Trunk  == 'undefined'){
-           toastr.error("Please Select a Trunk", "Error", toastr_opts);
-           return false;
+            toastr.error("Please Select a Trunk", "Error", toastr_opts);
+            return false;
         }
-        data_table = $("#table-4").dataTable({
+        data_table = $("#table-4").DataTable({
             "bDestroy": true, // Destroy when resubmit form
             "bAutoWidth": false,
             "bProcessing": true,
             "bServerSide": true,
             "sAjaxSource": baseurl + "/vendor_rates/{{$id}}/search_ajax_datagrid",
             "fnServerParams": function(aoData) {
-                aoData.push({"name": "Effective", "value": Effective}, {"name": "Trunk", "value": Trunk}, {"name": "Country", "value": Country}, {"name": "Code", "value": Code}, {"name": "Description", "value": Description});
+                aoData.push({"name": "Effective", "value": Effective}, {"name": "Trunk", "value": Trunk}, {"name": "Country", "value": Country}, {"name": "Code", "value": Code}, {"name": "Description", "value": Description}, {"name": "DiscontinuedRates", "value": DiscontinuedRates});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name": "Effective", "value": Effective}, {"name": "Trunk", "value": Trunk}, {"name": "Country", "value": Country},  {"name": "Code", "value": Code}, {"name": "Description", "value": Description});
+                data_table_extra_params.push({"name": "Effective", "value": Effective}, {"name": "Trunk", "value": Trunk}, {"name": "Country", "value": Country},  {"name": "Code", "value": Code}, {"name": "Description", "value": Description}, {"name": "DiscontinuedRates", "value": DiscontinuedRates});
             },
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
-             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-             "aaSorting": [[0, "asc"], [1, "asc"]],
+            "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+            "aaSorting": [[0, "asc"], [1, "asc"]],
             "aoColumns":
                     [
                         {"bSortable": false, //RateID
                             mRender: function(id, type, full) {
-                            return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
+                                return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
                             }
                         },
                         {}, //1 Code
@@ -238,425 +502,128 @@ jQuery(document).ready(function($) {
                                 }
                                 action += '</div>';
                                 <?php if(User::checkCategoryPermission('VendorRates','Edit')) { ?>
-                                    action += ' <a href="Javascript:;" title="Edit" class="edit-vendor-rate btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
+                                if(DiscontinuedRates == 0) {
+                                    action += ' <a href="Javascript:;" title="Edit" class="edit-vendor-rate btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</a>';
+                                }
                                 <?php } ?>
+
+                                        action += ' <a href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</a>';
+
                                 if (full[0] > 0) {
                                     <?php if(User::checkCategoryPermission('VendorRates','Delete')) { ?>
-                                        action += ' <button href="' + clerRate_ + '" title="Delete"  class="btn clear btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
+                                    if(DiscontinuedRates == 0) {
+                                        action += ' <button href="' + clerRate_ + '" title="Delete"  class="btn clear-vendor-rate btn-danger btn-xs" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
+                                    }
                                     <?php } ?>
                                 }
                                 return action;
                             }
                         }, // 11 Action
                     ],
-                    "oTableTools":
+            "oTableTools":
+            {
+                "aButtons": [
                     {
-                        "aButtons": [
-                            {
-                                "sExtends": "download",
-                                "sButtonText": "EXCEL",
-                                "sUrl": baseurl + "/vendor_rates/{{$id}}/exports/xlsx",
-                                sButtonClass: "save-collection btn-sm"
-                            },
-                            {
-                                "sExtends": "download",
-                                "sButtonText": "CSV",
-                                "sUrl": baseurl + "/vendor_rates/{{$id}}/exports/csv",
-                                sButtonClass: "save-collection btn-sm"
-                            }
-                        ]
+                        "sExtends": "download",
+                        "sButtonText": "EXCEL",
+                        "sUrl": baseurl + "/vendor_rates/{{$id}}/exports/xlsx",
+                        sButtonClass: "save-collection btn-sm"
                     },
-               "fnDrawCallback": function() {
-                   $(".btn.clear").click(function(e) {
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "CSV",
+                        "sUrl": baseurl + "/vendor_rates/{{$id}}/exports/csv",
+                        sButtonClass: "save-collection btn-sm"
+                    }
+                ]
+            },
+            "fnDrawCallback": function() {
+                //getArchiveVendorRates(); //rate history for plus button
+                $("#clear-bulk-rate-form").find("input[name='TrunkID']").val($searchFilter.Trunk);
 
-                       response = confirm('Are you sure?');
-                       if (response) {
-                           $.ajax({
-                               url: $(this).attr("href"),
-                               type: 'POST',
-                               dataType: 'json',
-                               beforeSend: function(){
-                                   $(this).button('loading');
-                               },
-                               success: function(response) {
-                                   $(this).button('reset');
-
-                                   if (response.status == 'success') {
-                                       toastr.success(response.message, "Success", toastr_opts);
-                                       data_table.fnFilter('', 0);
-                                   } else {
-                                       toastr.error(response.message, "Error", toastr_opts);
-                                   }
-                               },
-                               // Form data
-                               //data: {},
-                               cache: false,
-                               contentType: false,
-                               processData: false
-                           });
-                       }
-                       return false;
-
-                   });
-                   $("#selectall").click(function(ev) {
-                       var is_checked = $(this).is(':checked');
-                       $('#table-4 tbody tr').each(function(i, el) {
-                           if (is_checked) {
-                               $(this).find('.rowcheckbox').prop("checked", true);
-                               $(this).addClass('selected');
-                           } else {
-                               $(this).find('.rowcheckbox').prop("checked", false);
-                               $(this).removeClass('selected');
-                           }
-                       });
-                   });
-
-                   //Edit Button
-                   $(".edit-vendor-rate.btn").click(function(ev) {
-                        ev.stopPropagation();
-                        $('#bulk-update-params-show').hide();
-                        var cur_obj = $(this).prev("div.hiddenRowData");
-                        for(var i = 0 ; i< list_fields.length; i++){
-                            $("#bulk-edit-vendor-rate-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                $("#selectall").click(function(ev) {
+                    var is_checked = $(this).is(':checked');
+                    $('#table-4 tbody tr').each(function(i, el) {
+                        if (is_checked) {
+                            $(this).find('.rowcheckbox').prop("checked", true);
+                            $(this).addClass('selected');
+                        } else {
+                            $(this).find('.rowcheckbox').prop("checked", false);
+                            $(this).removeClass('selected');
                         }
-                       $('#modal-BulkVendorRate .modal-header h4').text('Edit Vendor Rates')
-                       jQuery('#modal-BulkVendorRate').modal('show', {backdrop: 'static'});
-                       update_new_url = baseurl + '/vendor_rates/bulk_update/{{$id}}';
-                   });
+                    });
+                });
 
-                   $(".dataTables_wrapper select").select2({
-                       minimumResultsForSearch: -1
-                   });
+                //Edit Button
+                $(".edit-vendor-rate.btn").off('click');
+                $(".edit-vendor-rate.btn").click(function(ev) {
+                    ev.stopPropagation();
+                    var TrunkID = $searchFilter.Trunk;
+                    var cur_obj = $(this).prev("div.hiddenRowData");
+                    for(var i = 0 ; i< list_fields.length; i++){
+                        $("#edit-vendor-rate-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                    }
+                    $("#edit-vendor-rate-form").find("input[name='TrunkID']").val(TrunkID);
+                    jQuery('#modal-VendorRate').modal('show', {backdrop: 'static'});
+                });
 
-                   $('#table-4 tbody tr').each(function(i, el) {
-                       if (checked!='') {
-                           $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
-                           $(this).addClass('selected');
-                           $('#selectallbutton').prop("checked", true);
-                       } else {
-                           $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);;
-                           $(this).removeClass('selected');
-                       }
-                   });
+                $(".dataTables_wrapper select").select2({
+                    minimumResultsForSearch: -1
+                });
 
-                   $('#selectallbutton').click(function(ev) {
-                       if($(this).is(':checked')){
-                           checked = 'checked=checked disabled';
-                           $("#selectall").prop("checked", true).prop('disabled', true);
-                           if(!$('#changeSelectedInvoice').hasClass('hidden')){
-                               $('#table-4 tbody tr').each(function(i, el) {
-                                   if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
-                                       $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
-                                       $(this).addClass('selected');
-                                   }
-                               });
-                           }
-                       }else{
-                           checked = '';
-                           $("#selectall").prop("checked", false).prop('disabled', false);
-                           if(!$('#changeSelectedInvoice').hasClass('hidden')){
-                               $('#table-4 tbody tr').each(function(i, el) {
-                                   if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
-                                       $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
-                                       $(this).removeClass('selected');
-                                   }
-                               });
-                           }
-                       }
-                   });
+                $('#table-4 tbody tr').each(function(i, el) {
+                    if (checked!='') {
+                        $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                        $(this).addClass('selected');
+                        $('#selectallbutton').prop("checked", true);
+                    } else {
+                        $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);;
+                        $(this).removeClass('selected');
+                    }
+                });
 
-                   if(Effective == 'All') {
-                       $('#bulk_set_vendor_rate').hide();
-                       $('#changeSelectedVendorRates').hide();
-                   } else {
-                       $('#bulk_set_vendor_rate').show();
-                       $('#changeSelectedVendorRates').show();
-                   }
-               }
+                $('#selectallbutton').click(function(ev) {
+                    if($(this).is(':checked')){
+                        checked = 'checked=checked disabled';
+                        $("#selectall").prop("checked", true).prop('disabled', true);
+                        if(!$('#changeSelectedInvoice').hasClass('hidden')){
+                            $('#table-4 tbody tr').each(function(i, el) {
+                                if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                                    $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                                    $(this).addClass('selected');
+                                }
+                            });
+                        }
+                    }else{
+                        checked = '';
+                        $("#selectall").prop("checked", false).prop('disabled', false);
+                        if(!$('#changeSelectedInvoice').hasClass('hidden')){
+                            $('#table-4 tbody tr').each(function(i, el) {
+                                if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                                    $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                                    $(this).removeClass('selected');
+                                }
+                            });
+                        }
+                    }
+                });
 
+                if(Effective == 'All' || DiscontinuedRates == 1) {
+                    $('#changeSelectedVendorRates').hide();
+                } else {
+                    $('#changeSelectedVendorRates').show();
+                }
 
+                if(DiscontinuedRates == 1) {
+                    $('#clear-bulk-rate').hide();
+                } else {
+                    $('#clear-bulk-rate').show();
+                }
+            }
         });
         $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
         return false;
-    });
-
-               $('#table-4 tbody').on('click', 'tr', function() {
-                   if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
-                       if (checked == '') {
-                           $(this).toggleClass('selected');
-                           if ($(this).hasClass('selected')) {
-                               $(this).find('.rowcheckbox').prop("checked", true);
-                           } else {
-                               $(this).find('.rowcheckbox').prop("checked", false);
-                           }
-                       }
-                   }
-               });
-
-    // Replace Checboxes
-    $(".pagination a").click(function(ev) {
-        replaceCheckboxes();
-    });
-    //Bulk Edit Button
-    $("#changeSelectedVendorRates").click(function(ev) {
-        if($('#selectallbutton').is(':checked')){
-            $("#bulk-edit-vendor-rate-form").find("input[name='EffectiveDate']").val("");
-            $("#bulk-edit-vendor-rate-form").find("input[name='Rate']").val("");
-            $("#bulk-edit-vendor-rate-form").find("input[name='ConnectionFee']").val(0);
-            $("#bulk-edit-vendor-rate-form").find("input[name='Interval1']").val("");
-            $("#bulk-edit-vendor-rate-form").find("input[name='IntervalN']").val("");
-
-            $('#bulk-update-params-show').show();
-            var search_html='<div class="row">';
-            var col_count=1;
-            if(Code != ''){
-                search_html += '<div class="col-md-6"><div class="form-group"><label for="field-1" class="control-label">Code</label><div class=""><p class="form-control-static" >'+Code+'</p></div></div></div>';
-                col_count++;
-            }
-            if(Country != '' && Country != 'All'){
-                search_html += '<div class="col-md-6"><div class="form-group"><label for="field-1" class="control-label">Country</label><div class=""><p class="form-control-static" >'+$("#vendor-rate-search select[name='Country']").find("[value='"+Country+"']").text()+'</p></div></div></div>';
-                col_count++;
-                if(col_count == 3){
-                    search_html +='</div><div class="row">';
-                    col_count=1;
-                }
-            }
-            if(Description != ''){
-                search_html += '<div class="col-md-6"><div class="form-group"><label for="field-1" class="control-label">Description</label><div class=""><p class="form-control-static" >'+Description+'</p></div></div></div>';
-                col_count++;
-                if(col_count == 3){
-                    search_html +='</div><div class="row">';
-                    col_count=1;
-                }
-            }
-            if(Effective != ''){
-                search_html += '<div class="col-md-6"><div class="form-group"><label for="field-1" class="control-label">Effective</label><div class=""><p class="form-control-static" >'+$("#vendor-rate-search select[name='Effective']").find("[value='"+Effective+"']").text()+'</p></div></div></div>';
-                col_count++;
-                if(col_count == 3){
-                    search_html +='</div><div class="row">';
-                    col_count=1;
-                }
-            }
-            if(Trunk != ''){
-                search_html += '<div class="col-md-6"><div class="form-group"><label for="field-1" class="control-label">Trunk</label><div class=""><p class="form-control-static" >'+$("#vendor-rate-search select[name='Trunk']").find("[value='"+Trunk+"']").text()+'</p></div></div></div>';
-                col_count++;
-            }
-            search_html+='</div>';
-            $("#bulk-update-params-show").html(search_html);
-
-
-            if(Trunk == '' || typeof Trunk  == 'undefined'){
-                toastr.error("Please Select a Trunk then Click Search", "Error", toastr_opts);
-                return false;
-            }
-            $('#modal-BulkVendorRate').modal('show');
-            $('#modal-BulkVendorRate .modal-header h4').text('Bulk Update Vendor Rates');
-            $("#bulk-edit-vendor-rate-form [name='Interval1']").val(1);
-            $("#bulk-edit-vendor-rate-form [name='IntervalN']").val(1);
-            date = new Date();
-            var month = date.getMonth()+1;
-            var day = date.getDate();
-            currentDate = date.getFullYear() + '-' +   (month<10 ? '0' : '') + month + '-' +     (day<10 ? '0' : '') + day;
-            $("#bulk-edit-vendor-rate-form [name='EffectiveDate']").val(currentDate);
-            $('#modal-BulkVendorRate .modal-body').show();
-            update_new_url = baseurl + '/vendor_rates/bulk_update_new/{{$id}}';
-        }else{
-            var VendorRateIDs = [];
-            var i = 0;
-            $('#table-4 tr .rowcheckbox:checked').each(function(i, el) {
-                console.log($(this).val());
-                VendorRateID = $(this).val();
-                VendorRateIDs[i++] = VendorRateID;
-            });
-            $('#modal-BulkVendorRate .modal-header h4').text('Bulk Edit Vendor Rates')
-            $('#bulk-update-params-show').hide();
-            date = new Date();
-            var month = date.getMonth()+1;
-            var day = date.getDate();
-            currentDate = date.getFullYear() + '-' +   (month<10 ? '0' : '') + month + '-' +     (day<10 ? '0' : '') + day;
-            $("#bulk-edit-vendor-rate-form").find("input[name='VendorRateID']").val(VendorRateIDs.join(","));
-            $("#bulk-edit-vendor-rate-form").find("input[name='EffectiveDate']").val(currentDate);
-            $("#bulk-edit-vendor-rate-form").find("input[name='Rate']").val("");
-            $("#bulk-edit-vendor-rate-form").find("input[name='Interval1']").val(1);
-            $("#bulk-edit-vendor-rate-form").find("input[name='IntervalN']").val(1);
-            if(VendorRateIDs.length){
-                $('#modal-BulkVendorRate').modal('show', {backdrop: 'static'});
-                update_new_url = baseurl + '/vendor_rates/bulk_update/{{$id}}';
-            }
-        }
-    });
-     //Bulk Clear Submit
-    $("#clear-bulk-rate").click(function() {
-        var criteria='';
-        if($('#selectallbutton').is(':checked')){
-            response = confirm('Are you sure?');
-            if (response) {
-                criteria = JSON.stringify($searchFilter);
-                $("#clear-bulk-rate-form").find("input[name='VendorRateID']").val('');
-                $("#clear-bulk-rate-form").find("input[name='Trunk']").val(Trunk);
-                $("#clear-bulk-rate-form").find("input[name='criteria']").val(criteria);
-                $.ajax({
-                    url: baseurl + '/vendor_rates/clear_all_vendorrate/{{$id}}', //Server script to process data
-                    type: 'POST',
-                    dataType: 'json',
-                    beforeSend: function(){
-                        $('#clear-bulk-rate').button('loading');
-                    },
-                    success: function (response) {
-                        $("#clear-bulk-rate").button('reset');
-
-                        if (response.status == 'success') {
-                            toastr.success(response.message, "Success", toastr_opts);
-                            data_table.fnFilter('', 0);
-                        } else {
-                            toastr.error(response.message, "Error", toastr_opts);
-                        }
-                    },
-                    // Form data
-                    data: $('#clear-bulk-rate-form').serialize(),
-                    //Options to tell jQuery not to process data or worry about content-type.
-                    cache: false
-
-                });
-            }
-            return false;
-        }else {
-            response = confirm('Are you sure?');
-            if (response) {
-                var VendorIDs = [];
-                var i = 0;
-                $('#table-4 tr .rowcheckbox:checked').each(function (i, el) {
-                    //console.log($(this).val());
-                    VendorID = $(this).val();
-                    VendorIDs[i++] = VendorID;
-                });
-                $("#clear-bulk-rate-form").find("input[name='VendorRateID']").val(VendorIDs.join(","));
-                $("#clear-bulk-rate-form").find("input[name='Trunk']").val(Trunk);
-                $("#clear-bulk-rate-form").find("input[name='criteria']").val('');
-
-                if (VendorIDs.length) {
-                    $.ajax({
-                        url: baseurl + '/vendor_rates/bulk_clear_rate/{{$id}}', //Server script to process data
-                        type: 'POST',
-                        dataType: 'json',
-                        beforeSend: function(){
-                            $('#clear-bulk-rate').button('loading');
-                        },
-                        success: function (response) {
-                            $("#clear-bulk-rate").button('reset');
-
-                            if (response.status == 'success') {
-                                toastr.success(response.message, "Success", toastr_opts);
-                                data_table.fnFilter('', 0);
-                            } else {
-                                toastr.error(response.message, "Error", toastr_opts);
-                            }
-                        },
-                        // Form data
-                        data: $('#clear-bulk-rate-form').serialize(),
-                        //Options to tell jQuery not to process data or worry about content-type.
-                        cache: false
-
-                    });
-                }
-                return false;
-            }
-            return false;
-        }
-
-    });
-    //Bulk Form Submit
-    $("#bulk-edit-vendor-rate-form").submit(function() {
-        $.ajax({
-            url: update_new_url, //Server script to process data
-            type: 'POST',
-            dataType: 'json',
-            success: function(response) {
-                $(".save.btn").button('reset');
-                if (response.status == 'success') {
-                    $("#modal-BulkVendorRate").modal("hide");
-                    toastr.success(response.message, "Success", toastr_opts);
-                    data_table.fnFilter('', 0);
-                } else {
-                    toastr.error(response.message, "Error", toastr_opts);
-                }
-            },
-            error: function(error) {
-                $("#modal-BulkVendorRate").modal("hide");
-            },
-            // Form data
-            data: $('#bulk-edit-vendor-rate-form').serialize()+'&'+$.param($searchFilter),
-            //Options to tell jQuery not to process data or worry about content-type.
-            cache: false
-
-        });
-        return false;
-    });
-    $("#bulk_set_vendor_rate").click(function(ev) {
-
-        $("#bulk-edit-vendor-rate-form").find("input[name='EffectiveDate']").val("");
-        $("#bulk-edit-vendor-rate-form").find("input[name='Rate']").val("");
-        $("#bulk-edit-vendor-rate-form").find("input[name='ConnectionFee']").val(0);
-        $("#bulk-edit-vendor-rate-form").find("input[name='Interval1']").val("");
-        $("#bulk-edit-vendor-rate-form").find("input[name='IntervalN']").val("");
-
-        $('#bulk-update-params-show').show();
-        var search_html='<div class="row">';
-        var col_count=1;
-        if(Code != ''){
-            search_html += '<div class="col-md-6"><div class="form-group"><label for="field-1" class="control-label">Code</label><div class=""><p class="form-control-static" >'+Code+'</p></div></div></div>';
-            col_count++;
-        }
-        if(Country != '' && Country != 'All'){
-            search_html += '<div class="col-md-6"><div class="form-group"><label for="field-1" class="control-label">Country</label><div class=""><p class="form-control-static" >'+$("#vendor-rate-search select[name='Country']").find("[value='"+Country+"']").text()+'</p></div></div></div>';
-            col_count++;
-            if(col_count == 3){
-                search_html +='</div><div class="row">';
-                col_count=1;
-            }
-        }
-        if(Description != ''){
-            search_html += '<div class="col-md-6"><div class="form-group"><label for="field-1" class="control-label">Description</label><div class=""><p class="form-control-static" >'+Description+'</p></div></div></div>';
-            col_count++;
-            if(col_count == 3){
-                search_html +='</div><div class="row">';
-                col_count=1;
-            }
-        }
-        if(Effective != ''){
-            search_html += '<div class="col-md-6"><div class="form-group"><label for="field-1" class="control-label">Effective</label><div class=""><p class="form-control-static" >'+$("#vendor-rate-search select[name='Effective']").find("[value='"+Effective+"']").text()+'</p></div></div></div>';
-            col_count++;
-            if(col_count == 3){
-                search_html +='</div><div class="row">';
-                col_count=1;
-            }
-        }
-        if(Trunk != ''){
-            search_html += '<div class="col-md-6"><div class="form-group"><label for="field-1" class="control-label">Trunk</label><div class=""><p class="form-control-static" >'+$("#vendor-rate-search select[name='Trunk']").find("[value='"+Trunk+"']").text()+'</p></div></div></div>';
-            col_count++;
-        }
-        search_html+='</div>';
-        $("#bulk-update-params-show").html(search_html);
-
-
-        if(Trunk == '' || typeof Trunk  == 'undefined'){
-           toastr.error("Please Select a Trunk then Click Search", "Error", toastr_opts);
-           return false;
-        }
-        $('#modal-BulkVendorRate').modal('show');
-        $('#modal-BulkVendorRate .modal-header h4').text('Bulk Update Vendor Rates');
-        $("#bulk-edit-vendor-rate-form [name='Interval1']").val(1);
-        $("#bulk-edit-vendor-rate-form [name='IntervalN']").val(1);
-        date = new Date();
-        var month = date.getMonth()+1;
-        var day = date.getDate();
-        currentDate = date.getFullYear() + '-' +   (month<10 ? '0' : '') + month + '-' +     (day<10 ? '0' : '') + day;
-        $("#bulk-edit-vendor-rate-form [name='EffectiveDate']").val(currentDate);
-        $('#modal-BulkVendorRate .modal-body').show();
-         update_new_url = baseurl + '/vendor_rates/bulk_update_new/{{$id}}';
-
-    });
-});
+    }
 </script>
 <style>
 .dataTables_filter label{
@@ -668,11 +635,100 @@ jQuery(document).ready(function($) {
 #selectcheckbox{
     padding: 15px 10px;
 }
+#table-4 tbody tr td.details-control{
+    width: 8%;
+}
 </style>
 @stop
 
 @section('footer_ext')
 @parent
+<!-- single edit -->
+<div class="modal fade" id="modal-VendorRate">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <form id="edit-vendor-rate-form" method="post" >
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Edit Vendor Rate</h4>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-4" class="control-label">Effective Date</label>
+                                <input type="text"  name="EffectiveDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Rate</label>
+                                <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-4" class="control-label">Interval 1</label>
+                                <input type="text" name="Interval1" class="form-control" value="" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Interval N</label>
+                                <input type="text" name="IntervalN" class="form-control" id="field-5" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Connection Fee</label>
+                                <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-4" class="control-label">End Date</label>
+                                <input type="text"  name="EndDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <input type="hidden" name="VendorRateID" value="">
+                    <input type="hidden" name="TrunkID" value="">
+                    <input type="hidden" name="criteria" value="">
+                    <input type="hidden" name="updateEffectiveDate" value="on">
+                    <input type="hidden" name="updateRate" value="on">
+                    <input type="hidden" name="updateInterval1" value="on">
+                    <input type="hidden" name="updateIntervalN" value="on">
+                    <input type="hidden" name="updateConnectionFee" value="on">
+                    <input type="hidden" name="updateEndDate" value="on">
+                    <input type="hidden" name="updateType" value="singleEdit">
+
+                    <button type="submit" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <i class="entypo-floppy"></i> Save
+                    </button>
+                    <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                        <i class="entypo-cancel"></i> Close
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- Bulk Update -->
 <div class="modal fade" id="modal-BulkVendorRate">
     <div class="modal-dialog">
@@ -690,57 +746,51 @@ jQuery(document).ready(function($) {
                     </div>
                     <div class="row">
                         <div class="col-md-6">
-
                             <div class="form-group">
+                                <input type="checkbox" name="updateEffectiveDate" class="" />
                                 <label for="field-4" class="control-label">Effective Date</label>
-
                                 <input type="text" name="EffectiveDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}"  data-date-format="yyyy-mm-dd" value="" />
                             </div>
-
                         </div>
 
                         <div class="col-md-6">
-
                             <div class="form-group">
+                                <input type="checkbox" name="updateRate" class="" />
                                 <label for="field-5" class="control-label">Rate</label>
-
                                 <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
-
                             </div>
-
                         </div>
-
-                         <div class="col-md-6">
-
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Connection Fee</label>
-
-                                <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
-
-                            </div>
-
-                        </div>
-
 
                         <div class="col-md-6">
-
                             <div class="form-group">
+                                <input type="checkbox" name="updateInterval1" class="" />
                                 <label for="field-4" class="control-label">Interval 1</label>
-
                                 <input type="text" name="Interval1" class="form-control" value="" />
                             </div>
-
                         </div>
 
                         <div class="col-md-6">
-
                             <div class="form-group">
+                                <input type="checkbox" name="updateIntervalN" class="" />
                                 <label for="field-5" class="control-label">Interval N</label>
-
                                 <input type="text" name="IntervalN" class="form-control" id="field-5" placeholder="">
-
                             </div>
+                        </div>
 
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="checkbox" name="updateConnectionFee" class="" />
+                                <label for="field-5" class="control-label">Connection Fee</label>
+                                <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="checkbox" name="updateEndDate" class="" />
+                                <label for="field-4" class="control-label">End Date</label>
+                                <input type="text" name="EndDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}"  data-date-format="yyyy-mm-dd" value="" />
+                            </div>
                         </div>
 
                     </div>
@@ -749,6 +799,9 @@ jQuery(document).ready(function($) {
 
                 <div class="modal-footer">
                     <input type="hidden" name="VendorRateID" value="">
+                    <input type="hidden" name="TrunkID" value="">
+                    <input type="hidden" name="criteria" value="">
+
                     <button type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i>
                         Save

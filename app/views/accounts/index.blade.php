@@ -50,6 +50,10 @@
                     </p>
                 </div>
                 <div class="form-group">
+                    <label class="control-label" for="field-1">Account Reseller</label>
+                    {{ Form::select('ResellerOwner',$reseller_owners,'', array("class"=>"select2")) }}
+                </div>
+                <div class="form-group">
                     <label class="control-label"  >Active</label><br/>
                     <p class="make-switch switch-small">
                         <input id="account_active" name="account_active" type="checkbox" value="1" checked="checked">
@@ -134,6 +138,8 @@
                         <span>Bulk Rate sheet Email</span>
                     </a>
                 </li>
+                @endif
+                @if(User::checkCategoryPermission('Account','Add'))
                 <li>
                    <a href="{{ URL::to('/import/account') }}" >
                         <i class="entypo-user-add"></i>
@@ -268,6 +274,7 @@
 			"tag":$("#account_filter [name='tag']").val(),
 			"verification_status":$("#account_filter [name='verification_status']").val(),
 			"account_owners":$("#account_filter [name='account_owners']").val(),			
+			"ResellerOwner":$("#account_filter [name='ResellerOwner']").val(),
 			"customer_on_off":$("#account_filter [name='customer_on_off']").prop("checked"),
 			"reseller_on_off":$("#account_filter [name='reseller_on_off']").prop("checked"),
 			"vendor_on_off":$("#account_filter [name='vendor_on_off']").prop("checked"),
@@ -302,6 +309,7 @@
         $searchFilter.tag = $("#account_filter [name='tag']").val();
         $searchFilter.verification_status = $("#account_filter [name='verification_status']").val();
         $searchFilter.account_owners = $("#account_filter [name='account_owners']").val();
+        $searchFilter.ResellerOwner = $("#account_filter [name='ResellerOwner']").val();
         $searchFilter.customer_on_off = $("#account_filter [name='customer_on_off']").prop("checked");
         $searchFilter.reseller_on_off = $("#account_filter [name='reseller_on_off']").prop("checked");
         $searchFilter.vendor_on_off = $("#account_filter [name='vendor_on_off']").prop("checked");
@@ -332,6 +340,7 @@
                                 {"name":"account_active","value":$searchFilter.account_active},
                                 {"name":"verification_status","value":$searchFilter.verification_status},
                                 {"name":"account_owners","value":$searchFilter.account_owners},
+                                {"name":"ResellerOwner","value":$searchFilter.ResellerOwner},
                                 {"name":"ipclitext","value":$searchFilter.ipclitext}
                         );
                         data_table_extra_params.length = 0;
@@ -347,6 +356,7 @@
                                 {"name":"account_active","value":$searchFilter.account_active},
                                 {"name":"verification_status","value":$searchFilter.verification_status},
                                 {"name":"account_owners","value":$searchFilter.account_owners},
+                                {"name":"ResellerOwner","value":$searchFilter.ResellerOwner},
                                 {"name":"ipclitext","value":$searchFilter.ipclitext},
                                 {"name":"Export","value":1}
                         );
@@ -435,9 +445,9 @@
 								
 								if(full[10]==1 || full[11]==1){
                                  	action += '&nbsp;<button redirecto="'+authenticate_+'" title="Authentication Rule" class="btn small_icons btn-default btn-xs"><i class="entypo-lock"></i></button>';
-                                } 
-								
-								<?php if(User::checkCategoryPermission('AccountService','View') && CompanyConfiguration::get('ACCOUNT_SUB') == 1) { ?>
+                                }
+
+								<?php if(User::checkCategoryPermission('AccountSubscription','View') && CompanyConfiguration::get('ACCOUNT_SUB') == 1) { ?>
                                 action +='&nbsp;<button class="btn btn-default small_icons btn-xs " redirecto="'+subscriptions_+'" title="View Account Subscriptions" data-id="'+full[0]+'" type="button"> <i class="fa fa-refresh"></i> </button>';
                                 <?php } ?>
 								
@@ -775,6 +785,7 @@
         $searchFilter.tag = $("#account_filter [name='tag']").val();
         $searchFilter.verification_status = $("#account_filter [name='verification_status']").val();
         $searchFilter.account_owners = $("#account_filter [name='account_owners']").val();
+        $searchFilter.ResellerOwner = $("#account_filter [name='ResellerOwner']").val();
         $searchFilter.customer_on_off = $("#account_filter [name='customer_on_off']").prop("checked");
         $searchFilter.vendor_on_off = $("#account_filter [name='vendor_on_off']").prop("checked");
         $searchFilter.reseller_on_off = $("#account_filter [name='reseller_on_off']").prop("checked");
@@ -1038,6 +1049,7 @@
             $("#BulkAction-form [name='BillingCycleType']").select2().select2('val', '');
             $("#BulkAction-form [name='SendInvoiceSetting']").select2().select2('val', '');
             $("#BulkAction-form [name='AutoPaymentSetting']").select2().select2('val', 'never');
+            $("#BulkAction-form [name='ResellerOwner']").select2().select2('val', '');
             $('.save').button('reset');
             el.modal('show');
         });
@@ -1276,6 +1288,18 @@
             }
 
         });
+
+        $("#BulkAction-form [name='ResellerCheck']").on("change",function(e){
+            if($("#BulkAction-form [name='ResellerCheck']").prop("checked") == true){
+                $("#BulkAction-form [name='ResellerOwnerAddCheck']").prop("checked", false).trigger('change');
+            }
+        });
+
+        $("#BulkAction-form [name='ResellerOwnerAddCheck']").on("change",function(e){
+            if($("#BulkAction-form [name='ResellerOwnerAddCheck']").prop("checked") == true){
+                $("#BulkAction-form [name='ResellerCheck']").prop("checked", false).trigger('change');
+            }
+        });
 		
     }); // main script over
 
@@ -1420,6 +1444,38 @@
               </div>
             </div>
           </div>
+            <div class="row">
+                <div id="" class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-3" class="control-label">
+                            <input type="checkbox"  name="ResellerCheck">
+                            <span>Reseller</span></label><br>
+                        <p class="make-switch switch-small">
+                            <input id="BulkResellerChange" name="Reseller_on_off" type="checkbox" value="1">
+                        </p>
+                    </div>
+                </div>
+                <div id="" class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-3" class="control-label">
+                            <input type="checkbox"  name="ResellerOwnerAddCheck">
+                            <span>Account Reseller</span></label><br>
+                            {{Form::select('ResellerOwner', $reseller_owners, '' ,array("id"=>"ResellerOwner_id","class"=>"select2 small form-control1"));}}
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div id="" class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-3" class="control-label">
+                            <input type="checkbox"  name="CustomerPaymentAddCheck">
+                            <span>Customer Payment Add</span></label><br>
+                        <p class="make-switch switch-small">
+                            <input id="BulkCustomerPaymentAdd" name="customerpayment_on_off" type="checkbox" value="1">
+                        </p>
+                    </div>
+                </div>
+            </div>
             <hr>
           <!-- billing section start -->
             <div class="row">
@@ -1519,7 +1575,7 @@
                     <div class="form-group">
                         <label for="field-3" class="control-label">
                             <span>Billing Cycle - Monthly Anniversary Date*</span></label><br>
-                        {{Form::text('BillingCycleValue', '' ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"dd-mm-yyyy", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
+                        {{Form::text('BillingCycleValue', '' ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
                     </div>
                 </div>
             </div>

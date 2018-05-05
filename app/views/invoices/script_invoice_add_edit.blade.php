@@ -70,7 +70,7 @@ $(document).ready(function(){
         var  selected_product_type = optgroup.prop('label')==txtSUBSCRIPTION?SUBSCRIPTION:optgroup.prop('label')==txtITEM?ITEM:'';
         //selected_product_type = ($(this.options[this.selectedIndex]).closest('optgroup').prop('label')).toLowerCase();
         //$row.find('.ProductType').val(product_types[selected_product_type]);
-        if( productID != ''  && parseInt(AccountID) > 0 ) {
+        if( typeof productID!="undefined" && productID != ''  && parseInt(AccountID) > 0 ) {
             try{
                 $row.find(".Qty").val(1);
                 //console.log(productID);
@@ -398,7 +398,7 @@ $(document).ready(function(){
         var price = parseFloat(obj.find(".Price").val().replace(/,/g,''));
         //decimal_places = get_decimal_places(price);
 
-        var qty = parseInt(obj.find(".Qty").val());
+        var qty = parseFloat(obj.find(".Qty").val());
         //var discount = parseFloat(obj.find(".Discount").val().replace(/,/g,''));
 		var discount = 0;
         var taxAmount  =  parseFloat(obj.find(".TaxRateID option:selected").attr("data-amount").replace(/,/g,''));
@@ -591,7 +591,23 @@ $(document).ready(function(){
         }, "json");
     });
 	$("textarea.autogrow").autosize();
+
+    $(document).on("keypress",".Qty",function (event) {
+        return isDecimal(event, this)
+    });
 });
+
+function isDecimal(evt, element) {
+    var charCode = (evt.which) ? evt.which : event.keyCode
+    if (
+            //(charCode != 45 || $(element).val().indexOf('-') != -1) &&      // “-” CHECK MINUS, AND ONLY ONE.
+    (charCode != 46 || $(element).val().indexOf('.') != -1) &&      // “.” CHECK DOT, AND ONLY ONE.
+    (charCode < 48 || charCode > 57)
+    ) {
+        return false;
+    }
+    return true;
+}
 </script>
 <style>
 #InvoiceTable.table > tbody > tr > td > div > a > span.select2-chosen { width:110px;}

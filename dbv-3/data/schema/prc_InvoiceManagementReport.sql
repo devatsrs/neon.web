@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_InvoiceManagementReport`(
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_InvoiceManagementReport`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountID` INT,
 	IN `p_StartDate` DATETIME,
@@ -6,9 +6,20 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_InvoiceManagementReport`(
 )
 BEGIN
 
+	DECLARE v_ShowZeroCall_ INT;
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 	/* top 10 Longest Calls*/
+	
+	SELECT tblInvoiceTemplate.ShowZeroCall INTO v_ShowZeroCall_ 
+	FROM NeonRMDev.tblAccountBilling  
+	INNER JOIN NeonRMDev.tblBillingClass ON tblBillingClass.BillingClassID = tblAccountBilling.BillingClassID
+	INNER JOIN NeonBillingDev.tblInvoiceTemplate ON tblInvoiceTemplate.InvoiceTemplateID = tblBillingClass.InvoiceTemplateID
+	WHERE AccountID = p_AccountID
+	LIMIT 1;
+	
+	SET v_ShowZeroCall_ = IFNULL(v_ShowZeroCall_,1);
+	
 	SELECT 
 		cli as col1,
 		cld as col2,
@@ -21,6 +32,7 @@ BEGIN
 	AND uh.AccountID IS NOT NULL
 	AND (p_AccountID = 0 OR uh.AccountID = p_AccountID)
 	AND StartDate BETWEEN p_StartDate AND p_EndDate
+	AND ((v_ShowZeroCall_ =0 AND ud.cost >0 ) OR (v_ShowZeroCall_ =1 AND ud.cost >= 0))
 	ORDER BY billed_duration DESC LIMIT 10;
 
 	/* top 10 Most Expensive Calls*/
@@ -36,6 +48,7 @@ BEGIN
 	AND uh.AccountID IS NOT NULL
 	AND (p_AccountID = 0 OR uh.AccountID = p_AccountID)
 	AND StartDate BETWEEN p_StartDate AND p_EndDate
+	AND ((v_ShowZeroCall_ =0 AND ud.cost >0 ) OR (v_ShowZeroCall_ =1 AND ud.cost >= 0))
 	ORDER BY cost DESC LIMIT 10;
 
 	/* top 10 Most Dialled Number*/
@@ -51,6 +64,7 @@ BEGIN
 	AND uh.AccountID IS NOT NULL
 	AND (p_AccountID = 0 OR uh.AccountID = p_AccountID)
 	AND StartDate BETWEEN p_StartDate AND p_EndDate
+	AND ((v_ShowZeroCall_ =0 AND ud.cost >0 ) OR (v_ShowZeroCall_ =1 AND ud.cost >= 0))
 	GROUP BY cld
 	ORDER BY col2 DESC
 	LIMIT 10;
@@ -68,6 +82,7 @@ BEGIN
 	AND uh.AccountID IS NOT NULL
 	AND (p_AccountID = 0 OR uh.AccountID = p_AccountID)
 	AND StartDate BETWEEN p_StartDate AND p_EndDate
+	AND ((v_ShowZeroCall_ =0 AND ud.cost >0 ) OR (v_ShowZeroCall_ =1 AND ud.cost >= 0))
 	GROUP BY StartDate
 	ORDER BY StartDate;
 
@@ -87,6 +102,7 @@ BEGIN
 	AND uh.AccountID IS NOT NULL
 	AND (p_AccountID = 0 OR uh.AccountID = p_AccountID)
 	AND StartDate BETWEEN p_StartDate AND p_EndDate
+	AND ((v_ShowZeroCall_ =0 AND ud.cost >0 ) OR (v_ShowZeroCall_ =1 AND ud.cost >= 0))
 	GROUP BY col1;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ; 

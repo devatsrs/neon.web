@@ -35,9 +35,13 @@
         <label for="cc">BCC</label>
         <input type="text" name="bcc"  class="form-control emailaddresses tags"  value="{{$bcc}}" id="replybcc" />
       </div>            
+        <div class="form-group">
+            <label for="bcc">Email Templates:</label>
+            {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2 email_template","parent_box"=>"mail-compose"))}}
+        </div>
       <div class="form-group">
         <label for="EmailActionSubject">* Subject:</label>
-        <input type="text"  class="form-control" name="Subject" id="EmailActionSubject" value="@if($action_type!='forward') RE: @else FW:  @endif {{$response_data['Subject']}}" />
+        <input type="text"  class="form-control" name="Subject" id="EmailActionSubject" value="@if($action_type!='forward') RE: @else FW:  @endif {{imap_mime_header_decode($response_data['Subject'])[0]->text}}" />
       </div>
       <div class="form-group">
         <label for="EmailActionbody">* Message:</label>

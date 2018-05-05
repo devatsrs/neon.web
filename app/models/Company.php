@@ -9,12 +9,13 @@ class Company extends \Eloquent {
 
     const BILLING_STARTTIME = 1;
     const BILLING_ENDTIME = 2;
+    const BILLING_SETUPTIME = 3;
 
     const LICENCE_ALL = 3;
     const LICENCE_BILLING = 2;
     const LICENCE_RM = 1;
 
-    public static $billing_time = array(''=>'Select',self::BILLING_STARTTIME=>'Start Time',self::BILLING_ENDTIME=>'End Time');
+    public static $billing_time = array(''=>'Select',self::BILLING_STARTTIME=>'Start Time',self::BILLING_ENDTIME=>'End Time',self::BILLING_SETUPTIME=>'Setup Time');
     public static $BillingCycleType =
         array(
              ""=>"Select",
@@ -65,7 +66,7 @@ class Company extends \Eloquent {
                                         'F-d-y'=>'mmmm-dd-yy (DECEMBER-31-15)',
                                         'y-F-d'=>'yy-mmmm-dd (15-DECEMBER-31)',
                                       );
-    public static $dialcode_separator = array(''=>'Skip loading',' '=>'Space',';'=>'SemiColon(;)');
+    public static $dialcode_separator = array(''=>'Skip loading',' '=>'Space',';'=>'SemiColon(;)',','=>'Comma(,)','|'=>'Pipe(|)');
 
     public static function getName($companyID=0){
         if($companyID>0){

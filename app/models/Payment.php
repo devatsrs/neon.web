@@ -48,9 +48,25 @@ class Payment extends \Eloquent {
         'selection.Amount.required' =>'The Amount field is required'
     );
 
+    public static function multiLang_init(){
+        Payment::$credit_card_type = array(
+            'American Express'=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_AMERICAN_EXPRESS"),
+            'Australian BankCard'=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_AUSTRALIAN_BANKCARD"),
+            'Diners Club'=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_DINERS_CLUB"),
+            'Discover'=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_DISCOVER"),
+            'MasterCard'=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_MASTERCARD"),
+            'Visa'=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_VISA"),
+            "JCB"=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_JCB"),
+        );
+    }
+
     public static function validate($id=0){
         $valid = array('valid'=>0,'message'=>'Some thing wrong with payment validation','data'=>'');
         $data = Input::all();
+        if(isset($data['CustomerPaymentType'])){
+            $data['PaymentType'] = $data['CustomerPaymentType'];
+            unset($data['CustomerPaymentType']);
+        }
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
         unset($data['customers']);
@@ -111,6 +127,25 @@ class Payment extends \Eloquent {
             return $valid;
         }
         if (Input::hasFile('PaymentProof')){
+
+            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PAYMENT_PROOF']);
+            $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+
+            $proof = Input::file('PaymentProof');
+            $ext = $proof->getClientOriginalExtension();
+            if (in_array(strtolower($ext), array("pdf",'png','jpg','gif'))) {
+                $filename = rename_upload_file($destinationPath,$proof->getClientOriginalName());
+                $proof->move($destinationPath,$filename);
+                if(!AmazonS3::upload($destinationPath.$filename,$amazonPath)){
+                    return Response::json(array("status" => "failed", "message" => "Failed to upload."));
+                }
+                $data['PaymentProof'] = $amazonPath . $filename;
+            }else{
+                $valid['message'] = Response::json(array("status" => "failed", "message" => "Please Upload file with given extensions."));
+                return $valid;
+            }
+
+            /*
             $upload_path = CompanyConfiguration::get('PAYMENT_PROOF_PATH');
             $destinationPath = $upload_path.'/SampleUpload/'.Company::getName().'/';
             $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PAYMENT_PROOF']) ;
@@ -128,7 +163,7 @@ class Payment extends \Eloquent {
             }else{
                 $valid['message'] = Response::json(array("status" => "failed", "message" => "Please Upload file with given extensions."));
                 return $valid;
-            }
+            }*/
         }else{
             unset($data['PaymentProof']);
         }
@@ -344,12 +379,30 @@ class Payment extends \Eloquent {
     public static function paymentSuccess($data){
         $Invoice = Invoice::find($data['InvoiceID']);
         $account = Account::find($data['AccountID']);
-
+        $isInvoicePay=true;
+        if(isset($data['isInvoicePay'])){
+            $isInvoicePay=$data['isInvoicePay'];
+        }
         $paymentdata = array();
-        $paymentdata['CompanyID'] = $Invoice->CompanyID;
-        $paymentdata['AccountID'] = $Invoice->AccountID;
-        $paymentdata['InvoiceNo'] = $Invoice->FullInvoiceNumber;
-        $paymentdata['InvoiceID'] = (int)$Invoice->InvoiceID;
+        if(!empty($Invoice) && $isInvoicePay){
+            $paymentdata['CompanyID'] = $Invoice->CompanyID;
+            $paymentdata['AccountID'] = $Invoice->AccountID;
+            $paymentdata['InvoiceNo'] = $Invoice->FullInvoiceNumber;
+            $paymentdata['InvoiceID'] = (int)$Invoice->InvoiceID;
+        }else{
+            $paymentdata['CompanyID'] = $account->CompanyId;
+            $paymentdata['AccountID'] = $account->AccountID;
+            $paymentdata['InvoiceNo'] = '';
+            if(!empty($Invoice)){
+                $paymentdata['InvoiceID'] = (int)$Invoice->InvoiceID;
+            }else{
+                $paymentdata['InvoiceID'] = 0;
+            }
+            if(isset($data['custome_notes'])){
+                $data['transaction_notes'] .= " ". $data['custome_notes'];
+            }
+        }
+
         $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
         $paymentdata['PaymentMethod'] = $data['PaymentMethod'];
         $paymentdata['CurrencyID'] = $account->CurrencyId;
@@ -363,9 +416,20 @@ class Payment extends \Eloquent {
         $paymentdata['updated_at'] = date('Y-m-d H:i:s');
         Payment::insert($paymentdata);
         $transactiondata = array();
-        $transactiondata['CompanyID'] = $Invoice->CompanyID;
-        $transactiondata['AccountID'] = $Invoice->AccountID;
-        $transactiondata['InvoiceID'] = $Invoice->InvoiceID;
+        if(!empty($Invoice) && $isInvoicePay){
+            $transactiondata['CompanyID'] = $Invoice->CompanyID;
+            $transactiondata['AccountID'] = $Invoice->AccountID;
+            $transactiondata['InvoiceID'] = $Invoice->InvoiceID;
+        }else{
+            $transactiondata['CompanyID'] = $account->CompanyId;
+            $transactiondata['AccountID'] = $account->AccountID;
+            if(!empty($Invoice)){
+                $transactiondata['InvoiceID'] = (int)$Invoice->InvoiceID;
+            }else{
+                $transactiondata['InvoiceID'] = 0;
+            }
+        }
+
         $transactiondata['Transaction'] = $data['Transaction'];
         $transactiondata['Notes'] = $data['transaction_notes'];
         $transactiondata['Amount'] = floatval($data['Amount']);
@@ -376,25 +440,71 @@ class Payment extends \Eloquent {
         $transactiondata['ModifyBy'] = $data['CreatedBy'];
         $transactiondata['Response'] = json_encode($data['Response']);
         TransactionLog::insert($transactiondata);
-        $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
+        if(!empty($Invoice) && $isInvoicePay){
+            $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
 
-        $EmailTemplate = EmailTemplate::where(["CompanyID" => $paymentdata['CompanyID'], "SystemType" => EmailTemplate::InvoicePaidNotificationTemplate , "Status" => 1 ])->first();
-        if(!empty($EmailTemplate) && isset($EmailTemplate->Status) && $EmailTemplate->Status == 1 ){
-            $paymentdata['EmailTemplate'] = $EmailTemplate;
-            $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);
-            $paymentdata['Invoice'] = $Invoice;
-            Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$paymentdata);
+            $EmailTemplate = EmailTemplate::getSystemEmailTemplate($paymentdata['CompanyID'], EmailTemplate::InvoicePaidNotificationTemplate, $account->LanguageID);
+            if(!empty($EmailTemplate) && isset($EmailTemplate->Status) && $EmailTemplate->Status == 1 ){
+                $paymentdata['EmailTemplate'] = $EmailTemplate;
+                $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);
+                if(empty($Invoice)){
+                    $paymentdata['Invoice'] = $Invoice;
+                    Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$paymentdata);
+                }
+            }
+        }else{
+            $companyID = $paymentdata['CompanyID'];
+            $PendingApprovalPayment = Notification::getNotificationMail(Notification::PendingApprovalPayment,$companyID);
+
+            $PendingApprovalPayment = explode(',', $PendingApprovalPayment);
+            $data=array();
+            $data['EmailToName'] = Company::getName($companyID);
+            $data['AccountName'] = Customer::get_user_full_name();
+            $data['Subject']= Customer::get_accountName().' Payment verification';
+            $data['data']['Amount'] = $paymentdata['Amount'];
+            $data['data']['PaymentType'] = $paymentdata['PaymentType'];
+            $data['data']['PaymentDate'] = $paymentdata['PaymentDate'];
+            $data['data']['Notes']= $paymentdata['Notes'];
+            $data['data']['Currency'] = Currency::getCurrencyCode($paymentdata['CurrencyID']);
+            $data['data']['AccountName'] = Customer::get_accountName();
+            $data['data']['CreatedBy'] = $paymentdata['CreatedBy'];
+            foreach($PendingApprovalPayment as $billingemail){
+                $billingemail = trim($billingemail);
+                if(filter_var($billingemail, FILTER_VALIDATE_EMAIL)) {
+                    $data['EmailTo'] = $billingemail;
+                    sendMail('emails.admin.payment', $data);
+                }
+            }
         }
     }
 
     public static function paymentFail($data){
+        $transactiondata = array();
+
+        $isInvoicePay=true;
+        if(isset($data['isInvoicePay'])){
+            $isInvoicePay=$data['isInvoicePay'];
+        }
 
         $Invoice = Invoice::find($data['InvoiceID']);
+        if(!empty($Invoice) && $isInvoicePay){
+            $transactiondata['CompanyID'] = $Invoice->CompanyID;
+            $transactiondata['AccountID'] = $Invoice->AccountID;
+            $transactiondata['InvoiceID'] = $Invoice->InvoiceID;
+        }else{
+            $account = Account::find($data['AccountID']);
+            $transactiondata['CompanyID'] = $account->CompanyId;
+            $transactiondata['AccountID'] = $account->AccountID;
+            if(!empty( $Invoice )){
+                $transactiondata['InvoiceID'] =  $Invoice->InvoiceID;
+            }else{
+                $transactiondata['InvoiceID'] = 0;
+            }
+            if(isset($data['custome_notes'])){
+                $data['transaction_notes'] .= " ". $data['custome_notes'];
+            }
+        }
 
-        $transactiondata = array();
-        $transactiondata['CompanyID'] = $Invoice->CompanyID;
-        $transactiondata['AccountID'] = $Invoice->AccountID;
-        $transactiondata['InvoiceID'] = $Invoice->InvoiceID;
         $transactiondata['Transaction'] = '';
         $transactiondata['Notes'] = $data['transaction_notes'];
         $transactiondata['Amount'] = floatval(0);
@@ -403,7 +513,7 @@ class Payment extends \Eloquent {
         $transactiondata['updated_at'] = date('Y-m-d H:i:s');
         $transactiondata['CreatedBy'] = $data['CreatedBy'];
         $transactiondata['ModifyBy'] = $data['CreatedBy'];
-        $transactiondata['Response'] = $data['Response'];
+        $transactiondata['Response'] = json_encode($data['Response']);
         TransactionLog::insert($transactiondata);
     }
 }

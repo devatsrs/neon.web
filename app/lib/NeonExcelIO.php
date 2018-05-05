@@ -17,6 +17,7 @@ class NeonExcelIO
 
 
     var $file ;
+    var $Sheet ;
     var $first_row ; // Read: skipp first row for column name
     var $sheet ; // default sheet to read
     var $row_cnt = 0; // set row counter to 0
@@ -37,9 +38,10 @@ class NeonExcelIO
     public static $CSV 	   			= 	'csv'; // csv file
 
 
-    public function __construct($file , $csvoption = array())
+    public function __construct($file , $csvoption = array(), $Sheet='')
     {
         $this->file = $file;
+        $this->Sheet = $Sheet;
         $this->sheet = 0;
         $this->first_row = self::$COLUMN_NAMES;
         $this->file_type = self::$CSV;
@@ -566,32 +568,40 @@ class NeonExcelIO
 
     }
 
-    public static function convertExcelToCSV($file_name, $data) {
+    public function convertExcelToCSV($data) {
         try {
+            $file_name = $this->file;
             $ext = pathinfo($file_name, PATHINFO_EXTENSION);
 
             if (in_array(strtolower($ext), array("xls", "xlsx"))) {
                 //reading from excel file and getting data from excel file starts
                 $start_time = date('Y-m-d H:i:s');
                 $objPHPExcelReader = PHPExcel_IOFactory::load($file_name);
+
+                if(!empty($this->Sheet)) {
+                    $objPHPExcelReader->setActiveSheetIndexByName($this->Sheet);
+                }
+
                 $ActiveSheet = $objPHPExcelReader->getActiveSheet();
                 $drow = $ActiveSheet->getHighestDataRow();
                 $dcol = $ActiveSheet->getHighestDataColumn();
+
                 $start_row = intval($data["start_row"]) + 1;
-                $end_row   = ($drow - intval($data["end_row"]));
+                $end_row = ($drow - intval($data["end_row"]));
 
                 Log::info('start row : ' . $start_row);
                 Log::info('highest row : ' . $drow . ' and highest col : ' . $dcol);
 
                 $start_time1 = date('Y-m-d H:i:s');
                 $allRows = $ActiveSheet->rangeToArray('A' . $start_row . ':' . $dcol . $end_row);
+                //print_r($allRows);
                 $end_time1 = date('Y-m-d H:i:s');
                 $process_time1 = strtotime($end_time1) - strtotime($start_time1);
                 Log::info('rangeToArray function call time : ' . $process_time1 . ' Seconds');
 
                 //Log::info(print_r(array_slice($allRows,0,10),true));
 
-                $file_name = substr($file_name, 0, strrpos($file_name, '.')) . '.csv';
+                $file_name = substr($file_name, 0, strrpos($file_name, '.')) .'_'.$this->Sheet.'.csv';
                 $end_time = date('Y-m-d H:i:s');
                 $process_time = strtotime($end_time) - strtotime($start_time);
                 Log::info('Convert to csv read time : ' . $process_time . ' Seconds');
@@ -599,19 +609,20 @@ class NeonExcelIO
 
                 $header_rows = $footer_rows = array();
                 $char_arr = array_combine(range('a','z'),range(1,26));
-                if($start_row > 0) {
-                    for($i=0;$i<intval($data["start_row"]);$i++) {
+
+                if ($start_row > 0) {
+                    for ($i = 0; $i < intval($data["start_row"]); $i++) {
                         $row = array();
-                        for($j=0;$j<=$char_arr[strtolower($dcol)]-1;$j++) {
+                        for ($j = 0; $j <= $char_arr[strtolower($dcol)] - 1; $j++) {
                             $row[$j] = "";
                         }
                         $header_rows[$i] = $row;
                     }
                 }
-                if(intval($data["end_row"]) > 0) {
-                    for($i=0;$i<intval($data["end_row"]);$i++) {
+                if (intval($data["end_row"]) > 0) {
+                    for ($i = 0; $i < intval($data["end_row"]); $i++) {
                         $row = array();
-                        for($j=0;$j<=$char_arr[strtolower($dcol)]-2;$j++) {
+                        for ($j = 0; $j <= $char_arr[strtolower($dcol)] - 2; $j++) {
                             $row[$j] = "";
                         }
                         $footer_rows[$i] = $row;
@@ -651,6 +662,9 @@ class NeonExcelIO
         Log::info('load function call time : ' . $process_time1 . ' Seconds');
 
         $start_time1 = date('Y-m-d H:i:s');
+        if(!empty($this->Sheet)) {
+            $objPHPExcelReader->setActiveSheetIndexByName($this->Sheet);
+        }
         $ActiveSheet = $objPHPExcelReader->getActiveSheet();
         $end_time1 = date('Y-m-d H:i:s');
         $process_time1 = strtotime($end_time1) - strtotime($start_time1);
@@ -713,5 +727,11 @@ class NeonExcelIO
         //Log::info(print_r($result, true));
 
         return $result;
+    }
+
+    public static function getSheetNamesFromExcel($filepath) {
+        $objPHPExcelReader = PHPExcel_IOFactory::load($filepath);
+
+        return $objPHPExcelReader->getSheetNames();
     }
 }

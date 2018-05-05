@@ -38,7 +38,56 @@ class AccountBalance extends \Eloquent {
 	 public static function getBalanceThresholdAmount($AccountID){
         return AccountBalance::where(['AccountID'=>$AccountID])->pluck('BalanceThreshold');
     }
-	
+
+    /**
+     * If Account Balance is negative than
+     * Prepaid Account = amount is negative to positive
+     * Postpaid Account = amount is 0
+    **/
+    public static function getAccountBalance($AccountID){
+        $AccountBalance = AccountBalance::where('AccountID',$AccountID)->pluck('BalanceAmount');
+        $BillingType = AccountBilling::where(['AccountID'=>$AccountID,'ServiceID'=>0])->pluck('BillingType');
+        if(isset($BillingType)){
+            if($BillingType==AccountApproval::BILLINGTYPE_PREPAID){
+                if($AccountBalance<0){
+                    $AccountBalance=abs($AccountBalance);
+                }else{
+                    $AccountBalance=($AccountBalance) * -1;
+                }
+            }else{
+                if($AccountBalance<0){
+                    $AccountBalance=0;
+                }
+            }
+        }else{
+            if($AccountBalance<0){
+                $AccountBalance=0;
+            }
+        }
+        return $AccountBalance;
+    }
+
+    public static function getAccountOutstandingBalance($AccountID,$AccountOutstandingBalance){
+        $BillingType = AccountBilling::where(['AccountID'=>$AccountID,'ServiceID'=>0])->pluck('BillingType');
+        if(isset($BillingType)){
+            if($BillingType==AccountApproval::BILLINGTYPE_PREPAID){
+                if($AccountOutstandingBalance<0){
+                    $AccountOutstandingBalance=abs($AccountOutstandingBalance);
+                }else{
+                    $AccountOutstandingBalance=($AccountOutstandingBalance) * -1;
+                }
+            }else{
+                if($AccountOutstandingBalance<0){
+                    $AccountOutstandingBalance=0;
+                }
+            }
+        }else{
+            if($AccountOutstandingBalance<0){
+                $AccountOutstandingBalance=0;
+            }
+        }
+        return $AccountOutstandingBalance;
+    }
 	
 
 }

@@ -19,12 +19,21 @@ class CustomersRatesController extends \BaseController {
         $data['Code'] = $data['Code'] != ''?"'".$data['Code']."'":'null';
         $data['Description'] = $data['Description'] != ''?"'".$data['Description']."'":'null';
 
-        $columns = array('RateID','Code','Description','Interval1','IntervalN','ConnectionFee','RoutinePlan','Rate','EffectiveDate','LastModifiedDate','LastModifiedBy','CustomerRateId');
+        $columns = array('RateID','Code','Description','Interval1','IntervalN','ConnectionFee','RoutinePlan','Rate','EffectiveDate','EndDate','LastModifiedDate','LastModifiedBy','CustomerRateId');
         $sort_column = $columns[$data['iSortCol_0']];
         $companyID = User::get_companyID();
 
-        $query = "call prc_GetCustomerRate (".$companyID.",".$id.",".$data['Trunk'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$data['Effected_Rates_on_off'].",'".intval($data['RoutinePlanFilter'])."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        if($data['Effective'] == 'CustomDate') {
+            $CustomDate = $data['CustomDate'];
+        } else {
+            $CustomDate = date('Y-m-d');
+        }
 
+        if(!empty($data['DiscontinuedRates'])) {
+            $query = "call prc_getDiscontinuedCustomerRateGrid (" . $companyID . "," . $id . "," . $data['Trunk'] . "," . $data['Country'] . "," . $data['Code'] . "," . $data['Description'] . "," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "'";
+        } else {
+            $query = "call prc_GetCustomerRate (".$companyID.",".$id.",".$data['Trunk'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."','".$CustomDate."',".$data['Effected_Rates_on_off'].",'".intval($data['RoutinePlanFilter'])."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        }
 
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
@@ -45,8 +54,32 @@ class CustomersRatesController extends \BaseController {
             })->download('xls');*/
         }
         $query .=',0)';
+        //Log::info($query);
+
         return DataTableSql::of($query)->make();
     }
+
+    public function search_ajax_datagrid_archive_rates($AccountID) {
+
+        $data = Input::all();
+        $companyID = User::get_companyID();
+
+        if(!empty($data['Codes'])) {
+            $Codes = $data['Codes'];
+            $query = 'call prc_GetCustomerRatesArchiveGrid ('.$companyID.','.$AccountID.',"'.$Codes.'")';
+            //Log::info($query);
+            $response['status']     = "success";
+            $response['message']    = "Data fetched successfully!";
+            $response['data']       = DB::select($query);
+        } else {
+            $response['status']     = "success";
+            $response['message']    = "Data fetched successfully!";
+            $response['data']       = [];
+        }
+
+        return json_encode($response);
+    }
+
     public  function search_customer_grid($id){
         $companyID = User::get_companyID();
         $data = Input::all();
@@ -134,85 +167,98 @@ class CustomersRatesController extends \BaseController {
 
             $companyID = User::get_companyID();
             foreach ($post_data['CustomerTrunk'] as $trunk => $data) {
+                DB::beginTransaction();
+                try {
 
-                if (isset($data['Status']) && $data['Status'] == 1) {
+                    if (isset($data['Status']) && $data['Status'] == 1) {
 
-                    $CustomerTrunk = new CustomerTrunk();
+                        $CustomerTrunk = new CustomerTrunk();
 
-                    $data['AccountID'] = $id;
-                    $data['CompanyID'] = $companyID;
-                    $data['TrunkID'] = $trunk;
+                        $data['AccountID'] = $id;
+                        $data['CompanyID'] = $companyID;
+                        $data['TrunkID'] = $trunk;
 
-                    //$data['Prefix'] = $Prefix;
-                    $data['IncludePrefix'] = isset($data['IncludePrefix']) ? 1 : 0;
-                    $data['RoutinePlanStatus'] = isset($data['RoutinePlanStatus']) ? 1 : 0;
-                    $data['UseInBilling'] = isset($data['UseInBilling']) ? 1 : 0;
+                        //$data['Prefix'] = $Prefix;
+                        $data['IncludePrefix'] = isset($data['IncludePrefix']) ? 1 : 0;
+                        $data['RoutinePlanStatus'] = isset($data['RoutinePlanStatus']) ? 1 : 0;
+                        $data['UseInBilling'] = isset($data['UseInBilling']) ? 1 : 0;
 
-                    //$data['Status'] = $data['Status'];
-                    $data['CreatedBy'] = User::get_user_full_name();
-                    $data['ModifiedBy'] = !empty($data['CustomerTrunkID']) ? User::get_user_full_name() : '';
-                    $TrunkName = Trunk::where(["TrunkID"=>$trunk])->pluck("Trunk");
-                    if (!empty($data['CustomerTrunkID']) && trim($data['Prefix']) == '') {
-                        // On Update Validate Prefix
-                        return Redirect::back()->with('error_message', "Please Add Prefix for " . $TrunkName . " Trunk");
-                        //return Response::json(array("status" => "failed", "message" => "Please Add Prefix for " . $trunk . " Trunk"));
-                    } else if (empty($data['CustomerTrunkID']) && $data['Prefix'] == '') {
-                        $data['Prefix'] = $LastPrefixNo = LastPrefixNo::getLastPrefix();
-                    }
-
-                    // when no prefix after all above conditions
-                    /*if ((int) $data['Prefix'] == 0) {
-
-                        return Redirect::back()->with('error_message', "Please Add Prefix for " . $trunk . " Trunk");
-                        //return  Response::json(array("status" => "failed", "message" => "Please Add Prefix for " . $trunk ." Trunk" ));
-                    }*/
-
-                    //check if duplicate
-                    /*if (CustomerTrunk::isPrefixExists($id,$data['Prefix'], !empty($data['CustomerTrunkID']) ? $data['CustomerTrunkID'] : '')) {
-
-                        return Redirect::back()->with('error_message', "Duplicate Prefix " . $data['Prefix'] . " for " . $TrunkName . " Trunk");
-                        //return  Response::json(array("status" => "failed", "message" => "duplicate Prefix ".$data['Prefix']." for " . $trunk ." Trunk" ));
-                    }*/
-
-                    $rules = array("CodeDeckId"=>"required","AccountID" => "required", "CompanyID" => "required", "TrunkID" => "required", "IncludePrefix" => "required", "Status" => "required",);
-
-                    if (!empty($data['CustomerTrunkID'])) {
-                        $rules = array_merge($rules, array("CustomerTrunkID" => "required"));
-                    }
-
-                    $validator = Validator::make($data, $rules);
-
-                    if ($validator->fails()) {
-                        return Redirect::back()->withInput(Input::all())->withErrors($validator);
-                        //return json_validator_response($validator);
-                    }
-
-                    if (isset($data['CustomerTrunkID']) && $data['CustomerTrunkID'] > 0) {
-                        $CustomerTrunkID = $data['CustomerTrunkID'];
-                        unset($data['CustomerTrunkID']);
-                        if((int)CustomerTrunk::find($CustomerTrunkID)->RateTableID != (int)$data['RateTableID'] && $data['RateTableID']>0){
-                            CustomerTrunk::find($CustomerTrunkID)->update(array('RateTableAssignDate'=>date('Y-m-d')));
+                        //$data['Status'] = $data['Status'];
+                        $data['CreatedBy'] = User::get_user_full_name();
+                        $data['ModifiedBy'] = !empty($data['CustomerTrunkID']) ? User::get_user_full_name() : '';
+                        $TrunkName = Trunk::where(["TrunkID" => $trunk])->pluck("Trunk");
+                        if (!empty($data['CustomerTrunkID']) && trim($data['Prefix']) == '') {
+                            // On Update Validate Prefix
+                            return Redirect::back()->with('error_message', "Please Add Prefix for " . $TrunkName . " Trunk");
+                            //return Response::json(array("status" => "failed", "message" => "Please Add Prefix for " . $trunk . " Trunk"));
+                        } else if (empty($data['CustomerTrunkID']) && $data['Prefix'] == '') {
+                            $data['Prefix'] = $LastPrefixNo = LastPrefixNo::getLastPrefix();
                         }
-                        $CustomerTrunk = CustomerTrunk::find($CustomerTrunkID)->update($data);
-                    } else {
-                        unset($data['CustomerTrunkID']);
-                        if ($CustomerTrunk->insert($data)) {
-                            if(isset($LastPrefixNo)){
- 								//Update last prefix no.
-                                LastPrefixNo::updateLastPrefixNo($LastPrefixNo);
+
+                        // when no prefix after all above conditions
+                        /*if ((int) $data['Prefix'] == 0) {
+
+                            return Redirect::back()->with('error_message', "Please Add Prefix for " . $trunk . " Trunk");
+                            //return  Response::json(array("status" => "failed", "message" => "Please Add Prefix for " . $trunk ." Trunk" ));
+                        }*/
+
+                        //check if duplicate
+                        /*if (CustomerTrunk::isPrefixExists($id,$data['Prefix'], !empty($data['CustomerTrunkID']) ? $data['CustomerTrunkID'] : '')) {
+
+                            return Redirect::back()->with('error_message', "Duplicate Prefix " . $data['Prefix'] . " for " . $TrunkName . " Trunk");
+                            //return  Response::json(array("status" => "failed", "message" => "duplicate Prefix ".$data['Prefix']." for " . $trunk ." Trunk" ));
+                        }*/
+
+                        $rules = array("CodeDeckId" => "required", "AccountID" => "required", "CompanyID" => "required", "TrunkID" => "required", "IncludePrefix" => "required", "Status" => "required",);
+
+                        if (!empty($data['CustomerTrunkID'])) {
+                            $rules = array_merge($rules, array("CustomerTrunkID" => "required"));
+                        }
+
+                        $validator = Validator::make($data, $rules);
+
+                        if ($validator->fails()) {
+                            return Redirect::back()->withInput(Input::all())->withErrors($validator);
+                            //return json_validator_response($validator);
+                        }
+
+                        if (isset($data['CustomerTrunkID']) && $data['CustomerTrunkID'] > 0) {
+                            $CustomerTrunkID = $data['CustomerTrunkID'];
+                            unset($data['CustomerTrunkID']);
+                            $username = User::get_user_full_name();
+                            $Action = 2; // change ratetable | $Action = 1 change codedeck
+                            $RateTableID = (int)CustomerTrunk::find($CustomerTrunkID)->RateTableID;
+                            if ($RateTableID != (int)$data['RateTableID'] && $data['RateTableID'] > 0) {
+                                $query = "call prc_ChangeCodeDeckRateTable (" . $id . "," . $trunk . ",$RateTableID,'" . $username . "'," . $Action . ")";
+                                DB::statement($query);
+
+                                CustomerTrunk::find($CustomerTrunkID)->update(array('RateTableAssignDate' => date('Y-m-d')));
                             }
+                            $CustomerTrunk = CustomerTrunk::find($CustomerTrunkID)->update($data);
                         } else {
-                            return Redirect::back()->with('error_message', "Problem Creating Customer Trunk for " . $TrunkName . " Trunk");
-                            ///return  Response::json(array("status" => "failed", "message" => "Problem Creating Customer Trunk for " . $trunk ." Trunk" )); // For Ajax
+                            unset($data['CustomerTrunkID']);
+                            if ($CustomerTrunk->insert($data)) {
+                                if (isset($LastPrefixNo)) {
+                                    //Update last prefix no.
+                                    LastPrefixNo::updateLastPrefixNo($LastPrefixNo);
+                                }
+                            } else {
+                                return Redirect::back()->with('error_message', "Problem Creating Customer Trunk for " . $TrunkName . " Trunk");
+                                ///return  Response::json(array("status" => "failed", "message" => "Problem Creating Customer Trunk for " . $trunk ." Trunk" )); // For Ajax
+                            }
+                        }
+                    } else {
+
+                        // if Unselect Status = 0
+                        if (isset($data['CustomerTrunkID']) && $data['CustomerTrunkID'] > 0) {
+                            $CustomerTrunkID = $data['CustomerTrunkID'];
+                            CustomerTrunk::find($CustomerTrunkID)->update(['Status' => 0]);
                         }
                     }
-                } else {
 
-                    // if Unselect Status = 0
-                    if (isset($data['CustomerTrunkID']) && $data['CustomerTrunkID'] > 0) {
-                        $CustomerTrunkID = $data['CustomerTrunkID'];
-                        CustomerTrunk::find($CustomerTrunkID)->update(['Status' => 0]);
-                    }
+                    DB::commit();
+                } catch (Exception $ex) {
+                    DB::rollback();
                 }
             }
             //forloop
@@ -248,13 +294,18 @@ class CustomersRatesController extends \BaseController {
         if (Request::ajax()) {
             $data = Input::all();
             $test = 0;
+            $message = array();
             $rules = array('isMerge' => 'required', 'Trunks' => 'required', 'Format' => 'required','filetype'=> 'required');
 
             if (!isset($data['isMerge'])) {
                 $data['isMerge'] = 0;
             }
+            if($data['Effective'] == 'CustomDate') {
+                $rules['CustomDate'] = "required|date|date_format:Y-m-d|after:".date('Y-m-d', strtotime('-1 day', strtotime(date('Y-m-d'))));
+                $message['CustomDate.after'] = "Custom Date must be today or future date, you can not download past date's rate";
+            }
 
-            $validator = Validator::make($data, $rules);
+            $validator = Validator::make($data, $rules, $message);
 
             if ($validator->fails()) {
                 return json_validator_response($validator);
@@ -307,112 +358,249 @@ class CustomersRatesController extends \BaseController {
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     * PUT /customersrates/{id}
-     *
-     * @param  int  $id
-     * @return Response
-     */
+    //update single and selected rates
     public function update($id) {
-        $data = Input::all();
 
-        $rules = array('EffectiveDate' => 'required','Rate' => 'required|numeric', 'RateID' => 'required', 'Trunk' => 'required|numeric','Interval1' => 'required|numeric','IntervalN' => 'required|numeric');
+        $data               = Input::all();//echo "<pre>";print_r($data);exit();
+        $username           = User::get_user_full_name();
+        //$company_id         = User::get_companyID();
+        $data['customer'][] = $id;
 
-        $validator = Validator::make($data, $rules);
+        $message = array();
+        $rules = array(
+            //'EffectiveDate' => 'required',
+            'Rate' => 'required|numeric',
+            'RateID' => 'required',
+            'Trunk' => 'required',
+            'Interval1' => 'required|numeric',
+            'IntervalN' => 'required|numeric'
+        );
+
+        //Type=1 means single edit else multiple selected edit
+        //Effective Date validations for single edit
+        if(!empty($data['Type']) && $data['Type'] == 1) {
+            $rules['EffectiveDate'] = 'required|date_format:Y-m-d|after:'.date('Y-m-d',strtotime('-1 day'));
+            $message['EffectiveDate.after'] = "Effective Date can not be past date, it must be today's date or future's date";
+        }
+
+        $validator = Validator::make($data, $rules, $message);
 
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
-        $username = User::get_user_full_name();
+
+        $EffectiveDate  = !empty($data['EffectiveDate']) ? "'".date("Y-m-d", strtotime($data['EffectiveDate']))."'" : 'NULL';
+        //$EndDate        = !empty($data['EndDate']) ? "'".date("Y-m-d", strtotime($data['EndDate']))."'" : 'NULL';
+        $Customers      = "'".implode(',',array_filter($data['customer'],'intval'))."'";
+        //$RateIDs        = "'".implode(',',array_filter(explode(",",$data['RateID']),'intval'))."'";
+        $CustomerRateIDs= "'".implode(',',array_filter(explode(",",$data['CustomerRateId']),'intval'))."'";
+        $Trunk          = intval($data['Trunk']);
+        $Rate           = $data['Rate'];
+        $Interval1      = intval($data['Interval1']);
+        $IntervalN      = intval($data['IntervalN']);
+        $ConnectionFee  = floatval($data['ConnectionFee']);
+        $RoutinePlan    = intval($data['RoutinePlan']);
+
+        try {
+            DB::beginTransaction();
+            //$query = "call prc_CustomerRateUpdateBySelectedRateId (".$company_id.",".$Customers.",".$RateIDs.",".$CustomerRateIDs.",".$Trunk.",".$Rate.",".$ConnectionFee.",".$EffectiveDate.",".$EndDate."," .$Interval1.",".$IntervalN.",".$RoutinePlan.",'".$username."')";
+            $query = "call prc_CustomerRateUpdate (".$Customers.",".$Trunk.",".$CustomerRateIDs.",".$Rate.",".$ConnectionFee.",".$EffectiveDate."," .$Interval1.",".$IntervalN.",".$RoutinePlan.",'".$username."')";
+            //Log::info($query);
+            $results = DB::statement($query);
+
+            if ($results) {
+                DB::commit();
+                //return Redirect::back()->with('success_message', ' Customer Rate Successfully Updated');
+                return Response::json(array("status" => "success", "message" => "Customer Rate Successfully Updated"));
+            } else {
+                //return Redirect::back()->with('success_message', 'Problem Updating Customer Rate');
+                return Response::json(array("status" => "failed", "message" => "Problem Updating Customer Rate."));
+            }
+        } catch (Exception $ex) {
+            DB::rollback();
+            return Response::json(["status" => "failed", "message" => " Exception: " . $ex->getMessage()]);
+        }
+
+    }
+
+    //insert selected rates
+    public function addSelectedCustomerRate($id) {
+
+        $data               = Input::all();//echo "<pre>";print_r($data);exit();
+        $username           = User::get_user_full_name();
+        $CompanyID          = User::get_companyID();
+        $data['customer'][] = $id;
+
+        $message = array();
+        $rules = array(
+            'EffectiveDate' => 'required|date_format:Y-m-d|after:'.date('Y-m-d',strtotime('-1 day')),
+            'Rate' => 'required|numeric',
+            'RateID' => 'required',
+            'Trunk' => 'required',
+            'Interval1' => 'required|numeric',
+            'IntervalN' => 'required|numeric'
+        );
+        $message['EffectiveDate.after'] = "Effective Date can not be past date, it must be today's date or future's date";
+
+        $validator = Validator::make($data, $rules, $message);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+
+        $EffectiveDate  = "'".date("Y-m-d", strtotime($data['EffectiveDate']))."'";
+        $Customers      = "'".implode(',',array_filter($data['customer'],'intval'))."'";
+        $RateIDs        = "'".implode(',',array_unique(array_filter(explode(",",$data['RateID']),'intval')))."'";
+        $Trunk          = intval($data['Trunk']);
+        $Rate           = $data['Rate'];
+        $Interval1      = intval($data['Interval1']);
+        $IntervalN      = intval($data['IntervalN']);
+        $ConnectionFee  = floatval($data['ConnectionFee']);
+        $RoutinePlan    = intval($data['RoutinePlan']);
+
+        try {
+            DB::beginTransaction();
+            $query = "call prc_CustomerRateInsert (".$CompanyID.",".$Customers.",".$Trunk.",".$RateIDs.",".$Rate.",".$ConnectionFee.",".$EffectiveDate."," .$Interval1.",".$IntervalN.",".$RoutinePlan.",'".$username."')";
+            //Log::info($query);
+            $results = DB::statement($query);
+
+            if ($results) {
+                DB::commit();
+                //return Redirect::back()->with('success_message', ' Customer Rate Successfully Updated');
+                return Response::json(array("status" => "success", "message" => "Customer Rate Successfully Updated"));
+            } else {
+                //return Redirect::back()->with('success_message', 'Problem Updating Customer Rate');
+                return Response::json(array("status" => "failed", "message" => "Problem Updating Customer Rate."));
+            }
+        } catch (Exception $ex) {
+            DB::rollback();
+            return Response::json(["status" => "failed", "message" => " Exception: " . $ex->getMessage()]);
+        }
+
+    }
+
+    //bulk rate update
+    public function process_bulk_rate_update($id) {
+        $data       = Input::all();
         $company_id = User::get_companyID();
+        $rules      = array(
+            //'EffectiveDate' => 'required',
+            'Rate' => 'required',
+            'Trunk' => 'required'
+        );
+        $validator = Validator::make($data, $rules);
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+        $data['customer'][]     = $id;
+        $codedeckid             = CustomerTrunk::where(['AccountID'=>$id,'TrunkID'=>$data['Trunk']])->pluck('CodeDeckId');
+        $data['Country']        = $data['Country'] == ''?'NULL':$data['Country'];
+        $data['Code']           = $data['Code'] == ''?'NULL':"'".$data['Code']."'";
+        $data['Description']    = $data['Description'] == ''?'NULL':"'".$data['Description']."'";
+        $data['customer']       = array_filter($data['customer'],'intval');
+        $data['EffectiveDate']  = 'NULL'; // not update EffectiveDate
+        $EndDate                = !empty($data['EndDate']) ? "'".date("Y-m-d", strtotime($data['EndDate']))."'" : 'NULL';
+        $username               = User::get_user_full_name();
 
-        /* @AccountId
-          ,@RateId
-          ,@Trunk
-          ,@Rate
-          ,@EffectiveDate
-          ,@username */
-
-        $data['EffectiveDate'] = date("Y-m-d", strtotime($data['EffectiveDate']));
-
-        $results = DB::statement("call prc_CustomerRateUpdateBySelectedRateId (".$company_id.",'".$id."','".$data['RateID']."',".$data['Trunk'].",".$data['Rate'].",".floatval($data['ConnectionFee']).",'".$data['EffectiveDate']."'," .intval($data['Interval1']).",".intval($data['IntervalN']).",'".intval($data['RoutinePlan'])."','".$username."')");
-
+        $query      = "call prc_CustomerBulkRateUpdate ('".implode(',',$data['customer'])."',".$data['Trunk'].",".$codedeckid.",".$data['Code'].",".$data['Description'].",".$data['Country'].",".$company_id.",'".$data['Effective']."','".$data['CustomDate']."',".$data['Rate'].",".floatval($data['ConnectionFee']).",".$data['EffectiveDate'].",".$EndDate.",".intval($data['Interval1']).",".intval($data['IntervalN']).",".intval($data['RoutinePlan']).",'".$username."')";
+        $results    = DB::statement($query);
         if ($results) {
-            //return Redirect::back()->with('success_message', ' Customer Rate Successfully Updated');
-            return Response::json(array("status" => "success", "message" => "Customer Rate Successfully Updated"));
+            return Response::json(array("status" => "success", "message" => "Customers Rate Successfully Updated"));
         } else {
-            //return Redirect::back()->with('success_message', 'Problem Updating Customer Rate');
             return Response::json(array("status" => "failed", "message" => "Problem Updating Customer Rate."));
         }
+
+    }
+
+    //bulk rate insert
+    public function process_bulk_rate_insert($id) {
+        $data       = Input::all();
+        $company_id = User::get_companyID();
+        $rules      = array(
+            'EffectiveDate' => 'required|date_format:Y-m-d|after:'.date('Y-m-d',strtotime('-1 day')),
+            'Rate' => 'required',
+            'Trunk' => 'required'
+        );
+        $message['EffectiveDate.after'] = "Effective Date can not be past date, it must be today's date or future's date";
+
+        $validator = Validator::make($data, $rules, $message);
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+        $data['customer'][]     = $id;
+        $codedeckid             = CustomerTrunk::where(['AccountID'=>$id,'TrunkID'=>$data['Trunk']])->pluck('CodeDeckId');
+        $data['Country']        = $data['Country'] == ''?'NULL':$data['Country'];
+        $data['Code']           = $data['Code'] == ''?'NULL':"'".$data['Code']."'";
+        $data['Description']    = $data['Description'] == ''?'NULL':"'".$data['Description']."'";
+        $data['customer']       = array_filter($data['customer'],'intval');
+        $EndDate                = !empty($data['EndDate']) ? "'".date("Y-m-d", strtotime($data['EndDate']))."'" : 'NULL';
+        $username               = User::get_user_full_name();
+
+        $query      = "call prc_CustomerBulkRateInsert ('".implode(',',$data['customer'])."',".$data['Trunk'].",".$codedeckid.",".$data['Code'].",".$data['Description'].",".$data['Country'].",".$company_id.",".$data['Rate'].",".floatval($data['ConnectionFee']).",'".$data['EffectiveDate']."',".$EndDate.",".intval($data['Interval1']).",".intval($data['IntervalN']).",".intval($data['RoutinePlan']).",'".$username."')";
+        $results    = DB::statement($query);
+        if ($results) {
+            return Response::json(array("status" => "success", "message" => "Customers Rate Successfully Updated"));
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Problem Updating Customer Rate."));
+        }
+
     }
 
     public function clear_rate($id) {
 
         if($id > 0) {
-            $username = User::get_user_full_name();
+            $data           = Input::all();//echo "<pre>";print_r($data);exit();
+            $username       = User::get_user_full_name();
+            $CustomerRateID = $data['CustomerRateID'];
+            $TrunkID        = $data['TrunkID'];
+            $CompanyID      = User::get_companyID();
+            $CodedeckID     = CustomerTrunk::where(['AccountID'=>$id,'TrunkID'=>$TrunkID])->pluck('CodeDeckId');
+            $Code           = 'NULL';
+            $Description    = 'NULL';
+            $Country        = 'NULL';
 
-            $results = DB::statement('call prc_CustomerRateClear (?) ', array($id));
-            if ($results) {
-                return Response::json(array("status" => "success", "message" => "Customer Rate Successfully Cleared."));
-            } else {
-                return Response::json(array("status" => "failed", "message" => "Problem Clearing Customer Rate."));
+            //$query = "call prc_CustomerRateClear (".$id.",".$TrunkID.",'".$CustomerRateID."','".$username."')";
+            $query = "call prc_CustomerRateClear ('".$id."',".$TrunkID.",".$CodedeckID.",'".$CustomerRateID."',".$Code.",".$Description.",".$Country.",".$CompanyID.",'".$username."')";
+
+            try {
+                DB::beginTransaction();
+                $results = DB::statement($query);
+                if ($results) {
+                    DB::commit();
+                    return Response::json(array("status" => "success", "message" => "Customer Rate Successfully Cleared."));
+                } else {
+                    return Response::json(array("status" => "failed", "message" => "Problem Clearing Customer Rate."));
+                }
+            } catch (Exception $ex) {
+                DB::rollback();
+                return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
             }
         } else {
             return Response::json(array("status" => "failed", "message" => "Invalid Record #ID"));
         }
     }
 
-    public function bulk_clear_rate($id) {
-        $data = Input::all();
-        $username = User::get_user_full_name();
-        $CustomerRateIDs = explode(",", $data['CustomerRateIDs']);
-        $success = false;
-        if (count($CustomerRateIDs)) {
-            foreach ($CustomerRateIDs as $CustomerRateID) {
-                if((int)$CustomerRateID>0) {
-                    $results = DB::statement('call prc_CustomerRateClear (?)', array((int)$CustomerRateID));
-                    if ($results) {
-                        $success = true;
-                    }
-                }
-            }
-        }
-
-        if ($success) {
-            return Response::json(array("status" => "success", "message" => "Customer Rates Successfully Cleared."));
-        } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Clearing Customer Rates."));
-        }
-    }
-
-    /**
-     * BulkUpdate the specified resource in storage.
-     * PUT /customersrates/{id}
-     *
-     * @param  int  $id
-     * @return Response
-     */
-    public function bulk_update($id) {
-
+    public function process_bulk_rate_clear($id) {
         $data = Input::all();
         $company_id = User::get_companyID();
         $data['customer'][] = $id;
-        $rules = array( 'customer'=> 'required', 'RateID'=> 'required', 'EffectiveDate' => 'required','Rate' => 'required', 'Trunk' => 'required','Interval1' => 'required|numeric','IntervalN' => 'required|numeric');
-        $validator = Validator::make($data, $rules);
-        if ($validator->fails()) {
-            return json_validator_response($validator);
-        }
+        $codedeckid = CustomerTrunk::where(['AccountID'=>$id,'TrunkID'=>$data['Trunk']])->pluck('CodeDeckId');
+        $data['Country'] = $data['Country'] == ''?'NULL':$data['Country'];
+        $data['Code'] =  $data['Code'] == ''?'NULL':"'".$data['Code']."'";
+        $data['Description'] = $data['Description'] == ''?'NULL':"'".$data['Description']."'";
         $data['customer'] = array_filter($data['customer'],'intval');
-        $data['RateID'] = array_filter(explode(",",$data['RateID']),'intval');
         $username = User::get_user_full_name();
-
-        $results = DB::statement("call prc_CustomerRateUpdateBySelectedRateId (".$company_id.",'".implode(',',$data['customer'])."','".implode(',',$data['RateID'])."',".$data['Trunk'].",".$data['Rate'].",".floatval($data['ConnectionFee']).",'".$data['EffectiveDate']."'," .intval($data['Interval1']).",".intval($data['IntervalN']).",'".intval($data['RoutinePlan'])."','".$username."')");
+        $CustomerRateIDs = 'NULL';
+        //Inserting Job Log
+        //$results = DB::statement('prc_CustomerBulkRateUpdate ?,?,?,?,?,?,?,?,? ', array(implode(',',$data['customer']),$data['Trunk'],$data['Code'],$data['Description'],$data['Country'],$company_id,$data['Rate'],$data['EffectiveDate'],$username));
+        $query = "call prc_CustomerRateClear ('".implode(',',$data['customer'])."',".$data['Trunk'].",".$codedeckid.",".$CustomerRateIDs.",".$data['Code'].",".$data['Description'].",".$data['Country'].",".$company_id.",'".$username."')";
+        $results = DB::statement($query);
         if ($results) {
-            return Response::json(array("status" => "success", "message" => "Customers Rate Successfully Updated"));
+            return Response::json(array("status" => "success", "message" => "Customers Rate Successfully Deleted"));
         } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Updating Customer Rate."));
+            return Response::json(array("status" => "failed", "message" => "Problem Deleting Customer Rate."));
         }
+
     }
 
     public function history($id) {
@@ -472,7 +660,13 @@ class CustomersRatesController extends \BaseController {
             $sort_column = $columns[$data['iSortCol_0']];
             $companyID = User::get_companyID();
 
-            $query = "call prc_GetCustomerRate (".$companyID.",".$id.",".$data['Trunk'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',1)";
+            if($data['Effective'] == 'CustomDate') {
+                $CustomDate = $data['CustomDate'];
+            } else {
+                $CustomDate = date('Y-m-d');
+            }
+
+            $query = "call prc_GetCustomerRate (".$companyID.",".$id.",".$data['Trunk'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."','".$CustomDate."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',1)";
 
             DB::setFetchMode( PDO::FETCH_ASSOC );
             $rate_table_rates  = DB::select($query);
@@ -517,73 +711,36 @@ class CustomersRatesController extends \BaseController {
             })->download();
 
     }
-    public function process_bulk_rate_update($id) {
+
+    public function  delete_customerrates($id){
         $data = Input::all();
-        $company_id = User::get_companyID();
-        $rules = array('EffectiveDate' => 'required','Rate' => 'required', 'Trunk' => 'required',);
+        $rules = array('Trunkid' => 'required');
         $validator = Validator::make($data, $rules);
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
-        $data['customer'][] = $id;
-        $codedeckid = CustomerTrunk::where(['AccountID'=>$id,'TrunkID'=>$data['Trunk']])->pluck('CodeDeckId');
-        $data['Country'] = $data['Country'] == ''?'NULL':$data['Country'];
-        $data['Code'] =  $data['Code'] == ''?'NULL':"'".$data['Code']."'";
-        $data['Description'] = $data['Description'] == ''?'NULL':"'".$data['Description']."'";
-        $data['customer'] = array_filter($data['customer'],'intval');
-        $username = User::get_user_full_name();
-        //Inserting Job Log
-        //$results = DB::statement('prc_CustomerBulkRateUpdate ?,?,?,?,?,?,?,?,? ', array(implode(',',$data['customer']),$data['Trunk'],$data['Code'],$data['Description'],$data['Country'],$company_id,$data['Rate'],$data['EffectiveDate'],$username));
-        $results = DB::statement("call prc_CustomerBulkRateUpdate ('".implode(',',$data['customer'])."',".$data['Trunk'].",".$codedeckid.",".$data['Code'].",".$data['Description'].",".$data['Country'].",".$company_id.",".$data['Rate'].",".floatval($data['ConnectionFee']).",'".$data['EffectiveDate']."',".intval($data['Interval1']).",".intval($data['IntervalN']).",'".intval($data['RoutinePlan'])."','".$username."')");
-        if ($results) {
-            return Response::json(array("status" => "success", "message" => "Customers Rate Successfully Updated"));
-        } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Updating Customer Rate."));
+        if(isset($data['action']) && $data['action']=='check_count'){
+            return CustomerRate::where(["CustomerID" =>$id ,'TrunkID'=>$data['Trunkid']])->count();
         }
 
-    }
+        DB::beginTransaction();
+        try {
+            $Action = 1; // change codedeck | $Action = 2 change ratetable
+            $username = User::get_user_full_name();
+            $RateTableID = CustomerTrunk::where(["AccountID" => $id, 'TrunkID' => $data['Trunkid']])->pluck('RateTableID');
 
+            $query = "call prc_ChangeCodeDeckRateTable (".$id.",".$data['Trunkid'].",$RateTableID,'".$username."',".$Action.")";
 
-    public function process_bulk_rate_clear($id) {
-        $data = Input::all();
-        $company_id = User::get_companyID();
-        $data['customer'][] = $id;
-        $codedeckid = CustomerTrunk::where(['AccountID'=>$id,'TrunkID'=>$data['Trunk']])->pluck('CodeDeckId');
-        $data['Country'] = $data['Country'] == ''?'NULL':$data['Country'];
-        $data['Code'] =  $data['Code'] == ''?'NULL':"'".$data['Code']."'";
-        $data['Description'] = $data['Description'] == ''?'NULL':"'".$data['Description']."'";
-        $data['customer'] = array_filter($data['customer'],'intval');
-        $username = User::get_user_full_name();
-        //Inserting Job Log
-        //$results = DB::statement('prc_CustomerBulkRateUpdate ?,?,?,?,?,?,?,?,? ', array(implode(',',$data['customer']),$data['Trunk'],$data['Code'],$data['Description'],$data['Country'],$company_id,$data['Rate'],$data['EffectiveDate'],$username));
-        $results = DB::statement("call prc_CustomerBulkRateClear ('".implode(',',$data['customer'])."',".$data['Trunk'].",".$codedeckid.",".$data['Code'].",".$data['Description'].",".$data['Country'].",".$company_id.")");
-        if ($results) {
-            return Response::json(array("status" => "success", "message" => "Customers Rate Successfully Deleted"));
-        } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Deleting Customer Rate."));
+            DB::statement($query);
+            DB::commit();
+            return Response::json(array("status" => "success", "message" => "Customer Rates Deleted Successfully"));
+        } catch (Exception $ex) {
+            DB::rollback();
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+            //return Response::json(array("status" => "failed", "message" => "Problem Deleting Customer Rates."));
         }
-
     }
 
-
-    public function  delete_customerrates($id){
-            $data = Input::all();
-            $rules = array('Trunkid' => 'required');
-            $validator = Validator::make($data, $rules);
-            if ($validator->fails()) {
-                return json_validator_response($validator);
-            }
-            if(isset($data['action']) && $data['action']=='check_count'){
-                return CustomerRate::where(["CustomerID" =>$id ,'TrunkID'=>$data['Trunkid']])->count();
-            }
-
-            CustomerTrunk::where(["AccountID" =>$id ,'TrunkID'=>$data['Trunkid']])->update(['RateTableID'=>'0']);
-            if (CustomerRate::where(["CustomerID" =>$id ,'TrunkID'=>$data['Trunkid']])->count()  == 0 || CustomerRate::where(["CustomerID" =>$id ,'TrunkID'=>$data['Trunkid']])->delete()) {
-                return Response::json(array("status" => "success", "message" => "Customer Rates Deleted Successfully"));
-            } else {
-                return Response::json(array("status" => "failed", "message" => "Problem Deleting Customer Rates."));
-            }
-    }
     public function vendor_merge(){
 
         DB::statement("update vendor_merge  set vendor_merge.is_vendor_customer = 1 from vendor_merge inner join tblAccount a on a.AccountName = vendor_merge.customer      and a.IsCustomer = 1 and a.IsVendor = 1");
@@ -604,10 +761,85 @@ class CustomersRatesController extends \BaseController {
 
     public function customerdownloadtype($id,$type){
         if($type==RateSheetFormate::RATESHEET_FORMAT_VOS32 || $type==RateSheetFormate::RATESHEET_FORMAT_VOS20){
-            $downloadtype = '<option value="">Select</option><option value="txt">TXT</option>';
+            $downloadtype = '<option value="">Select</option><option value="txt">TXT</option><option value="xlsx">EXCEL</option><option value="csv">CSV</option>';
         }else{
             $downloadtype = '<option value="">Select</option><option value="xlsx">EXCEL</option><option value="csv">CSV</option>';
         }
         return $downloadtype;
     }
+
+    //get ajax code for add new rate
+    public function getCodeByAjax(){
+        //$CompanyID  = User::get_companyID();
+        $list       = array();
+        $data       = Input::all();
+        $rate       = $data['q'].'%';
+        $AccountID  = $data['page'];
+        $TrunkID    = $data['trunk'];
+        $CodeDeckId = Account::getCodeDeckId($AccountID,$TrunkID);
+
+        //$codes = CodeDeck::where(["CompanyID" => $CompanyID,'CodeDeckId'=>$CodeDeckId])
+        $codes = CodeDeck::where(['CodeDeckId'=>$CodeDeckId])
+            ->where('Code','like',$rate)->take(100)->lists('Code', 'RateID');
+
+        if(count($codes) > 0){
+            foreach($codes as $key => $value){
+                $list2 = array();
+                $list2['id'] = $key;
+                $list2['text'] = $value;
+                $list[]= json_encode($list2);
+            }
+            $rateids = '['.implode(',',$list).']';
+        }else{
+            $rateids = '[]';
+        }
+
+        return $rateids;
+    }
+
+    public function store($id) {
+        $data = Input::all();
+
+        $rules = array(
+            'EffectiveDate' => 'required',
+            'Rate' => 'required|numeric',
+            'RateID' => 'required',
+            'TrunkID' => 'required|numeric',
+            'Interval1' => 'required|numeric',
+            'IntervalN' => 'required|numeric'
+        );
+
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+
+        $idata['EffectiveDate'] = date("Y-m-d", strtotime($data['EffectiveDate']));
+        //$idata['EndDate']       = !empty($data['EndDate']) ? date("Y-m-d", strtotime($data['EndDate'])) : null;
+        $idata['RateID']        = intval($data['RateID']);
+        $idata['CustomerID']    = intval($id);
+        $idata['TrunkID']       = intval($data['TrunkID']);
+        $idata['Rate']          = floatval($data['Rate']);
+        $idata['Interval1']     = $data['Interval1'];
+        $idata['IntervalN']     = $data['IntervalN'];
+        $idata['ConnectionFee'] = $data['ConnectionFee'];
+        $idata['CreatedDate']   = date('Y-m-d');
+        $idata['CreatedBy']     = User::get_user_full_name();
+
+        $isExist = CustomerRate::where(['RateID'=>$idata['RateID'],'CustomerID'=>$idata['CustomerID'],'TrunkID'=>$idata['TrunkID'],'EffectiveDate'=>$idata['EffectiveDate']])->count();
+
+        if(!empty($isExist) && $isExist > 0) {
+            return Response::json(array("status" => "failed", "message" => "Customer Rate Already Exist on this date"));
+        }
+
+        $results = CustomerRate::insert($idata);
+
+        if ($results) {
+            return Response::json(array("status" => "success", "message" => "Customer Rate Successfully Updated"));
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Problem Updating Customer Rate."));
+        }
+    }
+
 }
