@@ -596,6 +596,8 @@ class RateUploadController extends \BaseController {
             }else{
                 $rules_for_type['selection.Code']        = 'required';
                 $rules_for_type['selection.Description'] = 'required';
+                $message_for_type['selection.Code.required'] = "Code Field is required";
+                $message_for_type['selection.Description.required'] = "Description Field is required";
             }
             $rules_for_type['selection.Rate']            = 'required';
             $message_for_type['selection.Rate.required'] = "Rate Field is required";
