@@ -20,11 +20,56 @@
 </p>
 </div>-->
 <br>
-<div class="btn btn-primary btn-lg">Current Version: <strong>v4.16</strong></div>
+<div class="btn btn-primary btn-lg">Current Version: <strong>v4.17</strong></div>
 <br>
 <h2>
-    <span class="label label-success">4.16</span> &nbsp; Version Highlights
+    <span class="label label-success">4.17</span> &nbsp; Version Highlights
 </h2>
+
+<div class="col-md-12">
+    <div class="row">
+        <ul class="version-highlights full-width">
+            <li>
+                <div class="notes full-width ">
+                    <h3>ChangeLog</h3>
+                    <h4>07-05-2018</h4>
+                    01. Added option to sort rules in rate generator.<br>
+                    02. Added option to set Charge Date and Next Invoice Date against accounts.<br>
+                    03. Added Account Exposure widget in customer panel.<br>
+                    04. Improved Reseller section.<br>
+                    05. Fixed issue with Auto Payment Capture job to list all issues against each account.<br>
+                    06. Added Account Name - Authentication Rule in Sippy Gateway.<br>
+                    07. Added new billing gateway – FTP.<br>
+                    08. Added option to collect CDRs from Sippy based on Setup time.<br>
+                    09. Added option in Reports to filter on measures.<br>
+                    10. Moved Upload Rates option under Rate Management. Now you can upload Vendor Rates OR Rate Tables from same page.<br>
+                    11. Added Integration with pele card.<br>
+                    12. Added option to download switch formatted rates against specific date ‘Custom Date’.<br>
+                    13. Added option in billing class to setup CDRs cost rounding for invoices.<br>
+                    14. Added option to Group by description in Rate Generator.<br>
+                    15. Added option to Allow comma(,) And Pipe(|) in rate upload code separator.<br>
+                    16. LCR List - Added group by description option.<br>
+                    17. LCR List - Added option to Block/unblock Vendors and view blocked vendors as well.<br>
+                    18. LCR list - Added option to view customer rates offered against codes and margins.<br>
+                    19. Added option to bulk apply rate tables to multiple customers and trunks.<br>
+                    20. Added option to digitally Sign Invoices.<br>
+                    21. Added Top Up option in customer panel.<br>
+                    22. Added Multilingual option for Customer Panel.<br>
+                    23. Added History button against vendor, customer and rate table rates which will show you full history on codes.<br>
+                    24. Added ‘Auto Rate Import’ option via email for both Vendor and Rate Tables.<br>
+                    25. Added option to upload dial codes from the upload rates page well.<br>
+                    26. Modified QuickBook and XERO Journal postings to post based on Payment Date instead of Invoice Date.<br>
+                    27. Modified Avg Rate calculation in invoices for CDR format  ‘Summary CDR’ to show actual rate instead of average call rate.<br>
+                    28. Customer Rate - Modified Rate Update options under Customer Rate.<br>
+                    29. Added ‘New Offer’ and ‘Bulk New Offer’.<br>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+</div>
+<div class="clear"></div>
+
 <div class="col-md-12">
     <div class="row">
         <ul class="version-highlights full-width">
