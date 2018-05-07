@@ -303,6 +303,9 @@
                         <label class="col-sm-2 control-label">Certificate File (.pfx, .p12)</label>
                         <div class="col-sm-4">
                             <input name="signatureCertFile" type="file" accept=".pfx,.p12" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;Browse" />
+                            @if(isset($DigitalSignature["signatureCert"]) &&  !empty($DigitalSignature["signatureCert"]))
+                                <a href="{{URL::to('company/download_digitalSignature/signatureCert')}}" class="btn btn-success btn-sm btn-icon icon-left"><i class="entypo-down"></i>Download</a>
+                            @endif
                         </div>
                         <label for="field-1" class="col-sm-2 control-label">Use Certificate</label>
                         <p class="make-switch switch-small">
@@ -313,6 +316,9 @@
                         <label class="col-sm-2 control-label">Image(.png)<br>( Default Size 542 x 167 Px )</label>
                         <div class="col-sm-4">
                             <input name="signatureImage" type="file" accept=".png" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;Browse" />
+                            @if(isset($DigitalSignature["image"]) &&  !empty($DigitalSignature["image"]))
+                                <a href="{{URL::to('company/download_digitalSignature/image')}}" class="btn btn-success btn-sm btn-icon icon-left"><i class="entypo-down"></i>Download</a>
+                            @endif
                         </div>
                         <label class="col-sm-2 control-label">Certificate Password</label>
                         <div class="col-sm-4">
