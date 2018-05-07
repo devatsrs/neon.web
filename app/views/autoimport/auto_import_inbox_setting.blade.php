@@ -44,23 +44,23 @@
 
                             <div class="col-md-12">
 
-                                <input type="hidden" name="CompanyID" value="{{isset($autoimportSetting[0]->CompanyID)?$autoimportSetting[0]->CompanyID:'';}}">
+                                <input type="hidden" name="AutoImportInboxSettingID" value="{{isset($autoimportSetting->AutoImportInboxSettingID)?$autoimportSetting->AutoImportInboxSettingID:'';}}">
                                 <div class="col-md-6">
                                     <div class="form-group ">
                                         <label for="field-5" class="control-label">Imap/Pop3</label>
-                                        <input type="text" name="host" class="form-control" value="{{isset($autoimportSetting[0]->host)?$autoimportSetting[0]->host:'';}}" />
+                                        <input type="text" name="host" class="form-control" value="{{isset($autoimportSetting->host)?$autoimportSetting->host:'';}}" />
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group ">
                                         <label for="field-5" class="control-label">Port</label>
-                                        <input type="text" name="port" class="form-control" value="{{isset($autoimportSetting[0]->port)?$autoimportSetting[0]->port:'';}}" />
+                                        <input type="text" name="port" class="form-control" value="{{isset($autoimportSetting->port)?$autoimportSetting->port:'';}}" />
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group ">
                                         <label for="field-5" class="control-label">Username</label>
-                                        <input type="text" name="username" class="form-control" value="{{isset($autoimportSetting[0]->username)?$autoimportSetting[0]->username:'';}}" />
+                                        <input type="text" name="username" class="form-control" value="{{isset($autoimportSetting->username)?$autoimportSetting->username:'';}}" />
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -86,55 +86,56 @@
 
                     </div>
                 </div>
-                <div class="panel panel-primary" data-collapsed="0">
+                {{--@TODO : Add Notification auto import--}}
+                {{--<div class="panel panel-primary" data-collapsed="0">--}}
 
-                    <div class="panel-heading">
-                        <div class="panel-options">
-                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                        </div>
-                        Notification
-                    </div>
-                    <div class="panel-body">
-                        <div class="col-md-12">
-                            <input type="hidden" name="CompanyID" value="{{$companyID}}">
-                            <div class="col-md-6">
-                                <div class="form-group ">
-                                    <label for="field-5" class="control-label">On Success</label>
-                                    <br>
-                                    <input type="text" name="emailNotificationOnSuccess" class="form-control" value="{{isset($autoimportSetting[0]->emailNotificationOnSuccess)?$autoimportSetting[0]->emailNotificationOnSuccess:'';}}" />
-                                </div>
+                    {{--<div class="panel-heading">--}}
+                        {{--<div class="panel-options">--}}
+                            {{--<a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>--}}
+                        {{--</div>--}}
+                        {{--Notification--}}
+                    {{--</div>--}}
+                    {{--<div class="panel-body">--}}
+                        {{--<div class="col-md-12">--}}
+                            {{--<input type="hidden" name="CompanyID" value="{{$companyID}}">--}}
+                            {{--<div class="col-md-6">--}}
+                                {{--<div class="form-group ">--}}
+                                    {{--<label for="field-5" class="control-label">On Success</label>--}}
+                                    {{--<br>--}}
+                                    {{--<input type="text" name="emailNotificationOnSuccess" class="form-control" value="{{isset($autoimportSetting->emailNotificationOnSuccess)?$autoimportSetting->emailNotificationOnSuccess:'';}}" />--}}
+                                {{--</div>--}}
 
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group ">
-                                    <label for="field-5" class="control-label">On Failure</label>
-                                    <br>
-                                    <input type="text" name="emailNotificationOnFail" class="form-control" value="{{isset($autoimportSetting[0]->emailNotificationOnFail)?$autoimportSetting[0]->emailNotificationOnFail:'';}}" />
-                                </div>
+                            {{--</div>--}}
+                            {{--<div class="col-md-6">--}}
+                                {{--<div class="form-group ">--}}
+                                    {{--<label for="field-5" class="control-label">On Failure</label>--}}
+                                    {{--<br>--}}
+                                    {{--<input type="text" name="emailNotificationOnFail" class="form-control" value="{{isset($autoimportSetting->emailNotificationOnFail)?$autoimportSetting->emailNotificationOnFail:'';}}" />--}}
+                                {{--</div>--}}
 
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Send a copy to Account Owner </label>
-                                    <div class="clear">
-                                        <p class="make-switch switch-small">
-                                            <input type="checkbox" {{isset($autoimportSetting["copyNotification"])?$autoimportSetting["copyNotification"]:'';}}  name="SendCopyToAccount" >
-                                        </p>
-                                    </div>
-                                </div>
+                            {{--</div>--}}
+                            {{--<div class="col-md-6">--}}
+                                {{--<div class="form-group">--}}
+                                    {{--<label for="field-5" class="control-label">Send a copy to Account Owner </label>--}}
+                                    {{--<div class="clear">--}}
+                                        {{--<p class="make-switch switch-small">--}}
+                                            {{--<input type="checkbox" {{isset($autoimportSetting["copyNotification"])?$autoimportSetting["copyNotification"]:'';}}  name="SendCopyToAccount" >--}}
+                                        {{--</p>--}}
+                                    {{--</div>--}}
+                                {{--</div>--}}
 
-                            </div>
-                        </div>
-
-
-
+                            {{--</div>--}}
+                        {{--</div>--}}
 
 
 
-                    </div>
 
 
-                </div>
+
+                    {{--</div>--}}
+
+
+                {{--</div>--}}
 
 
             </form>
@@ -156,6 +157,7 @@
                         if (response.status == 'success') {
                             toastr.success(response.message, "Success", toastr_opts);
                             data_table.fnFilter('', 0);
+                            location.reload();
                         } else {
                             toastr.error(response.message, "Error", toastr_opts);
                             data_table.fnFilter('', 0);
