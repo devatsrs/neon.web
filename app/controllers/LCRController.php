@@ -13,6 +13,7 @@ class LCRController extends \BaseController {
         }
         $data['Use_Preference'] = $data['Use_Preference'] == 'true' ? 1:0;
         $data['vendor_block'] = $data['vendor_block'] == 'true' ? 1:0;
+        $data['show_all_vendor_codes'] = $data['show_all_vendor_codes'] == 'true' ? 1:0;
         $data['iDisplayStart'] +=1;
 
         $LCRPosition = Invoice::getCookie('LCRPosition');
