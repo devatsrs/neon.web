@@ -11,8 +11,8 @@ class AutoRateImportController extends \BaseController {
 		$companyID = User::get_companyID();
 		$autoimportSetting = AutoImportInboxSetting::getAutoImportSetting($companyID);
 		if(count($autoimportSetting)){
-			$autoimportSetting['copyNotification'] = $autoimportSetting[0]->SendCopyToAccount == 'Y' ? 'checked' : '';
-			$autoimportSetting['IsSSL'] = $autoimportSetting[0]->IsSSL == 1 ? 'checked' : '';
+			$autoimportSetting['copyNotification'] = $autoimportSetting->SendCopyToAccount == 'Y' ? 'checked' : '';
+			$autoimportSetting['IsSSL'] = $autoimportSetting->IsSSL == 1 ? 'checked' : '';
 		}
 		return View::make('autoimport.auto_import_inbox_setting', compact('autoimportSetting','companyID'));
 
@@ -29,7 +29,7 @@ class AutoRateImportController extends \BaseController {
 			'IsSSL'=>'required',
 			'username'=>'required'
 		);
-		if (!empty($data["CompanyID"])){
+		if (!empty($data["AutoImportInboxSettingID"])){
 			if(empty($data["password"]))
 			{
 				unset($data["password"]);
@@ -48,19 +48,17 @@ class AutoRateImportController extends \BaseController {
 		if ($validator->fails()) {
 			return json_validator_response($validator);
 		}
-
-		if (!empty($data["CompanyID"])){
-
-			$companyID = User::get_companyID();
-			if (AutoImportInboxSetting::updateInboxImportSetting($companyID,$data)) {
+		$AutoImportInboxSettingID=$data["AutoImportInboxSettingID"];
+		unset($data["AutoImportInboxSettingID"]);
+		$companyID = User::get_companyID();
+		if (!empty($AutoImportInboxSettingID)){
+			if (AutoImportInboxSetting::updateInboxImportSetting($AutoImportInboxSettingID,$data)) {
 				return Response::json(array("status" => "success", "message" => "Import Setting Update Successfully"));
 			} else {
 				return Response::json(array("status" => "failed", "message" => "Problem Updating AutoImport Inbox Setting."));
 			}
 
 		}else{
-
-			$companyID = User::get_companyID();
 			$data["CompanyID"] = $companyID ;
 			if (AutoImportInboxSetting::insert($data)) {
 				return Response::json(array("status" => "success", "message" => "Import Setting Update Successfully"));
