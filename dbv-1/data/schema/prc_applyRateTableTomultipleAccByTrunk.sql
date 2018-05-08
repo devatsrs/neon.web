@@ -216,7 +216,7 @@ ThisSP:BEGIN
 			
 			update tblCustomerTrunk 
 			right join tmp sep_tmp on tblCustomerTrunk.AccountID=sep_tmp.AccountID AND tblCustomerTrunk.TrunkID=sep_tmp.TrunkID
-			set tblCustomerTrunk.RateTableID=p_ratetableId,CodeDeckId=v_codeDeckId,tblCustomerTrunk.`Status`=1, ModifiedBy=p_CreatedBy
+			set tblCustomerTrunk.RateTableID=p_ratetableId,tblCustomerTrunk.CodeDeckId=v_codeDeckId,tblCustomerTrunk.`Status`=1, ModifiedBy=p_CreatedBy
 			where  tblCustomerTrunk.CustomerTrunkID IS NOT NULL;	
 								
 		  
