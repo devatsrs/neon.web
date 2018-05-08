@@ -77,7 +77,7 @@
             <div class="clear"></div>
             <br>
             @if(isset($AccountDetailsID) && $AccountDetailsID==1)
-            <p class="pull-right">
+            <p class="pull-right add-payment-btn">
                 <a href="#" id="add-new-payment" class="btn btn-primary ">
                     <i class="entypo-plus"></i>
                     @lang('routes.CUST_PANEL_PAGE_PAYMENTS_BUTTON_ADD_NEW')

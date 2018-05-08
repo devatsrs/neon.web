@@ -250,14 +250,14 @@ ThisSP:BEGIN
 		/** delete todays reseller cdrs */
 		
 --		Leave ThisSP;
-				
+		/*		
 		DELETE ud 
 		FROM tblUsageDetailFailedCall  ud
 			INNER JOIN tmp_usageheader uh
 				ON uh.UsageHeaderID = ud.UsageHeaderID
 			INNER JOIN tmp_allaccounts_ ta
 				ON uh.AccountID = ta.ResellerAccountID	
-		WHERE uh.CompanyGatewayID = p_CompanyGatewayID;
+		WHERE uh.CompanyGatewayID = p_CompanyGatewayID; */
 		
 		DELETE ud 
 		FROM tblUsageDetails  ud
@@ -330,7 +330,7 @@ BEGIN
 	PREPARE stmt2 FROM @stm2;
 	EXECUTE stmt2;
 	DEALLOCATE PREPARE stmt2;
-
+	/*
 	SET @stm3 = CONCAT('
 	INSERT INTO tblUsageDetailFailedCall (UsageHeaderID,connect_time,disconnect_time,billed_duration,billed_second,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID,is_inbound,disposition,userfield)
 	SELECT UsageHeaderID,connect_time,disconnect_time,billed_duration,billed_second,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID,is_inbound,disposition,userfield
@@ -346,7 +346,7 @@ BEGIN
 
 	PREPARE stmt3 FROM @stm3;
 	EXECUTE stmt3;
-	DEALLOCATE PREPARE stmt3;
+	DEALLOCATE PREPARE stmt3; */
 
 	SET @stm4 = CONCAT('
 	DELETE FROM `' , p_tbltempusagedetail_name , '` WHERE processid = "' , p_processId , '"  AND billed_duration = 0 AND cost = 0 AND ( disposition <> "ANSWERED" OR disposition IS NULL);
