@@ -12,12 +12,12 @@ class AutoImportInboxSetting extends \Eloquent
 
    
     public static function getAutoImportSetting($CompanyID){
-        return AutoImportInboxSetting::where(["CompanyID" => $CompanyID])->limit(1)->get();
+        return AutoImportInboxSetting::where(["CompanyID" => $CompanyID])->first();
     }
 
-    public static function updateInboxImportSetting($CompanyID,$data){
+    public static function updateInboxImportSetting($AutoImportInboxSettingID,$data){
 
-        return AutoImportInboxSetting::where('CompanyID','=',$CompanyID)->update($data);
+        return AutoImportInboxSetting::where('AutoImportInboxSettingID','=',$AutoImportInboxSettingID)->update($data);
 
     }
 }

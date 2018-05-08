@@ -111,7 +111,7 @@ jQuery(document).ready(function($) {
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "oTableTools": {},
-            "aaSorting": [[3, "desc"]],
+            "aaSorting": [[2, "desc"]],
             "fnServerParams": function(aoData) {
                 aoData.push({"name":"AccountID","value":$searchFilter.AccountID}, {"name":"jobStatus","value":$searchFilter.jobStatus},{"name":"jobType","value":$searchFilter.jobType},{"name":"TypePKID","value":$searchFilter.TypePKID},{"name":"Search","value":$searchFilter.Search});
                 data_table_extra_params.length = 0;
@@ -143,7 +143,8 @@ jQuery(document).ready(function($) {
                         },
                         {
                             mRender: function(id, type, full) {
-                                return time_ago(id);
+//                                return time_ago(id);
+                                return id;
                             }
                         },
                         {
