@@ -1729,7 +1729,38 @@ DELIMITER ;
 
 
 
+DROP PROCEDURE IF EXISTS `prc_CronJobGeneratePortaSheet`;
+DELIMITER //
+CREATE PROCEDURE `prc_CronJobGeneratePortaSheet`(
+	IN `p_CustomerID` INT ,
+	IN `p_trunks` VARCHAR(200) ,
+	IN `p_Effective` VARCHAR(50),
+	IN `p_CustomDate` DATE
+)
+BEGIN
 
+	-- get customer rates
+	CALL vwCustomerRate(p_CustomerID,p_Trunks,p_Effective,p_CustomDate);
+
+	 SELECT distinct
+       Code as `Destination` ,
+       Description  as `Description`,
+       Interval1 as `First Interval`,
+       IntervalN as `Next Interval`,
+       Abs(Rate) as `First Price` ,
+       Abs(Rate) as `Next Price`,
+       DATE_FORMAT(EffectiveDate ,'%d/%m/%Y') as  `Effective From`,
+       CASE WHEN Rate < 0 THEN 'Y' ELSE '' END  `Payback Rate` ,
+		 CASE WHEN ConnectionFee > 0 THEN
+			CONCAT('SEQ=', ConnectionFee,'&int1x1@price1&intNxN@priceN')
+		 ELSE
+			''
+		 END as `Formula`
+     FROM tmp_customerrateall_;
+
+		SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
 
 
 
