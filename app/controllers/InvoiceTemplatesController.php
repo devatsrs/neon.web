@@ -267,6 +267,12 @@ class InvoiceTemplatesController extends \BaseController {
         unset($data['CompanyLogo']);
         unset($data['Status_name']);
 
+        if(isset($data['VisibleColumns'])) {
+            $data['VisibleColumns'] = json_encode($data['VisibleColumns']);
+        } else {
+            $data['VisibleColumns'] = '{"Description":"1","Usage":"1","Recurring":"1","Additional":"1"}';
+        }
+
 		$data['Header']		= InvoiceTemplate::$HeaderDefault;
 		$data['FooterTerm'] = InvoiceTemplate::$TermsDefault;
 		$data['Terms']  	= InvoiceTemplate::$FooterDefault;
