@@ -1315,8 +1315,8 @@ BEGIN
 			`2xx Timeout` INT,
 			Huntstop int,
 			Forbidden int,
-			`Activation Date` varchar(10),
-			`Expiration Date` varchar(10),
+			`Activation Date` varchar(20),
+			`Expiration Date` varchar(20),
 			AccountID int,
 			TrunkID int
 		);
@@ -1337,8 +1337,8 @@ BEGIN
 			`2xx Timeout` INT,
 			Huntstop int,
 			Forbidden int,
-			`Activation Date` varchar(10),
-			`Expiration Date` varchar(10),
+			`Activation Date` varchar(20),
+			`Expiration Date` varchar(20),
 			AccountID int,
 			TrunkID int
 		);
@@ -1348,7 +1348,11 @@ BEGIN
 		INSERT INTO tmp_VendorSippySheet_
 			SELECT
 				NULL AS RateID,
-				'A' AS `Action [A|D|U|S|SA`,
+				CASE WHEN EndDate IS NOT NULL THEN
+					'SA'
+				ELSE
+				'A'
+				END AS `Action [A|D|U|S|SA`,
 				'' AS id,
 				Concat('' , tblTrunk.Prefix ,vendorRate.Code) AS Prefix,
 				vendorRate.Description AS COUNTRY,
@@ -1370,9 +1374,13 @@ BEGIN
 				) THEN 1
 				ELSE 0
 				END  AS Forbidden,
-				'NOW' AS `Activation Date`,
-				'' AS `Expiration Date`,
-				-- EndDate AS `Expiration Date`,
+				DATE_FORMAT( EffectiveDate, '%Y-%m-%d %H:%i:%s' ) AS `Activation Date`,
+				DATE_FORMAT( EndDate, '%Y-%m-%d %H:%i:%s' )  AS `Expiration Date`,
+
+				/* 'NOW' AS `Activation Date`,
+				  '' AS `Expiration Date`,
+				 */
+
 				tblAccount.AccountID,
 				tblTrunk.TrunkID
 			FROM tmp_VendorCurrentRates_ AS vendorRate
