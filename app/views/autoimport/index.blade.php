@@ -111,7 +111,7 @@ jQuery(document).ready(function($) {
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "oTableTools": {},
-            "aaSorting": [[3, "desc"]],
+            "aaSorting": [[2, "desc"]],
             "fnServerParams": function(aoData) {
                 aoData.push({"name":"AccountID","value":$searchFilter.AccountID}, {"name":"jobStatus","value":$searchFilter.jobStatus},{"name":"jobType","value":$searchFilter.jobType},{"name":"TypePKID","value":$searchFilter.TypePKID},{"name":"Search","value":$searchFilter.Search});
                 data_table_extra_params.length = 0;
@@ -143,7 +143,8 @@ jQuery(document).ready(function($) {
                         },
                         {
                             mRender: function(id, type, full) {
-                                return time_ago(id);
+//                                return time_ago(id);
+                                return id;
                             }
                         },
                         {
@@ -311,9 +312,7 @@ jQuery(document).ready(function($) {
                     var attach = '';
                     $(".totAttach").html(attchment_array.length);
                     $.each(attchment_array, function (index, value) {
-                        attach += '<li> <a download src="'+data.path+'">'+value+'</a></li>' +
-                                '<div class="links"><a href="'+data.path+'.'+value+ '" target="_blank" class="btn btn-success btn-sm btn-icon icon-left"><i class="entypo-down"></i>@lang('routes.BUTTON_DOWNLOAD_CAPTION')</a> </div>';
-                        return (value !== 'three');
+                        attach += '<div> <a href="javascript:void(0)">'+value+'</a></div>';
                     });
                     $('.attachmentList').html(attach)
                     $('#modal-add-new-account-setting').modal('show', {backdrop: 'static'});
@@ -404,7 +403,7 @@ jQuery(document).ready(function($) {
                         <div class="mail-text"></div>
                         <div class="mail-attachments last_data">
                             <h4><i class="entypo-attach"></i> Attachments (<span class="totAttach"></span>) </h4>
-                            <ul class="attachmentList"></ul>
+                            <div class="attachmentList"></div>
                         </div>
                     </div>
 

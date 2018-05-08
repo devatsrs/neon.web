@@ -349,5 +349,16 @@ class CompaniesController extends \BaseController {
 		
 	}
 
+    public function DownloadDigitalSignature($file){
+        $companyID = User::get_companyID();
+        $upload_path = CompanyConfiguration::get('UPLOAD_PATH')."/";
+        $signaturePath =$upload_path . AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY'], '', $companyID, true);
 
+        $DigitalSignature=CompanySetting::getKeyVal('DigitalSignature', $companyID);
+        $DigitalSignature=json_decode($DigitalSignature, true);
+        if(isset($DigitalSignature[$file])){
+            $filePath = $signaturePath . $DigitalSignature[$file];
+            download_file($filePath);
+        }
+    }
 }
