@@ -53,7 +53,16 @@
      <div class="col-md-6 " @if($configkey == 'RateFormat') id="rate_dropdown" @endif>
         <div class="form-group" id="{{$configkey}}Box">
             @if($configkey != 'AllowAccountImport' && $configkey != 'AllowAccountIPImport')
-            <label for="field-5" class="control-label @if($configkey == 'RateCDR') col-md-13 @endif">{{$configtitle}} @if($configkey=='AutoAddIP') <span type="button" class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-original-title="Auto Add IP" data-content="IP will be automatically added to the account if account name matches to the switch account name. Turn ON Auto Add IP notification from Admin > Notifications.">?</span> @endif</label>
+            <label for="field-5" class="control-label @if($configkey == 'RateCDR') col-md-13 @endif">{{$configtitle}} @if($configkey=='AutoAddIP') <span type="button" class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-original-title="Auto Add IP" data-content="IP will be automatically added to the account if account name matches to the switch account name. Turn ON Auto Add IP notification from Admin > Notifications.">?</span> @endif
+
+
+
+                @if($configkey == 'ReRateMargin')
+                <span type="button" class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-original-title="ReRate Margin" data-content="If ReRate is On and Margin value is blank then CDR will be ReRated based on Account Rate. If Margin is not blank for example 10p then cdr cost = cost + 10% of cost or fixed rate 10 then cdr cost = 10.">?</span>
+                @endif
+
+
+            </label>
             @endif
 
             @if($configkey == 'NameFormat')
@@ -67,6 +76,10 @@
                 <p class="make-switch switch-small">
                     <input id="RateCDR"  type="checkbox"   @if($selectd_val == 1) checked=""  @endif name="RateCDR" value="1">
                 </p>
+                </div>
+            @elseif($configkey == 'ReRateMargin')
+                <div class="clear col-md-13">
+                    <input id="ReRateMargin"  type="text"  class="form-control"  value="{{$selectd_val}}"  name="ReRateMargin" >
                 </div>
             @elseif($configkey == 'AutoAddIP')
                 <div class="clear col-md-13">
