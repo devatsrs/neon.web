@@ -249,3 +249,37 @@ INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `Create
 INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('AccountSubscription.store', 'AccountSubscriptionController.store', 1, 'Sumera Saeed', NULL, '2015-11-28 09:37:35.000', '2015-11-28 09:37:35.000', 1331);
 INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('AccountSubscription.update', 'AccountSubscriptionController.update', 1, 'Sumera Saeed', NULL, '2015-11-28 09:37:35.000', '2015-11-28 09:37:35.000', 1330);
 INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('AccountSubscription.update', 'AccountSubscriptionController.update', 1, 'Sumera Saeed', NULL, '2015-11-28 09:37:35.000', '2015-11-28 09:37:35.000', 1330);
+
+
+---------- Auto rate import
+
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1334, 'AutoImport.All', 1, 5);
+INSERT INTO `tblResource` ( `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ( 'AutoImport.*', 'AutoImportController.*', 1, 'vishal jagani', NULL, '2018-04-25 14:51:44.000', '2018-04-25 14:51:44.000', 1334);
+
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1335, 'AutoImport.View', 1, 5);
+INSERT INTO `tblResource` ( `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ( 'AutoImport.index', 'AutoImportController.index', 1, 'vishal jagani', NULL, '2018-04-25 14:51:44.000', '2018-04-25 14:51:44.000', 1335);
+INSERT INTO `tblResource` ( `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ( 'AutoImport.GetemailReadById', 'AutoImportController.GetemailReadById', 1, 'vishal jagani', NULL, '2018-04-25 14:51:44.000', '2018-04-25 14:51:44.000', 1335);
+INSERT INTO `tblResource` ( `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ( 'AutoImport.ajax_datagrid', 'AutoImportController.ajax_datagrid', 1, 'vishal jagani', NULL, '2018-04-25 14:51:44.000', '2018-04-25 14:51:44.000', 1335);
+
+
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1336, 'AutoRateImport.All', 1, 5);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ( 'AutoRateImport.*', 'AutoRateImportController.*', 1, 'vishal jagani', NULL, '2018-04-25 14:51:44.000', '2018-04-25 14:51:44.000', 1336);
+
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1337, 'AutoRateImport.View', 1, 5);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ( 'AutoRateImport.ratetableSetting', 'AutoRateImportController.ratetableSetting', 1, 'vishal jagani', NULL, '2018-04-25 14:51:44.000', '2018-04-25 14:51:44.000', 1337);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ( 'AutoRateImport.index', 'AutoRateImportController.index', 1, 'vishal jagani', NULL, '2018-04-25 14:51:44.000', '2018-04-25 14:51:44.000', 1337);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ( 'AutoRateImport.ajax_datagrid', 'AutoRateImportController.ajax_datagrid', 1, 'vishal jagani', NULL, '2018-04-25 14:51:44.000', '2018-04-25 14:51:44.000', 1337);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ( 'AutoRateImport.accountSetting', 'AutoRateImportController.accountSetting', 1, 'vishal jagani', NULL, '2018-04-25 14:51:44.000', '2018-04-25 14:51:44.000', 1337);
+
+
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1338, 'AutoRateImport.Add', 1, 5);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ( 'AutoRateImport.inboxSettingStoreAndUpdate', 'AutoRateImportController.inboxSettingStoreAndUpdate', 1, 'vishal jagani', NULL, '2018-04-25 14:51:44.000', '2018-04-25 14:51:44.000', 1338);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ( 'AutoRateImport.accountSettingStore', 'AutoRateImportController.accountSettingStore', 1, 'vishal jagani', NULL, '2018-04-25 14:51:44.000', '2018-04-25 14:51:44.000', 1338);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ( 'AutoRateImport.RateTableSettingStore', 'AutoRateImportController.RateTableSettingStore', 1, 'vishal jagani', NULL, '2018-04-25 14:51:44.000', '2018-04-25 14:51:44.000', 1338);
+
+
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1339, 'AutoRateImport.Delete', 1, 5);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ( 'AutoRateImport.Delete', 'AutoRateImportController.Delete', 1, 'vishal jagani', NULL, '2018-04-25 14:51:44.000', '2018-04-25 14:51:44.000', 1339);
+
+
+
