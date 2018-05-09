@@ -121,14 +121,14 @@
         @endif
 
         {{--  for the Auto import link  --}}
-        @if(User::checkCategoryPermission('TicketImportRules','View'))
+        @if(User::checkCategoryPermission('AutoImport','View'))
             <li> <a href="{{URL::to('/auto_rate_import/autoimport')}}">  <span>Rate Import</span> </a> </li>
 
             <ul >
-              @if(User::checkCategoryPermission('TicketDashboard','View'))
+              @if(User::checkCategoryPermission('AutoRateImport','View'))
                 <li> <a href="{{URL::to('/auto_rate_import/import_inbox_setting')}}">  <span>Import Inbox Settings</span> </a> </li>
               @endif
-              @if(User::checkCategoryPermission('TicketDashboard','View'))
+              @if(User::checkCategoryPermission('AutoRateImport','View'))
                 <li> <a href="{{URL::to('/auto_rate_import/account_setting')}}">  <span>Account Settings</span> </a> </li>
               @endif
               @if(User::checkCategoryPermission('AutoRateImportController','View'))
