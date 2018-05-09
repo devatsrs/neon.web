@@ -764,7 +764,7 @@ ThisSP:BEGIN
 					FROM tmp_TempRateTableRate_ vr
 						LEFT JOIN tmp_DialString_ ds
 
-							ON ((vr.Code = ds.ChargeCode and vr.DialStringPrefix = '') OR (vr.DialStringPrefix != '' and vr.DialStringPrefix =  ds.DialString and vr.Code = ds.ChargeCode  ))
+							ON vr.DialStringPrefix = ds.DialString AND ds.DialStringID = p_dialStringId
 						WHERE vr.ProcessId = p_processId
 							AND ds.DialStringID IS NULL
 							AND vr.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
