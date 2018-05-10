@@ -292,11 +292,7 @@ var postdata;
                     success: function(response) {
                         $('#ajax_config_html').html(response);
                         initializeSelect2();
-                        if($('#RateCDR').is(':checked')) {
-                            $('#cdrrerateaccountsbox').show();
-                        } else {
-                            $('#cdrrerateaccountsbox').hide();
-                        }
+                        $("#RateCDR").trigger('change');
                         if($('#NameFormat').val() == 'IP') {
                             $('#AutoAddIPBox').show();
                         } else {
@@ -494,9 +490,15 @@ var postdata;
 
         $(document).on('change', '#RateCDR', function() {
             if($('#RateCDR').is(':checked')) {
-                $('#cdrrerateaccountsbox').slideDown();
+                $('.cdrrerateaccountsbox').slideDown();
+                $('#SpecifyRate').parent().parent().slideDown();
+                $('#RateMethod').parent().parent().slideDown();
+
             } else {
-                $('#cdrrerateaccountsbox').slideUp();
+                $('.cdrrerateaccountsbox').slideUp();
+                $('#SpecifyRate').parent().parent().slideUp();
+                $('#RateMethod').parent().parent().slideUp();
+
             }
         });
 
