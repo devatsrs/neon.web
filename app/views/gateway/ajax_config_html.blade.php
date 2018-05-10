@@ -1,6 +1,6 @@
 <?php $count = 1;?>
 <div class="row">
-    <div class="col-md-12" id="cdrrerateaccountsbox">
+    <div class="col-md-12 cdrrerateaccountsbox">
         <div class="form-group">
             <label class="control-label">CDR Rerate Accounts <span type="button" class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-original-title="ReRate Accounts" data-content="If blank all accounts CDRs will be rated. Otherwise only selected accounts CDRs will be rated.">?</span></label>
             {{Form::select('Accounts[]', $Accounts, isset($gatewayconfigval->Accounts) ? $gatewayconfigval->Accounts : [] ,array("class"=>"form-control select2", "multiple"=>"multiple"))}}
@@ -53,7 +53,8 @@
      <div class="col-md-6 " @if($configkey == 'RateFormat') id="rate_dropdown" @endif>
         <div class="form-group" id="{{$configkey}}Box">
             @if($configkey != 'AllowAccountImport' && $configkey != 'AllowAccountIPImport')
-            <label for="field-5" class="control-label @if($configkey == 'RateCDR') col-md-13 @endif">{{$configtitle}} @if($configkey=='AutoAddIP') <span type="button" class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-original-title="Auto Add IP" data-content="IP will be automatically added to the account if account name matches to the switch account name. Turn ON Auto Add IP notification from Admin > Notifications.">?</span> @endif</label>
+            <label  class="control-label @if($configkey == 'RateCDR') col-md-13 @endif">{{$configtitle}} @if($configkey=='AutoAddIP') <span type="button" class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-original-title="Auto Add IP" data-content="IP will be automatically added to the account if account name matches to the switch account name. Turn ON Auto Add IP notification from Admin > Notifications.">?</span> @endif
+           </label>
             @endif
 
             @if($configkey == 'NameFormat')
@@ -68,6 +69,10 @@
                     <input id="RateCDR"  type="checkbox"   @if($selectd_val == 1) checked=""  @endif name="RateCDR" value="1">
                 </p>
                 </div>
+            @elseif($configkey == 'RateMethod')
+                {{Form::select($configkey,UsageDetail::$RateMethod,$selectd_val,array( "class"=>"select2 small ReRateOptions","id"=>$configkey))}}
+            @elseif($configkey == 'SpecifyRate')
+                 <input id="SpecifyRate"  type="text"  class="form-control ReRateOptions"  value="{{$selectd_val}}"  name="SpecifyRate" >
             @elseif($configkey == 'AutoAddIP')
                 <div class="clear col-md-13">
                     <p class="make-switch switch-small">
@@ -88,7 +93,7 @@
             @elseif($configkey == 'key')
                     <br/>
                     <input type="hidden" name="oldkey" value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey)){{$gatewayconfigval->$configkey}}@endif">
-                    <input id="field-5" name="{{$configkey}}" type="file"
+                    <input  name="{{$configkey}}" type="file"
                            class="form-control file2 inline btn btn-primary"
                            data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse"/>
                  <span class="file-input-name">
@@ -114,13 +119,13 @@
                 </div>
             @else
                 @if($configkey != 'AllowAccountIPImport')
-                    <input @if($configkey == 'password' || $configkey == 'dbpassword' || $configkey == 'sshpassword' || $configkey == 'api_password') type="password" @else type="text" @endif  value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && !empty($gatewayconfigval->$configkey) && ($configkey == 'password' || $configkey == 'dbpassword' || $configkey == 'sshpassword' || $configkey == 'api_password')){{''}}@elseif(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey)){{$gatewayconfigval->$configkey}}@endif" name="{{$configkey}}" class="form-control" id="field-5" placeholder="">
+                    <input @if($configkey == 'password' || $configkey == 'dbpassword' || $configkey == 'sshpassword' || $configkey == 'api_password') type="password" @else type="text" @endif  value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && !empty($gatewayconfigval->$configkey) && ($configkey == 'password' || $configkey == 'dbpassword' || $configkey == 'sshpassword' || $configkey == 'api_password')){{''}}@elseif(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey)){{$gatewayconfigval->$configkey}}@endif" name="{{$configkey}}" class="form-control"  placeholder="">
                 @endif
 
-                @if($configkey == 'password')<input type="hidden" disabled value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && !empty($gatewayconfigval->$configkey) && $configkey == 'password'   ){{''}}@endif" name="{{$configkey}}_disabled" class="form-control" id="field-5" placeholder="">@endif
-                @if($configkey == 'dbpassword')<input type="hidden" disabled value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && !empty($gatewayconfigval->$configkey) && $configkey == 'dbpassword'   ){{''}}@endif" name="{{$configkey}}_disabled" class="form-control" id="field-5" placeholder="">@endif
-                @if($configkey == 'sshpassword')<input type="hidden" disabled value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && !empty($gatewayconfigval->$configkey) && $configkey == 'sshpassword'   ){{''}}@endif" name="{{$configkey}}_disabled" class="form-control" id="field-5" placeholder="">@endif
-                @if($configkey == 'api_password')<input type="hidden" disabled value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && !empty($gatewayconfigval->$configkey) && $configkey == 'api_password'   ){{''}}@endif" name="{{$configkey}}_disabled" class="form-control" id="field-5" placeholder="">@endif
+                @if($configkey == 'password')<input type="hidden" disabled value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && !empty($gatewayconfigval->$configkey) && $configkey == 'password'   ){{''}}@endif" name="{{$configkey}}_disabled" class="form-control"  placeholder="">@endif
+                @if($configkey == 'dbpassword')<input type="hidden" disabled value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && !empty($gatewayconfigval->$configkey) && $configkey == 'dbpassword'   ){{''}}@endif" name="{{$configkey}}_disabled" class="form-control"  placeholder="">@endif
+                @if($configkey == 'sshpassword')<input type="hidden" disabled value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && !empty($gatewayconfigval->$configkey) && $configkey == 'sshpassword'   ){{''}}@endif" name="{{$configkey}}_disabled" class="form-control"  placeholder="">@endif
+                @if($configkey == 'api_password')<input type="hidden" disabled value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && !empty($gatewayconfigval->$configkey) && $configkey == 'api_password'   ){{''}}@endif" name="{{$configkey}}_disabled" class="form-control"  placeholder="">@endif
 
             @endif
          </div>
@@ -130,21 +135,8 @@
 </div>
 
 <script>
-/*if ($.isFunction($.fn.selectBoxIt))
-{
-    $("select.selectboxit").each(function(i, el)
-    {
-        var $this = $(el),
-                opts = {
-            showFirstOption: attrDefault($this, 'first-option', true),
-            'native': attrDefault($this, 'native', false),
-            defaultText: attrDefault($this, 'text', '')
-        };
 
-        $this.addClass('visible');
-        $this.selectBoxIt(opts);
-    });
-}*/
+
     $(document).ready(function() {
         $('[data-toggle="popover"]').each(function(i, el)
         {
@@ -166,6 +158,12 @@
             });
         });
 
+        $(document).on('change', 'select[name="RateMethod"]', function() {
+            $('#SpecifyRateBox').parent().addClass('hidden');
+            if ($(this).val() == 'SpecifyRate' || $(this).val() == 'ValueAgainstCost') {
+                $('#SpecifyRateBox').parent().removeClass('hidden');
+            }
+        });
 
         $(document).on('change', 'select[name="protocol_type"]', function() {
 

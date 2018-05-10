@@ -70,16 +70,16 @@
             @if($InvoiceTemplate->GroupByService==0)
                 <?php
                     $VisibleColumns = (array)json_decode($InvoiceTemplate->VisibleColumns);
-                    $Description = $Usage = $Recurring = $Additional = true;
+                    $Description = $Usage = $Recurring = $Additional = false;
                     if(!empty($VisibleColumns)) {
-                        if(!isset($VisibleColumns['Description']) || $VisibleColumns['Description'] != 1)
-                            $Description = false;
-                        if(!isset($VisibleColumns['Usage']) || $VisibleColumns['Usage'] != 1)
-                            $Usage = false;
-                        if(!isset($VisibleColumns['Recurring']) || $VisibleColumns['Recurring'] != 1)
-                            $Recurring = false;
-                        if(!isset($VisibleColumns['Additional']) || $VisibleColumns['Additional'] != 1)
-                            $Additional = false;
+                        if($VisibleColumns['Description'] == 1)
+                            $Description = true;
+                        if($VisibleColumns['Usage'] == 1)
+                            $Usage = true;
+                        if($VisibleColumns['Recurring'] == 1)
+                            $Recurring = true;
+                        if($VisibleColumns['Additional'] == 1)
+                            $Additional = true;
                     }
                 ?>
                 <th class="desc">

@@ -49,7 +49,7 @@
 </ol>
 <h3>Vendor Setting</h3>
 <p style="text-align: right;">
-@if(User::checkCategoryPermission('RateTables','Add'))
+@if(User::checkCategoryPermission('AutoRateImport','Add'))
     <a href="#" id="add-new-account-setting" class="btn btn-primary ">
         <i class="entypo-plus"></i>
         Add New Setting
@@ -128,10 +128,11 @@ jQuery(document).ready(function($) {
                                 delete_ = "{{ URL::to('/auto_rate_import/{id}/delete')}}";
 
                                 delete_ = delete_.replace('{id}', full[9]);
-
+                                @if(User::checkCategoryPermission('AutoRateImport','Add'))
                                 action = '<a title="Edit" data-id="'+id+'" data-AutoImportSettingID="'+full[9]+'" data-TrunkID="'+full[7]+'" data-uploadtemplate="'+full[8]+'" data-subject="'+full[3]+'" data-sendor="'+full[5]+'" data-fileName="'+full[4]+'" class="edit-autoImportSetting btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
+                                @endif
 
-                                <?php if(User::checkCategoryPermission('RateTables','Delete') ) { ?>
+                                <?php if(User::checkCategoryPermission('AutoRateImport','Delete') ) { ?>
                                     action += ' <a title="Delete" href="' + delete_ + '" data-redirect="{{URL::to("/rate_tables")}}"  class="btn btn-default delete btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';
                                 <?php } ?>
                                 //action += status_link;

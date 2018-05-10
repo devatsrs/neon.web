@@ -22,10 +22,12 @@
             <form id="add-new-form" method="post">
 
                 <div class="float-right">
+                    @if(User::checkCategoryPermission('AutoImport','Add'))
                     <button type="button" id="autoImportInboxSetting-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i>
                         Save
                     </button>
+                    @endif
                     <a href="{{URL::to('/auto_rate_import/autoimport')}}" class="btn btn-danger btn-sm btn-icon icon-left">Close
                         <i class="entypo-cancel"></i>
                     </a>

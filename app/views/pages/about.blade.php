@@ -60,8 +60,8 @@
                     25. Added option to upload dial codes from the upload rates page well.<br>
                     26. Modified QuickBook and XERO Journal postings to post based on Payment Date instead of Invoice Date.<br>
                     27. Modified Avg Rate calculation in invoices for CDR format  ‘Summary CDR’ to show actual rate instead of average call rate.<br>
-                    28. Customer Rate - Modified Rate Update options under Customer Rate.<br>
-                    29. Added ‘New Offer’ and ‘Bulk New Offer’.<br>
+                    28. Customer Rate - Modified Rate Update options under Customer Rate. Added ‘New Offer’ and ‘Bulk New Offer’.<br>
+                    29. Added placeholders option under Invoice Template > Footer and Terms boxes.<br>
                 </div>
             </li>
         </ul>
