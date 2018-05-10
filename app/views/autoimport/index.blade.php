@@ -50,7 +50,7 @@
 </ol>
 <h3>Auto Import</h3>
 <p style="text-align: right;">
-@if(User::checkCategoryPermission('RateTables','Add'))
+@if(User::checkCategoryPermission('AutoRateImport','View'))
     <a href="{{URL::to('/auto_rate_import/import_inbox_setting')}}"  class="btn btn-primary ">
         Import Inbox Settings
     </a>
