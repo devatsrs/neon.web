@@ -364,7 +364,18 @@
             });
 
 
-
+            $.get( baseurl + "/cronjobs/check_failing", function( response ) {
+                if(typeof response.message != 'undefined' ) {
+                    setCookie("lastCronJobCheckingDate",new Date(),365);
+                    if (response.message == '') {
+                        setCookie("CronJobNotifications",true,365);
+                        $(".notifications.cron_jobs.dropdown").find("#failing_placeholder").addClass("hidden");
+                    } else {
+                        setCookie("CronJobNotifications",false,365);
+                        $(".notifications.cron_jobs.dropdown").find("#failing_placeholder").removeClass("hidden");
+                    }
+                }
+            });
 
         });
     </script>
