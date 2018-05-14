@@ -1,8 +1,10 @@
 use Ratemanagement3;
 
-ALTER TABLE `tblBillingClass`
-	ADD COLUMN `RoundChargesCDR` INT(11) NULL DEFAULT NULL AFTER `RoundChargesAmount`;
+ALTER TABLE `tblFileUploadTemplate`
+	CHANGE COLUMN `Options` `Options` TEXT NULL DEFAULT NULL COLLATE 'utf8_unicode_ci' AFTER `Title`;
 
+ALTER TABLE `tblBillingClass`
+	ADD COLUMN `RoundChargesCDR` INT(11) NULL DEFAULT '2' AFTER `RoundChargesAmount`;
 
 
 DROP PROCEDURE IF EXISTS `prc_SplitAndInsertVendorRate`;
