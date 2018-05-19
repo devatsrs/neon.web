@@ -253,5 +253,13 @@ class AutoRateImportController extends \BaseController {
 
 	}
 
+	public function validConnection()
+	{
+		$data = Input::all();
+		$data['IsSSL'] = isset($data['IsSSL']) ? 1 : 0 ;
+		$companyID = User::get_companyID();
 
+		$response 				= 		NeonAPI::request('ticketgroups/validatesmtp',$data,true,false,false);
+		return json_response_api($response,true);
+	}
 }

@@ -741,6 +741,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/auto_rate_import/ajax_datagrid/{type}','AutoRateImportController@ajax_datagrid');
 	Route::any('/auto_rate_import/import_inbox_setting','AutoRateImportController@index');
 	Route::any('/auto_rate_import/storeAndUpdate','AutoRateImportController@inboxSettingStoreAndUpdate');
+	Route::any('/auto_rate_import/validConnection','AutoRateImportController@validConnection');
 
 	Route::any('/auto_rate_import/account_setting','AutoRateImportController@accountSetting');
 	Route::any('/auto_rate_import/account_setting/store','AutoRateImportController@accountSettingStore');

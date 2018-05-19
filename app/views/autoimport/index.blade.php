@@ -163,6 +163,10 @@ jQuery(document).ready(function($) {
                                             '<i class="glyphicon glyphicon-repeat"></i>' +
                                             '</button>';
 
+                                }else if( Status == 'not match' ){
+                                    action = ' <button data-id="'+ full[3] +'" title="Start" class="job_recheck btn btn-primary btn-sm" type="button" data-loading-text="Loading...">' +
+                                            '<i class="glyphicon glyphicon-repeat"></i>' +
+                                            '</button>';//
                                 }else{
                                     action= '';
                                 }
@@ -281,6 +285,14 @@ jQuery(document).ready(function($) {
 
     //Restart a job
     $('table tbody').on('click','.job_restart',function(ev){
+        result = confirm("Are you Sure?");
+        if(result){
+            id = $(this).attr('data-id');
+            submit_ajax(baseurl+'/jobs/'+id + '/restart');
+            data_table.fnFilter('', 0);
+        }
+    });
+    $('table tbody').on('click','.job_recheck',function(ev){
         result = confirm("Are you Sure?");
         if(result){
             id = $(this).attr('data-id');
