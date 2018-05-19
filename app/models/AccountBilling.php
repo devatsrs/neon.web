@@ -21,6 +21,7 @@ class AccountBilling extends \Eloquent {
         'NextChargeDate'=>'NextChargeDate',
         'BillingClassID'=>'BillingClassID',
         'ServiceID'=>'ServiceID',
+        'AutoPayMethod'=>'AutoPayMethod',
 
     ];
 
@@ -133,6 +134,12 @@ class AccountBilling extends \Eloquent {
             if (!empty($data['AutoPaymentSetting'])) {
                 $AccountBilling['AutoPaymentSetting'] = $data['AutoPaymentSetting'];
             }
+            if (!empty($data['AutoPayMethod'])) {
+                $AccountBilling['AutoPayMethod'] = $data['AutoPayMethod'];
+            }
+            else{
+                $AccountBilling['AutoPayMethod'] = 0;
+            }
 
             if (!empty($data['BillingStartDate'])) {
                 $AccountBilling['BillingStartDate'] = $data['BillingStartDate'];
@@ -240,6 +247,12 @@ class AccountBilling extends \Eloquent {
             }
             if (!empty($data['AutoPaymentSetting'])) {
                 $AccountBilling['AutoPaymentSetting'] = $data['AutoPaymentSetting'];
+            }
+            if (!empty($data['AutoPayMethod'])) {
+                $AccountBilling['AutoPayMethod'] = $data['AutoPayMethod'];
+            }
+            else{
+                $AccountBilling['AutoPayMethod'] = 0;
             }
             if(!empty($AccountBilling)){
                 $AccountBillingID=AccountBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->pluck('AccountBillingID');

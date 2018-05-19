@@ -12,6 +12,7 @@ $privacy = EmailTemplate::$privacy;
             <li class="active"><a href="#tab1" data-toggle="tab">Basic Info</a></li>
             <li ><a href="#tab2" data-toggle="tab">Payment Reminder</a></li>
             <li ><a href="#tab3" data-toggle="tab">Low Balance Reminder</a></li>
+            <li ><a href="#tab4" data-toggle="tab">Account Balance Warning</a></li>
         </ul>
         <div class="tab-content">
             <div class="tab-pane active" id="tab1" >
@@ -69,6 +70,30 @@ $privacy = EmailTemplate::$privacy;
                                 <div class="col-sm-4">
                                     {{Form::SelectControl('invoice_template',1,( isset($BillingClass->InvoiceTemplateID)?$BillingClass->InvoiceTemplateID:'' ))}}
                                             <!--{Form::select('InvoiceTemplateID', $InvoiceTemplates, ( isset($BillingClass->InvoiceTemplateID)?$BillingClass->InvoiceTemplateID:'' ),array('id'=>'billing_type',"class"=>"select2 select2Add small"))}}-->
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">Deduct Call Charge In Advance</label>
+                                <div class="col-sm-4">
+                                    <div class="make-switch switch-small">
+                                        <input type="checkbox" @if( isset($BillingClass->DeductCallChargeInAdvance) && $BillingClass->DeductCallChargeInAdvance == 1 )checked="" @endif name="DeductCallChargeInAdvance" value="1">
+                                    </div>
+                                </div>
+                                <label class="col-sm-2 control-label">Suspend Account</label>
+                                <div class="col-sm-4">
+                                    <div class="make-switch switch-small">
+                                        <input type="checkbox" @if( isset($BillingClass->SuspendAccount) && $BillingClass->SuspendAccount == 1 )checked="" @endif name="SuspendAccount" value="1">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-2 control-label">Auto Pay</label>
+                                <div class="col-md-4">
+                                    {{Form::select('AutoPaymentSetting', BillingClass::$AutoPaymentSetting, ( isset($BillingClass->AutoPaymentSetting)?$BillingClass->AutoPaymentSetting:'never' ) ,array("class"=>"form-control select2 small"))}}
+                                </div>
+                                <label class="col-md-2 control-label">Auto Pay Method</label>
+                                <div class="col-md-4">
+                                    {{Form::select('AutoPayMethod', BillingClass::$AutoPayMethod, ( isset($BillingClass->AutoPayMethod)?$BillingClass->AutoPayMethod:'0' ),array("class"=>"form-control select2 small"))}}
                                 </div>
                             </div>
                             <div class="form-group">
@@ -278,6 +303,77 @@ $privacy = EmailTemplate::$privacy;
                         </div>
                     </div>
             </div>
+            <div class="tab-pane" id="tab4" >
+                <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
+                    <!-- panel body -->
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Active</label>
+                            <div class="col-sm-4">
+                                <div class="make-switch switch-small">
+                                    <input type="checkbox" @if( isset($BillingClass->BalanceWarningStatus) && $BillingClass->BalanceWarningStatus == 1 )checked="" @endif name="BalanceWarningStatus" value="1">
+                                </div>
+                            </div>
+                            <label class="col-sm-2 control-label">Send To Account Owner</label>
+                            <div class="col-sm-4">
+                                <div class="make-switch switch-small">
+                                    <input type="checkbox" @if( isset($BalanceWarning->AccountManager) && $BalanceWarning->AccountManager == 1 )checked="" @endif name="BalanceWarning[AccountManager]" value="1">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Send Copy To</label>
+                            <div class="col-sm-4">
+                                <input type="text" name="BalanceWarning[ReminderEmail]" class="form-control" id="field-1" placeholder="" value="{{$BalanceWarning->ReminderEmail or ''}}" />
+                            </div>
+                            <label class="col-sm-2 control-label">Email Template</label>
+                            <div class="col-sm-4">
+                                {{Form::select('BalanceWarning[TemplateID]', $emailTemplates, (isset($BalanceWarning->TemplateID)?$BalanceWarning->TemplateID:'') ,array("class"=>"select2 select2add small form-control add-new-template-dp","data-type"=>'email_template','data-active'=>0,'data-modal'=>'add-new-modal-template'))}}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="field-5" class="col-sm-2 control-label">Days Before Subscription Renewal
+                                <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="How many Days before renewal send reminders" data-original-title="Reminder Days" class="label label-info popover-primary">?</span>
+                            </label>
+                            <div class="col-sm-4">
+                                {{Form::input('number', 'BalanceWarning[StartDay]', (isset($BalanceWarning->StartDay)?$BalanceWarning->StartDay:''), ['min' => '0' ,'class' => 'form-control'])}}
+                            </div>
+                            <label for="field-5" class="col-sm-2 control-label">Include Call Charges</label>
+                            <div class="col-sm-4 ">
+                                <div class="make-switch switch-small">
+                                    <input type="checkbox" @if( isset($BalanceWarning->IncludeCallCharge) && $BalanceWarning->IncludeCallCharge == 1 )checked="" @endif name="BalanceWarning[IncludeCallCharge]" value="1">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="field-5" class="col-sm-2 control-label">Period</label>
+                            <div class="col-sm-4">
+                                {{Form::select('BalanceWarning[Time]',array(""=>"Select","MINUTE"=>"Minute","HOUR"=>"Hourly","DAILY"=>"Daily",'MONTHLY'=>'Monthly'),(isset($BalanceWarning->Time)?$BalanceWarning->Time:''),array( "class"=>"select2 small"))}}
+                            </div>
+
+                            <label for="field-5" class="col-sm-2 control-label">Interval</label>
+                            <div class="col-sm-4">
+                                {{Form::select('BalanceWarning[Interval]',array(),'',array( "class"=>"select2 small"))}}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="field-5" class="col-sm-2 control-label">Day</label>
+                            <div class="col-sm-4">
+                                {{Form::select('BalanceWarning[Day][]',array("SUN"=>"Sunday","MON"=>"Monday","TUE"=>"Tuesday","WED"=>"Wednesday","THU"=>"Thursday","FRI"=>"Friday","SAT"=>"Saturday"),(isset($BalanceWarning->Day)?$BalanceWarning->Day:''),array( "class"=>"select2",'multiple',"data-placeholder"=>"Select day"))}}
+                            </div>
+
+                            <label for="field-5" class="col-sm-2 control-label">Start Time</label>
+                            <div class="col-sm-4">
+                                <input name="BalanceWarning[StartTime]" type="text" data-template="dropdown" data-show-seconds="true" data-default-time="12:00:00 AM" data-show-meridian="true" data-minute-step="5" class="form-control timepicker starttime2" value="{{(isset($BalanceWarning->StartTime)?$BalanceWarning->StartTime:'')}}" >
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
         </div>
     </div>
     @if(isset($accounts) && count($accounts))
@@ -313,14 +409,35 @@ $privacy = EmailTemplate::$privacy;
     $('#rowContainer').append(add_row_html_payment);
     var target = '';
     jQuery(document).ready(function ($) {
+
+        $("[name='BalanceWarning[StartDay]']").keyup(function(){
+            var days = $("[name='BalanceWarning[StartDay]']").val();
+            if(days == 1)
+            {
+                $("[name='BalanceWarning[Time]']").select2().select2('val','HOUR');
+            }
+            else if(days >1 && days < 30)
+            {
+                $("[name='BalanceWarning[Time]']").select2().select2('val','DAILY');
+            }
+            else if(days >= 30)
+            {
+                $("[name='BalanceWarning[Time]']").select2().select2('val','MONTHLY');
+            }
+            //alert($("[name='BalanceWarning[Time]']").val());
+        });
             setTimeout(function(){
                 $("#billing-form [name='PaymentReminder[Time]']").trigger('change');
                 $("#billing-form [name='LowBalanceReminder[Time]']").trigger('change');
+                $("#billing-form [name='BalanceWarning[Time]']").trigger('change');
                 @if(isset($PaymentReminders->Interval))
                 $("#billing-form [name='PaymentReminder[Interval]']").val('{{$PaymentReminders->Interval}}').trigger('change');
                 @endif
                 @if(isset($LowBalanceReminder->Interval))
                 $("#billing-form [name='LowBalanceReminder[Interval]']").val('{{$LowBalanceReminder->Interval}}').trigger('change');
+                @endif
+                 @if(isset($BalanceWarning->Interval))
+                $("#billing-form [name='BalanceWarning[Interval]']").val('{{$BalanceWarning->Interval}}').trigger('change');
                 @endif
             },50);
     });
