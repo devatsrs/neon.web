@@ -28,7 +28,7 @@
   <div class="mail-body">
     <div class="mail-header"> 
       <!-- title -->
-        <div class="mail-title">{{imap_mime_header_decode($ticketdata->Subject)[0]->text}} #{{$ticketdata->TicketID}}</div>
+        <div class="mail-title">{{emailHeaderDecode($ticketdata->Subject)}} #{{$ticketdata->TicketID}}</div>
       <div class="mail-date">
         To: {{$ticketdata->EmailTo}} <br>
         From: <a class="" href="{{$Requester['URL']}}">{{$Requester['Title']}}</a> ({{$Requester['Email']}})<br>
@@ -60,7 +60,10 @@
       </div>
       
       <!-- panel body -->
-      <div @if($loop>4) style="display:none;" @endif  class="panel-body"> {{$TicketConversationData->EmailMessage}}
+      <div @if($loop>4) style="display:none;" @endif  class="panel-body">
+          <div class="embed-responsive embed-responsive-4by3 ticketBody" style="display: none;">
+            {{htmlentities($TicketConversationData->EmailMessage)}}
+          </div>
         <?php $attachments = unserialize($TicketConversationData->AttachmentPaths);  ?>
         @if(count($attachments)>0 && strlen($TicketConversationData->AttachmentPaths)>0)
         <div class="mail-attachments last_data">
@@ -101,13 +104,21 @@
       </div>
       
       <!-- panel body -->
-      <div @if($loop>4) style="display:none;" @endif  class="panel-body">{{$TicketConversationData->Note}}</div>
+      <div @if($loop>4) style="display:none;" @endif  class="panel-body">
+          <div class="embed-responsive embed-responsive-4by3 ticketBody" style="display: none;">
+              {{$TicketConversationData->Note}}
+          </div>
+      </div>
     </div>
     <?php	} ?>
     <?php $loop++; } } } ?>
 
       <?php $attachments = unserialize($ticketdata->AttachmentPaths); ?>
-      <div class="mail-text"> {{$ticketdata->Description}} </div>
+      <div class="mail-text">
+          <div class="embed-responsive embed-responsive-4by3 ticketBody" style="display: none;">
+              {{htmlentities($ticketdata->Description)}}
+          </div>
+      </div>
       @if(count($attachments)>0 && strlen($ticketdata->AttachmentPaths)>0)
           <div class="mail-attachments last_data">
               <h4> <i class="entypo-attach"></i> Attachments <span>({{count($attachments)}})</span> </h4>
@@ -360,6 +371,15 @@ var emailFileListReply 	=		[];
 var CloseStatus			=		'{{$CloseStatus}}';
 var ticketPreMSG        =       '';
 $(document).ready(function(e) {
+    $('.ticketBody').each(function(){
+        var iFrame = $('<iframe class="embed-responsive-item" frameborder="0" allowfullscreen></iframe>');
+        var ticketBodyHtml = $(this).html();
+        $(this).html("").append(iFrame).show();
+        var iFrameDoc = iFrame[0].contentDocument || iFrame[0].contentWindow.document;
+        iFrameDoc.write($.parseHTML(ticketBodyHtml)[0]["data"]);
+        iFrameDoc.close();
+    });
+
     var lightboxhtml = $('<a href="" data-type="image" data-toggle="lightbox" data-title="" data-footer=""></a>');
     $(".mail-body img").each(function(i){
         //var $this = $(this);

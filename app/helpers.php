@@ -2743,3 +2743,36 @@ function cleanarray($data = [],$unset=[]){
     }
     return $data;
 }
+function emailHeaderDecode($emailHtml) {
+    if(is_string($emailHtml)){
+
+        $matches = null;
+
+        /* Repair instances where two encodings are together and separated by a space (strip the spaces) */
+        $emailHtml = preg_replace('/(=\?[^ ?]+\?[BQbq]\?[^ ?]+\?=)\s+(=\?[^ ?]+\?[BQbq]\?[^ ?]+\?=)/', "$1$2", $emailHtml);
+
+        /* Now see if any encodings exist and match them */
+        if (!preg_match_all('/=\?([^ ?]+)\?([BQbq])\?([^ ?]+)\?=/', $emailHtml, $matches, PREG_SET_ORDER)) {
+            return $emailHtml;
+        }
+        foreach ($matches as $header_match) {
+            list($match, $charset, $encoding, $data) = $header_match;
+            $encoding = strtoupper($encoding);
+            switch ($encoding) {
+                case 'B':
+                    $data = base64_decode($data);
+                    break;
+                case 'Q':
+                    $data = quoted_printable_decode(str_replace("_", " ", $data));
+                    break;
+            }
+            // This part needs to handle every charset
+            switch (strtoupper($charset)) {
+                case "UTF-8":
+                    break;
+            }
+            $emailHtml = str_replace($match, $data, $emailHtml);
+        }
+    }
+    return $emailHtml;
+}
