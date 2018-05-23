@@ -73,9 +73,12 @@ class AutoImportController extends \BaseController {
 
 	public function RecheckMail($id){
 		$CompanyID 	= User::get_companyID();
-		$emailDetails 	= AutoImport::find(127);
+		$emailDetails 	= AutoImport::find($id);
 		if($emailDetails && $emailDetails->Attachment!=""){
 			$arrAttachment = json_decode($emailDetails->Attachment);
+			if(empty($arrAttachment)){
+				return Response::json(array("status" => "failed", "message" => " Not Match "));
+			}
 			$MatchedAttachmentFileNames=[];
 			foreach($arrAttachment as $Attachment){
 				$path_parts = pathinfo($Attachment->filename);
@@ -87,7 +90,6 @@ class AutoImportController extends \BaseController {
 				}
 			}
 
-			$upload_path = CompanyConfiguration::get($CompanyID,'UPLOAD_PATH');
 			$query = "call prc_ImportSettingMatch ( '".$CompanyID."', '".$emailDetails->From."','".addslashes($emailDetails->Subject)."', '".addslashes(implode(", ", array_keys($MatchedAttachmentFileNames)))."' )";
 //			Log::info($query);
 			$results = DB::select($query);
@@ -187,7 +189,7 @@ class AutoImportController extends \BaseController {
 		{
 			$attachments 	=   json_decode($result->Attachment);
 			$attachment 	=   $attachments[$attachmentID];
-			$FilePath 		=  	AmazonS3::preSignedUrl($attachment['filepath']);
+			$FilePath 		=  	AmazonS3::preSignedUrl($attachment->filepath);
 
 			if(file_exists($FilePath)){
 				download_file($FilePath);
