@@ -7,7 +7,7 @@ class InvoiceTemplatesController extends \BaseController {
         $CompanyID = User::get_companyID();
         $invoiceCompanies = InvoiceTemplate::where("CompanyID", $CompanyID);
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceStartNumber','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CDRType','GroupByService')->get();
+            $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceStartNumber','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CDRType','GroupByService','IgnoreCallCharge','ShowPaymentWidgetInvoice')->get();
             $invoiceCompanies = json_decode(json_encode($invoiceCompanies),true);
             if($type=='csv'){
                 $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Invoice Template.csv';
@@ -19,7 +19,7 @@ class InvoiceTemplatesController extends \BaseController {
                 $NeonExcel->download_excel($invoiceCompanies);
             }
         }
-        $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CDRType','GroupByService','ServiceSplit');
+        $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CDRType','GroupByService','ServiceSplit','IgnoreCallCharge','ShowPaymentWidgetInvoice');
         return Datatables::of($invoiceCompanies)->make();
     }
 
@@ -103,6 +103,8 @@ class InvoiceTemplatesController extends \BaseController {
                 $data['ShowZeroCall'] = isset($data['ShowZeroCall']) ? 1 : 0;
                 $data['ShowPrevBal'] = isset($data['ShowPrevBal']) ? 1 : 0;
                 $data['ShowBillingPeriod'] = isset($data['ShowBillingPeriod']) ? 1 : 0;
+                $data['IgnoreCallCharge'] = isset($data['IgnoreCallCharge']) ? 1 : 0;
+                $data['ShowPaymentWidgetInvoice'] = isset($data['ShowPaymentWidgetInvoice']) ? 1 : 0;
                 $data['GroupByService'] = isset($data['GroupByService']) ? 1 : 0;
                 $data['ServiceSplit'] = isset($data['ServiceSplit']) ? 1 : 0;
             }
@@ -207,6 +209,8 @@ class InvoiceTemplatesController extends \BaseController {
         $data['ShowZeroCall'] = isset($data['ShowZeroCall']) ? 1 : 0;
         $data['ShowPrevBal'] = isset($data['ShowPrevBal']) ? 1 : 0;
         $data['ShowBillingPeriod'] = isset($data['ShowBillingPeriod']) ? 1 : 0;
+        $data['IgnoreCallCharge'] = isset($data['IgnoreCallCharge']) ? 1 : 0;
+        $data['ShowPaymentWidgetInvoice'] = isset($data['ShowPaymentWidgetInvoice']) ? 1 : 0;
         $data['GroupByService'] = isset($data['GroupByService']) ? 1 : 0;
         $data['ServiceSplit'] = isset($data['ServiceSplit']) ? 1 : 0;
         unset($data['InvoiceTemplateID']);

@@ -364,6 +364,12 @@
                         {{Form::select('AutoPaymentSetting', BillingClass::$AutoPaymentSetting, "never" ,array("class"=>"form-control select2 small"))}}
                     </div>
                 </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label">Auto Pay Method</label>
+                    <div class="col-md-4">
+                        {{Form::select('AutoPayMethod', BillingClass::$AutoPayMethod, ( isset($AccountBilling->AutoPayMethod)?$AccountBilling->AutoPayMethod:'0' ),array("class"=>"form-control select2 small"))}}
+                    </div>
+                </div>
                 </div>
                 </div>
         </form>
