@@ -36,7 +36,8 @@ class Invoice extends \Eloquent {
                                             '{VatNumber}'=>'Vat Number',
                                             '{NominalCode}'=>'Nominal Code',
                                             '{Email}'=>'Email',
-                                            '{Phone}'=>'Phone');
+                                            '{Phone}'=>'Phone',
+                                            '{AccountBalance}'=>'Account Balance');
 
     public static function multiLang_init(){
         Invoice::$invoice_type_customer = array(''=>cus_lang("DROPDOWN_OPTION_SELECT") ,self::INVOICE_OUT => cus_lang("CUST_PANEL_PAGE_INVOICE_FILTER_FIELD_TYPE_DDL_INVOICE_RECEIVED"),self::INVOICE_IN=>cus_lang("CUST_PANEL_PAGE_INVOICE_FILTER_FIELD_TYPE_DDL_INVOICE_SENT"),'All'=>cus_lang("CUST_PANEL_PAGE_INVOICE_FILTER_FIELD_TYPE_DDL_BOTH"));

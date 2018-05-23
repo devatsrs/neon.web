@@ -62,6 +62,7 @@
                 <thead>
                 <tr>
                     <th width="5%">No</th>
+                    {{--<th width="3%"></th>--}}
                     <th width="5%">Subscription</th>
                     <th width="20%">Invoice Description</th>
                     <th width="5%">Qty</th>
@@ -143,7 +144,7 @@
             var subscription_edit_url = baseurl + "/accounts/{{$account->AccountID}}/subscription/{id}/update";
             var subscription_delete_url = baseurl + "/accounts/{{$account->AccountID}}/subscription/{id}/delete";
             var subscription_datagrid_url = baseurl + "/accounts/{{$account->AccountID}}/subscription/ajax_datagrid";              
-            $("#subscription_submit").click(function(e) {                
+            $("#subscription_submit").click(function(e) {
                 e.preventDefault();
                  
                     $search.SubscriptionName = $("#subscription_filter").find('[name="SubscriptionName"]').val();
@@ -175,6 +176,11 @@
                             "aaSorting": [[0, 'asc']],
                             "aoColumns": [
                                 {  "bSortable": true },  // 0 Sequence NO
+                               /* {  "bSortable": false,
+                                    mRender: function(id, type, full) {
+                                        return '<div class="details-control" style="text-align: center; cursor: pointer;"><i class="entypo-plus-squared" style="font-size: 20px;"></i></div>';
+                                    }
+                                },  // plus sign*/
                                 {  "bSortable": true },  // 1 Subscription Name
                         {  "bSortable": true },  // 2 InvoiceDescription
                         {  "bSortable": true },  // 3 Qty
@@ -227,6 +233,7 @@
                         $search.EndDate = $("#subscription_filter").find('[name="EndDate"]').val();
                         data_table_subscription.fnFilter('', 0);
                     });     */
+
                 $('#subscription_submit').trigger('click');
                 //inst.myMethod('I am a method');
                 $('#add-subscription').click(function(ev){
@@ -321,8 +328,16 @@
 
 
                 });
+               /* $(document).on('click', '.details-control', function() {
+                    var $this   = $(this);
+                    getdiscountplans($this);
+                });*/
 
             });
+            /*function getdiscountplans(id){
+                alert(JSON.stringify(id));
+                $('.entypo-plus-squared').toggleClass('entypo-minus-squared');
+            }*/
             </script>
     </div>
 </div>
