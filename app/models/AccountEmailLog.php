@@ -18,5 +18,6 @@ class AccountEmailLog extends \Eloquent {
 	const TicketEmail = 10;
     const ReportEmail = 11;
     const BalanceWarning = 12;
+    const AccountBalanceEmailReminder = 13;
 
 }
