@@ -150,9 +150,9 @@
     <script type="text/javascript">
         jQuery(document).ready(function($) {
 
-            $("#autoImportInboxSetting-update").click(function(ev) {
-                var formData = $('#form-ticketgroup-edit').serialize();
-                update_new_url = baseurl + '/auto_rate_import/storeAndUpdate';
+            $("#autoImportInboxSetting-test").click(function(ev) {
+                var formData = $('#add-new-form').serialize();
+                update_new_url = baseurl + '/auto_rate_import/validConnection';
                 $.ajax({
                     url: update_new_url,
                     type: 'POST',

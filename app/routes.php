@@ -737,6 +737,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/auto_rate_import/autoimport','AutoImportController@index');
 	Route::any('/auto_rate_import/autoimport/ajax_datagrid/{type}','AutoImportController@ajax_datagrid');
 	Route::any('/auto_rate_import/autoimport/readmail/{id}','AutoImportController@GetemailReadById');
+	Route::any('/auto_rate_import/autoimport/recheckmail/{id}','AutoImportController@RecheckMail');
+	Route::any('/auto_rate_import/autoimport/{id}/getAttachment/{attachmentID}','AutoImportController@GetAttachment');
 
 	Route::any('/auto_rate_import/ajax_datagrid/{type}','AutoRateImportController@ajax_datagrid');
 	Route::any('/auto_rate_import/import_inbox_setting','AutoRateImportController@index');

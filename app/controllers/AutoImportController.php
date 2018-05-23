@@ -62,7 +62,7 @@ class AutoImportController extends \BaseController {
 
 
 	public function GetemailReadById($id){
-		$CompanyID = 1;
+		$CompanyID = User::get_companyID();
 		$result = AutoImport::getEmailById($id);
 		$upload_path = CompanyConfiguration::get($CompanyID,'UPLOAD_PATH');
 		$amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['AUTOIMPORT_UPLOAD'],'',$CompanyID);
@@ -71,8 +71,131 @@ class AutoImportController extends \BaseController {
 		return Response::json(array("data" => $result[0], "path" => $path));
 	}
 
+	public function RecheckMail($id){
+		$CompanyID 	= User::get_companyID();
+		$emailDetails 	= AutoImport::find(127);
+		if($emailDetails && $emailDetails->Attachment!=""){
+			$arrAttachment = json_decode($emailDetails->Attachment);
+			$MatchedAttachmentFileNames=[];
+			foreach($arrAttachment as $Attachment){
+				$path_parts = pathinfo($Attachment->filename);
+				if(!array_key_exists("extension", $path_parts)){
+					$path_parts["extension"]="";
+				}
+				if (in_array(strtolower($path_parts["extension"]), array('xls','csv','xlsx') )) {
+					$MatchedAttachmentFileNames[strtolower($path_parts["filename"])] = $Attachment->filepath;
+				}
+			}
 
+			$upload_path = CompanyConfiguration::get($CompanyID,'UPLOAD_PATH');
+			$query = "call prc_ImportSettingMatch ( '".$CompanyID."', '".$emailDetails->From."','".addslashes($emailDetails->Subject)."', '".addslashes(implode(", ", array_keys($MatchedAttachmentFileNames)))."' )";
+//			Log::info($query);
+			$results = DB::select($query);
+			if(!empty($results)){
+				$countEmails=0;
+				$errorEmailMSG="";
+				foreach($results as $matchData){
 
+					$data=array();
+					if($matchData->Type == 1){
+						// For Vendor Rate
+						$job_type = "VU" ;
+						$data['Trunk'] = $matchData->TrunkID;
+						$data["AccountID"] = $matchData->TypePKID;
+						$data['codedeckid'] = VendorTrunk::where(["AccountID" => $matchData->TypePKID,'TrunkID'=>$data['Trunk']])->pluck("CodeDeckId");
+						$AccountID = $matchData->TypePKID;
+					}else{
+						// For RateTable
+						$job_type = "RTU" ;
+						$ratetable = RateTable::where('RateTableId','=',$matchData->TypePKID)->select("RateTableName")->get();
+						$data["ratetablename"] = $ratetable[0]->RateTableName;
+						$data["RateTableID"] = $matchData->TypePKID;
+						$data['codedeckid']="";
+						$AccountID = 0;
+					}
 
+					try {
+						$options=json_decode($matchData->options);
+						$arrOptions=array();
+						$arrOptions["skipRows"]=$options->skipRows;
+						$arrOptions["importratesheet"]=$options->importratesheet;
+						$arrOptions["option"]=$options->option;
+						$arrOptions["selection"]=$options->selection;
+						$arrOptions["Trunk"]=$matchData->TrunkID;
+						$arrOptions["codedeckid"]=$data['codedeckid'];
+						$arrOptions["uploadtemplate"]=$matchData->ImportFileTempleteID;
+						$arrOptions["checkbox_replace_all"]=$options->Settings->checkbox_replace_all;
+						$arrOptions["checkbox_rates_with_effected_from"]=$options->Settings->checkbox_rates_with_effected_from;
+						$arrOptions["checkbox_add_new_codes_to_code_decks"]=$options->Settings->checkbox_add_new_codes_to_code_decks;
+						$arrOptions["checkbox_review_rates"]=$options->Settings->checkbox_review_rates;
+						$arrOptions["radio_list_option"]=$options->Settings->radio_list_option;
+						$data['Options'] = json_encode($arrOptions);
+
+						$data['uploadtemplate'] = $matchData->ImportFileTempleteID;
+						$fullPath = $MatchedAttachmentFileNames[trim($matchData->lognFileName)];
+
+						$data['full_path'] = $fullPath;
+						$data["CompanyID"] = $CompanyID;
+						$data['checkbox_replace_all'] = $arrOptions["checkbox_replace_all"];
+						$data['checkbox_rates_with_effected_from'] = $arrOptions["checkbox_rates_with_effected_from"];
+						$data['checkbox_add_new_codes_to_code_decks'] = $arrOptions["checkbox_add_new_codes_to_code_decks"];
+						$data['radio_list_option'] = $arrOptions["radio_list_option"];
+						DB::beginTransaction();
+						$jobId = Job::CreateAutoImportJob($CompanyID,$job_type,$data);
+						DB::commit();
+
+						/* Job Block End */
+						$jobID = !empty($jobId) ? $jobId : 0;
+
+						$SaveData = array(
+							"AccountID" => $AccountID,
+							"AccountName" => $Attachment->AccountName,
+							"Subject" => $Attachment->Subject,
+							"Description" => $Attachment->Description,
+							"Attachment" => $Attachment->Attachment,
+							"To" => $Attachment->To,
+							"From" => $Attachment->From,
+							"CC" => $Attachment->CC,
+							"MailDateTime" => $Attachment->MailDateTime,
+							"MessageId" => $Attachment->MessageId,
+							"created_at" => date('Y-m-d H:i:s'),
+							"created_by" => "System",
+							"JobID" => $jobID,
+							"CompanyID" => $CompanyID
+						);
+						AutoImportRate::insert($SaveData);
+						$countEmails++;
+
+					}catch (\Exception $e){
+						Log::info($query);
+						Log::info("Template Not Valid Error:" . $e->getMessage());
+					}
+				}
+
+				if($countEmails>0){
+					$emailDetails->delete();
+					return Response::json(array("status" => "success", "message" => $countEmails." Jobs Locked "));
+				}
+			}
+		}
+		return Response::json(array("status" => "failed", "message" => " Not Match "));
+	}
+
+	public function GetAttachment($id,$attachmentID){
+		$result = AutoImport::find($id);
+		if($result)
+		{
+			$attachments 	=   json_decode($result->Attachment);
+			$attachment 	=   $attachments[$attachmentID];
+			$FilePath 		=  	AmazonS3::preSignedUrl($attachment['filepath']);
+
+			if(file_exists($FilePath)){
+				download_file($FilePath);
+			}else{
+				header('Location: '.$FilePath);
+			}
+		}
+		exit;
+	}
 
 }
