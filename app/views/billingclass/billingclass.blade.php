@@ -336,12 +336,12 @@ $privacy = EmailTemplate::$privacy;
                                 <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="How many Days before renewal send reminders" data-original-title="Reminder Days" class="label label-info popover-primary">?</span>
                             </label>
                             <div class="col-sm-4">
-                                {{Form::input('number', 'BalanceWarning[StartDay]', (isset($BalanceWarning->StartDay)?$BalanceWarning->StartDay:''), ['min' => '0' ,'class' => 'form-control'])}}
+                                {{Form::input('number', 'BalanceWarning[RenewalDays]', (isset($BalanceWarning->RenewalDays)?$BalanceWarning->RenewalDays:''), ['min' => '0' ,'class' => 'form-control'])}}
                             </div>
-                            <label for="field-5" class="col-sm-2 control-label">Include Call Charges</label>
+                            <label for="field-5" class="col-sm-2 control-label">Include UnBilled Amount</label>
                             <div class="col-sm-4 ">
                                 <div class="make-switch switch-small">
-                                    <input type="checkbox" @if( isset($BalanceWarning->IncludeCallCharge) && $BalanceWarning->IncludeCallCharge == 1 )checked="" @endif name="BalanceWarning[IncludeCallCharge]" value="1">
+                                    <input type="checkbox" @if( isset($BalanceWarning->IncludeUnBilledAmount) && $BalanceWarning->IncludeUnBilledAmount == 1 )checked="" @endif name="BalanceWarning[IncludeUnBilledAmount]" value="1">
                                 </div>
                             </div>
                         </div>
@@ -372,8 +372,6 @@ $privacy = EmailTemplate::$privacy;
                     </div>
                 </div>
             </div>
-            </div>
-        </div>
         </div>
     </div>
     @if(isset($accounts) && count($accounts))
