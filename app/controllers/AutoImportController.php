@@ -151,26 +151,27 @@ class AutoImportController extends \BaseController {
 
 						$SaveData = array(
 							"AccountID" => $AccountID,
-							"AccountName" => $Attachment->AccountName,
-							"Subject" => $Attachment->Subject,
-							"Description" => $Attachment->Description,
-							"Attachment" => $Attachment->Attachment,
-							"To" => $Attachment->To,
-							"From" => $Attachment->From,
-							"CC" => $Attachment->CC,
-							"MailDateTime" => $Attachment->MailDateTime,
-							"MessageId" => $Attachment->MessageId,
+							"AccountName" => $emailDetails->AccountName,
+							"Subject" => $emailDetails->Subject,
+							"Description" => $emailDetails->Description,
+							"Attachment" => $emailDetails->Attachment,
+							"To" => $emailDetails->To,
+							"From" => $emailDetails->From,
+							"CC" => $emailDetails->CC,
+							"MailDateTime" => $emailDetails->MailDateTime,
+							"MessageId" => $emailDetails->MessageId,
 							"created_at" => date('Y-m-d H:i:s'),
 							"created_by" => "System",
 							"JobID" => $jobID,
 							"CompanyID" => $CompanyID
 						);
-						AutoImportRate::insert($SaveData);
+						AutoImport::insert($SaveData);
 						$countEmails++;
 
 					}catch (\Exception $e){
 						Log::info($query);
 						Log::info("Template Not Valid Error:" . $e->getMessage());
+						return Response::json(array("status" => "failed", "message" => " Template Not Valid "));
 					}
 				}
 
