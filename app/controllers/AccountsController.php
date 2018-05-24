@@ -271,6 +271,13 @@ class AccountsController extends \BaseController {
                 return json_validator_response($validator);
             }
 
+            if($data['AutoPaymentSetting']!='never'){
+                if($data['AutoPayMethod']==0){
+                    return Response::json(array("status" => "failed", "message" => "Please Select Auto Pay Method."));
+                }
+
+            }
+
             if(isset($data['vendorname'])){
                 $VendorName = $data['vendorname'];
                 unset($data['vendorname']);
@@ -670,7 +677,6 @@ class AccountsController extends \BaseController {
                 Account::$rules['BillingStartDate'] = 'required';
             }
         }
-
         Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,' . $account->AccountID . ',AccountID,AccountType,1';
         Account::$rules['Number'] = 'required|unique:tblAccount,Number,' . $account->AccountID . ',AccountID';
 
@@ -678,7 +684,6 @@ class AccountsController extends \BaseController {
             Account::$rules['vendorname'] = 'required';
             Account::$messages['vendorname.required'] = 'The Vendor Name field is required.';
         }
-
         $validator = Validator::make($data, Account::$rules,Account::$messages);
 
         if ($validator->fails()) {
@@ -711,6 +716,12 @@ class AccountsController extends \BaseController {
             if($data['NextChargeDate']<$data['LastChargeDate']){
                 return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
             }
+        }
+        if($data['AutoPaymentSetting']!='never'){
+            if($data['AutoPayMethod']==0){
+                return Response::json(array("status" => "failed", "message" => "Please Select Auto Pay Method."));
+            }
+
         }
 
         if ($account->update($data)) {
