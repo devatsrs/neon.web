@@ -1324,4 +1324,90 @@ class Job extends \Eloquent {
         }
 
     }
+	
+	public static function CreateAutoImportJob($CompanyID,$job_type,$options){
+
+        switch ($job_type) {
+
+            case 'VU':
+
+                $UserID = User::where("CompanyID", $CompanyID)->where(["AdminUser" => 1, "Status" => 1])->min("UserID");
+                $jobType = JobType::where(["Code" => $job_type])->get(["JobTypeID", "Title"]);
+                $jobStatus = JobStatus::where(["Code" => "P"])->get(["JobStatusID"]);
+                $jobdata = array();
+                $jobdata["CompanyID"] = $CompanyID;
+                $jobdata["AccountID"] = $options["AccountID"];
+                $jobdata["JobTypeID"] = isset($jobType[0]->JobTypeID) ? $jobType[0]->JobTypeID : '';
+                $jobdata["JobStatusID"] = isset($jobStatus[0]->JobStatusID) ? $jobStatus[0]->JobStatusID : '';
+                $jobdata["JobLoggedUserID"] = $UserID;
+                $AccountName = Account::where(["AccountID" => $options["AccountID"]])->pluck('AccountName');
+                $jobdata["Title"] = $AccountName;
+                $jobdata["Description"] = $AccountName . ' ' . isset($jobType[0]->Title) ? $jobType[0]->Title : '';
+                $jobdata["CreatedBy"] = "System";
+                $jobdata["created_at"] = date('Y-m-d H:i:s');
+                $jobdata["updated_at"] = date('Y-m-d H:i:s');
+                $JobID = Job::insertGetId($jobdata);
+
+                /* Job Insert Here */
+                if ($JobID) {
+                    $data = array();
+                    $data["JobID"] = $JobID;
+                    $data["FileName"] = basename($options["full_path"]);
+                    $data["FilePath"] = $options["full_path"];
+                    $data["HttpPath"] = 0;
+                    $data["Options"] =  json_encode(self::removeUnnecesorryOptions($jobType,$options) );
+                    $data["CreatedBy"] = 'System';
+                    $data["created_at"] = date('Y-m-d H:i:s');
+                    $data["updated_at"] = date('Y-m-d H:i:s');
+                    if ($JobFileID = JobFile::insertGetId($data)) {
+                        // return $JobFileID;
+                        return $JobID;
+                    } else {
+                        // error code
+                    }
+                }
+
+            case 'RTU':
+
+                $UserID = User::where("CompanyID", $CompanyID)->where(["AdminUser" => 1, "Status" => 1])->min("UserID");
+                $jobType = JobType::where(["Code" => $job_type])->get(["JobTypeID", "Title"]);
+                $jobStatus = JobStatus::where(["Code" => "P"])->get(["JobStatusID"]);
+                $jobdata = array();
+                $jobdata["CompanyID"] = $CompanyID;
+                $options["CompanyID"] = $CompanyID;
+                $jobdata["JobTypeID"] = isset($jobType[0]->JobTypeID) ? $jobType[0]->JobTypeID : '';
+                $jobdata["JobStatusID"] = isset($jobStatus[0]->JobStatusID) ? $jobStatus[0]->JobStatusID : '';
+                $jobdata["JobLoggedUserID"] = $UserID;
+                $jobdata["Title"] =  $options['ratetablename']; // New check this
+                $jobdata["Description"] = isset($jobType[0]->Title) ? $jobType[0]->Title : '';
+                $jobdata["CreatedBy"] = "System";
+                // $jobdata["Options"] = json_encode($options);
+                $jobdata["created_at"] = date('Y-m-d H:i:s');
+                $jobdata["updated_at"] = date('Y-m-d H:i:s');
+                $JobID = Job::insertGetId($jobdata);
+
+                /* Job Insert Here */
+                if ($JobID) {
+                    $data = array();
+                    $data["JobID"] = $JobID;
+                    $data["FileName"] = basename($options["full_path"]);
+                    $data["FilePath"] = $options["full_path"];
+                    $data["HttpPath"] = 0;
+                    $data["Options"] =  json_encode(self::removeUnnecesorryOptions($jobType,$options) );
+                    //$data["Options"] = '';
+                    $data["CreatedBy"] = 'System';
+                    $data["created_at"] = date('Y-m-d H:i:s');
+                    $data["updated_at"] = date('Y-m-d H:i:s');
+                    if ($JobFileID = JobFile::insertGetId($data)) {
+                       // return $JobFileID;
+                        return $JobID;
+                    } else {
+                        // error code
+                    }
+                }
+
+        }
+
+
+    }
 }
