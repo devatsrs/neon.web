@@ -547,7 +547,7 @@ class PaymentsController extends \BaseController {
             $save['created_by'] = User::get_user_full_name();
             $option["option"] = $data['option'];
             $option["selection"] = $data['selection'];
-            $save['Options'] = json_encode($option);
+            $save['Options'] = str_replace('Skip loading','',json_encode($option));//json_encode($option);
 
             if ( isset($data['PaymentUploadTemplateID']) && $data['PaymentUploadTemplateID'] > 0 ) {
                 $template = PaymentUploadTemplate::find($data['PaymentUploadTemplateID']);

@@ -173,7 +173,7 @@ class ImportsController extends \BaseController {
         $save = array();
         $option["option"]=  $data['option'];
         $option["selection"] = $data['selection'];
-        $save['Options'] = json_encode($option);
+        $save['Options'] = str_replace('Skip loading','',json_encode($option));//json_encode($option);
         $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
         $save['full_path'] = $fullPath;
         if(isset($data['uploadtemplate'])) {
@@ -552,7 +552,7 @@ class ImportsController extends \BaseController {
             $save['created_by'] = User::get_user_full_name();
             $option["option"] = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
             $option["selection"] = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
-            $save['Options'] = json_encode($option);
+            $save['Options'] = str_replace('Skip loading','',json_encode($option));//json_encode($option);
             $save['FileUploadTemplateTypeID'] = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_Leads);
             if (isset($data['uploadtemplate']) && $data['uploadtemplate'] > 0) {
                 $template = FileUploadTemplate::find($data['uploadtemplate']);
@@ -565,7 +565,7 @@ class ImportsController extends \BaseController {
         $save = array();
         $option["option"]=  $data['option'];
         $option["selection"] = $data['selection'];
-        $save['Options'] = json_encode($option);
+        $save['Options'] = str_replace('Skip loading','',json_encode($option));//json_encode($option);
         $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
         $save['full_path'] = $fullPath;
         if(isset($data['uploadtemplate'])) {
@@ -858,7 +858,7 @@ class ImportsController extends \BaseController {
             $save['created_by'] = User::get_user_full_name();
             $option["option"] = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
             $option["selection"] = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
-            $save['Options'] = json_encode($option);
+            $save['Options'] = str_replace('Skip loading','',json_encode($option));//json_encode($option);
             $save['FileUploadTemplateTypeID'] = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_IPS);
             if (isset($data['UploadTemplate']) && $data['UploadTemplate'] > 0) {
                 $template = FileUploadTemplate::find($data['UploadTemplate']);
@@ -871,7 +871,7 @@ class ImportsController extends \BaseController {
         $save = array();
         $option["option"]=  $data['option'];
         $option["selection"] = $data['selection'];
-        $save['Options'] = json_encode($option);
+        $save['Options'] = str_replace('Skip loading','',json_encode($option));//json_encode($option);
         $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
         $save['full_path'] = $fullPath;
         if(isset($data['UploadTemplate'])) {
