@@ -1823,6 +1823,12 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                     //billing section start
 
                     $data['LastInvoiceDate'] = $data['BillingStartDate'];
+                    $BillingStartDate= strtotime($data['BillingStartDate']);
+                    $BillingCycleType= $data['BillingCycleType'];
+                    $BillingCycleValue= $data['BillingCycleValue'];
+                    $NextChargedDate='';
+                    $data['NextInvoiceDate'] = next_billing_date($BillingCycleType, $BillingCycleValue, $BillingStartDate);
+                    $data['NextChargeDate'] = date('Y-m-d', strtotime('-1 day', strtotime($data['NextInvoiceDate'])));
                     AccountBilling::insertUpdateBilling($id, $data, $ServiceID, $invoice_count);
                     if($ManualBilling ==0) {
                         AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
@@ -1837,6 +1843,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                         if(!empty($accountbillngdata) && $accountbillngdata==1){
                             $abdata = AccountBilling::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->first();
 
+                            $billingupdate['LastInvoiceDate'] = $abdata->LastInvoiceDate;
+                            $billingupdate['LastChargeDate'] = $abdata->LastChargeDate;
+
                             if(empty($billingupdate['BillingCycleType'])){
                                 $billingupdate['BillingCycleType'] = $abdata->BillingCycleType;
                             }
@@ -1846,6 +1855,19 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                             if(empty($billingupdate['BillingStartDate'])){
                                 $billingupdate['BillingStartDate'] = $abdata->BillingStartDate;
                             }
+
+                            $BillingStartDate= strtotime($billingupdate['BillingStartDate']);
+                            $BillingCycleType= $billingupdate['BillingCycleType'];
+                            $BillingCycleValue= $billingupdate['BillingCycleValue'];
+                            $NextChargedDate='';
+                            $NextBillingDate = next_billing_date($BillingCycleType, $BillingCycleValue, $BillingStartDate);
+                            $billingupdate['NextInvoiceDate'] = $NextBillingDate;
+                            if($NextBillingDate!=''){
+                                $NextChargedDate = date('Y-m-d', strtotime('-1 day', strtotime($NextBillingDate)));
+                                $billingupdate['NextChargeDate'] = $NextChargedDate;
+                            }
+
+
                             AccountBilling::insertUpdateBilling($id, $billingupdate, $ServiceID,$invoice_count);
                             if($ManualBilling ==0) {
                                 AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
