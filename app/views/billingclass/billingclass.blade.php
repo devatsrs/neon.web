@@ -4,6 +4,8 @@ $taxrates = TaxRate::getTaxRateDropdownIDList($CompanyID);
 if(isset($taxrates[""])){unset($taxrates[""]);}
 $type = EmailTemplate::$Type;
 $privacy = EmailTemplate::$privacy;
+$CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('processcallcharges',$CompanyID);
+$cronJobs_count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$CronJobCommandID,'Status'=>1])->count();
 ?>
 <div class="row">
 <form role="form" id="billing-form" method="post" class="form-horizontal form-groups-bordered">
@@ -73,18 +75,22 @@ $privacy = EmailTemplate::$privacy;
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-2 control-label">Deduct Call Charge In Advance</label>
-                                <div class="col-sm-4">
-                                    <div class="make-switch switch-small">
-                                        <input type="checkbox" @if( isset($BillingClass->DeductCallChargeInAdvance) && $BillingClass->DeductCallChargeInAdvance == 1 )checked="" @endif name="DeductCallChargeInAdvance" value="1">
-                                    </div>
-                                </div>
                                 <label class="col-sm-2 control-label">Suspend Account</label>
                                 <div class="col-sm-4">
                                     <div class="make-switch switch-small">
                                         <input type="checkbox" @if( isset($BillingClass->SuspendAccount) && $BillingClass->SuspendAccount == 1 )checked="" @endif name="SuspendAccount" value="1">
                                     </div>
                                 </div>
+                                @if($cronJobs_count>0)
+                                <label class="col-sm-2 control-label">Deduct Call Charge In Advance</label>
+                                <div class="col-sm-4">
+                                    <div class="make-switch switch-small">
+                                        <input type="checkbox" @if( isset($BillingClass->DeductCallChargeInAdvance) && $BillingClass->DeductCallChargeInAdvance == 1 )checked="" @endif name="DeductCallChargeInAdvance" value="1">
+                                    </div>
+                                </div>
+                                @else
+
+                                @endif
                             </div>
                             <div class="form-group">
                                 <label class="col-md-2 control-label">Auto Pay</label>
