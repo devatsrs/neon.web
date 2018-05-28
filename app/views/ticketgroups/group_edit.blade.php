@@ -71,6 +71,20 @@
               <input type="text" name='GroupEmailServer' class="form-control" id="imapserver" placeholder="IMAP Server" value="{{$ticketdata->GroupEmailServer}}">
             </div>            
           </div>
+            <div class="form-group">
+                <label for="GroupName" class="col-sm-3 control-label">Prot</label>
+                <div class="col-sm-9">
+                    <input type="text" name='GroupEmailPort' class="form-control" id="imapport" placeholder="IMAP Server Port" value="{{$ticketdata->GroupEmailPort}}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="GroupName" class="col-sm-3 control-label">Enable SSL</label>
+                <div class="col-sm-9">
+                    <p class="make-switch switch-small">
+                        <input type="checkbox" {{isset($ticketdata->GroupEmailIsSSL)?'checked':'';}}  name="GroupEmailIsSSL" >
+                    </p>
+                </div>
+            </div>
           <div class="form-group">
             <label for="GroupName" class="col-sm-3 control-label">Password</label>
             <div class="col-sm-6">
@@ -179,6 +193,8 @@
 			e.preventDefault();
 			e.stopImmediatePropagation();
 				var GroupEmailServer 		=  $("#form-ticketgroup-edit [name='GroupEmailServer']").val();				
+				var GroupEmailPort 		    =  $("#form-ticketgroup-edit [name='GroupEmailPort']").val();
+				var GroupEmailIsSSL 		=  $("#form-ticketgroup-edit [name='GroupEmailIsSSL']:checked").val();
 				var GroupEmailPassword 		=  $("#form-ticketgroup-edit [name='GroupEmailPassword']").val();
 				var GroupEmailAddress 		=  $("#form-ticketgroup-edit [name='GroupEmailAddress']").val();
 				
@@ -190,6 +206,10 @@
 					alert("Please add Imap Server");
 					return false;
 				}
+                if(GroupEmailPort==''){
+                    alert("Please add Imap Server Port");
+                    return false;
+                }
 				if(GroupEmailPassword==''){
 					alert("Please add Password");
 					return false;
@@ -199,12 +219,12 @@
 				 $('.ValidateSmtp').button('loading');
 			
 				var ValidateUrl 			=  "<?php echo URL::to('/ticketgroups/validatesmtp'); ?>";
-
+                var postData= {GroupEmailServer:GroupEmailServer,GroupEmailPort: GroupEmailPort, GroupEmailIsSSL: GroupEmailIsSSL,GroupEmailPassword:GroupEmailPassword,GroupEmailAddress:GroupEmailAddress};
 				 $.ajax({
 					url: ValidateUrl,
 					type: 'POST',
 					dataType: 'json',
-					data:{GroupEmailServer:GroupEmailServer,GroupEmailPassword:GroupEmailPassword,GroupEmailAddress:GroupEmailAddress},
+					data:postData,
 					success: function(Response) {
 				    $('.ValidateSmtp').button('reset');
 					$('.ValidateSmtp').removeAttr('disabled');

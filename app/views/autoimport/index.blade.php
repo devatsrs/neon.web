@@ -159,10 +159,14 @@ jQuery(document).ready(function($) {
                             mRender: function(id, type, full) {
                                 var Status = full[4].toLowerCase();
                                 if( Status == 'failed'){
-                                    action = ' <button data-id="'+ full[3] +'" title="Start" class="job_restart btn btn-primary btn-sm" type="button" data-loading-text="Loading...">' +
+                                    action = ' <button data-id="'+ full[3] +'" title="Job Restart" class="job_restart btn btn-primary btn-sm" type="button" data-loading-text="Loading...">' +
                                             '<i class="glyphicon glyphicon-repeat"></i>' +
                                             '</button>';
 
+                                }else if( Status == 'not match' ){
+                                    action = ' <button data-id="'+ full[5] +'" title="Recheck Mail" class="job_recheck btn btn-primary btn-sm" type="button" data-loading-text="Loading...">' +
+                                            '<i class="glyphicon glyphicon-repeat"></i>' +
+                                            '</button>';//
                                 }else{
                                     action= '';
                                 }
@@ -288,6 +292,14 @@ jQuery(document).ready(function($) {
             data_table.fnFilter('', 0);
         }
     });
+    $('table tbody').on('click','.job_recheck',function(ev){
+        result = confirm("Are you Sure?");
+        if(result){
+            id = $(this).attr('data-id');
+            submit_ajax(baseurl+'/auto_rate_import/autoimport/recheckmail/'+id );
+            data_table.fnFilter('', 0);
+        }
+    });
 
     $('table tbody').on('click','.add-new-account-setting',function(){
             var emailId= $(this).attr("id");
@@ -306,15 +318,32 @@ jQuery(document).ready(function($) {
                     var cc = edata.CC;
                     cc = cc.length > 0 ? '<br>CC : '+cc : '';
                     $('.mail-date').html('To : '+edata.To+'<br>From : '+edata.From+ cc+'<br>'+time_ago(edata.MailDateTime)+' ('+edata.MailDateTime+')' );
-                    $('.mail-text').html(edata.Description);
+
+                    var iFrame = $('<iframe class="embed-responsive-item" frameborder="0" allowfullscreen></iframe>');
+                    $('.mail-text .mailbody').html(iFrame);
+                    var iFrameDoc = iFrame[0].contentDocument || iFrame[0].contentWindow.document;
+                    iFrameDoc.write(edata.Description);
+                    iFrameDoc.close();
+
                     var Attachment = edata.Attachment;
-                    var attchment_array = Attachment.split(',');
-                    var attach = '';
-                    $(".totAttach").html(attchment_array.length);
-                    $.each(attchment_array, function (index, value) {
-                        attach += '<div> <a href="javascript:void(0)">'+value+'</a></div>';
-                    });
-                    $('.attachmentList').html(attach)
+                    if(Attachment!=""){
+                        var attach = '';
+                        try {
+                            var attchment_obj = JSON.parse(Attachment);
+                            $(".totAttach").html(attchment_obj.length);
+                            $.each(attchment_obj, function (index, value) {
+                                attach += '<div> <a href="'+ baseurl +'/auto_rate_import/autoimport/'+emailId+'/getAttachment/'+index+'">'+value.filename+'</a></div>';
+                            });
+                        }
+                        catch(err) {
+                            var attchment_array = Attachment.split(',');
+                            $(".totAttach").html(attchment_array.length);
+                            $.each(attchment_array, function (index, value) {
+                                attach += '<div> <a href="javascript:void(0)">'+value+'</a></div>';
+                            });
+                        }
+                        $('.attachmentList').html(attach);
+                    }
                     $('#modal-add-new-account-setting').modal('show', {backdrop: 'static'});
                   //  $('#myModal').modal({show:true});
                 }
@@ -400,7 +429,7 @@ jQuery(document).ready(function($) {
                             <div class="clear mail-date"></div>
                         </div>
 
-                        <div class="mail-text"></div>
+                        <div class="mail-text" ><div class="embed-responsive embed-responsive-4by3 mailbody" style="padding-bottom: 22%;padding-top: 22%;"></div></div>
                         <div class="mail-attachments last_data">
                             <h4><i class="entypo-attach"></i> Attachments (<span class="totAttach"></span>) </h4>
                             <div class="attachmentList"></div>

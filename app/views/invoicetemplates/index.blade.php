@@ -425,13 +425,15 @@ function ajax_update(fullurl,data){
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="field-1" class="col-sm-2 control-label">Ignore Call Charge</label>
+                            <label for="field-1" class="col-sm-2 control-label">Ignore Call Charges
+                                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If ON then system will not take into count call charges on the invoice. Only subscriotions and addiotnal charges will be shown." data-original-title="Ignore Call Charges">?</span>
+                            </label>
                             <div class="col-sm-4">
                                 <p class="make-switch switch-small">
                                     <input type="checkbox" name="IgnoreCallCharge" value="0">
                                 </p>
                             </div>
-                            <label for="field-1" class="col-sm-2 control-label">Show Payment Widget on Invoice</label>
+                            <label for="field-1" class="col-sm-2 control-label">Show Payment Widget</label>
                             <div class="col-sm-4">
                                 <p class="make-switch switch-small">
                                     <input type="checkbox" name="ShowPaymentWidgetInvoice" value="0">
