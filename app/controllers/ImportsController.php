@@ -98,7 +98,7 @@ class ImportsController extends \BaseController {
     }
 
     public function storeTemplate() {
-        $data = Input::all();
+        $data = json_decode(str_replace('Skip loading','',json_encode(Input::all(),true)),true);//Input::all();
         $CompanyID = User::get_companyID();
 
         $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['ACCOUNT_DOCUMENT']);
@@ -523,7 +523,7 @@ class ImportsController extends \BaseController {
     }
 
     public function leads_storeTemplate() {
-        $data = Input::all();
+        $data = json_decode(str_replace('Skip loading','',json_encode(Input::all(),true)),true);//Input::all();
         $CompanyID = User::get_companyID();
 
         Account::$importleadrules['selection.AccountName'] = 'required';
@@ -824,7 +824,7 @@ class ImportsController extends \BaseController {
 
 
     public function ips_storeTemplate() {
-        $data = Input::all();
+        $data = json_decode(str_replace('Skip loading','',json_encode(Input::all(),true)),true);//Input::all();
         $CompanyID = User::get_companyID();
         $rules = array(
             'selection.AccountName'=>'required',

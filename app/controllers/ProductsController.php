@@ -411,7 +411,7 @@ class ProductsController extends \BaseController {
      * @return mixed
      */
     public function storeTemplate() {
-        $data = Input::all();
+        $data = json_decode(str_replace('Skip loading','',json_encode(Input::all(),true)),true);//Input::all();
         $CompanyID = User::get_companyID();
         if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
             $rules = array('TemplateName' => 'required|unique:tblFileUploadTemplate,Title,'.$data['FileUploadTemplateID'].',FileUploadTemplateID',

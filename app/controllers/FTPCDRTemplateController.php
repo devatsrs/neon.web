@@ -45,7 +45,7 @@ class FTPCDRTemplateController extends BaseController {
         }
     }
     public function storeTemplate() {
-        $data = Input::all(); Log::info(print_r($data,true));
+        $data = json_decode(str_replace('Skip loading','',json_encode(Input::all(),true)),true);//Input::all(); Log::info(print_r($data,true));
         $CompanyID = User::get_companyID();
         if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
             $rules = array('TemplateName' => 'required|unique:tblFileUploadTemplate,Title,'.$data['FileUploadTemplateID'].',FileUploadTemplateID',
@@ -170,7 +170,7 @@ class FTPCDRTemplateController extends BaseController {
     }  
 	
 	public function storeTemplateVendor() {
-        $data = Input::all(); Log::info(print_r($data,true));
+        $data = json_decode(str_replace('Skip loading','',json_encode(Input::all(),true)),true);//Input::all(); Log::info(print_r($data,true));
         $CompanyID = User::get_companyID();
         if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
             $rules = array('TemplateName' => 'required|unique:tblFileUploadTemplate,Title,'.$data['FileUploadTemplateID'].',FileUploadTemplateID',

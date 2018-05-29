@@ -419,7 +419,7 @@ class DialStringController extends \BaseController {
 
 
     public function storeTemplate($id) {
-        $data = Input::all();
+        $data = json_decode(str_replace('Skip loading','',json_encode(Input::all(),true)),true);//Input::all();
         $CompanyID = User::get_companyID();
         DialStringCode::$DialStringUploadrules['selection.DialString'] = 'required';
         DialStringCode::$DialStringUploadrules['selection.ChargeCode'] = 'required';

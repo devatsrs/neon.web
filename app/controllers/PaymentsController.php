@@ -525,7 +525,7 @@ class PaymentsController extends \BaseController {
     }
 
     public function confirm_bulk_upload() {
-        $data = Input::all();
+        $data = json_decode(str_replace('Skip loading','',json_encode(Input::all(),true)),true);//Input::all();
         $CompanyID = User::get_companyID();
         $ProcessID = $data['ProcessID'];
 
