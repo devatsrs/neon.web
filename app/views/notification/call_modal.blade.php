@@ -94,6 +94,16 @@
                     <div class="row custom_field">
                         <div class="col-md-12">
                             <div class="form-group">
+                                <label for="field-5" class="control-label ReminderDays">Days Before Subscription Renewal
+                                    <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="How many Days before renewal send reminders" data-original-title="Reminder Days" class="label label-info popover-primary">?</span>
+                                </label>
+                                <input name="CallAlert[ReminderDays]" type="number" class="form-control" min="0"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row custom_field">
+                        <div class="col-md-12">
+                            <div class="form-group">
                                 <label for="field-5" class="control-label">Vendor</label>
                                 {{ Form::select('CallAlert[VAccountID][]',$Multivendor,array(), array("class"=>"select2",'multiple',"data-placeholder"=>"Select Account")) }}
                             </div>

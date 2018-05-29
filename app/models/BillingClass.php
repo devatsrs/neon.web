@@ -8,6 +8,10 @@ class BillingClass extends \Eloquent
 
     protected $primaryKey = "BillingClassID";
 
+    const  ACCOUNT_BALANCE = 1;
+    const  PREFERRED_METHOD = 2;
+    public static $AutoPayMethod = array('0'=>'Select' ,self::ACCOUNT_BALANCE => 'Account Balance',self::PREFERRED_METHOD=>'Preferred Method');
+
     public static $SendInvoiceSetting = array(""=>"Please Select an Option", "automatically"=>"Automatically", "after_admin_review"=>"After Admin Review");
     public static $AutoPaymentSetting = array("never"=>"Never", "invoiceday"=>"On Invoice Date","duedate"=>"On Due Date");
 
