@@ -44,7 +44,8 @@ var dropdown_text =  {
         Signature:"Signature",
         OutstandingExcludeUnbilledAmount:"OutstandingExcludeUnbilledAmount",
         OutstandingIncludeUnbilledAmount:"OutstandingIncludeUnbilledAmount",
-        BalanceThreshold:"BalanceThreshold"
+        BalanceThreshold:"BalanceThreshold",
+        AccountBlocked:"AccountBlocked"
 
     },
     ratesheetoptions:{
@@ -302,6 +303,7 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{BalanceThreshold}}'>" + dropdown_text.leadoptions.BalanceThreshold + "</a></li>" +
             "<li><a data-value='{{AccountBalance}}'>" + dropdown_text.accountbalanceemailreminder.AccountBalance + "</a></li>" +
             "<li><a data-value='{{AccountExposure}}'>" + dropdown_text.accountbalanceemailreminder.AccountExposure + "</a></li>" +
+            "<li><a data-value='{{AccountBlocked}}'>" + dropdown_text.leadoptions.AccountBlocked + "</a></li>" +
             "<li class='unclick'><a ><b>Company Fields</b></a></li>" +
             "<li><a data-value='{{CompanyName}}'>" + dropdown_text.Company.CompanyName + "</a></li>" +
             "<li><a data-value='{{CompanyVAT}}'>" + dropdown_text.Company.Vat + "</a></li>" +
