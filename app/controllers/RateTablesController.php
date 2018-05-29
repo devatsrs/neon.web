@@ -400,8 +400,11 @@ class RateTablesController extends \BaseController {
         $RateTableName = RateTable::find($id)->RateTableName;
 
         $view = isset($data['view']) && $data['view'] == 2 ? $data['view'] : 1;
+        $data['Country']        = $data['Country'] != '' && $data['Country'] != 'All'?$data['Country']:'null';
+        $data['Code']           = $data['Code'] != ''?"'".$data['Code']."'":'null';
+        $data['Description']    = $data['Description'] != ''?"'".$data['Description']."'":'null';
 
-        $query = " call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",'".$data['Country']."','".$data['Code']."','".$data['Description']."','".$data['Effective']."',".$view.",null,null,null,null,1)";
+        $query = " call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$view.",null,null,null,null,1)";
 
         DB::setFetchMode( PDO::FETCH_ASSOC );
         $rate_table_rates  = DB::select($query);
