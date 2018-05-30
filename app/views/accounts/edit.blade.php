@@ -632,7 +632,9 @@
                         {{Form::hidden('LastChargeDate', $LastChargeDate)}}
                         {{$LastChargeDate}}
                     </div>
-                    <label class="col-md-2 control-label">Next Charge Date</label>
+                    <label class="col-md-2 control-label">Next Charge Date
+                        <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="This is period End Date. e.g. if Billing Cycle is monthly then Next Charge date will be last day of the month  i-e 30/04/2018" data-original-title="Next Charge Date">?</span>
+                    </label>
                     <div class="col-md-3">
                         <?php
                         $NextChargeDate = isset($AccountBilling->NextChargeDate)?$AccountBilling->NextChargeDate:'';
@@ -911,7 +913,7 @@
                 BillingChanged = true;
             }
             if(selection=='weekly' || selection=='monthly_anniversary' || selection=='in_specific_days' || selection=='subscription' || selection=='manual'){
-                //nothing
+                changeBillingDates('');
             }else{
                 changeBillingDates('');
             }
