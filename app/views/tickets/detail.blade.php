@@ -62,7 +62,7 @@
       <!-- panel body -->
       <div @if($loop>4) style="display:none;" @endif  class="panel-body"> {{$TicketConversationData->EmailMessage}}
         <?php $attachments = unserialize($TicketConversationData->AttachmentPaths);  ?>
-        @if(count($attachments)>0 && strlen($TicketConversationData->AttachmentPaths)>0)
+        @if(!empty($attachments) && count($attachments)>0 && strlen($TicketConversationData->AttachmentPaths)>0)
         <div class="mail-attachments last_data">
           <h4> <i class="entypo-attach"></i> Attachments <span>({{count($attachments)}})</span> </h4>
           <ul>
