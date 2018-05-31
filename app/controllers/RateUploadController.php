@@ -23,8 +23,9 @@ class RateUploadController extends \BaseController {
         $dialstring         = DialString::getDialStringIDList();
         $currencies         = Currency::getCurrencyDropdownIDList();
         $uploadtypes        = RateUpload::$uploadtypes;
+        $Timezones          = [""=>"Select"]+Timezones::getTimezonesIDList();
 
-        return View::make('rateupload.index', compact('Vendors','Customers','Ratetables','VendorID','CustomerID','RatetableID','dialstring','currencies','uploadtypes','RateUploadType','id'));
+        return View::make('rateupload.index', compact('Vendors','Customers','Ratetables','VendorID','CustomerID','RatetableID','dialstring','currencies','uploadtypes','RateUploadType','id','Timezones'));
     }
 
     public function getUploadTemplates($RateUploadType) {
@@ -47,7 +48,10 @@ class RateUploadController extends \BaseController {
             "start_row" => "",
             "end_row" => "",
             "start_row_sheet2" => "",
-            "end_row_sheet2" => ""
+            "end_row_sheet2" => "",
+            "importratesheet" => "",
+            "importdialcodessheet" => "",
+            "TimezonesID" => ""
         ];
 
         foreach($arrData as $val)
@@ -86,6 +90,12 @@ class RateUploadController extends \BaseController {
                 $arrUploadTmp["importdialcodessheet"]=$options["importdialcodessheet"];
             } else {
                 $arrUploadTmp["importdialcodessheet"]="";
+            }
+
+            if(!empty($options['TimezonesID'])) {
+                $arrUploadTmp["TimezonesID"]=$options["TimezonesID"];
+            } else {
+                $arrUploadTmp["TimezonesID"]="";
             }
 
             $uploadtemplate[]=$arrUploadTmp;
@@ -471,7 +481,7 @@ class RateUploadController extends \BaseController {
 
     //if you change anything in this method then you need to change also in VendorRateUpload.php and RateTableRateUpload.php in service
     public function reviewRates() {
-        $data               = Input::all();
+        $data               = json_decode(str_replace('Skip loading','',json_encode(Input::all(),true)),true);
         $CompanyID          = User::get_companyID();
         $ProcessID          = (string) GUID::generate();
         $bacth_insert_limit = 250;
@@ -603,6 +613,10 @@ class RateUploadController extends \BaseController {
             }
             $rules_for_type['selection.Rate']            = 'required';
             $message_for_type['selection.Rate.required'] = "Rate Field is required";
+
+            $rules_for_type['selection.Timezones']       = 'required_without:TimezonesID';
+            $message_for_type['selection.Timezones.required_without'] = "Any one Timezones field is required, you can select it for all rates from where you have uploaded file. and if you have Timezones in file then you can select in field remapping section";
+
             $option["skipRows"] = array("start_row" => $data["start_row"], "end_row" => $data["end_row"]);
 
             $tempdata = json_decode(str_replace('Skip loading','',json_encode($data,true)),true);
@@ -624,6 +638,7 @@ class RateUploadController extends \BaseController {
         $option["skipRows"]              = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
         //$option["Sheet"]               = !empty($data['Sheet']) ? $data['Sheet'] : '';
         $option["importratesheet"]       = !empty($data['importratesheet']) ? $data['importratesheet'] : '';
+        $option["TimezonesID"]           = !empty($data['TimezonesID']) ? $data['TimezonesID'] : '';
 
         $save = array();
         $option["option"]       = $data['option'];
@@ -676,6 +691,8 @@ class RateUploadController extends \BaseController {
             } else if($data['RateUploadType'] == RateUpload::ratetable) {
                 $MODEL = "TempRateTableRate";
             }
+
+            $Timezones = Timezones::getTimezonesIDList(1);
 
             if(isset($joboptions->uploadtemplate) && !empty($joboptions->uploadtemplate)){
                 $uploadtemplate     = FileUploadTemplate::find($joboptions->uploadtemplate);
@@ -971,7 +988,19 @@ class RateUploadController extends \BaseController {
                         }
                     }
 
-                    if(isset($tempdata['Code']) && isset($tempdata['Description']) && ( isset($tempdata['Rate'])  || $tempdata['Change'] == 'D') && ( isset($tempdata['EffectiveDate']) || $tempdata['Change'] == 'D') ){
+                    if(!empty($templateoptions->TimezonesID)) {
+                        $tempdata['TimezonesID'] = $templateoptions->TimezonesID;
+                    } else if (!empty($attrselection->Timezones)) {
+                        if(array_key_exists($temp_row[$attrselection->Timezones],$Timezones)) {
+                            $tempdata['TimezonesID'] = $Timezones[$temp_row[$attrselection->Timezones]];
+                        } else {
+                            $error[] = 'Timezones not match at line no:' . $lineno;
+                        }
+                    } else {
+                        $error[] = 'Timezones is blank at line no:' . $lineno;
+                    }
+
+                    if(isset($tempdata['Code']) && isset($tempdata['Description']) && isset($tempdata['TimezonesID']) && ( isset($tempdata['Rate'])  || $tempdata['Change'] == 'D') && ( isset($tempdata['EffectiveDate']) || $tempdata['Change'] == 'D') ){
                         if(isset($tempdata['EndDate'])) {
                             $batch_insert_array[]   = $tempdata;
                         } else {
@@ -980,7 +1009,7 @@ class RateUploadController extends \BaseController {
                         $counter++;
                     }
                 }
-                //echo "<pre>";print_R($tempdata);exit;
+
                 if($counter==$bacth_insert_limit){
                     Log::info('Batch insert start');
                     Log::info('global counter'.$lineno);

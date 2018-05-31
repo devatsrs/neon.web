@@ -142,13 +142,15 @@
                                             action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                         }
                                         action += '</div>';
-                                        <?php if(User::checkCategoryPermission('Timezones','Edit') ){ ?>
-                                                action += ' <a href="'+edit_+'" title="Edit" class="edit-timezones btn btn-default btn-xs" data-name="Edit Timezones"><i class="entypo-pencil"></i>&nbsp;</a>';
-                                        <?php } ?>
-                                                <?php if(User::checkCategoryPermission('Timezones','Delete') ){ ?>
-                                                //action += ' <a href="'+delete_+'" title="Delete" class="btn delete btn-danger btn-default btn-sm"><i class="entypo-trash"></i></a>';
-                                        <?php } ?>
-                                                return action;
+                                        if(id != 1) {// can't edit/delete default timezone, default timezone id is 1
+                                            <?php if(User::checkCategoryPermission('Timezones', 'Edit') ){ ?>
+                                                    action += ' <a href="' + edit_ + '" title="Edit" class="edit-timezones btn btn-default btn-xs" data-name="Edit Timezones"><i class="entypo-pencil"></i>&nbsp;</a>';
+                                            <?php } ?>
+                                            <?php if(User::checkCategoryPermission('Timezones', 'Delete') ){ ?>
+                                            //action += ' <a href="'+delete_+'" title="Delete" class="btn delete btn-danger btn-default btn-sm"><i class="entypo-trash"></i></a>';
+                                            <?php } ?>
+                                        }
+                                        return action;
                                     }
                                 }
                             ],

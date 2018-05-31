@@ -404,7 +404,7 @@ class RateTablesController extends \BaseController {
         $data['Code']           = $data['Code'] != ''?"'".$data['Code']."'":'null';
         $data['Description']    = $data['Description'] != ''?"'".$data['Description']."'":'null';
 
-        $query = " call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$view.",null,null,null,null,1)";
+        $query = " call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$view.",null,null,null,null,1)";
 
         DB::setFetchMode( PDO::FETCH_ASSOC );
         $rate_table_rates  = DB::select($query);
@@ -429,22 +429,26 @@ class RateTablesController extends \BaseController {
     }
     public static function add_newrate($id){
         $data = Input::all();
-        $RateTableRate = array();
-        $RateTableRate['RateTableId'] = $id;
-        $RateTableRate['RateID'] = $data['RateID'];
-        $RateTableRate['EffectiveDate'] = $data['EffectiveDate'];
-        $RateTableRate['EndDate'] = !empty($data['EndDate']) ? $data['EndDate'] : null;
-        $RateTableRate['Rate'] = $data['Rate'];
-        $RateTableRate['Interval1'] = $data['Interval1'];
-        $RateTableRate['IntervalN'] = $data['IntervalN'];
-        $RateTableRate['ConnectionFee'] = $data['ConnectionFee'];
-        $rules = RateTableRate::$rules;
-        $rules['RateID'] = 'required|unique:tblRateTableRate,RateID,NULL,RateTableId,RateTableId,'.$id.',EffectiveDate,'.$data['EffectiveDate'];
-        $validator = Validator::make($RateTableRate, $rules);
+
+        $data['RateTableId'] = $id;
+        $rules               = RateTableRate::$rules;
+        $rules['RateID']     = 'required|unique:tblRateTableRate,RateID,NULL,RateTableId,RateTableId,'.$id.',EffectiveDate,'.$data['EffectiveDate'];
+        $validator           = Validator::make($data, $rules);
 
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
+
+        $RateTableRate = array();
+        $RateTableRate['RateTableId']   = $id;
+        $RateTableRate['RateID']        = $data['RateID'];
+        $RateTableRate['EffectiveDate'] = $data['EffectiveDate'];
+        $RateTableRate['EndDate']       = !empty($data['EndDate']) ? $data['EndDate'] : null;
+        $RateTableRate['Rate']          = $data['Rate'];
+        $RateTableRate['Interval1']     = $data['Interval1'];
+        $RateTableRate['IntervalN']     = $data['IntervalN'];
+        $RateTableRate['ConnectionFee'] = $data['ConnectionFee'];
+        $RateTableRate['TimezonesID']   = $data['TimezonesID'];
 
         /*$PreviousRate = RateTableRate::where('EffectiveDate','<',$data['EffectiveDate'])
                                      ->where('RateID',$data['RateID'])

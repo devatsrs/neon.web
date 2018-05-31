@@ -38,7 +38,11 @@ class Timezones extends \Eloquent {
         "both" => "Session starts and finished during this timezone"
     );
 
-    public static function getTimezonesIDList() {
-        return Timezones::where(['Status'=>1])->select(['Title', 'TimezonesID'])->orderBy('Title')->lists('Title', 'TimezonesID');
+    public static function getTimezonesIDList($reverse = 0) {
+        if($reverse == 0) {
+            return Timezones::where(['Status'=>1])->select(['Title', 'TimezonesID'])->orderBy('Title')->lists('Title', 'TimezonesID');
+        } else {
+            return Timezones::where(['Status'=>1])->select(['Title', 'TimezonesID'])->orderBy('Title')->lists('TimezonesID','Title');
+        }
     }
 }
