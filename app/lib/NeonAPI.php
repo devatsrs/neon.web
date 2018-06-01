@@ -193,4 +193,54 @@ class NeonAPI{
         }
         return $filesArray;
     }
+
+    public static function RegisterApiLogin($data){
+        try{
+            $user = User::where(['EmailAddress'=>$data['EmailAddress'],'Status'=>1])->first();
+
+            if(!Hash::check($data['password'], $user->password)){
+                Log::info("");
+                Log::info($data);
+                Log::info("password " . $user->password);
+                return Response::json(['error' => 'invalid_credentials'], 401);
+            }
+
+            Log::info(print_r($user,true));
+            User::find($user->UserID)->update(['LastLoginDate' => date('Y-m-d H:i:s')]);
+            Session::set("apiRegistrationUserId", $user->UserID );
+            Session::set("apiRegistrationCompanyID", $user->CompanyID );
+            return true;
+        }catch(Exception $e){
+            Log::info("RegisterApiLogin ".$e->getMessage());
+            return false;
+        }
+
+
+    }
+
+    public static function getLicenceResponse($request){
+        $license  = $request->only('LicenceKey','CompanyName');
+        $license['LicenceHost'] = $request->getHttpHost();
+        $license['LicenceIP'] = $request->getClientIp();
+        $licenseCacheKey = 'LicenceApiResponse' . $license['LicenceKey'];
+        Log::info("getLicenceResponse");
+        Log::info($license);
+        if (!Cache::has($licenseCacheKey)) {
+            $LicenceApiResponse = Company::ValidateApiLicenceKey($license);
+            if (!empty($LicenceApiResponse)) {
+                if ($LicenceApiResponse['Status'] != 1) {
+                    return $LicenceApiResponse;
+                }
+                Cache::forever($licenseCacheKey, $LicenceApiResponse);
+            } else {
+                $LicenceApiResponse['Status'] = 0;
+                $LicenceApiResponse['Message'] = 'Some thing wrong with license';
+            }
+        }else{
+            $LicenceApiResponse = Cache::get($licenseCacheKey);
+        }
+        return $LicenceApiResponse;
+    }
+
+
 }

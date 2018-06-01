@@ -1509,3 +1509,17 @@ Route::any('terms', "HomeController@terms");
 /*
  * save isGuest to skip routes/urls for user permission
  * */
+
+Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
+{
+	Route::post('login', 'ApiController@login');
+	Route::get('logout', 'ApiController@logout');
+	Route::get('currency/list', 'CurrencyApiController@getList');
+	Route::get('billingType/list', 'BillingTypeApiController@getList');
+	Route::get('billingCycle/list', 'BillingCycleApiController@getList');
+	Route::get('billingClass/list', 'BillingClassApiController@getList');
+	Route::get('service/list', 'ServiceApiController@getList');
+	Route::get('discount/list', 'DiscountPlanApiController@getList');
+	Route::get('subscription/list', 'SubscriptionApiController@getList');
+	Route::get('inboundOutbound/list/{CurrencyID}', 'InboundOutboundApiController@getList');
+});
