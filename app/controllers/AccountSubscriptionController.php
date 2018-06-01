@@ -17,7 +17,7 @@ public function main() {
     public function ajax_datagrid($id){
         $data = Input::all();        
         $id=$data['account_id'];
-        $select = ["tblAccountSubscription.SequenceNo","tblBillingSubscription.Name", "InvoiceDescription", "Qty" ,"tblAccountSubscription.StartDate",DB::raw("IF(tblAccountSubscription.EndDate = '0000-00-00','',tblAccountSubscription.EndDate) as EndDate"),"tblAccountSubscription.ActivationFee","tblAccountSubscription.DailyFee","tblAccountSubscription.WeeklyFee","tblAccountSubscription.MonthlyFee","tblAccountSubscription.QuarterlyFee","tblAccountSubscription.AnnuallyFee","tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SubscriptionID","tblAccountSubscription.ExemptTax","tblAccountSubscription.Status"];
+        $select = ["tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SequenceNo","tblBillingSubscription.Name", "InvoiceDescription", "Qty" ,"tblAccountSubscription.StartDate",DB::raw("IF(tblAccountSubscription.EndDate = '0000-00-00','',tblAccountSubscription.EndDate) as EndDate"),"tblAccountSubscription.ActivationFee","tblAccountSubscription.DailyFee","tblAccountSubscription.WeeklyFee","tblAccountSubscription.MonthlyFee","tblAccountSubscription.QuarterlyFee","tblAccountSubscription.AnnuallyFee","tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SubscriptionID","tblAccountSubscription.ExemptTax","tblAccountSubscription.Status"];
         $subscriptions = AccountSubscription::join('tblBillingSubscription', 'tblAccountSubscription.SubscriptionID', '=', 'tblBillingSubscription.SubscriptionID')->where("tblAccountSubscription.AccountID",$id);        
         if(!empty($data['SubscriptionName'])){
             $subscriptions->where('tblBillingSubscription.Name','Like','%'.trim($data['SubscriptionName']).'%');
@@ -201,6 +201,162 @@ public function main() {
             }
         }
 	}
+
+    public function store_discountplan($id)
+    {
+        $data = Input::all();
+        $data["AccountID"] = $id;
+        $data["AccountSubscriptionID"] = $data["AccountSubscriptionID_dp"];
+        unset($data["AccountSubscriptionID_dp"]);
+       // $data["CreatedBy"] = User::get_user_full_name();
+        $verifier = App::make('validation.presence');
+        $verifier->setConnection('sqlsrv');
+
+        $rules = array(
+            'AccountName'           =>  'required',
+            'AccountCLI'            =>  'unique:tblSubscriptionDiscountPlan,AccountCLI',
+            //'AccountCLI'            =>  'required|unique:tblSubscriptionDiscountPlan,AccountCLI',
+        );
+
+        $message = [
+            'AccountCLI.unique'=>'Account CLI field is already taken.'
+        ];
+
+        $validator = Validator::make($data, $rules, $message);
+        $validator->setPresenceVerifier($verifier);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+
+        if ($SubscriptionDiscountPlan = SubscriptionDiscountPlan::create($data)) {
+            return Response::json(array("status" => "success", "message" => "Subscription Account Added",'LastID'=>$SubscriptionDiscountPlan->SubscriptionDiscountPlanID));
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Problem Adding Subscription Account."));
+        }
+    }
+
+    function edit_discountplan(){
+        $data = Input::all();
+        $SubscriptionDiscountPlan =  SubscriptionDiscountPlan::getSubscriptionDiscountPlanById($data['SubscriptionDiscountPlanID']);
+        return $SubscriptionDiscountPlan;
+    }
+
+    public function update_discountplan()
+    {
+        $data = Input::all();
+        $data["AccountSubscriptionID"] = $data["AccountSubscriptionID_dp"];
+        unset($data["AccountSubscriptionID_dp"]);
+        unset($data["AccountSubscriptionID"]);
+        $SubscriptionDiscountPlan = SubscriptionDiscountPlan::find($data['SubscriptionDiscountPlanID']);
+        // $data["CreatedBy"] = User::get_user_full_name();
+        $verifier = App::make('validation.presence');
+        $verifier->setConnection('sqlsrv');
+
+        $rules = array(
+            'AccountName'           =>  'required',
+            'AccountCLI'            =>  'unique:tblSubscriptionDiscountPlan,AccountCLI,' . $data['SubscriptionDiscountPlanID'] . ',SubscriptionDiscountPlanID',
+            //'AccountCLI'            =>  'required|unique:tblSubscriptionDiscountPlan,AccountCLI,' . $data['SubscriptionDiscountPlanID'] . ',SubscriptionDiscountPlanID',
+        );
+        $message = [
+            'AccountCLI.unique'=>'Account CLI field is already taken.'
+        ];
+
+        $validator = Validator::make($data, $rules,$message);
+        $validator->setPresenceVerifier($verifier);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+
+        if ($SubscriptionDiscountPlan->update($data)) {
+            return Response::json(array("status" => "success", "message" => "Subscription Account Updated",'LastID'=>$SubscriptionDiscountPlan->SubscriptionDiscountPlanID));
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Problem Updating Subscription Account."));
+        }
+    }
+
+    public function bulkupdate_discountplan()
+    {
+        $data = Input::all();
+        $AllSubscriptionDiscountPlanID  = $data["AllSubscriptionDiscountPlanID"];
+        if(!isset($data['InboundCheckbox']) && !isset($data['OutboundCheckbox']))
+        {
+            return Response::json(array("status" => "error", "message" => "Please select at least one field."));
+            return false;
+        }
+
+        if(isset($data["InboundCheckbox"]))
+        {
+            if($data['BulkInboundDiscountPlans'] == '')
+            {
+                return Response::json(array("status" => "error", "message" => "Please select Value of Inbound Discount Plans"));
+            }
+            unset($data['InboundCheckbox']);
+            $data['InboundDiscountPlans'] = $data['BulkInboundDiscountPlans'];
+        }
+
+        if(isset($data["OutboundCheckbox"]))
+        {
+            if($data['BulkOutboundDiscountPlans'] == '')
+            {
+                return Response::json(array("status" => "error", "message" => "Please select Value of Outbound Discount Plans"));
+            }
+            unset($data['OutboundCheckbox']);
+            $data['OutboundDiscountPlans'] = $data['BulkOutboundDiscountPlans'];
+        }
+
+        unset($data['BulkInboundDiscountPlans']);
+        unset($data['BulkOutboundDiscountPlans']);
+        unset($data['AccountSubscriptionID_bulk']);
+        unset($data['ServiceID']);
+        unset($data['AllSubscriptionDiscountPlanID']);
+        //SubscriptionDiscountPlan::whereIn('SubscriptionDiscountPlanID',$AllSubscriptionDiscountPlanID)->update($data);
+        $AllSubscriptionDiscountPlanID = explode(",",$AllSubscriptionDiscountPlanID);
+        if (SubscriptionDiscountPlan::whereIn('SubscriptionDiscountPlanID',$AllSubscriptionDiscountPlanID)->update($data)) {
+            return Response::json(array("status" => "success", "message" => "Subscription Bulk Account Updated"));
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Problem Updating Subscription Account."));
+        }
+    }
+
+    public function bulkdelete_discountplan()
+    {
+        $data = Input::all();
+        $SubscriptionDiscountPlanID  = $data["SubscriptionDiscountPlanID"];
+        $SubscriptionDiscountPlanID = explode(",",$SubscriptionDiscountPlanID);
+        if (SubscriptionDiscountPlan::whereIn('SubscriptionDiscountPlanID',$SubscriptionDiscountPlanID)->delete()) {
+            return Response::json(array("status" => "success", "message" => "Subscription Bulk Accounts Deleted"));
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Problem Deleting Subscription Accounts."));
+        }
+    }
+
+    function get_discountplan($AccountId){
+        $data = Input::all();
+        $SubscriptionDiscountPlan =  SubscriptionDiscountPlan::getSubscriptionDiscountPlanArray($AccountId,$data['AccountSubscriptionID'],$data['ServiceId']);
+        return $SubscriptionDiscountPlan;
+    }
+
+    public function delete_discountplan()
+    {
+        $data = Input::all();
+        $SubscriptionDiscountPlanID = $data['SubscriptionDiscountPlanID'];
+        if( intval($SubscriptionDiscountPlanID) > 0){
+            try{
+                $SubscriptionDiscountPlan = SubscriptionDiscountPlan::find($SubscriptionDiscountPlanID);
+                $result = $SubscriptionDiscountPlan->delete();
+                if ($result) {
+                    return Response::json(array("status" => "success", "message" => "Subscription Account Successfully Deleted"));
+                } else {
+                    return Response::json(array("status" => "failed", "message" => "Problem Deleting Subscription Account."));
+                }
+            }catch (Exception $ex){
+                return Response::json(array("status" => "failed", "message" => "Problem Deleting. Exception:". $ex->getMessage()));
+            }
+
+        }
+    }
 	
 	function GetAccountServices($id){
 	    $data = Input::all();
