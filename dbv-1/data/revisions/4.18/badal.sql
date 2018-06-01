@@ -13,3 +13,21 @@ ALTER TABLE `tblBillingClass`
 ALTER TABLE `tblBillingClass`
 	ADD COLUMN `BalanceWarningStatus` TINYINT(4) NULL DEFAULT NULL AFTER `LowBalanceReminderSettings`,
 	ADD COLUMN `BalanceWarningSettings` VARCHAR(5000) NULL DEFAULT NULL AFTER `BalanceWarningStatus`;
+	
+/* added on 29th may */
+CREATE TABLE `tblSubscriptionDiscountPlan` (
+	`SubscriptionDiscountPlanID` INT(11) NOT NULL AUTO_INCREMENT,
+	`AccountID` INT(11) NULL DEFAULT '0',
+	`ServiceID` INT(11) NULL DEFAULT '0',
+	`AccountSubscriptionID` INT(11) NULL DEFAULT '0',
+	`AccountName` VARCHAR(200) NULL DEFAULT '0' COLLATE 'utf8_unicode_ci',
+	`AccountCLI` VARCHAR(300) NULL DEFAULT '0' COLLATE 'utf8_unicode_ci',
+	`InboundDiscountPlans` VARCHAR(300) NULL DEFAULT '0' COLLATE 'utf8_unicode_ci',
+	`OutboundDiscountPlans` VARCHAR(300) NULL DEFAULT '0' COLLATE 'utf8_unicode_ci',
+	`created_at` DATETIME NULL DEFAULT NULL,
+	`updated_at` DATETIME NULL DEFAULT NULL,
+	PRIMARY KEY (`SubscriptionDiscountPlanID`)
+)
+COLLATE='utf8_unicode_ci'
+ENGINE=InnoDB
+;
