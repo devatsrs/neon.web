@@ -277,8 +277,16 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accounts/{id}/subscription/store', 'AccountSubscriptionController@store');
 	Route::any('accounts/{id}/subscription/{subscription_id}/update', 'AccountSubscriptionController@update')->where('subscription_id', '(.[09]*)+');
 	Route::any('accounts/{id}/subscription/{subscription_id}/delete', 'AccountSubscriptionController@delete')->where('subscription_id', '(.[09]*)+');
+	Route::any('accounts/{id}/subscription/store_discountplan', 'AccountSubscriptionController@store_discountplan');
+	Route::any('accounts/{id}/subscription/get_discountplan', 'AccountSubscriptionController@get_discountplan');
+	Route::any('accounts/{id}/subscription/edit_discountplan', 'AccountSubscriptionController@edit_discountplan');
+	Route::any('accounts/{id}/subscription/update_discountplan', 'AccountSubscriptionController@update_discountplan');
+	Route::any('accounts/{id}/subscription/delete_discountplan', 'AccountSubscriptionController@delete_discountplan');
+	Route::any('accounts/{id}/subscription/bulkupdate_discountplan', 'AccountSubscriptionController@bulkupdate_discountplan');
+	Route::any('accounts/{id}/subscription/bulkdelete_discountplan', 'AccountSubscriptionController@bulkdelete_discountplan');
 
-    //Account One of charge
+
+	//Account One of charge
     Route::any('accounts/{id}/oneofcharge/ajax_datagrid', 'AccountOneOffChargeController@ajax_datagrid');
     Route::any('accounts/{id}/oneofcharge/store', 'AccountOneOffChargeController@store');
     Route::any('accounts/{id}/oneofcharge/{oneofcharge_id}/update', 'AccountOneOffChargeController@update')->where('oneofcharge_id', '(.[09]*)+');
@@ -1509,3 +1517,17 @@ Route::any('terms', "HomeController@terms");
 /*
  * save isGuest to skip routes/urls for user permission
  * */
+
+Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
+{
+	Route::post('login', 'ApiController@login');
+	Route::get('logout', 'ApiController@logout');
+	Route::get('currency/list', 'CurrencyApiController@getList');
+	Route::get('billingType/list', 'BillingTypeApiController@getList');
+	Route::get('billingCycle/list', 'BillingCycleApiController@getList');
+	Route::get('billingClass/list', 'BillingClassApiController@getList');
+	Route::get('service/list', 'ServiceApiController@getList');
+	Route::get('discount/list', 'DiscountPlanApiController@getList');
+	Route::get('subscription/list', 'SubscriptionApiController@getList');
+	Route::get('inboundOutbound/list/{CurrencyID}', 'InboundOutboundApiController@getList');
+});
