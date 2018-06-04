@@ -109,6 +109,10 @@
     <div class="col-sm-4">
         {{Form::select('selection[FromCurrency]', $currencies ,(isset($attrselection->FromCurrency)?$attrselection->FromCurrency:''),array("class"=>"select2 small"))}}
     </div>
+    <label class="col-sm-2 control-label">Timezones </label>
+    <div class="col-sm-4">
+        {{Form::select('selection[Timezones]', $columns ,(isset($attrselection->Timezones)?$attrselection->Timezones:''),array("class"=>"select2 small"))}}
+    </div>
 </div>
 </div>
     <div class="tab-pane " id="tab2">
