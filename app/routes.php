@@ -1539,4 +1539,5 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::get('discount/list', 'DiscountPlanApiController@getList');
 	Route::get('subscription/list', 'SubscriptionApiController@getList');
 	Route::get('inboundOutbound/list/{CurrencyID}', 'InboundOutboundApiController@getList');
+	Route::get('payment/list', 'PaymentApiController@getList');
 });

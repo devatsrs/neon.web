@@ -340,3 +340,37 @@
           ]
       }
 
+
+#### Get Payment List ###
+* **URL**
+
+    http://neon-soft.com/api/payment/list
+
+* **Method:**
+
+    The request type
+    
+    GET
+  
+* **Output Format**
+
+    JSON
+
+* **Success Response:**
+
+  When there is success reponse found api will return response in following json format.
+  which will have 2 keys like "status" and "data" which will contain all following columns from neon database.
+
+      {
+          "status": "success",
+          "data": {
+              "AuthorizeNet": "AuthorizeNet",
+              "Stripe": "Stripe",
+              "FideliPay": "FideliPay",
+              "StripeACH": "StripeACH",
+              "Paypal": "Paypal",
+              "SagePay": "SagePay",
+              "PeleCard": "PeleCard"
+          }
+      }
+
