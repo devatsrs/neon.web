@@ -131,7 +131,7 @@
               @if(User::checkCategoryPermission('AutoRateImport','View'))
                 <li> <a href="{{URL::to('/auto_rate_import/account_setting')}}">  <span>Account Settings</span> </a> </li>
               @endif
-              @if(User::checkCategoryPermission('AutoRateImportController','View'))
+              @if(User::checkCategoryPermission('AutoRateImport','View'))
                 <li> <a href="{{URL::to('/auto_rate_import/ratetable_setting')}}">  <span>Rate Table Settings </span> </a> </li>
               @endif
             </ul>

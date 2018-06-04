@@ -276,6 +276,12 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                             "sButtonText": "@lang('routes.BUTTON_EXPORT_CSV_CAPTION')",
                             "sUrl": baseurl + "/customer/cdr/ajax_datagrid/csv",
                             sButtonClass: "save-collection btn-sm"
+                        },
+                        {
+                            "sExtends": "download",
+                            "sButtonText": "PDF",
+                            "sUrl": baseurl + "/customer/cdr/ajax_datagrid/pdf",
+                            sButtonClass: "save-collection btn-sm"
                         }
                     ]
                 },

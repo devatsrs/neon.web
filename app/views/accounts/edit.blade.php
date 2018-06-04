@@ -580,16 +580,21 @@
                         </div>
                     </div>
                 </div>
-                 <div class="form-group">
-                     <label class="col-md-2 control-label">Send Invoice via Email</label>
-                     <div class="col-md-4">
-                         {{Form::select('SendInvoiceSetting', BillingClass::$SendInvoiceSetting, ( isset($AccountBilling->SendInvoiceSetting)?$AccountBilling->SendInvoiceSetting:'after_admin_review' ),array("class"=>"form-control select2"))}}
-                     </div>
-                     <label class="col-md-2 control-label">Auto Pay</label>
-                     <div class="col-md-4">
-                         {{Form::select('AutoPaymentSetting', BillingClass::$AutoPaymentSetting, ( isset($AccountBilling->AutoPaymentSetting)?$AccountBilling->AutoPaymentSetting:'never' ),array("class"=>"form-control select2 small"))}}
-                     </div>
-
+                <div class="form-group">
+                    <label class="col-md-2 control-label">Auto Pay</label>
+                    <div class="col-md-4">
+                        {{Form::select('AutoPaymentSetting', BillingClass::$AutoPaymentSetting, ( isset($AccountBilling->AutoPaymentSetting)?$AccountBilling->AutoPaymentSetting:'never' ),array("class"=>"form-control select2 small"))}}
+                    </div>
+                    <label class="col-md-2 control-label">Auto Pay Method</label>
+                    <div class="col-md-4">
+                        {{Form::select('AutoPayMethod', BillingClass::$AutoPayMethod, ( isset($AccountBilling->AutoPayMethod)?$AccountBilling->AutoPayMethod:'0' ),array("class"=>"form-control select2 small"))}}
+                    </div>
+                 </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label">Send Invoice via Email</label>
+                    <div class="col-md-4">
+                        {{Form::select('SendInvoiceSetting', BillingClass::$SendInvoiceSetting, ( isset($AccountBilling->SendInvoiceSetting)?$AccountBilling->SendInvoiceSetting:'after_admin_review' ),array("class"=>"form-control select2"))}}
+                    </div>
                 </div>
                 <div class="form-group">
                     <label class="col-md-2 control-label">Last Invoice Date</label>
@@ -627,7 +632,9 @@
                         {{Form::hidden('LastChargeDate', $LastChargeDate)}}
                         {{$LastChargeDate}}
                     </div>
-                    <label class="col-md-2 control-label">Next Charge Date</label>
+                    <label class="col-md-2 control-label">Next Charge Date
+                        <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="This is period End Date. e.g. if Billing Cycle is monthly then Next Charge date will be last day of the month  i-e 30/04/2018" data-original-title="Next Charge Date">?</span>
+                    </label>
                     <div class="col-md-3">
                         <?php
                         $NextChargeDate = isset($AccountBilling->NextChargeDate)?$AccountBilling->NextChargeDate:'';
@@ -906,7 +913,7 @@
                 BillingChanged = true;
             }
             if(selection=='weekly' || selection=='monthly_anniversary' || selection=='in_specific_days' || selection=='subscription' || selection=='manual'){
-                //nothing
+                changeBillingDates('');
             }else{
                 changeBillingDates('');
             }
@@ -1055,6 +1062,14 @@
                                 $("select[name='BillingTimezone']").select2().select2('val', response.data.BillingTimezone);
                             }
                             $("[name='SendInvoiceSetting']").select2().select2('val',response.data.SendInvoiceSetting);
+                            if(response.data.AutoPaymentSetting == null || response.data.AutoPaymentSetting == '') {
+                                $("[name='AutoPaymentSetting']").select2().select2('val', 'never');
+                            }
+                            else{
+                                $("[name='AutoPaymentSetting']").select2().select2('val', response.data.AutoPaymentSetting);
+                            }
+                            $("[name='AutoPayMethod']").select2().select2('val', response.data.AutoPayMethod);
+
                         }
                     },
                 });

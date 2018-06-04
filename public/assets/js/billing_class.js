@@ -59,6 +59,9 @@ $("#billing-form [name='PaymentReminder[Time]']").change(function(){
 $("#billing-form [name='LowBalanceReminder[Time]']").change(function(){
     populateInterval($(this).val(),'LowBalanceReminder','billing-form');
 });
+$("#billing-form [name='BalanceWarning[Time]']").change(function(){
+    populateInterval($(this).val(),'BalanceWarning','billing-form');
+});
 $("#billing-form [name='QosAlert[Time]']").change(function(){
     populateInterval($(this).val(),'QosAlert','billing-form');
 });
@@ -93,6 +96,12 @@ $("#call-billing-form [name='AlertType']").change(function(){
         $("#call-billing-form [name='CallAlert[Time]']").parents('.row').removeClass('hidden');
         $("#call-billing-form [name='CallAlert[Interval]']").parents('.row').removeClass('hidden');
         $("#call-billing-form [name='CallAlert[Day][]']").parents('.row').removeClass('hidden');
+    }
+    else if($(this).val() == 'account_balance'){
+        $("#call-billing-form .ReminderEmail").html('Send Copy To');
+        $("#call-billing-form [name='CallAlert[EmailToAccount]']").parents('.col-md-6').removeClass('hidden');
+        $("#call-billing-form [name='CallAlert[AccountIDs]']").parents('.row').removeClass('hidden');
+        $("#call-billing-form [name='CallAlert[ReminderDays]']").parents('.row').removeClass('hidden');
     }
 });
 });

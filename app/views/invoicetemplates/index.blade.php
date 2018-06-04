@@ -50,7 +50,7 @@ var postdata;
         public_vars.$body = $("body");
         //show_loading_bar(40);
 
-        var list_fields  = ['Name','updated_at','ModifiedBy','InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CDRType','GroupByService','ServiceSplit'];
+        var list_fields  = ['Name','updated_at','ModifiedBy','InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CDRType','GroupByService','ServiceSplit','IgnoreCallCharge','ShowPaymentWidgetInvoice'];
 
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
@@ -209,6 +209,16 @@ var postdata;
             $('[name="ShowBillingPeriod"]').prop('checked',true)
         }else{
             $('[name="ShowBillingPeriod"]').prop('checked',false)
+        }
+        if(cur_obj.find("input[name='IgnoreCallCharge']").val() == 1 ){
+            $('[name="IgnoreCallCharge"]').prop('checked',true)
+        }else{
+            $('[name="IgnoreCallCharge"]').prop('checked',false)
+        }
+        if(cur_obj.find("input[name='ShowPaymentWidgetInvoice']").val() == 1 ){
+            $('[name="ShowPaymentWidgetInvoice"]').prop('checked',true)
+        }else{
+            $('[name="ShowPaymentWidgetInvoice"]').prop('checked',false)
         }
         if(cur_obj.find("input[name='GroupByService']").val() == 1 ){
             $('[name="GroupByService"]').prop('checked',true)
@@ -411,6 +421,22 @@ function ajax_update(fullurl,data){
                             <div class="col-sm-4">
                                  <p class="make-switch switch-small">
                                     <input type="checkbox"    name="ShowBillingPeriod" value="0">
+                                </p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="field-1" class="col-sm-2 control-label">Ignore Call Charges
+                                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If ON then system will not take into count call charges on the invoice. Only subscriotions and addiotnal charges will be shown." data-original-title="Ignore Call Charges">?</span>
+                            </label>
+                            <div class="col-sm-4">
+                                <p class="make-switch switch-small">
+                                    <input type="checkbox" name="IgnoreCallCharge" value="0">
+                                </p>
+                            </div>
+                            <label for="field-1" class="col-sm-2 control-label">Show Payment Widget</label>
+                            <div class="col-sm-4">
+                                <p class="make-switch switch-small">
+                                    <input type="checkbox" name="ShowPaymentWidgetInvoice" value="0">
                                 </p>
                             </div>
                         </div>
