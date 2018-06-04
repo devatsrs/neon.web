@@ -447,10 +447,9 @@ class Payment extends \Eloquent {
             if(!empty($EmailTemplate) && isset($EmailTemplate->Status) && $EmailTemplate->Status == 1 ){
                 $paymentdata['EmailTemplate'] = $EmailTemplate;
                 $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);
-                if(empty($Invoice)){
-                    $paymentdata['Invoice'] = $Invoice;
-                    Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$paymentdata);
-                }
+				$paymentdata['Invoice'] = $Invoice;
+				Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$paymentdata);
+                
             }
         }else{
             $companyID = $paymentdata['CompanyID'];
