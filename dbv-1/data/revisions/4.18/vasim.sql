@@ -43,7 +43,7 @@ ALTER TABLE `tblVendorRate`
 	ADD UNIQUE INDEX `IXUnique_AccountId_TrunkId_RateId_EffectiveDate` (`AccountId`, `TrunkID`, `TimezonesID`, `RateId`, `EffectiveDate`);
 
 ALTER TABLE `tblRateTableRate`
-	ADD COLUMN `TimezonesID` BIGINT(20) NOT NULL DEFAULT '1' AFTER `RateTableId`,
+	ADD COLUMN `TimezonesID` INT(11) NOT NULL DEFAULT '1' AFTER `RateTableId`,
 	DROP INDEX `IX_Unique_RateID_RateTableId_EffectiveDate`,
 	ADD UNIQUE INDEX `IX_Unique_RateID_RateTableId_TimezonesID_EffectiveDate` (`RateID`, `RateTableId`, `TimezonesID`, `EffectiveDate`);
 
