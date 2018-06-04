@@ -19,6 +19,10 @@
                     <input type="hidden" name="TrunkID" value="{{$trunkID}}" >
                 </div>
                 <div class="form-group">
+                    <label class="control-label">Timezones</label>
+                    {{ Form::select('Timezones', $Timezones, '', array("class"=>"select2")) }}
+                </div>
+                <div class="form-group">
                     <label for="field-1" class="control-label">Country</label>
                     {{ Form::select('Country', $countries, Input::old('Country') , array("class"=>"select2")) }}
                 </div>
@@ -102,7 +106,11 @@
         {{--@endif--}}
     </div>
 </div>
-<form id="clear-bulk-rate-form" ><input type="hidden" name="RateTableRateID" /><input type="hidden" name="criteria" /></form>
+<form id="clear-bulk-rate-form" >
+    <input type="hidden" name="RateTableRateID" />
+    <input type="hidden" name="criteria" />
+    <input type="hidden" name="TimezonesID" value="">
+</form>
 
 {{--<div class="row">
     <div class="col-md-12">
@@ -203,6 +211,8 @@
             if(RateTableRateIDs.length || $(this).hasClass('clear-rate-table')) {
                 response = confirm('Are you sure?');
                 if (response) {
+                    var TimezonesID     = $searchFilter.Timezones;
+                    $("#clear-bulk-rate-form").find("input[name='TimezonesID']").val(TimezonesID);
 
                     if($(this).hasClass('clear-rate-table')) {
                         var RateTableRateID = $(this).parent().find('.hiddenRowData input[name="RateTableRateID"]').val();
@@ -266,6 +276,7 @@
 
             var RateTableRateIDs = [];
             var RateIDs = [];
+            var TimezonesID = $searchFilter.Timezones;
 
             var i = 0;
             $('#table-4 tr .rowcheckbox:checked').each(function(i, el) {
@@ -285,6 +296,7 @@
             $("#bulk-edit-rate-table-form").find("input[name='Interval1']").val(1);
             $("#bulk-edit-rate-table-form").find("input[name='IntervalN']").val(1);
             $("#bulk-edit-rate-table-form").find("input[name='EffectiveDate']").val(currentDate);
+            $("#bulk-edit-rate-table-form").find("input[name='TimezonesID']").val(TimezonesID);
 
             var criteria = '';
             if ($('#selectallbutton').is(':checked')) {
@@ -454,6 +466,7 @@
         $searchFilter.TrunkID = $("#rate-table-search [name='TrunkID']").val();
         $searchFilter.Effective = Effective = $("#rate-table-search [name='Effective']").val();
         $searchFilter.DiscontinuedRates = DiscontinuedRates = $("#rate-table-search input[name='DiscontinuedRates']").is(':checked') ? 1 : 0;
+        $searchFilter.Timezones = Timezones = $("#rate-table-search select[name='Timezones']").val();
 
         data_table = $("#table-4").DataTable({
             "bDestroy": true, // Destroy when resubmit form
@@ -462,9 +475,9 @@
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "sAjaxSource": baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid",
             "fnServerParams": function(aoData) {
-                aoData.push({"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view});
+                aoData.push({"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view});
+                data_table_extra_params.push({"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones});
             },
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
@@ -616,6 +629,8 @@
                     for(var i = 0 ; i< list_fields.length; i++){
                         $("#edit-rate-table-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                     }
+                    var TimezonesID = $searchFilter.Timezones;
+                    $("#edit-rate-table-form").find("input[name='TimezonesID']").val(TimezonesID);
                     jQuery('#modal-rate-table').modal('show', {backdrop: 'static'});
                 });
 
@@ -712,7 +727,7 @@
             $.ajax({
                 url: baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid_archive_rates",
                 type: 'POST',
-                data: "Codes=" + Codes + "&view=" + view,
+                data: "Codes=" + Codes + "&view=" + view + "&TimezonesID=" + $searchFilter.Timezones,
                 dataType: 'json',
                 cache: false,
                 success: function (response) {
@@ -845,6 +860,7 @@
                     <input type="hidden" name="updateConnectionFee" value="on">
                     <input type="hidden" name="updateEndDate" value="on">
                     <input type="hidden" name="updateType" value="singleEdit">
+                    <input type="hidden" name="TimezonesID" value="">
 
                     <button type="submit" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i> Save
@@ -933,6 +949,7 @@
                     <input type="hidden" name="RateTableRateID" value="">
                     <input type="hidden" name="RateID" value="">
                     <input type="hidden" name="criteria" value="">
+                    <input type="hidden" name="TimezonesID" value="">
 
                     <button type="submit"
                             class="save btn btn-primary btn-sm btn-icon icon-left"
@@ -1019,6 +1036,13 @@
 
                             </div>
 
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Timezones</label>
+                                {{ Form::select('TimezonesID', $Timezones, '', array("class"=>"select2")) }}
+                            </div>
                         </div>
 
                         {{--<div class="col-md-6">

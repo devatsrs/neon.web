@@ -45,7 +45,7 @@ class CDRTemplateController extends BaseController {
         }
     }
     public function storeTemplate() {
-        $data = Input::all();
+        $data = json_decode(str_replace('Skip loading','',json_encode(Input::all(),true)),true);//Input::all();
         $CompanyID = User::get_companyID();
         if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
             $rules = array('TemplateName' => 'required|unique:tblFileUploadTemplate,Title,'.$data['FileUploadTemplateID'].',FileUploadTemplateID',
@@ -102,7 +102,7 @@ class CDRTemplateController extends BaseController {
         $option["option"]= $data['option'];//['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
         $option["selection"] = $data['selection'];//['connect_time'=>$data['connect_time'],'disconnect_time'=>$data['disconnect_time'],'billed_duration'=>$data['billed_duration'],'duration'=>$data['duration'],'cld'=>$data['cld'],'cli'=>$data['cli'],'Account'=>$data['Account'],'cost'=>$data['cost']];
         $option["CompanyGatewayID"] = $data['CompanyGatewayID'];
-        $save['Options'] = json_encode($option);
+        $save['Options'] = str_replace('Skip loading','',json_encode($option));//json_encode($option);
         $save['FileUploadTemplateTypeID'] = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_CDR);
         if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
             $template = FileUploadTemplate::find($data['FileUploadTemplateID']);

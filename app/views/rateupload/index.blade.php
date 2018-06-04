@@ -61,6 +61,12 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="col-sm-2 control-label">Timezones</label>
+                            <div class="col-sm-4">
+                                {{ Form::select('TimezonesID', $Timezones, "" , array("class"=>"select2 small","id"=>"TimezonesID")) }}
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label for="field-1" class="col-sm-2 control-label">Upload Template</label>
                             <div class="col-sm-4">
                                 {{ Form::select('uploadtemplate', [], "" , array("class"=>"select2","id"=>"uploadtemplate")) }}
@@ -340,6 +346,10 @@
                 getTrunk(Type,id);
                 $('.btn.upload').removeAttr('disabled');
             });
+            $('#uploadtemplate').on('change', function() {
+                var TimezonesID = $('option:selected', $('#uploadtemplate')).attr('TimezonesID');
+                $('#TimezonesID').val(TimezonesID).trigger('change');
+            });
             $("select[name='Vendor']").on('change', function(){
                 var Type = $("input[name=RateUploadType]:checked").val();
                 var id   = $("select[name=Vendor]").val();
@@ -432,6 +442,9 @@
                                     $('#importdialcodes').trigger('change');
                                 }
                             }
+
+                            var TimezonesID = $('option:selected', $('#uploadtemplate')).attr('TimezonesID');
+                            $('#TimezonesID').val(TimezonesID).trigger('change');
 
                         } else {
                             toastr.error(response.message, "Error", toastr_opts);
@@ -1130,12 +1143,13 @@
                             },//0 TempVendorRateID
                             { "bSortable": true },//1 Code
                             { "bSortable": true },//2 Description
-                            { "bSortable": true },//3 Rate
-                            { "bSortable": true },//4 EffectiveDate
-                            { "bSortable": true },//5 EndDate
-                            { "bSortable": true },//6 ConnectionFee
-                            { "bSortable": false },//7 Interval1
-                            { "bSortable": false },//8 IntervalN
+                            { "bSortable": true },//3 Timezones
+                            { "bSortable": true },//4 Rate
+                            { "bSortable": true },//5 EffectiveDate
+                            { "bSortable": true },//6 EndDate
+                            { "bSortable": true },//7 ConnectionFee
+                            { "bSortable": false },//8 Interval1
+                            { "bSortable": false },//9 IntervalN
                         ],
                 "fnDrawCallback": function() {
                     $(".dataTables_wrapper select").select2({
@@ -1251,12 +1265,13 @@
                             { "bVisible": false },//0 TempVendorRateID
                             { "bSortable": true },//1 Code
                             { "bSortable": true },//2 Description
-                            { "bSortable": true },//3 Rate
-                            { "bSortable": true },//4 EffectiveDate
-                            { "bSortable": true },//5 EndDate
-                            { "bSortable": true },//6 ConnectionFee
-                            { "bSortable": false },//7 Interval1
-                            { "bSortable": false },//8 IntervalN
+                            { "bSortable": true },//3 Timezones
+                            { "bSortable": true },//4 Rate
+                            { "bSortable": true },//5 EffectiveDate
+                            { "bSortable": true },//6 EndDate
+                            { "bSortable": true },//7 ConnectionFee
+                            { "bSortable": false },//8 Interval1
+                            { "bSortable": false },//9 IntervalN
                         ],
                 "fnDrawCallback": function() {
                     $(".dataTables_wrapper select").select2({
@@ -1325,12 +1340,13 @@
                             { "bVisible": false },//0 TempVendorRateID
                             { "bSortable": true },//1 Code
                             { "bSortable": true },//2 Description
-                            { "bSortable": true },//3 Rate
-                            { "bSortable": true },//4 EffectiveDate
-                            { "bSortable": true },//5 EndDate
-                            { "bSortable": true },//6 ConnectionFee
-                            { "bSortable": false },//7 Interval1
-                            { "bSortable": false },//8 IntervalN
+                            { "bSortable": true },//3 Timezones
+                            { "bSortable": true },//4 Rate
+                            { "bSortable": true },//5 EffectiveDate
+                            { "bSortable": true },//6 EndDate
+                            { "bSortable": true },//7 ConnectionFee
+                            { "bSortable": false },//8 Interval1
+                            { "bSortable": false },//9 IntervalN
                         ],
                 "fnDrawCallback": function() {
                     $(".dataTables_wrapper select").select2({
@@ -1404,12 +1420,13 @@
                             },//0 TempVendorRateID
                             { "bSortable": true },//1 Code
                             { "bSortable": true },//2 Description
-                            { "bSortable": true },//3 Rate
-                            { "bSortable": true },//4 EffectiveDate
-                            { "bSortable": true },//5 EndDate
-                            { "bSortable": true },//6 ConnectionFee
-                            { "bSortable": false },//7 Interval1
-                            { "bSortable": false },//8 IntervalN
+                            { "bSortable": true },//3 Timezones
+                            { "bSortable": true },//4 Rate
+                            { "bSortable": true },//5 EffectiveDate
+                            { "bSortable": true },//6 EndDate
+                            { "bSortable": true },//7 ConnectionFee
+                            { "bSortable": false },//8 Interval1
+                            { "bSortable": false },//9 IntervalN
                         ],
                 "fnDrawCallback": function() {
                     $(".dataTables_wrapper select").select2({
@@ -1528,9 +1545,9 @@
                         //alert (JSON.stringify(Templates));
                         for(key in Templates) {
                             if(Templates[key]["Title"] == 'Select') {
-                                html += '<option value="'+Templates[key]["FileUploadTemplateID"]+'" start_row="'+Templates[key]["start_row"]+'" end_row="'+Templates[key]["end_row"]+'" start_row_sheet2="'+Templates[key]["start_row_sheet2"]+'" end_row_sheet2="'+Templates[key]["end_row_sheet2"]+'" importratesheet="'+Templates[key]["importratesheet"]+'" importdialcodessheet="'+Templates[key]["importdialcodessheet"]+'" selected>'+Templates[key]["Title"]+'</option>';
+                                html += '<option value="'+Templates[key]["FileUploadTemplateID"]+'" start_row="'+Templates[key]["start_row"]+'" end_row="'+Templates[key]["end_row"]+'" start_row_sheet2="'+Templates[key]["start_row_sheet2"]+'" end_row_sheet2="'+Templates[key]["end_row_sheet2"]+'" importratesheet="'+Templates[key]["importratesheet"]+'" importdialcodessheet="'+Templates[key]["importdialcodessheet"]+'" TimezonesID="'+Templates[key]["TimezonesID"]+'" selected>'+Templates[key]["Title"]+'</option>';
                             } else {
-                                html += '<option value="'+Templates[key]["FileUploadTemplateID"]+'" start_row="'+Templates[key]["start_row"]+'" end_row="'+Templates[key]["end_row"]+'" start_row_sheet2="'+Templates[key]["start_row_sheet2"]+'" end_row_sheet2="'+Templates[key]["end_row_sheet2"]+'" importratesheet="'+Templates[key]["importratesheet"]+'" importdialcodessheet="'+Templates[key]["importdialcodessheet"]+'" >'+Templates[key]["Title"]+'</option>';
+                                html += '<option value="'+Templates[key]["FileUploadTemplateID"]+'" start_row="'+Templates[key]["start_row"]+'" end_row="'+Templates[key]["end_row"]+'" start_row_sheet2="'+Templates[key]["start_row_sheet2"]+'" end_row_sheet2="'+Templates[key]["end_row_sheet2"]+'" importratesheet="'+Templates[key]["importratesheet"]+'" importdialcodessheet="'+Templates[key]["importdialcodessheet"]+'" TimezonesID="'+Templates[key]["TimezonesID"]+'" >'+Templates[key]["Title"]+'</option>';
                             }
                         }
                         $('#uploadtemplate').html(html).trigger('change');
@@ -1738,6 +1755,7 @@
                                             <th width="5%" ><input type="checkbox" id="selectall-new" name="checkbox[]" class="" /></th>
                                             <th width="15%" >Code</th>
                                             <th width="15%" >Description</th>
+                                            <th width="15%" >Timezones</th>
                                             <th width="15%" >Rate</th>
                                             <th width="15%" >Effective Date</th>
                                             <th width="15%" >End Date</th>
@@ -1797,6 +1815,7 @@
                                             <th width="5%" ></th>
                                             <th width="15%" >Code</th>
                                             <th width="15%" >Description</th>
+                                            <th width="15%" >Timezones</th>
                                             <th width="15%" >Rate</th>
                                             <th width="15%" >Effective Date</th>
                                             <th width="15%" >End Date</th>
@@ -1856,6 +1875,7 @@
                                             <th width="5%" ></th>
                                             <th width="15%" >Code</th>
                                             <th width="15%" >Description</th>
+                                            <th width="15%" >Timezones</th>
                                             <th width="15%" >Rate</th>
                                             <th width="15%" >Effective Date</th>
                                             <th width="15%" >End Date</th>
@@ -1915,6 +1935,7 @@
                                             <th width="5%" ><input type="checkbox" id="selectall-deleted" name="checkbox[]" class="" /></th>
                                             <th width="15%" >Code</th>
                                             <th width="15%" >Description</th>
+                                            <th width="15%" >Timezones</th>
                                             <th width="15%" >Rate</th>
                                             <th width="15%" >Effective Date</th>
                                             <th width="15%" >End Date</th>
