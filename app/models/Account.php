@@ -858,7 +858,8 @@ class Account extends \Eloquent {
                 $accounts->where('Owner', $UserID);
             }
 
-            return $accounts->orderBy("AccountName", "ASC")->get(array('tblAccount.AccountID','AccountName'))->toArray();
+            //return $accounts->orderBy("AccountName", "ASC")->get(array('tblAccount.AccountID','AccountName'))->toArray();
+            return $accounts->select(array('AccountName', 'tblAccount.AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
 
         }
     }

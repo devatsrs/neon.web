@@ -37,9 +37,9 @@ class RateTablesController extends \BaseController {
         $view = isset($data['view']) && $data['view'] == 2 ? $data['view'] : 1;
 
         if(!empty($data['DiscontinuedRates'])) {
-            $query = "call prc_getDiscontinuedRateTableRateGrid (" . $companyID . "," . $id . "," . $data['Country'] . "," . $data['Code'] . "," . $data['Description'] . ",".$view."," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "',0)";
+            $query = "call prc_getDiscontinuedRateTableRateGrid (" . $companyID . "," . $id . ",".$data['Timezones']."," . $data['Country'] . "," . $data['Code'] . "," . $data['Description'] . ",".$view."," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "',0)";
         } else {
-            $query = "call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$view.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
+            $query = "call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$view.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
         }
         Log::info($query);
 
@@ -152,7 +152,9 @@ class RateTablesController extends \BaseController {
         $codes = CodeDeck::getCodeDropdownList($CodeDeckId,$CompanyID);
         $isBandTable = RateTable::checkRateTableBand($id);
         $code = RateTable::getCurrencyCode($id);
-        return View::make('ratetables.edit', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable'));
+        $Timezones = Timezones::getTimezonesIDList();
+
+        return View::make('ratetables.edit', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones'));
     }
 
 
@@ -208,15 +210,20 @@ class RateTablesController extends \BaseController {
                 $criteria['Description']    = !empty($criteria['Description']) && $criteria['Description'] != '' ? "'" . $criteria['Description'] . "'" : 'null';
                 $criteria['Country']        = !empty($criteria['Country']) && $criteria['Country'] != '' ? "'" . $criteria['Country'] . "'" : 'null';
                 $criteria['Effective']      = !empty($criteria['Effective']) && $criteria['Effective'] != '' ? "'" . $criteria['Effective'] . "'" : 'null';
+                $criteria['TimezonesID']    = !empty($criteria['Timezones']) && $criteria['Timezones'] != '' ? "'" . $criteria['Timezones'] . "'" : 'NULL';
 
                 $RateTableID                = $id;
                 $RateTableRateID            = $data['RateTableRateID'];
+
+                if(empty($criteria['TimezonesID']) || $criteria['TimezonesID'] == 'NULL') {
+                    $criteria['TimezonesID'] = $data['TimezonesID'];
+                }
 
                 if (empty($data['RateTableRateID']) && !empty($data['criteria'])) {
                     $p_criteria = 1;
                 }
 
-                $query = "call prc_RateTableRateUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['Effective'] . ",'" . $username . "',".$p_criteria.",".$action.")";
+                $query = "call prc_RateTableRateUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 Log::info($query);
                 $results = DB::statement($query);
 
@@ -305,15 +312,20 @@ class RateTablesController extends \BaseController {
                 $criteria['Description']    = !empty($criteria['Description']) && $criteria['Description'] != '' ? "'" . $criteria['Description'] . "'" : 'NULL';
                 $criteria['Country']        = !empty($criteria['Country']) && $criteria['Country'] != '' ? "'" . $criteria['Country'] . "'" : 'NULL';
                 $criteria['Effective']      = !empty($criteria['Effective']) && $criteria['Effective'] != '' ? "'" . $criteria['Effective'] . "'" : 'NULL';
+                $criteria['TimezonesID']    = !empty($criteria['Timezones']) && $criteria['Timezones'] != '' ? "'" . $criteria['Timezones'] . "'" : 'NULL';
 
                 $RateTableID                = $id;
                 $RateTableRateID            = $data['RateTableRateID'];
+
+                if(empty($criteria['TimezonesID']) || $criteria['TimezonesID'] == 'NULL') {
+                    $criteria['TimezonesID'] = $data['TimezonesID'];
+                }
 
                 if (empty($data['RateTableRateID']) && !empty($data['criteria'])) {
                     $p_criteria = 1;
                 }
 
-                $query = "call prc_RateTableRateUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['Effective'] . ",'" . $username . "',".$p_criteria.",".$action.")";
+                $query = "call prc_RateTableRateUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 Log::info($query);
                 $results = DB::statement($query);
 
@@ -388,8 +400,11 @@ class RateTablesController extends \BaseController {
         $RateTableName = RateTable::find($id)->RateTableName;
 
         $view = isset($data['view']) && $data['view'] == 2 ? $data['view'] : 1;
+        $data['Country']        = $data['Country'] != '' && $data['Country'] != 'All'?$data['Country']:'null';
+        $data['Code']           = $data['Code'] != ''?"'".$data['Code']."'":'null';
+        $data['Description']    = $data['Description'] != ''?"'".$data['Description']."'":'null';
 
-        $query = " call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",'".$data['Country']."','".$data['Code']."','".$data['Description']."','".$data['Effective']."',".$view.",null,null,null,null,1)";
+        $query = " call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$view.",null,null,null,null,1)";
 
         DB::setFetchMode( PDO::FETCH_ASSOC );
         $rate_table_rates  = DB::select($query);
@@ -414,22 +429,26 @@ class RateTablesController extends \BaseController {
     }
     public static function add_newrate($id){
         $data = Input::all();
-        $RateTableRate = array();
-        $RateTableRate['RateTableId'] = $id;
-        $RateTableRate['RateID'] = $data['RateID'];
-        $RateTableRate['EffectiveDate'] = $data['EffectiveDate'];
-        $RateTableRate['EndDate'] = !empty($data['EndDate']) ? $data['EndDate'] : null;
-        $RateTableRate['Rate'] = $data['Rate'];
-        $RateTableRate['Interval1'] = $data['Interval1'];
-        $RateTableRate['IntervalN'] = $data['IntervalN'];
-        $RateTableRate['ConnectionFee'] = $data['ConnectionFee'];
-        $rules = RateTableRate::$rules;
-        $rules['RateID'] = 'required|unique:tblRateTableRate,RateID,NULL,RateTableId,RateTableId,'.$id.',EffectiveDate,'.$data['EffectiveDate'];
-        $validator = Validator::make($RateTableRate, $rules);
+
+        $data['RateTableId'] = $id;
+        $rules               = RateTableRate::$rules;
+        $rules['RateID']     = 'required|unique:tblRateTableRate,RateID,NULL,RateTableId,RateTableId,'.$id.',EffectiveDate,'.$data['EffectiveDate'];
+        $validator           = Validator::make($data, $rules);
 
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
+
+        $RateTableRate = array();
+        $RateTableRate['RateTableId']   = $id;
+        $RateTableRate['RateID']        = $data['RateID'];
+        $RateTableRate['EffectiveDate'] = $data['EffectiveDate'];
+        $RateTableRate['EndDate']       = !empty($data['EndDate']) ? $data['EndDate'] : null;
+        $RateTableRate['Rate']          = $data['Rate'];
+        $RateTableRate['Interval1']     = $data['Interval1'];
+        $RateTableRate['IntervalN']     = $data['IntervalN'];
+        $RateTableRate['ConnectionFee'] = $data['ConnectionFee'];
+        $RateTableRate['TimezonesID']   = $data['TimezonesID'];
 
         /*$PreviousRate = RateTableRate::where('EffectiveDate','<',$data['EffectiveDate'])
                                      ->where('RateID',$data['RateID'])
@@ -676,8 +695,9 @@ class RateTablesController extends \BaseController {
         $view       = isset($data['view']) && $data['view'] == 2 ? $data['view'] : 1;
 
         if(!empty($data['Codes'])) {
-            $Codes = $data['Codes'];
-            $query = 'call prc_GetRateTableRatesArchiveGrid ('.$companyID.','.$RateTableID.',"'.$Codes.'",'.$view.')';
+            $Codes       = $data['Codes'];
+            $TimezonesID = $data['TimezonesID'];
+            $query = 'call prc_GetRateTableRatesArchiveGrid ('.$companyID.','.$RateTableID.','.$TimezonesID.',"'.$Codes.'",'.$view.')';
             //Log::info($query);
             $response['status']     = "success";
             $response['message']    = "Data fetched successfully!";

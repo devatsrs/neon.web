@@ -216,11 +216,11 @@ class RateCompareController extends \BaseController {
         $data['CompanyID'] =  User::get_companyID();
 
 
-        $customers_array = Account::getAccountDropdownWithTrunk($data);
+        $select2_customer = $customers_array = Account::getAccountDropdownWithTrunk($data);
 
-        $select2_customer = array_map(function($customers_array) {
+        /*$select2_customer = array_map(function($customers_array) {
             return array("id" => $customers_array["AccountID"],"text" => $customers_array["AccountName"]);
-        },$customers_array);
+        },$customers_array);*/
 
         return Response::json(array("status" => "success", "message" => "" ,"data" =>  $select2_customer));
 
