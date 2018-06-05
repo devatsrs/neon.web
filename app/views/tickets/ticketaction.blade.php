@@ -42,9 +42,9 @@
       <div class="form-group">
         <label for="EmailActionSubject">* Subject:</label>
 
-        <input type="text"  class="form-control" name="Subject" id="EmailActionSubject" value="@if($action_type!='forward') RE: @else FW:  @endif {{htmlentities(imap_mime_header_decode($response_data['Subject'])[0]->text)}}" />
+        {{--<input type="text"  class="form-control" name="Subject" id="EmailActionSubject" value="@if($action_type!='forward') RE: @else FW:  @endif {{htmlentities(imap_mime_header_decode($response_data['Subject'])[0]->text)}}" />--}}
 
-        {{--<input type="text"  class="form-control" name="Subject" id="EmailActionSubject" value="@if($action_type!='forward') RE: @else FW:  @endif {{emailHeaderDecode($response_data['Subject'])}}" />--}}
+        <input type="text"  class="form-control" name="Subject" id="EmailActionSubject" value="@if($action_type!='forward') RE: @else FW:  @endif {{htmlentities(emailHeaderDecode($response_data['Subject']))}}" />
 
       </div>
       <div class="form-group">
