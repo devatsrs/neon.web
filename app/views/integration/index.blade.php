@@ -1070,6 +1070,42 @@
         </div>
         <!-- Xero End-->
 
+        <?php
+        $MerchantWarriorData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$MerchantWarriorSlug);
+        $MerchantWarrior   = isset($MerchantWarriorData->Settings)?json_decode($MerchantWarriorData->Settings):"";
+        ?>
+        <div class="subcategorycontent" id="subcategorycontent{{$MerchantWarriorData->Slug}}">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">* Merchant UUID:</label>
+                        <input type="text"  class="form-control" name="merchantUUID" value="{{isset($MerchantWarrior->merchantUUID)?$MerchantWarrior->merchantUUID:''}}" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">* API Key:</label>
+                        <input type="text"  class="form-control" name="apiKey" value="{{isset($MerchantWarrior->apiKey)?$MerchantWarrior->apiKey:''}}" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">* Hash:</label>
+                        <input type="text"  class="form-control" name="hash" value="{{isset($MerchantWarrior->hash)?$MerchantWarrior->hash:''}}" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">Active:</label>
+                        <div id="MerchantWarriorStatusDiv">
+                            <input id="MerchantWarriorStatus" class="subcatstatus" Divid="MerchantWarriorStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($MerchantWarriorData->Status) && $MerchantWarriorData->Status==1){ ?>   checked="checked"<?php } ?> >
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </div>
 
