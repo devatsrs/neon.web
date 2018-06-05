@@ -214,12 +214,11 @@ public function main() {
 
         $rules = array(
             'AccountName'           =>  'required',
-            'AccountCLI'            =>  'required|unique:tblSubscriptionDiscountPlan,AccountCLI',
-            //'InboundDiscountPlans'  =>  'required',
-            //'OutboundDiscountPlans' =>  'required',
+            'AccountCLI'            =>  'unique:tblSubscriptionDiscountPlan,AccountCLI',
+            //'AccountCLI'            =>  'required|unique:tblSubscriptionDiscountPlan,AccountCLI',
         );
 
-        $message = ['AccountCLI.required'=>'Account CLI Field is required.',
+        $message = [
             'AccountCLI.unique'=>'Account CLI field is already taken.'
         ];
 
@@ -256,11 +255,10 @@ public function main() {
 
         $rules = array(
             'AccountName'           =>  'required',
-            'AccountCLI'            =>  'required|unique:tblSubscriptionDiscountPlan,AccountCLI,' . $data['SubscriptionDiscountPlanID'] . ',SubscriptionDiscountPlanID',
-            //'InboundDiscountPlans'  =>  'required',
-            //'OutboundDiscountPlans' =>  'required',
+            'AccountCLI'            =>  'unique:tblSubscriptionDiscountPlan,AccountCLI,' . $data['SubscriptionDiscountPlanID'] . ',SubscriptionDiscountPlanID',
+            //'AccountCLI'            =>  'required|unique:tblSubscriptionDiscountPlan,AccountCLI,' . $data['SubscriptionDiscountPlanID'] . ',SubscriptionDiscountPlanID',
         );
-        $message = ['AccountCLI.required'=>'Account CLI Field is required.',
+        $message = [
             'AccountCLI.unique'=>'Account CLI field is already taken.'
         ];
 

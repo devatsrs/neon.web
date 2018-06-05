@@ -1413,6 +1413,15 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('reseller/profile', array('as' => 'profile_show', 'uses' => 'ResellerProfileController@show'));
 	Route::any('reseller/profile/edit', array('as' => 'profile_edit', 'uses' => 'ResellerProfileController@edit'));
 	Route::any('reseller/profile/update', array('as' => 'profile_update', 'uses' => 'ResellerProfileController@update'));
+
+	//Timezones
+	Route::any('/timezones','TimezonesController@index');
+	Route::any('/timezones/getTimezonesVariables','TimezonesController@getTimezonesVariables');
+	Route::any('/timezones/search_ajax_datagrid/{type}','TimezonesController@search_ajax_datagrid');
+	Route::any('/timezones/store','TimezonesController@store');
+	Route::any('/timezones/update/{id}','TimezonesController@update');
+	Route::controller('timezones', 'TimezonesController');
+
 });
 
 Route::group(array('before' => 'global_admin'), function () {
@@ -1530,4 +1539,5 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::get('discount/list', 'DiscountPlanApiController@getList');
 	Route::get('subscription/list', 'SubscriptionApiController@getList');
 	Route::get('inboundOutbound/list/{CurrencyID}', 'InboundOutboundApiController@getList');
+	Route::get('payment/list', 'PaymentApiController@getList');
 });

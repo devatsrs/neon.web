@@ -277,6 +277,9 @@
         @if(User::checkCategoryPermission('DestinationGroup','View'))
           <li><a href="{{URL::to('/destination_group_set')}}"><span>Destination Group</span></a></li>
         @endif
+        @if(User::checkCategoryPermission('Timezones','View'))
+          <li><a href="{{URL::to('/timezones')}}"><span>Timezones</span></a></li>
+        @endif
       </ul>
     </li>
     @endif
