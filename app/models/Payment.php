@@ -447,10 +447,8 @@ class Payment extends \Eloquent {
             if(!empty($EmailTemplate) && isset($EmailTemplate->Status) && $EmailTemplate->Status == 1 ){
                 $paymentdata['EmailTemplate'] = $EmailTemplate;
                 $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);
-                if(empty($Invoice)){
-                    $paymentdata['Invoice'] = $Invoice;
-                    Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$paymentdata);
-                }
+                $paymentdata['Invoice'] = $Invoice;
+                Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$paymentdata);
             }
         }else{
             $companyID = $paymentdata['CompanyID'];
@@ -515,5 +513,32 @@ class Payment extends \Eloquent {
         $transactiondata['ModifyBy'] = $data['CreatedBy'];
         $transactiondata['Response'] = json_encode($data['Response']);
         TransactionLog::insert($transactiondata);
+    }
+
+    public static function paymentList(){
+        $paymentsType = array();
+        $CompanyID=Session::get("apiRegistrationCompanyID");
+        if(is_authorize($CompanyID)){
+            $paymentsType["AuthorizeNet"]="AuthorizeNet";
+        }
+        if(is_Stripe($CompanyID)){
+            $paymentsType["Stripe"]="Stripe";
+        }
+        if(is_FideliPay($CompanyID)){
+            $paymentsType["FideliPay"]="FideliPay";
+        }
+        if(is_StripeACH($CompanyID)){
+            $paymentsType["StripeACH"]="StripeACH";
+        }
+        if(is_paypal($CompanyID)){
+            $paymentsType["Paypal"]="Paypal";
+        }
+        if(is_sagepay($CompanyID)){
+            $paymentsType["SagePay"]="SagePay";
+        }
+        if(is_authorize($CompanyID)){
+            $paymentsType["PeleCard"]="PeleCard";
+        }
+        return $paymentsType;
     }
 }
