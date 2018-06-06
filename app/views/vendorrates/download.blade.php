@@ -123,7 +123,7 @@
                 <div class="col-sm-5">
 
                     <select name="Effective" class="select2 small" data-allow-clear="true" data-placeholder="Select Effective" id="fileeffective">
-                        <option value="Now">Now</option>
+                        <option value="Now" selected="selected">Now</option>
                         <option value="Future">Future</option>
                         <option value="CustomDate">Custom Date</option>
                         <option value="All">All</option>
