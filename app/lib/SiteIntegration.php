@@ -26,6 +26,7 @@ class SiteIntegration{
  static    $FideliPaySlug =	'fidelipay';
  static    $XeroSlug =	'xero';
  static    $PeleCardSlug		=	'pelecard';
+ static    $MerchantWarriorSlug		=	'merchantwarrior';
 
  	public function __construct(){
 	

@@ -213,7 +213,7 @@ public function main() {
         $verifier->setConnection('sqlsrv');
 
         $rules = array(
-            'AccountName'           =>  'required',
+            'AccountName'           =>  'required|unique:tblSubscriptionDiscountPlan,AccountName',
             'AccountCLI'            =>  'unique:tblSubscriptionDiscountPlan,AccountCLI',
             //'AccountCLI'            =>  'required|unique:tblSubscriptionDiscountPlan,AccountCLI',
         );
@@ -227,6 +227,10 @@ public function main() {
 
         if ($validator->fails()) {
             return json_validator_response($validator);
+        }
+        if($data['AccountCLI'] == "")
+        {
+            unset($data['AccountCLI']);
         }
 
         if ($SubscriptionDiscountPlan = SubscriptionDiscountPlan::create($data)) {
@@ -254,7 +258,7 @@ public function main() {
         $verifier->setConnection('sqlsrv');
 
         $rules = array(
-            'AccountName'           =>  'required',
+            'AccountName'           =>  'required|unique:tblSubscriptionDiscountPlan,AccountName,' . $data['SubscriptionDiscountPlanID'] . ',SubscriptionDiscountPlanID',
             'AccountCLI'            =>  'unique:tblSubscriptionDiscountPlan,AccountCLI,' . $data['SubscriptionDiscountPlanID'] . ',SubscriptionDiscountPlanID',
             //'AccountCLI'            =>  'required|unique:tblSubscriptionDiscountPlan,AccountCLI,' . $data['SubscriptionDiscountPlanID'] . ',SubscriptionDiscountPlanID',
         );
@@ -267,6 +271,11 @@ public function main() {
 
         if ($validator->fails()) {
             return json_validator_response($validator);
+        }
+
+        if($data['AccountCLI'] == "")
+        {
+            unset($data['AccountCLI']);
         }
 
         if ($SubscriptionDiscountPlan->update($data)) {

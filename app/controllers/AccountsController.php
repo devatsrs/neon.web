@@ -1626,7 +1626,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
            !isset($data['BulkBillingStartDateCheck'])&&
            !isset($data['BulkBillingCycleTypeCheck'])&&
            !isset($data['BulkSendInvoiceSettingCheck'])&&
-           !isset($data['BulkAutoPaymentSettingCheck'])
+           !isset($data['BulkAutoPaymentSettingCheck']) &&
+           !isset($data['BulkAutoPaymentMethodCheck'])
 		  )
 		{
 			return Response::json(array("status" => "error", "message" => "Please select at least one option."));
@@ -1744,6 +1745,12 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 if(!empty($data['AutoPaymentSetting'])){
                     $update_billing=1;
                     $billingupdate['AutoPaymentSetting'] = $data['AutoPaymentSetting'];
+                }
+            }
+            if(isset($data['BulkAutoPaymentMethodCheck'])){
+                if(!empty($data['AutoPayMethod'])){
+                    $update_billing=1;
+                    $billingupdate['AutoPayMethod'] = $data['AutoPayMethod'];
                 }
             }
 

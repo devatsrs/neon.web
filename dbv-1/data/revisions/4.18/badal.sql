@@ -15,15 +15,16 @@ ALTER TABLE `tblBillingClass`
 	ADD COLUMN `BalanceWarningSettings` VARCHAR(5000) NULL DEFAULT NULL AFTER `BalanceWarningStatus`;
 	
 /* added on 29th may */
+
 CREATE TABLE `tblSubscriptionDiscountPlan` (
 	`SubscriptionDiscountPlanID` INT(11) NOT NULL AUTO_INCREMENT,
 	`AccountID` INT(11) NULL DEFAULT '0',
 	`ServiceID` INT(11) NULL DEFAULT '0',
 	`AccountSubscriptionID` INT(11) NULL DEFAULT '0',
-	`AccountName` VARCHAR(200) NULL DEFAULT '0' COLLATE 'utf8_unicode_ci',
-	`AccountCLI` VARCHAR(300) NULL DEFAULT '0' COLLATE 'utf8_unicode_ci',
-	`InboundDiscountPlans` VARCHAR(300) NULL DEFAULT '0' COLLATE 'utf8_unicode_ci',
-	`OutboundDiscountPlans` VARCHAR(300) NULL DEFAULT '0' COLLATE 'utf8_unicode_ci',
+	`AccountName` VARCHAR(200) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`AccountCLI` VARCHAR(300) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`InboundDiscountPlans` INT(11) NULL DEFAULT '0',
+	`OutboundDiscountPlans` INT(11) NULL DEFAULT '0',
 	`created_at` DATETIME NULL DEFAULT NULL,
 	`updated_at` DATETIME NULL DEFAULT NULL,
 	PRIMARY KEY (`SubscriptionDiscountPlanID`),
@@ -32,3 +33,6 @@ CREATE TABLE `tblSubscriptionDiscountPlan` (
 COLLATE='utf8_unicode_ci'
 ENGINE=InnoDB
 ;
+
+
+INSERT INTO `tblIntegration` (`IntegrationID`, `CompanyId`, `Title`, `Slug`, `ParentID`) VALUES ('25', '1', 'MerchantWarrior', 'merchantwarrior', '4');

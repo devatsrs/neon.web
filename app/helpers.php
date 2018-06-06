@@ -1700,6 +1700,9 @@ function is_FideliPay($CompanyID){
 function is_Xero($CompanyID){
     return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$XeroSlug,$CompanyID);
 }
+function is_merchantwarrior($CompanyID){
+    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$MerchantWarriorSlug,$CompanyID);
+}
 function change_timezone($billing_timezone,$timezone,$date){
     if(!empty($timezone) && !empty($billing_timezone)) {
         date_default_timezone_set($billing_timezone);
