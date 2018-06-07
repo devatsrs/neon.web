@@ -182,6 +182,6 @@ Route::filter("role", function ()  {
 
 Route::filter('auth.api', function(){
     if(Session::get("apiRegistrationUserId", '')=='' && !Request::is('api/login') && !Request::is('api/logout')){
-        return Redirect::to('api/login');
+        return Response::json(["status"=>"failed", "message"=>"Not authorized. Please Login"]);
     }
 });
