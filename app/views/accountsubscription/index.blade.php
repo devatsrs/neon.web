@@ -512,6 +512,10 @@
             var discountplan_edit_url = baseurl + "/accounts/{{$account->AccountID}}/subscription/update_discountplan";
             function add_discountplan(AccountSubscriptionID){
                 $('#add_discountplan_form').trigger("reset");
+                $('[name="AccountName"]').attr("value","");
+                $('[name="AccountCLI"]').attr("value","");
+                $('[name="InboundDiscountPlans"]').select2().select2('val','');
+                $('[name="OutboundDiscountPlans"]').select2().select2('val','');
                 $('#modal-add_discountplan h4').html('Add Account');
                 $('#add_discountplan_form').attr("action",discountplan_add_url);
                 $('[name="AccountSubscriptionID_dp"]').attr("value",AccountSubscriptionID);
