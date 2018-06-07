@@ -5,7 +5,7 @@ class TranslateController extends \BaseController {
     public function index()
     {
         $global_admin = Session::get("global_admin" , 0);
-        return View::make('translate.index');
+        return View::make('translate.index', compact("global_admin"));
     }
 
     public function changeLanguage($language)
