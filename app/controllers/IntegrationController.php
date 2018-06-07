@@ -419,6 +419,43 @@ class IntegrationController extends \BaseController
 				return Response::json(array("status" => "success", "message" => "FideliPay Settings Successfully Updated"));
 			}
 
+			if($data['secondcategory']=='MerchantWarrior')
+			{
+				$rules = array(
+					'merchantUUID'	 => 'required',
+					'apiKey'	 => 'required',
+					'hash'	 => 'required'
+				);
+
+				$validator = Validator::make($data, $rules);
+
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+
+				$data['Status'] 		= 	isset($data['Status'])?1:0;
+
+				$MerchantWarriorData = array(
+					"merchantUUID"=>$data['merchantUUID'],
+					"apiKey"=>$data['apiKey'],
+					"hash"=>$data['hash']
+				);
+
+				$MerchantWarriorDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+
+				if(count($MerchantWarriorDbData)>0)
+				{
+					$SaveData = array("Settings"=>json_encode($MerchantWarriorData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$MerchantWarriorDbData->IntegrationConfigurationID))->update($SaveData);
+				}
+				else
+				{
+					$SaveData = array("Settings"=>json_encode($MerchantWarriorData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::create($SaveData);
+				}
+				return Response::json(array("status" => "success", "message" => "MerchantWarrior Settings Successfully Updated"));
+			}
+
 			if($data['secondcategory']=='PeleCard')
 			{
 				$PeleCardDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
