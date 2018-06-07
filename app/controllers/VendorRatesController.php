@@ -217,8 +217,8 @@ class VendorRatesController extends \BaseController
                 unset($data['filetype']);
             }
 
-            $data['vendor'][] = $id;
-            foreach($data['vendor'] as $vendorID) {
+            $data['vendors'][] = $id;
+            foreach($data['vendors'] as $vendorID) {
                 if ((int)$vendorID) {
                     //Inserting Job Log
                     try {

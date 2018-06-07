@@ -17,7 +17,7 @@ public function main() {
     public function ajax_datagrid($id){
         $data = Input::all();        
         $id=$data['account_id'];
-        $select = ["tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SequenceNo","tblBillingSubscription.Name", "InvoiceDescription", "Qty" ,"tblAccountSubscription.StartDate",DB::raw("IF(tblAccountSubscription.EndDate = '0000-00-00','',tblAccountSubscription.EndDate) as EndDate"),"tblAccountSubscription.ActivationFee","tblAccountSubscription.DailyFee","tblAccountSubscription.WeeklyFee","tblAccountSubscription.MonthlyFee","tblAccountSubscription.QuarterlyFee","tblAccountSubscription.AnnuallyFee","tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SubscriptionID","tblAccountSubscription.ExemptTax","tblAccountSubscription.Status"];
+        $select = ["tblAccountSubscription.AccountSubscriptionID as AID","tblAccountSubscription.SequenceNo","tblBillingSubscription.Name", "InvoiceDescription", "Qty" ,"tblAccountSubscription.StartDate",DB::raw("IF(tblAccountSubscription.EndDate = '0000-00-00','',tblAccountSubscription.EndDate) as EndDate"),"tblAccountSubscription.ActivationFee","tblAccountSubscription.DailyFee","tblAccountSubscription.WeeklyFee","tblAccountSubscription.MonthlyFee","tblAccountSubscription.QuarterlyFee","tblAccountSubscription.AnnuallyFee","tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SubscriptionID","tblAccountSubscription.ExemptTax","tblAccountSubscription.Status"];
         $subscriptions = AccountSubscription::join('tblBillingSubscription', 'tblAccountSubscription.SubscriptionID', '=', 'tblBillingSubscription.SubscriptionID')->where("tblAccountSubscription.AccountID",$id);        
         if(!empty($data['SubscriptionName'])){
             $subscriptions->where('tblBillingSubscription.Name','Like','%'.trim($data['SubscriptionName']).'%');
@@ -187,6 +187,11 @@ public function main() {
             if(!AccountSubscription::checkForeignKeyById($AccountSubscriptionID)){
                 try{
                     $AccountSubscription = AccountSubscription::find($AccountSubscriptionID);
+                    $SubscriptionDiscountPlanCount = SubscriptionDiscountPlan::where("AccountSubscriptionID",$AccountSubscriptionID)->count();
+                    if($SubscriptionDiscountPlanCount > 0)
+                    {
+                        $SubscriptionDiscountPlanCount = SubscriptionDiscountPlan::where("AccountSubscriptionID",$AccountSubscriptionID)->delete();
+                    }
                     $result = $AccountSubscription->delete();
                     if ($result) {
                         return Response::json(array("status" => "success", "message" => "Subscription Successfully Deleted"));
@@ -213,7 +218,7 @@ public function main() {
         $verifier->setConnection('sqlsrv');
 
         $rules = array(
-            'AccountName'           =>  'required',
+            'AccountName'           =>  'required|unique:tblSubscriptionDiscountPlan,AccountName',
             'AccountCLI'            =>  'unique:tblSubscriptionDiscountPlan,AccountCLI',
             //'AccountCLI'            =>  'required|unique:tblSubscriptionDiscountPlan,AccountCLI',
         );
@@ -227,6 +232,10 @@ public function main() {
 
         if ($validator->fails()) {
             return json_validator_response($validator);
+        }
+        if($data['AccountCLI'] == "")
+        {
+            $data['AccountCLI'] = NULL;
         }
 
         if ($SubscriptionDiscountPlan = SubscriptionDiscountPlan::create($data)) {
@@ -254,7 +263,7 @@ public function main() {
         $verifier->setConnection('sqlsrv');
 
         $rules = array(
-            'AccountName'           =>  'required',
+            'AccountName'           =>  'required|unique:tblSubscriptionDiscountPlan,AccountName,' . $data['SubscriptionDiscountPlanID'] . ',SubscriptionDiscountPlanID',
             'AccountCLI'            =>  'unique:tblSubscriptionDiscountPlan,AccountCLI,' . $data['SubscriptionDiscountPlanID'] . ',SubscriptionDiscountPlanID',
             //'AccountCLI'            =>  'required|unique:tblSubscriptionDiscountPlan,AccountCLI,' . $data['SubscriptionDiscountPlanID'] . ',SubscriptionDiscountPlanID',
         );
@@ -267,6 +276,11 @@ public function main() {
 
         if ($validator->fails()) {
             return json_validator_response($validator);
+        }
+
+        if($data['AccountCLI'] == "")
+        {
+            $data['AccountCLI'] = NULL;
         }
 
         if ($SubscriptionDiscountPlan->update($data)) {
