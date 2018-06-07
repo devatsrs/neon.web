@@ -25,10 +25,12 @@
 
                         <div class="text-right" >
                             {{--add new table button--}}
-                            {{--<a class="btn btn-primary btn-sm btn-icon icon-left" id="set_new_label" href="javascript:;" data-toggle="modal" data-target="#set_new_system_name_model">
+                            @if(intval($global_admin))
+                            <a class="btn btn-primary btn-sm btn-icon icon-left" id="set_new_label" href="javascript:;" data-toggle="modal" data-target="#set_new_system_name_model">
                                 <i class="entypo-plus"></i>
                                 Add Label
-                            </a>--}}
+                            </a>
+                            @endif
                             <a class="btn btn-primary btn-sm btn-icon icon-left" id="save_trnslation" href="javascript:;"  data-loading-text="Loading...">
                                 <i class="entypo-floppy"></i>
                                 Save
