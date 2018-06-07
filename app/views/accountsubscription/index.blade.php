@@ -85,7 +85,7 @@
             /**
             * JQuery Plugin for dataTable
             * */
-          //  var list_fields_activity  = ['SubscriptionName','InvoiceDescription','StartDate','EndDate'];      
+          //  var list_fields_activity  = ['SubscriptionName','InvoiceDescription','StartDate','EndDate'];
             $("#subscription_filter").find('[name="SubscriptionName"]').val('');
             $("#subscription_filter").find('[name="SubscriptionInvoiceDescription"]').val('');
             var data_table_subscription;
@@ -137,20 +137,20 @@
                     $('#subscription-form [name="DailyFee"]').val(daily.toFixed(decimal_places));
                 });
 
-            var list_fields  = ["AccountSubscriptionID","SequenceNo", "Name", "InvoiceDescription", "Qty", "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee","tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee","tblBillingSubscription.MonthlyFee", "tblBillingSubscription.QuarterlyFee", "tblBillingSubscription.AnnuallyFee", "AccountSubscriptionID", "SubscriptionID","ExemptTax","Status","AnnuallyFee","QuarterlyFee","MonthlyFee","WeeklyFee","DailyFee","ActivationFee"];
+            var list_fields  = ["AID","SequenceNo", "Name", "InvoiceDescription", "Qty", "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee","tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee","tblBillingSubscription.MonthlyFee", "tblBillingSubscription.QuarterlyFee", "tblBillingSubscription.AnnuallyFee", "AccountSubscriptionID", "SubscriptionID","ExemptTax","Status","AnnuallyFee","QuarterlyFee","MonthlyFee","WeeklyFee","DailyFee","ActivationFee"];
             public_vars.$body = $("body");
             var $search = {};
             var subscription_add_url = baseurl + "/accounts/{{$account->AccountID}}/subscription/store";
             var subscription_edit_url = baseurl + "/accounts/{{$account->AccountID}}/subscription/{id}/update";
             var subscription_delete_url = baseurl + "/accounts/{{$account->AccountID}}/subscription/{id}/delete";
-            var subscription_datagrid_url = baseurl + "/accounts/{{$account->AccountID}}/subscription/ajax_datagrid";              
+            var subscription_datagrid_url = baseurl + "/accounts/{{$account->AccountID}}/subscription/ajax_datagrid";
             $("#subscription_submit").click(function(e) {
                 e.preventDefault();
-                 
+
                     $search.SubscriptionName = $("#subscription_filter").find('[name="SubscriptionName"]').val();
                     $search.SubscriptionInvoiceDescription = $("#subscription_filter").find('[name="SubscriptionInvoiceDescription"]').val();
                     $search.SubscriptionActive = $("#subscription_filter").find("[name='SubscriptionActive']").prop("checked");
-                        data_table_subscription = $("#table-subscription").DataTable({
+                        data_table_subscription = $("#table-subscription").dataTable({
                             "bDestroy": true,
                             "bProcessing":true,
                             "bServerSide": true,
@@ -196,7 +196,7 @@
                            "bSortable": false,
                             mRender: function ( id, type, full ) {
                                  action = '<div class = "hiddenRowData" >';
-                                 for(var i = 0 ; i< list_fields.length; i++){									 
+                                 for(var i = 0 ; i< list_fields.length; i++){
 									list_fields[i] =  list_fields[i].replace("tblBillingSubscription.",'');
                                     action += '<input disabled type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                  }
@@ -223,9 +223,9 @@
                                                });
                              }
 
-                        });                          
-                    }); 
-                    
+                        });
+                    });
+
                     /*$("#subscription_filter").submit(function(e) {
                         e.preventDefault();
                         $search.InvoiceDescription = $("#subscription_filter").find('[name="InvoiceDescription"]').val();
@@ -243,7 +243,7 @@
                         $("#subscription-form [name=SubscriptionID]").select2().select2('val',"");
 
                         $('#subscription-form').attr("action",subscription_add_url);
-                        $('#modal-subscription').modal('show');                        
+                        $('#modal-subscription').modal('show');
                 });
                 $('table tbody').on('click', '.edit-subscription', function (ev) {
                         ev.preventDefault();
@@ -305,7 +305,7 @@
 						type: 'POST',
 						dataType: 'json',
 						async :false,
-						
+
 						success: function(response) {
 								if(response){
 									$("#subscription-form [name='InvoiceDescription']").val(response.InvoiceLineDescription);
@@ -317,8 +317,8 @@
 									$("#subscription-form [name='ActivationFee']").val(response.ActivationFee);
 								}
 							}
-					});	
-					   
+					});
+
                     /*   getTableFieldValue("billing_subscription",id,"InvoiceLineDescription",function(description){
                            if( description != undefined && description.length > 0){
                                 $("#subscription-form [name='InvoiceDescription']").val(description);
@@ -332,7 +332,7 @@
                 //fetch discount plans click on '+' sign
                 $('#table-subscription tbody').on('click', 'td div.details-control', function () {
                     var tr = $(this).closest('tr');
-                    var row = data_table_subscription.row(tr);
+                    var row = data_table_subscription.api().row(tr);
 
                     if (row.child.isShown()) {
                         $(this).find('i').toggleClass('entypo-plus-squared entypo-minus-squared');
@@ -358,7 +358,13 @@
                                 var tbody = $("<tbody></tbody>");
 
                                 response.forEach(function (data) {
-                                    //alert(data.AccountName);
+                                    //alert(data.InboundDiscountPlans);
+                                    if(data.AccountCLI == null)
+                                        data.AccountCLI = '';
+                                    if(data.InboundDiscountPlans == 0 || data.InboundDiscountPlans == null)
+                                        data.InboundDiscountPlans = '';
+                                    if(data.OutboundDiscountPlans == 0 || data.OutboundDiscountPlans == null)
+                                        data.OutboundDiscountPlans = '';
                                     var html = "";
                                     html += "<tr class='no-selection'>";
                                     html += "<td><input name='chk[]' class='check_discount' type='checkbox' value='0' disc-id="+ data['SubscriptionDiscountPlanID'] + "></td>";
