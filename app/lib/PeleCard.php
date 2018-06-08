@@ -121,6 +121,7 @@ class PeleCard {
         $pelecarddata['AccountID']      = $data['AccountID'];
         $pelecarddata['Token']          = $PeleCardObj->Token;
         $pelecarddata['CVVNumber']      = $PeleCardObj->CVVNumber;
+        $pelecarddata['PeleCardID']     = !empty($PeleCardObj->PeleCardID) ? $PeleCardObj->PeleCardID : '';
 
         $transactionResponse = array();
 
@@ -211,7 +212,7 @@ class PeleCard {
                 'total'                 => str_replace(',','',str_replace('.','',$data['GrandTotal'])),
                 'currency'              => $currency,
                 'cvv2'                  => $data['CVVNumber'],
-                'id'                    => $data['AccountID'],
+                'id'                    => $data['PeleCardID'],//$data['AccountID'],
                 'authorizationNumber'   => "",
                 'paramX'                => $data['InvoiceNumber']
             );
@@ -266,7 +267,7 @@ class PeleCard {
         $PeleCardResponse = $this->createPeleCardProfile($data);
         if ($PeleCardResponse["status"] == "success") {
             $option = array(
-                'Token' => $PeleCardResponse['Token'],'VoucherId' => $PeleCardResponse['VoucherId'],'CVVNumber' => $data['CVVNumber']
+                'Token' => $PeleCardResponse['Token'],'VoucherId' => $PeleCardResponse['VoucherId'],'CVVNumber' => $data['CVVNumber'],'PeleCardID' => $data['PeleCardID']
             );
             $CardDetail = array('Title' => $data['Title'],
                 'Options' => json_encode($option),
