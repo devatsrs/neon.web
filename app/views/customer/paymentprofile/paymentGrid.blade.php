@@ -326,6 +326,14 @@
 
                                 </div>
                             </div>
+                            @if($account->PaymentMethod == 'PeleCard')
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">{{cus_lang('CUST_PANEL_PAGE_CREDIT_CARD_FIELD_PELECARDID')}}</label>
+                                    <input type="text" name="PeleCardID" autocomplete="off" class="form-control" placeholder="">
+                                </div>
+                            </div>
+                            @endif
                         </div>
                     </div>
                     <div class="modal-footer">

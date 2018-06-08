@@ -28,7 +28,8 @@ CREATE TABLE `tblSubscriptionDiscountPlan` (
 	`created_at` DATETIME NULL DEFAULT NULL,
 	`updated_at` DATETIME NULL DEFAULT NULL,
 	PRIMARY KEY (`SubscriptionDiscountPlanID`),
-	UNIQUE INDEX `IX_UNIQUE_ACCOUNTCLI` (`AccountCLI`)
+	UNIQUE INDEX `IX_UNIQUE_ACCOUNTCLI` (`AccountCLI`),
+	UNIQUE INDEX `IX_UNIQUE_ACCOUNTNAME` (`AccountName`)
 )
 COLLATE='utf8_unicode_ci'
 ENGINE=InnoDB
