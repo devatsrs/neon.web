@@ -45,8 +45,8 @@ class TranslateController extends \BaseController {
                 $translation=$arr_translation[$key];
             }
 
-            $html_translation='<label data-languages="'.$data["Language"].'" class="label_language hidden" data-system-name="'.$key.'" >'.$translation.'</label>
-                                <input type="text" value="'.$translation.'" data-languages="'.$data["Language"].'" class="text_language form-control"  data-system-name="'.$key.'" />';
+            $html_translation='<label data-languages="'.$data["Language"].'" class="label_language hidden" data-system-name="'.$key.'" >'.htmlentities($translation).'</label>
+                                <input type="text" value="'.htmlentities($translation).'" data-languages="'.$data["Language"].'" class="text_language form-control"  data-system-name="'.$key.'" />';
 
 
 //            delete lable btn
