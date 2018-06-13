@@ -35,6 +35,8 @@
             $NameFormat = GatewayConfig::$M2_NameFormat;
         }else if($GatewayName == 'VoipNow'){
             $NameFormat = GatewayConfig::$VoipNow_NameFormat;
+        }else if($GatewayName == 'SippySQL'){
+            $NameFormat = GatewayConfig::$SippySQL_NameFormat;
         }
     ?>
 
