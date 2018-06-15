@@ -43,6 +43,7 @@ INSERT INTO `tblGateway` (`GatewayID`, `Title`, `Name`, `Status`, `CreatedBy`, `
 
 /* add billing gateway configurations*/ 
 INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (15, 'Database Server', 'dbserver', 1, '2018-05-29 13:06:00', NULL, NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (15, 'Database Name', 'dbname', 1, '2018-06-15 13:06:00', NULL, NULL, NULL);
 INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (15, 'Database User Name', 'username', 1, '2018-05-29 13:06:00', NULL, NULL, NULL);
 INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (15, 'Database Password', 'password', 1, '2018-05-29 13:06:00', NULL, NULL, NULL);
 INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (15, 'Authentication Rule', 'NameFormat', 1, '2018-05-29 13:06:00', NULL, NULL, NULL);
