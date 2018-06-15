@@ -279,6 +279,14 @@
                                         {{Form::text('RateSheetTemplate[FooterSize]', $RateSheetTemplate['FooterSize'],array("class"=>"form-control","Placeholder"=>"Add Numeric value"))}}
                                     </div>
                                 </div>
+                                <div class="form-group">
+                                    <label for="field-1" class="col-sm-2 control-label">Invoice PDF Send</label>
+                                    <div class="col-sm-4">
+                                        <p class="make-switch switch-small">
+                                            <input id="invoicePdfSend" name="invoicePdfSend" type="checkbox" value="1" @if($invoicePdfSend == 1) checked="checked" @endif>
+                                        </p>
+                                    </div>
+                                </div>
                                 {{--<div class="form-group">
                                     <label for="field-1" class="col-sm-2 control-label">RateSheet excel Note</label>
                                     <div class="col-sm-10">
