@@ -280,7 +280,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="field-1" class="col-sm-2 control-label">Invoice PDF Send</label>
+                                    <label for="field-1" class="col-sm-2 control-label">Attach Invoice in Email</label>
                                     <div class="col-sm-4">
                                         <p class="make-switch switch-small">
                                             <input id="invoicePdfSend" name="invoicePdfSend" type="checkbox" value="1" @if($invoicePdfSend == 1) checked="checked" @endif>
