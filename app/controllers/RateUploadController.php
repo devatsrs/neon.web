@@ -401,6 +401,9 @@ class RateUploadController extends \BaseController {
             $rules_for_type['selection.Rate']            = 'required';
             $message_for_type['selection.Rate.required'] = "Rate Field is required";
 
+            $rules_for_type['selection.Timezones']       = 'required_without:TimezonesID';
+            $message_for_type['selection.Timezones.required_without'] = "Any one Timezones field is required, you can select it for all rates from where you have uploaded file. and if you have Timezones in file then you can select in field remapping section";
+
             $tempdata = json_decode(str_replace('Skip loading','',json_encode($data,true)),true);
             $validator = Validator::make($tempdata, $rules_for_type, $message_for_type);
 
@@ -430,6 +433,7 @@ class RateUploadController extends \BaseController {
         $save['Options']        = str_replace('Skip loading','',json_encode($option));//json_encode($option);
         $fullPath               = $amazonPath . $file_name; //$destinationPath . $file_name;
         $save['full_path']      = $fullPath;
+        $save['TimezonesID']    = $data['TimezonesID'];
 
         if($data['RateUploadType'] == RateUpload::vendor) {
             $save["AccountID"]      = $id;
