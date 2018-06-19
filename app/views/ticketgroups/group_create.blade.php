@@ -65,6 +65,20 @@
               <input type="text" name='GroupEmailServer' class="form-control" id="imapserver" placeholder="IMAP Server" value="{{Input::old('GroupEmailServer')}}">
             </div>
           </div>
+            <div class="form-group">
+                <label for="GroupName" class="col-sm-3 control-label">Prot</label>
+                <div class="col-sm-9">
+                    <input type="text" name='GroupEmailPort' class="form-control" id="imapport" placeholder="IMAP Server Port" value="{{Input::old('GroupEmailPort')}}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="GroupName" class="col-sm-3 control-label">Enable SSL</label>
+                <div class="col-sm-9">
+                    <p class="make-switch switch-small">
+                        <input type="checkbox"  name="GroupEmailIsSSL" >
+                    </p>
+                </div>
+            </div>
           <div class="form-group">
             <label for="GroupName" class="col-sm-3 control-label">Password</label>
             <div class="col-sm-9">
