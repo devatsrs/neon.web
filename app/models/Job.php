@@ -984,16 +984,26 @@ class Job extends \Eloquent {
 
             $data["Title"] = Account::getCompanyNameByID($data["AccountID"]) . ' ' . $format.' ('.$Effective.') ';
             $data["Description"] = Account::getCompanyNameByID($data["AccountID"]) . ' ' . isset($jobType[0]->Title) ? $jobType[0]->Title : '';
-            $data["Options"] =  json_encode(self::removeUnnecesorryOptions($jobType,$options) );
 
-            $validator = Validator::make($data, $rules);
+            $timezones = $options['Timezones'];
+            $i = 0;
+            foreach ((array) $timezones as $timezone) {
 
-            if ($validator->fails()) {
-                return validator_response($validator);
+                $options['Timezones'] = $timezone;
+                $data["Options"] = json_encode(self::removeUnnecesorryOptions($jobType, $options));
+
+                $validator = Validator::make($data, $rules);
+
+                if ($validator->fails()) {
+                    return validator_response($validator);
+                }
+
+                $JobID = Job::insertGetId($data);
+                RateSheetHistory::AddtoHistory($JobID, $JobType, $data);
+                $i++;
             }
 
-            if ($JobID = Job::insertGetId($data)) {
-                RateSheetHistory::AddtoHistory($JobID,$JobType,$data);
+            if ($i == count($timezones)) {
                 return array("status" => "success", "message" => "Job Logged Successfully");
             } else {
                 return array("status" => "failed", "message" => "Problem Inserting Job.");
@@ -1016,23 +1026,27 @@ class Job extends \Eloquent {
             $data["Description"] = Account::getCompanyNameByID($data["AccountID"]) . ' ' . isset($jobType[0]->Title) ? $jobType[0]->Title : '';
 
             $trunks = $options['Trunks'];
-            //$options_ = $options; // Duplicate 
+            $timezones = $options['Timezones'];
+            //$options_ = $options; // Duplicate
             unset($options['Trunks']);
             $options['isMerge'] = '0';
             $i = 0;
             foreach ((array) $trunks as $trunk) {
-
                 $options['Trunks'] = $trunk;
-                $data["Options"] =  json_encode(self::removeUnnecesorryOptions($jobType,$options) );
+                foreach ((array) $timezones as $timezone) {
 
-                $validator = Validator::make($data, $rules);
+                    $options['Timezones'] = $timezone;
+                    $data["Options"] = json_encode(self::removeUnnecesorryOptions($jobType, $options));
 
-                if ($validator->fails()) {
-                    return validator_response($validator);
+                    $validator = Validator::make($data, $rules);
+
+                    if ($validator->fails()) {
+                        return validator_response($validator);
+                    }
+
+                    $JobID = Job::insertGetId($data);
+                    RateSheetHistory::AddtoHistory($JobID, $JobType, $data);
                 }
-
-                $JobID = Job::insertGetId($data);
-                RateSheetHistory::AddtoHistory($JobID,$JobType,$data);
                 $i++;
             }
 
