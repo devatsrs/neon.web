@@ -9904,21 +9904,27 @@ BEGIN
 	-- get customer rates
 	CALL vwCustomerRate(p_CustomerID,p_Trunks,p_TimezonesID,p_Effective,p_CustomDate);
 
-		SELECT DISTINCT
-	       Description  as `Destination`,
-		   Code as `Prefix`,
-		   Rate as `Rate(USD)`,
-		   ConnectionFee as `Connection Fee(USD)`,
-		   Interval1 as `Increment`,
-		   IntervalN as `Minimal Time`,
-		   '0:00:00 'as `Start Time`,
-		   '23:59:59' as `End Time`,
-		   '' as `Week Day`,
-		   EffectiveDate  as `Effective from`,
-			RoutinePlanName as `Routing through`
-     FROM tmp_customerrateall_ ;
+	SELECT DISTINCT
+		CONCAT(IF(tblCountry.Country IS NULL,'',CONCAT(tblCountry.Country,' - ')),tmpRate.Description) as `Destination`,
+		tmpRate.Code as `Prefix`,
+		tmpRate.Rate as `Rate(USD)`,
+		tmpRate.ConnectionFee as `Connection Fee(USD)`,
+		tmpRate.Interval1 as `Increment`,
+		tmpRate.IntervalN as `Minimal Time`,
+		'0:00:00 'as `Start Time`,
+		'23:59:59' as `End Time`,
+		'' as `Week Day`,
+		tmpRate.EffectiveDate  as `Effective from`,
+		tmpRate.RoutinePlanName as `Routing through`
+	FROM
+		tmp_customerrateall_ tmpRate
+	JOIN
+		tblRate ON tblRate.RateID = tmpRate.RateID
+	LEFT JOIN
+		tblCountry ON tblCountry.CountryID = tblRate.CountryID
+	;
 
-		SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END//
 DELIMITER ;
 
@@ -10607,17 +10613,22 @@ BEGIN
             JOIN tblRate on tblVendorRate.RateId =tblRate.RateID;
 
 		SELECT DISTINCT
-			Description  as `Destination`,
-			Code as `Prefix`,
-			Rate as `Rate(USD)`,
-			ConnectionFee as `Connection Fee(USD)`,
-			Interval1 as `Increment`,
-			IntervalN as `Minimal Time`,
+			CONCAT(IF(tblCountry.Country IS NULL,'',CONCAT(tblCountry.Country,' - ')),tmpRate.Description) as `Destination`,
+			tmpRate.Code as `Prefix`,
+			tmpRate.Rate as `Rate(USD)`,
+			tmpRate.ConnectionFee as `Connection Fee(USD)`,
+			tmpRate.Interval1 as `Increment`,
+			tmpRate.IntervalN as `Minimal Time`,
 			'0:00:00 'as `Start Time`,
 			'23:59:59' as `End Time`,
 			'' as `Week Day`,
-			EffectiveDate  as `Effective from`
-		FROM tmp_m2rateall_;
+			tmpRate.EffectiveDate  as `Effective from`
+		FROM
+			tmp_m2rateall_ AS tmpRate
+		JOIN
+			tblRate ON tblRate.RateID = tmpRate.RateID
+		LEFT JOIN
+			tblCountry ON tblCountry.CountryID = tblRate.CountryID;
 
       SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END//
