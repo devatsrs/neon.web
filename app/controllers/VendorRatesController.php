@@ -178,17 +178,18 @@ class VendorRatesController extends \BaseController
     }
 
     public function download($id) {
-            $Account = Account::find($id);
-            $Vendors = Account::getOnlyVendorIDList();
-            unset($Vendors[$id]);
-            $trunks = VendorTrunk::getTrunkDropdownIDList($id);
-            if(count($trunks) == 0){
-                return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
-            }
-            $rate_sheet_formates = $this->rate_sheet_formates;
-            $downloadtype = [''=>'Select','xlsx'=>'EXCEL','csv'=>'CSV'];
+        $Account = Account::find($id);
+        $Vendors = Account::getOnlyVendorIDList();
+        unset($Vendors[$id]);
+        $trunks  = VendorTrunk::getTrunkDropdownIDList($id);
+        if(count($trunks) == 0){
+            return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
+        }
+        $rate_sheet_formates = $this->rate_sheet_formates;
+        $downloadtype        = [''=>'Select','xlsx'=>'EXCEL','csv'=>'CSV'];
+        $Timezones           = Timezones::getTimezonesIDList();
 
-            return View::make('vendorrates.download', compact('id', 'trunks', 'rate_sheet_formates','Account','downloadtype','Vendors'));
+        return View::make('vendorrates.download', compact('id', 'trunks', 'rate_sheet_formates','Account','downloadtype','Vendors','Timezones'));
     }
     
     public function process_download($id) {
@@ -197,7 +198,7 @@ class VendorRatesController extends \BaseController
             $data = Input::all();
 
             $message = array();
-            $rules = array( 'isMerge' => 'required', 'Trunks' => 'required', 'Format' => 'required','filetype' => 'required' );
+            $rules = array( 'isMerge' => 'required', 'Trunks' => 'required', 'Timezones' => 'required', 'Format' => 'required','filetype' => 'required' );
             if (!isset($data['isMerge'])) {
                 $data['isMerge'] = 0;
             }

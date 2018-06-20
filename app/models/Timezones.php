@@ -45,4 +45,13 @@ class Timezones extends \Eloquent {
             return Timezones::where(['Status'=>1])->select(['Title', 'TimezonesID'])->orderBy('Title')->lists('TimezonesID','Title');
         }
     }
+
+    public static function getTimezonesName($id){
+        $Timezone = Timezones::find($id);
+        if(!empty($Timezone)){
+            return $Timezone->Title;
+        }
+        return '';
+    }
+
 }
