@@ -11696,3 +11696,77 @@ WHERE (vendorRate.Rate > 0);
 
 END//
 DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_SplitAndInsertRateTableRate`;
+DELIMITER //
+CREATE PROCEDURE `prc_SplitAndInsertRateTableRate`(
+	IN `TempRateTableRateID` INT,
+	IN `Code` VARCHAR(500),
+	IN `p_countryCode` VARCHAR(50)
+)
+BEGIN
+
+	DECLARE v_First_ VARCHAR(255);
+	DECLARE v_Last_ VARCHAR(255);
+
+	SELECT  REPLACE(SUBSTRING(SUBSTRING_INDEX(Code, '-', 1)
+					, LENGTH(SUBSTRING_INDEX(Code, '-', 0)) + 1)
+					, '-'
+					, '') INTO v_First_;
+
+	SELECT REPLACE(SUBSTRING(SUBSTRING_INDEX(Code, '-', 2)
+					, LENGTH(SUBSTRING_INDEX(Code, '-', 1)) + 1)
+					, '-'
+					, '') INTO v_Last_;
+
+	SET v_First_ = CONCAT(p_countryCode,v_First_);
+	SET v_Last_ = CONCAT(p_countryCode,v_Last_);
+
+	WHILE v_Last_ >= v_First_
+	DO
+		INSERT my_splits (TempRateTableRateID,Code,CountryCode) VALUES (TempRateTableRateID,v_Last_,'');
+		SET v_Last_ = v_Last_ - 1;
+	END WHILE;
+
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_SplitAndInsertVendorRate`;
+DELIMITER //
+CREATE PROCEDURE `prc_SplitAndInsertVendorRate`(
+	IN `TempVendorRateID` INT,
+	IN `Code` VARCHAR(500),
+	IN `p_countryCode` VARCHAR(50)
+)
+BEGIN
+
+	DECLARE v_First_ VARCHAR(255);
+	DECLARE v_Last_ VARCHAR(255);
+
+	SELECT  REPLACE(SUBSTRING(SUBSTRING_INDEX(Code, '-', 1)
+			, LENGTH(SUBSTRING_INDEX(Code, '-', 0)) + 1)
+			, '-'
+			, '') INTO v_First_;
+
+	SELECT REPLACE(SUBSTRING(SUBSTRING_INDEX(Code, '-', 2)
+			, LENGTH(SUBSTRING_INDEX(Code, '-', 1)) + 1)
+			, '-'
+			, '') INTO v_Last_;
+
+	SET v_First_ = CONCAT(p_countryCode,v_First_);
+	SET v_Last_ = CONCAT(p_countryCode,v_Last_);
+
+	WHILE v_Last_ >= v_First_
+	DO
+		INSERT my_splits (TempVendorRateID,Code,CountryCode) VALUES (TempVendorRateID,v_Last_,'');
+		SET v_Last_ = v_Last_ - 1;
+	END WHILE;
+
+END//
+DELIMITER ;
