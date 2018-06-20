@@ -92,6 +92,7 @@ class FileUploadTemplate extends \Eloquent {
                 $option['Settings']['checkbox_review_rates'] = $data['checkbox_review_rates'];
                 $option['Settings']['radio_list_option'] = $data['radio_list_option'];
                 $option['Trunk'] = $data['Trunk'];
+                $option['TimezonesID'] = $data['TimezonesID'];
             }
             $save['Options']          = str_replace('Skip loading','',json_encode($option));
             $save['FileUploadTemplateTypeID']               = $data['TemplateType'];
@@ -174,6 +175,7 @@ class FileUploadTemplate extends \Eloquent {
                         $RateTable       = RateTable::find($data['Ratetable']);
                         $option['Trunk'] = $RateTable->TrunkID;
                     }
+                    $option['TimezonesID'] = $data['TimezonesID'];
                 }
                 $save['Options']            = str_replace('Skip loading','',json_encode($option));
                 $save['FileUploadTemplateTypeID']               = $data['TemplateType'];
