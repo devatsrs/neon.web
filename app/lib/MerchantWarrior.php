@@ -89,7 +89,7 @@ class MerchantWarrior {
         }else{
             $Response['transaction_notes']  = $MerchantWarriorResponse['error'];
             $Response['status']             = 'failed';
-            $Response['Response']           = $MerchantWarriorResponse['response'];
+            $Response['Response']           = !empty($MerchantWarriorResponse['response']) ? $MerchantWarriorResponse['response'] : "";
         }
         return $Response;
     }
@@ -165,19 +165,23 @@ class MerchantWarrior {
             $InvoiceCurrency    = Currency::getCurrency($CurrencyID);
             //print_R($Account);exit;
             $creditCardDateMmYy = $data['ExpirationMonth'].substr($data['ExpirationYear'], -2);
-
+            $Amount = str_replace(',','',str_replace('.','',$data['GrandTotal']));
+            $Amount = number_format((float)$Amount, 2, '.', '');
+            //$hash = strtolower(md5('q6vophnt') . '59b88caed7f1f' . $Amount . $InvoiceCurrency) ;
+            $hash = strtolower('q6vophnt' . '59b88caed7f1f' . $Amount . $InvoiceCurrency) ;
+            $hash = md5($hash);
             $postData = array (
                 'method'                => 'processCard',
                 'merchantUUID'          => $this->merchantUUID,
                 'apiKey'                => $this->apiKey,
-                'transactionAmount'     => str_replace(',','',str_replace('.','',$data['GrandTotal'])),
+                'transactionAmount'     => $Amount,
                 'transactionCurrency'   => $InvoiceCurrency,
-                'transactionProduct'    => 'Test Product',
+                'transactionProduct'    => 'Payment Of Invoice No.'.$data['InvoiceNumber'],
                 'customerName'          => $Account->AccountName,
                 'customerCountry'       => $Account->Country,
                 'customerState'         => $Account->State,
                 'customerCity'          => $Account->City,
-                'customerAddress'       => $Account->Address1." ".$Account->Address2,
+                'customerAddress'       => $Account->Address1,
                 'customerPostCode'      => $Account->PostCode,
                 'customerPhone'         => $Account->Phone,
                 'customerEmail'         => $Account->Email,
@@ -186,29 +190,56 @@ class MerchantWarrior {
                 'paymentCardNumber'     => $data['CardNumber'],
                 'paymentCardExpiry'     => $creditCardDateMmYy,
                 'paymentCardCSC'        => $data['CVVNumber'],
-                'hash'                  => $this->hash
+                'hash'                  => $hash
             );
 
-            $jsonData = json_encode($postdata);
-
+            $jsonData = json_encode($postData);
             try {
-                $res = $this->sendCurlRequest($this->MerchantWarriorUrl,$jsonData);
+                $curl = curl_init();
+                curl_setopt($curl, CURLOPT_HEADER, false);
+                curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($curl, CURLOPT_URL, $this->MerchantWarriorUrl);
+                curl_setopt($curl, CURLOPT_POST, true);
+                curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($postData, '', '&'));
+
+                $curl_response = curl_exec($curl);
+                $error = curl_error($curl);
+
+                // Check for CURL errors
+                if (isset($error) && strlen($error)) {
+                    throw new Exception("CURL Error: {$error}");
+                }
+
+                // Parse the XML
+                $xml = simplexml_load_string($curl_response);
+                // Convert the result from a SimpleXMLObject into an array
+                $xml = (array)$xml;
+                // Validate the response - the only successful code is 0
+                $status = ((int)$xml['responseCode'] === 0) ? true : false;
+
+                // Make the response a little more useable
+                $res = array (
+                    'status' => $status,
+                    'transactionID' => (isset($xml['transactionID']) ? $xml['transactionID'] : null),
+                    'responseData' => $xml
+                );
+
             } catch (\Guzzle\Http\Exception\CurlException $e) {
                 log::info($e->getMessage());
                 $response['status']         = 'fail';
                 $response['error']          = $e->getMessage();
             }
 
-            if(!empty($res['StatusCode']) && $res['StatusCode']=='000'){
+            if(!empty($res['status']) && $res['status']==1 && $res['responseData']['responseCode']==0){
                 $response['status']         = 'success';
-                $response['note']           = 'MerchantWarrior transaction_id '.$res['ResultData']['MerchantWarriorTransactionId'];
-                $response['transaction_id'] = $res['ResultData']['MerchantWarriorTransactionId'];
-                $response['amount']         = $data['GrandTotal'];
+                $response['note']           = 'MerchantWarrior transaction_id '.$res['transactionID'];
+                $response['transaction_id'] = $res['transactionID'];
+                $response['amount']         = $res['responseData']['transactionAmount'];
                 $response['response']       = $res;
             }else{
                 $response['status']         = 'fail';
-                $response['transaction_id'] = !empty($res['ResultData']['MerchantWarriorTransactionId']) ? $res['ResultData']['MerchantWarriorTransactionId'] : "";
-                $response['error']          = $res['ErrorMessage'];
+                $response['transaction_id'] = !empty($res['transactionID']) ? $res['transactionID'] : "";
+                $response['error']          = $res['responseData']['responseMessage'];
                 $response['response']       = $res;
                 Log::info(print_r($res,true));
             }
