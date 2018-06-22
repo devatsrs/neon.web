@@ -2767,7 +2767,7 @@ a:focus,a:hover{text-decoration:none !important}
     right: 0;
     top: 0;
     bottom: 0;
-    width: 200px;
+    width: 207px;
     background: #222;
     z-index: 5;
     display: none;
@@ -2779,7 +2779,7 @@ a:focus,a:hover{text-decoration:none !important}
     height: 100%;
     overflow-y: scroll;
     overflow-x: hidden;
-    width: 200px;
+    width: auto;
     position: fixed;
     padding-bottom: 10%;
 }
