@@ -555,7 +555,7 @@ class CDRController extends BaseController {
     public function vendorcdr_upload() {
         $companyID = User::get_companyID();
         $gateway = CompanyGateway::getCompanyGatewayIdList($companyID);
-        $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_VENDORCDR);
+        $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_VENDORCDR));
         $trunks = Trunk::getTrunkDropdownIDList($companyID);
         $trunks = $trunks+array(0=>'Find From VendorPrefix');
         return View::make('cdrupload.vendorcdrupload',compact('dashboardData','account','gateway','UploadTemplate','trunks'));

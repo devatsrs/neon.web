@@ -165,6 +165,23 @@
             </div>
         @endif
         @endif
+        <?php
+            if (isset($Options->Timezones)) {
+                $Timezones = $Options->Timezones;
+                $TimezonesName = '';
+                $TimezonesName = Timezones::getTimezonesName($Timezones);
+            }
+        ?>
+        @if(isset($Timezones) && !empty($Timezones))
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label  bold">Timezones</label>
+                        <div >{{$TimezonesName}}</div>
+                    </div>
+                </div>
+            </div>
+        @endif
 <div class="row">
     <div class="col-md-12">
         <div class="form-group">
@@ -198,6 +215,16 @@
                         <div class="form-group">
                             <label for="field-1" class="control-label  bold">Trunk</label>
                             <div >{{Trunk::getTrunkName($Options->Trunk)}}</div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+            @if (isset($Options->TimezonesID))
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="field-1" class="control-label  bold">Timezones</label>
+                            <div >{{!empty($Options->TimezonesID) ? Timezones::getTimezonesName($Options->TimezonesID) : 'Timezone column is in the File'}}</div>
                         </div>
                     </div>
                 </div>
