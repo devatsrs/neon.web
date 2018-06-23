@@ -7,9 +7,9 @@ class SubscriptionDiscountPlan extends \Eloquent {
     protected $primaryKey = "SubscriptionDiscountPlanID";
     protected $guarded = array('SubscriptionDiscountPlanID');
 
-    public static function getSubscriptionDiscountPlanArray($AccountId,$AccountSubscriptionID,$ServiceId){
+    public static function getSubscriptionDiscountPlanArray($AccountID,$AccountSubscriptionID,$ServiceID){
 
-        $Where = ["AccountId"=>$AccountId,'AccountSubscriptionID'=>$AccountSubscriptionID,"ServiceId"=>$ServiceId];
+        $Where = ["AccountID"=>$AccountID,'AccountSubscriptionID'=>$AccountSubscriptionID,"ServiceID"=>$ServiceID];
         //$SubscriptionDiscountPlan = SubscriptionDiscountPlan::where($Where)->get()->toArray();
         $SubscriptionDiscountPlan = SubscriptionDiscountPlan::leftjoin('tblDiscountPlan as tbldp1', 'tbldp1.DiscountPlanID', '=', 'tblSubscriptionDiscountPlan.InboundDiscountPlans')
             ->leftjoin('tblDiscountPlan as tbldp2', 'tbldp2.DiscountPlanID', '=', 'tblSubscriptionDiscountPlan.OutboundDiscountPlans')
