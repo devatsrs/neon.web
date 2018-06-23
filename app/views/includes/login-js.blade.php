@@ -80,7 +80,7 @@ if ( Request::is('/') || Request::is('login') || Request::is('customer/login') |
 
 	];
 }
-if(Request::is('rate_tables/*') || Request::is('vendor_rates/*') || Request::is('customers_rates/*') || Request::is('accountservices/*')) {
+if(Request::is('rate_tables/*') || Request::is('vendor_rates/*') || Request::is('customers_rates/*') || Request::is('accountservices/*') || Request::is('account_subscription')) {
 	$key = array_search("assets/js/jquery.dataTables.min.js", $js);
 	$js[$key] = "assets/js/jquery.dataTables.1.10.15.min.js";
 }
