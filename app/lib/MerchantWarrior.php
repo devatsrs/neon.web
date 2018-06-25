@@ -203,7 +203,7 @@ class MerchantWarrior {
                     'transactionProduct'    => 'Invoice No.' . $data['InvoiceNumber'],
                     'customerName'          => $Account->AccountName,
                     'customerCountry'       => $Account->Country,
-                    'customerState'         => $Account->State,
+                    'customerState'         => $Account->City,
                     'customerCity'          => $Account->City,
                     'customerAddress'       => $Account->Address1,
                     'customerPostCode'      => $Account->PostCode,
