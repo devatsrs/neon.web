@@ -28,7 +28,7 @@ class MerchantWarrior {
             $this->LiveTokenUrl         = "https://api.merchantwarrior.com/token/";
             $this->merchantUUID 	    = 	$MerchantWarriorobj->merchantUUID;
             $this->apiKey		        = 	$MerchantWarriorobj->apiKey;
-            $this->hash		            = 	$MerchantWarriorobj->hash;
+            $this->apiPassphrase		= 	$MerchantWarriorobj->apiPassphrase;
             $this->SaveCardUrl	        = 	$this->SandboxUrl; // change live url here
             $this->MerchantWarriorUrl   = 	$this->SandboxUrl; // change live url here
             $this->status               =   true;
@@ -169,7 +169,7 @@ class MerchantWarrior {
             }
 
             //generate hash as per reference in https://dox.merchantwarrior.com/?php#transaction-type-hash
-            $hash = strtolower('q6vophnt' . '59b88caed7f1f' . $Amount . $InvoiceCurrency) ;
+            $hash = strtolower($this->apiPassphrase . $this->merchantUUID . $Amount . $InvoiceCurrency) ;
             $hash = md5($hash);
             //echo "<pre>";print_r($data);exit;
             if(isset($data['cardID'])) {
