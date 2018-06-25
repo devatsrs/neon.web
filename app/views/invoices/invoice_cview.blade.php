@@ -79,9 +79,9 @@
                               @if(($PaymentMethod == 'PeleCard') && (is_pelecard($Invoice->CompanyID)  ) )
                                   <li> <a class="generate_rate create" href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/PeleCard');}}" id="pay_PeleCard" href="javascript:;"> PeleCard </a> </li>
                               @endif
-                             {{--@if(($PaymentMethod == 'MerchantWarrior') && (is_merchantwarrior($Invoice->CompanyID)  ) )
+                             @if(($PaymentMethod == 'MerchantWarrior') && (is_merchantwarrior($Invoice->CompanyID)  ) )
                                   <li> <a class="generate_rate create" href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/MerchantWarrior');}}" id="pay_MerchantWarrior" href="javascript:;"> MerchantWarrior </a> </li>
-                              @endif--}}
+                              @endif
 
                           @else
                               @if(is_authorize($Invoice->CompanyID))
@@ -105,9 +105,9 @@
                               @if(is_pelecard($Invoice->CompanyID))
                               <li> <a class="generate_rate create" href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/PeleCard');}}" id="pay_PeleCard" href="javascript:;"> PeleCard </a> </li>
                               @endif
-                             {{-- @if(is_merchantwarrior($Invoice->CompanyID))
+                              @if(is_merchantwarrior($Invoice->CompanyID))
                               <li> <a class="generate_rate create" href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/MerchantWarrior');}}" id="pay_MerchantWarrior" href="javascript:;"> MerchantWarrior </a> </li>
-                              @endif--}}
+                              @endif
                           @endif
                       </ul>
                   </div>
