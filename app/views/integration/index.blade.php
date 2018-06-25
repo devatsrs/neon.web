@@ -1090,8 +1090,8 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="field-1" class="control-label">* Hash:</label>
-                        <input type="text"  class="form-control" name="hash" value="{{isset($MerchantWarrior->hash)?$MerchantWarrior->hash:''}}" />
+                        <label for="field-1" class="control-label">* Api Passphrase:</label>
+                        <input type="text"  class="form-control" name="apiPassphrase" value="{{isset($MerchantWarrior->apiPassphrase)?$MerchantWarrior->apiPassphrase:''}}" />
                     </div>
                 </div>
             </div>
