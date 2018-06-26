@@ -1098,6 +1098,14 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
+                        <label for="field-1" class="control-label">* Live:</label>
+                        <div id="MerchantWarriorLiveDiv">
+                            <input id="MerchantWarriorLive" class="subcatstatus" Divid="MerchantWarriorLiveDiv" name="MerchantWarriorLive" type="checkbox" value="1" <?php if(isset($MerchantWarrior->MerchantWarriorLive) && $MerchantWarrior->MerchantWarriorLive==1){ ?>   checked="checked"<?php } ?> >
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
                         <label class="control-label">Active:</label>
                         <div id="MerchantWarriorStatusDiv">
                             <input id="MerchantWarriorStatus" class="subcatstatus" Divid="MerchantWarriorStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($MerchantWarriorData->Status) && $MerchantWarriorData->Status==1){ ?>   checked="checked"<?php } ?> >

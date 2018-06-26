@@ -29,8 +29,19 @@ class MerchantWarrior {
             $this->merchantUUID 	    = 	$MerchantWarriorobj->merchantUUID;
             $this->apiKey		        = 	$MerchantWarriorobj->apiKey;
             $this->apiPassphrase		= 	$MerchantWarriorobj->apiPassphrase;
-            $this->SaveCardUrl	        = 	$this->SandboxUrl; // change live url here
-            $this->MerchantWarriorUrl   = 	$this->SandboxUrl; // change live url here
+            $this->MerchantWarriorLive  =   $MerchantWarriorobj->MerchantWarriorLive;
+            if($this->MerchantWarriorLive == 1)
+            {
+                $this->SaveCardUrl	        = 	$this->LiveUrl;
+                $this->MerchantWarriorUrl   = 	$this->LiveUrl;
+                $this->TokenUrl             = 	$this->LiveTokenUrl;
+            }
+            else
+            {
+                $this->SaveCardUrl	        = 	$this->SandboxUrl;
+                $this->MerchantWarriorUrl   = 	$this->SandboxUrl;
+                $this->TokenUrl             = 	$this->SandboxTokenUrl;
+            }
             $this->status               =   true;
         }else{
             $this->status               =   false;
@@ -164,8 +175,12 @@ class MerchantWarrior {
                 $Amount = number_format((float)$Amount, 2, '.', '');
             }
             else{
-                $Amount = number_format(round($data['GrandTotal']), 2, '.', ''); // for testing
-                //$Amount = $data['GrandTotal']; // for live
+                if($this->MerchantWarriorLive == 1) {
+                    $Amount = $data['GrandTotal']; // for live
+                }
+                else{
+                    $Amount = number_format(round($data['GrandTotal']), 2, '.', ''); // for testing
+                }
             }
 
             //generate hash as per reference in https://dox.merchantwarrior.com/?php#transaction-type-hash
@@ -219,7 +234,7 @@ class MerchantWarrior {
             //$jsonData = json_encode($postData);
             try {
                 if(isset($data['cardID'])) {
-                    $res = $this->sendCurlRequest($this->SandboxTokenUrl, $postdata);
+                    $res = $this->sendCurlRequest($this->TokenUrl, $postdata);
                 }
                 else{
                     $res = $this->sendCurlRequest($this->SaveCardUrl, $postdata);
@@ -307,7 +322,7 @@ class MerchantWarrior {
             );
            // $jsonData = json_encode($postdata);
             try {
-                $res = $this->sendCurlRequest($this->SandboxTokenUrl,$postdata);
+                $res = $this->sendCurlRequest($this->TokenUrl,$postdata);
             } catch (\Guzzle\Http\Exception\CurlException $e) {
                 log::info($e->getMessage());
                 $response['status']         = 'fail';

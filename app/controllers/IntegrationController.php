@@ -433,12 +433,14 @@ class IntegrationController extends \BaseController
 					return json_validator_response($validator);
 				}
 
+				$data['MerchantWarriorLive'] 		= 	isset($data['MerchantWarriorLive'])?1:0;
 				$data['Status'] 		= 	isset($data['Status'])?1:0;
 
 				$MerchantWarriorData = array(
 					"merchantUUID"=>$data['merchantUUID'],
 					"apiKey"=>$data['apiKey'],
-					"apiPassphrase"=>$data['apiPassphrase']
+					"apiPassphrase"=>$data['apiPassphrase'],
+					"MerchantWarriorLive"=>$data['MerchantWarriorLive'],
 				);
 
 				$MerchantWarriorDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
