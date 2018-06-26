@@ -24,11 +24,13 @@ class MerchantWarrior {
         if($MerchantWarriorobj){
             $this->SandboxUrl           = "https://base.merchantwarrior.com/post/";
             $this->LiveUrl              = "https://api.merchantwarrior.com/post/";
+            $this->SandboxTokenUrl      = "https://base.merchantwarrior.com/token/";
+            $this->LiveTokenUrl         = "https://api.merchantwarrior.com/token/";
             $this->merchantUUID 	    = 	$MerchantWarriorobj->merchantUUID;
             $this->apiKey		        = 	$MerchantWarriorobj->apiKey;
-            $this->hash		            = 	$MerchantWarriorobj->hash;
-            $this->SaveCardUrl	        = 	$this->SandboxUrl;
-            $this->MerchantWarriorUrl   = 	$this->SandboxUrl;
+            $this->apiPassphrase		= 	$MerchantWarriorobj->apiPassphrase;
+            $this->SaveCardUrl	        = 	$this->SandboxUrl; // change live url here
+            $this->MerchantWarriorUrl   = 	$this->SandboxUrl; // change live url here
             $this->status               =   true;
         }else{
             $this->status               =   false;
@@ -106,8 +108,7 @@ class MerchantWarrior {
         $MerchantWarriordata['InvoiceNumber']  = $data['InvoiceNumber'];
         $MerchantWarriordata['GrandTotal']     = $data['outstanginamount'];
         $MerchantWarriordata['AccountID']      = $data['AccountID'];
-        $MerchantWarriordata['Token']          = $MerchantWarriorObj->Token;
-        $MerchantWarriordata['CVVNumber']      = $MerchantWarriorObj->CVVNumber;
+        $MerchantWarriordata['cardID']          = $MerchantWarriorObj->cardID;
 
         $transactionResponse = array();
 
@@ -152,78 +153,77 @@ class MerchantWarrior {
 
     public function pay_invoice($data){
         try {
-            //test params
-            /*$creditCard         = "4111111111111111";
-            $creditCardDateMmYy = "1219";
-            $cvv2               = "123";
-            $id                 = "123456789";
-            $paramX             = "test";*/
-            //test params
 
             $Account            = Account::find($data['AccountID']);
             $CurrencyID         = $Account->CurrencyId;
             $InvoiceCurrency    = Currency::getCurrency($CurrencyID);
-            //print_R($Account);exit;
-            $creditCardDateMmYy = $data['ExpirationMonth'].substr($data['ExpirationYear'], -2);
-            $Amount = str_replace(',','',str_replace('.','',$data['GrandTotal']));
-            $Amount = number_format((float)$Amount, 2, '.', '');
-            //$hash = strtolower(md5('q6vophnt') . '59b88caed7f1f' . $Amount . $InvoiceCurrency) ;
-            $hash = strtolower('q6vophnt' . '59b88caed7f1f' . $Amount . $InvoiceCurrency) ;
+
+            //$data['GrandTotal'] = 70;
+            if(is_int($data['GrandTotal'])) {
+                $Amount = str_replace(',', '', str_replace('.', '', $data['GrandTotal']));
+                $Amount = number_format((float)$Amount, 2, '.', '');
+            }
+            else{
+                $Amount = number_format(round($data['GrandTotal']), 2, '.', ''); // for testing
+                //$Amount = $data['GrandTotal']; // for live
+            }
+
+            //generate hash as per reference in https://dox.merchantwarrior.com/?php#transaction-type-hash
+            $hash = strtolower($this->apiPassphrase . $this->merchantUUID . $Amount . $InvoiceCurrency) ;
             $hash = md5($hash);
-            $postData = array (
-                'method'                => 'processCard',
-                'merchantUUID'          => $this->merchantUUID,
-                'apiKey'                => $this->apiKey,
-                'transactionAmount'     => $Amount,
-                'transactionCurrency'   => $InvoiceCurrency,
-                'transactionProduct'    => 'Payment Of Invoice No.'.$data['InvoiceNumber'],
-                'customerName'          => $Account->AccountName,
-                'customerCountry'       => $Account->Country,
-                'customerState'         => $Account->State,
-                'customerCity'          => $Account->City,
-                'customerAddress'       => $Account->Address1,
-                'customerPostCode'      => $Account->PostCode,
-                'customerPhone'         => $Account->Phone,
-                'customerEmail'         => $Account->Email,
-                //'customerIP'            => '1.1.1.1',
-                'paymentCardName'       => $data['NameOnCard'],
-                'paymentCardNumber'     => $data['CardNumber'],
-                'paymentCardExpiry'     => $creditCardDateMmYy,
-                'paymentCardCSC'        => $data['CVVNumber'],
-                'hash'                  => $hash
-            );
-
-            $jsonData = json_encode($postData);
-            try {
-                $curl = curl_init();
-                curl_setopt($curl, CURLOPT_HEADER, false);
-                curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($curl, CURLOPT_URL, $this->MerchantWarriorUrl);
-                curl_setopt($curl, CURLOPT_POST, true);
-                curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($postData, '', '&'));
-
-                $curl_response = curl_exec($curl);
-                $error = curl_error($curl);
-
-                // Check for CURL errors
-                if (isset($error) && strlen($error)) {
-                    throw new Exception("CURL Error: {$error}");
-                }
-
-                // Parse the XML
-                $xml = simplexml_load_string($curl_response);
-                // Convert the result from a SimpleXMLObject into an array
-                $xml = (array)$xml;
-                // Validate the response - the only successful code is 0
-                $status = ((int)$xml['responseCode'] === 0) ? true : false;
-
-                // Make the response a little more useable
-                $res = array (
-                    'status' => $status,
-                    'transactionID' => (isset($xml['transactionID']) ? $xml['transactionID'] : null),
-                    'responseData' => $xml
+            //echo "<pre>";print_r($data);exit;
+            if(isset($data['cardID'])) {
+                $postdata = array(
+                    'method'                => 'processCard',
+                    'merchantUUID'          => $this->merchantUUID,
+                    'apiKey'                => $this->apiKey,
+                    'transactionAmount'     => $Amount,
+                    'transactionCurrency'   => $InvoiceCurrency,
+                    'transactionProduct'    => 'Invoice No.' . $data['InvoiceNumber'],
+                    'customerName'          => $Account->AccountName,
+                    'customerCountry'       => $Account->Country,
+                    'customerState'         => $Account->City,
+                    'customerCity'          => $Account->City,
+                    'customerAddress'       => $Account->Address1,
+                    'customerPostCode'      => $Account->PostCode,
+                    'customerPhone'         => $Account->Phone,
+                    'customerEmail'         => $Account->Email,
+                    'cardID'                => $data['cardID'],
+                    'hash'                  => $hash
                 );
-
+            }
+            else{
+                $creditCardDateMmYy = $data['ExpirationMonth'].substr($data['ExpirationYear'], -2);
+                $postdata = array(
+                    'method'                => 'processCard',
+                    'merchantUUID'          => $this->merchantUUID,
+                    'apiKey'                => $this->apiKey,
+                    'transactionAmount'     => $Amount,
+                    'transactionCurrency'   => $InvoiceCurrency,
+                    'transactionProduct'    => 'Invoice No.' . $data['InvoiceNumber'],
+                    'customerName'          => $Account->AccountName,
+                    'customerCountry'       => $Account->Country,
+                    'customerState'         => $Account->City,
+                    'customerCity'          => $Account->City,
+                    'customerAddress'       => $Account->Address1,
+                    'customerPostCode'      => $Account->PostCode,
+                    'customerPhone'         => $Account->Phone,
+                    'customerEmail'         => $Account->Email,
+                    'paymentCardName'       => $data['NameOnCard'],
+                    'paymentCardNumber'     => $data['CardNumber'],
+                    'paymentCardExpiry'     => $creditCardDateMmYy,
+                    'paymentCardCSC'        => $data['CVVNumber'],
+                    'hash'                  => $hash
+                );
+            }
+            //$jsonData = json_encode($postData);
+            try {
+                if(isset($data['cardID'])) {
+                    $res = $this->sendCurlRequest($this->SandboxTokenUrl, $postdata);
+                }
+                else{
+                    $res = $this->sendCurlRequest($this->SaveCardUrl, $postdata);
+                }
             } catch (\Guzzle\Http\Exception\CurlException $e) {
                 log::info($e->getMessage());
                 $response['status']         = 'fail';
@@ -269,9 +269,10 @@ class MerchantWarrior {
         }
 
         $MerchantWarriorResponse = $this->createMerchantWarriorProfile($data);
+       // echo "<pre>";print_r($MerchantWarriorResponse);exit;
         if ($MerchantWarriorResponse["status"] == "success") {
             $option = array(
-                'Token' => $MerchantWarriorResponse['Token'],'VoucherId' => $MerchantWarriorResponse['VoucherId'],'CVVNumber' => $data['CVVNumber']
+                'cardID' => $MerchantWarriorResponse['cardID'],'cardKey' => $MerchantWarriorResponse['response']['responseData']['cardKey'],'ivrCardID' => $MerchantWarriorResponse['response']['responseData']['ivrCardID']
             );
             $CardDetail = array('Title' => $data['Title'],
                 'Options' => json_encode($option),
@@ -293,36 +294,35 @@ class MerchantWarrior {
 
     public function createMerchantWarriorProfile($data){
         try {
-            $creditCardDateMmYy = $data['ExpirationMonth'].substr($data['ExpirationYear'], -2);
+            $ExpirationYear = substr($data['ExpirationYear'], -2);
 
             $postdata = array(
-                'terminalNumber'        => $this->terminalNumber,
-                'user'                  => $this->user,
-                'password'              => $this->password,
-                'shopNumber'            => "001",
-                'creditCard'            => $data['CardNumber'],
-                'creditCardDateMmYy'    => $creditCardDateMmYy,
-                'addFourDigits'         => "false"
+                'method'            => 'addCard',
+                'merchantUUID'      => $this->merchantUUID,
+                'apiKey'            => $this->apiKey,
+                'cardName'          => $data['NameOnCard'],
+                'cardNumber'        => $data['CardNumber'],
+                'cardExpiryMonth'   => $data['ExpirationMonth'],
+                'cardExpiryYear'    => $ExpirationYear
             );
-            $jsonData = json_encode($postdata);
-
+           // $jsonData = json_encode($postdata);
             try {
-                $res = $this->sendCurlRequest($this->SaveCardUrl,$jsonData);
+                $res = $this->sendCurlRequest($this->SandboxTokenUrl,$postdata);
             } catch (\Guzzle\Http\Exception\CurlException $e) {
                 log::info($e->getMessage());
                 $response['status']         = 'fail';
                 $response['error']          = $e->getMessage();
             }
 
-            if(!empty($res['StatusCode']) && $res['StatusCode']=='000'){
+            if(!empty($res['status']) && $res['status']==1 && $res['responseData']['responseCode']==0){
                 $response['status']         = 'success';
-                $response['Token']          = $res['ResultData']['Token'];
-                $response['VoucherId']      = $res['ResultData']['VoucherId'];
+                $response['cardID']         = $res['responseData']['cardID'];
                 $response['response']       = $res;
             }else{
                 $response['status']         = 'fail';
-                $response['error']          = $res['ErrorMessage'];
+                $response['error']          = $res['responseData']['responseMessage'];
                 $response['response']       = $res;
+                Log::info(print_r($res,true));
             }
         } catch (Exception $e) {
             log::info($e->getMessage());
@@ -405,13 +405,34 @@ class MerchantWarrior {
     }
 
     public function sendCurlRequest($url,$data) {
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json; charset=UTF-8', 'Content-Length: ' . strlen($data)));
-        $result = curl_exec($ch);
-        $res = json_decode($result, true);
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_HEADER, false);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($data, '', '&'));
+
+        $curl_response = curl_exec($curl);
+        $error = curl_error($curl);
+
+        // Check for CURL errors
+        if (isset($error) && strlen($error)) {
+            throw new Exception("CURL Error: {$error}");
+        }
+
+        // Parse the XML
+        $xml = simplexml_load_string($curl_response);
+        // Convert the result from a SimpleXMLObject into an array
+        $xml = (array)$xml;
+        // Validate the response - the only successful code is 0
+        $status = ((int)$xml['responseCode'] === 0) ? true : false;
+
+        // Make the response a little more useable
+        $res = array (
+            'status' => $status,
+            'transactionID' => (isset($xml['transactionID']) ? $xml['transactionID'] : null),
+            'responseData' => $xml
+        );
         return $res;
     }
 

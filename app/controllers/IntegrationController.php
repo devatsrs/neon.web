@@ -424,7 +424,7 @@ class IntegrationController extends \BaseController
 				$rules = array(
 					'merchantUUID'	 => 'required',
 					'apiKey'	 => 'required',
-					'hash'	 => 'required'
+					'apiPassphrase'	 => 'required'
 				);
 
 				$validator = Validator::make($data, $rules);
@@ -438,7 +438,7 @@ class IntegrationController extends \BaseController
 				$MerchantWarriorData = array(
 					"merchantUUID"=>$data['merchantUUID'],
 					"apiKey"=>$data['apiKey'],
-					"hash"=>$data['hash']
+					"apiPassphrase"=>$data['apiPassphrase']
 				);
 
 				$MerchantWarriorDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();

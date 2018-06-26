@@ -342,19 +342,19 @@
                         $(this).find('i').toggleClass('entypo-plus-squared entypo-minus-squared');
                         var hiddenRowData = tr.find('.hiddenRowData');
                         var AccountSubscriptionID = hiddenRowData.find('input[name="AccountSubscriptionID"]').val();
-                        var ServiceId = {{json_encode($ServiceID)}};
+                        var ServiceID = {{json_encode($ServiceID)}};
 
                         $.ajax({
                             url: baseurl + "/accounts/{{$account->AccountID}}/subscription/get_discountplan",
                             type: 'POST',
-                            data: "AccountSubscriptionID=" + AccountSubscriptionID + "&ServiceId=" + ServiceId,
+                            data: "AccountSubscriptionID=" + AccountSubscriptionID + "&ServiceID=" + ServiceID,
                             dataType: 'json',
                             cache: false,
                             success: function (response) {
 
                                 var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
 
-                                table.append('<thead><tr><th><input class="checkall_discount" name="chkall[]" onclick="check_all('+AccountSubscriptionID+')" type="checkbox"></th><th>Account Name</th><th>Account CLI</th><th>Inbound Discount Plan</th><th>Outbound Discount Plan</th><th>Actions <a class="btn btn-primary btn-sm entypo-plus" title="Add New" onClick="javascript:add_discountplan('+AccountSubscriptionID+');"></a><a onClick="javascript:bulk_edit('+AccountSubscriptionID+');" class="btn btn-primary btn-sm entypo-pencil" title="Bulk Edit"></a><a  onClick="javascript:bulk_delete('+AccountSubscriptionID+');" title="Bulk Delete" class="btn btn-primary btn-sm entypo-trash"></a></th></tr></thead>');
+                                table.append('<thead><tr><th><input class="checkall_discount" name="chkall[]" onclick="check_all('+AccountSubscriptionID+')" type="checkbox"></th><th>Account Name</th><th>Account CLI</th><th>Inbound Discount Plan</th><th>Outbound Discount Plan</th><th>Actions <a class="btn btn-primary btn-sm entypo-plus" title="Add New" onClick="javascript:add_discountplan('+AccountSubscriptionID+');"></a></th></tr></thead>');
                                 var tbody = $("<tbody></tbody>");
 
                                 response.forEach(function (data) {
@@ -370,8 +370,8 @@
                                     html += "<td><input name='chk[]' class='check_discount' type='checkbox' value='0' disc-id="+ data['SubscriptionDiscountPlanID'] + "></td>";
                                     html += "<td>" + data['AccountName'] + "</td>";
                                     html += "<td>" + data['AccountCLI'] + "</td>";
-                                    html += "<td>" + data['InboundDiscountPlans'] + "</td>";
-                                    html += "<td>" + data['OutboundDiscountPlans'] + "</td>";
+                                    html += '<td>' + data["InboundDiscountPlans"] + '&nbsp;&nbsp;<a href="javascript:void(0);" onclick ="view_discountplan('+ data["SubscriptionDiscountPlanID"] + ','+AccountSubscriptionID+','+"{{AccountDiscountPlan::INBOUND}}"+')" class="btn btn-sm btn-primary tooltip-primary" data-original-title="View Detail" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="fa fa-eye"></i></a></td>';
+                                    html += '<td>' + data["OutboundDiscountPlans"] + '&nbsp;&nbsp;<a href="javascript:void(0);" onclick ="view_discountplan('+ data["SubscriptionDiscountPlanID"] + ','+AccountSubscriptionID+','+"{{AccountDiscountPlan::OUTBOUND}}"+')" class="btn btn-sm btn-primary tooltip-primary" data-original-title="View Detail" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="fa fa-eye"></i></a></td>';
                                     html += '<td><a href="javascript:void(0);" title="Edit" onclick ="edit_discountplan('+ data["SubscriptionDiscountPlanID"] + ')" class="edit-discountplan btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a><a href="javascript:void(0);" onclick ="delete_discountplan('+ data["SubscriptionDiscountPlanID"] + ','+ AccountSubscriptionID +')" title="Delete" class="delete-discountplan btn btn-danger btn-sm"><i class="entypo-trash"></i></a></td>';
                                     html += "</tr>";
 
@@ -385,8 +385,6 @@
                         });
                     }
                 });
-
-
 
                 //add & update discount plans
                 $("#add_discountplan_form").submit(function(e){
@@ -525,6 +523,7 @@
                 $('#modal-add_discountplan h4').html('Add Account');
                 $('#add_discountplan_form').attr("action",discountplan_add_url);
                 $('[name="AccountSubscriptionID_dp"]').attr("value",AccountSubscriptionID);
+                $(".namehide").removeAttr('readonly');
                 $('#modal-add_discountplan').modal('show');
             }
             function edit_discountplan(SubscriptionDiscountPlanID){
@@ -550,6 +549,7 @@
                         });
 
                         $('[name="SubscriptionDiscountPlanID"]').attr("value",SubscriptionDiscountPlanID);
+                        $(".namehide").attr('readonly','true');
                         $('#modal-add_discountplan').modal('show');
                     }
                 });
@@ -579,6 +579,24 @@
                 }
             }
 
+            function view_discountplan(SubscriptionDiscountPlanID,AccountSubscriptionID,Type){
+                var update_new_url 	= 	baseurl + '/account/used_discount_plan/{{$account->AccountID}}';
+                var ServiceID = '{{$ServiceID}}';
+                $.ajax({
+                    url: update_new_url,  //Server script to process data
+                    type: 'POST',
+                    data:'SubscriptionDiscountPlanID='+SubscriptionDiscountPlanID+'&AccountSubscriptionID='+AccountSubscriptionID+'&Type='+Type+'&ServiceID='+ServiceID,
+                    dataType: 'html',
+                    success: function (response) {
+                        $('#minutes_report').button('reset');
+                        $('#inbound_minutes_report').button('reset');
+                        $('#minutes_report-modal').modal('show');
+                        $('#used_minutes_report').html(response);
+                    }
+                });
+                return false;
+            }
+
             </script>
     </div>
 </div>
@@ -587,7 +605,26 @@
 
 @section('footer_ext')
 @parent
+<div class="modal fade" id="minutes_report-modal">
+    <div class="modal-dialog" style="width: 70%;">
+        <div class="modal-content">
+            <form id="add-minutes_report-form" method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title"><strong> Discount Plan Detail</strong></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row" id="used_minutes_report">
 
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <div class="modal fade in" id="modal-subscription">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -749,7 +786,7 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Account Name</label>
-                                <input type="text" name="AccountName" class="form-control" value="" />
+                                <input type="text" name="AccountName" class="form-control namehide" value="" />
                             </div>
                         </div>
                     </div>
@@ -757,7 +794,7 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Account CLI</label>
-                                <input type="text" name="AccountCLI" class="form-control" value="" />
+                                <input type="text" name="AccountCLI" class="form-control namehide" value="" />
                             </div>
                         </div>
                     </div>
