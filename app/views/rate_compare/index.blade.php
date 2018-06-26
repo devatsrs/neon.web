@@ -22,6 +22,10 @@
                     {{ Form::select('Trunk', $trunks, $default_trunk, array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
+                    <label class="control-label">Timezones</label>
+                    {{ Form::select('Timezones', $Timezones, '', array("class"=>"select2")) }}
+                </div>
+                <div class="form-group">
                     <label for="field-1" class="control-label">CodeDeck</label>
                     {{ Form::select('CodeDeckId', $codedecklist, $DefaultCodedeck , array("class"=>"select2")) }}
                 </div>
@@ -172,6 +176,7 @@
                 _margins_array = new Array(); // reset
 
                 Trunk = $("#rate-compare-search-form select[name='Trunk']").val();
+                Timezones = $("#rate-compare-search-form select[name='Timezones']").val();
                 CodeDeck = $("#rate-compare-search-form select[name='CodeDeckId']").val();
                 Currency = $("#rate-compare-search-form select[name='Currency']").val();
                 Code = $("#rate-compare-search-form input[name='Code']").val();
@@ -240,9 +245,9 @@
                     "bServerSide": true,
                     "sAjaxSource": baseurl + "/rate_compare/search_ajax_datagrid/json",
                     "fnServerParams": function(aoData) {
-                        aoData.push({ "name" : "Code"  , "value" : Code },{ "name" : "Description"  , "value" : Description },{ "name" : "Currency"  , "value" : Currency },{ "name" : "CodeDeck"  , "value" : CodeDeck },{ "name" : "Trunk"  , "value" : Trunk },{ "name" : "GroupBy"  , "value" : GroupBy },{ "name" : "Effective"  , "value" : Effective },{ "name" : "SelectedEffectiveDate"  , "value" : SelectedEffectiveDate },{ "name" : "SourceVendors"  , "value" : SourceVendors },{ "name" : "SourceCustomers"  , "value" : SourceCustomers },{ "name" : "SourceRateTables"  , "value" : SourceRateTables },{ "name" : "DestinationVendors"  , "value" : DestinationVendors },{ "name" : "DestinationCustomers"  , "value" : DestinationCustomers },{ "name" : "DestinationRateTables"  , "value" : DestinationRateTables });
+                        aoData.push({ "name" : "Code"  , "value" : Code },{ "name" : "Description"  , "value" : Description },{ "name" : "Currency"  , "value" : Currency },{ "name" : "CodeDeck"  , "value" : CodeDeck },{ "name" : "Trunk"  , "value" : Trunk },{ "name" : "GroupBy"  , "value" : GroupBy },{ "name" : "Effective"  , "value" : Effective },{ "name" : "SelectedEffectiveDate"  , "value" : SelectedEffectiveDate },{ "name" : "SourceVendors"  , "value" : SourceVendors },{ "name" : "SourceCustomers"  , "value" : SourceCustomers },{ "name" : "SourceRateTables"  , "value" : SourceRateTables },{ "name" : "DestinationVendors"  , "value" : DestinationVendors },{ "name" : "DestinationCustomers"  , "value" : DestinationCustomers },{ "name" : "DestinationRateTables"  , "value" : DestinationRateTables }, {"name": "Timezones", "value": Timezones});
                         data_table_extra_params.length = 0;
-                        data_table_extra_params.push({ "name" : "Code"  , "value" : Code },{ "name" : "Description"  , "value" : Description },{ "name" : "Currency"  , "value" : Currency },{ "name" : "CodeDeck"  , "value" : CodeDeck },{ "name" : "Trunk"  , "value" : Trunk },{ "name" : "GroupBy"  , "value" : GroupBy },{ "name" : "Effective"  , "value" : Effective },{ "name" : "SelectedEffectiveDate"  , "value" : SelectedEffectiveDate },{ "name" : "SourceVendors"  , "value" : SourceVendors },{ "name" : "SourceCustomers"  , "value" : SourceCustomers },{ "name" : "SourceRateTables"  , "value" : SourceRateTables },{ "name" : "DestinationVendors"  , "value" : DestinationVendors },{ "name" : "DestinationCustomers"  , "value" : DestinationCustomers },{ "name" : "DestinationRateTables"  , "value" : DestinationRateTables },{"name":"Export","value":1});
+                        data_table_extra_params.push({ "name" : "Code"  , "value" : Code },{ "name" : "Description"  , "value" : Description },{ "name" : "Currency"  , "value" : Currency },{ "name" : "CodeDeck"  , "value" : CodeDeck },{ "name" : "Trunk"  , "value" : Trunk },{ "name" : "GroupBy"  , "value" : GroupBy },{ "name" : "Effective"  , "value" : Effective },{ "name" : "SelectedEffectiveDate"  , "value" : SelectedEffectiveDate },{ "name" : "SourceVendors"  , "value" : SourceVendors },{ "name" : "SourceCustomers"  , "value" : SourceCustomers },{ "name" : "SourceRateTables"  , "value" : SourceRateTables },{ "name" : "DestinationVendors"  , "value" : DestinationVendors },{ "name" : "DestinationCustomers"  , "value" : DestinationCustomers },{ "name" : "DestinationRateTables"  , "value" : DestinationRateTables },{"name":"Export","value":1}, {"name": "Timezones", "value": Timezones});
                     },
                     "iDisplayLength": 10,
                     "sPaginationType": "bootstrap",

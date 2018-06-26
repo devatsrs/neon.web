@@ -208,15 +208,19 @@ class AccountService extends \Eloquent {
                                 $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
                                 $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
                                 $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
+                                $AccountSubscriptionID = 0;
+                                $AccountName='';
+                                $AccountCLI='';
+                                $SubscriptionDiscountPlanID = 0;
 
-                                $DiscountPlanID = AccountDiscountPlan::where(array('AccountID' => $SourceAccountID, 'Type' => AccountDiscountPlan::OUTBOUND, 'ServiceID' => $ServiceID))->pluck('DiscountPlanID');
-                                $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID' => $SourceAccountID, 'Type' => AccountDiscountPlan::INBOUND, 'ServiceID' => $ServiceID))->pluck('DiscountPlanID');
+                                $DiscountPlanID = AccountDiscountPlan::where(array('AccountID' => $SourceAccountID, 'Type' => AccountDiscountPlan::OUTBOUND, 'ServiceID' => $ServiceID,'AccountSubscriptionID'=>$AccountSubscriptionID,'AccountName'=>$AccountName,'AccountCLI'=>$AccountCLI,'SubscriptionDiscountPlanID'=>$SubscriptionDiscountPlanID))->pluck('DiscountPlanID');
+                                $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID' => $SourceAccountID, 'Type' => AccountDiscountPlan::INBOUND, 'ServiceID' => $ServiceID,'AccountSubscriptionID'=>$AccountSubscriptionID,'AccountName'=>$AccountName,'AccountCLI'=>$AccountCLI,'SubscriptionDiscountPlanID'=>$SubscriptionDiscountPlanID))->pluck('DiscountPlanID');
 
                                 $OutboundDiscountPlan = empty($DiscountPlanID) ? '' : $DiscountPlanID;
                                 $InboundDiscountPlan = empty($InboundDiscountPlanID) ? '' : $InboundDiscountPlanID;
 
-                                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff, $ServiceID);
-                                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff, $ServiceID);
+                                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff, $ServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+                                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff, $ServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
                             }
                         }
 

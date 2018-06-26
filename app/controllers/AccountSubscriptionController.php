@@ -9,7 +9,8 @@ public function main() {
 		$SelectedAccount    =  Account::find($id);	 
 		$accounts	 		=  Account::getAccountIDList();
 		$services 			=  Service::getDropdownIDList($companyID);
-	    return View::make('accountsubscription.main', compact('accounts','services','SelectedAccount','services'));
+        $DiscountPlan = DiscountPlan::getDiscountPlanIDList($companyID);
+	    return View::make('accountsubscription.main', compact('accounts','services','SelectedAccount','services','DiscountPlan'));
 
     }
 
@@ -190,7 +191,8 @@ public function main() {
                     $SubscriptionDiscountPlanCount = SubscriptionDiscountPlan::where("AccountSubscriptionID",$AccountSubscriptionID)->count();
                     if($SubscriptionDiscountPlanCount > 0)
                     {
-                        $SubscriptionDiscountPlanCount = SubscriptionDiscountPlan::where("AccountSubscriptionID",$AccountSubscriptionID)->delete();
+                        return Response::json(array("status" => "failed", "message" => "Subscription is in Use, Please Delete Discount Plan."));
+                        //$SubscriptionDiscountPlanCount = SubscriptionDiscountPlan::where("AccountSubscriptionID",$AccountSubscriptionID)->delete();
                     }
                     $result = $AccountSubscription->delete();
                     if ($result) {
@@ -218,8 +220,8 @@ public function main() {
         $verifier->setConnection('sqlsrv');
 
         $rules = array(
-            'AccountName'           =>  'required|unique:tblSubscriptionDiscountPlan,AccountName',
-            'AccountCLI'            =>  'unique:tblSubscriptionDiscountPlan,AccountCLI',
+            'AccountName'           =>  'required|unique:tblAccountDiscountPlan,AccountName',
+            'AccountCLI'            =>  'unique:tblAccountDiscountPlan,AccountCLI',
             //'AccountCLI'            =>  'required|unique:tblSubscriptionDiscountPlan,AccountCLI',
         );
 
@@ -238,11 +240,47 @@ public function main() {
             $data['AccountCLI'] = NULL;
         }
 
+        $AccountID = $data['AccountID'];
+        $ServiceID = $data['ServiceID'];
+        $OutboundDiscountPlan = empty($data['OutboundDiscountPlans']) ? '' : $data['OutboundDiscountPlans'];
+        $InboundDiscountPlan = empty($data['InboundDiscountPlans']) ? '' : $data['InboundDiscountPlans'];
+        $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'), 0);
+        try {
+            DB::beginTransaction();
+            $SubscriptionDiscountPlan = SubscriptionDiscountPlan::create($data);
+            if (!empty($SubscriptionDiscountPlan->SubscriptionDiscountPlanID) && !empty($AccountPeriod)) {
+
+                log::info('SubscriptionDiscountPlanID ' . $SubscriptionDiscountPlan->SubscriptionDiscountPlanID);
+                $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
+                $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
+                $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
+                $AccountSubscriptionID = $data['AccountSubscriptionID'];
+                $AccountName = empty($data['AccountName']) ? '' : $data['AccountName'];
+                $AccountCLI = empty($data['AccountCLI']) ? '' : $data['AccountCLI'];
+                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff, $ServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlan->SubscriptionDiscountPlanID);
+                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff, $ServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlan->SubscriptionDiscountPlanID);
+                DB::commit();
+                return Response::json(array("status" => "success", "message" => "Subscription Account Added", 'LastID' => $SubscriptionDiscountPlan->SubscriptionDiscountPlanID));
+
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem Adding Subscription Account."));
+            }
+        }catch( Exception $e){
+            try {
+                DB::rollback();
+            } catch (\Exception $err) {
+                Log::error($err);
+            }
+            Log::error($e);
+            return Response::json(array("status" => "failed", "message" => "Problem Adding Subscription Account."));
+        }
+
+        /*
         if ($SubscriptionDiscountPlan = SubscriptionDiscountPlan::create($data)) {
             return Response::json(array("status" => "success", "message" => "Subscription Account Added",'LastID'=>$SubscriptionDiscountPlan->SubscriptionDiscountPlanID));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Adding Subscription Account."));
-        }
+        }*/
     }
 
     function edit_discountplan(){
@@ -256,7 +294,7 @@ public function main() {
         $data = Input::all();
         $data["AccountSubscriptionID"] = $data["AccountSubscriptionID_dp"];
         unset($data["AccountSubscriptionID_dp"]);
-        unset($data["AccountSubscriptionID"]);
+        //unset($data["AccountSubscriptionID"]);
         $SubscriptionDiscountPlan = SubscriptionDiscountPlan::find($data['SubscriptionDiscountPlanID']);
         // $data["CreatedBy"] = User::get_user_full_name();
         $verifier = App::make('validation.presence');
@@ -283,13 +321,44 @@ public function main() {
             $data['AccountCLI'] = NULL;
         }
 
-        if ($SubscriptionDiscountPlan->update($data)) {
-            return Response::json(array("status" => "success", "message" => "Subscription Account Updated",'LastID'=>$SubscriptionDiscountPlan->SubscriptionDiscountPlanID));
-        } else {
+        $AccountID = $SubscriptionDiscountPlan->AccountID;
+        $ServiceID = $SubscriptionDiscountPlan->ServiceID;
+        $OutboundDiscountPlan = empty($data['OutboundDiscountPlans']) ? '' : $data['OutboundDiscountPlans'];
+        $InboundDiscountPlan = empty($data['InboundDiscountPlans']) ? '' : $data['InboundDiscountPlans'];
+        $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'), 0);
+        try {
+            DB::beginTransaction();
+            $SubscriptionDiscountPlan->update($data);
+            $SubscriptionDiscountPlanID = $data['SubscriptionDiscountPlanID'];
+            if (!empty($SubscriptionDiscountPlanID) && !empty($AccountPeriod)) {
+                log::info('SubscriptionDiscountPlanID ' . $SubscriptionDiscountPlanID);
+                $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
+                $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
+                $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
+                $AccountSubscriptionID = $data['AccountSubscriptionID'];
+                $AccountName = empty($data['AccountName']) ? '' : $data['AccountName'];
+                $AccountCLI = empty($data['AccountCLI']) ? '' : $data['AccountCLI'];
+
+                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff, $ServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
+                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff, $ServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
+                DB::commit();
+                return Response::json(array("status" => "success", "message" => "Subscription Account Updated", 'LastID' => $SubscriptionDiscountPlanID));
+
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem Updating Subscription Account."));
+            }
+        }catch( Exception $e){
+            try {
+                DB::rollback();
+            } catch (\Exception $err) {
+                Log::error($err);
+            }
+            Log::error($e);
             return Response::json(array("status" => "failed", "message" => "Problem Updating Subscription Account."));
         }
     }
 
+    // not in use
     public function bulkupdate_discountplan()
     {
         $data = Input::all();
@@ -334,6 +403,7 @@ public function main() {
         }
     }
 
+    // not in use
     public function bulkdelete_discountplan()
     {
         $data = Input::all();
@@ -346,9 +416,9 @@ public function main() {
         }
     }
 
-    function get_discountplan($AccountId){
+    function get_discountplan($AccountID){
         $data = Input::all();
-        $SubscriptionDiscountPlan =  SubscriptionDiscountPlan::getSubscriptionDiscountPlanArray($AccountId,$data['AccountSubscriptionID'],$data['ServiceId']);
+        $SubscriptionDiscountPlan =  SubscriptionDiscountPlan::getSubscriptionDiscountPlanArray($AccountID,$data['AccountSubscriptionID'],$data['ServiceID']);
         return $SubscriptionDiscountPlan;
     }
 
@@ -357,15 +427,36 @@ public function main() {
         $data = Input::all();
         $SubscriptionDiscountPlanID = $data['SubscriptionDiscountPlanID'];
         if( intval($SubscriptionDiscountPlanID) > 0){
+            $SubscriptionDiscountPlan = SubscriptionDiscountPlan::find($SubscriptionDiscountPlanID);
+            $AccountID = $SubscriptionDiscountPlan->AccountID;
+            $ServiceID = $SubscriptionDiscountPlan->ServiceID;
+            $OutboundDiscountPlan = '';
+            $InboundDiscountPlan = '';
+            $AccountSubscriptionID = $SubscriptionDiscountPlan->AccountSubscriptionID;
+            $AccountName = empty($SubscriptionDiscountPlan->AccountName) ? '' : $SubscriptionDiscountPlan->AccountName;
+            $AccountCLI = empty($SubscriptionDiscountPlan->AccountCLI) ? '' : $SubscriptionDiscountPlan->AccountCLI;
+            $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'), 0);
             try{
-                $SubscriptionDiscountPlan = SubscriptionDiscountPlan::find($SubscriptionDiscountPlanID);
+                DB::beginTransaction();
                 $result = $SubscriptionDiscountPlan->delete();
-                if ($result) {
+                if (!empty($result) && !empty($AccountPeriod)) {
+                    $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
+                    $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
+                    $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
+                    AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff, $ServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
+                    AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff, $ServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
+                    DB::commit();
                     return Response::json(array("status" => "success", "message" => "Subscription Account Successfully Deleted"));
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Problem Deleting Subscription Account."));
                 }
             }catch (Exception $ex){
+                try {
+                    DB::rollback();
+                } catch (\Exception $err) {
+                    Log::error($err);
+                }
+                Log::error($ex);
                 return Response::json(array("status" => "failed", "message" => "Problem Deleting. Exception:". $ex->getMessage()));
             }
 
@@ -393,5 +484,12 @@ public function main() {
 		$subscriptions =  BillingSubscription::getSubscriptionsArray($account->CompanyId,$account->CurrencyId);	
 		return $subscriptions;
 	}
+
+    public function getDiscountPlanByAccount(){
+        $data = Input::all();
+        $AccountID = $data['AccountID'];
+        $Response = DiscountPlan::getDropdownIDListByAccount($AccountID);
+        return Response::json(array("status" => "success", "data" => $Response));
+    }
 
 }

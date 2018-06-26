@@ -655,6 +655,9 @@
 
             </div>
         </div>
+        @if(AccountBilling::where(array('AccountID'=>$account->AccountID,'BillingCycleType'=>'manual'))->count() == 0 || !empty($BillingCycleType))
+            @include('accountdiscountplan.index')
+        @endif
         @if(User::checkCategoryPermission('AccountService','View'))
             @include('accountservices.index')
         @endif
@@ -1209,6 +1212,7 @@
         </div>
     </div>
 </div>
+@include('accountdiscountplan.discountplanmodal')
 <script>
 setTimeout(function(){
 	$('#CustomerPassword_hide').hide();

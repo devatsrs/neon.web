@@ -316,7 +316,23 @@
             $('#oneofcharge-form').find('[name="Price"]').val(total);
         }
 
+        $(document).on("keypress",".Qty",function (event) {
+            return isDecimal(event, this)
+        });
+
     });
+
+    function isDecimal(evt, element) {
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (
+                //(charCode != 45 || $(element).val().indexOf('-') != -1) &&      // “-” CHECK MINUS, AND ONLY ONE.
+        (charCode != 46 || $(element).val().indexOf('.') != -1) &&      // “.” CHECK DOT, AND ONLY ONE.
+        (charCode < 48 || charCode > 57)
+        ) {
+            return false;
+        }
+        return true;
+    }
 </script>
 <!--@include('includes.ajax_data_grid')-->
 @section('footer_ext')
@@ -355,7 +371,7 @@
                         <div class="col-md-12">
                         <div class="form-group">
                             <label for="field-5" class="control-label">Qty</label>
-                            <input type="text" name="Qty" class="form-control" value="1" data-mask="decimal" data-min="1" />
+                            <input type="text" name="Qty" class="form-control Qty" value="1" data-min="1" />
                         </div>
                     </div>
                     </div>
