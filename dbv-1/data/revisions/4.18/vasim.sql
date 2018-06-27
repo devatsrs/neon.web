@@ -18,6 +18,25 @@ CREATE TABLE `tblTimezones` (
 	UNIQUE INDEX `IX_tblTimezones_Title` (`Title`)
 ) COLLATE='utf8_unicode_ci' ENGINE=InnoDB;
 
+INSERT INTO `tblGateway` (`GatewayID`, `Title`, `Name`, `Status`, `CreatedBy`, `created_at`, `ModifiedBy`, `updated_at`) VALUES (16, 'Voip.ms', 'VoipMS', 1, 'RateManagementSystem', '2018-06-21 16:59:07', NULL, '2018-06-21 16:59:10');
+
+INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (16, 'API Url', 'api_url', 1, '2018-06-21 15:38:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (16, 'API Username', 'username', 1, '2018-06-21 15:38:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (16, 'API Password', 'password', 1, '2018-06-21 15:38:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (16, 'Authentication Rule', 'NameFormat', 1, '2018-06-21 07:46:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (16, 'Billing Time', 'BillingTime', 1, '2018-06-21 07:58:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (16, 'CDR ReRate', 'RateCDR', 1, '2018-06-21 11:19:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (16, 'Rate Format', 'RateFormat', 1, '2018-06-21 11:19:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (16, 'Allow Account Import', 'AllowAccountImport', 1, '2018-06-21 11:19:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (16, 'CLI Translation Rule', 'CLITranslationRule', 1, '2018-06-21 10:39:33', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (16, 'CLD Translation Rule', 'CLDTranslationRule', 1, '2018-06-21 10:39:33', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (16, 'Prefix Translation Rule', 'PrefixTranslationRule', 1, '2018-06-21 00:00:00', 'RateManagementSystem', NULL, NULL);
+
+INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'VOIPMS_CRONJOB', '{"MaxInterval":"1440","ThresholdTime":"30","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":""}');
+
+INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, 16, 'Download Voip.MS CDR', 'voipmsaccountusage', '[[{"title":"Voip.ms Max Interval","type":"text","value":"","name":"MaxInterval"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2018-06-22 06:25:14', 'RateManagementSystem');
+
+
 INSERT INTO `tblTimezones` (`TimezonesID`, `Title`, `FromTime`, `ToTime`, `DaysOfWeek`, `DaysOfMonth`, `Months`, `ApplyIF`, `Status`, `created_at`, `created_by`, `updated_at`, `updated_by`) VALUES (1, 'Default', '0:00', '23:59', '', '', '', 'start', 1, '2018-05-22 11:46:21', 'System', '2018-05-29 11:41:57', 'System');
 
 INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1344, 'Timezones.Delete', 1, 8);

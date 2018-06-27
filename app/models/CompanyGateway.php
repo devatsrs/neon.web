@@ -449,6 +449,21 @@ class CompanyGateway extends \Eloquent {
 
                 CompanyGateway::createSummaryCronJobs(1,$CompanyID);
 
+            }elseif(isset($GatewayName) && $GatewayName == 'VoipMS'){
+                log::info($GatewayName);
+                log::info('--VoipMS CRONJOB START--');
+
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('voipmsaccountusage',$CompanyID);
+                $setting = CompanyConfiguration::getValueConfigurationByKey('VOIPMS_CRONJOB',$CompanyID);
+                $JobTitle = $CompanyGateway->Title.' CDR Download';
+                $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
+
+                log::info($settings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
+                log::info('--VoipMS CRONJOB START--');
+
+                CompanyGateway::createSummaryCronJobs(0,$CompanyID);
             }
         }else{
             log::info('--Other CRONJOB START--');

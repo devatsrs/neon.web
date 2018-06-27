@@ -249,6 +249,9 @@ class ImportsController extends \BaseController {
             }elseif($gateway == 'VoipNow'){
                 $voipNow = new VoipNow($CompanyGatewayID);
                 $response1 = $voipNow->getAccountsDetail($param);
+			}elseif($gateway == 'VoipMS'){
+                $voipMS = new VoipMS($CompanyGatewayID);
+                $response1 = $voipMS->getAccountsDetail($param);
 			}
             //$pbx = new PBX($CompanyGatewayID);
 
