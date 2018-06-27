@@ -184,7 +184,14 @@ class ReportCustomerCDR extends \Eloquent{
 
         foreach ($filters as $key => $filter) {
             if($key == 'CountryID'){
-                $query_common->whereIn(self::$DetailTable.'.'.$key, $filter[$key]);
+                if (!empty($filter['wildcard_match_val'])) {
+                    $data_in_array = Report::getDataInArray($CompanyID, $key, $filter['wildcard_match_val']);
+                    if (!empty($data_in_array)) {
+                        $query_common->whereIn(self::$DetailTable.'.'.$key, $data_in_array);
+                    }
+                } else if (!empty($filter[$key]) && is_array($filter[$key])) {
+                    $query_common->whereIn(self::$DetailTable.'.'.$key, $filter[$key]);
+                }
             }else if ($key == 'multiday_hour') {
                 if (!empty($filters['date']['start_date'])) {
                     $query_common->where(function ($query) use($filters, $filter){
