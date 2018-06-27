@@ -19,7 +19,9 @@ class ReportCustomerCDR extends \Eloquent{
             if(substr($filters['date']['start_date'],0,10) == date('Y-m-d') || substr($filters['date']['end_date'],0,10) == date('Y-m-d')){
                 $query_distinct2 = self::commonCDRQuery($CompanyID, $data, $filters,true);
                 foreach ($data['row'] as $column) {
-                    if(isset(self::$database_columns[$column])){
+                    if($column == 'CountryID'){
+                        $select_columns2[] = DB::raw(self::$DetailTable.'.'.$column.' as '.$column) ;
+                    }else if(isset(self::$database_columns[$column])){
                         $select_columns2[] = DB::raw(self::$database_columns[$column].' as '.$column) ;
                     }else {
                         $columnname = report_col_name($column);
@@ -31,7 +33,9 @@ class ReportCustomerCDR extends \Eloquent{
                 $query_distinct->union($query_distinct2);
             }
             foreach ($data['row'] as $column) {
-                if(isset(self::$database_columns[$column])){
+                if($column == 'CountryID'){
+                    $select_columns[] = DB::raw(self::$DetailTable.'.'.$column.' as '.$column) ;
+                }else if(isset(self::$database_columns[$column])){
                     $columnname = $column;
                     $select_columns[] = DB::raw(self::$database_columns[$column].' as '.$column) ;
                 }else {
@@ -52,7 +56,10 @@ class ReportCustomerCDR extends \Eloquent{
         }
         $final_query = self::commonCDRQuery($CompanyID, $data, $filters,false);
         foreach ($data['column'] as $column) {
-            if(isset(self::$database_columns[$column])){
+            if($column == 'CountryID'){
+                $final_query->groupby(self::$DetailTable.'.'.$column);
+                $select_columns[] = DB::raw(self::$DetailTable.'.'.$column.' as '.$column) ;
+            }else if(isset(self::$database_columns[$column])){
                 $final_query->groupby($column);
                 $select_columns[] = DB::raw(self::$database_columns[$column].' as '.$column) ;
             }else {
@@ -62,7 +69,9 @@ class ReportCustomerCDR extends \Eloquent{
             }
         }
         foreach ($data['row'] as $column) {
-            if(isset(self::$database_columns[$column])){
+            if($column == 'CountryID'){
+                $final_query->groupby(self::$DetailTable.'.'.$column);
+            }else if(isset(self::$database_columns[$column])){
                 $final_query->groupby($column);
             }else {
                 $columnname = report_col_name($column);
@@ -83,7 +92,10 @@ class ReportCustomerCDR extends \Eloquent{
         if(substr($filters['date']['start_date'],0,10) == date('Y-m-d') || substr($filters['date']['end_date'],0,10) == date('Y-m-d')){
             $final_query2 = self::commonCDRQuery($CompanyID, $data, $filters,true);
             foreach ($data['column'] as $column) {
-                if(isset(self::$database_columns[$column])){
+                if($column == 'CountryID'){
+                    $final_query2->groupby(self::$DetailTable.'.'.$column);
+                    $select_columns2[] = DB::raw(self::$DetailTable.'.'.$column.' as '.$column) ;
+                }else if(isset(self::$database_columns[$column])){
                     $final_query2->groupby($column);
                     $select_columns2[] = DB::raw(self::$database_columns[$column].' as '.$column) ;
                 }else {
@@ -93,7 +105,9 @@ class ReportCustomerCDR extends \Eloquent{
                 }
             }
             foreach ($data['row'] as $column) {
-                if(isset(self::$database_columns[$column])){
+                if($column == 'CountryID'){
+                    $final_query2->groupby(self::$DetailTable.'.'.$column);
+                }else if(isset(self::$database_columns[$column])){
                     $final_query2->groupby($column);
                 }else {
                     $columnname = report_col_name($column);
@@ -169,7 +183,9 @@ class ReportCustomerCDR extends \Eloquent{
         }
 
         foreach ($filters as $key => $filter) {
-            if ($key == 'multiday_hour') {
+            if($key == 'CountryID'){
+                $query_common->whereIn(self::$DetailTable.'.'.$key, $filter[$key]);
+            }else if ($key == 'multiday_hour') {
                 if (!empty($filters['date']['start_date'])) {
                     $query_common->where(function ($query) use($filters, $filter){
                         $query->where(function ($query_inner) use($filters, $filter){
