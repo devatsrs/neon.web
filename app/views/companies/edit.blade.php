@@ -280,7 +280,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="field-1" class="col-sm-2 control-label">Attach Invoice in Email</label>
+                                    <label for="field-1" class="col-sm-2 control-label">Email invoice as an attachment</label>
                                     <div class="col-sm-4">
                                         <p class="make-switch switch-small">
                                             <input id="invoicePdfSend" name="invoicePdfSend" type="checkbox" value="1" @if($invoicePdfSend == 1) checked="checked" @endif>
@@ -308,11 +308,11 @@
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">Certificate File (.pfx, .p12)</label>
+                        <label class="col-sm-2 control-label">Image</label>
                         <div class="col-sm-4">
-                            <input name="signatureCertFile" type="file" accept=".pfx,.p12" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;Browse" />
-                            @if(isset($DigitalSignature["signatureCert"]) &&  !empty($DigitalSignature["signatureCert"]))
-                                <a href="{{URL::to('company/download_digitalSignature/signatureCert')}}" class="btn btn-success btn-sm btn-icon icon-left"><i class="entypo-down"></i>Download</a>
+                            <input name="signatureImage" type="file" accept=".png" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;Browse" />
+                            @if(isset($DigitalSignature["image"]) &&  !empty($DigitalSignature["image"]))
+                                <a href="{{URL::to('company/download_digitalSignature/image')}}" class="btn btn-success btn-sm btn-icon icon-left"><i class="entypo-down"></i>Download</a>
                             @endif
                         </div>
                         <label for="field-1" class="col-sm-2 control-label">Use Certificate</label>
@@ -320,51 +320,21 @@
                             <input name="UseDigitalSignature" type="checkbox" value="1" @if($UseDigitalSignature == 1) checked="checked" @endif>
                         </p>
                     </div>
+
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">Image(.png)<br>( Default Size 542 x 167 Px )</label>
-                        <div class="col-sm-4">
-                            <input name="signatureImage" type="file" accept=".png" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;Browse" />
-                            @if(isset($DigitalSignature["image"]) &&  !empty($DigitalSignature["image"]))
-                                <a href="{{URL::to('company/download_digitalSignature/image')}}" class="btn btn-success btn-sm btn-icon icon-left"><i class="entypo-down"></i>Download</a>
-                            @endif
-                        </div>
-                        <label class="col-sm-2 control-label">Certificate Password</label>
-                        <div class="col-sm-4">
-                            <input type="password" class="form-control" name="signatureCertPassword" value="" />
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">Image position Right X</label>
+                        <label class="col-sm-2 control-label">Image position Left</label>
                         <div class="col-sm-4">
                             <div class="input-spinner pull-left">
                                 <button type="button" class="btn btn-default">-</button>
-                                <input class="form-control" placeholder="" data-mask="decimal" name="signatureCertpPositionRX" value="{{$DigitalSignature['positionRX']}}" type="text">
+                                <input class="form-control" placeholder="" data-mask="decimal" name="signatureCertpPositionLeft" value="{{$DigitalSignature['positionLeft']}}" type="text">
                                 <button type="button" class="btn btn-default">+</button>
                             </div>
                         </div>
-                        <label class="col-sm-2 control-label">Image position Top Y</label>
+                        <label class="col-sm-2 control-label">Image position Top</label>
                         <div class="col-sm-4">
                             <div class="input-spinner pull-left">
                                 <button type="button" class="btn btn-default">-</button>
-                                <input class="form-control" placeholder="" data-mask="decimal" name="signatureCertpPositionTY" value="{{$DigitalSignature['positionTY']}}" type="text">
-                                <button type="button" class="btn btn-default">+</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">Image position Left X</label>
-                        <div class="col-sm-4">
-                            <div class="input-spinner pull-left">
-                                <button type="button" class="btn btn-default">-</button>
-                                <input class="form-control" placeholder="" data-mask="decimal" name="signatureCertpPositionLX" value="{{$DigitalSignature['positionLX']}}" type="text">
-                                <button type="button" class="btn btn-default">+</button>
-                            </div>
-                        </div>
-                        <label class="col-sm-2 control-label">Image position Button Y</label>
-                        <div class="col-sm-4">
-                            <div class="input-spinner pull-left">
-                                <button type="button" class="btn btn-default">-</button>
-                                <input class="form-control" placeholder="" data-mask="decimal" name="signatureCertpPositionBY" value="{{$DigitalSignature['positionBY']}}" type="text">
+                                <input class="form-control" placeholder="" data-mask="decimal" name="signatureCertpPositionTop" value="{{$DigitalSignature['positionTop']}}" type="text">
                                 <button type="button" class="btn btn-default">+</button>
                             </div>
                         </div>
