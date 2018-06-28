@@ -8397,8 +8397,8 @@ ThisSP:BEGIN
 		UPDATE my_splits SET Code = trim(Code);
 
 
-		INSERT INTO my_splits (TempVendorRateID, Code, CountryCode)
-		SELECT TempVendorRateID , Code, CountryCode  FROM tblTempVendorRate
+		INSERT INTO my_splits (TempRateTableRateID, Code, CountryCode)
+		SELECT TempRateTableRateID , Code, CountryCode  FROM tblTempRateTableRate
 		WHERE (CountryCode IS NOT NULL AND CountryCode <> '') AND (Code IS NULL OR Code = '')
 		AND ProcessId = p_processId;
 
