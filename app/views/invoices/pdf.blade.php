@@ -46,6 +46,15 @@ thead {
 tfoot {
   display: table-row-group
 }
+@if(isset($arrSignature["UseDigitalSignature"]) && $arrSignature["UseDigitalSignature"]==true)
+  img.signatureImage {
+    position: absolute;
+    z-index: 99999;
+    top: {{isset($arrSignature["DigitalSignature"]->positionTop)?$arrSignature["DigitalSignature"]->positionTop:0}}px;
+    left: {{isset($arrSignature["DigitalSignature"]->positionLeft)?$arrSignature["DigitalSignature"]->positionLeft:0}}px;
+  }
+@endif
+
 </style>
 
 <?php
@@ -68,6 +77,10 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
   <!-- logo and invoice from section end-->
 
   <main>
+    @if(isset($arrSignature["UseDigitalSignature"]) && $arrSignature["UseDigitalSignature"]==true)
+      <img src="{{get_image_data($arrSignature['signaturePath'].$arrSignature['DigitalSignature']->image)}}" class="signatureImage" />
+    @endif
+
       <div id="details" class="clearfix">
         <div id="client" class="pull-left flip">
           <div class="to"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_INVOICE_TO')</b></div>
