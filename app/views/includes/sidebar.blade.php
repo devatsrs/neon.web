@@ -101,7 +101,7 @@
     User::checkCategoryPermission('RateGenerator','View') || User::checkCategoryPermission('VendorProfiling','All'))
     <li class="{{check_uri('Rates')}}"> <a href="#"> <i class="fa fa-table"></i> <span>&nbsp;Rate Management</span> </a>
       <ul>
-        @if(User::checkCategoryPermission('RateTables','View'))
+        @if(User::checkCategoryPermission('RateUpload','All'))
           <li> <a href="{{URL::to('/rate_upload')}}">  <span>Upload Rates</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('RateTables','View'))
@@ -121,17 +121,17 @@
         @endif
 
         {{--  for the Auto import link  --}}
-        @if(User::checkCategoryPermission('TicketImportRules','View'))
+        @if(User::checkCategoryPermission('AutoImport','View'))
             <li> <a href="{{URL::to('/auto_rate_import/autoimport')}}">  <span>Rate Import</span> </a> </li>
 
             <ul >
-              @if(User::checkCategoryPermission('TicketDashboard','View'))
+              @if(User::checkCategoryPermission('AutoRateImport','View'))
                 <li> <a href="{{URL::to('/auto_rate_import/import_inbox_setting')}}">  <span>Import Inbox Settings</span> </a> </li>
               @endif
-              @if(User::checkCategoryPermission('TicketDashboard','View'))
+              @if(User::checkCategoryPermission('AutoRateImport','View'))
                 <li> <a href="{{URL::to('/auto_rate_import/account_setting')}}">  <span>Account Settings</span> </a> </li>
               @endif
-              @if(User::checkCategoryPermission('AutoRateImportController','View'))
+              @if(User::checkCategoryPermission('AutoRateImport','View'))
                 <li> <a href="{{URL::to('/auto_rate_import/ratetable_setting')}}">  <span>Rate Table Settings </span> </a> </li>
               @endif
             </ul>
@@ -242,8 +242,17 @@
     @endif
     @endif
     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type'] == Company::LICENCE_BILLING || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
-    @if( User::checkCategoryPermission('Analysis','All'))
-      <li> <a href="{{Url::to('/analysis')}}"> <i class="fa fa-bar-chart"></i> <span>Analysis</span> </a> </li>
+    @if( User::checkCategoryPermission('Analysis','All') || User::checkCategoryPermission('Analysis','Customer')  || User::checkCategoryPermission('Analysis','Vendor')  || User::checkCategoryPermission('Analysis','AccountManager') )
+      <?php
+          $analysis_url = Url::to('/analysis');
+          if(User::checkCategoryPermission('Analysis','All') || User::checkCategoryPermission('Analysis','Customer'))
+            $analysis_url = Url::to('/analysis');
+          else if(User::checkCategoryPermission('Analysis','Vendor'))
+            $analysis_url = Url::to('/vendor_analysis');
+          else if(User::checkCategoryPermission('Analysis','AccountManager'))
+            $analysis_url = Url::to('/analysis_manager');
+      ?>
+      <li> <a href="{{$analysis_url}}"> <i class="fa fa-bar-chart"></i> <span>Analysis</span> </a> </li>
     @endif
     @endif
 
@@ -276,6 +285,9 @@
         @endif
         @if(User::checkCategoryPermission('DestinationGroup','View'))
           <li><a href="{{URL::to('/destination_group_set')}}"><span>Destination Group</span></a></li>
+        @endif
+        @if(User::checkCategoryPermission('Timezones','View'))
+          <li><a href="{{URL::to('/timezones')}}"><span>Timezones</span></a></li>
         @endif
       </ul>
     </li>

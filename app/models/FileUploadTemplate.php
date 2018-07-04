@@ -35,6 +35,7 @@ class FileUploadTemplate extends \Eloquent {
     }
 
     public static function createOrUpdateFileUploadTemplate($data){
+
         $response = array();
         $CompanyID = User::get_companyID();
 
@@ -50,7 +51,7 @@ class FileUploadTemplate extends \Eloquent {
             }
 
             $validations = FileUploadTemplate::prepareTemplateValidations($data);
-            $validator = Validator::make($data, $validations['rules_for_type'], $validations['message_for_type']);
+            $validator = Validator::make($validations['data'], $validations['rules_for_type'], $validations['message_for_type']);
 
             if ($validator->fails()) {
                 return json_validator_response($validator);
@@ -69,15 +70,39 @@ class FileUploadTemplate extends \Eloquent {
                 return Response::json(array("status" => "failed", "message" => "Failed to upload."));
             }
 
-            $save                   = ['CompanyID' => $CompanyID, 'Title' => $data['TemplateName'], 'TemplateFile' => $amazonPath . basename($file_name)];
-            $save['created_by']     = User::get_user_full_name();
-            $option["skipRows"]     = array( "start_row"=>!empty($data["start_row"]) ? $data["start_row"] : 0, "end_row"=>!empty($data["end_row"]) ? $data["end_row"] : 0 );
-            $option["Sheet"]        = !empty($data['Sheet']) ? $data['Sheet'] : '';
-            $option["option"]       = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
-            $option["selection"]    = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
-            $save['Options']        = str_replace('Skip loading','',json_encode($option));
-            $save['Type']           = $data['TemplateType'];
+            $save                       = ['CompanyID' => $CompanyID, 'Title' => $data['TemplateName'], 'TemplateFile' => $amazonPath . basename($file_name)];
+            $save['created_by']         = User::get_user_full_name();
+            //$option["Sheet"]          = !empty($data['Sheet']) ? $data['Sheet'] : '';
+            //$option["importratesheet"]  = !empty($data['importratesheet']) ? $data['importratesheet'] : '';
+            $option["option"]           = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
+            $option["selection"]        = array_filter($data['selection'],"filterArrayRemoveNewLines");//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
 
+            if(isset($data['RateUploadType']) && ($data['RateUploadType'] == 'ratetable' || $data['RateUploadType'] == 'vendor')) {
+
+                $option["skipRows"]         = array( "start_row"=>!empty($data["start_row"]) ? $data["start_row"] : 0, "end_row"=>!empty($data["end_row"]) ? $data["end_row"] : 0 );
+                $option["importratesheet"]  = !empty($data['importratesheet']) ? $data['importratesheet'] : '';
+                if (!empty($data['importdialcodessheet'])) {
+                    $option["skipRows_sheet2"] = array("start_row" => !empty($data["start_row_sheet2"]) ? $data["start_row_sheet2"] : 0, "end_row" => !empty($data["end_row_sheet2"]) ? $data["end_row_sheet2"] : 0);
+                    $option["importdialcodessheet"] = !empty($data['importdialcodessheet']) ? $data['importdialcodessheet'] : '';
+                    $option["selection2"] = $data['selection2'];
+                }
+                $option['Settings']['checkbox_replace_all'] = $data['checkbox_replace_all'];
+                $option['Settings']['checkbox_rates_with_effected_from'] = $data['checkbox_rates_with_effected_from'];
+                $option['Settings']['checkbox_add_new_codes_to_code_decks'] = $data['checkbox_add_new_codes_to_code_decks'];
+                $option['Settings']['checkbox_review_rates'] = $data['checkbox_review_rates'];
+                $option['Settings']['radio_list_option'] = $data['radio_list_option'];
+                if($data['RateUploadType'] == RateUpload::vendor || $data['RateUploadType'] == RateUpload::customer) {
+                    $option['Trunk'] = $data['Trunk'];
+                } else if($data['RateUploadType'] == RateUpload::ratetable) {
+                    $RateTable       = RateTable::find($data['Ratetable']);
+                    $option['Trunk'] = $RateTable->TrunkID;
+                }
+                $option['TimezonesID'] = $data['TimezonesID'];
+            }
+            $save['Options']          = str_replace('Skip loading','',json_encode($option));
+            $save['FileUploadTemplateTypeID']               = $data['TemplateType'];
+
+            //echo "<pre>";print_r($option);exit;
             try {
                 if ($result = FileUploadTemplate::create($save)) {
                     $response['status']     = "success";
@@ -94,7 +119,7 @@ class FileUploadTemplate extends \Eloquent {
             }
         } else { //update template
             $template = FileUploadTemplate::find($data['FileUploadTemplateID']);
-
+            //print_R($template);exit;
             if($template) {
                 $rules["TemplateName"]  = 'required|unique:tblFileUploadTemplate,Title,' . $data['FileUploadTemplateID'] . ',FileUploadTemplateID';
                 $rules['TemplateType']  = 'required';
@@ -106,7 +131,7 @@ class FileUploadTemplate extends \Eloquent {
                 }
 
                 $validations = FileUploadTemplate::prepareTemplateValidations($data);
-                $validator = Validator::make($data, $validations['rules_for_type'], $validations['message_for_type']);
+                $validator = Validator::make($validations['data'], $validations['rules_for_type'], $validations['message_for_type']);
 
                 if ($validator->fails()) {
                     return json_validator_response($validator);
@@ -131,13 +156,34 @@ class FileUploadTemplate extends \Eloquent {
                     $save                   = ['CompanyID' => $CompanyID, 'Title' => $data['TemplateName']];
                 }
 
-                $save['updated_by']     = User::get_user_full_name();
-                $option["skipRows"]     = array( "start_row"=>!empty($data["start_row"]) ? $data["start_row"] : 0, "end_row"=>!empty($data["end_row"]) ? $data["end_row"] : 0 );
-                $option["Sheet"]        = !empty($data['Sheet']) ? $data['Sheet'] : '';
-                $option["option"]       = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
-                $option["selection"]    = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
-                $save['Options']        = str_replace('Skip loading','',json_encode($option));
-                $save['Type']           = $data['TemplateType'];
+                $save['updated_by']         = User::get_user_full_name();
+                //$option["Sheet"]          = !empty($data['Sheet']) ? $data['Sheet'] : '';
+                $option["option"]           = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
+                $option["selection"]        = array_filter($data['selection'],"filterArrayRemoveNewLines");//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
+                if(isset($data['RateUploadType']) && ($data['RateUploadType'] == RateUpload::ratetable || $data['RateUploadType'] == RateUpload::vendor || $data['RateUploadType'] == RateUpload::customer)) {
+                    $option["skipRows"]         = array( "start_row"=>!empty($data["start_row"]) ? $data["start_row"] : 0, "end_row"=>!empty($data["end_row"]) ? $data["end_row"] : 0 );
+                    $option["importratesheet"] = !empty($data['importratesheet']) ? $data['importratesheet'] : '';
+                    if (!empty($data['importdialcodessheet'])) {
+                        $option["skipRows_sheet2"] = array("start_row" => !empty($data["start_row_sheet2"]) ? $data["start_row_sheet2"] : 0, "end_row" => !empty($data["end_row_sheet2"]) ? $data["end_row_sheet2"] : 0);
+                        $option["importdialcodessheet"] = !empty($data['importdialcodessheet']) ? $data['importdialcodessheet'] : '';
+                        $option["selection2"] = $data['selection2'];
+                    }
+                    $option['Settings']['checkbox_replace_all'] = $data['checkbox_replace_all'];
+                    $option['Settings']['checkbox_rates_with_effected_from'] = $data['checkbox_rates_with_effected_from'];
+                    $option['Settings']['checkbox_add_new_codes_to_code_decks'] = $data['checkbox_add_new_codes_to_code_decks'];
+                    $option['Settings']['checkbox_review_rates'] = $data['checkbox_review_rates'];
+                    $option['Settings']['radio_list_option'] = $data['radio_list_option'];
+
+                    if($data['RateUploadType'] == RateUpload::vendor || $data['RateUploadType'] == RateUpload::customer) {
+                        $option['Trunk'] = $data['Trunk'];
+                    } else if($data['RateUploadType'] == RateUpload::ratetable) {
+                        $RateTable       = RateTable::find($data['Ratetable']);
+                        $option['Trunk'] = $RateTable->TrunkID;
+                    }
+                    $option['TimezonesID'] = $data['TimezonesID'];
+                }
+                $save['Options']            = str_replace('Skip loading','',json_encode($option));
+                $save['FileUploadTemplateTypeID']               = $data['TemplateType'];
 
                 try {
                     if ($template->update($save)) {
@@ -164,7 +210,7 @@ class FileUploadTemplate extends \Eloquent {
 
     public static function prepareTemplateValidations($data) {
         $rules_for_type = $message_for_type = [];
-
+        $data = json_decode(str_replace('Skip loading','',json_encode($data,true)),true);
         if($data['TemplateType'] == 1) { //customer cdr
             $rules_for_type['selection.Account']                            = 'required';
             $rules_for_type['selection.connect_datetime']                   = 'required';
@@ -203,11 +249,35 @@ class FileUploadTemplate extends \Eloquent {
             $rules_for_type['selection.Code']                               = 'required';
             $rules_for_type['selection.Description']                        = 'required';
             $rules_for_type['selection.Amount']                             = 'required';
-        }else if($data['TemplateType'] == 8) { //vendor rate
-            $rules_for_type['selection.Code']                               = 'required';
-            $rules_for_type['selection.Description']                        = 'required';
-            $rules_for_type['selection.Rate']                               = 'required';
+        }else if($data['TemplateType'] == 8 || $data['TemplateType'] == 10 || $data['TemplateType'] == 11) { //vendor rate / RateTable Rate / Customer Rate Respectively
+
+            if(!empty($data['importdialcodessheet'])) {
+                $rules_for_type['selection.Join1'] = 'required';
+                $rules_for_type['selection2.Join2'] = 'required';
+                $rules_for_type['selection.Code'] = 'required_without:selection2.Code';
+                $rules_for_type['selection2.Code'] = 'required_without:selection.Code';
+                $rules_for_type['selection.Description'] = 'required_without:selection2.Description';
+                $rules_for_type['selection2.Description'] = 'required_without:selection.Description';
+
+                $message_for_type['selection.Join1.required'] = "Please Select Match Codes with DialCode On For Ratesheet";
+                $message_for_type['selection2.Join2.required'] = "Please Select Match Codes with Rates On For DialCodeSheet";
+                $message_for_type['selection.Code.required_without'] = "Code field is required of sheet1 when Code is not present of sheet2";
+                $message_for_type['selection2.Code.required_without'] = "Code field is required of sheet2 when Code is not present of sheet1";
+                $message_for_type['selection.Description.required_without'] = "Description field is required of sheet1 when Description is not present of sheet2";
+                $message_for_type['selection2.Description.required_without'] = "Description field is required of sheet2 when Description is not present of sheet1";
+                $option["skipRows_sheet2"] = array("start_row" => $data["start_row_sheet2"], "end_row" => $data["end_row_sheet2"]);
+            }else{
+                $rules_for_type['selection.Code']        = 'required';
+                $rules_for_type['selection.Description'] = 'required';
+                $message_for_type['selection.Code.required'] = "Code Field is required";
+                $message_for_type['selection.Description.required'] = "Description Field is required";
+            }
+            $rules_for_type['selection.Rate']            = 'required';
+            $rules_for_type['selection.Timezones']       = 'required_without:TimezonesID';
+            $message_for_type['selection.Rate.required'] = "Rate Field is required";
+            $message_for_type['selection.Timezones.required_without'] = "Any one Timezones field is required, you can select it for all rates from where you have uploaded file. and if you have Timezones in file then you can select in field remapping section";
             $option["skipRows"] = array("start_row" => $data["start_row"], "end_row" => $data["end_row"]);
+
         }else if($data['TemplateType'] == 9) { //payment
             Payment::$importpaymentrules['selection.AccountName']           = 'required';
             Payment::$importpaymentrules['selection.PaymentDate']           = 'required';
@@ -220,6 +290,7 @@ class FileUploadTemplate extends \Eloquent {
 
         $result['rules_for_type']   = $rules_for_type;
         $result['message_for_type'] = $message_for_type;
+        $result['data'] = $data;
         if(isset($option)) {
             $result['option'] = $option;
         }

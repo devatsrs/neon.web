@@ -167,7 +167,7 @@
 <script type="text/javascript">
 var ratabale = '{{json_encode($rate_tables)}}';
     jQuery(document).ready(function ($) {
-        
+
 
         $(".dataTables_wrapper select").select2({
             minimumResultsForSearch: -1
@@ -239,23 +239,32 @@ var ratabale = '{{json_encode($rate_tables)}}';
             var current_obj = self;
 	        var trunkid = self.parent().children('[name="trunkid"]').val();
 	        //var RateTableID = self.parent().next().find('[name="[CustomerTrunk['+trunkid+'][RateTableID]"]');
-            var RateTableID = self.parent().next().find('.ratetableid');
+            var RateTableID = self.parent().next().find('select.ratetableid');
             var json = JSON.parse(ratabale);
-            if( typeof  json[trunkid] != 'undefined'){
+
+            //if( typeof  json[trunkid] != 'undefined'){
                 var filtereddata = [];
-                if(typeof json[trunkid][self.val()] !='undefined'){
+                /*if(typeof json[trunkid][self.val()] !='undefined'){
                     filtereddata = json[trunkid][self.val()];
+                }*/
+                filtereddata = json[self.val()];
+                //convert json
+                if(filtereddata.length != 0) {
+                    filtereddata= filtereddata.map(({id, text}) =>  ({[id]: text}));
+                    var filtereddata = Object.assign(...filtereddata);
                 }
-                self.parent().next().find('.ratetableid').select2('destroy');
+
+                self.parent().next().find('select.ratetableid').select2('destroy');
                 rebuildSelect2(RateTableID,filtereddata,'Select');
                 opts = {
                     allowClear: false,
                     minimumResultsForSearch:Infinity,
                     dropdownCssClass:'no-search'
                 };
-                self.parent().next().find('.ratetableid').select2(opts);
+                self.parent().next().find('select.ratetableid').select2(opts);
                 self.select2('container').find('.select2-search').addClass ('hidden') ;
-            }
+                RateTableID = self.parent().next().find('select.ratetableid');
+            //}
 	        $.ajax({
                     url:baseurl + '/customers_rates/delete_customerrates/{{$id}}', //Server script to process data
                     type: 'POST',
@@ -272,7 +281,9 @@ var ratabale = '{{json_encode($rate_tables)}}';
                                 //selectBox.selectOption('');
                                 current_obj.parent().find('[name="codedeckid"]').val(prev_val);
                                 current_obj.select2().select2('val',prev_val);
-                                submit_ajax(baseurl + '/customers_rates/delete_customerrates/{{$id}}','Trunkid='+trunkid)
+                                submit_ajax(baseurl + '/customers_rates/delete_customerrates/{{$id}}','Trunkid='+trunkid);
+                                rebuildSelect2(RateTableID,filtereddata,'Select');
+                                RateTableID = self.parent().next().find('select.ratetableid');
                             }else{
                                 current_obj.val(prev_val);
                                 current_obj.prop('selected', prev_val);

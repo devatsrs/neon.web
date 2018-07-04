@@ -35,6 +35,7 @@ class CompaniesController extends \BaseController {
         }
 
         $UseInBilling = CompanySetting::getKeyVal('UseInBilling');
+        $invoicePdfSend = CompanySetting::getKeyVal('invoicePdfSend');
         $AccountVerification = CompanySetting::getKeyVal('AccountVerification');
         $DefaultDashboard = CompanySetting::getKeyVal('DefaultDashboard') == 'Invalid Key' ? '' : CompanySetting::getKeyVal('DefaultDashboard');
         //$PincodeWidget = CompanySetting::getKeyVal('PincodeWidget') == 'Invalid Key' ? '' : CompanySetting::getKeyVal('PincodeWidget');
@@ -58,15 +59,13 @@ class CompaniesController extends \BaseController {
         $UseDigitalSignature = CompanySetting::getKeyVal('UseDigitalSignature', $company_id);
         if($DigitalSignature=="Invalid Key"){
             $DigitalSignature=array();
-            $DigitalSignature['positionLX']=0;
-            $DigitalSignature['positionBY']=0;
-            $DigitalSignature['positionRX']=0;
-            $DigitalSignature['positionTY']=0;
+            $DigitalSignature['positionLeft']=0;
+            $DigitalSignature['positionTop']=0;
         }else{
             $DigitalSignature=json_decode($DigitalSignature, true);
         }
 
-        return View::make('companies.edit')->with(compact('company', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile','AccountVerification','SSH','COMPANY_SSH_VISIBLE', 'DigitalSignature', 'UseDigitalSignature'));
+        return View::make('companies.edit')->with(compact('company', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile','AccountVerification','SSH','COMPANY_SSH_VISIBLE', 'DigitalSignature', 'UseDigitalSignature', 'invoicePdfSend'));
 
     }
 
@@ -83,6 +82,7 @@ class CompaniesController extends \BaseController {
         $companyID = User::get_companyID();
         $company = Company::find($companyID);
         $data['UseInBilling'] = isset($data['UseInBilling']) ? 1 : 0;
+        $data['invoicePdfSend'] = isset($data['invoicePdfSend']) ? 1 : 0;
         $data['AccountVerification'] = isset($data['AccountVerification']) ? CompanySetting::ACCOUT_VARIFICATION_ON : CompanySetting::ACCOUT_VARIFICATION_OFF;
         //$data['PincodeWidget'] = isset($data['PincodeWidget']) ? 1 : 0;
         $data['updated_by'] = User::get_user_full_name();
@@ -96,7 +96,7 @@ class CompaniesController extends \BaseController {
             $rules['RateSheetTemplate.HeaderSize'] = 'required|numeric';
             $rules['RateSheetTemplate.FooterSize'] = 'required|numeric';
         }
-
+        $rules["signatureImage"]='mimes:jpeg,jpg,png,gif';
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
@@ -113,58 +113,25 @@ class CompaniesController extends \BaseController {
             $arrSignatureCertFile=json_decode($arrSignatureCertFile, true);
         }
 
-        if (Input::hasFile('signatureCertFile')) {
-            $signatureCertFile = Input::file('signatureCertFile');
-            $ext = $signatureCertFile->getClientOriginalExtension();
-            if (strtolower($ext)=="pfx" || strtolower($ext)=="p12") {
-                $file_name = 'signatureCert.' . $signatureCertFile->getClientOriginalExtension();
-                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY'], '', $companyID, true);
-                $destinationPath = $upload_path . $amazonPath;
-                $signatureCertFile->move($destinationPath, $file_name);
-                $arrSignatureCertFile['signatureCert'] = $file_name;
-            } else {
-                return Response::json(array("status" => "failed", "message" => "Please select pfx or p12 file."));
-            }
-        }else{
-			if(!array_key_exists("signatureCert",$arrSignatureCertFile)){
-				$arrSignatureCertFile['signatureCert'] = '';
-			}            
-        }
-
         if (Input::hasFile('signatureImage')) {
             $signatureImage = Input::file('signatureImage');
-            $ext = $signatureImage->getClientOriginalExtension();
-            if (strtolower($ext)=="png") {
-                $file_name = 'signatureImage.' . $signatureImage->getClientOriginalExtension();
-                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY'], '', $companyID, true);
-                $destinationPath = $upload_path . $amazonPath;
-                $signatureImage->move($destinationPath, $file_name);
-                $arrSignatureCertFile['image'] = $file_name;
-            } else {
-                return Response::json(array("status" => "failed", "message" => "Please select png file."));
-            }
-
+            $file_name = 'signatureImage.' . $signatureImage->getClientOriginalExtension();
+            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY'], '', $companyID, true);
+            $destinationPath = $upload_path . $amazonPath;
+            $signatureImage->move($destinationPath, $file_name);
+            $arrSignatureCertFile['image'] = $file_name;
         }else{
-			if(!array_key_exists("signatureCert",$arrSignatureCertFile)){
+			if(!array_key_exists("image",$arrSignatureCertFile)){
 				$arrSignatureCertFile['image'] = '';
 			}
         }
 
-        if(!empty($data['signatureCertPassword'])){
-            $arrSignatureCertFile['password'] = $data['signatureCertPassword'];
-        }else{
-			if(!array_key_exists("password",$arrSignatureCertFile)){
-				$arrSignatureCertFile['password'] = "";
-			}
-        }
-        $arrSignatureCertFile['positionLX'] = $data['signatureCertpPositionLX'];
-        $arrSignatureCertFile['positionBY'] = $data['signatureCertpPositionBY'];
-        $arrSignatureCertFile['positionRX'] = $data['signatureCertpPositionRX'];
-        $arrSignatureCertFile['positionTY'] = $data['signatureCertpPositionTY'];
+        $arrSignatureCertFile['positionLeft'] = !empty($data['signatureCertpPositionLeft']) ? $data['signatureCertpPositionLeft'] : 0;
+        $arrSignatureCertFile['positionTop'] = !empty($data['signatureCertpPositionTop']) ? $data['signatureCertpPositionTop'] : 0;
         $arrSignatureCertFile = json_encode($arrSignatureCertFile);
         CompanySetting::setKeyVal('DigitalSignature',$arrSignatureCertFile, $companyID);
         CompanySetting::setKeyVal('UseDigitalSignature',isset($data["UseDigitalSignature"])?$data["UseDigitalSignature"]:0, $companyID);
-        $data = cleanarray($data,['signatureCertFile','signatureCert','signatureImage','signatureCertPassword','signatureCertpPositionLX','signatureCertpPositionBY','signatureCertpPositionRX','signatureCertpPositionTY','UseDigitalSignature']);
+        $data = cleanarray($data,['signatureCertFile','signatureCert','signatureImage','signatureCertPassword','signatureCertpPositionLeft','signatureCertpPositionTop','UseDigitalSignature']);
 
         if (Input::hasFile('RateSheetTemplateFile')) {
             $excel = Input::file('RateSheetTemplateFile');
@@ -194,6 +161,8 @@ class CompaniesController extends \BaseController {
         }
         CompanySetting::setKeyVal('UseInBilling',$data['UseInBilling']);
         unset($data['UseInBilling']);
+        CompanySetting::setKeyVal('invoicePdfSend',$data['invoicePdfSend']);
+        unset($data['invoicePdfSend']);
         CompanySetting::setKeyVal('AccountVerification',$data['AccountVerification']);
         unset($data['AccountVerification']);
 
@@ -262,28 +231,13 @@ class CompaniesController extends \BaseController {
         if ($company->update($data)) {
 
             if(CompanySetting::getKeyVal('UseDigitalSignature', $companyID)){
-                $DigitalSignature=CompanySetting::getKeyVal('DigitalSignature', $companyID);
-                $DigitalSignature=json_decode($DigitalSignature, true);
                 $signaturePath =$upload_path . AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY'], '', $companyID, true);
-                $certpasswd=RemoteSSH::run(["mypdfsigner -e ".$DigitalSignature["password"]]);
-                $certpasswd=str_replace("Encrypted password: ", "", $certpasswd[0]);
-                $mypdfsigner="
-                #MyPDFSigner test configuration file
-                extrarange=5300
-                embedcrl=on
-                certfile=". $signaturePath . $DigitalSignature["signatureCert"]."
-                certpasswd=".$certpasswd."
-                certstore=PKCS12 KEYSTORE FILE
-                sigrect=[".$DigitalSignature["positionLX"]." ".$DigitalSignature["positionBY"]." ".$DigitalSignature["positionRX"]." ".$DigitalSignature["positionTY"]."]
-                tsaurl=http://adobe-timestamp.geotrust.com/tsa
-                remoteurl=".URL::to('/');
-
-                if(!empty($DigitalSignature["image"])){
-                $mypdfsigner.="
-                sigimage=". $signaturePath .$DigitalSignature["image"];
-                }
-
-                RemoteSSH::run('echo "'.$mypdfsigner.'" > ' . $signaturePath.'mypdfsigner.conf');
+                $SERVER_NAME=preg_replace('/[^A-Za-z0-9\-]/', '', $_SERVER["SERVER_NAME"]);
+                RemoteSSH::run([
+                        'openssl req -new -newkey rsa:2048 -nodes -out '.$signaturePath.'digitalsignature.csr -keyout '.$signaturePath.'digitalsignature.key -subj "/C=GB/ST=London/L=London/O='.$_SERVER["SERVER_NAME"].'/OU='.$SERVER_NAME.'/CN='.$_SERVER["SERVER_NAME"].'"',
+                        'openssl x509 -signkey '.$signaturePath.'digitalsignature.key -in '.$signaturePath.'digitalsignature.csr -req -days 365 -out '.$signaturePath.'digitalsignature.crt',
+                        'openssl pkcs12 -inkey '.$signaturePath.'digitalsignature.key -in '.$signaturePath.'digitalsignature.crt -export -out '.$signaturePath.'digitalsignature.pfx -password pass:Welcome100'
+                    ]);
             }
 
             return Response::json(array("status" => "success", "message" => "Company Successfully Updated"));
@@ -349,5 +303,16 @@ class CompaniesController extends \BaseController {
 		
 	}
 
+    public function DownloadDigitalSignature($file){
+        $companyID = User::get_companyID();
+        $upload_path = CompanyConfiguration::get('UPLOAD_PATH')."/";
+        $signaturePath =$upload_path . AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY'], '', $companyID, true);
 
+        $DigitalSignature=CompanySetting::getKeyVal('DigitalSignature', $companyID);
+        $DigitalSignature=json_decode($DigitalSignature, true);
+        if(isset($DigitalSignature[$file])){
+            $filePath = $signaturePath . $DigitalSignature[$file];
+            download_file($filePath);
+        }
+    }
 }

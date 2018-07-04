@@ -67,321 +67,106 @@ CREATE TABLE IF NOT EXISTS `tblAutoImportSetting` (
 
 
 
-
 DROP PROCEDURE IF EXISTS `prc_ImportSettingMatch`;
 DELIMITER //
-CREATE  PROCEDURE `prc_ImportSettingMatch`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_ImportSettingMatch`(
+	IN `p_companyID` INT,
 	IN `p_FromEmail` TEXT,
 	IN `p_subject` TEXT,
-	IN `p_attachment` TEXT
+	IN `p_filenames` TEXT
 )
 BEGIN
 
-	DECLARE v_Trunk VARCHAR(200);
-	DECLARE v_RateTableId VARCHAR(200);
-	DECLARE v_AccountID int;
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
-	
-	DROP TEMPORARY TABLE IF EXISTS tmp_subject;
-	CREATE TEMPORARY TABLE tmp_subject(	
-		SubjectLength INT,
-		Trunk VARCHAR(100),
-		TrunkId INT
-	);	
-	
-	DROP TEMPORARY TABLE IF EXISTS tmp_matchAccount;
-	CREATE TEMPORARY TABLE tmp_matchAccount(	
-		AccountID INT,
-		CompanyId INT
-		
-	);	
-	
-	DROP TEMPORARY TABLE IF EXISTS tmp_finalMatch;
-	CREATE TEMPORARY TABLE tmp_finalMatch(	
-		TypePKID INT,
-		TrunkID INT,
-		ImportFileTempleteID INT,
-		Attachment VARCHAR(100),
-		Type INT
-		
-	);	
-		
-		
-		
-	
-	
-		/* 
-		* Use For Auto Vendor Rate Upload  :   Type = 1 
-		*/
-		
-				/* Get Trunk By Matching Subject and Attachment Name */	
-				insert tmp_subject (SubjectLength,Trunk,TrunkId)
-				select CHAR_LENGTH(Trunk) as SubjectLength,tblTrunk.Trunk,tblTrunk.TrunkID from tblTrunk WHERE p_subject LIKE  CONCAT('%',Trunk, '%') OR  p_attachment LIKE  CONCAT('%',Trunk, '%') ;
-				
+		DROP TEMPORARY TABLE IF EXISTS tmp_matchRecord;
+		CREATE TEMPORARY TABLE tmp_matchRecord(
+			`AutoImportSettingID` INT(11),
+			`CompanyID` INT(11) DEFAULT '0',
+			`Type` TINYINT(1),
+			`TypePKID` INT(11),
+			`TrunkID` INT(11),
+			`ImportFileTempleteID` INT(11),
+			`Subject` VARCHAR(255),
+			`FileName` VARCHAR(255),
+			`SendorEmail` TEXT,
+			`options` TEXT
+		);
 
-				/* Get Only Trunk ID If TrunkID is multiple */
-				select TrunkID INTO v_Trunk  from tmp_subject Order by SubjectLength desc limit 1;		
-				select AccountID INTO v_AccountID  from tblAccount where tblAccount.Email=p_FromEmail AND tblAccount.IsVendor=1 AND `Status`=1;
-			
-				/* Get only Matching Account */		
-				insert tmp_matchAccount (AccountID,CompanyId)
-				select AccountID,CompanyId from tblAccount where tblAccount.Email=p_FromEmail ;
-				
-				
-				/* Get Record from Setting Match with Email  ( Vendor Rate Upload (Type = 1) ) */
-				insert tmp_finalMatch (TypePKID,TrunkID,ImportFileTempleteID,Attachment,Type)
-				select ais.TypePKID as TypePKID ,
-						 v_Trunk as TrunkID,
-						 ais.ImportFileTempleteID as ImportFileTempleteID,
-						 p_attachment as  Attachment,
-						 ais.`Type` as Type
-						 from tblAutoImportSetting ais where ais.TypePKID=v_AccountID AND ais.TrunkID=v_Trunk AND ais.`Type`= 1 ;
-		
-		/*
-		* Use For Auto RateTable Upload  : Type = 2 
-		*/
-		
-		
-				
-				DROP TEMPORARY TABLE IF EXISTS tmp_subject_ratetable;
-				CREATE TEMPORARY TABLE tmp_subject_ratetable(	
-					SubjectLength INT,
-					RateTableName VARCHAR(100),
-					RateTableId INT
-				);	
-					
-				insert tmp_subject_ratetable (SubjectLength,RateTableName,RateTableId)
-				select CHAR_LENGTH(RateTableName) as SubjectLength,tblRateTable.RateTableName,tblRateTable.RateTableId from tblRateTable WHERE p_subject LIKE  CONCAT('%',RateTableName, '%') OR  p_attachment LIKE  CONCAT('%',RateTableName, '%') ;
-				
-				/* Get Only one RateTable ID If RateTableId is multiple */
-				select RateTableId INTO v_RateTableId  from tmp_subject_ratetable Order by SubjectLength desc limit 1;		
-				
-				/* Get Record from Setting Match with Email  ( RateTable (Type = 2) ) */
-				insert tmp_finalMatch (TypePKID,ImportFileTempleteID,Attachment,Type)
-				select ais.TypePKID as TypePKID ,
-						 ais.ImportFileTempleteID as ImportFileTempleteID,
-						 p_attachment as  Attachment,
-						 ais.`Type` as Type
-						 from tblAutoImportSetting ais where ais.TypePKID=v_RateTableId AND ais.`Type`= 2 ;
-		
-		select * from tmp_finalMatch;		 
-		
-		
-SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+		DROP TEMPORARY TABLE IF EXISTS tmp_receivedFiles;
+		CREATE TEMPORARY TABLE tmp_receivedFiles(
+			`fileID` INT(11) AUTO_INCREMENT,
+			`receivedFilename` text,
+			PRIMARY KEY (`fileID`)
+		);
 
-END//
-DELIMITER ;
+		DROP TEMPORARY TABLE IF EXISTS tmp_matchFileLangth;
+		CREATE TEMPORARY TABLE tmp_matchFileLangth(
+			`lognFileName` TEXT,
+			`sortFileName` TEXT,
+			`matchlength` INT(11)
+		);
+
+		  DROP TEMPORARY TABLE IF EXISTS tmp_finalMatch;
+		CREATE TEMPORARY TABLE tmp_finalMatch(
+			`AutoImportSettingID` INT(11),
+			`CompanyID` INT(11) DEFAULT '0',
+			`Type` TINYINT(1),
+			`TypePKID` INT(11),
+			`TrunkID` INT(11),
+			`ImportFileTempleteID` INT(11),
+			`Subject` VARCHAR(255),
+			`FileName` VARCHAR(255),
+			`SendorEmail` TEXT,
+			`options` TEXT,
+			`lognFileName` TEXT,
+			`matchlength` INT(11)
+		);
+
+		SET @values = CONCAT('("', REPLACE(p_filenames, ',', '"), ("'), '")');
+		SET @insert = CONCAT('INSERT INTO tmp_receivedFiles(receivedFilename) VALUES', @values);
+		PREPARE stmt FROM @insert;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+
+		insert tmp_matchRecord (AutoImportSettingID, CompanyID, Type, TypePKID, TrunkID, ImportFileTempleteID, Subject, FileName, SendorEmail, options)
+					SELECT AutoImportSettingID, acimp.CompanyID, TYPE, TypePKID, TrunkID, acimp.ImportFileTempleteID, Subject, FileName, SendorEmail, TEMPLATE.Options
+					FROM tblAutoImportSetting AS acimp
+					INNER JOIN tblFileUploadTemplate AS TEMPLATE ON acimp.ImportFileTempleteID =TEMPLATE.FileUploadTemplateID
+					WHERE
+					(FIND_IN_SET(LOWER(p_FromEmail), LOWER(SendorEmail)) OR FIND_IN_SET(CONCAT('*@', SUBSTRING_INDEX(LOWER(p_FromEmail),'@',-1)), LOWER(SendorEmail)))
+					and
+					lower(p_subject) LIKE CONCAT('%', lower(Subject), '%')
+					order by FileName desc;
+
+		insert tmp_matchFileLangth
+			select t1.receivedFilename as lognFileName, MAX(t2.FileName) as sortFileName, length(MAX(t2.FileName)) AS matchlength from tmp_receivedFiles t1
+			right join tmp_matchRecord t2 ON t1.receivedFilename like concat('%',t2.FileName,'%')
+			where t1.receivedFilename is not null
+			group by t1.receivedFilename
+			order by matchlength desc;
 
 
+		  insert tmp_finalMatch
+		select tmp_matchRecord.*, tmp_matchFileLangth.lognFileName, tmp_matchFileLangth.matchlength from tmp_matchRecord inner join tmp_matchFileLangth on sortFileName=FileName;
 
+	  DROP TEMPORARY TABLE IF EXISTS tmp_finalMatch2;
+		CREATE TEMPORARY TABLE tmp_finalMatch2 as ( select * from tmp_finalMatch);
 
+		select * from tmp_finalMatch where FileName in( select FileName from tmp_finalMatch2 group by FileName having count(FileName)=1 );
 
-DROP PROCEDURE IF EXISTS `prc_getAutoImportSetting_AccountAndRateTable`;
-DELIMITER //
-CREATE  PROCEDURE `prc_getAutoImportSetting_AccountAndRateTable`(
-	IN `p_SettingType` INT,
-	IN `p_CompanyID` INT,
-	IN `p_TrunkID` INT,
-	IN `p_typePKID` INT,
-	IN `p_search` TEXT,
-	IN `p_PageNumber` INT,
-	IN `p_RowspPage` INT,
-	IN `p_lSortCol` VARCHAR(50),
-	IN `p_SortOrder` VARCHAR(5),
-	IN `p_isExport` INT)
-BEGIN
-
-	DECLARE v_OffSet_ int;
-
-	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-
-	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-	
-	
-	
-	IF (p_SettingType = 1 ) THEN  -- Account Setting
-		
-					IF (p_isExport = 0) THEN
-							
-								
-							select a.AccountName,t.Trunk , ut.Title,Subject,FileName,SendorEmail,a.AccountID,t.TrunkID,ut.FileUploadTemplateID,AutoImportSettingID from tblAutoImportSetting as s
-							inner join tblTrunk as t on s.TrunkID=t.TrunkID
-							inner join tblAccount as a on a.AccountID=s.TypePKID
-							inner join tblFileUploadTemplate as ut on ut.FileUploadTemplateID=s.ImportFileTempleteID
-							
-							where 
-								  CASE 
-								  		WHEN (p_TrunkID > 0 AND p_typePKID > 0 AND p_search <> '') THEN
-										    s.TrunkID=p_TrunkID AND  s.TypePKID=p_typePKID AND ( p_search = ''  OR s.Subject LIKE REPLACE(p_search,'*', '%') )  AND s.CompanyID = p_CompanyID AND s.`Type`= 1				    
-								  		WHEN (p_TrunkID > 0 AND p_typePKID > 0) THEN
-										    s.TrunkID=p_TrunkID AND  s.TypePKID=p_typePKID AND s.CompanyID = p_CompanyID AND s.`Type`= 1				    
-										WHEN (p_TrunkID > 0) THEN
-										    s.TrunkID=p_TrunkID AND  s.CompanyID = p_CompanyID AND s.`Type`= 1
-									   WHEN (p_typePKID > 0) THEN
-										    s.TypePKID = p_typePKID AND  s.CompanyID = p_CompanyID AND s.`Type`= 1
-										WHEN (p_search <> '') THEN
-										     (  s.Subject LIKE CONCAT('%',p_search,'%')  OR SendorEmail LIKE CONCAT('%',p_search,'%') OR ut.Title LIKE CONCAT('%',p_search,'%') ) AND  s.CompanyID = p_CompanyID AND s.`Type`= 1				    				    
-										     
-										    
-										ELSE						
-											 s.CompanyID = p_CompanyID AND s.`Type`= 1
-										
-									END	
-													
-							LIMIT p_RowspPage OFFSET v_OffSet_;
-							
-					ELSE
-							
-							
-							select a.AccountName,t.Trunk , ut.Title,Subject,SendorEmail,FileName from tblAutoImportSetting as s
-							inner join tblTrunk as t on s.TrunkID=t.TrunkID
-							inner join tblAccount as a on a.AccountID=s.TypePKID
-							inner join tblFileUploadTemplate as ut on ut.FileUploadTemplateID=s.ImportFileTempleteID
-							
-							where 
-								  CASE 
-								  		WHEN (p_TrunkID > 0 AND p_typePKID > 0 AND p_search <> '') THEN
-										    s.TrunkID=p_TrunkID AND  s.TypePKID=p_typePKID AND ( p_search = ''  OR s.Subject LIKE REPLACE(p_search,'*', '%') )  AND s.CompanyID = p_CompanyID AND s.`Type`= 1				    
-								  		WHEN (p_TrunkID > 0 AND p_typePKID > 0) THEN
-										    s.TrunkID=p_TrunkID AND  s.TypePKID=p_typePKID AND s.CompanyID = p_CompanyID AND s.`Type`= 1				    
-										WHEN (p_TrunkID > 0) THEN
-										    s.TrunkID=p_TrunkID AND  s.CompanyID = p_CompanyID AND s.`Type`= 1
-									   WHEN (p_typePKID > 0) THEN
-										    s.TypePKID = p_typePKID AND  s.CompanyID = p_CompanyID AND s.`Type`= 1
-										WHEN (p_search <> '') THEN
-
-										    (  s.Subject LIKE CONCAT('%',p_search,'%')  OR SendorEmail LIKE CONCAT('%',p_search,'%') OR ut.Title LIKE CONCAT('%',p_search,'%') ) AND  s.CompanyID = p_CompanyID AND s.`Type`= 1				    				    
-										ELSE						
-											 s.CompanyID = p_CompanyID AND s.`Type`= 1
-										
-									END	
-							;			
-							
-							
-					END IF;
-		
-	
-					select COUNT(*) AS `totalcount` from tblAutoImportSetting as s
-					inner join tblTrunk as t on s.TrunkID=t.TrunkID
-					inner join tblAccount as a on a.AccountID=s.TypePKID
-					inner join tblFileUploadTemplate as ut on ut.FileUploadTemplateID=s.ImportFileTempleteID
-					where 
-								  CASE 
-								  		WHEN (p_TrunkID > 0 AND p_typePKID > 0 AND p_search <> '') THEN
-										    s.TrunkID=p_TrunkID AND  s.TypePKID=p_typePKID AND ( p_search = ''  OR s.Subject LIKE REPLACE(p_search,'*', '%') )  AND s.CompanyID = p_CompanyID AND s.`Type`= 1				    
-								  		WHEN (p_TrunkID > 0 AND p_typePKID > 0) THEN
-										    s.TrunkID=p_TrunkID AND  s.TypePKID=p_typePKID AND s.CompanyID = p_CompanyID AND s.`Type`= 1				    
-										WHEN (p_TrunkID > 0) THEN
-										    s.TrunkID=p_TrunkID AND  s.CompanyID = p_CompanyID AND s.`Type`= 1
-									   WHEN (p_typePKID > 0) THEN
-										    s.TypePKID = p_typePKID AND  s.CompanyID = p_CompanyID AND s.`Type`= 1
-										WHEN (p_search <> '') THEN			    				    
-										    (  s.Subject LIKE CONCAT('%',p_search,'%')  OR SendorEmail LIKE CONCAT('%',p_search,'%') OR ut.Title LIKE CONCAT('%',p_search,'%') ) AND  s.CompanyID = p_CompanyID AND s.`Type`= 1				    				    
-										ELSE						
-											 s.CompanyID = p_CompanyID AND s.`Type`= 1
-										
-									END	
-							;		
-			
-	END IF;
-	
-	
-	
-	IF (p_SettingType = 2 ) THEN  -- RateTable Setting
-		
-		IF (p_isExport = 0) THEN
-				
-					
-				select r.RateTableName,ut.Title,Subject,FileName,SendorEmail,r.RateTableId,ut.FileUploadTemplateID,AutoImportSettingID from tblAutoImportSetting as s
-				inner join tblRateTable as r on s.TypePKID = r.RateTableId
-				inner join tblFileUploadTemplate as ut on ut.FileUploadTemplateID=s.ImportFileTempleteID
-				
-				where 
-					  CASE 
-					  		WHEN (p_typePKID > 0 AND p_search <> '') THEN
-							     s.TypePKID=p_typePKID AND ( p_search = ''  OR s.Subject LIKE REPLACE(p_search,'*', '%') )  AND s.CompanyID = p_CompanyID AND s.`Type`= 2				    
-					  		WHEN (p_typePKID > 0) THEN
-							     s.TypePKID=p_typePKID AND s.CompanyID = p_CompanyID AND s.`Type`= 2				    
-							WHEN (p_search <> '') THEN
-
-							    (  s.Subject LIKE CONCAT('%',p_search,'%')  OR SendorEmail LIKE CONCAT('%',p_search,'%') OR ut.Title LIKE CONCAT('%',p_search,'%') ) AND  s.CompanyID = p_CompanyID AND s.`Type`= 2				    				    
-							ELSE						
-								 s.CompanyID = p_CompanyID AND s.`Type`= 2
-							
-						END	
-										
-				LIMIT p_RowspPage OFFSET v_OffSet_;
-				
-		ELSE
-				
-				
-				select r.RateTableName,ut.Title,Subject,SendorEmail,FileName from tblAutoImportSetting as s
-				inner join tblRateTable as r on s.TypePKID = r.RateTableId
-				inner join tblFileUploadTemplate as ut on ut.FileUploadTemplateID=s.ImportFileTempleteID
-				
-				where 
-					  CASE 
-					  		WHEN (p_typePKID > 0 AND p_search <> '') THEN
-							     s.TypePKID=p_typePKID AND ( p_search = ''  OR s.Subject LIKE REPLACE(p_search,'*', '%') )  AND s.CompanyID = p_CompanyID AND s.`Type`= 2				    
-					  		WHEN (p_typePKID > 0) THEN
-							     s.TypePKID=p_typePKID AND s.CompanyID = p_CompanyID AND s.`Type`= 2				    
-							WHEN (p_search <> '') THEN
-
-							    (  s.Subject LIKE CONCAT('%',p_search,'%')  OR SendorEmail LIKE CONCAT('%',p_search,'%') OR ut.Title LIKE CONCAT('%',p_search,'%') ) AND  s.CompanyID = p_CompanyID AND s.`Type`= 2				    				    
-							ELSE						
-								 s.CompanyID = p_CompanyID AND s.`Type`= 2
-							
-						END	
-				;
-				
-		END IF;
-		
-	
-				select COUNT(*) AS `totalcount` from tblAutoImportSetting as s
-				inner join tblRateTable as r on s.TypePKID = r.RateTableId
-				inner join tblFileUploadTemplate as ut on ut.FileUploadTemplateID=s.ImportFileTempleteID
-				
-				where 
-					  CASE 
-					  		WHEN (p_typePKID > 0 AND p_search <> '') THEN
-							     s.TypePKID=p_typePKID AND ( p_search = ''  OR s.Subject LIKE REPLACE(p_search,'*', '%') )  AND s.CompanyID = p_CompanyID AND s.`Type`= 2				    
-					  		WHEN (p_typePKID > 0) THEN
-							     s.TypePKID=p_typePKID AND s.CompanyID = p_CompanyID AND s.`Type`= 2				    
-							WHEN (p_search <> '') THEN
-								(  s.Subject LIKE CONCAT('%',p_search,'%')  OR SendorEmail LIKE CONCAT('%',p_search,'%') OR ut.Title LIKE CONCAT('%',p_search,'%') ) AND  s.CompanyID = p_CompanyID AND s.`Type`= 2
-							ELSE						
-								 s.CompanyID = p_CompanyID AND s.`Type`= 2
-							
-						END	
-				;
-		
-
-		
-			
-	END IF;
-
-	
-	
-	
-		
-	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
 END//
 DELIMITER ;
 
-
-
-
-
-
-DROP PROCEDURE IF EXISTS `prc_getAutoImportMail`;
+DROP PROCEDURE IF EXISTS `prc_getAutoImportSetting_AccountAndRateTable`;
 DELIMITER //
-CREATE  PROCEDURE `prc_getAutoImportMail`(
-	IN `p_jobType` INT,
-	IN `p_jobStatus` INT,
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getAutoImportSetting_AccountAndRateTable`(
+	IN `p_SettingType` INT,
 	IN `p_CompanyID` INT,
+	IN `p_TrunkID` INT,
+	IN `p_typePKID` INT,
 	IN `p_search` TEXT,
 	IN `p_PageNumber` INT,
 	IN `p_RowspPage` INT,
@@ -396,43 +181,259 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-	
-	
-	
-		
+
+
+
+	IF (p_SettingType = 1 ) THEN  -- Account Setting
+
 					IF (p_isExport = 0) THEN
-							
-								
-							select IFNULL(jt.Title, 'Not Match') as jobType,
-							CONCAT(  a.Subject, '<br>', a.AccountName, '<br>', a.`From` )  AS header,
-							a.created_at,a.JobID,IFNULL(js.Title, 'Not Match') as jobstatus,a.AutoImportID from tblAutoImport a
-							left join tblJob j on a.JobID=j.JobID
-							left join tblJobType jt on j.JobTypeID = jt.JobTypeID
-							left join tblJobStatus js on j.JobStatusID=js.JobStatusID
-							where 
-								CASE 
-									WHEN (p_jobType > 0) THEN
-										jt.JobTypeID = p_jobType AND a.CompanyID=p_CompanyID
-									WHEN (p_jobStatus > 0) THEN
-										js.JobStatusID = p_jobStatus AND a.CompanyID=p_CompanyID
-									WHEN (p_search <> '') THEN
-										    (  a.Subject LIKE CONCAT('%',p_search,'%')  OR a.JobID LIKE CONCAT('%',p_search,'%') )  AND a.CompanyID=p_CompanyID
-								   ELSE
-										a.CompanyID=p_CompanyID				
-								END
+
+
+							select a.AccountName,t.Trunk , ut.Title,Subject,FileName,SendorEmail,a.AccountID,t.TrunkID,ut.FileUploadTemplateID,AutoImportSettingID from tblAutoImportSetting as s
+							inner join tblTrunk as t on s.TrunkID=t.TrunkID
+							inner join tblAccount as a on a.AccountID=s.TypePKID
+							inner join tblFileUploadTemplate as ut on ut.FileUploadTemplateID=s.ImportFileTempleteID
+
+							where
+								  CASE
+								  		WHEN (p_TrunkID > 0 AND p_typePKID > 0 AND p_search <> '') THEN
+										    s.TrunkID=p_TrunkID AND  s.TypePKID=p_typePKID AND ( p_search = ''  OR s.Subject LIKE REPLACE(p_search,'*', '%') )  AND s.CompanyID = p_CompanyID AND s.`Type`= 1
+								  		WHEN (p_TrunkID > 0 AND p_typePKID > 0) THEN
+										    s.TrunkID=p_TrunkID AND  s.TypePKID=p_typePKID AND s.CompanyID = p_CompanyID AND s.`Type`= 1
+										WHEN (p_TrunkID > 0) THEN
+										    s.TrunkID=p_TrunkID AND  s.CompanyID = p_CompanyID AND s.`Type`= 1
+									   WHEN (p_typePKID > 0) THEN
+										    s.TypePKID = p_typePKID AND  s.CompanyID = p_CompanyID AND s.`Type`= 1
+										WHEN (p_search <> '') THEN
+										     (  s.Subject LIKE CONCAT('%',p_search,'%')  OR SendorEmail LIKE CONCAT('%',p_search,'%') OR ut.Title LIKE CONCAT('%',p_search,'%') ) AND  s.CompanyID = p_CompanyID AND s.`Type`= 1
+
+
+										ELSE
+											 s.CompanyID = p_CompanyID AND s.`Type`= 1
+
+									END
+
+								ORDER BY
+								  CASE WHEN p_lSortCol = 'AccountName' AND p_SortOrder = 'desc' THEN a.AccountName END DESC,
+								  CASE WHEN p_lSortCol = 'AccountName' THEN a.AccountName END,
+								  CASE WHEN p_lSortCol = 'Trunk' AND p_SortOrder = 'desc' THEN t.Trunk END DESC,
+								  CASE WHEN p_lSortCol = 'Trunk' THEN t.Trunk END,
+								  CASE WHEN p_lSortCol = 'Import File Templete' AND p_SortOrder = 'desc' THEN ut.Title END DESC,
+								  CASE WHEN p_lSortCol = 'Import File Templete' THEN ut.Title END,
+								  CASE WHEN p_lSortCol = 'Subject Match' AND p_SortOrder = 'desc' THEN Subject END DESC,
+								  CASE WHEN p_lSortCol = 'Subject Match' THEN Subject END,
+								  CASE WHEN p_lSortCol = 'Filename Match' AND p_SortOrder = 'desc' THEN FileName END DESC,
+								  CASE WHEN p_lSortCol = 'Filename Match' THEN FileName END,
+								  CASE WHEN p_lSortCol = 'Sendor Match' AND p_SortOrder = 'desc' THEN SendorEmail END DESC,
+								  CASE WHEN p_lSortCol = 'Sendor Match' THEN SendorEmail END
+
+
 							LIMIT p_RowspPage OFFSET v_OffSet_;
-							
+
 					ELSE
-							
-							
+
+
+							select a.AccountName,t.Trunk , ut.Title,Subject,SendorEmail,FileName from tblAutoImportSetting as s
+							inner join tblTrunk as t on s.TrunkID=t.TrunkID
+							inner join tblAccount as a on a.AccountID=s.TypePKID
+							inner join tblFileUploadTemplate as ut on ut.FileUploadTemplateID=s.ImportFileTempleteID
+
+							where
+								  CASE
+								  		WHEN (p_TrunkID > 0 AND p_typePKID > 0 AND p_search <> '') THEN
+										    s.TrunkID=p_TrunkID AND  s.TypePKID=p_typePKID AND ( p_search = ''  OR s.Subject LIKE REPLACE(p_search,'*', '%') )  AND s.CompanyID = p_CompanyID AND s.`Type`= 1
+								  		WHEN (p_TrunkID > 0 AND p_typePKID > 0) THEN
+										    s.TrunkID=p_TrunkID AND  s.TypePKID=p_typePKID AND s.CompanyID = p_CompanyID AND s.`Type`= 1
+										WHEN (p_TrunkID > 0) THEN
+										    s.TrunkID=p_TrunkID AND  s.CompanyID = p_CompanyID AND s.`Type`= 1
+									   WHEN (p_typePKID > 0) THEN
+										    s.TypePKID = p_typePKID AND  s.CompanyID = p_CompanyID AND s.`Type`= 1
+										WHEN (p_search <> '') THEN
+
+										    (  s.Subject LIKE CONCAT('%',p_search,'%')  OR SendorEmail LIKE CONCAT('%',p_search,'%') OR ut.Title LIKE CONCAT('%',p_search,'%') ) AND  s.CompanyID = p_CompanyID AND s.`Type`= 1
+										ELSE
+											 s.CompanyID = p_CompanyID AND s.`Type`= 1
+
+									END
+								ORDER BY
+								  CASE WHEN p_lSortCol = 'AccountName' AND p_SortOrder = 'desc' THEN a.AccountName END DESC,
+								  CASE WHEN p_lSortCol = 'AccountName' THEN a.AccountName END,
+								  CASE WHEN p_lSortCol = 'Trunk' AND p_SortOrder = 'desc' THEN t.Trunk END DESC,
+								  CASE WHEN p_lSortCol = 'Trunk' THEN t.Trunk END,
+								  CASE WHEN p_lSortCol = 'Import File Templete' AND p_SortOrder = 'desc' THEN ut.Title END DESC,
+								  CASE WHEN p_lSortCol = 'Import File Templete' THEN ut.Title END,
+								  CASE WHEN p_lSortCol = 'Subject Match' AND p_SortOrder = 'desc' THEN Subject END DESC,
+								  CASE WHEN p_lSortCol = 'Subject Match' THEN Subject END,
+								  CASE WHEN p_lSortCol = 'Filename Match' AND p_SortOrder = 'desc' THEN FileName END DESC,
+								  CASE WHEN p_lSortCol = 'Filename Match' THEN FileName END,
+								  CASE WHEN p_lSortCol = 'Sendor Match' AND p_SortOrder = 'desc' THEN SendorEmail END DESC,
+								  CASE WHEN p_lSortCol = 'Sendor Match' THEN SendorEmail END
+							;
+
+
+					END IF;
+
+
+		select COUNT(*) AS `totalcount` from tblAutoImportSetting as s
+		inner join tblTrunk as t on s.TrunkID=t.TrunkID
+		inner join tblAccount as a on a.AccountID=s.TypePKID
+		inner join tblFileUploadTemplate as ut on ut.FileUploadTemplateID=s.ImportFileTempleteID
+		where
+								  CASE
+								  		WHEN (p_TrunkID > 0 AND p_typePKID > 0 AND p_search <> '') THEN
+										    s.TrunkID=p_TrunkID AND  s.TypePKID=p_typePKID AND ( p_search = ''  OR s.Subject LIKE REPLACE(p_search,'*', '%') )  AND s.CompanyID = p_CompanyID AND s.`Type`= 1
+								  		WHEN (p_TrunkID > 0 AND p_typePKID > 0) THEN
+										    s.TrunkID=p_TrunkID AND  s.TypePKID=p_typePKID AND s.CompanyID = p_CompanyID AND s.`Type`= 1
+										WHEN (p_TrunkID > 0) THEN
+										    s.TrunkID=p_TrunkID AND  s.CompanyID = p_CompanyID AND s.`Type`= 1
+									   WHEN (p_typePKID > 0) THEN
+										    s.TypePKID = p_typePKID AND  s.CompanyID = p_CompanyID AND s.`Type`= 1
+										WHEN (p_search <> '') THEN
+										    (  s.Subject LIKE CONCAT('%',p_search,'%')  OR SendorEmail LIKE CONCAT('%',p_search,'%') OR ut.Title LIKE CONCAT('%',p_search,'%') ) AND  s.CompanyID = p_CompanyID AND s.`Type`= 1
+										ELSE
+											 s.CompanyID = p_CompanyID AND s.`Type`= 1
+
+									END
+							;
+
+	END IF;
+
+
+
+	IF (p_SettingType = 2 ) THEN  -- RateTable Setting
+
+		IF (p_isExport = 0) THEN
+
+
+				select r.RateTableName,ut.Title,Subject,FileName,SendorEmail,r.RateTableId,ut.FileUploadTemplateID,AutoImportSettingID from tblAutoImportSetting as s
+				inner join tblRateTable as r on s.TypePKID = r.RateTableId
+				inner join tblFileUploadTemplate as ut on ut.FileUploadTemplateID=s.ImportFileTempleteID
+
+				where
+					  CASE
+					  		WHEN (p_typePKID > 0 AND p_search <> '') THEN
+							     s.TypePKID=p_typePKID AND ( p_search = ''  OR s.Subject LIKE REPLACE(p_search,'*', '%') )  AND s.CompanyID = p_CompanyID AND s.`Type`= 2
+					  		WHEN (p_typePKID > 0) THEN
+							     s.TypePKID=p_typePKID AND s.CompanyID = p_CompanyID AND s.`Type`= 2
+							WHEN (p_search <> '') THEN
+
+							    (  s.Subject LIKE CONCAT('%',p_search,'%')  OR SendorEmail LIKE CONCAT('%',p_search,'%') OR ut.Title LIKE CONCAT('%',p_search,'%') ) AND  s.CompanyID = p_CompanyID AND s.`Type`= 2
+							ELSE
+								 s.CompanyID = p_CompanyID AND s.`Type`= 2
+
+						END
+					ORDER BY
+					  CASE WHEN p_lSortCol = 'RateTable' AND p_SortOrder = 'desc' THEN r.RateTableName END DESC,
+					  CASE WHEN p_lSortCol = 'RateTable' THEN r.RateTableName END,
+					  CASE WHEN p_lSortCol = 'Import File Template' AND p_SortOrder = 'desc' THEN ut.Title END DESC,
+					  CASE WHEN p_lSortCol = 'Import File Template' THEN ut.Title END,
+					  CASE WHEN p_lSortCol = 'Subject Match' AND p_SortOrder = 'desc' THEN Subject END DESC,
+					  CASE WHEN p_lSortCol = 'Subject Match' THEN Subject END,
+					  CASE WHEN p_lSortCol = 'Filename Match' AND p_SortOrder = 'desc' THEN FileName END DESC,
+					  CASE WHEN p_lSortCol = 'Filename Match' THEN FileName END,
+					  CASE WHEN p_lSortCol = 'Sender Match' AND p_SortOrder = 'desc' THEN SendorEmail END DESC,
+					  CASE WHEN p_lSortCol = 'Sender Match' THEN SendorEmail END
+
+				LIMIT p_RowspPage OFFSET v_OffSet_;
+
+		ELSE
+
+
+				select r.RateTableName,ut.Title,Subject,SendorEmail,FileName from tblAutoImportSetting as s
+				inner join tblRateTable as r on s.TypePKID = r.RateTableId
+				inner join tblFileUploadTemplate as ut on ut.FileUploadTemplateID=s.ImportFileTempleteID
+
+				where
+					  CASE
+					  		WHEN (p_typePKID > 0 AND p_search <> '') THEN
+							     s.TypePKID=p_typePKID AND ( p_search = ''  OR s.Subject LIKE REPLACE(p_search,'*', '%') )  AND s.CompanyID = p_CompanyID AND s.`Type`= 2
+					  		WHEN (p_typePKID > 0) THEN
+							     s.TypePKID=p_typePKID AND s.CompanyID = p_CompanyID AND s.`Type`= 2
+							WHEN (p_search <> '') THEN
+
+							    (  s.Subject LIKE CONCAT('%',p_search,'%')  OR SendorEmail LIKE CONCAT('%',p_search,'%') OR ut.Title LIKE CONCAT('%',p_search,'%') ) AND  s.CompanyID = p_CompanyID AND s.`Type`= 2
+							ELSE
+								 s.CompanyID = p_CompanyID AND s.`Type`= 2
+
+						END
+					ORDER BY
+					  CASE WHEN p_lSortCol = 'RateTable' AND p_SortOrder = 'desc' THEN r.RateTableName END DESC,
+					  CASE WHEN p_lSortCol = 'RateTable' THEN r.RateTableName END,
+					  CASE WHEN p_lSortCol = 'Import File Template' AND p_SortOrder = 'desc' THEN ut.Title END DESC,
+					  CASE WHEN p_lSortCol = 'Import File Template' THEN ut.Title END,
+					  CASE WHEN p_lSortCol = 'Subject Match' AND p_SortOrder = 'desc' THEN Subject END DESC,
+					  CASE WHEN p_lSortCol = 'Subject Match' THEN Subject END,
+					  CASE WHEN p_lSortCol = 'Filename Match' AND p_SortOrder = 'desc' THEN FileName END DESC,
+					  CASE WHEN p_lSortCol = 'Filename Match' THEN FileName END,
+					  CASE WHEN p_lSortCol = 'Sender Match' AND p_SortOrder = 'desc' THEN SendorEmail END DESC,
+					  CASE WHEN p_lSortCol = 'Sender Match' THEN SendorEmail END
+				;
+
+		END IF;
+
+
+		select COUNT(*) AS `totalcount` from tblAutoImportSetting as s
+				inner join tblRateTable as r on s.TypePKID = r.RateTableId
+				inner join tblFileUploadTemplate as ut on ut.FileUploadTemplateID=s.ImportFileTempleteID
+
+				where
+					  CASE
+					  		WHEN (p_typePKID > 0 AND p_search <> '') THEN
+							     s.TypePKID=p_typePKID AND ( p_search = ''  OR s.Subject LIKE REPLACE(p_search,'*', '%') )  AND s.CompanyID = p_CompanyID AND s.`Type`= 2
+					  		WHEN (p_typePKID > 0) THEN
+							     s.TypePKID=p_typePKID AND s.CompanyID = p_CompanyID AND s.`Type`= 2
+							WHEN (p_search <> '') THEN
+								(  s.Subject LIKE CONCAT('%',p_search,'%')  OR SendorEmail LIKE CONCAT('%',p_search,'%') OR ut.Title LIKE CONCAT('%',p_search,'%') ) AND  s.CompanyID = p_CompanyID AND s.`Type`= 2
+							ELSE
+								 s.CompanyID = p_CompanyID AND s.`Type`= 2
+
+						END
+				;
+
+
+
+
+	END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `prc_getAutoImportMail`;
+DELIMITER //
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getAutoImportMail`(
+	IN `p_jobType` INT,
+	IN `p_jobStatus` INT,
+	IN `p_CompanyID` INT,
+	IN `p_search` TEXT,
+	IN `p_AccountID` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
+BEGIN
+
+	DECLARE v_OffSet_ int;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+
+					IF (p_isExport = 0) THEN
+
+
 							select IFNULL(jt.Title, 'Not Match') as jobType,
 							CONCAT(  a.Subject, '<br>', a.AccountName, '<br>', a.`From` )  AS header,
-							a.created_at,a.JobID,IFNULL(js.Title, 'Not Match') as jobstatus from tblAutoImport a
+							a.created_at,a.JobID,IFNULL(js.Title, 'Not Match') as jobstatus,a.AutoImportID, a.AccountID, IFNULL(j.Title, '') as jobTitle from tblAutoImport a
 							left join tblJob j on a.JobID=j.JobID
 							left join tblJobType jt on j.JobTypeID = jt.JobTypeID
 							left join tblJobStatus js on j.JobStatusID=js.JobStatusID
-							where 
-								CASE 
+							where
+								CASE
 									WHEN (p_jobType > 0) THEN
 										jt.JobTypeID = p_jobType AND a.CompanyID=p_CompanyID
 									WHEN (p_jobStatus > 0) THEN
@@ -440,21 +441,68 @@ BEGIN
 									WHEN (p_search <> '') THEN
 										    (  a.Subject LIKE CONCAT('%',p_search,'%')  OR a.JobID LIKE CONCAT('%',p_search,'%') )  AND a.CompanyID=p_CompanyID
 								   ELSE
-										a.CompanyID=p_CompanyID				
+										a.CompanyID=p_CompanyID
 								END
-							;			
-							
-							
+								AND ( p_AccountID = 0 OR j.AccountID=p_AccountID )
+								ORDER BY
+								  CASE WHEN p_lSortCol = 'Type' AND p_SortOrder = 'desc' THEN jobType END DESC,
+								  CASE WHEN p_lSortCol = 'Type' THEN jobType END,
+								  CASE WHEN p_lSortCol = 'Header' AND p_SortOrder = 'desc' THEN header END DESC,
+								  CASE WHEN p_lSortCol = 'Header' THEN header END,
+								  CASE WHEN p_lSortCol = 'Created' AND p_SortOrder = 'desc' THEN a.created_at END DESC,
+								  CASE WHEN p_lSortCol = 'Created' THEN a.created_at END,
+								  CASE WHEN p_lSortCol = 'Status' AND p_SortOrder = 'desc' THEN jobstatus END DESC,
+								  CASE WHEN p_lSortCol = 'Status' THEN jobstatus END,
+								  CASE WHEN p_lSortCol = 'JobId' AND p_SortOrder = 'desc' THEN a.JobID END DESC,
+								  CASE WHEN p_lSortCol = 'JobId' THEN a.JobID END
+
+							LIMIT p_RowspPage OFFSET v_OffSet_;
+
+					ELSE
+
+
+							select IFNULL(jt.Title, 'Not Match') as jobType,
+							CONCAT(  a.Subject, '<br>', a.AccountName, '<br>', a.`From` )  AS header,
+							a.created_at,a.JobID,IFNULL(js.Title, 'Not Match') as jobstatus,a.AutoImportID, a.AccountID, IFNULL(j.Title, '') as jobTitle from tblAutoImport a
+							left join tblJob j on a.JobID=j.JobID
+							left join tblJobType jt on j.JobTypeID = jt.JobTypeID
+							left join tblJobStatus js on j.JobStatusID=js.JobStatusID
+							where
+								CASE
+									WHEN (p_jobType > 0) THEN
+										jt.JobTypeID = p_jobType AND a.CompanyID=p_CompanyID
+									WHEN (p_jobStatus > 0) THEN
+										js.JobStatusID = p_jobStatus AND a.CompanyID=p_CompanyID
+									WHEN (p_search <> '') THEN
+										    (  a.Subject LIKE CONCAT('%',p_search,'%')  OR a.JobID LIKE CONCAT('%',p_search,'%') )  AND a.CompanyID=p_CompanyID
+								   ELSE
+										a.CompanyID=p_CompanyID
+								END
+								AND ( p_AccountID = 0 OR j.AccountID=p_AccountID )
+								ORDER BY
+								  CASE WHEN p_lSortCol = 'Type' AND p_SortOrder = 'desc' THEN jobType END DESC,
+								  CASE WHEN p_lSortCol = 'Type' THEN jobType END,
+								  CASE WHEN p_lSortCol = 'Header' AND p_SortOrder = 'desc' THEN header END DESC,
+								  CASE WHEN p_lSortCol = 'Header' THEN header END,
+								  CASE WHEN p_lSortCol = 'Created' AND p_SortOrder = 'desc' THEN a.created_at END DESC,
+								  CASE WHEN p_lSortCol = 'Created' THEN a.created_at END,
+								  CASE WHEN p_lSortCol = 'Status' AND p_SortOrder = 'desc' THEN jobstatus END DESC,
+								  CASE WHEN p_lSortCol = 'Status' THEN jobstatus END,
+								  CASE WHEN p_lSortCol = 'JobId' AND p_SortOrder = 'desc' THEN a.JobID END DESC,
+								  CASE WHEN p_lSortCol = 'JobId' THEN a.JobID END
+							;
+
+
 					END IF;
-		
-		
-					
+
+
+
 					select COUNT(*) AS `totalcount` from tblAutoImport a
 							left join tblJob j on a.JobID=j.JobID
 							left join tblJobType jt on j.JobTypeID = jt.JobTypeID
 							left join tblJobStatus js on j.JobStatusID=js.JobStatusID
-							where 
-								CASE 
+							where
+								CASE
 									WHEN (p_jobType > 0) THEN
 										jt.JobTypeID = p_jobType AND a.CompanyID=p_CompanyID
 									WHEN (p_jobStatus > 0) THEN
@@ -462,12 +510,11 @@ BEGIN
 									WHEN (p_search <> '') THEN
 										    (  a.Subject LIKE CONCAT('%',p_search,'%')  OR a.JobID LIKE CONCAT('%',p_search,'%') )  AND a.CompanyID=p_CompanyID
 								   ELSE
-										a.CompanyID=p_CompanyID				
+										a.CompanyID=p_CompanyID
 								END
+								AND ( p_AccountID = 0 OR j.AccountID=p_AccountID )
 							LIMIT p_RowspPage OFFSET v_OffSet_;
-		
-		
-	
+
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
 END//
@@ -2259,6 +2306,7 @@ DELIMITER ;
 DROP PROCEDURE IF EXISTS `prc_lcrBlockUnblock`;
 DELIMITER //
 CREATE  PROCEDURE `prc_lcrBlockUnblock`(
+  IN `p_companyId` INT,
 	IN `p_groupby` VARCHAR(200),
 	IN `p_blockId` INT,
 	IN `p_preference` INT,
@@ -3520,9 +3568,9 @@ END//
 DELIMITER ;
 
 
+-- vishal start
 
-
-
+INSERT INTO `tblCronJobCommand` ( `CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES ( 1, NULL, 'Read Email for AutoRateImport', 'reademailsautoimport', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, NULL, NULL);
 
 
 

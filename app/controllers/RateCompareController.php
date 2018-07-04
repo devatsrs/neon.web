@@ -24,8 +24,9 @@ class RateCompareController extends \BaseController {
             $rate_table = RateTable::getRateTableList([]);
 
             $GroupBy =    NeonCookie::getCookie('_RateCompare_GroupBy');
+            $Timezones = Timezones::getTimezonesIDList();
 
-            return View::make('rate_compare.index', compact('trunks', 'currencies','CurrencyID','codedecklist', 'DefaultCodedeck' , 'default_trunk','all_vendors','all_customers','rate_table','GroupBy'));
+            return View::make('rate_compare.index', compact('trunks', 'currencies','CurrencyID','codedecklist', 'DefaultCodedeck' , 'default_trunk','all_vendors','all_customers','rate_table','GroupBy','Timezones'));
     }
 
     public function search_ajax_datagrid($type) {
@@ -41,7 +42,7 @@ class RateCompareController extends \BaseController {
             NeonCookie::setCookie('_RateCompare_GroupBy',$data['GroupBy'],60);
         }
 
-        $query = "call prc_RateCompare (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$data['GroupBy']."','".$data['SourceVendors']."','".$data['SourceCustomers']."','".$data['SourceRateTables']."','".$data['DestinationVendors']."','".$data['DestinationCustomers']."','".$data['DestinationRateTables']."','".$data['Effective']."','".$data['SelectedEffectiveDate']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."'";
+        $query = "call prc_RateCompare (".$companyID.",".$data['Trunk']."," . $data['Timezones'] . ",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$data['GroupBy']."','".$data['SourceVendors']."','".$data['SourceCustomers']."','".$data['SourceRateTables']."','".$data['DestinationVendors']."','".$data['DestinationCustomers']."','".$data['DestinationRateTables']."','".$data['Effective']."','".$data['SelectedEffectiveDate']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
 
@@ -216,11 +217,11 @@ class RateCompareController extends \BaseController {
         $data['CompanyID'] =  User::get_companyID();
 
 
-        $customers_array = Account::getAccountDropdownWithTrunk($data);
+        $select2_customer = $customers_array = Account::getAccountDropdownWithTrunk($data);
 
-        $select2_customer = array_map(function($customers_array) {
+        /*$select2_customer = array_map(function($customers_array) {
             return array("id" => $customers_array["AccountID"],"text" => $customers_array["AccountName"]);
-        },$customers_array);
+        },$customers_array);*/
 
         return Response::json(array("status" => "success", "message" => "" ,"data" =>  $select2_customer));
 

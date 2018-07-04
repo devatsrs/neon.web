@@ -121,6 +121,13 @@
                     </div>
 
                 </div>
+                <div class="form-group">
+                    <label class="col-sm-1 control-label">Timezones</label>
+                    <div class="col-sm-3">
+                        {{ Form::select('Timezones', $Timezones, '', array("class"=>"select2")) }}
+                    </div>
+                </div>
+
                 <p style="text-align: right;">
                     <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
                         <i class="entypo-search"></i>
@@ -148,6 +155,7 @@
     <form id="clear-bulk-rate-form" >
         <input type="hidden" name="VendorRateID" value="">
         <input type="hidden" name="TrunkID" value="">
+        <input type="hidden" name="TimezonesID" value="">
         <input type="hidden" name="criteria" value="">
     </form>
 </div>
@@ -213,6 +221,7 @@ jQuery(document).ready(function($) {
 
         var VendorRateIDs   = [];
         var TrunkID         = $searchFilter.Trunk;
+        var TimezonesID     = $searchFilter.Timezones;
         var i = 0;
         $('#table-4 tr .rowcheckbox:checked').each(function(i, el) {
             VendorRateID = $(this).val();
@@ -220,6 +229,7 @@ jQuery(document).ready(function($) {
         });
 
         $("#clear-bulk-rate-form").find("input[name='TrunkID']").val(TrunkID);
+        $("#clear-bulk-rate-form").find("input[name='TimezonesID']").val(TimezonesID);
 
         if(VendorRateIDs.length || $(this).hasClass('clear-vendor-rate')) {
             response = confirm('Are you sure?');
@@ -286,6 +296,7 @@ jQuery(document).ready(function($) {
 
         var VendorRateIDs   = [];
         var TrunkID         = $searchFilter.Trunk;
+        var TimezonesID     = $searchFilter.Timezones;
 
         var i = 0;
         $('#table-4 tr .rowcheckbox:checked').each(function(i, el) {
@@ -303,6 +314,7 @@ jQuery(document).ready(function($) {
         $("#bulk-edit-vendor-rate-form").find("input[name='IntervalN']").val(1);
         $("#bulk-edit-vendor-rate-form").find("input[name='EffectiveDate']").val(currentDate);
         $("#bulk-edit-vendor-rate-form").find("input[name='TrunkID']").val(TrunkID);
+        $("#bulk-edit-vendor-rate-form").find("input[name='TimezonesID']").val(TimezonesID);
 
         var criteria = '';
         if ($('#selectallbutton').is(':checked')) {
@@ -390,7 +402,7 @@ jQuery(document).ready(function($) {
             $.ajax({
                 url : baseurl + "/vendor_rates/{{$id}}/search_ajax_datagrid_archive_rates",
                 type : 'POST',
-                data : "Codes="+Codes,
+                data : "Codes="+Codes+"&TimezonesID="+$searchFilter.Timezones+"&TrunkID="+$searchFilter.Trunk,
                 dataType : 'json',
                 cache: false,
                 success : function(response){
@@ -435,6 +447,7 @@ jQuery(document).ready(function($) {
                     });
                     table.append(tbody);
                     row.child(table).show();
+                    row.child().addClass('no-selection child-row');
                     tr.addClass('shown');
                 }
             });
@@ -448,6 +461,7 @@ jQuery(document).ready(function($) {
         $searchFilter.Code = Code = $("#vendor-rate-search input[name='Code']").val();
         $searchFilter.Description = Description = $("#vendor-rate-search input[name='Description']").val();
         $searchFilter.DiscontinuedRates = DiscontinuedRates = $("#vendor-rate-search input[name='DiscontinuedRates']").is(':checked') ? 1 : 0;
+        $searchFilter.Timezones = Timezones = $("#vendor-rate-search select[name='Timezones']").val();
 
         if(Trunk == '' || typeof Trunk  == 'undefined'){
             toastr.error("Please Select a Trunk", "Error", toastr_opts);
@@ -460,9 +474,9 @@ jQuery(document).ready(function($) {
             "bServerSide": true,
             "sAjaxSource": baseurl + "/vendor_rates/{{$id}}/search_ajax_datagrid",
             "fnServerParams": function(aoData) {
-                aoData.push({"name": "Effective", "value": Effective}, {"name": "Trunk", "value": Trunk}, {"name": "Country", "value": Country}, {"name": "Code", "value": Code}, {"name": "Description", "value": Description}, {"name": "DiscontinuedRates", "value": DiscontinuedRates});
+                aoData.push({"name": "Effective", "value": Effective}, {"name": "Trunk", "value": Trunk}, {"name": "Country", "value": Country}, {"name": "Code", "value": Code}, {"name": "Description", "value": Description}, {"name": "DiscontinuedRates", "value": DiscontinuedRates}, {"name": "Timezones", "value": Timezones});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name": "Effective", "value": Effective}, {"name": "Trunk", "value": Trunk}, {"name": "Country", "value": Country},  {"name": "Code", "value": Code}, {"name": "Description", "value": Description}, {"name": "DiscontinuedRates", "value": DiscontinuedRates});
+                data_table_extra_params.push({"name": "Effective", "value": Effective}, {"name": "Trunk", "value": Trunk}, {"name": "Country", "value": Country},  {"name": "Code", "value": Code}, {"name": "Description", "value": Description}, {"name": "DiscontinuedRates", "value": DiscontinuedRates}, {"name": "Timezones", "value": Timezones});
             },
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
@@ -558,11 +572,13 @@ jQuery(document).ready(function($) {
                 $(".edit-vendor-rate.btn").click(function(ev) {
                     ev.stopPropagation();
                     var TrunkID = $searchFilter.Trunk;
+                    var TimezonesID = $searchFilter.Timezones;
                     var cur_obj = $(this).prev("div.hiddenRowData");
                     for(var i = 0 ; i< list_fields.length; i++){
                         $("#edit-vendor-rate-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                     }
                     $("#edit-vendor-rate-form").find("input[name='TrunkID']").val(TrunkID);
+                    $("#edit-vendor-rate-form").find("input[name='TimezonesID']").val(TimezonesID);
                     jQuery('#modal-VendorRate').modal('show', {backdrop: 'static'});
                 });
 
@@ -707,6 +723,7 @@ jQuery(document).ready(function($) {
                 <div class="modal-footer">
                     <input type="hidden" name="VendorRateID" value="">
                     <input type="hidden" name="TrunkID" value="">
+                    <input type="hidden" name="TimezonesID" value="">
                     <input type="hidden" name="criteria" value="">
                     <input type="hidden" name="updateEffectiveDate" value="on">
                     <input type="hidden" name="updateRate" value="on">
@@ -799,6 +816,7 @@ jQuery(document).ready(function($) {
                 <div class="modal-footer">
                     <input type="hidden" name="VendorRateID" value="">
                     <input type="hidden" name="TrunkID" value="">
+                    <input type="hidden" name="TimezonesID" value="">
                     <input type="hidden" name="criteria" value="">
 
                     <button type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">

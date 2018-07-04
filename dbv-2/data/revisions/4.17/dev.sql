@@ -50,7 +50,7 @@ BEGIN
 		connect_time datetime,
 		disconnect_time datetime,
 		is_inbound tinyint(1) default 0,
-		ID INT,
+		ID BIGINT(20),
 		ServiceID INT
 	);
 	INSERT INTO tmp_tblUsageDetails_
@@ -141,7 +141,7 @@ BEGIN
 			connect_time datetime,
 			disconnect_time datetime,
 			is_inbound tinyint(1) default 0,
-			ID INT
+			ID BIGINT(20)
 	);
 	INSERT INTO tmp_tblUsageDetails_
 	SELECT
@@ -575,7 +575,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_ProcessCDRService`;
 DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_ProcessCDRService`(
+CREATE PROCEDURE `prc_ProcessCDRService`(
 	IN `p_CompanyID` INT,
 	IN `p_processId` INT,
 	IN `p_tbltempusagedetail_name` VARCHAR(200)
@@ -676,11 +676,11 @@ CREATE PROCEDURE `prc_ApplyAuthRule`(
 						ga.AccountIP,
 						a.AccountID,
 						ga.ServiceID
-					FROM NeonRMDev.tblAccount  a
+					FROM Ratemanagement3.tblAccount  a
 						INNER JOIN tblGatewayAccount ga
 							ON ga.CompanyID = a.CompanyId
 								 AND CONCAT(a.AccountName , '-' , a.Number) = ga.AccountName
-						LEFT JOIN NeonRMDev.tblAccountAuthenticate aa
+						LEFT JOIN Ratemanagement3.tblAccountAuthenticate aa
 							ON a.AccountID = aa.AccountID
 								 AND aa.ServiceID = ga.ServiceID
 					WHERE GatewayAccountID IS NOT NULL
@@ -706,11 +706,11 @@ CREATE PROCEDURE `prc_ApplyAuthRule`(
 						ga.AccountIP,
 						a.AccountID,
 						ga.ServiceID
-					FROM NeonRMDev.tblAccount  a
+					FROM Ratemanagement3.tblAccount  a
 						INNER JOIN tblGatewayAccount ga
 							ON ga.CompanyID = a.CompanyId
 								 AND CONCAT(a.Number, '-' , a.AccountName) = ga.AccountName
-						LEFT JOIN NeonRMDev.tblAccountAuthenticate aa
+						LEFT JOIN Ratemanagement3.tblAccountAuthenticate aa
 							ON a.AccountID = aa.AccountID
 								 AND aa.ServiceID = ga.ServiceID
 					WHERE GatewayAccountID IS NOT NULL
@@ -736,11 +736,11 @@ CREATE PROCEDURE `prc_ApplyAuthRule`(
 						ga.AccountIP,
 						a.AccountID,
 						ga.ServiceID
-					FROM NeonRMDev.tblAccount  a
+					FROM Ratemanagement3.tblAccount  a
 						INNER JOIN tblGatewayAccount ga
 							ON ga.CompanyID = a.CompanyId
 								 AND a.Number = ga.AccountNumber
-						LEFT JOIN NeonRMDev.tblAccountAuthenticate aa
+						LEFT JOIN Ratemanagement3.tblAccountAuthenticate aa
 							ON a.AccountID = aa.AccountID
 								 AND aa.ServiceID = ga.ServiceID
 					WHERE GatewayAccountID IS NOT NULL
@@ -766,8 +766,8 @@ CREATE PROCEDURE `prc_ApplyAuthRule`(
 						ga.AccountIP,
 						a.AccountID,
 						aa.ServiceID
-					FROM NeonRMDev.tblAccount  a
-						INNER JOIN NeonRMDev.tblAccountAuthenticate aa
+					FROM Ratemanagement3.tblAccount  a
+						INNER JOIN Ratemanagement3.tblAccountAuthenticate aa
 							ON a.AccountID = aa.AccountID AND (aa.CustomerAuthRule = 'IP' OR aa.VendorAuthRule ='IP')
 						INNER JOIN tblGatewayAccount ga
 							ON ga.CompanyID = a.CompanyId
@@ -792,10 +792,10 @@ CREATE PROCEDURE `prc_ApplyAuthRule`(
 						ga.AccountIP,
 						a.AccountID,
 						aa.ServiceID
-					FROM NeonRMDev.tblAccount  a
+					FROM Ratemanagement3.tblAccount  a
 						INNER JOIN tblGatewayAccount ga
 							ON ga.CompanyID = a.CompanyId
-						INNER JOIN NeonRMDev.tblCLIRateTable aa
+						INNER JOIN Ratemanagement3.tblCLIRateTable aa
 							ON a.AccountID = aa.AccountID
 								 AND ga.ServiceID = p_ServiceID AND aa.ServiceID = ga.ServiceID
 								 AND ga.AccountCLI = aa.CLI
@@ -811,7 +811,7 @@ CREATE PROCEDURE `prc_ApplyAuthRule`(
 			THEN
 
 				-- IF sippy add sippy gateway too
-				select count(*) into @IsSippy from NeonRMDev.tblGateway g inner join NeonRMDev.tblCompanyGateway cg
+				select count(*) into @IsSippy from Ratemanagement3.tblGateway g inner join Ratemanagement3.tblCompanyGateway cg
 						on cg.GatewayID = g.GatewayID
 							 AND cg.`Status` = 1
 							 AND cg.CompanyGatewayID = p_CompanyGatewayID
@@ -828,14 +828,14 @@ CREATE PROCEDURE `prc_ApplyAuthRule`(
 							ga.AccountIP,
 							sa.AccountID,
 							ga.ServiceID
-						FROM NeonRMDev.tblAccount  a
-							LEFT JOIN NeonRMDev.tblAccountAuthenticate aa
+						FROM Ratemanagement3.tblAccount  a
+							LEFT JOIN Ratemanagement3.tblAccountAuthenticate aa
 								ON a.AccountID = aa.AccountID
 							INNER JOIN tblGatewayAccount ga
 								ON ga.CompanyID = a.CompanyId
 									 AND aa.ServiceID = ga.ServiceID
 							--	AND a.AccountName = ga.AccountName
-							INNER JOIN NeonRMDev.tblAccountSippy sa
+							INNER JOIN Ratemanagement3.tblAccountSippy sa
 								ON sa.CompanyID = a.CompanyId
 									 AND 	( (a.IsCustomer = 1	AND ga.AccountNumber = sa.i_account)	OR	( a.IsVendor = 1	AND ga.AccountNumber = sa.i_vendor ) )
 						WHERE a.CompanyId = p_CompanyID
@@ -859,11 +859,11 @@ CREATE PROCEDURE `prc_ApplyAuthRule`(
 							ga.AccountIP,
 							a.AccountID,
 							ga.ServiceID
-						FROM NeonRMDev.tblAccount  a
+						FROM Ratemanagement3.tblAccount  a
 							INNER JOIN tblGatewayAccount ga
 								ON ga.CompanyID = a.CompanyId
 									 AND a.AccountName = ga.AccountName
-							LEFT JOIN NeonRMDev.tblAccountAuthenticate aa
+							LEFT JOIN Ratemanagement3.tblAccountAuthenticate aa
 								ON a.AccountID = aa.AccountID
 									 AND aa.ServiceID = ga.ServiceID
 						WHERE a.CompanyId = p_CompanyID
@@ -893,8 +893,8 @@ CREATE PROCEDURE `prc_ApplyAuthRule`(
 						ga.AccountIP,
 						a.AccountID,
 						aa.ServiceID
-					FROM NeonRMDev.tblAccount  a
-						INNER JOIN NeonRMDev.tblAccountAuthenticate aa
+					FROM Ratemanagement3.tblAccount  a
+						INNER JOIN Ratemanagement3.tblAccountAuthenticate aa
 							ON a.AccountID = aa.AccountID AND (aa.CustomerAuthRule = 'Other' OR aa.VendorAuthRule ='Other')
 						INNER JOIN tblGatewayAccount ga
 							ON ga.CompanyID = a.CompanyId
@@ -950,137 +950,652 @@ CREATE PROCEDURE `prc_ProcesssCDR`(
 )
 	BEGIN
 
-		SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 
 
-		CALL prc_autoAddIP(p_CompanyID,p_CompanyGatewayID); -- only if AutoAddIP is on
+	CALL prc_autoAddIP(p_CompanyID,p_CompanyGatewayID); -- only if AutoAddIP is on
 
-		CALL prc_ProcessCDRService(p_CompanyID,p_processId,p_tbltempusagedetail_name); -- update service ID based on IP or cli
+	CALL prc_ProcessCDRService(p_CompanyID,p_processId,p_tbltempusagedetail_name); -- update service ID based on IP or cli
 
 
-		DROP TEMPORARY TABLE IF EXISTS tmp_Customers_;
-		CREATE TEMPORARY TABLE tmp_Customers_  (
-			RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-			AccountID INT,
-			CompanyGatewayID INT
-		);
+	DROP TEMPORARY TABLE IF EXISTS tmp_Customers_;
+	CREATE TEMPORARY TABLE tmp_Customers_  (
+		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		AccountID INT,
+		CompanyGatewayID INT
+	);
 
-		IF p_RerateAccounts!=0
-		THEN
-			-- selected customer
-			SET @sql1 = concat("insert into tmp_Customers_ (AccountID) values ('", replace(( select TRIM(REPLACE(group_concat(distinct IFNULL(REPLACE(REPLACE(json_extract(Settings, '$.Accounts'), '[', ''), ']', ''),0)),'"','')) as AccountID from NeonRMDev.tblCompanyGateway), ",", "'),('"),"');");
-			PREPARE stmt1 FROM @sql1;
-			EXECUTE stmt1;
-			DEALLOCATE PREPARE stmt1;
-			DELETE FROM tmp_Customers_ WHERE AccountID=0;
-			UPDATE tmp_Customers_ SET CompanyGatewayID=p_CompanyGatewayID WHERE 1;
-		END IF;
+	IF p_RerateAccounts!=0
+	THEN
+		-- selected customer
+      SET @sql1 = concat("insert into tmp_Customers_ (AccountID) values ('", replace(( select TRIM(REPLACE(group_concat(distinct IFNULL(REPLACE(REPLACE(json_extract(Settings, '$.Accounts'), '[', ''), ']', ''),0)),'"','')) as AccountID from Ratemanagement3.tblCompanyGateway), ",", "'),('"),"');");
+      PREPARE stmt1 FROM @sql1;
+      EXECUTE stmt1;
+      DEALLOCATE PREPARE stmt1;
+      DELETE FROM tmp_Customers_ WHERE AccountID=0;
+      UPDATE tmp_Customers_ SET CompanyGatewayID=p_CompanyGatewayID WHERE 1;
+  END IF;
 
-		DROP TEMPORARY TABLE IF EXISTS tmp_Service_;
-		CREATE TEMPORARY TABLE tmp_Service_  (
-			RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-			ServiceID INT
-		);
-		SET @stm = CONCAT('
+	DROP TEMPORARY TABLE IF EXISTS tmp_Service_;
+	CREATE TEMPORARY TABLE tmp_Service_  (
+		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		ServiceID INT
+	);
+	SET @stm = CONCAT('
 	INSERT INTO tmp_Service_ (ServiceID)
-	SELECT DISTINCT ServiceID FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND ServiceID > 0;
+	SELECT DISTINCT ServiceID FROM RMCDR3.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND ServiceID > 0;
 	');
 
-		PREPARE stm FROM @stm;
-		EXECUTE stm;
-		DEALLOCATE PREPARE stm;
+	PREPARE stm FROM @stm;
+	EXECUTE stm;
+	DEALLOCATE PREPARE stm;
 
-		SET @stm = CONCAT('
+	SET @stm = CONCAT('
 	INSERT INTO tmp_Service_ (ServiceID)
 	SELECT DISTINCT tblService.ServiceID
-	FROM NeonRMDev.tblService
-	LEFT JOIN  NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
+	FROM Ratemanagement3.tblService
+	LEFT JOIN  RMCDR3.`' , p_tbltempusagedetail_name , '` ud
 	ON tblService.ServiceID = ud.ServiceID AND ProcessID="' , p_processId , '"
 	WHERE tblService.ServiceID > 0 AND tblService.CompanyGatewayID > 0 AND ud.ServiceID IS NULL
 	');
 
+	PREPARE stm FROM @stm;
+	EXECUTE stm;
+	DEALLOCATE PREPARE stm;
+
+
+
+	CALL prc_ProcessCDRAccount(p_CompanyID,p_CompanyGatewayID,p_processId,p_tbltempusagedetail_name,p_NameFormat);
+
+
+
+	-- p_OutboundTableID is for cdr upload
+	IF ( ( SELECT COUNT(*) FROM tmp_Service_ ) > 0 OR p_OutboundTableID > 0)
+	THEN
+
+
+		CALL prc_RerateOutboundService(p_processId,p_tbltempusagedetail_name,p_RateCDR,p_RateFormat,p_RateMethod,p_SpecifyRate,p_OutboundTableID);
+
+	ELSE
+
+
+		CALL prc_RerateOutboundTrunk(p_processId,p_tbltempusagedetail_name,p_RateCDR,p_RateFormat,p_RateMethod,p_SpecifyRate);
+
+
+		CALL prc_autoUpdateTrunk(p_CompanyID,p_CompanyGatewayID);
+
+	END IF;
+
+	 -- no rerate and prefix format
+
+	IF p_RateCDR = 0 AND p_RateFormat = 2
+	THEN
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_Accounts_;
+		CREATE TEMPORARY TABLE tmp_Accounts_  (
+			RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			AccountID INT
+		);
+		SET @stm = CONCAT('
+		INSERT INTO tmp_Accounts_(AccountID)
+		SELECT DISTINCT AccountID FROM RMCDR3.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND TrunkID IS NOT NULL;
+		');
+
 		PREPARE stm FROM @stm;
 		EXECUTE stm;
 		DEALLOCATE PREPARE stm;
 
 
-
-		CALL prc_ProcessCDRAccount(p_CompanyID,p_CompanyGatewayID,p_processId,p_tbltempusagedetail_name,p_NameFormat);
-
+		CALL Ratemanagement3.prc_getDefaultCodes(p_CompanyID);
 
 
-		-- p_OutboundTableID is for cdr upload
-		IF ( ( SELECT COUNT(*) FROM tmp_Service_ ) > 0 OR p_OutboundTableID > 0)
-		THEN
+		CALL prc_updateDefaultPrefix(p_processId, p_tbltempusagedetail_name);
+
+	END IF;
 
 
-			CALL prc_RerateOutboundService(p_processId,p_tbltempusagedetail_name,p_RateCDR,p_RateFormat,p_RateMethod,p_SpecifyRate,p_OutboundTableID);
-
-		ELSE
+	CALL prc_RerateInboundCalls(p_CompanyID,p_processId,p_tbltempusagedetail_name,p_RateCDR,p_RateMethod,p_SpecifyRate,p_InboundTableID);
 
 
-			CALL prc_RerateOutboundTrunk(p_processId,p_tbltempusagedetail_name,p_RateCDR,p_RateFormat,p_RateMethod,p_SpecifyRate);
+	-- for mirta only
+	IF (  p_RateCDR = 1 )
+	THEN
+		-- update cost = 0 where cc_type = 4 (OUTNOCHARGE)
+		SET @stm = CONCAT('
+	UPDATE RMCDR3.`' , p_tbltempusagedetail_name , '` ud
+	INNER JOIN  RMCDR3.`' , p_tbltempusagedetail_name ,'_Retail' , '` udr ON ud.TempUsageDetailID = udr.TempUsageDetailID AND ud.ProcessID = udr.ProcessID
+	SET cost = 0
+  WHERE ud.ProcessID="' , p_processId , '" AND udr.cc_type = 4 ;
+	');
 
+		PREPARE stm FROM @stm;
+		EXECUTE stm;
+		DEALLOCATE PREPARE stm;
 
-			CALL prc_autoUpdateTrunk(p_CompanyID,p_CompanyGatewayID);
-
-		END IF;
-
-		-- no rerate and prefix format
-
-		IF p_RateCDR = 0 AND p_RateFormat = 2
-		THEN
-
-			DROP TEMPORARY TABLE IF EXISTS tmp_Accounts_;
-			CREATE TEMPORARY TABLE tmp_Accounts_  (
-				RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-				AccountID INT
-			);
-			SET @stm = CONCAT('
-		INSERT INTO tmp_Accounts_(AccountID)
-		SELECT DISTINCT AccountID FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND TrunkID IS NOT NULL;
-		');
-
-			PREPARE stm FROM @stm;
-			EXECUTE stm;
-			DEALLOCATE PREPARE stm;
-
-
-			CALL NeonRMDev.prc_getDefaultCodes(p_CompanyID);
-
-
-			CALL prc_updateDefaultPrefix(p_processId, p_tbltempusagedetail_name);
-
-		END IF;
-
-
-		CALL prc_RerateInboundCalls(p_CompanyID,p_processId,p_tbltempusagedetail_name,p_RateCDR,p_RateMethod,p_SpecifyRate,p_InboundTableID);
-
-
-		-- for mirta only
-		IF (  p_RateCDR = 1 )
-		THEN
-			-- update cost = 0 where cc_type = 4 (OUTNOCHARGE)
-			SET @stm = CONCAT('
-		UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
-		INNER JOIN  NeonCDRDev.`' , p_tbltempusagedetail_name ,'_Retail' , '` udr ON ud.TempUsageDetailID = udr.TempUsageDetailID AND ud.ProcessID = udr.ProcessID
-		SET cost = 0
-      WHERE ud.ProcessID="' , p_processId , '" AND udr.cc_type = 4 ;
-		');
-
-			PREPARE stm FROM @stm;
-			EXECUTE stm;
-			DEALLOCATE PREPARE stm;
-
-		END IF;
+	END IF;
 
 
 
+	CALL prc_CreateRerateLog(p_processId,p_tbltempusagedetail_name,p_RateCDR);
 
-		CALL prc_CreateRerateLog(p_processId,p_tbltempusagedetail_name,p_RateCDR);
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
-		SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-
-	END//
+END//
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `prc_getSOA`;
+DELIMITER //
+CREATE PROCEDURE `prc_getSOA`(
+	IN `p_CompanyID` INT,
+	IN `p_accountID` INT,
+	IN `p_StartDate` datetime,
+	IN `p_EndDate` datetime,
+	IN `p_isExport` INT 
+
+
+
+
+
+)
+BEGIN
+  
+  
+    	
+    DECLARE v_start_date DATETIME ;
+	DECLARE v_bf_InvoiceOutAmountTotal NUMERIC(18, 8);
+	DECLARE v_bf_PaymentInAmountTotal NUMERIC(18, 8);
+	DECLARE v_bf_InvoiceInAmountTotal NUMERIC(18, 8);
+	DECLARE v_bf_PaymentOutAmountTotal NUMERIC(18, 8);
+
+
+    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+     SET SESSION sql_mode='';
+
+
+   DROP TEMPORARY TABLE IF EXISTS tmp_Invoices;
+    CREATE TEMPORARY TABLE tmp_Invoices (
+        InvoiceNo VARCHAR(50),
+        PeriodCover VARCHAR(50),
+        IssueDate Datetime,
+        Amount NUMERIC(18, 8),
+        InvoiceType int,
+        AccountID int,
+        InvoiceID INT
+    );
+    
+    DROP TEMPORARY TABLE IF EXISTS tmp_Invoices_broghtf;
+    CREATE TEMPORARY TABLE tmp_Invoices_broghtf (
+        Amount NUMERIC(18, 8),
+        InvoiceType int
+    );
+
+    
+    DROP TEMPORARY TABLE IF EXISTS tmp_Payments;
+    CREATE TEMPORARY TABLE tmp_Payments (
+        InvoiceNo VARCHAR(50),
+        PaymentDate VARCHAR(50),
+        IssueDate datetime,
+        Amount NUMERIC(18, 8),
+        PaymentID INT,
+        PaymentType VARCHAR(50),
+        InvoiceID INT
+    );
+    
+    DROP TEMPORARY TABLE IF EXISTS tmp_Payments_broghtf;
+    CREATE TEMPORARY TABLE tmp_Payments_broghtf (
+        Amount NUMERIC(18, 8),
+        PaymentType VARCHAR(50)
+    );
+
+    
+    DROP TEMPORARY TABLE IF EXISTS tmp_Disputes;
+    CREATE TEMPORARY TABLE tmp_Disputes (
+        InvoiceNo VARCHAR(50),
+        created_at datetime,
+        DisputeAmount NUMERIC(18, 8),
+        InvoiceType VARCHAR(50),
+        DisputeID INT,
+        AccountID INT,
+        InvoiceID INT
+
+    );
+  
+  DROP TEMPORARY TABLE IF EXISTS tmp_InvoiceOutWithDisputes;
+   CREATE TEMPORARY TABLE tmp_InvoiceOutWithDisputes (
+        InvoiceOut_InvoiceNo VARCHAR(50),
+        InvoiceOut_PeriodCover VARCHAR(50),
+        InvoiceOut_IssueDate datetime,
+        InvoiceOut_Amount NUMERIC(18, 8),
+        InvoiceOut_DisputeAmount NUMERIC(18, 8),
+        InvoiceOut_DisputeID INT,
+       InvoiceOut_AccountID INT,
+       InvoiceOut_InvoiceID INT
+    );
+    
+  DROP TEMPORARY TABLE IF EXISTS tmp_InvoiceInWithDisputes;
+   CREATE TEMPORARY TABLE tmp_InvoiceInWithDisputes (
+        InvoiceIn_InvoiceNo VARCHAR(50),
+        InvoiceIn_PeriodCover VARCHAR(50),
+        InvoiceIn_IssueDate datetime,
+        InvoiceIn_Amount NUMERIC(18, 8),
+        InvoiceIn_DisputeAmount NUMERIC(18, 8),
+        InvoiceIn_DisputeID INT,
+        InvoiceIn_AccountID INT,
+        InvoiceIn_InvoiceID INT
+    );
+  
+  
+
+
+    
+     
+    INSERT into tmp_Invoices
+    SELECT
+      DISTINCT 
+         tblInvoice.InvoiceNumber,
+         CASE
+          WHEN (tblInvoice.ItemInvoice = 1 ) THEN
+                DATE_FORMAT(tblInvoice.IssueDate,'%d/%m/%Y')
+        WHEN (tblInvoice.ItemInvoice IS NUll AND p_isExport = 0 ) THEN
+          Concat(DATE_FORMAT(tblInvoiceDetail.StartDate,'%d/%m/%Y') ,'<br>' , DATE_FORMAT(tblInvoiceDetail.EndDate,'%d/%m/%Y'))
+        WHEN (tblInvoice.ItemInvoice IS NUll AND p_isExport = 1) THEN
+          (select Concat(DATE_FORMAT(tblInvoiceDetail.StartDate,'%d/%m/%Y') ,'-' , DATE_FORMAT(tblInvoiceDetail.EndDate,'%d/%m/%Y')) from tblInvoiceDetail where tblInvoiceDetail.InvoiceID= tblInvoice.InvoiceID order by InvoiceDetailID  limit 1)  
+       END AS PeriodCover,
+         tblInvoice.IssueDate,
+         tblInvoice.GrandTotal,
+         tblInvoice.InvoiceType,
+        tblInvoice.AccountID,
+        tblInvoice.InvoiceID
+        FROM tblInvoice
+        LEFT JOIN tblInvoiceDetail         
+		  ON tblInvoice.InvoiceID = tblInvoiceDetail.InvoiceID AND ( (tblInvoice.InvoiceType = 1 AND tblInvoiceDetail.ProductType = 2 ) OR  tblInvoice.InvoiceType =2 )
+        WHERE tblInvoice.CompanyID = p_CompanyID
+        AND tblInvoice.AccountID = p_accountID
+        AND ( (tblInvoice.InvoiceType = 2) OR ( tblInvoice.InvoiceType = 1 AND tblInvoice.InvoiceStatus NOT IN ( 'cancel' , 'draft' , 'awaiting') )  )
+        AND (p_StartDate = '0000-00-00' OR  (p_StartDate != '0000-00-00' AND  DATE_FORMAT(tblInvoice.IssueDate,'%Y-%m-%d') >= p_StartDate ) )
+      AND (p_EndDate   = '0000-00-00' OR  (p_EndDate   != '0000-00-00' AND  DATE_FORMAT(tblInvoice.IssueDate,'%Y-%m-%d') <= p_EndDate ) )
+      AND tblInvoice.GrandTotal != 0
+      Order by tblInvoice.IssueDate asc;
+    
+	IF ( p_StartDate = '0000-00-00' ) THEN
+		  SELECT min(IssueDate) into  v_start_date from tmp_Invoices;
+	END IF;
+	
+	
+        INSERT into tmp_Invoices_broghtf
+      SELECT 
+		GrandTotal ,
+		InvoiceType
+		FROM (
+		
+		SELECT
+		 DISTINCT 
+         tblInvoice.InvoiceNumber,
+         CASE
+          WHEN (tblInvoice.ItemInvoice = 1 ) THEN
+                DATE_FORMAT(tblInvoice.IssueDate,'%d/%m/%Y')
+        WHEN (tblInvoice.ItemInvoice IS NUll AND p_isExport = 0 ) THEN
+          Concat(DATE_FORMAT(tblInvoiceDetail.StartDate,'%d/%m/%Y') ,'<br>' , DATE_FORMAT(tblInvoiceDetail.EndDate,'%d/%m/%Y'))
+        WHEN (tblInvoice.ItemInvoice IS NUll AND p_isExport = 1) THEN
+          (select Concat(DATE_FORMAT(tblInvoiceDetail.StartDate,'%d/%m/%Y') ,'-' , DATE_FORMAT(tblInvoiceDetail.EndDate,'%d/%m/%Y')) from tblInvoiceDetail where tblInvoiceDetail.InvoiceID= tblInvoice.InvoiceID order by InvoiceDetailID  limit 1)  
+       END AS PeriodCover,
+         tblInvoice.IssueDate,
+         tblInvoice.GrandTotal,
+         tblInvoice.InvoiceType,
+        tblInvoice.AccountID,
+        tblInvoice.InvoiceID
+        FROM tblInvoice
+        LEFT JOIN tblInvoiceDetail         
+		  ON tblInvoice.InvoiceID = tblInvoiceDetail.InvoiceID AND ( (tblInvoice.InvoiceType = 1 AND tblInvoiceDetail.ProductType = 2 ) OR  tblInvoice.InvoiceType =2 )
+        WHERE tblInvoice.CompanyID = p_CompanyID
+        AND tblInvoice.AccountID = p_accountID
+        AND ( (tblInvoice.InvoiceType = 2) OR ( tblInvoice.InvoiceType = 1 AND tblInvoice.InvoiceStatus NOT IN ( 'cancel' , 'draft' , 'awaiting') )  )
+        AND ( (p_StartDate = '0000-00-00' AND  DATE_FORMAT(tblInvoice.IssueDate,'%Y-%m-%d') < v_start_date ) OR  (p_StartDate != '0000-00-00' AND  DATE_FORMAT(tblInvoice.IssueDate,'%Y-%m-%d') < p_StartDate ) )
+        AND tblInvoice.GrandTotal != 0
+      Order by tblInvoice.IssueDate asc
+		) t;
+
+	
+     
+     INSERT into tmp_Payments
+       SELECT
+        DISTINCT
+            tblPayment.InvoiceNo,
+            DATE_FORMAT(tblPayment.PaymentDate, '%d/%m/%Y') AS PaymentDate,
+            tblPayment.PaymentDate as IssueDate,
+            tblPayment.Amount,
+            tblPayment.PaymentID,
+            tblPayment.PaymentType,
+            tblPayment.InvoiceID
+        FROM tblPayment
+        WHERE 
+            tblPayment.CompanyID = p_CompanyID
+      AND tblPayment.AccountID = p_accountID
+      AND tblPayment.Status = 'Approved'
+        AND tblPayment.Recall = 0
+      AND (p_StartDate = '0000-00-00' OR  (p_StartDate != '0000-00-00' AND  DATE_FORMAT(tblPayment.PaymentDate,'%Y-%m-%d') >= p_StartDate ) )
+      AND (p_EndDate   = '0000-00-00' OR  (p_EndDate   != '0000-00-00' AND  DATE_FORMAT(tblPayment.PaymentDate,'%Y-%m-%d') <= p_EndDate ) )
+    Order by tblPayment.PaymentDate desc;
+
+	
+	
+    INSERT into tmp_Payments_broghtf
+    	SELECT 
+    	Amount,
+    	PaymentType
+    	FROM (
+       SELECT
+         DISTINCT
+           tblPayment.InvoiceNo,
+            DATE_FORMAT(tblPayment.PaymentDate, '%d/%m/%Y') AS PaymentDate,
+            tblPayment.PaymentDate as IssueDate,
+            tblPayment.Amount,
+            tblPayment.PaymentID,
+            tblPayment.PaymentType,
+            tblPayment.InvoiceID
+        FROM tblPayment
+        WHERE 
+            tblPayment.CompanyID = p_CompanyID
+      AND tblPayment.AccountID = p_accountID
+      AND tblPayment.Status = 'Approved'
+        AND tblPayment.Recall = 0
+      AND ( ( p_StartDate = '0000-00-00' AND DATE_FORMAT(tblPayment.PaymentDate,'%Y-%m-%d') < v_start_date )  OR  (p_StartDate != '0000-00-00' AND  DATE_FORMAT(tblPayment.PaymentDate,'%Y-%m-%d') < p_StartDate ) )
+    Order by tblPayment.PaymentDate desc
+	 ) t;
+        
+     
+     INSERT INTO tmp_Disputes
+       SELECT
+            InvoiceNo,
+        created_at,
+            DisputeAmount,
+            InvoiceType,
+            DisputeID,
+            AccountID,
+            0 as InvoiceID
+      FROM tblDispute 
+        WHERE 
+            CompanyID = p_CompanyID
+      AND AccountID = p_accountID
+      AND Status = 0 
+      AND (p_StartDate = '0000-00-00' OR  (p_StartDate != '0000-00-00' AND  DATE_FORMAT(created_at,'%Y-%m-%d') >= p_StartDate ) )
+      AND (p_EndDate   = '0000-00-00' OR  (p_EndDate   != '0000-00-00' AND  DATE_FORMAT(created_at,'%Y-%m-%d') <= p_EndDate ) )
+      order by created_at;
+
+        DROP TEMPORARY TABLE IF EXISTS tmp_Invoices_dup;
+        DROP TEMPORARY TABLE IF EXISTS tmp_Disputes_dup;
+        DROP TEMPORARY TABLE IF EXISTS tmp_Payments_dup;        
+
+          
+     CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_dup AS (SELECT * FROM tmp_Invoices);
+     CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Disputes_dup AS (SELECT * FROM tmp_Disputes);
+     CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Payments_dup AS (SELECT * FROM tmp_Payments);
+              
+     
+    INSERT INTO tmp_InvoiceOutWithDisputes
+      SELECT  
+    InvoiceNo as InvoiceOut_InvoiceNo,
+    PeriodCover as InvoiceOut_PeriodCover,
+    IssueDate as InvoiceOut_IssueDate,
+    Amount as InvoiceOut_Amount,
+    ifnull(DisputeAmount,0) as InvoiceOut_DisputeAmount,
+    DisputeID as InvoiceOut_DisputeID,
+    AccountID as InvoiceOut_AccountID,
+    InvoiceID as InvoiceOut_InvoiceID
+    
+    FROM
+     (
+      SELECT
+      		DISTINCT
+            iv.InvoiceNo,
+            iv.PeriodCover,
+            iv.IssueDate,
+            iv.Amount,
+            ds.DisputeAmount,
+            ds.DisputeID,
+       	   iv.AccountID,
+       	   iv.InvoiceID
+            
+        FROM tmp_Invoices iv
+      LEFT JOIN tmp_Disputes ds on ds.InvoiceNo = iv.InvoiceNo AND ds.InvoiceType = iv.InvoiceType  AND ds.InvoiceNo is not null
+        WHERE 
+        iv.InvoiceType = 1          
+       
+    
+     UNION ALL
+    
+     SELECT
+        DISTINCT
+            ds.InvoiceNo,
+            DATE_FORMAT(ds.created_at, '%d/%m/%Y') as PeriodCover,
+            ds.created_at as IssueDate,
+            0 as Amount,
+            ds.DisputeAmount,
+            ds.DisputeID,
+        ds.AccountID,
+        iv.InvoiceID
+      FROM tmp_Disputes_dup ds 
+      LEFT JOIN  tmp_Invoices_dup iv on ds.InvoiceNo = iv.InvoiceNo and iv.InvoiceType = ds.InvoiceType 
+        WHERE 
+        ds.InvoiceType = 1  
+        AND iv.InvoiceNo is null
+        
+   
+    ) tbl  ;
+    
+    
+    
+    
+    SELECT 
+      InvoiceOut_InvoiceNo,
+      InvoiceOut_PeriodCover,
+      ifnull(InvoiceOut_Amount,0) as InvoiceOut_Amount,
+      InvoiceOut_DisputeAmount,
+      InvoiceOut_DisputeID,
+      ifnull(PaymentIn_PeriodCover,'') as PaymentIn_PeriodCover,
+      PaymentIn_Amount,
+      PaymentIn_PaymentID
+    FROM
+    (
+      SELECT 
+      DISTINCT
+      InvoiceOut_InvoiceNo,
+      InvoiceOut_PeriodCover,
+      InvoiceOut_IssueDate,
+      InvoiceOut_Amount,
+      InvoiceOut_DisputeAmount,
+      InvoiceOut_DisputeID,
+      tmp_Payments.PaymentDate as PaymentIn_PeriodCover,
+      tmp_Payments.Amount as PaymentIn_Amount,
+      tmp_Payments.PaymentID as PaymentIn_PaymentID
+      FROM tmp_InvoiceOutWithDisputes 
+      INNER JOIN Ratemanagement3.tblAccount on tblAccount.AccountID = p_accountID
+      INNER JOIN Ratemanagement3.tblAccountBilling ab ON ab.AccountID = tblAccount.AccountID
+      
+      LEFT JOIN tmp_Payments
+      ON tmp_Payments.PaymentType = 'Payment In' AND  tmp_Payments.InvoiceNo != '' AND 
+      tmp_Payments.InvoiceID = tmp_InvoiceOutWithDisputes.InvoiceOut_InvoiceID
+		
+      
+      UNION ALL
+
+      select 
+      DISTINCT
+      '' as InvoiceOut_InvoiceNo,
+      '' as InvoiceOut_PeriodCover,
+      tmp_Payments.IssueDate as InvoiceOut_IssueDate,
+      0  as InvoiceOut_Amount,
+      0 as InvoiceOut_DisputeAmount,
+      0 as InvoiceOut_DisputeID,
+      tmp_Payments.PaymentDate as PaymentIn_PeriodCover,
+      tmp_Payments.Amount as PaymentIn_Amount,
+      tmp_Payments.PaymentID as PaymentIn_PaymentID
+      from tmp_Payments_dup as tmp_Payments
+      where PaymentType = 'Payment In' 
+      
+		AND  tmp_Payments.InvoiceID = 0
+  
+    ) tbl
+    order by InvoiceOut_IssueDate desc,InvoiceOut_InvoiceNo desc;
+     
+    
+    
+
+
+    
+    INSERT INTO tmp_InvoiceInWithDisputes
+    SELECT 
+    InvoiceNo as InvoiceIn_InvoiceNo,
+    PeriodCover as InvoiceIn_PeriodCover,
+    IssueDate as InvoiceIn_IssueDate,
+    Amount as InvoiceIn_Amount,
+    ifnull(DisputeAmount,0) as InvoiceIn_DisputeAmount,
+    DisputeID as InvoiceIn_DisputeID,
+    AccountID as InvoiceIn_AccountID,
+    InvoiceID as InvoiceIn_InvoiceID
+    FROM
+     (  SELECT
+        DISTINCT
+            iv.InvoiceNo,
+            iv.PeriodCover,
+            iv.IssueDate,
+            iv.Amount,
+            ds.DisputeAmount,
+            ds.DisputeID,
+            iv.AccountID,
+            iv.InvoiceID
+        FROM tmp_Invoices iv
+      LEFT JOIN tmp_Disputes ds  on  ds.InvoiceNo = iv.InvoiceNo   AND ds.InvoiceType = iv.InvoiceType AND ds.InvoiceNo is not null
+        WHERE 
+        iv.InvoiceType = 2          
+        
+    
+     UNION ALL
+    
+     SELECT
+        DISTINCT
+            ds.InvoiceNo,
+            DATE_FORMAT(ds.created_at, '%d/%m/%Y') as PeriodCover,
+            ds.created_at as IssueDate,
+            0 as Amount,
+            ds.DisputeAmount,
+            ds.DisputeID,
+            ds.AccountID,
+            ds.InvoiceID
+      From tmp_Disputes_dup ds 
+        LEFT JOIN tmp_Invoices_dup iv on ds.InvoiceNo = iv.InvoiceNo AND iv.InvoiceType = ds.InvoiceType 
+        WHERE  ds.InvoiceType = 2  
+        AND iv.InvoiceNo is null
+        
+    )tbl;
+      
+      
+     
+   CREATE TEMPORARY TABLE IF NOT EXISTS tmp_InvoiceInWithDisputes_dup AS (SELECT * FROM tmp_InvoiceInWithDisputes);
+ 
+     
+    SELECT 
+      InvoiceIn_InvoiceNo,
+      InvoiceIn_PeriodCover,
+      ifnull(InvoiceIn_Amount,0) as InvoiceIn_Amount,
+      InvoiceIn_DisputeAmount,
+      InvoiceIn_DisputeID,
+      ifnull(PaymentOut_PeriodCover,'') as PaymentOut_PeriodCover,
+      ifnull(PaymentOut_Amount,0) as PaymentOut_Amount,
+      PaymentOut_PaymentID
+    FROM
+    (
+      SELECT 
+      DISTINCT
+      InvoiceIn_InvoiceNo,
+      InvoiceIn_PeriodCover,
+      InvoiceIn_IssueDate,
+      InvoiceIn_Amount,
+      InvoiceIn_DisputeAmount,
+      InvoiceIn_DisputeID,
+      tmp_Payments.PaymentDate as PaymentOut_PeriodCover,
+      tmp_Payments.Amount as PaymentOut_Amount,
+      tmp_Payments.PaymentID as PaymentOut_PaymentID
+      FROM tmp_InvoiceInWithDisputes 
+      INNER JOIN Ratemanagement3.tblAccount on tblAccount.AccountID = p_accountID
+      INNER JOIN Ratemanagement3.tblAccountBilling ab ON ab.AccountID = tblAccount.AccountID
+      
+      LEFT JOIN tmp_Payments ON tmp_Payments.PaymentType = 'Payment Out' AND tmp_InvoiceInWithDisputes.InvoiceIn_InvoiceNo = tmp_Payments.InvoiceNo 
+      
+      UNION ALL
+
+      select 
+      DISTINCT
+      '' as InvoiceIn_InvoiceNo,
+      '' as InvoiceIn_PeriodCover,
+      tmp_Payments.IssueDate  as InvoiceIn_IssueDate,
+      0 as InvoiceIn_Amount,
+      0 as InvoiceIn_DisputeAmount,
+      0 as InvoiceIn_DisputeID,
+      tmp_Payments.PaymentDate as PaymentOut_PeriodCover,
+      tmp_Payments.Amount as PaymentOut_Amount,
+      tmp_Payments.PaymentID as PaymentOut_PaymentID
+      from tmp_Payments_dup as tmp_Payments
+       where PaymentType = 'Payment Out' AND 
+      (
+			tmp_Payments.InvoiceNo = ''		
+			OR 
+			tmp_Payments.InvoiceNo NOT in  ( select InvoiceIn_InvoiceNo from  tmp_InvoiceInWithDisputes_dup )
+		)
+  
+    ) tbl
+    order by InvoiceIn_IssueDate desc;
+
+   
+	
+    select sum(Amount) as InvoiceOutAmountTotal 
+    from tmp_Invoices where InvoiceType = 1 ;
+    
+
+    
+    select sum(DisputeAmount) as InvoiceOutDisputeAmountTotal 
+    from tmp_Disputes where InvoiceType = 1; 
+
+    
+    select sum(Amount) as PaymentInAmountTotal 
+    from tmp_Payments where PaymentType = 'Payment In' ; 
+    
+
+    
+    select sum(Amount) as InvoiceInAmountTotal 
+    from tmp_Invoices where InvoiceType = 2 ;
+    
+    
+    
+    select sum(DisputeAmount) as InvoiceInDisputeAmountTotal
+    from tmp_Disputes where InvoiceType = 2; 
+
+
+    
+    select sum(Amount) as PaymentOutAmountTotal 
+    from tmp_Payments where PaymentType = 'Payment Out' ; 
+    
+	
+	
+	
+	select sum(ifnull(Amount,0)) as InvoiceOutAmountTotal  into v_bf_InvoiceOutAmountTotal 
+    from tmp_Invoices_broghtf where InvoiceType = 1 ;
+    
+    select sum(ifnull(Amount,0)) as PaymentInAmountTotal into v_bf_PaymentInAmountTotal
+    from tmp_Payments_broghtf where PaymentType = 'Payment In' ; 
+    
+    select sum(ifnull(Amount,0)) as InvoiceInAmountTotal into v_bf_InvoiceInAmountTotal
+    from tmp_Invoices_broghtf where InvoiceType = 2 ;
+    
+    select sum(ifnull(Amount,0)) as PaymentOutAmountTotal into v_bf_PaymentOutAmountTotal
+    from tmp_Payments_broghtf where PaymentType = 'Payment Out' ; 
+
+	SELECT (ifnull(v_bf_InvoiceOutAmountTotal,0) - ifnull(v_bf_PaymentInAmountTotal,0)) - ( ifnull(v_bf_InvoiceInAmountTotal,0) - ifnull(v_bf_PaymentOutAmountTotal,0)) as BroughtForwardOffset;
+	
+	
+
+
+  SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+  
+END//
+DELIMITER ;

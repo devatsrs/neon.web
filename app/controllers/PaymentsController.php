@@ -14,11 +14,11 @@ class PaymentsController extends \BaseController {
 			$data['InvoiceNo']				 =		$data['InvoiceNo']!= ''?"'".$data['InvoiceNo']."'":'null';
 			$data['Status'] 				 = 		$data['Status'] != ''?"'".$data['Status']."'":'null';
 			$data['type'] 					 = 		$data['type'] != ''?"'".$data['type']."'":'null';
-			$data['paymentmethod'] 			 = 		$data['paymentmethod'] != ''?"'".$data['paymentmethod']."'":'null';		
-			$data['p_paymentstartdate'] 	 = 		$data['PaymentDate_StartDate']!=''?"".$data['PaymentDate_StartDate']."":'null';
-			$data['p_paymentstartTime'] 	 = 		$data['PaymentDate_StartTime']!=''?"".$data['PaymentDate_StartTime']."":'00:00:00';		
-			$data['p_paymentenddate'] 	 	 = 		$data['PaymentDate_EndDate']!=''?"".$data['PaymentDate_EndDate']."":'null';
-			$data['p_paymentendtime'] 	 	 = 		$data['PaymentDate_EndTime']!=''?"".$data['PaymentDate_EndTime']."":'00:00:00';
+			$data['paymentmethod'] 			 = 		$data['paymentmethod'] != ''?"'".$data['paymentmethod']."'":'null';
+			$data['p_paymentstartdate'] 	 = 		empty($data['PaymentDate_StartDate']) ?'null':"".$data['PaymentDate_StartDate']."";
+			$data['p_paymentenddate'] 	     = 		empty($data['p_paymentenddate']) ?'null':"".$data['p_paymentenddate']."";
+            $data['p_paymentstartTime'] 	 = 		empty($data['PaymentDate_StartTime'])?'00:00:00':"".$data['PaymentDate_StartTime']."";
+            $data['p_paymentendtime']   	 = 		empty($data['p_paymentendtime'])?'00:00:00':"".$data['p_paymentendtime']."";
 			$data['p_paymentstart']			 =		'null';		
 			$data['p_paymentend']			 =		'null';
 			$data['CurrencyID'] 			 = 		empty($data['CurrencyID'])?'0':$data['CurrencyID'];
@@ -525,7 +525,7 @@ class PaymentsController extends \BaseController {
     }
 
     public function confirm_bulk_upload() {
-        $data = Input::all();
+        $data = json_decode(str_replace('Skip loading','',json_encode(Input::all(),true)),true);//Input::all();
         $CompanyID = User::get_companyID();
         $ProcessID = $data['ProcessID'];
 
@@ -546,8 +546,8 @@ class PaymentsController extends \BaseController {
             $save = ['CompanyID' => $CompanyID, 'Title' => $data['TemplateName'], 'TemplateFile' => $amazonPath . $file_name];
             $save['created_by'] = User::get_user_full_name();
             $option["option"] = $data['option'];
-            $option["selection"] = $data['selection'];
-            $save['Options'] = json_encode($option);
+            $option["selection"] = array_filter($data['selection'],"filterArrayRemoveNewLines");
+            $save['Options'] = str_replace('Skip loading','',json_encode($option));//json_encode($option);
 
             if ( isset($data['PaymentUploadTemplateID']) && $data['PaymentUploadTemplateID'] > 0 ) {
                 $template = PaymentUploadTemplate::find($data['PaymentUploadTemplateID']);

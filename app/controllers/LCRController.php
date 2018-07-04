@@ -13,6 +13,7 @@ class LCRController extends \BaseController {
         }
         $data['Use_Preference'] = $data['Use_Preference'] == 'true' ? 1:0;
         $data['vendor_block'] = $data['vendor_block'] == 'true' ? 1:0;
+        $data['show_all_vendor_codes'] = $data['show_all_vendor_codes'] == 'true' ? 1:0;
         $data['iDisplayStart'] +=1;
 
         $LCRPosition = Invoice::getCookie('LCRPosition');
@@ -27,11 +28,11 @@ class LCRController extends \BaseController {
         if( $data['Policy'] == LCR::LCR ) {
 
             //log::info("call prc_GetLCR (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."',0)");
-            $query = "call prc_GetLCR (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."','".intval($data['vendor_block'])."','".$data['GroupBy']."','".$data['SelectedEffectiveDate']."' ";
+            $query = "call prc_GetLCR (".$companyID.",".$data['Trunk'].",".$data['Timezones'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."','".intval($data['vendor_block'])."','".$data['GroupBy']."','".$data['SelectedEffectiveDate']."','".intval($data['show_all_vendor_codes'])."' ";
         } else {
 
             //log::info("call prc_GetLCRwithPrefix (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."','".$data['GroupBy']."',0)");
-            $query = "call prc_GetLCRwithPrefix (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."','".intval($data['vendor_block'])."','".$data['GroupBy']."','".$data['SelectedEffectiveDate']."' ";
+            $query = "call prc_GetLCRwithPrefix (".$companyID.",".$data['Trunk'].",".$data['Timezones'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."','".intval($data['vendor_block'])."','".$data['GroupBy']."','".$data['SelectedEffectiveDate']."' ,'".intval($data['show_all_vendor_codes'])."' ";
 
         }
         if(isset($data['Export']) && $data['Export'] == 1) {
@@ -76,6 +77,7 @@ class LCRController extends \BaseController {
         $currencies = Currency::getCurrencyDropdownIDList();
         $CurrencyID = Company::where("CompanyID",User::get_companyID())->pluck("CurrencyId");
         $LCRPosition = NeonCookie::getCookie('LCRPosition',5);
+        $Timezones = Timezones::getTimezonesIDList();
         $data=array();
         $data['IsVendor']=1;
         $all_accounts = Account::getAccountIDList($data);
@@ -86,7 +88,7 @@ class LCRController extends \BaseController {
         $DefaultCodedeck = BaseCodeDeck::where(["CompanyID"=>$companyID,"DefaultCodedeck"=>1])->pluck("CodeDeckId");
         $GroupBy =    NeonCookie::getCookie('LCRGroupBy');
 
-        return View::make('lcr.index', compact('trunks', 'currencies','CurrencyID','codedecklist','DefaultCodedeck','trunk_keys','LCRPosition','all_accounts','GroupBy'));
+        return View::make('lcr.index', compact('trunks', 'currencies','CurrencyID','codedecklist','DefaultCodedeck','trunk_keys','LCRPosition','all_accounts','GroupBy','Timezones'));
     }
     //not using
     public function exports(){
@@ -97,10 +99,10 @@ class LCRController extends \BaseController {
 
         $data['iDisplayStart'] +=1;
         if( $data['Policy'] == LCR::LCR ) {
-            $query = "call prc_GetLCR (" . $companyID . "," . $data['Trunk'] . "," . $data['CodeDeck'] . ",'" . $data['Currency'] . "','" . $data['Code'] . "'," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . "," . $data['iDisplayLength'] . ",'" . $data['sSortDir_0'] . "',1)";
+            $query = "call prc_GetLCR (" . $companyID . "," . $data['Trunk'] . ",".$data['Timezones']."," . $data['CodeDeck'] . ",'" . $data['Currency'] . "','" . $data['Code'] . "'," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . "," . $data['iDisplayLength'] . ",'" . $data['sSortDir_0'] . "',1)";
         }else{
 
-            $query = "call prc_GetLCRwithPrefix (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."',1)";
+            $query = "call prc_GetLCRwithPrefix (".$companyID.",".$data['Trunk'].",".$data['Timezones'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."',1)";
         }
 
         DB::setFetchMode( PDO::FETCH_ASSOC );
@@ -121,13 +123,14 @@ class LCRController extends \BaseController {
         $postdata = Input::all();
         if($postdata['GroupBy']=='code') {
             //@TODO: change : add customer trunk active , account active
-            $result = DB::table("tblCustomerRate as cr")->select(DB::raw('max(cr.Rate) as Rate, acc.AccountName,c.Symbol'))
+            $result = DB::table("tblCustomerRate as cr")->select(DB::raw('max(cr.Rate) as Rate, acc.AccountName,acc.AccountID,c.Symbol'))
                 ->join('tblRate as r', 'cr.RateID', '=', 'r.RateID')
                 ->join('tblAccount as acc', 'cr.CustomerID', '=', 'acc.AccountID')
                 ->join('tblCustomerTrunk as ct', 'acc.AccountID', '=', 'ct.AccountID')
                 ->join('tblCurrency as c', 'c.CurrencyId', '=', 'acc.CurrencyId')
                 ->where('r.Code', '=', $postdata['code'])
                 ->where('acc.Status', '=', '1')
+                ->where('acc.IsCustomer', '=', '1')
                 ->groupby('acc.AccountName')
                 ->where('ct.Status', '=', '1')
                 ->where ('cr.EffectiveDate', '<=' ,$postdata["effactdate"] )
@@ -140,6 +143,7 @@ class LCRController extends \BaseController {
                 ->join('tblCurrency as c', 'c.CurrencyId', '=', 'acc.CurrencyId')
                 ->where('r.Description', '=', $postdata['code'])
                 ->where('acc.Status', '=', '1')
+                ->where('acc.IsCustomer', '=', '1')
                 ->where('ct.Status', '=', '1')
                 ->where ('cr.EffectiveDate', '<=' ,$postdata["effactdate"] )
                 ->groupby('acc.AccountName')
@@ -175,9 +179,9 @@ class LCRController extends \BaseController {
             NeonCookie::setCookie('LCRGroupBy', $data['GroupBy'], 60);
         }
         if( $data['Policy'] == LCR::LCR ) {
-            $query = "call prc_GetLCR (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."','".intval($data['vendor_block'])."','".$data['GroupBy']."','".$data['SelectedEffectiveDate']."' ";
+            $query = "call prc_GetLCR (".$companyID.",".$data['Trunk'].",".$data['Timezones'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."','".intval($data['vendor_block'])."','".$data['GroupBy']."','".$data['SelectedEffectiveDate']."' ";
         } else {
-            $query = "call prc_GetLCRwithPrefix (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."','".intval($data['vendor_block'])."','".$data['GroupBy']."','".$data['SelectedEffectiveDate']."' ";
+            $query = "call prc_GetLCRwithPrefix (".$companyID.",".$data['Trunk'].",".$data['Timezones'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."','".intval($data['vendor_block'])."','".$data['GroupBy']."','".$data['SelectedEffectiveDate']."' ";
         }
         $positiondata = DB::select($query . ',1)');
 
@@ -190,6 +194,7 @@ class LCRController extends \BaseController {
                 ->join('tblCustomerTrunk as ct', 'acc.AccountID', '=', 'ct.AccountID')
                 ->where('r.Code', '=', $id)
                 ->where('acc.Status', '=', '1')
+                ->where('acc.IsCustomer', '=', '1')
                 ->groupby('acc.AccountName')
                 ->where('ct.Status', '=', '1')
                 ->get();
@@ -202,6 +207,7 @@ class LCRController extends \BaseController {
                 ->join('tblCustomerTrunk as ct', 'acc.AccountID', '=', 'ct.AccountID')
                 ->where('r.Description', '=', $id)
                 ->where('acc.Status', '=', '1')
+                ->where('acc.IsCustomer', '=', '1')
                 ->where('ct.Status', '=', '1')
                 ->groupby('acc.AccountName')
                 ->get();

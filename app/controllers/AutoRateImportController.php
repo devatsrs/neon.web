@@ -10,9 +10,11 @@ class AutoRateImportController extends \BaseController {
 	{
 		$companyID = User::get_companyID();
 		$autoimportSetting = AutoImportInboxSetting::getAutoImportSetting($companyID);
-		$autoimportSetting['copyNotification'] = $autoimportSetting[0]->SendCopyToAccount == 'Y' ? 'checked' : '';
-		$autoimportSetting['IsSSL'] = $autoimportSetting[0]->IsSSL == 1 ? 'checked' : '';
-		return View::make('autoimport.auto_import_inbox_setting', compact('autoimportSetting'));
+		if(count($autoimportSetting)){
+			$autoimportSetting['copyNotification'] = $autoimportSetting->SendCopyToAccount == 'Y' ? 'checked' : '';
+			$autoimportSetting['IsSSL'] = $autoimportSetting->IsSSL == 1 ? 'checked' : '';
+		}
+		return View::make('autoimport.auto_import_inbox_setting', compact('autoimportSetting','companyID'));
 
 	}
 	public function inboxSettingStoreAndUpdate()
@@ -27,7 +29,7 @@ class AutoRateImportController extends \BaseController {
 			'IsSSL'=>'required',
 			'username'=>'required'
 		);
-		if (!empty($data["CompanyID"])){
+		if (!empty($data["AutoImportInboxSettingID"])){
 			if(empty($data["password"]))
 			{
 				unset($data["password"]);
@@ -46,19 +48,17 @@ class AutoRateImportController extends \BaseController {
 		if ($validator->fails()) {
 			return json_validator_response($validator);
 		}
-
-		if (!empty($data["CompanyID"])){
-
-			$companyID = User::get_companyID();
-			if (AutoImportInboxSetting::updateInboxImportSetting($companyID,$data)) {
+		$AutoImportInboxSettingID=$data["AutoImportInboxSettingID"];
+		unset($data["AutoImportInboxSettingID"]);
+		$companyID = User::get_companyID();
+		if (!empty($AutoImportInboxSettingID)){
+			if (AutoImportInboxSetting::updateInboxImportSetting($AutoImportInboxSettingID,$data)) {
 				return Response::json(array("status" => "success", "message" => "Import Setting Update Successfully"));
 			} else {
 				return Response::json(array("status" => "failed", "message" => "Problem Updating AutoImport Inbox Setting."));
 			}
 
 		}else{
-
-			$companyID = User::get_companyID();
 			$data["CompanyID"] = $companyID ;
 			if (AutoImportInboxSetting::insert($data)) {
 				return Response::json(array("status" => "success", "message" => "Import Setting Update Successfully"));
@@ -78,7 +78,13 @@ class AutoRateImportController extends \BaseController {
 		$CompanyID = User::get_companyID();
 		$data = Input::all();
 		$data['iDisplayStart'] +=1;
-		$columns = array('AccountName','Trunk','Import File Templete','Subject Match','Sendor Match');
+
+		if($data["SettingType"]==1){
+			$columns = array('AccountName','Trunk','Import File Templete','Subject Match','Filename Match','Sendor Match');
+		}else{
+			$columns = array('RateTable','Import File Template','Subject Match','Filename Match', 'Sender Match');
+		}
+
 		$sort_column = $columns[$data['iSortCol_0']];
 		$trunkId = ( !empty($data['TrunkID']) && $data['TrunkID'] != 'undefined' ) ? $data['TrunkID'] : 0;
 		$TypePKID = !empty($data['TypePKID']) ? $data['TypePKID'] : 0;
@@ -106,8 +112,7 @@ class AutoRateImportController extends \BaseController {
 		}
 		$query .=',0)';
 
-		\Illuminate\Support\Facades\Log::info($query);
-
+//		\Illuminate\Support\Facades\Log::info($query);
 		return DataTableSql::of($query)->make();
 
 	}
@@ -142,7 +147,7 @@ class AutoRateImportController extends \BaseController {
 		$message = ['TypePKID.required'=>'Vendor field is required',
 			'TrunkID.required'=>'Trunk field is required',
 			'ImportFileTempleteID.required'=>'Upload Template field is required',
-			'file_subject_required.required'=>'FileName Or Subject field is required',
+			'file_subject_required.required'=>'Subject Or FileName field is required',
 			'SendorEmail.required'=>'SendorEmail field is required'
 		];
 
@@ -150,6 +155,11 @@ class AutoRateImportController extends \BaseController {
 		if ($validator->fails()) {
 			return json_validator_response($validator);
 		}
+
+		if(AutoImportSetting::validate($data)){
+			return Response::json(array("status" => "failed", "message" => "Same data available. Please Change data"));
+		}
+
 		unset($data['file_subject_required']);
 		if (!empty($data["AutoImportSettingID"])){
 
@@ -178,8 +188,8 @@ class AutoRateImportController extends \BaseController {
 
 	/* Use In RateTable Setting page  */
 	public function ratetableSetting() {
-		$rateTable = RateTable::getRateTables();
-		$uploadtemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_VENDOR_RATE));
+		$rateTable = RateTable::getRateTableList();
+		$uploadtemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_RATETABLE_RATE));
 		return View::make('autoimport.rate_table_setting', compact('rateTable','uploadtemplate'));
 	}
 
@@ -198,9 +208,9 @@ class AutoRateImportController extends \BaseController {
 			'file_subject_required'=>'required',
 			'SendorEmail'=>'required'
 		);
-		$message = ['TypePKID.required'=>'Vendor field is required',
+		$message = ['TypePKID.required'=>'RateTable field is required',
 			'ImportFileTempleteID.required'=>'Upload Template field is required',
-			'file_subject_required.required'=>'FileName Or Subject field is required',
+			'file_subject_required.required'=>'Subject Or FileName field is required',
 			'SendorEmail.required'=>'SendorEmail field is required'
 		];
 		$validator = Validator::make($data, $rules, $message);
@@ -243,5 +253,11 @@ class AutoRateImportController extends \BaseController {
 
 	}
 
-
+	public function validConnection()
+	{
+		$data = Input::all();
+		$data['IsSSL'] = isset($data['IsSSL']) ? 1 : 0 ;
+		$response 				= 		NeonAPI::request('AutoRateImportGroups/validatesmtp',$data,true,false,false);
+		return json_response_api($response,true);
+	}
 }

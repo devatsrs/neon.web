@@ -44,12 +44,12 @@
         <a href="{{URL::to('/auto_rate_import/autoimport')}}">Auto Import</a>
     </li>
     <li class="active">
-        <strong>Account Settings </strong>
+        <strong>Vendor Setting </strong>
     </li>
 </ol>
-<h3>Account Setting</h3>
+<h3>Vendor Setting</h3>
 <p style="text-align: right;">
-@if(User::checkCategoryPermission('RateTables','Add'))
+@if(User::checkCategoryPermission('AutoRateImport','Add'))
     <a href="#" id="add-new-account-setting" class="btn btn-primary ">
         <i class="entypo-plus"></i>
         Add New Setting
@@ -105,7 +105,7 @@ jQuery(document).ready(function($) {
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "oTableTools": {},
-            "aaSorting": [[3, "desc"]],
+            "aaSorting": [[0, "asc"]],
             "fnServerParams": function(aoData) {
                 aoData.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"SettingType","value":$searchFilter.SettingType},{"name":"TypePKID","value":$searchFilter.TypePKID},{"name":"Search","value":$searchFilter.Search});
                 data_table_extra_params.length = 0;
@@ -128,10 +128,11 @@ jQuery(document).ready(function($) {
                                 delete_ = "{{ URL::to('/auto_rate_import/{id}/delete')}}";
 
                                 delete_ = delete_.replace('{id}', full[9]);
-
+                                @if(User::checkCategoryPermission('AutoRateImport','Add'))
                                 action = '<a title="Edit" data-id="'+id+'" data-AutoImportSettingID="'+full[9]+'" data-TrunkID="'+full[7]+'" data-uploadtemplate="'+full[8]+'" data-subject="'+full[3]+'" data-sendor="'+full[5]+'" data-fileName="'+full[4]+'" class="edit-autoImportSetting btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
+                                @endif
 
-                                <?php if(User::checkCategoryPermission('RateTables','Delete') ) { ?>
+                                <?php if(User::checkCategoryPermission('AutoRateImport','Delete') ) { ?>
                                     action += ' <a title="Delete" href="' + delete_ + '" data-redirect="{{URL::to("/rate_tables")}}"  class="btn btn-default delete btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';
                                 <?php } ?>
                                 //action += status_link;
@@ -225,7 +226,10 @@ jQuery(document).ready(function($) {
         $('table tbody').on('click','.edit-autoImportSetting',function(ev){
             ev.preventDefault();
             ev.stopPropagation();
+            $("#add-new-form").trigger("reset");
+            $("#add-new-form .select2").trigger("change.select2");
             $('#modal-add-new-account-setting').trigger("reset");
+            $('#modal-add-new-account-setting .modal-title').html("Edit Vendor Setting");
             $("#modal-add-new-account-setting [name='TypePKID']").select2('val', $(this).attr('data-id'));
             $("#modal-add-new-account-setting [name='ImportFileTempleteID']").select2('val', $(this).attr('data-uploadtemplate'));
             $("#modal-add-new-account-setting [name='TrunkID']").select2('val', $(this).attr('data-TrunkID'));
@@ -246,6 +250,9 @@ jQuery(document).ready(function($) {
          });
         $("#add-new-account-setting").click(function(ev) {
              ev.preventDefault();
+             $("#add-new-form").trigger("reset");
+             $("#add-new-form .select2").trigger("change.select2");
+            $('#modal-add-new-account-setting .modal-title').html("Add New Vendor Setting");
              $("#modal-add-new-account-setting [name='AutoImportSettingID']").val('');
              $('#modal-add-new-account-setting').modal('show', {backdrop: 'static'});
          });
@@ -255,8 +262,44 @@ jQuery(document).ready(function($) {
             submit_ajax(update_new_url,$("#add-new-form").serialize());
          });
 
-    });
+        $("select[name='TypePKID']").on('change', function(){
+            var TypePKID   = $("select[name=TypePKID]").val();
+            if(TypePKID!=""){
+                getTrunk("vendor",TypePKID);
+            }else{
+                toastr.error("Please Select One Vendor", "Error", toastr_opts);
+            }
+        });
 
+    });
+    function getTrunk($RateUploadType,id) {
+        return $.ajax({
+            url: '{{URL::to('rate_upload/getTrunk')}}/'+$RateUploadType,
+            data: 'Type='+$RateUploadType+'&id='+id,
+            type: 'POST',
+            dataType: 'json',
+            success: function (response) {
+                if (response.status == 'success') {
+                    var html = '';
+                    var Trunks = response.trunks;
+
+                    for(key in Trunks) {
+                        if(Trunks[key] == 'Select') {
+                            html += '<option value="'+key+'" selected>'+Trunks[key]+'</option>';
+                        } else {
+                            html += '<option value="'+key+'">'+Trunks[key]+'</option>';
+                        }
+                    }
+                    $("select[name=TrunkID]").html(html).trigger('change');
+                } else {
+                    toastr.error(response.message, "Error", toastr_opts);
+                }
+            },
+            error: function () {
+                toastr.error("error", "Error", toastr_opts);
+            }
+        });
+    }
 </script>
 @include('includes.errors')
 @include('includes.success')
@@ -269,7 +312,7 @@ jQuery(document).ready(function($) {
             <form id="add-new-form" method="post">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Add New Account Setting</h4>
+                    <h4 class="modal-title">Add New Vendor Setting</h4>
                 </div>
                 <div class="modal-body">
                     <div class="row">

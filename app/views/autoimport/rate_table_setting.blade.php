@@ -47,7 +47,7 @@
     </ol>
     <h3>RateTable Setting</h3>
     <p style="text-align: right;">
-        @if(User::checkCategoryPermission('RateTables','Add'))
+        @if(User::checkCategoryPermission('AutoRateImport','Add'))
             <a href="#" id="add-new-rate-table-setting" class="btn btn-primary ">
                 <i class="entypo-plus"></i>
                 Add New Setting
@@ -124,10 +124,10 @@
                                     delete_ = "{{ URL::to('/auto_rate_import/{id}/delete')}}";
 
                                     delete_ = delete_.replace('{id}', full[7]);
-
+                                    @if(User::checkCategoryPermission('AutoRateImport','Add'))
                                     action = '<a title="Edit" data-id="'+full[5]+'" data-AutoImportSettingID="'+full[7]+'" data-uploadtemplate="'+full[6]+'" data-subject="'+full[2]+'" data-sendor="'+full[4]+'" data-fileName="'+full[3]+'" class="edit-RateTableSetting btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
-
-                                    <?php if(User::checkCategoryPermission('RateTables','Delete') ) { ?>
+                                    @endif
+                                    <?php if(User::checkCategoryPermission('AutoRateImport','Delete') ) { ?>
                                             action += ' <a title="Delete" href="' + delete_ + '" data-redirect="{{URL::to("/rate_tables")}}"  class="btn btn-default delete btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';
                                     <?php } ?>
                                     return action;
@@ -195,7 +195,10 @@
             $('table tbody').on('click','.edit-RateTableSetting',function(ev){
                 ev.preventDefault();
                 ev.stopPropagation();
+                $("#add-new-form").trigger("reset");
+                $("#add-new-form .select2").trigger("change.select2");
                 $('#modal-add-new-rate-table-setting').trigger("reset");
+                $('#modal-add-new-rate-table-setting .modal-title').html("Edit RateTable Setting");
                 $("#modal-add-new-rate-table-setting [name='TypePKID']").select2('val', $(this).attr('data-id'));
                 $("#modal-add-new-rate-table-setting [name='ImportFileTempleteID']").select2('val', $(this).attr('data-uploadtemplate'));
                 $("#modal-add-new-rate-table-setting [name='Subject']").val($(this).attr('data-subject'));
@@ -217,6 +220,10 @@
             $("#add-new-rate-table-setting").click(function(ev) {
 
                 ev.preventDefault();
+
+                $("#add-new-form").trigger("reset");
+                $("#add-new-form .select2").trigger("change.select2");
+                $('#modal-add-new-rate-table-setting .modal-title').html("Add New RateTable Setting");
                 $("#modal-add-new-rate-table-setting [name='AutoImportSettingID']").val('');
                 $('#modal-add-new-rate-table-setting').modal('show', {backdrop: 'static'});
             });

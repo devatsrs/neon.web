@@ -71,11 +71,84 @@ class CDRCustomerController extends BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
+            else{
+                //generate pdf
+                $file_name = 'CDR--' . date('d-m-Y') . '.pdf';
+                $htmlfile_name = 'CDR--' . date('d-m-Y') . '.html';
+                //$body = View::make('customer.cdr.genpdf', compact('excel_data'));
+                $body = self::generate_html($excel_data);
+                $destination_dir = CompanyConfiguration::get('UPLOAD_PATH')."/";
+                RemoteSSH::run("chmod -R 777 " . $destination_dir);
+                $file_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $file_name;
+                $htmlfile_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $htmlfile_name;
+                Log::info($htmlfile_name);
+                $local_file = $destination_dir .  $file_name;
+                $local_htmlfile = $destination_dir .  $htmlfile_name;
+                file_put_contents($local_htmlfile,$body);
+                $output= "";
+                if(getenv('APP_OS') == 'Linux'){
+                    exec (base_path(). '/wkhtmltox/bin/wkhtmltopdf --header-spacing 3 --footer-spacing 1  "'.$local_htmlfile.'" "'.$local_file.'"',$output);
+                    Log::info(base_path(). '/wkhtmltox/bin/wkhtmltopdf --header-spacing 3 --footer-spacing 1 "'.$local_htmlfile.'" "'.$local_file.'"',$output);
+
+                }else{
+                    exec (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe --header-spacing 3 --footer-spacing 1 "'.$local_htmlfile.'" "'.$local_file.'"',$output);
+                    Log::info (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe --header-spacing 3 --footer-spacing 1 "'.$local_htmlfile.'" "'.$local_file.'"',$output);
+                }
+                Log::info($output);
+                @unlink($local_htmlfile);
+                $save_path = $destination_dir . $file_name;
+                return Response::download($save_path);
+                //return $save_path;
+            }
 
         }
          $query .=',0)';
         log::info($query);
         return DataTableSql::of($query, 'sqlsrv2')->make();
+    }
+
+    public function generate_html($excel_data){
+        $body = '<style>.bg_graycolor{
+                background-color: #f5f5f6;
+                font-family: Sans-Serif;
+            }
+            .bg_graycolor th, .bg_graycolor td{
+                border: 1px solid #dddddd;
+            }</style>
+        <div class="row">
+        <div class="col-md-12">
+            <table class="table bg_graycolor" cellpadding="5" cellspacing="0">
+                <thead>
+                <tr>
+                    <th width="20%">CLI</th>
+                    <th>CLD</th>
+                    <th>Connect Time</th>
+                    <th>Disconnect Time</th>
+                    <th width="10%">Billed Duration</th>
+                    <th>Cost</th>
+                </tr>
+                </thead>
+                <tbody>';
+            foreach($excel_data as $ProductRow) {
+                $body .= '<tr style="page-break-inside: avoid;">
+                            <td class="desc" width="20%">'.$ProductRow["CLI"].'</td>
+                            <td class="desc">'.$ProductRow["CLD"].'</td>
+                            <td class="desc">'.$ProductRow["Connect Time"].'</td>
+                            <td class="desc">'.$ProductRow["Disconnect Time"].'</td>
+                            <td width="10%" class="desc">'.$ProductRow["Billed Duration (sec)"].'</td>
+                            <td class="desc">'.$ProductRow["Cost"].'</td>
+                        </tr>';
+            }
+                $body .='</tbody>
+                <tfoot>
+                <tr>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>';
+        return $body;
+
     }
 
 }

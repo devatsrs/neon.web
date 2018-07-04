@@ -14,6 +14,10 @@
                     <input class="form-control" name="Search" id="Search"  type="text" >
                 </div>
                 <div class="form-group">
+                    <label class="control-label">Account</label>
+                    {{ Form::select('AccountID',$accounts,Input::get('AccountID'), array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                </div>
+                <div class="form-group">
                     <label class="control-label" for="field-1">Status</label>
                     {{ Form::select('jobStatus', $jobStatus, '', array("class"=>"select2","data-type"=>"trunk")) }}
                 </div>
@@ -46,12 +50,12 @@
 </ol>
 <h3>Auto Import</h3>
 <p style="text-align: right;">
-@if(User::checkCategoryPermission('RateTables','Add'))
+@if(User::checkCategoryPermission('AutoRateImport','View'))
     <a href="{{URL::to('/auto_rate_import/import_inbox_setting')}}"  class="btn btn-primary ">
         Import Inbox Settings
     </a>
     <a href="{{URL::to('/auto_rate_import/account_setting')}}"  class="btn btn-primary ">
-        Account Settings
+        Vendor Settings
     </a>
     <a href="{{URL::to('/auto_rate_import/ratetable_setting')}}"  class="btn btn-primary ">
         Rate Table Settings
@@ -93,6 +97,7 @@ jQuery(document).ready(function($) {
 
     var $searchFilter = {};
     var update_new_url;
+        $searchFilter.AccountID = $('#ratetable_filter [name="AccountID"]').val();
         $searchFilter.jobStatus = $("#ratetable_filter [name='jobStatus']").val();
         $searchFilter.jobType = $("#ratetable_filter [name='jobType']").val();
 		$searchFilter.Search = $('#ratetable_filter [name="Search"]').val();
@@ -106,9 +111,9 @@ jQuery(document).ready(function($) {
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "oTableTools": {},
-            "aaSorting": [[3, "desc"]],
+            "aaSorting": [[2, "desc"]],
             "fnServerParams": function(aoData) {
-                aoData.push({"name":"jobStatus","value":$searchFilter.jobStatus},{"name":"jobType","value":$searchFilter.jobType},{"name":"TypePKID","value":$searchFilter.TypePKID},{"name":"Search","value":$searchFilter.Search});
+                aoData.push({"name":"AccountID","value":$searchFilter.AccountID}, {"name":"jobStatus","value":$searchFilter.jobStatus},{"name":"jobType","value":$searchFilter.jobType},{"name":"TypePKID","value":$searchFilter.TypePKID},{"name":"Search","value":$searchFilter.Search});
                 data_table_extra_params.length = 0;
                 data_table_extra_params.push({"name":"jobStatus","value":$searchFilter.jobStatus},{"name":"jobType","value":$searchFilter.jobType},{"name":"TypePKID","value":$searchFilter.TypePKID},{"name":"Search","value":$searchFilter.Search},{"name":"Export","value":1});
             },
@@ -124,14 +129,22 @@ jQuery(document).ready(function($) {
                                 var subject = array[0];
                                 var action = "";
                                 action +='<a class="add-new-account-setting" id='+full[5]+' style="margin-left:3px" href="javascript:;" >' +subject+'</i></a>';
-                                action +='<br>&nbsp;From : '+array[1];
-                                action +='<br>&nbsp;('+array[2]+')';
+                                action +='<br>&nbsp;From : '+array[1]+'&nbsp;('+array[2]+')';
+                                if(full[0]=='Vendor Rate Upload'){
+                                    action +='<br>&nbsp;Account : <b>'+full[7]+'</b>';
+                                }else if(full[0]=='Rate Table Upload'){
+                                    action +='<br>&nbsp;Rate Table Name : <b>'+full[7]+'</b>';
+                                }else{
+                                    action +='<br>&nbsp;';
+                                }
+
                                 return action;
                             }
                         },
                         {
                             mRender: function(id, type, full) {
-                                return time_ago(id);
+//                                return time_ago(id);
+                                return id;
                             }
                         },
                         {
@@ -146,10 +159,14 @@ jQuery(document).ready(function($) {
                             mRender: function(id, type, full) {
                                 var Status = full[4].toLowerCase();
                                 if( Status == 'failed'){
-                                    action = ' <button data-id="'+ full[3] +'" title="Start" class="job_restart btn btn-primary btn-sm" type="button" data-loading-text="Loading...">' +
+                                    action = ' <button data-id="'+ full[3] +'" title="Job Restart" class="job_restart btn btn-primary btn-sm" type="button" data-loading-text="Loading...">' +
                                             '<i class="glyphicon glyphicon-repeat"></i>' +
                                             '</button>';
 
+                                }else if( Status == 'not match' ){
+                                    action = ' <button data-id="'+ full[5] +'" title="Recheck Mail" class="job_recheck btn btn-primary btn-sm" type="button" data-loading-text="Loading...">' +
+                                            '<i class="glyphicon glyphicon-repeat"></i>' +
+                                            '</button>';//
                                 }else{
                                     action= '';
                                 }
@@ -244,6 +261,7 @@ jQuery(document).ready(function($) {
 
         $("#ratetable_filter").submit(function(e) {
             e.preventDefault();
+            $searchFilter.AccountID = $('#ratetable_filter [name="AccountID"]').val();
             $searchFilter.jobStatus = $("#ratetable_filter [name='jobStatus']").val();
             $searchFilter.jobType = $("#ratetable_filter [name='jobType']").val();
 			$searchFilter.Search = $('#ratetable_filter [name="Search"]').val();
@@ -274,6 +292,14 @@ jQuery(document).ready(function($) {
             data_table.fnFilter('', 0);
         }
     });
+    $('table tbody').on('click','.job_recheck',function(ev){
+        result = confirm("Are you Sure?");
+        if(result){
+            id = $(this).attr('data-id');
+            submit_ajax(baseurl+'/auto_rate_import/autoimport/recheckmail/'+id );
+            data_table.fnFilter('', 0);
+        }
+    });
 
     $('table tbody').on('click','.add-new-account-setting',function(){
             var emailId= $(this).attr("id");
@@ -287,21 +313,37 @@ jQuery(document).ready(function($) {
                 success: function(data)
                 {
                     var edata = data.data;
-                    $('.mail-title').html(edata.Subject+' #'+edata.AutoImportID);
+                    var ele=$("#modal-add-new-account-setting");
+                    ele.find('.modal-title').html('<b>'+edata.Subject+'<b> #'+edata.AutoImportID);
                     var cc = edata.CC;
                     cc = cc.length > 0 ? '<br>CC : '+cc : '';
                     $('.mail-date').html('To : '+edata.To+'<br>From : '+edata.From+ cc+'<br>'+time_ago(edata.MailDateTime)+' ('+edata.MailDateTime+')' );
-                    $('.mail-text').html(edata.Description);
+
+                    var iFrame = $('<iframe class="embed-responsive-item" frameborder="0" allowfullscreen></iframe>');
+                    $('.mail-text .mailbody').html(iFrame);
+                    var iFrameDoc = iFrame[0].contentDocument || iFrame[0].contentWindow.document;
+                    iFrameDoc.write(edata.Description);
+                    iFrameDoc.close();
+
                     var Attachment = edata.Attachment;
-                    var attchment_array = Attachment.split(',');
-                    var attach = '';
-                    $(".totAttach").html(attchment_array.length);
-                    $.each(attchment_array, function (index, value) {
-                        attach += '<li><a download src="'+data.path+'">'+value+'</a></li>' +
-                                '<div class="links"><a href="'+data.path+'.'+value+ '">@lang('routes.BUTTON_DOWNLOAD_CAPTION')</a> </div>';
-                        return (value !== 'three');
-                    });
-                    $('.attachmentList').html(attach)
+                    if(Attachment!=""){
+                        var attach = '';
+                        try {
+                            var attchment_obj = JSON.parse(Attachment);
+                            $(".totAttach").html(attchment_obj.length);
+                            $.each(attchment_obj, function (index, value) {
+                                attach += '<div> <a href="'+ baseurl +'/auto_rate_import/autoimport/'+emailId+'/getAttachment/'+index+'">'+value.filename+'</a></div>';
+                            });
+                        }
+                        catch(err) {
+                            var attchment_array = Attachment.split(',');
+                            $(".totAttach").html(attchment_array.length);
+                            $.each(attchment_array, function (index, value) {
+                                attach += '<div> <a href="javascript:void(0)">'+value+'</a></div>';
+                            });
+                        }
+                        $('.attachmentList').html(attach);
+                    }
                     $('#modal-add-new-account-setting').modal('show', {backdrop: 'static'});
                   //  $('#myModal').modal({show:true});
                 }
@@ -376,7 +418,7 @@ jQuery(document).ready(function($) {
             <form id="add-new-form" method="post">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Add New Account Setting</h4>
+                    <h4 class="modal-title"></h4>
                 </div>
                 <div class=" mail-env">
 
@@ -387,10 +429,10 @@ jQuery(document).ready(function($) {
                             <div class="clear mail-date"></div>
                         </div>
 
-                        <div class="mail-text"></div>
+                        <div class="mail-text" ><div class="embed-responsive embed-responsive-4by3 mailbody" style="padding-bottom: 22%;padding-top: 22%;"></div></div>
                         <div class="mail-attachments last_data">
                             <h4><i class="entypo-attach"></i> Attachments (<span class="totAttach"></span>) </h4>
-                            <ul class="attachmentList"></ul>
+                            <div class="attachmentList"></div>
                         </div>
                     </div>
 

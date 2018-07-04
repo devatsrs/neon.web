@@ -14,6 +14,7 @@ class RateTableRate extends \Eloquent {
         'EffectiveDate' =>      'required',
         'Interval1'=>      'required',
         'IntervalN'=>      'required',
+        'TimezonesID'=>      'required',
     ];
 
 }

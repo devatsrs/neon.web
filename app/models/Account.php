@@ -628,7 +628,7 @@ class Account extends \Eloquent {
     public static function GetAccountAllEmails($id,$ArrayReturn=false){
 	  $array			 =  array();
 	  $accountemails	 = 	Account::where(array("AccountID"=>$id))->select(array('Email', 'BillingEmail'))->get();
-	  $acccountcontact 	 =  DB::table('tblContact')->where(array("AccountID"=>$id))->get(array("Email"));	
+	  $acccountcontact 	 =  DB::table('tblContact')->where(array("AccountID"=>$id))->orWhere('Owner', $id)->get(array("Email"));
 	  
 	  	
 		if(count($accountemails)>0){
@@ -858,7 +858,8 @@ class Account extends \Eloquent {
                 $accounts->where('Owner', $UserID);
             }
 
-            return $accounts->orderBy("AccountName", "ASC")->get(array('tblAccount.AccountID','AccountName'))->toArray();
+            //return $accounts->orderBy("AccountName", "ASC")->get(array('tblAccount.AccountID','AccountName'))->toArray();
+            return $accounts->select(array('AccountName', 'tblAccount.AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
 
         }
     }

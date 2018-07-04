@@ -272,13 +272,22 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('account_subscription/{id}/store', 'AccountSubscriptionController@store');
 	Route::any('account_subscription/{subscription_id}/update', 'AccountSubscriptionController@update')->where('subscription_id', '(.[09]*)+');
 	Route::any('account_subscription/{subscription_id}/delete', 'AccountSubscriptionController@delete')->where('subscription_id', '(.[09]*)+');
-	
+	Route::any('account_subscription/getDiscountPlanByAccount', 'AccountSubscriptionController@getDiscountPlanByAccount');
+
 	Route::any('accounts/{id}/subscription/ajax_datagrid', 'AccountSubscriptionController@ajax_datagrid');
 	Route::any('accounts/{id}/subscription/store', 'AccountSubscriptionController@store');
 	Route::any('accounts/{id}/subscription/{subscription_id}/update', 'AccountSubscriptionController@update')->where('subscription_id', '(.[09]*)+');
 	Route::any('accounts/{id}/subscription/{subscription_id}/delete', 'AccountSubscriptionController@delete')->where('subscription_id', '(.[09]*)+');
+	Route::any('accounts/{id}/subscription/store_discountplan', 'AccountSubscriptionController@store_discountplan');
+	Route::any('accounts/{id}/subscription/get_discountplan', 'AccountSubscriptionController@get_discountplan');
+	Route::any('accounts/{id}/subscription/edit_discountplan', 'AccountSubscriptionController@edit_discountplan');
+	Route::any('accounts/{id}/subscription/update_discountplan', 'AccountSubscriptionController@update_discountplan');
+	Route::any('accounts/{id}/subscription/delete_discountplan', 'AccountSubscriptionController@delete_discountplan');
+	Route::any('accounts/{id}/subscription/bulkupdate_discountplan', 'AccountSubscriptionController@bulkupdate_discountplan');
+	Route::any('accounts/{id}/subscription/bulkdelete_discountplan', 'AccountSubscriptionController@bulkdelete_discountplan');
 
-    //Account One of charge
+
+	//Account One of charge
     Route::any('accounts/{id}/oneofcharge/ajax_datagrid', 'AccountOneOffChargeController@ajax_datagrid');
     Route::any('accounts/{id}/oneofcharge/store', 'AccountOneOffChargeController@store');
     Route::any('accounts/{id}/oneofcharge/{oneofcharge_id}/update', 'AccountOneOffChargeController@update')->where('oneofcharge_id', '(.[09]*)+');
@@ -411,7 +420,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/customers_rates/{id}/download', array('as' => 'customer_rates_download', 'uses' => 'CustomersRatesController@download'));
 	Route::any('/customers_rates/{id}/process_download', array('as' => 'customer_rates_process_download', 'uses' => 'CustomersRatesController@process_download'));
 	Route::any('/customers_rates/update/{id}', array('as' => 'customer_rates_update', 'uses' => 'CustomersRatesController@update'));
+	Route::any('/customers_rates/add_selected_customer_rate/{id}', 'CustomersRatesController@addSelectedCustomerRate');
 	Route::any('/customers_rates/store/{id}', array('as' => 'customer_rates_store', 'uses' => 'CustomersRatesController@store'));
+	Route::any('/customers_rates/process_bulk_rate_insert/{id}', array('as' => 'process_bulk_rate_insert', 'uses' => 'CustomersRatesController@process_bulk_rate_insert'));
 	Route::any('/customers_rates/process_bulk_rate_update/{id}', array('as' => 'process_bulk_rate_update', 'uses' => 'CustomersRatesController@process_bulk_rate_update'));
 	Route::any('/customers_rates/process_bulk_rate_clear/{id}', array('as' => 'process_bulk_rate_clear', 'uses' => 'CustomersRatesController@process_bulk_rate_clear'));
 	Route::any('/customers_rates/settings/{id}', array('as' => 'customer_rates_settings', 'uses' => 'CustomersRatesController@settings'));
@@ -735,10 +746,13 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/auto_rate_import/autoimport','AutoImportController@index');
 	Route::any('/auto_rate_import/autoimport/ajax_datagrid/{type}','AutoImportController@ajax_datagrid');
 	Route::any('/auto_rate_import/autoimport/readmail/{id}','AutoImportController@GetemailReadById');
+	Route::any('/auto_rate_import/autoimport/recheckmail/{id}','AutoImportController@RecheckMail');
+	Route::any('/auto_rate_import/autoimport/{id}/getAttachment/{attachmentID}','AutoImportController@GetAttachment');
 
 	Route::any('/auto_rate_import/ajax_datagrid/{type}','AutoRateImportController@ajax_datagrid');
 	Route::any('/auto_rate_import/import_inbox_setting','AutoRateImportController@index');
 	Route::any('/auto_rate_import/storeAndUpdate','AutoRateImportController@inboxSettingStoreAndUpdate');
+	Route::any('/auto_rate_import/validConnection','AutoRateImportController@validConnection');
 
 	Route::any('/auto_rate_import/account_setting','AutoRateImportController@accountSetting');
 	Route::any('/auto_rate_import/account_setting/store','AutoRateImportController@accountSettingStore');
@@ -824,6 +838,7 @@ Route::group(array('before' => 'auth'), function () {
 
 	Route::any('/company/download_rate_sheet_template', 'CompaniesController@DownloadRateSheetTemplate');
 	Route::any('/company/download_rate_sheet_default_template', 'CompaniesController@DownloadRateSheetTemplateDefault');
+	Route::any('/company/download_digitalSignature/{file}', 'CompaniesController@DownloadDigitalSignature');
 	//Route::resource('Companies', 'CompaniesController');
 
 	//payment
@@ -1399,6 +1414,15 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('reseller/profile', array('as' => 'profile_show', 'uses' => 'ResellerProfileController@show'));
 	Route::any('reseller/profile/edit', array('as' => 'profile_edit', 'uses' => 'ResellerProfileController@edit'));
 	Route::any('reseller/profile/update', array('as' => 'profile_update', 'uses' => 'ResellerProfileController@update'));
+
+	//Timezones
+	Route::any('/timezones','TimezonesController@index');
+	Route::any('/timezones/getTimezonesVariables','TimezonesController@getTimezonesVariables');
+	Route::any('/timezones/search_ajax_datagrid/{type}','TimezonesController@search_ajax_datagrid');
+	Route::any('/timezones/store','TimezonesController@store');
+	Route::any('/timezones/update/{id}','TimezonesController@update');
+	Route::controller('timezones', 'TimezonesController');
+
 });
 
 Route::group(array('before' => 'global_admin'), function () {
@@ -1503,3 +1527,18 @@ Route::any('terms', "HomeController@terms");
 /*
  * save isGuest to skip routes/urls for user permission
  * */
+
+Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
+{
+	Route::post('login', 'ApiController@login');
+	Route::get('logout', 'ApiController@logout');
+	Route::get('currency/list', 'CurrencyApiController@getList');
+	Route::get('billingType/list', 'BillingTypeApiController@getList');
+	Route::get('billingCycle/list', 'BillingCycleApiController@getList');
+	Route::get('billingClass/list', 'BillingClassApiController@getList');
+	Route::get('service/list', 'ServiceApiController@getList');
+	Route::get('discount/list', 'DiscountPlanApiController@getList');
+	Route::get('subscription/list', 'SubscriptionApiController@getList');
+	Route::get('inboundOutbound/list/{CurrencyID}', 'InboundOutboundApiController@getList');
+	Route::get('payment/list', 'PaymentApiController@getList');
+});

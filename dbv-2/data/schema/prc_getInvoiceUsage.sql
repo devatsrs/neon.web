@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getInvoiceUsage`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getInvoiceUsage`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountID` INT,
 	IN `p_ServiceID` INT,
@@ -6,6 +6,10 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getInvoiceUsage`(
 	IN `p_StartDate` DATETIME,
 	IN `p_EndDate` DATETIME,
 	IN `p_ShowZeroCall` INT
+
+
+
+
 )
 BEGIN
 
@@ -32,29 +36,56 @@ BEGIN
 	IF( v_CDRType_ = 2) 
 	THEN
 
+		DROP TEMPORARY TABLE IF EXISTS tmp_tblSummaryUsageDetails_;
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblSummaryUsageDetails_(
+			AccountID int,
+			area_prefix varchar(50),
+			trunk varchar(50),
+			UsageDetailID int,
+			duration int,
+			billed_duration int,
+			cost decimal(18,6),
+			ServiceID INT,
+			AvgRate decimal(18,6)
+		);
+
+		INSERT INTO tmp_tblSummaryUsageDetails_
 		SELECT
-			area_prefix AS AreaPrefix,
-			Trunk,
-			(SELECT 
-			Country
-			FROM NeonRMDev.tblRate r
-			INNER JOIN NeonRMDev.tblCountry c
-			ON c.CountryID = r.CountryID
-			WHERE  r.Code = ud.area_prefix limit 1)
-			AS Country,
-			(SELECT Description
-			FROM NeonRMDev.tblRate r
-			WHERE  r.Code = ud.area_prefix limit 1 )
-			AS Description,
-			COUNT(UsageDetailID) AS NoOfCalls,
-			CONCAT( FLOOR(SUM(duration ) / 60), ':' , SUM(duration ) % 60) AS Duration,
-			CONCAT( FLOOR(SUM(billed_duration ) / 60),':' , SUM(billed_duration ) % 60) AS BillDuration,
-			SUM(cost) AS ChargedAmount,
-			SUM(duration ) as DurationInSec,
-			SUM(billed_duration ) as BillDurationInSec,
-			ud.ServiceID
-		FROM tmp_tblUsageDetails_ ud
-		GROUP BY ud.area_prefix,ud.Trunk,ud.AccountID,ud.ServiceID;
+			AccountID,
+			area_prefix, 
+			trunk,			
+			UsageDetailID,
+			duration,
+			billed_duration,
+			cost,
+			ServiceID,
+			ROUND((uh.cost/uh.billed_duration)*60.0,6) as AvgRate 
+		FROM tmp_tblUsageDetails_ uh;
+
+		SELECT
+					area_prefix AS AreaPrefix,
+					Trunk,
+					(SELECT 
+					Country
+					FROM NeonRMDev.tblRate r
+					INNER JOIN NeonRMDev.tblCountry c
+					ON c.CountryID = r.CountryID
+					WHERE  r.Code = ud.area_prefix limit 1)
+					AS Country,
+					(SELECT Description
+					FROM NeonRMDev.tblRate r
+					WHERE  r.Code = ud.area_prefix limit 1 )
+					AS Description,
+					COUNT(UsageDetailID) AS NoOfCalls,
+					CONCAT( FLOOR(SUM(duration ) / 60), ':' , SUM(duration ) % 60) AS Duration,
+					CONCAT( FLOOR(SUM(billed_duration ) / 60),':' , SUM(billed_duration ) % 60) AS BillDuration,
+					SUM(cost) AS ChargedAmount,
+					SUM(duration ) as DurationInSec,
+					SUM(billed_duration ) as BillDurationInSec,
+					ud.ServiceID,
+					ud.AvgRate as AvgRatePerMin
+				FROM tmp_tblSummaryUsageDetails_ ud
+				GROUP BY ud.area_prefix,ud.Trunk,ud.AccountID,ud.ServiceID,ud.AvgRate;
 
 	ELSE
 

@@ -102,9 +102,15 @@
 {{--<link rel="stylesheet" type="text/css" href="assets/js/daterangepicker/daterangepicker-bs3.css" />--}}
 
     <ul class="nav nav-tabs">
-        <li class="active"><a href="#">Customer</a></li>
-        <li ><a href="{{ URL::to('/vendor_analysis') }}">Vendor</a></li>
-        <li ><a href="{{ URL::to('/analysis_manager') }}">Account Manager</a></li>
+        @if(User::checkCategoryPermission('Analysis','Customer') || User::checkCategoryPermission('Analysis','All'))
+            <li class="active"><a href="#">Customer</a></li>
+        @endif
+        @if(User::checkCategoryPermission('Analysis','Vendor') || User::checkCategoryPermission('Analysis','All'))
+            <li ><a href="{{ URL::to('/vendor_analysis') }}">Vendor</a></li>
+        @endif
+        @if(User::checkCategoryPermission('Analysis','AccountManager') || User::checkCategoryPermission('Analysis','All'))
+            <li ><a href="{{ URL::to('/analysis_manager') }}">Account Manager</a></li>
+        @endif
     </ul>
     <div class="tab-content">
         <div class="tab-pane active" id="customer" >

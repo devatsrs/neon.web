@@ -984,16 +984,26 @@ class Job extends \Eloquent {
 
             $data["Title"] = Account::getCompanyNameByID($data["AccountID"]) . ' ' . $format.' ('.$Effective.') ';
             $data["Description"] = Account::getCompanyNameByID($data["AccountID"]) . ' ' . isset($jobType[0]->Title) ? $jobType[0]->Title : '';
-            $data["Options"] =  json_encode(self::removeUnnecesorryOptions($jobType,$options) );
 
-            $validator = Validator::make($data, $rules);
+            $timezones = $options['Timezones'];
+            $i = 0;
+            foreach ((array) $timezones as $timezone) {
 
-            if ($validator->fails()) {
-                return validator_response($validator);
+                $options['Timezones'] = $timezone;
+                $data["Options"] = json_encode(self::removeUnnecesorryOptions($jobType, $options));
+
+                $validator = Validator::make($data, $rules);
+
+                if ($validator->fails()) {
+                    return validator_response($validator);
+                }
+
+                $JobID = Job::insertGetId($data);
+                RateSheetHistory::AddtoHistory($JobID, $JobType, $data);
+                $i++;
             }
 
-            if ($JobID = Job::insertGetId($data)) {
-                RateSheetHistory::AddtoHistory($JobID,$JobType,$data);
+            if ($i == count($timezones)) {
                 return array("status" => "success", "message" => "Job Logged Successfully");
             } else {
                 return array("status" => "failed", "message" => "Problem Inserting Job.");
@@ -1016,23 +1026,27 @@ class Job extends \Eloquent {
             $data["Description"] = Account::getCompanyNameByID($data["AccountID"]) . ' ' . isset($jobType[0]->Title) ? $jobType[0]->Title : '';
 
             $trunks = $options['Trunks'];
-            //$options_ = $options; // Duplicate 
+            $timezones = $options['Timezones'];
+            //$options_ = $options; // Duplicate
             unset($options['Trunks']);
             $options['isMerge'] = '0';
             $i = 0;
             foreach ((array) $trunks as $trunk) {
-
                 $options['Trunks'] = $trunk;
-                $data["Options"] =  json_encode(self::removeUnnecesorryOptions($jobType,$options) );
+                foreach ((array) $timezones as $timezone) {
 
-                $validator = Validator::make($data, $rules);
+                    $options['Timezones'] = $timezone;
+                    $data["Options"] = json_encode(self::removeUnnecesorryOptions($jobType, $options));
 
-                if ($validator->fails()) {
-                    return validator_response($validator);
+                    $validator = Validator::make($data, $rules);
+
+                    if ($validator->fails()) {
+                        return validator_response($validator);
+                    }
+
+                    $JobID = Job::insertGetId($data);
+                    RateSheetHistory::AddtoHistory($JobID, $JobType, $data);
                 }
-
-                $JobID = Job::insertGetId($data);
-                RateSheetHistory::AddtoHistory($JobID,$JobType,$data);
                 $i++;
             }
 
@@ -1322,6 +1336,92 @@ class Job extends \Eloquent {
                 return array("status" => "failed", "message" => "Problem Inserting Job.");
             }
         }
+
+    }
+	
+	public static function CreateAutoImportJob($CompanyID,$job_type,$options){
+
+        switch ($job_type) {
+
+            case 'VU':
+
+                $UserID = User::where("CompanyID", $CompanyID)->where(["AdminUser" => 1, "Status" => 1])->min("UserID");
+                $jobType = JobType::where(["Code" => $job_type])->get(["JobTypeID", "Title"]);
+                $jobStatus = JobStatus::where(["Code" => "P"])->get(["JobStatusID"]);
+                $jobdata = array();
+                $jobdata["CompanyID"] = $CompanyID;
+                $jobdata["AccountID"] = $options["AccountID"];
+                $jobdata["JobTypeID"] = isset($jobType[0]->JobTypeID) ? $jobType[0]->JobTypeID : '';
+                $jobdata["JobStatusID"] = isset($jobStatus[0]->JobStatusID) ? $jobStatus[0]->JobStatusID : '';
+                $jobdata["JobLoggedUserID"] = $UserID;
+                $AccountName = Account::where(["AccountID" => $options["AccountID"]])->pluck('AccountName');
+                $jobdata["Title"] = $AccountName;
+                $jobdata["Description"] = $AccountName . ' ' . isset($jobType[0]->Title) ? $jobType[0]->Title : '';
+                $jobdata["CreatedBy"] = "System";
+                $jobdata["created_at"] = date('Y-m-d H:i:s');
+                $jobdata["updated_at"] = date('Y-m-d H:i:s');
+                $JobID = Job::insertGetId($jobdata);
+
+                /* Job Insert Here */
+                if ($JobID) {
+                    $data = array();
+                    $data["JobID"] = $JobID;
+                    $data["FileName"] = basename($options["full_path"]);
+                    $data["FilePath"] = $options["full_path"];
+                    $data["HttpPath"] = 0;
+                    $data["Options"] =  json_encode(self::removeUnnecesorryOptions($jobType,$options) );
+                    $data["CreatedBy"] = 'System';
+                    $data["created_at"] = date('Y-m-d H:i:s');
+                    $data["updated_at"] = date('Y-m-d H:i:s');
+                    if ($JobFileID = JobFile::insertGetId($data)) {
+                        // return $JobFileID;
+                        return $JobID;
+                    } else {
+                        // error code
+                    }
+                }
+
+            case 'RTU':
+
+                $UserID = User::where("CompanyID", $CompanyID)->where(["AdminUser" => 1, "Status" => 1])->min("UserID");
+                $jobType = JobType::where(["Code" => $job_type])->get(["JobTypeID", "Title"]);
+                $jobStatus = JobStatus::where(["Code" => "P"])->get(["JobStatusID"]);
+                $jobdata = array();
+                $jobdata["CompanyID"] = $CompanyID;
+                $options["CompanyID"] = $CompanyID;
+                $jobdata["JobTypeID"] = isset($jobType[0]->JobTypeID) ? $jobType[0]->JobTypeID : '';
+                $jobdata["JobStatusID"] = isset($jobStatus[0]->JobStatusID) ? $jobStatus[0]->JobStatusID : '';
+                $jobdata["JobLoggedUserID"] = $UserID;
+                $jobdata["Title"] =  $options['ratetablename']; // New check this
+                $jobdata["Description"] = isset($jobType[0]->Title) ? $jobType[0]->Title : '';
+                $jobdata["CreatedBy"] = "System";
+                // $jobdata["Options"] = json_encode($options);
+                $jobdata["created_at"] = date('Y-m-d H:i:s');
+                $jobdata["updated_at"] = date('Y-m-d H:i:s');
+                $JobID = Job::insertGetId($jobdata);
+
+                /* Job Insert Here */
+                if ($JobID) {
+                    $data = array();
+                    $data["JobID"] = $JobID;
+                    $data["FileName"] = basename($options["full_path"]);
+                    $data["FilePath"] = $options["full_path"];
+                    $data["HttpPath"] = 0;
+                    $data["Options"] =  json_encode(self::removeUnnecesorryOptions($jobType,$options) );
+                    //$data["Options"] = '';
+                    $data["CreatedBy"] = 'System';
+                    $data["created_at"] = date('Y-m-d H:i:s');
+                    $data["updated_at"] = date('Y-m-d H:i:s');
+                    if ($JobFileID = JobFile::insertGetId($data)) {
+                       // return $JobFileID;
+                        return $JobID;
+                    } else {
+                        // error code
+                    }
+                }
+
+        }
+
 
     }
 }

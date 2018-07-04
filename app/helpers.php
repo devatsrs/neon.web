@@ -547,6 +547,7 @@ function getFileContent($file_name, $data, $Sheet=''){
 
     $counter = 1;
     foreach ($results[0] as $index => $value) {
+        $index = preg_replace('/\s+/', ' ', trim($index));//remove new lines (/r/n) etc...
         if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
             $columns[$counter] = 'Col' . $counter;
         } else {
@@ -564,13 +565,86 @@ function getFileContent($file_name, $data, $Sheet=''){
     }
 
     // Get data into array.
+    $columns = array_filter($columns);
     $grid_array = array();
     foreach ($results as $outindex => $datarow) {
 
         $i = 1;
         foreach ($datarow as $index => $singlerow) {
 
-            $grid_array[$outindex][$index] = $singlerow;
+            if (strpos(strtolower($index), 'date') !== false) {
+
+                $singlerow = str_replace('/', '-', $singlerow);
+                $grid_array[$outindex][$index] = $singlerow;
+            }
+
+            if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
+                $grid_array[$outindex][$columns[$i++]] = $singlerow;
+            }else{
+                $grid_array[$outindex][$index] = $singlerow;
+            }
+        }
+        unset($grid_array[$outindex][""]);
+
+    }
+    //print_r($grid_array);
+    //exit;
+
+    try {
+    } catch (\Exception $ex) {
+        Log::error($ex);
+    }
+
+    $grid['columns'] = $columns;
+    $grid['rows'] = $grid_array;
+    $grid['filename'] = $file_name;
+
+    return $grid;
+}
+
+function getFileContentSheet2($file_name, $data, $Sheet=''){
+    $columns = [];
+    $grid = [];
+    $flag = 0;
+
+     if(isset($data["start_row_sheet2"]) && isset($data["end_row_sheet2"])){
+        NeonExcelIO::$start_row=$data["start_row_sheet2"];
+        NeonExcelIO::$end_row=$data["end_row_sheet2"];
+    }
+
+    $NeonExcel = new NeonExcelIO($file_name, $data, $Sheet);
+    $results = $NeonExcel->read(10);
+
+    // Get columns
+
+    $counter = 1;
+    foreach ($results[0] as $index => $value) {
+        $index = preg_replace('/\s+/', ' ', trim($index));//remove new lines (/r/n) etc...
+        if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
+            $columns[$counter] = 'Col' . $counter;
+        } else {
+            if(!is_null($index))
+            {
+                $columns[$index] = $index;
+            }
+            else
+            {
+                $columns[""]="";
+            }
+
+        }
+        $counter++;
+    }
+
+    // Get data into array.
+    $columns = array_filter($columns);
+    $grid_array = array();
+    foreach ($results as $outindex => $datarow) {
+
+        $i = 1;
+        foreach ($datarow as $index => $singlerow) {
+
+            //$grid_array[$outindex][$index] = $singlerow;
 
             if (strpos(strtolower($index), 'date') !== false) {
 
@@ -581,9 +655,12 @@ function getFileContent($file_name, $data, $Sheet=''){
             if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
                 $grid_array[$outindex][$columns[$i++]] = $singlerow;
             }
-
-
+            else
+            {
+                $grid_array[$outindex][$index] = $singlerow;
+            }
         }
+        unset($grid_array[$outindex][""]);
     }
     //print_r($grid_array);
     //exit;
@@ -941,8 +1018,8 @@ function getDashBoardController($key){
 }
 
 function formatSmallDate($date,$dateformat='d-m-y') {
-
-    if(ctype_digit($date) && strlen($date)==5){
+    return formatDate($date,$dateformat,true);
+    /*if(ctype_digit($date) && strlen($date)==5){
         $UNIX_DATE = ($date - 25569) * 86400;
         $datetime = gmdate("Y-m-d", $UNIX_DATE);
     }else {
@@ -977,7 +1054,7 @@ function formatSmallDate($date,$dateformat='d-m-y') {
                     /*if (strpos($date, ' ') !== false) {
                         $date = str_replace(' ', '-', $date);
                     }*/
-                    if ($dateformat == 'd-m-Y' && strpos($date, '/') !== false) {
+                   /* if ($dateformat == 'd-m-Y' && strpos($date, '/') !== false) {
                         $date = str_replace('/', '-', $date);
                         $datetime = date('Y-m-d', strtotime($date));
                     } else if ($dateformat == 'm-d-Y' && strpos($date, '-') !== false) {
@@ -994,7 +1071,7 @@ function formatSmallDate($date,$dateformat='d-m-y') {
     if ($datetime == '1970-01-01') {
         $datetime = '';
     }
-    return $datetime;
+    return $datetime;*/
 }
 
 function SortBillingType($account=0){
@@ -1624,6 +1701,9 @@ function is_FideliPay($CompanyID){
 }
 function is_Xero($CompanyID){
     return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$XeroSlug,$CompanyID);
+}
+function is_merchantwarrior($CompanyID){
+    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$MerchantWarriorSlug,$CompanyID);
 }
 function change_timezone($billing_timezone,$timezone,$date){
     if(!empty($timezone) && !empty($billing_timezone)) {
@@ -2667,4 +2747,41 @@ function cleanarray($data = [],$unset=[]){
         }
     }
     return $data;
+}
+function emailHeaderDecode($emailHtml) {
+    if(is_string($emailHtml)){
+
+        $matches = null;
+
+        /* Repair instances where two encodings are together and separated by a space (strip the spaces) */
+        $emailHtml = preg_replace('/(=\?[^ ?]+\?[BQbq]\?[^ ?]+\?=)\s+(=\?[^ ?]+\?[BQbq]\?[^ ?]+\?=)/', "$1$2", $emailHtml);
+
+        /* Now see if any encodings exist and match them */
+        if (!preg_match_all('/=\?([^ ?]+)\?([BQbq])\?([^ ?]+)\?=/', $emailHtml, $matches, PREG_SET_ORDER)) {
+            return $emailHtml;
+        }
+        foreach ($matches as $header_match) {
+            list($match, $charset, $encoding, $data) = $header_match;
+            $encoding = strtoupper($encoding);
+            switch ($encoding) {
+                case 'B':
+                    $data = base64_decode($data);
+                    break;
+                case 'Q':
+                    $data = quoted_printable_decode(str_replace("_", " ", $data));
+                    break;
+            }
+            // This part needs to handle every charset
+            switch (strtoupper($charset)) {
+                case "UTF-8":
+                    break;
+            }
+            $emailHtml = str_replace($match, $data, $emailHtml);
+        }
+    }
+    return $emailHtml;
+}
+
+function filterArrayRemoveNewLines($arr) { // remove new lines (/r/n) etc...
+    return preg_replace('/s+/', ' ', trim($arr));
 }

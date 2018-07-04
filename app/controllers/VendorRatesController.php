@@ -27,9 +27,9 @@ class VendorRatesController extends \BaseController
         $companyID = User::get_companyID();
 
         if(!empty($data['DiscontinuedRates'])) {
-            $query = "call prc_getDiscontinuedVendorRateGrid (" . $companyID . "," . $id . "," . $data['Trunk'] . "," . $data['Country'] . "," . $data['Code'] . "," . $data['Description'] . "," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "',0)";
+            $query = "call prc_getDiscontinuedVendorRateGrid (" . $companyID . "," . $id . "," . $data['Trunk'] . "," . $data['Timezones'] . "," . $data['Country'] . "," . $data['Code'] . "," . $data['Description'] . "," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "',0)";
         } else {
-            $query = "call prc_GetVendorRates (" . $companyID . "," . $id . "," . $data['Trunk'] . "," . $data['Country'] . "," . $data['Code'] . "," . $data['Description'] . ",'" . $data['Effective'] . "'," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "',0)";
+            $query = "call prc_GetVendorRates (" . $companyID . "," . $id . "," . $data['Trunk'] . "," . $data['Timezones'] . "," . $data['Country'] . "," . $data['Code'] . "," . $data['Description'] . ",'" . $data['Effective'] . "'," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "',0)";
         }
         //Log::info($query);
 
@@ -43,8 +43,10 @@ class VendorRatesController extends \BaseController
         $companyID = User::get_companyID();
 
         if(!empty($data['Codes'])) {
-            $Codes = $data['Codes'];
-            $query = 'call prc_GetVendorRatesArchiveGrid ('.$companyID.','.$AccountID.',"'.$Codes.'")';
+            $Codes       = $data['Codes'];
+            $TrunkID     = $data['TrunkID'];
+            $TimezonesID = $data['TimezonesID'];
+            $query = 'call prc_GetVendorRatesArchiveGrid ('.$companyID.','.$AccountID.','.$TrunkID.','.$TimezonesID.',"'.$Codes.'")';
             //Log::info($query);
             $response['status']     = "success";
             $response['message']    = "Data fetched successfully!";
@@ -59,15 +61,16 @@ class VendorRatesController extends \BaseController
     }
 
     public function index($id) {
-            $Account = Account::find($id);
-            $trunks = VendorTrunk::getTrunkDropdownIDList($id);
-            $trunk_keys = getDefaultTrunk($trunks);
-            if(count($trunks) == 0){
-                return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
-            }
+        $Account    = Account::find($id);
+        $trunks     = VendorTrunk::getTrunkDropdownIDList($id);
+        $trunk_keys = getDefaultTrunk($trunks);
+        if(count($trunks) == 0){
+            return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
+        }
         $CurrencySymbol = Currency::getCurrencySymbol($Account->CurrencyId);
-            $countries = $this->countries;
-            return View::make('vendorrates.index', compact('id', 'trunks', 'trunk_keys', 'countries','Account','CurrencySymbol'));
+        $countries      = $this->countries;
+        $Timezones      = Timezones::getTimezonesIDList();
+        return View::make('vendorrates.index', compact('id', 'trunks', 'trunk_keys', 'countries','Account','CurrencySymbol','Timezones'));
     }
 
      
@@ -175,17 +178,18 @@ class VendorRatesController extends \BaseController
     }
 
     public function download($id) {
-            $Account = Account::find($id);
-            $Vendors = Account::getOnlyVendorIDList();
-            unset($Vendors[$id]);
-            $trunks = VendorTrunk::getTrunkDropdownIDList($id);
-            if(count($trunks) == 0){
-                return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
-            }
-            $rate_sheet_formates = $this->rate_sheet_formates;
-            $downloadtype = [''=>'Select','xlsx'=>'EXCEL','csv'=>'CSV'];
+        $Account = Account::find($id);
+        $Vendors = Account::getOnlyVendorIDList();
+        unset($Vendors[$id]);
+        $trunks  = VendorTrunk::getTrunkDropdownIDList($id);
+        if(count($trunks) == 0){
+            return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
+        }
+        $rate_sheet_formates = $this->rate_sheet_formates;
+        $downloadtype        = [''=>'Select','xlsx'=>'EXCEL','csv'=>'CSV'];
+        $Timezones           = Timezones::getTimezonesIDList();
 
-            return View::make('vendorrates.download', compact('id', 'trunks', 'rate_sheet_formates','Account','downloadtype','Vendors'));
+        return View::make('vendorrates.download', compact('id', 'trunks', 'rate_sheet_formates','Account','downloadtype','Vendors','Timezones'));
     }
     
     public function process_download($id) {
@@ -194,7 +198,7 @@ class VendorRatesController extends \BaseController
             $data = Input::all();
 
             $message = array();
-            $rules = array( 'isMerge' => 'required', 'Trunks' => 'required', 'Format' => 'required','filetype' => 'required' );
+            $rules = array( 'isMerge' => 'required', 'Trunks' => 'required', 'Timezones' => 'required', 'Format' => 'required','filetype' => 'required' );
             if (!isset($data['isMerge'])) {
                 $data['isMerge'] = 0;
             }
@@ -214,8 +218,8 @@ class VendorRatesController extends \BaseController
                 unset($data['filetype']);
             }
 
-            $data['vendor'][] = $id;
-            foreach($data['vendor'] as $vendorID) {
+            $data['vendors'][] = $id;
+            foreach($data['vendors'] as $vendorID) {
                 if ((int)$vendorID) {
                     //Inserting Job Log
                     try {
@@ -372,7 +376,7 @@ class VendorRatesController extends \BaseController
 
     }
 
-    public function  update_vendor_rate($id){
+    public function update_vendor_rate($id){
         if ($id > 0) {
             $data       = Input::all();//echo "<pre>";print_r($data);exit();
             $username   = User::get_user_full_name();
@@ -443,6 +447,11 @@ class VendorRatesController extends \BaseController
                 $criteria['Country']        = !empty($criteria['Country']) && $criteria['Country'] != '' && $criteria['Country'] != 'All' ? "'" . $criteria['Country'] . "'" : 'NULL';
                 $criteria['Effective']      = !empty($criteria['Effective']) && $criteria['Effective'] != '' ? "'" . $criteria['Effective'] . "'" : 'NULL';
                 $criteria['TrunkID']        = !empty($criteria['Trunk']) && $criteria['Trunk'] != '' ? "'" . $criteria['Trunk'] . "'" : 'NULL';
+                $criteria['TimezonesID']    = !empty($criteria['Timezones']) && $criteria['Timezones'] != '' ? "'" . $criteria['Timezones'] . "'" : 'NULL';
+
+                if(empty($criteria['TimezonesID']) || $criteria['TimezonesID'] == 'NULL') {
+                    $criteria['TimezonesID'] = $data['TimezonesID'];
+                }
 
                 if(empty($criteria['TrunkID']) || $criteria['TrunkID'] == 'NULL') {
                     $criteria['TrunkID'] = $data['TrunkID'];
@@ -455,7 +464,7 @@ class VendorRatesController extends \BaseController
                     $p_criteria = 1;
                 }
 
-                $query = "call prc_VendorRateUpdateDelete (" . $CompanyID . "," . $AccountID . ",'" . $VendorRateID . "'," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['Effective'] . "," . $criteria['TrunkID'] . ",'" . $username . "',".$p_criteria.",".$action.")";
+                $query = "call prc_VendorRateUpdateDelete (" . $CompanyID . "," . $AccountID . ",'" . $VendorRateID . "'," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['Effective'] . "," . $criteria['TrunkID'] . "," . $criteria['TimezonesID'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 Log::info($query);
                 $results = DB::statement($query);
 
@@ -493,6 +502,11 @@ class VendorRatesController extends \BaseController
                 $criteria['Country']        = !empty($criteria['Country']) && $criteria['Country'] != '' && $criteria['Country'] != 'All' ? "'" . $criteria['Country'] . "'" : 'NULL';
                 $criteria['Effective']      = !empty($criteria['Effective']) && $criteria['Effective'] != '' ? "'" . $criteria['Effective'] . "'" : 'NULL';
                 $criteria['TrunkID']        = !empty($criteria['Trunk']) && $criteria['Trunk'] != '' ? "'" . $criteria['Trunk'] . "'" : 'NULL';
+                $criteria['TimezonesID']    = !empty($criteria['Timezones']) && $criteria['Timezones'] != '' ? "'" . $criteria['Timezones'] . "'" : 'NULL';
+
+                if(empty($criteria['TimezonesID']) || $criteria['TimezonesID'] == 'NULL') {
+                    $criteria['TimezonesID'] = $data['TimezonesID'];
+                }
 
                 if(empty($criteria['TrunkID']) || $criteria['TrunkID'] == 'NULL') {
                     $criteria['TrunkID'] = $data['TrunkID'];
@@ -505,7 +519,7 @@ class VendorRatesController extends \BaseController
                     $p_criteria = 1;
                 }
 
-                $query = "call prc_VendorRateUpdateDelete (" . $CompanyID . "," . $AccountID . ",'" . $VendorRateID . "'," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['Effective'] . "," . $criteria['TrunkID'] . ",'" . $username . "',".$p_criteria.",".$action.")";
+                $query = "call prc_VendorRateUpdateDelete (" . $CompanyID . "," . $AccountID . ",'" . $VendorRateID . "'," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['Effective'] . "," . $criteria['TrunkID'] . "," . $criteria['TimezonesID'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 Log::info($query);
                 $results = DB::statement($query);
 
@@ -852,7 +866,7 @@ class VendorRatesController extends \BaseController
         }*/
         $save = array();
         $option["option"]=  $data['option'];
-        $option["selection"] = $data['selection'];
+        $option["selection"] = array_filter($data['selection'],"filterArrayRemoveNewLines");
         $save['Options'] = str_replace('Skip loading','',json_encode($option));
         $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
         $save['full_path'] = $fullPath;
@@ -1165,7 +1179,7 @@ class VendorRatesController extends \BaseController
 
         $save = array();
         $option["option"]=  $data['option'];
-        $option["selection"] = $data['selection'];
+        $option["selection"] = array_filter($data['selection'],"filterArrayRemoveNewLines");
         $save['Options'] = str_replace('Skip loading','',json_encode($option));
         $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
         $save['full_path'] = $fullPath;

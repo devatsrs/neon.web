@@ -764,7 +764,7 @@ ThisSP:BEGIN
 					FROM tmp_TempRateTableRate_ vr
 						LEFT JOIN tmp_DialString_ ds
 
-							ON ((vr.Code = ds.ChargeCode and vr.DialStringPrefix = '') OR (vr.DialStringPrefix != '' and vr.DialStringPrefix =  ds.DialString and vr.Code = ds.ChargeCode  ))
+							ON vr.DialStringPrefix = ds.DialString AND ds.DialStringID = p_dialStringId
 						WHERE vr.ProcessId = p_processId
 							AND ds.DialStringID IS NULL
 							AND vr.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
@@ -1998,6 +1998,25 @@ CREATE PROCEDURE `prc_ArchiveOldRateTableRate`(
 )
 BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	/* SET EndDate of current time to older rates */
+	-- for example there are 3 rates, today's date is 2018-04-11
+	-- 1. Code 	Rate 	EffectiveDate
+	-- 1. 91 	0.1 	2018-04-09
+	-- 2. 91 	0.2 	2018-04-10
+	-- 3. 91 	0.3 	2018-04-11
+	/* Then it will delete 2018-04-09 and 2018-04-10 date's rate */
+	UPDATE
+		tblRateTableRate rtr
+	INNER JOIN tblRateTableRate rtr2
+		ON rtr2.RateTableId = rtr.RateTableId
+		AND rtr2.RateID = rtr.RateID
+	SET
+		rtr.EndDate=NOW()
+	WHERE
+		FIND_IN_SET(rtr.RateTableId,p_RateTableIds) != 0 AND rtr.EffectiveDate <= NOW() AND
+		FIND_IN_SET(rtr2.RateTableId,p_RateTableIds) != 0 AND rtr2.EffectiveDate <= NOW() AND
+		rtr.EffectiveDate < rtr2.EffectiveDate AND rtr.RateTableRateID != rtr2.RateTableRateID;
 
 	/*1. Move Rates which EndDate <= now() */
 
@@ -3334,131 +3353,6 @@ DELIMITER ;
 
 
 
-DROP PROCEDURE IF EXISTS `prc_GetRateTableRatesArchiveGrid`;
-DELIMITER //
-CREATE PROCEDURE `prc_GetRateTableRatesArchiveGrid`(
-	IN `p_CompanyID` INT,
-	IN `p_RateTableID` INT,
-	IN `p_Codes` LONGTEXT,
-	IN `p_View` INT
-)
-BEGIN
-
-	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableRate_;
-   CREATE TEMPORARY TABLE tmp_RateTableRate_ (
-        Code VARCHAR(50),
-        Description VARCHAR(200),
-        Interval1 INT,
-        IntervalN INT,
-		  ConnectionFee VARCHAR(50),
-        PreviousRate DECIMAL(18, 6),
-        Rate DECIMAL(18, 6),
-        EffectiveDate DATE,
-        EndDate DATE,
-        updated_at DATETIME,
-        ModifiedBy VARCHAR(50)
-   );
-
-	IF p_View = 1
-	THEN
-		INSERT INTO tmp_RateTableRate_ (
-			Code,
-		  	Description,
-		  	Interval1,
-		  	IntervalN,
-		  	ConnectionFee,
---		  	PreviousRate,
-		  	Rate,
-		  	EffectiveDate,
-		  	EndDate,
-		  	updated_at,
-		  	ModifiedBy
-		)
-	   SELECT
-			r.Code,
-			r.Description,
-			CASE WHEN vra.Interval1 IS NOT NULL THEN vra.Interval1 ELSE r.Interval1 END AS Interval1,
-			CASE WHEN vra.IntervalN IS NOT NULL THEN vra.IntervalN ELSE r.IntervalN END AS IntervalN,
-			IFNULL(vra.ConnectionFee,'') AS ConnectionFee,
-			vra.Rate,
-			vra.EffectiveDate,
-			IFNULL(vra.EndDate,'') AS EndDate,
-			IFNULL(vra.created_at,'') AS ModifiedDate,
-			IFNULL(vra.created_by,'') AS ModifiedBy
-		FROM
-			tblRateTableRateArchive vra
-		JOIN
-			tblRate r ON r.RateID=vra.RateId
-		WHERE
-			r.CompanyID = p_CompanyID AND
-			vra.RateTableId = p_RateTableID AND
-			FIND_IN_SET (r.Code, p_Codes) != 0
-		ORDER BY
-			vra.EffectiveDate DESC, vra.created_at DESC;
-	ELSE
-		INSERT INTO tmp_RateTableRate_ (
-			Code,
-		  	Description,
-		  	Interval1,
-		  	IntervalN,
-		  	ConnectionFee,
---		  	PreviousRate,
-		  	Rate,
-		  	EffectiveDate,
-		  	EndDate,
-		  	updated_at,
-		  	ModifiedBy
-		)
-	   SELECT
-			GROUP_CONCAT(r.Code),
-			r.Description,
-			CASE WHEN vra.Interval1 IS NOT NULL THEN vra.Interval1 ELSE r.Interval1 END AS Interval1,
-			CASE WHEN vra.IntervalN IS NOT NULL THEN vra.IntervalN ELSE r.IntervalN END AS IntervalN,
-			IFNULL(vra.ConnectionFee,'') AS ConnectionFee,
-			vra.Rate,
-			vra.EffectiveDate,
-			IFNULL(vra.EndDate,'') AS EndDate,
-			IFNULL(MAX(vra.created_at),'') AS ModifiedDate,
-			IFNULL(MAX(vra.created_by),'') AS ModifiedBy
-		FROM
-			tblRateTableRateArchive vra
-		JOIN
-			tblRate r ON r.RateID=vra.RateId
-		WHERE
-			r.CompanyID = p_CompanyID AND
-			vra.RateTableId = p_RateTableID AND
-			FIND_IN_SET (r.Code, p_Codes) != 0
-		GROUP BY
-			Description, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate, EndDate
-		ORDER BY
-			vra.EffectiveDate DESC, MAX(vra.created_at) DESC;
-	END IF;
-
-	SELECT
-		Code,
-		Description,
-		Interval1,
-		IntervalN,
-		ConnectionFee,
-		Rate,
-		EffectiveDate,
-		EndDate,
-		IFNULL(updated_at,'') AS ModifiedDate,
-		IFNULL(ModifiedBy,'') AS ModifiedBy
-	FROM tmp_RateTableRate_;
-END//
-DELIMITER ;
-
-
-
-
-
-
-
-
-
-
-
 DROP PROCEDURE IF EXISTS `prc_GetRateTableRate`;
 DELIMITER //
 CREATE PROCEDURE `prc_GetRateTableRate`(
@@ -3479,6 +3373,7 @@ CREATE PROCEDURE `prc_GetRateTableRate`(
 BEGIN
 	DECLARE v_OffSet_ int;
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	SET SESSION GROUP_CONCAT_MAX_LEN = 1000000; -- group_concat limit bydefault is 1024, so we have increase it
 --	SET sql_mode = '';
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 
@@ -3751,6 +3646,124 @@ END//
 DELIMITER ;
 
 
+DROP PROCEDURE IF EXISTS `prc_GetRateTableRatesArchiveGrid`;
+DELIMITER //
+CREATE PROCEDURE `prc_GetRateTableRatesArchiveGrid`(
+	IN `p_CompanyID` INT,
+	IN `p_RateTableID` INT,
+	IN `p_Codes` LONGTEXT,
+	IN `p_View` INT
+)
+BEGIN
+
+	SET SESSION GROUP_CONCAT_MAX_LEN = 1000000; -- group_concat limit bydefault is 1024, so we have increase it
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableRate_;
+   CREATE TEMPORARY TABLE tmp_RateTableRate_ (
+        Code VARCHAR(50),
+        Description VARCHAR(200),
+        Interval1 INT,
+        IntervalN INT,
+		  ConnectionFee VARCHAR(50),
+        PreviousRate DECIMAL(18, 6),
+        Rate DECIMAL(18, 6),
+        EffectiveDate DATE,
+        EndDate DATE,
+        updated_at DATETIME,
+        ModifiedBy VARCHAR(50)
+   );
+
+	IF p_View = 1
+	THEN
+		INSERT INTO tmp_RateTableRate_ (
+			Code,
+		  	Description,
+		  	Interval1,
+		  	IntervalN,
+		  	ConnectionFee,
+--		  	PreviousRate,
+		  	Rate,
+		  	EffectiveDate,
+		  	EndDate,
+		  	updated_at,
+		  	ModifiedBy
+		)
+	   SELECT
+			r.Code,
+			r.Description,
+			CASE WHEN vra.Interval1 IS NOT NULL THEN vra.Interval1 ELSE r.Interval1 END AS Interval1,
+			CASE WHEN vra.IntervalN IS NOT NULL THEN vra.IntervalN ELSE r.IntervalN END AS IntervalN,
+			IFNULL(vra.ConnectionFee,'') AS ConnectionFee,
+			vra.Rate,
+			vra.EffectiveDate,
+			IFNULL(vra.EndDate,'') AS EndDate,
+			IFNULL(vra.created_at,'') AS ModifiedDate,
+			IFNULL(vra.created_by,'') AS ModifiedBy
+		FROM
+			tblRateTableRateArchive vra
+		JOIN
+			tblRate r ON r.RateID=vra.RateId
+		WHERE
+			r.CompanyID = p_CompanyID AND
+			vra.RateTableId = p_RateTableID AND
+			FIND_IN_SET (r.Code, p_Codes) != 0
+		ORDER BY
+			vra.EffectiveDate DESC, vra.created_at DESC;
+	ELSE
+		INSERT INTO tmp_RateTableRate_ (
+			Code,
+		  	Description,
+		  	Interval1,
+		  	IntervalN,
+		  	ConnectionFee,
+--		  	PreviousRate,
+		  	Rate,
+		  	EffectiveDate,
+		  	EndDate,
+		  	updated_at,
+		  	ModifiedBy
+		)
+	   SELECT
+			GROUP_CONCAT(r.Code),
+			r.Description,
+			CASE WHEN vra.Interval1 IS NOT NULL THEN vra.Interval1 ELSE r.Interval1 END AS Interval1,
+			CASE WHEN vra.IntervalN IS NOT NULL THEN vra.IntervalN ELSE r.IntervalN END AS IntervalN,
+			IFNULL(vra.ConnectionFee,'') AS ConnectionFee,
+			vra.Rate,
+			vra.EffectiveDate,
+			IFNULL(vra.EndDate,'') AS EndDate,
+			IFNULL(MAX(vra.created_at),'') AS ModifiedDate,
+			IFNULL(MAX(vra.created_by),'') AS ModifiedBy
+		FROM
+			tblRateTableRateArchive vra
+		JOIN
+			tblRate r ON r.RateID=vra.RateId
+		WHERE
+			r.CompanyID = p_CompanyID AND
+			vra.RateTableId = p_RateTableID AND
+			FIND_IN_SET (r.Code, p_Codes) != 0
+		GROUP BY
+			Description, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate, EndDate
+		ORDER BY
+			vra.EffectiveDate DESC, MAX(vra.created_at) DESC;
+	END IF;
+
+	SELECT
+		Code,
+		Description,
+		Interval1,
+		IntervalN,
+		ConnectionFee,
+		Rate,
+		EffectiveDate,
+		EndDate,
+		IFNULL(updated_at,'') AS ModifiedDate,
+		IFNULL(ModifiedBy,'') AS ModifiedBy
+	FROM tmp_RateTableRate_;
+END//
+DELIMITER ;
+
+
 
 
 
@@ -3777,6 +3790,7 @@ CREATE PROCEDURE `prc_getDiscontinuedRateTableRateGrid`(
 BEGIN
 	DECLARE v_OffSet_ int;
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	SET SESSION GROUP_CONCAT_MAX_LEN = 1000000; -- group_concat limit bydefault is 1024, so we have increase it
 
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 
@@ -4497,7 +4511,8 @@ ThisSP:BEGIN
 					tblVendorRate
 				WHERE
 					EffectiveDate=p_EffectiveDate AND
-					((p_Critearea = 0 AND (FIND_IN_SET(VendorRateID,p_VendorRateID) = 0 )) OR p_Critearea = 1)
+					((p_Critearea = 0 AND (FIND_IN_SET(VendorRateID,p_VendorRateID) = 0 )) OR p_Critearea = 1) AND
+					AccountId = p_AccountId
 			)
 		)
 		AND
@@ -4620,6 +4635,18 @@ ThisSP:BEGIN
 
 	-- UPDATE tblRateTableRate SET EndDate=NULL where EndDate='0000-00-00';
 
+	UPDATE
+		tblRateTableRate rtr
+	INNER JOIN tblRateTableRate rtr2
+		ON rtr2.RateTableId = rtr.RateTableId
+		AND rtr2.RateID = rtr.RateID
+	SET
+		rtr.EndDate=NOW()
+	WHERE
+		rtr.EffectiveDate <= NOW() AND
+		rtr2.EffectiveDate <= NOW() AND
+		rtr.EffectiveDate < rtr2.EffectiveDate;
+
 	INSERT INTO tblRateTableRateArchive
    SELECT DISTINCT  null , -- Primary Key column
 							vr.`RateTableRateID`,
@@ -4731,7 +4758,8 @@ ThisSP:BEGIN
 					tblRateTableRate
 				WHERE
 					EffectiveDate=p_EffectiveDate AND
-					((p_Critearea = 0 AND (FIND_IN_SET(RateTableRateID,p_RateTableRateID) = 0 )) OR p_Critearea = 1)
+					((p_Critearea = 0 AND (FIND_IN_SET(RateTableRateID,p_RateTableRateID) = 0 )) OR p_Critearea = 1) AND
+					RateTableId = p_RateTableId
 			)
 		)
 		AND
@@ -5093,7 +5121,7 @@ ThisSP:BEGIN
 		FROM tmp_TempVendorRate_ vr
 		LEFT JOIN tmp_DialString_ ds
 
-		ON ((vr.Code = ds.ChargeCode and vr.DialStringPrefix = '') OR (vr.DialStringPrefix != '' and vr.DialStringPrefix =  ds.DialString and vr.Code = ds.ChargeCode  ))
+		ON vr.DialStringPrefix = ds.DialString AND ds.DialStringID = p_dialStringId
 		WHERE vr.ProcessId = p_processId
 		AND ds.DialStringID IS NULL
 		AND vr.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block')

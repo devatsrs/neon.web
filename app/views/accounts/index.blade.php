@@ -1228,6 +1228,14 @@
                             $("#BulkAction-form select[name='BillingTimezone']").select2().select2('val', response.data.BillingTimezone);
 
                             $("#BulkAction-form [name='SendInvoiceSetting']").select2().select2('val',response.data.SendInvoiceSetting);
+
+                            if(response.data.AutoPaymentSetting == null || response.data.AutoPaymentSetting == '') {
+                                $("[name='AutoPaymentSetting']").select2().select2('val', 'never');
+                            }
+                            else{
+                                $("[name='AutoPaymentSetting']").select2().select2('val', response.data.AutoPaymentSetting);
+                            }
+                            $("[name='AutoPayMethod']").select2().select2('val', response.data.AutoPayMethod);
                         }
                     }
                 });
@@ -1575,7 +1583,7 @@
                     <div class="form-group">
                         <label for="field-3" class="control-label">
                             <span>Billing Cycle - Monthly Anniversary Date*</span></label><br>
-                        {{Form::text('BillingCycleValue', '' ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"dd-mm-yyyy", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
+                        {{Form::text('BillingCycleValue', '' ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
                     </div>
                 </div>
             </div>
@@ -1589,12 +1597,23 @@
                         {{Form::select('SendInvoiceSetting', BillingClass::$SendInvoiceSetting, '' ,array("class"=>'form-control select2 '))}}
                     </div>
                 </div>
+
+            </div>
+            <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="field-3" class="control-label">
                             <input type="checkbox" name="BulkAutoPaymentSettingCheck" class="bulkbillinghide">
                             <span>Auto Pay</span></label><br>
                         {{Form::select('AutoPaymentSetting', BillingClass::$AutoPaymentSetting, 'never' ,array("class"=>'form-control select2 small'))}}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">
+                            <input type="checkbox" name="BulkAutoPaymentMethodCheck" class="bulkbillinghide">
+                            <span>Auto Pay Method</span></label>
+                            {{Form::select('AutoPayMethod', BillingClass::$AutoPayMethod,'0',array("class"=>"form-control select2 small"))}}
                     </div>
                 </div>
             </div>

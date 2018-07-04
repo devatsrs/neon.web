@@ -181,6 +181,7 @@
                         <th width="6%" >Prefix</th>
                         <th width="8%" >Trunk</th>
                         <th width="10%" >Service</th>
+                        <th width="10%" >Type</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -337,7 +338,21 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                     { "bSortable": false },
                     { "bSortable": false },
                     { "bSortable": false },
-                    { "bSortable": false }
+                    { "bSortable": false },
+                    {
+                        "bSortable": false,
+                        mRender: function(id, type, full) {
+                            if(full[16] == 0)
+                            {
+                                return "OutBound";
+                            }
+                            else
+                            {
+                                return "InBound";
+                            }
+
+                        }
+                    }
                 ],
                 "fnDrawCallback": function() {
 					$(".dataTables_wrapper select").select2({
@@ -485,7 +500,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
         $('#cdr-rerate-form [name="RateMethod"]').change(function (e) {
             e.preventDefault();
             $('#cdr-rerate-form [name="SpecifyRate"]').parents('.row').addClass('hidden');
-            if ($(this).val() == 'SpecifyRate') {
+            if ($(this).val() != 'CurrentRate' ) {
                 $('#cdr-rerate-form [name="SpecifyRate"]').parents('.row').removeClass('hidden');
             }
         });
@@ -594,15 +609,15 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Rate</label>
-                                {{ Form::select('RateMethod',array('CurrentRate'=>'Rate setup against account','SpecifyRate'=>'Specify Rate') , '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
+                                <label for="field-5" class="control-label">Rerate Method</label>
+                                {{ Form::select('RateMethod',UsageDetail::$RateMethod , '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
                             </div>
                         </div>
                     </div>
                     <div class="row hidden">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Rate</label>
+                                <label for="field-5" class="control-label">Rerate Method Value</label>
                                 <input type="text" name="SpecifyRate" class="form-control" value=""/>
                             </div>
                         </div>

@@ -77,7 +77,8 @@ class ThemesController extends \BaseController {
      */
     public function index()
     {
-		if(is_reseller() && empty(Reseller::is_AllowWhiteLabel())){
+		$ResellerAllowWhiteLabel = Reseller::is_AllowWhiteLabel();
+		if(is_reseller() && empty($ResellerAllowWhiteLabel)){
 			return Redirect::to('reseller/profile');
 		}
         $companyID 				= 		User::get_companyID();
@@ -97,7 +98,8 @@ class ThemesController extends \BaseController {
     public function create()
     {
 		$CompanyID 				= 	User::get_companyID();
-		if(is_reseller() && empty(Reseller::is_AllowWhiteLabel())){
+		$ResellerAllowWhiteLabel = Reseller::is_AllowWhiteLabel();
+		if(is_reseller() && empty($ResellerAllowWhiteLabel)){
 			return Redirect::to('reseller/profile');
 		}
 

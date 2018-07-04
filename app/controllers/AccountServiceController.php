@@ -35,8 +35,8 @@ class AccountServiceController extends \BaseController {
         $AccountBilling =  AccountBilling::getBilling($id,$ServiceID);
         $AccountNextBilling =  AccountNextBilling::getBilling($id,$ServiceID);
 
-        $DiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::OUTBOUND,'ServiceID'=>$ServiceID))->pluck('DiscountPlanID');
-        $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::INBOUND,'ServiceID'=>$ServiceID))->pluck('DiscountPlanID');
+        $DiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::OUTBOUND,'ServiceID'=>$ServiceID,'AccountSubscriptionID'=>0))->pluck('DiscountPlanID');
+        $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::INBOUND,'ServiceID'=>$ServiceID,'AccountSubscriptionID'=>0))->pluck('DiscountPlanID');
 
         $ServiceTitle = AccountService::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->pluck('ServiceTitle');
         $ServiceDescription = AccountService::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->pluck('ServiceDescription');
@@ -84,7 +84,7 @@ class AccountServiceController extends \BaseController {
     public function ajax_datagrid($id){
         $data = Input::all();
         $id=$data['account_id'];
-        $select = ["tblAccountService.ServiceID","tblService.ServiceName","tblAccountService.Status","tblAccountService.ServiceID","tblAccountService.AccountServiceID"];
+        $select = ["tblAccountService.ServiceID","tblService.ServiceName","tblAccountService.ServiceTitle","tblAccountService.Status","tblAccountService.ServiceID","tblAccountService.AccountServiceID"];
         $services = AccountService::join('tblService', 'tblAccountService.ServiceID', '=', 'tblService.ServiceID')->where("tblAccountService.AccountID",$id);
         if(!empty($data['ServiceName'])){
             $services->where('tblService.ServiceName','Like','%'.trim($data['ServiceName']).'%');
@@ -161,8 +161,12 @@ class AccountServiceController extends \BaseController {
                 $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
                 $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
                 $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
-                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID);
-                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID);
+                $AccountSubscriptionID = 0;
+                $AccountName='';
+                $AccountCLI='';
+                $SubscriptionDiscountPlanID=0;
+                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
             }
 
 

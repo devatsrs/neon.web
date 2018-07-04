@@ -61,7 +61,7 @@
 		  <div id="reqcc" class="form-group hidden">
 			  <label for="cc" class="col-sm-3 control-label" for="cc">CC</label>
 			  <div class="col-sm-9">
-				  <input type="text" class="form-control useremails" id="cc" name="Ticket[cc]" value="" tabindex="2" />
+				  <input type="text" class="form-control useremails" id="cc" name="Ticket[cc]" value="{{$RequesterCC}}" tabindex="2"/>
 			  </div>
 		  </div>
 		  <?php } ?>

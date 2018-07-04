@@ -36,7 +36,8 @@ class Invoice extends \Eloquent {
                                             '{VatNumber}'=>'Vat Number',
                                             '{NominalCode}'=>'Nominal Code',
                                             '{Email}'=>'Email',
-                                            '{Phone}'=>'Phone');
+                                            '{Phone}'=>'Phone',
+                                            '{AccountBalance}'=>'Account Balance');
 
     public static function multiLang_init(){
         Invoice::$invoice_type_customer = array(''=>cus_lang("DROPDOWN_OPTION_SELECT") ,self::INVOICE_OUT => cus_lang("CUST_PANEL_PAGE_INVOICE_FILTER_FIELD_TYPE_DDL_INVOICE_RECEIVED"),self::INVOICE_IN=>cus_lang("CUST_PANEL_PAGE_INVOICE_FILTER_FIELD_TYPE_DDL_INVOICE_SENT"),'All'=>cus_lang("CUST_PANEL_PAGE_INVOICE_FILTER_FIELD_TYPE_DDL_BOTH"));
@@ -138,8 +139,18 @@ class Invoice extends \Eloquent {
             $file_name = 'Invoice--' .$common_name . '.pdf';
             $htmlfile_name = 'Invoice--' .$common_name . '.html';
 
+            $arrSignature=array();
+            $arrSignature["UseDigitalSignature"] = CompanySetting::getKeyVal('UseDigitalSignature', $Account->CompanyId);
+            $arrSignature["DigitalSignature"] = CompanySetting::getKeyVal('DigitalSignature', $Account->CompanyId);
+            $arrSignature["signaturePath"]= CompanyConfiguration::get('UPLOAD_PATH')."/".AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY'], '', $Account->CompanyId, true);
+			if($arrSignature["DigitalSignature"]!="Invalid Key"){
+                $arrSignature["DigitalSignature"]=json_decode($arrSignature["DigitalSignature"]);
+            }else{
+                $arrSignature["UseDigitalSignature"]=false;
+            }
+			
 			$print_type = 'Invoice';
-            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','InvoiceTaxRates','PaymentDueInDays','InvoiceAllTaxRates','language'))->render();
+            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','InvoiceTaxRates','PaymentDueInDays','InvoiceAllTaxRates','language' ,'arrSignature'))->render();
 
             $body = htmlspecialchars_decode($body);  
             $footer = View::make('invoices.pdffooter', compact('Invoice','print_type'))->render();
@@ -180,10 +191,10 @@ class Invoice extends \Eloquent {
 			 if(getenv('APP_OS') == 'Linux'){
                 exec (base_path(). '/wkhtmltox/bin/wkhtmltopdf --header-spacing 3 --footer-spacing 1 --header-html "'.$header_html.'" --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
 
-                 if(CompanySetting::getKeyVal('UseDigitalSignature', $Account->CompanyId)==true){
+                 if($arrSignature["UseDigitalSignature"]==true){
                      $newlocal_file = $destination_dir . str_replace(".pdf","-signature.pdf",$file_name);
-                     $signaturePath = CompanyConfiguration::get('UPLOAD_PATH')."/".AmazonS3::generate_upload_path(AmazonS3::$dir['DIGITAL_SIGNATURE_KEY'], '', $Account->CompanyId, true);
-					 $mypdfsignerOutput=RemoteSSH::run('mypdfsigner -i '.$local_file.' -o '.$newlocal_file.' -z '.$signaturePath.'mypdfsigner.conf -v -c -q');
+
+					 $mypdfsignerOutput=RemoteSSH::run('PortableSigner  -n     -t '.$local_file.'      -o '.$newlocal_file.'     -s '.$arrSignature["signaturePath"].'digitalsignature.pfx -c "Signed after 4 alterations" -r "Approved for publication" -l "Department of Dermatology" -p Welcome100');
 					 Log::info($mypdfsignerOutput);
                      if(file_exists($newlocal_file)){
                          RemoteSSH::run('rm '.$local_file);

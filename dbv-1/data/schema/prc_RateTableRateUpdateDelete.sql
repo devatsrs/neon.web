@@ -22,6 +22,8 @@ CREATE DEFINER=`neon-user`@`192.168.1.25` PROCEDURE `prc_RateTableRateUpdateDele
 
 
 
+
+
 )
 ThisSP:BEGIN
 
@@ -75,7 +77,8 @@ ThisSP:BEGIN
 					tblRateTableRate 
 				WHERE 
 					EffectiveDate=p_EffectiveDate AND
-					((p_Critearea = 0 AND (FIND_IN_SET(RateTableRateID,p_RateTableRateID) = 0 )) OR p_Critearea = 1)
+					((p_Critearea = 0 AND (FIND_IN_SET(RateTableRateID,p_RateTableRateID) = 0 )) OR p_Critearea = 1) AND
+					RateTableId = p_RateTableId
 			)
 		) 
 		AND
@@ -88,7 +91,7 @@ ThisSP:BEGIN
 					((p_Critearea_Code IS NULL) OR (p_Critearea_Code IS NOT NULL AND r.Code LIKE REPLACE(p_Critearea_Code,'*', '%'))) AND 
 					((p_Critearea_Description IS NULL) OR (p_Critearea_Description IS NOT NULL AND r.Description LIKE REPLACE(p_Critearea_Description,'*', '%'))) AND  
 					(
-					--	p_Critearea_Effective = 'All' OR
+						p_Critearea_Effective = 'All' OR
 						(p_Critearea_Effective = 'Now' AND rtr.EffectiveDate <= NOW() ) OR 
 						(p_Critearea_Effective = 'Future' AND rtr.EffectiveDate > NOW() ) 
 					)

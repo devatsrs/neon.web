@@ -1400,7 +1400,15 @@ class InvoicesController extends \BaseController {
 						$data['InvoiceURL']		=   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email='.$singleemail);
 						$body					=	EmailsTemplates::ReplaceEmail($singleemail,$postdata['Message']);
 						$data['Subject']		=	$postdata['Subject'];
-						
+                        $InvoiceBillingClass =	 Invoice::GetInvoiceBillingClass($Invoice);
+
+                        $invoicePdfSend = CompanySetting::getKeyVal('invoicePdfSend');
+                        if($invoicePdfSend!='Invalid Key' && $invoicePdfSend && !empty($Invoice->PDF) ){
+                            $data['AttachmentPaths']= array([
+                                "filename"=>pathinfo($Invoice->PDF, PATHINFO_BASENAME),
+                                "filepath"=>$Invoice->PDF
+                            ]);
+                        }
 						if(isset($postdata['email_from']) && !empty($postdata['email_from']))
 						{
 							$data['EmailFrom']	=	$postdata['email_from'];	
@@ -1466,7 +1474,15 @@ class InvoicesController extends \BaseController {
             $data['InvoiceURL']		= 	URL::to('/invoice/'.$Invoice->InvoiceID.'/invoice_preview');
 			$body					=	$postdata['Message'];
 			$data['Subject']		=	$postdata['Subject'];
-			
+
+            $invoicePdfSend = CompanySetting::getKeyVal('invoicePdfSend');
+            if($invoicePdfSend!='Invalid Key' && $invoicePdfSend && !empty($Invoice->PDF) ){
+                $data['AttachmentPaths']= array([
+                        "filename"=>pathinfo($Invoice->PDF, PATHINFO_BASENAME),
+                    "filepath"=>$Invoice->PDF
+                ]);
+            }
+
 			if(isset($postdata['email_from']) && !empty($postdata['email_from']))
 			{
 				$data['EmailFrom']	=	$postdata['email_from'];	

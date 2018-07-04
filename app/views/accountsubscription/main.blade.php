@@ -1,6 +1,6 @@
 @extends('layout.main')
-
 @section('filter')
+
     <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
         <div class="filter-inner">
             <h2 class="filter-header">
@@ -58,6 +58,7 @@
 <table id="table-subscription" class="table table-bordered datatable">
   <thead>
     <tr>
+      <th width="3%"></th>
       <th width="5%">No</th>
       <th width="5%">Account</th>
       <th width="5%">Service</th>
@@ -134,7 +135,7 @@
                     $('#subscription-form [name="DailyFee"]').val(daily.toFixed(decimal_places));
                 });
 
-            var list_fields  = ["SequenceNo","AccountName","ServiceName", "Name", "InvoiceDescription", "Qty", "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee","tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee","tblBillingSubscription.MonthlyFee", "tblBillingSubscription.QuarterlyFee", "tblBillingSubscription.AnnuallyFee", "AccountSubscriptionID", "SubscriptionID","ExemptTax","AccountID",'ServiceID','Status'];
+            var list_fields  = ["AID","SequenceNo","AccountName","ServiceName", "Name", "InvoiceDescription", "Qty", "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee","tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee","tblBillingSubscription.MonthlyFee", "tblBillingSubscription.QuarterlyFee", "tblBillingSubscription.AnnuallyFee", "AccountSubscriptionID", "SubscriptionID","ExemptTax","AccountID",'ServiceID','Status'];
             public_vars.$body = $("body");
             var $search = {};
             var subscription_add_url = baseurl + "/account_subscription/{id}/store";            
@@ -148,7 +149,7 @@
 					$search.ServiceID   =  $("#subscription_filter").find('[name="ServiceID"]').val();										
                     $search.Active  	=  $("#subscription_filter").find("[name='Active']").prop("checked");
 					
-		 data_table  = $("#table-subscription").dataTable({
+		 data_table  = $("#table-subscription").DataTable({
             "bDestroy": true,
             "bProcessing":true,
             "bServerSide":true,
@@ -163,7 +164,11 @@
                 data_table_extra_params.push({"name":"Name","value":$search.Name},{"name":"AccountID","value":$search.Account},{"name":"ServiceID","value":$search.ServiceID},{"name":"Active","value":$search.Active},{ "name": "Export", "value": 1});
             },
              "aoColumns":
-            [
+            [           {  "bSortable": false,
+                            mRender: function(id, type, full) {
+                                return '<div class="details-control subscription_'+full[0]+'" style="text-align: center; cursor: pointer;"><i class="entypo-plus-squared" style="font-size: 20px;"></i></div>';
+                            }
+                        },
                         {  "bSortable": true },  // 0 Sequence NO
                         {  "bSortable": true },  // 1 account						
                         {  "bSortable": true },  // 2 service
@@ -448,8 +453,318 @@
 			   	}
                 });
 
+                //discountplan start code
+                //fetch discount plans click on '+' sign
+                $('#table-subscription tbody').on('click', 'td div.details-control', function () {
+                    var tr = $(this).closest('tr');
+                    var row = data_table.row(tr);
+
+                    if (row.child.isShown()) {
+                        $(this).find('i').toggleClass('entypo-plus-squared entypo-minus-squared');
+                        row.child.hide();
+                        tr.removeClass('shown');
+                    } else {
+                        $(this).find('i').toggleClass('entypo-plus-squared entypo-minus-squared');
+                        var hiddenRowData = tr.find('.hiddenRowData');
+                        var AccountSubscriptionID = hiddenRowData.find('input[name="AccountSubscriptionID"]').val();
+                        var ServiceID = hiddenRowData.find('input[name="ServiceID"]').val();
+                        var AccountID = hiddenRowData.find('input[name="AccountID"]').val();
+                        $.ajax({
+                            url: baseurl + "/accounts/"+AccountID+"/subscription/get_discountplan",
+                            type: 'POST',
+                            data: "AccountSubscriptionID=" + AccountSubscriptionID + "&ServiceID=" + ServiceID,
+                            dataType: 'json',
+                            cache: false,
+                            success: function (response) {
+
+                                var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
+
+                                table.append('<thead><tr><th><input class="checkall_discount" name="chkall[]" onclick="check_all('+AccountSubscriptionID+')" type="checkbox"></th><th>Account Name</th><th>Account CLI</th><th>Inbound Discount Plan</th><th>Outbound Discount Plan</th><th>Actions <a class="btn btn-primary btn-sm entypo-plus" title="Add New" onClick="javascript:add_discountplan('+AccountSubscriptionID+','+AccountID+','+ServiceID+');"></a></th></tr></thead>');
+                                var tbody = $("<tbody></tbody>");
+
+                                response.forEach(function (data) {
+                                    //alert(data.InboundDiscountPlans);
+                                    if(data.AccountCLI == null)
+                                        data.AccountCLI = '';
+                                    if(data.InboundDiscountPlans == 0 || data.InboundDiscountPlans == null)
+                                        data.InboundDiscountPlans = '';
+                                    if(data.OutboundDiscountPlans == 0 || data.OutboundDiscountPlans == null)
+                                        data.OutboundDiscountPlans = '';
+                                    var html = "";
+                                    html += "<tr class='no-selection'>";
+                                    html += "<td><input name='chk[]' class='check_discount' type='checkbox' value='0' disc-id="+ data['SubscriptionDiscountPlanID'] + "></td>";
+                                    html += "<td>" + data['AccountName'] + "</td>";
+                                    html += "<td>" + data['AccountCLI'] + "</td>";
+                                    html += '<td>' + data["InboundDiscountPlans"] + '&nbsp;&nbsp;<a href="javascript:void(0);" onclick ="view_discountplan('+ data["SubscriptionDiscountPlanID"] + ','+AccountSubscriptionID+','+"{{AccountDiscountPlan::INBOUND}}"+','+AccountID+','+ServiceID+')" class="btn btn-sm btn-primary tooltip-primary" data-original-title="View Detail" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="fa fa-eye"></i></a></td>';
+                                    html += '<td>' + data["OutboundDiscountPlans"] + '&nbsp;&nbsp;<a href="javascript:void(0);" onclick ="view_discountplan('+ data["SubscriptionDiscountPlanID"] + ','+AccountSubscriptionID+','+"{{AccountDiscountPlan::OUTBOUND}}"+','+AccountID+','+ServiceID+')" class="btn btn-sm btn-primary tooltip-primary" data-original-title="View Detail" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="fa fa-eye"></i></a></td>';
+                                    html += '<td><a href="javascript:void(0);" title="Edit" onclick ="edit_discountplan('+ data["SubscriptionDiscountPlanID"] + ','+AccountID+','+ServiceID+')" class="edit-discountplan btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a><a href="javascript:void(0);" onclick ="delete_discountplan('+ data["SubscriptionDiscountPlanID"] + ','+ AccountSubscriptionID +','+AccountID+')" title="Delete" class="delete-discountplan btn btn-danger btn-sm"><i class="entypo-trash"></i></a></td>';
+                                    html += "</tr>";
+
+                                    table.append(html);
+                                });
+                                table.append(tbody);
+                                row.child(table).show();
+                                row.child().addClass('no-selection child-row subrow_'+AccountSubscriptionID+'');
+                                tr.addClass('shown');
+                            }
+                        });
+                    }
+                });
+
+                //add & update discount plans
+                $("#add_discountplan_form").submit(function(e){
+                    e.preventDefault();
+                    var _url  = $(this).attr("action");
+                    var AccountSubscriptionID = $('[name="AccountSubscriptionID_dp"]').val();
+                    //submit_ajax_datatable(_url,$(this).serialize(),0,data_table_subscription);
+                    $.ajax({
+                        url: _url,
+                        type: 'POST',
+                        data: $(this).serialize(),
+                        dataType: 'json',
+                        cache: false,
+                        success: function (response) {
+                            $(".btn").button('reset');
+                            if (response.status == 'success') {
+                                $('.modal').modal('hide');
+                                toastr.success(response.message, "Success", toastr_opts);
+                                $('.subscription_'+AccountSubscriptionID).click();
+                                $('.subscription_'+AccountSubscriptionID).click();
+                                return false;
+                            } else {
+                                toastr.error(response.message, "Error", toastr_opts);
+                            }
+                        }
+                    });
+                });
+
+                //bulkedit discount plans
+                $("#bulkedit_discountplan_form").submit(function(e){
+                    e.preventDefault();
+                    var AccountSubscriptionID = $('[name="AccountSubscriptionID_bulk"]').val();
+                    var _url  = $(this).attr("action");
+                    $.ajax({
+                        url: _url,
+                        type: 'POST',
+                        data: $(this).serialize(),
+                        dataType: 'json',
+                        cache: false,
+                        success: function (response) {
+                            $(".btn").button('reset');
+                            if (response.status == 'success') {
+                                $('.modal').modal('hide');
+                                toastr.success(response.message, "Success", toastr_opts);
+                                $('.subscription_'+AccountSubscriptionID).click();
+                                $('.subscription_'+AccountSubscriptionID).click();
+                                return false;
+                            } else {
+                                toastr.error(response.message, "Error", toastr_opts);
+                            }
+                        }
+                    });
+                });
             });
-            </script>
+
+            //check-uncheck all checkbox of subrow
+            function check_all(AccountSubscriptionID){
+                $('.subrow_'+AccountSubscriptionID+' .check_discount').prop("checked", $('.subrow_'+AccountSubscriptionID+' .checkall_discount').is(":checked"));
+            }
+
+            function bulk_edit(AccountSubscriptionID,AccountID)
+            {
+                var discountplan_bulkedit_url = baseurl + "/accounts/"+AccountID+"/subscription/bulkupdate_discountplan";
+                var chklength = $("input:checkbox[name='chk[]']:checked").length;
+                if(chklength > 0) {
+                    $('#bulkedit_discountplan_form').trigger("reset");
+                    $('#modal-bulkedit_discountplan h4').html('Bulk Edit Account');
+                    $('#bulkedit_discountplan_form').attr("action", discountplan_bulkedit_url);
+                    var temparr = [];
+                    $("input:checkbox[name='chk[]']:checked").each(function () {
+                        //alert($(this).attr('disc-id'));
+                        temparr.push($(this).attr('disc-id'));
+                    });
+                    $('[name="AccountSubscriptionID_bulk"]').attr("value", AccountSubscriptionID);
+                    $('[name="AllSubscriptionDiscountPlanID"]').attr("value", temparr);
+                    $('[name="BulkInboundDiscountPlans"]').select2().select2('val','');
+                    $('[name="BulkOutboundDiscountPlans"]').select2().select2('val','');
+                    $('#modal-bulkedit_discountplan').modal('show');
+                }
+                else
+                {
+                    toastr.error("Select Atleast One Record", "Error", toastr_opts);
+                    return false;
+                }
+            }
+
+            function bulk_delete(AccountSubscriptionID,AccountID)
+            {
+                var discountplan_bulkdelete_url = baseurl + "/accounts/"+AccountID+"/subscription/bulkdelete_discountplan";
+                var chklength = $("input:checkbox[name='chk[]']:checked").length;
+                if(chklength > 0) {
+                    var temparr = [];
+                    $("input:checkbox[name='chk[]']:checked").each(function () {
+                        temparr.push($(this).attr('disc-id'));
+                    });
+
+                    result = confirm("Are you Sure?");
+                    if (result) {
+                        $.ajax({
+                            url: discountplan_bulkdelete_url,
+                            type: 'POST',
+                            data: "SubscriptionDiscountPlanID=" + temparr,
+                            dataType: 'json',
+                            cache: false,
+                            success: function (response) {
+                                if (response.status == 'success') {
+                                    toastr.success(response.message, "Success", toastr_opts);
+                                    $('.subscription_'+AccountSubscriptionID).click();
+                                    $('.subscription_'+AccountSubscriptionID).click();
+                                    return false;
+                                } else {
+                                    toastr.error(response.message, "Error", toastr_opts);
+                                }
+                            }
+                        });
+                        return false;
+                    }
+                }
+                else
+                {
+                    toastr.error("Select Atleast One Record", "Error", toastr_opts);
+                    return false;
+                }
+
+            }
+
+            function add_discountplan(AccountSubscriptionID,AccountID,ServiceID){
+                var discountplan_add_url = baseurl + "/accounts/"+AccountID+"/subscription/store_discountplan";
+                $('#add_discountplan_form').trigger("reset");
+                $('[name="AccountName"]').attr("value","");
+                $('[name="AccountCLI"]').attr("value","");
+                $('[name="ServiceID"]').attr("value",ServiceID);
+                $('[name="InboundDiscountPlans"]').select2().select2('val','');
+                $('[name="OutboundDiscountPlans"]').select2().select2('val','');
+                getDiscountPlanByAccount =  '{{ URL::to('account_subscription/getDiscountPlanByAccount')}}';
+                $.ajax({
+                    url: getDiscountPlanByAccount,
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function(response) {
+                        var html ='';
+                        html+='<option value="0">Select</option>';
+                        $.each(response.data, function (key, value) {
+                            html+='<option value='+key+'>'+value+'</option>';
+                        });
+                        $('[name="InboundDiscountPlans"]').html(html);
+                        $('[name="OutboundDiscountPlans"]').html(html);
+                    },
+                    data: {
+                        "AccountID":AccountID
+                    }
+
+                });
+
+                $('#modal-add_discountplan h4').html('Add Account');
+                $('#add_discountplan_form').attr("action",discountplan_add_url);
+                $('[name="AccountSubscriptionID_dp"]').attr("value",AccountSubscriptionID);
+                $(".namehide").removeAttr('readonly');
+                $('#modal-add_discountplan').modal('show');
+            }
+            function edit_discountplan(SubscriptionDiscountPlanID,AccountID,ServiceID){
+                var discountplan_edit_url = baseurl + "/accounts/"+AccountID+"/subscription/update_discountplan";
+                $('#add_discountplan_form').trigger("reset");
+                getDiscountPlanByAccount =  '{{ URL::to('account_subscription/getDiscountPlanByAccount')}}';
+                $.ajax({
+                    url: getDiscountPlanByAccount,
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function(response) {
+                        var options = [];
+                        var html ='';
+                        html+='<option value="0">Select</option>';
+                        $.each(response.data, function (key, value) {
+                            html+='<option value='+key+'>'+value+'</option>';
+                        });
+                        $('[name="InboundDiscountPlans"]').html(html);
+                        $('[name="OutboundDiscountPlans"]').html(html);
+                    },
+                    data: {
+                        "AccountID":AccountID
+                    }
+
+                });
+                $('#modal-add_discountplan h4').html('Edit Account');
+                $('#add_discountplan_form').attr("action",discountplan_edit_url);
+
+                $.ajax({
+                    url: baseurl + "/accounts/"+AccountID+"/subscription/edit_discountplan",
+                    type: 'POST',
+                    data: "SubscriptionDiscountPlanID=" + SubscriptionDiscountPlanID,
+                    dataType: 'json',
+                    cache: false,
+                    success: function (response) {
+                        setTimeout(function () {
+                        response.forEach(function (data) {
+                            $('[name="AccountName"]').attr("value",data.AccountName);
+                            $('[name="AccountCLI"]').attr("value",data.AccountCLI);
+                            $('[name="ServiceID"]').attr("value",ServiceID);
+                            $('[name="InboundDiscountPlans"]').select2().select2('val',data.InboundDiscountPlans);
+                            $('[name="InboundDiscountPlans"] option:selected').val(data.InboundDiscountPlans);
+                            $('[name="OutboundDiscountPlans"]').select2().select2('val',data.OutboundDiscountPlans);
+                            $('[name="OutboundDiscountPlans"] option:selected').val(data.OutboundDiscountPlans);
+                            $('[name="AccountSubscriptionID_dp"]').attr("value",data.AccountSubscriptionID);
+                        });
+
+                        $('[name="SubscriptionDiscountPlanID"]').attr("value",SubscriptionDiscountPlanID);
+                        $(".namehide").attr('readonly','true');
+                        $('#modal-add_discountplan').modal('show');
+                        }, 200);
+                    }
+                });
+
+            }
+
+            function delete_discountplan(SubscriptionDiscountPlanID,AccountSubscriptionID,AccountID) {
+                result = confirm("Are you Sure?");
+                if (result) {
+                    $.ajax({
+                        url: baseurl + "/accounts/"+AccountID+"/subscription/delete_discountplan",
+                        type: 'POST',
+                        data: "SubscriptionDiscountPlanID=" + SubscriptionDiscountPlanID,
+                        dataType: 'json',
+                        cache: false,
+                        success: function (response) {
+                            if (response.status == 'success') {
+                                toastr.success(response.message, "Success", toastr_opts);
+                                $('.subscription_'+AccountSubscriptionID).click();
+                                $('.subscription_'+AccountSubscriptionID).click();
+                                return false;
+                            } else {
+                                toastr.error(response.message, "Error", toastr_opts);
+                            }
+                        }
+                    });
+                    return false;
+                }
+            }
+
+            function view_discountplan(SubscriptionDiscountPlanID,AccountSubscriptionID,Type,AccountID,ServiceID){
+                var update_new_url 	= 	baseurl + '/account/used_discount_plan/'+AccountID;
+                $.ajax({
+                    url: update_new_url,  //Server script to process data
+                    type: 'POST',
+                    data:'SubscriptionDiscountPlanID='+SubscriptionDiscountPlanID+'&AccountSubscriptionID='+AccountSubscriptionID+'&Type='+Type+'&ServiceID='+ServiceID,
+                    dataType: 'html',
+                    success: function (response) {
+                        $('#minutes_report').button('reset');
+                        $('#inbound_minutes_report').button('reset');
+                        $('#minutes_report-modal').modal('show');
+                        $('#used_minutes_report').html(response);
+                    }
+                });
+                return false;
+            }
+</script>
 <div class="modal fade in" id="modal-subscription">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -762,5 +1077,86 @@
             </form>
     </div>
   </div>
+</div>
+<div class="modal fade in" id="modal-add_discountplan">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="add_discountplan_form" method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Add Account</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Account Name</label>
+                                <input type="text" name="AccountName" class="form-control namehide" value="" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Account CLI</label>
+                                <input type="text" name="AccountCLI" class="form-control namehide" value="" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Inbound Discount Plan</label>
+                                <!--<input type="text" name="InboundDiscountPlans" class="form-control" value="" />-->
+                                {{Form::select('InboundDiscountPlans',$DiscountPlan,'',array('class'=>'form-control select2','id'=>'inboundplan'))}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Outbound Discount Plan</label>
+                                <!--<input type="text" name="OutboundDiscountPlans" class="form-control" value="" />-->
+                                {{Form::select('OutboundDiscountPlans',$DiscountPlan,'',array('class'=>'form-control select2'))}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="ServiceID" value="">
+                <input type="hidden" name="AccountSubscriptionID_dp">
+                <input type="hidden" name="SubscriptionDiscountPlanID">
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <i class="entypo-floppy"></i>
+                        Save
+                    </button>
+                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                        <i class="entypo-cancel"></i>
+                        Close
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="minutes_report-modal">
+    <div class="modal-dialog" style="width: 70%;">
+        <div class="modal-content">
+            <form id="add-minutes_report-form" method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title"><strong> Discount Plan Detail</strong></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row" id="used_minutes_report">
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 @stop
