@@ -96,7 +96,8 @@ BEGIN
 		WHERE ProcessID = "',p_processId,'"
 		AND AccountID = "',p_AccountID ,'"
 		AND cr.Code IS NULL
-		AND ("',p_TrunkID ,'" = 0 OR TrunkID = "',p_TrunkID ,'")) ;
+		AND ("',p_TrunkID ,'" = 0 OR TrunkID = "',p_TrunkID ,'")
+		') ;
 
 		PREPARE stmt FROM @stm;
 		EXECUTE stmt;
