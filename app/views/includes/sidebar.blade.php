@@ -242,8 +242,17 @@
     @endif
     @endif
     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type'] == Company::LICENCE_BILLING || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
-    @if( User::checkCategoryPermission('Analysis','All'))
-      <li> <a href="{{Url::to('/analysis')}}"> <i class="fa fa-bar-chart"></i> <span>Analysis</span> </a> </li>
+    @if( User::checkCategoryPermission('Analysis','All') || User::checkCategoryPermission('Analysis','Customer')  || User::checkCategoryPermission('Analysis','Vendor')  || User::checkCategoryPermission('Analysis','AccountManager') )
+      <?php
+          $analysis_url = Url::to('/analysis');
+          if(User::checkCategoryPermission('Analysis','All') || User::checkCategoryPermission('Analysis','Customer'))
+            $analysis_url = Url::to('/analysis');
+          else if(User::checkCategoryPermission('Analysis','Vendor'))
+            $analysis_url = Url::to('/vendor_analysis');
+          else if(User::checkCategoryPermission('Analysis','AccountManager'))
+            $analysis_url = Url::to('/analysis_manager');
+      ?>
+      <li> <a href="{{$analysis_url}}"> <i class="fa fa-bar-chart"></i> <span>Analysis</span> </a> </li>
     @endif
     @endif
 

@@ -547,6 +547,7 @@ function getFileContent($file_name, $data, $Sheet=''){
 
     $counter = 1;
     foreach ($results[0] as $index => $value) {
+        $index = preg_replace('/\s+/', ' ', trim($index));//remove new lines (/r/n) etc...
         if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
             $columns[$counter] = 'Col' . $counter;
         } else {
@@ -618,6 +619,7 @@ function getFileContentSheet2($file_name, $data, $Sheet=''){
 
     $counter = 1;
     foreach ($results[0] as $index => $value) {
+        $index = preg_replace('/\s+/', ' ', trim($index));//remove new lines (/r/n) etc...
         if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
             $columns[$counter] = 'Col' . $counter;
         } else {
@@ -2778,4 +2780,8 @@ function emailHeaderDecode($emailHtml) {
         }
     }
     return $emailHtml;
+}
+
+function filterArrayRemoveNewLines($arr) { // remove new lines (/r/n) etc...
+    return preg_replace('/s+/', ' ', trim($arr));
 }

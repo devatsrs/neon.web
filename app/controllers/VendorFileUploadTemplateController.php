@@ -183,7 +183,7 @@ class VendorFileUploadTemplateController extends \BaseController {
         $save = ['CompanyID'=>$CompanyID,'Title'=>$data['TemplateName'],'TemplateFile'=>$amazonPath.basename($file_name)];
         $save['created_by'] = User::get_user_full_name();
         $option["option"] = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
-        $option["selection"] = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
+        $option["selection"] = array_filter($data['selection'],"filterArrayRemoveNewLines");//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
         $save['Options'] = json_encode($option);
         if (VendorFileUploadTemplate::create($save)) {
             return Response::json(array("status" => "success", "message" => "Template Successfully Created",'redirect' => URL::to('/uploadtemplate/')));
@@ -213,7 +213,7 @@ class VendorFileUploadTemplateController extends \BaseController {
         $save = ['CompanyID'=>$CompanyID,'Title'=>$data['TemplateName'],];
         $save['updated_by'] = User::get_user_full_name();
         $option["option"] = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
-        $option["selection"] = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
+        $option["selection"] = array_filter($data['selection'],"filterArrayRemoveNewLines");//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
         $save['Options'] = json_encode($option);
         if ($template->update($save)) {
             return Response::json(array("status" => "success", "message" => "Template Successfully Updated",'redirect' => URL::to('/uploadtemplate/')));

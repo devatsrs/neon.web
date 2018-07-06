@@ -37,11 +37,13 @@
             $NameFormat = GatewayConfig::$VoipNow_NameFormat;
         }else if($GatewayName == 'SippySQL'){
             $NameFormat = GatewayConfig::$SippySQL_NameFormat;
+        }else if($GatewayName == 'VoipMS'){
+            $NameFormat = GatewayConfig::$VoipMS_NameFormat;
         }
     ?>
 
 
-    @if($count%2 == 0)
+    @if($count%2 == 0 && $configkey != 'AllowAccountImport')
             <div class="clear"></div>
     @endif
 
