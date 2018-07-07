@@ -438,12 +438,16 @@ $(document).ready(function(e) {
                     minimumResultsForSearch: -1
                 });
 				mod.find('.select2-container').css('visibility','visible');
+                editor_options.withOutDestroy=true;
                 show_summernote(mod.find('.message'),editor_options);
 			
 		},
 	});
 	
 	});
+    $( document ).on("click",'#EmailAction-model .modal-footer .btn-danger' ,function(e) {
+            $('#EmailAction-model .modal-content').html('');
+    });
 	$( document ).on("click",'.add_note' ,function(e) {		 
 		var mod = $('#add-note-model');
 		mod.modal("show");	
