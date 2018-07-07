@@ -928,6 +928,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/cdr_upload/storeTemplate', 'CDRController@storeTemplate');
     Route::any('/cdr_upload/ajaxfilegrid', 'CDRController@ajaxfilegrid');
     Route::any('/rate_cdr', 'CDRController@rate_cdr');
+    Route::any('/rate_vendorcdr', 'CDRController@rate_vendorcdr');
 	Route::any('/vendorcdr_show', 'CDRController@vendorcdr_show');
 	Route::any('/cdr_upload/ajax_datagrid_vendorcdr/{type}', 'CDRController@ajax_datagrid_vendorcdr');
 	Route::any('/cdr_upload/ajax_datagrid_vendorcdr_total/{type}', 'CDRController@ajax_datagrid_vendorcdr_total');	

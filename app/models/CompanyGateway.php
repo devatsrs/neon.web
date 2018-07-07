@@ -603,6 +603,42 @@ class CompanyGateway extends \Eloquent {
             CronJob::create($AutoInvoiceGeneratordata);
         }
         log::info('-- Auto Invoice Generator END--');
+        log::info('-- Create Summary --');
+        $CreateSummaryCommandID = CronJobCommand::getCronJobCommandIDByCommand('createsummary',$CompanyID);
+        $CreateSummary_Count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$CreateSummaryCommandID])->count();
+        if($CreateSummary_Count == 0) {
+            $CreateSummaryJobTitle = 'Create Summary';
+            $CreateSummarySetting = '{"StartDate":"","EndDate":"","SuccessEmail":"","ErrorEmail":"","ThresholdTime":"500","JobTime":"DAILY","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"2:00:00 AM"}';
+            $CreateSummarydata = array();
+            $CreateSummarydata['CompanyID'] = $CompanyID;
+            $CreateSummarydata['CronJobCommandID'] = $CreateSummaryCommandID;
+            $CreateSummarydata['Settings'] = $CreateSummarySetting;
+            $CreateSummarydata['Status'] = 1;
+            $CreateSummarydata['created_by'] = 'system';
+            $CreateSummarydata['created_at'] = $today;
+            $CreateSummarydata['JobTitle'] = $CreateSummaryJobTitle;
+            log::info($CreateSummarydata);
+            CronJob::create($CreateSummarydata);
+        }
+        log::info('-- Create Summary END--');
+        log::info('-- Create Summary Live --');
+        $CreateSummaryLiveCommandID = CronJobCommand::getCronJobCommandIDByCommand('createsummarylive',$CompanyID);
+        $CreateSummaryLive_Count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$CreateSummaryLiveCommandID])->count();
+        if($CreateSummaryLive_Count == 0) {
+            $CreateSummaryLiveJobTitle = 'Create Customer Summary Live';
+            $CreateSummaryLiveSetting = '{"ThresholdTime":"30","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"5","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM"}';
+            $CreateSummaryLivedata = array();
+            $CreateSummaryLivedata['CompanyID'] = $CompanyID;
+            $CreateSummaryLivedata['CronJobCommandID'] = $CreateSummaryLiveCommandID;
+            $CreateSummaryLivedata['Settings'] = $CreateSummaryLiveSetting;
+            $CreateSummaryLivedata['Status'] = 1;
+            $CreateSummaryLivedata['created_by'] = 'system';
+            $CreateSummaryLivedata['created_at'] = $today;
+            $CreateSummaryLivedata['JobTitle'] = $CreateSummaryLiveJobTitle;
+            log::info($CreateSummaryLivedata);
+            CronJob::create($CreateSummaryLivedata);
+        }
+        log::info('-- Create Summary Live END--');
 
     }
 
