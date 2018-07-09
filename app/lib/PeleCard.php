@@ -51,7 +51,7 @@ class PeleCard {
     public function doValidation($data){
         $ValidationResponse = array();
         $rules = array(
-            'CardNumber' => 'required|digits_between:13,19',
+            'CardNumber' => 'required|digits_between:9,19',
             'ExpirationMonth' => 'required',
             'ExpirationYear' => 'required',
             'NameOnCard' => 'required',
