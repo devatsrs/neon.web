@@ -97,7 +97,6 @@ class FileUploadTemplate extends \Eloquent {
                     $RateTable       = RateTable::find($data['Ratetable']);
                     $option['Trunk'] = $RateTable->TrunkID;
                 }
-                $option['TimezonesID'] = $data['TimezonesID'];
             }
             $save['Options']          = str_replace('Skip loading','',json_encode($option));
             $save['FileUploadTemplateTypeID']               = $data['TemplateType'];
@@ -180,7 +179,6 @@ class FileUploadTemplate extends \Eloquent {
                         $RateTable       = RateTable::find($data['Ratetable']);
                         $option['Trunk'] = $RateTable->TrunkID;
                     }
-                    $option['TimezonesID'] = $data['TimezonesID'];
                 }
                 $save['Options']            = str_replace('Skip loading','',json_encode($option));
                 $save['FileUploadTemplateTypeID']               = $data['TemplateType'];
@@ -273,9 +271,7 @@ class FileUploadTemplate extends \Eloquent {
                 $message_for_type['selection.Description.required'] = "Description Field is required";
             }
             $rules_for_type['selection.Rate']            = 'required';
-            $rules_for_type['selection.Timezones']       = 'required_without:TimezonesID';
             $message_for_type['selection.Rate.required'] = "Rate Field is required";
-            $message_for_type['selection.Timezones.required_without'] = "Any one Timezones field is required, you can select it for all rates from where you have uploaded file. and if you have Timezones in file then you can select in field remapping section";
             $option["skipRows"] = array("start_row" => $data["start_row"], "end_row" => $data["end_row"]);
 
         }else if($data['TemplateType'] == 9) { //payment

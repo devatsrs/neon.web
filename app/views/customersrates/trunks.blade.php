@@ -30,7 +30,7 @@
     @if(User::checkCategoryPermission('CustomersRates','Download'))
     <li>
         <a href="{{ URL::to('/customers_rates/'.$id.'/download') }}" >
-             Download Rate sheet
+             Download Rate Sheet
         </a>
     </li>
     @endif

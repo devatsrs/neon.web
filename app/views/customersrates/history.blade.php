@@ -11,10 +11,10 @@
         {{customer_dropbox($id,["IsCustomer"=>1])}}
     </li>
     <li class="active">
-        <strong>Customer Rate Sheet Download History</strong>
+        <strong>Customer Rate Sheet History</strong>
     </li>
 </ol>
-<h3>Customer Rate Sheet Download History</h3>
+<h3>Customer Rate Sheet History</h3>
 @include('accounts.errormessage')
 <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
     <li>
@@ -32,7 +32,7 @@
     @if(User::checkCategoryPermission('CustomersRates','Download'))
     <li>
         <a href="{{ URL::to('/customers_rates/'.$id.'/download') }}" >
-            Download Rate sheet
+            Download Rate Sheet
         </a>
     </li>
     @endif

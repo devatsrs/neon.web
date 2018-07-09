@@ -23,9 +23,10 @@ class RateUploadController extends \BaseController {
         $dialstring         = DialString::getDialStringIDList();
         $currencies         = Currency::getCurrencyDropdownIDList();
         $uploadtypes        = RateUpload::$uploadtypes;
-        $Timezones          = [""=>"Select"]+Timezones::getTimezonesIDList();
+        $Timezones          = Timezones::getTimezonesIDList(1);//no default timezones, only user defined timezones
+        $AllTimezones       = Timezones::getTimezonesIDList();//all timezones
 
-        return View::make('rateupload.index', compact('Vendors','Customers','Ratetables','VendorID','CustomerID','RatetableID','dialstring','currencies','uploadtypes','RateUploadType','id','Timezones'));
+        return View::make('rateupload.index', compact('Vendors','Customers','Ratetables','VendorID','CustomerID','RatetableID','dialstring','currencies','uploadtypes','RateUploadType','id','Timezones','AllTimezones'));
     }
 
     public function getUploadTemplates($RateUploadType) {
@@ -50,8 +51,7 @@ class RateUploadController extends \BaseController {
             "start_row_sheet2" => "",
             "end_row_sheet2" => "",
             "importratesheet" => "",
-            "importdialcodessheet" => "",
-            "TimezonesID" => ""
+            "importdialcodessheet" => ""
         ];
 
         foreach($arrData as $val)
@@ -90,12 +90,6 @@ class RateUploadController extends \BaseController {
                 $arrUploadTmp["importdialcodessheet"]=$options["importdialcodessheet"];
             } else {
                 $arrUploadTmp["importdialcodessheet"]="";
-            }
-
-            if(!empty($options['TimezonesID'])) {
-                $arrUploadTmp["TimezonesID"]=$options["TimezonesID"];
-            } else {
-                $arrUploadTmp["TimezonesID"]="";
             }
 
             $uploadtemplate[]=$arrUploadTmp;
@@ -401,9 +395,6 @@ class RateUploadController extends \BaseController {
             $rules_for_type['selection.Rate']            = 'required';
             $message_for_type['selection.Rate.required'] = "Rate Field is required";
 
-            $rules_for_type['selection.Timezones']       = 'required_without:TimezonesID';
-            $message_for_type['selection.Timezones.required_without'] = "Any one Timezones field is required, you can select it for all rates from where you have uploaded file. and if you have Timezones in file then you can select in field remapping section";
-
             $tempdata = json_decode(str_replace('Skip loading','',json_encode($data,true)),true);
             $validator = Validator::make($tempdata, $rules_for_type, $message_for_type);
 
@@ -433,7 +424,6 @@ class RateUploadController extends \BaseController {
         $save['Options']        = str_replace('Skip loading','',json_encode($option));//json_encode($option);
         $fullPath               = $amazonPath . $file_name; //$destinationPath . $file_name;
         $save['full_path']      = $fullPath;
-        $save['TimezonesID']    = $data['TimezonesID'];
 
         if($data['RateUploadType'] == RateUpload::vendor) {
             $save["AccountID"]      = $id;
@@ -618,9 +608,6 @@ class RateUploadController extends \BaseController {
             $rules_for_type['selection.Rate']            = 'required';
             $message_for_type['selection.Rate.required'] = "Rate Field is required";
 
-            $rules_for_type['selection.Timezones']       = 'required_without:TimezonesID';
-            $message_for_type['selection.Timezones.required_without'] = "Any one Timezones field is required, you can select it for all rates from where you have uploaded file. and if you have Timezones in file then you can select in field remapping section";
-
             $option["skipRows"] = array("start_row" => $data["start_row"], "end_row" => $data["end_row"]);
 
             $tempdata = json_decode(str_replace('Skip loading','',json_encode($data,true)),true);
@@ -642,7 +629,6 @@ class RateUploadController extends \BaseController {
         $option["skipRows"]              = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
         //$option["Sheet"]               = !empty($data['Sheet']) ? $data['Sheet'] : '';
         $option["importratesheet"]       = !empty($data['importratesheet']) ? $data['importratesheet'] : '';
-        $option["TimezonesID"]           = !empty($data['TimezonesID']) ? $data['TimezonesID'] : '';
 
         $save = array();
         $option["option"]       = $data['option'];
@@ -695,8 +681,6 @@ class RateUploadController extends \BaseController {
             } else if($data['RateUploadType'] == RateUpload::ratetable) {
                 $MODEL = "TempRateTableRate";
             }
-
-            $Timezones = Timezones::getTimezonesIDList(1);
 
             if(isset($joboptions->uploadtemplate) && !empty($joboptions->uploadtemplate)){
                 $uploadtemplate     = FileUploadTemplate::find($joboptions->uploadtemplate);
@@ -770,7 +754,6 @@ class RateUploadController extends \BaseController {
                 $NeonExcelSheet2 = new NeonExcelIO($file_name_with_path, $data2, $data2['importdialcodessheet']);
                 $file_name2 = $NeonExcelSheet2->convertExcelToCSV($data2);
             }
-            //echo $file_name.'<br/>'.$file_name2;exit;
 
             if(isset($templateoptions->skipRows)) {
                 $skipRows              = $templateoptions->skipRows;
@@ -800,9 +783,7 @@ class RateUploadController extends \BaseController {
                 $NeonExcel2 = new NeonExcelIO($file_name2, (array)$csvoption);
                 $dialcodessheet = $NeonExcel2->read();
             }
-            //echo "<pre>";print_r($ratesheet);print_r($dialcodessheet);exit;
 
-            //echo "<pre>";print_r($option);exit;
             if(!empty($data['importdialcodessheet'])) {
                 $Join1 = $option["selection"]['Join1'];
                 $Join2 = $option["selection2"]['Join2'];
@@ -822,8 +803,6 @@ class RateUploadController extends \BaseController {
                 $results = $ratesheet;
             }
 
-            //echo "<pre>";print_r($results);print_r($attrselection);exit;
-
             $error = array();
             // if EndDate is mapped and not empty than data will store in and insert from $batch_insert_array
             // if EndDate is mapped and     empty than data will store in and insert from $batch_insert_array2
@@ -840,184 +819,200 @@ class RateUploadController extends \BaseController {
                     $attrselection2->$key = str_replace("\n", '', $attrselection2->$key);
                 }
             }
-            //echo "<pre>";print_r($attrselection);print_r($attrselection2);exit;
-            foreach ($results as $index=>$temp_row) {
 
-                if ($csvoption->Firstrow == 'data') {
-                    array_unshift($temp_row, null);
-                    unset($temp_row[0]);
-                }
+            //get how many rates mapped against timezones
+            $RatesKeys = array_key_exists_wildcard((array)$attrselection,'Rate*');
+            $lineno1 = $lineno;
+            foreach ($RatesKeys as $key => $RateColumn) {
+                $lineno = $lineno1;
+                foreach ($results as $index => $temp_row) {
 
-                foreach ($temp_row as $key => $value) {
-                    $key = str_replace("\r",'',$key);
-                    $key = str_replace("\n",'',$key);
-                    $temp_row[$key] = $value;
-                }
-
-                $tempdata = array();
-                $tempdata['codedeckid'] = $joboptions->codedeckid;
-                $tempdata['ProcessId']  = $ProcessID;
-
-                //check empty row
-                $checkemptyrow = array_filter(array_values($temp_row));
-                if(!empty($checkemptyrow)) {
-
-                    if (!empty($attrselection->CountryCode) || !empty($attrselection2->CountryCode)) {
-                        if(!empty($attrselection->CountryCode)) {
-                            $selection_CountryCode = $attrselection->CountryCode;
-                        } else if(!empty($attrselection2->CountryCode)) {
-                            $selection_CountryCode = $attrselection2->CountryCode;
-                        }
-                        if (isset($selection_CountryCode) && !empty($selection_CountryCode) && !empty($temp_row[$selection_CountryCode])) {
-                            $tempdata['CountryCode'] = trim($temp_row[$selection_CountryCode]);
-                        } else {
-                            $tempdata['CountryCode'] = '';
-                        }
+                    if ($csvoption->Firstrow == 'data') {
+                        array_unshift($temp_row, null);
+                        unset($temp_row[0]);
                     }
 
-                    if (!empty($attrselection->Code) || !empty($attrselection2->Code)) {
-                        if(!empty($attrselection->Code)) {
-                            $selection_Code = $attrselection->Code;
-                        } else if(!empty($attrselection2->Code)) {
-                            $selection_Code = $attrselection2->Code;
-                        }
-
-                        if (isset($selection_Code) && !empty($selection_Code) && trim($temp_row[$selection_Code]) != '') {
-                            $tempdata['Code'] = trim($temp_row[$selection_Code]);
-
-                        } else if (!empty($tempdata['CountryCode'])) {
-                            $tempdata['Code'] = "";  // if code is blank but country code is not blank than mark code as blank., it will be merged with countr code later ie 91 - 1 -> 911
-                        } else {
-                            $error[] = 'Code is blank at line no:' . $lineno;
-                        }
+                    foreach ($temp_row as $key => $value) {
+                        $key = str_replace("\r", '', $key);
+                        $key = str_replace("\n", '', $key);
+                        $temp_row[$key] = $value;
                     }
 
-                    if (!empty($attrselection->Description) || !empty($attrselection2->Description)) {
-                        if(!empty($attrselection->Description)) {
-                            $selection_Description = $attrselection->Description;
-                        } else if(!empty($attrselection2->Description)) {
-                            $selection_Description = $attrselection2->Description;
-                        }
-                        if (isset($selection_Description) && !empty($selection_Description) && !empty($temp_row[$selection_Description])) {
-                            $tempdata['Description'] = $temp_row[$selection_Description];
-                        } else {
-                            $error[] = 'Description is blank at line no:' . $lineno;
-                        }
-                    }
+                    $tempdata = array();
+                    $tempdata['codedeckid'] = $joboptions->codedeckid;
+                    $tempdata['ProcessId'] = $ProcessID;
 
-                    if (isset($attrselection->Action) && !empty($attrselection->Action)) {
-                        if(empty($temp_row[$attrselection->Action])){
-                            $tempdata['Change'] = 'I';
-                        }else{
-                            $action_value = $temp_row[$attrselection->Action];
-                            if (isset($attrselection->ActionDelete) && !empty($attrselection->ActionDelete) && trim(strtolower($action_value)) == trim(strtolower($attrselection->ActionDelete)) ) {
-                                $tempdata['Change'] = 'D';
-                            }else if (isset($attrselection->ActionUpdate) && !empty($attrselection->ActionUpdate) && trim(strtolower($action_value)) == trim(strtolower($attrselection->ActionUpdate))) {
-                                $tempdata['Change'] = 'U';
-                            }else if (isset($attrselection->ActionInsert) && !empty($attrselection->ActionInsert) && trim(strtolower($action_value)) == trim(strtolower($attrselection->ActionInsert))) {
-                                $tempdata['Change'] = 'I';
-                            }else{
-                                $tempdata['Change'] = 'I';
+                    //check empty row
+                    $checkemptyrow = array_filter(array_values($temp_row));
+                    if (!empty($checkemptyrow)) {
+
+                        if (!empty($attrselection->CountryCode) || !empty($attrselection2->CountryCode)) {
+                            if (!empty($attrselection->CountryCode)) {
+                                $selection_CountryCode = $attrselection->CountryCode;
+                            } else if (!empty($attrselection2->CountryCode)) {
+                                $selection_CountryCode = $attrselection2->CountryCode;
+                            }
+                            if (isset($selection_CountryCode) && !empty($selection_CountryCode) && !empty($temp_row[$selection_CountryCode])) {
+                                $tempdata['CountryCode'] = trim($temp_row[$selection_CountryCode]);
+                            } else {
+                                $tempdata['CountryCode'] = '';
                             }
                         }
 
-                    }else{
-                        $tempdata['Change'] = 'I';
-                    }
+                        if (!empty($attrselection->Code) || !empty($attrselection2->Code)) {
+                            if (!empty($attrselection->Code)) {
+                                $selection_Code = $attrselection->Code;
+                            } else if (!empty($attrselection2->Code)) {
+                                $selection_Code = $attrselection2->Code;
+                            }
 
-                    if (isset($attrselection->Rate) && !empty($attrselection->Rate)) {
-                        $temp_row[$attrselection->Rate] = preg_replace('/[^.0-9\-]/', '', $temp_row[$attrselection->Rate]); //remove anything but numbers and 0 (only allow numbers,-dash,.dot)
-                        if (is_numeric(trim($temp_row[$attrselection->Rate]))) {
-                            $tempdata['Rate'] = trim($temp_row[$attrselection->Rate]);
+                            if (isset($selection_Code) && !empty($selection_Code) && trim($temp_row[$selection_Code]) != '') {
+                                $tempdata['Code'] = trim($temp_row[$selection_Code]);
+
+                            } else if (!empty($tempdata['CountryCode'])) {
+                                $tempdata['Code'] = "";  // if code is blank but country code is not blank than mark code as blank., it will be merged with countr code later ie 91 - 1 -> 911
+                            } else {
+                                $error[] = 'Code is blank at line no:' . $lineno;
+                            }
+                        }
+
+                        if (!empty($attrselection->Description) || !empty($attrselection2->Description)) {
+                            if (!empty($attrselection->Description)) {
+                                $selection_Description = $attrselection->Description;
+                            } else if (!empty($attrselection2->Description)) {
+                                $selection_Description = $attrselection2->Description;
+                            }
+                            if (isset($selection_Description) && !empty($selection_Description) && !empty($temp_row[$selection_Description])) {
+                                $tempdata['Description'] = $temp_row[$selection_Description];
+                            } else {
+                                $error[] = 'Description is blank at line no:' . $lineno;
+                            }
+                        }
+
+                        if (isset($attrselection->Action) && !empty($attrselection->Action)) {
+                            if (empty($temp_row[$attrselection->Action])) {
+                                $tempdata['Change'] = 'I';
+                            } else {
+                                $action_value = $temp_row[$attrselection->Action];
+                                if (isset($attrselection->ActionDelete) && !empty($attrselection->ActionDelete) && trim(strtolower($action_value)) == trim(strtolower($attrselection->ActionDelete))) {
+                                    $tempdata['Change'] = 'D';
+                                } else if (isset($attrselection->ActionUpdate) && !empty($attrselection->ActionUpdate) && trim(strtolower($action_value)) == trim(strtolower($attrselection->ActionUpdate))) {
+                                    $tempdata['Change'] = 'U';
+                                } else if (isset($attrselection->ActionInsert) && !empty($attrselection->ActionInsert) && trim(strtolower($action_value)) == trim(strtolower($attrselection->ActionInsert))) {
+                                    $tempdata['Change'] = 'I';
+                                } else {
+                                    $tempdata['Change'] = 'I';
+                                }
+                            }
+
                         } else {
-                            $error[] = 'Rate is not numeric at line no:' . $lineno;
-                        }
-                    }elseif($tempdata['Change'] == 'D') {
-                        $tempdata['Rate'] = 0;
-                    }elseif($tempdata['Change'] != 'D') {
-                        $error[] = 'Rate is blank at line no:'.$lineno;
-                    }
-
-                    if(!empty($attrselection->EffectiveDate) || !empty($attrselection2->EffectiveDate)) {
-                        if(!empty($attrselection->EffectiveDate)) {
-                            $selection_EffectiveDate = $attrselection->EffectiveDate;
-                            $selection_dateformat = $attrselection->DateFormat;
-                        } else if(!empty($attrselection2->EffectiveDate)) {
-                            $selection_EffectiveDate = $attrselection->EffectiveDate;
-                            $selection_dateformat = $attrselection2->DateFormat;
+                            $tempdata['Change'] = 'I';
                         }
 
-                        if (isset($selection_EffectiveDate) && !empty($selection_EffectiveDate) && !empty($temp_row[$selection_EffectiveDate])) {
+                        if (isset($attrselection->$RateColumn) && !empty($attrselection->$RateColumn)) {
+                            $temp_row[$attrselection->$RateColumn] = preg_replace('/[^.0-9\-]/', '', $temp_row[$attrselection->$RateColumn]); //remove anything but numbers and 0 (only allow numbers,-dash,.dot)
+                            if (is_numeric(trim($temp_row[$attrselection->$RateColumn]))) {
+                                $tempdata['Rate'] = trim($temp_row[$attrselection->$RateColumn]);
+                            } else {
+                                $error[] = 'Rate is not numeric at line no:' . $lineno;
+                            }
+                        } elseif ($tempdata['Change'] == 'D') {
+                            $tempdata['Rate'] = 0;
+                        } elseif ($tempdata['Change'] != 'D') {
+                            $error[] = 'Rate is blank at line no:' . $lineno;
+                        }
+
+                        if (!empty($attrselection->EffectiveDate) || !empty($attrselection2->EffectiveDate)) {
+                            if (!empty($attrselection->EffectiveDate)) {
+                                $selection_EffectiveDate = $attrselection->EffectiveDate;
+                                $selection_dateformat = $attrselection->DateFormat;
+                            } else if (!empty($attrselection2->EffectiveDate)) {
+                                $selection_EffectiveDate = $attrselection->EffectiveDate;
+                                $selection_dateformat = $attrselection2->DateFormat;
+                            }
+
+                            if (isset($selection_EffectiveDate) && !empty($selection_EffectiveDate) && !empty($temp_row[$selection_EffectiveDate])) {
+                                try {
+                                    $tempdata['EffectiveDate'] = formatSmallDate(str_replace('/', '-', $temp_row[$selection_EffectiveDate]), $selection_dateformat);
+                                } catch (\Exception $e) {
+                                    $error[] = 'Date format is Wrong  at line no:' . $lineno;
+                                }
+                            } elseif (empty($selection_EffectiveDate)) {
+                                $tempdata['EffectiveDate'] = date('Y-m-d');
+                            } elseif ($tempdata['Change'] == 'D') {
+                                $tempdata['EffectiveDate'] = date('Y-m-d');
+                            } elseif ($tempdata['Change'] != 'D') {
+                                $error[] = 'EffectiveDate is blank at line no:' . $lineno;
+                            }
+                        } else {
+                            $tempdata['EffectiveDate'] = date('Y-m-d');
+                        }
+
+                        if (isset($attrselection->EndDate) && !empty($attrselection->EndDate) && !empty($temp_row[$attrselection->EndDate])) {
                             try {
-                                $tempdata['EffectiveDate'] = formatSmallDate(str_replace('/', '-', $temp_row[$selection_EffectiveDate]), $selection_dateformat);
+                                $tempdata['EndDate'] = formatSmallDate(str_replace('/', '-', $temp_row[$attrselection->EndDate]), $attrselection->DateFormat);
                             } catch (\Exception $e) {
                                 $error[] = 'Date format is Wrong  at line no:' . $lineno;
                             }
-                        } elseif (empty($selection_EffectiveDate)) {
-                            $tempdata['EffectiveDate'] = date('Y-m-d');
-                        } elseif ($tempdata['Change'] == 'D') {
-                            $tempdata['EffectiveDate'] = date('Y-m-d');
-                        } elseif ($tempdata['Change'] != 'D') {
-                            $error[] = 'EffectiveDate is blank at line no:' . $lineno;
                         }
-                    } else {
-                        $tempdata['EffectiveDate'] = date('Y-m-d');
-                    }
 
-                    if (isset($attrselection->EndDate) && !empty($attrselection->EndDate) && !empty($temp_row[$attrselection->EndDate])) {
-                        try {
-                            $tempdata['EndDate'] = formatSmallDate(str_replace( '/','-',$temp_row[$attrselection->EndDate]), $attrselection->DateFormat);
-                        }catch (\Exception $e){
-                            $error[] = 'Date format is Wrong  at line no:'.$lineno;
+                        if (isset($attrselection->ConnectionFee) && !empty($attrselection->ConnectionFee)) {
+                            $tempdata['ConnectionFee'] = trim($temp_row[$attrselection->ConnectionFee]);
                         }
-                    }
 
-                    if (isset($attrselection->ConnectionFee) && !empty($attrselection->ConnectionFee)) {
-                        $tempdata['ConnectionFee'] = trim($temp_row[$attrselection->ConnectionFee]);
-                    }
+                        if (isset($attrselection->Interval1) && !empty($attrselection->Interval1)) {
+                            $tempdata['Interval1'] = intval(trim($temp_row[$attrselection->Interval1]));
+                        }
 
-                    if (isset($attrselection->Interval1) && !empty($attrselection->Interval1)) {
-                        $tempdata['Interval1'] = intval(trim($temp_row[$attrselection->Interval1]));
-                    }
+                        if (isset($attrselection->IntervalN) && !empty($attrselection->IntervalN)) {
+                            $tempdata['IntervalN'] = intval(trim($temp_row[$attrselection->IntervalN]));
+                        }
 
-                    if (isset($attrselection->IntervalN) && !empty($attrselection->IntervalN)) {
-                        $tempdata['IntervalN'] = intval(trim($temp_row[$attrselection->IntervalN]));
-                    }
+                        if (!empty($DialStringId)) {
+                            if (isset($attrselection->DialStringPrefix) && !empty($attrselection->DialStringPrefix)) {
+                                $tempdata['DialStringPrefix'] = trim($temp_row[$attrselection->DialStringPrefix]);
+                            } else {
+                                $tempdata['DialStringPrefix'] = '';
+                            }
+                        }
 
-                    if(!empty($DialStringId)){
-                        if (isset($attrselection->DialStringPrefix) && !empty($attrselection->DialStringPrefix)) {
-                            $tempdata['DialStringPrefix'] = trim($temp_row[$attrselection->DialStringPrefix]);
+                        if($RateColumn == 'Rate') {
+                            $tempdata['TimezonesID'] = 1;
                         } else {
-                            $tempdata['DialStringPrefix'] = '';
+                            $TID = explode('-',$RateColumn)[1];
+                            $tempdata['TimezonesID'] = $TID;
+                        }
+
+                        if (isset($tempdata['Code']) && isset($tempdata['Description']) && (isset($tempdata['Rate']) || $tempdata['Change'] == 'D') && (isset($tempdata['EffectiveDate']) || $tempdata['Change'] == 'D')) {
+                            if (isset($tempdata['EndDate'])) {
+                                $batch_insert_array[] = $tempdata;
+                            } else {
+                                $batch_insert_array2[] = $tempdata;
+                            }
+                            $counter++;
                         }
                     }
 
-                    if(!empty($templateoptions->TimezonesID)) {
-                        $tempdata['TimezonesID'] = $templateoptions->TimezonesID;
-                    } else if (!empty($attrselection->Timezones)) {
-                        if(array_key_exists($temp_row[$attrselection->Timezones],$Timezones)) {
-                            $tempdata['TimezonesID'] = $Timezones[$temp_row[$attrselection->Timezones]];
-                        } else {
-                            $error[] = 'Timezones not match at line no:' . $lineno;
-                        }
-                    } else {
-                        $error[] = 'Timezones is blank at line no:' . $lineno;
+                    if ($counter == $bacth_insert_limit) {
+                        Log::info('Batch insert start');
+                        Log::info('global counter' . $lineno);
+                        Log::info('insertion start');
+                        $MODEL::insert($batch_insert_array);
+                        $MODEL::insert($batch_insert_array2);
+                        Log::info('insertion end');
+                        $batch_insert_array = [];
+                        $batch_insert_array2 = [];
+                        $counter = 0;
                     }
+                    $lineno++;
+                } // loop over
 
-                    if(isset($tempdata['Code']) && isset($tempdata['Description']) && isset($tempdata['TimezonesID']) && ( isset($tempdata['Rate'])  || $tempdata['Change'] == 'D') && ( isset($tempdata['EffectiveDate']) || $tempdata['Change'] == 'D') ){
-                        if(isset($tempdata['EndDate'])) {
-                            $batch_insert_array[]   = $tempdata;
-                        } else {
-                            $batch_insert_array2[]  = $tempdata;
-                        }
-                        $counter++;
-                    }
-                }
-
-                if($counter==$bacth_insert_limit){
+                if(!empty($batch_insert_array) || !empty($batch_insert_array2)) {
                     Log::info('Batch insert start');
                     Log::info('global counter'.$lineno);
                     Log::info('insertion start');
+                    Log::info('last batch insert ' . count($batch_insert_array));
+                    Log::info('last batch insert 2 ' . count($batch_insert_array2));
                     $MODEL::insert($batch_insert_array);
                     $MODEL::insert($batch_insert_array2);
                     Log::info('insertion end');
@@ -1025,19 +1020,8 @@ class RateUploadController extends \BaseController {
                     $batch_insert_array2 = [];
                     $counter = 0;
                 }
-                $lineno++;
-            } // loop over
 
-            if(!empty($batch_insert_array) || !empty($batch_insert_array2)) {
-                Log::info('Batch insert start');
-                Log::info('global counter'.$lineno);
-                Log::info('insertion start');
-                Log::info('last batch insert ' . count($batch_insert_array));
-                Log::info('last batch insert 2 ' . count($batch_insert_array2));
-                $MODEL::insert($batch_insert_array);
-                $MODEL::insert($batch_insert_array2);
-                Log::info('insertion end');
-            }
+            } // $Ratekeys loop over
 
             $JobStatusMessage = array();
             $duplicatecode=0;
@@ -1114,11 +1098,11 @@ class RateUploadController extends \BaseController {
         $data['Description']    = !empty($data['Description']) ? $data['Description'] : NULL;
 
         if($data['RateUploadType'] == RateUpload::vendor) {
-            $query = "call prc_getReviewVendorRates ('".$data['ProcessID']."','".$data['Action']."','".$data['Code']."','".$data['Description']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
+            $query = "call prc_getReviewVendorRates ('".$data['ProcessID']."','".$data['Action']."','".$data['Code']."','".$data['Description']."',".$data['Timezone'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
         } else if($data['RateUploadType'] == RateUpload::customer) {
-            $query = "call prc_getReviewCustomerRates ('".$data['ProcessID']."','".$data['Action']."','".$data['Code']."','".$data['Description']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
+            $query = "call prc_getReviewCustomerRates ('".$data['ProcessID']."','".$data['Action']."','".$data['Code']."','".$data['Description']."',".$data['Timezone'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
         } else if($data['RateUploadType'] == RateUpload::ratetable) {
-            $query = "call prc_getReviewRateTableRates ('".$data['ProcessID']."','".$data['Action']."','".$data['Code']."','".$data['Description']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
+            $query = "call prc_getReviewRateTableRates ('".$data['ProcessID']."','".$data['Action']."','".$data['Code']."','".$data['Description']."',".$data['Timezone'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
         }
 
         Log::info($query);
@@ -1133,11 +1117,11 @@ class RateUploadController extends \BaseController {
         $data['Description']    = !empty($data['Description']) ? $data['Description'] : NULL;
 
         if($data['RateUploadType'] == RateUpload::vendor) {
-            $query = "call prc_getReviewVendorRates ('".$data['ProcessID']."','".$data['Action']."','".$data['Code']."','".$data['Description']."',0 ,0,'','',1)";
+            $query = "call prc_getReviewVendorRates ('".$data['ProcessID']."','".$data['Action']."','".$data['Code']."','".$data['Description']."',".$data['Timezone'].",0 ,0,'','',1)";
         } else if($data['RateUploadType'] == RateUpload::customer) {
-            $query = "call prc_getReviewCustomerRates ('".$data['ProcessID']."','".$data['Action']."','".$data['Code']."','".$data['Description']."',0 ,0,'','',1)";
+            $query = "call prc_getReviewCustomerRates ('".$data['ProcessID']."','".$data['Action']."','".$data['Code']."','".$data['Description']."',".$data['Timezone'].",0 ,0,'','',1)";
         } else if($data['RateUploadType'] == RateUpload::ratetable) {
-            $query = "call prc_getReviewRateTableRates ('".$data['ProcessID']."','".$data['Action']."','".$data['Code']."','".$data['Description']."',0 ,0,'','',1)";
+            $query = "call prc_getReviewRateTableRates ('".$data['ProcessID']."','".$data['Action']."','".$data['Code']."','".$data['Description']."',".$data['Timezone'].",0 ,0,'','',1)";
         }
 
         Log::info($query);
@@ -1167,6 +1151,7 @@ class RateUploadController extends \BaseController {
         $CustomerID     = $data['CustomerID'];
         $RateTableID    = $data['RateTableID'];
         $RateUploadType = $data['RateUploadType'];
+        $Timezone       = $data['Timezone'];
         $TrunkID        = 0;
 
         if($data['Action'] == 'New') {
@@ -1211,11 +1196,11 @@ class RateUploadController extends \BaseController {
 
             try {
                 if($RateUploadType == RateUpload::vendor) {
-                    $query = "call prc_WSReviewVendorRateUpdate ('".$VendorID."','".$TrunkID."','".$TempRateIDs."','".$ProcessID."','".$criteria."','".$Action."','".$Interval1."','".$IntervalN."','".$EndDate."','".$Code."','".$Description."')";
+                    $query = "call prc_WSReviewVendorRateUpdate ('".$VendorID."','".$TrunkID."',".$Timezone.",'".$TempRateIDs."','".$ProcessID."','".$criteria."','".$Action."','".$Interval1."','".$IntervalN."','".$EndDate."','".$Code."','".$Description."')";
                 } else if($RateUploadType == RateUpload::customer) {
-                    $query = "call prc_WSReviewCustomerRateUpdate ('".$CustomerID."','".$TrunkID."','".$TempRateIDs."','".$ProcessID."','".$criteria."','".$Action."','".$Interval1."','".$IntervalN."','".$EndDate."','".$Code."','".$Description."')";
+                    $query = "call prc_WSReviewCustomerRateUpdate ('".$CustomerID."','".$TrunkID."',".$Timezone.",'".$TempRateIDs."','".$ProcessID."','".$criteria."','".$Action."','".$Interval1."','".$IntervalN."','".$EndDate."','".$Code."','".$Description."')";
                 } else if($RateUploadType == RateUpload::ratetable) {
-                    $query = "call prc_WSReviewRateTableRateUpdate ('".$RateTableID."','".$TempRateIDs."','".$ProcessID."','".$criteria."','".$Action."','".$Interval1."','".$IntervalN."','".$EndDate."','".$Code."','".$Description."')";
+                    $query = "call prc_WSReviewRateTableRateUpdate ('".$RateTableID."','".$TempRateIDs."',".$Timezone.",'".$ProcessID."','".$criteria."','".$Action."','".$Interval1."','".$IntervalN."','".$EndDate."','".$Code."','".$Description."')";
                 }
 
                 Log::info($query);
