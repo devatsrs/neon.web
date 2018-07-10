@@ -271,7 +271,6 @@ class FileUploadTemplate extends \Eloquent {
             }
             
             $Timezones = Timezones::getTimezonesIDList(1);//no default timezones, only user defined timezones
-
             if(count($Timezones) > 0) { // if there are any timezones available
                 $TimezonesIDsArray = array();
                 foreach ($Timezones as $ID => $Title) {
@@ -279,13 +278,13 @@ class FileUploadTemplate extends \Eloquent {
                 }
                 $TimezonesIDsString = implode(',',$TimezonesIDsArray);
 
-                $rules_for_type['selection.Rate']                    = 'required_without_all:'.$TimezonesIDsString;
-                $message_for_type['selection.Rate.required_without'] = "Please select Rate against at least any one timezone.";
+                $rules_for_type['selection.Rate']                        = 'required_without_all:'.$TimezonesIDsString;
+                $message_for_type['selection.Rate.required_without_all'] = "Please select Rate against at least any one timezone.";
                 $TimezonesIDsArray[] = 'selection.Rate';
                 foreach ($Timezones as $ID => $Title) {
                     $TimezonesIDsString = implode(',',array_diff($TimezonesIDsArray, array('selection.Rate'.$ID)));
-                    $rules_for_type['selection.Rate'.$ID]                        = 'required_without_all:'.$TimezonesIDsString;
-                    $message_for_type['selection.Rate-'.$ID.'.required_without'] = "Please select Rate against at least any one timezone.";
+                    $rules_for_type['selection.Rate'.$ID]                           = 'required_without_all:'.$TimezonesIDsString;
+                    $message_for_type['selection.Rate'.$ID.'.required_without_all'] = "Please select Rate against at least any one timezone.";
                 }
             } else { // if there is only 1 timezone, default timezone
                 $rules_for_type['selection.Rate']            = 'required';
