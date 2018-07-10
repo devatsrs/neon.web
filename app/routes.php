@@ -1540,9 +1540,13 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::get('billingType/list', 'BillingTypeApiController@getList');
 	Route::get('billingCycle/list', 'BillingCycleApiController@getList');
 	Route::get('billingClass/list', 'BillingClassApiController@getList');
+	Route::post('billingClass/getTaxRateList', 'BillingClassApiController@getTaxRateList');
 	Route::get('service/list', 'ServiceApiController@getList');
 	Route::get('discount/list', 'DiscountPlanApiController@getList');
 	Route::get('subscription/list', 'SubscriptionApiController@getList');
 	Route::get('inboundOutbound/list/{CurrencyID}', 'InboundOutboundApiController@getList');
 	Route::get('payment/list', 'PaymentApiController@getList');
+	Route::post('accounts/validEmail', 'AccountsApiController@validEmail');
+	Route::post('company/validCompanyName', 'CompaniesApiController@validCompanyName');
+	Route::get('taxRates/getTaxRates', 'TaxRatesApiController@getTaxRates');
 });

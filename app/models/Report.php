@@ -327,6 +327,7 @@ class Report extends \Eloquent {
             'PaidTotal' => 'Payment Amount',
             'OutStanding' => 'OutStanding Amount',
             'TotalTax' => 'Tax Total',
+            'SubTotal' => 'Sub Total',
         ),
         'payment'=>array(
             'Amount' => 'Total',
