@@ -298,7 +298,9 @@
     @if(User::checkCategoryPermission('AccountChecklist','View') ||
     User::checkCategoryPermission('CronJob','View') || User::checkCategoryPermission('Retention','View') ||
     User::checkCategoryPermission('UploadFileTemplate','View')||User::checkCategoryPermission('Notification','View')||
-    User::checkCategoryPermission('ServerInfo','View'))
+    User::checkCategoryPermission('ServerInfo','View') ||
+    User::checkCategoryPermission('EmailTemplate','View')
+    )
     <li class="{{check_uri('Admin')}}"> <a href="#"> <i class="fa fa-lock"></i> <span>&nbsp;&nbsp;&nbsp;Admin</span> </a>
       <ul>       
         @if(User::checkCategoryPermission('Notification','View'))
@@ -325,7 +327,9 @@
          @if( User::checkCategoryPermission('ServerInfo','View'))
         <li> <a href="{{URL::to('/serverinfo')}}">  <span>Server Monitor</span> </a> </li>
     	@endif
+          @if( User::checkCategoryPermission('Translate','View'))
           <li> <a href="{{URL::to('/translate')}}">  <span>Translation</span> </a> </li>
+          @endif
       </ul>
     </li>
     @endif

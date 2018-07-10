@@ -863,6 +863,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/payments/check_upload', 'PaymentsController@check_upload');
 	Route::any('/payments/ajaxfilegrid', 'PaymentsController@ajaxfilegrid');
 	Route::any('/payments/download_sample_excel_file', 'PaymentsController@download_sample_excel_file');
+	Route::any('/payments/payments_quickbookpost', 'PaymentsController@payments_quickbookpost');
 
 	//Currency
 	Route::any('/currency/ajax_datagrid', 'CurrenciesController@ajax_datagrid');
