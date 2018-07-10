@@ -55,7 +55,7 @@ class PeleCard {
             'ExpirationMonth' => 'required',
             'ExpirationYear' => 'required',
             'NameOnCard' => 'required',
-            'CVVNumber' => 'required',
+            //'CVVNumber' => 'required',
             //'Title' => 'required|unique:tblAutorizeCardDetail,NULL,CreditCardID,CompanyID,'.$CompanyID
         );
 
@@ -74,12 +74,12 @@ class PeleCard {
             $ValidationResponse['message'] = "Month must be after " . date("F");
             return $ValidationResponse;
         }
-        $card = CreditCard::validCreditCard($data['CardNumber']);
+        /*$card = CreditCard::validCreditCard($data['CardNumber']);
         if ($card['valid'] == 0) {
             $ValidationResponse['status'] = 'failed';
             $ValidationResponse['message'] = "Please enter valid card number";
             return $ValidationResponse;
-        }
+        }*/
 
         $ValidationResponse['status'] = 'success';
         return $ValidationResponse;
