@@ -566,7 +566,6 @@ class RateUploadController extends \BaseController {
         $FileUploadTemplateID   = "";
         $temp_path              = CompanyConfiguration::get('TEMP_PATH').'/' ;
 
-        //echo "<pre>";print_R($data);exit;
         if(!empty($data['TemplateName'])){
             if(!empty($data['uploadtemplate'])) {
                 $data['FileUploadTemplateID'] = $data['uploadtemplate'];
@@ -979,8 +978,7 @@ class RateUploadController extends \BaseController {
                         if($RateColumn == 'Rate') {
                             $tempdata['TimezonesID'] = 1;
                         } else {
-                            $TID = explode('-',$RateColumn)[1];
-                            $tempdata['TimezonesID'] = $TID;
+                            $tempdata['TimezonesID'] = substr($RateColumn, 4);
                         }
 
                         if (isset($tempdata['Code']) && isset($tempdata['Description']) && (isset($tempdata['Rate']) || $tempdata['Change'] == 'D') && (isset($tempdata['EffectiveDate']) || $tempdata['Change'] == 'D')) {

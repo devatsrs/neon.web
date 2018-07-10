@@ -101,7 +101,6 @@ class FileUploadTemplate extends \Eloquent {
             $save['Options']          = str_replace('Skip loading','',json_encode($option));
             $save['FileUploadTemplateTypeID']               = $data['TemplateType'];
 
-            //echo "<pre>";print_r($option);exit;
             try {
                 if ($result = FileUploadTemplate::create($save)) {
                     $response['status']     = "success";
@@ -118,7 +117,7 @@ class FileUploadTemplate extends \Eloquent {
             }
         } else { //update template
             $template = FileUploadTemplate::find($data['FileUploadTemplateID']);
-            //print_R($template);exit;
+            
             if($template) {
                 $rules["TemplateName"]  = 'required|unique:tblFileUploadTemplate,Title,' . $data['FileUploadTemplateID'] . ',FileUploadTemplateID';
                 $rules['TemplateType']  = 'required';
@@ -270,8 +269,29 @@ class FileUploadTemplate extends \Eloquent {
                 $message_for_type['selection.Code.required'] = "Code Field is required";
                 $message_for_type['selection.Description.required'] = "Description Field is required";
             }
-            $rules_for_type['selection.Rate']            = 'required';
-            $message_for_type['selection.Rate.required'] = "Rate Field is required";
+            
+            $Timezones = Timezones::getTimezonesIDList(1);//no default timezones, only user defined timezones
+
+            if(count($Timezones) > 0) { // if there are any timezones available
+                $TimezonesIDsArray = array();
+                foreach ($Timezones as $ID => $Title) {
+                    $TimezonesIDsArray[] = 'selection.Rate'.$ID;
+                }
+                $TimezonesIDsString = implode(',',$TimezonesIDsArray);
+
+                $rules_for_type['selection.Rate']                    = 'required_without_all:'.$TimezonesIDsString;
+                $message_for_type['selection.Rate.required_without'] = "Please select Rate against at least any one timezone.";
+                $TimezonesIDsArray[] = 'selection.Rate';
+                foreach ($Timezones as $ID => $Title) {
+                    $TimezonesIDsString = implode(',',array_diff($TimezonesIDsArray, array('selection.Rate'.$ID)));
+                    $rules_for_type['selection.Rate'.$ID]                        = 'required_without_all:'.$TimezonesIDsString;
+                    $message_for_type['selection.Rate-'.$ID.'.required_without'] = "Please select Rate against at least any one timezone.";
+                }
+            } else { // if there is only 1 timezone, default timezone
+                $rules_for_type['selection.Rate']            = 'required';
+                $message_for_type['selection.Rate.required'] = "Rate Field is required";
+            }
+            
             $option["skipRows"] = array("start_row" => $data["start_row"], "end_row" => $data["end_row"]);
 
         }else if($data['TemplateType'] == 9) { //payment

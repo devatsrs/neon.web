@@ -38,7 +38,7 @@
 <div class="form-group">
     <?php $co = 0; ?>
     @foreach($Timezones as $id => $title)
-        <?php $colname = 'Rate-'.$id; ?>
+        <?php $colname = 'Rate'.$id; ?>
         @if($co != 0 && $co%2==0)
             </div>
             <div class="form-group">
