@@ -228,6 +228,14 @@
                           </a>
                       </li>
                       @endif
+                      @if(User::can('Payments','Quickbook Post Payment'))
+                          <li class="tohidden">
+                              <a href="javascript:void(0);" class="quickbook_post" >
+                                  <i class="entypo-direction"></i>
+                                  <span>Quickbook Post Payment</span>
+                              </a>
+                          </li>
+                      @endif
                   </ul>
               </div><!-- /btn-group -->
               @endif
@@ -561,6 +569,31 @@
                         }
                         $('#recall-payment-form [name="PaymentIDs"]').val(PaymentIDs);
                         $('#recall-modal-payment').modal('show');
+
+                    });
+
+                    $('body').on('click', '.btn.quickbook_post,.quickbook_post', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        var self = $(this);
+                        var PaymentIDs =[];
+                        if (!confirm('Are you sure you want to post in quickbook selected invoices?')) {
+                            return;
+                        }
+
+                        if(self.hasClass('btn')){
+                            setSelection(self);
+                            var tr = self.parents('tr');
+                            var ID = tr.find('.rowcheckbox:checked').val();
+                            PaymentIDs[0] = ID;
+
+                        }else{
+                            PaymentIDs = getselectedIDs();
+                        }
+                        //alert(PaymentIDs);return false;
+                        if (PaymentIDs.length) {
+                            submit_ajax(baseurl + '/payments/payments_quickbookpost', 'PaymentIDs=' + PaymentIDs)
+                        }
 
                     });
 
