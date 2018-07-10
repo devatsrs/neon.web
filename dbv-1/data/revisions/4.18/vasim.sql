@@ -136,6 +136,7 @@ DROP PROCEDURE IF EXISTS `prc_GetTimezones`;
 DELIMITER //
 CREATE PROCEDURE `prc_GetTimezones`(
 	IN `p_Title` varchar(100),
+	IN `p_Status` INT,
 	IN `p_PageNumber` INT ,
 	IN `p_RowspPage` INT ,
 	IN `p_lSortCol` VARCHAR(50) ,
@@ -183,11 +184,13 @@ BEGIN
 	FROM
 		tblTimezones
 	WHERE
-		p_Title IS NULL OR Title LIKE REPLACE(p_Title, '*', '%');
+		(p_Title IS NULL OR Title LIKE REPLACE(p_Title, '*', '%')) AND
+		`Status` = p_Status;
 
 	IF p_isExport = 0
 	THEN
 		SELECT
+			`TimezonesID`,
 			`Title`,
 			`FromTime`,
 			`ToTime`,
@@ -195,9 +198,8 @@ BEGIN
 			`DaysOfMonth`,
 			`Months`,
 			`ApplyIF`,
-			`created_at`,
-			`created_by`,
-			`TimezonesID`,
+			`updated_at`,
+			`updated_by`,
 			`Status`
 		FROM
 			tmp_Timezones_
@@ -245,16 +247,16 @@ BEGIN
 			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ApplyIFASC') THEN ApplyIF
 			END ASC,
 			CASE
-			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_atDESC') THEN created_at
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atDESC') THEN updated_at
 			END DESC,
 			CASE
-			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_atASC') THEN created_at
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atASC') THEN updated_at
 			END ASC,
 			CASE
-			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_byDESC') THEN created_by
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_byDESC') THEN updated_by
 			END DESC,
 			CASE
-			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_byASC') THEN created_by
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_byASC') THEN updated_by
 			END ASC
 		LIMIT
 			p_RowspPage OFFSET v_OffSet_;
@@ -275,8 +277,8 @@ BEGIN
 			`DaysOfMonth`,
 			`Months`,
 			`ApplyIF`,
-			`created_at`,
-			`created_by`
+			`updated_at`,
+			`updated_by`
 		FROM
 			tmp_Timezones_;
 	END IF;
@@ -7459,6 +7461,7 @@ CREATE PROCEDURE `prc_getReviewVendorRates`(
 	IN `p_Action` VARCHAR(50),
 	IN `p_Code` VARCHAR(50),
 	IN `p_Description` VARCHAR(50),
+	IN `p_Timezone` INT,
 	IN `p_PageNumber` INT,
 	IN `p_RowspPage` INT,
 	IN `p_lSortCol` VARCHAR(50),
@@ -7484,6 +7487,8 @@ BEGIN
 			tblTimezones tz ON tblVendorRateChangeLog.TimezonesID = tz.TimezonesID
 		WHERE
 			ProcessID = p_ProcessID AND Action = p_Action
+			AND
+				tblVendorRateChangeLog.TimezonesID = p_Timezone
 			AND
 			(p_Code IS NULL OR p_Code = '' OR Code LIKE REPLACE(p_Code, '*', '%'))
 			AND
@@ -7536,6 +7541,8 @@ BEGIN
 		WHERE
 			ProcessID = p_ProcessID AND Action = p_Action
 			AND
+				tblVendorRateChangeLog.TimezonesID = p_Timezone
+			AND
 			(p_Code IS NULL OR p_Code = '' OR Code LIKE REPLACE(p_Code, '*', '%'))
 			AND
 			(p_Description IS NULL OR p_Description = '' OR Description LIKE REPLACE(p_Description, '*', '%'));
@@ -7552,6 +7559,8 @@ BEGIN
 			tblTimezones tz ON tblVendorRateChangeLog.TimezonesID = tz.TimezonesID
 		WHERE
 			ProcessID = p_ProcessID AND Action = p_Action
+			AND
+				tblVendorRateChangeLog.TimezonesID = p_Timezone
 			AND
 			(p_Code IS NULL OR p_Code = '' OR Code LIKE REPLACE(p_Code, '*', '%'))
 			AND
@@ -9205,6 +9214,7 @@ CREATE PROCEDURE `prc_getReviewRateTableRates`(
 	IN `p_Action` VARCHAR(50),
 	IN `p_Code` VARCHAR(50),
 	IN `p_Description` VARCHAR(50),
+	IN `p_Timezone` INT,
 	IN `p_PageNumber` INT,
 	IN `p_RowspPage` INT,
 	IN `p_lSortCol` VARCHAR(50),
@@ -9230,6 +9240,8 @@ BEGIN
 			tblTimezones tz ON tblRateTableRateChangeLog.TimezonesID = tz.TimezonesID
 		WHERE
 			ProcessID = p_ProcessID AND Action = p_Action
+			AND
+				tblRateTableRateChangeLog.TimezonesID = p_Timezone
 			AND
 			(p_Code IS NULL OR p_Code = '' OR Code LIKE REPLACE(p_Code, '*', '%'))
 			AND
@@ -9282,6 +9294,8 @@ BEGIN
 		WHERE
 			ProcessID = p_ProcessID AND Action = p_Action
 			AND
+				tblRateTableRateChangeLog.TimezonesID = p_Timezone
+			AND
 			(p_Code IS NULL OR p_Code = '' OR Code LIKE REPLACE(p_Code, '*', '%'))
 			AND
 			(p_Description IS NULL OR p_Description = '' OR Description LIKE REPLACE(p_Description, '*', '%'));
@@ -9298,6 +9312,8 @@ BEGIN
 			tblTimezones tz ON tblRateTableRateChangeLog.TimezonesID = tz.TimezonesID
 		WHERE
 			ProcessID = p_ProcessID AND Action = p_Action
+			AND
+				tblRateTableRateChangeLog.TimezonesID = p_Timezone
 			AND
 			(p_Code IS NULL OR p_Code = '' OR Code LIKE REPLACE(p_Code, '*', '%'))
 			AND
@@ -14283,5 +14299,230 @@ BEGIN
 		END IF;
 
 	END IF;
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_WSReviewRateTableRateUpdate`;
+DELIMITER //
+CREATE PROCEDURE `prc_WSReviewRateTableRateUpdate`(
+	IN `p_RateTableID` INT,
+	IN `p_TimezonesID` INT,
+	IN `p_RateIds` TEXT,
+	IN `p_ProcessID` VARCHAR(200),
+	IN `p_criteria` INT,
+	IN `p_Action` VARCHAR(20),
+	IN `p_Interval1` INT,
+	IN `p_IntervalN` INT,
+	IN `p_EndDate` DATETIME,
+	IN `p_Code` VARCHAR(50),
+	IN `p_Description` VARCHAR(50)
+)
+ThisSP:BEGIN
+
+	DECLARE newstringcode INT(11) DEFAULT 0;
+	DECLARE v_pointer_ INT;
+	DECLARE v_rowCount_ INT;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+    DROP TEMPORARY TABLE IF EXISTS tmp_JobLog_;
+    CREATE TEMPORARY TABLE tmp_JobLog_ (
+        Message longtext
+    );
+
+	SET @stm_and_code = '';
+	IF p_Code != ''
+	THEN
+		SET @stm_and_code = CONCAT(' AND ("',p_Code,'" IS NULL OR "',p_Code,'" = "" OR tvr.Code LIKE "',REPLACE(p_Code, "*", "%"),'")');
+	END IF;
+
+	SET @stm_and_desc = '';
+	IF p_Description != ''
+	THEN
+		SET @stm_and_desc = CONCAT(' AND ("',p_Description,'" IS NULL OR "',p_Description,'" = "" OR tvr.Description LIKE "',REPLACE(p_Description, "*", "%"),'")');
+	END IF;
+
+    CASE p_Action
+		WHEN 'New' THEN
+			SET @stm = '';
+			IF p_Interval1 > 0
+			THEN
+				SET @stm = CONCAT(@stm,'tvr.Interval1 = ',p_Interval1);
+			END IF;
+
+			IF p_IntervalN > 0
+			THEN
+				SET @stm = CONCAT(@stm,IF(@stm != '',',',''),'tvr.IntervalN = ',p_IntervalN);
+			END IF;
+
+			IF p_criteria = 1
+			THEN
+				IF @stm != ''
+				THEN
+					SET @stm1 = CONCAT('UPDATE tblTempRateTableRate tvr LEFT JOIN tblRateTableRateChangeLog vrcl ON tvr.TempRateTableRateID=vrcl.TempRateTableRateID SET ',@stm,' WHERE tvr.TimezonesID=',p_TimezonesID,' AND tvr.TempRateTableRateID=vrcl.TempRateTableRateID AND vrcl.Action = "',p_Action,'" AND tvr.ProcessID = "',p_ProcessID,'" ',@stm_and_code,' ',@stm_and_desc,';');
+					select @stm1;
+					PREPARE stmt1 FROM @stm1;
+					EXECUTE stmt1;
+					DEALLOCATE PREPARE stmt1;
+
+					SET @stm2 = CONCAT('UPDATE tblRateTableRateChangeLog tvr SET ',@stm,' WHERE tvr.TimezonesID=',p_TimezonesID,' AND ProcessID = "',p_ProcessID,'" AND Action = "',p_Action,'" ',@stm_and_code,' ',@stm_and_desc,';');
+
+					PREPARE stm2 FROM @stm2;
+					EXECUTE stm2;
+					DEALLOCATE PREPARE stm2;
+				END IF;
+			ELSE
+				IF @stm != ''
+				THEN
+					SET @stm1 = CONCAT('UPDATE tblTempRateTableRate tvr LEFT JOIN tblRateTableRateChangeLog vrcl ON tvr.TempRateTableRateID=vrcl.TempRateTableRateID SET ',@stm,' WHERE tvr.TimezonesID=',p_TimezonesID,' AND tvr.TempRateTableRateID IN (',p_RateIds,') AND tvr.TempRateTableRateID=vrcl.TempRateTableRateID AND vrcl.Action = "',p_Action,'" AND tvr.ProcessID = "',p_ProcessID,'" ',@stm_and_code,' ',@stm_and_desc,';');
+
+					PREPARE stmt1 FROM @stm1;
+					EXECUTE stmt1;
+					DEALLOCATE PREPARE stmt1;
+
+					SET @stm2 = CONCAT('UPDATE tblRateTableRateChangeLog tvr SET ',@stm,' WHERE tvr.TimezonesID=',p_TimezonesID,' AND TempRateTableRateID IN (',p_RateIds,') AND ProcessID = "',p_ProcessID,'" AND Action = "',p_Action,'" ',@stm_and_code,' ',@stm_and_desc,';');
+
+					PREPARE stm2 FROM @stm2;
+					EXECUTE stm2;
+					DEALLOCATE PREPARE stm2;
+				END IF;
+			END IF;
+
+		WHEN 'Deleted' THEN
+			IF p_criteria = 1
+			THEN
+				SET @stm1 = CONCAT('UPDATE tblRateTableRateChangeLog tvr SET EndDate="',p_EndDate,'" WHERE tvr.TimezonesID=',p_TimezonesID,' AND ProcessID="',p_ProcessID,'" AND `Action`="',p_Action,'" ',@stm_and_code,' ',@stm_and_desc,';');
+
+				PREPARE stmt1 FROM @stm1;
+				EXECUTE stmt1;
+				DEALLOCATE PREPARE stmt1;
+			ELSE
+				SET @stm1 = CONCAT('UPDATE tblRateTableRateChangeLog tvr SET EndDate="',p_EndDate,'" WHERE tvr.TimezonesID=',p_TimezonesID,' AND RateTableRateID IN (',p_RateIds,')AND Action = "',p_Action,'" AND ProcessID = "',p_ProcessID,'" ',@stm_and_code,' ',@stm_and_desc,';');
+
+				PREPARE stmt1 FROM @stm1;
+				EXECUTE stmt1;
+				DEALLOCATE PREPARE stmt1;
+			END IF;
+	END CASE;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_WSReviewVendorRateUpdate`;
+DELIMITER //
+CREATE PROCEDURE `prc_WSReviewVendorRateUpdate`(
+	IN `p_AccountId` INT,
+	IN `p_TrunkID` INT,
+	IN `p_TimezonesID` INT,
+	IN `p_RateIds` TEXT,
+	IN `p_ProcessID` VARCHAR(200),
+	IN `p_criteria` INT,
+	IN `p_Action` VARCHAR(20),
+	IN `p_Interval1` INT,
+	IN `p_IntervalN` INT,
+	IN `p_EndDate` DATETIME,
+	IN `p_Code` VARCHAR(50),
+	IN `p_Description` VARCHAR(50)
+)
+ThisSP:BEGIN
+
+	DECLARE newstringcode INT(11) DEFAULT 0;
+	DECLARE v_pointer_ INT;
+	DECLARE v_rowCount_ INT;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+    DROP TEMPORARY TABLE IF EXISTS tmp_JobLog_;
+    CREATE TEMPORARY TABLE tmp_JobLog_ (
+        Message longtext
+    );
+
+	SET @stm_and_code = '';
+	IF p_Code != ''
+	THEN
+		SET @stm_and_code = CONCAT(' AND ("',p_Code,'" IS NULL OR "',p_Code,'" = "" OR tvr.Code LIKE "',REPLACE(p_Code, "*", "%"),'")');
+	END IF;
+
+	SET @stm_and_desc = '';
+	IF p_Description != ''
+	THEN
+		SET @stm_and_desc = CONCAT(' AND ("',p_Description,'" IS NULL OR "',p_Description,'" = "" OR tvr.Description LIKE "',REPLACE(p_Description, "*", "%"),'")');
+	END IF;
+
+    CASE p_Action
+		WHEN 'New' THEN
+			SET @stm = '';
+			IF p_Interval1 > 0
+			THEN
+				SET @stm = CONCAT(@stm,'tvr.Interval1 = ',p_Interval1);
+			END IF;
+
+			IF p_IntervalN > 0
+			THEN
+				SET @stm = CONCAT(@stm,IF(@stm != '',',',''),'tvr.IntervalN = ',p_IntervalN);
+			END IF;
+
+			IF p_criteria = 1
+			THEN
+				IF @stm != ''
+				THEN
+					SET @stm1 = CONCAT('UPDATE tblTempVendorRate tvr LEFT JOIN tblVendorRateChangeLog vrcl ON tvr.TempVendorRateID=vrcl.TempVendorRateID SET ',@stm,' WHERE tvr.TimezonesID=',p_TimezonesID,' AND tvr.TempVendorRateID=vrcl.TempVendorRateID AND vrcl.Action = "',p_Action,'" AND tvr.ProcessID = "',p_ProcessID,'" ',@stm_and_code,' ',@stm_and_desc,';');
+					select @stm1;
+					PREPARE stmt1 FROM @stm1;
+					EXECUTE stmt1;
+					DEALLOCATE PREPARE stmt1;
+
+					SET @stm2 = CONCAT('UPDATE tblVendorRateChangeLog tvr SET ',@stm,' WHERE tvr.TimezonesID=',p_TimezonesID, ' AND ProcessID = "',p_ProcessID,'" AND Action = "',p_Action,'" ',@stm_and_code,' ',@stm_and_desc,';');
+
+					PREPARE stm2 FROM @stm2;
+					EXECUTE stm2;
+					DEALLOCATE PREPARE stm2;
+				END IF;
+			ELSE
+				IF @stm != ''
+				THEN
+					SET @stm1 = CONCAT('UPDATE tblTempVendorRate tvr LEFT JOIN tblVendorRateChangeLog vrcl ON tvr.TempVendorRateID=vrcl.TempVendorRateID SET ',@stm,' WHERE tvr.TimezonesID=',p_TimezonesID,' AND tvr.TempVendorRateID IN (',p_RateIds,') AND tvr.TempVendorRateID=vrcl.TempVendorRateID AND vrcl.Action = "',p_Action,'" AND tvr.ProcessID = "',p_ProcessID,'" ',@stm_and_code,' ',@stm_and_desc,';');
+
+					PREPARE stmt1 FROM @stm1;
+					EXECUTE stmt1;
+					DEALLOCATE PREPARE stmt1;
+
+					SET @stm2 = CONCAT('UPDATE tblVendorRateChangeLog tvr SET ',@stm,' WHERE tvr.TimezonesID=',p_TimezonesID,' AND TempVendorRateID IN (',p_RateIds,') AND ProcessID = "',p_ProcessID,'" AND Action = "',p_Action,'" ',@stm_and_code,' ',@stm_and_desc,';');
+
+					PREPARE stm2 FROM @stm2;
+					EXECUTE stm2;
+					DEALLOCATE PREPARE stm2;
+				END IF;
+			END IF;
+
+		WHEN 'Deleted' THEN
+			IF p_criteria = 1
+			THEN
+				-- UPDATE tblVendorRate vr LEFT JOIN tblVendorRateChangeLog vrcl ON vr.VendorRateID=vrcl.VendorRateID SET vr.EndDate=p_EndDate WHERE vr.VendorRateID=vrcl.VendorRateID AND vr.AccountId=p_AccountId AND vr.TrunkID=p_TrunkID AND vrcl.ProcessID=p_ProcessID;
+				SET @stm1 = CONCAT('UPDATE tblVendorRateChangeLog tvr SET EndDate="',p_EndDate,'" WHERE tvr.TimezonesID=',p_TimezonesID,' AND ProcessID="',p_ProcessID,'" AND `Action`="',p_Action,'" ',@stm_and_code,' ',@stm_and_desc,';');
+
+				PREPARE stmt1 FROM @stm1;
+				EXECUTE stmt1;
+				DEALLOCATE PREPARE stmt1;
+			ELSE
+				-- UPDATE tblVendorRate vr LEFT JOIN tblVendorRateChangeLog vrcl ON vr.VendorRateID=vrcl.VendorRateID SET vr.EndDate=p_EndDate WHERE vr.VendorRateID IN (p_RateIds) AND vr.VendorRateID=vrcl.VendorRateID AND vr.AccountId=p_AccountId AND vr.TrunkID=p_TrunkID AND vrcl.ProcessID=p_ProcessID;
+
+				SET @stm1 = CONCAT('UPDATE tblVendorRateChangeLog tvr SET EndDate="',p_EndDate,'" WHERE tvr.TimezonesID=',p_TimezonesID,' AND VendorRateID IN (',p_RateIds,')AND Action = "',p_Action,'" AND ProcessID = "',p_ProcessID,'" ',@stm_and_code,' ',@stm_and_desc,';');
+
+				PREPARE stmt1 FROM @stm1;
+				EXECUTE stmt1;
+				DEALLOCATE PREPARE stmt1;
+				-- UPDATE tblVendorRateChangeLog SET EndDate=p_EndDate WHERE VendorRateID IN (p_RateIds) AND ProcessID=p_ProcessID AND `Action`=p_Action;
+			END IF;
+	END CASE;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END//
 DELIMITER ;

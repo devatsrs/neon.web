@@ -863,6 +863,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/payments/check_upload', 'PaymentsController@check_upload');
 	Route::any('/payments/ajaxfilegrid', 'PaymentsController@ajaxfilegrid');
 	Route::any('/payments/download_sample_excel_file', 'PaymentsController@download_sample_excel_file');
+	Route::any('/payments/payments_quickbookpost', 'PaymentsController@payments_quickbookpost');
 
 	//Currency
 	Route::any('/currency/ajax_datagrid', 'CurrenciesController@ajax_datagrid');
@@ -1420,8 +1421,10 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/timezones','TimezonesController@index');
 	Route::any('/timezones/getTimezonesVariables','TimezonesController@getTimezonesVariables');
 	Route::any('/timezones/search_ajax_datagrid/{type}','TimezonesController@search_ajax_datagrid');
+	Route::any('/timezones/changeSelectedStatus/{type}','TimezonesController@changeSelectedStatus');
 	Route::any('/timezones/store','TimezonesController@store');
 	Route::any('/timezones/update/{id}','TimezonesController@update');
+	Route::any('/timezones/{id}/delete/{type}','TimezonesController@delete');
 	Route::controller('timezones', 'TimezonesController');
 
 });

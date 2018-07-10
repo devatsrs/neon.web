@@ -33,6 +33,25 @@
         {{Form::select('selection[Rate]', $columns,(isset($attrselection->Rate)?$attrselection->Rate:''),array("class"=>"select2 small"))}}
     </div>
 </div>
+
+@if(count($Timezones) > 0)
+<div class="form-group">
+    <?php $co = 0; ?>
+    @foreach($Timezones as $id => $title)
+        <?php $colname = 'Rate'.$id; ?>
+        @if($co != 0 && $co%2==0)
+            </div>
+            <div class="form-group">
+        @endif
+        <label for="field-1" class="col-sm-2 control-label">{{$title}} Rate</label>
+        <div class="col-sm-4">
+            {{Form::select('selection['.$colname.']', $columns,(isset($attrselection->$colname)?$attrselection->$colname:''),array("class"=>"select2 small"))}}
+        </div>
+        <?php $co++; ?>
+    @endforeach
+</div>
+@endif
+
 <div class="form-group">
     <label for="field-1" class="col-sm-2 control-label">EffectiveDate <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If not selected then rates will be uploaded as effective immediately" data-original-title="EffectiveDate">?</span></label>
     <div class="col-sm-4">
@@ -108,10 +127,6 @@
     <label for=" field-1" class="col-sm-2 control-label">Currency Conversion <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Select currency to convert rates to your base currency" data-original-title="Currency Conversion">?</span></label>
     <div class="col-sm-4">
         {{Form::select('selection[FromCurrency]', $currencies ,(isset($attrselection->FromCurrency)?$attrselection->FromCurrency:''),array("class"=>"select2 small"))}}
-    </div>
-    <label class="col-sm-2 control-label">Timezones </label>
-    <div class="col-sm-4">
-        {{Form::select('selection[Timezones]', $columns ,(isset($attrselection->Timezones)?$attrselection->Timezones:''),array("class"=>"select2 small"))}}
     </div>
 </div>
 </div>

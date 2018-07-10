@@ -244,6 +244,42 @@ class PaymentsController extends \BaseController {
         }
     }
 
+    public function payments_quickbookpost(){
+        $data = Input::all();
+        /*if(!empty($data['InvoiceIDs'])){
+            $invoiceid = $this->getInvoicesIdByCriteria($data);
+            $invoiceid = rtrim($invoiceid,',');
+            $data['InvoiceIDs'] = $invoiceid;
+            unset($data['criteria']);
+        }
+        else{
+            unset($data['criteria']);
+        }*/
+        $CompanyID = User::get_companyID();
+        $PaymentIDs =array_filter(explode(',',$data['PaymentIDs']),'intval');
+        if (is_array($PaymentIDs) && count($PaymentIDs)) {
+            $jobType = JobType::where(["Code" => 'QPP'])->first(["JobTypeID", "Title"]);
+            $jobStatus = JobStatus::where(["Code" => "P"])->first(["JobStatusID"]);
+            $jobdata["CompanyID"] = $CompanyID;
+            $jobdata["JobTypeID"] = $jobType->JobTypeID ;
+            $jobdata["JobStatusID"] =  $jobStatus->JobStatusID;
+            $jobdata["JobLoggedUserID"] = User::get_userID();
+            $jobdata["Title"] =  $jobType->Title;
+            $jobdata["Description"] = $jobType->Title ;
+            $jobdata["CreatedBy"] = User::get_user_full_name();
+            $jobdata["Options"] = json_encode($data);
+            $jobdata["created_at"] = date('Y-m-d H:i:s');
+            $jobdata["updated_at"] = date('Y-m-d H:i:s');
+            $JobID = Job::insertGetId($jobdata);
+            if($JobID){
+                return json_encode(["status" => "success", "message" => "Payment Post in quickbook Job Added in queue to process.You will be notified once job is completed."]);
+            }else{
+                return json_encode(array("status" => "failed", "message" => "Problem Payment Post in Quickbook ."));
+            }
+        }
+
+    }
+
 
     /**
      * Update the specified resource in storage.

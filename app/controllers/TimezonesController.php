@@ -12,11 +12,12 @@ class TimezonesController extends BaseController {
 
         $data['iDisplayStart'] +=1;
         $data['Title'] = $data['Title'] != '' ? "'".$data['Title']."'" : 'null';
+        $data['Status'] = !empty($data['Status']) ? 1 : 0;
 
-        $columns     = array('Title','FromTime','ToTime','DaysOfWeek','DaysOfMonth','Months','ApplyIF','created_at','created_by','TimezonesID','Status');
+        $columns     = array('TimezonesID','Title','FromTime','ToTime','DaysOfWeek','DaysOfMonth','Months','ApplyIF','updated_at','updated_by','Status');
         $sort_column = $columns[$data['iSortCol_0']];
 
-        $query = "call prc_GetTimezones (" . $data['Title'] . "," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "'";
+        $query = "call prc_GetTimezones (" . $data['Title'] . "," . $data['Status'] . "," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
@@ -140,6 +141,101 @@ class TimezonesController extends BaseController {
             }
         } else {
             return  Response::json(array("status" => "failed", "message" => "Invalid Request."));
+        }
+    }
+
+    public function changeSelectedStatus($type) {
+        $data = Input::all();
+        if(!empty($data['TimezonesIDs']) && !empty($type)){
+            $ids        = explode(',',$data['TimezonesIDs']);
+            $status     = $type == 'Active' ? 1 : 0;
+            $username   = User::get_user_full_name();
+
+            $update = Timezones::whereIn('TimezonesID',$ids)
+                    ->where('Status','!=',$status)
+                    ->where('TimezonesID','!=',1) //default timezone
+                    ->update(['Status'=>$status,'updated_at'=>date('Y-m-d H:i:s'),'updated_by'=>$username]);
+
+            if ($update) {
+                return Response::json(array("status" => "success", "message" => "Timezones Status Successfully Changed"));
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem Changing Timezones Status."));
+            }
+        } else {
+            return  Response::json(array("status" => "failed", "message" => "Invalid Request."));
+        }
+    }
+
+    public function delete($id,$type) {
+        $data = Input::all();
+        $Timezone = Timezones::find($id);
+        if ($id != 1 && !empty($Timezone)) {
+            $RateTableRate  = RateTableRate::where(['TimezonesID'=>$id]);
+            $VendorRate     = VendorRate::where(['TimezonesID'=>$id]);
+            $CustomerRate   = CustomerRate::where(['TimezonesID'=>$id]);
+
+            // if no rates against any ratetable, customer or vendor then delete timezone straight
+            if($RateTableRate->count() == 0 && $VendorRate->count() == 0 && $CustomerRate->count() == 0) {
+                if($Timezone->delete()) {
+                    return Response::json(array("status" => "success", "message" => "Timezone Deleted Successfully"));
+                } else {
+                    return Response::json(array("status" => "failed", "message" => "Problem while deleting Timezone"));
+                }
+            } else {
+                // if rates found against any ratetable, customer or vendor then first send confirmation to user in below else condition
+                // if second request comes with confirmation "deleteall" then first delete all rates against ratetables,customers and vendors then delete timezone
+                if($type == 'deleteall') {
+                    try {
+                        DB::beginTransaction();
+                        $RateTableRate->delete();
+                        $VendorRate->delete();
+                        $CustomerRate->delete();
+
+                        if($Timezone->delete()) {
+                            DB::commit();
+                            return Response::json(array("status" => "success", "message" => "Timezone Deleted Successfully"));
+                        } else {
+                            return Response::json(array("status" => "failed", "message" => "Problem while deleting Timezone"));
+                        }
+                    } catch (Exception $ex) {
+                        DB::rollback();
+                        return json_encode(["status" => "failed", "message" => " Exception: " . $ex->getMessage()]);
+                    }
+                } else { // send confirmation to user that all rates will be delete against ratetables/customer/vendors
+                    $RateTables = $Vendors = $Customers = $message = $msg = '';
+                    $TimezoneName = $Timezone->Title;
+                    if($RateTableRate->count() > 0) {
+                        $RateTableIds   = $RateTableRate->distinct()->get()->lists('RateTableId');
+                        $RateTables     = RateTable::whereIn('RateTableId',$RateTableIds)->get()->lists('RateTableName');
+                        $RateTables     = implode(',',$RateTables);
+
+                        $message       .= "\"".$RateTables."\" RateTables has rates under ".$TimezoneName." Timezone\n";
+                        $msg           .= 'RateTables/';
+                    }
+                    if($VendorRate->count() > 0) {
+                        $VendorIds      = $VendorRate->distinct()->get()->lists('AccountId');
+                        $Vendors        = Account::whereIn('AccountId',$VendorIds)->get()->lists('AccountName');
+                        $Vendors        = implode(',',$Vendors);
+
+                        $message       .= "\"".$Vendors."\" Vendors has rates under ".$TimezoneName." Timezone\n";
+                        $msg           .= 'Vendors/';
+                    }
+                    if($CustomerRate->count() > 0) {
+                        $CustomerIds    = $CustomerRate->distinct()->get()->lists('CustomerID');
+                        $Customers      = Account::whereIn('AccountId',$CustomerIds)->get()->lists('AccountName');
+                        $Customers      = implode(',',$Customers);
+
+                        $message       .= "\"".$Customers."\" Customers has rates under ".$TimezoneName." Timezone\n";
+                        $msg           .= 'Customers';
+                    }
+                    $msg = trim($msg,'/');
+                    $message .= "\n Are you sure you want to delete all the rates against above listed ".$msg." for ".$TimezoneName." Timezone ?";
+
+                    return Response::json(array("status" => "pending", "message" => $message));
+                }
+            }
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Requested Timezone not exist."));
         }
     }
 

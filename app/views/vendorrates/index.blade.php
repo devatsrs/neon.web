@@ -122,7 +122,7 @@
 
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-1 control-label">Timezones</label>
+                    <label class="col-sm-1 control-label">Timezone</label>
                     <div class="col-sm-3">
                         {{ Form::select('Timezones', $Timezones, '', array("class"=>"select2")) }}
                     </div>
