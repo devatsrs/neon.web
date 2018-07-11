@@ -263,6 +263,8 @@ class ReportInvoice extends \Eloquent{
             $measure_name = "SUM(tblInvoice." . $colname . ")";
         }else if(self::$InvoiceDetailJoin == false && in_array($colname,array('GrandTotal'))){
             $measure_name = "SUM(tblInvoice." . $colname . ")";
+        }else if(self::$InvoiceDetailJoin == false && in_array($colname,array('SubTotal'))){
+            $measure_name = "SUM(tblInvoice." . $colname . ")";
         }
         return $measure_name ;
     }

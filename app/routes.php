@@ -1421,8 +1421,10 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/timezones','TimezonesController@index');
 	Route::any('/timezones/getTimezonesVariables','TimezonesController@getTimezonesVariables');
 	Route::any('/timezones/search_ajax_datagrid/{type}','TimezonesController@search_ajax_datagrid');
+	Route::any('/timezones/changeSelectedStatus/{type}','TimezonesController@changeSelectedStatus');
 	Route::any('/timezones/store','TimezonesController@store');
 	Route::any('/timezones/update/{id}','TimezonesController@update');
+	Route::any('/timezones/{id}/delete/{type}','TimezonesController@delete');
 	Route::controller('timezones', 'TimezonesController');
 
 });
@@ -1538,9 +1540,13 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::get('billingType/list', 'BillingTypeApiController@getList');
 	Route::get('billingCycle/list', 'BillingCycleApiController@getList');
 	Route::get('billingClass/list', 'BillingClassApiController@getList');
+	Route::post('billingClass/getTaxRateList', 'BillingClassApiController@getTaxRateList');
 	Route::get('service/list', 'ServiceApiController@getList');
 	Route::get('discount/list', 'DiscountPlanApiController@getList');
 	Route::get('subscription/list', 'SubscriptionApiController@getList');
 	Route::get('inboundOutbound/list/{CurrencyID}', 'InboundOutboundApiController@getList');
 	Route::get('payment/list', 'PaymentApiController@getList');
+	Route::post('accounts/validEmail', 'AccountsApiController@validEmail');
+	Route::post('company/validCompanyName', 'CompaniesApiController@validCompanyName');
+	Route::get('taxRates/getTaxRates', 'TaxRatesApiController@getTaxRates');
 });

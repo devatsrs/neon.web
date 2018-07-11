@@ -3249,7 +3249,7 @@ show_summernote = function (element,options){
     /**
      * @todo editor remove html automatically
      */
-    if(!('withOutDestroy' in editor_options)){
+    if(!('withOutDestroy' in options)){
         element.summernote('destroy');
     }
 

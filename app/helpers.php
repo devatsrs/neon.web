@@ -2785,3 +2785,12 @@ function emailHeaderDecode($emailHtml) {
 function filterArrayRemoveNewLines($arr) { // remove new lines (/r/n) etc...
     return preg_replace('/s+/', ' ', trim($arr));
 }
+
+function array_key_exists_wildcard ( $arr, $search ) {
+    $search = str_replace( '*', '###star_needle###', $search );
+    $search = preg_quote( $search, '/' ); # This is important!
+    $search = str_replace( '###star_needle###', '.*?', $search );
+    $search = '/^' . $search . '$/i';
+
+    return preg_grep( $search, array_keys( $arr ) );
+}
