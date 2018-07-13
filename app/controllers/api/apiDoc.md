@@ -4,7 +4,7 @@
 #### Login ###
 * **URL**
 
-    http://neon-soft.com/api/login
+    http://staging.neon-soft.com/api/login
 
 * **Method:**
 
@@ -44,7 +44,7 @@
 #### Logout ###
 * **URL**
 
-    http://neon-soft.com/api/logout
+    http://staging.neon-soft.com/api/logout
 
 * **Method:**
 
@@ -71,7 +71,7 @@
 
 * **URL**
 
-    http://neon-soft.com/api/currency/list
+    http://staging.neon-soft.com/api/currency/list
 
 * **Method:**
 
@@ -110,7 +110,7 @@
 #### Get Billing Type List ###
 * **URL**
 
-    http://neon-soft.com/api/billingType/list
+    http://staging.neon-soft.com/api/billingType/list
 
 * **Method:**
 
@@ -140,7 +140,7 @@
 #### Get Billing Cycle List ###
 * **URL**
 
-    http://neon-soft.com/api/billingCycle/list
+    http://staging.neon-soft.com/api/billingCycle/list
 
 * **Method:**
 
@@ -172,7 +172,7 @@
 #### Get Billing Class List ###
 * **URL**
 
-    http://neon-soft.com/api/billingClass/list
+    http://staging.neon-soft.com/api/billingClass/list
 
 * **Method:**
 
@@ -201,7 +201,7 @@
 #### Get Service List ###
 * **URL**
 
-    http://neon-soft.com/api/service/list
+    http://staging.neon-soft.com/api/service/list
 
 * **Method:**
 
@@ -235,7 +235,7 @@
 #### Get Discount List ###
 * **URL**
 
-    http://neon-soft.com/api/discount/list
+    http://staging.neon-soft.com/api/discount/list
 
 * **Method:**
 
@@ -266,7 +266,7 @@
 #### Get Subscription List ###
 * **URL**
 
-    http://neon-soft.com/api/subscription/list
+    http://staging.neon-soft.com/api/subscription/list
 
 * **Method:**
 
@@ -309,7 +309,7 @@
 #### Get Subscription List ###
 * **URL**
 
-    http://neon-soft.com/api/inboundOutbound/list/{CurrencyID}
+    http://staging.neon-soft.com/api/inboundOutbound/list/{CurrencyID}
 
 * **Method:**
 
@@ -344,7 +344,7 @@
 #### Get Payment List ###
 * **URL**
 
-    http://neon-soft.com/api/payment/list
+    http://staging.neon-soft.com/api/payment/list
 
 * **Method:**
 
@@ -377,7 +377,7 @@
 #### Accoutn Email Valid ###
 * **URL**
 
-    http://neon-soft.com/api/accounts/validEmail
+    http://staging.neon-soft.com/api/accounts/validEmail
 
 * **Method:**
 
@@ -414,7 +414,7 @@
 #### Valid Comapany Name ###
 * **URL**
 
-    http://neon-soft.com/api/company/validCompanyName
+    http://staging.neon-soft.com/api/company/validCompanyName
 
 * **Method:**
 
@@ -451,7 +451,7 @@
 #### Get Billing Class Tax Rate ID List  ###
 * **URL**
 
-    http://neon-soft.com/api/billingClass/getTaxRateList
+    http://staging.neon-soft.com/api/billingClass/getTaxRateList
 
 * **Method:**
 
@@ -484,7 +484,7 @@
 #### Get Tax Rates  ###
 * **URL**
 
-    http://neon-soft.com/api/taxRates/getTaxRates
+    http://staging.neon-soft.com/api/taxRates/getTaxRates
 
 * **Method:**
 
