@@ -3246,7 +3246,12 @@ show_summernote = function (element,options){
     }
 
     element.addClass("hidden");
-    element.summernote('destroy');
+    /**
+     * @todo editor remove html automatically
+     */
+    if(!('withOutDestroy' in options)){
+        element.summernote('destroy');
+    }
 
      element.summernote({
          onInit: function() {

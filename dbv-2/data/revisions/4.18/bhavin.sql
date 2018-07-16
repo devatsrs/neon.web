@@ -321,3 +321,8 @@ BEGIN
 
 END//
 DELIMITER ;
+
+ALTER TABLE `tblInvoiceTemplate`
+	ADD COLUMN `DefaultTemplate` INT NULL DEFAULT '0' AFTER `ShowPaymentWidgetInvoice`;
+ALTER TABLE `tblInvoiceTemplate`	
+	ADD COLUMN `FooterDisplayOnlyFirstPage` INT NULL DEFAULT '0' AFTER `DefaultTemplate`;

@@ -35,7 +35,7 @@
     @endif
     <li class="active">
         <a href="{{ URL::to('/customers_rates/'.$id.'/download') }}" >
-             Download Rate sheet
+             Download Rate Sheet
         </a>
     </li>
     @if(User::checkCategoryPermission('CustomersRates','History'))

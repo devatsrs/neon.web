@@ -20,6 +20,7 @@ class Payment extends \Eloquent {
         'MasterCard'=>'MasterCard',
         'Visa'=>'Visa',
         "JCB"=>"JCB",
+        'IsraCard'=>'IsraCard',
     );
     public static $account_holder_type = array(
         'individual'=>'individual',
@@ -57,6 +58,7 @@ class Payment extends \Eloquent {
             'MasterCard'=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_MASTERCARD"),
             'Visa'=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_VISA"),
             "JCB"=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_JCB"),
+            "IsraCard"=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_ISRACARD"),
         );
     }
 
@@ -517,7 +519,7 @@ class Payment extends \Eloquent {
 
     public static function paymentList(){
         $paymentsType = array();
-        $CompanyID=Session::get("apiRegistrationCompanyID");
+        $CompanyID = User::get_companyID();
         if(is_authorize($CompanyID)){
             $paymentsType["AuthorizeNet"]="AuthorizeNet";
         }

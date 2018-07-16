@@ -14,6 +14,12 @@
                     <input class="form-control" name="Title" id="Title"  type="text" >
                 </div>
                 <div class="form-group">
+                    <label for="Title" class="control-label">Status</label>
+                    <p class="make-switch switch-small">
+                        {{Form::checkbox('Status', '1', true, [])}}
+                    </p>
+                </div>
+                <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
                         <i class="entypo-search"></i>
@@ -41,17 +47,44 @@
         <div class="tab-pane active">
             <div class="clear"></div>
             <br>
-            @if(User::checkCategoryPermission('Timezones','Add'))
-                <p style="text-align: right;">
-                    <a id="btn-add-new-timezones" href="javascript:void(0);" class="btn btn-primary ">
-                        <i class="entypo-plus"></i>
-                        Add New
-                    </a>
-                </p>
-            @endif
-            <table class="table table-bordered datatable" id="table-4">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="input-group-btn pull-right" style="width:76px;" id="btn-action">
+                        @if(User::checkCategoryPermission('Timezones','Edit'))
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
+                            <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
+                                @if(User::checkCategoryPermission('Timezones','Edit'))
+                                    <li>
+                                        <a class="changeSelectedStatus" id="ActiveSelected" href="javascript:;" >
+                                            Active Selected
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="changeSelectedStatus" id="DeactiveSelected" href="javascript:;" >
+                                            Deactive Selected
+                                        </a>
+                                    </li>
+                                @endif
+                            </ul>
+                        @endif
+                    </div>
+
+                    @if(User::checkCategoryPermission('Timezones','Add'))
+                        <p style="text-align: right;">
+                            <a id="btn-add-new-timezones" href="javascript:void(0);" class="btn btn-primary ">
+                                <i class="entypo-plus"></i>
+                                Add New
+                            </a>
+                        </p>
+                    @endif
+                </div>
+                <div class="clear"></div>
+            </div>
+
+            <table class="table table-bordered datatable" id="TimezoneDataTable">
                 <thead>
                 <tr>
+                    <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
                     <th>Title</th>
                     <th>From Time</th>
                     <th>To Time</th>
@@ -59,9 +92,9 @@
                     <th>Days Of Month</th>
                     <th>Months</th>
                     <th>Apply IF</th>
-                    <th>Created Date</th>
-                    <th>Created By</th>
-                    <th>Action</th>
+                    <th>Modified Date</th>
+                    <th>Modified By</th>
+                    <th width="8%">Action</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -70,7 +103,8 @@
             <script type="text/javascript">
                 var ApplyIF,DaysOfWeeks,Months;
                 var $searchFilter = {};
-                var list_fields  = ['Title','FromTime','ToTime','DaysOfWeek','DaysOfMonth','Months','ApplyIF','created_at','created_by','TimezonesID','Status'];
+                var checked='';
+                var list_fields  = ['TimezonesID','Title','FromTime','ToTime','DaysOfWeek','DaysOfMonth','Months','ApplyIF','updated_at','updated_by','Status'];
 
                 jQuery(document).ready(function ($) {
                     getTimezonesVariables();
@@ -78,25 +112,36 @@
 
                     $("#timezones-search").submit(function(e) {
                         $searchFilter.Title = Title = $("#timezones-search input[name='Title']").val();
+                        $searchFilter.Status = Status = $("#timezones-search input[name='Status']").is(":checked") ? 1 : 0;
 
-                        data_table = $("#table-4").dataTable({
+                        data_table = $("#TimezoneDataTable").dataTable({
                             "bDestroy": true,
                             "bProcessing": true,
                             "bServerSide": true,
                             "sAjaxSource": baseurl + "/timezones/search_ajax_datagrid/type",
                             "fnServerParams": function (aoData) {
-                                aoData.push({"name": "Title", "value": Title});
+                                aoData.push({"name": "Title", "value": Title},{"name": "Status", "value": Status});
                                 data_table_extra_params.length = 0;
-                                data_table_extra_params.push({"name": "Title", "value": Title},{"name":"Export","value":1});
+                                data_table_extra_params.push({"name": "Title", "value": Title},{"name": "Status", "value": Status},{"name":"Export","value":1});
                             },
                             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                             "sPaginationType": "bootstrap",
                             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                             "aaSorting": [[0, 'asc']],
                             "aoColumns": [
-                                {  "bSortable": true },  // 0 Timezones Name (Title)
-                                {  "bSortable": true },  // 1 From Time
-                                {  "bSortable": true },  // 2 To Time
+                                {
+                                    "bSortable": false, //TimezonesID
+                                    mRender: function(id, type, full) {
+                                        if(id !=1) { // if not default timezone
+                                            return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
+                                        } else {
+                                            return '';
+                                        }
+                                    }
+                                }, // 0 //TimezonesID
+                                {  "bSortable": true },  // 1 Timezones Name (Title)
+                                {  "bSortable": true },  // 2 From Time
+                                {  "bSortable": true },  // 3 To Time
                                 {
                                     "bSortable": true,
                                     mRender: function (id, type, full) {
@@ -107,8 +152,8 @@
                                         });
                                         return days2;
                                     }
-                                },  // 3 DaysOfWeek
-                                {  "bSortable": true },  // 4 DaysOfMonth
+                                },  // 4 DaysOfWeek
+                                {  "bSortable": true },  // 5 DaysOfMonth
                                 {
                                     "bSortable": true,
                                     mRender: function (id, type, full) {
@@ -119,35 +164,35 @@
                                         });
                                         return months2;
                                     }
-                                },  // 5 Months
+                                },  // 6 Months
                                 {
                                     "bSortable": true,
                                     mRender: function (id, type, full) {
                                         return ApplyIF[id];
                                     }
-                                },  // 6 ApplyIF
-                                {  "bSortable": false }, // 7 Created at
-                                {  "bSortable": false }, // 8 Created By
-                                {  // 9 Action
+                                },  // 7 ApplyIF
+                                {  "bSortable": false }, // 8 Modified at
+                                {  "bSortable": false }, // 9 Modified By
+                                {  // 10 Status //Action
                                     "bSortable": false,
                                     mRender: function (id, type, full) {
                                         var action, edit_, delete_;
                                         delete_ = "{{ URL::to('timezones/{id}/delete')}}";
                                         edit_   = "{{ URL::to('timezones/{id}/edit')}}";
-                                        delete_ = delete_ .replace( '{id}', id );
-                                        edit_   = edit_.replace( '{id}', id );
+                                        delete_ = delete_ .replace( '{id}', full[0] );
+                                        edit_   = edit_.replace( '{id}', full[0] );
 
                                         action = '<div class = "hiddenRowData" >';
                                         for(var i = 0 ; i<list_fields.length; i++){
                                             action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                         }
                                         action += '</div>';
-                                        if(id != 1) {// can't edit/delete default timezone, default timezone id is 1
+                                        if(full[0] != 1) {// can't edit/delete default timezone, default timezone id is 1
                                             <?php if(User::checkCategoryPermission('Timezones', 'Edit') ){ ?>
                                                     action += ' <a href="' + edit_ + '" title="Edit" class="edit-timezones btn btn-default btn-xs" data-name="Edit Timezones"><i class="entypo-pencil"></i>&nbsp;</a>';
                                             <?php } ?>
                                             <?php if(User::checkCategoryPermission('Timezones', 'Delete') ){ ?>
-                                            //action += ' <a href="'+delete_+'" title="Delete" class="btn delete btn-danger btn-default btn-sm"><i class="entypo-trash"></i></a>';
+                                            action += ' <a href="'+delete_+'" title="Delete" class="btn delete btn-danger btn-default btn-xs"><i class="entypo-trash"></i></a>';
                                             <?php } ?>
                                         }
                                         return action;
@@ -174,14 +219,36 @@
                                 $(".dataTables_wrapper select").select2({
                                     minimumResultsForSearch: -1
                                 });
+
+                                $("#selectall").click(function(ev) {
+                                    var is_checked = $(this).is(':checked');
+                                    $('#TimezoneDataTable tbody tr').each(function(i, el) {
+                                        if (is_checked) {
+                                            $(this).find('.rowcheckbox').prop("checked", true);
+                                            $(this).addClass('selected');
+                                        } else {
+                                            $(this).find('.rowcheckbox').prop("checked", false);
+                                            $(this).removeClass('selected');
+                                        }
+                                    });
+                                });
+
                             }
 
                         });
                     });
 
-                    // Replace Checboxes
-                    $(".pagination a").click(function (ev) {
-                        replaceCheckboxes();
+                    $('#TimezoneDataTable tbody').on('click', 'tr', function() {
+                        if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                            if (checked == '') {
+                                $(this).toggleClass('selected');
+                                if ($(this).hasClass('selected')) {
+                                    $(this).find('.rowcheckbox').prop("checked", true);
+                                } else {
+                                    $(this).find('.rowcheckbox').prop("checked", false);
+                                }
+                            }
+                        }
                     });
 
                     // Replace Checboxes
@@ -189,23 +256,55 @@
                         replaceCheckboxes();
                     });
 
-                    /*$('body').on('click', '.btn.delete', function (e) {
+                    // Replace Checboxes
+                    $(".pagination a").click(function (ev) {
+                        replaceCheckboxes();
+                    });
+
+                    $('body').on('click', '.btn.delete', function (e) {
                         e.preventDefault();
+                        var url = $(this).attr("href");
 
                         response = confirm('Are you sure?');
 
                         if (response) {
                             $.ajax({
-                                url: $(this).attr("href"),
+                                url: url+'/type',
                                 type: 'POST',
                                 dataType: 'json',
                                 success: function (response) {
-                                    $(".btn.delete").button('reset');
-                                    if (response.status == 'success') {
-                                        toastr.success(response.message, "Success", toastr_opts);
-                                        data_table.fnFilter('', 0);
+                                    if(response.status == 'pending') {
+                                        confirmation = confirm(response.message);
+
+                                        if (confirmation) {
+                                            $.ajax({
+                                                url: url+'/deleteall',
+                                                type: 'POST',
+                                                dataType: 'json',
+                                                success: function (response) {
+                                                    $(".btn.delete").button('reset');
+                                                    if (response.status == 'success') {
+                                                        toastr.success(response.message, "Success", toastr_opts);
+                                                        $("#timezones-search").submit();
+                                                    } else {
+                                                        toastr.error(response.message, "Error", toastr_opts);
+                                                    }
+                                                },
+                                                // Form data
+                                                //data: {},
+                                                cache: false,
+                                                contentType: false,
+                                                processData: false
+                                            });
+                                        }
                                     } else {
-                                        toastr.error(response.message, "Error", toastr_opts);
+                                        $(".btn.delete").button('reset');
+                                        if (response.status == 'success') {
+                                            toastr.success(response.message, "Success", toastr_opts);
+                                            $("#timezones-search").submit();
+                                        } else {
+                                            toastr.error(response.message, "Error", toastr_opts);
+                                        }
                                     }
                                 },
                                 // Form data
@@ -216,7 +315,7 @@
                             });
                         }
                         return false;
-                    });*/
+                    });
 
                     $('#add-edit-timezones-form').submit(function(e){
                         e.preventDefault();
@@ -278,6 +377,66 @@
                         }
                         $('#add-edit-modal-timezones h4').html('Edit Timezones');
                         $('#add-edit-modal-timezones').modal('show');
+                    });
+
+                    $("#timezones-search").trigger('submit');
+
+                    //Change Selected Status Button (Active/Deactive)
+                    $(".changeSelectedStatus").off('click');
+                    $(".changeSelectedStatus").click(function(ev) {
+                        ev.stopPropagation();
+
+                        if($("#ActiveSelected").prop("disabled")) {
+                            return false;
+                        } else {
+
+                            $(".changeSelectedStatus").prop( "disabled", true );
+                            $(".changeSelectedStatus").attr('disabled','disabled');
+
+                            var id = $(this).attr('id');
+                            var type;
+                            if (id == 'ActiveSelected') {
+                                type = 'Active';
+                            } else if (id == 'DeactiveSelected') {
+                                type = 'Deactive';
+                            }
+
+                            var TimezonesIDs = [];
+                            var i = 0;
+                            $('#TimezoneDataTable tr .rowcheckbox:checked').each(function (i, el) {
+                                TimezonesID = $(this).val();
+                                TimezonesIDs[i] = TimezonesID;
+                                i++;
+                            });
+
+                            if (TimezonesIDs.length) {
+                                response = confirm('Are you sure?');
+                                if (response) {
+                                    var formdata = new FormData();
+                                    formdata.append('TimezonesIDs', TimezonesIDs);
+                                    $.ajax({
+                                        url: baseurl + "/timezones/changeSelectedStatus/" + type,
+                                        type: 'POST',
+                                        dataType: 'json',
+                                        success: function (response) {
+                                            $(".changeSelectedStatus").prop( "disabled", false );
+                                            $(".changeSelectedStatus").removeAttr('disabled');
+                                            if (response.status == 'success') {
+                                                toastr.success(response.message, "Success", toastr_opts);
+                                                $("#timezones-search").trigger('submit');
+                                            } else {
+                                                toastr.error(response.message, "Error", toastr_opts);
+                                            }
+                                        },
+                                        // Form data
+                                        data: formdata,
+                                        cache: false,
+                                        contentType: false,
+                                        processData: false
+                                    });
+                                }
+                            }
+                        }
                     });
 
                 });

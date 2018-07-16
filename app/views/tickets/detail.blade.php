@@ -376,7 +376,11 @@ $(document).ready(function(e) {
         var ticketBodyHtml = $(this).html();
         $(this).html("").append(iFrame).show();
         var iFrameDoc = iFrame[0].contentDocument || iFrame[0].contentWindow.document;
-        iFrameDoc.write($.parseHTML(ticketBodyHtml)[0]["data"]);
+        if($.parseHTML(ticketBodyHtml)[0]["data"].trim()!=''){
+            iFrameDoc.write($.parseHTML(ticketBodyHtml)[0]["data"]);
+        }else{
+            iFrameDoc.write(ticketBodyHtml);
+        }
         iFrameDoc.close();
     });
 
@@ -438,12 +442,16 @@ $(document).ready(function(e) {
                     minimumResultsForSearch: -1
                 });
 				mod.find('.select2-container').css('visibility','visible');
+                editor_options.withOutDestroy=true;
                 show_summernote(mod.find('.message'),editor_options);
 			
 		},
 	});
 	
 	});
+    $( document ).on("click",'#EmailAction-model .modal-footer .btn-danger' ,function(e) {
+            $('#EmailAction-model .modal-content').html('');
+    });
 	$( document ).on("click",'.add_note' ,function(e) {		 
 		var mod = $('#add-note-model');
 		mod.modal("show");	
