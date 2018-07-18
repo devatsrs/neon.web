@@ -44,6 +44,7 @@ class ApiController extends Controller {
 
     public function logout(){
         Session::flush();
+        Auth::logout();
         return Response::json(["status"=>"Success", "message"=>"Logout Success"]);
     }
 

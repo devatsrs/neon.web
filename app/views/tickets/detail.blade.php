@@ -376,7 +376,11 @@ $(document).ready(function(e) {
         var ticketBodyHtml = $(this).html();
         $(this).html("").append(iFrame).show();
         var iFrameDoc = iFrame[0].contentDocument || iFrame[0].contentWindow.document;
-        iFrameDoc.write($.parseHTML(ticketBodyHtml)[0]["data"]);
+        if($.parseHTML(ticketBodyHtml)[0]["data"].trim()!=''){
+            iFrameDoc.write($.parseHTML(ticketBodyHtml)[0]["data"]);
+        }else{
+            iFrameDoc.write(ticketBodyHtml);
+        }
         iFrameDoc.close();
     });
 

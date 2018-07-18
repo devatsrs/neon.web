@@ -519,7 +519,7 @@ class Payment extends \Eloquent {
 
     public static function paymentList(){
         $paymentsType = array();
-        $CompanyID=Session::get("apiRegistrationCompanyID");
+        $CompanyID = User::get_companyID();
         if(is_authorize($CompanyID)){
             $paymentsType["AuthorizeNet"]="AuthorizeNet";
         }
