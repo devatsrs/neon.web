@@ -627,8 +627,9 @@ class VendorRatesController extends \BaseController
             if(count($trunks) == 0){
                 return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
             }
+            $Timezones = Timezones::getTimezonesIDList();
             $countries = $this->countries;
-            return View::make('vendorrates.preference', compact('id', 'trunks', 'trunk_keys', 'countries','Account'));
+            return View::make('vendorrates.preference', compact('id', 'trunks', 'trunk_keys', 'countries','Account','Timezones'));
     }
     public function search_ajax_datagrid_preference($id,$type) {
 
@@ -644,7 +645,7 @@ class VendorRatesController extends \BaseController
         $sort_column = $columns[$data['iSortCol_0']];
         $companyID = User::get_companyID();
 
-        $query = "call prc_GetVendorPreference (".$companyID.",".$id.",".$data['Trunk'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query = "call prc_GetVendorPreference (".$companyID.",".$id.",".$data['Trunk'].",".$data['Timezones'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
@@ -686,8 +687,9 @@ class VendorRatesController extends \BaseController
             }
             $RateID = rtrim($RateID,',');*/
             try{
-                Log::info("prc_VendorPreferenceUpdateBySelectedRateId (".$company_id.",'".$id."','',".$data['Trunk'].",".$data['Preference'].",'".$username."',".$data['Country'].",".$data['Code'].",".$data['Description'].",1)");
-                DB::statement("call prc_VendorPreferenceUpdateBySelectedRateId (".$company_id.",'".$id."','',".$data['Trunk'].",".$data['Preference'].",'".$username."',".$data['Country'].",".$data['Code'].",".$data['Description'].",1)");
+                $query = "call prc_VendorPreferenceUpdateBySelectedRateId (".$company_id.",'".$id."','',".$data['Trunk'].",".$data['Timezones'].",".$data['Preference'].",'".$username."',".$data['Country'].",".$data['Code'].",".$data['Description'].",1)";
+                Log::info($query);
+                DB::statement($query);
                 Log::info("vendor bulk update end");
                 return Response::json(array("status" => "success", "message" => "Vendor Preference Updated Successfully"));
             }catch ( Exception $ex ){
@@ -697,8 +699,9 @@ class VendorRatesController extends \BaseController
             $RateID = $data['RateID'];
             if(!empty($RateID)){
                 try{
-                    Log::info("prc_VendorPreferenceUpdateBySelectedRateId (".$company_id.",'".$id."','".$RateID."',".$data['Trunk'].",".$data['Preference'].",'".$username."',null,null,null,0)");
-                    DB::statement("call prc_VendorPreferenceUpdateBySelectedRateId (".$company_id.",'".$id."','".$RateID."',".$data['Trunk'].",".$data['Preference'].",'".$username."',null,null,null,0)");
+                    $query = "call prc_VendorPreferenceUpdateBySelectedRateId (".$company_id.",'".$id."','".$RateID."',".$data['Trunk'].",".$data['Timezones'].",".$data['Preference'].",'".$username."',null,null,null,0)";
+                    Log::info($query);
+                    DB::statement($query);
                     Log::info("vendor bulk update end");
                     return Response::json(array("status" => "success", "message" => "Vendor Preference Updated Successfully"));
                 }catch ( Exception $ex ){
@@ -1025,7 +1028,7 @@ class VendorRatesController extends \BaseController
             $data['action'] = 1;
         }
 
-        $query = "call prc_GetBlockUnblockVendor (".$CompanyID.",".$UserID.",".$data['Trunk'].",'".$countries."','".$SelectedCodes."',".$isCountry.",".$data['action'].",".$isall.",".$criteria.")";
+        $query = "call prc_GetBlockUnblockVendor (".$CompanyID.",".$UserID.",".$data['Trunk'].",".$data['Timezones'].",'".$countries."','".$SelectedCodes."',".$isCountry.",".$data['action'].",".$isall.",".$criteria.")";
         //$accounts = DataTableSql::of($query)->getProcResult(array('AccountID','AccountName'));
         //return $accounts->make();
         return DataTableSql::of($query)->make();

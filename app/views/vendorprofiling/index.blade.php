@@ -147,15 +147,17 @@
                     <div class="panel-body">
                         <div class="form-group">
                             <label for="field-1" class="col-sm-1 control-label">Country</label>
-
                             <div class="col-sm-2">
                                 {{ Form::select('Country', $countries, '' , array("class"=>"select2","multiple")) }}
                                 <input type="hidden" name="Code" value=""/>
                             </div>
                             <label class="col-sm-1 control-label">Trunk</label>
-
                             <div class="col-sm-2">
                                 {{ Form::select('Trunk', $trunks, $trunk_keys, array("class"=>"select2")) }}
+                            </div>
+                            <label class="col-sm-1 control-label">Timezone</label>
+                            <div class="col-sm-2">
+                                {{ Form::select('Timezones', $Timezones, '', array("class"=>"select2")) }}
                             </div>
                         </div>
                     </div>
@@ -187,20 +189,20 @@
                     <div class="panel-body">
                         <div class="form-group">
                             <label for="field-1" class="col-sm-1 control-label">Code</label>
-
                             <div class="col-sm-2">
-                                <input type="text" value="" placeholder="Code" id="field-1" class="form-control"
-                                       name="Code">
+                                <input type="text" value="" placeholder="Code" id="field-1" class="form-control" name="Code">
                             </div>
                             <label for="field-1" class="col-sm-1 control-label">Country</label>
-
                             <div class="col-sm-2">
                                 {{ Form::select('Country', $countriesCode, '' , array("class"=>"select2","multiple")) }}
                             </div>
                             <label class="col-sm-1 control-label">Trunk</label>
-
                             <div class="col-sm-2">
                                 {{ Form::select('Trunk', $trunks, $trunk_keys, array("class"=>"select2")) }}
+                            </div>
+                            <label class="col-sm-1 control-label">Timezone</label>
+                            <div class="col-sm-2">
+                                {{ Form::select('Timezones', $Timezones, '', array("class"=>"select2")) }}
                             </div>
                         </div>
 
@@ -368,6 +370,7 @@
             });
             $("#block_by_code_form").submit(function (e) {
                 $searchFilter.Trunk = $("#block_by_code_form select[name='Trunk']").val();
+                $searchFilter.Timezones = $("#block_by_code_form select[name='Timezones']").val();
                 $searchFilter.Country = $("#block_by_code_form select[name='Country']").val();
                 $searchFilter.Code = $("#block_by_code_form [name='Code']").val();
                 if (typeof $searchFilter.Trunk == 'undefined' || $searchFilter.Trunk == '') {
@@ -385,18 +388,9 @@
                     "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                     "aaSorting": [[1, 'asc']],
                     "fnServerParams": function (aoData) {
-                        aoData.push({"name": "Trunk", "value": $searchFilter.Trunk}, {
-                            "name": "Country",
-                            "value": $searchFilter.Country
-                        }, {"name": "Code", "value": $searchFilter.Code});
+                        aoData.push({"name": "Trunk", "value": $searchFilter.Trunk}, {"name": "Country","value": $searchFilter.Country}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Timezones", "value": $searchFilter.Timezones});
                         data_table_extra_params.length = 0;
-                        data_table_extra_params.push({
-                            "name": "Trunk",
-                            "value": $searchFilter.Trunk
-                        }, {"name": "Country", "value": $searchFilter.Country}, {
-                            "name": "Code",
-                            "value": $searchFilter.Code
-                        });
+                        data_table_extra_params.push({"name": "Trunk","value": $searchFilter.Trunk}, {"name": "Country", "value": $searchFilter.Country}, {"name": "Code","value": $searchFilter.Code}, {"name": "Timezones", "value": $searchFilter.Timezones});
                     },
                     "aoColumns": [
                         {
@@ -551,6 +545,7 @@
             $("#blockSelectedCountry,#unblockSelectedCountry").click(function () {
                 var id = $(this).attr('id');
                 $searchFilter.Trunk = $("#block_by_country_form select[name='Trunk']").val();
+                $searchFilter.Timezones = $("#block_by_country_form select[name='Timezones']").val();
                 $searchFilter.Country = $("#block_by_country_form select[name='Country']").val();
                 $searchFilter.Code = '';
                 $searchFilter.SelectedCodes = '';
@@ -607,6 +602,7 @@
                 "fnServerParams": function (aoData) {
                     aoData.push(
                             {"name": "Trunk", "value": $searchFilter.Trunk},
+                            {"name": "Timezones", "value": $searchFilter.Timezones},
                             {"name": "OwnerFilter", "value": $searchFilter.OwnerFilter},
                             {"name": "Country", "value": $searchFilter.Country},
                             {"name": "Code", "value": $searchFilter.Code},
