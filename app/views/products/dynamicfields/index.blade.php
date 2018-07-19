@@ -8,28 +8,31 @@
                 <i class="fa fa-filter"></i>
                 Filter
             </h2>
-            <form id="product_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
+            <form id="dynamicfield_filter" method="get" class="form-horizontal form-groups-bordered validate" novalidate>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Field Name</label>
+                    {{ Form::text('FieldName', '', array("class"=>"form-control")) }}
+                </div>
+
+                <div class="form-group">
+                    <label for="field-5" class="control-label">DOM Type </label>
+                    <?php
+                    $FieldDomTypes=[''=>'Select DOM Type','string'=>'String','numeric'=>'Numeric','textarea'=>'Text Area','select'=>'Select','file'=>'File','datetime'=>'DateTime','boolean'=>'Boolean'];
+                    ?>
+                    {{Form::select('FieldDomType',$FieldDomTypes,'',array("class"=>"form-control select2 small"))}}
+                </div>
+
                 <div class="form-group">
                     <label for="field-5" class="control-label">Item Type </label>
                     {{Form::select('ItemTypeID',$itemtypes,'',array("class"=>"form-control select2 small"))}}
                 </div>
-                <div class="form-group">
-                    <label for="field-1" class="control-label">Name</label>
-                    {{ Form::text('Name', '', array("class"=>"form-control")) }}
-                </div>
-                <div class="form-group">
-                    <label for="field-1" class="control-label">Code</label>
-                    {{ Form::text('Code', '', array("class"=>"form-control")) }}
-                </div>
+
                 <div class="form-group">
                     <label for="field-1" class="control-label">Active</label>
-                        <?php $active = [""=>"Both","1"=>"Active","0"=>"Inactive"]; ?>
+                        <?php $active = [""=>"Select","1"=>"Active","0"=>"Inactive"]; ?>
                     {{ Form::select('Active', $active, '', array("class"=>"form-control select2 small")) }}
                 </div>
-                <div class="form-group">
-                    <label for="field-1" class="control-label">AppliedTo</label>
-                    {{ Form::select('AppliedTo', Product::$ALLAppliedTo, '', array("class"=>"form-control select2 small")) }}
-                </div>
+
                 <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
@@ -50,11 +53,11 @@
             <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
         <li class="active">
-            <a href="javascript:void(0)">Items</a>
+            <a href="javascript:void(0)">Dynamic Fields</a>
         </li>
     </ol>
 
-    <h3>Items</h3>
+    <h3>Dynamic Fields</h3>
     <div class="tab-content">
         <div class="tab-pane active" id="customer_rate_tab_content">
             <div class="clear"></div>
@@ -77,16 +80,10 @@
                                             <span>Deactivate</span>
                                         </a>
                                     </li>
-                                    <li class="li_deactive">
-                                        <a class=""  href="{{  URL::to('products/dynamicfields') }}" >
-                                            <i class=""></i>
-                                            <span>Manage Dynamic Fields</span>
-                                        </a>
-                                    </li>
-                                    <li class="">
-                                        <a class="" href="{{  URL::to('products/stockhistory') }}" >
-                                            <i class=""></i>
-                                            <span>Stock History</span>
+                                    <li class="li_delete">
+                                        <a class="type_active_deactive" type_ad="delete" href="javascript:void(0);" >
+                                            <i class="fa fa-trash"></i>
+                                            <span>Delete</span>
                                         </a>
                                     </li>
                                 @endif
@@ -96,19 +93,17 @@
 
                         @if( User::is_admin() || User::is('BillingAdmin'))
                             @if(User::checkCategoryPermission('Products','Add'))
-                                <a href="{{ URL::to('products/upload') }}" class="btn btn-primary pull-right" style="margin-left: 4px;">
-                                    <i class="entypo-upload"></i>
-                                    Upload
-                                </a>
-                                <a href="#" data-action="showAddModal" id="add-new-product" data-type="item" data-modal="add-edit-modal-product" class="btn btn-primary pull-right">
+
+                                <a href="#" data-action="showAddModal" id="add-new-dynamicfield" data-type="Dynamic Field" data-modal="add-edit-modal-dynamicfield" class="btn btn-primary pull-right">
                                     <i class="entypo-plus"></i>
                                     Add New
                                 </a>
-                                    <a href="{{  URL::to('products/itemtypes') }}" id="manage-type" class="btn btn-primary pull-right">
-                                        <i class=""></i>
-                                        Manage Types
-                                    </a>
+
                             @endif
+                                <a href="{{ URL::to('/products')  }}" class="btn btn-primary pull-right">
+                                    <i class=""></i>
+                                    Back
+                                </a>
                         @endif
 
                     </div>
@@ -120,12 +115,9 @@
                 <tr>
                     <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
                     <th width="10%">Item Type</th>
-                    <th width="20%">Name</th>
-                    <th width="10%">Code</th>
-                    <th width="5%">Buying Price</th>
-                    <th width="5%">Unit Cost</th>
-                    <th width="5%">Quantity</th>
-                    <th width="20%">Last Updated</th>
+                    <th width="20%">Field Name</th>
+                    <th width="20%">DOM Types</th>
+                    <th width="20%">Created At</th>
                     <th width="10%">Active</th>
                     <th width="20%">Action</th>
                 </tr>
@@ -135,7 +127,7 @@
             </table>
             <script type="text/javascript">
                 var checked = '';
-                var list_fields  = ['ProductID','title','Name','Code','Buying_price','Amount','Quantity','updated_at','Active','Description','Note','AppliedTo','Low_stock_level','ItemTypeID'];
+                var list_fields  = ['DynamicFieldsID','title','FieldName','FieldDomType','created_at','Status','FieldDescription','FieldOrder','FieldSlug','Type','ItemTypeID','Minimum','Maximum','DefaultValue'];
                 var $searchFilter = {};
                 var update_new_url;
                 var postdata;
@@ -144,36 +136,34 @@
                     $('#filter-button-toggle').show();
 
                     public_vars.$body = $("body");
-                    $searchFilter.Name = $("#product_filter [name='Name']").val();
-                    $searchFilter.Code = $("#product_filter [name='Code']").val();
-                    $searchFilter.Active = $("#product_filter select[name='Active']").val();
-                    $searchFilter.AppliedTo = $("#product_filter select[name='AppliedTo']").val();
+                    $searchFilter.FieldName = $("#dynamicfield_filter [name='FieldName']").val();
+                    $searchFilter.FieldDomType = $("#dynamicfield_filter [name='FieldDomType']").val();
+                    $searchFilter.ItemTypeID = $("#dynamicfield_filter [name='ItemTypeID']").val();
+                    $searchFilter.Active = $("#dynamicfield_filter select[name='Active']").val();
 
                     data_table = $("#table-4").dataTable({
                         "bDestroy": true,
                         "bProcessing": true,
                         "bServerSide": true,
-                        "sAjaxSource": baseurl + "/products/ajax_datagrid/type",
+                        "sAjaxSource": baseurl + "/products/dynamicfields/ajax_datagrid/type",
                         "fnServerParams": function (aoData) {
-                            aoData.push({ "name": "ItemTypeID", "value": $searchFilter.ItemTypeID },
-                                        { "name": "Name", "value": $searchFilter.Name },
-                                        { "name": "Code","value": $searchFilter.Code },
-                                        { "name": "Low_stock_level","value": $searchFilter.Low_stock_level },
-                                        { "name": "Active", "value": $searchFilter.Active },
-                                        { "name": "AppliedTo", "value": $searchFilter.AppliedTo });
+                            aoData.push({ "name": "FieldName", "value": $searchFilter.FieldName },
+                                        { "name": "FieldDomType", "value": $searchFilter.FieldDomType },
+                                        { "name": "ItemTypeID", "value": $searchFilter.ItemTypeID },
+                                        { "name": "Active", "value": $searchFilter.Active });
 
                             data_table_extra_params.length = 0;
-                            data_table_extra_params.push({ "name": "Name", "value": $searchFilter.Name },
-                                                        { "name": "Code","value": $searchFilter.Code },
+                            data_table_extra_params.push({ "name": "FieldName", "value": $searchFilter.FieldName },
+                                                        { "name": "FieldDomType", "value": $searchFilter.FieldDomType },
+                                                        { "name": "ItemTypeID", "value": $searchFilter.ItemTypeID },
                                                         { "name": "Active", "value": $searchFilter.Active },
-                                                        { "name": "AppliedTo", "value": $searchFilter.AppliedTo },
                                                         { "name": "Export", "value": 1});
 
                         },
                         "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                         "sPaginationType": "bootstrap",
                         "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                        "aaSorting": [[0, 'asc']],
+                        "aaSorting": [[0, 'desc']],
                         "aoColumns": [
                             {"bSortable": false,
                                 mRender: function(id, type, full) {
@@ -181,21 +171,10 @@
                                     return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
                                 }
                             },
-                            {  "bSortable": true,
-                                mRender: function (val){
-                                   if(val==null || val==''){
-                                       return 'All';
-                                   }else{
-                                       return val;
-                                   }
-                                }
-                            }, //  1Item Type
-                            {  "bSortable": true },  // 2 Item Name
-                            {  "bSortable": true },  // 3 Item Code
-                            {  "bSortable": true }, //  4 Buying Price
-                            {  "bSortable": true },  // 5 Unit Cost
-                            {  "bSortable": true },  // 6 Quantity
-                            {  "bSortable": true },  // 7 updated_at
+                            {  "bSortable": true},  // 1 Item Type
+                            {  "bSortable": true },  // 2 FieldName
+                            {  "bSortable": true },  // 3 FieldDomType
+                            {  "bSortable": true },  // 4 updated_at
                             {  "bSortable": true,
                                 mRender: function (val){
                                     if(val==1){
@@ -210,7 +189,7 @@
                                 "bSortable": false,
                                 mRender: function (id, type, full) {
 
-                                    var delete_ = "{{ URL::to('products/{id}/delete')}}";
+                                    var delete_ = "{{ URL::to('products/dynamicfields/{id}/delete')}}";
                                     delete_  = delete_ .replace( '{id}', full[0] );
 
                                     action = '<div class = "hiddenRowData" >';
@@ -218,15 +197,9 @@
                                         action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                     }
 
-                                    if(typeof full['DynamicFields'] != 'undefined') {
-                                        $.each(full['DynamicFields'], function (key, value) {
-                                            action += '<input type = "hidden"  name = "DynamicFields[' + key + ']"       value = "' + (value != null ? value : '') + '" / >';
-                                        });
-                                    }
                                     action += '</div>';
                                     <?php if(User::checkCategoryPermission('Products','Edit')){ ?>
-                                        action += ' <a data-name = "' + full[1] + '" data-id="' + full[0] + '" title="Edit" class="edit-product btn btn-default btn-sm btn-smtooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
-                                        action += ' <a data-name = "' + full[1] + '" data-id="' + full[0] + '" title="CLone" class="clone-product btn btn-default btn-smtooltip-primary" data-original-title="Clone" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-clone"></i>&nbsp;</a>';
+                                        action += ' <a data-name = "' + full[1] + '" data-id="' + full[0] + '" title="Edit" class="edit-dynamicfield btn btn-default btn-sm btn-smtooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
                                     <?php } ?>
                                     <?php if(User::checkCategoryPermission('Products','Delete') ){ ?>
                                         action += ' <a href="'+delete_+'" data-redirect="{{ URL::to('products')}}" title="Delete"  class="btn delete btn-danger btn-default btn-sm btn-smtooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></a>';
@@ -240,13 +213,13 @@
                                 {
                                     "sExtends": "download",
                                     "sButtonText": "EXCEL",
-                                    "sUrl": baseurl + "/products/ajax_datagrid/xlsx",
+                                    "sUrl": baseurl + "/products/dynamicfields/ajax_datagrid/xlsx",
                                     sButtonClass: "save-collection btn-sm"
                                 },
                                 {
                                     "sExtends": "download",
                                     "sButtonText": "CSV",
-                                    "sUrl": baseurl + "/products/ajax_datagrid/csv",
+                                    "sUrl": baseurl + "/products/dynamicfields/ajax_datagrid/csv",
                                     sButtonClass: "save-collection btn-sm"
                                 }
                             ]
@@ -333,6 +306,7 @@
                             }
                         }
                     });
+                    //done above
 
                     $('.type_active_deactive').click(function(e) {
 
@@ -348,12 +322,19 @@
 
                         if(SelectedIDs=='' || criteria_ac=='')
                         {
-                            alert('hi');
-                            alert("Please select atleast one account.");
+                            alert("Please Select Atleast One Dynamic Field.");
                             return false;
                         }
 
-                        item_update_status_url =  '{{ URL::to('products/update_bulk_product_status')}}';
+                        if(type_active_deactive=='delete'){
+                            response = confirm('Are you sure?');
+                            if(!response){
+                                return false;
+                            }
+                            item_update_status_url =  '{{ URL::to('products/dynamicfields/delete_bulk_dynamicfields')}}';
+                        }else{
+                            item_update_status_url =  '{{ URL::to('products/dynamicfields/update_bulk_dynamicfields_status')}}';
+                        }
                         $.ajax({
                             url: item_update_status_url,
                             type: 'POST',
@@ -370,10 +351,10 @@
                                 }
                             },
                             data: {
-                                "Name":$("#product_filter [name='Name']").val(),
-                                "Code":$("#product_filter [name='Code']").val(),
-                                "Active":$("#product_filter [name='Active']").val(),
-                                "AppliedTo":$("#product_filter [name='AppliedTo']").val(),
+                                "FieldName":$("#dynamicfield_filter [name='FieldName']").val(),
+                                "FieldDomType":$("#dynamicfield_filter [name='FieldDomType']").val(),
+                                "ItemTypeID":$("#dynamicfield_filter [name='ItemTypeID']").val(),
+                                "Active":$("#dynamicfield_filter [name='Active']").val(),
                                 "SelectedIDs":SelectedIDs,
                                 "criteria_ac":criteria_ac,
                                 "type_active_deactive":type_active_deactive,
@@ -383,13 +364,12 @@
 
                     });
 
-                    $("#product_filter").submit(function(e){
+                    $("#dynamicfield_filter").submit(function(e){
                         e.preventDefault();
-                        $searchFilter.ItemTypeID = $("#product_filter [name='ItemTypeID']").val();
-                        $searchFilter.Name = $("#product_filter [name='Name']").val();
-                        $searchFilter.Code = $("#product_filter [name='Code']").val();
-                        $searchFilter.Active = $("#product_filter [name='Active']").val();
-                        $searchFilter.AppliedTo = $("#product_filter [name='AppliedTo']").val();
+                        $searchFilter.FieldName = $("#dynamicfield_filter [name='FieldName']").val();
+                        $searchFilter.FieldDomType = $("#dynamicfield_filter [name='FieldDomType']").val();
+                        $searchFilter.ItemTypeID = $("#dynamicfield_filter [name='ItemTypeID']").val();
+                        $searchFilter.Active = $("#dynamicfield_filter [name='Active']").val();
                          data_table.fnFilter('', 0);
                         return false;
                     });
@@ -401,93 +381,101 @@
                         replaceCheckboxes();
                     });
 
-                    $('#add-edit-modal-product').on('hidden.bs.modal', function () {
-                        $("#add-edit-product-form").find("input:hidden[name=ItemTypeID]").remove();
-                        $("#add-edit-modal-product [name='ItemTypeID']").val('0').trigger('change');
-                        $("#add-edit-modal-product [name='ItemTypeID']").removeAttr('disabled');
+                    $('#add-edit-modal-dynamicfield').on('hidden.bs.modal', function () {
+                       $("#add-edit-dynamicfield-form").find("input:hidden[name=ItemTypeID]").remove();
+                       $("#add-edit-dynamicfield-form").find("input:hidden[name=FieldDomType]").remove();
                     });
 
-                    $('table tbody').on('click', '.edit-product', function (ev) {
+                    $('table tbody').on('click', '.edit-dynamicfield', function (ev) {
                         ev.preventDefault();
                         ev.stopPropagation();
-                        $('#add-edit-product-form').trigger("reset");
+                        $('#add-edit-dynamicfield-form').trigger("reset");
                         var cur_obj = $(this).prev("div.hiddenRowData");
                         for(var i = 0 ; i< list_fields.length; i++){
                             if(list_fields[i] == 'ItemTypeID'){
-                                $("#add-edit-product-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
+                                var ItemTypeID=cur_obj.find("input[name='"+list_fields[i]+"']").val();
+                                if(ItemTypeID=='' || typeof (ItemTypeID)=='undefined'){
+                                    ItemTypeID=0;
+                                }
+                                $("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").val(ItemTypeID).trigger("change");
                                 var valitemid=$("input[name='"+list_fields[i]+"']").val();
-                                $("#add-edit-product-form [name='"+list_fields[i]+"']").attr("disabled",true);
-                                var h_ItemTypeID='<input type="hidden" name="ItemTypeID" value="'+valitemid+'" />';
-                                $("#add-edit-product-form").append(h_ItemTypeID);
-                            }
+                                if(ItemTypeID > 0){
+                                    $("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").attr("disabled",true);
+                                    var h_ItemTypeID='<input type="hidden" name="ItemTypeID" value="'+valitemid+'" />';
+                                    $("#add-edit-dynamicfield-form").append(h_ItemTypeID);
+                                }
 
-                            if(list_fields[i] == 'Active'){
+
+                            }
+                            if(list_fields[i] == 'FieldDomType'){
+                                $("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
+                                var valdomtype=$("input[name='"+list_fields[i]+"']").val();
+                                $("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").attr("disabled",true);
+                                var h_FieldDomType='<input type="hidden" name="FieldDomType" value="'+valdomtype+'" />';
+                                $("#add-edit-dynamicfield-form").append(h_FieldDomType);
+                            }
+                            if(list_fields[i] == 'Status'){
                                 if(cur_obj.find("input[name='"+list_fields[i]+"']").val() == 1){
-                                    $('#add-edit-product-form [name="Active"]').prop('checked',true)
+                                    $('#add-edit-dynamicfield-form [name="Active"]').prop('checked',true)
                                 }else{
-                                    $('#add-edit-product-form [name="Active"]').prop('checked',false)
+                                    $('#add-edit-dynamicfield-form [name="Active"]').prop('checked',false)
                                 }
-                            }else if(list_fields[i] == 'AppliedTo'){
-                                $("#add-edit-product-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
                             }else{
-                                $("#add-edit-product-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                                if(list_fields[i] == 'Minimum' && (cur_obj.find("input[name='FieldDomType']").val() == 'string' || cur_obj.find("input[name='FieldDomType']").val() == 'numeric')){
+                                    var min=cur_obj.find("input[name='"+list_fields[i]+"']").val();
+                                    var minmax='<div class="form-group"><label for="field-5" class="control-label">Default Value </label>{{ Form::text("DefaultValue", "", array("class"=>"form-control"))  }}</div><div class="form-group"><label for="field-5" class="control-label">Min </label>{{ Form::text("Minimum", "", array("class"=>"form-control"))  }}</div><div class="form-group"><label for="field-5" class="control-label">Max </label>{{ Form::text("Maximum", "", array("class"=>"form-control"))  }}</div>';
+                                    $("#minmaxdiv").html(minmax);
+                                }
+                                $("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                             }
                         }
-                        var DynamicFields = $(this).prev().find('input[name^=DynamicFields]');
-                        for(var j=0;j<DynamicFields.length;j++) {
-                            var dfName = DynamicFields[j].getAttribute('name');
-                            var dfValue = DynamicFields[j].value;
-                            $('#add-edit-product-form').find('input[name^=DynamicFields]').each(function(){
-                                if($(this).attr('name') == dfName){
-                                    $(this).val(dfValue);
-                                }
-                            });
-                        }
-                        $("#add-edit-modal-product [name='ProductClone']").val(0);
-                        $('#add-edit-modal-product h4').html('Edit Item');
-                        $('#add-edit-modal-product').modal('show');
+
+                        $("#add-edit-modal-dynamicfield [name='ProductClone']").val(0);
+                        $('#add-edit-modal-dynamicfield h4').html('Edit Dynamic Field');
+                        $('#add-edit-modal-dynamicfield').modal('show');
                     });
                     $('table tbody').on('click', '.clone-product', function (ev) {
                         ev.preventDefault();
                         ev.stopPropagation();
-                        $('#add-edit-product-form').trigger("reset");
+                        $('#add-edit-dynamicfield-form').trigger("reset");
                         var cur_obj = $(this).prev().prev("div.hiddenRowData");
                         for(var i = 0 ; i< list_fields.length; i++){
-                            if(list_fields[i] == 'ItemTypeID'){
-                                $("#add-edit-product-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
-                            }
 
                             if(list_fields[i] == 'Active'){
                                 if(cur_obj.find("input[name='"+list_fields[i]+"']").val() == 1){
-                                    $('#add-edit-product-form [name="Active"]').prop('checked',true)
+                                    $('#add-edit-dynamicfield-form [name="Active"]').prop('checked',true)
                                 }else if(list_fields[i] == 'AppliedTo'){
-                                    $("#add-edit-product-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
+                                    $("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
                                 }else{
-                                    $('#add-edit-product-form [name="Active"]').prop('checked',false)
+                                    $('#add-edit-dynamicfield-form [name="Active"]').prop('checked',false)
                                 }
                             }else{
-                                $("#add-edit-product-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                                $("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                             }
                         }
                         var DynamicFields = $(this).prev().find('input[name^=DynamicFields]');
                         for(var j=0;j<DynamicFields.length;j++) {
                             var dfName = DynamicFields[j].getAttribute('name');
                             var dfValue = DynamicFields[j].value;
-                            $('#add-edit-product-form').find('input[name^=DynamicFields]').each(function(){
+                            $('#add-edit-dynamicfield-form').find('input[name^=DynamicFields]').each(function(){
                                 if($(this).attr('name') == dfName){
                                     $(this).val(dfValue);
                                 }
                             });
                         }
-                        $("#add-edit-modal-product [name='ProductClone']").val(1);
-                        $('#add-edit-modal-product h4').html('Clone Item');
-                        $('#add-edit-modal-product').modal('show');
+                        $("#add-edit-modal-dynamicfield [name='ProductClone']").val(1);
+                        $('#add-edit-modal-dynamicfield h4').html('Clone Item');
+                        $('#add-edit-modal-dynamicfield').modal('show');
                     });
 
-                    $('#add-new-product').click(function (ev) {
-                        $("#add-edit-modal-product [name='ProductClone']").val(0);
+                    $('#add-new-dynamicfield').click(function (ev) {
+                        $('#add-edit-dynamicfield-form').trigger("reset");
+                        $("#add-edit-modal-dynamicfield [name='ProductClone']").val(0);
+                        $("#add-edit-modal-dynamicfield [name='ItemTypeID']").removeAttr('disabled');
+                        $("#add-edit-modal-dynamicfield [name='FieldDomType']").removeAttr('disabled');
+                        $("#add-edit-modal-dynamicfield [name='ItemTypeID']").val('0').trigger('change');
                     });
-                    /*$('#add-new-product').click(function (ev) {
+                    /*$('#add-new-itemtype').click(function (ev) {
                         ev.preventDefault();
                         $('#add-edit-product-form').trigger("reset");
                         $("#add-edit-product-form [name='ProductID']").val('');
@@ -585,5 +573,5 @@
 
         </div>
     </div>
-    @include("products.productmodal")
+    @include("products.dynamicfields.dynamicfieldmodal")
 @stop

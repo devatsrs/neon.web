@@ -102,6 +102,12 @@ $("#call-billing-form [name='AlertType']").change(function(){
         $("#call-billing-form [name='CallAlert[EmailToAccount]']").parents('.col-md-6').removeClass('hidden');
         $("#call-billing-form [name='CallAlert[AccountIDs]']").parents('.row').removeClass('hidden');
         $("#call-billing-form [name='CallAlert[ReminderDays]']").parents('.row').removeClass('hidden');
+    }else if($(this).val() == 'Low_stock_reminder'){
+        $("#call-billing-form .ReminderEmail").html('Send Email To');
+        //$("#call-billing-form [name='CallAlert[VAccountID][]']").parents('.row').removeClass('hidden');
+        $("#call-billing-form [name='CallAlert[Time]']").parents('.row').removeClass('hidden');
+        $("#call-billing-form [name='CallAlert[Interval]']").parents('.row').removeClass('hidden');
+        $("#call-billing-form [name='CallAlert[Day][]']").parents('.row').removeClass('hidden');
     }
 });
 });
