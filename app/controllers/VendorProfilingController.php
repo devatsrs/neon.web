@@ -22,7 +22,8 @@ class VendorProfilingController extends \BaseController {
         $countriesCode[''] = 'Select Countries';
         $countries = array(0=>'Select All')+$countries;
         $account_owners = User::getOwnerUsersbyRole();
-        return View::make('vendorprofiling.index', compact('active_vendor','inactive_vendor','allvendorcodes','trunk_keys','trunks','countries','countriesCode','account_owners'));
+        $Timezones = Timezones::getTimezonesIDList();
+        return View::make('vendorprofiling.index', compact('active_vendor','inactive_vendor','allvendorcodes','trunk_keys','trunks','countries','countriesCode','account_owners','Timezones'));
     }
 
     public function ajax_vendor($id){
@@ -64,6 +65,7 @@ class VendorProfilingController extends \BaseController {
     public function block_unblockcode(){
         $data = Input::all();
         $TrunkID =$data['Trunk'];
+        $TimezonesID =$data['Timezones'];
         $CompanyID = User::get_companyID();
         $username = User::get_user_full_name();
         $isall = 0;
@@ -127,7 +129,7 @@ class VendorProfilingController extends \BaseController {
 
             if ($data['action'] == 'block') {
                 $block=1;
-                $results = DB::statement("call prc_BlockVendorCodes (".$CompanyID.",'" . $AccountIDs . "'," .$TrunkID . ",'" . $CountryIDs . "','".$Codes."','".$username."',".$block.",".$isCountry.",".$isall.",".$criteria.")");
+                $results = DB::statement("call prc_BlockVendorCodes (".$CompanyID.",'" . $AccountIDs . "'," .$TrunkID . "," .$TimezonesID . ",'" . $CountryIDs . "','".$Codes."','".$username."',".$block.",".$isCountry.",".$isall.",".$criteria.")");
                 if ($results) {
                     return Response::json(array("status" => "success", "message" => "Country Blocked Successfully."));
                 } else {
@@ -135,7 +137,7 @@ class VendorProfilingController extends \BaseController {
                 }
 
             } else { // Unblock
-                $results = DB::statement("call prc_BlockVendorCodes (".$CompanyID.",'" . $AccountIDs . "'," .$TrunkID . ",'" . $CountryIDs . "','".$Codes."','".$username."',".$block.",".$isCountry.",".$isall.",".$criteria.")");
+                $results = DB::statement("call prc_BlockVendorCodes (".$CompanyID.",'" . $AccountIDs . "'," .$TrunkID . "," .$TimezonesID . ",'" . $CountryIDs . "','".$Codes."','".$username."',".$block.",".$isCountry.",".$isall.",".$criteria.")");
                 if ($results) {
                     return Response::json(array("status" => "success", "message" => "Country Unblocked Successfully."));
                 } else {
