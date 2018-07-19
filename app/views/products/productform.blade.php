@@ -1,5 +1,6 @@
 <script>
     $(document).ready(function ($) {
+        $('#tooltip_lowstock').tooltip();
         var txtItem = '{{Product::$TypetoProducts[Product::ITEM]}}';
         var productsubscription = $("#add-edit-product-subscription [name='productsubscription']").val();
         $('#add-edit-product-form').submit(function(e){
@@ -58,11 +59,47 @@
                 }
             });
         })
+
+        $("#add-edit-product-form #ItemType").on('change',function(){
+            var itemTypeID=$(this).val();
+            var ProductID = $("#add-edit-product-form [name='ProductID']").val();
+            if(typeof(itemTypeID)!='undefined' && itemTypeID!=null && itemTypeID!='0'){
+                $('#ajax_dynamicfield_html').html('Loading...<br>');
+                var url=baseurl + '/products/'+itemTypeID+'/change_type';
+                $.ajax({
+                    type: "POST",
+                    url: url ,
+                    data:'ProductID='+ProductID,
+                    cache: false,
+                    success: function(response){
+                        $('#ajax_dynamicfield_html').html(response);
+                        //perform operation
+                    },
+                    error: function(error) {
+                        $('#ajax_dynamicfield_html').html('');
+                        $(".btn").button('reset');
+                        ShowToastr("error", error);
+                    }
+                });
+
+            }else{
+                $('#ajax_dynamicfield_html').html('');
+            }
+
+        });
+
+
     });
 </script>
 <form id="add-edit-product-form" method="post">
     <div class="modal-body">
         <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="field-5" class="control-label">Item Type *</label>
+                    {{Form::select('ItemTypeID',$itemtypes,'',array("id"=>"ItemType","class"=>"form-control select2 small"))}}
+                </div>
+            </div>
             <div class="col-md-12">
                 <div class="form-group">
                     <label for="field-5" class="control-label">Item Name *</label>
@@ -83,8 +120,27 @@
             </div>
             <div class="col-md-12">
                 <div class="form-group">
-                    <label for="field-5" class="control-label">Unit Cost *</label>
+                    <label for="field-5" class="control-label">Buying Price *</label>
+                    <input type="text" name="Buying_price" class="form-control" id="field-5" placeholder="" maxlength="10">
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="field-5" class="control-label">Unit Cost(Selling Price) *</label>
                     <input type="text" name="Amount" class="form-control" id="field-5" placeholder="" maxlength="10">
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="field-5" class="control-label">Quantity</label>
+                    <input type="text" name="Quantity" class="form-control" id="field-5" placeholder="" maxlength="10">
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="field-5" class="control-label">Low Stock Level</label>
+                    <span id="tooltip_lowstock" data-content="Low Stock Reminder" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span>
+                    <input type="text" name="Low_stock_level" class="form-control" id="field-5" placeholder="" maxlength="10">
                 </div>
             </div>
             <div class="col-md-12">
@@ -94,6 +150,9 @@
                 </div>
             </div>
 
+            <div id="ajax_dynamicfield_html"></div>
+            <?php
+            /*
             @if (isset($DynamicFields) && $DynamicFields['totalfields'] > 0)
                 @foreach($DynamicFields['fields'] as $field)
                     @if($field->Status == 1)
@@ -108,6 +167,7 @@
                     @endif
                 @endforeach
             @endif
+            */ ?>
 
             <div class="col-md-12">
                 <div class="form-group">
