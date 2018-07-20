@@ -144,6 +144,7 @@
                     $('#filter-button-toggle').show();
 
                     public_vars.$body = $("body");
+                    $searchFilter.ItemTypeID = $("#product_filter [name='ItemTypeID']").val();
                     $searchFilter.Name = $("#product_filter [name='Name']").val();
                     $searchFilter.Code = $("#product_filter [name='Code']").val();
                     $searchFilter.Active = $("#product_filter select[name='Active']").val();
@@ -163,7 +164,8 @@
                                         { "name": "AppliedTo", "value": $searchFilter.AppliedTo });
 
                             data_table_extra_params.length = 0;
-                            data_table_extra_params.push({ "name": "Name", "value": $searchFilter.Name },
+                            data_table_extra_params.push({ "name": "ItemTypeID", "value": $searchFilter.ItemTypeID },
+                                                        { "name": "Name", "value": $searchFilter.Name },
                                                         { "name": "Code","value": $searchFilter.Code },
                                                         { "name": "Active", "value": $searchFilter.Active },
                                                         { "name": "AppliedTo", "value": $searchFilter.AppliedTo },
