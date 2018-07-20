@@ -18,6 +18,7 @@ class Report extends \Eloquent {
         'summary'=>'Customer Summary',
         'vsummary'=>'Vendor Summary',
         'invoice' => 'Invoice',
+        'tax' => 'Tax',
         'payment' => 'Payment',
         'account' => 'Account',
     );
@@ -225,6 +226,38 @@ class Report extends \Eloquent {
             'SubscriptionID' => 'Subscription Name',
             'ServiceID' => 'Service Name',
         ),
+        'tax'=>array(
+            'Date'=>array(
+                'year' => 'Year',
+                'quarter_of_year' => 'Quarter' ,
+                'month' => 'Month',
+                'week_of_year' => 'Week',
+                'date' => 'Day',
+            ),
+            'Customer'=>array(
+                'AccountID'=>'AccountName',
+                'Number'=>'Number',
+                'Email'=>'Email',
+                'IsVendor'=>'IsVendor',
+                'IsCustomer'=>'IsCustomer',
+                'Address1'=>'Address1',
+                'City'=>'City',
+                'State'=>'State',
+                'PostCode'=>'PostCode',
+                'Country'=>'Country',
+                'BillingEmail'=>'BillingEmail',
+                'VatNumber'=>'VatNumber',
+                'TimeZone'=>'TimeZone',
+                'tags'=>'Tag',
+            ),
+            'Owner'=>'Account Manager',
+            'CurrencyID' =>'Currency Code',
+            'InvoiceType' =>'Invoice Type',
+            'InvoiceStatus' =>'Invoice Status',
+            'TaxRateID' => 'Tax Type',
+            'SubscriptionID' => 'Subscription Name',
+            'ServiceID' => 'Service Name',
+        ),
         'payment'=>array(
             'Date'=>array(
                 'year' => 'Year',
@@ -329,6 +362,14 @@ class Report extends \Eloquent {
             'TotalTax' => 'Tax Total',
             'SubTotal' => 'Sub Total',
         ),
+        'tax'=>array(
+            'GrandTotal' => 'Total',
+            'PaidTotal' => 'Payment Amount',
+            'OutStanding' => 'OutStanding Amount',
+            'TotalTax' => 'Tax Total',
+            'TotalTaxSubTotal' => 'Total',
+            'SubTotal' => 'Sub Total',
+        ),
         'payment'=>array(
             'Amount' => 'Total',
         ),
@@ -389,6 +430,9 @@ class Report extends \Eloquent {
                 $response = ReportVendorCDR::generateSummaryQuery($CompanyID,$data,$filters);
                 break;
             case 'invoice':
+                $response = ReportInvoice::generateQuery($CompanyID,$data,$filters);
+                break;
+            case 'tax':
                 $response = ReportInvoice::generateQuery($CompanyID,$data,$filters);
                 break;
             case 'payment':

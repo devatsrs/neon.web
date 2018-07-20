@@ -62,6 +62,16 @@ class AccountOneOffChargeController extends \BaseController {
         unset($data['productPrice']);
         unset($data['AccountoneofchargeID']);
         $data['Price'] = str_replace(',','',$data['Price']);
+        //stock History Calculation
+        if(intval($data['ProductID']) > 0 && intval($data['Qty']) > 0){
+            $companyID = User::get_companyID();
+            $returnValidateData=stockHistoryValidateCalculation($companyID,intval($data['ProductID']),'',intval($data['Qty']),$reason='',$InvoiceNo='');
+            if ($returnValidateData && $returnValidateData['status'] == 'failed') {
+                return Response::json($returnValidateData);
+            }
+            stockHistoryCalculation($companyID,intval($data['ProductID']),'',intval($data['Qty']),$reason='',$InvoiceNo='');
+        }
+
         if ($AccountOneOffCharge = AccountOneOffCharge::create($data)) {
             return Response::json(array("status" => "success", "message" => "Additional Charge Successfully Created"));
         } else {
@@ -75,6 +85,7 @@ class AccountOneOffChargeController extends \BaseController {
             $data = Input::all();
             $AccountOneOffChargeID = $data['AccountOneOffChargeID'];
             $AccountOneOffCharge = AccountOneOffCharge::find($AccountOneOffChargeID);
+            $oldQty=intval($AccountOneOffCharge['Qty']);
             $data["AccountID"] = $AccountID;
             $data["ModifiedBy"] = User::get_user_full_name();
 
@@ -97,9 +108,21 @@ class AccountOneOffChargeController extends \BaseController {
             unset($data['productPrice']);
             unset($data['AccountOneOffChargeID']);
             $data['Price'] = str_replace(',','',$data['Price']);
+
+            //stock History Calculation
+            if(intval($data['ProductID']) > 0 && intval($data['Qty']) > 0){
+                $companyID = User::get_companyID();
+                $returnValidateData=stockHistoryUpdateValidateCalculation($companyID,intval($data['ProductID']),'',intval($data['Qty']),$reason='',$oldQty);
+                if ($returnValidateData && $returnValidateData['status'] == 'failed') {
+                    return Response::json($returnValidateData);
+                }
+                stockHistoryUpdateCalculation($companyID,intval($data['ProductID']),'',intval($data['Qty']),$reason='',$oldQty);
+            }
+
             if ($AccountOneOffCharge->update($data)) {
                 return Response::json(array("status" => "success", "message" => "Additional Charges Successfully Updated"));
             } else {
+                DB::connection('sqlsrv2')->rollback();
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Additional Charges."));
             }
         }
@@ -111,6 +134,14 @@ class AccountOneOffChargeController extends \BaseController {
         if( intval($AccountOneOffChargeID) > 0){
             try{
                 $AccountOneOffCharge = AccountOneOffCharge::find($AccountOneOffChargeID);
+                //StockHistory Calculation
+                $ProductID=$AccountOneOffCharge->ProductID;
+                $Qty=intval($AccountOneOffCharge->Qty);
+                if($ProductID > 0 && $Qty > 0){
+                    $companyID = User::get_companyID();
+                    $reason='delete_prodstock';
+                    stockHistoryUpdateCalculation($companyID,$ProductID,'',$Qty,$reason,$Qty);
+                }
                 $result = $AccountOneOffCharge->delete();
                 if ($result) {
                     return Response::json(array("status" => "success", "message" => "Additional charge Successfully Deleted"));
