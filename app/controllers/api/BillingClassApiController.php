@@ -5,7 +5,7 @@ class BillingClassApiController extends ApiController {
 
 	public function getList()
 	{
-		$DropdownIDList = BillingClass::select('Name', 'BillingClassID','TaxRateID');
+		$DropdownIDList = BillingClass::select('Name', 'BillingClassID','TaxRateID')->get();
 		return Response::json(["status"=>"success", "data"=>$DropdownIDList]);
 	}
 
