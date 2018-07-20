@@ -15,14 +15,13 @@ class ProductsController extends \BaseController {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         $data['iDisplayStart'] +=1;
-        $columns = ['ProductID','Name','Code','Amount','updated_at','Active'];
+        $columns = ['ProductID','ItemTypeID','Name','Code','Buying_price','Amount','Quantity','updated_at','Active','Description','Note','AppliedTo','Low_stock_level','ItemTypeID'];
         $sort_column = $columns[$data['iSortCol_0']];
         if($data['AppliedTo'] == ''){
             $data['AppliedTo'] = 'null';
         }
 
         $query = "call prc_getProducts (".$CompanyID.", '".$data['Name']."','".$data['Code']."','".$data['Active']."',".$data['AppliedTo'].", ".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."','".$data['ItemTypeID']."'";
-
         $Type =  Product::DYNAMIC_TYPE;
         $DynamicFields = $this->getDynamicFields($CompanyID,$Type);
 
@@ -30,6 +29,9 @@ class ProductsController extends \BaseController {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             if($DynamicFields['totalfields'] > 0){
                 foreach ($excel_data as $key => $value) {
+                    if($value->title==''){
+                        $excel_data[$key]->title='All';
+                    }
                     foreach ($DynamicFields['fields'] as $field) {
                         $DynamicFieldsID = $field->DynamicFieldsID;
                         $DynamicFieldsValues = DynamicFieldsValue::getDynamicColumnValuesByProductID($DynamicFieldsID,$excel_data[$key]->ProductID);
