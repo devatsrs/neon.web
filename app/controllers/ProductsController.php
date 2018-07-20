@@ -15,7 +15,7 @@ class ProductsController extends \BaseController {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         $data['iDisplayStart'] +=1;
-        $columns = ['ProductID','Name','Code','Amount','updated_at','Active'];
+        $columns = ['ProductID','ItemTypeID','Name','Code','Buying_price','Amount','Quantity','updated_at','Active','Description','Note','AppliedTo','Low_stock_level','ItemTypeID'];
         $sort_column = $columns[$data['iSortCol_0']];
         if($data['AppliedTo'] == ''){
             $data['AppliedTo'] = 'null';
