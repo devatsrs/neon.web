@@ -22,7 +22,6 @@ class ProductsController extends \BaseController {
         }
 
         $query = "call prc_getProducts (".$CompanyID.", '".$data['Name']."','".$data['Code']."','".$data['Active']."',".$data['AppliedTo'].", ".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."','".$data['ItemTypeID']."'";
-
         $Type =  Product::DYNAMIC_TYPE;
         $DynamicFields = $this->getDynamicFields($CompanyID,$Type);
 
@@ -30,6 +29,9 @@ class ProductsController extends \BaseController {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             if($DynamicFields['totalfields'] > 0){
                 foreach ($excel_data as $key => $value) {
+                    if($value->title==''){
+                        $excel_data[$key]->title='All';
+                    }
                     foreach ($DynamicFields['fields'] as $field) {
                         $DynamicFieldsID = $field->DynamicFieldsID;
                         $DynamicFieldsValues = DynamicFieldsValue::getDynamicColumnValuesByProductID($DynamicFieldsID,$excel_data[$key]->ProductID);
