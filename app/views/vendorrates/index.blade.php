@@ -171,10 +171,11 @@
         <th width="5%">Interval 1</th>
         <th width="5%">Interval N</th>
         <th width="5%">Rate ({{$CurrencySymbol}})</th>
-        <th width="10%">Effective Date</th>
-        <th width="10%">End Date</th>
-        <th width="10%">Modified Date</th>
-        <th width="10%">Modified By</th>
+        <th width="5%">RateN ({{$CurrencySymbol}})</th>
+        <th width="8%">Effective Date</th>
+        <th width="8%">End Date</th>
+        <th width="8%">Modified Date</th>
+        <th width="8%">Modified By</th>
         <th width="20%">Action</th>
     </tr>
 </thead>
@@ -186,7 +187,7 @@
 <script type="text/javascript">
     var $searchFilter = {};
     var checked='';
-    var list_fields  = ['VendorRateID','Code','Description','ConnectionFee','Interval1','IntervalN','Rate','EffectiveDate','EndDate','updated_at','updated_by'];
+    var list_fields  = ['VendorRateID','Code','Description','ConnectionFee','Interval1','IntervalN','Rate','RateN','EffectiveDate','EndDate','updated_at','updated_by'];
     var Code, Description, Country,Trunk,Effective,update_new_url;
 
 jQuery(document).ready(function($) {
@@ -420,7 +421,7 @@ jQuery(document).ready(function($) {
                     var hiddenRowData = tr.find('.hiddenRowData');
                     var Code = hiddenRowData.find('input[name="Code"]').val();
                     var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
-                    table.append("<thead><tr><th>Code</th><th>Description</th><th>Connection Fee</th><th>Interval 1</th><th>Interval N</th><th>Rate</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                    table.append("<thead><tr><th>Code</th><th>Description</th><th>Connection Fee</th><th>Interval 1</th><th>Interval N</th><th>Rate</th><th>RateN</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
                     var tbody = $("<tbody></tbody>");
 
                     /*ArchiveRates.sort(function(obj1, obj2) {
@@ -437,6 +438,7 @@ jQuery(document).ready(function($) {
                             html += "<td>" + data['Interval1'] + "</td>";
                             html += "<td>" + data['IntervalN'] + "</td>";
                             html += "<td>" + data['Rate'] + "</td>";
+                            html += "<td>" + data['RateN'] + "</td>";
                             html += "<td>" + data['EffectiveDate'] + "</td>";
                             html += "<td>" + data['EndDate'] + "</td>";
                             html += "<td>" + data['ModifiedDate'] + "</td>";
@@ -495,11 +497,12 @@ jQuery(document).ready(function($) {
                         {}, //4 Interval1
                         {}, //5 IntervalN
                         {}, //6 Rate
-                        {}, //7 EffectiveDate
-                        {}, //8 EndDate
-                        {}, //9 updated at
-                        {}, //10 updated by
-                        {// 11 Action
+                        {}, //7 RateN
+                        {}, //8 EffectiveDate
+                        {}, //9 EndDate
+                        {}, //10 updated at
+                        {}, //11 updated by
+                        {// 12 Action
                             mRender: function(id, type, full) {
 
                                 var action, edit_, delete_,VendorRateID;
@@ -680,11 +683,24 @@ jQuery(document).ready(function($) {
                                 <input type="text"  name="EffectiveDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
                             </div>
                         </div>
-
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-4" class="control-label">End Date</label>
+                                <input type="text"  name="EndDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Rate</label>
                                 <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">RateN</label>
+                                <input type="text" name="RateN" class="form-control" id="field-5" placeholder="">
                             </div>
                         </div>
                     </div>
@@ -695,7 +711,6 @@ jQuery(document).ready(function($) {
                                 <input type="text" name="Interval1" class="form-control" value="" />
                             </div>
                         </div>
-
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Interval N</label>
@@ -710,12 +725,6 @@ jQuery(document).ready(function($) {
                                 <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="field-4" class="control-label">End Date</label>
-                                <input type="text"  name="EndDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
-                            </div>
-                        </div>
                     </div>
 
                 </div>
@@ -727,6 +736,7 @@ jQuery(document).ready(function($) {
                     <input type="hidden" name="criteria" value="">
                     <input type="hidden" name="updateEffectiveDate" value="on">
                     <input type="hidden" name="updateRate" value="on">
+                    <input type="hidden" name="updateRateN" value="on">
                     <input type="hidden" name="updateInterval1" value="on">
                     <input type="hidden" name="updateIntervalN" value="on">
                     <input type="hidden" name="updateConnectionFee" value="on">
@@ -771,9 +781,25 @@ jQuery(document).ready(function($) {
 
                         <div class="col-md-6">
                             <div class="form-group">
+                                <input type="checkbox" name="updateEndDate" class="" />
+                                <label for="field-4" class="control-label">End Date</label>
+                                <input type="text" name="EndDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}"  data-date-format="yyyy-mm-dd" value="" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
                                 <input type="checkbox" name="updateRate" class="" />
-                                <label for="field-5" class="control-label">Rate</label>
-                                <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
+                                <label class="control-label">Rate</label>
+                                <input type="text" name="Rate" class="form-control" placeholder="">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="checkbox" name="updateRateN" class="" />
+                                <label class="control-label">RateN</label>
+                                <input type="text" name="RateN" class="form-control" placeholder="">
                             </div>
                         </div>
 
@@ -798,14 +824,6 @@ jQuery(document).ready(function($) {
                                 <input type="checkbox" name="updateConnectionFee" class="" />
                                 <label for="field-5" class="control-label">Connection Fee</label>
                                 <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <input type="checkbox" name="updateEndDate" class="" />
-                                <label for="field-4" class="control-label">End Date</label>
-                                <input type="text" name="EndDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}"  data-date-format="yyyy-mm-dd" value="" />
                             </div>
                         </div>
 

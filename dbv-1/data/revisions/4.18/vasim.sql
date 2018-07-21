@@ -148,10 +148,16 @@ ALTER TABLE `tblVendorRate`
 ALTER TABLE `tblRateTableRate`
 	ADD COLUMN `RateN` DECIMAL(18,6) NOT NULL DEFAULT '0.000000' AFTER `Rate`;
 
+ALTER TABLE `tblCustomerRate`
+	ADD COLUMN `RateN` DECIMAL(18,6) NOT NULL DEFAULT '0.000000' AFTER `Rate`;
+
 ALTER TABLE `tblVendorRateArchive`
 	ADD COLUMN `RateN` DECIMAL(18,6) NOT NULL DEFAULT '0.000000' AFTER `Rate`;
 
 ALTER TABLE `tblRateTableRateArchive`
+	ADD COLUMN `RateN` DECIMAL(18,6) NOT NULL DEFAULT '0.000000' AFTER `Rate`;
+
+ALTER TABLE `tblCustomerRateArchive`
 	ADD COLUMN `RateN` DECIMAL(18,6) NOT NULL DEFAULT '0.000000' AFTER `Rate`;
 
 ALTER TABLE `tblVendorPreference`
@@ -377,6 +383,7 @@ BEGIN
 	        Interval1 INT,
 	        IntervalN INT,
 	        Rate DECIMAL(18, 6),
+	        RateN DECIMAL(18, 6),
 	        EffectiveDate DATE,
 	        EndDate DATE,
 	        updated_at DATETIME,
@@ -399,6 +406,7 @@ BEGIN
 					ELSE tblRate.IntervalN
 					END AS IntervalN ,
 					Rate,
+					RateN,
 					EffectiveDate,
 					EndDate,
 					tblVendorRate.updated_at,
@@ -450,6 +458,7 @@ BEGIN
 					Interval1,
 					IntervalN,
 					Rate,
+					RateN,
 					EffectiveDate,
 					EndDate,
 					updated_at,
@@ -473,6 +482,12 @@ BEGIN
 					END DESC,
 					CASE
 						WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateASC') THEN Rate
+					END ASC,
+					CASE
+						WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNDESC') THEN RateN
+					END DESC,
+					CASE
+						WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNASC') THEN RateN
 					END ASC,
 					CASE
 						WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionFeeDESC') THEN ConnectionFee
@@ -540,6 +555,7 @@ BEGIN
 				Code,
 				Description,
 				Rate,
+				RateN,
 				EffectiveDate,
 				EndDate,
 				updated_at AS `Modified Date`,
@@ -587,6 +603,7 @@ BEGIN
         Interval1 INT,
         IntervalN INT,
         Rate DECIMAL(18, 6),
+        RateN DECIMAL(18, 6),
         EffectiveDate DATE,
         EndDate DATE,
         updated_at DATETIME,
@@ -603,6 +620,7 @@ BEGIN
 			CASE WHEN vra.Interval1 IS NOT NULL THEN vra.Interval1 ELSE r.Interval1 END AS Interval1,
 			CASE WHEN vra.IntervalN IS NOT NULL THEN vra.IntervalN ELSE r.IntervalN END AS IntervalN,
 			vra.Rate,
+			vra.RateN,
 			vra.EffectiveDate,
 			vra.EndDate,
 			vra.created_at AS updated_at,
@@ -641,6 +659,7 @@ BEGIN
 			Interval1,
 			IntervalN,
 			Rate,
+			RateN,
 			EffectiveDate,
 			EndDate,
 			updated_at,
@@ -665,6 +684,12 @@ BEGIN
 			END DESC,
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateASC') THEN Rate
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNDESC') THEN RateN
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNASC') THEN RateN
 			END ASC,
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionFeeDESC') THEN ConnectionFee
@@ -731,6 +756,7 @@ BEGIN
 			Code,
 			Description,
 			Rate,
+			RateN,
 			EffectiveDate,
 			EndDate,
 			updated_at AS `Modified Date`,
@@ -766,6 +792,7 @@ BEGIN
 		CASE WHEN vra.Interval1 IS NOT NULL THEN vra.Interval1 ELSE r.Interval1 END AS Interval1,
 		CASE WHEN vra.IntervalN IS NOT NULL THEN vra.IntervalN ELSE r.IntervalN END AS IntervalN,
 		vra.Rate,
+		vra.RateN,
 		vra.EffectiveDate,
 		IFNULL(vra.EndDate,'') AS EndDate,
 		IFNULL(vra.created_at,'') AS ModifiedDate,
@@ -797,7 +824,8 @@ CREATE PROCEDURE `prc_VendorRateUpdateDelete`(
 	IN `p_VendorRateId` LONGTEXT,
 	IN `p_EffectiveDate` DATETIME,
 	IN `p_EndDate` DATETIME,
-	IN `p_Rate` decimal(18,6),
+	IN `p_Rate` DECIMAL(18,6),
+	IN `p_RateN` DECIMAL(18,6),
 	IN `p_Interval1` INT,
 	IN `p_IntervalN` INT,
 	IN `p_ConnectionFee` decimal(18,6),
@@ -826,6 +854,7 @@ ThisSP:BEGIN
 		`TrunkID` int(11) NOT NULL,
 		`TimezonesID` int(11) NOT NULL,
 		`Rate` decimal(18,6) NOT NULL DEFAULT '0.000000',
+		`RateN` decimal(18,6) NOT NULL DEFAULT '0.000000',
 		`EffectiveDate` datetime NOT NULL,
 		`EndDate` datetime DEFAULT NULL,
 		`updated_at` datetime DEFAULT NULL,
@@ -846,6 +875,7 @@ ThisSP:BEGIN
 		v.TrunkID,
 		v.TimezonesID,
 		IFNULL(p_Rate,v.Rate) AS Rate,
+		IFNULL(p_RateN,v.Rate) AS RateN,
 		IFNULL(p_EffectiveDate,v.EffectiveDate) AS EffectiveDate,
 		IFNULL(p_EndDate,v.EndDate) AS EndDate,
 		NOW() AS updated_at,
@@ -927,6 +957,7 @@ ThisSP:BEGIN
 			TrunkID,
 			TimezonesID,
 			Rate,
+			RateN,
 			EffectiveDate,
 			EndDate,
 			updated_at,
@@ -944,6 +975,7 @@ ThisSP:BEGIN
 			TrunkID,
 			TimezonesID,
 			Rate,
+			RateN,
 			EffectiveDate,
 			EndDate,
 			updated_at,
@@ -1068,6 +1100,7 @@ BEGIN
 		ConnectionFee VARCHAR(50),
 		PreviousRate DECIMAL(18, 6),
 		Rate DECIMAL(18, 6),
+		RateN DECIMAL(18, 6),
 		EffectiveDate DATE,
 		EndDate DATE,
 		updated_at DATETIME,
@@ -1085,6 +1118,7 @@ BEGIN
 		'' AS ConnectionFee,
 		null AS PreviousRate,
 		vra.Rate,
+		vra.RateN,
 		vra.EffectiveDate,
 		vra.EndDate,
 		vra.created_at AS updated_at,
@@ -1094,7 +1128,7 @@ BEGIN
 	JOIN
 		tblRate r ON r.RateID=vra.RateId
 	LEFT JOIN
-		tblRateTableRate vr ON vr.RateTableId = vra.RateTableId AND vr.RateId = vra.RateId
+		tblRateTableRate vr ON vr.RateTableId = vra.RateTableId AND vr.RateId = vra.RateId AND vr.TimezonesID = vra.TimezonesID
 	WHERE
 		r.CompanyID = p_CompanyID AND
 		vra.RateTableId = p_RateTableID AND
@@ -1125,6 +1159,7 @@ BEGIN
 				ConnectionFee,
 				PreviousRate,
 				Rate,
+				RateN,
 				EffectiveDate,
 				EndDate,
 				updated_at,
@@ -1149,6 +1184,12 @@ BEGIN
 				END DESC,
 				CASE
 					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateASC') THEN Rate
+				END ASC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNDESC') THEN RateN
+				END DESC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNASC') THEN RateN
 				END ASC,
 				CASE
 					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionFeeDESC') THEN ConnectionFee
@@ -1218,6 +1259,7 @@ BEGIN
 				IntervalN,
 				ANY_VALUE(PreviousRate),
 				Rate,
+				RateN,
 				EffectiveDate,
 				EndDate,
 				MAX(updated_at),
@@ -1238,6 +1280,12 @@ BEGIN
 				END DESC,
 				CASE
 					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateASC') THEN ANY_VALUE(Rate)
+				END ASC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNDESC') THEN ANY_VALUE(RateN)
+				END DESC,
+				CASE
+					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNASC') THEN ANY_VALUE(RateN)
 				END ASC,
 				CASE
 					WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionFeeDESC') THEN ANY_VALUE(ConnectionFee)
@@ -1311,6 +1359,7 @@ BEGIN
 			Code,
 			Description,
 			Rate,
+			RateN,
 			EffectiveDate,
 			EndDate,
 			updated_at AS `Modified Date`,
@@ -1360,6 +1409,7 @@ BEGIN
 		  ConnectionFee DECIMAL(18, 6),
         PreviousRate DECIMAL(18, 6),
         Rate DECIMAL(18, 6),
+        RateN DECIMAL(18, 6),
         EffectiveDate DATE,
         EndDate DATE,
         updated_at DATETIME,
@@ -1381,6 +1431,7 @@ BEGIN
 		  tblRateTableRate.ConnectionFee,
         null as PreviousRate,
         IFNULL(tblRateTableRate.Rate, 0) as Rate,
+        IFNULL(tblRateTableRate.RateN, 0) as RateN,
         IFNULL(tblRateTableRate.EffectiveDate, NOW()) as EffectiveDate,
         tblRateTableRate.EndDate,
         tblRateTableRate.updated_at,
@@ -1456,6 +1507,12 @@ BEGIN
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateASC') THEN Rate
                 END ASC,
                 CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNDESC') THEN RateN
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNASC') THEN RateN
+                END ASC,
+                CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'Interval1DESC') THEN Interval1
                 END DESC,
                 CASE
@@ -1510,7 +1567,7 @@ BEGIN
         	FROM tmp_RateTableRate_;
 
 		ELSE
-			SELECT group_concat(ID) AS ID, group_concat(Code) AS Code,ANY_VALUE(Description),ANY_VALUE(Interval1),ANY_VALUE(Intervaln),ANY_VALUE(ConnectionFee),ANY_VALUE(PreviousRate),ANY_VALUE(Rate),ANY_VALUE(EffectiveDate),ANY_VALUE(EndDate),MAX(updated_at) AS updated_at,MAX(ModifiedBy) AS ModifiedBy,group_concat(ID) AS RateTableRateID,group_concat(RateID) AS RateID FROM tmp_RateTableRate_
+			SELECT group_concat(ID) AS ID, group_concat(Code) AS Code,ANY_VALUE(Description),ANY_VALUE(Interval1),ANY_VALUE(Intervaln),ANY_VALUE(ConnectionFee),ANY_VALUE(PreviousRate),ANY_VALUE(Rate),ANY_VALUE(RateN),ANY_VALUE(EffectiveDate),ANY_VALUE(EndDate),MAX(updated_at) AS updated_at,MAX(ModifiedBy) AS ModifiedBy,group_concat(ID) AS RateTableRateID,group_concat(RateID) AS RateID FROM tmp_RateTableRate_
 					GROUP BY Description, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate
 					ORDER BY
                 CASE
@@ -1530,6 +1587,12 @@ BEGIN
                 END DESC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateASC') THEN ANY_VALUE(Rate)
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNDESC') THEN ANY_VALUE(RateN)
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNASC') THEN ANY_VALUE(RateN)
                 END ASC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'Interval1DESC') THEN ANY_VALUE(Interval1)
@@ -1605,6 +1668,7 @@ BEGIN
             ConnectionFee,
             PreviousRate,
             Rate,
+            RateN,
             EffectiveDate,
             updated_at,
             ModifiedBy
@@ -1644,6 +1708,7 @@ BEGIN
 		  ConnectionFee VARCHAR(50),
         PreviousRate DECIMAL(18, 6),
         Rate DECIMAL(18, 6),
+        RateN DECIMAL(18, 6),
         EffectiveDate DATE,
         EndDate DATE,
         updated_at DATETIME,
@@ -1660,6 +1725,7 @@ BEGIN
 		  	ConnectionFee,
 --		  	PreviousRate,
 		  	Rate,
+		  	RateN,
 		  	EffectiveDate,
 		  	EndDate,
 		  	updated_at,
@@ -1672,6 +1738,7 @@ BEGIN
 			CASE WHEN vra.IntervalN IS NOT NULL THEN vra.IntervalN ELSE r.IntervalN END AS IntervalN,
 			IFNULL(vra.ConnectionFee,'') AS ConnectionFee,
 			vra.Rate,
+			vra.RateN,
 			vra.EffectiveDate,
 			IFNULL(vra.EndDate,'') AS EndDate,
 			IFNULL(vra.created_at,'') AS ModifiedDate,
@@ -1734,6 +1801,7 @@ BEGIN
 		IntervalN,
 		ConnectionFee,
 		Rate,
+		RateN,
 		EffectiveDate,
 		EndDate,
 		IFNULL(updated_at,'') AS ModifiedDate,
@@ -1752,7 +1820,8 @@ CREATE PROCEDURE `prc_RateTableRateUpdateDelete`(
 	IN `p_RateTableRateId` LONGTEXT,
 	IN `p_EffectiveDate` DATETIME,
 	IN `p_EndDate` DATETIME,
-	IN `p_Rate` decimal(18,6),
+	IN `p_Rate` DECIMAL(18,6),
+	IN `p_RateN` DECIMAL(18,6),
 	IN `p_Interval1` INT,
 	IN `p_IntervalN` INT,
 	IN `p_ConnectionFee` decimal(18,6),
@@ -1779,6 +1848,7 @@ ThisSP:BEGIN
 		`RateTableId` int(11) NOT NULL,
 		`TimezonesID` int(11) NOT NULL,
 		`Rate` decimal(18,6) NOT NULL DEFAULT '0.000000',
+		`RateN` decimal(18,6) NOT NULL DEFAULT '0.000000',
 		`EffectiveDate` datetime NOT NULL,
 		`EndDate` datetime DEFAULT NULL,
 		`created_at` datetime DEFAULT NULL,
@@ -1797,6 +1867,7 @@ ThisSP:BEGIN
 		rtr.RateTableId,
 		rtr.TimezonesID,
 		IFNULL(p_Rate,rtr.Rate) AS Rate,
+		IFNULL(p_RateN,rtr.RateN) AS RateN,
 		IFNULL(p_EffectiveDate,rtr.EffectiveDate) AS EffectiveDate,
 		IFNULL(p_EndDate,rtr.EndDate) AS EndDate,
 		rtr.created_at,
@@ -1873,6 +1944,7 @@ ThisSP:BEGIN
 			RateTableId,
 			TimezonesID,
 			Rate,
+			RateN,
 			EffectiveDate,
 			EndDate,
 			created_at,
@@ -1888,6 +1960,7 @@ ThisSP:BEGIN
 			RateTableId,
 			TimezonesID,
 			Rate,
+			RateN,
 			EffectiveDate,
 			EndDate,
 			created_at,
@@ -2564,6 +2637,7 @@ BEGIN
 		ConnectionFee VARCHAR(50),
 		RoutinePlanName VARCHAR(50),
 		Rate DECIMAL(18, 6),
+		RateN DECIMAL(18, 6),
 		EffectiveDate DATE,
 		EndDate DATE,
 		updated_at DATETIME,
@@ -2584,6 +2658,7 @@ BEGIN
 		'' AS ConnectionFee,
 		cra.RoutinePlan AS RoutinePlanName,
 		cra.Rate,
+		cra.RateN,
 		cra.EffectiveDate,
 		cra.EndDate,
 		cra.created_at AS updated_at,
@@ -2626,6 +2701,7 @@ BEGIN
 			ConnectionFee,
 			RoutinePlanName,
 			Rate,
+			RateN,
 			EffectiveDate,
 			EndDate,
 			updated_at,
@@ -2653,6 +2729,12 @@ BEGIN
 			END DESC,
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateASC') THEN Rate
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNDESC') THEN RateN
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNASC') THEN RateN
 			END ASC,
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionFeeDESC') THEN ConnectionFee
@@ -2719,6 +2801,7 @@ BEGIN
 			Code,
 			Description,
 			Rate,
+			RateN,
 			EffectiveDate,
 			EndDate,
 			updated_at AS `Modified Date`,
@@ -2752,6 +2835,7 @@ BEGIN
 		CASE WHEN cra.Interval1 IS NOT NULL THEN cra.Interval1 ELSE r.Interval1 END AS Interval1,
 		CASE WHEN cra.IntervalN IS NOT NULL THEN cra.IntervalN ELSE r.IntervalN END AS IntervalN,
 		cra.Rate,
+		cra.RateN,
 		cra.EffectiveDate,
 		IFNULL(cra.EndDate,'') AS EndDate,
 		IFNULL(cra.created_at,'') AS ModifiedDate,
@@ -2781,6 +2865,7 @@ CREATE PROCEDURE `prc_CustomerRateUpdate`(
 	IN `p_TimezonesID` INT,
 	IN `p_CustomerRateIDList` LONGTEXT,
 	IN `p_Rate` DECIMAL(18, 6) ,
+	IN `p_RateN` DECIMAL(18, 6) ,
 	IN `p_ConnectionFee` DECIMAL(18, 6) ,
 	IN `p_EffectiveDate` DATETIME ,
 	IN `p_Interval1` INT,
@@ -2799,6 +2884,7 @@ ThisSP:BEGIN
         Interval1 INT,
         IntervalN  INT,
         Rate DECIMAL(18, 6),
+        RateN DECIMAL(18, 6),
         PreviousRate DECIMAL(18, 6),
         ConnectionFee DECIMAL(18, 6),
         EffectiveDate DATE,
@@ -2829,6 +2915,7 @@ ThisSP:BEGIN
 		Interval1,
 		IntervalN,
 		Rate,
+		RateN,
 		PreviousRate,
 		ConnectionFee,
 		EffectiveDate,
@@ -2848,6 +2935,7 @@ ThisSP:BEGIN
 		p_Interval1 AS Interval1,
 		p_IntervalN AS IntervalN,
 		p_Rate AS Rate,
+		p_RateN AS RateN,
 		cr.PreviousRate,
 		p_ConnectionFee AS ConnectionFee,
 		IFNULL(p_EffectiveDate,cr.EffectiveDate) AS EffectiveDate, -- if p_EffectiveDate null take exiting EffectiveDate
@@ -2901,6 +2989,7 @@ ThisSP:BEGIN
 		Interval1,
 		IntervalN,
 		Rate,
+		RateN,
 		PreviousRate,
 		ConnectionFee,
 		EffectiveDate,
@@ -2920,6 +3009,7 @@ ThisSP:BEGIN
 		Interval1,
 		IntervalN,
 		Rate,
+		RateN,
 		PreviousRate,
 		ConnectionFee,
 		EffectiveDate,
@@ -2984,6 +3074,7 @@ ThisSP:BEGIN
 		`TimezonesID`,
 		`RateId`,
 		`Rate`,
+		`RateN`,
 		`EffectiveDate`,
 		IFNULL(`EndDate`,date(now())) as EndDate,
 		now() as `created_at`,
@@ -3024,6 +3115,7 @@ CREATE PROCEDURE `prc_CustomerRateInsert`(
 	IN `p_TimezonesID` INT,
 	IN `p_RateIDList` LONGTEXT,
 	IN `p_Rate` DECIMAL(18, 6) ,
+	IN `p_RateN` DECIMAL(18, 6) ,
 	IN `p_ConnectionFee` DECIMAL(18, 6) ,
 	IN `p_EffectiveDate` DATETIME ,
 	IN `p_Interval1` INT,
@@ -3041,6 +3133,7 @@ ThisSP:BEGIN
 		TrunkID ,
 		TimezonesID,
 		Rate ,
+		RateN ,
 		ConnectionFee,
 		EffectiveDate ,
 		EndDate,
@@ -3057,6 +3150,7 @@ ThisSP:BEGIN
 		p_TrunkId ,
 		p_TimezonesID,
 		p_Rate ,
+		p_RateN ,
 		p_ConnectionFee,
 		p_EffectiveDate ,
 		NULL AS EndDate,
@@ -3137,6 +3231,7 @@ CREATE PROCEDURE `prc_CustomerBulkRateUpdate`(
 	IN `p_Effective` VARCHAR(50),
 	IN `p_CustomDate` DATE,
 	IN `p_Rate` DECIMAL(18, 6) ,
+	IN `p_RateN` DECIMAL(18, 6) ,
 	IN `p_ConnectionFee` DECIMAL(18, 6) ,
 	IN `p_EffectiveDate` DATETIME ,
 	IN `p_EndDate` DATETIME ,
@@ -3157,6 +3252,7 @@ BEGIN
         Interval1 INT,
         IntervalN  INT,
         Rate DECIMAL(18, 6),
+        RateN DECIMAL(18, 6),
         PreviousRate DECIMAL(18, 6),
         ConnectionFee DECIMAL(18, 6),
         EffectiveDate DATE,
@@ -3183,6 +3279,7 @@ BEGIN
 		Interval1,
 		IntervalN,
 		Rate,
+		RateN,
 		PreviousRate,
 		ConnectionFee,
 		EffectiveDate,
@@ -3202,6 +3299,7 @@ BEGIN
 		p_Interval1 AS Interval1,
 		p_IntervalN AS IntervalN,
 		p_Rate AS Rate,
+		p_RateN AS RateN,
 		tblCustomerRate.PreviousRate,
 		p_ConnectionFee AS ConnectionFee,
 		tblCustomerRate.EffectiveDate,
@@ -3300,6 +3398,7 @@ BEGIN
 		Interval1,
 		IntervalN,
 		Rate,
+		RateN,
 		PreviousRate,
 		ConnectionFee,
 		EffectiveDate,
@@ -3319,6 +3418,7 @@ BEGIN
 		Interval1,
 		IntervalN,
 		Rate,
+		RateN,
 		PreviousRate,
 		ConnectionFee,
 		EffectiveDate,
@@ -3352,6 +3452,7 @@ CREATE PROCEDURE `prc_CustomerBulkRateInsert`(
 	IN `p_CountryId` INT ,
 	IN `p_CompanyId` INT ,
 	IN `p_Rate` DECIMAL(18, 6) ,
+	IN `p_RateN` DECIMAL(18,6),
 	IN `p_ConnectionFee` DECIMAL(18, 6) ,
 	IN `p_EffectiveDate` DATETIME ,
 	IN `p_EndDate` DATETIME ,
@@ -3371,6 +3472,7 @@ BEGIN
 		TrunkID ,
 		TimezonesID,
 		Rate ,
+		RateN ,
 		ConnectionFee,
 		EffectiveDate ,
 		EndDate ,
@@ -3387,6 +3489,7 @@ BEGIN
 		p_TrunkId ,
 		p_TimezonesID,
 		p_Rate ,
+		p_RateN ,
 		p_ConnectionFee,
 		p_EffectiveDate ,
 		p_EndDate ,
@@ -7596,7 +7699,7 @@ BEGIN
 		SELECT
 			distinct
 			IF(p_Action='Deleted',VendorRateID,TempVendorRateID) AS VendorRateID,
-			`Code`,`Description`,tz.Title,`Rate`,`EffectiveDate`,`EndDate`,`ConnectionFee`,`Interval1`,`IntervalN`
+			`Code`,`Description`,tz.Title,`Rate`,`RateN`,`EffectiveDate`,`EndDate`,`ConnectionFee`,`Interval1`,`IntervalN`
 		FROM
 			tblVendorRateChangeLog
 		JOIN
@@ -7627,6 +7730,12 @@ BEGIN
 			END DESC,
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateASC') THEN Rate
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNDESC') THEN RateN
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNASC') THEN RateN
 			END ASC,
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateDESC') THEN EffectiveDate
@@ -7668,7 +7777,7 @@ BEGIN
 	THEN
 		SELECT
 			distinct
-			`Code`,`Description`,tz.Title,`Rate`,`EffectiveDate`,`EndDate`,`ConnectionFee`,`Interval1`,`IntervalN`
+			`Code`,`Description`,tz.Title,`Rate`,`RateN`,`EffectiveDate`,`EndDate`,`ConnectionFee`,`Interval1`,`IntervalN`
 		FROM
 			tblVendorRateChangeLog
 		JOIN
@@ -9393,7 +9502,7 @@ BEGIN
 		SELECT
 			distinct
 			IF(p_Action='Deleted',RateTableRateID,TempRateTableRateID) AS RateTableRateID,
-			`Code`,`Description`,tz.Title,`Rate`,`EffectiveDate`,`EndDate`,`ConnectionFee`,`Interval1`,`IntervalN`
+			`Code`,`Description`,tz.Title,`Rate`,`RateN`,`EffectiveDate`,`EndDate`,`ConnectionFee`,`Interval1`,`IntervalN`
 		FROM
 			tblRateTableRateChangeLog
 		JOIN
@@ -9424,6 +9533,12 @@ BEGIN
 			END DESC,
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateASC') THEN Rate
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNDESC') THEN RateN
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNASC') THEN RateN
 			END ASC,
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateDESC') THEN EffectiveDate
@@ -9465,7 +9580,7 @@ BEGIN
 	THEN
 		SELECT
 			distinct
-			`Code`,`Description`,tz.Title,`Rate`,`EffectiveDate`,`EndDate`,`ConnectionFee`,`Interval1`,`IntervalN`
+			`Code`,`Description`,tz.Title,`Rate`,`RateN`,`EffectiveDate`,`EndDate`,`ConnectionFee`,`Interval1`,`IntervalN`
 		FROM
 			tblRateTableRateChangeLog
 		JOIN
@@ -10354,6 +10469,7 @@ BEGIN
         ConnectionFee DECIMAL(18, 6),
         RoutinePlanName VARCHAR(50),
         Rate DECIMAL(18, 6),
+        RateN DECIMAL(18, 6),
         EffectiveDate DATE,
         EndDate DATE,
         LastModifiedDate DATETIME,
@@ -10550,7 +10666,7 @@ BEGIN
        Interval1 as `First Interval`,
        IntervalN as `Next Interval`,
        Abs(Rate) as `First Price` ,
-       Abs(Rate) as `Next Price`,
+       Abs(RateN) as `Next Price`,
        DATE_FORMAT(EffectiveDate ,'%d/%m/%Y') as  `Effective From`,
        CASE WHEN Rate < 0 THEN 'Y' ELSE '' END  `Payback Rate` ,
 		 CASE WHEN ConnectionFee > 0 THEN
@@ -10593,7 +10709,7 @@ BEGIN
 			Interval1 as `Interval 1`,
 			IntervalN as `Interval N`,
 			Rate as `Price 1`,
-			Rate as `Price N`,
+			RateN as `Price N`,
 			0  as Forbidden,
 			0 as `Grace Period`,
 
@@ -11002,6 +11118,7 @@ BEGIN
 		Code varchar(50),
 		Description varchar(200),
 		Rate float,
+		RateN float,
 		EffectiveDate date,
 		TrunkID int,
 		CountryID int,
@@ -11018,6 +11135,7 @@ BEGIN
         TimezonesID INT,
 	 	  RateId INT,
         Rate DECIMAL(18,6),
+        RateN DECIMAL(18,6),
         EffectiveDate DATE,
         Interval1 INT,
         IntervalN INT,
@@ -11026,7 +11144,7 @@ BEGIN
         INDEX tmp_RateTable_RateId (`RateId`)
     );
         INSERT INTO tmp_VendorRateArchive_
-        SELECT   `TrunkID`, `TimezonesID`, `RateId`, `Rate`, `EffectiveDate`, `Interval1`, `IntervalN`, `ConnectionFee` , tblVendorRateArchive.EndDate
+        SELECT   `TrunkID`, `TimezonesID`, `RateId`, `Rate`, `RateN`, `EffectiveDate`, `Interval1`, `IntervalN`, `ConnectionFee` , tblVendorRateArchive.EndDate
 		  FROM tblVendorRateArchive WHERE tblVendorRateArchive.AccountId =  p_AccountID
 								AND FIND_IN_SET(tblVendorRateArchive.TrunkId,p_Trunks) != 0
 								AND tblVendorRateArchive.TimezonesID = p_TimezonesID
@@ -11053,6 +11171,7 @@ BEGIN
     r.Code,
     r.Description,
     v_1.Rate,
+    v_1.RateN,
     DATE_FORMAT (v_1.EffectiveDate, '%Y-%m-%d') AS EffectiveDate,
     v_1.TrunkID,
     r.CountryID,
@@ -11095,6 +11214,7 @@ BEGIN
         TimezonesID INT,
    	  RateId INT,
         Rate DECIMAL(18,6),
+        RateN DECIMAL(18,6),
         EffectiveDate DATE,
         Interval1 INT,
         IntervalN INT,
@@ -11102,7 +11222,7 @@ BEGIN
         INDEX tmp_RateTable_RateId (`RateId`)
     );
         INSERT INTO tmp_VendorRate_
-        SELECT   `TrunkID`, `TimezonesID`, `RateId`, `Rate`,
+        SELECT   `TrunkID`, `TimezonesID`, `RateId`, `Rate`, `RateN`,
 		  DATE_FORMAT (`EffectiveDate`, '%Y-%m-%d') AS EffectiveDate,
 		   `Interval1`, `IntervalN`, `ConnectionFee`
 		  FROM tblVendorRate WHERE tblVendorRate.AccountId =  p_AccountID
@@ -11140,6 +11260,7 @@ BEGIN
 		Code varchar(50),
 		Description varchar(200),
 		Rate float,
+		RateN float,
 		EffectiveDate date,
 		TrunkID int,
 		CountryID int,
@@ -11167,7 +11288,7 @@ BEGIN
                    ElSE tblRate.IntervalN
                END  AS `Next Interval`,
                Abs(tblVendorRate.Rate) as `First Price`,
-               Abs(tblVendorRate.Rate) as `Next Price`,
+               Abs(tblVendorRate.RateN) as `Next Price`,
                DATE_FORMAT (tblVendorRate.EffectiveDate, '%Y-%m-%d')  as `Effective From` ,
                IFNULL(Preference,5) as `Preference`,
                CASE
@@ -11219,7 +11340,7 @@ BEGIN
                END  AS `Next Interval`,
 
 			 		Abs(vrd.Rate) AS `First Price`,
-			 		Abs(vrd.Rate) AS `Next Price`,
+			 		Abs(vrd.RateN) AS `Next Price`,
 			 		DATE_FORMAT (vrd.EffectiveDate, '%Y-%m-%d') AS `Effective From`,
 			 		'' AS `Preference`,
 			 		'' AS `Forbidden`,
@@ -11295,6 +11416,7 @@ BEGIN
 		Code varchar(50),
 		Description varchar(200),
 		Rate float,
+		RateN float,
 		EffectiveDate date,
 		TrunkID int,
 		CountryID int,
@@ -11311,6 +11433,7 @@ BEGIN
         TimezonesID INT,
 	 	  RateId INT,
         Rate DECIMAL(18,6),
+        RateN DECIMAL(18,6),
         EffectiveDate DATE,
         Interval1 INT,
         IntervalN INT,
@@ -11319,7 +11442,7 @@ BEGIN
         INDEX tmp_RateTable_RateId (`RateId`)
     );
         INSERT INTO tmp_VendorRate_
-        SELECT   `TrunkID`, `TimezonesID`, `RateId`, `Rate`, `EffectiveDate`, `Interval1`, `IntervalN`, `ConnectionFee` , tblVendorRate.EndDate
+        SELECT   `TrunkID`, `TimezonesID`, `RateId`, `Rate`, `RateN`, `EffectiveDate`, `Interval1`, `IntervalN`, `ConnectionFee` , tblVendorRate.EndDate
 		  FROM tblVendorRate WHERE tblVendorRate.AccountId =  p_AccountID
 								AND FIND_IN_SET(tblVendorRate.TrunkId,p_Trunks) != 0
 								AND tblVendorRate.TimezonesID = p_TimezonesID
@@ -11354,6 +11477,7 @@ BEGIN
     r.Code,
     r.Description,
     v_1.Rate,
+    v_1.RateN,
     DATE_FORMAT (v_1.EffectiveDate, '%Y-%m-%d') AS EffectiveDate,
     v_1.TrunkID,
     r.CountryID,
@@ -11450,7 +11574,7 @@ BEGIN
 				vendorRate.Interval1 as `Interval 1`,
 				vendorRate.IntervalN as `Interval N`,
 				vendorRate.Rate AS `Price 1`,
-				vendorRate.Rate AS `Price N`,
+				vendorRate.RateN AS `Price N`,
 				10 AS `1xx Timeout`,
 				60 AS `2xx Timeout`,
 				0 AS Huntstop,

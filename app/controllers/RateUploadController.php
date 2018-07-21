@@ -1167,7 +1167,7 @@ class RateUploadController extends \BaseController {
         $data                   = Input::all();
         $data['iDisplayStart'] +=1;
 
-        $columns                = array('Code','Description','Rate','EffectiveDate','EndDate','ConnectionFee','Interval1','IntervalN');
+        $columns                = array('TempVendorRateID','Code','Description','Timezones','Rate','RateN','EffectiveDate','EndDate','ConnectionFee','Interval1','IntervalN');
         $sort_column            = $columns[$data['iSortCol_0']];
         $data['Code']           = !empty($data['Code']) ? $data['Code'] : NULL;
         $data['Description']    = !empty($data['Description']) ? $data['Description'] : NULL;
