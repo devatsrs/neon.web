@@ -294,7 +294,6 @@
 
                         if(SelectedIDs=='' || criteria_ac=='')
                         {
-                            alert('hi');
                             alert("Please select atleast one account.");
                             return false;
                         }
