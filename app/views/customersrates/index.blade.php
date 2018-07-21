@@ -232,10 +232,11 @@
                     <th width="5%">Connection Fee</th>
                     <th width="5%" class="routng_plan_cl">Routing plan</th>
                     <th width="5%">Rate ({{$CurrencySymbol}})</th>
+                    <th width="5%">RateN ({{$CurrencySymbol}})</th>
                     <th width="8%">Effective Date</th>
                     <th width="8%" class="hidden">End Date</th>
-                    <th width="10%">Modified Date</th>
-                    <th width="10%">Modified By</th>
+                    <th width="8%">Modified Date</th>
+                    <th width="8%">Modified By</th>
                     <th width="20%">Action</th>
                 </tr>
             </thead>
@@ -250,7 +251,7 @@
             var checked='';
             var update_new_url;
             var first_call = true;
-            var list_fields  = ['RateID','Code','Description','Interval1','IntervalN','ConnectionFee','RoutinePlanName','Rate','EffectiveDate','EndDate','LastModifiedDate','LastModifiedBy','CustomerRateId','TrunkID','RateTableRateId'];
+            var list_fields  = ['RateID','Code','Description','Interval1','IntervalN','ConnectionFee','RoutinePlanName','Rate','RateN','EffectiveDate','EndDate','LastModifiedDate','LastModifiedBy','CustomerRateId','TrunkID','RateTableRateId'];
             var routinejson ='{{json_encode($routine)}}';
                     jQuery(document).ready(function($) {
                         checkrouting($("#customer-rate-table-search select[name='Trunk']").val());
@@ -308,13 +309,14 @@
                                             {}, //3Interval1
                                             {}, //4IntervalN
                                             {}, //5 ConnectionFee
-                                            {}, //4IntervalN
-                                            {}, //5Rate
-                                            {}, //6Effective Date
-                                            {"bVisible": false}, //6End Date
-                                            {}, //7LastModifiedDate
-                                            {}, //8LastModifiedBy
-                                            {// 9 CustomerRateId
+                                            {}, //6RoutinePlanName
+                                            {}, //7Rate
+                                            {}, //8RateN
+                                            {}, //9Effective Date
+                                            {"bVisible": false}, //10End Date
+                                            {}, //11LastModifiedDate
+                                            {}, //12LastModifiedBy
+                                            {// 13 CustomerRateId
                                                 mRender: function(id, type, full) {
                                                     var action, edit_, delete_;
                                                     edit_ = "{{ URL::to('/customers_rates/{id}/edit')}}";
@@ -326,10 +328,10 @@
                                                     CustomerRateID  = id;
                                                     RateID = full[0];
 
-                                                    Rate = ( full[6] == null )? 0:full[6];
+                                                    Rate = ( full[7] == null )? 0:full[7];
                                                     Interval1 = ( full[3] == null )? 1:full[3];
                                                     IntervalN = ( full[4] == null )? 1:full[4];
-                                                    RoutinePlan = ( full[5] == null )? '':full[5];
+                                                    RoutinePlan = ( full[6] == null )? '':full[6];
 
                                                     date = new Date();
                                                     var month = date.getMonth()+1;
@@ -1204,7 +1206,7 @@
                             var hiddenRowData = tr.find('.hiddenRowData');
                             var Code = hiddenRowData.find('input[name="Code"]').val();
                             var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
-                            table.append("<thead><tr><th>Code</th><th>Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                            table.append("<thead><tr><th>Code</th><th>Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate</th><th>RateN</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
                             //var tbody = $("<tbody></tbody>");
 
                             ArchiveRates.forEach(function (data) {
@@ -1217,6 +1219,7 @@
                                 html += "<td>" + data['IntervalN'] + "</td>";
                                 html += "<td>" + data['ConnectionFee'] + "</td>";
                                 html += "<td>" + data['Rate'] + "</td>";
+                                html += "<td>" + data['RateN'] + "</td>";
                                 html += "<td>" + data['EffectiveDate'] + "</td>";
                                 html += "<td>" + data['EndDate'] + "</td>";
                                 html += "<td>" + data['ModifiedDate'] + "</td>";
@@ -1278,53 +1281,41 @@
                 </div>
 
                 <div class="modal-body">
-
                     <div class="row">
                         <div class="col-md-6">
-
                             <div class="form-group">
                                 <label for="field-4" class="control-label">Effective Date</label>
-
                                 <input type="text" name="EffectiveDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-date-format="yyyy-mm-dd" value="" />
                             </div>
-
                         </div>
-
                         <div class="col-md-6">
-
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Rate</label>
-
-                                <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
-
+                                <label class="control-label">Rate</label>
+                                <input type="text" name="Rate" class="form-control" placeholder="">
                             </div>
-
                         </div>
-
                         <div class="col-md-6">
-
+                            <div class="form-group">
+                                <label class="control-label">RateN</label>
+                                <input type="text" name="RateN" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-4" class="control-label">Interval 1</label>
-
                                 <input type="text" name="Interval1" class="form-control" value="" />
                             </div>
-
                         </div>
-
                         <div class="col-md-6">
-
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Interval N</label>
-
-                                <input type="text" name="IntervalN" class="form-control" id="field-5" placeholder="">
-
+                                <label class="control-label">Interval N</label>
+                                <input type="text" name="IntervalN" class="form-control" placeholder="">
                             </div>
-
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Connection Fee</label>
-                                <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
+                                <label class="control-label">Connection Fee</label>
+                                <input type="text" name="ConnectionFee" class="form-control" placeholder="">
                             </div>
                         </div>
 
@@ -1339,14 +1330,10 @@
                         </div>--}}
 
                          <div class="col-md-6 RoutinePlan-modal">
-
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Routing plan</label>
-
+                                <label class="control-label">Routing plan</label>
                                 {{ Form::select('RoutinePlan', $trunks_routing, '', array("class"=>"select2")) }}
-
                             </div>
-
                         </div>
                     </div>
 
@@ -1399,8 +1386,22 @@
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Rate</label>
-                                <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
+                                <label class="control-label">Connection Fee</label>
+                                <input type="text" name="ConnectionFee" class="form-control" placeholder="">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Rate</label>
+                                <input type="text" name="Rate" class="form-control" placeholder="">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">RateN</label>
+                                <input type="text" name="RateN" class="form-control" placeholder="">
                             </div>
                         </div>
 
@@ -1413,20 +1414,14 @@
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Interval N</label>
-                                <input type="text" name="IntervalN" class="form-control" id="field-5" placeholder="">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Connection Fee</label>
-                                <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
+                                <label class="control-label">Interval N</label>
+                                <input type="text" name="IntervalN" class="form-control" placeholder="">
                             </div>
                         </div>
 
                         <div class="col-md-6 RoutinePlan-modal">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Routing plan</label>
+                                <label class="control-label">Routing plan</label>
                                 {{ Form::select('RoutinePlan', $trunks_routing, '', array("class"=>"select2")) }}
                             </div>
                         </div>
@@ -1506,40 +1501,33 @@
                         </div>--}}
 
                         <div class="col-md-6">
-
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Rate</label>
-
-                                <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
-
+                                <label class="control-label">Rate</label>
+                                <input type="text" name="Rate" class="form-control" placeholder="">
                             </div>
-
                         </div>
-
                         <div class="col-md-6">
-
+                            <div class="form-group">
+                                <label class="control-label">RateN</label>
+                                <input type="text" name="RateN" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-4" class="control-label">Interval 1</label>
-
                                 <input type="text" name="Interval1" class="form-control" value="" />
                             </div>
-
                         </div>
-
                         <div class="col-md-6">
-
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Interval N</label>
-
-                                <input type="text" name="IntervalN" class="form-control" id="field-5" placeholder="">
-
+                                <label class="control-label">Interval N</label>
+                                <input type="text" name="IntervalN" class="form-control" placeholder="">
                             </div>
-
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Connection Fee</label>
-                                <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
+                                <label class="control-label">Connection Fee</label>
+                                <input type="text" name="ConnectionFee" class="form-control" placeholder="">
                             </div>
                         </div>
 
@@ -1554,18 +1542,11 @@
                         </div>--}}
 
                         <div class="col-md-6 RoutinePlan-modal">
-
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Routing plan</label>
-
+                                <label class="control-label">Routing plan</label>
                                 {{ Form::select('RoutinePlan', $trunks_routing, '', array("class"=>"select2")) }}
-
                             </div>
-
                         </div>
-
-
-
                     </div>
                     {{--<div style="max-height: 500px; overflow-y: auto; overflow-x: hidden;" >
                         <h4 > Click <span class="label label-info" onclick="$('.my_account_table-6').toggle();$('#table-6_wrapper').toggle();"  style="cursor: pointer">here</span> to select additional customer accounts you want to update.</h4>
@@ -1633,62 +1614,46 @@
                     </div>
                     <div id="text-boxes" class="row">
                         <div class="col-md-6" style="display: none;" id="BulkInsert-EffectiveBox">
-
                             <div class="form-group">
                                 <label for="field-4" class="control-label">Effective Date</label>
-
                                 <input type="text" name="EffectiveDate" class="form-control datepicker"  data-startdate="{{date('Y-m-d')}}" data-date-format="yyyy-mm-dd" value="" />
                             </div>
-
                         </div>
-
                         <div class="col-md-6">
-
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Rate</label>
-
-                                <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
-
+                                <label class="control-label">Rate</label>
+                                <input type="text" name="Rate" class="form-control" placeholder="">
                             </div>
-
                         </div>
-
                         <div class="col-md-6">
-
+                            <div class="form-group">
+                                <label class="control-label">RateN</label>
+                                <input type="text" name="RateN" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-4" class="control-label">Interval 1</label>
-
                                 <input type="text" name="Interval1" class="form-control" value="" />
                             </div>
-
-                        </div>
-
-                        <div class="col-md-6">
-
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Interval N</label>
-
-                                <input type="text" name="IntervalN" class="form-control" id="field-5" placeholder="">
-
-                            </div>
-
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Connection Fee</label>
-                                <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
+                                <label class="control-label">Interval N</label>
+                                <input type="text" name="IntervalN" class="form-control" placeholder="">
                             </div>
                         </div>
-
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Connection Fee</label>
+                                <input type="text" name="ConnectionFee" class="form-control" placeholder="">
+                            </div>
+                        </div>
                          <div class="col-md-6 RoutinePlan-modal">
-
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Routing plan</label>
-
+                                <label class="control-label">Routing plan</label>
                                 {{ Form::select('RoutinePlan', $trunks_routing, '', array("class"=>"select2")) }}
-
                             </div>
-
                         </div>
                         {{--<div class="col-md-6">
 
@@ -1789,13 +1754,13 @@
                         <div class="col-md-6 clear">
                             <div class="form-group">
                                 <label class="control-label">Rate</label>
-                                <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
+                                <input type="text" name="Rate" class="form-control" placeholder="">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label">Connection Fee</label>
-                                <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
+                                <input type="text" name="ConnectionFee" class="form-control" placeholder="">
                             </div>
                         </div>
                         <div class="col-md-6 clear">
@@ -1807,7 +1772,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label">Interval N</label>
-                                <input type="text" name="IntervalN" class="form-control" id="field-5" placeholder="">
+                                <input type="text" name="IntervalN" class="form-control" placeholder="">
                             </div>
                         </div>
 

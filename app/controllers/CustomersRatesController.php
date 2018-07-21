@@ -19,7 +19,7 @@ class CustomersRatesController extends \BaseController {
         $data['Code'] = $data['Code'] != ''?"'".$data['Code']."'":'null';
         $data['Description'] = $data['Description'] != ''?"'".$data['Description']."'":'null';
 
-        $columns = array('RateID','Code','Description','Interval1','IntervalN','ConnectionFee','RoutinePlan','Rate','EffectiveDate','EndDate','LastModifiedDate','LastModifiedBy','CustomerRateId');
+        $columns = array('RateID','Code','Description','Interval1','IntervalN','ConnectionFee','RoutinePlan','Rate','RateN','EffectiveDate','EndDate','LastModifiedDate','LastModifiedBy','CustomerRateId');
         $sort_column = $columns[$data['iSortCol_0']];
         $companyID = User::get_companyID();
 
@@ -400,6 +400,7 @@ class CustomersRatesController extends \BaseController {
         $Trunk          = intval($data['Trunk']);
         $TimezonesID    = intval($data['TimezonesID']);
         $Rate           = $data['Rate'];
+        $RateN          = !empty($data['RateN']) ? $data['RateN'] : $data['Rate'];
         $Interval1      = intval($data['Interval1']);
         $IntervalN      = intval($data['IntervalN']);
         $ConnectionFee  = floatval($data['ConnectionFee']);
@@ -408,7 +409,7 @@ class CustomersRatesController extends \BaseController {
         try {
             DB::beginTransaction();
             //$query = "call prc_CustomerRateUpdateBySelectedRateId (".$company_id.",".$Customers.",".$RateIDs.",".$CustomerRateIDs.",".$Trunk.",".$Rate.",".$ConnectionFee.",".$EffectiveDate.",".$EndDate."," .$Interval1.",".$IntervalN.",".$RoutinePlan.",'".$username."')";
-            $query = "call prc_CustomerRateUpdate (".$Customers.",".$Trunk.",".$TimezonesID.",".$CustomerRateIDs.",".$Rate.",".$ConnectionFee.",".$EffectiveDate."," .$Interval1.",".$IntervalN.",".$RoutinePlan.",'".$username."')";
+            $query = "call prc_CustomerRateUpdate (".$Customers.",".$Trunk.",".$TimezonesID.",".$CustomerRateIDs.",".$Rate.",".$RateN.",".$ConnectionFee.",".$EffectiveDate."," .$Interval1.",".$IntervalN.",".$RoutinePlan.",'".$username."')";
             //Log::info($query);
             $results = DB::statement($query);
 
@@ -459,6 +460,7 @@ class CustomersRatesController extends \BaseController {
         $Trunk          = intval($data['Trunk']);
         $TimezonesID    = intval($data['TimezonesID']);
         $Rate           = $data['Rate'];
+        $RateN          = !empty($data['RateN']) ? $data['RateN'] : $data['Rate'];
         $Interval1      = intval($data['Interval1']);
         $IntervalN      = intval($data['IntervalN']);
         $ConnectionFee  = floatval($data['ConnectionFee']);
@@ -466,7 +468,7 @@ class CustomersRatesController extends \BaseController {
 
         try {
             DB::beginTransaction();
-            $query = "call prc_CustomerRateInsert (".$CompanyID.",".$Customers.",".$Trunk.",".$TimezonesID.",".$RateIDs.",".$Rate.",".$ConnectionFee.",".$EffectiveDate."," .$Interval1.",".$IntervalN.",".$RoutinePlan.",'".$username."')";
+            $query = "call prc_CustomerRateInsert (".$CompanyID.",".$Customers.",".$Trunk.",".$TimezonesID.",".$RateIDs.",".$Rate.",".$RateN.",".$ConnectionFee.",".$EffectiveDate."," .$Interval1.",".$IntervalN.",".$RoutinePlan.",'".$username."')";
             //Log::info($query);
             $results = DB::statement($query);
 
@@ -508,8 +510,9 @@ class CustomersRatesController extends \BaseController {
         $data['EffectiveDate']  = 'NULL'; // not update EffectiveDate
         $EndDate                = !empty($data['EndDate']) ? "'".date("Y-m-d", strtotime($data['EndDate']))."'" : 'NULL';
         $username               = User::get_user_full_name();
+        $data['RateN']          = !empty($data['RateN']) ? $data['RateN'] : $data['Rate'];
 
-        $query      = "call prc_CustomerBulkRateUpdate ('".implode(',',$data['customer'])."',".$data['Trunk'].",".$data['Timezones'].",".$codedeckid.",".$data['Code'].",".$data['Description'].",".$data['Country'].",".$company_id.",'".$data['Effective']."','".$data['CustomDate']."',".$data['Rate'].",".floatval($data['ConnectionFee']).",".$data['EffectiveDate'].",".$EndDate.",".intval($data['Interval1']).",".intval($data['IntervalN']).",".intval($data['RoutinePlan']).",'".$username."')";
+        $query      = "call prc_CustomerBulkRateUpdate ('".implode(',',$data['customer'])."',".$data['Trunk'].",".$data['Timezones'].",".$codedeckid.",".$data['Code'].",".$data['Description'].",".$data['Country'].",".$company_id.",'".$data['Effective']."','".$data['CustomDate']."',".$data['Rate'].",".$data['RateN'].",".floatval($data['ConnectionFee']).",".$data['EffectiveDate'].",".$EndDate.",".intval($data['Interval1']).",".intval($data['IntervalN']).",".intval($data['RoutinePlan']).",'".$username."')";
         $results    = DB::statement($query);
         if ($results) {
             return Response::json(array("status" => "success", "message" => "Customers Rate Successfully Updated"));
@@ -543,8 +546,9 @@ class CustomersRatesController extends \BaseController {
         $data['customer']       = array_filter($data['customer'],'intval');
         $EndDate                = !empty($data['EndDate']) ? "'".date("Y-m-d", strtotime($data['EndDate']))."'" : 'NULL';
         $username               = User::get_user_full_name();
+        $data['RateN']          = !empty($data['RateN']) ? $data['RateN'] : $data['Rate'];
 
-        $query      = "call prc_CustomerBulkRateInsert ('".implode(',',$data['customer'])."',".$data['Trunk'].",".$data['Timezones'].",".$codedeckid.",".$data['Code'].",".$data['Description'].",".$data['Country'].",".$company_id.",".$data['Rate'].",".floatval($data['ConnectionFee']).",'".$data['EffectiveDate']."',".$EndDate.",".intval($data['Interval1']).",".intval($data['IntervalN']).",".intval($data['RoutinePlan']).",'".$username."')";
+        $query      = "call prc_CustomerBulkRateInsert ('".implode(',',$data['customer'])."',".$data['Trunk'].",".$data['Timezones'].",".$codedeckid.",".$data['Code'].",".$data['Description'].",".$data['Country'].",".$company_id.",".$data['Rate'].",".$data['RateN'].",".floatval($data['ConnectionFee']).",'".$data['EffectiveDate']."',".$EndDate.",".intval($data['Interval1']).",".intval($data['IntervalN']).",".intval($data['RoutinePlan']).",'".$username."')";
         $results    = DB::statement($query);
         if ($results) {
             return Response::json(array("status" => "success", "message" => "Customers Rate Successfully Updated"));
