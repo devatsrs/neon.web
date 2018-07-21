@@ -1,28 +1,47 @@
 @if (isset($DynamicFields) && $DynamicFields['totalfields'] > 0)
-    @foreach($DynamicFields['fields'] as $field)
-        @if($field->Status == 1)
-            <?php
-            $DynamicFieldValue=$field->DefaultValue;
-             if(isset($data) && $data['ProductID'] > 0){
-                 $DynamicFieldsValues = DynamicFieldsValue::getDynamicColumnValuesByProductID($field->DynamicFieldsID,$data['ProductID']);
-                 $FieldName = $field->FieldName;
-                 if($DynamicFieldsValues->count() > 0){
-                     foreach ($DynamicFieldsValues as $DynamicFieldsValue) {
-                         $DynamicFieldValue = $DynamicFieldsValue->FieldValue;
-                         $DynamicFieldsValueID=$DynamicFieldsValue->DynamicFieldsValueID;
-                     }
-                 } else {
-                     $DynamicFieldValue = "";
-                     $DynamicFieldsValueID=0;
-                 }
-             }
-            ?>
-            <link rel="stylesheet" href="<?php echo URL::to('/'); ?>/assets/css/bootstrap-datetimepicker.css">
-            <link rel="stylesheet" href="<?php echo URL::to('/'); ?>/assets/css/bootstrap-datetimepicker.min.css">
+    <?php
+        $cnt=0;
+    ?>
+    <hr/>
+    <link rel="stylesheet" href="<?php echo URL::to('/'); ?>/assets/css/bootstrap-datetimepicker.css">
+    <link rel="stylesheet" href="<?php echo URL::to('/'); ?>/assets/css/bootstrap-datetimepicker.min.css">
+    <div class="row margin-top">
+        <div class="col-md-12">
+            <div class="form-group">
+                @foreach($DynamicFields['fields'] as $field)
+                    @if($field->Status == 1)
+                        <?php
+                        $DynamicFieldValue=$field->DefaultValue;
+                         if(isset($data) && $data['ProductID'] > 0){
+                             $DynamicFieldsValues = DynamicFieldsValue::getDynamicColumnValuesByProductID($field->DynamicFieldsID,$data['ProductID']);
+                             $FieldName = $field->FieldName;
+                             if($DynamicFieldsValues->count() > 0){
+                                 foreach ($DynamicFieldsValues as $DynamicFieldsValue) {
+                                     $DynamicFieldValue = $DynamicFieldsValue->FieldValue;
+                                     $DynamicFieldsValueID=$DynamicFieldsValue->DynamicFieldsValueID;
+                                 }
+                             } else {
+                                 $DynamicFieldValue = "";
+                                 $DynamicFieldsValueID=0;
+                             }
+                         }
+                        ?>
 
-            <div class="col-md-12">
-                <div class="form-group">
-                    <label for="field-5" class="control-label">{{ $field->FieldName }}</label>
+                <?php
+                    if($cnt!=0 && $cnt%2==0){
+                ?>
+                        </div>
+                    </div>
+                </div>
+                <div class="row margin-top">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                <?php
+                }
+                ?>
+
+                    <label for="field-5" class="control-label col-sm-2">{{ $field->FieldName }}</label>
+                    <div class="col-sm-4">
                         @if($field->FieldDomType == 'string' || $field->FieldDomType == 'numeric')
                             {{Form::text('DynamicFields['.$field->DynamicFieldsID.']', $DynamicFieldValue,array("class"=>"form-control"))}}
                         @elseif($field->FieldDomType == 'textarea')
@@ -84,10 +103,8 @@
                             ?>
                     @endif
 
-
-                </div>
             </div>
-
+            <?php $cnt++; ?>
         @endif
     @endforeach
 @endif
