@@ -86,6 +86,7 @@ class VendorBlockingsController extends \BaseController {
         $preference =  !empty($postdata['preference']) ? $postdata['preference'] : 0;
         $acc_id =  $postdata['acc_id'];
         $trunk =  $postdata['trunk'];
+        $Timezones =  $postdata['Timezones'];
         $rowcode = $postdata["rowcode"];
         $CodeDeckId = $postdata["CodeDeckId"];
         $description = $postdata["description"];
@@ -105,7 +106,7 @@ class VendorBlockingsController extends \BaseController {
                 $countryBlockingID = 0;
             }
         }
-        $query = "call prc_lcrBlockUnblock (".$CompanyID.",'".$postdata["GroupBy"]."',".$blockId.",".$preference.",".$acc_id.",".$trunk.",".$rowcode.",".$CodeDeckId.",'".$description."','".$username."','".$p_action."','".$countryBlockingID."')";
+        $query = "call prc_lcrBlockUnblock (".$CompanyID.",'".$postdata["GroupBy"]."',".$blockId.",".$preference.",".$acc_id.",".$trunk.",".$Timezones.",".$rowcode.",".$CodeDeckId.",'".$description."','".$username."','".$p_action."','".$countryBlockingID."')";
         DB::select($query);
         \Illuminate\Support\Facades\Log::info($query);
         //$results = DB::select($query);

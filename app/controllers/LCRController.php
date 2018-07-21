@@ -302,11 +302,12 @@ class LCRController extends \BaseController {
         $preference =  !empty($postdata['preference']) ? $postdata['preference'] : 0;
         $acc_id =  $postdata['acc_id'];
         $trunk =  $postdata['trunk'];
+        $Timezones =  $postdata['Timezones'];
         $rowcode = $postdata["rowcode"];
         $CodeDeckId = $postdata["CodeDeckId"];
         $description = $postdata["description"];
         $username = User::get_user_full_name();
-        $query = "call prc_editpreference ('".$postdata["GroupBy"]."',".$preference.",".$acc_id.",".$trunk.",".$rowcode.",".$CodeDeckId.",'".$description."','".$username."')";
+        $query = "call prc_editpreference ('".$postdata["GroupBy"]."',".$preference.",".$acc_id.",".$trunk.",".$Timezones.",".$rowcode.",".$CodeDeckId.",'".$description."','".$username."')";
         //\Illuminate\Support\Facades\Log::info($query);
         $results = DB::select($query);
         $preference = isset($results[0]->Preference) ? $results[0]->Preference : '';
