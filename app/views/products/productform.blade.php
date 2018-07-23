@@ -88,104 +88,122 @@
 
         });
 
+        $(".modal-dialog").css("width","70%");
 
     });
 </script>
+
 <form id="add-edit-product-form" method="post">
     <div class="modal-body">
         <div class="row">
             <div class="col-md-12">
                 <div class="form-group">
-                    <label for="field-5" class="control-label">Item Type *</label>
-                    {{Form::select('ItemTypeID',$itemtypes,'',array("id"=>"ItemType","class"=>"form-control select2 small"))}}
+                    <label for="field-5" class="control-label col-sm-2">Item Type *</label>
+                    <div class="col-sm-4">
+                        {{Form::select('ItemTypeID',$itemtypes,'',array("id"=>"ItemType","class"=>"form-control select2 small"))}}
+                    </div>
+                    <label for="field-5" class="control-label col-sm-2">Item Name *</label>
+                    <div class="col-sm-4">
+                        <input type="text" name="Name" class="form-control" id="field-5" placeholder="">
+                    </div>
                 </div>
             </div>
-            <div class="col-md-12">
-                <div class="form-group">
-                    <label for="field-5" class="control-label">Item Name *</label>
-                    <input type="text" name="Name" class="form-control" id="field-5" placeholder="">
-                </div>
-            </div>
-            <div class="col-md-12">
-                <div class="form-group">
-                    <label for="field-5" class="control-label">Item Code *</label>
-                    <input type="text" name="Code" class="form-control" id="field-5" placeholder="">
-                </div>
-            </div>
-            <div class="col-md-12">
-                <div class="form-group">
-                    <label for="field-5" class="control-label">Description *</label>
-                    <input type="text" name="Description" class="form-control" id="field-5" placeholder="">
-                </div>
-            </div>
-            <div class="col-md-12">
-                <div class="form-group">
-                    <label for="field-5" class="control-label">Buying Price *</label>
-                    <input type="text" name="Buying_price" class="form-control" id="field-5" placeholder="" maxlength="10">
-                </div>
-            </div>
-            <div class="col-md-12">
-                <div class="form-group">
-                    <label for="field-5" class="control-label">Unit Cost(Selling Price) *</label>
-                    <input type="text" name="Amount" class="form-control" id="field-5" placeholder="" maxlength="10">
-                </div>
-            </div>
-            <div class="col-md-12">
-                <div class="form-group">
-                    <label for="field-5" class="control-label">Quantity</label>
-                    <input type="text" name="Quantity" class="form-control" id="field-5" placeholder="" maxlength="10">
-                </div>
-            </div>
-            <div class="col-md-12">
-                <div class="form-group">
-                    <label for="field-5" class="control-label">Low Stock Level</label>
-                    <span id="tooltip_lowstock" data-content="Low Stock Reminder" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span>
-                    <input type="text" name="Low_stock_level" class="form-control" id="field-5" placeholder="" maxlength="10">
-                </div>
-            </div>
-            <div class="col-md-12">
-                <div class="form-group">
-                    <label for="field-5" class="control-label">Note</label>
-                    <textarea name="Note" class="form-control"></textarea>
-                </div>
-            </div>
+        </div>
 
-            <div id="ajax_dynamicfield_html"></div>
-            <?php
-            /*
-            @if (isset($DynamicFields) && $DynamicFields['totalfields'] > 0)
-                @foreach($DynamicFields['fields'] as $field)
-                    @if($field->Status == 1)
+        <div class="row margin-top">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="field-5" class="control-label col-sm-2">Item Code *</label>
+                    <div class="col-sm-4">
+                        <input type="text" name="Code" class="form-control" id="field-5" placeholder="">
+                    </div>
+                    <label for="field-5" class="control-label col-sm-2">Description *</label>
+                    <div class="col-sm-4">
+                        <input type="text" name="Description" class="form-control" id="field-5" placeholder="">
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="field-5" class="control-label">{{ $field->FieldName }}</label>
-                            {{Form::text('DynamicFields['.$field->DynamicFieldsID.']', '',array("class"=>"form-control"))}}
-                        </div>
+        <div class="row margin-top">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="field-5" class="control-label col-sm-2">Buying Price *</label>
+                    <div class="col-sm-4">
+                        <input type="text" name="Buying_price" class="form-control" id="field-5" placeholder="" maxlength="10">
+                    </div>
+                    <label for="field-5" class="control-label col-sm-2">Unit Cost(Selling Price) *</label>
+                    <div class="col-sm-4">
+                        <input type="text" name="Amount" class="form-control" id="field-5" placeholder="" maxlength="10">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row margin-top">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="field-5" class="control-label col-sm-2">Quantity </label>
+                    <div class="col-sm-4">
+                        <input type="text" name="Quantity" class="form-control" id="field-5" placeholder="" maxlength="10">
+                    </div>
+                    <label for="field-5" class="control-label col-sm-2">Low Stock Level  <span id="tooltip_lowstock" data-content="Low Stock Reminder" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></label>
+
+                    <div class="col-sm-4">
+                        <input type="text" name="Low_stock_level" class="form-control" id="field-5" placeholder="" maxlength="10">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row margin-top">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="field-5" class="control-label col-sm-2">Note </label>
+                    <div class="col-sm-4">
+                        <textarea name="Note" class="form-control"></textarea>
+                    </div>
+                    <label for="field-5" class="control-label col-sm-2">Active</label>
+                    <div class="col-sm-4">
+                        <p class="make-switch switch-small">
+                            <input id="Active" name="Active" type="checkbox" value="1" checked >
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row margin-top">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="field-5" class="control-label col-sm-2">Applied To </label>
+                    <div class="col-sm-4">
+                        {{Form::select('AppliedTo',Product::$AppliedTo,'',array("class"=>"form-control select2 small"))}}
                     </div>
 
-                    @endif
-                @endforeach
-            @endif
-            */ ?>
-
-            <div class="col-md-12">
-                <div class="form-group">
-                    <label for="field-5" class="control-label">Active</label>
-                    <p class="make-switch switch-small">
-                        <input id="Active" name="Active" type="checkbox" value="1" checked >
-                    </p>
                 </div>
             </div>
-
-            <div class="col-md-12">
-                <div class="form-group">
-                    <label for="field-5" class="control-label">Applied To</label>
-                    {{Form::select('AppliedTo',Product::$AppliedTo,'',array("class"=>"form-control select2 small"))}}
-                </div>
-            </div>
-
         </div>
+
+        <div id="ajax_dynamicfield_html" class="margin-top"></div>
+        <?php
+        /*
+        @if (isset($DynamicFields) && $DynamicFields['totalfields'] > 0)
+            @foreach($DynamicFields['fields'] as $field)
+                @if($field->Status == 1)
+
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="field-5" class="control-label">{{ $field->FieldName }}</label>
+                        {{Form::text('DynamicFields['.$field->DynamicFieldsID.']', '',array("class"=>"form-control"))}}
+                    </div>
+                </div>
+
+                @endif
+            @endforeach
+        @endif
+        */ ?>
+
     </div>
     <input type="hidden" name="ProductID" />
     <input type="hidden" name="ProductClone" value="" />
@@ -200,3 +218,4 @@
         </button>
     </div>
 </form>
+
