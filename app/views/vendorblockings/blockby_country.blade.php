@@ -105,6 +105,12 @@
                                 <div class="col-sm-3">
                                     {{ Form::select('Trunk', $trunks, $trunk_keys, array("class"=>"select2")) }}
                                 </div>
+                                <label class="col-sm-1 control-label">Timezone</label>
+                                <div class="col-sm-3">
+                                    {{ Form::select('Timezones', $Timezones, '', array("class"=>"select2")) }}
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <label class="col-sm-1 control-label">Status</label>
                                 <div class="col-sm-3">
                                     <?php
@@ -132,6 +138,7 @@
                     </button>
                     <input type="hidden" name="CountryID" value="">
                     <input type="hidden" name="Trunk" value="{{Input::get('Trunk')}}">
+                    <input type="hidden" name="Timezones" value="{{Input::get('Timezones')}}">
                     <input type="hidden" name="criteria" value="">
                     <input type="hidden" name="action" value="unblock">
                 </form>
@@ -142,6 +149,7 @@
                     </button>
                     <input type="hidden" name="CountryID" value="">
                     <input type="hidden" name="Trunk" value="{{Input::get('Trunk')}}">
+                    <input type="hidden" name="Timezones" value="{{Input::get('Timezones')}}">
                     <input type="hidden" name="criteria" value="">
                     <input type="hidden" name="action" value="block">
                 </form>
@@ -275,8 +283,7 @@ jQuery(document).ready(function($) {
         $searchFilter.Trunk = $("#block_by_country_form select[name='Trunk']").val();
         $searchFilter.Status = $("#block_by_country_form select[name='Status']").val();
         $searchFilter.Country = $("#block_by_country_form select[name='Country']").val();
-        
-        
+        $searchFilter.Timezones = $("#block_by_country_form select[name='Timezones']").val();
 
         if(typeof $searchFilter.Trunk  == 'undefined' || $searchFilter.Trunk == '' ){
             toastr.error("Please Select a Trunk", "Error", toastr_opts);
@@ -288,9 +295,9 @@ jQuery(document).ready(function($) {
             "bServerSide": true,
             "sAjaxSource": baseurl + "/vendor_blocking/{{$id}}/ajax_datagrid_blockbycountry",
             "fnServerParams": function(aoData) {
-                aoData.push({"name": "Trunk", "value": $searchFilter.Trunk}, {"name": "Status", "value": $searchFilter.Status},{"name": "Country", "value": $searchFilter.Country});
+                aoData.push({"name": "Trunk", "value": $searchFilter.Trunk}, {"name": "Status", "value": $searchFilter.Status},{"name": "Country", "value": $searchFilter.Country},{"name": "Timezones", "value": $searchFilter.Timezones});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name": "Trunk", "value": $searchFilter.Trunk}, {"name": "Status", "value": $searchFilter.Status},{"name": "Country", "value": $searchFilter.Country});
+                data_table_extra_params.push({"name": "Trunk", "value": $searchFilter.Trunk}, {"name": "Status", "value": $searchFilter.Status},{"name": "Country", "value": $searchFilter.Country},{"name": "Timezones", "value": $searchFilter.Timezones});
             },
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
@@ -387,6 +394,7 @@ jQuery(document).ready(function($) {
         
         //Trunk = $('#block_by_country_form').find("select[name='Trunk']").val();
         $("#unblockSelectedCountry-form").find("input[name='Trunk']").val($searchFilter.Trunk);
+        $("#unblockSelectedCountry-form").find("input[name='Timezones']").val($searchFilter.Timezones);
         $("#unblockSelectedCountry-form").find("input[name='criteria']").val(criteria);
         
         var formData = new FormData($('#unblockSelectedCountry-form')[0]);
@@ -431,6 +439,7 @@ jQuery(document).ready(function($) {
         $("#blockSelectedCountry-form").find("input[name='CountryID']").val(CountryIDs.join(","));
         //Trunk = $('#block_by_country_form').find("select[name='Trunk']").val();
         $("#blockSelectedCountry-form").find("input[name='Trunk']").val($searchFilter.Trunk);
+        $("#blockSelectedCountry-form").find("input[name='Timezones']").val($searchFilter.Timezones);
         $("#blockSelectedCountry-form").find("input[name='criteria']").val(criteria);
 
         var formData = new FormData($('#blockSelectedCountry-form')[0]);

@@ -115,7 +115,8 @@ class EstimatesController extends \BaseController {
         $taxes 	  = TaxRate::getTaxRateDropdownIDListForInvoice(0,$CompanyID);
 		$BillingClass = BillingClass::getDropdownIDList($CompanyID);
         //$gateway_product_ids = Product::getGatewayProductIDs();
-        return View::make('estimates.create',compact('accounts','products','taxes','BillingClass'));
+        $itemtypes 	= 	ItemType::getItemTypeDropdownList($CompanyID);
+        return View::make('estimates.create',compact('accounts','itemtypes','products','taxes','BillingClass'));
 
     }
 
@@ -145,7 +146,8 @@ class EstimatesController extends \BaseController {
             $taxes 						= 	 TaxRate::getTaxRateDropdownIDListForInvoice(0,$CompanyID);
 			$EstimateAllTax 			= 	 DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->where(["EstimateID"=>$id,"EstimateTaxType"=>1])->get();
 			$BillingClass				=    BillingClass::getDropdownIDList($CompanyID);
-            return View::make('estimates.edit', compact( 'id', 'Estimate','EstimateDetail','EstimateTemplateID','EstimateNumberPrefix',  'CurrencyCode','CurrencyID','RoundChargesAmount','accounts', 'products', 'taxes','CompanyName','Account','EstimateAllTax','BillingClass','EstimateBillingClass'));
+            $itemtypes 	= 	ItemType::getItemTypeDropdownList($CompanyID);
+            return View::make('estimates.edit', compact( 'id','itemtypes', 'Estimate','EstimateDetail','EstimateTemplateID','EstimateNumberPrefix',  'CurrencyCode','CurrencyID','RoundChargesAmount','accounts', 'products', 'taxes','CompanyName','Account','EstimateAllTax','BillingClass','EstimateBillingClass'));
         }
     }
 

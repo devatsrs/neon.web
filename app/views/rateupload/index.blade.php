@@ -1142,13 +1142,14 @@
                             },//0 TempVendorRateID
                             { "bSortable": true },//1 Code
                             { "bSortable": true },//2 Description
-                            { "bSortable": true },//3 Timezones
+                            { "bSortable": false},//3 Timezones
                             { "bSortable": true },//4 Rate
-                            { "bSortable": true },//5 EffectiveDate
-                            { "bSortable": true },//6 EndDate
-                            { "bSortable": true },//7 ConnectionFee
-                            { "bSortable": false },//8 Interval1
-                            { "bSortable": false },//9 IntervalN
+                            { "bSortable": true },//5 RateN
+                            { "bSortable": true },//6 EffectiveDate
+                            { "bSortable": true },//7 EndDate
+                            { "bSortable": true },//8 ConnectionFee
+                            { "bSortable": false},//9 Interval1
+                            { "bSortable": false},//10 IntervalN
                         ],
                 "fnDrawCallback": function() {
                     $(".dataTables_wrapper select").select2({
@@ -1268,13 +1269,14 @@
                             { "bVisible": false },//0 TempVendorRateID
                             { "bSortable": true },//1 Code
                             { "bSortable": true },//2 Description
-                            { "bSortable": true },//3 Timezones
+                            { "bSortable": false},//3 Timezones
                             { "bSortable": true },//4 Rate
-                            { "bSortable": true },//5 EffectiveDate
-                            { "bSortable": true },//6 EndDate
-                            { "bSortable": true },//7 ConnectionFee
-                            { "bSortable": false },//8 Interval1
-                            { "bSortable": false },//9 IntervalN
+                            { "bSortable": true },//5 RateN
+                            { "bSortable": true },//6 EffectiveDate
+                            { "bSortable": true },//7 EndDate
+                            { "bSortable": true },//8 ConnectionFee
+                            { "bSortable": false},//9 Interval1
+                            { "bSortable": false},//10 IntervalN
                         ],
                 "fnDrawCallback": function() {
                     $(".dataTables_wrapper select").select2({
@@ -1347,13 +1349,14 @@
                             { "bVisible": false },//0 TempVendorRateID
                             { "bSortable": true },//1 Code
                             { "bSortable": true },//2 Description
-                            { "bSortable": true },//3 Timezones
+                            { "bSortable": false},//3 Timezones
                             { "bSortable": true },//4 Rate
-                            { "bSortable": true },//5 EffectiveDate
-                            { "bSortable": true },//6 EndDate
-                            { "bSortable": true },//7 ConnectionFee
-                            { "bSortable": false },//8 Interval1
-                            { "bSortable": false },//9 IntervalN
+                            { "bSortable": true },//5 RateN
+                            { "bSortable": true },//6 EffectiveDate
+                            { "bSortable": true },//7 EndDate
+                            { "bSortable": true },//8 ConnectionFee
+                            { "bSortable": false},//9 Interval1
+                            { "bSortable": false},//10 IntervalN
                         ],
                 "fnDrawCallback": function() {
                     $(".dataTables_wrapper select").select2({
@@ -1431,13 +1434,14 @@
                             },//0 TempVendorRateID
                             { "bSortable": true },//1 Code
                             { "bSortable": true },//2 Description
-                            { "bSortable": true },//3 Timezones
+                            { "bSortable": false},//3 Timezones
                             { "bSortable": true },//4 Rate
-                            { "bSortable": true },//5 EffectiveDate
-                            { "bSortable": true },//6 EndDate
-                            { "bSortable": true },//7 ConnectionFee
-                            { "bSortable": false },//8 Interval1
-                            { "bSortable": false },//9 IntervalN
+                            { "bSortable": true },//5 RateN
+                            { "bSortable": true },//6 EffectiveDate
+                            { "bSortable": true },//7 EndDate
+                            { "bSortable": true },//8 ConnectionFee
+                            { "bSortable": false},//9 Interval1
+                            { "bSortable": false},//10 IntervalN
                         ],
                 "fnDrawCallback": function() {
                     $(".dataTables_wrapper select").select2({
@@ -1772,6 +1776,7 @@
                                             <th width="15%" >Description</th>
                                             <th width="15%" >Timezones</th>
                                             <th width="15%" >Rate</th>
+                                            <th width="15%" >RateN</th>
                                             <th width="15%" >Effective Date</th>
                                             <th width="15%" >End Date</th>
                                             <th width="15%" >Connection Fee</th>
@@ -1836,6 +1841,7 @@
                                             <th width="15%" >Description</th>
                                             <th width="15%" >Timezones</th>
                                             <th width="15%" >Rate</th>
+                                            <th width="15%" >RateN</th>
                                             <th width="15%" >Effective Date</th>
                                             <th width="15%" >End Date</th>
                                             <th width="15%" >Connection Fee</th>
@@ -1900,6 +1906,7 @@
                                             <th width="15%" >Description</th>
                                             <th width="15%" >Timezones</th>
                                             <th width="15%" >Rate</th>
+                                            <th width="15%" >RateN</th>
                                             <th width="15%" >Effective Date</th>
                                             <th width="15%" >End Date</th>
                                             <th width="15%" >Connection Fee</th>
@@ -1964,6 +1971,7 @@
                                             <th width="15%" >Description</th>
                                             <th width="15%" >Timezones</th>
                                             <th width="15%" >Rate</th>
+                                            <th width="15%" >RateN</th>
                                             <th width="15%" >Effective Date</th>
                                             <th width="15%" >End Date</th>
                                             <th width="15%" >Connection Fee</th>

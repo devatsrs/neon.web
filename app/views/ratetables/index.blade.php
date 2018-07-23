@@ -134,7 +134,7 @@ jQuery(document).ready(function($) {
                                 delete_ = delete_.replace('{id}', id);
 
                                 action = '<a title="View" href="' + view_ + '" class="btn btn-default btn-sm"><i class="fa fa-eye"></i></a>&nbsp;';
-                                action += '<a title="Edit" data-id="'+  id +'" data-rateTableName="'+full[0]+'" data-TrunkID="'+full[6]+'" data-CurrencyID="'+full[7]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
+                                action += '<a title="Edit" data-id="'+  id +'" data-rateTableName="'+full[0]+'" data-TrunkID="'+full[6]+'" data-CurrencyID="'+full[7]+'" data-RoundChargedAmount="'+full[8]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
 
                                 <?php if(User::checkCategoryPermission('RateTables','Delete') ) { ?>
                                     action += ' <a title="Delete" href="' + delete_ + '" data-redirect="{{URL::to("/rate_tables")}}"  class="btn btn-default delete btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';
@@ -235,6 +235,7 @@ jQuery(document).ready(function($) {
             $("#modal-edit-new-rate-table [name='RateTableName']").val($(this).attr('data-ratetablename'));
             $("#modal-edit-new-rate-table [name='TrunkID']").select2('val', $(this).attr('data-TrunkID'));
             $("#modal-edit-new-rate-table [name='CurrencyID']").select2('val', $(this).attr('data-CurrencyID'));
+            $("#modal-edit-new-rate-table [name='RoundChargedAmount']").val($(this).attr('data-RoundChargedAmount'));
             $('#modal-edit-new-rate-table').modal('show');
         });
         $("#ratetable_filter").submit(function(e) {
@@ -307,7 +308,18 @@ jQuery(document).ready(function($) {
                                 <input type="text" name="RateTableName" class="form-control" value="" />
                             </div>
                         </div>
-
+                    </div>
+                    <div class="row">
+                       <div class="col-md-6">
+                           <div class="form-group ">
+                               <label for="field-5" class="control-label">Round Charged Amount (123.45)</label>
+                               <div class="input-spinner">
+                                   <button type="button" class="btn btn-default">-</button>
+                                   {{Form::text('RoundChargedAmount', 2, array("class"=>"form-control", "maxlength"=>"1", "data-min"=>0,"data-max"=>6,"Placeholder"=>"Add Numeric value" , "data-mask"=>"decimal"))}}
+                                   <button type="button" class="btn btn-default">+</button>
+                               </div>
+                           </div>
+                       </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -356,6 +368,16 @@ jQuery(document).ready(function($) {
                                 <input type="hidden" value="" name="RateTableId" />
 
                                 <input type="text" name="RateTableName" class="form-control" value="" required/>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label for="field-5" class="control-label">Round Charged Amount (123.45)</label>
+                                <div class="input-spinner">
+                                    <button type="button" class="btn btn-default">-</button>
+                                    {{Form::text('RoundChargedAmount', ( isset($BillingClass->RoundChargesAmount)?$BillingClass->RoundChargesAmount:'2' ),array("class"=>"form-control", "maxlength"=>"1", "data-min"=>0,"data-max"=>6,"Placeholder"=>"Add Numeric value" , "data-mask"=>"decimal"))}}
+                                    <button type="button" class="btn btn-default">+</button>
+                                </div>
                             </div>
                         </div>
                     </div>

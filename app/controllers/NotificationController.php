@@ -42,6 +42,7 @@ class NotificationController extends \BaseController {
             $call_monitor_alert_type  = Alert::$call_blacklist_alert_type;
         }else{
             $call_monitor_alert_type  = Alert::$call_monitor_alert_type;
+
         }
 
         $MultiCountry = $Country;
