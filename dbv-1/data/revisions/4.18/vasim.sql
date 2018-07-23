@@ -2125,6 +2125,7 @@ ThisSP:BEGIN
         Interval1 INT,
         IntervalN  INT,
         Rate DECIMAL(18, 6),
+        RateN DECIMAL(18, 6),
         ConnectionFee DECIMAL(18, 6),
         EffectiveDate DATE,
         EndDate DATE,
@@ -2145,6 +2146,7 @@ ThisSP:BEGIN
         Interval1 INT,
         IntervalN INT,
         Rate DECIMAL(18, 6),
+        RateN DECIMAL(18, 6),
         ConnectionFee DECIMAL(18, 6),
         EffectiveDate DATE,
         EndDate DATE,
@@ -2170,6 +2172,7 @@ ThisSP:BEGIN
         ConnectionFee DECIMAL(18, 6),
         RoutinePlanName VARCHAR(50),
         Rate DECIMAL(18, 6),
+        RateN DECIMAL(18, 6),
         EffectiveDate DATE,
         EndDate DATE,
         LastModifiedDate DATETIME,
@@ -2190,8 +2193,8 @@ ThisSP:BEGIN
                 tblCustomerRate.RateID,
                 tblCustomerRate.Interval1,
                 tblCustomerRate.IntervalN,
-
                 tblCustomerRate.Rate,
+                tblCustomerRate.RateN,
                 tblCustomerRate.ConnectionFee,
                 tblCustomerRate.EffectiveDate,
                 tblCustomerRate.EndDate,
@@ -2259,8 +2262,8 @@ ThisSP:BEGIN
                 tblRateTableRate.Interval1,
                 tblRateTableRate.IntervalN,
                 tblRateTableRate.Rate,
+                tblRateTableRate.RateN,
                 tblRateTableRate.ConnectionFee,
-
       			 tblRateTableRate.EffectiveDate,
       			 tblRateTableRate.EndDate,
                 NULL AS LastModifiedDate,
@@ -2334,6 +2337,7 @@ ThisSP:BEGIN
                 allRates.ConnectionFee,
                 allRates.RoutinePlanName,
                 allRates.Rate,
+                allRates.RateN,
                 allRates.EffectiveDate,
                 allRates.EndDate,
                 allRates.LastModifiedDate,
@@ -2368,6 +2372,7 @@ ThisSP:BEGIN
                 tblTrunk.Trunk as RoutinePlanName,
                 CustomerRates.ConnectionFee,
                 CustomerRates.Rate,
+                CustomerRates.RateN,
                 CustomerRates.EffectiveDate,
                 CustomerRates.EndDate,
                 CustomerRates.LastModifiedDate,
@@ -2400,6 +2405,7 @@ ThisSP:BEGIN
                 NULL,
                 rtr.ConnectionFee,
                 rtr.Rate,
+                rtr.RateN,
                 rtr.EffectiveDate,
                 rtr.EndDate,
                 NULL,
@@ -2483,6 +2489,7 @@ ThisSP:BEGIN
                 ConnectionFee,
                 RoutinePlanName,
                 Rate,
+                RateN,
                 EffectiveDate,
                 EndDate,
                 LastModifiedDate,
@@ -2509,6 +2516,12 @@ ThisSP:BEGIN
                 END DESC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateASC') THEN Rate
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNDESC') THEN RateN
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RateNASC') THEN RateN
                 END ASC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'Interval1DESC') THEN Interval1
@@ -2576,6 +2589,7 @@ ThisSP:BEGIN
             IntervalN,
             ConnectionFee,
             Rate,
+            RateN,
             EffectiveDate,
             LastModifiedDate,
             LastModifiedBy from tmp_customerrate_;
@@ -2593,6 +2607,7 @@ ThisSP:BEGIN
             IntervalN,
             ConnectionFee,
             Rate,
+            RateN,
             EffectiveDate from tmp_customerrate_;
 
     END IF;
