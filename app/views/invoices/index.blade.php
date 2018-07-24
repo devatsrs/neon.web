@@ -130,7 +130,8 @@
             <li> <a class="pay_now create" id="bulk_email" href="javascript:;"> Bulk Email </a> </li>
             @endif
             @if(User::checkCategoryPermission('Invoice','Post') && !empty($check_quickbook))
-            <li> <a class="quickbookpost create" id="quickbook_post" href="javascript:;"> QuickBook Post </a> </li>
+            <li> <a class="quickbookpost create" id="quickbook_post" href="javascript:;"> QuickBook Journal Post </a> </li>
+            <li> <a class="quickbookpost create" id="quickbook_post_invoice" href="javascript:;"> QuickBook Invoice Post </a> </li>
             @endif
             @if(User::checkCategoryPermission('Invoice','Post') && is_Xero($CompanyID))
             <li> <a class="xeropost create" id="xero_post" href="javascript:;"> Xero Post </a> </li>
@@ -1343,6 +1344,27 @@
                 }
                 var InvoiceIDs = [];
                 var i = 0;
+                if (!confirm('Are you sure you want to post in quickbook selected invoices journal?')) {
+                    return;
+                }
+                $('#table-4 tr .rowcheckbox:checked').each(function (i, el) {
+                    InvoiceID = $(this).val();
+                    if (typeof InvoiceID != 'undefined' && InvoiceID != null && InvoiceID != 'null') {
+                        InvoiceIDs[i++] = InvoiceID;
+                    }
+                });
+                if (InvoiceIDs.length) {
+                    submit_ajax(baseurl + '/invoice/invoice_quickbookpost', 'InvoiceIDs=' + InvoiceIDs.join(",") + '&criteria=' + criteria + '&type=journal')
+                }
+            });
+
+            $("#quickbook_post_invoice").click(function (ev) {
+                var criteria = '';
+                if ($('#selectallbutton').is(':checked')) {
+                    criteria = JSON.stringify($searchFilter);
+                }
+                var InvoiceIDs = [];
+                var i = 0;
                 if (!confirm('Are you sure you want to post in quickbook selected invoices?')) {
                     return;
                 }
@@ -1353,9 +1375,10 @@
                     }
                 });
                 if (InvoiceIDs.length) {
-                    submit_ajax(baseurl + '/invoice/invoice_quickbookpost', 'InvoiceIDs=' + InvoiceIDs.join(",") + '&criteria=' + criteria)
+                    submit_ajax(baseurl + '/invoice/invoice_quickbookpost', 'InvoiceIDs=' + InvoiceIDs.join(",") + '&criteria=' + criteria + '&type=invoice')
                 }
             });
+
             $("#xero_post").click(function (ev) {
                 var criteria = '';
                 if ($('#selectallbutton').is(':checked')) {

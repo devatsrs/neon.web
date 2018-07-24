@@ -2331,7 +2331,13 @@ class InvoicesController extends \BaseController {
         else{
             unset($data['criteria']);
         }
-        $data['type'] = 'journal';
+        //$data['type'] = 'journal';
+        if($data['type'] == 'journal'){
+            $msgtype = 'Journal';
+        }
+        else{
+            $msgtype = 'Invoice';
+        }
         $CompanyID = User::get_companyID();
         $InvoiceIDs =array_filter(explode(',',$data['InvoiceIDs']),'intval');
         if (is_array($InvoiceIDs) && count($InvoiceIDs)) {
@@ -2349,9 +2355,9 @@ class InvoicesController extends \BaseController {
             $jobdata["updated_at"] = date('Y-m-d H:i:s');
             $JobID = Job::insertGetId($jobdata);
             if($JobID){
-                return json_encode(["status" => "success", "message" => "Invoice Post in quickbook Job Added in queue to process.You will be notified once job is completed."]);
+                return json_encode(["status" => "success", "message" => $msgtype." Post in quickbook Job Added in queue to process.You will be notified once job is completed."]);
             }else{
-                return json_encode(array("status" => "failed", "message" => "Problem Creating Invoice Post in Quickbook ."));
+                return json_encode(array("status" => "failed", "message" => "Problem Creating ".$msgtype." Post in Quickbook ."));
             }
         }
 
