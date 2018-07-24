@@ -29,9 +29,6 @@ class ProductsController extends \BaseController {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             if($DynamicFields['totalfields'] > 0){
                 foreach ($excel_data as $key => $value) {
-                    if($value->title==''){
-                        $excel_data[$key]->title='All';
-                    }
                     foreach ($DynamicFields['fields'] as $field) {
                         $DynamicFieldsID = $field->DynamicFieldsID;
                         $DynamicFieldsValues = DynamicFieldsValue::getDynamicColumnValuesByProductID($DynamicFieldsID,$excel_data[$key]->ProductID);
