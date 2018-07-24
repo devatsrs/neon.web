@@ -8,7 +8,7 @@ class RateTablesController extends \BaseController {
         Join('tblCurrency','tblCurrency.CurrencyId','=','tblRateTable.CurrencyId')
             ->join('tblCodeDeck','tblCodeDeck.CodeDeckId','=','tblRateTable.CodeDeckId')
             ->leftjoin('tblTrunk','tblTrunk.TrunkID','=','tblRateTable.TrunkID')
-            ->select(['tblRateTable.RateTableName','tblCurrency.Code', 'tblTrunk.Trunk as trunkName','tblCodeDeck.CodeDeckName','tblRateTable.updated_at','tblRateTable.RateTableId', 'tblRateTable.TrunkID', 'tblRateTable.CurrencyID'])
+            ->select(['tblRateTable.RateTableName','tblCurrency.Code', 'tblTrunk.Trunk as trunkName','tblCodeDeck.CodeDeckName','tblRateTable.updated_at','tblRateTable.RateTableId', 'tblRateTable.TrunkID', 'tblRateTable.CurrencyID', 'tblRateTable.RoundChargedAmount'])
             ->where("tblRateTable.CompanyId",$CompanyID);
         //$rate_tables = RateTable::join('tblCurrency', 'tblCurrency.CurrencyId', '=', 'tblRateTable.CurrencyId')->where(["tblRateTable.CompanyId" => $CompanyID])->select(["tblRateTable.RateTableName","Code","tblRateTable.updated_at", "tblRateTable.RateTableId"]);
         $data = Input::all();
@@ -31,7 +31,7 @@ class RateTablesController extends \BaseController {
         $data['Code']           = $data['Code'] != ''?"'".$data['Code']."'":'null';
         $data['Description']    = $data['Description'] != ''?"'".$data['Description']."'":'null';
 
-        $columns = array('RateTableRateID','Code','Description','Interval1','IntervalN','ConnectionFee','PreviousRate','Rate','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableRateID');
+        $columns = array('RateTableRateID','Code','Description','Interval1','IntervalN','ConnectionFee','PreviousRate','Rate','RateN','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableRateID');
         $sort_column = $columns[$data['iSortCol_0']];
 
         $view = isset($data['view']) && $data['view'] == 2 ? $data['view'] : 1;
@@ -199,7 +199,7 @@ class RateTablesController extends \BaseController {
         if ($id > 0) {
             $data           = Input::all();//echo "<pre>";print_r($data);exit();
             $username       = User::get_user_full_name();
-            $EffectiveDate  = $EndDate = $Rate = $Interval1 = $IntervalN = $ConnectionFee = 'null';
+            $EffectiveDate  = $EndDate = $Rate = $RateN = $Interval1 = $IntervalN = $ConnectionFee = 'null';
             try {
                 DB::beginTransaction();
                 $p_criteria = 0;
@@ -223,7 +223,7 @@ class RateTablesController extends \BaseController {
                     $p_criteria = 1;
                 }
 
-                $query = "call prc_RateTableRateUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . ",'" . $username . "',".$p_criteria.",".$action.")";
+                $query = "call prc_RateTableRateUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $RateN . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 Log::info($query);
                 $results = DB::statement($query);
 
@@ -247,9 +247,9 @@ class RateTablesController extends \BaseController {
             $data = Input::all();//echo "<pre>";print_r($data);exit();
             $error = 0;
 
-            $EffectiveDate = $EndDate = $Rate = $Interval1 = $IntervalN = $ConnectionFee = 'null';
+            $EffectiveDate = $EndDate = $Rate = $RateN = $Interval1 = $IntervalN = $ConnectionFee = 'null';
 
-            if(!empty($data['updateEffectiveDate']) || !empty($data['updateRate']) || !empty($data['updateInterval1']) || !empty($data['updateIntervalN']) || !empty($data['updateConnectionFee'])) {// || !empty($data['EndDate'])
+            if(!empty($data['updateEffectiveDate']) || !empty($data['updateRate']) || !empty($data['updateRateN']) || !empty($data['updateInterval1']) || !empty($data['updateIntervalN']) || !empty($data['updateConnectionFee'])) {// || !empty($data['EndDate'])
                 if(!empty($data['updateEffectiveDate'])) {
                     if(!empty($data['EffectiveDate'])) {
                         $EffectiveDate = "'".$data['EffectiveDate']."'";
@@ -267,6 +267,13 @@ class RateTablesController extends \BaseController {
                 if(!empty($data['updateRate'])) {
                     if(!empty($data['Rate'])) {
                         $Rate = "'".floatval($data['Rate'])."'";
+                    } else {
+                        $error=1;
+                    }
+                }
+                if(!empty($data['updateRateN'])) {
+                    if(!empty($data['RateN'])) {
+                        $RateN = "'".floatval($data['RateN'])."'";
                     } else {
                         $error=1;
                     }
@@ -325,7 +332,7 @@ class RateTablesController extends \BaseController {
                     $p_criteria = 1;
                 }
 
-                $query = "call prc_RateTableRateUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . ",'" . $username . "',".$p_criteria.",".$action.")";
+                $query = "call prc_RateTableRateUpdateDelete (" . $RateTableID . ",'" . $RateTableRateID . "'," . $EffectiveDate . "," . $EndDate . "," . $Rate . "," . $RateN . "," . $Interval1 . "," . $IntervalN . "," . $ConnectionFee . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 Log::info($query);
                 $results = DB::statement($query);
 
@@ -445,6 +452,7 @@ class RateTablesController extends \BaseController {
         $RateTableRate['EffectiveDate'] = $data['EffectiveDate'];
         $RateTableRate['EndDate']       = !empty($data['EndDate']) ? $data['EndDate'] : null;
         $RateTableRate['Rate']          = $data['Rate'];
+        $RateTableRate['RateN']         = $data['RateN'];
         $RateTableRate['Interval1']     = $data['Interval1'];
         $RateTableRate['IntervalN']     = $data['IntervalN'];
         $RateTableRate['ConnectionFee'] = $data['ConnectionFee'];
