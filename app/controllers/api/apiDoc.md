@@ -4,7 +4,7 @@
 #### Login ###
 * **URL**
 
-    http://neon-soft.com/api/login
+    http://staging.neon-soft.com/api/login
 
 * **Method:**
 
@@ -44,7 +44,7 @@
 #### Logout ###
 * **URL**
 
-    http://neon-soft.com/api/logout
+    http://staging.neon-soft.com/api/logout
 
 * **Method:**
 
@@ -71,7 +71,7 @@
 
 * **URL**
 
-    http://neon-soft.com/api/currency/list
+    http://staging.neon-soft.com/api/currency/list
 
 * **Method:**
 
@@ -110,7 +110,7 @@
 #### Get Billing Type List ###
 * **URL**
 
-    http://neon-soft.com/api/billingType/list
+    http://staging.neon-soft.com/api/billingType/list
 
 * **Method:**
 
@@ -140,7 +140,7 @@
 #### Get Billing Cycle List ###
 * **URL**
 
-    http://neon-soft.com/api/billingCycle/list
+    http://staging.neon-soft.com/api/billingCycle/list
 
 * **Method:**
 
@@ -172,7 +172,7 @@
 #### Get Billing Class List ###
 * **URL**
 
-    http://neon-soft.com/api/billingClass/list
+    http://staging.neon-soft.com/api/billingClass/list
 
 * **Method:**
 
@@ -201,7 +201,7 @@
 #### Get Service List ###
 * **URL**
 
-    http://neon-soft.com/api/service/list
+    http://staging.neon-soft.com/api/service/list
 
 * **Method:**
 
@@ -235,7 +235,7 @@
 #### Get Discount List ###
 * **URL**
 
-    http://neon-soft.com/api/discount/list
+    http://staging.neon-soft.com/api/discount/list
 
 * **Method:**
 
@@ -266,7 +266,7 @@
 #### Get Subscription List ###
 * **URL**
 
-    http://neon-soft.com/api/subscription/list
+    http://staging.neon-soft.com/api/subscription/list
 
 * **Method:**
 
@@ -309,7 +309,7 @@
 #### Get Subscription List ###
 * **URL**
 
-    http://neon-soft.com/api/inboundOutbound/list/{CurrencyID}
+    http://staging.neon-soft.com/api/inboundOutbound/list/{CurrencyID}
 
 * **Method:**
 
@@ -344,7 +344,7 @@
 #### Get Payment List ###
 * **URL**
 
-    http://neon-soft.com/api/payment/list
+    http://staging.neon-soft.com/api/payment/list
 
 * **Method:**
 
@@ -374,3 +374,142 @@
           }
       }
 
+#### Accoutn Email Valid ###
+* **URL**
+
+    http://staging.neon-soft.com/api/accounts/validEmail
+
+* **Method:**
+
+    The request type
+    
+    POST
+
+* **Parameters:**
+
+    1. email          
+      
+* **Output Format**
+
+    JSON
+
+* **Success Response:**
+
+  When there is success reponse found api will return response in following json format.
+  which will have 2 keys like "status" and "data" which will contain all following columns from neon database.
+
+      {
+          "status": "success",
+          "data": "Account Not Found"
+      }
+
+* **Fail Response:**
+
+        {
+          "status": "failed",
+          "data": "Account already Exists"
+        }
+        
+
+#### Valid Comapany Name ###
+* **URL**
+
+    http://staging.neon-soft.com/api/company/validCompanyName
+
+* **Method:**
+
+    The request type
+    
+    POST
+
+* **Parameters:**
+
+    1. companyName          
+      
+* **Output Format**
+
+    JSON
+
+* **Success Response:**
+
+  When there is success reponse found api will return response in following json format.
+  which will have 2 keys like "status" and "data" which will contain all following columns from neon database.
+
+      {
+          "status": "success",
+          "data": "Valid Company Name"
+      }
+
+* **Fail Response:**
+
+        {
+            "status": "failed",
+            "data": "Company Name Not Valid"
+        }
+        
+
+#### Get Billing Class Tax Rate ID List  ###
+* **URL**
+
+    http://staging.neon-soft.com/api/billingClass/getTaxRateList
+
+* **Method:**
+
+    The request type
+    
+    POST
+
+* **Parameters:**
+
+    1. BillingClassID          
+      
+* **Output Format**
+
+    JSON
+
+* **Success Response:**
+
+  When there is success reponse found api will return response in following json format.
+  which will have 2 keys like "status" and "data" which will contain all following columns from neon database.
+
+      {
+          "status": "success",
+          "data": [
+              "4",
+              "5",
+              "7"
+          ]
+      }
+
+#### Get Tax Rates  ###
+* **URL**
+
+    http://staging.neon-soft.com/api/taxRates/getTaxRates
+
+* **Method:**
+
+    The request type
+    
+    GET
+      
+* **Output Format**
+
+    JSON
+
+* **Success Response:**
+
+  When there is success reponse found api will return response in following json format.
+  which will have 2 keys like "status" and "data" which will contain all following columns from neon database.
+
+      {
+          "status": "success",
+          "data": [
+              {
+                  "TaxRateId": 1,
+                  "Title": "Extra Tax",
+                  "Amount": "3.657800",
+                  "TaxType": 1,
+                  "FlatStatus": 1
+              }
+          ]
+      }

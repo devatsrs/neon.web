@@ -29,6 +29,7 @@ class ReportInvoice extends \Eloquent{
     public static $AccountJoin = false;
     public static $ProductJoin = false;
     public static $dateFilterString = array();
+    public static $invoiceDataFilterWhere = array();
 
     public static function generateQuery($CompanyID, $data, $filters){
         $select_columns = array();
@@ -131,12 +132,12 @@ class ReportInvoice extends \Eloquent{
     }
 
     public static function commonQuery($CompanyID, $data, $filters){
-        self::$dateFilterString = array();
+        self::$dateFilterString = self::$invoiceDataFilterWhere = array();
         $query_common = DB::connection('sqlsrv2')
             ->table('tblInvoice')
             ->where(['tblInvoice.CompanyID' => $CompanyID]);
 
-        if(in_array('TaxRateID',$data['column']) || in_array('TaxRateID',$data['row']) || in_array('TaxRateID',$data['filter'])){
+        if(in_array('TaxRateID',$data['column']) || in_array('TaxRateID',$data['row']) || in_array('TaxRateID',$data['filter']) || in_array('TotalTax',$data['sum'])){
             $query_common->join('tblInvoiceTaxRate', 'tblInvoice.InvoiceID', '=', 'tblInvoiceTaxRate.InvoiceID');
             self::$InvoiceTaxRateJoin = true;
         }
@@ -193,10 +194,12 @@ class ReportInvoice extends \Eloquent{
                 if (!empty($filter['start_date'])) {
                     $query_common->where('IssueDate', '>=', str_replace('*', '%', $filter['start_date']));
                     self::$dateFilterString[] = 'PaymentDate >= "'. str_replace('*', '%', $filter['start_date']).'"';
+                    self::$invoiceDataFilterWhere[] = 'IssueDate'. '>="'. str_replace('*', '%', $filter['start_date']).'"';
                 }
                 if (!empty($filter['end_date'])) {
                     $query_common->where('IssueDate', '<=', str_replace('*', '%', $filter['end_date']));
                     self::$dateFilterString[] = 'PaymentDate <= "'. str_replace('*', '%', $filter['end_date']).'"';
+                    self::$invoiceDataFilterWhere[] = 'IssueDate'. '<="'. str_replace('*', '%', $filter['end_date']).'"';
                 }
             }else if (!empty($filter['wildcard_match_val']) && in_array($key, array('year', 'quarter_of_year','month','week_of_year'))) {
                 $query_common->whereRaw(self::$database_columns[$key].' like "'.str_replace('*', '%', $filter['wildcard_match_val']).'"');
@@ -259,10 +262,14 @@ class ReportInvoice extends \Eloquent{
         }else if($colname == 'OutStanding'){
             $extra_query = !empty(self::$dateFilterString)?implode(' AND ',self::$dateFilterString):' 1=1 ';
             $measure_name = "(SUM(tblInvoice.GrandTotal) - (SELECT SUM(Amount) FROM tblPayment WHERE ( FIND_IN_SET(tblPayment.InvoiceID,group_concat(tblInvoice.InvoiceID)) OR (tblPayment.InvoiceID =0 ".$extra_query_3." AND ".$extra_query.")) AND $extra_query_2 AND Status='Approved' AND Recall = '0'))";
-        }else if(self::$InvoiceTaxRateJoin == false && in_array($colname,array('TotalTax'))){
-            $measure_name = "SUM(tblInvoice." . $colname . ")";
+        }else if(/*self::$InvoiceTaxRateJoin == false && */ in_array($colname,array('TotalTax'))){
+            $measure_name = "SUM(tblInvoiceTaxRate.TaxAmount)";
         }else if(self::$InvoiceDetailJoin == false && in_array($colname,array('GrandTotal'))){
             $measure_name = "SUM(tblInvoice." . $colname . ")";
+        }else if(self::$InvoiceDetailJoin == false && in_array($colname,array('SubTotal'))){
+            $measure_name = "SUM(tblInvoice." . $colname . ")";
+        }else if(self::$InvoiceDetailJoin == false && in_array($colname,array('TotalTaxSubTotal'))){
+            $measure_name = "SUM(tblInvoiceTaxRate.TaxAmount) +  SUM(tblInvoice.SubTotal)";
         }
         return $measure_name ;
     }

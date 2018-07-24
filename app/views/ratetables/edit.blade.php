@@ -19,7 +19,7 @@
                     <input type="hidden" name="TrunkID" value="{{$trunkID}}" >
                 </div>
                 <div class="form-group">
-                    <label class="control-label">Timezones</label>
+                    <label class="control-label">Timezone</label>
                     {{ Form::select('Timezones', $Timezones, '', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
@@ -142,6 +142,7 @@
             <th width="5%">Connection Fee</th>
             <th width="5%">Previous Rate ({{$code}})</th>
             <th width="5%">Rate ({{$code}})</th>
+            <th width="5%">RateN ({{$code}})</th>
             <th width="8%">Effective Date</th>
             <th width="9%" style="display: none;">End Date</th>
             <th width="8%">Modified Date</th>
@@ -161,7 +162,7 @@
         var $searchFilter = {};
         var checked='';
         var codedeckid = '{{$id}}';
-        var list_fields  = ['ID','Code','Description','Interval1','IntervalN','ConnectionFee','PreviousRate','Rate','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableRateID','RateID'];
+        var list_fields  = ['ID','Code','Description','Interval1','IntervalN','ConnectionFee','PreviousRate','Rate','RateN','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableRateID','RateID'];
         jQuery(document).ready(function($) {
 
         $('#filter-button-toggle').show();
@@ -517,12 +518,13 @@
                                     return full[7]
                             }
                         }, //7 Rate
-                        {}, //8 Effective Date
+                        {}, //8 RateN
+                        {}, //9 Effective Date
                         {
                             "bVisible" : false
-                        }, //9 End Date
-                        {}, //10 ModifiedDate
-                        {}, //11 ModifiedBy
+                        }, //10 End Date
+                        {}, //11 ModifiedDate
+                        {}, //12 ModifiedBy
                         {
                             mRender: function(id, type, full) {
                                 var action, edit_, delete_;
@@ -746,9 +748,9 @@
                     var Code = hiddenRowData.find('input[name="Code"]').val();
                     var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
                     if(view == 1) {
-                        table.append("<thead><tr><th>Code</th><th>Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                        table.append("<thead><tr><th>Code</th><th>Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate</th><th>RateN</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
                     } else {
-                        table.append("<thead><tr><th>Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                        table.append("<thead><tr><th>Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate</th><th>RateN</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
                     }
                     var tbody = $("<tbody></tbody>");
 
@@ -764,6 +766,7 @@
                             html += "<td>" + data['IntervalN'] + "</td>";
                             html += "<td>" + data['ConnectionFee'] + "</td>";
                             html += "<td>" + data['Rate'] + "</td>";
+                            html += "<td>" + data['RateN'] + "</td>";
                             html += "<td>" + data['EffectiveDate'] + "</td>";
                             html += "<td>" + data['EndDate'] + "</td>";
                             html += "<td>" + data['ModifiedDate'] + "</td>";
@@ -801,47 +804,52 @@
                 </div>
 
                 <div class="modal-body">
-
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-4" class="control-label">Effective Date</label>
+                                <label class="control-label">Effective Date</label>
                                 <input type="text"  name="EffectiveDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
                             </div>
                         </div>
-
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Rate</label>
-                                <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
+                                <label class="control-label">Connection Fee</label>
+                                <input type="text" name="ConnectionFee" class="form-control" placeholder="">
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-4" class="control-label">Interval 1</label>
+                                <label class="control-label">Rate</label>
+                                <input type="text" name="Rate" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">RateN</label>
+                                <input type="text" name="RateN" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Interval 1</label>
                                 <input type="text" name="Interval1" class="form-control" value="" />
                             </div>
                         </div>
-
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Interval N</label>
-                                <input type="text" name="IntervalN" class="form-control" id="field-5" placeholder="">
+                                <label class="control-label">Interval N</label>
+                                <input type="text" name="IntervalN" class="form-control" placeholder="">
                             </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Connection Fee</label>
-                                <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
-                            </div>
-                        </div>
                         {{--<div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-4" class="control-label">End Date</label>
+                                <label class="control-label">End Date</label>
                                 <input type="text"  name="EndDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
                             </div>
                         </div>--}}
@@ -855,6 +863,7 @@
                     <input type="hidden" name="criteria" value="">
                     <input type="hidden" name="updateEffectiveDate" value="on">
                     <input type="hidden" name="updateRate" value="on">
+                    <input type="hidden" name="updateRateN" value="on">
                     <input type="hidden" name="updateInterval1" value="on">
                     <input type="hidden" name="updateIntervalN" value="on">
                     <input type="hidden" name="updateConnectionFee" value="on">
@@ -894,25 +903,39 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <input type="checkbox" name="updateEffectiveDate" class="" />
-                                <label for="field-4" class="control-label">Effective Date</label>
+                                <label class="control-label">Effective Date</label>
                                 <input type="text" name="EffectiveDate" class="form-control datepicker"  data-startdate="{{date('Y-m-d')}}" data-date-format="yyyy-mm-dd" value="" />
                             </div>
                         </div>
-
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="checkbox" name="updateConnectionFee" class="" />
+                                <label class="control-label">Connection Fee</label>
+                                <input type="text" name="ConnectionFee" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <input type="checkbox" name="updateRate" class="" />
-                                <label for="field-5" class="control-label">Rate</label>
-                                <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
+                                <label class="control-label">Rate</label>
+                                <input type="text" name="Rate" class="form-control" placeholder="">
                             </div>
                         </div>
-
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="checkbox" name="updateRateN" class="" />
+                                <label class="control-label">RateN</label>
+                                <input type="text" name="RateN" class="form-control" placeholder="">
+                            </div>
+                        </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <input type="checkbox" name="updateInterval1" class="" />
-                                <label for="field-4" class="control-label">Interval 1</label>
+                                <label class="control-label">Interval 1</label>
                                 <input type="text" name="Interval1" class="form-control" value="" />
                             </div>
                         </div>
@@ -920,24 +943,17 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <input type="checkbox" name="updateIntervalN" class="" />
-                                <label for="field-5" class="control-label">Interval N</label>
-                                <input type="text" name="IntervalN" class="form-control" id="field-5" placeholder="">
+                                <label class="control-label">Interval N</label>
+                                <input type="text" name="IntervalN" class="form-control" placeholder="">
                             </div>
                         </div>
 
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <input type="checkbox" name="updateConnectionFee" class="" />
-                                <label for="field-5" class="control-label">Connection Fee</label>
-                                <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
-                            </div>
-                        </div>
                         {{--<div class="col-md-6">
                             <div class="form-group">
                                 <input type="checkbox" name="updateEndDate" class="" />
-                                <label for="field-4" class="control-label">End Date</label>
+                                <label class="control-label">End Date</label>
                                 <input type="text" name="EndDate" class="form-control datepicker"  data-startdate="{{date('Y-m-d')}}" data-date-format="yyyy-mm-dd" value="" />
                             </div>
                         </div>--}}
@@ -979,68 +995,54 @@
                 </div>
 
                 <div class="modal-body">
-
                     <div class="row">
-
                         <div class="col-md-6">
-
                             <div class="form-group">
-                                <label for="field-4" class="control-label">Code</label>
+                                <label class="control-label">Code</label>
                                 {{--{{ Form::select('RateID', array(), '', array("class"=>"select2 rateid_list")) }}--}}
                                 <input type="hidden" id="rateid_list" name="RateID" />
-
                             </div>
 
                         </div>
                         <div class="col-md-6">
-
                             <div class="form-group">
-                                <label for="field-4" class="control-label">Effective Date</label>
-
+                                <label class="control-label">Effective Date</label>
                                 <input type="text" name="EffectiveDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
                             </div>
-
                         </div>
                         <div class="col-md-6 clear">
-
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Rate</label>
-
-                                <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
-
+                                <label class="control-label">Rate</label>
+                                <input type="text" name="Rate" class="form-control" placeholder="">
                             </div>
-
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Connection Fee</label>
-                                <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
+                                <label class="control-label">RateN</label>
+                                <input type="text" name="RateN" class="form-control" placeholder="">
                             </div>
                         </div>
-                        <div class="col-md-6 clear">
-
+                        <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-4" class="control-label">Interval 1</label>
-
+                                <label class="control-label">Connection Fee</label>
+                                <input type="text" name="ConnectionFee" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Interval 1</label>
                                 <input type="text" name="Interval1" class="form-control" value="" />
                             </div>
-
                         </div>
-
                         <div class="col-md-6">
-
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Interval N</label>
-
-                                <input type="text" name="IntervalN" class="form-control" id="field-5" placeholder="">
-
+                                <label class="control-label">Interval N</label>
+                                <input type="text" name="IntervalN" class="form-control" placeholder="">
                             </div>
-
                         </div>
-
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="control-label">Timezones</label>
+                                <label class="control-label">Timezone</label>
                                 {{ Form::select('TimezonesID', $Timezones, '', array("class"=>"select2")) }}
                             </div>
                         </div>
@@ -1048,7 +1050,7 @@
                         {{--<div class="col-md-6">
 
                             <div class="form-group">
-                                <label for="field-4" class="control-label">End Date</label>
+                                <label class="control-label">End Date</label>
 
                                 <input type="text" name="EndDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
                             </div>

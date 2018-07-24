@@ -29,7 +29,7 @@
                     {{ Form::select('Trunk', $trunks, $trunk_keys, array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
-                    <label class="control-label">Timezones</label>
+                    <label class="control-label">Timezone</label>
                     {{ Form::select('Timezones', $Timezones, '', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
@@ -997,6 +997,7 @@
             $('#table-4 tbody').on('click','.blockingbycode',function(){
                 var descriptioname = $(this).parent().siblings(":first").text();
                 Trunk = $("#lcr-search-form select[name='Trunk']").val();
+                Timezones = $("#lcr-search-form select[name='Timezones']").val();
                 CodeDeck = $("#lcr-search-form select[name='CodeDeckId']").val();
                 GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
                 var thisclass = $(this);
@@ -1015,6 +1016,7 @@
                         id: thisid,
                         acc_id: thisaccid,
                         trunk: Trunk,
+                        Timezones: Timezones,
                         CodeDeckId: CodeDeck,
                         rowcode: rowcode,
                         GroupBy: GroupBy,
@@ -1156,6 +1158,7 @@
             $(document).on('click','.openPopup',function(){
                 var descriptioname = $(this).parent().siblings(":first").text();
                 Trunk = $("#lcr-search-form select[name='Trunk']").val();
+                Timezones = $("#lcr-search-form select[name='Timezones']").val();
                 CodeDeck = $("#lcr-search-form select[name='CodeDeckId']").val();
                 GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
                 var thisclass = $(this);
@@ -1169,6 +1172,7 @@
                     dataType: 'json',
                     data: {
                         trunk: Trunk,
+                        Timezones: Timezones,
                         CodeDeckId: CodeDeck,
                         GroupBy: GroupBy,
                         acc_id:thisaccid,
@@ -1181,6 +1185,7 @@
                     {
                         var codedescription = GroupBy=='description' ? descriptioname : rowcode;
                         Trunk = $("#lcr-search-form select[name='Trunk']").val();
+                        Timezones = $("#lcr-search-form select[name='Timezones']").val();
                         CodeDeck = $("#lcr-search-form select[name='CodeDeckId']").val();
                         GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
                         //var thisclass = $(this);
@@ -1199,6 +1204,7 @@
                                 '<input type="hidden" name="id" value='+thisid+'>' +
                                 '<input type="hidden" name="acc_id" value='+thisaccid+'>' +
                                 '<input type="hidden" name="trunk" value='+Trunk+'>' +
+                                '<input type="hidden" name="Timezones" value='+Timezones+'>' +
                                 '<input type="hidden" name="CodeDeckId" value='+CodeDeck+'>' +
                                 '<input type="hidden" name="GroupBy" value='+GroupBy+'>' +
                                 '<input type="hidden" name="rowcode" value='+rowcode+'>' +

@@ -1163,8 +1163,30 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/product/{id}/get/{FieldName}', 'ProductsController@get')->where('FieldName', '(.[azAZ]*)+');
     Route::any('/billing_subscription/{id}/get/{FieldName}', 'BillingSubscriptionController@get')->where('FieldName', '(.[azAZ]*)+');
 
+	Route::any('/products/{id}/change_type', 'ProductsController@change_type');
+	Route::any('/products/dynamicfield/{id}/download', 'ProductsController@download_dynamicfield');
 
-    Route::any('/billing_dashboard/invoice_expense_chart', 'BillingDashboard@invoice_expense_chart');
+	Route::any('/products/itemtypes', 'ItemTypeController@index');
+	Route::any('/products/itemtypes/ajax_datagrid/{type}', 'ItemTypeController@ajax_datagrid');
+	Route::any('/products/itemtypes/create', 'ItemTypeController@create');
+	Route::any('/products/itemtypes/{id}/update', 'ItemTypeController@update');
+	Route::any('/products/itemtypes/{id}/delete', 'ItemTypeController@delete');
+	Route::any('/products/itemtypes/update_bulk_itemtypes_status', 'ItemTypeController@UpdateBulkItemTypeStatus');
+
+	Route::any('/products/dynamicfields', 'DynamicFieldController@index');
+	Route::any('/products/dynamicfields/ajax_datagrid/{type}', 'DynamicFieldController@ajax_datagrid');
+	Route::any('/products/dynamicfields/create', 'DynamicFieldController@create');
+	Route::any('/products/dynamicfields/{id}/update', 'DynamicFieldController@update');
+	Route::any('/products/dynamicfields/{id}/delete', 'DynamicFieldController@delete');
+	Route::any('/products/dynamicfields/update_bulk_dynamicfields_status', 'DynamicFieldController@UpdateBulkDynamicFieldStatus');
+	Route::any('/products/dynamicfields/delete_bulk_dynamicfields', 'DynamicFieldController@DeleteBulkDynamicField');
+
+	Route::any('/products/stockhistory', 'StockHistoryController@index');
+	Route::any('/products/stockhistory/ajax_datagrid/{type}', 'StockHistoryController@ajax_datagrid');
+
+
+
+	Route::any('/billing_dashboard/invoice_expense_chart', 'BillingDashboard@invoice_expense_chart');
     Route::any('/billing_dashboard/invoice_expense_total', 'BillingDashboard@invoice_expense_total');
     Route::any('/billing_dashboard/invoice_expense_total_widget', 'BillingDashboard@invoice_expense_total_widget');
 	Route::any('/billing_dashboard/ajax_top_pincode', 'BillingDashboard@ajax_top_pincode');
@@ -1421,8 +1443,10 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/timezones','TimezonesController@index');
 	Route::any('/timezones/getTimezonesVariables','TimezonesController@getTimezonesVariables');
 	Route::any('/timezones/search_ajax_datagrid/{type}','TimezonesController@search_ajax_datagrid');
+	Route::any('/timezones/changeSelectedStatus/{type}','TimezonesController@changeSelectedStatus');
 	Route::any('/timezones/store','TimezonesController@store');
 	Route::any('/timezones/update/{id}','TimezonesController@update');
+	Route::any('/timezones/{id}/delete/{type}','TimezonesController@delete');
 	Route::controller('timezones', 'TimezonesController');
 
 });
@@ -1538,9 +1562,13 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::get('billingType/list', 'BillingTypeApiController@getList');
 	Route::get('billingCycle/list', 'BillingCycleApiController@getList');
 	Route::get('billingClass/list', 'BillingClassApiController@getList');
+	Route::post('billingClass/getTaxRateList', 'BillingClassApiController@getTaxRateList');
 	Route::get('service/list', 'ServiceApiController@getList');
 	Route::get('discount/list', 'DiscountPlanApiController@getList');
 	Route::get('subscription/list', 'SubscriptionApiController@getList');
 	Route::get('inboundOutbound/list/{CurrencyID}', 'InboundOutboundApiController@getList');
 	Route::get('payment/list', 'PaymentApiController@getList');
+	Route::post('accounts/validEmail', 'AccountsApiController@validEmail');
+	Route::post('company/validCompanyName', 'CompaniesApiController@validCompanyName');
+	Route::get('taxRates/getTaxRates', 'TaxRatesApiController@getTaxRates');
 });

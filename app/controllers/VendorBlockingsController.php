@@ -20,7 +20,7 @@ class VendorBlockingsController extends \BaseController {
         $columns = array('CountryID','Country','Status');
         $sort_column = $columns[$data['iSortCol_0']];
 
-        $query = "call prc_GetVendorBlockByCountry (".$id.",".$data['Trunk'].",".$data['Country'].",'".$data['Status']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
+        $query = "call prc_GetVendorBlockByCountry (".$id.",".$data['Trunk'].",".$data['Timezones'].",".$data['Country'].",'".$data['Status']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
 
        return  DataTableSql::of($query)->make();
     }
@@ -38,7 +38,7 @@ class VendorBlockingsController extends \BaseController {
         $sort_column = $columns[$data['iSortCol_0']];
         $companyID = User::get_companyID();
 
-        $query = "call prc_GetVendorBlockByCode (".$companyID.",".$id.",".$data['Trunk'].",".$data['Country'].",'".$data['Status']."',".$data['Code'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
+        $query = "call prc_GetVendorBlockByCode (".$companyID.",".$id.",".$data['Trunk'].",".$data['Timezones'].",".$data['Country'].",'".$data['Status']."',".$data['Code'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
 
         return DataTableSql::of($query)->make();
     }
@@ -58,7 +58,8 @@ class VendorBlockingsController extends \BaseController {
                 return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
             }
             $countries = Country::getCountryDropdownIDList();
-            return View::make('vendorblockings.blockby_country', compact('id', 'trunks', 'trunk_keys' ,'countries','Account'));
+            $Timezones = Timezones::getTimezonesIDList();
+            return View::make('vendorblockings.blockby_country', compact('id', 'trunks', 'trunk_keys' ,'countries','Account','Timezones'));
     }
 
     // when 2nd Tabl BlockBy Code Submits.
@@ -70,7 +71,8 @@ class VendorBlockingsController extends \BaseController {
                 return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
             }
             $countries = $this->countries;
-            return View::make('vendorblockings.blockby_code', compact('id', 'trunks', 'trunk_keys', 'countries','Account'));
+            $Timezones = Timezones::getTimezonesIDList();
+            return View::make('vendorblockings.blockby_code', compact('id', 'trunks', 'trunk_keys', 'countries','Account','Timezones'));
     }
 
     /**
@@ -84,6 +86,7 @@ class VendorBlockingsController extends \BaseController {
         $preference =  !empty($postdata['preference']) ? $postdata['preference'] : 0;
         $acc_id =  $postdata['acc_id'];
         $trunk =  $postdata['trunk'];
+        $Timezones =  $postdata['Timezones'];
         $rowcode = $postdata["rowcode"];
         $CodeDeckId = $postdata["CodeDeckId"];
         $description = $postdata["description"];
@@ -103,7 +106,7 @@ class VendorBlockingsController extends \BaseController {
                 $countryBlockingID = 0;
             }
         }
-        $query = "call prc_lcrBlockUnblock (".$CompanyID.",'".$postdata["GroupBy"]."',".$blockId.",".$preference.",".$acc_id.",".$trunk.",".$rowcode.",".$CodeDeckId.",'".$description."','".$username."','".$p_action."','".$countryBlockingID."')";
+        $query = "call prc_lcrBlockUnblock (".$CompanyID.",'".$postdata["GroupBy"]."',".$blockId.",".$preference.",".$acc_id.",".$trunk.",".$Timezones.",".$rowcode.",".$CodeDeckId.",'".$description."','".$username."','".$p_action."','".$countryBlockingID."')";
         DB::select($query);
         \Illuminate\Support\Facades\Log::info($query);
         //$results = DB::select($query);
@@ -213,10 +216,12 @@ class VendorBlockingsController extends \BaseController {
                 {
                     $criteria = json_decode($data['criteria'],true);
                     $TrunkID = $criteria['Trunk'];
+                    $TimezonesID = $criteria['Timezones'];
                     $CountryID = $criteria['Country'];
 
                 }else{
                     $TrunkID = $data['Trunk'];
+                    $TimezonesID = $data['Timezones'];
                     $CountryID = $data['CountryID'];
                 }
 
@@ -227,6 +232,7 @@ class VendorBlockingsController extends \BaseController {
                     "'".$RateID             . "',".     //RateIDs
                     "'".$CountryID         . "',".     //CountryIDs
                     " ".$TrunkID            . ", ".
+                    " ".$TimezonesID            . ", ".
                     "'".$username           . "',".
                     "'".$p_action           . "' ";
 
@@ -290,11 +296,13 @@ class VendorBlockingsController extends \BaseController {
                 $criteria = json_decode($data['criteria'],true);
                 $Code  = $criteria['Code'];
                 $TrunkID = $criteria['Trunk'];
+                $TimezonesID = $criteria['Timezones'];
                 $RateID = '';
 
             }else{
                 $Code  = '';
                 $TrunkID = $data['Trunk'];
+                $TimezonesID = $data['Timezones'];
                 $RateID = $data['RateID'];
 
             }
@@ -304,8 +312,9 @@ class VendorBlockingsController extends \BaseController {
                 " ".$AccountID          . ", ".
                 "'".$Code               . "',".
                 "'".$RateID             . "',".     //RateIDs
-                "'".$CountryID         . "',".     //CountryIDs
+                "'".$CountryID          . "',".     //CountryIDs
                 " ".$TrunkID            . ", ".
+                " ".$TimezonesID        . ", ".
                 "'".$username           . "',".
                 "'".$p_action           . "' ";
 

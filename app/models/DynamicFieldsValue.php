@@ -26,6 +26,12 @@ class DynamicFieldsValue extends \Eloquent {
                                     ->delete();
     }
 
+    public static function deleteDynamicValuesByProductID($CompanyID,$ProductID) {
+        return DynamicFieldsValue::where('CompanyID',$CompanyID)
+            ->where('ParentID',$ProductID)
+            ->delete();
+    }
+
     public static function validate($data) {
         foreach ($data as $DynamicField) {
 
@@ -34,7 +40,7 @@ class DynamicFieldsValue extends \Eloquent {
             if($DynamicColumn) {
                 $isUnique = $DynamicColumn->fieldUniqueOption()->first();
 
-                if ($isUnique->count() > 0) {
+                if ($isUnique && $isUnique->count() > 0) {
                     if ($isUnique->Options == 1) {
                         $rules = array(
                             'FieldValue' => 'unique:tblDynamicFieldsValue,FieldValue,NULL,DynamicFieldsValueID,DynamicFieldsID,' . $DynamicField['DynamicFieldsID'],
@@ -49,6 +55,42 @@ class DynamicFieldsValue extends \Eloquent {
                             return json_validator_response($validator);
                         }
                     }
+                }else{
+                    $ruleString='';
+                    if($DynamicColumn->FieldDomType == 'numeric'){
+                        $ruleString='numeric';
+                        if($DynamicColumn->Minimum > 0 || $DynamicColumn->Maximum > 0){
+                            if($ruleString!=''){ $ruleString.='|'; }
+                            $ruleString.='digits_between:'.$DynamicColumn->Minimum.','.$DynamicColumn->Maximum;
+                        }
+                    }else{
+                        if($DynamicColumn->Minimum > 0){
+                            if($ruleString!=''){ $ruleString.='|'; }
+                            $ruleString.='min:' . $DynamicColumn->Minimum;
+                        }
+                        if($DynamicColumn->Maximum > 0){
+                            if($ruleString!=''){ $ruleString.='|'; }
+                            $ruleString.='max:' . $DynamicColumn->Maximum;
+
+                        }
+                    }
+                    if($ruleString!=''){
+                        $rules = array(
+                            'FieldValue' => $ruleString,
+                        );
+                        $message = array(
+                            'FieldValue.digits_between' => $DynamicColumn->FieldName . 'length should not be greater then '.$DynamicColumn->Maximum.' or less then '.$DynamicColumn->Minimum,
+                            'FieldValue.numeric' => $DynamicColumn->FieldName . ' must be a number.',
+                            'FieldValue.min' => $DynamicColumn->FieldName . ' should be greater then '.$DynamicColumn->Minimum.' and less then '.$DynamicColumn->Maximum.' characters.',
+                            'FieldValue.max' => $DynamicColumn->FieldName . ' should be greater then '.$DynamicColumn->Minimum.' and less then '.$DynamicColumn->Maximum.' characters.',
+                        );
+                        $validator = Validator::make($DynamicField, $rules, $message);
+
+                        if ($validator->fails()) {
+                            return json_validator_response($validator);
+                        }
+                    }
+
                 }
             } else {
                 return  Response::json(array("status" => "failed", "message" => "Requested field not exist or it is disabled, Please refresh the page and try again or Please contact your system administrator!"));
@@ -63,7 +105,7 @@ class DynamicFieldsValue extends \Eloquent {
         if($DynamicColumn) {
             $isUnique = $DynamicColumn->fieldUniqueOption()->first();
 
-            if ($isUnique->count() > 0) {
+            if ($isUnique && $isUnique->count() > 0) {
                 if ($isUnique->Options == 1) {
                     $rules = array(
                         'FieldValue' => 'unique:tblDynamicFieldsValue,FieldValue,'.$DynamicField['DynamicFieldsValueID'].',DynamicFieldsValueID,DynamicFieldsID,' . $DynamicField['DynamicFieldsID'],
@@ -72,6 +114,41 @@ class DynamicFieldsValue extends \Eloquent {
                         'FieldValue.unique' => $DynamicColumn->FieldName . ' already exist!',
                     );
 
+                    $validator = Validator::make($DynamicField, $rules, $message);
+
+                    if ($validator->fails()) {
+                        return json_validator_response($validator);
+                    }
+                }
+            }else{
+                $ruleString='';
+                if($DynamicColumn->FieldDomType == 'numeric'){
+                    $ruleString='numeric';
+                    if($DynamicColumn->Minimum > 0 || $DynamicColumn->Maximum > 0){
+                        if($ruleString!=''){ $ruleString.='|'; }
+                        $ruleString.='digits_between:'.$DynamicColumn->Minimum.','.$DynamicColumn->Maximum;
+                    }
+                }else{
+                    if($DynamicColumn->Minimum > 0){
+                        if($ruleString!=''){ $ruleString.='|'; }
+                        $ruleString.='min:' . $DynamicColumn->Minimum;
+                    }
+                    if($DynamicColumn->Maximum > 0){
+                        if($ruleString!=''){ $ruleString.='|'; }
+                        $ruleString.='max:' . $DynamicColumn->Maximum;
+
+                    }
+                }
+                if($ruleString!=''){
+                    $rules = array(
+                        'FieldValue' => $ruleString,
+                    );
+                    $message = array(
+                        'FieldValue.digits_between' => $DynamicColumn->FieldName . ' length should not be greater then '.$DynamicColumn->Maximum.' or less then '.$DynamicColumn->Minimum,
+                        'FieldValue.numeric' => $DynamicColumn->FieldName . ' must be a number.',
+                        'FieldValue.min' => $DynamicColumn->FieldName . ' should be greater then '.$DynamicColumn->Minimum.' and less then '.$DynamicColumn->Maximum.' characters.',
+                        'FieldValue.max' => $DynamicColumn->FieldName . ' should be greater then '.$DynamicColumn->Minimum.' and less then '.$DynamicColumn->Maximum.' characters.',
+                    );
                     $validator = Validator::make($DynamicField, $rules, $message);
 
                     if ($validator->fails()) {

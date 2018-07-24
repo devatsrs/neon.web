@@ -173,8 +173,9 @@ class InvoicesController extends \BaseController {
         $Type =  Product::DYNAMIC_TYPE;
         $productsControllerObj = new ProductsController();
         $DynamicFields = $productsControllerObj->getDynamicFields($companyID,$Type);
+        $itemtypes 	= 	ItemType::getItemTypeDropdownList($companyID);
 
-        return View::make('invoices.create',compact('accounts','products','taxes','BillingClass','DynamicFields'));
+        return View::make('invoices.create',compact('accounts','products','taxes','BillingClass','DynamicFields','itemtypes'));
 
     }
 
@@ -206,8 +207,13 @@ class InvoicesController extends \BaseController {
             $invoicelog =  InVoiceLog::where(array('InvoiceID'=>$id))->get();
 			$InvoiceAllTax =  InvoiceTaxRate::where(["InvoiceID"=>$id,"InvoiceTaxType"=>1])->get();
 			$BillingClass = BillingClass::getDropdownIDList($CompanyID);
+
+            $Type =  Product::DYNAMIC_TYPE;
+            $productsControllerObj = new ProductsController();
+            $DynamicFields = $productsControllerObj->getDynamicFields($CompanyID,$Type);
+            $itemtypes 	= 	ItemType::getItemTypeDropdownList($CompanyID);
 			
-            return View::make('invoices.edit', compact( 'id', 'Invoice','InvoiceDetail','InvoiceTemplateID','InvoiceNumberPrefix',  'CurrencyCode','CurrencyID','RoundChargesAmount','accounts', 'products', 'taxes','CompanyName','Account','invoicelog','InvoiceAllTax','BillingClass','InvoiceBillingClass'));
+            return View::make('invoices.edit', compact( 'id', 'Invoice','InvoiceDetail','InvoiceTemplateID','InvoiceNumberPrefix',  'CurrencyCode','CurrencyID','RoundChargesAmount','accounts', 'products', 'taxes','CompanyName','Account','invoicelog','InvoiceAllTax','BillingClass','InvoiceBillingClass','DynamicFields','itemtypes'));
         }
     }
 
@@ -218,7 +224,6 @@ class InvoicesController extends \BaseController {
         $data = Input::all();
         unset($data['BarCode']);
         if($data){
-
             $companyID = User::get_companyID();
             $CreatedBy = User::get_user_full_name();
 
@@ -336,8 +341,31 @@ class InvoicesController extends \BaseController {
                         }
                         $i++;
                     }
-                } 
-				
+                }
+
+                //StockHistory
+                foreach($InvoiceDetailData as $CheckInvoiceHistory){
+                    $prodType=intval($CheckInvoiceHistory['ProductType']);
+                    if($prodType==1) {
+                        $ProdID = intval($CheckInvoiceHistory['ProductID']);
+                        $InvoiceID = intval($CheckInvoiceHistory['InvoiceID']);
+                        $Qty = intval($CheckInvoiceHistory['Qty']);
+                        $returnValidateData = stockHistoryValidateCalculation($companyID, $ProdID, $InvoiceID, $Qty, '', $InvoiceData["FullInvoiceNumber"]);
+                        if ($returnValidateData && $returnValidateData['status'] == 'failed') {
+                            return Response::json($returnValidateData);
+                        }
+                    }
+                }
+
+                foreach($InvoiceDetailData as $InvoiceHistory){
+                    $prodType=intval($InvoiceHistory['ProductType']);
+                    if($prodType==1) {
+                        $ProdID = intval($InvoiceHistory['ProductID']);
+                        $InvoiceID = intval($InvoiceHistory['InvoiceID']);
+                        $Qty = intval($InvoiceHistory['Qty']);
+                        $returnValidateData = stockHistoryCalculation($companyID, $ProdID, $InvoiceID, $Qty, '', $InvoiceData["FullInvoiceNumber"]);
+                    }
+                }
 				//product tax
 				if(isset($data['Tax']) && is_array($data['Tax'])){
 					foreach($data['Tax'] as $j => $taxdata){
@@ -412,10 +440,11 @@ class InvoicesController extends \BaseController {
         $data = Input::all();
         unset($data['BarCode']);
         if(!empty($data) && $id > 0){
-
             $Invoice = Invoice::find($id);
             $companyID = User::get_companyID();
             $CreatedBy = User::get_user_full_name();
+            $FullInvoiceNumber=$Invoice->FullInvoiceNumber;
+            $OldProductsarr=InvoiceDetail::where(['InvoiceID'=>$Invoice->InvoiceID])->get(['ProductID','Qty','ProductType','InvoiceDetailID'])->toArray();
 
             $InvoiceData = array();
             $InvoiceData["CompanyID"] = $companyID;
@@ -477,7 +506,7 @@ class InvoicesController extends \BaseController {
                     $invoiceloddata['InvoiceLogStatus']= InVoiceLog::UPDATED;
                     $Invoice->update($InvoiceData);
                     InVoiceLog::insert($invoiceloddata);
-					$InvoiceDetailData = $InvoiceTaxRates = $InvoiceAllTaxRates = array();
+					$InvoiceDetailData = $StockHistoryData = $InvoiceTaxRates = $InvoiceAllTaxRates = array();
                     //Delete all Invoice Data and then Recreate.
                     InvoiceDetail::where(["InvoiceID" => $Invoice->InvoiceID])->delete();
                     InvoiceTaxRate::where(["InvoiceID" => $Invoice->InvoiceID])->delete();
@@ -491,13 +520,23 @@ class InvoicesController extends \BaseController {
                                     if(!empty($value)) {
                                         $pid = explode('-', $value);
                                         $InvoiceDetailData[$i][$field] = $pid[1];
+                                        $StockHistoryData[$i][$field] = $pid[1];
+                                        $StockHistoryData[$i]["InvoiceID"] = $Invoice->InvoiceID;
+
+                                        /**
+                                         *  1. if product is new not in old and exists in new
+                                         *  2. existinsg product checke update qty with old
+                                         */
+
                                     } else {
                                         $InvoiceDetailData[$i][$field] = "";
+                                        $StockHistoryData[$i][$field] = "";
                                     }
                                 }else{
                                     $InvoiceDetailData[$i][$field] = $value;
+                                    $StockHistoryData[$i][$field] = $value;
                                 }
-								$InvoiceDetailData[$i]["Discount"] 	= 	0;
+                                $InvoiceDetailData[$i]["Discount"] 	= 	0;
                                 $InvoiceDetailData[$i]["InvoiceID"] = $Invoice->InvoiceID;
                                 $InvoiceDetailData[$i]["created_at"] = date("Y-m-d H:i:s");
                                 $InvoiceDetailData[$i]["updated_at"] = date("Y-m-d H:i:s");
@@ -529,7 +568,7 @@ class InvoicesController extends \BaseController {
                                 $i++;								
                             }
                         }
-						
+
 						if(isset($data['Tax']) && is_array($data['Tax'])){
 							foreach($data['Tax'] as $j => $taxdata)
 							{
@@ -542,15 +581,15 @@ class InvoicesController extends \BaseController {
 						}
 						
 						if(isset($data['InvoiceTaxes']) && is_array($data['InvoiceTaxes'])){
-					foreach($data['InvoiceTaxes']['field'] as  $p =>  $InvoiceTaxes){						
-						$InvoiceAllTaxRates[$p]['TaxRateID'] 		= 	$InvoiceTaxes;
-						$InvoiceAllTaxRates[$p]['Title'] 			= 	TaxRate::getTaxName($InvoiceTaxes);
-						$InvoiceAllTaxRates[$p]["created_at"] 		= 	date("Y-m-d H:i:s");
-						$InvoiceAllTaxRates[$p]["InvoiceTaxType"] 	= 	1;
-						$InvoiceAllTaxRates[$p]["InvoiceID"] 		= 	$Invoice->InvoiceID; 
-						$InvoiceAllTaxRates[$p]["TaxAmount"] 		= 	$data['InvoiceTaxes']['value'][$p];
-					}
-				}
+                            foreach($data['InvoiceTaxes']['field'] as  $p =>  $InvoiceTaxes){
+                                $InvoiceAllTaxRates[$p]['TaxRateID'] 		= 	$InvoiceTaxes;
+                                $InvoiceAllTaxRates[$p]['Title'] 			= 	TaxRate::getTaxName($InvoiceTaxes);
+                                $InvoiceAllTaxRates[$p]["created_at"] 		= 	date("Y-m-d H:i:s");
+                                $InvoiceAllTaxRates[$p]["InvoiceTaxType"] 	= 	1;
+                                $InvoiceAllTaxRates[$p]["InvoiceID"] 		= 	$Invoice->InvoiceID;
+                                $InvoiceAllTaxRates[$p]["TaxAmount"] 		= 	$data['InvoiceTaxes']['value'][$p];
+                            }
+				        }
 						
                         $InvoiceTaxRates 	  =     merge_tax($InvoiceTaxRates);
 						$InvoiceAllTaxRates   = 	merge_tax($InvoiceAllTaxRates);
@@ -561,7 +600,7 @@ class InvoicesController extends \BaseController {
 						
 						 if(!empty($InvoiceAllTaxRates)) { //Invoice tax
                  		   InvoiceTaxRate::insert($InvoiceAllTaxRates);
-               		 }
+                         }
 						
                         if (!empty($InvoiceDetailData) && InvoiceDetail::insert($InvoiceDetailData)) {
                             $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID);
@@ -572,6 +611,74 @@ class InvoicesController extends \BaseController {
                             } else {
                                 $Invoice->update(["PDF" => $pdf_path]);
                             }
+
+                            //StockHistory Maintain
+                            $MultiProductSumQtyArr=array();
+                            $OldProductsarr=sumofQtyIfSameProduct($OldProductsarr);
+                            $MultiProductSumQtyArr=sumofQtyIfSameProduct($InvoiceDetailData);
+                            foreach($MultiProductSumQtyArr as $CheckInvoiceHistory){
+                                $prodType=intval($CheckInvoiceHistory['ProductType']);
+                                if($prodType==1) {
+                                    $ProdID = intval($CheckInvoiceHistory['ProductID']);
+                                    $InvoiceID = intval($id);
+                                    $Qty = intval($CheckInvoiceHistory['Qty']);
+                                    $key_of_arr = searchArrayByProductID($ProdID, $OldProductsarr);
+                                    $oldQtyValidate=0;
+                                    if(intval($key_of_arr)>=0) {
+                                        $res_oldprod = getArrayByProductID($ProdID, $OldProductsarr);
+                                        $oldQtyValidate=intval($res_oldprod['Qty']);
+                                    }
+                                    $returnValidateData = stockHistoryUpdateValidateCalculation($companyID, $ProdID, $InvoiceID, $Qty, '',$oldQtyValidate);
+                                    if ($returnValidateData && $returnValidateData['status'] == 'failed') {
+                                        DB::connection('sqlsrv2')->rollback();
+                                        return Response::json($returnValidateData);
+                                    }
+                                }
+                            }
+
+                            //For Create New If not Exist
+                            foreach($MultiProductSumQtyArr as $InvoiceHistory){
+                                $prodType=intval($InvoiceHistory['ProductType']);
+                                if($prodType==1) {
+                                    $ProdID = intval($InvoiceHistory['ProductID']);
+                                    $InvoiceID = intval($InvoiceHistory['InvoiceID']);
+                                    $Qty = intval($InvoiceHistory['Qty']);
+                                    //$InvoiceDetailID = intval($InvoiceHistory['InvoiceDetailID']);
+                                    $key_of_arr = searchArrayByProductID($ProdID, $OldProductsarr);
+                                    if(intval($key_of_arr) < 0){
+                                        //Create New
+                                        $returnValidateData = stockHistoryValidateCalculation($companyID, $ProdID, $InvoiceID, $Qty, '', $FullInvoiceNumber);
+                                        if ($returnValidateData && $returnValidateData['status'] == 'failed') {
+                                            DB::connection('sqlsrv2')->rollback();
+                                            return Response::json($returnValidateData);
+                                        }else{
+                                            $returnValidateData = stockHistoryCalculation($companyID, $ProdID, $InvoiceID, $Qty, '', $FullInvoiceNumber);
+                                        }
+                                    }
+                                }
+                            }
+
+                            //StockHistory update/delete.
+                            foreach($OldProductsarr as $OldProduct){
+                                $prodType=intval($OldProduct['ProductType']);
+                                $ProdID=$OldProduct['ProductID'];
+                                $oldQty=intval($OldProduct['Qty']);
+                                if($prodType==1) {
+                                    $InvoiceDetailID=$OldProduct['InvoiceDetailID'];
+                                    $key_of_arr = searchArrayByProductID($ProdID, $MultiProductSumQtyArr);
+                                    if(intval($key_of_arr)>=0){
+                                        //Update Prod
+                                        $res_prod=getArrayByProductID($ProdID, $MultiProductSumQtyArr);
+                                        $returnValidateData = stockHistoryUpdateCalculation($companyID, intval($res_prod['ProductID']), $id, intval($res_prod['Qty']),'',$oldQty);
+                                    }else{
+                                        //delete Prod
+                                        stockHistoryUpdateCalculation($companyID,$ProdID,$id,$OldProduct['Qty'],$reason='delete_prodstock',$oldQty);
+                                    }
+
+                                }
+                            }
+
+                            //End Stock History Maintain
 
                             DB::connection('sqlsrv2')->commit();
                             return Response::json(array("status" => "success", "message" => "Invoice Successfully Updated", 'LastID' => $Invoice->InvoiceID));

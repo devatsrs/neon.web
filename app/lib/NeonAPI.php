@@ -196,19 +196,12 @@ class NeonAPI{
 
     public static function RegisterApiLogin($data){
         try{
-            $user = User::where(['EmailAddress'=>$data['EmailAddress'],'Status'=>1])->first();
-
-            if(!Hash::check($data['password'], $user->password)){
-                Log::info("");
-                Log::info($data);
-                Log::info("password " . $user->password);
-                return Response::json(['error' => 'invalid_credentials'], 401);
+            if(!Auth::attempt(array('EmailAddress' => $data['EmailAddress'], 'password' => $data['password'] ,'Status'=> 1 ))){
+                return false;
             }
-
+            $user = User::where(['EmailAddress'=>$data['EmailAddress'],'Status'=>1])->first();
             Log::info(print_r($user,true));
             User::find($user->UserID)->update(['LastLoginDate' => date('Y-m-d H:i:s')]);
-            Session::set("apiRegistrationUserId", $user->UserID );
-            Session::set("apiRegistrationCompanyID", $user->CompanyID );
             return true;
         }catch(Exception $e){
             Log::info("RegisterApiLogin ".$e->getMessage());

@@ -30,7 +30,7 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label class="control-label">Days Of Week </label>
-                                {{ Form::select('DaysOfWeek[]', TimeZones::$DaysOfWeek, '', array('class' => 'form-control select2', 'multiple' => 'multiple')) }}
+                                {{ Form::select('DaysOfWeek[]', Timezones::$DaysOfWeek, '', array('class' => 'form-control select2', 'multiple' => 'multiple')) }}
                             </div>
                         </div>
                         <div class="col-md-12">
@@ -43,7 +43,7 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label class="control-label">Months </label>
-                                {{ Form::select('Months[]', TimeZones::$Months, '', array('class' => 'form-control select2', 'multiple' => 'multiple')) }}
+                                {{ Form::select('Months[]', Timezones::$Months, '', array('class' => 'form-control select2', 'multiple' => 'multiple')) }}
                             </div>
                         </div>
                         <div class="col-md-12">
