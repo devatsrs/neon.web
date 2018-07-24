@@ -150,6 +150,7 @@ class Dispute extends \Eloquent {
 
 		$disputeData["Status"]      = isset($data["Status"])?$data["Status"]:0;
 		$disputeData["Notes"]      = isset($data["Notes"])?$data["Notes"]:"";
+		$disputeData["Ref"]      = isset($data["Ref"])?$data["Ref"]:"";
 		$disputeData['created_at']  = date("Y-m-d H:i:s");
 		$disputeData['CreatedBy']   = User::get_user_full_name();
 

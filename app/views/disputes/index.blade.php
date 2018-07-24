@@ -94,7 +94,7 @@
          $('#filter-button-toggle').show();
 
          var dispute_status = {{json_encode(Dispute::$Status);}};
-         var list_fields  = ['InvoiceType','AccountName','InvoiceNo','DisputeAmount','Status','created_at', 'CreatedBy','ShortNotes','DisputeID','Attachment','AccountID','Notes'];
+         var list_fields  = ['InvoiceType','AccountName','InvoiceNo','DisputeAmount','Status','created_at', 'CreatedBy','ShortNotes','DisputeID','Attachment','AccountID','Notes','Ref'];
 
          $searchFilter.Status = $("#dispute-table-search select[name='Status']").val();
          $searchFilter.DisputeDate_StartDate = $("#dispute-table-search input[name='DisputeDate_StartDate']").val();
@@ -588,6 +588,12 @@
               <textarea name="Notes" class="form-control" id="field-5" rows="10" placeholder=""></textarea>
             </div>
           </div>
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="field-5" class="control-label">Ref</label>
+                    <input type="text" id="Ref" name="Ref" class="form-control" id="field-5" placeholder="">
+                </div>
+            </div>
             <div class="col-md-12">
                 <div class="form-group">
                     <label for="Attachment" class="control-label">Attachment (pdf,png,jpg,gif,xls,csv,xlsx)</label>
