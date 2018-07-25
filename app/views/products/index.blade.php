@@ -183,15 +183,7 @@
                                     return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
                                 }
                             },
-                            {  "bSortable": true,
-                                mRender: function (val){
-                                   if(val==null || val==''){
-                                       return 'All';
-                                   }else{
-                                       return val;
-                                   }
-                                }
-                            }, //  1Item Type
+                            {  "bSortable": true }, //  1Item Type
                             {  "bSortable": true },  // 2 Item Name
                             {  "bSortable": true },  // 3 Item Code
                             {  "bSortable": true }, //  4 Buying Price
