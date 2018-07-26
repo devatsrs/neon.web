@@ -227,7 +227,7 @@ $('#rowContainer').append(add_row_html);
 function ajax_form_success(response){
     if(typeof response.redirect != 'undefined' && response.redirect != ''){
         if(typeof response.warning != 'undefined' && response.warning != '') {
-            alert(response.warning);
+            toastr.warning(response.warning, "Error", toastr_opts);
         }
         window.location = response.redirect;
     }
