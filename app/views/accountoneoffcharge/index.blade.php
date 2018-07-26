@@ -279,7 +279,7 @@
                    $(".btn").button('reset');
                    if (response.status == 'success') {
                        if(typeof response.warning != 'undefined' && response.warning != '') {
-                           alert(response.warning);
+                           toastr.warning(response.warning, "Error", toastr_opts);
                        }
                        $('.modal').modal('hide');
                        toastr.success(response.message, "Success", toastr_opts);

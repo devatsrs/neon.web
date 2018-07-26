@@ -2858,7 +2858,7 @@ function StockHistoryCalculations($data=array()){
                     $remainStock = $pstock - $stockarr['Qty'];
                     $low_stock_level=intval($getProduct['Low_stock_level']);
                     if ($remainStock < 0 || $remainStock <= $low_stock_level) {
-                        $Error[] = $pname . " is below the Lowlevel Stock.Available Stock is " . $remainStock;
+                        $Error[] = $pname . " is below the LowStockLevel.Available Stock is " . $remainStock;
                     }
                     $invoicemsg="";
                     if($stockarr['InvoiceNumber']!=''){
@@ -2940,17 +2940,12 @@ function stockHistoryUpdateCalculations($data=array()){
                             if ($stockarr['Qty'] > $stockarr['oldQty']) {
                                 $diffQuantity = $stockarr['Qty'] - $stockarr['oldQty'];
                                 $updatedStock = $hStock - $diffQuantity;
-                                if ($updatedStock <= $low_stock_level) {
-                                    $Error[] = $pname . " is below the Lowlevel Stock.Available Stock is " . $updatedStock;
-                                }
-
                             } else {
                                 $diffQuantity = $stockarr['oldQty'] - $stockarr['Qty'];
                                 $updatedStock = $hStock + $diffQuantity;
-                                if ($updatedStock <= $low_stock_level) {
-                                    $Error[] = $pname . " is below the Lowlevel Stock.Available Stock is " . $updatedStock;
-                                }
-
+                            }
+                            if ($updatedStock <= $low_stock_level) {
+                                $Error[] = $pname . " is below the LowStockLevel.Available Stock is " . $updatedStock;
                             }
 
                             $invoicemsg="";
