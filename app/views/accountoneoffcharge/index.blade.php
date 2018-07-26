@@ -270,7 +270,33 @@
 		    var tax_final  = 	parseFloat(TaxAmount1+TaxAmount2);
 		   
            $('#oneofcharge-form [name="TaxAmount"]').val(tax_final.toFixed(parseInt(decimal_places)));
-           submit_ajax_datatable(_url,$(this).serialize(),0,data_table_char);
+           //submit_ajax_datatable(_url,$(this).serialize(),0,data_table_char);
+           $.ajax({
+               url:_url, //Server script to process data
+               type: 'POST',
+               dataType: 'json',
+               success: function(response) {
+                   $(".btn").button('reset');
+                   if (response.status == 'success') {
+                       if(typeof response.warning != 'undefined' && response.warning != '') {
+                           alert(response.warning);
+                       }
+                       $('.modal').modal('hide');
+                       toastr.success(response.message, "Success", toastr_opts);
+                       if( typeof data_table_char !=  'undefined'){
+                           data_table_char.fnFilter('', 0);
+                       }
+
+                   } else {
+                       toastr.error(response.message, "Error", toastr_opts);
+                   }
+
+               },
+               data: $(this).serialize(),
+               //Options to tell jQuery not to process data or worry about content-type.
+               cache: false
+           });
+
            //data_table_char.fnFilter('', 0);
        });
 	   

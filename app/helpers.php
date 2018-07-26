@@ -2795,340 +2795,6 @@ function array_key_exists_wildcard ( $arr, $search ) {
     return preg_grep( $search, array_keys( $arr ) );
 }
 
-
-function stockHistoryValidateCalculation($companyID=0,$productID,$invoiceID,$quantity,$reason='',$InvoiceNo){
-    if($companyID == 0){
-        $companyID = User::get_companyID();
-    }
-    if($companyID > 0 && $productID > 0 && $quantity > 0){
-        $getProduct = Product::where('CompanyId',$companyID)->where('ProductID',$productID)->first();
-        $returnData=array();
-        if(!empty($getProduct)){
-            $pname=$getProduct['Name'];
-            $is_enable_stock=intval($getProduct['Enable_stock']);
-            if($is_enable_stock == 1) {
-                $getPrevProductHistory = StockHistory::where('CompanyID', $companyID)->where('ProductID', $productID)->orderby('StockHistoryID', 'desc')->first();
-                if ($getPrevProductHistory) {
-                    $pstock = intval($getPrevProductHistory['Stock']);
-                    $remainStock = $pstock - $quantity;
-                    if ($quantity > $pstock) {
-                        $returnData = array("status" => "failed", "message" => "Quantity of Product " . $pname . " exceeded From Stock.Available Stock is " . $pstock);
-                    } else {
-                        if ($remainStock < 0) {
-                            $returnData = array("status" => "failed", "message" => "Quantity of Product " . $pname . " exceeded From Stock.Available Stock is " . $pstock);
-                        } else {
-                            $returnData = array("status" => "success", "message" => "success");
-                        }
-
-                    }
-                }
-            }
-        }else{
-            $returnData=array("status" => "failed", "message" => "Product Not Available At This Time.");
-        }
-    }
-    return $returnData;
-}
-
-function stockHistoryCalculation($companyID=0,$productID,$invoiceID,$quantity,$reason='',$InvoiceNo=''){
-    if($companyID == 0){
-        $companyID = User::get_companyID();
-    }
-    if($companyID > 0 && $productID > 0 && $quantity > 0){
-        $getProduct = Product::where('CompanyId',$companyID)->where('ProductID',$productID)->first();
-        $returnData=array();
-        $low_stock_arr=array();
-        if(!empty($getProduct)){
-            $low_stock_alert=0;
-            $CreatedBy = User::get_user_full_name();
-            $pname=$getProduct['Name'];
-            $productCode=$getProduct['Code'];
-            $ItemTypeID=$getProduct['ItemTypeID'];
-            $ItemType='All';
-            if($ItemTypeID > 0){
-                $res=ItemType::where('ItemTypeID',$ItemTypeID)->pluck('title');
-                if($res!=''){
-                    $ItemType=$res;
-                }
-            }
-
-            $low_stock_level=intval($getProduct['Low_stock_level']);
-            $is_enable_stock=intval($getProduct['Enable_stock']);
-            if($is_enable_stock == 1) {
-                $getPrevProductHistory = StockHistory::where('CompanyID', $companyID)->where('ProductID', $productID)->orderby('StockHistoryID', 'desc')->first();
-                if (!empty($getPrevProductHistory)) {
-                    $pstock = intval($getPrevProductHistory['Stock']);
-                    $remainStock = $pstock - $quantity;
-                    if ($reason == '') {
-                        $invoicemsg="";
-                        //$reason = "Generate Invoice From Frontend.Stock Updated From " . $pstock . " To " . $remainStock;
-                        if($InvoiceNo!=''){
-                            $invoicemsg='{'.$InvoiceNo.'}';
-                        }
-                        $reason="Invoice Generated ".$invoicemsg." - qty ".$quantity;
-                    }
-                    if ($remainStock <= $low_stock_level) {
-                        $low_stock_alert = 1;
-                        $low_stock_arr['data']=array(
-                            'ProductID'=>$productID,
-                            'ItemType'=>$ItemType,
-                            'ProductName'=>$pname,
-                            'ProductCode'=>$productCode,
-                            'Stock'=>$remainStock,
-                            'low_stock_level'=>$low_stock_level
-                        );
-                    }
-                    $data = array(
-                        'CompanyID' => $companyID,
-                        'ProductID' => $productID,
-                        'InvoiceID' => $invoiceID,
-                        'InvoiceNumber' => $InvoiceNo,
-                        'Stock' => $remainStock,
-                        'Quantity' => $quantity,
-                        'Reason' => $reason,
-                        'created_at' => date('Y-m-d H:i:s'),
-                        'created_by' => $CreatedBy
-                    );
-                    //Generate Notification
-                    /*if(count($low_stock_arr) > 0){
-                        $Notif_email = Notification::getNotificationMail(Notification::LowStockReminder,$companyID);
-                        $Notif_email = !empty($Notif_email)?$Notif_email:'';
-                        $Notif_email_arr = explode(",",$Notif_email);
-                        $low_stock_arr['Subject']='Low Stock Reminder For Product '.$pname;
-                        foreach($Notif_email_arr as $email_to){
-                            $notifemail = trim($email_to);
-                            if(filter_var($notifemail, FILTER_VALIDATE_EMAIL)) {
-                                $low_stock_arr['EmailTo'] = $notifemail;
-                                $status = sendMail('emails.admin.lowstockreminder', $low_stock_arr);
-                            }
-                        }
-                    }*/
-
-                    $insert = StockHistory::create($data);
-                    if ($insert) {
-                        $returnData = array("status" => "success", "message" => "success", "low_stock_data" => $low_stock_arr);
-                    }
-                }
-            }
-        }
-    }
-    return $returnData;
-}
-
-function stockHistoryUpdateValidateCalculation($companyID=0,$productID,$invoiceID,$quantity,$reason='',$oldQty){
-    if($companyID == 0){
-        $companyID = User::get_companyID();
-    }
-    $returnData=array();
-    if($companyID > 0 && $productID > 0 && $quantity > 0){
-        $getStockHistory = StockHistory::where('CompanyID', $companyID)->where('ProductID', $productID)->orderby('StockHistoryID', 'desc')->first();
-        if(!empty($getStockHistory)){
-            $low_stock_alert=0;
-            $hQuantity=intval($getStockHistory['Quantity']);
-            $hStock=intval($getStockHistory['Stock']);
-            if($oldQty!=$quantity) {
-                $getProduct = Product::where('CompanyId', $companyID)->where('ProductID', $productID)->first();
-                if (!empty($getProduct)) {
-                    $pstock = $getProduct['Quantity'];
-                    $pname = $getProduct['Name'];
-                    $is_enable_stock = intval($getProduct['Enable_stock']);
-                    if ($is_enable_stock == 1) {
-                        if ($quantity > $oldQty) {
-                            $diffQuantity = $quantity - $oldQty;
-                            $tempstock = $hStock - $diffQuantity;
-                            if ($tempstock < 0) {
-                                $returnData = array("status" => "failed", "message" => "Quantity of Product " . $pname . " exceeded From Stock.Available Stock is " . $hStock);
-                            }
-                        } else {
-                            $diffQuantity = $oldQty - $quantity;
-                            $hStock = $hStock + $diffQuantity;
-
-                        }
-                    }
-                } else {
-                    $returnData = array("status" => "failed", "message" => "Product Not Available At This Time.");
-                }
-            }
-
-        }
-
-
-    }
-    return $returnData;
-}
-
-function stockHistoryUpdateCalculation($companyID=0,$productID,$invoiceID,$quantity,$reason='',$oldQty){
-    if($companyID == 0){
-        $companyID = User::get_companyID();
-    }
-    $returnData=array();
-    $low_stock_arr=array();
-    if($companyID > 0 && $productID > 0 && $quantity > 0){
-        $getStockHistory = StockHistory::where('CompanyID', $companyID)->where('ProductID', $productID)->orderby('StockHistoryID', 'desc')->first();
-        if(!empty($getStockHistory)){
-            $CreatedBy = User::get_user_full_name();
-            $low_stock_alert=0;
-            $hQuantity=intval($getStockHistory['Quantity']);
-            $hStock=intval($getStockHistory['Stock']);
-            $InvoiceNo=$getStockHistory['InvoiceNumber'];
-            if($reason=='delete_prodstock'){
-                //if Delete Stock
-                $getProduct = Product::where('CompanyId', $companyID)->where('ProductID', $productID)->first();
-                if (!empty($getProduct)) {
-                    $pname = $getProduct['Name'];
-                    $low_stock_level = intval($getProduct['Low_stock_level']);
-                    $is_enable_stock = intval($getProduct['Enable_stock']);
-                    if ($is_enable_stock == 1) {
-                        $updatedStock = $hStock + $oldQty;
-                        if ($updatedStock <= $low_stock_level) {
-                            $low_stock_alert = 1;
-                        }
-
-                        $reason='Item Deleted From Frontend. Item Quantity '.$quantity.' Revert back to Stock.';
-
-                        $data = array(
-                            'CompanyID' => $companyID,
-                            'ProductID' => $productID,
-                            'InvoiceID' => $invoiceID,
-                            'InvoiceNumber' => $InvoiceNo,
-                            'Stock' => $updatedStock,
-                            'Quantity' => $quantity,
-                            'Reason' => $reason,
-                            'created_at' => date('Y-m-d H:i:s'),
-                            'created_by' => $CreatedBy
-                        );
-                        $insert = StockHistory::create($data);
-                        if ($insert) {
-                            $returnData = array("status" => "success", "message" => "success", "low_stock_alert" => $low_stock_alert);
-                        }
-
-                    }
-
-                }
-
-            }else {
-                if ($oldQty != $quantity) {
-                    $getProduct = Product::where('CompanyId', $companyID)->where('ProductID', $productID)->first();
-                    if (!empty($getProduct)) {
-                        $pstock = $getProduct['Quantity'];
-                        $pname = $getProduct['Name'];
-                        $productCode=$getProduct['Code'];
-                        $ItemTypeID=$getProduct['ItemTypeID'];
-                        $ItemType='All';
-                        if($ItemTypeID > 0){
-                            $res=ItemType::where('ItemTypeID',$ItemTypeID)->pluck('title');
-                            if($res!=''){
-                                $ItemType=$res;
-                            }
-                        }
-                        $low_stock_level = intval($getProduct['Low_stock_level']);
-                        $is_enable_stock = intval($getProduct['Enable_stock']);
-                        if ($is_enable_stock == 1) {
-                            if ($quantity > $oldQty) {
-                                $diffQuantity = $quantity - $oldQty;
-                                $updatedStock = $hStock - $diffQuantity;
-                                if ($updatedStock < 0) {
-                                    $returnData = array("status" => "failed", "message" => "Quantity of Product " . $pname . " exceeded From Stock.Available Stock is " . $hStock);
-                                } else {
-                                    if ($updatedStock <= $low_stock_level) {
-                                        $low_stock_alert = 1;
-                                        $low_stock_arr['data']=array(
-                                            'ProductID'=>$productID,
-                                            'ItemType'=>$ItemType,
-                                            'ProductCode'=>$productCode,
-                                            'ProductName'=>$pname,
-                                            'Stock'=>$updatedStock,
-                                            'low_stock_level'=>$low_stock_level
-                                        );
-                                    }
-                                    if ($reason == '') {
-                                        //$reason = "Updated Invoice From Frontend.Stock Updated From " . $hStock . " To " . $updatedStock;
-                                        $invoicemsg="";
-                                        if($InvoiceNo!=''){
-                                            $invoicemsg='{'.$InvoiceNo.'}';
-                                        }
-                                        $reason="Invoice Updated ".$invoicemsg." - qty ".$quantity;
-                                    }
-                                    $data = array(
-                                        'CompanyID' => $companyID,
-                                        'ProductID' => $productID,
-                                        'InvoiceID' => $invoiceID,
-                                        'InvoiceNumber' => $InvoiceNo,
-                                        'Stock' => $updatedStock,
-                                        'Quantity' => $diffQuantity,
-                                        'Reason' => $reason,
-                                        'created_at' => date('Y-m-d H:i:s'),
-                                        'created_by' => $CreatedBy
-                                    );
-                                }
-                            } else {
-                                $diffQuantity = $oldQty - $quantity;
-                                $updatedStock = $hStock + $diffQuantity;
-                                if ($updatedStock <= $low_stock_level) {
-                                    $low_stock_alert = 1;
-                                    $low_stock_arr['data']=array(
-                                        'ProductID'=>$productID,
-                                        'ProductName'=>$pname,
-                                        'ItemType'=>$ItemType,
-                                        'ProductCode'=>$productCode,
-                                        'Stock'=>$updatedStock,
-                                        'low_stock_level'=>$low_stock_level
-                                    );
-                                }
-                                if ($reason == '') {
-                                    //$reason = "Updated Invoice From Frontend.Stock Updated From " . $hStock . " To " . $updatedStock;
-                                    $invoicemsg="";
-                                    if($InvoiceNo!=''){
-                                        $invoicemsg='{'.$InvoiceNo.'}';
-                                    }
-                                    $reason="Invoice Updated ".$invoicemsg." - qty ".$quantity;
-                                }
-                                $data = array(
-                                    'CompanyID' => $companyID,
-                                    'ProductID' => $productID,
-                                    'InvoiceID' => $invoiceID,
-                                    'InvoiceNumber' => $InvoiceNo,
-                                    'Stock' => $updatedStock,
-                                    'Quantity' => $diffQuantity,
-                                    'Reason' => $reason,
-                                    'created_at' => date('Y-m-d H:i:s'),
-                                    'created_by' => $CreatedBy
-                                );
-
-                            }
-                            //Generate Notification
-                            /*if(count($low_stock_arr) > 0){
-                                $Notif_email = Notification::getNotificationMail(Notification::LowStockReminder,$companyID);
-                                $Notif_email = !empty($Notif_email)?$Notif_email:'';
-                                $Notif_email_arr = explode(",",$Notif_email);
-                                $low_stock_arr['Subject']='Low Stock Reminder For Product '.$pname;
-                                foreach($Notif_email_arr as $email_to){
-                                    $notifemail = trim($email_to);
-                                    if(filter_var($notifemail, FILTER_VALIDATE_EMAIL)) {
-                                        $low_stock_arr['EmailTo'] = $notifemail;
-                                        $status = sendMail('emails.admin.lowstockreminder', $low_stock_arr);
-                                    }
-                                }
-
-                            }*/
-                            $insert = StockHistory::create($data);
-                            if ($insert) {
-                                $returnData = array("status" => "success", "message" => "success", "low_stock_data" => $low_stock_arr);
-                            }
-                        }
-                    } else {
-                        $returnData = array("status" => "failed", "message" => "Product Not Available At This Time.");
-                    }
-                }
-            }
-
-        }
-
-
-    }
-    return $returnData;
-}
-
 function searchArrayByProductID($id, $array) {
     foreach ($array as $key => $val) {
         if ($val['ProductID'] == $id) {
@@ -3174,4 +2840,151 @@ function sumofQtyIfSameProduct($inpuarr){
         array_push($resarr, $arr);
     }
     return $resarr;
+}
+
+function StockHistoryCalculations($data=array()){
+    $Error=array();
+    $TempStockData=array();
+    $StockData=array();
+    foreach($data as $stockarr){
+        if($stockarr['CompanyID'] > 0 && $stockarr['ProductID'] > 0 && $stockarr['Qty'] >0){
+            $getProduct = Product::where(['ProductID'=>$stockarr['ProductID'],'Enable_stock'=>1])->first();
+
+            if(!empty($getProduct)){
+                $pname=$getProduct['Name'];
+                $getPrevProductHistory = StockHistory::where('CompanyID', $stockarr['CompanyID'])->where('ProductID', $stockarr['ProductID'])->orderby('StockHistoryID', 'desc')->first();
+                if (!empty($getPrevProductHistory)) {
+                    $pstock = intval($getPrevProductHistory['Stock']);
+                    $remainStock = $pstock - $stockarr['Qty'];
+                    $low_stock_level=intval($getProduct['Low_stock_level']);
+                    if ($remainStock < 0 || $remainStock <= $low_stock_level) {
+                        $Error[] = $pname . " is below the Lowlevel Stock.Available Stock is " . $remainStock;
+                    }
+                    $invoicemsg="";
+                    if($stockarr['InvoiceNumber']!=''){
+                        $invoicemsg='{'.$stockarr['InvoiceNumber'].'}';
+                    }
+                    $reason="Invoice Generated ".$invoicemsg." - qty ".$stockarr['Qty'];
+
+                    $TempStockData['CompanyID']=$stockarr['CompanyID'];
+                    $TempStockData['ProductID']=$stockarr['ProductID'];
+                    $TempStockData['InvoiceID']=$stockarr['InvoiceID'];
+                    $TempStockData['InvoiceNumber']=$stockarr['InvoiceNumber'];
+                    $TempStockData['Stock']=$remainStock;
+                    $TempStockData['Quantity']=$stockarr['Qty'];
+                    $TempStockData['Reason']=$reason;
+                    $TempStockData['created_at']=date('Y-m-d H:i:s');
+                    $TempStockData['created_by']=$stockarr['created_by'];
+
+                    $StockData[]=$TempStockData;
+                    //array_push($StockData,$TempStockData);
+
+                }
+            }
+        }
+    }
+
+    if(!empty($StockData)){
+        StockHistory::insert($StockData);
+        foreach($StockData as $updatestock){
+            $getProduct = Product::where('ProductID',$updatestock['ProductID'])->first();
+            if(!empty($getProduct)){
+                $getProduct->update(['Quantity'=>$updatestock['Stock']]);
+            }
+        }
+    }
+    return $Error;
+}
+
+function stockHistoryUpdateCalculations($data=array()){
+    $Error=array();
+    $StockData=array();
+    foreach($data as $stockarr){
+        $TempStockData=array();
+        if($stockarr['CompanyID'] > 0 && $stockarr['ProductID'] > 0 && $stockarr['Qty'] > 0){
+            $getStockHistory = StockHistory::where('ProductID', $stockarr['ProductID'])->orderby('StockHistoryID', 'desc')->first();
+            if(!empty($getStockHistory)){
+                $low_stock_alert=0;
+                $hQuantity=intval($getStockHistory['Quantity']);
+                $hStock=intval($getStockHistory['Stock']);
+                $InvoiceNo=$getStockHistory['InvoiceNumber'];
+                if($stockarr['Reason']=='delete_prodstock'){
+                    //if Delete Stock
+                    $getProduct = Product::where(['ProductID'=>$stockarr['ProductID'],'Enable_stock'=>1])->first();
+                    if (!empty($getProduct)) {
+                        $pname = $getProduct['Name'];
+                        $low_stock_level = intval($getProduct['Low_stock_level']);
+                        $updatedStock = $hStock + $stockarr['oldQty'];
+                        $reason=$pname.' Deleted. Item Quantity '.$stockarr['Qty'].' Revert back to Stock.';
+
+                        $TempStockData['CompanyID']=$stockarr['CompanyID'];
+                        $TempStockData['ProductID']=$stockarr['ProductID'];
+                        $TempStockData['InvoiceID']=$stockarr['InvoiceID'];
+                        $TempStockData['InvoiceNumber']=$stockarr['InvoiceNumber'];
+                        $TempStockData['Stock']=$updatedStock;
+                        $TempStockData['Quantity']=$stockarr['Qty'];
+                        $TempStockData['Reason']=$reason;
+                        $TempStockData['created_at']=date('Y-m-d H:i:s');
+                        $TempStockData['created_by']=$stockarr['created_by'];
+
+                        $StockData[]=$TempStockData;
+
+                    }
+                }else{
+                    if($stockarr['oldQty']!=$stockarr['Qty']) {
+                        $getProduct = Product::where(['ProductID'=>$stockarr['ProductID'],'Enable_stock'=>1])->first();
+                        if (!empty($getProduct)) {
+                            $pstock = $getProduct['Quantity'];
+                            $pname = $getProduct['Name'];
+                            $low_stock_level = intval($getProduct['Low_stock_level']);
+                            if ($stockarr['Qty'] > $stockarr['oldQty']) {
+                                $diffQuantity = $stockarr['Qty'] - $stockarr['oldQty'];
+                                $updatedStock = $hStock - $diffQuantity;
+                                if ($updatedStock <= $low_stock_level) {
+                                    $Error[] = $pname . " is below the Lowlevel Stock.Available Stock is " . $updatedStock;
+                                }
+
+                            } else {
+                                $diffQuantity = $stockarr['oldQty'] - $stockarr['Qty'];
+                                $updatedStock = $hStock + $diffQuantity;
+                                if ($updatedStock <= $low_stock_level) {
+                                    $Error[] = $pname . " is below the Lowlevel Stock.Available Stock is " . $updatedStock;
+                                }
+
+                            }
+
+                            $invoicemsg="";
+                            if($InvoiceNo!=''){
+                                $invoicemsg='{'.$InvoiceNo.'}';
+                            }
+                            $reason="Invoice Updated ".$invoicemsg." - qty ".$stockarr['Qty'];
+
+                            $TempStockData['CompanyID']=$stockarr['CompanyID'];
+                            $TempStockData['ProductID']=$stockarr['ProductID'];
+                            $TempStockData['InvoiceID']=$stockarr['InvoiceID'];
+                            $TempStockData['InvoiceNumber']=$stockarr['InvoiceNumber'];
+                            $TempStockData['Stock']=$updatedStock;
+                            $TempStockData['Quantity']=$diffQuantity;
+                            $TempStockData['Reason']=$reason;
+                            $TempStockData['created_at']=date('Y-m-d H:i:s');
+                            $TempStockData['created_by']=$stockarr['created_by'];
+
+                            $StockData[]=$TempStockData;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if(!empty($StockData)){
+        StockHistory::insert($StockData);
+        foreach($StockData as $updatestock){
+            $getProduct = Product::where('ProductID',$updatestock['ProductID'])->first();
+            if(!empty($getProduct)){
+                $getProduct->update(['Quantity'=>$updatestock['Stock']]);
+            }
+        }
+    }
+    return $Error;
 }
