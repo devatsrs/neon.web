@@ -7429,7 +7429,7 @@ ThisSP:BEGIN
                     AND tblVendorRate.TrunkId = p_trunkId
                     AND tblVendorRate.TimezonesID = tblTempVendorRate.TimezonesID
                     AND tblTempVendorRate.Rate = tblVendorRate.Rate
-                    AND (
+                    /*AND (
                         tblVendorRate.EffectiveDate = tblTempVendorRate.EffectiveDate
                         OR
                         (
@@ -7439,7 +7439,7 @@ ThisSP:BEGIN
                             WHEN tblTempVendorRate.EffectiveDate > NOW() THEN 1
                             ELSE 0
                         END)
-                    )
+                    )*/
             WHERE  tblTempVendorRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block');
 
 				/*IF (FOUND_ROWS() > 0) THEN
@@ -11434,6 +11434,7 @@ BEGIN
 		RateN float,
 		EffectiveDate date,
 		TrunkID int,
+		TimezonesID int,
 		CountryID int,
 		RateID int,
 		Interval1 INT,
@@ -11495,6 +11496,7 @@ BEGIN
     v_1.RateN,
     DATE_FORMAT (v_1.EffectiveDate, '%Y-%m-%d') AS EffectiveDate,
     v_1.TrunkID,
+    v_1.TimezonesID,
     r.CountryID,
     r.RateID,
    	CASE WHEN v_1.Interval1 is not null
@@ -11619,13 +11621,16 @@ BEGIN
 					ON vendorRate.RateID = tblVendorBlocking.RateId
 						 AND tblAccount.AccountID = tblVendorBlocking.AccountId
 						 AND vendorRate.TrunkID = tblVendorBlocking.TrunkID
+						 AND vendorRate.TimezonesID = tblVendorBlocking.TimezonesID
 				LEFT OUTER JOIN tblVendorBlocking AS blockCountry
 					ON vendorRate.CountryID = blockCountry.CountryId
 						 AND tblAccount.AccountID = blockCountry.AccountId
 						 AND vendorRate.TrunkID = blockCountry.TrunkID
+						 AND vendorRate.TimezonesID = blockCountry.TimezonesID
 				LEFT JOIN tblVendorPreference
 					ON tblVendorPreference.AccountId = vendorRate.AccountId
 						 AND tblVendorPreference.TrunkID = vendorRate.TrunkID
+						 AND tblVendorPreference.TimezonesID = vendorRate.TimezonesID
 						 AND tblVendorPreference.RateId = vendorRate.RateID
 				INNER JOIN tblTrunk
 					ON tblTrunk.TrunkID = vendorRate.TrunkID
@@ -11975,7 +11980,7 @@ INSERT INTO tmp_VendorVersion3VosSheet_
 SELECT
 
 
-    NULL AS RateID,
+    vendorRate.RateID AS RateID,
     IFNULL(tblTrunk.RatePrefix, '') AS `Rate Prefix`,
     Concat('' , IFNULL(tblTrunk.AreaPrefix, '') , vendorRate.Code) AS `Area Prefix`,
     'International' AS `Rate Type`,
@@ -12009,10 +12014,12 @@ INNER JOIN tblAccount
     ON vendorRate.AccountId = tblAccount.AccountID
 LEFT OUTER JOIN tblVendorBlocking
     ON vendorRate.TrunkId = tblVendorBlocking.TrunkID
+    AND vendorRate.TimezonesID = tblVendorBlocking.TimezonesID
     AND vendorRate.RateID = tblVendorBlocking.RateId
     AND tblAccount.AccountID = tblVendorBlocking.AccountId
 LEFT OUTER JOIN tblVendorBlocking AS blockCountry
     ON vendorRate.TrunkId = blockCountry.TrunkID
+    AND vendorRate.TimezonesID = blockCountry.TimezonesID
     AND vendorRate.CountryID = blockCountry.CountryId
     AND tblAccount.AccountID = blockCountry.AccountId
 INNER JOIN tblTrunk
@@ -12051,7 +12058,7 @@ WHERE (vendorRate.Rate > 0);
 			FROM tmp_VendorArchiveCurrentRates_ AS vendorArchiveRate
 			Left join tmp_VendorVersion3VosSheet_ vendorRate
 				 ON vendorArchiveRate.AccountId = vendorRate.AccountID
-				 AND vendorArchiveRate.AccountId = vendorRate.TrunkID
+				 AND vendorArchiveRate.TrunkID = vendorRate.TrunkID
  				 AND vendorArchiveRate.RateID = vendorRate.RateID
 
 			INNER JOIN tblAccount
