@@ -102,17 +102,15 @@ class Product extends \Eloquent {
     public static function getProductByItemType($data=array()){
         $CompanyID=User::get_companyID();
         if($data['ItemType']==''){
-            $ProductList=Product::get();
+            $ProductList=Product::where('CompanyId',$data['CompanyID'])->where('Active',1)->where('Quantity','>',0)->get();
         }else{
             $ProductList = DB::connection('sqlsrv2')->table('tblItemType')
                 ->join('tblProduct', 'tblItemType.ItemTypeID', '=', 'tblProduct.ItemTypeID')
                 ->select('tblProduct.*')
-                ->where('tblItemType.title','=',$data['ItemType'])
-                ->where('tblProduct.CompanyId','=',$CompanyID)
+                ->where(['tblItemType.title'=>$data['ItemType'],'tblProduct.CompanyId'=>$data['CompanyID'],'tblProduct.Active'=>1])
+                ->where('tblProduct.Quantity','>',0)
                 ->get();
         }
-
-
         return $ProductList;
     }
 
