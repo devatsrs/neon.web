@@ -88,12 +88,13 @@
                 contentType: false,
                 processData: false
             }).success(function(response){
-                   if (typeof ajax_form_success !== 'undefined' && $.isFunction(ajax_form_success)) {
-                         ajax_form_success(response);
-                   }
                 if(typeof response.warning != 'undefined' && response.warning != '') {
                     toastr.warning(response.warning, "Error", toastr_opts);
                 }
+               if (typeof ajax_form_success !== 'undefined' && $.isFunction(ajax_form_success)) {
+                     ajax_form_success(response);
+               }
+
             });
             return false;
         });
