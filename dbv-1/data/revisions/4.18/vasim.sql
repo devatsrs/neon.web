@@ -11824,7 +11824,7 @@ BEGIN
 			       -- AND  FIND_IN_SET(TrunkId,p_Trunks)!= 0
 			       -- ORDER BY `Rate Prefix`
 
-			   	UNION ALL
+			   	/*UNION ALL
 
 			        SELECT
 
@@ -11842,7 +11842,7 @@ BEGIN
 			                `Billing Rate for Calling Card Prompt` ,
 			                `Billing Cycle for Calling Card Prompt`
 			        FROM    tmp_VendorVersion3VosSheet_
-			        WHERE  EndDate is not null
+			        WHERE  EndDate is not null*/
 					  -- AccountID = p_VendorID
 			      --  AND  FIND_IN_SET(TrunkId,p_Trunks) != 0
 			      --  ORDER BY `Rate Prefix`;
