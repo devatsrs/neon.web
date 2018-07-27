@@ -344,28 +344,32 @@ class InvoicesController extends \BaseController {
                 }
 
                 //StockHistory
+                $StockHistory=array();
+                $temparray=array();
                 foreach($InvoiceDetailData as $CheckInvoiceHistory){
                     $prodType=intval($CheckInvoiceHistory['ProductType']);
                     if($prodType==1) {
-                        $ProdID = intval($CheckInvoiceHistory['ProductID']);
+                        $ProductID = intval($CheckInvoiceHistory['ProductID']);
                         $InvoiceID = intval($CheckInvoiceHistory['InvoiceID']);
                         $Qty = intval($CheckInvoiceHistory['Qty']);
-                        $returnValidateData = stockHistoryValidateCalculation($companyID, $ProdID, $InvoiceID, $Qty, '', $InvoiceData["FullInvoiceNumber"]);
-                        if ($returnValidateData && $returnValidateData['status'] == 'failed') {
+                        $temparray['CompanyID']=$companyID;
+                        $temparray['ProductID']=$ProductID;
+                        $temparray['InvoiceID']=$InvoiceID;
+                        $temparray['Qty']=$Qty;
+                        $temparray['Reason']='';
+                        $temparray['InvoiceNumber']=$InvoiceData["FullInvoiceNumber"];
+                        $temparray['created_by']=User::get_user_full_name();
+
+                        array_push($StockHistory,$temparray);
+                        //$returnValidateData = stockHistoryValidateCalculation($companyID, $ProdID, $InvoiceID, $Qty, '', $InvoiceData["FullInvoiceNumber"]);
+                        /*if ($returnValidateData && $returnValidateData['status'] == 'failed') {
                             return Response::json($returnValidateData);
-                        }
+                        }*/
                     }
                 }
 
-                foreach($InvoiceDetailData as $InvoiceHistory){
-                    $prodType=intval($InvoiceHistory['ProductType']);
-                    if($prodType==1) {
-                        $ProdID = intval($InvoiceHistory['ProductID']);
-                        $InvoiceID = intval($InvoiceHistory['InvoiceID']);
-                        $Qty = intval($InvoiceHistory['Qty']);
-                        $returnValidateData = stockHistoryCalculation($companyID, $ProdID, $InvoiceID, $Qty, '', $InvoiceData["FullInvoiceNumber"]);
-                    }
-                }
+                $historyData=StockHistoryCalculations($StockHistory);
+
 				//product tax
 				if(isset($data['Tax']) && is_array($data['Tax'])){
 					foreach($data['Tax'] as $j => $taxdata){
@@ -415,10 +419,16 @@ class InvoicesController extends \BaseController {
                         $Invoice->update(["PDF" => $pdf_path]);
                     }
 
-
                     DB::connection('sqlsrv2')->commit();
-
-                    return Response::json(array("status" => "success", "message" => "Invoice Successfully Created",'LastID'=>$Invoice->InvoiceID,'redirect' => URL::to('/invoice/'.$Invoice->InvoiceID.'/edit')));
+                    $SuccessMsg="Invoice Successfully Created.";
+                    $message='';
+                    if(!empty($historyData)){
+                        foreach($historyData as $msg){
+                            $message.=$msg;
+                            $message.="\n\r";
+                        }
+                    }
+                    return Response::json(array("status" => "success","warning"=>$message, "message" => $SuccessMsg,'LastID'=>$Invoice->InvoiceID,'redirect' => URL::to('/invoice/'.$Invoice->InvoiceID.'/edit')));
                 } else {
                     DB::connection('sqlsrv2')->rollback();
                     return Response::json(array("status" => "failed", "message" => "Problem Creating Invoice."));
@@ -616,25 +626,9 @@ class InvoicesController extends \BaseController {
                             $MultiProductSumQtyArr=array();
                             $OldProductsarr=sumofQtyIfSameProduct($OldProductsarr);
                             $MultiProductSumQtyArr=sumofQtyIfSameProduct($InvoiceDetailData);
-                            foreach($MultiProductSumQtyArr as $CheckInvoiceHistory){
-                                $prodType=intval($CheckInvoiceHistory['ProductType']);
-                                if($prodType==1) {
-                                    $ProdID = intval($CheckInvoiceHistory['ProductID']);
-                                    $InvoiceID = intval($id);
-                                    $Qty = intval($CheckInvoiceHistory['Qty']);
-                                    $key_of_arr = searchArrayByProductID($ProdID, $OldProductsarr);
-                                    $oldQtyValidate=0;
-                                    if(intval($key_of_arr)>=0) {
-                                        $res_oldprod = getArrayByProductID($ProdID, $OldProductsarr);
-                                        $oldQtyValidate=intval($res_oldprod['Qty']);
-                                    }
-                                    $returnValidateData = stockHistoryUpdateValidateCalculation($companyID, $ProdID, $InvoiceID, $Qty, '',$oldQtyValidate);
-                                    if ($returnValidateData && $returnValidateData['status'] == 'failed') {
-                                        DB::connection('sqlsrv2')->rollback();
-                                        return Response::json($returnValidateData);
-                                    }
-                                }
-                            }
+
+                            $StockHistory=array();
+                            $temparray=array();
 
                             //For Create New If not Exist
                             foreach($MultiProductSumQtyArr as $InvoiceHistory){
@@ -643,45 +637,76 @@ class InvoicesController extends \BaseController {
                                     $ProdID = intval($InvoiceHistory['ProductID']);
                                     $InvoiceID = intval($InvoiceHistory['InvoiceID']);
                                     $Qty = intval($InvoiceHistory['Qty']);
-                                    //$InvoiceDetailID = intval($InvoiceHistory['InvoiceDetailID']);
                                     $key_of_arr = searchArrayByProductID($ProdID, $OldProductsarr);
                                     if(intval($key_of_arr) < 0){
                                         //Create New
-                                        $returnValidateData = stockHistoryValidateCalculation($companyID, $ProdID, $InvoiceID, $Qty, '', $FullInvoiceNumber);
-                                        if ($returnValidateData && $returnValidateData['status'] == 'failed') {
-                                            DB::connection('sqlsrv2')->rollback();
-                                            return Response::json($returnValidateData);
-                                        }else{
-                                            $returnValidateData = stockHistoryCalculation($companyID, $ProdID, $InvoiceID, $Qty, '', $FullInvoiceNumber);
-                                        }
+                                        $temparray['CompanyID']=$companyID;
+                                        $temparray['ProductID']=$ProdID;
+                                        $temparray['InvoiceID']=$InvoiceID;
+                                        $temparray['Qty']=$Qty;
+                                        $temparray['Reason']='';
+                                        $temparray['InvoiceNumber']=$FullInvoiceNumber;
+                                        $temparray['created_by']=User::get_user_full_name();
+
+                                        array_push($StockHistory,$temparray);
+
                                     }
                                 }
                             }
 
+                            if(!empty($StockHistory)){
+                                $historyData=StockHistoryCalculations($StockHistory);
+                            }
+
                             //StockHistory update/delete.
+                            $StockHistoryUpdate=array();
+                            $temparrayUpdate=array();
                             foreach($OldProductsarr as $OldProduct){
                                 $prodType=intval($OldProduct['ProductType']);
                                 $ProdID=$OldProduct['ProductID'];
                                 $oldQty=intval($OldProduct['Qty']);
                                 if($prodType==1) {
                                     $InvoiceDetailID=$OldProduct['InvoiceDetailID'];
+                                    $InvoiceNo=Invoice::where('InvoiceID',$id)->pluck('FullInvoiceNumber');
                                     $key_of_arr = searchArrayByProductID($ProdID, $MultiProductSumQtyArr);
                                     if(intval($key_of_arr)>=0){
                                         //Update Prod
                                         $res_prod=getArrayByProductID($ProdID, $MultiProductSumQtyArr);
-                                        $returnValidateData = stockHistoryUpdateCalculation($companyID, intval($res_prod['ProductID']), $id, intval($res_prod['Qty']),'',$oldQty);
+                                        $temparrayUpdate['ProductID']=intval($res_prod['ProductID']);
+                                        $temparrayUpdate['Qty']=intval($res_prod['Qty']);
+                                        $temparrayUpdate['Reason']='';
+                                        $temparrayUpdate['oldQty']=$oldQty;
+
                                     }else{
                                         //delete Prod
-                                        stockHistoryUpdateCalculation($companyID,$ProdID,$id,$OldProduct['Qty'],$reason='delete_prodstock',$oldQty);
+                                        $temparrayUpdate['ProductID']=$ProdID;
+                                        $temparrayUpdate['Qty']=$OldProduct['Qty'];
+                                        $temparrayUpdate['Reason']='delete_prodstock';
+                                        $temparrayUpdate['oldQty']=$oldQty;
                                     }
-
+                                    $temparrayUpdate['CompanyID']=$companyID;
+                                    $temparrayUpdate['InvoiceID']=$id;
+                                    $temparrayUpdate['InvoiceNumber']=$InvoiceNo;
+                                    $temparrayUpdate['created_by']=User::get_user_full_name();
+                                    array_push($StockHistoryUpdate,$temparrayUpdate);
                                 }
+                            }
+
+                            if(!empty($StockHistoryUpdate)){
+                                $historyData=stockHistoryUpdateCalculations($StockHistoryUpdate);
                             }
 
                             //End Stock History Maintain
 
                             DB::connection('sqlsrv2')->commit();
-                            return Response::json(array("status" => "success", "message" => "Invoice Successfully Updated", 'LastID' => $Invoice->InvoiceID));
+                            $message='';
+                            if(!empty($historyData)){
+                                foreach($historyData as $msg){
+                                    $message.=$msg;
+                                    $message.="\n";
+                                }
+                            }
+                            return Response::json(array("status" => "success","warning"=>$message, "message" => "Invoice Successfully Updated", 'LastID' => $Invoice->InvoiceID));
                         } else {
                             DB::connection('sqlsrv2')->rollback();
                             return Response::json(array("status" => "failed", "message" => "Problem Updating Invoice."));
