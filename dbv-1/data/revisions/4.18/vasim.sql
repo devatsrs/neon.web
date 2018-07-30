@@ -9218,7 +9218,7 @@ ThisSP:BEGIN
 			AND tblRateTableRate.RateTableId = p_RateTableId
 			AND tblRateTableRate.TimezonesID = tblTempRateTableRate.TimezonesID
 			AND tblTempRateTableRate.Rate = tblRateTableRate.Rate
-			AND (
+			/*AND (
 				tblRateTableRate.EffectiveDate = tblTempRateTableRate.EffectiveDate
 				OR
 				(
@@ -9228,7 +9228,7 @@ ThisSP:BEGIN
 							WHEN tblTempRateTableRate.EffectiveDate > NOW() THEN 1
 							ELSE 0
 						END)
-			)
+			)*/
 		WHERE  tblTempRateTableRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block');
 
 		/*IF (FOUND_ROWS() > 0) THEN
