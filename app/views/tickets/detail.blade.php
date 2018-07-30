@@ -801,6 +801,7 @@ $(document).ready(function(e) {
             doc.find('[name="Subject"]').val('');
             doc.find('[name="Message"]').val('');
         }
+        editor_options.withOutDestroy=false;
         show_summernote(doc.find('[name="Message"]'),editor_options);
 
     }
