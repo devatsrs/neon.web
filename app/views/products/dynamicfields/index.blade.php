@@ -128,7 +128,7 @@
             </table>
             <script type="text/javascript">
                 var checked = '';
-                var list_fields  = ['DynamicFieldsID','title','FieldName','FieldDomType','created_at','Status','FieldDescription','FieldOrder','FieldSlug','Type','ItemTypeID','Minimum','Maximum','DefaultValue'];
+                var list_fields  = ['DynamicFieldsID','title','FieldName','FieldDomType','created_at','Status','FieldDescription','FieldOrder','FieldSlug','Type','ItemTypeID','Minimum','Maximum','DefaultValue','SelectVal'];
                 var $searchFilter = {};
                 var update_new_url;
                 var postdata;
@@ -427,7 +427,14 @@
                                     var minmax='<div class="form-group"><label for="field-5" class="control-label">Default Value </label>{{ Form::text("DefaultValue", "", array("class"=>"form-control"))  }}</div><div class="form-group"><label for="field-5" class="control-label">Min </label>{{ Form::text("Minimum", "", array("class"=>"form-control"))  }}</div><div class="form-group"><label for="field-5" class="control-label">Max </label>{{ Form::text("Maximum", "", array("class"=>"form-control"))  }}</div>';
                                     $("#minmaxdiv").html(minmax);
                                 }
+                                if(list_fields[i] == 'SelectVal' && (cur_obj.find("input[name='FieldDomType']").val() == 'select')){
+                                    var SelectVal=cur_obj.find("input[name='"+list_fields[i]+"']").val();
+                                    var SelectValDiv='<div class="form-group"><label for="field-5" class="control-label">Select Value (separated by comma) </label>{{ Form::text("SelectVal", "", array("class"=>"form-control"))  }}</div>';
+                                    $("#minmaxdiv").html(SelectValDiv);
+                                    $("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").attr("disabled",true);
+                                }
                                 $("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
+
                             }
                         }
 
