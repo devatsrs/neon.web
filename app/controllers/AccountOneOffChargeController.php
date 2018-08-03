@@ -62,18 +62,34 @@ class AccountOneOffChargeController extends \BaseController {
         unset($data['productPrice']);
         unset($data['AccountoneofchargeID']);
         $data['Price'] = str_replace(',','',$data['Price']);
-        //stock History Calculation
-        if(intval($data['ProductID']) > 0 && intval($data['Qty']) > 0){
-            $companyID = User::get_companyID();
-            $returnValidateData=stockHistoryValidateCalculation($companyID,intval($data['ProductID']),'',intval($data['Qty']),$reason='',$InvoiceNo='');
-            if ($returnValidateData && $returnValidateData['status'] == 'failed') {
-                return Response::json($returnValidateData);
-            }
-            stockHistoryCalculation($companyID,intval($data['ProductID']),'',intval($data['Qty']),$reason='',$InvoiceNo='');
-        }
 
         if ($AccountOneOffCharge = AccountOneOffCharge::create($data)) {
-            return Response::json(array("status" => "success", "message" => "Additional Charge Successfully Created"));
+            //stock History Calculation
+            $StockHistory=array();
+            $temparray=array();
+
+            if(intval($data['ProductID']) > 0 && intval($data['Qty']) > 0){
+                $companyID = User::get_companyID();
+                $temparray['CompanyID']=$companyID;
+                $temparray['ProductID']=intval($data['ProductID']);
+                $temparray['InvoiceID']='';
+                $temparray['Qty']=intval($data['Qty']);
+                $temparray['Reason']='';
+                $temparray['InvoiceNumber']='';
+                $temparray['created_by']=User::get_user_full_name();
+
+                array_push($StockHistory,$temparray);
+                $historyData=StockHistoryCalculations($StockHistory);
+
+            }
+            $message='';
+            if(!empty($historyData)){
+                foreach($historyData as $msg){
+                    $message.=$msg;
+                    $message.="\n\r";
+                }
+            }
+            return Response::json(array("status" => "success","warning"=>$message,  "message" => "Additional Charge Successfully Created"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Additional Charge."));
         }
@@ -109,18 +125,33 @@ class AccountOneOffChargeController extends \BaseController {
             unset($data['AccountOneOffChargeID']);
             $data['Price'] = str_replace(',','',$data['Price']);
 
-            //stock History Calculation
-            if(intval($data['ProductID']) > 0 && intval($data['Qty']) > 0){
-                $companyID = User::get_companyID();
-                $returnValidateData=stockHistoryUpdateValidateCalculation($companyID,intval($data['ProductID']),'',intval($data['Qty']),$reason='',$oldQty);
-                if ($returnValidateData && $returnValidateData['status'] == 'failed') {
-                    return Response::json($returnValidateData);
-                }
-                stockHistoryUpdateCalculation($companyID,intval($data['ProductID']),'',intval($data['Qty']),$reason='',$oldQty);
-            }
-
             if ($AccountOneOffCharge->update($data)) {
-                return Response::json(array("status" => "success", "message" => "Additional Charges Successfully Updated"));
+                //stock History Calculation
+                $StockHistory=array();
+                $temparray=array();
+                if(intval($data['ProductID']) > 0 && intval($data['Qty']) > 0){
+                    $companyID = User::get_companyID();
+                    $temparray['CompanyID']=$companyID;
+                    $temparray['ProductID']=intval($data['ProductID']);
+                    $temparray['InvoiceID']='';
+                    $temparray['Qty']=intval($data['Qty']);
+                    $temparray['Reason']='';
+                    $temparray['InvoiceNumber']='';
+                    $temparray['oldQty']=$oldQty;
+                    $temparray['created_by']=User::get_user_full_name();
+
+                    array_push($StockHistory,$temparray);
+                    $historyData=stockHistoryUpdateCalculations($StockHistory);
+                }
+
+                $message='';
+                if(!empty($historyData)){
+                    foreach($historyData as $msg){
+                        $message.=$msg;
+                        $message.="\n";
+                    }
+                }
+                return Response::json(array("status" => "success","warning"=>$message, "message" => "Additional Charges Successfully Updated"));
             } else {
                 DB::connection('sqlsrv2')->rollback();
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Additional Charges."));
@@ -135,12 +166,26 @@ class AccountOneOffChargeController extends \BaseController {
             try{
                 $AccountOneOffCharge = AccountOneOffCharge::find($AccountOneOffChargeID);
                 //StockHistory Calculation
+                $StockHistory=array();
+                $temparray=array();
                 $ProductID=$AccountOneOffCharge->ProductID;
                 $Qty=intval($AccountOneOffCharge->Qty);
                 if($ProductID > 0 && $Qty > 0){
                     $companyID = User::get_companyID();
                     $reason='delete_prodstock';
-                    stockHistoryUpdateCalculation($companyID,$ProductID,'',$Qty,$reason,$Qty);
+
+                    $temparray['CompanyID']=$companyID;
+                    $temparray['ProductID']=intval($ProductID);
+                    $temparray['InvoiceID']='';
+                    $temparray['Qty']=$Qty;
+                    $temparray['Reason']=$reason;
+                    $temparray['InvoiceNumber']='';
+                    $temparray['oldQty']=$Qty;
+                    $temparray['created_by']=User::get_user_full_name();
+
+                    array_push($StockHistory,$temparray);
+                    $historyData=stockHistoryUpdateCalculations($StockHistory);
+
                 }
                 $result = $AccountOneOffCharge->delete();
                 if ($result) {
