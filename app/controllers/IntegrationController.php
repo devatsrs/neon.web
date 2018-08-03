@@ -785,6 +785,7 @@ class IntegrationController extends \BaseController
 				$QuickBookDesktopDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
 
 
+				$data['Status'] 				= 	isset($data['Status'])?1:0;
 				$data['QuickBookSandbox'] 	= 	isset($QuickBook['Sandbox'])?1:0;
 				$data['InvoiceAccount'] 	= 	isset($data['InvoiceAccount'])?$data['InvoiceAccount']:'';
 				$data['PaymentAccount'] 	= 	isset($data['PaymentAccount'])?$data['PaymentAccount']:'';
