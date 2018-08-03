@@ -132,6 +132,8 @@
             @if(User::checkCategoryPermission('Invoice','Post') && !empty($check_quickbook))
             <li> <a class="quickbookpost create" id="quickbook_post" href="javascript:;"> QuickBook Journal Post </a> </li>
             <li> <a class="quickbookpost create" id="quickbook_post_invoice" href="javascript:;"> QuickBook Invoice Post </a> </li>
+            @endif
+            @if(User::checkCategoryPermission('Invoice','Post') && !empty($check_quickbook_desktop))
            <!-- <li> <a class="quickbookpost create" id="quickbook_invoice_export" href="javascript:;"> QuickBook Desktop Invoice Export (IIF)</a> </li>-->
             <li> <a class="quickbookpost create" id="quickbookd_journal_export" href="javascript:;"> QuickBook D Journal Export (IIF)</a> </li>
             @endif
