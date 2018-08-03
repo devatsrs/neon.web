@@ -2387,6 +2387,106 @@ class InvoicesController extends \BaseController {
         }
 
     }
+    public function invoice_quickbookexport(){
+        $data = Input::all();
+        $InvoiceIDs = $data['InvoiceIDs'];
+        //$data['type'] = 'journal';
+        $CompanyID = User::get_companyID();
+        //$InvoiceIDs =array_filter(explode(',',$data['InvoiceIDs']),'intval');
+
+        Log::useFiles(storage_path() . '/logs/quickbook_invoiceexport-' . $CompanyID . '-' . date('Y-m-d') . '.log');
+
+        try {
+            if (isset($InvoiceIDs)) {
+
+                $InvoiceIDs = explode(',',$InvoiceIDs);
+                $InvoiceAccounts = array();
+                $InvoiceItems = array();
+                if(count($InvoiceIDs) > 0){
+                    foreach ($InvoiceIDs as $InvoiceID) {
+                        $Invoice = Invoice::find($InvoiceID);
+                        $AccountID = $Invoice->AccountID;
+                        $InvoiceAccounts['AccountID'][] = $AccountID;
+                    }
+                }
+
+                $invoiceOptions = array();
+                $invoiceOptions['CompanyID'] = $CompanyID;
+                $invoiceOptions['Invoices'] = $InvoiceIDs;
+
+                $InvoiceObject = new Invoice();
+                $Invoices = $InvoiceObject->ExportInvoices($invoiceOptions);
+                exit;
+
+            }
+        }
+        catch (\Exception $e) {
+
+            Log::info(' ========================== Exception occured =============================');
+            Log::error($e);
+            echo "<pre>";print_r($e);
+
+            Log::info(' ========================== Exception updated in job and email sent =============================');
+
+        }
+    }
+
+    public function journal_quickbookdexport(){
+        $data = Input::all();
+        $InvoiceIDs = $data['InvoiceIDs'];
+        //$data['type'] = 'journal';
+        $CompanyID = User::get_companyID();
+        //$InvoiceIDs =array_filter(explode(',',$data['InvoiceIDs']),'intval');
+
+        Log::useFiles(storage_path() . '/logs/qbdesktop_journalexport-' . $CompanyID . '-' . date('Y-m-d') . '.log');
+
+        try {
+            if (isset($InvoiceIDs)) {
+
+                $InvoiceIDs = explode(',',$InvoiceIDs);
+
+                $invoiceOptions = array();
+                $invoiceOptions['CompanyID'] = $CompanyID;
+                $invoiceOptions['Invoices'] = $InvoiceIDs;
+
+                $InvoiceObject = new Invoice();
+                $Invoices = $InvoiceObject->ExportJournals($invoiceOptions);
+                if($Invoices['status'] == 'success')
+                {
+                    return Response::json(array("status" => "success", "message" => $Invoices['msg'],"redirect" => $Invoices['redirect']));
+                }
+                else{
+                    return Response::json(array("status" => "failed", "message" => $Invoices['msg']));
+                }
+            }
+        }
+        catch (\Exception $e) {
+
+            Log::info(' ========================== Exception occured =============================');
+            Log::error($e);
+            Log::info(' ========================== Exception updated in Journal Export =============================');
+            return Response::json(array("status" => "failed", "message" => $e));
+
+        }
+    }
+
+    public function journal_quickbookdexport_download(){
+        $file = $_REQUEST['file'];
+        if (file_exists($file)) {
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename='.basename($file));
+            header('Content-Transfer-Encoding: binary');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            header('Pragma: public');
+            header('Content-Length: ' . filesize($file));
+            ob_clean();
+            flush();
+            readfile($file);
+            exit;
+        }
+    }
 
     public function paypal_cancel($id){
 
