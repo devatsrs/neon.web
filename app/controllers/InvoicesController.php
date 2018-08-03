@@ -2416,9 +2416,7 @@ class InvoicesController extends \BaseController {
                 $invoiceOptions['Invoices'] = $InvoiceIDs;
 
                 $InvoiceObject = new Invoice();
-                $Invoices = $InvoiceObject->ExportInvoices($invoiceOptions);
-                exit;
-
+                $InvoiceObject->ExportInvoices($invoiceOptions);
             }
         }
         catch (\Exception $e) {
@@ -2426,7 +2424,6 @@ class InvoicesController extends \BaseController {
             Log::info(' ========================== Exception occured =============================');
             Log::error($e);
             echo "<pre>";print_r($e);
-
             Log::info(' ========================== Exception updated in job and email sent =============================');
 
         }

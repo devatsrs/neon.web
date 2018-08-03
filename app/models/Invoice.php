@@ -491,6 +491,16 @@ class Invoice extends \Eloquent {
 
     }
 
+    /**
+     * IIF File Format For Journal Export
+     * !TRNS	TRNSID	TRNSTYPE	DATE	ACCNT	CLASS	AMOUNT	DOCNUM	MEMO
+    !SPL	SPLID	TRNSTYPE	DATE	ACCNT	CLASS	AMOUNT	DOCNUM	MEMO
+    !ENDTRNS
+    TRNS		GENERAL JOURNAL	7/1/1998	Checking		650
+    SPL		GENERAL JOURNAL	7/1/1998	Expense Account		-650
+    ENDTRNS
+
+     */
     public function ExportJournals($Options){
         //$InvoiceID = '62987';
         $Invoices = $Options['Invoices'];
@@ -515,12 +525,11 @@ class Invoice extends \Eloquent {
                 } else {
                     $response['msg'] = $InvoiceFullNumber . '(Invoice) not fully paid. ';
                 }
-                //$response[] = $this->CreateInvoice($Invoice);
             }
             //log::info("paid invoices =".print_r($PaidInvoices,true));
             if (!empty($PaidInvoices) && count($PaidInvoices) > 0) {
                 /**
-                 * New Change Start
+                 * New Change Start - datewise array of paid invoices
                  **/
                 $NewPaidInvoices = array();
                 foreach ($PaidInvoices as $paidInvoice) {
@@ -542,6 +551,7 @@ class Invoice extends \Eloquent {
                     mkdir($UPLOAD_PATH);
                     foreach ($NewPaidInvoices as $key => $NewPaidInvoice) {
 
+                        //create iif file at upload path
                         $filename = "journal_" . $key . ".iif";
                         $myfile = fopen($UPLOAD_PATH.$filename, "w") or die("Unable to open file!");
                         $transactiontxt = "!TRNS\tTRNSID\tTRNSTYPE\tDATE\tACCNT\tCLASS\tAMOUNT\tDOCNUM\tMEMO\n";
@@ -551,12 +561,11 @@ class Invoice extends \Eloquent {
 
                         $ndate = date('m/d/Y', strtotime($key));
                         log::info('Journal Payment Date ' . $key);
-                        //$Journal = $this->createJournal($key, $NewPaidInvoice, $CompanyID);
-
                         $InvoiceDatas = Invoice::find($NewPaidInvoice);
-                        //Log::info('$InvoiceData : '.print_r($InvoiceData,true));
+                        
+                        //get data of each invoices
                         foreach($InvoiceDatas as $InvoiceData) {
-                            //$InvoiceData = $InvoiceData[0];
+
                             $RoundChargesAmount = $this->get_round_decimal_places($InvoiceData->CompanyID, $InvoiceData->AccountID, $InvoiceData->ServiceID);
                             $PaymentTotal = number_format($InvoiceData->SubTotal, $RoundChargesAmount, '.', '');
                             log::info('PaymentTotal ' . $PaymentTotal);
