@@ -15,7 +15,7 @@ class DynamicFieldController extends \BaseController {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         $data['iDisplayStart'] +=1;
-        $columns = ['DynamicFieldsID','title','FieldName','FieldDomType','created_at','Status','FieldDescription','FieldOrder','FieldSlug','Type','ItemTypeID','Minimum','Maximum','DefaultValue'];
+        $columns = ['DynamicFieldsID','title','FieldName','FieldDomType','created_at','Status','FieldDescription','FieldOrder','FieldSlug','Type','ItemTypeID','Minimum','Maximum','DefaultValue','SelectVal'];
         $sort_column = $columns[$data['iSortCol_0']];
 
         $query = "call prc_getDynamicTypes (".$CompanyID.", '".$data['FieldName']."','".$data['FieldDomType']."','".$data['Active']."','product','".$data['ItemTypeID']."', ".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
@@ -24,11 +24,11 @@ class DynamicFieldController extends \BaseController {
             $excel_data  = DB::connection('sqlsrv')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Item.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/DynamicField.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Item.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/DynamicField.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

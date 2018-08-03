@@ -1571,4 +1571,6 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('accounts/validEmail', 'AccountsApiController@validEmail');
 	Route::post('company/validCompanyName', 'CompaniesApiController@validCompanyName');
 	Route::get('taxRates/getTaxRates', 'TaxRatesApiController@getTaxRates');
+	Route::post('products/getProductsByType', 'ProductApiController@getListByType');
+	Route::post('products/ProductUpdateStock', 'ProductApiController@UpdateStockCalculation');
 });
