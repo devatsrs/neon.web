@@ -11,7 +11,8 @@
             <form id="stockhistoty_filter" method="get"  class="form-horizontal form-groups-bordered validate" novalidate>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Name</label>
-                    {{ Form::text('Name', '', array("class"=>"form-control")) }}
+                    {{--{{ Form::text('Name', '', array("class"=>"form-control")) }}--}}
+                    {{Form::select('Name',$products,'',array("class"=>"form-control select2 small"))}}
                 </div>
 
                 <div class="form-group">

@@ -147,7 +147,7 @@
                     <div class="col-sm-4">
                         <input type="text" name="Quantity" class="form-control" id="field-5" placeholder="" maxlength="10">
                     </div>
-                    <label for="field-5" class="control-label col-sm-2">Low Stock Level  <span id="tooltip_lowstock" data-content="Low Stock Reminder" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></label>
+                    <label for="field-5" class="control-label col-sm-2">Low Stock Level  <span id="tooltip_lowstock" data-content="Low Stock Reminder will be sent if stock will go below this level" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></label>
 
                     <div class="col-sm-4">
                         <input type="text" name="Low_stock_level" class="form-control" id="field-5" placeholder="" maxlength="10">
