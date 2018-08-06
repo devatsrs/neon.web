@@ -48,7 +48,7 @@ class InvoiceTemplatesController extends \BaseController {
         }elseif($type==3){
 
             /* Default Value */
-            $test_detail='[{"Title":"Prefix","ValuesID":"1","UsageName":"Prefix","Status":true,"FieldOrder":1},{"Title":"CLI","ValuesID":"2","UsageName":"CLI","Status":true,"FieldOrder":2},{"Title":"CLD","ValuesID":"3","UsageName":"CLD","Status":true,"FieldOrder":3},{"Title":"ConnectTime","ValuesID":"4","UsageName":"Connect Time","Status":true,"FieldOrder":4},{"Title":"DisconnectTime","ValuesID":"4","UsageName":"Disconnect Time","Status":true,"FieldOrder":5},{"Title":"BillDuration","ValuesID":"6","UsageName":"Duration","Status":true,"FieldOrder":6},{"Title":"ChargedAmount","ValuesID":"7","UsageName":"Cost","Status":true,"FieldOrder":7}]';
+            $test_detail='[{"Title":"Prefix","ValuesID":"1","UsageName":"Prefix","Status":true,"FieldOrder":1},{"Title":"CLI","ValuesID":"2","UsageName":"CLI","Status":true,"FieldOrder":2},{"Title":"CLD","ValuesID":"3","UsageName":"CLD","Status":true,"FieldOrder":3},{"Title":"ConnectTime","ValuesID":"4","UsageName":"Connect Time","Status":true,"FieldOrder":4},{"Title":"DisconnectTime","ValuesID":"4","UsageName":"Disconnect Time","Status":true,"FieldOrder":5},{"Title":"BillDuration","ValuesID":"6","UsageName":"Duration","Status":true,"FieldOrder":6},{"Title":"ChargedAmount","ValuesID":"7","UsageName":"Cost","Status":true,"FieldOrder":7},{"Title":"BillDurationMinutes","ValuesID":"8","UsageName":"DurationMinutes","Status":false,"FieldOrder":8},{"Title":"Country","ValuesID":"9","UsageName":"Country","Status":false,"FieldOrder":9},{"Title":"CallType","ValuesID":"10","UsageName":"CallType","Status":false,"FieldOrder":10},{"Title":"Description","ValuesID":"11","UsageName":"Description","Status":false,"FieldOrder":11}]';
 
             $detail_values  =  json_decode($test_detail,true);
 
@@ -60,7 +60,16 @@ class InvoiceTemplatesController extends \BaseController {
 
                 $usageColumns = json_decode($InvoiceTemplate->UsageColumn,true);
                 if(!empty($usageColumns['Detail'])){
+                    $default_column=array_column($detail_values, 'Title');
+                    $db_column=array_column($usageColumns['Detail'], 'Title');
+                    $diff_arrr=array_diff($default_column ,$db_column);
 
+                    foreach($diff_arrr as $val){
+                        $key = array_search($val, array_column($detail_values, 'Title'));
+                        if(array_key_exists($key,$detail_values)){
+                            $usageColumns['Detail'][]=$detail_values[$key];
+                        }
+                    }
                     $detail_values = $usageColumns['Detail'];
                 }
 
