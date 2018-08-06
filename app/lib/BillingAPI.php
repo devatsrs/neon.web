@@ -286,6 +286,18 @@ class BillingAPI {
 		}
 	}
 
+	public function check_quickbook_desktop($CompanyID){
+		$QuickBookData		=	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$QuickBookDesktopSlug,$CompanyID);
+
+		if(!$QuickBookData){
+			$this->quickbooks_is_connected = false;
+			return false;
+		}else{
+			$this->quickbooks_is_connected = true;
+			return true;
+		}
+	}
+
 	public function is_quickbook(){
 		if($this->quickbooks_is_connected){
 			if (!QuickBooks_Utilities::initialized($this->dsn)) {

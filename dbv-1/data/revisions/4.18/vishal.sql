@@ -5,3 +5,5 @@ ALTER TABLE `tblTicketGroups`
 
 ALTER TABLE `tblTicketGroups`
 	ADD COLUMN `GroupEmailIsSSL` TINYINT(1) NULL DEFAULT '0' AFTER `GroupEmailPort`;
+
+INSERT INTO `tblTicketImportRuleConditionType` (`TicketImportRuleConditionTypeID`, `Condition`, `ConditionText`, `created_at`, `created_by`, `updated_at`, `updated_by`) VALUES (10, 'type', 'Type', NULL, NULL, NULL, NULL);

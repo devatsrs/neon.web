@@ -59,5 +59,7 @@ INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created
 INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, 15, 'Download SippySQL CDR', 'sippysqlaccountusage', '[[{"title":"SippySQL Max Interval","type":"text","value":"","name":"MaxInterval"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2018-06-08 06:25:14', 'RateManagementSystem');
 
 /* insert quickbook payment post job type */
-INSERT INTO `NeonRMDev`.`tblJobType` (`Code`, `Title`, `CreatedDate`, `CreatedBy`) VALUES ('QPP', 'QuickBook Payment Post', '2018-07-06 18:20:26', 'RateManagementSystem');
+INSERT INTO `tblJobType` (`Code`, `Title`, `CreatedDate`, `CreatedBy`) VALUES ('QPP', 'QuickBook Payment Post', '2018-07-06 18:20:26', 'RateManagementSystem');
+
+INSERT INTO `tblIntegration` (`CompanyId`, `Title`, `Slug`, `ParentID`) VALUES ('1', 'Quickbook Desktop', 'quickbookdesktop', '15');
 
