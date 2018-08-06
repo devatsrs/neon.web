@@ -138,7 +138,7 @@
                         "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                         "sPaginationType": "bootstrap",
                         "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                        "aaSorting": [[0, 'asc']],
+                        "aaSorting": [[1, 'asc']],
                         "aoColumns": [
                             {"bSortable": false,
                                 mRender: function(id, type, full) {
