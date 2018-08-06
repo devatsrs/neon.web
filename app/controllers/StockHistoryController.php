@@ -48,7 +48,8 @@ class StockHistoryController extends \BaseController {
         $id=0;
         $companyID = User::get_companyID();
         $itemtypes 	= 	ItemType::getItemTypeDropdownList($companyID);
-        return View::make('products.stockhistory.index', compact('id','itemtypes'));
+        $products = Product::getProductDropdownList($companyID);
+        return View::make('products.stockhistory.index', compact('id','itemtypes','products'));
     }
 
 
