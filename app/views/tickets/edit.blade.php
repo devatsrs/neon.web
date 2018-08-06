@@ -347,6 +347,7 @@ var img_array		   =    '{{$ticketSavedData['AttachmentPaths']['attachmentsinfo']
 				});	
 		return false;		
     });
+				editor_options.withOutDestroy=true;
 				show_summernote($('.wysihtml5box'),editor_options);
 
 				$('.unknownemailaction').click(function(e) {
