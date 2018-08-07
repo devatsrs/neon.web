@@ -251,7 +251,7 @@ $(document).ready(function(e) {
 		var ticketBodyHtml = $(this).html();
 		$(this).html("").append(iFrame).show();
 		var iFrameDoc = iFrame[0].contentDocument || iFrame[0].contentWindow.document;
-		iFrameDoc.write($.parseHTML(ticketBodyHtml)[0]["data"]);
+		iFrameDoc.write($("<textarea/>").html(ticketBodyHtml).val());
 		iFrameDoc.close();
 	});
 	$( document ).on("click",'.email_action' ,function(e) {			
