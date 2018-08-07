@@ -120,13 +120,14 @@
                 return false;
             }
             var ajaxurl_convert = base_url_estimate+"/"+estimate_id+"/convert_estimate";
-
+            $("#accept-estimate").button('loading');
             $.ajax({
                 url: ajaxurl_convert,
                 type: 'POST',
                 dataType: 'json',
                 data:{'eid':estimate_id,'convert':1},
                 success: function(response) {
+                    $("#accept-estimate").button('reset');
                     alert(response.message);
                     window.location.reload();
                 }
@@ -140,13 +141,14 @@
             var email = '';
 
             var ajaxurl_convert = base_url_estimate+"/estimate_reject_Status";
-
+            $("#reject-estimate").button('loading');
             $.ajax({
                 url: ajaxurl_convert,
                 type: 'POST',
                 dataType: 'json',
                 data:{'EstimateIDs':estimate_id,'EstimateStatus':'rejected','Email':email,'Type':'1'},
                 success: function(response) {
+                    $("#reject-estimate").button('reset');
                     alert(response.message);
                     window.location.reload();
                 }
@@ -170,13 +172,14 @@
             if(Comment != ''){
                 var EstimateID = $(this).find("[name=EstimateID]").val();
                 var ajaxurl_comment = base_url_estimate+"/"+EstimateID+"/create_comment";
-
+                $("#comment-estimate-form").find('[type=submit]').button('loading');
                 $.ajax({
                     url: ajaxurl_comment,
                     type: 'POST',
                     dataType: 'json',
                     data:{'EstimateID':EstimateID,'Comment':Comment,'Email':email,'Type':'1'},
                     success: function(response) {
+                        $("#comment-estimate-form").find('[type=submit]').button('reset');
                         $('#comment-modal-estimate').modal('hide');
                         $("#comment-estimate-form")[0].reset();
                         alert(response.message);
