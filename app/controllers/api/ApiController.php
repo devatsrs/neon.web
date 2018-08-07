@@ -24,7 +24,6 @@ class ApiController extends Controller {
         if(!$LicenceApiResponse["Status"]){
             return Response::json($LicenceApiResponse);
         }
-
         $Request = Input::all();
         $rules = array(
             'EmailAddress' =>  'required',
@@ -36,10 +35,11 @@ class ApiController extends Controller {
             return Response::json(["status"=>"failed", "message"=>"Not authorized. Please Login"]);
         }
 
-        if (! NeonAPI::RegisterApiLogin($Request) ) {
+        $validate=NeonAPI::RegisterApiLogin($Request);
+        if (! $validate ) {
             return Response::json(["status"=>"failed", "message"=>"Not authorized. Please Login"]);
         }
-        return Response::json(["status"=>"Success", "message"=>"Login Success"]);
+        return Response::json(["status"=>"Success", "message"=>"Login Success","data"=>$validate]);
     }
 
     public function logout(){
