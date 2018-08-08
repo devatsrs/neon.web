@@ -58,7 +58,7 @@ left JOIN mor.currencies on currencies.id = users.currency_id
                         $CompanyID = $addparams['CompanyID'];
                         $ProcessID = $addparams['ProcessID'];
                         foreach ($results as $temp_row) {
-                            $count = DB::table('tblAccount')->where(["AccountName" => $temp_row->username, "AccountType" => 1,"CompanyId"=>$CompanyID])->count();
+                            $count = DB::table('tblAccount')->where(["AccountName" => $temp_row->username, "AccountType" => 1])->count();
                             if($count==0){
                                 $tempItemData['AccountName'] = $temp_row->username;
                                 $tempItemData['Number'] = $temp_row->username;
