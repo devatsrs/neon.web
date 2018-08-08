@@ -16076,3 +16076,41 @@ SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
 END//
 DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_getDeductCallChargeAccounts`;
+DELIMITER //
+CREATE PROCEDURE `prc_getDeductCallChargeAccounts`(
+	IN `p_CompanyID` INT
+)
+BEGIN
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SELECT
+		DISTINCT
+		a.AccountID,
+		ab.NextInvoiceDate,
+		AccountName,
+		ab.ServiceID
+	FROM tblAccount a
+	INNER JOIN tblAccountBilling ab
+		ON ab.AccountID = a.AccountID and ab.ServiceID = 0
+	INNER JOIN tblBillingClass bc
+		ON bc.BillingClassID = ab.BillingClassID
+	WHERE a.CompanyId = p_CompanyID
+	AND a.Status = 1
+	AND AccountType = 1
+	AND Billing = 1
+	AND a.AccountID IN (111)
+	AND (ab.BillingCycleType IS NOT NULL AND ab.BillingCycleType <> 'manual')
+	AND bc.DeductCallChargeInAdvance = 1
+	ORDER BY a.AccountID ASC;
+
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
