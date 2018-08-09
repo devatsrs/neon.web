@@ -381,11 +381,7 @@ $(document).ready(function(e) {
         var ticketBodyHtml = $(this).html();
         $(this).html("").append(iFrame).show();
         var iFrameDoc = iFrame[0].contentDocument || iFrame[0].contentWindow.document;
-        if($.parseHTML(ticketBodyHtml)[0]["data"].trim()!=''){
-            iFrameDoc.write($.parseHTML(ticketBodyHtml)[0]["data"]);
-        }else{
-            iFrameDoc.write(ticketBodyHtml);
-        }
+        iFrameDoc.write($("<textarea/>").html(ticketBodyHtml).val());
         iFrameDoc.close();
     });
 
