@@ -530,7 +530,7 @@ class Payment extends \Eloquent {
             $paymentsType["FideliPay"]="FideliPay";
         }
         if(is_StripeACH($CompanyID)){
-            $paymentsType["StripeACH"]="StripeACH";
+           // $paymentsType["StripeACH"]="StripeACH";
         }
         if(is_paypal($CompanyID)){
             $paymentsType["Paypal"]="Paypal";
@@ -538,7 +538,7 @@ class Payment extends \Eloquent {
         if(is_sagepay($CompanyID)){
             $paymentsType["SagePay"]="SagePay";
         }
-        if(is_authorize($CompanyID)){
+        if(is_pelecard($CompanyID)){
             $paymentsType["PeleCard"]="PeleCard";
         }
         return $paymentsType;
