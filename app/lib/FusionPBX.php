@@ -55,7 +55,7 @@ class FusionPBX{
                         $CompanyID = $addparams['CompanyID'];
                         $ProcessID = $addparams['ProcessID'];
                         foreach ($results as $temp_row) {
-                            $count = DB::table('tblAccount')->where(["Number" => $temp_row->domain_name, "AccountType" => 1,"CompanyId"=>$CompanyID])->count();
+                            $count = DB::table('tblAccount')->where(["Number" => $temp_row->domain_name, "AccountType" => 1])->count();
                             if($count==0){
                                 $tempItemData['AccountName'] = !empty($temp_row->domain_description)?$temp_row->domain_description:$temp_row->domain_name;
                                 $tempItemData['Number'] = $temp_row->domain_name;
