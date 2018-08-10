@@ -119,14 +119,14 @@
                                             @endif
                                         </ul>
                                     </div>
-                                </div><!-- /btn-group -->
-
+                               
                             @endif
                         @endif
 
                     </div>
                     <div class="clear"></div>
                 </div>
+
             <br>
             <table class="table table-bordered datatable" id="table-4">
                 <thead>
