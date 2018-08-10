@@ -2054,10 +2054,13 @@ class InvoicesController extends \BaseController {
             $PaymentResponse['Transaction'] = $data["Transaction"];
             $PaymentResponse['Response'] = $data["PaymentGatewayResponse"];
             $PaymentResponse['status'] = 'success';
-        }else{
-            $PaymentResponse['transaction_notes'] = $data["Transaction"];
-            $PaymentResponse['status'] = 'failed';
-            $PaymentResponse['Response']=json_encode($data["PaymentGatewayResponse"]);
+        }elseif(!empty($data['tx'])){
+            $PaymentResponse['PaymentMethod'] = 'Paypal';
+            $PaymentResponse['transaction_notes'] = $data['tx'];
+            $PaymentResponse['Amount'] = floatval($data["amt"]);
+            $PaymentResponse['Transaction'] = $data["tx"];
+            $PaymentResponse['Response'] = '';
+            $PaymentResponse['status'] = 'success';
         }
 
         $Alldata = array();
@@ -2082,9 +2085,8 @@ class InvoicesController extends \BaseController {
         log::info('api_invoice_thanks');
         //log::info(json_decode($data['data'],true));
         $customdata = json_encode(json_decode($Alldata,true));
-        exit;
         //$customdata=$data['data'];
-        //return View::make('neonregistartion.api_invoice_creditcard_thanks', compact('data','customdata'));
+        return View::make('neonregistartion.api_invoice_creditcard_thanks', compact('data','customdata'));
     }
     public function generate(){
         $CompanyID = User::get_companyID();
