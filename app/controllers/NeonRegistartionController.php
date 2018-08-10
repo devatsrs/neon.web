@@ -9,6 +9,8 @@ class NeonRegistartionController extends \BaseController {
      */
     public function index() {				
 		$data = Input::all();
+        log::info('Data');
+        //log::info(print_r($data,true));
         $Result_Json = $data['apidata']; //json format
         log::info('Json Data');
         log::info(print_r($Result_Json,true));
@@ -46,6 +48,7 @@ class NeonRegistartionController extends \BaseController {
 
             $paypal_button = $paypal->get_api_paynow_button($CompanyID);
         }
+        $CustomData = $Result_Json;
 
 		return View::make('neonregistartion.api_invoice_payment', compact('data','Amount','PaymentGatewayID','PaymentGateway','paypal_button','CustomData','CompanyID'));
 
@@ -70,9 +73,9 @@ class NeonRegistartionController extends \BaseController {
             //$paymentdata = $NewData['PaymentResponse'];
             //log::info(print_r($testdata,true));
             //log::info(print_r($NewData,true));
-            return Response::json(array("status" => "success", "message" => "Create Account Successfully"));
-            //$Reseponse = $this->insertApiAccount($CompanyID,$paymentdata,$apidata);
-            //return $Reseponse;
+            //return Response::json(array("status" => "success", "message" => "Create Account Successfully"));
+            $Reseponse = $this->insertApiAccount($CompanyID,$paymentdata,$apidata);
+            return $Reseponse;
 
         }
 
@@ -409,12 +412,13 @@ class NeonRegistartionController extends \BaseController {
         }
     }
 
-    public function insertApiAccount($CompanyID,$ApiData,$PaymentResponse){
+    public function insertApiAccount($CompanyID,$PaymentResponse,$ApiData){
         //$CompanyID = User::get_companyID();
         $User = User::where(['AdminUser'=>1,'Status'=>1,'CompanyID'=>$CompanyID])->first();
         $UserID = $User->UserID;
         //$UserID = User::get_userID();
         $UserName = $User->FirstName.' '.$User->LastName;
+        log::info('Insert Api Account');
 		$Result = $ApiData;
 		//log::info(print_r($Result,true));
 		$PersonalData = $Result['data_user']['personal_data'];
@@ -430,6 +434,7 @@ class NeonRegistartionController extends \BaseController {
             $dataAccount=array();
             $dataAccount['Owner'] = $UserID;
             $dataAccount['AccountType'] = 1;
+            $dataAccount['Status'] = 1;
             $dataAccount['CompanyID'] = $CompanyID;
             $dataAccount['CurrencyId'] = $PersonalData['currencyId'];
             $dataAccount['LanguageID'] = 43;
@@ -726,7 +731,7 @@ class NeonRegistartionController extends \BaseController {
             /** Create Topup */
             log::info('Create TopUp Start');
 
-            $topup = empty($apidata['data_user']['topup_data']['amount']) ? 0 : $apidata['data_user']['topup_data']['amount'];
+            $topup = empty($Result['data_user']['topup_data']['amount']) ? 0 : $Result['data_user']['topup_data']['amount'];
             log::info('topup amount '.$topup);
             if($topup>0){
                 $paymentdata = array();
@@ -752,6 +757,9 @@ class NeonRegistartionController extends \BaseController {
             /** End Topup */
 
             /** Invoice Generation Start */
+
+            DB::commit();
+            DB::connection('sqlsrv2')->commit();
 
             log::info('Invoice Generation Start');
 
@@ -808,12 +816,11 @@ class NeonRegistartionController extends \BaseController {
 
             /** Invoice Generation End */
 
-            DB::commit();
-            DB::connection('sqlsrv2')->commit();
 
             $Response = array();
             $Response['AccountID'] = $AccountID;
-            $Response['Status'] = 'success';
+            $Response['status'] = 'success';
+            $Response['message'] = 'Account Create Successfully';
 
             return $Response;
 
@@ -835,7 +842,7 @@ class NeonRegistartionController extends \BaseController {
         $dataAccountSubscription['InvoiceDescription'] = $Subscription->InvoiceLineDescription;
         $dataAccountSubscription['Qty'] = $data['Qty'];
         $dataAccountSubscription['StartDate'] = $data['StartDate'];
-        //$dataAccountSubscription['EndDate'];
+        $dataAccountSubscription['EndDate'] = '';
         $dataAccountSubscription['ExemptTax'] = 0;
         $dataAccountSubscription['ActivationFee'] = $Subscription->ActivationFee;
         $dataAccountSubscription['AnnuallyFee'] = $Subscription->AnnuallyFee;

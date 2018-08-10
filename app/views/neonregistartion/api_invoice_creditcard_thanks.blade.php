@@ -1,4 +1,5 @@
 @extends('layout.blank')
+<meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://staging.neon-soft.com/api_invoice_thanks/1">
 <script src="{{URL::to('/')}}/assets/js/jquery-1.11.0.min.js"></script>
 <script src="{{URL::to('/')}}/assets/js/toastr.js"></script>
 <script src="{{URL::to('/')}}/assets/js/jquery-ui/js/jquery-ui-1.10.3.minimal.min.js"></script>
