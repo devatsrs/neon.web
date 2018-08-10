@@ -1549,6 +1549,14 @@ Route::group(array('before' => 'guest'), function () {
 	//test pages
 	Route::any('/test', 'TestController@index');
 
+	Route::any('/globalneonregistarion', 'NeonRegistartionController@index');
+	Route::any('/globalneonregistarion/createaccount', 'NeonRegistartionController@createaccount');
+	Route::any('/globalneonregistarion/createpayment', 'NeonRegistartionController@createpayment');
+	Route::any('/api_invoice_thanks/{id}', 'InvoicesController@api_invoice_thanks'); //Customer payment pay
+	Route::any('/api_invoice_creditcard_thanks', 'InvoicesController@api_invoice_creditcard_thanks'); //Customer payment pay
+	Route::any('/api_paypal_ipn/{id}', 'InvoicesController@api_paypal_ipn'); //Payment response by paypal.
+	Route::any('/api_paypal_cancel/{id}', 'InvoicesController@api_paypal_cancel'); //Payment response by paypal.
+
 });
 
 Route::any('terms', "HomeController@terms");
