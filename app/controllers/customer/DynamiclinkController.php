@@ -66,7 +66,7 @@ class DynamiclinkController extends \BaseController {
         $rules = array(
             'CompanyID' => 'required',
             'Title' => 'required',
-            'Link' => 'required',
+            'Link' => 'required|url',
         );
 
         $verifier = App::make('validation.presence');
