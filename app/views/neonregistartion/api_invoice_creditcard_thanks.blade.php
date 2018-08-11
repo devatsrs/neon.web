@@ -25,6 +25,13 @@
     <input type="text" name="CreditCard" value="1">
     <input type="text" name="CompanyID" value="1">
 </form>
+<form method="post" id="apiinvoicedone" class="hidden">
+    <input type="text" name="PaymentStatus">
+    <input type="text" name="PaymentMessage">
+    <input type="text" name="NeonStatus">
+    <input type="text" name="NeonMessage">
+    <input type="text" name="ApiRequestData">
+</form>
 <script type="text/javascript">
     jQuery(document).ready(function ($) {
         setTimeout(function(){
@@ -47,6 +54,13 @@
                     }else{
                         toastr.error(response.message, "Error", toastr_opts);
                     }
+                    $("#apiinvoicedone [name='PaymentStatus']").val(response.PaymentStatus);
+                    $("#apiinvoicedone [name='PaymentMessage']").val(response.PaymentMessage);
+                    $("#apiinvoicedone [name='NeonStatus']").val(response.NeonStatus);
+                    $("#apiinvoicedone [name='NeonMessage']").val(response.NeonMessage);
+                    $('#apiinvoicedone').attr('action', response.ApiRequestUrl);
+                    //$("#apiinvoicedone [name='ApiRequestData']").val(response.ApiRequestData);
+                    $('#apiinvoicedone').submit();
                 },
                 data: post_data,
                 //Options to tell jQuery not to process data or worry about content-type.

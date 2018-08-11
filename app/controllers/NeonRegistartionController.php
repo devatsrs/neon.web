@@ -7,10 +7,15 @@ class NeonRegistartionController extends \BaseController {
      *
      * @return Response
      */
-    public function index() {				
+    public function index() {
 		$data = Input::all();
         log::info('Data');
-        //log::info(print_r($data,true));
+        log::info('API REQUEST URL '.$_SERVER['HTTP_REFERER']);
+        Session::put('API_BACK_URL',$_SERVER['HTTP_REFERER']);
+        log::info(print_r($data,true));
+        log::info('json data');
+        //$API_Request = json_decode($data['apidata'],true);
+        //log::info(print_r($API_Request,true));
         $Result_Json = $data['apidata']; //json format
         log::info('Json Data');
         log::info(print_r($Result_Json,true));
@@ -821,14 +826,31 @@ class NeonRegistartionController extends \BaseController {
             $Response['AccountID'] = $AccountID;
             $Response['status'] = 'success';
             $Response['message'] = 'Account Create Successfully';
-
+            $response['PaymentStatus'] = 'success';
+            $response['PaymentMessage'] = 'Payment Create Successfully';
+            $response['NeonStatus'] = 'success';
+            $response['NeonMessage'] = 'Account Create Successfully';
+            $ApiRequestUrl = Session::get('API_BACK_URL');
+            $response['ApiRequestUrl'] = $ApiRequestUrl;
+            //$response['ApiRequestData'] = json_encode($ApiData);
             return $Response;
 
         } catch (Exception $e) {
             Log::error($e);
             DB::rollback();
             DB::connection('sqlsrv2')->rollback();
-            return Response::json(["status"=>"failed", "data"=>"","PaymentTransaction"=>$PaymentResponse['transaction_notes'],"error"=>'something gone wrong please contact your system administrator']);
+            $Response['status'] = 'failed';
+            $Response['message'] = 'Account Create Successfully';
+            $response['PaymentStatus'] = 'success';
+            $response['PaymentMessage'] = 'Payment Create Successfully';
+            $response['NeonStatus'] = 'failed';
+            $response['NeonMessage'] = 'something gone wrong please contact your system administrator';
+            $ApiRequestUrl = Session::get('API_BACK_URL');
+            $response['ApiRequestUrl'] = $ApiRequestUrl;
+            //$response['ApiRequestData'] = json_encode($ApiData);
+            return $response;
+
+            //return Response::json(["status"=>"failed", "data"=>"","PaymentTransaction"=>$PaymentResponse['transaction_notes'],"error"=>'something gone wrong please contact your system administrator']);
         }
 	}
     public function insertAccountSubscription($data=array()){
@@ -858,4 +880,5 @@ class NeonRegistartionController extends \BaseController {
         log::info('AccountSubscription End');
         return '';
     }
+    
 }
