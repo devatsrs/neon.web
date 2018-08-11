@@ -115,6 +115,14 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('customer/profile', array('as' => 'profile_show', 'uses' => 'ProfileController@show'));
     Route::any('customer/profile/edit', array('as' => 'profile_edit', 'uses' => 'ProfileController@edit'));
     Route::any('customer/profile/update', array('as' => 'profile_update', 'uses' => 'ProfileController@update'));
+
+	//Dynamic Links
+	Route::any('/customer/dynamiclink', 'DynamiclinkController@index');
+	Route::any('/customer/dynamiclink/ajax_datagrid/{type}', 'DynamiclinkController@ajax_datagrid');
+	Route::any('/customer/dynamiclink/create', 'DynamiclinkController@create');
+	Route::any('/customer/dynamiclink/{id}/update', 'DynamiclinkController@update');
+	Route::any('/customer/dynamiclink/{id}/delete', 'DynamiclinkController@delete');
+
 	//User
 	Route::any('users', array("as" => "users", "uses" => "UsersController@index"));
 	Route::any('/users/add', "UsersController@add");
