@@ -444,10 +444,7 @@ class NeonRegistartionController extends \BaseController {
             $dataAccount['CompanyID'] = $CompanyID;
             $dataAccount['CurrencyId'] = $PersonalData['currencyId'];
             $dataAccount['LanguageID'] = 43;
-            if (empty($dataAccount['Number'])) {
-                $dataAccount['Number'] = Account::getLastAccountNo();
-            }
-            $dataAccount['Number'] = trim($dataAccount['Number']);
+            $dataAccount['Number'] = Illuminate\Support\Str::slug($PersonalData['company']);
             $dataAccount['AccountName'] = $PersonalData['company'];
             $dataAccount['FirstName'] = $PersonalData['first_name'];
             $dataAccount['LastName'] = $PersonalData['last_name'];
@@ -773,7 +770,8 @@ class NeonRegistartionController extends \BaseController {
             $PHPExePath = CompanyConfiguration::getValueConfigurationByKey("PHP_EXE_PATH",$CompanyID);
             $RMArtisanFileLocation = CompanyConfiguration::getValueConfigurationByKey("RM_ARTISAN_FILE_LOCATION",$CompanyID);
             $Command = $PHPExePath.' '.$RMArtisanFileLocation.' '.'singleinvoicegeneration '.$CompanyID.' '.$AccountID;
-            exec($Command);
+            RemoteSSH::run($Command);
+            //exec($Command);
 
             log::info('Invoice Paid And Payment Start');
 
@@ -825,6 +823,7 @@ class NeonRegistartionController extends \BaseController {
 
             $Response = array();
             $Response['AccountID'] = $AccountID;
+            $Response['AccountNumber'] = $dataAccount['Number'];
             $Response['status'] = 'success';
             $Response['message'] = 'Account Create Successfully';
             $Response['PaymentStatus'] = 'success';
@@ -832,7 +831,7 @@ class NeonRegistartionController extends \BaseController {
             $Response['NeonStatus'] = 'success';
             $Response['NeonMessage'] = 'Account Create Successfully';
             $ApiRequestUrl = Session::get('API_BACK_URL');
-            $response['ApiRequestUrl'] = $ApiRequestUrl;
+            $Response['ApiRequestUrl'] = $ApiRequestUrl;
             //$response['ApiRequestData'] = json_encode($ApiData);
             return $Response;
 
@@ -842,13 +841,15 @@ class NeonRegistartionController extends \BaseController {
             DB::connection('sqlsrv2')->rollback();
             $Response = array();
             $Response['status'] = 'failed';
-            $Response['message'] = 'Account Create Successfully';
+            $Response['message'] = 'something gone wrong please contact your system administrator';
             $Response['PaymentStatus'] = 'success';
             $Response['PaymentMessage'] = 'Payment Create Successfully';
             $Response['NeonStatus'] = 'failed';
             $Response['NeonMessage'] = 'something gone wrong please contact your system administrator';
             $ApiRequestUrl = Session::get('API_BACK_URL');
             $Response['ApiRequestUrl'] = $ApiRequestUrl;
+            $Response['AccountID']='';
+            $Response['AccountNumber']='';
             //$response['ApiRequestData'] = json_encode($ApiData);
             return $Response;
 
