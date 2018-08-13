@@ -174,6 +174,13 @@
             $Account=  Customer::where('AccountID',$CM_data['AccountID'])->first();
             $CM_data['AccountNo']=$Account->Number;
 
+            $langs = Translation::get_language_labels($CM_data['lang']);
+            $json_file = json_decode($langs->Translation, true);
+            $key=array_search($name,$json_file);
+            if(!empty($key)){
+                $name=cus_lang($key);
+            }
+
             $Link= str_replace("{ACCOUNTID}",$CM_data['AccountID'],$Link);
             $Link= str_replace("{COMPANYID}",$CM_data['CompanyID'],$Link);
             $Link= str_replace("{LANGUAGE}",$CM_data['lang'],$Link);
