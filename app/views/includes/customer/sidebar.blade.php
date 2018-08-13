@@ -168,6 +168,7 @@
             $Link=$linkdata->Link;
 
             $CM_data=array();
+            $reg=0;
             $CM_data['CompanyID'] = Customer::get_companyID();
             $CM_data['AccountID'] = Customer::get_accountID();
             $CM_data['lang']=NeonCookie::getCookie('customer_language');
@@ -184,12 +185,18 @@
             $Link= str_replace("{ACCOUNTID}",$CM_data['AccountID'],$Link);
             $Link= str_replace("{COMPANYID}",$CM_data['CompanyID'],$Link);
             $Link= str_replace("{LANGUAGE}",$CM_data['lang'],$Link);
+            if(str_replace("{ACCOUNTNUMBER}",$CM_data['AccountNo'],$Link)){
+                $reg=1;
+            }
             $Link= str_replace("{ACCOUNTNUMBER}",$CM_data['AccountNo'],$Link);
 
             $digits = 5;
             $rand_no= rand(pow(10, $digits-1), pow(10, $digits)-1);
             $hash=$rand_no.base64_encode(serialize($CM_data)).$rand_no;
-            $Link=$Link."&hash=".$hash;
+            if(!$reg){
+                $Link=$Link."&hash=".$hash;
+            }
+
 
         ?>
             <li>
