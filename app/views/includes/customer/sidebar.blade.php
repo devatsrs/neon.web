@@ -159,14 +159,6 @@
             </a>
         </li>
         @endif
-        @if(CompanyConfiguration::get('CUSTOMER_PROFILE_DISPLAY') == 1)
-            <li>
-                <a href="{{URL::to('customer/dynamiclink')}}">
-                    <i class="glyphicon glyphicon-link"></i>
-                    <span>@lang("routes.CUST_PANEL_SIDENAV_MENU_DYNAMICLINK")</span>
-                </a>
-            </li>
-        @endif
     </ul>
 
 </div>

@@ -15,10 +15,12 @@ class DynamiclinkController extends \BaseController {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         $data['iDisplayStart'] +=1;
-        $columns = ['DynamicLinkID','Title','Link','Currency','created_at'];
+        $columns = ['DynamicLinkID','Title','Link','CurrencyID','created_at'];
         $sort_column = $columns[$data['iSortCol_0']];
-
-        $query = "call prc_getDynamiclinks (".$CompanyID.", '','0', ".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        if(empty($data['Currency'])){
+            $data['Currency']=0;
+        }
+        $query = "call prc_getDynamiclinks (".$CompanyID.", '".$data['Title']."','".$data['CurrencyID']."', ".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv')->select($query.',1)');
@@ -34,6 +36,7 @@ class DynamiclinkController extends \BaseController {
             }
         }
         $query .=',0)';
+
         $data = DataTableSql::of($query,'sqlsrv')->make(false);
 
         return Response::json($data);
@@ -45,7 +48,8 @@ class DynamiclinkController extends \BaseController {
     {
         $companyID = User::get_companyID();
         $Currency = Currency::getCurrencyDropdownIDList($companyID);
-        return View::make('customer.dynamiclink.index', compact('Currency'));
+        $Type=array(""=>"Other","Registration"=>"Registration","CampaignManagement"=>"Campaign Management");
+        return View::make('dynamiclink.index', compact('Currency','Type'));
     }
 
 	/**
@@ -86,9 +90,9 @@ class DynamiclinkController extends \BaseController {
         }
 
         if ($dynamicfield = Dynamiclink::create($data)) {
-            return Response::json(array("status" => "success", "message" => Lang::get('routes.CUST_PANEL_PAGE_DYNAMICLINK_MSG_NOTIFICATION_SUCCESSFULLY_CREATED')));
+            return Response::json(array("status" => "success", "message" => "Dynamic Link Successfully Created"));
         } else {
-            return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_DYNAMICLINK_MSG_PROBLEM_CREATING_NOTIFICATION')));
+            return Response::json(array("status" => "failed", "message" => "Problem Creating Dynamic Link."));
         }
     }
 
@@ -129,12 +133,12 @@ class DynamiclinkController extends \BaseController {
             }
 
             if ($dynamiclink->update($data)) {
-                return Response::json(array("status" => "success", "message" => Lang::get('routes.CUST_PANEL_PAGE_DYNAMICLINK_MSG_DYNAMICLINK_SUCCESSFULLY_UPDATED')));
+                return Response::json(array("status" => "success", "message" => "Dynamic Link Successfully Updated"));
             } else {
-                return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_DYNAMICLINK_MSG_PROBLEM_CREATING_NOTIFICATION')));
+                return Response::json(array("status" => "failed", "message" => "Problem Creating Dynamic Link."));
             }
         }else {
-            return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_DYNAMICLINK_MSG_PROBLEM_CREATING_NOTIFICATION')));
+            return Response::json(array("status" => "failed", "message" => "Problem Creating Dynamic Link."));
         }
     }
 
@@ -151,12 +155,12 @@ class DynamiclinkController extends \BaseController {
                 $DynamicLink = Dynamiclink::find($id);
                 $result = $DynamicLink->delete();
                 if ($result) {
-                    return Response::json(array("status" => "success", "message" => Lang::get('routes.CUST_PANEL_PAGE_DYNAMICLINK_MSG_DYNAMICLINK_SUCCESSFULLY_DELETED')));
+                    return Response::json(array("status" => "success", "message" => "Dynamic Link Successfully Deleted"));
                 } else {
-                    return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_DYNAMICLINK_MSG_DYNAMICLINK_DELETING_NOTIFICATION')));
+                    return Response::json(array("status" => "failed", "message" => "Problem Deleting Dynamic Link."));
                 }
             }catch (Exception $ex){
-                return Response::json(array("status" => "failed", "message" => Lang::get('routes.MESSAGE_PROBLEM_DELETING_EXCEPTION'). $ex->getMessage()));
+                return Response::json(array("status" => "failed", "message" => "Problem Deleting. Exception: ". $ex->getMessage()));
             }
         }
     }
@@ -193,76 +197,11 @@ class DynamiclinkController extends \BaseController {
      * @return mixed
      */
 
-    public function getDynamicFields($CompanyID, $Type=Product::DYNAMIC_TYPE, $action=''){
 
-        if($action && $action == 'delete') {
-            $dynamicFields['fields'] = DynamicFields::where('Type',$Type)->where('CompanyID',$CompanyID)->get();
-        } else {
-            $dynamicFields['fields'] = DynamicFields::where('Type',$Type)->where('CompanyID',$CompanyID)->where('Status',1)->get();
-        }
-
-        $dynamicFields['totalfields'] = count($dynamicFields['fields']);
-
-        return $dynamicFields;
-    }
-
-    /**
-     * @return mixed
-     */
-    public static function getDynamicFieldsIDBySlug() {
-        return DB::table('tblDynamicFields')->where('FieldSlug',DynamicFieldsValue::BARCODE_SLUG)->pluck('DynamicFieldsID');
-    }
 
     public function download_sample_excel_file(){
         $filePath =  public_path() .'/uploads/sample_upload/ItemUploadSample.csv';
         download_file($filePath);
-    }
-
-    function UpdateBulkDynamicFieldStatus()
-    {
-        $data 		= Input::all();
-        $CompanyID 	= User::get_companyID();
-        $UserName   = User::get_user_full_name();
-        if(isset($data['type_active_deactive']) && $data['type_active_deactive']!='')
-        {
-            if($data['type_active_deactive']=='active'){
-                $data['status_set']  = 1;
-            }else if($data['type_active_deactive']=='deactive'){
-                $data['status_set']  = 0;
-            }else{
-                return Response::json(array("status" => "failed", "message" => "No Dynamic Field status selected"));
-            }
-        }else{
-            return Response::json(array("status" => "failed", "message" => "No Dynamic Field status selected"));
-        }
-
-        if($data['criteria_ac']=='criteria'){ //all item checkbox checked
-            $userID = User::get_userID();
-
-            if(!isset($data['Active']) || $data['Active'] == '') {
-                $data['Active'] = 9;
-            } else {
-                $data['Active'] = (int) $data['Active'];
-            }
-
-            $query = "call prc_UpdateDynamicFieldStatus (".$CompanyID.",'".$UserName."','product','".$data['FieldName']."','".$data['FieldDomType']."','".$data['ItemTypeID']."',".$data['Active'].",".$data['status_set'].")";
-            $result = DB::connection('sqlsrv')->select($query);
-            return Response::json(array("status" => "success", "message" => "Dynamic Field Status Updated"));
-        }
-
-        if($data['criteria_ac']=='selected'){ //selceted ids from current page
-            if(isset($data['SelectedIDs']) && count($data['SelectedIDs'])>0){
-//                foreach($data['SelectedIDs'] as $SelectedID){
-                    DynamicFields::whereIn('DynamicFieldsID',$data['SelectedIDs'])->where('Status','!=',$data['status_set'])->update(["Status"=>intval($data['status_set'])]);
-//                    Product::find($SelectedID)->where('Active','!=',$data['status_set'])->update(["Active"=>intval($data['status_set']),'ModifiedBy'=>$UserName,'updated_at'=>date('Y-m-d H:i:s')]);
-//                }
-                return Response::json(array("status" => "success", "message" => "Dynamic Field Status Updated"));
-            }else{
-                return Response::json(array("status" => "failed", "message" => "No Dynamic Field selected"));
-            }
-
-        }
-
     }
 
     function DeleteBulkDynamicField(){
