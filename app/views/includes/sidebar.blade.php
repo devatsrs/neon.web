@@ -224,7 +224,7 @@
         @if(User::checkCategoryPermission('CDR','View'))
         <li> <a href="{{URL::to('/cdr_show')}}">  <span>CDR</span> </a> </li>
         @endif
-
+        <li> <a href="{{URL::to('/creditnotes')}}">  <span>Credit Notes</span> </a> </li>
         <!--<li>
 <a href="{{URL::to('/cdr_recal')}}">
   <i class="entypo-pencil"></i>
