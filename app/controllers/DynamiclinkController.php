@@ -83,8 +83,8 @@ class DynamiclinkController extends \BaseController {
             return json_validator_response($validator);
         }
 
-        //Check FieldName duplicate
-        $cnt_duplidate = Dynamiclink::where('Title',$data['Title'])->get()->count();
+        //Check Title duplicate
+        $cnt_duplidate = Dynamiclink::where(['Title'=>$data['Title'],'CurrencyID'=>$data['CurrencyID']])->get()->count();
         if($cnt_duplidate > 0){
             return Response::json(array("status" => "failed", "message" => "Title With This Name Already Exists."));
         }
@@ -130,6 +130,12 @@ class DynamiclinkController extends \BaseController {
 
             if ($validator->fails()) {
                 return json_validator_response($validator);
+            }
+
+            //Check Title duplicate
+            $cnt_duplidate = Dynamiclink::where(['Title'=>$data['Title'],'CurrencyID'=>$data['CurrencyID']])->get()->count();
+            if($cnt_duplidate > 0){
+                return Response::json(array("status" => "failed", "message" => "Title With This Name Already Exists."));
             }
 
             if ($dynamiclink->update($data)) {
