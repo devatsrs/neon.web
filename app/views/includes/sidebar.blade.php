@@ -338,7 +338,10 @@
     @endif
     @if( User::checkCategoryPermission('Company','View'))
     <li> <a href="{{Url::to('company')}}"> <i class="glyphicon glyphicon-home"></i> <span>&nbsp;Company</span> </a> </li>
-    @endif  	
+    @endif
+    @if( User::checkCategoryPermission('Pages','About'))
+      <li> <a href="{{Url::to('/dynamiclink')}}"> <i class="glyphicon glyphicon-link"></i> <span>&nbsp;Dynamic Link</span> </a> </li>
+    @endif
     @if( User::checkCategoryPermission('Pages','About'))
     <li> <a href="{{Url::to('/about')}}"> <i class="glyphicon glyphicon-info-sign"></i> <span>&nbsp;About</span> </a> </li>
     @endif
