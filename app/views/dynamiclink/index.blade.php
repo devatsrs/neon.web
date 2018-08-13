@@ -125,14 +125,14 @@
                                 mRender: function (id, type, full) {
 
                                     var delete_ = "{{ URL::to('/dynamiclink/{id}/delete')}}";
-                                    delete_  = delete_ .replace( '{id}', full[5] );
+                                    delete_  = delete_ .replace( '{id}', full[6] );
 
                                     action = '<div class = "hiddenRowData" >';
                                     for(var i = 0 ; i< list_fields.length; i++){
                                         action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                     }
                                     action += '</div>';
-                                    action += ' <a data-name = "' + full[0] + '" data-id="' + full[5] + '" title="Edit" class="edit-dynamicfield btn btn-default btn-sm btn-smtooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
+                                    action += ' <a data-name = "' + full[1] + '" data-id="' + full[6] + '" title="Edit" class="edit-dynamicfield btn btn-default btn-sm btn-smtooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
                                     action += ' <a href="'+delete_+'" data-redirect="{{ URL::to('products')}}" title="Delete"  class="btn delete btn-danger btn-default btn-sm btn-smtooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></a>';
 
                                     return action;
