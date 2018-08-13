@@ -16104,7 +16104,7 @@ BEGIN
 	AND a.Status = 1
 	AND AccountType = 1
 	AND Billing = 1
-	AND a.AccountID IN (111)
+--	AND a.AccountID IN (111)
 	AND (ab.BillingCycleType IS NOT NULL AND ab.BillingCycleType <> 'manual')
 	AND bc.DeductCallChargeInAdvance = 1
 	ORDER BY a.AccountID ASC;
