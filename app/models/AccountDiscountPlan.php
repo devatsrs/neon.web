@@ -22,11 +22,17 @@ class AccountDiscountPlan extends \Eloquent
     public static function addUpdateDiscountPlan($AccountID,$DiscountPlanID,$Type,$billdays,$DayDiff,$ServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID){
         log::info('add update discountPLan');
         $Today = date('Y-m-d H:i:s');
-        log::info('test prc_setAccountDiscountPlan(?,?,?,?,?,?,?,?,?,?,?,?)',array($AccountID,intval($DiscountPlanID),intval($Type),$billdays,$DayDiff,User::get_user_full_name(),$Today,$ServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID));
+        if(!Auth::guest()) {
+            $CreatedBY = User::get_user_full_name();
+        }else{
+            $CreatedBY = 'Guest';
+        }
+
+        log::info('test prc_setAccountDiscountPlan(?,?,?,?,?,?,?,?,?,?,?,?)',array($AccountID,intval($DiscountPlanID),intval($Type),$billdays,$DayDiff,$CreatedBY,$Today,$ServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID));
         if( AccountDiscountPlan::where(["AccountID"=> $AccountID,'Type'=>$Type,'ServiceID'=>$ServiceID,'AccountSubscriptionID'=>$AccountSubscriptionID,'AccountName'=>$AccountName,'AccountCLI'=>$AccountCLI,'SubscriptionDiscountPlanID'=>$SubscriptionDiscountPlanID])->pluck('DiscountPlanID') != $DiscountPlanID){
             $Today = date('Y-m-d H:i:s');
-            log::info('call prc_setAccountDiscountPlan(?,?,?,?,?,?,?,?,?,?,?,?)',array($AccountID,intval($DiscountPlanID),intval($Type),$billdays,$DayDiff,User::get_user_full_name(),$Today,$ServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID));
-            DB::select('call prc_setAccountDiscountPlan(?,?,?,?,?,?,?,?,?,?,?,?)',array($AccountID,intval($DiscountPlanID),intval($Type),$billdays,$DayDiff,User::get_user_full_name(),$Today,$ServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID));
+            log::info('call prc_setAccountDiscountPlan(?,?,?,?,?,?,?,?,?,?,?,?)',array($AccountID,intval($DiscountPlanID),intval($Type),$billdays,$DayDiff,$CreatedBY,$Today,$ServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID));
+            DB::select('call prc_setAccountDiscountPlan(?,?,?,?,?,?,?,?,?,?,?,?)',array($AccountID,intval($DiscountPlanID),intval($Type),$billdays,$DayDiff,$CreatedBY,$Today,$ServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID));
         }
     }
     public static function getDiscountPlan($AccountID,$Type,$ServiceID,$AccountSubscriptionID,$SubscriptionDiscountPlanID){

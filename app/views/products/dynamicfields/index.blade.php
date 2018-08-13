@@ -431,7 +431,8 @@
                                     var SelectVal=cur_obj.find("input[name='"+list_fields[i]+"']").val();
                                     var SelectValDiv='<div class="form-group"><label for="field-5" class="control-label">Select Value (separated by comma) </label>{{ Form::text("SelectVal", "", array("class"=>"form-control"))  }}</div>';
                                     $("#minmaxdiv").html(SelectValDiv);
-                                    $("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").attr("disabled",true);
+                                    //$("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").attr("disabled",true);
+                                    
                                 }
                                 $("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
 

@@ -471,4 +471,61 @@ class StripeBilling {
 		return $Response;
 
 	}
+
+	public function paymentValidateWithApiCreditCard($data){
+		$Response = array();
+		$Response['status']='success';
+		$CurrencyCode = '';
+
+		$ValidateResonse = $this->doValidation($data);
+		if($ValidateResonse['status']=='failed'){
+			return $ValidateResonse;
+		}
+
+		//need CurrencyID
+		if(!empty($data['CurrencyId'])){
+			$CurrencyCode = Currency::getCurrency($data['CurrencyId']);
+		}
+		if(empty($CurrencyCode)){
+			$Response['status']='failed';
+			$Response['message']=cus_lang("PAYMENT_MSG_NO_ACCOUNT_CURRENCY_AVAILABLE");
+		}
+		return $Response;
+	}
+
+	public function paymentWithApiCreditCard($data){
+		$CurrencyCode = Currency::getCurrency($data['CurrencyId']);
+
+		$stripedata = array();
+		$stripedata['number'] = $data['CardNumber'];
+		$stripedata['exp_month'] = $data['ExpirationMonth'];
+		$stripedata['cvc'] = $data['CVVNumber'];
+		$stripedata['exp_year'] = $data['ExpirationYear'];
+		$stripedata['name'] = $data['NameOnCard'];
+
+		$stripedata['amount'] = $data['GrandTotal'];
+		$stripedata['currency'] = strtolower($CurrencyCode);
+		$stripedata['description'] = $data['InvoiceNumber'].' (Invoice) Payment';
+		$stripedata['CurrencyCode'] = $CurrencyCode;
+
+		log::info('Payment with card start');
+		$StripeResponse = $this->create_charge($stripedata);
+		log::info('Payment with card end');
+		$Response = array();
+
+		if ($StripeResponse['status'] == 'Success') {
+			$Response['PaymentMethod'] = 'CREDIT CARD';
+			$Response['transaction_notes'] = $StripeResponse['note'];
+			$Response['Amount'] = $StripeResponse['amount'];
+			$Response['Transaction'] = $StripeResponse['id'];
+			$Response['Response']=$StripeResponse['response'];
+			$Response['status'] = 'success';
+		}else{
+			$Response['transaction_notes'] = $StripeResponse['error'];
+			$Response['status'] = 'failed';
+			$Response['Response']='';
+		}
+
+		return $Response;
+	}
 }

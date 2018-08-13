@@ -560,4 +560,36 @@ class AuthorizeNet {
         }
         return $Response;
     }
+
+    public function paymentValidateWithApiCreditCard($data){
+        return $this->doValidation($data);
+    }
+
+    public function paymentWithApiCreditCard($data){
+        $data['InvoiceNumber']='';
+        $AuthorizeResponse = $this->pay_invoice($data);
+        $Notes = '';
+        if($AuthorizeResponse->response_code == 1) {
+            $Notes = 'AuthorizeNet transaction_id ' . $AuthorizeResponse->transaction_id;
+        }else{
+            $Notes = isset($AuthorizeResponse->response->xml->messages->message->text) && $AuthorizeResponse->response->xml->messages->message->text != '' ? $AuthorizeResponse->response->xml->messages->message->text : $AuthorizeResponse->response_reason_text ;
+        }
+
+        $Response = array();
+
+        if($AuthorizeResponse->approved) {
+            $Response['PaymentMethod'] = $AuthorizeResponse->method;
+            $Response['transaction_notes'] = $Notes;
+            $Response['Amount'] = floatval($AuthorizeResponse->amount);
+            $Response['Transaction'] = $AuthorizeResponse->transaction_id;
+            $Response['Response'] = $AuthorizeResponse;
+            $Response['status'] = 'success';
+        }else{
+            $Response['transaction_notes'] = $Notes;
+            $Response['status'] = 'failed';
+            $Response['Response']=json_encode($AuthorizeResponse);
+        }
+        return $Response;
+    }
+
 }

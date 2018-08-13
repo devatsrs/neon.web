@@ -19,6 +19,7 @@ class PaypalIpn
     var $logo_url;
     var $status;
     var $method;
+    var $custom;
 
 
     function __Construct($CompanyID){
@@ -240,5 +241,50 @@ class PaypalIpn
             $this->log();
         }
         return $this->ipn;
+    }
+
+    /**
+     * paynow button show in registration widget.
+     */
+    public function get_api_paynow_button($CompanyID, $paypal_success_url="", $paypal_cancel_url=""){
+
+        if(empty($paypal_success_url)){
+            $paypal_success_url = url('/api_invoice_thanks/'.$CompanyID);
+        }
+        if(empty($paypal_cancel_url)){
+            $paypal_cancel_url = url('/api_paypal_cancel/'.$CompanyID);
+        }
+
+        $paypal_ipn_url = url('/api_paypal_ipn/'.$CompanyID);
+
+        if (!$this->is_live) {
+//            $paypal_email =  'devens_1224939565_biz@yahoo.com';  //devens_1224939565_biz@yahoo.com
+            $paypal_email =  'vishal.jagani-facilitator@code-desk.com';  //devens_1224939565_biz@yahoo.com
+            $paypal_url  = 'https://www.sandbox.paypal.com/cgi-bin/webscr';
+        } else {
+            $paypal_url  = 'https://www.paypal.com/cgi-bin/webscr';
+            $paypal_email =  $this->paypal_business_email;
+
+        }
+        $this->amount = number_format($this->amount,2,'.','') ;// paypal gives error if more than 2 decimal placesrequies 2 decimal points
+        $form = '<form method="post" id="paypalform" action="' . $paypal_url  .  '" target="_self" class="no-margin" >
+        <input type="hidden" name="business" value="' . $paypal_email  .  '"/>
+        <input type="hidden" name="return" value="' . $paypal_success_url  .  '" />
+        <input type="hidden" name="cancel_url" value="' . $paypal_cancel_url  .  '" />
+        <input type="hidden" name="notify_url" value="' . $paypal_ipn_url  .  '" />
+        <input type="hidden" name="item_name" value="' . $this->item_title  .  '"/>
+        <input type="hidden" name="item_number" value="' . $this->item_number  .  '" />
+        <input type="hidden" name="quantity" value="1"/>
+        <input type="hidden" name="amount" value="' . $this->amount  .  '"/>
+        <input type="hidden" name="custom" value=""/>
+        <input type="hidden" name="currency_code" value="' . $this->curreny_code  .  '"/>
+        <input type="hidden" name="image_url" value="'. $this->logo_url .'"/>
+        <input type="hidden" name="rm" value="2"/>
+        <input type="hidden" name="cmd" value="_xclick"/>
+        <button type="submit" class="pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print" style="display:none;"> <i class="entypo-credit-card"></i> Pay Now With Paypal</button>
+        </form>';
+
+        return $form;
+
     }
 }

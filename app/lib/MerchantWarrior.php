@@ -266,6 +266,80 @@ class MerchantWarrior {
         return $response;
     }
 
+    public function payInvoiceWithApi($data){
+        try {
+
+            $InvoiceCurrency    = Currency::getCurrency($data['CurrencyId']);
+
+            //$data['GrandTotal'] = 70;
+            if(is_int($data['GrandTotal'])) {
+                $Amount = str_replace(',', '', str_replace('.', '', $data['GrandTotal']));
+                $Amount = number_format((float)$Amount, 2, '.', '');
+            }else{
+                if($this->MerchantWarriorLive == 1) {
+                    $Amount = $data['GrandTotal']; // for live
+                }
+                else{
+                    $Amount = number_format(round($data['GrandTotal']), 2, '.', ''); // for testing
+                }
+            }
+
+            //generate hash as per reference in https://dox.merchantwarrior.com/?php#transaction-type-hash
+            $hash = strtolower($this->apiPassphrase . $this->merchantUUID . $Amount . $InvoiceCurrency) ;
+            $hash = md5($hash);
+            $creditCardDateMmYy = $data['ExpirationMonth'].substr($data['ExpirationYear'], -2);
+            $postdata = array(
+                'method'                => 'processCard',
+                'merchantUUID'          => $this->merchantUUID,
+                'apiKey'                => $this->apiKey,
+                'transactionAmount'     => $Amount,
+                'transactionCurrency'   => $InvoiceCurrency,
+                'transactionProduct'    => 'Invoice No.' . $data['InvoiceNumber'],
+                'customerName'          => $data['AccountName'],
+                'customerCountry'       => $data['Country'],
+                'customerState'         => $data['City'],
+                'customerCity'          => $data['City'],
+                'customerAddress'       => $data['Address1'],
+                'customerPostCode'      => $data['PostCode'],
+                'customerPhone'         => $data['Phone'], //not required
+                'customerEmail'         => $data['Email'], //not required
+                'paymentCardName'       => $data['NameOnCard'],
+                'paymentCardNumber'     => $data['CardNumber'],
+                'paymentCardExpiry'     => $creditCardDateMmYy,
+                'paymentCardCSC'        => $data['CVVNumber'],
+                'hash'                  => $hash
+            );
+
+            //$jsonData = json_encode($postData);
+            try {
+                $res = $this->sendCurlRequest($this->SaveCardUrl, $postdata);
+            } catch (\Guzzle\Http\Exception\CurlException $e) {
+                log::info($e->getMessage());
+                $response['status']         = 'fail';
+                $response['error']          = $e->getMessage();
+            }
+
+            if(!empty($res['status']) && $res['status']==1 && $res['responseData']['responseCode']==0){
+                $response['status']         = 'success';
+                $response['note']           = 'MerchantWarrior transaction_id '.$res['transactionID'];
+                $response['transaction_id'] = $res['transactionID'];
+                $response['amount']         = $res['responseData']['transactionAmount'];
+                $response['response']       = $res;
+            }else{
+                $response['status']         = 'fail';
+                $response['transaction_id'] = !empty($res['transactionID']) ? $res['transactionID'] : "";
+                $response['error']          = $res['responseData']['responseMessage'];
+                $response['response']       = $res;
+                Log::info(print_r($res,true));
+            }
+        } catch (Exception $e) {
+            log::info($e->getMessage());
+            $response['status']             = 'fail';
+            $response['error']              = $e->getMessage();
+        }
+        return $response;
+    }
+
 
     public function createProfile($data){
         $CustomerID         = $data['AccountID'];
@@ -449,6 +523,29 @@ class MerchantWarrior {
             'responseData' => $xml
         );
         return $res;
+    }
+
+    public function paymentValidateWithApiCreditCard($data){
+        return $this->doValidation($data);
+    }
+
+
+    public function paymentWithApiCreditCard($data){
+        $MerchantWarriorResponse = $this->payInvoiceWithApi($data);
+        $Response = array();
+        if($MerchantWarriorResponse['status']=='success') {
+            $Response['PaymentMethod']      = 'CREDIT CARD';
+            $Response['transaction_notes']  = $MerchantWarriorResponse['note'];
+            $Response['Amount']             = floatval($MerchantWarriorResponse['amount']);
+            $Response['Transaction']        = $MerchantWarriorResponse['transaction_id'];
+            $Response['Response']           = $MerchantWarriorResponse['response'];
+            $Response['status']             = 'success';
+        }else{
+            $Response['transaction_notes']  = $MerchantWarriorResponse['error'];
+            $Response['status']             = 'failed';
+            $Response['Response']           = !empty($MerchantWarriorResponse['response']) ? $MerchantWarriorResponse['response'] : "";
+        }
+        return $Response;
     }
 
 }
