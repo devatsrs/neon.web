@@ -60,15 +60,11 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="form-group">
-                    <label for="field-5" class="control-label">Type</label>
-                    {{Form::select('Type',$Type,'',array("class"=>"form-control select2 small"))}}
-                </div>
-                <div class="form-group">
                     <label for="field-5" class="control-label">Title*</label>
                     <input type="text" name="Title" class="form-control" id="field-5" placeholder="">
                 </div>
                 <div class="form-group">
-                    <label for="field-5" class="control-label">Link *</label>
+                    <label for="field-5" class="control-label">Link <span id="tooltip_Link" data-content="lang={LANGUAGE},  AccountID={ACCOUNTID}, AccountNo={ACCOUNTNUMBER}, CompanyID={COMPANYID}" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> *</label>
                     <input type="text" name="Link" class="form-control" id="field-5" placeholder="">
                 </div>
                 <div class="form-group">

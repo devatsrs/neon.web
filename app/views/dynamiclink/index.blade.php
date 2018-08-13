@@ -62,7 +62,6 @@
                 <thead>
                 <tr>
                     {{--<th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>--}}
-                    <th width="10%">Type</th>
                     <th width="10%">Title</th>
                     <th width="20%">Link</th>
                     <th width="20%">Currency</th>
@@ -75,7 +74,7 @@
             </table>
             <script type="text/javascript">
                 var checked = '';
-                var list_fields  = ['Type','Title','Link','Currency','created_at','CurrencyID','DynamicLinkID'];
+                var list_fields  = ['Title','Link','Currency','created_at','CurrencyID','DynamicLinkID'];
                 var $searchFilter = {};
                 var update_new_url;
                 var postdata;
@@ -114,7 +113,6 @@
                                     return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
                                 }
                             },*/
-                            {  "bSortable": false},  // 0 Type
                             {  "bSortable": true},  // 1 Title
                             {  "bSortable": false },  // 2 Link
                             {  "bSortable": true },  // 3 Currency
@@ -125,14 +123,14 @@
                                 mRender: function (id, type, full) {
 
                                     var delete_ = "{{ URL::to('/dynamiclink/{id}/delete')}}";
-                                    delete_  = delete_ .replace( '{id}', full[6] );
+                                    delete_  = delete_ .replace( '{id}', full[5] );
 
                                     action = '<div class = "hiddenRowData" >';
                                     for(var i = 0 ; i< list_fields.length; i++){
                                         action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                     }
                                     action += '</div>';
-                                    action += ' <a data-name = "' + full[1] + '" data-id="' + full[6] + '" title="Edit" class="edit-dynamicfield btn btn-default btn-sm btn-smtooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
+                                    action += ' <a data-name = "' + full[0] + '" data-id="' + full[5] + '" title="Edit" class="edit-dynamicfield btn btn-default btn-sm btn-smtooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
                                     action += ' <a href="'+delete_+'" data-redirect="{{ URL::to('products')}}" title="Delete"  class="btn delete btn-danger btn-default btn-sm btn-smtooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></a>';
 
                                     return action;
@@ -326,8 +324,6 @@
                                     $("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").val(cid).trigger("change");
                                 }
 
-                            }else if(list_fields[i] == 'Type'){
-                                $("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='Type']").val()).trigger("change");
                             }
                             else {
                                 $("#add-edit-dynamicfield-form [name='" + list_fields[i] + "']").val(cur_obj.find("input[name='" + list_fields[i] + "']").val());
