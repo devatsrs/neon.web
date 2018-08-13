@@ -183,17 +183,17 @@
             }
 
             $Link= str_replace("{ACCOUNTID}",$CM_data['AccountID'],$Link);
-            $Link= str_replace("{COMPANYID}",$CM_data['CompanyID'],$Link);
-            $Link= str_replace("{LANGUAGE}",$CM_data['lang'],$Link);
-            if(str_replace("{ACCOUNTNUMBER}",$CM_data['AccountNo'],$Link)){
+            if(strpos($Link,"{COMPANYID}")){
                 $reg=1;
             }
+            $Link= str_replace("{COMPANYID}",$CM_data['CompanyID'],$Link);
+            $Link= str_replace("{LANGUAGE}",$CM_data['lang'],$Link);
             $Link= str_replace("{ACCOUNTNUMBER}",$CM_data['AccountNo'],$Link);
 
             $digits = 5;
             $rand_no= rand(pow(10, $digits-1), pow(10, $digits)-1);
             $hash=$rand_no.base64_encode(serialize($CM_data)).$rand_no;
-            if(!$reg){
+            if($reg==1){
                 $Link=$Link."&hash=".$hash;
             }
 
