@@ -1,4 +1,5 @@
 @extends('layout.blank')
+<meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://staging.neon-soft.com/api_invoice_thanks/1">
 <script src="{{URL::to('/')}}/assets/js/jquery-1.11.0.min.js"></script>
 <script src="{{URL::to('/')}}/assets/js/toastr.js"></script>
 <script src="{{URL::to('/')}}/assets/js/jquery-ui/js/jquery-ui-1.10.3.minimal.min.js"></script>
@@ -24,6 +25,13 @@
     <input type="text" name="CreditCard" value="1">
     <input type="text" name="CompanyID" value="1">
 </form>
+<form method="post" id="apiinvoicedone" class="hidden">
+    <input type="text" name="status">
+    <input type="text" name="PaymentStatus">
+    <input type="text" name="PaymentMessage">
+    <input type="text" name="NeonStatus">
+    <input type="text" name="NeonMessage">
+</form>
 <script type="text/javascript">
     jQuery(document).ready(function ($) {
         setTimeout(function(){
@@ -46,6 +54,15 @@
                     }else{
                         toastr.error(response.message, "Error", toastr_opts);
                     }
+                    $("#apiinvoicedone [name='status']").val(response.status);
+                    $("#apiinvoicedone [name='PaymentStatus']").val(response.PaymentStatus);
+                    $("#apiinvoicedone [name='PaymentMessage']").val(response.PaymentMessage);
+                    $("#apiinvoicedone [name='NeonStatus']").val(response.NeonStatus);
+                    $("#apiinvoicedone [name='NeonMessage']").val(response.NeonMessage);
+                    $('#apiinvoicedone').attr('action', response.ApiRequestUrl);
+                    setTimeout(function(){
+                        $('#apiinvoicedone').submit();
+                    }, 10);
                 },
                 data: post_data,
                 //Options to tell jQuery not to process data or worry about content-type.

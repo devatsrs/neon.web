@@ -7,16 +7,23 @@ class NeonRegistartionController extends \BaseController {
      *
      * @return Response
      */
-    public function index() {				
-		$data = Input::all();
-        $Result_Json = $data['apidata']; //json format
+    public function index() {
+        $data = Input::all();
+        log::info('Data');
+        log::info('API REQUEST URL '.$_SERVER['HTTP_REFERER']);
+        Session::put('API_BACK_URL',$_SERVER['HTTP_REFERER']);
+        log::info(print_r($data,true));
+        $Result_Json = $data['data']; //json format
         log::info('Json Data');
         log::info(print_r($Result_Json,true));
-
         $API_Request = json_decode($Result_Json,true);
+        //log::info(print_r($API_Request,true));
+        $UserID = $API_Request['UserID'];
+        log::info('UserID '.$UserID);
+        $CompanyID = User::where(["UserID"=>$UserID])->pluck('CompanyID');
+        log::info('CompanyID '.$CompanyID);
         $Personal_data = $API_Request['data_user']['personal_data'];
-        $CompanyID=1;
-        $UserID = 1;
+
         $AccountName = $Personal_data['company'];
         $CurrencyID= $Personal_data['currencyId'];
         $CurrencyCode = Currency::getCurrency($CurrencyID);
@@ -46,6 +53,7 @@ class NeonRegistartionController extends \BaseController {
 
             $paypal_button = $paypal->get_api_paynow_button($CompanyID);
         }
+        $CustomData = $Result_Json;
 
 		return View::make('neonregistartion.api_invoice_payment', compact('data','Amount','PaymentGatewayID','PaymentGateway','paypal_button','CustomData','CompanyID'));
 
@@ -70,9 +78,11 @@ class NeonRegistartionController extends \BaseController {
             //$paymentdata = $NewData['PaymentResponse'];
             //log::info(print_r($testdata,true));
             //log::info(print_r($NewData,true));
-            return Response::json(array("status" => "success", "message" => "Create Account Successfully"));
-            //$Reseponse = $this->insertApiAccount($CompanyID,$paymentdata,$apidata);
-            //return $Reseponse;
+            //return Response::json(array("status" => "success", "message" => "Create Account Successfully"));
+            $Reseponse = $this->insertApiAccount($CompanyID,$paymentdata,$apidata);
+            log::info('Account Creation Reseponse');
+            log::info(print_r($Reseponse,true));
+            return $Reseponse;
 
         }
 
@@ -409,12 +419,12 @@ class NeonRegistartionController extends \BaseController {
         }
     }
 
-    public function insertApiAccount($CompanyID,$ApiData,$PaymentResponse){
-        //$CompanyID = User::get_companyID();
-        $User = User::where(['AdminUser'=>1,'Status'=>1,'CompanyID'=>$CompanyID])->first();
-        $UserID = $User->UserID;
+    public function insertApiAccount($CompanyID,$PaymentResponse,$ApiData){
+        $UserID = $ApiData['UserID'];
         //$UserID = User::get_userID();
+        $User = User::where(['UserID'=>$UserID])->first();
         $UserName = $User->FirstName.' '.$User->LastName;
+        log::info('Insert Api Account');
 		$Result = $ApiData;
 		//log::info(print_r($Result,true));
 		$PersonalData = $Result['data_user']['personal_data'];
@@ -430,6 +440,7 @@ class NeonRegistartionController extends \BaseController {
             $dataAccount=array();
             $dataAccount['Owner'] = $UserID;
             $dataAccount['AccountType'] = 1;
+            $dataAccount['Status'] = 1;
             $dataAccount['CompanyID'] = $CompanyID;
             $dataAccount['CurrencyId'] = $PersonalData['currencyId'];
             $dataAccount['LanguageID'] = 43;
@@ -447,14 +458,14 @@ class NeonRegistartionController extends \BaseController {
             $dataAccount['Billing'] = 1;
             $dataAccount['created_by'] = $UserName;
             $dataAccount['VerificationStatus'] = Account::VERIFIED;
-            $dataAccount['Address1'] = $PersonalData['house'];
-            $dataAccount['Address2'] = $PersonalData['street'];
-            $dataAccount['City']     = $PersonalData['city'];
-            $dataAccount['PostCode'] = $PersonalData['postal_code'];
+            $dataAccount['Address1'] = empty($PersonalData['house']) ? '' : $PersonalData['house'];
+            $dataAccount['Address2'] = empty($PersonalData['street']) ? '' : $PersonalData['street'];
+            $dataAccount['City']     = empty($PersonalData['city']) ? '' : $PersonalData['city'];
+            $dataAccount['PostCode'] = empty($PersonalData['postal_code']) ? '' : $PersonalData['postal_code'];
             $dataAccount['Country']  = $PersonalData['country']; // change iso3 to title
-            $dataAccount['Mobile']   = $PersonalData['contact'];
+            $dataAccount['Mobile']   = empty($PersonalData['contact']) ? '' : $PersonalData['contact'];
             //$dataAccount['Phone']    = $PersonalData['alt_contact'];
-            $dataAccount['VatNumber']= $PersonalData['vat'];
+            $dataAccount['VatNumber']= empty($PersonalData['vat']) ? '' : $PersonalData['vat'];
             Log::info(print_r($dataAccount,true));
             $account = Account::create($dataAccount);
 
@@ -726,7 +737,7 @@ class NeonRegistartionController extends \BaseController {
             /** Create Topup */
             log::info('Create TopUp Start');
 
-            $topup = empty($apidata['data_user']['topup_data']['amount']) ? 0 : $apidata['data_user']['topup_data']['amount'];
+            $topup = empty($Result['data_user']['topup_data']['amount']) ? 0 : $Result['data_user']['topup_data']['amount'];
             log::info('topup amount '.$topup);
             if($topup>0){
                 $paymentdata = array();
@@ -752,6 +763,9 @@ class NeonRegistartionController extends \BaseController {
             /** End Topup */
 
             /** Invoice Generation Start */
+
+            DB::commit();
+            DB::connection('sqlsrv2')->commit();
 
             log::info('Invoice Generation Start');
 
@@ -808,20 +822,37 @@ class NeonRegistartionController extends \BaseController {
 
             /** Invoice Generation End */
 
-            DB::commit();
-            DB::connection('sqlsrv2')->commit();
 
             $Response = array();
             $Response['AccountID'] = $AccountID;
-            $Response['Status'] = 'success';
-
+            $Response['status'] = 'success';
+            $Response['message'] = 'Account Create Successfully';
+            $Response['PaymentStatus'] = 'success';
+            $Response['PaymentMessage'] = 'Payment Create Successfully';
+            $Response['NeonStatus'] = 'success';
+            $Response['NeonMessage'] = 'Account Create Successfully';
+            $ApiRequestUrl = Session::get('API_BACK_URL');
+            $response['ApiRequestUrl'] = $ApiRequestUrl;
+            //$response['ApiRequestData'] = json_encode($ApiData);
             return $Response;
 
         } catch (Exception $e) {
             Log::error($e);
             DB::rollback();
             DB::connection('sqlsrv2')->rollback();
-            return Response::json(["status"=>"failed", "data"=>"","PaymentTransaction"=>$PaymentResponse['transaction_notes'],"error"=>'something gone wrong please contact your system administrator']);
+            $Response = array();
+            $Response['status'] = 'failed';
+            $Response['message'] = 'Account Create Successfully';
+            $Response['PaymentStatus'] = 'success';
+            $Response['PaymentMessage'] = 'Payment Create Successfully';
+            $Response['NeonStatus'] = 'failed';
+            $Response['NeonMessage'] = 'something gone wrong please contact your system administrator';
+            $ApiRequestUrl = Session::get('API_BACK_URL');
+            $Response['ApiRequestUrl'] = $ApiRequestUrl;
+            //$response['ApiRequestData'] = json_encode($ApiData);
+            return $Response;
+
+            //return Response::json(["status"=>"failed", "data"=>"","PaymentTransaction"=>$PaymentResponse['transaction_notes'],"error"=>'something gone wrong please contact your system administrator']);
         }
 	}
     public function insertAccountSubscription($data=array()){
@@ -835,7 +866,7 @@ class NeonRegistartionController extends \BaseController {
         $dataAccountSubscription['InvoiceDescription'] = $Subscription->InvoiceLineDescription;
         $dataAccountSubscription['Qty'] = $data['Qty'];
         $dataAccountSubscription['StartDate'] = $data['StartDate'];
-        //$dataAccountSubscription['EndDate'];
+        $dataAccountSubscription['EndDate'] = '';
         $dataAccountSubscription['ExemptTax'] = 0;
         $dataAccountSubscription['ActivationFee'] = $Subscription->ActivationFee;
         $dataAccountSubscription['AnnuallyFee'] = $Subscription->AnnuallyFee;
@@ -851,4 +882,5 @@ class NeonRegistartionController extends \BaseController {
         log::info('AccountSubscription End');
         return '';
     }
+
 }
