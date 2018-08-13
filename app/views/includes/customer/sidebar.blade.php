@@ -174,10 +174,11 @@
             $Account=  Customer::where('AccountID',$CM_data['AccountID'])->first();
             $CM_data['AccountNo']=$Account->Number;
 
-            $langs = Translation::get_language_labels($CM_data['lang']);
+            $langs = Translation::get_language_labels('en');
             $json_file = json_decode($langs->Translation, true);
             $key=array_search($name,$json_file);
             if(!empty($key)){
+
                 $name=cus_lang($key);
             }
 
