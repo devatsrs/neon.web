@@ -178,7 +178,6 @@
             $json_file = json_decode($langs->Translation, true);
             $key=array_search($name,$json_file);
             if(!empty($key)){
-
                 $name=cus_lang($key);
             }
 
