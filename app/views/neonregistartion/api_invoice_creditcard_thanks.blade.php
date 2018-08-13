@@ -27,6 +27,8 @@
 </form>
 <form method="post" id="apiinvoicedone" class="hidden">
     <input type="text" name="status">
+    <input type="text" name="AccountID">
+    <input type="text" name="AccountNumber">
     <input type="text" name="PaymentStatus">
     <input type="text" name="PaymentMessage">
     <input type="text" name="NeonStatus">
@@ -53,16 +55,10 @@
                         toastr.success(response.message, "Success", toastr_opts);
                     }else{
                         toastr.error(response.message, "Error", toastr_opts);
+
                     }
-                    $("#apiinvoicedone [name='status']").val(response.status);
-                    $("#apiinvoicedone [name='PaymentStatus']").val(response.PaymentStatus);
-                    $("#apiinvoicedone [name='PaymentMessage']").val(response.PaymentMessage);
-                    $("#apiinvoicedone [name='NeonStatus']").val(response.NeonStatus);
-                    $("#apiinvoicedone [name='NeonMessage']").val(response.NeonMessage);
-                    $('#apiinvoicedone').attr('action', response.ApiRequestUrl);
-                    setTimeout(function(){
-                        $('#apiinvoicedone').submit();
-                    }, 10);
+                    $.when(testfn(response)).then(fnsubmit());
+
                 },
                 data: post_data,
                 //Options to tell jQuery not to process data or worry about content-type.
@@ -72,6 +68,19 @@
         });
 
     });
+    function testfn(response){
+        $("#apiinvoicedone [name='status']").val(response.status);
+        $("#apiinvoicedone [name='AccountID']").val(response.AccountID);
+        $("#apiinvoicedone [name='AccountNumber']").val(response.AccountNumber);
+        $("#apiinvoicedone [name='PaymentStatus']").val(response.PaymentStatus);
+        $("#apiinvoicedone [name='PaymentMessage']").val(response.PaymentMessage);
+        $("#apiinvoicedone [name='NeonStatus']").val(response.NeonStatus);
+        $("#apiinvoicedone [name='NeonMessage']").val(response.NeonMessage);
+        $('#apiinvoicedone').attr('action', response.ApiRequestUrl);
+    }
+    function fnsubmit(){
+        $('#apiinvoicedone').submit();
+    }
 </script>
 <script>
     toastr_opts = {
