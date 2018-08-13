@@ -7,7 +7,7 @@
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     <h4 class="modal-title">Add New Dynamic Link</h4>
                 </div>
-                @include('customer.dynamiclink.dynamiclinkform')
+                @include('dynamiclink.dynamiclinkform')
             </div>
         </div>
     </div>

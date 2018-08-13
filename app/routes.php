@@ -116,13 +116,6 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('customer/profile/edit', array('as' => 'profile_edit', 'uses' => 'ProfileController@edit'));
     Route::any('customer/profile/update', array('as' => 'profile_update', 'uses' => 'ProfileController@update'));
 
-	//Dynamic Links
-	Route::any('/customer/dynamiclink', 'DynamiclinkController@index');
-	Route::any('/customer/dynamiclink/ajax_datagrid/{type}', 'DynamiclinkController@ajax_datagrid');
-	Route::any('/customer/dynamiclink/create', 'DynamiclinkController@create');
-	Route::any('/customer/dynamiclink/{id}/update', 'DynamiclinkController@update');
-	Route::any('/customer/dynamiclink/{id}/delete', 'DynamiclinkController@delete');
-
 	//User
 	Route::any('users', array("as" => "users", "uses" => "UsersController@index"));
 	Route::any('/users/add', "UsersController@add");
@@ -784,6 +777,13 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/about', 'PagesController@about');
 	Route::resource('page', 'PagesController');
 	Route::controller('page', 'PagesController');
+
+	//Dynamic Links
+	Route::any('/dynamiclink', 'DynamiclinkController@index');
+	Route::any('/dynamiclink/ajax_datagrid/{type}', 'DynamiclinkController@ajax_datagrid');
+	Route::any('/dynamiclink/create', 'DynamiclinkController@create');
+	Route::any('/dynamiclink/{id}/update', 'DynamiclinkController@update');
+	Route::any('/dynamiclink/{id}/delete', 'DynamiclinkController@delete');
 
 	//Account Approval
 
