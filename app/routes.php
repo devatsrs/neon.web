@@ -1011,6 +1011,28 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/recurringprofiles/generate', 'RecurringInvoiceController@generate');
     ///////////////////////////
 
+	//Credit Notes
+	Route::any('/creditnotes', 'CreditNotesController@index');
+	Route::any('/creditnotes/create', 'CreditNotesController@create');
+	Route::any('/creditnotes/store', 'CreditNotesController@store');
+	Route::any('/creditnotes/bulk_send_invoice_mail', 'CreditNotesController@bulk_send_invoice_mail');
+	Route::any('/creditnotes/bulk_print_invoice', 'CreditNotesController@bulk_print_invoice');
+	Route::any('/creditnotes/invoice_regen', 'CreditNotesController@invoice_regen');
+	Route::any('/creditnotes/{id}/edit', 'CreditNotesController@edit');
+	Route::any('/creditnotes/{id}/delete', 'CreditNotesController@delete');
+	Route::any('/creditnotes/{id}/view', 'CreditNotesController@view');
+	Route::any('/creditnotes/{id}/update', 'CreditNotesController@update');
+	Route::any('/creditnotes/{id}/creditnotes_preview', 'CreditNotesController@creditnotes_preview');
+	Route::any('/creditnotes/display_creditnotes/{id}', 'CreditNotesController@display_creditnotes');
+	Route::any('/creditnotes/download_creditnotes/{id}', 'CreditNotesController@download_creditnotes');
+	Route::any('/creditnotes/creditnotes_change_Status', 'CreditNotesController@creditnotes_change_Status');
+
+	Route::any('/creditnotes/ajax_datagrid/{type}', 'CreditNotesController@ajax_datagrid');
+	Route::any('/creditnotes/ajax_datagrid_total', 'CreditNotesController@ajax_datagrid_total');
+	Route::any('/creditnotes/calculate_total', 'CreditNotesController@calculate_total');
+	Route::any('/creditnotes/get_account_info', 'CreditNotesController@getAccountInfo');
+	Route::any('/creditnotes/get_billingclass_info', 'CreditNotesController@getBillingclassInfo');
+
 	//Invoice
 	Route::any('/invoice', 'InvoicesController@index');
 	Route::any('/invoice/create', 'InvoicesController@create');
