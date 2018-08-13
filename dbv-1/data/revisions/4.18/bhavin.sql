@@ -45,7 +45,7 @@ ENGINE=InnoDB;
 
 DROP PROCEDURE IF EXISTS `prc_setAccountDiscountPlan`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_setAccountDiscountPlan`(
+CREATE PROCEDURE `prc_setAccountDiscountPlan`(
 	IN `p_AccountID` INT,
 	IN `p_DiscountPlanID` INT,
 	IN `p_Type` INT,
@@ -600,5 +600,71 @@ BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
+END//
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_getBillingAccounts`;
+DELIMITER //
+CREATE PROCEDURE `prc_getBillingAccounts`(
+	IN `p_CompanyID` INT,
+	IN `p_Today` DATE,
+	IN `p_skip_accounts` TEXT,
+	IN `p_singleinvoice_accounts` TEXT
+)
+BEGIN
+   
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+IF (p_singleinvoice_accounts = 0)
+THEN
+	SELECT 
+		DISTINCT
+		tblAccount.AccountID, 
+		tblAccountBilling.NextInvoiceDate,
+		AccountName, 
+		tblAccountBilling.ServiceID
+	FROM tblAccount 
+	LEFT JOIN tblAccountService 
+		ON tblAccountService.AccountID = tblAccount.AccountID
+	LEFT JOIN tblAccountBilling 
+		ON tblAccountBilling.AccountID = tblAccount.AccountID
+		AND (( tblAccountBilling.ServiceID = 0  ) OR ( tblAccountService.ServiceID > 0 AND tblAccountBilling.ServiceID = tblAccountService.ServiceID AND tblAccountService.Status = 1)  ) 
+	WHERE tblAccount.CompanyId = p_CompanyID 
+	AND tblAccount.Status = 1 
+	AND AccountType = 1 
+	AND Billing = 1	
+	AND tblAccountBilling.NextInvoiceDate <= p_Today
+	AND (tblAccountBilling.BillingCycleType IS NOT NULL AND tblAccountBilling.BillingCycleType <> 'manual') 
+	AND FIND_IN_SET(tblAccount.AccountID,p_skip_accounts) = 0	
+	ORDER BY tblAccount.AccountID ASC;
+	
+ELSE
+
+	SELECT 
+		DISTINCT
+		tblAccount.AccountID, 
+		tblAccountBilling.NextInvoiceDate,
+		AccountName, 
+		tblAccountBilling.ServiceID
+	FROM tblAccount 
+	LEFT JOIN tblAccountService 
+		ON tblAccountService.AccountID = tblAccount.AccountID
+	LEFT JOIN tblAccountBilling 
+		ON tblAccountBilling.AccountID = tblAccount.AccountID
+		AND (( tblAccountBilling.ServiceID = 0  ) OR ( tblAccountService.ServiceID > 0 AND tblAccountBilling.ServiceID = tblAccountService.ServiceID AND tblAccountService.Status = 1)  ) 
+	WHERE tblAccount.CompanyId = p_CompanyID 
+	AND tblAccount.Status = 1 
+	AND AccountType = 1 
+	AND Billing = 1	
+	AND tblAccountBilling.NextInvoiceDate <= p_Today
+	AND (tblAccountBilling.BillingCycleType IS NOT NULL AND tblAccountBilling.BillingCycleType <> 'manual') 
+	AND FIND_IN_SET(tblAccount.AccountID,p_singleinvoice_accounts) != 0	
+	AND FIND_IN_SET(tblAccount.AccountID,p_skip_accounts) = 0	
+	ORDER BY tblAccount.AccountID ASC;
+
+END IF;	
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+	
 END//
 DELIMITER ;

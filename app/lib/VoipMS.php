@@ -95,7 +95,7 @@ class VoipMS{
                             $batch_insert_array[] = $tempItemData;
 
                             if(!empty($tempItemData['AccountName'])){
-                                $count = DB::table('tblAccount')->where(["AccountName" => $tempItemData['AccountName'], "AccountType" => 1,"CompanyId"=>$CompanyID])->count();
+                                $count = DB::table('tblAccount')->where(["AccountName" => $tempItemData['AccountName'], "AccountType" => 1])->count();
                                 if($count==0){
                                     $batch_insert_array[] = $tempItemData;
                                 }

@@ -1,5 +1,10 @@
 Use `RMBilling3`;
 
+ALTER TABLE `tblInvoiceTemplate`
+	ADD COLUMN `DefaultTemplate` INT NULL DEFAULT '0' AFTER `ShowPaymentWidgetInvoice`;
+ALTER TABLE `tblInvoiceTemplate`	
+	ADD COLUMN `FooterDisplayOnlyFirstPage` INT NULL DEFAULT '0' AFTER `DefaultTemplate`;
+
 CREATE TABLE IF NOT EXISTS `tblProcessCallChargesLog` (
   `LogID` bigint(20) NOT NULL AUTO_INCREMENT,
   `AccountID` int(11) NOT NULL,
@@ -321,8 +326,3 @@ BEGIN
 
 END//
 DELIMITER ;
-
-ALTER TABLE `tblInvoiceTemplate`
-	ADD COLUMN `DefaultTemplate` INT NULL DEFAULT '0' AFTER `ShowPaymentWidgetInvoice`;
-ALTER TABLE `tblInvoiceTemplate`	
-	ADD COLUMN `FooterDisplayOnlyFirstPage` INT NULL DEFAULT '0' AFTER `DefaultTemplate`;

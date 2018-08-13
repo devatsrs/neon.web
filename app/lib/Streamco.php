@@ -66,9 +66,7 @@ class Streamco{
                         $CompanyID = $addparams['CompanyID'];
                         $ProcessID = $addparams['ProcessID'];
                         foreach ($results as $temp_row) {
-                            $where1 = array("AccountName" => $temp_row->name, "AccountType" => 1,"CompanyId"=>$CompanyID);
-//                            $where = $where1+$where;
-                            $count = DB::table('tblAccount')->where($where1)->count();
+                            $count = DB::table('tblAccount')->where(array("AccountName" => $temp_row->name, "AccountType" => 1))->count();
                             if($count==0){
                                 if($temp_row->address != '' && $temp_row->address != null) {
                                     $DOM = new DOMDocument;

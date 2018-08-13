@@ -155,4 +155,17 @@ class PaymentIntegration {
 			return array("status" => "failed", "message" => "Transaction Failed :" . $transactionResponse['failed_reason']);
 		}
 	}
+	public function paymentValidateWithApiCreditCard($data){
+		return $this->request->paymentValidateWithApiCreditCard($data);
+	}
+
+	public function paymentWithApiCreditCard($data){
+		$response = $this->paymentValidateWithApiCreditCard($data);
+		if($response['status']=='failed'){
+			return $response;
+		}
+		log::info('Payment Validate sucessfully');
+		$transactionResponse =  $this->request->paymentWithApiCreditCard($data);
+		return $transactionResponse;
+	}
 }
