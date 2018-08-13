@@ -1,4 +1,4 @@
-@extends('layout.customer.main')
+@extends('layout.main')
 
 @section('filter')
     <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
@@ -16,7 +16,7 @@
 
                 <div class="form-group">
                     <label for="field-5" class="control-label">Currency </label>
-                    {{Form::select('Currency',$Currency,'',array("class"=>"form-control select2 small"))}}
+                    {{Form::select('CurrencyID',$Currency,'',array("class"=>"form-control select2 small"))}}
                 </div>
 
                 <div class="form-group">
@@ -35,16 +35,15 @@
 @section('content')
 
     <ol class="breadcrumb bc-3">
-        {{--<li>
+        <li>
             <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
-        </li>--}}
+        </li>
         <li class="active">
-            <i class="entypo-home"></i>
-            <a href="javascript:void(0)">@lang("routes.CUST_PANEL_SIDENAV_MENU_DYNAMICLINK")</a>
+            <a href="javascript:void(0)">Dynamic Link</a>
         </li>
     </ol>
 
-    <h3>@lang("routes.CUST_PANEL_SIDENAV_MENU_DYNAMICLINK")</h3>
+    <h3>Dynamic Link</h3>
     <div class="tab-content">
         <div class="tab-pane active" id="customer_rate_tab_content">
             <div class="clear"></div>
@@ -52,7 +51,7 @@
                     <div  class="col-md-12">
                         <a href="#" data-action="showAddModal" id="add-new-dynamiclink" data-type="Dynamic Link" data-modal="add-edit-modal-dynamicfield" class="btn btn-primary pull-right">
                             <i class="entypo-plus"></i>
-                            @lang('routes.CUST_PANEL_PAGE_DYNAMICLINK_BUTTON_ADD_NEW')
+                            Add New
                         </a>
 
                     </div>
@@ -63,11 +62,12 @@
                 <thead>
                 <tr>
                     {{--<th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>--}}
-                    <th width="10%">@lang('routes.CUST_PANEL_PAGE_DYNAMICLINK_TBL_TITLE')</th>
-                    <th width="20%">@lang('routes.CUST_PANEL_PAGE_DYNAMICLINK_TBL_LINK')</th>
-                    <th width="20%">@lang('routes.CUST_PANEL_PAGE_DYNAMICLINK_TBL_CURRENCY')</th>
-                    <th width="20%">@lang('routes.CUST_PANEL_PAGE_DYNAMICLINK_TBL_CREATED_AT')</th>
-                    <th width="20%">@lang('routes.CUST_PANEL_PAGE_DYNAMICLINK_TBL_ACTION')</th>
+                    <th width="10%">Type</th>
+                    <th width="10%">Title</th>
+                    <th width="20%">Link</th>
+                    <th width="20%">Currency</th>
+                    <th width="20%">Created Date</th>
+                    <th width="20%">Action</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -75,7 +75,7 @@
             </table>
             <script type="text/javascript">
                 var checked = '';
-                var list_fields  = ['Title','Link','Currency','created_at','CurrencyID','DynamicLinkID'];
+                var list_fields  = ['Type','Title','Link','Currency','created_at','CurrencyID','DynamicLinkID'];
                 var $searchFilter = {};
                 var update_new_url;
                 var postdata;
@@ -85,21 +85,21 @@
 
                     public_vars.$body = $("body");
                     $searchFilter.Title = $("#dynamicfield_filter [name='Title']").val();
-                    $searchFilter.Currency = $("#dynamicfield_filter [name='Currency']").val();
+                    $searchFilter.CurrencyID = $("#dynamicfield_filter [name='CurrencyID']").val();
 
                     data_table = $("#table-4").dataTable({
                         "bDestroy": true,
                         "bProcessing": true,
                         "bServerSide": true,
-                        "sAjaxSource": baseurl + "/customer/dynamiclink/ajax_datagrid/type",
+                        "sAjaxSource": baseurl + "/dynamiclink/ajax_datagrid/type",
                         "fnServerParams": function (aoData) {
                             aoData.push({ "name": "Title", "value": $searchFilter.Title },
-                                        { "name": "Currency", "value": $searchFilter.Currency }
+                                        { "name": "CurrencyID", "value": $searchFilter.CurrencyID }
                                         );
 
                             data_table_extra_params.length = 0;
                             data_table_extra_params.push({ "name": "Title", "value": $searchFilter.Title },
-                                                        { "name": "Currency", "value": $searchFilter.Currency },
+                                                        { "name": "CurrencyID", "value": $searchFilter.CurrencyID },
                                                         { "name": "Export", "value": 1});
 
                         },
@@ -114,8 +114,9 @@
                                     return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
                                 }
                             },*/
+                            {  "bSortable": false},  // 0 Type
                             {  "bSortable": true},  // 1 Title
-                            {  "bSortable": true },  // 2 Link
+                            {  "bSortable": false },  // 2 Link
                             {  "bSortable": true },  // 3 Currency
                             {  "bSortable": true },  // 4 created_at
                             {
@@ -123,15 +124,15 @@
                                 "bSortable": false,
                                 mRender: function (id, type, full) {
 
-                                    var delete_ = "{{ URL::to('/customer/dynamiclink/{id}/delete')}}";
-                                    delete_  = delete_ .replace( '{id}', full[5] );
+                                    var delete_ = "{{ URL::to('/dynamiclink/{id}/delete')}}";
+                                    delete_  = delete_ .replace( '{id}', full[6] );
 
                                     action = '<div class = "hiddenRowData" >';
                                     for(var i = 0 ; i< list_fields.length; i++){
                                         action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                     }
                                     action += '</div>';
-                                    action += ' <a data-name = "' + full[0] + '" data-id="' + full[5] + '" title="Edit" class="edit-dynamicfield btn btn-default btn-sm btn-smtooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
+                                    action += ' <a data-name = "' + full[1] + '" data-id="' + full[6] + '" title="Edit" class="edit-dynamicfield btn btn-default btn-sm btn-smtooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
                                     action += ' <a href="'+delete_+'" data-redirect="{{ URL::to('products')}}" title="Delete"  class="btn delete btn-danger btn-default btn-sm btn-smtooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></a>';
 
                                     return action;
@@ -143,13 +144,13 @@
                                 {
                                     "sExtends": "download",
                                     "sButtonText": "EXCEL",
-                                    "sUrl": baseurl + "/customer/dynamiclink/ajax_datagrid/xlsx",
+                                    "sUrl": baseurl + "/dynamiclink/ajax_datagrid/xlsx",
                                     sButtonClass: "save-collection btn-sm"
                                 },
                                 {
                                     "sExtends": "download",
                                     "sButtonText": "CSV",
-                                    "sUrl": baseurl + "/customer/dynamiclink/ajax_datagrid/csv",
+                                    "sUrl": baseurl + "/dynamiclink/ajax_datagrid/csv",
                                     sButtonClass: "save-collection btn-sm"
                                 }
                             ]
@@ -261,9 +262,9 @@
                             if(!response){
                                 return false;
                             }
-                            item_update_status_url =  '{{ URL::to('/customer/dynamiclink/delete_bulk_dynamicfields')}}';
+                            item_update_status_url =  '{{ URL::to('/dynamiclink/delete_bulk_dynamicfields')}}';
                         }else{
-                            item_update_status_url =  '{{ URL::to('/customer/dynamiclink/update_bulk_dynamicfields_status')}}';
+                            item_update_status_url =  '{{ URL::to('/dynamiclink/update_bulk_dynamicfields_status')}}';
                         }
                         $.ajax({
                             url: item_update_status_url,
@@ -297,7 +298,7 @@
                     $("#dynamicfield_filter").submit(function(e){
                         e.preventDefault();
                         $searchFilter.Title = $("#dynamicfield_filter [name='Title']").val();
-                        $searchFilter.Currency = $("#dynamicfield_filter [name='Currency']").val();
+                        $searchFilter.CurrencyID = $("#dynamicfield_filter [name='CurrencyID']").val();
                          data_table.fnFilter('', 0);
                         return false;
                     });
@@ -316,15 +317,19 @@
                         $('#add-edit-dynamicfield-form').trigger("reset");
                         var cur_obj = $(this).prev("div.hiddenRowData");
                         for(var i = 0 ; i< list_fields.length; i++){
-                            if(list_fields[i] == 'Currency'){
+                            if(list_fields[i] == 'CurrencyID'){
                                 var cid=cur_obj.find("input[name='CurrencyID']").val();
+                                console.log(cid);
                                 if(cid==0){
                                     $("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").val('').trigger("change");
                                 }else{
                                     $("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").val(cid).trigger("change");
                                 }
 
-                            }else {
+                            }else if(list_fields[i] == 'Type'){
+                                $("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='Type']").val()).trigger("change");
+                            }
+                            else {
                                 $("#add-edit-dynamicfield-form [name='" + list_fields[i] + "']").val(cur_obj.find("input[name='" + list_fields[i] + "']").val());
                             }
                         }
@@ -400,5 +405,5 @@
 
         </div>
     </div>
-    @include("customer.dynamiclink.dynamiclinkmodal")
+    @include("dynamiclink.dynamiclinkmodal")
 @stop
