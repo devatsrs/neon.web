@@ -2993,3 +2993,19 @@ function stockHistoryUpdateCalculations($data=array()){
     }
     return $Error;
 }
+
+function getRandomNumber($digits=5){
+    $rand_no= rand(pow(10, $digits-1), pow(10, $digits)-1);
+    return $rand_no;
+}
+
+function getLanguageKeyByValue($val){
+    $name=$val;
+    $langs = Translation::get_language_labels('en');
+    $json_file = json_decode($langs->Translation, true);
+    $key=array_search($val,$json_file);
+    if(!empty($key)){
+        $name=cus_lang($key);
+    }
+    return $name;
+}
