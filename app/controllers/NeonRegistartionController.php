@@ -9,6 +9,8 @@ class NeonRegistartionController extends \BaseController {
      */
     public function index() {
         $data = Input::all();
+
+        $APILog=array();
         log::info('Data');
         log::info('API REQUEST URL '.$_SERVER['HTTP_REFERER']);
         Session::put('API_BACK_URL',$_SERVER['HTTP_REFERER']);
@@ -55,6 +57,17 @@ class NeonRegistartionController extends \BaseController {
         }
         $CustomData = $Result_Json;
 
+        $APILog['CompanyID']=$CompanyID;
+        $APILog['UserID']=$UserID;
+        $APILog['AccountName']=$AccountName;
+        $APILog['RequestUrl']=$_SERVER['HTTP_REFERER'];
+        $APILog['ApiJson']=$Result_Json;
+        $APILog['PaymentGateway']=$Payment_type;
+        $APILog['created_at']=date('Y-m-d H:i:s');
+        $RegistarionApiLogID = DB::table('tblRegistarionApiLog')->insertGetId($APILog);
+        log::info('$LastLog ID '.$RegistarionApiLogID);
+        Session::put('RegistarionApiLogID', $RegistarionApiLogID);
+
 		return View::make('neonregistartion.api_invoice_payment', compact('data','Amount','PaymentGatewayID','PaymentGateway','paypal_button','CustomData','CompanyID'));
 
     }
@@ -72,279 +85,26 @@ class NeonRegistartionController extends \BaseController {
             $paymentdata = json_decode($NewData['PaymentResponse'],true);
             $apidata = json_decode($NewData['APIData'],true);
 
-            //log::info(count($NewData));
-            //log::info(print_r($paymentdata,true));
-            //log::info(print_r($apidata,true));
-            //$paymentdata = $NewData['PaymentResponse'];
-            //log::info(print_r($testdata,true));
-            //log::info(print_r($NewData,true));
-            //return Response::json(array("status" => "success", "message" => "Create Account Successfully"));
             $Reseponse = $this->insertApiAccount($CompanyID,$paymentdata,$apidata);
+            log::info('Last Log ID '.Session::get('RegistarionApiLogID'));
+
             log::info('Account Creation Reseponse');
             log::info(print_r($Reseponse,true));
+
+            $RegistarionApiLogID = Session::get('RegistarionApiLogID');
+            $RegistarionApiLogUpdate = array();
+            if(!empty($RegistarionApiLogID)){
+                $RegistarionApiLogUpdate['NeonAccountStatus'] = $Reseponse['NeonStatus'];
+                $RegistarionApiLogUpdate['AccountID'] = $Reseponse['AccountID'];
+                $RegistarionApiLogUpdate['FinalApiResponse'] = json_encode($Reseponse);
+                DB::table('tblRegistarionApiLog')->where('RegistarionApiLogID', $RegistarionApiLogID)->update($RegistarionApiLogUpdate);
+            }
+
             return $Reseponse;
 
         }
 
         return Response::json(array("status" => "success", "message" => "Create Account Successfully"));
-    }
-
-    public function getJson(){
-     /*   $json='{
-   "data_widget":{
-      "widget":[
-         {
-            "id":"124",
-            "title":"Test 2",
-            "permalink":"Testing",
-            "currency":"3",
-            "customer_email":"9",
-            "backoffice_email":"",
-            "lang":"gb",
-            "created_by":"1",
-            "created_on":"2018-07-25 14:59:15",
-            "updated_by":"1",
-            "updated_on":"2018-07-25 14:59:15"
-         }
-      ],
-      "setting":[
-         {
-            "id":"58",
-            "widget_id":"124",
-            "billing_type":"2",
-            "billing_cycle":"monthly",
-            "billing_cycle_options":"",
-            "billing_class":"6",
-            "default_tenant_template":"51",
-            "inbound_discount_plan":"",
-            "outbound_discount_plan":"",
-            "created_by":"1",
-            "created_on":"2018-07-25 14:59:15",
-            "updated_by":"1",
-            "updated_on":"2018-07-25 14:59:15"
-         }
-      ],
-      "verification":[
-         {
-            "id":"57",
-            "widget_id":"124",
-            "alpha_char":"4324525423gyrhtebvfbrt",
-            "digits":"15",
-            "limit_ver_email":"10",
-            "supported_countries":"ARG,BEL,CAN",
-            "verification_email":"6",
-            "verification_type":"2",
-            "created_by":"1",
-            "created_on":"2018-07-25 14:59:15",
-            "updated_by":"1",
-            "updated_on":"2018-07-25 14:59:15"
-         }
-      ],
-      "hosted_centrex":[
-         {
-            "id":"71",
-            "widget_id":"124",
-            "service":"2",
-            "inbound_discount_plan":"7",
-            "outbound_discount_plan":"14",
-            "inbound_tariff":"168",
-            "out_bound_tariff":"167",
-            "created_by":"1",
-            "created_on":"2018-07-25 14:59:15",
-            "updated_by":"1",
-            "updated_on":"2018-07-25 14:59:15"
-         }
-      ],
-      "hosted_centrex_ext":[
-         {
-            "id":"80",
-            "widget_id":"124",
-            "min_range":"20",
-            "max_range":"45",
-            "extension_default":"97,107,173",
-            "created_by":"1",
-            "created_on":"2018-07-25 14:59:16",
-            "updated_by":"1",
-            "updated_on":"2018-07-25 14:59:16"
-         }
-      ],
-      "hosted_centrex_ext_subscription":[
-         {
-            "id":"75",
-            "hosted_centrex_ext_id":"80",
-            "min_qty":"1",
-            "max_qty":"23",
-            "setup_fee":"0",
-            "subscription":"11",
-            "yearly":"2400",
-            "monthly":"200",
-            "weekly":"50",
-            "daily":"7.14",
-            "created_by":"1",
-            "created_on":"2018-07-25 14:59:16",
-            "updated_by":"1",
-            "updated_on":"2018-07-25 14:59:16"
-         }
-      ],
-      "did":[
-         {
-            "id":"85",
-            "widget_id":"124",
-            "allow_buy_did":"Yes",
-            "allow_buy_magrathea":"No",
-            "allow_buy_voxbone":"No",
-            "allowed_countries":"ARG,AUT,BRA,CAN",
-            "created_by":"1",
-            "created_on":"2018-07-25 14:59:16",
-            "updated_by":"1",
-            "updated_on":"2018-07-25 14:59:16"
-         }
-      ],
-      "siptrunk":[
-         {
-            "id":"86",
-            "widget_id":"124",
-            "service":"2",
-            "inbound_disc_plan":"",
-            "outbound_disc_plan":"",
-            "inbound_tariff":"",
-            "outbound_tariff":"19",
-            "created_by":"1",
-            "created_on":"2018-07-25 14:59:16",
-            "updated_by":"1",
-            "updated_on":"2018-07-25 14:59:16"
-         }
-      ],
-      "siptrunk_subscription":[
-         {
-            "id":"94",
-            "siptrunk_id":"86",
-            "min_qty":"1",
-            "max_qty":"20",
-            "setup_fee":"1",
-            "subscription":"18",
-            "yearly":"1200",
-            "monthly":"100",
-            "weekly":"23.33",
-            "daily":"3.33",
-            "created_by":"1",
-            "created_on":"2018-07-25 14:59:16",
-            "updated_by":"1",
-            "updated_on":"2018-07-25 14:59:16"
-         }
-      ],
-      "payment":[
-         {
-            "id":"30",
-            "widget_id":"124",
-            "topup_enable":"Yes",
-            "mintopup_amount":"20",
-            "created_by":"1",
-            "created_on":"2018-07-25 14:59:17",
-            "updated_by":"1",
-            "updated_on":"2018-07-25 14:59:17"
-         }
-      ]
-   },
-   "data_user":{
-      "personal_data":{
-         "user_id":"subodhkant89@gmail.com",
-         "password":"12345678",
-         "confirm_password":"12345678",
-         "first_name":"Subodh",
-         "last_name":"Kant",
-         "contact":"08586023115",
-         "alt_contact":"08586023115",
-         "vat":"44444444444",
-         "company":"Subodh Kant",
-         "house":"H. No. 61, Gali No. - 3, East Laxmi Market",
-         "street":"H. No. 61, Gali No. - 3, East Laxmi Market",
-         "postal_code":"110092",
-         "city":"New Delhi",
-         "country":"BEL",
-         "currencyId":"3",
-         "languageId":"gb"
-      },
-      "ext_data":{
-         "hosted_centrex_data":[
-            {
-               "ext_number":"34",
-               "ext_name":"Name 1",
-               "ext_email":"abc@gmail.com"
-            },
-            {
-               "ext_number":"35",
-               "ext_name":"Name 2",
-               "ext_email":"abc2@gmail.com"
-            }
-         ],
-         "quantity":2,
-         "subscriptionId":"11"
-      },
-      "did_data":[
-         {
-            "did_no":"9",
-            "did_qty":"4",
-            "address1":"Address 1",
-            "address2":"Address 2",
-            "zip":"123456",
-            "countryCodeA3":"CAN",
-            "serviceId":"2",
-            "subscriptionId":"5",
-            "quantity":"4"
-         },
-         {
-            "did_no":"10",
-            "did_qty":"7",
-            "address1":"Address 3",
-            "address2":"Address 4",
-            "zip":"654321",
-            "countryCodeA3":"CAN",
-            "serviceId":"2",
-            "subscriptionId":"3",
-            "quantity":"7"
-         },
-         {
-            "did_no":"67",
-            "did_qty":"6",
-            "address1":"Address 5",
-            "address2":"Address 6",
-            "zip":"232323",
-            "countryCodeA3":"CAN",
-            "serviceId":"5",
-            "subscriptionId":"4",
-            "quantity":"6"
-         }
-      ],
-      "siptrunk_data":{
-         "quantity":"5",
-         "siptrunk_data":"5",
-         "subscriptionId":"18"
-      },
-      "topup_data":{
-         "amount":"200"
-      },
-      "payment_data":[
-         {
-            "payment_type":"AuthorizeNet",
-            "payment_amount":"120.00",
-            "card-number":"4111111111111111",
-            "card-name":"Subodh Kant",
-            "card-type":"Visa",
-            "card-cvv-number":"432",
-            "ExpirationMonth":"12",
-            "ExpirationYear":"2019",
-            "card-id":""
-         }
-      ],
-      "summary":{
-         "amount":"1323.50"
-      }
-   }
-}'; */
-        $json='{"data_widget":{"widget":[{"id":"124","title":"Test 2","permalink":"Testing","currency":"3","customer_email":"9","backoffice_email":"","lang":"gb","created_by":"1","created_on":"2018-07-25 14:59:15","updated_by":"1","updated_on":"2018-07-25 14:59:15"}],"setting":[{"id":"58","widget_id":"124","billing_type":"2","billing_cycle":"monthly","billing_cycle_options":"","billing_class":"6","default_tenant_template":"51","inbound_discount_plan":"","outbound_discount_plan":"","created_by":"1","created_on":"2018-07-25 14:59:15","updated_by":"1","updated_on":"2018-07-25 14:59:15"}],"verification":[{"id":"57","widget_id":"124","alpha_char":"4324525423gyrhtebvfbrt","digits":"15","limit_ver_email":"10","supported_countries":"ARG,BEL,CAN","verification_email":"6","verification_type":"2","created_by":"1","created_on":"2018-07-25 14:59:15","updated_by":"1","updated_on":"2018-07-25 14:59:15"}],"hosted_centrex":[{"id":"71","widget_id":"124","service":"2","inbound_discount_plan":"7","outbound_discount_plan":"14","inbound_tariff":"168","out_bound_tariff":"167","created_by":"1","created_on":"2018-07-25 14:59:15","updated_by":"1","updated_on":"2018-07-25 14:59:15"}],"hosted_centrex_ext":[{"id":"80","widget_id":"124","min_range":"20","max_range":"45","extension_default":"97,107,173","created_by":"1","created_on":"2018-07-25 14:59:16","updated_by":"1","updated_on":"2018-07-25 14:59:16"}],"hosted_centrex_ext_subscription":[{"id":"75","hosted_centrex_ext_id":"80","min_qty":"1","max_qty":"23","setup_fee":"0","subscription":"11","yearly":"2400","monthly":"200","weekly":"50","daily":"7.14","created_by":"1","created_on":"2018-07-25 14:59:16","updated_by":"1","updated_on":"2018-07-25 14:59:16"}],"did":[{"id":"85","widget_id":"124","allow_buy_did":"Yes","allow_buy_magrathea":"No","allow_buy_voxbone":"No","allowed_countries":"ARG,AUT,BRA,CAN","created_by":"1","created_on":"2018-07-25 14:59:16","updated_by":"1","updated_on":"2018-07-25 14:59:16"}],"siptrunk":[{"id":"86","widget_id":"124","service":"2","inbound_disc_plan":"","outbound_disc_plan":"","inbound_tariff":"","outbound_tariff":"19","created_by":"1","created_on":"2018-07-25 14:59:16","updated_by":"1","updated_on":"2018-07-25 14:59:16"}],"siptrunk_subscription":[{"id":"94","siptrunk_id":"86","min_qty":"1","max_qty":"20","setup_fee":"1","subscription":"18","yearly":"1200","monthly":"100","weekly":"23.33","daily":"3.33","created_by":"1","created_on":"2018-07-25 14:59:16","updated_by":"1","updated_on":"2018-07-25 14:59:16"}],"payment":[{"id":"30","widget_id":"124","topup_enable":"Yes","mintopup_amount":"20","created_by":"1","created_on":"2018-07-25 14:59:17","updated_by":"1","updated_on":"2018-07-25 14:59:17"}]},"data_user":{"personal_data":{"user_id":"subodhkant89@gmail.com","password":"12345678","confirm_password":"12345678","first_name":"Subodh","last_name":"Kant","contact":"08586023115","alt_contact":"08586023115","vat":"44444444444","company":"Subodh Kant","house":"H. No. 61, Gali No. - 3, East Laxmi Market","street":"H. No. 61, Gali No. - 3, East Laxmi Market","postal_code":"110092","city":"New Delhi","country":"BEL","currencyId":"3","languageId":"gb"},"ext_data":{"hosted_centrex_data":[{"ext_number":"34","ext_name":"Name 1","ext_email":"abc@gmail.com"},{"ext_number":"35","ext_name":"Name 2","ext_email":"abc2@gmail.com"}],"quantity":2,"subscriptionId":"11"},"did_data":[{"did_no":"9","did_qty":"4","address1":"Address 1","address2":"Address 2","zip":"123456","countryCodeA3":"CAN","serviceId":"2","subscriptionId":"5","quantity":"4"},{"did_no":"10","did_qty":"7","address1":"Address 3","address2":"Address 4","zip":"654321","countryCodeA3":"CAN","serviceId":"2","subscriptionId":"3","quantity":"7"},{"did_no":"67","did_qty":"6","address1":"Address 5","address2":"Address 6","zip":"232323","countryCodeA3":"CAN","serviceId":"5","subscriptionId":"4","quantity":"6"}],"siptrunk_data":{"quantity":"5","siptrunk_data":"5","subscriptionId":"18"},"topup_data":{"amount":"200"},"payment_data":[{"payment_type":"AuthorizeNet","payment_amount":"120.00","card-number":"4111111111111111","card-name":"Subodh Kant","card-type":"Visa","card-cvv-number":"432","ExpirationMonth":"12","ExpirationYear":"2019","card-id":""}],"summary":{"amount":"1323.50"}}}';
-        $json = json_decode($json, true);
-        return $json;
     }
 
     public function createpayment(){
@@ -390,7 +150,7 @@ class NeonRegistartionController extends \BaseController {
         $PaymentResponse = $PaymentIntegration->paymentWithApiCreditCard($PaymentAllData);
         /**
          *Manual Response cheack
-         *
+         **
          $PaymentResponse=array();
          $PaymentResponse['PaymentMethod'] = 'CreditCard';
          $PaymentResponse['transaction_notes'] = 'AuthorizeNet transaction_id 60100337434 ';
@@ -400,12 +160,27 @@ class NeonRegistartionController extends \BaseController {
          $PaymentResponse['status'] = 'success';
          //$PaymentResponse['CustomData'] = $data['CustomData'];
          * */
+
         log::info('payment response');
         log::info(print_r($PaymentResponse,true));
         $Alldata = array();
         $Alldata['PaymentResponse'] = json_encode($PaymentResponse);
         $Alldata['APIData'] =  $data['CustomData'];
         //log::info(print_r($Alldata,true));
+
+        $RegistarionApiLogID = Session::get('RegistarionApiLogID');
+        log::info('R LogID '.$RegistarionApiLogID);
+        $RegistarionApiLogUpdate = array();
+        if(!empty($RegistarionApiLogID)){
+            $RegistarionApiLogUpdate['PaymentAmount'] = $data['Amount'];
+            $RegistarionApiLogUpdate['PaymentResponse'] = json_encode($PaymentResponse);
+            if($PaymentResponse['status']=='failed'){
+                $RegistarionApiLogUpdate['PaymentStatus'] = 'failed';
+            }else{
+                $RegistarionApiLogUpdate['PaymentStatus'] = 'success';
+            }
+            DB::table('tblRegistarionApiLog')->where('RegistarionApiLogID', $RegistarionApiLogID)->update($RegistarionApiLogUpdate);
+        }
 
         if($PaymentResponse['status']=='failed'){
             if(!empty($PaymentResponse['transaction_notes'])){
@@ -446,8 +221,8 @@ class NeonRegistartionController extends \BaseController {
             $dataAccount['LanguageID'] = 43;
             $dataAccount['Number'] = Illuminate\Support\Str::slug($PersonalData['company']);
             $dataAccount['AccountName'] = $PersonalData['company'];
-            $dataAccount['FirstName'] = $PersonalData['first_name'];
-            $dataAccount['LastName'] = $PersonalData['last_name'];
+            $dataAccount['FirstName'] = empty($PersonalData['first_name']) ? '' : $PersonalData['first_name'];
+            $dataAccount['LastName'] = empty($PersonalData['last_name']) ? '' : $PersonalData['last_name'];
             $dataAccount['Email'] = $PersonalData['user_id'];
             $dataAccount['IsCustomer'] = 1;
             $dataAccount['BillingEmail']= $PersonalData['user_id'];
@@ -459,7 +234,12 @@ class NeonRegistartionController extends \BaseController {
             $dataAccount['Address2'] = empty($PersonalData['street']) ? '' : $PersonalData['street'];
             $dataAccount['City']     = empty($PersonalData['city']) ? '' : $PersonalData['city'];
             $dataAccount['PostCode'] = empty($PersonalData['postal_code']) ? '' : $PersonalData['postal_code'];
-            $dataAccount['Country']  = $PersonalData['country']; // change iso3 to title
+            if(!empty($PersonalData['Country'])) {
+                $Country = Country::where(['ISO3' => $PersonalData['Country']])->pluck('Country');
+            }else{
+                $Country='';
+            }
+            $dataAccount['Country']  = $Country; // change iso3 to title
             $dataAccount['Mobile']   = empty($PersonalData['contact']) ? '' : $PersonalData['contact'];
             //$dataAccount['Phone']    = $PersonalData['alt_contact'];
             $dataAccount['VatNumber']= empty($PersonalData['vat']) ? '' : $PersonalData['vat'];
@@ -492,7 +272,7 @@ class NeonRegistartionController extends \BaseController {
             $dataAccountBilling['AutoPayMethod'] = empty($BillingClass->AutoPayMethod) ? 0 : $BillingClass->AutoPayMethod;
             //get from billing class id over
             $dataAccountBilling['BillingCycleType'] = $BillingSetting['billing_cycle'];
-            $dataAccountBilling['BillingCycleValue'] = $BillingSetting['billing_cycle_options'];
+            $dataAccountBilling['BillingCycleValue'] = empty($BillingSetting['billing_cycle_options']) ? '' : $BillingSetting['billing_cycle_options'];
             // set as first invoice generate
             $BillingCycleType = $BillingSetting['billing_cycle'];
             $BillingCycleValue = $BillingSetting['billing_cycle_options'];
@@ -617,28 +397,30 @@ class NeonRegistartionController extends \BaseController {
 
             $did_datas = $Result['data_user']['did_data'];
             if(!empty($did_datas) && count($did_datas)>0){
-                foreach($did_datas as $did_data){
-                    $Count = AccountService::where(['AccountID'=>$AccountID,'ServiceID'=>$did_data['serviceId']])->count();
-                    if($Count==0){
-                        $dataAccountService=array();
+                foreach($did_datas as $did_data) {
+                    $Count = AccountService::where(['AccountID' => $AccountID, 'ServiceID' => $did_data['serviceId']])->count();
+                    if ($Count == 0) {
+                        $dataAccountService = array();
                         $dataAccountService['AccountID'] = $AccountID;
                         $dataAccountService['ServiceID'] = $did_data['serviceId'];
                         $dataAccountService['CompanyID'] = $CompanyID;
-                        Log::info('New Service ID - DID '.$did_data['serviceId']);
+                        Log::info('New Service ID - DID ' . $did_data['serviceId']);
                         AccountService::insert($dataAccountService);
                     }
-                    $SubscriptionID = $did_data['subscriptionId'];
-                    $quantity = $did_data['quantity'];
-                    $SubscriptionData = array();
-                    $SubscriptionData['AccountID'] = $AccountID;
-                    $SubscriptionData['ServiceID'] = $did_data['serviceId'];
-                    $SubscriptionData['SubscriptionID'] = $SubscriptionID;
-                    $SubscriptionData['Qty'] = $quantity;
-                    $SubscriptionData['StartDate'] = date('Y-m-d');
-                    $SubscriptionData['CreatedBy'] = $UserName;
-                    log::info('DID Subscription ID '.$did_data['subscriptionId']);
-                    log::info('DID Quantity '.$quantity);
-                    $this->insertAccountSubscription($SubscriptionData);
+                    if (!empty($did_data['subscriptionId'])) {
+                        $SubscriptionID = $did_data['subscriptionId'];
+                        $quantity = $did_data['quantity'];
+                        $SubscriptionData = array();
+                        $SubscriptionData['AccountID'] = $AccountID;
+                        $SubscriptionData['ServiceID'] = $did_data['serviceId'];
+                        $SubscriptionData['SubscriptionID'] = $SubscriptionID;
+                        $SubscriptionData['Qty'] = $quantity;
+                        $SubscriptionData['StartDate'] = date('Y-m-d');
+                        $SubscriptionData['CreatedBy'] = $UserName;
+                        log::info('DID Subscription ID ' . $did_data['subscriptionId']);
+                        log::info('DID Quantity ' . $quantity);
+                        $this->insertAccountSubscription($SubscriptionData);
+                    }
                 }
             }
 
@@ -811,6 +593,14 @@ class NeonRegistartionController extends \BaseController {
                 $paymentdata['updated_at'] = date('Y-m-d H:i:s');
                 Payment::insert($paymentdata);
                 /** Payment Add End */
+
+                $RegistarionApiLogID = Session::get('RegistarionApiLogID');
+                $RegistarionApiLogUpdate = array();
+                if(!empty($RegistarionApiLogID)){
+                    $RegistarionApiLogUpdate['InvoiceStatus'] = 'success';
+                    $RegistarionApiLogUpdate['InvoiceID'] = $InvoiceID;
+                    DB::table('tblRegistarionApiLog')->where('RegistarionApiLogID', $RegistarionApiLogID)->update($RegistarionApiLogUpdate);
+                }
             }else{
                 Log::info($AccountID.' Invoice was not generated');
             }
