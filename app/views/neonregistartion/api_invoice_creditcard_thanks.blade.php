@@ -13,13 +13,11 @@
     <div class="col-md-4"></div>
     <div class="col-md-4">
         <div class="modal-header">            
-                <h4 class="modal-title">Thank You For Payment.</h4>            
-        </div>
-        <div class="modal-body">
-            <div id="table-4_processing" class="dataTables_processing" style="visibility: hidden;">Neon Account Creating...</div>
+                <h4 class="modal-title">Neon Account Creating..</h4>
         </div>
     </div>
 </div>
+<div id="last_msg_loader" style="display: table; position: absolute; padding: 10px; text-align: center; left: 50%; top: auto; margin: 71px auto; z-index: 999;"></div>
 <form method="post" id="apiinvoicecreate" class="hidden">
     <input type="text" name="customdata" value="{{htmlspecialchars($customdata)}}">
     <input type="text" name="CreditCard" value="1">
@@ -41,8 +39,8 @@
         }, 10);
         $("#apiinvoicecreate").submit(function (e) {
             e.preventDefault();
-            $('.dataTables_processing').css("visibility","visible");
             var baseurl = '{{URL::to('/')}}';
+            $('div#last_msg_loader').html('<img src="'+baseurl+'/assets/images/bigLoader.gif">');
             var url =  baseurl + '/globalneonregistarion/createaccount';
             var post_data = $(this).serialize();
             $.ajax({
@@ -50,11 +48,11 @@
                 type: 'POST',
                 dataType: 'json',
                 success: function (response) {
-                    $('.dataTables_processing').css("visibility","hidden");
+                    $('div#last_msg_loader').empty();
                     if(response.status =='success'){
-                        toastr.success(response.message, "Success", toastr_opts);
+                        //toastr.success(response.message, "Success", toastr_opts);
                     }else{
-                        toastr.error(response.message, "Error", toastr_opts);
+                        //toastr.error(response.message, "Error", toastr_opts);
 
                     }
                     $.when(testfn(response)).then(fnsubmit());
