@@ -876,7 +876,7 @@ class VendorRatesController extends \BaseController
         }*/
         $save = array();
         $option["option"]=  $data['option'];
-        $option["selection"] = array_filter($data['selection'],"filterArrayRemoveNewLines");
+        $option["selection"] = filterArrayRemoveNewLines($data['selection']);
         $save['Options'] = str_replace('Skip loading','',json_encode($option));
         $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
         $save['full_path'] = $fullPath;
@@ -1189,7 +1189,7 @@ class VendorRatesController extends \BaseController
 
         $save = array();
         $option["option"]=  $data['option'];
-        $option["selection"] = array_filter($data['selection'],"filterArrayRemoveNewLines");
+        $option["selection"] = filterArrayRemoveNewLines($data['selection']);
         $save['Options'] = str_replace('Skip loading','',json_encode($option));
         $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
         $save['full_path'] = $fullPath;

@@ -3,6 +3,9 @@ Use RMBilling3;
 ALTER TABLE `tblAccountOneOffCharge`
 	CHANGE COLUMN `Qty` `Qty` DECIMAL(18,6) NULL DEFAULT NULL AFTER `Price`;
 
+ALTER TABLE `tblPayment`
+	ADD COLUMN `UsageStartDate` DATE NULL DEFAULT NULL AFTER `TransactionID`,
+	ADD COLUMN `UsageEndDate` DATE NULL DEFAULT NULL AFTER `UsageStartDate`;
 
 
 
