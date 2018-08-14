@@ -387,18 +387,37 @@ class PaymentsController extends \BaseController {
                 if(!empty($criteria['InvoiceNo'])){
                     $Payments->where('InvoiceNo','like','%'.$criteria['InvoiceNo'].'%');
                 }
-                $result = $Payments->update($data);
+                $PaymentIDs = $Payments->lists('PaymentID');
+                $result = Payment::whereIn('PaymentID',$PaymentIDs)->update($data);
             }
             elseif(is_array($PaymentIDs)){
                 $result = Payment::whereIn('PaymentID',$PaymentIDs)->update($data);
             }else{
                 if($id>0) {
+                    $PaymentIDs=array($id);
                     $result = Payment::find($id)->update($data);
                 }else{
                     return Response::json(array("status" => "failed", "message" => "Problem Changing Payment Status."));
                 }
             }
             if ($result) {
+                if(is_array($PaymentIDs)){
+                    foreach($PaymentIDs as $PaymentID){
+                        $InvoiceID=Payment::where('PaymentID',$PaymentID)->pluck('InvoiceID');
+                        if(!empty($InvoiceID)){
+                            $GrandTotal= Invoice::where(['InvoiceID'=>$InvoiceID])->pluck('GrandTotal');
+                            $paymentTotal = Payment::where(['InvoiceID'=>$InvoiceID, 'Recall'=>0])->sum('Amount');
+                            if($paymentTotal==0){
+                                Invoice::find($InvoiceID)->update(["InvoiceStatus"=>Invoice::SEND]);
+                            }else if($paymentTotal>=$GrandTotal){
+                                Invoice::find($InvoiceID)->update(["InvoiceStatus"=>Invoice::PAID]);
+                            }else if($paymentTotal<$GrandTotal){
+                                Invoice::find($InvoiceID)->update(["InvoiceStatus"=>Invoice::PARTIALLY_PAID]);
+                            }
+                        }
+                    }
+                }
+
                 return Response::json(array("status" => "success", "message" => "Payment Status Changed Successfully"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Changing Payment Status."));
