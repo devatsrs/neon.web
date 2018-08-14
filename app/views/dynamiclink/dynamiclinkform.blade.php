@@ -10,9 +10,9 @@
             console.log(DynamicLinkID);
 
             if( typeof DynamicLinkID != 'undefined' && DynamicLinkID != ''){
-                update_new_url = baseurl + '/customer/dynamiclink/'+DynamicLinkID+'/update';
+                update_new_url = baseurl + '/dynamiclink/'+DynamicLinkID+'/update';
             }else{
-                update_new_url = baseurl + '/customer/dynamiclink/create';
+                update_new_url = baseurl + '/dynamiclink/create';
             }
 
             showAjaxScript(update_new_url, new FormData(($('#add-edit-dynamicfield-form')[0])), function(response){
@@ -60,16 +60,16 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="form-group">
-                    <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_DYNAMICLINK_TBL_TITLE')*</label>
+                    <label for="field-5" class="control-label">Title*</label>
                     <input type="text" name="Title" class="form-control" id="field-5" placeholder="">
                 </div>
                 <div class="form-group">
-                    <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_DYNAMICLINK_TBL_LINK') *</label>
+                    <label for="field-5" class="control-label">Link <span id="tooltip_Link" data-content="lang={LANGUAGE},  AccountID={ACCOUNTID}, AccountNo={ACCOUNTNUMBER}, CompanyID={COMPANYID}" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> *</label>
                     <input type="text" name="Link" class="form-control" id="field-5" placeholder="">
                 </div>
                 <div class="form-group">
-                    <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_DYNAMICLINK_TBL_CURRENCY')</label>
-                    {{Form::select('Currency',$Currency,'',array("class"=>"form-control select2 small"))}}
+                    <label for="field-5" class="control-label">Currency</label>
+                    {{Form::select('CurrencyID',$Currency,'',array("class"=>"form-control select2 small"))}}
                 </div>
 
             </div>
@@ -81,11 +81,11 @@
     <div class="modal-footer">
         <button type="submit" id="dynamicfield-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
             <i class="entypo-floppy"></i>
-            @lang('routes.BUTTON_SAVE_CAPTION')
+            Save
         </button>
         <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
             <i class="entypo-cancel"></i>
-            @lang('routes.BUTTON_CLOSE_CAPTION')
+           Close
         </button>
     </div>
 </form>
