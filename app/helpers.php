@@ -2783,7 +2783,17 @@ function emailHeaderDecode($emailHtml) {
 }
 
 function filterArrayRemoveNewLines($arr) { // remove new lines (/r/n) etc...
-    return preg_replace('/s+/', ' ', trim($arr));
+    //return preg_replace('/s+/', ' ', trim($arr));
+    foreach ($arr as $key => $value) {
+        $oldkey = $key;
+        /*$key = str_replace("\r", '', $key);
+        $key = str_replace("\n", '', $key);*/
+        $key = preg_replace('/\s+/', ' ',$key);
+        $arr[$key] = $value;
+        if($key != $oldkey)
+            unset($arr[$oldkey]);
+    }
+    return $arr;
 }
 
 function array_key_exists_wildcard ( $arr, $search ) {
