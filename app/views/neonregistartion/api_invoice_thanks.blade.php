@@ -12,23 +12,23 @@
     <div class="col-md-4"></div>
     <div class="col-md-4">
         <div class="modal-header">            
-                <h4 class="modal-title">Thank You For Payment.</h4>            
-        </div>
-        <div class="modal-body">
-            <div id="table-4_processing" class="dataTables_processing" style="visibility: hidden;">Neon Account Creating...</div>
+                <h4 class="modal-title">Neon Account Creating.</h4>
         </div>
     </div>
 </div>
+<div id="last_msg_loader" style="display: table; position: absolute; padding: 10px; text-align: center; left: 50%; top: auto; margin: 71px auto; z-index: 999;"></div>
 <script type="text/javascript">
     jQuery(document).ready(function ($) {
         var data='{{$customdata}}';
         var baseurl = '{{URL::to('/')}}';
+        $('div#last_msg_loader').html('<img src="'+baseurl+'/assets/images/bigLoader.gif">');
         var url =  baseurl + '/globalneonregistarion/createaccount';
         $.ajax({
             url: url,  //Server script to process data
             data: 'customdata='+data+'&CompanyID=1&CreditCard=0',
             dataType: 'json',
             success: function (response) {
+                $('div#last_msg_loader').empty();
                 if(response.status =='success'){
                     toastr.success(response.message, "Success", toastr_opts);
                 }else{

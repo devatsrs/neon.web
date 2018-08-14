@@ -131,7 +131,7 @@ $(document).ready(function() {
         var update_new_url;
         var baseurl = '{{URL::to('/')}}';
         update_new_url =  baseurl + '/globalneonregistarion/createpayment';
-        var invoiceurl = baseurl + '/api_invoice_creditcard_thanks';
+        var invoiceurl = baseurl + '/api_neonaccountcreation';
         $.ajax({
             url: update_new_url,  //Server script to process data
             type: 'POST',
