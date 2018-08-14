@@ -148,9 +148,10 @@ class InvoicesController extends \BaseController {
         $InvoiceHideZeroValue = NeonCookie::getCookie('InvoiceHideZeroValue',1);
         $Quickbook = new BillingAPI($CompanyID);
         $check_quickbook = $Quickbook->check_quickbook($CompanyID);
+        $check_quickbook_desktop = $Quickbook->check_quickbook_desktop($CompanyID);
 		$bulk_type = 'invoices';
         //print_r($_COOKIE);exit;
-        return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue','check_quickbook','bulk_type','CompanyID'));
+        return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue','check_quickbook','check_quickbook_desktop','bulk_type','CompanyID'));
 
     }
 
@@ -1996,6 +1997,97 @@ class InvoicesController extends \BaseController {
             }
         }
     }
+    public function api_invoice_thanks($id){
+        $data = Input::all();
+
+        log::info('paypal log');
+        log::info(print_r($data,true));
+        /*
+        $data['mc_gross'] = '10.00';
+        $data['protection_eligibility'] = 'Eligible';
+        $data['address_status'] = 'confirmed';
+        $data['payer_id'] = 'RD3R6ZAKRY9FE';
+        $data['tax'] = '0.00';
+        $data['address_street'] = '1 Main St';
+        $data['payment_date'] = '05:41:07 Aug 06, 2018 PDT';
+        $data['payment_status'] = 'Completed';
+        $data['charset'] = 'utf-8';
+        $data['address_zip'] = '95131';
+        $data['first_name'] = 'Test';
+        $data['mc_fee'] = '0.59';
+        $data['address_country_code'] = 'US';
+        $data['address_name'] = 'Test User';
+        $data['notify_version'] = '3.9';
+        $data['custom'] = '5';
+        $data['payer_status'] = 'verified';
+        $data['business'] = 'vishal.jagani-facilitator@code-desk.com';
+        $data['address_country'] = 'United States';
+        $data['address_city'] = 'San Jose';
+        $data['quantity'] = '1';
+        $data['payer_email'] = 'devens_1212647640_per@yahoo.com';
+        $data['verify_sign'] = 'A3a-JHspcfFmwpElPB6mqlkSmHIUAnb4hxngI8JtHz9XHxXJIbHnqRHR';
+        $data['txn_id'] = '9GD55899ER875904A';
+        $data['payment_type'] = 'instant';
+        $data['last_name'] = 'User';
+        $data['address_state'] = 'CA';
+        $data['receiver_email'] = 'vishal.jagani-facilitator@code-desk.com';
+        $data['payment_fee'] = '0.59';
+        $data['receiver_id'] = 'P3KJJHVM8JVNL';
+        $data['txn_type'] = 'web_accept';
+        $data['item_name'] = 'Wavetel Ltd dev Local test account API Invoice';
+        $data['mc_currency'] = 'USD';
+        $data['item_number'] = '';
+        $data['residence_country'] = 'US';
+        $data['test_ipn'] = '1';
+        $data['handling_amount'] = '0.00';
+        $data['transaction_subject'] = '';
+        $data['payment_gross'] = '10.00';
+        $data['shipping'] = '0.00';
+        $data['auth'] = 'AEh45IkItw..cmGcPtOfY0a8Vrz0c55nwDg7b5WRTwuMw-NO-pp.BB8A6SmBkh7wRlyKbZvKEUD6QjuLVJIipFg'; */
+
+
+        $PaymentResponse =array();
+        if(isset($data["Success"])){
+            $PaymentResponse['PaymentMethod'] = $data["PaymentMethod"];
+            $PaymentResponse['transaction_notes'] = $data["Transaction"];
+            $PaymentResponse['Amount'] = floatval($data["Amount"]);
+            $PaymentResponse['Transaction'] = $data["Transaction"];
+            $PaymentResponse['Response'] = $data["PaymentGatewayResponse"];
+            $PaymentResponse['status'] = 'success';
+        }elseif(!empty($data['tx'])){
+            $PaymentResponse['PaymentMethod'] = 'Paypal';
+            $PaymentResponse['transaction_notes'] = $data['tx'];
+            $PaymentResponse['Amount'] = floatval($data["amt"]);
+            $PaymentResponse['Transaction'] = $data["tx"];
+            $PaymentResponse['Response'] = '';
+            $PaymentResponse['status'] = 'success';
+        }
+
+        $Alldata = array();
+        $Alldata['PaymentResponse'] = json_encode($PaymentResponse);
+        $Alldata['APIData'] =  Session::get('APIEncodeData');
+        //log::info(print_r($PaymentResponse,true));
+        log::info(print_r($Alldata,true));
+        /*
+        if($PaymentResponse['status']=='failed'){
+            if(!empty($PaymentResponse['transaction_notes'])){
+                $message = $PaymentResponse['transaction_notes'];
+            }else{
+                $message = empty($PaymentResponse['message']) ? '' :$PaymentResponse['message'];
+            }
+            return Response::json(["status"=>"failed","message" => $message, "data"=>$PaymentResponse]);
+        }else{
+            return Response::json(["status"=>"success","message" => "Create Payment Successfully", "data"=>json_encode($Alldata)]);
+        }*/
+
+
+        log::info(print_r($Alldata,true));
+        log::info('api_invoice_thanks');
+        //log::info(json_decode($data['data'],true));
+        $customdata = json_encode(json_decode($Alldata,true));
+        //$customdata=$data['data'];
+        return View::make('neonregistartion.api_invoice_creditcard_thanks', compact('data','customdata'));
+    }
     public function generate(){
         $CompanyID = User::get_companyID();
         $UserID = User::get_userID();
@@ -2386,6 +2478,103 @@ class InvoicesController extends \BaseController {
             }
         }
 
+    }
+    public function invoice_quickbookexport(){
+        $data = Input::all();
+        $InvoiceIDs = $data['InvoiceIDs'];
+        //$data['type'] = 'journal';
+        $CompanyID = User::get_companyID();
+        //$InvoiceIDs =array_filter(explode(',',$data['InvoiceIDs']),'intval');
+
+        Log::useFiles(storage_path() . '/logs/quickbook_invoiceexport-' . $CompanyID . '-' . date('Y-m-d') . '.log');
+
+        try {
+            if (isset($InvoiceIDs)) {
+
+                $InvoiceIDs = explode(',',$InvoiceIDs);
+                $InvoiceAccounts = array();
+                $InvoiceItems = array();
+                if(count($InvoiceIDs) > 0){
+                    foreach ($InvoiceIDs as $InvoiceID) {
+                        $Invoice = Invoice::find($InvoiceID);
+                        $AccountID = $Invoice->AccountID;
+                        $InvoiceAccounts['AccountID'][] = $AccountID;
+                    }
+                }
+
+                $invoiceOptions = array();
+                $invoiceOptions['CompanyID'] = $CompanyID;
+                $invoiceOptions['Invoices'] = $InvoiceIDs;
+
+                $InvoiceObject = new Invoice();
+                $InvoiceObject->ExportInvoices($invoiceOptions);
+            }
+        }
+        catch (\Exception $e) {
+
+            Log::info(' ========================== Exception occured =============================');
+            Log::error($e);
+            echo "<pre>";print_r($e);
+            Log::info(' ========================== Exception updated in job and email sent =============================');
+
+        }
+    }
+
+    public function journal_quickbookdexport(){
+        $data = Input::all();
+        $InvoiceIDs = $data['InvoiceIDs'];
+        //$data['type'] = 'journal';
+        $CompanyID = User::get_companyID();
+        //$InvoiceIDs =array_filter(explode(',',$data['InvoiceIDs']),'intval');
+
+        Log::useFiles(storage_path() . '/logs/qbdesktop_journalexport-' . $CompanyID . '-' . date('Y-m-d') . '.log');
+
+        try {
+            if (isset($InvoiceIDs)) {
+
+                $InvoiceIDs = explode(',',$InvoiceIDs);
+
+                $invoiceOptions = array();
+                $invoiceOptions['CompanyID'] = $CompanyID;
+                $invoiceOptions['Invoices'] = $InvoiceIDs;
+
+                $InvoiceObject = new Invoice();
+                $Invoices = $InvoiceObject->ExportJournals($invoiceOptions);
+                if($Invoices['status'] == 'success')
+                {
+                    return Response::json(array("status" => "success", "message" => $Invoices['msg'],"redirect" => $Invoices['redirect']));
+                }
+                else{
+                    return Response::json(array("status" => "failed", "message" => $Invoices['msg']));
+                }
+            }
+        }
+        catch (\Exception $e) {
+
+            Log::info(' ========================== Exception occured =============================');
+            Log::error($e);
+            Log::info(' ========================== Exception updated in Journal Export =============================');
+            return Response::json(array("status" => "failed", "message" => $e));
+
+        }
+    }
+
+    public function journal_quickbookdexport_download(){
+        $file = $_REQUEST['file'];
+        if (file_exists($file)) {
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename='.basename($file));
+            header('Content-Transfer-Encoding: binary');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            header('Pragma: public');
+            header('Content-Length: ' . filesize($file));
+            ob_clean();
+            flush();
+            readfile($file);
+            exit;
+        }
     }
 
     public function paypal_cancel($id){
@@ -3149,4 +3338,79 @@ class InvoicesController extends \BaseController {
             return View::make('invoices.invoice_chart', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode','ManagementReports','CurrencySymbol','RoundChargesAmount'));
         }
     }
+
+    /**api paypal */
+    /** Paypal ipn url which will be triggered from paypal with payment status and response
+     * @param $id
+     * @return mixed
+     */
+    public function api_paypal_ipn($id)
+    {
+
+        //@TODO: need to merge all payment gateway payment insert entry.
+
+        $CompanyID=$id;
+        $paypal = new PaypalIpn($CompanyID);
+
+        $data["Notes"]                  = $paypal->get_note();
+        $data["Success"]                = $paypal->success();
+        $data["PaymentMethod"]          = $paypal->method;
+        $data["Amount"]                 = $paypal->get_response_var('mc_gross');
+        $data["Transaction"]            = $paypal->get_response_var('txn_id');
+        $data["PaymentGatewayResponse"] = $paypal->get_full_response();
+
+        log::info('api_paypal_ipn');
+        log::info(print_r($data,true));
+        return Response::json(array("status" => "success", "message" => "Invoice paid successfully","data"=>$data));
+        /*
+
+        $account_inv = explode('-', $id);
+        if (isset($account_inv[0]) && intval($account_inv[0]) > 0 && isset($account_inv[1]) && intval($account_inv[1]) >= 0) {
+            $AccountID = intval($account_inv[0]);
+            $InvoiceID = intval($account_inv[1]);
+
+            if($InvoiceID!=0){
+                $Invoice = Invoice::find($InvoiceID);
+                $CompanyID = $Invoice->CompanyID;
+            }else{
+                if(isset($account_inv[2])){
+                    $Invoice = Invoice::where(array('FullInvoiceNumber'=>$account_inv[2],'AccountID'=>$AccountID))->first();
+                    if(!empty($Invoice) && count($Invoice)){
+                        $CompanyID = $Invoice->CompanyID;
+                        $InvoiceID = $Invoice->InvoiceID;
+                    }
+                }
+            }
+            if(!isset($CompanyID)){
+                $account = Account::find($AccountID);
+                $CompanyID = $account->CompanyId;
+            }
+
+            $paypal = new PaypalIpn($CompanyID);
+
+            $data["Notes"]                  = $paypal->get_note();
+            $data["Success"]                = $paypal->success();
+            $data["PaymentMethod"]          = $paypal->method;
+            $data["Amount"]                 = $paypal->get_response_var('mc_gross');
+            $data["Transaction"]            = $paypal->get_response_var('txn_id');
+            $data["PaymentGatewayResponse"] = $paypal->get_full_response();
+
+            return $this->post_payment_process($AccountID,$InvoiceID,$data);
+        }
+        */
+    }
+    public function api_invoice_creditcard_thanks(){
+        $data = Input::all();
+        log::info(print_r($data,true));
+        log::info('api_invoice_thanks');
+        //log::info(json_decode($data['data'],true));
+        $customdata = json_encode(json_decode($data['data'],true));
+        //$customdata=$data['data'];
+        return View::make('neonregistartion.api_invoice_creditcard_thanks', compact('data','customdata'));
+    }
+
+    public function api_paypal_cancel($id){
+        echo "<center>Opps. Payment Canceled, Please try again.</center>";
+    }
+
 }

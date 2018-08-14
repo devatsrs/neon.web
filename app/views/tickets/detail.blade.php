@@ -30,8 +30,13 @@
       <!-- title -->
         <div class="mail-title">{{emailHeaderDecode($ticketdata->Subject)}} #{{$ticketdata->TicketID}}</div>
       <div class="mail-date">
-        To: {{$ticketdata->EmailTo}} <br>
-        From: <a class="" href="{{$Requester['URL']}}">{{$Requester['Title']}}</a> ({{$Requester['Email']}})<br>
+          @if($ticketdata->TicketType)
+              <a>{{$Requester['Title']}}</a> emailed <a>{{$ticketdata->EmailTo}}</a> <br>
+              From: {{$Requester['Email']}}<br>
+              @else
+              To: {{$ticketdata->EmailTo}} <br>
+              From: <a class="" href="{{$Requester['URL']}}">{{$Requester['Title']}}</a> ({{$Requester['Email']}})<br>
+          @endif
         @if(!empty($ticketdata->RequesterCC))Cc: {{$ticketdata->RequesterCC}} &nbsp; @endif
         @if(!empty($ticketdata->RequesterBCC))Bcc: {{$ticketdata->RequesterBCC}} @endif
         <br>
@@ -376,11 +381,7 @@ $(document).ready(function(e) {
         var ticketBodyHtml = $(this).html();
         $(this).html("").append(iFrame).show();
         var iFrameDoc = iFrame[0].contentDocument || iFrame[0].contentWindow.document;
-        if($.parseHTML(ticketBodyHtml)[0]["data"].trim()!=''){
-            iFrameDoc.write($.parseHTML(ticketBodyHtml)[0]["data"]);
-        }else{
-            iFrameDoc.write(ticketBodyHtml);
-        }
+        iFrameDoc.write($("<textarea/>").html(ticketBodyHtml).val());
         iFrameDoc.close();
     });
 
@@ -449,7 +450,7 @@ $(document).ready(function(e) {
 	});
 	
 	});
-    $( document ).on("click",'#EmailAction-model .modal-footer .btn-danger' ,function(e) {
+    $( document ).on("click",'#EmailAction-model .modal-footer .btn-danger, #EmailAction-model .modal-header .close' ,function(e) {
             $('#EmailAction-model .modal-content').html('');
     });
 	$( document ).on("click",'.add_note' ,function(e) {		 

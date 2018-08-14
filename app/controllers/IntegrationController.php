@@ -780,6 +780,38 @@ class IntegrationController extends \BaseController
 
 			}
 
+			if($data['secondcategory']=='Quickbook Desktop') {
+
+				$QuickBookDesktopDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+
+
+				$data['Status'] 				= 	isset($data['Status'])?1:0;
+				$data['QuickBookSandbox'] 	= 	isset($QuickBook['Sandbox'])?1:0;
+				$data['InvoiceAccount'] 	= 	isset($data['InvoiceAccount'])?$data['InvoiceAccount']:'';
+				$data['PaymentAccount'] 	= 	isset($data['PaymentAccount'])?$data['PaymentAccount']:'';
+
+				$QuickBookData = array();
+				$QuickBookData = $data;
+				unset($QuickBookData['firstcategory']);
+				unset($QuickBookData['secondcategory']);
+				unset($QuickBookData['firstcategoryid']);
+				unset($QuickBookData['secondcategoryid']);
+				unset($QuickBookData['Status']);
+
+				//$QuickBookDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+
+				if(count($QuickBookDesktopDbData)>0) {
+					$SaveData = array("Settings"=>json_encode($QuickBookData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$QuickBookDesktopDbData->IntegrationConfigurationID))->update($SaveData);
+
+				} else {
+					$SaveData = array("Settings"=>json_encode($QuickBookData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::create($SaveData);
+				}
+				return Response::json(array("status" => "success", "message" => "QuickBook Desktop Settings Successfully Updated", "quickbookredirect" =>1));
+
+			}
+
 			if($data['secondcategory']=='Xero') {
 				$XeroDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
 				$rules = array(

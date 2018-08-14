@@ -54,7 +54,7 @@ class PBX{
                         $CompanyID = $addparams['CompanyID'];
                         $ProcessID = $addparams['ProcessID'];
                         foreach ($results as $temp_row) {
-                            $count = DB::table('tblAccount')->where(["AccountName" => $temp_row->te_name, "AccountType" => 1,"CompanyId"=>$CompanyID])->count();
+                            $count = DB::table('tblAccount')->where(["AccountName" => $temp_row->te_name, "AccountType" => 1])->count();
                             if($count==0){
                                 $tempItemData['AccountName'] = $temp_row->te_name;
                                 $tempItemData['Number'] = $temp_row->te_code;

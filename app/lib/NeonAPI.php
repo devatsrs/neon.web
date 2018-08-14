@@ -199,10 +199,19 @@ class NeonAPI{
             if(!Auth::attempt(array('EmailAddress' => $data['EmailAddress'], 'password' => $data['password'] ,'Status'=> 1 ))){
                 return false;
             }
+            $ReturnData=array();
             $user = User::where(['EmailAddress'=>$data['EmailAddress'],'Status'=>1])->first();
+            $ReturnData['UserID']=$user->UserID;
+            $ReturnData['CompanyID']=$user->CompanyID;
+            $ReturnData['FirstName']=$user->FirstName;
+            $ReturnData['LastName']=$user->LastName;
+            $ReturnData['EmailAddress']=$user->EmailAddress;
+            $ReturnData['Roles']=$user->Roles;
+            $ReturnData['AccountingUser']=$user->Roles;
+
             Log::info(print_r($user,true));
             User::find($user->UserID)->update(['LastLoginDate' => date('Y-m-d H:i:s')]);
-            return true;
+            return $ReturnData;
         }catch(Exception $e){
             Log::info("RegisterApiLogin ".$e->getMessage());
             return false;

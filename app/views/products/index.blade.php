@@ -67,26 +67,21 @@
                                 @if(User::checkCategoryPermission('Products','Edit'))
                                     <li class="li_active">
                                         <a class="type_active_deactive" type_ad="active" href="javascript:void(0);" >
-                                            <i class="fa fa-plus-circle"></i>
+                                            <i class="fa"></i>
                                             <span>Activate</span>
                                         </a>
                                     </li>
                                     <li class="li_deactive">
                                         <a class="type_active_deactive" type_ad="deactive" href="javascript:void(0);" >
-                                            <i class="fa fa-minus-circle"></i>
+                                            <i class="fa"></i>
                                             <span>Deactivate</span>
                                         </a>
                                     </li>
-                                    <li class="li_deactive">
-                                        <a class=""  href="{{  URL::to('products/dynamicfields') }}" >
-                                            <i class=""></i>
-                                            <span>Manage Dynamic Fields</span>
-                                        </a>
-                                    </li>
+
                                     <li class="">
                                         <a class="" href="{{  URL::to('products/stockhistory') }}" >
                                             <i class=""></i>
-                                            <span>Stock History</span>
+                                            <span>History</span>
                                         </a>
                                     </li>
                                 @endif
@@ -104,16 +99,34 @@
                                     <i class="entypo-plus"></i>
                                     Add New
                                 </a>
-                                    <a href="{{  URL::to('products/itemtypes') }}" id="manage-type" class="btn btn-primary pull-right">
-                                        <i class=""></i>
-                                        Manage Types
-                                    </a>
+
+                                <div class="input-group-btn pull-right hidden dropdown" style="margin-right:101px">
+                                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Manage Types <span class="caret"></span></button>
+                                        <ul class="dropdown-menu dropdown-menu-right" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;left:-42px;">
+                                            @if(User::checkCategoryPermission('Products','Edit'))
+                                                <li class="li_type">
+                                                    <a href="{{  URL::to('products/itemtypes') }}" id="manage-type" class="btn btn-primary pull-left">
+                                                        <i class=""></i>
+                                                        Manage Types
+                                                    </a>
+                                                </li>
+                                                <li class="li_dynamic">
+                                                    <a class="btn btn-primary pull-left"  href="{{  URL::to('products/dynamicfields') }}" >
+                                                        <i class=""></i>
+                                                        <span>Manage Dynamic Fields</span>
+                                                    </a>
+                                                </li>
+                                            @endif
+                                        </ul>
+                                    </div>
+                               
                             @endif
                         @endif
 
                     </div>
                     <div class="clear"></div>
                 </div>
+
             <br>
             <table class="table table-bordered datatable" id="table-4">
                 <thead>
