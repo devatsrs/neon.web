@@ -18,7 +18,7 @@ CREATE TABLE `tblTimezones` (
 	UNIQUE INDEX `IX_tblTimezones_Title` (`Title`)
 ) COLLATE='utf8_unicode_ci' ENGINE=InnoDB;
 
-INSERT INTO `tbljobtype` (`JobTypeID`, `Code`, `Title`, `Description`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`) VALUES (28, 'RCV', 'Vendor CDR Recalculate', NULL, '2018-07-03 15:17:27', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblJobType` (`JobTypeID`, `Code`, `Title`, `Description`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`) VALUES (28, 'RCV', 'Vendor CDR Recalculate', NULL, '2018-07-03 15:17:27', 'RateManagementSystem', NULL, NULL);
 
 INSERT INTO `tblGateway` (`GatewayID`, `Title`, `Name`, `Status`, `CreatedBy`, `created_at`, `ModifiedBy`, `updated_at`) VALUES (16, 'Voip.ms', 'VoipMS', 1, 'RateManagementSystem', '2018-06-21 16:59:07', NULL, '2018-06-21 16:59:10');
 
@@ -177,6 +177,11 @@ ALTER TABLE `tblVendorBlocking`
 
 ALTER TABLE `tblRateTable`
 	ADD COLUMN `RoundChargedAmount` INT(11) NULL AFTER `CurrencyID`;
+
+INSERT INTO `tblJobType` (`JobTypeID`, `Code`, `Title`, `Description`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`) VALUES (30, 'SRP', 'Sippy Rate Push', NULL, '2018-07-27 18:20:26', 'RateManagementSystem', NULL, NULL);
+
+INSERT INTO `tblcronjobcommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, 6, 'Sippy Rate File Status', 'sippyratefilestatus', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2018-08-01 15:11:06', 'RateManagementSystem');
+
 
 
 
@@ -7429,7 +7434,7 @@ ThisSP:BEGIN
                     AND tblVendorRate.TrunkId = p_trunkId
                     AND tblVendorRate.TimezonesID = tblTempVendorRate.TimezonesID
                     AND tblTempVendorRate.Rate = tblVendorRate.Rate
-                    AND (
+                    /*AND (
                         tblVendorRate.EffectiveDate = tblTempVendorRate.EffectiveDate
                         OR
                         (
@@ -7439,7 +7444,7 @@ ThisSP:BEGIN
                             WHEN tblTempVendorRate.EffectiveDate > NOW() THEN 1
                             ELSE 0
                         END)
-                    )
+                    )*/
             WHERE  tblTempVendorRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block');
 
 				/*IF (FOUND_ROWS() > 0) THEN
@@ -9218,7 +9223,7 @@ ThisSP:BEGIN
 			AND tblRateTableRate.RateTableId = p_RateTableId
 			AND tblRateTableRate.TimezonesID = tblTempRateTableRate.TimezonesID
 			AND tblTempRateTableRate.Rate = tblRateTableRate.Rate
-			AND (
+			/*AND (
 				tblRateTableRate.EffectiveDate = tblTempRateTableRate.EffectiveDate
 				OR
 				(
@@ -9228,7 +9233,7 @@ ThisSP:BEGIN
 							WHEN tblTempRateTableRate.EffectiveDate > NOW() THEN 1
 							ELSE 0
 						END)
-			)
+			)*/
 		WHERE  tblTempRateTableRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block');
 
 		/*IF (FOUND_ROWS() > 0) THEN
@@ -11434,6 +11439,7 @@ BEGIN
 		RateN float,
 		EffectiveDate date,
 		TrunkID int,
+		TimezonesID int,
 		CountryID int,
 		RateID int,
 		Interval1 INT,
@@ -11495,6 +11501,7 @@ BEGIN
     v_1.RateN,
     DATE_FORMAT (v_1.EffectiveDate, '%Y-%m-%d') AS EffectiveDate,
     v_1.TrunkID,
+    v_1.TimezonesID,
     r.CountryID,
     r.RateID,
    	CASE WHEN v_1.Interval1 is not null
@@ -11619,13 +11626,16 @@ BEGIN
 					ON vendorRate.RateID = tblVendorBlocking.RateId
 						 AND tblAccount.AccountID = tblVendorBlocking.AccountId
 						 AND vendorRate.TrunkID = tblVendorBlocking.TrunkID
+						 AND vendorRate.TimezonesID = tblVendorBlocking.TimezonesID
 				LEFT OUTER JOIN tblVendorBlocking AS blockCountry
 					ON vendorRate.CountryID = blockCountry.CountryId
 						 AND tblAccount.AccountID = blockCountry.AccountId
 						 AND vendorRate.TrunkID = blockCountry.TrunkID
+						 AND vendorRate.TimezonesID = blockCountry.TimezonesID
 				LEFT JOIN tblVendorPreference
 					ON tblVendorPreference.AccountId = vendorRate.AccountId
 						 AND tblVendorPreference.TrunkID = vendorRate.TrunkID
+						 AND tblVendorPreference.TimezonesID = vendorRate.TimezonesID
 						 AND tblVendorPreference.RateId = vendorRate.RateID
 				INNER JOIN tblTrunk
 					ON tblTrunk.TrunkID = vendorRate.TrunkID
@@ -11819,7 +11829,7 @@ BEGIN
 			       -- AND  FIND_IN_SET(TrunkId,p_Trunks)!= 0
 			       -- ORDER BY `Rate Prefix`
 
-			   	UNION ALL
+			   	/*UNION ALL
 
 			        SELECT
 
@@ -11837,7 +11847,7 @@ BEGIN
 			                `Billing Rate for Calling Card Prompt` ,
 			                `Billing Cycle for Calling Card Prompt`
 			        FROM    tmp_VendorVersion3VosSheet_
-			        WHERE  EndDate is not null
+			        WHERE  EndDate is not null*/
 					  -- AccountID = p_VendorID
 			      --  AND  FIND_IN_SET(TrunkId,p_Trunks) != 0
 			      --  ORDER BY `Rate Prefix`;
@@ -11975,7 +11985,7 @@ INSERT INTO tmp_VendorVersion3VosSheet_
 SELECT
 
 
-    NULL AS RateID,
+    vendorRate.RateID AS RateID,
     IFNULL(tblTrunk.RatePrefix, '') AS `Rate Prefix`,
     Concat('' , IFNULL(tblTrunk.AreaPrefix, '') , vendorRate.Code) AS `Area Prefix`,
     'International' AS `Rate Type`,
@@ -12009,10 +12019,12 @@ INNER JOIN tblAccount
     ON vendorRate.AccountId = tblAccount.AccountID
 LEFT OUTER JOIN tblVendorBlocking
     ON vendorRate.TrunkId = tblVendorBlocking.TrunkID
+    AND vendorRate.TimezonesID = tblVendorBlocking.TimezonesID
     AND vendorRate.RateID = tblVendorBlocking.RateId
     AND tblAccount.AccountID = tblVendorBlocking.AccountId
 LEFT OUTER JOIN tblVendorBlocking AS blockCountry
     ON vendorRate.TrunkId = blockCountry.TrunkID
+    AND vendorRate.TimezonesID = blockCountry.TimezonesID
     AND vendorRate.CountryID = blockCountry.CountryId
     AND tblAccount.AccountID = blockCountry.AccountId
 INNER JOIN tblTrunk
@@ -12051,7 +12063,7 @@ WHERE (vendorRate.Rate > 0);
 			FROM tmp_VendorArchiveCurrentRates_ AS vendorArchiveRate
 			Left join tmp_VendorVersion3VosSheet_ vendorRate
 				 ON vendorArchiveRate.AccountId = vendorRate.AccountID
-				 AND vendorArchiveRate.AccountId = vendorRate.TrunkID
+				 AND vendorArchiveRate.TrunkID = vendorRate.TrunkID
  				 AND vendorArchiveRate.RateID = vendorRate.RateID
 
 			INNER JOIN tblAccount
@@ -16061,6 +16073,93 @@ BEGIN
 
 
 SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_getDeductCallChargeAccounts`;
+DELIMITER //
+CREATE PROCEDURE `prc_getDeductCallChargeAccounts`(
+	IN `p_CompanyID` INT
+)
+BEGIN
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SELECT
+		DISTINCT
+		a.AccountID,
+		ab.NextInvoiceDate,
+		AccountName,
+		ab.ServiceID
+	FROM tblAccount a
+	INNER JOIN tblAccountBilling ab
+		ON ab.AccountID = a.AccountID and ab.ServiceID = 0
+	INNER JOIN tblBillingClass bc
+		ON bc.BillingClassID = ab.BillingClassID
+	WHERE a.CompanyId = p_CompanyID
+	AND a.Status = 1
+	AND AccountType = 1
+	AND Billing = 1
+--	AND a.AccountID IN (111)
+	AND (ab.BillingCycleType IS NOT NULL AND ab.BillingCycleType <> 'manual')
+	AND bc.DeductCallChargeInAdvance = 1
+	ORDER BY a.AccountID ASC;
+
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
+
+
+DROP FUNCTION IF EXISTS `fnFIND_IN_SET`;
+DELIMITER //
+CREATE FUNCTION `fnFIND_IN_SET`(
+	`p_String1` LONGTEXT,
+	`p_String2` LONGTEXT
+) RETURNS int(11)
+BEGIN
+	DECLARE i int;
+	DECLARE counter int;
+
+	DROP TEMPORARY TABLE IF EXISTS `table1`;
+	CREATE TEMPORARY TABLE `table1` (
+	  `splitted_column` TEXT NOT NULL
+	);
+
+	DROP TEMPORARY TABLE IF EXISTS `table2`;
+	CREATE TEMPORARY TABLE `table2` (
+	  `splitted_column` TEXT NOT NULL
+	);
+
+
+	SET i = 1;
+	REPEAT
+		INSERT INTO table1
+		SELECT FnStringSplit(p_String1, ',', i) WHERE FnStringSplit(p_String1, ',', i) IS NOT NULL LIMIT 1;
+		SET i = i + 1;
+		UNTIL ROW_COUNT() = 0
+	END REPEAT;
+
+	SET i = 1;
+	REPEAT
+		INSERT INTO table2
+		SELECT FnStringSplit(p_String2, ',', i) WHERE FnStringSplit(p_String2, ',', i) IS NOT NULL LIMIT 1;
+		SET i = i + 1;
+		UNTIL ROW_COUNT() = 0
+	END REPEAT;
+
+	SELECT COUNT(*) INTO counter
+	FROM table1
+	INNER JOIN table2 ON table1.splitted_column = table2.splitted_column;
+
+	RETURN counter;
 
 END//
 DELIMITER ;

@@ -601,7 +601,7 @@ class PaymentsController extends \BaseController {
             $save = ['CompanyID' => $CompanyID, 'Title' => $data['TemplateName'], 'TemplateFile' => $amazonPath . $file_name];
             $save['created_by'] = User::get_user_full_name();
             $option["option"] = $data['option'];
-            $option["selection"] = array_filter($data['selection'],"filterArrayRemoveNewLines");
+            $option["selection"] = filterArrayRemoveNewLines($data['selection']);
             $save['Options'] = str_replace('Skip loading','',json_encode($option));//json_encode($option);
 
             if ( isset($data['PaymentUploadTemplateID']) && $data['PaymentUploadTemplateID'] > 0 ) {
