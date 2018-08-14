@@ -434,11 +434,11 @@ class RateUploadController extends \BaseController {
 
         $save = array();
         $option["option"]       = $data['option'];
-        $option["selection"]    = $data['selection'];
+        $option["selection"]    = filterArrayRemoveNewLines($data['selection']);//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
         if(!empty($data['importdialcodessheet'])){
             $option["skipRows_sheet2"] = array("start_row" => $data["start_row_sheet2"], "end_row" => $data["end_row_sheet2"]);
             $option["importdialcodessheet"] = !empty($data['importdialcodessheet']) ? $data['importdialcodessheet'] : '';
-            $option["selection2"] = $data['selection2'];
+            $option["selection2"] = filterArrayRemoveNewLines($data['selection2']);
         }
         $save['Options']        = str_replace('Skip loading','',json_encode($option));//json_encode($option);
         $fullPath               = $amazonPath . $file_name; //$destinationPath . $file_name;
@@ -669,12 +669,12 @@ class RateUploadController extends \BaseController {
 
         $save = array();
         $option["option"]       = $data['option'];
-        $option["selection"]    = $data['selection'];
+        $option["selection"]    = filterArrayRemoveNewLines($data['selection']);
         if(!empty($data['importdialcodessheet']))
         {
             $option["skipRows_sheet2"]       = array( "start_row"=>$data["start_row_sheet2"], "end_row"=>$data["end_row_sheet2"] );
             $option["importdialcodessheet"]  = !empty($data['importdialcodessheet']) ? $data['importdialcodessheet'] : '';
-            $option["selection2"]   = $data['selection2'];
+            $option["selection2"] = filterArrayRemoveNewLines($data['selection2']);
         }
         $save['Options']        = str_replace('Skip loading','',json_encode($option));//json_encode($option);
         $fullPath               = $amazonPath . $file_name; //$destinationPath . $file_name;
