@@ -18,7 +18,7 @@ CREATE TABLE `tblTimezones` (
 	UNIQUE INDEX `IX_tblTimezones_Title` (`Title`)
 ) COLLATE='utf8_unicode_ci' ENGINE=InnoDB;
 
-INSERT INTO `tbljobtype` (`JobTypeID`, `Code`, `Title`, `Description`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`) VALUES (28, 'RCV', 'Vendor CDR Recalculate', NULL, '2018-07-03 15:17:27', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblJobType` (`JobTypeID`, `Code`, `Title`, `Description`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`) VALUES (28, 'RCV', 'Vendor CDR Recalculate', NULL, '2018-07-03 15:17:27', 'RateManagementSystem', NULL, NULL);
 
 INSERT INTO `tblGateway` (`GatewayID`, `Title`, `Name`, `Status`, `CreatedBy`, `created_at`, `ModifiedBy`, `updated_at`) VALUES (16, 'Voip.ms', 'VoipMS', 1, 'RateManagementSystem', '2018-06-21 16:59:07', NULL, '2018-06-21 16:59:10');
 
@@ -178,7 +178,7 @@ ALTER TABLE `tblVendorBlocking`
 ALTER TABLE `tblRateTable`
 	ADD COLUMN `RoundChargedAmount` INT(11) NULL AFTER `CurrencyID`;
 
-INSERT INTO `tbljobtype` (`JobTypeID`, `Code`, `Title`, `Description`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`) VALUES (30, 'SRP', 'Sippy Rate Push', NULL, '2018-07-27 18:20:26', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblJobType` (`JobTypeID`, `Code`, `Title`, `Description`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`) VALUES (30, 'SRP', 'Sippy Rate Push', NULL, '2018-07-27 18:20:26', 'RateManagementSystem', NULL, NULL);
 
 INSERT INTO `tblcronjobcommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, 6, 'Sippy Rate File Status', 'sippyratefilestatus', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2018-08-01 15:11:06', 'RateManagementSystem');
 
