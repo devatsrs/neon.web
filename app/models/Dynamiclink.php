@@ -27,7 +27,7 @@ class Dynamiclink extends \Eloquent {
                 $CM_data['lang'] = NeonCookie::getCookie('customer_language');
                 $CM_data['AccountNo'] = $Account->Number;
 
-                $name = getLanguageKeyByValue($name);
+                $name = getLanguageValue($name);
                 $Link = str_replace("{ACCOUNTID}", $CM_data['AccountID'], $Link);
                 if (strpos($Link, "{COMPANYID}")) {
                     $reg = 1;
