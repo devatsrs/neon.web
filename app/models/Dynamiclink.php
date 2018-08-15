@@ -21,15 +21,15 @@ class Dynamiclink extends \Eloquent {
             $name=$linkdata->Title;
             $Link=$linkdata->Link;
             $currencyID=$linkdata->CurrencyID;
-            $Account=  Customer::where('AccountID',$CM_data['AccountID'])->first();
+            $Account=  Customer::select('Number','CurrencyId')->where('AccountID',$CM_data['AccountID'])->first();
 
             if(!empty($Account) && ($currencyID==0 || $currencyID==$Account->CurrencyId)) {
                 $CM_data['lang'] = NeonCookie::getCookie('customer_language');
                 $CM_data['AccountNo'] = $Account->Number;
 
-                $name = getLanguageKeyByValue($name);
+                $name = getLanguageValue($name);
                 $Link = str_replace("{ACCOUNTID}", $CM_data['AccountID'], $Link);
-                if (strpos($Link, "{COMPANYID}")) {
+                if (strpos($Link, "{COMPANYID}")  !== FALSE ) {
                     $reg = 1;
                 }
                 $Link = str_replace("{COMPANYID}", $CM_data['CompanyID'], $Link);

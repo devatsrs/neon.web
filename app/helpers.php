@@ -2999,7 +2999,7 @@ function getRandomNumber($digits=5){
     return $rand_no;
 }
 
-function getLanguageKeyByValue($val){
+function getLanguageValue($val){
     $name=$val;
     $langs = Translation::get_language_labels('en');
     $json_file = json_decode($langs->Translation, true);
