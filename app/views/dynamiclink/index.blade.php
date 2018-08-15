@@ -49,11 +49,12 @@
             <div class="clear"></div>
                 <div class="row">
                     <div  class="col-md-12">
+                        @if(User::checkCategoryPermission('Dynamiclink','Add'))
                         <a href="#" data-action="showAddModal" id="add-new-dynamiclink" data-type="Dynamic Link" data-modal="add-edit-modal-dynamicfield" class="btn btn-primary pull-right">
                             <i class="entypo-plus"></i>
                             Add New
                         </a>
-
+                        @endif
                     </div>
                     <div class="clear"></div>
                 </div>
@@ -130,9 +131,12 @@
                                         action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                     }
                                     action += '</div>';
+                                    <?php if(User::checkCategoryPermission('Dynamiclink','Edit')){ ?>
                                     action += ' <a data-name = "' + full[0] + '" data-id="' + full[5] + '" title="Edit" class="edit-dynamicfield btn btn-default btn-sm btn-smtooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
+                                    <?php } ?>
+                                    <?php if(User::checkCategoryPermission('Dynamiclink','Delete') ){ ?>
                                     action += ' <a href="'+delete_+'" data-redirect="{{ URL::to('products')}}" title="Delete"  class="btn delete btn-danger btn-default btn-sm btn-smtooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></a>';
-
+                                    <?php } ?>
                                     return action;
                                 }
                             }
