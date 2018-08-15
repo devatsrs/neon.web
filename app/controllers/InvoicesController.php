@@ -2083,6 +2083,15 @@ class InvoicesController extends \BaseController {
 
         log::info(print_r($Alldata,true));
         log::info('api_invoice_thanks');
+        $RegistarionApiLogID = Session::get('RegistarionApiLogID');
+        log::info('R LogID '.$RegistarionApiLogID);
+        $RegistarionApiLogUpdate = array();
+        if(!empty($RegistarionApiLogID)){
+            $RegistarionApiLogUpdate['PaymentAmount'] = empty($PaymentResponse['Amount']) ? 0 : '';
+            $RegistarionApiLogUpdate['PaymentResponse'] = json_encode($PaymentResponse);
+            $RegistarionApiLogUpdate['PaymentStatus'] = 'success';
+            DB::table('tblRegistarionApiLog')->where('RegistarionApiLogID', $RegistarionApiLogID)->update($RegistarionApiLogUpdate);
+        }
         //log::info(json_decode($data['data'],true));
         $customdata = json_encode(json_decode($Alldata,true));
         //$customdata=$data['data'];

@@ -249,7 +249,7 @@ class PaypalIpn
     public function get_api_paynow_button($CompanyID, $paypal_success_url="", $paypal_cancel_url=""){
 
         if(empty($paypal_success_url)){
-            $paypal_success_url = url('/api_invoice_thanks/'.$CompanyID);
+            $paypal_success_url = url('/api_accountcreation/'.$CompanyID);
         }
         if(empty($paypal_cancel_url)){
             $paypal_cancel_url = url('/api_paypal_cancel/'.$CompanyID);
