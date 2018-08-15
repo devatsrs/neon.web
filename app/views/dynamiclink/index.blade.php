@@ -240,63 +240,7 @@
                         }
                     });
                     //done above
-
-                    $('.type_active_deactive').click(function(e) {
-
-                        var type_active_deactive  =  $(this).attr('type_ad');
-                        var SelectedIDs 		  =  getselectedIDs();
-                        var criteria_ac			  =  '';
-
-                        if($('#selectallbutton').is(':checked')){
-                            criteria_ac = 'criteria';
-                        }else{
-                            criteria_ac = 'selected';
-                        }
-
-                        if(SelectedIDs=='' || criteria_ac=='')
-                        {
-                            alert("Please Select Atleast One Dynamic Field.");
-                            return false;
-                        }
-
-                        if(type_active_deactive=='delete'){
-                            response = confirm('Are you sure?');
-                            if(!response){
-                                return false;
-                            }
-                            item_update_status_url =  '{{ URL::to('/dynamiclink/delete_bulk_dynamicfields')}}';
-                        }else{
-                            item_update_status_url =  '{{ URL::to('/dynamiclink/update_bulk_dynamicfields_status')}}';
-                        }
-                        $.ajax({
-                            url: item_update_status_url,
-                            type: 'POST',
-                            dataType: 'json',
-                            success: function(response) {
-                                if(response.status =='success'){
-                                    toastr.success(response.message, "Success", toastr_opts);
-                                    data_table.fnFilter('', 0);
-                                    $('#selectall').removeAttr('checked');
-                                    if(jQuery('#selectallbutton').is(':checked'))
-                                        $('#selectallbutton').click();
-                                }else{
-                                    toastr.error(response.message, "Error", toastr_opts);
-                                }
-                            },
-                            data: {
-                                "FieldName":$("#dynamicfield_filter [name='FieldName']").val(),
-                                "FieldDomType":$("#dynamicfield_filter [name='FieldDomType']").val(),
-                                "ItemTypeID":$("#dynamicfield_filter [name='ItemTypeID']").val(),
-                                "Active":$("#dynamicfield_filter [name='Active']").val(),
-                                "SelectedIDs":SelectedIDs,
-                                "criteria_ac":criteria_ac,
-                                "type_active_deactive":type_active_deactive,
-                            }
-
-                        });
-
-                    });
-
+                    
                     $("#dynamicfield_filter").submit(function(e){
                         e.preventDefault();
                         $searchFilter.Title = $("#dynamicfield_filter [name='Title']").val();
