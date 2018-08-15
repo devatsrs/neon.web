@@ -2521,7 +2521,7 @@ function getInvoicePayments($CompanyID){
 }
 
 function is_PayNowInvoice($CompanyID){
-    if(is_authorize($CompanyID) || is_Stripe($CompanyID) || is_StripeACH($CompanyID) || is_FideliPay($CompanyID)){
+    if(is_authorize($CompanyID) || is_Stripe($CompanyID) || is_StripeACH($CompanyID) || is_FideliPay($CompanyID) || is_pelecard($CompanyID)){
         return true;
     }
     return false;
