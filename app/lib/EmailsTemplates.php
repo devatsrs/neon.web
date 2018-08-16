@@ -103,6 +103,8 @@ class EmailsTemplates{
 				
 			
 
+			$replace_array=template_decimal_var_replace($replace_array, $companyID);
+
 			$extraSpecific = [
 				'{{InvoiceNumber}}',
 				'{{InvoiceGrandTotal}}',
@@ -170,7 +172,8 @@ class EmailsTemplates{
 			$replace_array['EstimateGrandTotal']	=	 number_format($EstimateData->GrandTotal,$RoundChargesAmount);
 			$replace_array['Comment']				=	 isset($data['Comment'])?$data['Comment']:EmailsTemplates::GetEstimateComments($EstimateID);
 			
-				 
+			$replace_array	=	template_decimal_var_replace($replace_array, $EstimateData->CompanyID);
+
 			$extraSpecific = [
 				'{{EstimateNumber}}',
 				'{{EstimateGrandTotal}}',				
@@ -210,7 +213,7 @@ class EmailsTemplates{
 					$EmailMessage						=	 $EmailTemplate->TemplateBody;
 				}
 				$replace_array['CompanyName']			=	 Company::getName($Cronjob->CompanyID);				
-				
+				$replace_array							=	 template_decimal_var_replace($replace_array, $Cronjob->CompanyID);
 				$extra = [
 					'{{KillCommand}}',
 					'{{ReturnStatus}}',
@@ -247,7 +250,7 @@ class EmailsTemplates{
 				}else{
 					$EmailMessage						=	 $EmailTemplate->TemplateBody;
 				}
-				
+				$replace_array							=	 template_decimal_var_replace($replace_array);
 				$extra = [
 					'{{FirstName}}',
 					'{{LastName}}',
@@ -303,11 +306,13 @@ class EmailsTemplates{
         $replace_array = $data;
         if(isset($data['CompanyID'])){
             $replace_array							=	EmailsTemplates::setCompanyFields($replace_array,$data['CompanyID']);
+			$companyID								=	$data['CompanyID'];
         }
         if(isset($data['AccountID'])){
             $replace_array 							=	EmailsTemplates::setAccountFields($replace_array,$data['AccountID']);
+			$companyID								=	User::get_companyID();
         }
-
+		$replace_array								=	template_decimal_var_replace($replace_array, $companyID);
         $fields	=	EmailsTemplates::$fields;
 
         foreach($fields as $item){
