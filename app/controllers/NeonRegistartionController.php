@@ -630,7 +630,7 @@ class NeonRegistartionController extends \BaseController {
 
             $AccountInvoice = Invoice::where(['CompanyID'=>$CompanyID,'AccountID'=>$AccountID])->first();
             log::info('New Account Invoice');
-            log::info(print_r($AccountInvoice,true));
+            //log::info(print_r($AccountInvoice,true));
             if(!empty($AccountInvoice)){
                 $GrandTotal = $AccountInvoice->GrandTotal;
                 $InvoiceID = $AccountInvoice->InvoiceID;
@@ -673,6 +673,31 @@ class NeonRegistartionController extends \BaseController {
                     DB::table('tblRegistarionApiLog')->where('RegistarionApiLogID', $RegistarionApiLogID)->update($RegistarionApiLogUpdate);
                 }
             }else{
+                /** Payment Add Start */
+                $paymentdata = array();
+                $paymentdata['CompanyID'] = $CompanyID;
+                $paymentdata['AccountID'] = $AccountID;
+                $paymentdata['InvoiceNo'] = '';
+                $paymentdata['InvoiceID'] = 0;
+                $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
+                $paymentdata['PaymentMethod'] = $PaymentResponse['PaymentMethod'];
+                $paymentdata['CurrencyID'] = $account->CurrencyId;
+                $paymentdata['PaymentType'] = 'Payment In';
+                $paymentdata['Notes'] = $PaymentResponse['transaction_notes'];
+                if($topup>0){
+                    $paymentdata['Amount'] = floatval($PaymentResponse['Amount'] - $topup);
+                }else{
+                    $paymentdata['Amount'] = floatval($PaymentResponse['Amount']);
+                }
+
+                $paymentdata['Status'] = 'Approved';
+                $paymentdata['CreatedBy'] = $UserName.'(API)';
+                $paymentdata['ModifyBy'] = $UserName;
+                $paymentdata['created_at'] = date('Y-m-d H:i:s');
+                $paymentdata['updated_at'] = date('Y-m-d H:i:s');
+                Payment::insert($paymentdata);
+                /** Payment Add End */
+
                 Log::info($AccountID.' Invoice was not generated');
             }
             log::info('Invoice Paid And Payment End');
