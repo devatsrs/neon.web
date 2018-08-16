@@ -258,7 +258,7 @@ class NeonRegistartionController extends \BaseController {
             $dataAccount['Status'] = 1;
             $dataAccount['CompanyID'] = $CompanyID;
             $dataAccount['CurrencyId'] = $PersonalData['currencyId'];
-            $dataAccount['LanguageID'] = 43;
+            $dataAccount['LanguageID'] = empty($PersonalData['languageId']) ? Translation::$default_lang_id : $PersonalData['languageId'];
             $dataAccount['Number'] = Illuminate\Support\Str::slug($PersonalData['company']);
             $dataAccount['AccountName'] = $PersonalData['company'];
             $dataAccount['FirstName'] = empty($PersonalData['first_name']) ? '' : $PersonalData['first_name'];
@@ -281,7 +281,7 @@ class NeonRegistartionController extends \BaseController {
             }
             $dataAccount['Country']  = $Country; // change iso3 to title
             $dataAccount['Mobile']   = empty($PersonalData['contact']) ? '' : $PersonalData['contact'];
-            //$dataAccount['Phone']    = $PersonalData['alt_contact'];
+            $dataAccount['Phone']    = empty($PersonalData['contact']) ? '' : $PersonalData['contact'];
             $dataAccount['VatNumber']= empty($PersonalData['vat']) ? '' : $PersonalData['vat'];
             Log::info(print_r($dataAccount,true));
             $account = Account::create($dataAccount);
@@ -598,7 +598,7 @@ class NeonRegistartionController extends \BaseController {
                 $paymentdata['PaymentMethod'] = $PaymentResponse['PaymentMethod'];
                 $paymentdata['CurrencyID'] = $account->CurrencyId;
                 $paymentdata['PaymentType'] = 'Payment In';
-                $paymentdata['Notes'] = 'API TopUp';
+                $paymentdata['Notes'] = 'TopUp';
                 $paymentdata['Amount'] = floatval($topup);
                 $paymentdata['Status'] = 'Approved';
                 $paymentdata['CreatedBy'] = $UserName.'(API)';
@@ -1002,7 +1002,7 @@ class NeonRegistartionController extends \BaseController {
                 $paymentdata['PaymentMethod'] = $PaymentResponse['PaymentMethod'];
                 $paymentdata['CurrencyID'] = $account->CurrencyId;
                 $paymentdata['PaymentType'] = 'Payment In';
-                $paymentdata['Notes'] = 'API TopUp';
+                $paymentdata['Notes'] = 'TopUp';
                 $paymentdata['Amount'] = floatval($topup);
                 $paymentdata['Status'] = 'Approved';
                 $paymentdata['CreatedBy'] = $UserName.'(API)';
