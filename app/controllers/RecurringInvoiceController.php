@@ -234,8 +234,8 @@ class RecurringInvoiceController extends \BaseController {
 					}
 				}
 				
-                $RecurringInvoiceTaxRates 	 = merge_tax($RecurringInvoiceTaxRates);
-				$RecurringInvoiceAllTaxRates = merge_tax($RecurringInvoiceAllTaxRates);
+                //$RecurringInvoiceTaxRates 	 = merge_tax($RecurringInvoiceTaxRates);
+				//$RecurringInvoiceAllTaxRates = merge_tax($RecurringInvoiceAllTaxRates);
 
                 $RecurringInvoiceLogData = array();
                 $RecurringInvoiceLogData['RecurringInvoiceID']= $RecurringInvoice->RecurringInvoiceID;
@@ -243,9 +243,9 @@ class RecurringInvoiceController extends \BaseController {
                 $RecurringInvoiceLogData['created_at']= date("Y-m-d H:i:s");
                 $RecurringInvoiceLogData['RecurringInvoiceLogStatus']= RecurringInvoiceLog::CREATED;
                 RecurringInvoiceLog::insert($RecurringInvoiceLogData);
-                if(!empty($RecurringInvoiceTaxRates)) { //product tax
+                /*if(!empty($RecurringInvoiceTaxRates)) { //product tax
                     DB::connection('sqlsrv2')->table('tblRecurringInvoiceTaxRate')->insert($RecurringInvoiceTaxRates);
-                }
+                }*/
 				
 				 if(!empty($RecurringInvoiceAllTaxRates)) { //RecurringInvoice tax
                     DB::connection('sqlsrv2')->table('tblRecurringInvoiceTaxRate')->insert($RecurringInvoiceAllTaxRates);
@@ -253,6 +253,11 @@ class RecurringInvoiceController extends \BaseController {
 
                 if (!empty($RecurringInvoiceDetailData) && RecurringInvoiceDetail::insert($RecurringInvoiceDetailData))
 				{
+                    $InvoiceTaxRates1=RecurringTaxRate::getRecurringInvoiceTaxRateByProductDetail($RecurringInvoice->RecurringInvoiceID);
+                    if(!empty($InvoiceTaxRates1)) { //Invoice tax
+                        RecurringTaxRate::insert($InvoiceTaxRates1);
+                    }
+
                     DB::connection('sqlsrv2')->commit();
                     return Response::json(array("status" => "success", "message" => "Recurring Profile Successfully Created",'LastID'=>$RecurringInvoice->RecurringInvoiceID,'redirect' => URL::to('/recurringprofiles/'.$RecurringInvoice->RecurringInvoiceID.'/edit')));
                 }
@@ -412,8 +417,8 @@ class RecurringInvoiceController extends \BaseController {
 							}
 						}
 
-                        $RecurringInvoiceTaxRates 	 = merge_tax($RecurringInvoiceTaxRates);
-						$RecurringInvoiceAllTaxRates = merge_tax($RecurringInvoiceAllTaxRates);
+                        //$RecurringInvoiceTaxRates 	 = merge_tax($RecurringInvoiceTaxRates);
+						//$RecurringInvoiceAllTaxRates = merge_tax($RecurringInvoiceAllTaxRates);
 
                         $RecurringInvoiceLogData = array();
                         $RecurringInvoiceLogData['RecurringInvoiceID']= $RecurringInvoice->RecurringInvoiceID;
@@ -422,14 +427,18 @@ class RecurringInvoiceController extends \BaseController {
                         $RecurringInvoiceLogData['RecurringInvoiceLogStatus']= RecurringInvoiceLog::UPDATED;
                         RecurringInvoiceLog::insert($RecurringInvoiceLogData);
 
-                        if(!empty($RecurringInvoiceTaxRates)) {
+                        /*if(!empty($RecurringInvoiceTaxRates)) {
                             DB::connection('sqlsrv2')->table('tblRecurringInvoiceTaxRate')->insert($RecurringInvoiceTaxRates);
-                        }
+                        }*/
 
 						if(!empty($RecurringInvoiceAllTaxRates)) {
                             DB::connection('sqlsrv2')->table('tblRecurringInvoiceTaxRate')->insert($RecurringInvoiceAllTaxRates);
                         }
                         if (RecurringInvoiceDetail::insert($RecurringInvoiceDetailData)) {
+                            $InvoiceTaxRates1=RecurringTaxRate::getRecurringInvoiceTaxRateByProductDetail($RecurringInvoice->RecurringInvoiceID);
+                            if(!empty($InvoiceTaxRates1)) { //Invoice tax
+                                RecurringTaxRate::insert($InvoiceTaxRates1);
+                            }
                             DB::connection('sqlsrv2')->commit();
                             return Response::json(array("status" => "success", "message" => "Recurring Profile Successfully Updated", 'LastID' => $RecurringInvoice->RecurringInvoiceID));
                         }
