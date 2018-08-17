@@ -798,7 +798,7 @@ class CreditNotesController extends \BaseController {
     {
         $data = Input::all();
         if (isset($data['account_id']) && $data['account_id'] > 0 ) {
-            $fields =["CurrencyId","Address1","AccountID","Address2","Address3","City","PostCode","Country"];
+            $fields =["CurrencyId","Address1","AccountID","Address2","Address3","City","PostCode","Country", "CompanyId"];
             $Account = Account::where(["AccountID"=>$data['account_id']])->select($fields)->first();
             $Currency = Currency::getCurrencySymbol($Account->CurrencyId);
             $InvoiceTemplateID  = 	AccountBilling::getInvoiceTemplateID($Account->AccountID);
@@ -817,7 +817,8 @@ class CreditNotesController extends \BaseController {
             if(isset($InvoiceTemplateID) && $InvoiceTemplateID > 0) {
                 $message = $InvoiceTemplate->InvoiceTo;
                 $replace_array = Invoice::create_accountdetails($Account);
-                $text = Invoice::getInvoiceToByAccount($message,$replace_array);
+
+                $text = Invoice::getInvoiceToByAccount($message,$replace_array, $Account->CompanyId);
                 $CreditNotesToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
                 $Terms = $InvoiceTemplate->Terms;
                 $FooterTerm = $InvoiceTemplate->FooterTerm;
@@ -841,7 +842,7 @@ class CreditNotesController extends \BaseController {
 
         $data = Input::all();
         if ((isset($data['BillingClassID']) && $data['BillingClassID'] > 0 ) && (isset($data['account_id']) && $data['account_id'] > 0 ) ) {
-            $fields =["CurrencyId","Address1","AccountID","Address2","Address3","City","PostCode","Country"];
+            $fields =["CurrencyId","Address1","AccountID","Address2","Address3","City","PostCode","Country", "CompanyId"];
             $Account = Account::where(["AccountID"=>$data['account_id']])->select($fields)->first();
             $InvoiceTemplateID  = 	BillingClass::getInvoiceTemplateID($data['BillingClassID']);
             $Terms = $FooterTerm = $CreditNotesToAddress ='';
@@ -851,7 +852,7 @@ class CreditNotesController extends \BaseController {
             if(isset($InvoiceTemplateID) && $InvoiceTemplateID > 0) {
                 $message = $InvoiceTemplate->InvoiceTo;
                 $replace_array = Invoice::create_accountdetails($Account);
-                $text = Invoice::getInvoiceToByAccount($message,$replace_array);
+                $text = Invoice::getInvoiceToByAccount($message,$replace_array, $Account->CompanyId);
                 $CreditNotesToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
                 $Terms = $InvoiceTemplate->Terms;
                 $FooterTerm = $InvoiceTemplate->FooterTerm;
