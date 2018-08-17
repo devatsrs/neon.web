@@ -1,4 +1,4 @@
-/* DB:- NeonRMDev */
+/* USE NeonRMDev */
 
 /* Dynamic Links */
 
@@ -143,4 +143,36 @@ INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `Create
 INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('Dynamiclink.*', 'DynamiclinkController.*', 1, 'System', NULL, '2018-08-14 13:56:00.000', '2018-08-14 13:56:00.000', 1353);
 INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('Dynamiclink.index', 'DynamiclinkController.index', 1, 'System', NULL, '2018-08-14 13:56:00.000', '2018-08-14 13:56:00.000', 1352);
 
+
+
+
+/* Report for Tax Rate */
+
+
+/* For Taxrate Report */
+
+ALTER TABLE `tblInvoiceTaxRate`
+	ADD COLUMN `InvoiceDetailID` INT(11) NOT NULL DEFAULT '0' AFTER `InvoiceID`;
+	
+/* Remove unique key constraints in cols from indexes*/	
+
+ALTER TABLE `tblInvoiceTaxRate`
+ DROP INDEX `IX_InvoiceTaxRateUnique`,
+ ADD INDEX `IX_InvoiceTaxRateUnique` (`InvoiceID`, `TaxRateID`, `InvoiceTaxType`);
+ 
+ ALTER TABLE `tblInvoiceTaxRate`
+	DROP INDEX `IX_InvoiceTaxRateDetailIDUnique`; 
+
+ALTER TABLE `tblRecurringInvoiceTaxRate`
+	DROP INDEX `RecurringInvoiceTaxRateUnique`;
+	
+ALTER TABLE `tblRecurringInvoiceTaxRate`
+	ADD COLUMN `RecurringInvoiceDetailID` INT(11) NOT NULL DEFAULT '0' AFTER `RecurringInvoiceID`;
+
+ALTER TABLE `tblEstimateTaxRate`
+	DROP INDEX `IX_EstimateTaxRateUnique`;
+
+ALTER TABLE `tblEstimateTaxRate`
+	ADD COLUMN `EstimateDetailID` INT(11) NOT NULL DEFAULT '0' AFTER `EstimateID`;
+	
 
