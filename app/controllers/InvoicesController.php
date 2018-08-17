@@ -394,8 +394,8 @@ class InvoicesController extends \BaseController {
 					}
 				}
 				
-                $InvoiceTaxRates 	 = 	merge_tax($InvoiceTaxRates);
-				$InvoiceAllTaxRates  = 	merge_tax($InvoiceAllTaxRates);
+                /*$InvoiceTaxRates 	 = 	merge_tax($InvoiceTaxRates);
+				$InvoiceAllTaxRates  = 	merge_tax($InvoiceAllTaxRates);*/
 				
                 $invoiceloddata = array();
                 $invoiceloddata['InvoiceID']= $Invoice->InvoiceID;
@@ -403,14 +403,18 @@ class InvoicesController extends \BaseController {
                 $invoiceloddata['created_at']= date("Y-m-d H:i:s");
                 $invoiceloddata['InvoiceLogStatus']= InVoiceLog::CREATED;
                 InVoiceLog::insert($invoiceloddata);
-                if(!empty($InvoiceTaxRates)) { //product tax
+                /*if(!empty($InvoiceTaxRates)) { //product tax
                     InvoiceTaxRate::insert($InvoiceTaxRates);
-                }
+                }*/
 				
 				 if(!empty($InvoiceAllTaxRates)) { //Invoice tax
                     InvoiceTaxRate::insert($InvoiceAllTaxRates);
                 } 
-                if (!empty($InvoiceDetailData) && InvoiceDetail::insert($InvoiceDetailData)) { 
+                if (!empty($InvoiceDetailData) && InvoiceDetail::insert($InvoiceDetailData)) {
+                    $InvoiceTaxRates1=TaxRate::getInvoiceTaxRateByProductDetail($Invoice->InvoiceID);
+                    if(!empty($InvoiceTaxRates1)) { //Invoice tax
+                        InvoiceTaxRate::insert($InvoiceTaxRates1);
+                    }
                     $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID); 
                     if (empty($pdf_path)) {
                         $error['message'] = 'Failed to generate Invoice PDF File';
@@ -602,18 +606,22 @@ class InvoicesController extends \BaseController {
                             }
 				        }
 						
-                        $InvoiceTaxRates 	  =     merge_tax($InvoiceTaxRates);
-						$InvoiceAllTaxRates   = 	merge_tax($InvoiceAllTaxRates);
+                        /*$InvoiceTaxRates 	  =     merge_tax($InvoiceTaxRates);
+						$InvoiceAllTaxRates   = 	merge_tax($InvoiceAllTaxRates);*/
 						
-                        if(!empty($InvoiceTaxRates)) { //product tax
+                        /*if(!empty($InvoiceTaxRates)) { //product tax
                             InvoiceTaxRate::insert($InvoiceTaxRates);
-                        }
+                        }*/
 						
 						 if(!empty($InvoiceAllTaxRates)) { //Invoice tax
                  		   InvoiceTaxRate::insert($InvoiceAllTaxRates);
                          }
 						
                         if (!empty($InvoiceDetailData) && InvoiceDetail::insert($InvoiceDetailData)) {
+                            $InvoiceTaxRates1=TaxRate::getInvoiceTaxRateByProductDetail($Invoice->InvoiceID);
+                            if(!empty($InvoiceTaxRates1)) { //Invoice tax
+                                InvoiceTaxRate::insert($InvoiceTaxRates1);
+                            }
                             $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID);
                             if (empty($pdf_path)) {
                                 $error['message'] = 'Failed to generate Invoice PDF File';
