@@ -700,7 +700,7 @@ class RecurringInvoiceController extends \BaseController {
                 $Account = Account::find($data['AccountID']);
                 $message = $InvoiceTemplate->InvoiceTo;
                 $replace_array = Invoice::create_accountdetails($Account);
-                $text = Invoice::getInvoiceToByAccount($message,$replace_array, $Account->CompanyId);
+                $text = Invoice::getInvoiceToByAccount($message,$replace_array);
                 $InvoiceToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
             }
             $return = ['Terms','FooterTerm','TaxRate','InvoiceToAddress'];
