@@ -251,6 +251,7 @@ class CreditNotes extends \Eloquent {
 
 
     public static function getInvoiceToByAccount($Message,$replace_array){
+        $replace_array  =   template_decimal_var_replace($replace_array);
         $extra = [
             '{AccountName}',
             '{FirstName}',

@@ -72,6 +72,8 @@ class TicketEmails{
     }	
 	
 	function template_var_replace($EmailMessage,$replace_array){
+		$replace_array	=	template_decimal_var_replace($replace_array);
+
 		$extra = [
 			'{{Subject}}',
 			'{{TicketID}}',

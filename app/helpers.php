@@ -2521,7 +2521,7 @@ function getInvoicePayments($CompanyID){
 }
 
 function is_PayNowInvoice($CompanyID){
-    if(is_authorize($CompanyID) || is_Stripe($CompanyID) || is_StripeACH($CompanyID) || is_FideliPay($CompanyID)){
+    if(is_authorize($CompanyID) || is_Stripe($CompanyID) || is_StripeACH($CompanyID) || is_FideliPay($CompanyID) || is_pelecard($CompanyID)){
         return true;
     }
     return false;
@@ -3008,4 +3008,19 @@ function getLanguageValue($val){
         $name=cus_lang($key);
     }
     return $name;
+}
+
+function template_decimal_var_replace($replace_array, $CompanyID=0){
+
+    $RoundChargesAmount = Invoice::get_round_decimal_places($CompanyID);
+
+    foreach($replace_array as $key=>$value){
+        if(is_numeric($value)) {
+            $value=number_format($value, $RoundChargesAmount);
+            if($value){
+                $replace_array[$key] = $value;
+            }
+        }
+    }
+    return $replace_array;
 }
