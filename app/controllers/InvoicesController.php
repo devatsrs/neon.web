@@ -902,7 +902,7 @@ class InvoicesController extends \BaseController {
     {
         $data = Input::all();
         if (isset($data['account_id']) && $data['account_id'] > 0 ) {
-            $fields =["CurrencyId","Address1","AccountID","Address2","Address3","City","PostCode","Country", 'CompanyId'];
+            $fields =["CurrencyId","Address1","AccountID","Address2","Address3","City","PostCode","Country"];
             $Account = Account::where(["AccountID"=>$data['account_id']])->select($fields)->first();
             $Currency = Currency::getCurrencySymbol($Account->CurrencyId);
             $InvoiceTemplateID  = 	AccountBilling::getInvoiceTemplateID($Account->AccountID);
@@ -921,7 +921,7 @@ class InvoicesController extends \BaseController {
 				if(isset($InvoiceTemplateID) && $InvoiceTemplateID > 0) {
                 	$message = $InvoiceTemplate->InvoiceTo;
                 	$replace_array = Invoice::create_accountdetails($Account);
-	                $text = Invoice::getInvoiceToByAccount($message,$replace_array, $Account->CompanyId);
+	                $text = Invoice::getInvoiceToByAccount($message,$replace_array);
     	            $InvoiceToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
 				    $Terms = $InvoiceTemplate->Terms;
     	            $FooterTerm = $InvoiceTemplate->FooterTerm;
@@ -945,7 +945,7 @@ class InvoicesController extends \BaseController {
 		
         $data = Input::all();
         if ((isset($data['BillingClassID']) && $data['BillingClassID'] > 0 ) && (isset($data['account_id']) && $data['account_id'] > 0 ) ) {
-            $fields =["CurrencyId","Address1","AccountID","Address2","Address3","City","PostCode","Country","CompanyId"];
+            $fields =["CurrencyId","Address1","AccountID","Address2","Address3","City","PostCode","Country"];
             $Account = Account::where(["AccountID"=>$data['account_id']])->select($fields)->first();
             $InvoiceTemplateID  = 	BillingClass::getInvoiceTemplateID($data['BillingClassID']);
             $Terms = $FooterTerm = $InvoiceToAddress ='';						
@@ -955,7 +955,7 @@ class InvoicesController extends \BaseController {
 			if(isset($InvoiceTemplateID) && $InvoiceTemplateID > 0) {
 				$message = $InvoiceTemplate->InvoiceTo;
 				$replace_array = Invoice::create_accountdetails($Account);
-				$text = Invoice::getInvoiceToByAccount($message,$replace_array, $Account->CompanyId);
+				$text = Invoice::getInvoiceToByAccount($message,$replace_array);
 				$InvoiceToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
 				$Terms = $InvoiceTemplate->Terms;
 				$FooterTerm = $InvoiceTemplate->FooterTerm;			
