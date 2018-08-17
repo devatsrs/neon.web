@@ -469,28 +469,30 @@ class NeonRegistartionController extends \BaseController {
             $did_datas = $Result['data_user']['did_data'];
             if(!empty($did_datas) && count($did_datas)>0){
                 foreach($did_datas as $did_data) {
-                    $Count = AccountService::where(['AccountID' => $AccountID, 'ServiceID' => $did_data['serviceId']])->count();
-                    if ($Count == 0) {
-                        $dataAccountService = array();
-                        $dataAccountService['AccountID'] = $AccountID;
-                        $dataAccountService['ServiceID'] = $did_data['serviceId'];
-                        $dataAccountService['CompanyID'] = $CompanyID;
-                        Log::info('New Service ID - DID ' . $did_data['serviceId']);
-                        AccountService::insert($dataAccountService);
-                    }
-                    if (!empty($did_data['subscriptionId'])) {
-                        $SubscriptionID = $did_data['subscriptionId'];
-                        $quantity = $did_data['quantity'];
-                        $SubscriptionData = array();
-                        $SubscriptionData['AccountID'] = $AccountID;
-                        $SubscriptionData['ServiceID'] = $did_data['serviceId'];
-                        $SubscriptionData['SubscriptionID'] = $SubscriptionID;
-                        $SubscriptionData['Qty'] = $quantity;
-                        $SubscriptionData['StartDate'] = date('Y-m-d');
-                        $SubscriptionData['CreatedBy'] = $UserName;
-                        log::info('DID Subscription ID ' . $did_data['subscriptionId']);
-                        log::info('DID Quantity ' . $quantity);
-                        $this->insertAccountSubscription($SubscriptionData);
+                    if(!empty($did_data['serviceId'])) {
+                        $Count = AccountService::where(['AccountID' => $AccountID, 'ServiceID' => $did_data['serviceId']])->count();
+                        if ($Count == 0) {
+                            $dataAccountService = array();
+                            $dataAccountService['AccountID'] = $AccountID;
+                            $dataAccountService['ServiceID'] = $did_data['serviceId'];
+                            $dataAccountService['CompanyID'] = $CompanyID;
+                            Log::info('New Service ID - DID ' . $did_data['serviceId']);
+                            AccountService::insert($dataAccountService);
+                        }
+                        if (!empty($did_data['subscriptionId'])) {
+                            $SubscriptionID = $did_data['subscriptionId'];
+                            $quantity = $did_data['quantity'];
+                            $SubscriptionData = array();
+                            $SubscriptionData['AccountID'] = $AccountID;
+                            $SubscriptionData['ServiceID'] = $did_data['serviceId'];
+                            $SubscriptionData['SubscriptionID'] = $SubscriptionID;
+                            $SubscriptionData['Qty'] = $quantity;
+                            $SubscriptionData['StartDate'] = date('Y-m-d');
+                            $SubscriptionData['CreatedBy'] = $UserName;
+                            log::info('DID Subscription ID ' . $did_data['subscriptionId']);
+                            log::info('DID Quantity ' . $quantity);
+                            $this->insertAccountSubscription($SubscriptionData);
+                        }
                     }
                 }
             }
@@ -898,28 +900,30 @@ class NeonRegistartionController extends \BaseController {
             $did_datas = $Result['data_user']['did_data'];
             if(!empty($did_datas) && count($did_datas)>0){
                 foreach($did_datas as $did_data) {
-                    $Count = AccountService::where(['AccountID' => $AccountID, 'ServiceID' => $did_data['serviceId']])->count();
-                    if ($Count == 0) {
-                        $dataAccountService = array();
-                        $dataAccountService['AccountID'] = $AccountID;
-                        $dataAccountService['ServiceID'] = $did_data['serviceId'];
-                        $dataAccountService['CompanyID'] = $CompanyID;
-                        Log::info('New Service ID - DID ' . $did_data['serviceId']);
-                        AccountService::insert($dataAccountService);
-                    }
-                    if (!empty($did_data['subscriptionId'])) {
-                        $SubscriptionID = $did_data['subscriptionId'];
-                        $quantity = $did_data['quantity'];
-                        $SubscriptionData = array();
-                        $SubscriptionData['AccountID'] = $AccountID;
-                        $SubscriptionData['ServiceID'] = $did_data['serviceId'];
-                        $SubscriptionData['SubscriptionID'] = $SubscriptionID;
-                        $SubscriptionData['Qty'] = $quantity;
-                        $SubscriptionData['StartDate'] = date('Y-m-d');
-                        $SubscriptionData['CreatedBy'] = $UserName;
-                        log::info('DID Subscription ID ' . $did_data['subscriptionId']);
-                        log::info('DID Quantity ' . $quantity);
-                        $this->insertAccountSubscription($SubscriptionData);
+                    if(!empty($did_data['serviceId'])) {
+                        $Count = AccountService::where(['AccountID' => $AccountID, 'ServiceID' => $did_data['serviceId']])->count();
+                        if ($Count == 0) {
+                            $dataAccountService = array();
+                            $dataAccountService['AccountID'] = $AccountID;
+                            $dataAccountService['ServiceID'] = $did_data['serviceId'];
+                            $dataAccountService['CompanyID'] = $CompanyID;
+                            Log::info('New Service ID - DID ' . $did_data['serviceId']);
+                            AccountService::insert($dataAccountService);
+                        }
+                        if (!empty($did_data['subscriptionId'])) {
+                            $SubscriptionID = $did_data['subscriptionId'];
+                            $quantity = $did_data['quantity'];
+                            $SubscriptionData = array();
+                            $SubscriptionData['AccountID'] = $AccountID;
+                            $SubscriptionData['ServiceID'] = $did_data['serviceId'];
+                            $SubscriptionData['SubscriptionID'] = $SubscriptionID;
+                            $SubscriptionData['Qty'] = $quantity;
+                            $SubscriptionData['StartDate'] = date('Y-m-d');
+                            $SubscriptionData['CreatedBy'] = $UserName;
+                            log::info('DID Subscription ID ' . $did_data['subscriptionId']);
+                            log::info('DID Quantity ' . $quantity);
+                            $this->insertAccountSubscription($SubscriptionData);
+                        }
                     }
                 }
             }
