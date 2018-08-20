@@ -3009,18 +3009,3 @@ function getLanguageValue($val){
     }
     return $name;
 }
-
-function template_decimal_var_replace($replace_array, $CompanyID=0){
-
-    $RoundChargesAmount = Invoice::get_round_decimal_places($CompanyID);
-
-    foreach($replace_array as $key=>$value){
-        if(is_numeric($value)) {
-            $value=number_format($value, $RoundChargesAmount);
-            if($value){
-                $replace_array[$key] = $value;
-            }
-        }
-    }
-    return $replace_array;
-}
