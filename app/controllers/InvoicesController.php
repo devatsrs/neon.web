@@ -2057,14 +2057,14 @@ class InvoicesController extends \BaseController {
         $PaymentResponse =array();
         if(isset($data["Success"])){
             $PaymentResponse['PaymentMethod'] = $data["PaymentMethod"];
-            $PaymentResponse['transaction_notes'] = $data["Transaction"];
+            $PaymentResponse['transaction_notes'] = 'PayPal transaction_id '.$data["Transaction"];
             $PaymentResponse['Amount'] = floatval($data["Amount"]);
             $PaymentResponse['Transaction'] = $data["Transaction"];
             $PaymentResponse['Response'] = $data["PaymentGatewayResponse"];
             $PaymentResponse['status'] = 'success';
         }elseif(!empty($data['tx'])){
             $PaymentResponse['PaymentMethod'] = 'Paypal';
-            $PaymentResponse['transaction_notes'] = $data['tx'];
+            $PaymentResponse['transaction_notes'] = 'PayPal transaction_id '.$data['tx'];
             $PaymentResponse['Amount'] = floatval($data["amt"]);
             $PaymentResponse['Transaction'] = $data["tx"];
             $PaymentResponse['Response'] = '';
@@ -2095,7 +2095,7 @@ class InvoicesController extends \BaseController {
         log::info('R LogID '.$RegistarionApiLogID);
         $RegistarionApiLogUpdate = array();
         if(!empty($RegistarionApiLogID)){
-            $RegistarionApiLogUpdate['PaymentAmount'] = empty($PaymentResponse['Amount']) ? 0 : '';
+            $RegistarionApiLogUpdate['PaymentAmount'] = empty($PaymentResponse['Amount']) ? 0 : $PaymentResponse['Amount'];
             $RegistarionApiLogUpdate['PaymentResponse'] = json_encode($PaymentResponse);
             $RegistarionApiLogUpdate['PaymentStatus'] = 'success';
             DB::table('tblRegistarionApiLog')->where('RegistarionApiLogID', $RegistarionApiLogID)->update($RegistarionApiLogUpdate);
