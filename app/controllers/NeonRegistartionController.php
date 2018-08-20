@@ -378,7 +378,11 @@ class NeonRegistartionController extends \BaseController {
 
             log::info('Create hosted_centrex Start');
 
-            $CentrexService = $Result['data_widget']['hosted_centrex'][0];
+            if(isset($Result['data_widget']['hosted_centrex'][0])){
+                $CentrexService = $Result['data_widget']['hosted_centrex'][0];
+            }else{
+                $CentrexService = array();
+            }
 
             if(!empty($CentrexService['service'])) {
 
@@ -466,7 +470,11 @@ class NeonRegistartionController extends \BaseController {
 
             log::info('Create DID Start');
 
-            $did_datas = $Result['data_user']['did_data'];
+            if(isset($Result['data_user']['did_data'])){
+                $did_datas = $Result['data_user']['did_data'];
+            }else{
+                $did_datas = array();
+            }
             if(!empty($did_datas) && count($did_datas)>0){
                 foreach($did_datas as $did_data) {
                     if(!empty($did_data['serviceId'])) {
@@ -504,8 +512,12 @@ class NeonRegistartionController extends \BaseController {
             /** Create SipTrunk */
 
             log::info('Create SipTrunk Start');
+            if(isset($Result['data_widget']['siptrunk'][0])){
+                $SipTrunk = $Result['data_widget']['siptrunk'][0];
+            }else{
+                $SipTrunk = array();
+            }
 
-            $SipTrunk = $Result['data_widget']['siptrunk'][0];
             $SipTrunkServiceID=0;
             if(!empty($SipTrunk) && !empty($SipTrunk['service'])){
                 $SipTrunkServiceID = $SipTrunk['service'];
@@ -564,7 +576,11 @@ class NeonRegistartionController extends \BaseController {
                     }
                 }
             }
-            $siptrunk_data = $Result['data_user']['siptrunk_data'];
+            if(isset($Result['data_user']['siptrunk_data'])){
+                $siptrunk_data = $Result['data_user']['siptrunk_data'];
+            }else{
+                $siptrunk_data = array();
+            }
             if(!empty($siptrunk_data) && !empty($siptrunk_data['subscriptionId'])){
                 if($SipTrunkServiceID>0){
                     $SubscriptionID = $siptrunk_data['subscriptionId'];
@@ -803,7 +819,11 @@ class NeonRegistartionController extends \BaseController {
 
             log::info('Create hosted_centrex Start');
 
-            $CentrexService = $Result['data_widget']['hosted_centrex'][0];
+            if(isset($Result['data_widget']['hosted_centrex'][0])){
+                $CentrexService = $Result['data_widget']['hosted_centrex'][0];
+            }else{
+                $CentrexService = array();
+            }
 
             if(!empty($CentrexService['service'])){
                 $CentrexServiceID = $CentrexService['service'];
@@ -873,7 +893,11 @@ class NeonRegistartionController extends \BaseController {
 
                 }
 
-                $ext_data = $Result['data_user']['ext_data'];
+                if(isset($Result['data_user']['ext_data'])){
+                    $ext_data = $Result['data_user']['ext_data'];
+                }else{
+                    $ext_data = array();
+                }
                 if(!empty($ext_data) && !empty($ext_data['subscriptionId'])){
                     $SubscriptionID = $ext_data['subscriptionId'];
                     $quantity = $ext_data['quantity'];
@@ -897,7 +921,11 @@ class NeonRegistartionController extends \BaseController {
 
             log::info('Create DID Start');
 
-            $did_datas = $Result['data_user']['did_data'];
+            if(isset($Result['data_user']['did_data'])){
+                $did_datas = $Result['data_user']['did_data'];
+            }else{
+                $did_datas = array();
+            }
             if(!empty($did_datas) && count($did_datas)>0){
                 foreach($did_datas as $did_data) {
                     if(!empty($did_data['serviceId'])) {
@@ -936,7 +964,11 @@ class NeonRegistartionController extends \BaseController {
 
             log::info('Create SipTrunk Start');
 
-            $SipTrunk = $Result['data_widget']['siptrunk'][0];
+            if(isset($Result['data_widget']['siptrunk'][0])){
+                $SipTrunk = $Result['data_widget']['siptrunk'][0];
+            }else{
+                $SipTrunk = array();
+            }
             $SipTrunkServiceID=0;
             if(!empty($SipTrunk) && !empty($SipTrunk['service'])){
                 $SipTrunkServiceID = $SipTrunk['service'];
@@ -995,7 +1027,12 @@ class NeonRegistartionController extends \BaseController {
                     }
                 }
             }
-            $siptrunk_data = $Result['data_user']['siptrunk_data'];
+
+            if(isset($Result['data_user']['siptrunk_data'])){
+                $siptrunk_data = $Result['data_user']['siptrunk_data'];
+            }else{
+                $siptrunk_data = array();
+            }
             if(!empty($siptrunk_data) && !empty($siptrunk_data['subscriptionId'])){
                 if($SipTrunkServiceID>0){
                     $SubscriptionID = $siptrunk_data['subscriptionId'];
