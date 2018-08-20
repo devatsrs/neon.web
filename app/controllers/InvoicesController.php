@@ -2101,7 +2101,8 @@ class InvoicesController extends \BaseController {
             DB::table('tblRegistarionApiLog')->where('RegistarionApiLogID', $RegistarionApiLogID)->update($RegistarionApiLogUpdate);
         }
         //log::info(json_decode($data['data'],true));
-        $customdata = json_encode(json_decode($Alldata,true));
+        //$customdata = json_encode(json_decode($Alldata,true));
+        $customdata = json_encode($Alldata);
         //$customdata=$data['data'];
         return View::make('neonregistartion.api_invoice_creditcard_thanks', compact('data','customdata'));
     }
