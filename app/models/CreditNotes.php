@@ -11,11 +11,12 @@ class CreditNotes extends \Eloquent {
     const OPEN = 'open';
     const CLOSE = 'close';
     const ITEM_INVOICE =1;
-	const EMAILTEMPLATE 		= "InvoiceSingleSend";
+    const SEND 				= 	'send';
+	const EMAILTEMPLATE 		= "CreditNotesSingleSend";
 	
     //public static $invoice_status;
-    public static $invoice_type = array(''=>'Select' ,self::INVOICE_OUT => 'Invoice Sent',self::INVOICE_IN=>'Invoice Received','All'=>'Both');
-    public static $invoice_type_customer = array(''=>'Select' ,self::INVOICE_OUT => 'Invoice Received',self::INVOICE_IN=>'Invoice sent','All'=>'Both');
+    //public static $invoice_type = array(''=>'Select' ,self::INVOICE_OUT => 'Invoice Sent',self::INVOICE_IN=>'Invoice Received','All'=>'Both');
+    //public static $invoice_type_customer = array(''=>'Select' ,self::INVOICE_OUT => 'Invoice Received',self::INVOICE_IN=>'Invoice sent','All'=>'Both');
     public static $invoice_company_info = array(''=>'Select Company Info' ,'companyname' => 'Company Name','companyaddress'=>'Company Address','companyvatno'=>'Company Vat Number','companyemail'=>'Company Email');
     public static $invoice_account_info = array(''=>'Select Account Info' ,'{AccountName}' => 'Account Name',
                                             '{FirstName}'=>'First Name',
@@ -193,7 +194,7 @@ class CreditNotes extends \Eloquent {
     /**
      * not in use
     */
-    public static function getFullInvoiceNumber($Invoice,$AccountBilling){
+    public static function getFullCreditNotesNumber($Invoice,$AccountBilling){
         $InvoiceNumberPrefix = '';
         if(!empty($AccountBilling->InvoiceTemplateID)) {
             $InvoiceNumberPrefix = InvoiceTemplate::find($AccountBilling->InvoiceTemplateID)->InvoiceNumberPrefix;
