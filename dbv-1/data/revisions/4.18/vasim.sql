@@ -103,10 +103,14 @@ INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created
 UPDATE tblGatewayConfig SET Name='dbpassword' WHERE GatewayID=15 and Name='password';
 UPDATE tblGatewayConfig SET Name='dbusername' WHERE GatewayID=15 and Name='username';
 
+ALTER TABLE `tblJobType`
+	ALTER `Code` DROP DEFAULT;
+ALTER TABLE `tblJobType`
+	CHANGE COLUMN `Code` `Code` VARCHAR(4) NOT NULL COLLATE 'utf8_unicode_ci' AFTER `JobTypeID`;
 
-INSERT INTO `tblJobType` (`JobTypeID`, `Code`, `Title`, `Description`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`) VALUES (30, 'SRP', 'Sippy Rate Push', NULL, '2018-07-27 18:20:26', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblJobType` (`JobTypeID`, `Code`, `Title`, `Description`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`) VALUES (30, 'SCRP', 'Sippy Customer Rate Push', NULL, '2018-07-27 18:20:26', 'RateManagementSystem', NULL, NULL);
 
-INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (NULL, 6, 'Sippy Rate File Status', 'sippyratefilestatus', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2018-08-01 15:11:06', 'RateManagementSystem');
+INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, NULL, 'Sippy Rate File Status', 'sippyratefilestatus', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2018-08-01 15:11:06', 'RateManagementSystem');
 
 
 

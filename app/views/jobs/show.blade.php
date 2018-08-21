@@ -182,6 +182,26 @@
                 </div>
             </div>
         @endif
+
+        @if(isset($Options->token))
+            <div class="form-group">
+                <label class="control-label  bold">Job Details</label>
+                <div>
+                    @if(isset($Options->token))
+                        Token   - {{$Options->token}} <br/>
+                    @endif
+                    @if(isset($Options->url))
+                        URL     - {{$Options->url}} <br/>
+                    @endif
+                    @if(isset($Options->status))
+                        Status  - {{$Options->status}} <br/>
+                    @endif
+                    @if(isset($Options->CompanyGatewayID))
+                        Gateway - {{CompanyGateway::getCompanyGatewayName($Options->CompanyGatewayID)}} <br/>
+                    @endif
+                </div>
+            </div>
+        @endif
 <div class="row">
     <div class="col-md-12">
         <div class="form-group">
