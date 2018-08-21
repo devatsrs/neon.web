@@ -162,53 +162,20 @@
 
         <!-- Dynamic Links -->
         <?php
-        $getDynamicLinks=Dynamiclink::get();
+        $getDynamicLinks=Dynamiclink::getDynamicLinks();
         foreach($getDynamicLinks as $linkdata){
-            $name=$linkdata->Title;
-            $Link=$linkdata->Link;
-
-            $CM_data=array();
-            $reg=0;
-            $CM_data['CompanyID'] = Customer::get_companyID();
-            $CM_data['AccountID'] = Customer::get_accountID();
-            $CM_data['lang']=NeonCookie::getCookie('customer_language');
-            $Account=  Customer::where('AccountID',$CM_data['AccountID'])->first();
-            $CM_data['AccountNo']=$Account->Number;
-
-            $langs = Translation::get_language_labels('en');
-            $json_file = json_decode($langs->Translation, true);
-            $key=array_search($name,$json_file);
-            if(!empty($key)){
-                $name=cus_lang($key);
-            }
-
-            $Link= str_replace("{ACCOUNTID}",$CM_data['AccountID'],$Link);
-            if(strpos($Link,"{COMPANYID}")){
-                $reg=1;
-            }
-            $Link= str_replace("{COMPANYID}",$CM_data['CompanyID'],$Link);
-            $Link= str_replace("{LANGUAGE}",$CM_data['lang'],$Link);
-            $Link= str_replace("{ACCOUNTNUMBER}",$CM_data['AccountNo'],$Link);
-
-            $digits = 5;
-            $rand_no= rand(pow(10, $digits-1), pow(10, $digits)-1);
-            $hash=$rand_no.base64_encode(serialize($CM_data)).$rand_no;
-            if($reg==1){
-                $Link=$Link."&hash=".$hash;
-            }
-
-
         ?>
             <li>
-                <a href="{{$Link}}" target="_blank">
+                <a href="{{$linkdata['link']}}" target="_blank">
                     <i class="glyphicon glyphicon-link"></i>
-                    <span>{{$name}}</span>
+                    <span>{{$linkdata['name']}}</span>
                 </a>
             </li>
         <?php
         }
 
         ?>
+        <!-- End Dynamic Links -->
 
     </ul>
 

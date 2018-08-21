@@ -394,8 +394,8 @@ class InvoicesController extends \BaseController {
 					}
 				}
 				
-                $InvoiceTaxRates 	 = 	merge_tax($InvoiceTaxRates);
-				$InvoiceAllTaxRates  = 	merge_tax($InvoiceAllTaxRates);
+                /*$InvoiceTaxRates 	 = 	merge_tax($InvoiceTaxRates);
+				$InvoiceAllTaxRates  = 	merge_tax($InvoiceAllTaxRates);*/
 				
                 $invoiceloddata = array();
                 $invoiceloddata['InvoiceID']= $Invoice->InvoiceID;
@@ -403,14 +403,18 @@ class InvoicesController extends \BaseController {
                 $invoiceloddata['created_at']= date("Y-m-d H:i:s");
                 $invoiceloddata['InvoiceLogStatus']= InVoiceLog::CREATED;
                 InVoiceLog::insert($invoiceloddata);
-                if(!empty($InvoiceTaxRates)) { //product tax
+                /*if(!empty($InvoiceTaxRates)) { //product tax
                     InvoiceTaxRate::insert($InvoiceTaxRates);
-                }
+                }*/
 				
 				 if(!empty($InvoiceAllTaxRates)) { //Invoice tax
                     InvoiceTaxRate::insert($InvoiceAllTaxRates);
                 } 
-                if (!empty($InvoiceDetailData) && InvoiceDetail::insert($InvoiceDetailData)) { 
+                if (!empty($InvoiceDetailData) && InvoiceDetail::insert($InvoiceDetailData)) {
+                    $InvoiceTaxRates1=TaxRate::getInvoiceTaxRateByProductDetail($Invoice->InvoiceID);
+                    if(!empty($InvoiceTaxRates1)) { //Invoice tax
+                        InvoiceTaxRate::insert($InvoiceTaxRates1);
+                    }
                     $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID); 
                     if (empty($pdf_path)) {
                         $error['message'] = 'Failed to generate Invoice PDF File';
@@ -602,18 +606,22 @@ class InvoicesController extends \BaseController {
                             }
 				        }
 						
-                        $InvoiceTaxRates 	  =     merge_tax($InvoiceTaxRates);
-						$InvoiceAllTaxRates   = 	merge_tax($InvoiceAllTaxRates);
+                        /*$InvoiceTaxRates 	  =     merge_tax($InvoiceTaxRates);
+						$InvoiceAllTaxRates   = 	merge_tax($InvoiceAllTaxRates);*/
 						
-                        if(!empty($InvoiceTaxRates)) { //product tax
+                        /*if(!empty($InvoiceTaxRates)) { //product tax
                             InvoiceTaxRate::insert($InvoiceTaxRates);
-                        }
+                        }*/
 						
 						 if(!empty($InvoiceAllTaxRates)) { //Invoice tax
                  		   InvoiceTaxRate::insert($InvoiceAllTaxRates);
                          }
 						
                         if (!empty($InvoiceDetailData) && InvoiceDetail::insert($InvoiceDetailData)) {
+                            $InvoiceTaxRates1=TaxRate::getInvoiceTaxRateByProductDetail($Invoice->InvoiceID);
+                            if(!empty($InvoiceTaxRates1)) { //Invoice tax
+                                InvoiceTaxRate::insert($InvoiceTaxRates1);
+                            }
                             $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID);
                             if (empty($pdf_path)) {
                                 $error['message'] = 'Failed to generate Invoice PDF File';
@@ -2049,14 +2057,14 @@ class InvoicesController extends \BaseController {
         $PaymentResponse =array();
         if(isset($data["Success"])){
             $PaymentResponse['PaymentMethod'] = $data["PaymentMethod"];
-            $PaymentResponse['transaction_notes'] = $data["Transaction"];
+            $PaymentResponse['transaction_notes'] = 'PayPal transaction_id '.$data["Transaction"];
             $PaymentResponse['Amount'] = floatval($data["Amount"]);
             $PaymentResponse['Transaction'] = $data["Transaction"];
             $PaymentResponse['Response'] = $data["PaymentGatewayResponse"];
             $PaymentResponse['status'] = 'success';
         }elseif(!empty($data['tx'])){
             $PaymentResponse['PaymentMethod'] = 'Paypal';
-            $PaymentResponse['transaction_notes'] = $data['tx'];
+            $PaymentResponse['transaction_notes'] = 'PayPal transaction_id '.$data['tx'];
             $PaymentResponse['Amount'] = floatval($data["amt"]);
             $PaymentResponse['Transaction'] = $data["tx"];
             $PaymentResponse['Response'] = '';
@@ -2083,8 +2091,18 @@ class InvoicesController extends \BaseController {
 
         log::info(print_r($Alldata,true));
         log::info('api_invoice_thanks');
+        $RegistarionApiLogID = Session::get('RegistarionApiLogID');
+        log::info('R LogID '.$RegistarionApiLogID);
+        $RegistarionApiLogUpdate = array();
+        if(!empty($RegistarionApiLogID)){
+            $RegistarionApiLogUpdate['PaymentAmount'] = empty($PaymentResponse['Amount']) ? 0 : $PaymentResponse['Amount'];
+            $RegistarionApiLogUpdate['PaymentResponse'] = json_encode($PaymentResponse);
+            $RegistarionApiLogUpdate['PaymentStatus'] = 'success';
+            DB::table('tblRegistarionApiLog')->where('RegistarionApiLogID', $RegistarionApiLogID)->update($RegistarionApiLogUpdate);
+        }
         //log::info(json_decode($data['data'],true));
-        $customdata = json_encode(json_decode($Alldata,true));
+        //$customdata = json_encode(json_decode($Alldata,true));
+        $customdata = json_encode($Alldata);
         //$customdata=$data['data'];
         return View::make('neonregistartion.api_invoice_creditcard_thanks', compact('data','customdata'));
     }
