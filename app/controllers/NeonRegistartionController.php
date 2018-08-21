@@ -9,6 +9,8 @@ class NeonRegistartionController extends \BaseController {
      */
     public function index() {
         $data = Input::all();
+
+        $APILog=array();
         log::info('Data');
         log::info('API REQUEST URL '.$_SERVER['HTTP_REFERER']);
         Session::put('API_BACK_URL',$_SERVER['HTTP_REFERER']);
@@ -22,10 +24,16 @@ class NeonRegistartionController extends \BaseController {
         log::info('UserID '.$UserID);
         $CompanyID = User::where(["UserID"=>$UserID])->pluck('CompanyID');
         log::info('CompanyID '.$CompanyID);
-        $Personal_data = $API_Request['data_user']['personal_data'];
 
-        $AccountName = $Personal_data['company'];
-        $CurrencyID= $Personal_data['currencyId'];
+        if(!empty($API_Request['AccountID'])){
+            $AccountName = Account::where(["AccountID"=>$API_Request['AccountID']])->pluck('AccountName');
+            $CurrencyID = Account::where(["AccountID"=>$API_Request['AccountID']])->pluck('CurrencyId');
+        }else{
+            $Personal_data = $API_Request['data_user']['personal_data'];
+            $AccountName = $Personal_data['company'];
+            $CurrencyID= $Personal_data['currencyId'];
+        }
+
         $CurrencyCode = Currency::getCurrency($CurrencyID);
         $Payment_data = $API_Request['data_user']['payment_data'][0];
         $Payment_type = $Payment_data['payment_type'];
@@ -55,6 +63,20 @@ class NeonRegistartionController extends \BaseController {
         }
         $CustomData = $Result_Json;
 
+        $APILog['CompanyID']=$CompanyID;
+        $APILog['UserID']=$UserID;
+        $APILog['AccountName']=$AccountName;
+        $APILog['RequestUrl']=$_SERVER['HTTP_REFERER'];
+        $APILog['ApiJson']=$Result_Json;
+        $APILog['PaymentGateway']=$Payment_type;
+        $APILog['created_at']=date('Y-m-d H:i:s');
+        if(!empty($API_Request['AccountID'])){
+            $APILog['AccountID']=$API_Request['AccountID'];
+        }
+        $RegistarionApiLogID = DB::table('tblRegistarionApiLog')->insertGetId($APILog);
+        log::info('$LastLog ID '.$RegistarionApiLogID);
+        Session::put('RegistarionApiLogID', $RegistarionApiLogID);
+
 		return View::make('neonregistartion.api_invoice_payment', compact('data','Amount','PaymentGatewayID','PaymentGateway','paypal_button','CustomData','CompanyID'));
 
     }
@@ -72,279 +94,34 @@ class NeonRegistartionController extends \BaseController {
             $paymentdata = json_decode($NewData['PaymentResponse'],true);
             $apidata = json_decode($NewData['APIData'],true);
 
-            //log::info(count($NewData));
-            //log::info(print_r($paymentdata,true));
-            //log::info(print_r($apidata,true));
-            //$paymentdata = $NewData['PaymentResponse'];
-            //log::info(print_r($testdata,true));
-            //log::info(print_r($NewData,true));
-            //return Response::json(array("status" => "success", "message" => "Create Account Successfully"));
-            $Reseponse = $this->insertApiAccount($CompanyID,$paymentdata,$apidata);
+            if(!empty($apidata['AccountID'])){
+                log::info('Update API Account');
+                $AccountID = $apidata['AccountID'];
+                $Reseponse = $this->updateApiAccount($CompanyID,$AccountID,$paymentdata,$apidata);
+            }else{
+                log::info('Create API Account');
+                $Reseponse = $this->insertApiAccount($CompanyID,$paymentdata,$apidata);
+            }
+
+
+            log::info('Last Log ID '.Session::get('RegistarionApiLogID'));
             log::info('Account Creation Reseponse');
             log::info(print_r($Reseponse,true));
+
+            $RegistarionApiLogID = Session::get('RegistarionApiLogID');
+            $RegistarionApiLogUpdate = array();
+            if(!empty($RegistarionApiLogID)){
+                $RegistarionApiLogUpdate['NeonAccountStatus'] = $Reseponse['NeonStatus'];
+                $RegistarionApiLogUpdate['AccountID'] = $Reseponse['AccountID'];
+                $RegistarionApiLogUpdate['FinalApiResponse'] = json_encode($Reseponse);
+                DB::table('tblRegistarionApiLog')->where('RegistarionApiLogID', $RegistarionApiLogID)->update($RegistarionApiLogUpdate);
+            }
+
             return $Reseponse;
 
         }
 
         return Response::json(array("status" => "success", "message" => "Create Account Successfully"));
-    }
-
-    public function getJson(){
-     /*   $json='{
-   "data_widget":{
-      "widget":[
-         {
-            "id":"124",
-            "title":"Test 2",
-            "permalink":"Testing",
-            "currency":"3",
-            "customer_email":"9",
-            "backoffice_email":"",
-            "lang":"gb",
-            "created_by":"1",
-            "created_on":"2018-07-25 14:59:15",
-            "updated_by":"1",
-            "updated_on":"2018-07-25 14:59:15"
-         }
-      ],
-      "setting":[
-         {
-            "id":"58",
-            "widget_id":"124",
-            "billing_type":"2",
-            "billing_cycle":"monthly",
-            "billing_cycle_options":"",
-            "billing_class":"6",
-            "default_tenant_template":"51",
-            "inbound_discount_plan":"",
-            "outbound_discount_plan":"",
-            "created_by":"1",
-            "created_on":"2018-07-25 14:59:15",
-            "updated_by":"1",
-            "updated_on":"2018-07-25 14:59:15"
-         }
-      ],
-      "verification":[
-         {
-            "id":"57",
-            "widget_id":"124",
-            "alpha_char":"4324525423gyrhtebvfbrt",
-            "digits":"15",
-            "limit_ver_email":"10",
-            "supported_countries":"ARG,BEL,CAN",
-            "verification_email":"6",
-            "verification_type":"2",
-            "created_by":"1",
-            "created_on":"2018-07-25 14:59:15",
-            "updated_by":"1",
-            "updated_on":"2018-07-25 14:59:15"
-         }
-      ],
-      "hosted_centrex":[
-         {
-            "id":"71",
-            "widget_id":"124",
-            "service":"2",
-            "inbound_discount_plan":"7",
-            "outbound_discount_plan":"14",
-            "inbound_tariff":"168",
-            "out_bound_tariff":"167",
-            "created_by":"1",
-            "created_on":"2018-07-25 14:59:15",
-            "updated_by":"1",
-            "updated_on":"2018-07-25 14:59:15"
-         }
-      ],
-      "hosted_centrex_ext":[
-         {
-            "id":"80",
-            "widget_id":"124",
-            "min_range":"20",
-            "max_range":"45",
-            "extension_default":"97,107,173",
-            "created_by":"1",
-            "created_on":"2018-07-25 14:59:16",
-            "updated_by":"1",
-            "updated_on":"2018-07-25 14:59:16"
-         }
-      ],
-      "hosted_centrex_ext_subscription":[
-         {
-            "id":"75",
-            "hosted_centrex_ext_id":"80",
-            "min_qty":"1",
-            "max_qty":"23",
-            "setup_fee":"0",
-            "subscription":"11",
-            "yearly":"2400",
-            "monthly":"200",
-            "weekly":"50",
-            "daily":"7.14",
-            "created_by":"1",
-            "created_on":"2018-07-25 14:59:16",
-            "updated_by":"1",
-            "updated_on":"2018-07-25 14:59:16"
-         }
-      ],
-      "did":[
-         {
-            "id":"85",
-            "widget_id":"124",
-            "allow_buy_did":"Yes",
-            "allow_buy_magrathea":"No",
-            "allow_buy_voxbone":"No",
-            "allowed_countries":"ARG,AUT,BRA,CAN",
-            "created_by":"1",
-            "created_on":"2018-07-25 14:59:16",
-            "updated_by":"1",
-            "updated_on":"2018-07-25 14:59:16"
-         }
-      ],
-      "siptrunk":[
-         {
-            "id":"86",
-            "widget_id":"124",
-            "service":"2",
-            "inbound_disc_plan":"",
-            "outbound_disc_plan":"",
-            "inbound_tariff":"",
-            "outbound_tariff":"19",
-            "created_by":"1",
-            "created_on":"2018-07-25 14:59:16",
-            "updated_by":"1",
-            "updated_on":"2018-07-25 14:59:16"
-         }
-      ],
-      "siptrunk_subscription":[
-         {
-            "id":"94",
-            "siptrunk_id":"86",
-            "min_qty":"1",
-            "max_qty":"20",
-            "setup_fee":"1",
-            "subscription":"18",
-            "yearly":"1200",
-            "monthly":"100",
-            "weekly":"23.33",
-            "daily":"3.33",
-            "created_by":"1",
-            "created_on":"2018-07-25 14:59:16",
-            "updated_by":"1",
-            "updated_on":"2018-07-25 14:59:16"
-         }
-      ],
-      "payment":[
-         {
-            "id":"30",
-            "widget_id":"124",
-            "topup_enable":"Yes",
-            "mintopup_amount":"20",
-            "created_by":"1",
-            "created_on":"2018-07-25 14:59:17",
-            "updated_by":"1",
-            "updated_on":"2018-07-25 14:59:17"
-         }
-      ]
-   },
-   "data_user":{
-      "personal_data":{
-         "user_id":"subodhkant89@gmail.com",
-         "password":"12345678",
-         "confirm_password":"12345678",
-         "first_name":"Subodh",
-         "last_name":"Kant",
-         "contact":"08586023115",
-         "alt_contact":"08586023115",
-         "vat":"44444444444",
-         "company":"Subodh Kant",
-         "house":"H. No. 61, Gali No. - 3, East Laxmi Market",
-         "street":"H. No. 61, Gali No. - 3, East Laxmi Market",
-         "postal_code":"110092",
-         "city":"New Delhi",
-         "country":"BEL",
-         "currencyId":"3",
-         "languageId":"gb"
-      },
-      "ext_data":{
-         "hosted_centrex_data":[
-            {
-               "ext_number":"34",
-               "ext_name":"Name 1",
-               "ext_email":"abc@gmail.com"
-            },
-            {
-               "ext_number":"35",
-               "ext_name":"Name 2",
-               "ext_email":"abc2@gmail.com"
-            }
-         ],
-         "quantity":2,
-         "subscriptionId":"11"
-      },
-      "did_data":[
-         {
-            "did_no":"9",
-            "did_qty":"4",
-            "address1":"Address 1",
-            "address2":"Address 2",
-            "zip":"123456",
-            "countryCodeA3":"CAN",
-            "serviceId":"2",
-            "subscriptionId":"5",
-            "quantity":"4"
-         },
-         {
-            "did_no":"10",
-            "did_qty":"7",
-            "address1":"Address 3",
-            "address2":"Address 4",
-            "zip":"654321",
-            "countryCodeA3":"CAN",
-            "serviceId":"2",
-            "subscriptionId":"3",
-            "quantity":"7"
-         },
-         {
-            "did_no":"67",
-            "did_qty":"6",
-            "address1":"Address 5",
-            "address2":"Address 6",
-            "zip":"232323",
-            "countryCodeA3":"CAN",
-            "serviceId":"5",
-            "subscriptionId":"4",
-            "quantity":"6"
-         }
-      ],
-      "siptrunk_data":{
-         "quantity":"5",
-         "siptrunk_data":"5",
-         "subscriptionId":"18"
-      },
-      "topup_data":{
-         "amount":"200"
-      },
-      "payment_data":[
-         {
-            "payment_type":"AuthorizeNet",
-            "payment_amount":"120.00",
-            "card-number":"4111111111111111",
-            "card-name":"Subodh Kant",
-            "card-type":"Visa",
-            "card-cvv-number":"432",
-            "ExpirationMonth":"12",
-            "ExpirationYear":"2019",
-            "card-id":""
-         }
-      ],
-      "summary":{
-         "amount":"1323.50"
-      }
-   }
-}'; */
-        $json='{"data_widget":{"widget":[{"id":"124","title":"Test 2","permalink":"Testing","currency":"3","customer_email":"9","backoffice_email":"","lang":"gb","created_by":"1","created_on":"2018-07-25 14:59:15","updated_by":"1","updated_on":"2018-07-25 14:59:15"}],"setting":[{"id":"58","widget_id":"124","billing_type":"2","billing_cycle":"monthly","billing_cycle_options":"","billing_class":"6","default_tenant_template":"51","inbound_discount_plan":"","outbound_discount_plan":"","created_by":"1","created_on":"2018-07-25 14:59:15","updated_by":"1","updated_on":"2018-07-25 14:59:15"}],"verification":[{"id":"57","widget_id":"124","alpha_char":"4324525423gyrhtebvfbrt","digits":"15","limit_ver_email":"10","supported_countries":"ARG,BEL,CAN","verification_email":"6","verification_type":"2","created_by":"1","created_on":"2018-07-25 14:59:15","updated_by":"1","updated_on":"2018-07-25 14:59:15"}],"hosted_centrex":[{"id":"71","widget_id":"124","service":"2","inbound_discount_plan":"7","outbound_discount_plan":"14","inbound_tariff":"168","out_bound_tariff":"167","created_by":"1","created_on":"2018-07-25 14:59:15","updated_by":"1","updated_on":"2018-07-25 14:59:15"}],"hosted_centrex_ext":[{"id":"80","widget_id":"124","min_range":"20","max_range":"45","extension_default":"97,107,173","created_by":"1","created_on":"2018-07-25 14:59:16","updated_by":"1","updated_on":"2018-07-25 14:59:16"}],"hosted_centrex_ext_subscription":[{"id":"75","hosted_centrex_ext_id":"80","min_qty":"1","max_qty":"23","setup_fee":"0","subscription":"11","yearly":"2400","monthly":"200","weekly":"50","daily":"7.14","created_by":"1","created_on":"2018-07-25 14:59:16","updated_by":"1","updated_on":"2018-07-25 14:59:16"}],"did":[{"id":"85","widget_id":"124","allow_buy_did":"Yes","allow_buy_magrathea":"No","allow_buy_voxbone":"No","allowed_countries":"ARG,AUT,BRA,CAN","created_by":"1","created_on":"2018-07-25 14:59:16","updated_by":"1","updated_on":"2018-07-25 14:59:16"}],"siptrunk":[{"id":"86","widget_id":"124","service":"2","inbound_disc_plan":"","outbound_disc_plan":"","inbound_tariff":"","outbound_tariff":"19","created_by":"1","created_on":"2018-07-25 14:59:16","updated_by":"1","updated_on":"2018-07-25 14:59:16"}],"siptrunk_subscription":[{"id":"94","siptrunk_id":"86","min_qty":"1","max_qty":"20","setup_fee":"1","subscription":"18","yearly":"1200","monthly":"100","weekly":"23.33","daily":"3.33","created_by":"1","created_on":"2018-07-25 14:59:16","updated_by":"1","updated_on":"2018-07-25 14:59:16"}],"payment":[{"id":"30","widget_id":"124","topup_enable":"Yes","mintopup_amount":"20","created_by":"1","created_on":"2018-07-25 14:59:17","updated_by":"1","updated_on":"2018-07-25 14:59:17"}]},"data_user":{"personal_data":{"user_id":"subodhkant89@gmail.com","password":"12345678","confirm_password":"12345678","first_name":"Subodh","last_name":"Kant","contact":"08586023115","alt_contact":"08586023115","vat":"44444444444","company":"Subodh Kant","house":"H. No. 61, Gali No. - 3, East Laxmi Market","street":"H. No. 61, Gali No. - 3, East Laxmi Market","postal_code":"110092","city":"New Delhi","country":"BEL","currencyId":"3","languageId":"gb"},"ext_data":{"hosted_centrex_data":[{"ext_number":"34","ext_name":"Name 1","ext_email":"abc@gmail.com"},{"ext_number":"35","ext_name":"Name 2","ext_email":"abc2@gmail.com"}],"quantity":2,"subscriptionId":"11"},"did_data":[{"did_no":"9","did_qty":"4","address1":"Address 1","address2":"Address 2","zip":"123456","countryCodeA3":"CAN","serviceId":"2","subscriptionId":"5","quantity":"4"},{"did_no":"10","did_qty":"7","address1":"Address 3","address2":"Address 4","zip":"654321","countryCodeA3":"CAN","serviceId":"2","subscriptionId":"3","quantity":"7"},{"did_no":"67","did_qty":"6","address1":"Address 5","address2":"Address 6","zip":"232323","countryCodeA3":"CAN","serviceId":"5","subscriptionId":"4","quantity":"6"}],"siptrunk_data":{"quantity":"5","siptrunk_data":"5","subscriptionId":"18"},"topup_data":{"amount":"200"},"payment_data":[{"payment_type":"AuthorizeNet","payment_amount":"120.00","card-number":"4111111111111111","card-name":"Subodh Kant","card-type":"Visa","card-cvv-number":"432","ExpirationMonth":"12","ExpirationYear":"2019","card-id":""}],"summary":{"amount":"1323.50"}}}';
-        $json = json_decode($json, true);
-        return $json;
     }
 
     public function createpayment(){
@@ -365,21 +142,44 @@ class NeonRegistartionController extends \BaseController {
         $PaymentAllData['PeleCardID'] = empty($data['PeleCardID']) ? '' : $data['PeleCardID'];
         $PaymentAllData['GrandTotal'] = $data['Amount'];
         $PaymentAllData['InvoiceNumber'] = '';
-		$PersonalData = $CustomData['data_user']['personal_data'];
 
-        $PaymentAllData['CurrencyId'] = $PersonalData['currencyId'];
-        $PaymentAllData['AccountName'] = $PersonalData['company']; // merchantwarrior
-        if(!empty($PersonalData['Country'])) {
-            $Country = Country::where(['ISO3' => $PersonalData['Country']])->pluck('Country');
+
+        if(!empty($CustomData['AccountID'])){
+            $Account = Account::where('AccountID',$CustomData['AccountID'])->first();
+            $currencyId = $Account->CurrencyId;
+            $AccountName = $Account->AccountName;
+            $Country = empty($Account->Country) ? '' : $Account->Country;
+            $city = empty($Account->City) ? '' : $Account->City;
+            $Address1 = empty($Account->Address1) ? '' : $Account->Address1;
+            $PostCode = empty($Account->PostCode) ? '' : $Account->PostCode;
+            $Phone = empty($Account->Phone) ? '' : $Account->Phone;
+            $Email = empty($Account->BillingEmail) ? '' : $Account->BillingEmail;
+
         }else{
-            $Country='';
+            $PersonalData = $CustomData['data_user']['personal_data'];
+            $currencyId = $PersonalData['currencyId'];
+            $AccountName = $PersonalData['company'];
+            if(!empty($PersonalData['country'])) {
+                $Country = Country::where(['ISO3' => $PersonalData['country']])->pluck('Country');
+            }else{
+                $Country='';
+            }
+            $city = empty($PersonalData['city']) ? '' : $PersonalData['city'];
+            $Address1 = empty($PersonalData['house']) ? '' : $PersonalData['house']; // merchantwarrior
+            $PostCode = empty($PersonalData['postal_code']) ? '' : $PersonalData['postal_code']; // merchantwarrior
+            $Phone = empty($PersonalData['contact']) ? '' : $PersonalData['contact'];
+            $Email = empty($PersonalData['user_id']) ? '' : $PersonalData['user_id'];
         }
+
+
+        $PaymentAllData['CurrencyId'] = $currencyId;
+        $PaymentAllData['AccountName'] = $AccountName; // merchantwarrior
         $PaymentAllData['Country'] = $Country; // merchantwarrior // check
-        $PaymentAllData['City'] = $PersonalData['city']; //  merchantwarrior
-        $PaymentAllData['Address1'] = $PersonalData['house']; // merchantwarrior
-        $PaymentAllData['PostCode'] = $PersonalData['postal_code']; // merchantwarrior
-        $PaymentAllData['Phone'] = empty($PersonalData['contact']) ? '' : $PersonalData['contact'];
-        $PaymentAllData['Email'] = empty($PersonalData['user_id']) ? '' : $PersonalData['user_id'];
+        $PaymentAllData['City'] = $city; //  merchantwarrior
+        $PaymentAllData['Address1'] = $Address1; // merchantwarrior
+        $PaymentAllData['PostCode'] = $PostCode; // merchantwarrior
+        $PaymentAllData['Phone'] = $Phone;
+        $PaymentAllData['Email'] = $Email;
 
         log::info(print_r($PaymentAllData,true));
 
@@ -390,7 +190,7 @@ class NeonRegistartionController extends \BaseController {
         $PaymentResponse = $PaymentIntegration->paymentWithApiCreditCard($PaymentAllData);
         /**
          *Manual Response cheack
-         *
+         **
          $PaymentResponse=array();
          $PaymentResponse['PaymentMethod'] = 'CreditCard';
          $PaymentResponse['transaction_notes'] = 'AuthorizeNet transaction_id 60100337434 ';
@@ -400,12 +200,27 @@ class NeonRegistartionController extends \BaseController {
          $PaymentResponse['status'] = 'success';
          //$PaymentResponse['CustomData'] = $data['CustomData'];
          * */
+
         log::info('payment response');
         log::info(print_r($PaymentResponse,true));
         $Alldata = array();
         $Alldata['PaymentResponse'] = json_encode($PaymentResponse);
         $Alldata['APIData'] =  $data['CustomData'];
         //log::info(print_r($Alldata,true));
+
+        $RegistarionApiLogID = Session::get('RegistarionApiLogID');
+        log::info('R LogID '.$RegistarionApiLogID);
+        $RegistarionApiLogUpdate = array();
+        if(!empty($RegistarionApiLogID)){
+            $RegistarionApiLogUpdate['PaymentAmount'] = $data['Amount'];
+            $RegistarionApiLogUpdate['PaymentResponse'] = json_encode($PaymentResponse);
+            if($PaymentResponse['status']=='failed'){
+                $RegistarionApiLogUpdate['PaymentStatus'] = 'failed';
+            }else{
+                $RegistarionApiLogUpdate['PaymentStatus'] = 'success';
+            }
+            DB::table('tblRegistarionApiLog')->where('RegistarionApiLogID', $RegistarionApiLogID)->update($RegistarionApiLogUpdate);
+        }
 
         if($PaymentResponse['status']=='failed'){
             if(!empty($PaymentResponse['transaction_notes'])){
@@ -443,11 +258,11 @@ class NeonRegistartionController extends \BaseController {
             $dataAccount['Status'] = 1;
             $dataAccount['CompanyID'] = $CompanyID;
             $dataAccount['CurrencyId'] = $PersonalData['currencyId'];
-            $dataAccount['LanguageID'] = 43;
+            $dataAccount['LanguageID'] = empty($PersonalData['languageId']) ? Translation::$default_lang_id : $PersonalData['languageId'];
             $dataAccount['Number'] = Illuminate\Support\Str::slug($PersonalData['company']);
             $dataAccount['AccountName'] = $PersonalData['company'];
-            $dataAccount['FirstName'] = $PersonalData['first_name'];
-            $dataAccount['LastName'] = $PersonalData['last_name'];
+            $dataAccount['FirstName'] = empty($PersonalData['first_name']) ? '' : $PersonalData['first_name'];
+            $dataAccount['LastName'] = empty($PersonalData['last_name']) ? '' : $PersonalData['last_name'];
             $dataAccount['Email'] = $PersonalData['user_id'];
             $dataAccount['IsCustomer'] = 1;
             $dataAccount['BillingEmail']= $PersonalData['user_id'];
@@ -459,9 +274,14 @@ class NeonRegistartionController extends \BaseController {
             $dataAccount['Address2'] = empty($PersonalData['street']) ? '' : $PersonalData['street'];
             $dataAccount['City']     = empty($PersonalData['city']) ? '' : $PersonalData['city'];
             $dataAccount['PostCode'] = empty($PersonalData['postal_code']) ? '' : $PersonalData['postal_code'];
-            $dataAccount['Country']  = $PersonalData['country']; // change iso3 to title
+            if(!empty($PersonalData['country'])) {
+                $Country = Country::where(['ISO3' => $PersonalData['country']])->pluck('Country');
+            }else{
+                $Country='';
+            }
+            $dataAccount['Country']  = $Country; // change iso3 to title
             $dataAccount['Mobile']   = empty($PersonalData['contact']) ? '' : $PersonalData['contact'];
-            //$dataAccount['Phone']    = $PersonalData['alt_contact'];
+            $dataAccount['Phone']    = empty($PersonalData['contact']) ? '' : $PersonalData['contact'];
             $dataAccount['VatNumber']= empty($PersonalData['vat']) ? '' : $PersonalData['vat'];
             Log::info(print_r($dataAccount,true));
             $account = Account::create($dataAccount);
@@ -492,7 +312,7 @@ class NeonRegistartionController extends \BaseController {
             $dataAccountBilling['AutoPayMethod'] = empty($BillingClass->AutoPayMethod) ? 0 : $BillingClass->AutoPayMethod;
             //get from billing class id over
             $dataAccountBilling['BillingCycleType'] = $BillingSetting['billing_cycle'];
-            $dataAccountBilling['BillingCycleValue'] = $BillingSetting['billing_cycle_options'];
+            $dataAccountBilling['BillingCycleValue'] = empty($BillingSetting['billing_cycle_options']) ? '' : $BillingSetting['billing_cycle_options'];
             // set as first invoice generate
             $BillingCycleType = $BillingSetting['billing_cycle'];
             $BillingCycleValue = $BillingSetting['billing_cycle_options'];
@@ -525,6 +345,31 @@ class NeonRegistartionController extends \BaseController {
             //Account level billing period
             $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'),0);
 
+            /**Account Level Discount Plan Start*/
+
+            $main_inbound_discount_plan = empty($BillingSetting['inbound_discount_plan']) ? 0 : $BillingSetting['inbound_discount_plan'];
+            $main_outbound_discount_plan = empty($BillingSetting['outbound_discount_plan']) ? 0 : $BillingSetting['outbound_discount_plan'];
+
+            if (!empty($AccountPeriod)) {
+                $CentrexServiceID = 0;
+                $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
+                $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
+                $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
+                $AccountSubscriptionID = 0;
+                $AccountName = '';
+                $AccountCLI = '';
+                $SubscriptionDiscountPlanID = 0;
+                if ($main_inbound_discount_plan > 0) {
+                    AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $main_inbound_discount_plan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff, $CentrexServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
+                }
+                if ($main_outbound_discount_plan > 0) {
+                    AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $main_outbound_discount_plan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff, $CentrexServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
+                }
+
+            }
+
+            /**Account Level Discount Plan End*/
+
             log::info('Create Account Billing End');
 
             /**Create Account Billing End*/
@@ -533,81 +378,91 @@ class NeonRegistartionController extends \BaseController {
 
             log::info('Create hosted_centrex Start');
 
-            $CentrexService = $Result['data_widget']['hosted_centrex'][0];
+            if(isset($Result['data_widget']['hosted_centrex'][0])){
+                $CentrexService = $Result['data_widget']['hosted_centrex'][0];
+            }else{
+                $CentrexService = array();
+            }
 
-            $CentrexServiceID = $CentrexService['service'];
-            $inbound_discount_plan = empty($CentrexService['inbound_discount_plan']) ? 0 : $CentrexService['inbound_discount_plan'];
-            $outbound_discount_plan = empty($CentrexService['outbound_discount_plan']) ? 0 : $CentrexService['outbound_discount_plan'];
-            $inbound_tariff = empty($CentrexService['inbound_tariff']) ? 0 : $CentrexService['inbound_tariff'];
-            $out_bound_tariff = empty($CentrexService['out_bound_tariff']) ? 0 : $CentrexService['out_bound_tariff'];
+            if(!empty($CentrexService['service'])) {
 
-            Log::info(print_r($CentrexService,true));
+                $CentrexServiceID = $CentrexService['service'];
+                $inbound_discount_plan = empty($CentrexService['inbound_discount_plan']) ? 0 : $CentrexService['inbound_discount_plan'];
+                $outbound_discount_plan = empty($CentrexService['outbound_discount_plan']) ? 0 : $CentrexService['outbound_discount_plan'];
+                $inbound_tariff = empty($CentrexService['inbound_tariff']) ? 0 : $CentrexService['inbound_tariff'];
+                $out_bound_tariff = empty($CentrexService['out_bound_tariff']) ? 0 : $CentrexService['out_bound_tariff'];
 
-            $dataAccountService=array();
-            $dataAccountService['AccountID'] = $AccountID;
-            $dataAccountService['ServiceID'] = $CentrexServiceID;
-            $dataAccountService['CompanyID'] = $CompanyID;
+                Log::info(print_r($CentrexService, true));
 
-            Log::info(print_r($dataAccountService,true));
+                $dataAccountService = array();
+                $dataAccountService['AccountID'] = $AccountID;
+                $dataAccountService['ServiceID'] = $CentrexServiceID;
+                $dataAccountService['CompanyID'] = $CompanyID;
 
-            AccountService::insert($dataAccountService);
+                Log::info(print_r($dataAccountService, true));
 
-            if(!empty($AccountPeriod)) {
-                $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
-                $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
-                $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
-                $AccountSubscriptionID = 0;
-                $AccountName='';
-                $AccountCLI='';
-                $SubscriptionDiscountPlanID=0;
-                if($inbound_discount_plan >0){
-                    AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $inbound_discount_plan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$CentrexServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+                AccountService::insert($dataAccountService);
+
+                if (!empty($AccountPeriod)) {
+                    $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
+                    $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
+                    $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
+                    $AccountSubscriptionID = 0;
+                    $AccountName = '';
+                    $AccountCLI = '';
+                    $SubscriptionDiscountPlanID = 0;
+                    if ($inbound_discount_plan > 0) {
+                        AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $inbound_discount_plan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff, $CentrexServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
+                    }
+                    if ($outbound_discount_plan > 0) {
+                        AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $outbound_discount_plan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff, $CentrexServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
+                    }
+
                 }
-                if($outbound_discount_plan > 0){
-                    AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $outbound_discount_plan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$CentrexServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+
+                $date = date('Y-m-d H:i:s');
+                if ($inbound_tariff > 0) {
+                    $inbounddata = array();
+                    $inbounddata['CompanyID'] = $CompanyID;
+                    $inbounddata['AccountID'] = $AccountID;
+                    $inbounddata['ServiceID'] = $CentrexServiceID;
+                    $inbounddata['RateTableID'] = $inbound_tariff;
+                    $inbounddata['Type'] = AccountTariff::INBOUND;
+                    $inbounddata['created_at'] = $date;
+                    AccountTariff::create($inbounddata);
                 }
 
-            }
+                if ($out_bound_tariff > 0) {
+                    $outbounddata = array();
+                    $outbounddata['CompanyID'] = $CompanyID;
+                    $outbounddata['AccountID'] = $AccountID;
+                    $outbounddata['ServiceID'] = $CentrexServiceID;
+                    $outbounddata['RateTableID'] = $out_bound_tariff;
+                    $outbounddata['Type'] = AccountTariff::OUTBOUND;
+                    $outbounddata['created_at'] = $date;
+                    AccountTariff::create($outbounddata);
+                }
 
-            $date = date('Y-m-d H:i:s');
-            if($inbound_tariff>0) {
-                $inbounddata = array();
-                $inbounddata['CompanyID'] = $CompanyID;
-                $inbounddata['AccountID'] = $AccountID;
-                $inbounddata['ServiceID'] = $CentrexServiceID;
-                $inbounddata['RateTableID'] = $inbound_tariff;
-                $inbounddata['Type'] = AccountTariff::INBOUND;
-                $inbounddata['created_at'] = $date;
-                AccountTariff::create($inbounddata);
-            }
+                $ext_data = $Result['data_user']['ext_data'];
+                if (!empty($ext_data) && !empty($ext_data['subscriptionId'])) {
+                    $SubscriptionID = $ext_data['subscriptionId'];
+                    $quantity = $ext_data['quantity'];
+                    $SubscriptionData = array();
+                    $SubscriptionData['AccountID'] = $AccountID;
+                    $SubscriptionData['ServiceID'] = $CentrexServiceID;
+                    $SubscriptionData['SubscriptionID'] = $SubscriptionID;
+                    $SubscriptionData['Qty'] = $quantity;
+                    $SubscriptionData['StartDate'] = date('Y-m-d');
+                    $SubscriptionData['CreatedBy'] = $UserName;
+                    log::info('Subscription ID ' . $ext_data['subscriptionId']);
+                    log::info('Quantity ' . $quantity);
+                    $this->insertAccountSubscription($SubscriptionData);
+                }
 
-            if($out_bound_tariff > 0) {
-                $outbounddata = array();
-                $outbounddata['CompanyID'] = $CompanyID;
-                $outbounddata['AccountID'] = $AccountID;
-                $outbounddata['ServiceID'] = $CentrexServiceID;
-                $outbounddata['RateTableID'] = $out_bound_tariff;
-                $outbounddata['Type'] = AccountTariff::OUTBOUND;
-                $outbounddata['created_at'] = $date;
-                AccountTariff::create($outbounddata);
+            }else{
+                log::info('Skip hosted_centrex');
+                log::info('Skip ext_data');
             }
-
-            $ext_data = $Result['data_user']['ext_data'];
-            if(!empty($ext_data) && !empty($ext_data['subscriptionId'])){
-                $SubscriptionID = $ext_data['subscriptionId'];
-                $quantity = $ext_data['quantity'];
-                $SubscriptionData = array();
-                $SubscriptionData['AccountID'] = $AccountID;
-                $SubscriptionData['ServiceID'] = $CentrexServiceID;
-                $SubscriptionData['SubscriptionID'] = $SubscriptionID;
-                $SubscriptionData['Qty'] = $quantity;
-                $SubscriptionData['StartDate'] = date('Y-m-d');
-                $SubscriptionData['CreatedBy'] = $UserName;
-                log::info('Subscription ID '.$ext_data['subscriptionId']);
-                log::info('Quantity '.$quantity);
-                $this->insertAccountSubscription($SubscriptionData);
-            }
-
             log::info('Create hosted_centrex End');
             /** Create hosted_centrex End */
 
@@ -615,30 +470,38 @@ class NeonRegistartionController extends \BaseController {
 
             log::info('Create DID Start');
 
-            $did_datas = $Result['data_user']['did_data'];
+            if(isset($Result['data_user']['did_data'])){
+                $did_datas = $Result['data_user']['did_data'];
+            }else{
+                $did_datas = array();
+            }
             if(!empty($did_datas) && count($did_datas)>0){
-                foreach($did_datas as $did_data){
-                    $Count = AccountService::where(['AccountID'=>$AccountID,'ServiceID'=>$did_data['serviceId']])->count();
-                    if($Count==0){
-                        $dataAccountService=array();
-                        $dataAccountService['AccountID'] = $AccountID;
-                        $dataAccountService['ServiceID'] = $did_data['serviceId'];
-                        $dataAccountService['CompanyID'] = $CompanyID;
-                        Log::info('New Service ID - DID '.$did_data['serviceId']);
-                        AccountService::insert($dataAccountService);
+                foreach($did_datas as $did_data) {
+                    if(!empty($did_data['serviceId'])) {
+                        $Count = AccountService::where(['AccountID' => $AccountID, 'ServiceID' => $did_data['serviceId']])->count();
+                        if ($Count == 0) {
+                            $dataAccountService = array();
+                            $dataAccountService['AccountID'] = $AccountID;
+                            $dataAccountService['ServiceID'] = $did_data['serviceId'];
+                            $dataAccountService['CompanyID'] = $CompanyID;
+                            Log::info('New Service ID - DID ' . $did_data['serviceId']);
+                            AccountService::insert($dataAccountService);
+                        }
+                        if (!empty($did_data['subscriptionId'])) {
+                            $SubscriptionID = $did_data['subscriptionId'];
+                            $quantity = $did_data['quantity'];
+                            $SubscriptionData = array();
+                            $SubscriptionData['AccountID'] = $AccountID;
+                            $SubscriptionData['ServiceID'] = $did_data['serviceId'];
+                            $SubscriptionData['SubscriptionID'] = $SubscriptionID;
+                            $SubscriptionData['Qty'] = $quantity;
+                            $SubscriptionData['StartDate'] = date('Y-m-d');
+                            $SubscriptionData['CreatedBy'] = $UserName;
+                            log::info('DID Subscription ID ' . $did_data['subscriptionId']);
+                            log::info('DID Quantity ' . $quantity);
+                            $this->insertAccountSubscription($SubscriptionData);
+                        }
                     }
-                    $SubscriptionID = $did_data['subscriptionId'];
-                    $quantity = $did_data['quantity'];
-                    $SubscriptionData = array();
-                    $SubscriptionData['AccountID'] = $AccountID;
-                    $SubscriptionData['ServiceID'] = $did_data['serviceId'];
-                    $SubscriptionData['SubscriptionID'] = $SubscriptionID;
-                    $SubscriptionData['Qty'] = $quantity;
-                    $SubscriptionData['StartDate'] = date('Y-m-d');
-                    $SubscriptionData['CreatedBy'] = $UserName;
-                    log::info('DID Subscription ID '.$did_data['subscriptionId']);
-                    log::info('DID Quantity '.$quantity);
-                    $this->insertAccountSubscription($SubscriptionData);
                 }
             }
 
@@ -649,8 +512,12 @@ class NeonRegistartionController extends \BaseController {
             /** Create SipTrunk */
 
             log::info('Create SipTrunk Start');
+            if(isset($Result['data_widget']['siptrunk'][0])){
+                $SipTrunk = $Result['data_widget']['siptrunk'][0];
+            }else{
+                $SipTrunk = array();
+            }
 
-            $SipTrunk = $Result['data_widget']['siptrunk'][0];
             $SipTrunkServiceID=0;
             if(!empty($SipTrunk) && !empty($SipTrunk['service'])){
                 $SipTrunkServiceID = $SipTrunk['service'];
@@ -709,7 +576,11 @@ class NeonRegistartionController extends \BaseController {
                     }
                 }
             }
-            $siptrunk_data = $Result['data_user']['siptrunk_data'];
+            if(isset($Result['data_user']['siptrunk_data'])){
+                $siptrunk_data = $Result['data_user']['siptrunk_data'];
+            }else{
+                $siptrunk_data = array();
+            }
             if(!empty($siptrunk_data) && !empty($siptrunk_data['subscriptionId'])){
                 if($SipTrunkServiceID>0){
                     $SubscriptionID = $siptrunk_data['subscriptionId'];
@@ -745,7 +616,7 @@ class NeonRegistartionController extends \BaseController {
                 $paymentdata['PaymentMethod'] = $PaymentResponse['PaymentMethod'];
                 $paymentdata['CurrencyID'] = $account->CurrencyId;
                 $paymentdata['PaymentType'] = 'Payment In';
-                $paymentdata['Notes'] = 'API TopUp';
+                $paymentdata['Notes'] = 'TopUp';
                 $paymentdata['Amount'] = floatval($topup);
                 $paymentdata['Status'] = 'Approved';
                 $paymentdata['CreatedBy'] = $UserName.'(API)';
@@ -777,7 +648,7 @@ class NeonRegistartionController extends \BaseController {
 
             $AccountInvoice = Invoice::where(['CompanyID'=>$CompanyID,'AccountID'=>$AccountID])->first();
             log::info('New Account Invoice');
-            log::info(print_r($AccountInvoice,true));
+            //log::info(print_r($AccountInvoice,true));
             if(!empty($AccountInvoice)){
                 $GrandTotal = $AccountInvoice->GrandTotal;
                 $InvoiceID = $AccountInvoice->InvoiceID;
@@ -811,7 +682,40 @@ class NeonRegistartionController extends \BaseController {
                 $paymentdata['updated_at'] = date('Y-m-d H:i:s');
                 Payment::insert($paymentdata);
                 /** Payment Add End */
+
+                $RegistarionApiLogID = Session::get('RegistarionApiLogID');
+                $RegistarionApiLogUpdate = array();
+                if(!empty($RegistarionApiLogID)){
+                    $RegistarionApiLogUpdate['InvoiceStatus'] = 'success';
+                    $RegistarionApiLogUpdate['InvoiceID'] = $InvoiceID;
+                    DB::table('tblRegistarionApiLog')->where('RegistarionApiLogID', $RegistarionApiLogID)->update($RegistarionApiLogUpdate);
+                }
             }else{
+                /** Payment Add Start */
+                $paymentdata = array();
+                $paymentdata['CompanyID'] = $CompanyID;
+                $paymentdata['AccountID'] = $AccountID;
+                $paymentdata['InvoiceNo'] = '';
+                $paymentdata['InvoiceID'] = 0;
+                $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
+                $paymentdata['PaymentMethod'] = $PaymentResponse['PaymentMethod'];
+                $paymentdata['CurrencyID'] = $account->CurrencyId;
+                $paymentdata['PaymentType'] = 'Payment In';
+                $paymentdata['Notes'] = $PaymentResponse['transaction_notes'];
+                if($topup>0){
+                    $paymentdata['Amount'] = floatval($PaymentResponse['Amount'] - $topup);
+                }else{
+                    $paymentdata['Amount'] = floatval($PaymentResponse['Amount']);
+                }
+
+                $paymentdata['Status'] = 'Approved';
+                $paymentdata['CreatedBy'] = $UserName.'(API)';
+                $paymentdata['ModifyBy'] = $UserName;
+                $paymentdata['created_at'] = date('Y-m-d H:i:s');
+                $paymentdata['updated_at'] = date('Y-m-d H:i:s');
+                Payment::insert($paymentdata);
+                /** Payment Add End */
+
                 Log::info($AccountID.' Invoice was not generated');
             }
             log::info('Invoice Paid And Payment End');
@@ -882,6 +786,372 @@ class NeonRegistartionController extends \BaseController {
         AccountSubscription::create($dataAccountSubscription);
         log::info('AccountSubscription End');
         return '';
+    }
+
+    /**
+     * Update api account
+     * skip account creation,account billing,invoice generation
+     * if no service in neon than widget service,tariff,discount-plan insert
+     * if service in neon than only subscription add
+     * payment two entry - one top up and other total-top up
+    */
+
+    public function updateApiAccount($CompanyID,$AccountID,$PaymentResponse,$ApiData){
+        $UserID = $ApiData['UserID'];
+        $User = User::where(['UserID'=>$UserID])->first();
+        $UserName = $User->FirstName.' '.$User->LastName;
+        log::info('Update Api Account Start');
+
+        $Result = $ApiData;
+        try{
+
+            DB::beginTransaction();
+            DB::connection('sqlsrv2')->beginTransaction();
+
+            $account = Account::where('AccountID',$AccountID);
+
+            //Account level billing period
+            $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'),0);
+
+            /**Create Account Billing End*/
+
+            /** Create hosted_centrex Start */
+
+            log::info('Create hosted_centrex Start');
+
+            if(isset($Result['data_widget']['hosted_centrex'][0])){
+                $CentrexService = $Result['data_widget']['hosted_centrex'][0];
+            }else{
+                $CentrexService = array();
+            }
+
+            if(!empty($CentrexService['service'])){
+                $CentrexServiceID = $CentrexService['service'];
+
+                log::info('hosted_centrex Service '.$CentrexServiceID);
+
+                $AccountServiceCount = AccountService::where(['AccountID'=>$AccountID,'ServiceID'=>$CentrexServiceID])->count();
+
+                log::info('hosted_centrex Service Count '.$AccountServiceCount);
+
+                if($AccountServiceCount == 0){
+                    $inbound_discount_plan = empty($CentrexService['inbound_discount_plan']) ? 0 : $CentrexService['inbound_discount_plan'];
+                    $outbound_discount_plan = empty($CentrexService['outbound_discount_plan']) ? 0 : $CentrexService['outbound_discount_plan'];
+                    $inbound_tariff = empty($CentrexService['inbound_tariff']) ? 0 : $CentrexService['inbound_tariff'];
+                    $out_bound_tariff = empty($CentrexService['out_bound_tariff']) ? 0 : $CentrexService['out_bound_tariff'];
+
+                    Log::info(print_r($CentrexService,true));
+
+                    $dataAccountService=array();
+                    $dataAccountService['AccountID'] = $AccountID;
+                    $dataAccountService['ServiceID'] = $CentrexServiceID;
+                    $dataAccountService['CompanyID'] = $CompanyID;
+
+                    Log::info(print_r($dataAccountService,true));
+
+                    AccountService::insert($dataAccountService);
+
+                    if(!empty($AccountPeriod)) {
+                        $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
+                        $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
+                        $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
+                        $AccountSubscriptionID = 0;
+                        $AccountName='';
+                        $AccountCLI='';
+                        $SubscriptionDiscountPlanID=0;
+                        if($inbound_discount_plan >0){
+                            AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $inbound_discount_plan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$CentrexServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+                        }
+                        if($outbound_discount_plan > 0){
+                            AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $outbound_discount_plan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$CentrexServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+                        }
+
+                    }
+
+                    $date = date('Y-m-d H:i:s');
+                    if($inbound_tariff>0) {
+                        $inbounddata = array();
+                        $inbounddata['CompanyID'] = $CompanyID;
+                        $inbounddata['AccountID'] = $AccountID;
+                        $inbounddata['ServiceID'] = $CentrexServiceID;
+                        $inbounddata['RateTableID'] = $inbound_tariff;
+                        $inbounddata['Type'] = AccountTariff::INBOUND;
+                        $inbounddata['created_at'] = $date;
+                        AccountTariff::create($inbounddata);
+                    }
+
+                    if($out_bound_tariff > 0) {
+                        $outbounddata = array();
+                        $outbounddata['CompanyID'] = $CompanyID;
+                        $outbounddata['AccountID'] = $AccountID;
+                        $outbounddata['ServiceID'] = $CentrexServiceID;
+                        $outbounddata['RateTableID'] = $out_bound_tariff;
+                        $outbounddata['Type'] = AccountTariff::OUTBOUND;
+                        $outbounddata['created_at'] = $date;
+                        AccountTariff::create($outbounddata);
+                    }
+
+                }
+
+                if(isset($Result['data_user']['ext_data'])){
+                    $ext_data = $Result['data_user']['ext_data'];
+                }else{
+                    $ext_data = array();
+                }
+                if(!empty($ext_data) && !empty($ext_data['subscriptionId'])){
+                    $SubscriptionID = $ext_data['subscriptionId'];
+                    $quantity = $ext_data['quantity'];
+                    $SubscriptionData = array();
+                    $SubscriptionData['AccountID'] = $AccountID;
+                    $SubscriptionData['ServiceID'] = $CentrexServiceID;
+                    $SubscriptionData['SubscriptionID'] = $SubscriptionID;
+                    $SubscriptionData['Qty'] = $quantity;
+                    $SubscriptionData['StartDate'] = date('Y-m-d');
+                    $SubscriptionData['CreatedBy'] = $UserName;
+                    log::info('Subscription ID '.$ext_data['subscriptionId']);
+                    log::info('Quantity '.$quantity);
+                    $this->insertAccountSubscription($SubscriptionData);
+                }
+            }
+
+            log::info('Create hosted_centrex End');
+            /** Create hosted_centrex End */
+
+            /** Create DID Start */
+
+            log::info('Create DID Start');
+
+            if(isset($Result['data_user']['did_data'])){
+                $did_datas = $Result['data_user']['did_data'];
+            }else{
+                $did_datas = array();
+            }
+            if(!empty($did_datas) && count($did_datas)>0){
+                foreach($did_datas as $did_data) {
+                    if(!empty($did_data['serviceId'])) {
+                        $Count = AccountService::where(['AccountID' => $AccountID, 'ServiceID' => $did_data['serviceId']])->count();
+                        if ($Count == 0) {
+                            $dataAccountService = array();
+                            $dataAccountService['AccountID'] = $AccountID;
+                            $dataAccountService['ServiceID'] = $did_data['serviceId'];
+                            $dataAccountService['CompanyID'] = $CompanyID;
+                            Log::info('New Service ID - DID ' . $did_data['serviceId']);
+                            AccountService::insert($dataAccountService);
+                        }
+                        if (!empty($did_data['subscriptionId'])) {
+                            $SubscriptionID = $did_data['subscriptionId'];
+                            $quantity = $did_data['quantity'];
+                            $SubscriptionData = array();
+                            $SubscriptionData['AccountID'] = $AccountID;
+                            $SubscriptionData['ServiceID'] = $did_data['serviceId'];
+                            $SubscriptionData['SubscriptionID'] = $SubscriptionID;
+                            $SubscriptionData['Qty'] = $quantity;
+                            $SubscriptionData['StartDate'] = date('Y-m-d');
+                            $SubscriptionData['CreatedBy'] = $UserName;
+                            log::info('DID Subscription ID ' . $did_data['subscriptionId']);
+                            log::info('DID Quantity ' . $quantity);
+                            $this->insertAccountSubscription($SubscriptionData);
+                        }
+                    }
+                }
+            }
+
+            log::info('Create DID End');
+
+            /** Create DID End */
+
+            /** Create SipTrunk */
+
+            log::info('Create SipTrunk Start');
+
+            if(isset($Result['data_widget']['siptrunk'][0])){
+                $SipTrunk = $Result['data_widget']['siptrunk'][0];
+            }else{
+                $SipTrunk = array();
+            }
+            $SipTrunkServiceID=0;
+            if(!empty($SipTrunk) && !empty($SipTrunk['service'])){
+                $SipTrunkServiceID = $SipTrunk['service'];
+                $Count = AccountService::where(['AccountID'=>$AccountID,'ServiceID'=>$SipTrunkServiceID])->count();
+                if($Count==0){
+                    $dataAccountService=array();
+                    $dataAccountService['AccountID'] = $AccountID;
+                    $dataAccountService['ServiceID'] = $SipTrunkServiceID;
+                    $dataAccountService['CompanyID'] = $CompanyID;
+                    Log::info('New Service ID - SipTrunk '.$SipTrunkServiceID);
+                    AccountService::insert($dataAccountService);
+
+                    $inbound_discount_plan = empty($SipTrunk['inbound_disc_plan']) ? 0 : $SipTrunk['inbound_disc_plan'];
+                    $outbound_discount_plan = empty($SipTrunk['outbound_disc_plan']) ? 0 : $SipTrunk['outbound_disc_plan'];
+                    $inbound_tariff = empty($SipTrunk['inbound_tariff']) ? 0 : $SipTrunk['inbound_tariff'];
+                    $out_bound_tariff = empty($SipTrunk['out_bound_tariff']) ? 0 : $SipTrunk['out_bound_tariff'];
+
+                    if(!empty($AccountPeriod)) {
+                        $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
+                        $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
+                        $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
+                        $AccountSubscriptionID = 0;
+                        $AccountName='';
+                        $AccountCLI='';
+                        $SubscriptionDiscountPlanID=0;
+                        if($inbound_discount_plan >0){
+                            AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $inbound_discount_plan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$SipTrunkServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+                        }
+                        if($outbound_discount_plan > 0){
+                            AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $outbound_discount_plan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$SipTrunkServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+                        }
+
+                    }
+
+                    $date = date('Y-m-d H:i:s');
+                    if($inbound_tariff>0) {
+                        $inbounddata = array();
+                        $inbounddata['CompanyID'] = $CompanyID;
+                        $inbounddata['AccountID'] = $AccountID;
+                        $inbounddata['ServiceID'] = $SipTrunkServiceID;
+                        $inbounddata['RateTableID'] = $inbound_tariff;
+                        $inbounddata['Type'] = AccountTariff::INBOUND;
+                        $inbounddata['created_at'] = $date;
+                        AccountTariff::create($inbounddata);
+                    }
+
+                    if($out_bound_tariff > 0) {
+                        $outbounddata = array();
+                        $outbounddata['CompanyID'] = $CompanyID;
+                        $outbounddata['AccountID'] = $AccountID;
+                        $outbounddata['ServiceID'] = $SipTrunkServiceID;
+                        $outbounddata['RateTableID'] = $out_bound_tariff;
+                        $outbounddata['Type'] = AccountTariff::OUTBOUND;
+                        $outbounddata['created_at'] = $date;
+                        AccountTariff::create($outbounddata);
+                    }
+                }
+            }
+
+            if(isset($Result['data_user']['siptrunk_data'])){
+                $siptrunk_data = $Result['data_user']['siptrunk_data'];
+            }else{
+                $siptrunk_data = array();
+            }
+            if(!empty($siptrunk_data) && !empty($siptrunk_data['subscriptionId'])){
+                if($SipTrunkServiceID>0){
+                    $SubscriptionID = $siptrunk_data['subscriptionId'];
+                    $quantity = $siptrunk_data['quantity'];
+                    $SubscriptionData = array();
+                    $SubscriptionData['AccountID'] = $AccountID;
+                    $SubscriptionData['ServiceID'] = $SipTrunkServiceID;
+                    $SubscriptionData['SubscriptionID'] = $SubscriptionID;
+                    $SubscriptionData['Qty'] = $quantity;
+                    $SubscriptionData['StartDate'] = date('Y-m-d');
+                    $SubscriptionData['CreatedBy'] = $UserName;
+                    log::info('SipTrunk Subscription ID '.$siptrunk_data['subscriptionId']);
+                    log::info('SipTrunk Quantity '.$quantity);
+                    $this->insertAccountSubscription($SubscriptionData);
+                }
+
+            }
+
+            log::info('Create SipTrunk End');
+            /** Create SipTrunk End */
+
+            /** Create Topup */
+            log::info('Create TopUp Start');
+
+            $topup = empty($Result['data_user']['topup_data']['amount']) ? 0 : $Result['data_user']['topup_data']['amount'];
+            log::info('topup amount '.$topup);
+            if($topup>0){
+                $paymentdata = array();
+                $paymentdata['CompanyID'] = $CompanyID;
+                $paymentdata['AccountID'] = $AccountID;
+                $paymentdata['InvoiceNo'] = '';
+                $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
+                $paymentdata['PaymentMethod'] = $PaymentResponse['PaymentMethod'];
+                $paymentdata['CurrencyID'] = $account->CurrencyId;
+                $paymentdata['PaymentType'] = 'Payment In';
+                $paymentdata['Notes'] = 'TopUp';
+                $paymentdata['Amount'] = floatval($topup);
+                $paymentdata['Status'] = 'Approved';
+                $paymentdata['CreatedBy'] = $UserName.'(API)';
+                $paymentdata['ModifyBy'] = $UserName;
+                $paymentdata['created_at'] = date('Y-m-d H:i:s');
+                $paymentdata['updated_at'] = date('Y-m-d H:i:s');
+                Payment::insert($paymentdata);
+            }
+
+            log::info('Create TopUp End');
+
+            /** End Topup */
+
+            /** Payment Add Start */
+            $paymentdata = array();
+            $paymentdata['CompanyID'] = $CompanyID;
+            $paymentdata['AccountID'] = $AccountID;
+            $paymentdata['InvoiceNo'] = '';
+            $paymentdata['InvoiceID'] = 0;
+            $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
+            $paymentdata['PaymentMethod'] = $PaymentResponse['PaymentMethod'];
+            $paymentdata['CurrencyID'] = $account->CurrencyId;
+            $paymentdata['PaymentType'] = 'Payment In';
+            $paymentdata['Notes'] = $PaymentResponse['transaction_notes'];
+            if($topup>0){
+                $paymentdata['Amount'] = floatval($PaymentResponse['Amount'] - $topup);
+            }else{
+                $paymentdata['Amount'] = floatval($PaymentResponse['Amount']);
+            }
+
+            $paymentdata['Status'] = 'Approved';
+            $paymentdata['CreatedBy'] = $UserName.'(API)';
+            $paymentdata['ModifyBy'] = $UserName;
+            $paymentdata['created_at'] = date('Y-m-d H:i:s');
+            $paymentdata['updated_at'] = date('Y-m-d H:i:s');
+            Payment::insert($paymentdata);
+
+            /** Payment Add End */
+
+            DB::commit();
+            DB::connection('sqlsrv2')->commit();
+
+            log::info(' Payment End');
+
+            log::info('Invoice Generation End');
+
+            /** Invoice Generation End */
+
+
+            $Response = array();
+            $Response['AccountID'] = $AccountID;
+            $Response['AccountNumber'] = $account->Number;
+            $Response['status'] = 'success';
+            $Response['message'] = 'Account Updated Successfully';
+            $Response['PaymentStatus'] = 'success';
+            $Response['PaymentMessage'] = 'Payment Create Successfully';
+            $Response['NeonStatus'] = 'success';
+            $Response['NeonMessage'] = 'Account Updated Successfully';
+            $ApiRequestUrl = Session::get('API_BACK_URL');
+            $Response['ApiRequestUrl'] = $ApiRequestUrl;
+            //$response['ApiRequestData'] = json_encode($ApiData);
+            return $Response;
+
+        } catch (Exception $e) {
+            Log::error($e);
+            DB::rollback();
+            DB::connection('sqlsrv2')->rollback();
+            $Response = array();
+            $Response['status'] = 'failed';
+            $Response['message'] = 'something gone wrong please contact your system administrator';
+            $Response['PaymentStatus'] = 'success';
+            $Response['PaymentMessage'] = 'Payment Create Successfully';
+            $Response['NeonStatus'] = 'failed';
+            $Response['NeonMessage'] = 'something gone wrong please contact your system administrator';
+            $ApiRequestUrl = Session::get('API_BACK_URL');
+            $Response['ApiRequestUrl'] = $ApiRequestUrl;
+            $Response['AccountID']=$AccountID;
+            $Response['AccountNumber']=$account->Number;
+            //$response['ApiRequestData'] = json_encode($ApiData);
+            return $Response;
+
+            //return Response::json(["status"=>"failed", "data"=>"","PaymentTransaction"=>$PaymentResponse['transaction_notes'],"error"=>'something gone wrong please contact your system administrator']);
+        }
     }
 
 }

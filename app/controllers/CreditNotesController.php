@@ -817,6 +817,7 @@ class CreditNotesController extends \BaseController {
             if(isset($InvoiceTemplateID) && $InvoiceTemplateID > 0) {
                 $message = $InvoiceTemplate->InvoiceTo;
                 $replace_array = Invoice::create_accountdetails($Account);
+
                 $text = Invoice::getInvoiceToByAccount($message,$replace_array);
                 $CreditNotesToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
                 $Terms = $InvoiceTemplate->Terms;

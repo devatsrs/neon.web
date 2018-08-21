@@ -2521,7 +2521,7 @@ function getInvoicePayments($CompanyID){
 }
 
 function is_PayNowInvoice($CompanyID){
-    if(is_authorize($CompanyID) || is_Stripe($CompanyID) || is_StripeACH($CompanyID) || is_FideliPay($CompanyID)){
+    if(is_authorize($CompanyID) || is_Stripe($CompanyID) || is_StripeACH($CompanyID) || is_FideliPay($CompanyID) || is_pelecard($CompanyID)){
         return true;
     }
     return false;
@@ -2783,7 +2783,17 @@ function emailHeaderDecode($emailHtml) {
 }
 
 function filterArrayRemoveNewLines($arr) { // remove new lines (/r/n) etc...
-    return preg_replace('/s+/', ' ', trim($arr));
+    //return preg_replace('/s+/', ' ', trim($arr));
+    foreach ($arr as $key => $value) {
+        $oldkey = $key;
+        /*$key = str_replace("\r", '', $key);
+        $key = str_replace("\n", '', $key);*/
+        $key = preg_replace('/\s+/', ' ',$key);
+        $arr[$key] = $value;
+        if($key != $oldkey)
+            unset($arr[$oldkey]);
+    }
+    return $arr;
 }
 
 function array_key_exists_wildcard ( $arr, $search ) {
@@ -2982,4 +2992,35 @@ function stockHistoryUpdateCalculations($data=array()){
         }
     }
     return $Error;
+}
+
+function getRandomNumber($digits=5){
+    $rand_no= rand(pow(10, $digits-1), pow(10, $digits)-1);
+    return $rand_no;
+}
+
+function getLanguageValue($val){
+    $name=$val;
+    $langs = Translation::get_language_labels('en');
+    $json_file = json_decode($langs->Translation, true);
+    $key=array_search($val,$json_file);
+    if(!empty($key)){
+        $name=cus_lang($key);
+    }
+    return $name;
+}
+
+function getCompanyDecimalPlaces($CompanyID=0, $value=""){
+    $RoundChargesAmount = CompanySetting::getKeyVal('RoundChargesAmount', $CompanyID);
+    $RoundChargesAmount=($RoundChargesAmount !='Invalid Key')?$RoundChargesAmount:2;
+
+    if(!empty($value) && is_numeric($value)){
+        $formatedValue=number_format($value, $RoundChargesAmount);
+        if($formatedValue){
+            return $formatedValue;
+        }
+        return $value;
+    }else{
+        return $RoundChargesAmount;
+    }
 }

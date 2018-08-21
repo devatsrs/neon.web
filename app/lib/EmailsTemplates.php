@@ -103,6 +103,7 @@ class EmailsTemplates{
 				
 			
 
+
 			$extraSpecific = [
 				'{{InvoiceNumber}}',
 				'{{InvoiceGrandTotal}}',
@@ -170,7 +171,6 @@ class EmailsTemplates{
 			$replace_array['EstimateGrandTotal']	=	 number_format($EstimateData->GrandTotal,$RoundChargesAmount);
 			$replace_array['Comment']				=	 isset($data['Comment'])?$data['Comment']:EmailsTemplates::GetEstimateComments($EstimateID);
 			
-				 
 			$extraSpecific = [
 				'{{EstimateNumber}}',
 				'{{EstimateGrandTotal}}',				
@@ -209,8 +209,7 @@ class EmailsTemplates{
 				}else{
 					$EmailMessage						=	 $EmailTemplate->TemplateBody;
 				}
-				$replace_array['CompanyName']			=	 Company::getName($Cronjob->CompanyID);				
-				
+				$replace_array['CompanyName']			=	 Company::getName($Cronjob->CompanyID);
 				$extra = [
 					'{{KillCommand}}',
 					'{{ReturnStatus}}',
@@ -247,7 +246,6 @@ class EmailsTemplates{
 				}else{
 					$EmailMessage						=	 $EmailTemplate->TemplateBody;
 				}
-				
 				$extra = [
 					'{{FirstName}}',
 					'{{LastName}}',
@@ -307,7 +305,6 @@ class EmailsTemplates{
         if(isset($data['AccountID'])){
             $replace_array 							=	EmailsTemplates::setAccountFields($replace_array,$data['AccountID']);
         }
-
         $fields	=	EmailsTemplates::$fields;
 
         foreach($fields as $item){
@@ -350,6 +347,7 @@ class EmailsTemplates{
 	
 	static function setAccountFields($array,$AccountID){
 			$companyID						=	 User::get_companyID();
+			$RoundChargesAmount				=	 getCompanyDecimalPlaces($companyID);
 			$AccoutData 					= 	 Account::find($AccountID);			
 			$array['AccountName']			=	 $AccoutData->AccountName;
 			$array['FirstName']				=	 $AccoutData->FirstName;
@@ -366,6 +364,7 @@ class EmailsTemplates{
 			$array['CurrencySign']			=	 Currency::where(["CurrencyId"=>$AccoutData->CurrencyId])->pluck("Symbol");
 			$array['OutstandingExcludeUnbilledAmount'] = Account::getOutstandingAmount($companyID, $AccountID, get_round_decimal_places($AccountID));
 			$array['OutstandingIncludeUnbilledAmount'] = AccountBalance::getBalanceAmount($AccountID);
+			$array['OutstandingIncludeUnbilledAmount'] = number_format($array['OutstandingIncludeUnbilledAmount'], $RoundChargesAmount);
 			$array['BalanceThreshold'] 				   = AccountBalance::getBalanceThresholdAmount($AccountID);
 			if(Auth::guest()){
 				return $array;

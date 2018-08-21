@@ -1582,8 +1582,8 @@ Route::group(array('before' => 'guest'), function () {
 	Route::any('/globalneonregistarion', 'NeonRegistartionController@index');
 	Route::any('/globalneonregistarion/createaccount', 'NeonRegistartionController@createaccount');
 	Route::any('/globalneonregistarion/createpayment', 'NeonRegistartionController@createpayment');
-	Route::any('/api_invoice_thanks/{id}', 'InvoicesController@api_invoice_thanks'); //Customer payment pay
-	Route::any('/api_invoice_creditcard_thanks', 'InvoicesController@api_invoice_creditcard_thanks'); //Customer payment pay
+	Route::any('/api_accountcreation/{id}', 'InvoicesController@api_invoice_thanks'); //Customer payment pay
+	Route::any('/api_neonaccountcreation', 'InvoicesController@api_invoice_creditcard_thanks'); //Customer payment pay
 	Route::any('/api_paypal_ipn/{id}', 'InvoicesController@api_paypal_ipn'); //Payment response by paypal.
 	Route::any('/api_paypal_cancel/{id}', 'InvoicesController@api_paypal_cancel'); //Payment response by paypal.
 
@@ -1614,4 +1614,5 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::get('taxRates/getTaxRates', 'TaxRatesApiController@getTaxRates');
 	Route::post('products/getProductsByType', 'ProductApiController@getListByType');
 	Route::post('products/ProductUpdateStock', 'ProductApiController@UpdateStockCalculation');
+	Route::post('getAccountbilling/{AccountID}', 'AccountBillingApiController@getAccountBilling');
 });
