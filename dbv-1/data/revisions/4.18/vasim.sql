@@ -91,6 +91,33 @@ INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `Create
 INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('ChartDashboard.getVendorWorldMap', 'ChartDashboardController.getVendorWorldMap', 1, 'Sumera Khan', NULL, '2016-12-21 05:57:01.000', '2016-12-21 05:57:01.000', 1171);
 
 
+INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (6, 'Database Server', 'dbserver', 1, '2018-05-29 13:06:00', NULL, NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (6, 'Database Name', 'dbname', 1, '2018-06-15 13:06:00', NULL, NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (6, 'Database User Name', 'dbusername', 1, '2018-05-29 13:06:00', NULL, NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (6, 'Database Password', 'dbpassword', 1, '2018-05-29 13:06:00', NULL, NULL, NULL);
+
+INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (15, 'API Url', 'api_url', 1, '2017-10-13 17:00:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (15, 'API User', 'api_username', 1, '2017-10-13 17:00:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (15, 'API Password', 'api_password', 1, '2017-10-13 17:00:00', 'RateManagementSystem', NULL, NULL);
+
+UPDATE tblGatewayConfig SET Name='dbpassword' WHERE GatewayID=15 and Name='password';
+UPDATE tblGatewayConfig SET Name='dbusername' WHERE GatewayID=15 and Name='username';
+
+ALTER TABLE `tblJobType`
+	ALTER `Code` DROP DEFAULT;
+ALTER TABLE `tblJobType`
+	CHANGE COLUMN `Code` `Code` VARCHAR(4) NOT NULL COLLATE 'utf8_unicode_ci' AFTER `JobTypeID`;
+
+INSERT INTO `tblJobType` (`JobTypeID`, `Code`, `Title`, `Description`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`) VALUES (30, 'SCRP', 'Sippy Customer Rate Push', NULL, '2018-07-27 18:20:26', 'RateManagementSystem', NULL, NULL);
+
+INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, NULL, 'Sippy Rate File Status', 'sippyratefilestatus', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2018-08-01 15:11:06', 'RateManagementSystem');
+
+
+
+
+
+
+
 ALTER TABLE `tblVendorRate`
 	ADD COLUMN `TimezonesID` INT(11) NOT NULL DEFAULT '1' AFTER `TrunkID`,
 	DROP INDEX `IXUnique_AccountId_TrunkId_RateId_EffectiveDate`,
@@ -177,10 +204,6 @@ ALTER TABLE `tblVendorBlocking`
 
 ALTER TABLE `tblRateTable`
 	ADD COLUMN `RoundChargedAmount` INT(11) NULL AFTER `CurrencyID`;
-
-INSERT INTO `tblJobType` (`JobTypeID`, `Code`, `Title`, `Description`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`) VALUES (30, 'SRP', 'Sippy Rate Push', NULL, '2018-07-27 18:20:26', 'RateManagementSystem', NULL, NULL);
-
-INSERT INTO `tblcronjobcommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, 6, 'Sippy Rate File Status', 'sippyratefilestatus', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2018-08-01 15:11:06', 'RateManagementSystem');
 
 
 
