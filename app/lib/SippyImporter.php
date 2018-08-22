@@ -235,7 +235,11 @@ class SippyImporter
                         }else{
                             $response['result'] = 'OK';
                         }
+                    }else{
+                        $response['result'] = 'OK';
                     }
+                }else{
+                    $response['result'] = 'OK';
                 }
             }
         } catch (\Exception $e) {
