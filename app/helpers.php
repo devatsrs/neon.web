@@ -3009,3 +3009,18 @@ function getLanguageValue($val){
     }
     return $name;
 }
+
+function getCompanyDecimalPlaces($CompanyID=0, $value=""){
+    $RoundChargesAmount = CompanySetting::getKeyVal('RoundChargesAmount', $CompanyID);
+    $RoundChargesAmount=($RoundChargesAmount !='Invalid Key')?$RoundChargesAmount:2;
+
+    if(!empty($value) && is_numeric($value)){
+        $formatedValue=number_format($value, $RoundChargesAmount);
+        if($formatedValue){
+            return $formatedValue;
+        }
+        return $value;
+    }else{
+        return $RoundChargesAmount;
+    }
+}
