@@ -49,11 +49,12 @@
             <div class="clear"></div>
                 <div class="row">
                     <div  class="col-md-12">
+                        @if(User::checkCategoryPermission('Dynamiclink','Add'))
                         <a href="#" data-action="showAddModal" id="add-new-dynamiclink" data-type="Dynamic Link" data-modal="add-edit-modal-dynamicfield" class="btn btn-primary pull-right">
                             <i class="entypo-plus"></i>
                             Add New
                         </a>
-
+                        @endif
                     </div>
                     <div class="clear"></div>
                 </div>
@@ -130,9 +131,12 @@
                                         action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                     }
                                     action += '</div>';
+                                    <?php if(User::checkCategoryPermission('Dynamiclink','Edit')){ ?>
                                     action += ' <a data-name = "' + full[0] + '" data-id="' + full[5] + '" title="Edit" class="edit-dynamicfield btn btn-default btn-sm btn-smtooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
+                                    <?php } ?>
+                                    <?php if(User::checkCategoryPermission('Dynamiclink','Delete') ){ ?>
                                     action += ' <a href="'+delete_+'" data-redirect="{{ URL::to('products')}}" title="Delete"  class="btn delete btn-danger btn-default btn-sm btn-smtooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></a>';
-
+                                    <?php } ?>
                                     return action;
                                 }
                             }
@@ -236,63 +240,7 @@
                         }
                     });
                     //done above
-
-                    $('.type_active_deactive').click(function(e) {
-
-                        var type_active_deactive  =  $(this).attr('type_ad');
-                        var SelectedIDs 		  =  getselectedIDs();
-                        var criteria_ac			  =  '';
-
-                        if($('#selectallbutton').is(':checked')){
-                            criteria_ac = 'criteria';
-                        }else{
-                            criteria_ac = 'selected';
-                        }
-
-                        if(SelectedIDs=='' || criteria_ac=='')
-                        {
-                            alert("Please Select Atleast One Dynamic Field.");
-                            return false;
-                        }
-
-                        if(type_active_deactive=='delete'){
-                            response = confirm('Are you sure?');
-                            if(!response){
-                                return false;
-                            }
-                            item_update_status_url =  '{{ URL::to('/dynamiclink/delete_bulk_dynamicfields')}}';
-                        }else{
-                            item_update_status_url =  '{{ URL::to('/dynamiclink/update_bulk_dynamicfields_status')}}';
-                        }
-                        $.ajax({
-                            url: item_update_status_url,
-                            type: 'POST',
-                            dataType: 'json',
-                            success: function(response) {
-                                if(response.status =='success'){
-                                    toastr.success(response.message, "Success", toastr_opts);
-                                    data_table.fnFilter('', 0);
-                                    $('#selectall').removeAttr('checked');
-                                    if(jQuery('#selectallbutton').is(':checked'))
-                                        $('#selectallbutton').click();
-                                }else{
-                                    toastr.error(response.message, "Error", toastr_opts);
-                                }
-                            },
-                            data: {
-                                "FieldName":$("#dynamicfield_filter [name='FieldName']").val(),
-                                "FieldDomType":$("#dynamicfield_filter [name='FieldDomType']").val(),
-                                "ItemTypeID":$("#dynamicfield_filter [name='ItemTypeID']").val(),
-                                "Active":$("#dynamicfield_filter [name='Active']").val(),
-                                "SelectedIDs":SelectedIDs,
-                                "criteria_ac":criteria_ac,
-                                "type_active_deactive":type_active_deactive,
-                            }
-
-                        });
-
-                    });
-
+                    
                     $("#dynamicfield_filter").submit(function(e){
                         e.preventDefault();
                         $searchFilter.Title = $("#dynamicfield_filter [name='Title']").val();

@@ -330,7 +330,7 @@
           @if( User::checkCategoryPermission('Translate','View'))
           <li> <a href="{{URL::to('/translate')}}">  <span>Translation</span> </a> </li>
           @endif
-          @if( User::checkCategoryPermission('Pages','About'))
+          @if( User::checkCategoryPermission('Dynamiclink','View'))
             <li> <a href="{{Url::to('/dynamiclink')}}"> <span>&nbsp;Dynamic Link</span> </a> </li>
           @endif
       </ul>

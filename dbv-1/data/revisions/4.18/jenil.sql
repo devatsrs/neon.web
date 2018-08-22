@@ -1,4 +1,6 @@
-/* DB:- NeonRMDev */
+/* USE NeonRMDev */
+
+/* Dynamic Links */
 
 CREATE TABLE `tblDynamiclink` (
 	`DynamicLinkID` INT(11) NOT NULL AUTO_INCREMENT,
@@ -47,17 +49,19 @@ BEGIN
 	THEN
 
     SELECT   
-		tblDynamiclink.DynamicLinkID,
 		tblDynamiclink.Title,
 		tblDynamiclink.Link,
-		tblCurrency.Code,
-		tblDynamiclink.created_at
-		from tblDynamiclink LEFT JOIN tblCurrency ON tblDynamiclink.Currency = tblCurrency.CurrencyId
+		tblCurrency.Code as Currency,
+		tblDynamiclink.created_at,
+		tblDynamiclink.CurrencyID,
+		tblDynamiclink.DynamicLinkID
+		from tblDynamiclink LEFT JOIN tblCurrency ON tblDynamiclink.CurrencyID = tblCurrency.CurrencyId
 		where tblDynamiclink.CompanyID = p_CompanyID
 		AND (p_Title ='' OR tblDynamiclink.Title like Concat('%',p_Title,'%'))
-		AND (p_Currency ='' OR tblDynamiclink.Currency = p_Currency)
+		AND (p_Currency ='' OR tblDynamiclink.CurrencyID = p_Currency)
             
         ORDER BY
+   
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TitleDESC') THEN tblDynamiclink.Title
 			END DESC,
@@ -65,10 +69,10 @@ BEGIN
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TitleASC') THEN tblDynamiclink.Title
 			END ASC,
 			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CurrencyDESC') THEN tblDynamiclink.Currency
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CurrencyDESC') THEN tblDynamiclink.CurrencyID
 			END DESC,
 			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CurrencyASC') THEN tblDynamiclink.Currency
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CurrencyASC') THEN tblDynamiclink.CurrencyID
 			END ASC,
 			
 			CASE
@@ -85,20 +89,19 @@ BEGIN
 		from tblDynamiclink
 		where tblDynamiclink.CompanyID = p_CompanyID
 		AND (p_Title ='' OR tblDynamiclink.Title like Concat('%',p_Title,'%'))
-		AND (p_Currency ='' OR tblDynamiclink.Currency = p_Currency);
+		AND (p_Currency ='' OR tblDynamiclink.CurrencyID = p_Currency);
 
 	ELSE
 	
 		SELECT
-			tblDynamiclink.DynamicLinkID,
 			tblDynamiclink.Title,
 			tblDynamiclink.Link,
-			tblCurrency.Code,
-			tblDynamiclink.created_at
-            from tblDynamiclink LEFT JOIN tblCurrency ON tblDynamiclink.Currency = tblCurrency.CurrencyId
+			tblCurrency.Code as Currency,
+			tblDynamiclink.created_at as CreatedDate
+         from tblDynamiclink LEFT JOIN tblCurrency ON tblDynamiclink.CurrencyID = tblCurrency.CurrencyId
 			where tblDynamiclink.CompanyID = p_CompanyID
 			AND (p_Title ='' OR tblDynamiclink.Title like Concat('%',p_Title,'%'))
-			AND (p_Currency ='' OR tblDynamiclink.Currency = p_Currency);
+			AND (p_Currency ='' OR tblDynamiclink.CurrencyID = p_Currency);
 
 	END IF;
 
@@ -106,27 +109,6 @@ BEGIN
 	
 END//
 DELIMITER ;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 /* 
@@ -145,8 +127,52 @@ CUST_PANEL_PAGE_DYNAMICLINK_MSG_DYNAMICLINK_SUCCESSFULLY_DELETED - Dynamic Link 
 CUST_PANEL_PAGE_DYNAMICLINK_MSG_DYNAMICLINK_DELETING_NOTIFICATION - Problem Deleting Dynamic Link.
 
 
-
-
-
-
 */
+
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1353, 'Dynamiclink.All', 1, 9);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1352, 'Dynamiclink.View', 1, 9);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1351, 'Dynamiclink.Delete', 1, 9);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1350, 'Dynamiclink.Edit', 1, 9);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1349, 'Dynamiclink.Add', 1, 9);
+
+
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('Dynamiclink.delete', 'DynamiclinkController.delete', 1, 'System', NULL, '2018-08-14 13:56:00.000', '2018-08-14 13:56:00.000', 1351);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('Dynamiclink.update', 'DynamiclinkController.update', 1, 'System', NULL, '2018-08-14 13:56:00.000', '2018-08-14 13:56:00.000', 1350);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('Dynamiclink.create', 'DynamiclinkController.create', 1, 'System', NULL, '2018-08-14 13:56:00.000', '2018-08-14 13:56:00.000', 1349);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('Dynamiclink.ajax_datagrid', 'DynamiclinkController.ajax_datagrid', 1, 'System', NULL, '2018-08-14 13:56:00.000', '2018-08-14 13:56:00.000', 1352);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('Dynamiclink.*', 'DynamiclinkController.*', 1, 'System', NULL, '2018-08-14 13:56:00.000', '2018-08-14 13:56:00.000', 1353);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('Dynamiclink.index', 'DynamiclinkController.index', 1, 'System', NULL, '2018-08-14 13:56:00.000', '2018-08-14 13:56:00.000', 1352);
+
+
+
+
+/* Report for Tax Rate */
+
+
+/* For Taxrate Report */
+
+ALTER TABLE `tblInvoiceTaxRate`
+	ADD COLUMN `InvoiceDetailID` INT(11) NOT NULL DEFAULT '0' AFTER `InvoiceID`;
+	
+/* Remove unique key constraints in cols from indexes*/	
+
+ALTER TABLE `tblInvoiceTaxRate`
+ DROP INDEX `IX_InvoiceTaxRateUnique`,
+ ADD INDEX `IX_InvoiceTaxRateUnique` (`InvoiceID`, `TaxRateID`, `InvoiceTaxType`);
+ 
+ ALTER TABLE `tblInvoiceTaxRate`
+	DROP INDEX `IX_InvoiceTaxRateDetailIDUnique`; 
+
+ALTER TABLE `tblRecurringInvoiceTaxRate`
+	DROP INDEX `RecurringInvoiceTaxRateUnique`;
+	
+ALTER TABLE `tblRecurringInvoiceTaxRate`
+	ADD COLUMN `RecurringInvoiceDetailID` INT(11) NOT NULL DEFAULT '0' AFTER `RecurringInvoiceID`;
+
+ALTER TABLE `tblEstimateTaxRate`
+	DROP INDEX `IX_EstimateTaxRateUnique`;
+
+ALTER TABLE `tblEstimateTaxRate`
+	ADD COLUMN `EstimateDetailID` INT(11) NOT NULL DEFAULT '0' AFTER `EstimateID`;
+	
+

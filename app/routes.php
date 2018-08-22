@@ -1614,4 +1614,5 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::get('taxRates/getTaxRates', 'TaxRatesApiController@getTaxRates');
 	Route::post('products/getProductsByType', 'ProductApiController@getListByType');
 	Route::post('products/ProductUpdateStock', 'ProductApiController@UpdateStockCalculation');
+	Route::post('getAccountbilling/{AccountID}', 'AccountBillingApiController@getAccountBilling');
 });

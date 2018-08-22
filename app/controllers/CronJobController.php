@@ -142,7 +142,7 @@ class CronJobController extends \BaseController {
             }
             $hour_limit = 24;
             $day_limit = 32;
-            if($CronJobCommand->Command == 'customerratefileexport' || $CronJobCommand->Command == 'vendorratefileexport'){
+            if($CronJobCommand->Command == 'customerratefileexport' || $CronJobCommand->Command == 'vendorratefileexport' || $CronJobCommand->Command == 'sippyratefilestatus'){
                 $CompanyGateway = CompanyGateway::getCompanyGatewayIdList();
             } else if($CronJobCommand->GatewayID > 0){
                 $CompanyGateway = CompanyGateway::getGatewayIDList($CronJobCommand->GatewayID);
