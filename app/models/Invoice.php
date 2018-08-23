@@ -340,6 +340,22 @@ class Invoice extends \Eloquent {
 			}	
 			return $InvoiceBillingClass;
 	}
+
+    public static function GetInvoiceByAccount($AccountID)
+    {
+        if(!empty($AccountID))
+        {
+            $AccountInvoices = DB::connection('sqlsrv2')->table('tblInvoice')
+                ->select('*')
+                ->where("AccountID", $AccountID)
+                ->where("InvoiceStatus", '<>', 'post')
+                ->where('InvoiceStatus', '<>', 'paid')
+               // ->orderBy("InvoiceTaxRateID", "asc")
+                ->get();
+
+            return $AccountInvoices;
+        }
+    }
 	
 	public static function GetInvoiceTemplateID($Invoice){
 	  	$billingclass = 	self::GetInvoiceBillingClass($Invoice);

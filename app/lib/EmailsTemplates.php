@@ -363,7 +363,6 @@ class EmailsTemplates{
 			$array['Currency']				=	 Currency::where(["CurrencyId"=>$AccoutData->CurrencyId])->pluck("Code");
 			$array['CurrencySign']			=	 Currency::where(["CurrencyId"=>$AccoutData->CurrencyId])->pluck("Symbol");
 			$array['OutstandingExcludeUnbilledAmount'] = Account::getOutstandingAmount($companyID, $AccountID, get_round_decimal_places($AccountID));
-			$array['OutstandingExcludeUnbilledAmount'] = number_format($array['OutstandingExcludeUnbilledAmount'], $RoundChargesAmount);
 			$array['OutstandingIncludeUnbilledAmount'] = AccountBalance::getBalanceAmount($AccountID);
 			$array['OutstandingIncludeUnbilledAmount'] = number_format($array['OutstandingIncludeUnbilledAmount'], $RoundChargesAmount);
 			$array['BalanceThreshold'] 				   = AccountBalance::getBalanceThresholdAmount($AccountID);
