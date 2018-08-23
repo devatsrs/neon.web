@@ -196,15 +196,35 @@ class CreditNotesController extends \BaseController {
             {
                 $invoicenumbers[$invoice->InvoiceNumber] = $invoice->InvoiceNumber;
             }
+            $CompanyID = User::get_companyID();
 
-            return View::make('creditnotes.apply_creditnotes', compact( 'AccountID','Invoices','invoicenumbers'));
+            return View::make('creditnotes.apply_creditnotes', compact( 'AccountID','CompanyID','Invoices','invoicenumbers'));
         }
     }
 
     public function store_creditnotes()
     {
         $data = Input::all();
-        echo"<pre>"; print_R($data);exit;
+        //echo"<pre>"; print_R($data);exit;
+        for($i=0;$i<count($data['invoice_id']);$i++)
+        {
+            if($data[payment][$i] != "")
+            {
+                $paymentdata = array();
+                $paymentdata['CompanyID'] = $data['CompanyID'];
+                $paymentdata['AccountID'] = $data['AccountID'];
+                $paymentdata['InvoiceNo'] = $data['invoice_number'][$i];
+                $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
+                $paymentdata['PaymentMethod'] = 'Credit Note';
+                $paymentdata['Notes'] = 'Paid By Credit Note';
+                $paymentdata['Amount'] = $data['payment'][$i];
+                $paymentdata['created_at']= date("Y-m-d H:i:s");
+                $paymentdata['created_at']= date("Y-m-d H:i:s");
+                $paymentdata['InvoiceID'] = $data['invoice_id'][$i];
+
+                Payment::insert($paymentdata);
+            }
+        }
     }
 
     /**
@@ -348,8 +368,8 @@ class CreditNotesController extends \BaseController {
                     }
                 }
 
-                $CreditNotesTaxRates 	 = 	merge_tax($CreditNotesTaxRates);
-                $CreditNotesAllTaxRates  = 	merge_tax($CreditNotesAllTaxRates);
+                //$CreditNotesTaxRates 	 = 	merge_tax($CreditNotesTaxRates);
+               // $CreditNotesAllTaxRates  = 	merge_tax($CreditNotesAllTaxRates);
 
                 $creditnotesloddata = array();
                 $creditnotesloddata['CreditNotesID']= $CreditNotes->CreditNotesID;
@@ -357,14 +377,19 @@ class CreditNotesController extends \BaseController {
                 $creditnotesloddata['created_at']= date("Y-m-d H:i:s");
                 $creditnotesloddata['CreditNotesLogStatus']= CreditNotesLog::CREATED;
                 CreditNotesLog::insert($creditnotesloddata);
-                if(!empty($CreditNotesTaxRates)) { //product tax
+                /*if(!empty($CreditNotesTaxRates)) { //product tax
                     CreditNotesTaxRate::insert($CreditNotesTaxRates);
-                }
+                }*/
 
                 if(!empty($CreditNotesAllTaxRates)) { //CreditNotes tax
                     CreditNotesTaxRate::insert($CreditNotesAllTaxRates);
                 }
                 if (!empty($CreditNotesDetailData) && CreditNotesDetail::insert($CreditNotesDetailData)) {
+                    $CreditNotesTaxRates1=CreditNotesTaxRate::getCreditNotesTaxRateByProductDetail($CreditNotes->CreditNotesID);
+                    if(!empty($CreditNotesTaxRates1)) { //Invoice tax
+                        CreditNotesTaxRate::insert($CreditNotesTaxRates1);
+                    }
+
                     $pdf_path = CreditNotes::generate_pdf($CreditNotes->CreditNotesID);
                     if (empty($pdf_path)) {
                         $error['message'] = 'Failed to generate Credit Notes PDF File';
@@ -556,18 +581,23 @@ class CreditNotesController extends \BaseController {
                             }
                         }
 
-                        $CreditNotesTaxRates 	  =     merge_tax($CreditNotesTaxRates);
-                        $CreditNotesAllTaxRates   = 	merge_tax($CreditNotesAllTaxRates);
+                       // $CreditNotesTaxRates 	  =     merge_tax($CreditNotesTaxRates);
+                        //$CreditNotesAllTaxRates   = 	merge_tax($CreditNotesAllTaxRates);
 
-                        if(!empty($CreditNotesTaxRates)) { //product tax
+                      /*  if(!empty($CreditNotesTaxRates)) { //product tax
                             CreditNotesTaxRate::insert($CreditNotesTaxRates);
-                        }
+                        }*/
 
                         if(!empty($CreditNotesAllTaxRates)) { //CreditNotes tax
                             CreditNotesTaxRate::insert($CreditNotesAllTaxRates);
                         }
 
                         if (!empty($CreditNotesDetailData) && CreditNotesDetail::insert($CreditNotesDetailData)) {
+                            $CreditNotesTaxRates1=CreditNotesTaxRate::getCreditNotesTaxRateByProductDetail($CreditNotes->CreditNotesID);
+                            if(!empty($CreditNotesTaxRates1)) { //Invoice tax
+                                CreditNotesTaxRate::insert($CreditNotesTaxRates1);
+                            }
+
                             $pdf_path = CreditNotes::generate_pdf($CreditNotes->CreditNotesID);
                             if (empty($pdf_path)) {
                                 $error['message'] = 'Failed to generate CreditNotes PDF File';
