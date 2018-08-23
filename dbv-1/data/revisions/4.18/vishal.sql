@@ -144,3 +144,6 @@ DELIMITER ;
 
 ALTER TABLE `tblTickets`
 	CHANGE COLUMN `RequesterCC` `RequesterCC` TEXT NULL DEFAULT NULL COLLATE 'utf8_unicode_ci' AFTER `RequesterName`;
+
+INSERT INTO `tblCronJobCommand` (`CronJobCommandID`, `CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`)
+VALUES (534, 1, 4, 'Import Pbx Payments', 'importpbxpayments', '[[{"title":"Import Days Limit","type":"text","value":"2","name":"importdayslimit"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2016-06-09 19:33:05', NULL);
