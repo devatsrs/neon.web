@@ -61,7 +61,7 @@
     </p>
     <div class="row">
         <div  class="col-md-12">
-            <div class="input-group-btn pull-right" style="width:70px;"> @if( User::checkCategoryPermission('CreditNotes','Edit'))
+            <!--<div class="input-group-btn pull-right" style="width:70px;"> @if( User::checkCategoryPermission('CreditNotes','Edit'))
                     <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
                     <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                         @if(User::checkCategoryPermission('CreditNotes','Edit'))
@@ -76,7 +76,7 @@
                     <input type="hidden" name="CustomerRateIDs" value="">
                 </form>
             </div>
-
+            -->
             @if(User::checkCategoryPermission('CreditNotes','Add'))
                 <a href="{{URL::to("creditnotes/create")}}" id="add-new-creditnotes" class="btn btn-primary pull-right"> <i class="entypo-plus"></i> Add New</a>
                 @endif
@@ -281,7 +281,7 @@
                                     //if(full[11]== 'N')
                                     {
                                         action += ' <li><a class="icon-left send_creditnotes"  creditnotes="'+full[5]+'"><i class="entypo-mail"></i>Send</a></li>';
-                                        action += ' <li><a class="icon-left convert_creditnotes"  creditnotes="'+full[5]+'"><i class="entypo-check"></i>Accept and generate invoice</a></li>';
+                                       // action += ' <li><a class="icon-left convert_creditnotes"  creditnotes="'+full[5]+'"><i class="entypo-check"></i>Accept and generate invoice</a></li>';
                                     }
 
 
@@ -290,6 +290,7 @@
 
                                     //if(full[4] != 'accepted')
                                     {
+                                        action += ' <div class="btn-group"><a href="' + (baseurl + "/creditnotes/{id}/apply_creditnotes").replace("{id}",full[8]) +'" class="btn generate btn-success btn-sm">Apply Credit Notes</a></div>'
                                         action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Change Status <span class="caret"></span></button>'
                                         action += '<ul class="dropdown-menu dropdown-green" role="menu">';
                                         $.each(creditnotesstatus, function( index, value ) {

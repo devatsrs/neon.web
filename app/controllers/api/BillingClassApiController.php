@@ -12,7 +12,15 @@ class BillingClassApiController extends ApiController {
 	public function getTaxRateList()
 	{
 		$data = Input::all();
-		$AccountTaxRate  = BillingClass::getTaxRateType($data['BillingClassID'],TaxRate::TAX_ALL);
+		$AccountTaxRate=array();
+		$result 		=   BillingClass::where('BillingClassID',$data['BillingClassID'])->pluck('TaxRateID');
+		$resultarray 	= 	explode(",",$result);
+
+		foreach($resultarray as $resultdata)	{
+			if(TaxRate::where(['TaxRateId'=>$resultdata])->count()){
+				$AccountTaxRate[]  = $resultdata;
+			}
+		}
 		return Response::json(["status"=>"success", "data"=>$AccountTaxRate]);
 	}
 }

@@ -94,9 +94,9 @@ CREATE TABLE `tblCreditNotesTaxRate` (
 COLLATE='utf8_unicode_ci'
 ENGINE=InnoDB;
 
-
+/*procedure for list credit notes */
 DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getCreditNotes`(
+CREATE PROCEDURE `prc_getCreditNotes`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountID` INT,
 	IN `p_CreditNotesNumber` VARCHAR(50),
@@ -121,12 +121,12 @@ BEGIN
 	        
  	 SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
  	 SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
-	 SELECT cr.Symbol INTO v_CurrencyCode_ from NeonRMDev.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
+	 SELECT cr.Symbol INTO v_CurrencyCode_ from Ratemanagement3.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
     IF p_isExport = 0
     THEN
         SELECT 
         ac.AccountName,
-        CONCAT(LTRIM(RTRIM(IFNULL(it.CreditNotesNumberPrefix,''))), LTRIM(RTRIM(inv.CreditNotesNumber))) AS CreditNotesNumber,
+        CONCAT(LTRIM(RTRIM(inv.CreditNotesNumber))) AS CreditNotesNumber,
         inv.IssueDate,
         CONCAT(IFNULL(cr.Symbol,''),ROUND(inv.GrandTotal,v_Round_)) AS GrandTotal2,		
         inv.CreditNotesStatus,
@@ -135,14 +135,14 @@ BEGIN
         inv.Attachment,
         inv.AccountID,		  
 		  IFNULL(ac.BillingEmail,'') AS BillingEmail,
-		  ROUND(inv.GrandTotal,v_Round_) AS GrandTotal,
-		  inv.converted
+		  ROUND(inv.GrandTotal,v_Round_) AS GrandTotal
+		  
         FROM tblCreditNotes inv
-        INNER JOIN NeonRMDev.tblAccount ac ON ac.AccountID = inv.AccountID
+        INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = inv.AccountID
         
-		INNER JOIN NeonRMDev.tblBillingClass b ON inv.BillingClassID = b.BillingClassID	
+		INNER JOIN Ratemanagement3.tblBillingClass b ON inv.BillingClassID = b.BillingClassID	
 		LEFT JOIN tblInvoiceTemplate it on b.InvoiceTemplateID = it.InvoiceTemplateID
-        LEFT JOIN NeonRMDev.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId 
+        LEFT JOIN Ratemanagement3.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId 
         WHERE ac.CompanyID = p_CompanyID
         AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
         AND (p_CreditNotesNumber = '' OR ( p_CreditNotesNumber != '' AND inv.CreditNotesNumber = p_CreditNotesNumber))
@@ -183,9 +183,9 @@ BEGIN
             COUNT(*) AS totalcount,  ROUND(SUM(inv.GrandTotal),v_Round_) AS total_grand,v_CurrencyCode_ as currency_symbol
         FROM
         tblCreditNotes inv
-        INNER JOIN NeonRMDev.tblAccount ac ON ac.AccountID = inv.AccountID
+        INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = inv.AccountID
         
-		INNER JOIN NeonRMDev.tblBillingClass b ON inv.BillingClassID = b.BillingClassID
+		INNER JOIN Ratemanagement3.tblBillingClass b ON inv.BillingClassID = b.BillingClassID
 		LEFT JOIN tblInvoiceTemplate it on b.InvoiceTemplateID = it.InvoiceTemplateID
         WHERE ac.CompanyID = p_CompanyID
         AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
@@ -203,9 +203,9 @@ BEGIN
         ROUND(inv.GrandTotal,v_Round_) AS GrandTotal,
         inv.CreditNotesStatus
         FROM tblCreditNotes inv
-        INNER JOIN NeonRMDev.tblAccount ac ON ac.AccountID = inv.AccountID
+        INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = inv.AccountID
         
-		INNER JOIN NeonRMDev.tblBillingClass b ON inv.BillingClassID = b.BillingClassID
+		INNER JOIN Ratemanagement3.tblBillingClass b ON inv.BillingClassID = b.BillingClassID
 	    LEFT JOIN tblInvoiceTemplate it on b.InvoiceTemplateID = it.InvoiceTemplateID
         WHERE ac.CompanyID = p_CompanyID
         AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
@@ -225,9 +225,9 @@ BEGIN
         inv.CreditNotesStatus,
         inv.CreditNotesID
         FROM tblCreditNotes inv
-        INNER JOIN NeonRMDev.tblAccount ac ON ac.AccountID = inv.AccountID
+        INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = inv.AccountID
        
-		INNER JOIN NeonRMDev.tblBillingClass b ON inv.BillingClassID = b.BillingClassID
+		INNER JOIN Ratemanagement3.tblBillingClass b ON inv.BillingClassID = b.BillingClassID
 		  LEFT JOIN tblInvoiceTemplate it on b.InvoiceTemplateID = it.InvoiceTemplateID
         WHERE ac.CompanyID = p_CompanyID
         AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
@@ -240,6 +240,86 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
     END//
 DELIMITER ;
+
+/*procedure for list credit notes logs*/
+
+DELIMITER //
+CREATE PROCEDURE `prc_GetCreditNotesLog`(IN `p_CompanyID` INT, IN `p_CreditNotesID` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(50), IN `p_isExport` INT)
+BEGIN
+
+	DECLARE v_OffSet_ int;
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+    IF p_isExport = 0
+    THEN
+
+       
+            SELECT
+                el.Note,
+                el.CreditNotesLogStatus,
+                el.created_at,                
+                es.CreditNotesID                
+            FROM tblCreditNotes es
+            INNER JOIN Ratemanagement3.tblAccount ac
+                ON ac.AccountID = es.AccountID
+            INNER JOIN tblCreditNotesLog el
+                ON el.CreditNotesID = es.CreditNotesID
+            WHERE ac.CompanyID = p_CompanyID
+            AND (p_CreditNotesID = '' 
+            OR (p_CreditNotesID != ''
+            AND es.CreditNotesID = p_CreditNotesID))
+             ORDER BY
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreditNotesLogStatusDESC') THEN el.CreditNotesLogStatus
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreditNotesLogStatusASC') THEN el.CreditNotesLogStatus
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_atDESC') THEN el.created_at
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_atASC') THEN el.created_at
+                END ASC
+					LIMIT p_RowspPage OFFSET v_OffSet_;
+
+        SELECT
+            COUNT(*) AS totalcount
+        FROM tblCreditNotes es
+        INNER JOIN Ratemanagement3.tblAccount ac
+            ON ac.AccountID = es.AccountID
+        INNER JOIN tblCreditNotesLog el
+            ON el.CreditNotesID = es.CreditNotesID
+        WHERE ac.CompanyID = p_CompanyID
+        AND (p_CreditNotesID = ''
+        OR (p_CreditNotesID != ''
+        AND es.CreditNotesID = p_CreditNotesID));
+
+    END IF;
+    IF p_isExport = 1
+    THEN
+
+        SELECT
+            el.Note,
+            el.created_at,
+            el.CreditNotesLogStatus,
+            es.CreditNotesNumber
+        FROM tblCreditNotes es
+        INNER JOIN Ratemanagement3.tblAccount ac
+            ON ac.AccountID = es.AccountID
+        INNER JOIN tblCreditNotesLog el
+            ON el.CreditNotesID = es.CreditNotesID
+        WHERE ac.CompanyID = p_CompanyID
+        AND (p_CreditNotesID = ''
+        OR (p_CreditNotesID != ''
+        AND es.CreditNotesID = p_CreditNotesID));
+
+
+    END IF;
+    SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
 
 
 

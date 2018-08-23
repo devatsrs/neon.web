@@ -110,6 +110,7 @@ class ReportInvoice extends \Eloquent{
             $orders_columns[]  = $colname;
 
         }
+
         if($setting_af_re['applylimit']) {
             foreach($orders_columns as $order_column) {
                 $final_query->orderby(DB::raw($order_column), $setting_af_re['order']);
@@ -126,7 +127,7 @@ class ReportInvoice extends \Eloquent{
         } else {
             $response['data'] = array();
         }
-
+        log::info($final_query->toSql());
 
         return $response;
     }
@@ -139,18 +140,24 @@ class ReportInvoice extends \Eloquent{
 
         if(in_array('TaxRateID',$data['column']) || in_array('TaxRateID',$data['row']) || in_array('TaxRateID',$data['filter']) || in_array('TotalTax',$data['sum'])){
             $query_common->join('tblInvoiceTaxRate', 'tblInvoice.InvoiceID', '=', 'tblInvoiceTaxRate.InvoiceID');
+            $query_common->leftjoin('tblInvoiceDetail', 'tblInvoiceDetail.InvoiceDetailID', '=', 'tblInvoiceTaxRate.InvoiceDetailID');
             self::$InvoiceTaxRateJoin = true;
+           // self::$InvoiceDetailJoin = true;
+
         }
         if(in_array('ProductID',$data['column']) || in_array('ProductID',$data['row']) || in_array('ProductID',$data['filter']) || in_array('ProductType',$data['column']) || in_array('ProductType',$data['row']) || in_array('ProductType',$data['filter']) || in_array('SubscriptionID',$data['column']) || in_array('SubscriptionID',$data['row']) || in_array('SubscriptionID',$data['filter']) || in_array('Code',$data['column']) || in_array('Code',$data['row']) || in_array('Code',$data['filter'])){
             $query_common->join('tblInvoiceDetail', 'tblInvoice.InvoiceID', '=', 'tblInvoiceDetail.InvoiceID');
-            self::$InvoiceDetailJoin = true;
-            if(in_array('ProductID',$data['column']) || in_array('ProductID',$data['row']) || in_array('ProductID',$data['filter']) || in_array('Code',$data['column']) || in_array('Code',$data['row']) || in_array('Code',$data['filter'])){
-                $query_common->whereRaw(' ( tblInvoiceDetail.ProductType = '.Product::ITEM .' OR tblInvoiceDetail.ProductType ='.Product::ONEOFFCHARGE.')');
-                $query_common->join('tblProduct', 'tblProduct.ProductID', '=', 'tblInvoiceDetail.ProductID');
-                self::$ProductJoin = true;
-            }else if(in_array('SubscriptionID',$data['column']) || in_array('SubscriptionID',$data['row']) || in_array('SubscriptionID',$data['filter'])){
-                $query_common->whereRaw(' ( tblInvoiceDetail.ProductType = '.Product::SUBSCRIPTION.')');
+            if(!self::$InvoiceDetailJoin) {
+                self::$InvoiceDetailJoin = true;
+                if (in_array('ProductID', $data['column']) || in_array('ProductID', $data['row']) || in_array('ProductID', $data['filter']) || in_array('Code', $data['column']) || in_array('Code', $data['row']) || in_array('Code', $data['filter'])) {
+                    $query_common->whereRaw(' ( tblInvoiceDetail.ProductType = ' . Product::ITEM . ' OR tblInvoiceDetail.ProductType =' . Product::ONEOFFCHARGE . ')');
+                    $query_common->join('tblProduct', 'tblProduct.ProductID', '=', 'tblInvoiceDetail.ProductID');
+                    self::$ProductJoin = true;
+                } else if (in_array('SubscriptionID', $data['column']) || in_array('SubscriptionID', $data['row']) || in_array('SubscriptionID', $data['filter'])) {
+                    $query_common->whereRaw(' ( tblInvoiceDetail.ProductType = ' . Product::SUBSCRIPTION . ')');
+                }
             }
+
         }
         $RMDB = Config::get('database.connections.sqlsrv.database');
         if(report_join($data)){
@@ -170,7 +177,10 @@ class ReportInvoice extends \Eloquent{
             }
             if(self::$InvoiceTaxRateJoin == false && in_array($key,array('TaxRateID'))){
                 $query_common->join('tblInvoiceTaxRate', 'tblInvoice.InvoiceID', '=', 'tblInvoiceTaxRate.InvoiceID');
-                self::$InvoiceTaxRateJoin = true;
+                if(!self::$InvoiceDetailJoin) {
+                    $query_common->leftjoin('tblInvoiceDetail', 'tblInvoiceDetail.InvoiceDetailID', '=', 'tblInvoiceTaxRate.InvoiceDetailID');
+                    self::$InvoiceTaxRateJoin = true;
+                }
             }
 
             if (!empty($filter[$key]) && is_array($filter[$key])) {
@@ -262,14 +272,13 @@ class ReportInvoice extends \Eloquent{
         }else if($colname == 'OutStanding'){
             $extra_query = !empty(self::$dateFilterString)?implode(' AND ',self::$dateFilterString):' 1=1 ';
             $measure_name = "(SUM(tblInvoice.GrandTotal) - (SELECT SUM(Amount) FROM tblPayment WHERE ( FIND_IN_SET(tblPayment.InvoiceID,group_concat(tblInvoice.InvoiceID)) OR (tblPayment.InvoiceID =0 ".$extra_query_3." AND ".$extra_query.")) AND $extra_query_2 AND Status='Approved' AND Recall = '0'))";
-        }else if(/*self::$InvoiceTaxRateJoin == false && */ in_array($colname,array('TotalTax'))){
+        }else if(self::$InvoiceTaxRateJoin == true && in_array($colname,array('TotalTax'))){
             $measure_name = "SUM(tblInvoiceTaxRate.TaxAmount)";
         }else if(self::$InvoiceDetailJoin == false && in_array($colname,array('GrandTotal'))){
             $measure_name = "SUM(tblInvoice." . $colname . ")";
         }else if(self::$InvoiceDetailJoin == false && in_array($colname,array('SubTotal'))){
-            $measure_name = "SUM(tblInvoice." . $colname . ")";
-        }else if(self::$InvoiceDetailJoin == false && in_array($colname,array('TotalTaxSubTotal'))){
-            $measure_name = "SUM(tblInvoiceTaxRate.TaxAmount) +  SUM(tblInvoice.SubTotal)";
+            //$measure_name = "SUM(tblInvoice." . $colname . ")";
+            $measure_name = "IFNULL(SUM(tblInvoiceDetail.LineTotal),SUM(tblInvoice.".$colname."))";
         }
         return $measure_name ;
     }
