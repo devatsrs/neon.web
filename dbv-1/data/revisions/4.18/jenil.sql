@@ -412,6 +412,7 @@ BEGIN
 		WHERE inv.CompanyID = p_CompanyID
 		AND inv.InvoiceID = v_InvoiceID;
 		
+		CALL prc_StockManageRecurringInvoice(p_CompanyID,p_InvoiceIDs,v_InvoiceID,p_ModifiedBy);
 		
 		DROP TEMPORARY TABLE IF EXISTS tmp_TaxRateDetail_;
 		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_TaxRateDetail_(
@@ -442,3 +443,32 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END//
 DELIMITER ;
+
+
+/* Inventory Permissions */
+insert into tblResourceCategories set ResourceCategoryName='ItemType.Add',CompanyID=1,CategoryGroupID=7;
+insert into tblResourceCategories set ResourceCategoryName='ItemType.Edit',CompanyID=1,CategoryGroupID=7;
+insert into tblResourceCategories set ResourceCategoryName='ItemType.Delete',CompanyID=1,CategoryGroupID=7;
+insert into tblResourceCategories set ResourceCategoryName='ItemType.View',CompanyID=1,CategoryGroupID=7;
+insert into tblResourceCategories set ResourceCategoryName='ItemType.All',CompanyID=1,CategoryGroupID=7;
+
+INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2603, 'ItemType.UpdateBulkItemTypeStatus', 'ItemTypeController.UpdateBulkItemTypeStatus', 1, 'Sumera Saeed', NULL, '2018-08-14 18:56:07.000', '2018-08-14 18:56:07.000', NULL);
+INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2602, 'ItemType.delete', 'ItemTypeController.delete', 1, 'Sumera Saeed', NULL, '2018-08-14 18:56:07.000', '2018-08-14 18:56:07.000', 1356);
+INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2601, 'ItemType.update', 'ItemTypeController.update', 1, 'Sumera Saeed', NULL, '2018-08-14 18:56:07.000', '2018-08-14 18:56:07.000', 1355);
+INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2600, 'ItemType.create', 'ItemTypeController.create', 1, 'Sumera Saeed', NULL, '2018-08-14 18:56:07.000', '2018-08-14 18:56:07.000', 1354);
+INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2599, 'ItemType.ajax_datagrid', 'ItemTypeController.ajax_datagrid', 1, 'Sumera Saeed', NULL, '2018-08-14 18:56:07.000', '2018-08-14 18:56:07.000', 1357);
+INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2598, 'ItemType.*', 'ItemTypeController.*', 1, 'Sumera Saeed', NULL, '2018-08-14 18:56:07.000', '2018-08-14 18:56:07.000', 1358);
+INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2597, 'ItemType.index', 'ItemTypeController.index', 1, 'Sumera Saeed', NULL, '2018-08-14 18:56:07.000', '2018-08-14 18:56:07.000', 1357);
+
+
+insert into tblResourceCategories set ResourceCategoryName='DynamicField.Add',CompanyID=1,CategoryGroupID=7;
+insert into tblResourceCategories set ResourceCategoryName='DynamicField.Edit',CompanyID=1,CategoryGroupID=7;
+insert into tblResourceCategories set ResourceCategoryName='DynamicField.Delete',CompanyID=1,CategoryGroupID=7;
+insert into tblResourceCategories set ResourceCategoryName='DynamicField.View',CompanyID=1,CategoryGroupID=7;
+insert into tblResourceCategories set ResourceCategoryName='DynamicField.All',CompanyID=1,CategoryGroupID=7;
+
+
+insert into tblResourceCategories set ResourceCategoryName='StockHistory.View',CompanyID=1,CategoryGroupID=7;
+insert into tblResourceCategories set ResourceCategoryName='StockHistory.All',CompanyID=1,CategoryGroupID=7;
+
+

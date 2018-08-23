@@ -54,11 +54,11 @@
                             <i class=""></i>
                             Back
                         </a>
-                        @if(User::checkCategoryPermission('Products','Edit'))
+                        @if(User::checkCategoryPermission('ItemType','Edit'))
                         <div class="input-group-btn pull-right hidden dropdown" style="width:78px;">
                             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
                             <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
-                                @if(User::checkCategoryPermission('Products','Edit'))
+                                @if(User::checkCategoryPermission('ItemType','Edit'))
                                     <li class="li_active">
                                         <a class="type_active_deactive" type_ad="active" href="javascript:void(0);" >
                                             <i class="fa fa-plus-circle"></i>
@@ -78,7 +78,7 @@
                         @endif
 
                         @if( User::is_admin() || User::is('BillingAdmin'))
-                            @if(User::checkCategoryPermission('Products','Add'))
+                            @if(User::checkCategoryPermission('ItemType','Add'))
 
                                 <a href="#" data-action="showAddModal" id="add-new-itemtype" data-type="item" data-modal="add-edit-modal-itemtype" class="btn btn-primary pull-right">
                                     <i class="entypo-plus"></i>
@@ -171,10 +171,10 @@
                                     }
 
                                     action += '</div>';
-                                    <?php if(User::checkCategoryPermission('Products','Edit')){ ?>
+                                    <?php if(User::checkCategoryPermission('ItemType','Edit')){ ?>
                                         action += ' <a data-name = "' + full[1] + '" data-id="' + full[0] + '" title="Edit" class="edit-itemtype btn btn-default btn-sm btn-smtooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
                                     <?php } ?>
-                                    <?php if(User::checkCategoryPermission('Products','Delete') ){ ?>
+                                    <?php if(User::checkCategoryPermission('ItemType','Delete') ){ ?>
                                         action += ' <a href="'+delete_+'" data-redirect="{{ URL::to('products')}}" title="Delete"  class="btn delete btn-danger btn-default btn-sm btn-smtooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></a>';
                                      <?php } ?>
                                     return action;
