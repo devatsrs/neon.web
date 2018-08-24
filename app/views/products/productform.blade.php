@@ -47,12 +47,18 @@
                             }
 
                             $(el).append(newState);
-                            self.trigger('change');
+                            if(composit!=1){
+                                self.trigger('change');
+                            }
                             $(el).append($(el).find("option:gt(1)").sort(function (a, b) {
                                 return a.text == b.text ? 0 : a.text < b.text ? -1 : 1;
                             }));
                         });
                         $('select[data-active="1"]').change();
+                        if(composit==1){
+                            var itemdropdown=$('#rowContainer .itemrow').find(".product_dropdown");
+                            $('option:selected', itemdropdown).remove();
+                        }
                     }
                 }else{
                     toastr.error(response.message, "Error", toastr_opts);
