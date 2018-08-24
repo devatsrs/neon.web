@@ -77,13 +77,14 @@
                                             <span>Deactivate</span>
                                         </a>
                                     </li>
-
+                                    @if(User::checkCategoryPermission('StockHistory','View'))
                                     <li class="">
                                         <a class="" href="{{  URL::to('products/stockhistory') }}" >
                                             <i class=""></i>
                                             <span>History</span>
                                         </a>
                                     </li>
+                                    @endif
                                 @endif
                             </ul>
                         </div><!-- /btn-group -->
@@ -103,13 +104,15 @@
                                 <div class="input-group-btn pull-right hidden dropdown" style="margin-right:101px">
                                     <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Manage Types <span class="caret"></span></button>
                                         <ul class="dropdown-menu dropdown-menu-right" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;left:-42px;">
-                                            @if(User::checkCategoryPermission('Products','Edit'))
+                                            @if(User::checkCategoryPermission('ItemType','View'))
                                                 <li class="li_type">
                                                     <a href="{{  URL::to('products/itemtypes') }}" id="manage-type" class="btn btn-primary pull-left">
                                                         <i class=""></i>
                                                         Manage Types
                                                     </a>
                                                 </li>
+                                            @endif
+                                            @if(User::checkCategoryPermission('DynamicField','Edit'))
                                                 <li class="li_dynamic">
                                                     <a class="btn btn-primary pull-left"  href="{{  URL::to('products/dynamicfields') }}" >
                                                         <i class=""></i>
