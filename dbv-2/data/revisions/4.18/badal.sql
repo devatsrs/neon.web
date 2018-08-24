@@ -81,6 +81,7 @@ CREATE TABLE `tblCreditNotesTaxRate` (
 	`CreditNotesTaxRateID` INT(11) NOT NULL AUTO_INCREMENT,
 	`CreditNotesID` INT(11) NOT NULL,
 	`TaxRateID` INT(11) NOT NULL,
+	`CreditNotesDetailID` INT(11) NOT NULL DEFAULT '0',
 	`TaxAmount` DECIMAL(18,6) NOT NULL,
 	`Title` VARCHAR(500) NOT NULL COLLATE 'utf8_unicode_ci',
 	`CreditNotesTaxType` TINYINT(4) NOT NULL DEFAULT '0',
@@ -88,11 +89,11 @@ CREATE TABLE `tblCreditNotesTaxRate` (
 	`ModifiedBy` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
 	`created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
 	`updated_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-	PRIMARY KEY (`CreditNotesTaxRateID`),
-	UNIQUE INDEX `IX_EstimateTaxRateUnique` (`CreditNotesID`, `TaxRateID`, `CreditNotesTaxType`)
+	PRIMARY KEY (`CreditNotesTaxRateID`)
 )
 COLLATE='utf8_unicode_ci'
-ENGINE=InnoDB;
+ENGINE=InnoDB
+;
 
 /*procedure for list credit notes */
 DELIMITER //
