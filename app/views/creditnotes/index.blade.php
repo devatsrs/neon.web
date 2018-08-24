@@ -290,7 +290,7 @@
 
                                     //if(full[4] != 'accepted')
                                     {
-                                        action += ' <div class="btn-group"><a href="' + (baseurl + "/creditnotes/{id}/apply_creditnotes").replace("{id}",full[8]) +'" class="btn generate btn-success btn-sm">Apply Credit Notes</a></div>'
+                                        action += ' <div class="btn-group"><a href="' + (baseurl + "/creditnotes/{accountid}/{id}/apply_creditnotes").replace("{accountid}",full[8]).replace("{id}",full[5]) +'" class="btn generate btn-success btn-sm">Apply Credit Notes</a></div>'
                                         action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Change Status <span class="caret"></span></button>'
                                         action += '<ul class="dropdown-menu dropdown-green" role="menu">';
                                         $.each(creditnotesstatus, function( index, value ) {

@@ -322,6 +322,10 @@ END//
 DELIMITER ;
 
 
+ALTER TABLE `tblPayment`
+	ADD COLUMN `CreditNotesID` INT(11) NULL DEFAULT '0' AFTER `TransactionID`;
+
+
 
 
 
