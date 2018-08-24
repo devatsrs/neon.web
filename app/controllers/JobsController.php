@@ -178,14 +178,22 @@ class JobsController extends \BaseController {
      * */
     public function downloaOutputFile($id){
         //if( User::checkPermission('Job') && intval($id) > 0 ) {
-            $OutputFilePath = Job::where("JobID", $id)->pluck("OutputFilePath");
+        $OutputFilePath = Job::where("JobID", $id)->pluck("OutputFilePath");
+        $JobTypeID = Job::where("JobID", $id)->pluck("JobTypeID");
+        $JobType = JobType::where("JobTypeID",$JobTypeID)->pluck("Code");
+
+        if($JobType == 'SCRP') {
+            // when sippy customer rate push file download it will have full path stored in job table
+            $FilePath = $OutputFilePath;
+        } else {
             $FilePath =  AmazonS3::preSignedUrl($OutputFilePath);
-            if(file_exists($FilePath)){
-                download_file($FilePath);
-            }else{
-                header('Location: '.$FilePath);
-            }
-            exit;
+        }
+        if(file_exists($FilePath)){
+            download_file($FilePath);
+        }else{
+            header('Location: '.$FilePath);
+        }
+        exit;
         //}
 
     }
