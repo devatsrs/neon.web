@@ -1026,6 +1026,15 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/creditnotes/display_creditnotes/{id}', 'CreditNotesController@display_creditnotes');
 	Route::any('/creditnotes/download_creditnotes/{id}', 'CreditNotesController@download_creditnotes');
 	Route::any('/creditnotes/creditnotes_change_Status', 'CreditNotesController@creditnotes_change_Status');
+	Route::any('/creditnotes/{id}/send', 'CreditNotesController@send');
+	Route::any('/creditnotes/{id}/ajax_getEmailTemplate', 'CreditNotesController@ajax_getEmailTemplate');
+	Route::any('/creditnotes/{id}/creditnotes_email', 'CreditNotesController@creditnotes_email');
+	Route::any('/creditnotes/creditnoteslog/{id}', 'CreditNotesController@creditnoteslog');
+	Route::any('/creditnotes/ajax_creditnoteslog_datagrid/{id}/{type}', 'CreditNotesController@ajax_creditnoteslog_datagrid');
+	Route::any('/creditnotes/{id}/cview', 'CreditNotesController@cview');
+	Route::any('/creditnotes/{id}/apply_creditnotes', 'CreditNotesController@apply_creditnotes');
+	Route::any('/creditnotes/{id}/apply_creditnote_datagrid', 'CreditNotesController@apply_creditnote_datagrid');
+	Route::any('/creditnotes/store_creditnotes', 'CreditNotesController@store_creditnotes');
 
 	Route::any('/creditnotes/ajax_datagrid/{type}', 'CreditNotesController@ajax_datagrid');
 	Route::any('/creditnotes/ajax_datagrid_total', 'CreditNotesController@ajax_datagrid_total');

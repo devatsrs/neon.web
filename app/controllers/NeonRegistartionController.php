@@ -318,7 +318,7 @@ class NeonRegistartionController extends \BaseController {
             $BillingCycleValue = $BillingSetting['billing_cycle_options'];
             $BillingStartDate = date('Y-m-d');
             /**
-             *  if not first invoice generation
+             *  if not first invoice generation*/
             Log::info($BillingCycleType.' '.$BillingCycleValue.' '.$BillingStartDate);
             $NextBillingDate = next_billing_date($BillingCycleType, $BillingCycleValue, strtotime($BillingStartDate));
             $NextChargedDate = date('Y-m-d', strtotime('-1 day', strtotime($NextBillingDate)));
@@ -328,19 +328,40 @@ class NeonRegistartionController extends \BaseController {
             $dataAccountBilling['LastChargeDate'] = $BillingStartDate;
             $dataAccountBilling['NextInvoiceDate'] = $NextBillingDate;
             $dataAccountBilling['NextChargeDate'] = $NextChargedDate;
-             */
+            /**
+             *  if not first invoice generation
 
             $dataAccountBilling['BillingStartDate'] = $BillingStartDate;
             $dataAccountBilling['LastInvoiceDate']  = $BillingStartDate;
             $dataAccountBilling['LastChargeDate']   = $BillingStartDate;
             $dataAccountBilling['NextInvoiceDate']  = $BillingStartDate;
             $dataAccountBilling['NextChargeDate']   = $BillingStartDate;
-
+             */
             Log::info(print_r($dataAccountBilling,true));
 
             AccountBilling::insertUpdateBilling($AccountID, $dataAccountBilling,0);
             AccountBilling::storeFirstTimeInvoicePeriod($AccountID, 0);
             CompanySetting::setKeyVal('LastAccountNo', $account->Number);
+
+            /** credit limit insert start */
+            if(!empty($BillingSetting['credit_limit'])){
+                $AccountBalancedata=array();
+                $AccountBalancedata['PermanentCredit']=$BillingSetting['credit_limit'];
+                if (AccountBalance::where('AccountID', $AccountID)->count()) {
+                    AccountBalance::where('AccountID', $AccountID)->update($AccountBalancedata);
+                    $AccountBalancedata['AccountID']=$AccountID;
+                } elseif (AccountBalance::where('AccountID', $AccountID)->count() == 0) {
+                    $AccountBalancedata['AccountID']=$AccountID;
+                    AccountBalance::create($AccountBalancedata);
+                }
+
+                $AccountBalancedata['created_at'] = date('Y-m-d H:i:s');
+                $AccountBalancedata['CreatedBy'] =$UserName;
+                DB::table('tblAccountBalanceHistory')->insert($AccountBalancedata);
+
+            }
+
+            /** credit limit insert end */
 
             //Account level billing period
             $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'),0);
@@ -452,7 +473,7 @@ class NeonRegistartionController extends \BaseController {
                     $SubscriptionData['ServiceID'] = $CentrexServiceID;
                     $SubscriptionData['SubscriptionID'] = $SubscriptionID;
                     $SubscriptionData['Qty'] = $quantity;
-                    $SubscriptionData['StartDate'] = date('Y-m-d');
+                    $SubscriptionData['StartDate'] = $NextBillingDate;
                     $SubscriptionData['CreatedBy'] = $UserName;
                     log::info('Subscription ID ' . $ext_data['subscriptionId']);
                     log::info('Quantity ' . $quantity);
@@ -495,7 +516,8 @@ class NeonRegistartionController extends \BaseController {
                             $SubscriptionData['ServiceID'] = $did_data['serviceId'];
                             $SubscriptionData['SubscriptionID'] = $SubscriptionID;
                             $SubscriptionData['Qty'] = $quantity;
-                            $SubscriptionData['StartDate'] = date('Y-m-d');
+                            //$SubscriptionData['StartDate'] = date('Y-m-d');
+                            $SubscriptionData['StartDate'] = $NextBillingDate;
                             $SubscriptionData['CreatedBy'] = $UserName;
                             log::info('DID Subscription ID ' . $did_data['subscriptionId']);
                             log::info('DID Quantity ' . $quantity);
@@ -590,7 +612,8 @@ class NeonRegistartionController extends \BaseController {
                     $SubscriptionData['ServiceID'] = $SipTrunkServiceID;
                     $SubscriptionData['SubscriptionID'] = $SubscriptionID;
                     $SubscriptionData['Qty'] = $quantity;
-                    $SubscriptionData['StartDate'] = date('Y-m-d');
+                    //$SubscriptionData['StartDate'] = date('Y-m-d');
+                    $SubscriptionData['StartDate'] = $NextBillingDate;
                     $SubscriptionData['CreatedBy'] = $UserName;
                     log::info('SipTrunk Subscription ID '.$siptrunk_data['subscriptionId']);
                     log::info('SipTrunk Quantity '.$quantity);
@@ -637,93 +660,71 @@ class NeonRegistartionController extends \BaseController {
 
             log::info('Invoice Generation Start');
 
-            //Log::info(CompanyConfiguration::get(1,"PHPExePath") . " " . CompanyConfiguration::get(1,"RMArtisanFileLocation") . "  invoicegenerator " . $CompanyID . " $CronJobID $UserID ". " &");
+            /*
             $PHPExePath = CompanyConfiguration::getValueConfigurationByKey("PHP_EXE_PATH",$CompanyID);
             $RMArtisanFileLocation = CompanyConfiguration::getValueConfigurationByKey("RM_ARTISAN_FILE_LOCATION",$CompanyID);
             $Command = $PHPExePath.' '.$RMArtisanFileLocation.' '.'singleinvoicegeneration '.$CompanyID.' '.$AccountID;
             RemoteSSH::run($Command);
             //exec($Command);
+            */
 
-            log::info('Invoice Paid And Payment Start');
+            $InvoiceID=0;
+            $FullInvoiceNumber='';
+            $RegistarionApiLogUpdate = array();
+            $RegistarionApiLogUpdate['InvoiceStatus'] = 'failed';
+            $RegistarionApiLogUpdate['InvoiceID'] = 0;
 
-            $AccountInvoice = Invoice::where(['CompanyID'=>$CompanyID,'AccountID'=>$AccountID])->first();
-            log::info('New Account Invoice');
-            //log::info(print_r($AccountInvoice,true));
-            if(!empty($AccountInvoice)){
-                $GrandTotal = $AccountInvoice->GrandTotal;
-                $InvoiceID = $AccountInvoice->InvoiceID;
-                $FullInvoiceNumber='';
-                if($GrandTotal>0){
+            if(!empty($Result['data_user']['summary'])) {
+                $summarydata = $Result['data_user']['summary'];
+                $Result = $this->createAPIInvoice($CompanyID,$AccountID,$UserName,$summarydata);
+                if(isset($Result['status']) && $Result['status']=='success'){
+                    $InvoiceID = $Result['LastID'];
                     $Invoice=Invoice::find($InvoiceID);
                     $FullInvoiceNumber=$Invoice->FullInvoiceNumber;
                     $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
-                }
-                /** Payment Add Start */
-                $paymentdata = array();
-                $paymentdata['CompanyID'] = $CompanyID;
-                $paymentdata['AccountID'] = $AccountID;
-                $paymentdata['InvoiceNo'] = $FullInvoiceNumber;
-                $paymentdata['InvoiceID'] = (int)$InvoiceID;
-                $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
-                $paymentdata['PaymentMethod'] = $PaymentResponse['PaymentMethod'];
-                $paymentdata['CurrencyID'] = $account->CurrencyId;
-                $paymentdata['PaymentType'] = 'Payment In';
-                $paymentdata['Notes'] = $PaymentResponse['transaction_notes'];
-                if($topup>0){
-                    $paymentdata['Amount'] = floatval($PaymentResponse['Amount'] - $topup);
-                }else{
-                    $paymentdata['Amount'] = floatval($PaymentResponse['Amount']);
-                }
 
-                $paymentdata['Status'] = 'Approved';
-                $paymentdata['CreatedBy'] = $UserName.'(API)';
-                $paymentdata['ModifyBy'] = $UserName;
-                $paymentdata['created_at'] = date('Y-m-d H:i:s');
-                $paymentdata['updated_at'] = date('Y-m-d H:i:s');
-                Payment::insert($paymentdata);
-                /** Payment Add End */
-
-                $RegistarionApiLogID = Session::get('RegistarionApiLogID');
-                $RegistarionApiLogUpdate = array();
-                if(!empty($RegistarionApiLogID)){
                     $RegistarionApiLogUpdate['InvoiceStatus'] = 'success';
                     $RegistarionApiLogUpdate['InvoiceID'] = $InvoiceID;
-                    DB::table('tblRegistarionApiLog')->where('RegistarionApiLogID', $RegistarionApiLogID)->update($RegistarionApiLogUpdate);
+                    Log::info($InvoiceID.' Invoice was generated successfully');
                 }
-            }else{
-                /** Payment Add Start */
-                $paymentdata = array();
-                $paymentdata['CompanyID'] = $CompanyID;
-                $paymentdata['AccountID'] = $AccountID;
-                $paymentdata['InvoiceNo'] = '';
-                $paymentdata['InvoiceID'] = 0;
-                $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
-                $paymentdata['PaymentMethod'] = $PaymentResponse['PaymentMethod'];
-                $paymentdata['CurrencyID'] = $account->CurrencyId;
-                $paymentdata['PaymentType'] = 'Payment In';
-                $paymentdata['Notes'] = $PaymentResponse['transaction_notes'];
-                if($topup>0){
-                    $paymentdata['Amount'] = floatval($PaymentResponse['Amount'] - $topup);
-                }else{
-                    $paymentdata['Amount'] = floatval($PaymentResponse['Amount']);
-                }
-
-                $paymentdata['Status'] = 'Approved';
-                $paymentdata['CreatedBy'] = $UserName.'(API)';
-                $paymentdata['ModifyBy'] = $UserName;
-                $paymentdata['created_at'] = date('Y-m-d H:i:s');
-                $paymentdata['updated_at'] = date('Y-m-d H:i:s');
-                Payment::insert($paymentdata);
-                /** Payment Add End */
-
-                Log::info($AccountID.' Invoice was not generated');
             }
-            log::info('Invoice Paid And Payment End');
+            $RegistarionApiLogID = Session::get('RegistarionApiLogID');
+            if(!empty($RegistarionApiLogID)){
+                DB::table('tblRegistarionApiLog')->where('RegistarionApiLogID', $RegistarionApiLogID)->update($RegistarionApiLogUpdate);
+            }
 
             log::info('Invoice Generation End');
 
             /** Invoice Generation End */
 
+            log::info('Invoice Payment Start');
+
+            /** Payment Add Start */
+            $paymentdata = array();
+            $paymentdata['CompanyID'] = $CompanyID;
+            $paymentdata['AccountID'] = $AccountID;
+            $paymentdata['InvoiceNo'] = $FullInvoiceNumber;
+            $paymentdata['InvoiceID'] = (int)$InvoiceID;
+            $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
+            $paymentdata['PaymentMethod'] = $PaymentResponse['PaymentMethod'];
+            $paymentdata['CurrencyID'] = $account->CurrencyId;
+            $paymentdata['PaymentType'] = 'Payment In';
+            $paymentdata['Notes'] = $PaymentResponse['transaction_notes'];
+            if($topup>0){
+                $paymentdata['Amount'] = floatval($PaymentResponse['Amount'] - $topup);
+            }else{
+                $paymentdata['Amount'] = floatval($PaymentResponse['Amount']);
+            }
+
+            $paymentdata['Status'] = 'Approved';
+            $paymentdata['CreatedBy'] = $UserName.'(API)';
+            $paymentdata['ModifyBy'] = $UserName;
+            $paymentdata['created_at'] = date('Y-m-d H:i:s');
+            $paymentdata['updated_at'] = date('Y-m-d H:i:s');
+            Payment::insert($paymentdata);
+            /** Payment Add End */
+
+            log::info('Invoice Payment End');
 
             $Response = array();
             $Response['AccountID'] = $AccountID;
@@ -770,10 +771,21 @@ class NeonRegistartionController extends \BaseController {
         $dataAccountSubscription['SubscriptionID'] = $data['SubscriptionID'];
         $dataAccountSubscription['InvoiceDescription'] = $Subscription->InvoiceLineDescription;
         $dataAccountSubscription['Qty'] = $data['Qty'];
-        $dataAccountSubscription['StartDate'] = $data['StartDate'];
+        /**if subscription in advance than start date will next invoice generation day
+         * Other wise today
+         */
+        if(!empty($Subscription->Advance)){
+            $dataAccountSubscription['StartDate'] = $data['StartDate'];
+        }else{
+            $dataAccountSubscription['StartDate'] = date('Y-m-d');
+        }
         $dataAccountSubscription['EndDate'] = '';
         $dataAccountSubscription['ExemptTax'] = 0;
-        $dataAccountSubscription['ActivationFee'] = $Subscription->ActivationFee;
+        if(!empty($Subscription->Advance)) {
+            $dataAccountSubscription['ActivationFee'] = 0; // Allready charge in one off invoice
+        }else{
+            $dataAccountSubscription['ActivationFee'] = $Subscription->ActivationFee * $data['Qty'];
+        }
         $dataAccountSubscription['AnnuallyFee'] = $Subscription->AnnuallyFee;
         $dataAccountSubscription['QuarterlyFee'] = $Subscription->QuarterlyFee;
         $dataAccountSubscription['MonthlyFee'] = $Subscription->MonthlyFee;
@@ -812,6 +824,11 @@ class NeonRegistartionController extends \BaseController {
 
             //Account level billing period
             $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'),0);
+
+            $NextBillingDate=AccountBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>0))->pluck('NextInvoiceDate');
+            if(empty($NextBillingDate)){
+                $NextBillingDate=date('Y-m-d');
+            }
 
             /**Create Account Billing End*/
 
@@ -906,7 +923,7 @@ class NeonRegistartionController extends \BaseController {
                     $SubscriptionData['ServiceID'] = $CentrexServiceID;
                     $SubscriptionData['SubscriptionID'] = $SubscriptionID;
                     $SubscriptionData['Qty'] = $quantity;
-                    $SubscriptionData['StartDate'] = date('Y-m-d');
+                    $SubscriptionData['StartDate'] = $NextBillingDate;
                     $SubscriptionData['CreatedBy'] = $UserName;
                     log::info('Subscription ID '.$ext_data['subscriptionId']);
                     log::info('Quantity '.$quantity);
@@ -946,7 +963,7 @@ class NeonRegistartionController extends \BaseController {
                             $SubscriptionData['ServiceID'] = $did_data['serviceId'];
                             $SubscriptionData['SubscriptionID'] = $SubscriptionID;
                             $SubscriptionData['Qty'] = $quantity;
-                            $SubscriptionData['StartDate'] = date('Y-m-d');
+                            $SubscriptionData['StartDate'] = $NextBillingDate;
                             $SubscriptionData['CreatedBy'] = $UserName;
                             log::info('DID Subscription ID ' . $did_data['subscriptionId']);
                             log::info('DID Quantity ' . $quantity);
@@ -1042,7 +1059,7 @@ class NeonRegistartionController extends \BaseController {
                     $SubscriptionData['ServiceID'] = $SipTrunkServiceID;
                     $SubscriptionData['SubscriptionID'] = $SubscriptionID;
                     $SubscriptionData['Qty'] = $quantity;
-                    $SubscriptionData['StartDate'] = date('Y-m-d');
+                    $SubscriptionData['StartDate'] = $NextBillingDate;
                     $SubscriptionData['CreatedBy'] = $UserName;
                     log::info('SipTrunk Subscription ID '.$siptrunk_data['subscriptionId']);
                     log::info('SipTrunk Quantity '.$quantity);
@@ -1154,4 +1171,182 @@ class NeonRegistartionController extends \BaseController {
         }
     }
 
+    public function createAPIInvoice($CompanyID,$AccountID,$CreatedBy,$data){
+        $created_at=date('Y-m-d H:i:s');
+        $Account = Account::where(["AccountID"=>$AccountID])->first();
+
+        try {
+            DB::connection('sqlsrv2')->beginTransaction();
+
+            $InvoiceData = array();
+            $InvoiceTemplateID = BillingClass::getInvoiceTemplateID($data['BillingClassID']);
+            $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
+            $message = $InvoiceTemplate->InvoiceTo;
+            $replace_array = Invoice::create_accountdetails($Account);
+            $text = Invoice::getInvoiceToByAccount($message, $replace_array);
+            $InvoiceToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
+            $Terms = $InvoiceTemplate->Terms;
+            $FooterTerm = $InvoiceTemplate->FooterTerm;
+
+            $LastInvoiceNumber = InvoiceTemplate::getNextInvoiceNumber($InvoiceTemplateID);
+            $FullInvoiceNumber = $InvoiceTemplate->InvoiceNumberPrefix . $LastInvoiceNumber;
+            $InvoiceData["InvoiceNumber"] = $LastInvoiceNumber;
+            $InvoiceData["CompanyID"] = $CompanyID;
+            $InvoiceData["AccountID"] = intval($AccountID);
+            $InvoiceData["Address"] = $InvoiceToAddress;        //change
+            $InvoiceData["IssueDate"] = date('Y-m-d');  //today
+            $InvoiceData["PONumber"] = ''; //blank
+            $InvoiceData["SubTotal"] = str_replace(",", "", $data["SubTotal"]);
+            //$InvoiceData["TotalDiscount"] = str_replace(",","",$data["TotalDiscount"]);
+            $InvoiceData["TotalDiscount"] = 0;
+            //$InvoiceData["TotalTax"] = str_replace(",","",$data["TotalTax"]);
+            $InvoiceData["TotalTax"] = 0;
+            $InvoiceData["GrandTotal"] = floatval(str_replace(",", "", $data["GrandTotal"]));
+            $InvoiceData["CurrencyID"] = $Account->CurrencyId;
+            $InvoiceData["InvoiceType"] = Invoice::INVOICE_OUT;
+            $InvoiceData["InvoiceStatus"] = Invoice::AWAITING;
+            $InvoiceData["ItemInvoice"] = Invoice::ITEM_INVOICE;
+            $InvoiceData["Note"] = 'API'; //static api generation
+            $InvoiceData["Terms"] = $Terms;  //change
+            $InvoiceData["FooterTerm"] = $FooterTerm;
+            $InvoiceData["CreatedBy"] = $CreatedBy; 
+            //$InvoiceData['InvoiceTotal'] = str_replace(",","",$data["GrandTotal"]);
+            $InvoiceData['InvoiceTotal'] = 0;
+            $InvoiceData['BillingClassID'] = $data["BillingClassID"];
+            $InvoiceData["FullInvoiceNumber"] = $FullInvoiceNumber;
+
+            //log::info(print_r($InvoiceData, true));
+            $Invoice = Invoice::create($InvoiceData);
+            if(empty($Invoice)){
+                $reseponse = array("status" => "failed", "message" => "Problem Creating Invoice. ");
+                return $reseponse;
+            }
+            //Store Last Invoice Number.
+            InvoiceTemplate::find($InvoiceTemplateID)->update(array("LastInvoiceNumber" => $LastInvoiceNumber));
+            $InvoiceID = $Invoice->InvoiceID;
+            log::info('InvoiceID ' . $InvoiceID);
+
+            if (!empty($data['SubscriptionData']) && !empty($InvoiceID)) {
+                $SubscriptionDatas = $data['SubscriptionData'];
+
+                /** Subscription insert start */
+                foreach ($SubscriptionDatas as $SubscriptionData) {
+                    $InvoiceDetailData = array();
+                    $InvoiceDetailData['InvoiceID'] = $InvoiceID;
+                    $InvoiceDetailData['ProductID'] = $SubscriptionData['ProductID'];
+                    $Description = BillingSubscription::where("SubscriptionID", $SubscriptionData['ProductID'])->pluck("Name");
+                    $InvoiceDetailData['Description'] = $Description;
+                    $InvoiceDetailData['Price'] = $SubscriptionData['Price'];
+                    $InvoiceDetailData['Qty'] = $SubscriptionData['Qty'];
+                    $InvoiceDetailData['TaxAmount'] = 0;
+                    $InvoiceDetailData['LineTotal'] = $SubscriptionData['LineTotal'];
+                    $InvoiceDetailData['StartDate'] = '';
+                    $InvoiceDetailData['EndDate'] = '';
+                    $InvoiceDetailData['Discount'] = 0;
+                    $InvoiceDetailData['TaxRateID'] = 0;
+                    $InvoiceDetailData['TaxRateID2'] = 0;
+                    $InvoiceDetailData['CreatedBy'] = $CreatedBy;
+                    $InvoiceDetailData['ModifiedBy'] = $CreatedBy;
+                    $InvoiceDetailData['created_at'] = $created_at;
+                    $InvoiceDetailData['updated_at'] = $created_at;
+                    $InvoiceDetailData['ProductType'] = Product::SUBSCRIPTION;
+                    $InvoiceDetailData['ServiceID'] = 0;
+                    $InvoiceDetailData['AccountSubscriptionID'] = 0;
+                    $InvoiceDetails = InvoiceDetail::create($InvoiceDetailData);
+
+                    if (isset($InvoiceDetails) && !empty($SubscriptionData['TaxRateData'])) {
+                        foreach ($SubscriptionData['TaxRateData'] as $TaxRateData) {
+                            $InvoiceTaxRates = array();
+                            $InvoiceTaxRates['InvoiceID'] = $InvoiceID;
+                            $InvoiceTaxRates['InvoiceDetailID'] = $InvoiceDetails->InvoiceDetailID;
+                            $InvoiceTaxRates['TaxRateID'] = $TaxRateData['TaxRateID'];
+                            $InvoiceTaxRates['TaxAmount'] = $TaxRateData['TaxAmount'];
+                            $Title = TaxRate::where("TaxRateId", $TaxRateData['TaxRateID'])->pluck("Title");
+                            $InvoiceTaxRates['Title'] = $Title;
+                            $InvoiceTaxRates['InvoiceTaxType'] = 0;
+                            InvoiceTaxRate::create($InvoiceTaxRates);
+                        }
+                    }
+                }
+            }
+            /** Subscription insert end */
+
+            /** TopUp as product insert start */
+
+            if (!empty($data['TopUpAmount']) && !empty($InvoiceID)) {
+                $InvoiceDetailData = array();
+                $ProductID = Product::where(['CompanyId' => $CompanyID, 'Code' => 'topup'])->pluck('ProductID');
+                /** if blank need to add first */
+                $InvoiceDetailData['InvoiceID'] = $InvoiceID;
+                $InvoiceDetailData['ProductID'] = $ProductID;
+                $InvoiceDetailData['Description'] = 'TopUp';
+                $InvoiceDetailData['Price'] = $data['TopUpAmount'];
+                $InvoiceDetailData['Qty'] = 1;
+                $InvoiceDetailData['TaxAmount'] = 0;
+                $InvoiceDetailData['LineTotal'] = $data['TopUpAmount'];
+                $InvoiceDetailData['StartDate'] = '';
+                $InvoiceDetailData['EndDate'] = '';
+                $InvoiceDetailData['Discount'] = 0;
+                $InvoiceDetailData['TaxRateID'] = 0;
+                $InvoiceDetailData['TaxRateID2'] = 0;
+                $InvoiceDetailData['CreatedBy'] = $CreatedBy;
+                $InvoiceDetailData['ModifiedBy'] = $CreatedBy;
+                $InvoiceDetailData['created_at'] = $created_at;
+                $InvoiceDetailData['updated_at'] = $created_at;
+                $InvoiceDetailData['ProductType'] = Product::ITEM;
+                $InvoiceDetailData['ServiceID'] = 0;
+                $InvoiceDetailData['AccountSubscriptionID'] = 0;
+                InvoiceDetail::create($InvoiceDetailData);
+            }
+
+            /** TopUp as product insert end */
+
+            /** All Over Tax insert Start */
+
+            if (!empty($InvoiceID) && $data['AllOverTaxData']) {
+                foreach ($data['AllOverTaxData'] as $TaxRateData) {
+                    $InvoiceTaxRates = array();
+                    $InvoiceTaxRates['InvoiceID'] = $InvoiceID;
+                    $InvoiceTaxRates['InvoiceDetailID'] = 0;
+                    $InvoiceTaxRates['TaxRateID'] = $TaxRateData['TaxRateID'];
+                    $InvoiceTaxRates['TaxAmount'] = $TaxRateData['TaxAmount'];
+                    $Title = TaxRate::where("TaxRateId", $TaxRateData['TaxRateID'])->pluck("Title");
+                    $InvoiceTaxRates['Title'] = $Title;
+                    $InvoiceTaxRates['InvoiceTaxType'] = 1;
+                    InvoiceTaxRate::create($InvoiceTaxRates);
+                }
+            }
+
+            /** All Over Tax insert End */
+
+            $invoiceloddata = array();
+            $invoiceloddata['InvoiceID'] = $InvoiceID;
+            $invoiceloddata['Note'] = 'Created By ' . $CreatedBy;
+            $invoiceloddata['created_at'] = $created_at;
+            $invoiceloddata['InvoiceLogStatus'] = InVoiceLog::CREATED;
+            InVoiceLog::insert($invoiceloddata);
+
+            $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID);
+            if (empty($pdf_path)) {
+                $error['message'] = 'Failed to generate Invoice PDF File';
+                $error['status'] = 'failure';
+                return $error;
+            } else {
+                $Invoice->update(["PDF" => $pdf_path]);
+            }
+
+            DB::connection('sqlsrv2')->commit();
+            $SuccessMsg="Invoice Successfully Created.";
+            $message='';
+            $reseponse = array("status" => "success","warning"=>$message, "message" => $SuccessMsg,'LastID'=>$Invoice->InvoiceID);
+            return $reseponse;
+
+        }catch (Exception $e){
+            Log::info($e);
+            DB::connection('sqlsrv2')->rollback();
+            $reseponse = array("status" => "failed", "message" => "Problem Creating Invoice. \n" . $e->getMessage());
+            return $reseponse;
+        }
+
+    }
 }

@@ -100,6 +100,10 @@
             $selectd_val =$commandconfigval->$configtitle['name'];
         }
         $count++;
+
+        if(empty($selectd_val) && isset($configtitle['value']) && !empty($configtitle['value'])){
+            $selectd_val=$configtitle['value'];
+        }
     ?>
     @if($count%2 == 0)
         <div class="clear"></div>
