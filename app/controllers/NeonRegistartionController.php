@@ -1099,12 +1099,37 @@ class NeonRegistartionController extends \BaseController {
 
             /** End Topup */
 
+            $InvoiceID=0;
+            $FullInvoiceNumber='';
+            $RegistarionApiLogUpdate = array();
+            $RegistarionApiLogUpdate['InvoiceStatus'] = 'failed';
+            $RegistarionApiLogUpdate['InvoiceID'] = 0;
+
+            if(!empty($Result['data_user']['summary'])) {
+                $summarydata = $Result['data_user']['summary'];
+                $Result = $this->createAPIInvoice($CompanyID,$AccountID,$UserName,$summarydata);
+                if(isset($Result['status']) && $Result['status']=='success'){
+                    $InvoiceID = $Result['LastID'];
+                    $Invoice=Invoice::find($InvoiceID);
+                    $FullInvoiceNumber=$Invoice->FullInvoiceNumber;
+                    $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
+
+                    $RegistarionApiLogUpdate['InvoiceStatus'] = 'success';
+                    $RegistarionApiLogUpdate['InvoiceID'] = $InvoiceID;
+                    Log::info($InvoiceID.' Invoice was generated successfully');
+                }
+            }
+            $RegistarionApiLogID = Session::get('RegistarionApiLogID');
+            if(!empty($RegistarionApiLogID)){
+                DB::table('tblRegistarionApiLog')->where('RegistarionApiLogID', $RegistarionApiLogID)->update($RegistarionApiLogUpdate);
+            }
+
             /** Payment Add Start */
             $paymentdata = array();
             $paymentdata['CompanyID'] = $CompanyID;
             $paymentdata['AccountID'] = $AccountID;
-            $paymentdata['InvoiceNo'] = '';
-            $paymentdata['InvoiceID'] = 0;
+            $paymentdata['InvoiceNo'] = $FullInvoiceNumber;
+            $paymentdata['InvoiceID'] = $InvoiceID;
             $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
             $paymentdata['PaymentMethod'] = $PaymentResponse['PaymentMethod'];
             $paymentdata['CurrencyID'] = $account->CurrencyId;
@@ -1234,8 +1259,8 @@ class NeonRegistartionController extends \BaseController {
                     $InvoiceDetailData = array();
                     $InvoiceDetailData['InvoiceID'] = $InvoiceID;
                     $InvoiceDetailData['ProductID'] = $SubscriptionData['ProductID'];
-                    $Description = BillingSubscription::where("SubscriptionID", $SubscriptionData['ProductID'])->pluck("Name");
-                    $InvoiceDetailData['Description'] = $Description;
+                    //$Description = BillingSubscription::where("SubscriptionID", $SubscriptionData['ProductID'])->pluck("Description");
+                    $InvoiceDetailData['Description'] = $SubscriptionData['Description'];
                     $InvoiceDetailData['Price'] = $SubscriptionData['Price'];
                     $InvoiceDetailData['Qty'] = $SubscriptionData['Qty'];
                     $InvoiceDetailData['TaxAmount'] = 0;
