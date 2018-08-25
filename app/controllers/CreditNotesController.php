@@ -162,43 +162,43 @@ class CreditNotesController extends \BaseController {
         if($id > 0)
         {
 
-            $CreditNotes 					= 	 CreditNotes::find($id);
-            $CompanyID = $CreditNotes->CompanyID;
-            $CreditNotesBillingClass 		=	 CreditNotes::GetCreditNotesBillingClass($CreditNotes);
+            $CreditNotes 				= 	 CreditNotes::find($id);
+            $CompanyID                  =    $CreditNotes->CompanyID;
+            $CreditNotesBillingClass 	=	 CreditNotes::GetCreditNotesBillingClass($CreditNotes);
             $CreditNotesDetail 			=	 CreditNotesDetail::where(["CreditNotesID"=>$id])->get();
             $accounts 					= 	 Account::getAccountIDList();
             $products 					= 	 Product::getProductDropdownList($CompanyID);
             $Account 					= 	 Account::where(["AccountID" => $CreditNotes->AccountID])->select(["AccountName","BillingEmail","CurrencyId"])->first(); //"TaxRateID","RoundChargesAmount","InvoiceTemplateID"
             $CurrencyID 				= 	 !empty($CreditNotes->CurrencyID)?$CreditNotes->CurrencyID:$Account->CurrencyId;
             $RoundChargesAmount 		= 	 get_round_decimal_places($CreditNotes->AccountID);
-            $InvoiceTemplateID 		=	 BillingClass::getInvoiceTemplateID($CreditNotesBillingClass);
-            $CreditNotesNumberPrefix 		= 	 ($InvoiceTemplateID>0)?InvoiceTemplate::find($InvoiceTemplateID)->CreditNotesNumberPrefix:'';
+            $InvoiceTemplateID 		    =	 BillingClass::getInvoiceTemplateID($CreditNotesBillingClass);
+            $CreditNotesNumberPrefix 	= 	 ($InvoiceTemplateID>0)?InvoiceTemplate::find($InvoiceTemplateID)->CreditNotesNumberPrefix:'';
             $Currency 					= 	 Currency::find($CurrencyID);
             $CurrencyCode 				= 	 !empty($Currency)?$Currency->Code:'';
             $CompanyName 				= 	 Company::getName($CompanyID);
             $taxes 						= 	 TaxRate::getTaxRateDropdownIDListForInvoice(0,$CompanyID);
             $CreditNotesAllTax 			= 	 DB::connection('sqlsrv2')->table('tblCreditNotesTaxRate')->where(["CreditNotesID"=>$id,"CreditNotesTaxType"=>1])->get();
             $BillingClass				=    BillingClass::getDropdownIDList($CompanyID);
-            $itemtypes 	= 	ItemType::getItemTypeDropdownList($CompanyID);
+            $itemtypes 	                = 	 ItemType::getItemTypeDropdownList($CompanyID);
             return View::make('creditnotes.edit', compact( 'id','itemtypes', 'CreditNotes','CreditNotesDetail','InvoiceTemplateID','CreditNotesNumberPrefix',  'CurrencyCode','CurrencyID','RoundChargesAmount','accounts', 'products', 'taxes','CompanyName','Account','CreditNotesAllTax','BillingClass','CreditNotesBillingClass'));
         }
     }
 
-    public function apply_creditnotes($AccountID)
+    public function apply_creditnotes($AccountID,$id)
     {
-        //$str = preg_replace('/^INV/', '', 'INV021000');;
         if($AccountID > 0)
         {
-            $Invoices 					= 	 Invoice::GetInvoiceByAccount($AccountID);
-            //echo "<pre>";print_r($Invoices);exit;
+            $Invoices 	    =   Invoice::GetInvoiceByAccount($AccountID);
             $invoicenumbers = array("Select Invoices");
             foreach($Invoices as $invoice)
             {
                 $invoicenumbers[$invoice->InvoiceNumber] = $invoice->InvoiceNumber;
             }
-            $CompanyID = User::get_companyID();
+            $CreditNotes    = 	CreditNotes::find($id);
+            $CompanyID      =   $CreditNotes->CompanyID;
+            $CreditNotesID  =   $CreditNotes->CreditNotesID;
 
-            return View::make('creditnotes.apply_creditnotes', compact( 'AccountID','CompanyID','Invoices','invoicenumbers'));
+            return View::make('creditnotes.apply_creditnotes', compact( 'AccountID','CompanyID','CreditNotesID','Invoices','invoicenumbers'));
         }
     }
 
@@ -208,21 +208,26 @@ class CreditNotesController extends \BaseController {
         //echo"<pre>"; print_R($data);exit;
         for($i=0;$i<count($data['invoice_id']);$i++)
         {
-            if($data[payment][$i] != "")
+            if($data['payment'][$i] != "")
             {
                 $paymentdata = array();
-                $paymentdata['CompanyID'] = $data['CompanyID'];
-                $paymentdata['AccountID'] = $data['AccountID'];
-                $paymentdata['InvoiceNo'] = $data['invoice_number'][$i];
-                $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
-                $paymentdata['PaymentMethod'] = 'Credit Note';
-                $paymentdata['Notes'] = 'Paid By Credit Note';
-                $paymentdata['Amount'] = $data['payment'][$i];
-                $paymentdata['created_at']= date("Y-m-d H:i:s");
-                $paymentdata['created_at']= date("Y-m-d H:i:s");
-                $paymentdata['InvoiceID'] = $data['invoice_id'][$i];
+                $paymentdata['CompanyID']       = $data['CompanyID'];
+                $paymentdata['AccountID']       = $data['AccountID'];
+                $paymentdata['InvoiceNo']       = $data['invoice_number'][$i];
+                $paymentdata['PaymentDate']     = date('Y-m-d H:i:s');
+                $paymentdata['PaymentMethod']   = 'Credit Notes';
+                $paymentdata['PaymentType']     = 'Payment In';
+                $paymentdata['Notes']           = 'Paid By Credit Notes';
+                $paymentdata['Amount']          = $data['payment'][$i];
+                $paymentdata['created_at']      = date("Y-m-d H:i:s");
+                $paymentdata['created_at']      = date("Y-m-d H:i:s");
+                $paymentdata['InvoiceID']       = $data['invoice_id'][$i];
+                $paymentdata['CreditNotesID']   = $data['CreditNotesID'];
+                $payment_insert = Payment::insert($paymentdata);
+                /*if($payment_insert == 1)
+                {
 
-                Payment::insert($paymentdata);
+                }*/
             }
         }
     }
