@@ -19,9 +19,12 @@ class NeonRegistartionController extends \BaseController {
         $API_Request = json_decode($Result_Json,true);
         //log::info(print_r($API_Request,true));
         if(!empty($API_Request['HTTP_REFERER'])){
+            $APILog['RequestUrl'] = $API_Request['HTTP_REFERER'];
             Session::put('API_BACK_URL',$API_Request['HTTP_REFERER']);
             log::info('API REQUEST URL '.$API_Request['HTTP_REFERER']);
+
         }else{
+            $APILog['RequestUrl'] = $_SERVER['HTTP_REFERER'];
             Session::put('API_BACK_URL',$_SERVER['HTTP_REFERER']);
             log::info('API REQUEST URL '.$_SERVER['HTTP_REFERER']);
         }
@@ -72,7 +75,6 @@ class NeonRegistartionController extends \BaseController {
         $APILog['CompanyID']=$CompanyID;
         $APILog['UserID']=$UserID;
         $APILog['AccountName']=$AccountName;
-        $APILog['RequestUrl']=$_SERVER['HTTP_REFERER'];
         $APILog['ApiJson']=$Result_Json;
         $APILog['PaymentGateway']=$Payment_type;
         $APILog['created_at']=date('Y-m-d H:i:s');
