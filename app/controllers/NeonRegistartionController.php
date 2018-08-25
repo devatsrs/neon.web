@@ -12,7 +12,7 @@ class NeonRegistartionController extends \BaseController {
 
         $APILog=array();
         log::info('Data');
-        log::info('API REQUEST URL '.$_SERVER['HTTP_REFERER']);
+
         Session::put('API_BACK_URL',$_SERVER['HTTP_REFERER']);
         log::info(print_r($data,true));
         $Result_Json = $data['data']; //json format
@@ -20,6 +20,14 @@ class NeonRegistartionController extends \BaseController {
         log::info(print_r($Result_Json,true));
         $API_Request = json_decode($Result_Json,true);
         //log::info(print_r($API_Request,true));
+        if(!empty($API_Request['HTTP_REFERER'])){
+            Session::put('API_BACK_URL',$API_Request['HTTP_REFERER']);
+            log::info('API REQUEST URL '.$API_Request['HTTP_REFERER']);
+        }else{
+            Session::put('API_BACK_URL',$_SERVER['HTTP_REFERER']);
+            log::info('API REQUEST URL '.$_SERVER['HTTP_REFERER']);
+        }        
+
         $UserID = $API_Request['UserID'];
         log::info('UserID '.$UserID);
         $CompanyID = User::where(["UserID"=>$UserID])->pluck('CompanyID');
