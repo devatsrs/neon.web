@@ -12,8 +12,6 @@ class NeonRegistartionController extends \BaseController {
 
         $APILog=array();
         log::info('Data');
-
-        Session::put('API_BACK_URL',$_SERVER['HTTP_REFERER']);
         log::info(print_r($data,true));
         $Result_Json = $data['data']; //json format
         log::info('Json Data');
@@ -26,7 +24,7 @@ class NeonRegistartionController extends \BaseController {
         }else{
             Session::put('API_BACK_URL',$_SERVER['HTTP_REFERER']);
             log::info('API REQUEST URL '.$_SERVER['HTTP_REFERER']);
-        }        
+        }
 
         $UserID = $API_Request['UserID'];
         log::info('UserID '.$UserID);
