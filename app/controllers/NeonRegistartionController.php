@@ -627,7 +627,7 @@ class NeonRegistartionController extends \BaseController {
 
             /** Create Topup */
             log::info('Create TopUp Start');
-
+            /*
             $topup = empty($Result['data_user']['topup_data']['amount']) ? 0 : $Result['data_user']['topup_data']['amount'];
             log::info('topup amount '.$topup);
             if($topup>0){
@@ -648,7 +648,7 @@ class NeonRegistartionController extends \BaseController {
                 $paymentdata['updated_at'] = date('Y-m-d H:i:s');
                 Payment::insert($paymentdata);
             }
-
+            */
             log::info('Create TopUp End');
 
             /** End Topup */
@@ -710,11 +710,13 @@ class NeonRegistartionController extends \BaseController {
             $paymentdata['CurrencyID'] = $account->CurrencyId;
             $paymentdata['PaymentType'] = 'Payment In';
             $paymentdata['Notes'] = $PaymentResponse['transaction_notes'];
+            /*
             if($topup>0){
                 $paymentdata['Amount'] = floatval($PaymentResponse['Amount'] - $topup);
             }else{
                 $paymentdata['Amount'] = floatval($PaymentResponse['Amount']);
-            }
+            }*/
+            $paymentdata['Amount'] = floatval($PaymentResponse['Amount']);
 
             $paymentdata['Status'] = 'Approved';
             $paymentdata['CreatedBy'] = $UserName.'(API)';
@@ -1074,6 +1076,7 @@ class NeonRegistartionController extends \BaseController {
             /** Create Topup */
             log::info('Create TopUp Start');
 
+            /*
             $topup = empty($Result['data_user']['topup_data']['amount']) ? 0 : $Result['data_user']['topup_data']['amount'];
             log::info('topup amount '.$topup);
             if($topup>0){
@@ -1095,6 +1098,7 @@ class NeonRegistartionController extends \BaseController {
                 Payment::insert($paymentdata);
             }
 
+            */
             log::info('Create TopUp End');
 
             /** End Topup */
@@ -1135,12 +1139,13 @@ class NeonRegistartionController extends \BaseController {
             $paymentdata['CurrencyID'] = $account->CurrencyId;
             $paymentdata['PaymentType'] = 'Payment In';
             $paymentdata['Notes'] = $PaymentResponse['transaction_notes'];
+            /*
             if($topup>0){
                 $paymentdata['Amount'] = floatval($PaymentResponse['Amount'] - $topup);
             }else{
                 $paymentdata['Amount'] = floatval($PaymentResponse['Amount']);
-            }
-
+            }*/
+            $paymentdata['Amount'] = floatval($PaymentResponse['Amount']);
             $paymentdata['Status'] = 'Approved';
             $paymentdata['CreatedBy'] = $UserName.'(API)';
             $paymentdata['ModifyBy'] = $UserName;
