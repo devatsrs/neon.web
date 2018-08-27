@@ -891,7 +891,7 @@ class NeonRegistartionController extends \BaseController {
             DB::beginTransaction();
             DB::connection('sqlsrv2')->beginTransaction();
 
-            $account = Account::where('AccountID',$AccountID);
+            $account = Account::where('AccountID',$AccountID)->first();
 
             //Account level billing period
             $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'),0);
