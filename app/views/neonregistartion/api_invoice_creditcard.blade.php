@@ -107,7 +107,7 @@
             <i class="entypo-floppy"></i>
                 {{cus_lang('BUTTON_PAY_CAPTION')}}
         </button>
-        <a href="javascript:history.back()"><button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+        <a href="#" id="paymentcancelbutton"><button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
             <i class="entypo-cancel"></i>
             {{cus_lang('BUTTON_BACK_CAPTION')}}
         </button>
@@ -116,6 +116,15 @@
 </form>
     <form method="post" id="apiinvoicethanks" class="hidden">
         <input type="text" name="data">
+    </form>
+    <form method="post" id="apiinvoicedone" class="hidden" action="{{$BackRequestUrl}}">
+        <input type="text" name="status" value="failed">
+        <input type="text" name="AccountID" value="0">
+        <input type="text" name="AccountNumber" value="">
+        <input type="text" name="PaymentStatus" value="failed">
+        <input type="text" name="PaymentMessage" value="Payment Cancel">
+        <input type="text" name="NeonStatus" value="failed">
+        <input type="text" name="NeonMessage" value="Payment Cancel">
     </form>
 </div>
 <div class="col-md-4">&nbsp;</div>
@@ -156,6 +165,10 @@ $(document).ready(function() {
             //Options to tell jQuery not to process data or worry about content-type.
             cache: false
         });
+    });
+
+    $('#paymentcancelbutton').on('click', function(){
+        $('#apiinvoicedone').submit();
     });
 
 });

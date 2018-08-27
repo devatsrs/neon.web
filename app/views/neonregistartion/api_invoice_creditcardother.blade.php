@@ -19,7 +19,7 @@
             <i class="entypo-floppy"></i>
                 {{cus_lang('BUTTON_PAY_CAPTION')}}
         </button>
-        <a href="javascript:history.back()"><button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+        <a href="#" id="paymentcancelbutton"><button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
             <i class="entypo-cancel"></i>
             {{cus_lang('BUTTON_BACK_CAPTION')}}
         </button>
@@ -29,6 +29,15 @@
 </div>
 <div class="col-md-4">&nbsp;</div>
 </div>
+<form method="post" id="apiinvoicedone" class="hidden" action="{{$BackRequestUrl}}">
+    <input type="text" name="status" value="failed">
+    <input type="text" name="AccountID" value="0">
+    <input type="text" name="AccountNumber" value="">
+    <input type="text" name="PaymentStatus" value="failed">
+    <input type="text" name="PaymentMessage" value="Payment Cancel">
+    <input type="text" name="NeonStatus" value="failed">
+    <input type="text" name="NeonMessage" value="Payment Cancel">
+</form>
 
 <script>
 
@@ -36,6 +45,10 @@ $(document).ready(function() {
 
     $('#pay_paypal').click( function(){
         $('#paypalform').submit();
+    });
+
+    $('#paymentcancelbutton').on('click', function(){
+        $('#apiinvoicedone').submit();
     });
 });
 

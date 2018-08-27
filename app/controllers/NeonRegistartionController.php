@@ -9,64 +9,116 @@ class NeonRegistartionController extends \BaseController {
      */
     public function index() {
         $data = Input::all();
-
+        $error=0;
         $APILog=array();
         log::info('Data');
-        log::info('API REQUEST URL '.$_SERVER['HTTP_REFERER']);
-        Session::put('API_BACK_URL',$_SERVER['HTTP_REFERER']);
         log::info(print_r($data,true));
         $Result_Json = $data['data']; //json format
         log::info('Json Data');
         log::info(print_r($Result_Json,true));
         $API_Request = json_decode($Result_Json,true);
         //log::info(print_r($API_Request,true));
+        if(!empty($API_Request['HTTP_REFERER'])){
+            $APILog['RequestUrl'] = $API_Request['HTTP_REFERER'];
+            Session::put('API_BACK_URL',$API_Request['HTTP_REFERER']);
+            log::info('API REQUEST URL '.$API_Request['HTTP_REFERER']);
+
+        }else{
+            $APILog['RequestUrl'] = $_SERVER['HTTP_REFERER'];
+            Session::put('API_BACK_URL',$_SERVER['HTTP_REFERER']);
+            log::info('API REQUEST URL '.$_SERVER['HTTP_REFERER']);
+        }
+
         $UserID = $API_Request['UserID'];
         log::info('UserID '.$UserID);
         $CompanyID = User::where(["UserID"=>$UserID])->pluck('CompanyID');
         log::info('CompanyID '.$CompanyID);
 
+        $AccountName='';
+        $CurrencyID=0;
+        $CurrencyCode='';
+        $errormessage='';
         if(!empty($API_Request['AccountID'])){
             $AccountName = Account::where(["AccountID"=>$API_Request['AccountID']])->pluck('AccountName');
             $CurrencyID = Account::where(["AccountID"=>$API_Request['AccountID']])->pluck('CurrencyId');
         }else{
-            $Personal_data = $API_Request['data_user']['personal_data'];
-            $AccountName = $Personal_data['company'];
-            $CurrencyID= $Personal_data['currencyId'];
+            if(isset($API_Request['data_user']['personal_data'])) {
+                $Personal_data = $API_Request['data_user']['personal_data'];
+                if(!empty($Personal_data['company'])){
+                    $AccountName = $Personal_data['company'];
+                }
+                if(!empty($Personal_data['company'])) {
+                    $CurrencyID = $Personal_data['currencyId'];
+                }
+            }else{
+                $errormessage.='Personal Data not define.';
+            }
         }
+        if(!empty($CurrencyID)) {
+            $CurrencyCode = Currency::getCurrency($CurrencyID);
+        }
+        $Payment_type='';
+        $Amount=0;
+        $PaymentGatewayID = '';
+        $PaymentGateway = '';
+        if(isset($API_Request['data_user']['payment_data'][0])) {
+            $Payment_data = $API_Request['data_user']['payment_data'][0];
+            if(isset($Payment_data['payment_type']) && isset($Payment_data['payment_amount'])){
+                $Payment_type = $Payment_data['payment_type'];
+                if($Payment_data['payment_amount'] && is_numeric($Payment_data['payment_amount']) && $Payment_data['payment_amount']>0) {
+                    $Amount = $Payment_data['payment_amount'];
+                    if ($Payment_type == 'Paypal' || $Payment_type == 'SagePay') {
+                        $PaymentGatewayID = '';
+                        $PaymentGateway = 'Paypal';
+                    } else {
+                        $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($Payment_type);
+                        $PaymentGateway = '';
+                    }
+                }else{
+                    $errormessage.=' Payment Amount not set correctly.';
+                }
+            }else{
+                $errormessage.=' Payment Type or Payment Amount not define.';
+            }
 
-        $CurrencyCode = Currency::getCurrency($CurrencyID);
-        $Payment_data = $API_Request['data_user']['payment_data'][0];
-        $Payment_type = $Payment_data['payment_type'];
-        $Amount = $Payment_data['payment_amount'];
-
-        if($Payment_type=='Paypal' || $Payment_type=='SagePay'){
-            $PaymentGatewayID= '';
-            $PaymentGateway = 'Paypal';
         }else{
-            $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($Payment_type);
-            $PaymentGateway = '';
+            $errormessage.=' Payment Data not define.';
         }
         $SessionName = 'APIEncodeData';
         Session::put($SessionName, $Result_Json);
+        if($AccountName==''){
+            $errormessage.=' AccountName not set correctly.';
+        }
+        if(empty($CurrencyID)){
+            $errormessage.=' Currency not set correctly.';
+        }
 
-        /**PayPal**/
+        if($errormessage=='') {
+            /**PayPal**/
 
-        $paypal = new PaypalIpn($CompanyID);
-        if(!empty($paypal->status)){
-            $paypal->item_title =  Company::getName($CompanyID).' '.$AccountName. ' API Invoice ';
-            $paypal->item_number =  '';
-            $paypal->curreny_code =  $CurrencyCode;
+            $paypal = new PaypalIpn($CompanyID);
+            if (!empty($paypal->status)) {
+                $paypal->item_title = Company::getName($CompanyID) . ' ' . $AccountName . ' API Invoice ';
+                $paypal->item_number = '';
+                $paypal->curreny_code = $CurrencyCode;
 
-            $paypal->amount = $Amount;
+                $paypal->amount = $Amount;
 
-            $paypal_button = $paypal->get_api_paynow_button($CompanyID);
+                $paypal_button = $paypal->get_api_paynow_button($CompanyID);
+            }
+        }else{
+            $error=1;
+            $APILog['NeonAccountStatus'] = 'failed';
+            $Response['status'] = 'failed';
+            $Response['NeonStatus'] = 'failed';
+            $Response['NeonMessage'] = $errormessage;
+            $APILog['FinalApiResponse'] = json_encode($Response);
         }
         $CustomData = $Result_Json;
 
         $APILog['CompanyID']=$CompanyID;
         $APILog['UserID']=$UserID;
         $APILog['AccountName']=$AccountName;
-        $APILog['RequestUrl']=$_SERVER['HTTP_REFERER'];
         $APILog['ApiJson']=$Result_Json;
         $APILog['PaymentGateway']=$Payment_type;
         $APILog['created_at']=date('Y-m-d H:i:s');
@@ -77,7 +129,10 @@ class NeonRegistartionController extends \BaseController {
         log::info('$LastLog ID '.$RegistarionApiLogID);
         Session::put('RegistarionApiLogID', $RegistarionApiLogID);
 
-		return View::make('neonregistartion.api_invoice_payment', compact('data','Amount','PaymentGatewayID','PaymentGateway','paypal_button','CustomData','CompanyID'));
+        $BackRequestUrl = $APILog['RequestUrl'];
+        log::info('ErrorMessage : '.$errormessage);
+
+		return View::make('neonregistartion.api_invoice_payment', compact('data','Amount','PaymentGatewayID','PaymentGateway','paypal_button','CustomData','CompanyID','BackRequestUrl','error','errormessage'));
 
     }
 
@@ -627,7 +682,7 @@ class NeonRegistartionController extends \BaseController {
 
             /** Create Topup */
             log::info('Create TopUp Start');
-
+            /*
             $topup = empty($Result['data_user']['topup_data']['amount']) ? 0 : $Result['data_user']['topup_data']['amount'];
             log::info('topup amount '.$topup);
             if($topup>0){
@@ -648,7 +703,7 @@ class NeonRegistartionController extends \BaseController {
                 $paymentdata['updated_at'] = date('Y-m-d H:i:s');
                 Payment::insert($paymentdata);
             }
-
+            */
             log::info('Create TopUp End');
 
             /** End Topup */
@@ -710,11 +765,13 @@ class NeonRegistartionController extends \BaseController {
             $paymentdata['CurrencyID'] = $account->CurrencyId;
             $paymentdata['PaymentType'] = 'Payment In';
             $paymentdata['Notes'] = $PaymentResponse['transaction_notes'];
+            /*
             if($topup>0){
                 $paymentdata['Amount'] = floatval($PaymentResponse['Amount'] - $topup);
             }else{
                 $paymentdata['Amount'] = floatval($PaymentResponse['Amount']);
-            }
+            }*/
+            $paymentdata['Amount'] = floatval($PaymentResponse['Amount']);
 
             $paymentdata['Status'] = 'Approved';
             $paymentdata['CreatedBy'] = $UserName.'(API)';
@@ -1074,6 +1131,7 @@ class NeonRegistartionController extends \BaseController {
             /** Create Topup */
             log::info('Create TopUp Start');
 
+            /*
             $topup = empty($Result['data_user']['topup_data']['amount']) ? 0 : $Result['data_user']['topup_data']['amount'];
             log::info('topup amount '.$topup);
             if($topup>0){
@@ -1095,27 +1153,54 @@ class NeonRegistartionController extends \BaseController {
                 Payment::insert($paymentdata);
             }
 
+            */
             log::info('Create TopUp End');
 
             /** End Topup */
+
+            $InvoiceID=0;
+            $FullInvoiceNumber='';
+            $RegistarionApiLogUpdate = array();
+            $RegistarionApiLogUpdate['InvoiceStatus'] = 'failed';
+            $RegistarionApiLogUpdate['InvoiceID'] = 0;
+
+            if(!empty($Result['data_user']['summary'])) {
+                $summarydata = $Result['data_user']['summary'];
+                $Result = $this->createAPIInvoice($CompanyID,$AccountID,$UserName,$summarydata);
+                if(isset($Result['status']) && $Result['status']=='success'){
+                    $InvoiceID = $Result['LastID'];
+                    $Invoice=Invoice::find($InvoiceID);
+                    $FullInvoiceNumber=$Invoice->FullInvoiceNumber;
+                    $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
+
+                    $RegistarionApiLogUpdate['InvoiceStatus'] = 'success';
+                    $RegistarionApiLogUpdate['InvoiceID'] = $InvoiceID;
+                    Log::info($InvoiceID.' Invoice was generated successfully');
+                }
+            }
+            $RegistarionApiLogID = Session::get('RegistarionApiLogID');
+            if(!empty($RegistarionApiLogID)){
+                DB::table('tblRegistarionApiLog')->where('RegistarionApiLogID', $RegistarionApiLogID)->update($RegistarionApiLogUpdate);
+            }
 
             /** Payment Add Start */
             $paymentdata = array();
             $paymentdata['CompanyID'] = $CompanyID;
             $paymentdata['AccountID'] = $AccountID;
-            $paymentdata['InvoiceNo'] = '';
-            $paymentdata['InvoiceID'] = 0;
+            $paymentdata['InvoiceNo'] = $FullInvoiceNumber;
+            $paymentdata['InvoiceID'] = $InvoiceID;
             $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
             $paymentdata['PaymentMethod'] = $PaymentResponse['PaymentMethod'];
             $paymentdata['CurrencyID'] = $account->CurrencyId;
             $paymentdata['PaymentType'] = 'Payment In';
             $paymentdata['Notes'] = $PaymentResponse['transaction_notes'];
+            /*
             if($topup>0){
                 $paymentdata['Amount'] = floatval($PaymentResponse['Amount'] - $topup);
             }else{
                 $paymentdata['Amount'] = floatval($PaymentResponse['Amount']);
-            }
-
+            }*/
+            $paymentdata['Amount'] = floatval($PaymentResponse['Amount']);
             $paymentdata['Status'] = 'Approved';
             $paymentdata['CreatedBy'] = $UserName.'(API)';
             $paymentdata['ModifyBy'] = $UserName;
@@ -1234,8 +1319,8 @@ class NeonRegistartionController extends \BaseController {
                     $InvoiceDetailData = array();
                     $InvoiceDetailData['InvoiceID'] = $InvoiceID;
                     $InvoiceDetailData['ProductID'] = $SubscriptionData['ProductID'];
-                    $Description = BillingSubscription::where("SubscriptionID", $SubscriptionData['ProductID'])->pluck("Name");
-                    $InvoiceDetailData['Description'] = $Description;
+                    //$Description = BillingSubscription::where("SubscriptionID", $SubscriptionData['ProductID'])->pluck("Description");
+                    $InvoiceDetailData['Description'] = $SubscriptionData['Description'];
                     $InvoiceDetailData['Price'] = $SubscriptionData['Price'];
                     $InvoiceDetailData['Qty'] = $SubscriptionData['Qty'];
                     $InvoiceDetailData['TaxAmount'] = 0;
