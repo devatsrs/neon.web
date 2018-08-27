@@ -234,13 +234,15 @@
                                         });
                                     }
                                     action += '</div>';
-                                    <?php if(User::checkCategoryPermission('Products','Edit')){ ?>
-                                        action += ' <a data-name = "' + full[1] + '" data-id="' + full[0] + '" title="Edit" class="edit-product btn btn-default btn-sm btn-smtooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
+                                    if(full[3]!='topup') {
+                                        <?php if(User::checkCategoryPermission('Products', 'Edit')){ ?>
+                                                action += ' <a data-name = "' + full[1] + '" data-id="' + full[0] + '" title="Edit" class="edit-product btn btn-default btn-sm btn-smtooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
                                         action += ' <a data-name = "' + full[1] + '" data-id="' + full[0] + '" title="CLone" class="clone-product btn btn-default btn-smtooltip-primary" data-original-title="Clone" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-clone"></i>&nbsp;</a>';
-                                    <?php } ?>
-                                    <?php if(User::checkCategoryPermission('Products','Delete') ){ ?>
-                                        action += ' <a href="'+delete_+'" data-redirect="{{ URL::to('products')}}" title="Delete"  class="btn delete btn-danger btn-default btn-sm btn-smtooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></a>';
-                                     <?php } ?>
+                                        <?php } ?>
+                                                <?php if(User::checkCategoryPermission('Products', 'Delete') ){ ?>
+                                                action += ' <a href="' + delete_ + '" data-redirect="{{ URL::to('products')}}" title="Delete"  class="btn delete btn-danger btn-default btn-sm btn-smtooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></a>';
+                                        <?php } ?>
+                                    }
                                     return action;
                                 }
                             }

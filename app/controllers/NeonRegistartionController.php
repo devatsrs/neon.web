@@ -1375,6 +1375,16 @@ class NeonRegistartionController extends \BaseController {
             if (!empty($data['TopUpAmount']) && !empty($InvoiceID)) {
                 $InvoiceDetailData = array();
                 $ProductID = Product::where(['CompanyId' => $CompanyID, 'Code' => 'topup'])->pluck('ProductID');
+                if(empty($ProductID)){
+                    $ProductData=array();
+                    $ProductData['CompanyID']=$CompanyID;
+                    $ProductData['Name']='TopUp';
+                    $ProductData['Amount']='0.00';
+                    $ProductData['Description']='TopUp';
+                    $ProductData['Code']='topup';
+                    $product = Product::create($ProductData);
+                    $ProductID = $product->ProductID;
+                }
                 /** if blank need to add first */
                 $InvoiceDetailData['InvoiceID'] = $InvoiceID;
                 $InvoiceDetailData['ProductID'] = $ProductID;
