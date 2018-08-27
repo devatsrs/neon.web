@@ -42,9 +42,24 @@
         Bulk CreditNotes Generate.
     </a>-->
     </p>
+    <div class="clearfix margin-bottom "></div>
     <div class="row">
         <div  class="col-md-12">
-           
+            <div class="form-group">
+                <div class="col-sm-6">
+                    <div class="col-sm-6"> Credit Note No.: </div>
+                    <div class="clearfix margin-bottom ">{{$CreditNotes->CreditNotesNumber;}}</div>
+                    <div class="col-sm-6"> Credit Note Date : </div>
+                    <div class="clearfix margin-bottom ">{{date('Y-m-d',strtotime($CreditNotes->IssueDate));}}</div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="col-sm-6"> Client :  </div>
+                    <div class="clearfix margin-bottom ">{{$AccountName;}}</div>
+                    <div class="col-sm-6"> Available Credits : </div>
+                    <div class="clearfix margin-bottom ">{{$CreditNotes->GrandTotal - $CreditNotes->PaidAmount;}}</div>
+                </div>
+            </div>
         </div>
         <div class="clear"></div>
     </div>

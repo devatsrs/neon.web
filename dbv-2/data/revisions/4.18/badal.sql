@@ -38,11 +38,13 @@ CREATE TABLE `tblCreditNotes` (
 	`FullCreditNotesNumber` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
 	`ServiceID` INT(11) NULL DEFAULT '0',
 	`BillingClassID` INT(11) NULL DEFAULT NULL,
+	`PaidAmount` DECIMAL(18,6) NULL DEFAULT '0.000000',
 	PRIMARY KEY (`CreditNotesID`),
 	INDEX `IX_AccountID_Status_CompanyID` (`AccountID`, `CreditNotesStatus`, `CompanyID`)
 )
 COLLATE='utf8_unicode_ci'
 ENGINE=InnoDB;
+
 
 CREATE TABLE `tblCreditNotesDetail` (
 	`CreditNotesDetailID` INT(11) NOT NULL AUTO_INCREMENT,
