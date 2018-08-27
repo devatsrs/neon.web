@@ -29,7 +29,8 @@ class Product extends \Eloquent {
 
     static public function checkForeignKeyById($id) {
         $hasAccountApprovalList = InvoiceDetail::where("ProductID",$id)->count();
-        if( intval($hasAccountApprovalList) > 0){
+        $Code=Product::where("ProductID",$id)->pluck('Code');
+        if( intval($hasAccountApprovalList) > 0 && $Code!='topup'){
             return true;
         }else{
             return false;
