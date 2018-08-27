@@ -44,6 +44,13 @@
         <div class="col-sm-8"></div>
     </div>
     <div class="form-group">
+        <label for="field-1" class="col-sm-2 control-label">CDR Failed Calls: </label>
+        <div class="col-sm-2">
+            <input type="text" name="TableData[CDRFailedCalls]" class="form-control" value="{{isset($DataRetenion->CDRFailedCalls)?$DataRetenion->CDRFailedCalls:''}}"/>
+        </div>
+        <div class="col-sm-8"></div>
+    </div>
+    <div class="form-group">
         <label for="field-1" class="col-sm-2 control-label">Cron Job History :</label>
         <div class="col-sm-2">
             <input type="text" name="TableData[Cronjob]" class="form-control" value="{{isset($DataRetenion->Cronjob)?$DataRetenion->Cronjob:''}}"/>
