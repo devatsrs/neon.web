@@ -446,20 +446,11 @@ DELIMITER ;
 
 
 /* Inventory Permissions */
-insert into tblResourceCategories set ResourceCategoryName='ItemType.Add',CompanyID=1,CategoryGroupID=7;
-insert into tblResourceCategories set ResourceCategoryName='ItemType.Edit',CompanyID=1,CategoryGroupID=7;
-insert into tblResourceCategories set ResourceCategoryName='ItemType.Delete',CompanyID=1,CategoryGroupID=7;
-insert into tblResourceCategories set ResourceCategoryName='ItemType.View',CompanyID=1,CategoryGroupID=7;
-insert into tblResourceCategories set ResourceCategoryName='ItemType.All',CompanyID=1,CategoryGroupID=7;
-
-INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2603, 'ItemType.UpdateBulkItemTypeStatus', 'ItemTypeController.UpdateBulkItemTypeStatus', 1, 'Sumera Saeed', NULL, '2018-08-14 18:56:07.000', '2018-08-14 18:56:07.000', NULL);
-INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2602, 'ItemType.delete', 'ItemTypeController.delete', 1, 'Sumera Saeed', NULL, '2018-08-14 18:56:07.000', '2018-08-14 18:56:07.000', 1356);
-INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2601, 'ItemType.update', 'ItemTypeController.update', 1, 'Sumera Saeed', NULL, '2018-08-14 18:56:07.000', '2018-08-14 18:56:07.000', 1355);
-INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2600, 'ItemType.create', 'ItemTypeController.create', 1, 'Sumera Saeed', NULL, '2018-08-14 18:56:07.000', '2018-08-14 18:56:07.000', 1354);
-INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2599, 'ItemType.ajax_datagrid', 'ItemTypeController.ajax_datagrid', 1, 'Sumera Saeed', NULL, '2018-08-14 18:56:07.000', '2018-08-14 18:56:07.000', 1357);
-INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2598, 'ItemType.*', 'ItemTypeController.*', 1, 'Sumera Saeed', NULL, '2018-08-14 18:56:07.000', '2018-08-14 18:56:07.000', 1358);
-INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2597, 'ItemType.index', 'ItemTypeController.index', 1, 'Sumera Saeed', NULL, '2018-08-14 18:56:07.000', '2018-08-14 18:56:07.000', 1357);
-
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1358, 'ItemType.All', 1, 7);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1357, 'ItemType.View', 1, 7);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1356, 'ItemType.Delete', 1, 7);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1355, 'ItemType.Edit', 1, 7);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1354, 'ItemType.Add', 1, 7);
 
 insert into tblResourceCategories set ResourceCategoryName='DynamicField.Add',CompanyID=1,CategoryGroupID=7;
 insert into tblResourceCategories set ResourceCategoryName='DynamicField.Edit',CompanyID=1,CategoryGroupID=7;
@@ -467,8 +458,35 @@ insert into tblResourceCategories set ResourceCategoryName='DynamicField.Delete'
 insert into tblResourceCategories set ResourceCategoryName='DynamicField.View',CompanyID=1,CategoryGroupID=7;
 insert into tblResourceCategories set ResourceCategoryName='DynamicField.All',CompanyID=1,CategoryGroupID=7;
 
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1365, 'StockHistory.All', 1, 7);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1364, 'StockHistory.View', 1, 7);
 
-insert into tblResourceCategories set ResourceCategoryName='StockHistory.View',CompanyID=1,CategoryGroupID=7;
-insert into tblResourceCategories set ResourceCategoryName='StockHistory.All',CompanyID=1,CategoryGroupID=7;
+
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('ItemType.UpdateBulkItemTypeStatus', 'ItemTypeController.UpdateBulkItemTypeStatus', 1, 'Sumera Khan', NULL, '2018-08-14 13:56:01.000', '2018-08-14 13:56:01.000', NULL);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('ItemType.delete', 'ItemTypeController.delete', 1, 'Sumera Khan', NULL, '2018-08-14 13:56:01.000', '2018-08-14 13:56:01.000', 1356);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('ItemType.update', 'ItemTypeController.update', 1, 'Sumera Khan', NULL, '2018-08-14 13:56:01.000', '2018-08-14 13:56:01.000', 1355);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('ItemType.create', 'ItemTypeController.create', 1, 'Sumera Khan', NULL, '2018-08-14 13:56:01.000', '2018-08-14 13:56:01.000', 1354);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('ItemType.ajax_datagrid', 'ItemTypeController.ajax_datagrid', 1, 'Sumera Khan', NULL, '2018-08-14 13:56:01.000', '2018-08-14 13:56:01.000', 1357);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('ItemType.*', 'ItemTypeController.*', 1, 'Sumera Khan', NULL, '2018-08-14 13:56:01.000', '2018-08-14 13:56:01.000', 1358);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('ItemType.index', 'ItemTypeController.index', 1, 'Sumera Khan', NULL, '2018-08-14 13:56:01.000', '2018-08-14 13:56:01.000', 1357);
+
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('DynamicField.DeleteBulkDynamicField', 'DynamicFieldController.DeleteBulkDynamicField', 1, 'Sumera Khan', NULL, '2018-08-14 13:56:01.000', '2018-08-14 13:56:01.000', NULL);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('DynamicField.UpdateBulkDynamicFieldStatus', 'DynamicFieldController.UpdateBulkDynamicFieldStatus', 1, 'Sumera Khan', NULL, '2018-08-14 13:56:01.000', '2018-08-14 13:56:01.000', NULL);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('DynamicField.delete', 'DynamicFieldController.delete', 1, 'Sumera Khan', NULL, '2018-08-14 13:56:01.000', '2018-08-14 13:56:01.000', 1361);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('DynamicField.update', 'DynamicFieldController.update', 1, 'Sumera Khan', NULL, '2018-08-14 13:56:01.000', '2018-08-14 13:56:01.000', 1360);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('DynamicField.create', 'DynamicFieldController.create', 1, 'Sumera Khan', NULL, '2018-08-14 13:56:01.000', '2018-08-14 13:56:01.000', 1359);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('DynamicField.ajax_datagrid', 'DynamicFieldController.ajax_datagrid', 1, 'Sumera Khan', NULL, '2018-08-14 13:56:01.000', '2018-08-14 13:56:01.000', 1362);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('DynamicField.*', 'DynamicFieldController.*', 1, 'Sumera Khan', NULL, '2018-08-14 13:56:01.000', '2018-08-14 13:56:01.000', 1363);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('DynamicField.index', 'DynamicFieldController.index', 1, 'Sumera Khan', NULL, '2018-08-14 13:56:01.000', '2018-08-14 13:56:01.000', 1362);
+
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('StockHistory.ajax_datagrid', 'StockHistoryController.ajax_datagrid', 1, 'Sumera Khan', NULL, '2018-08-14 13:56:01.000', '2018-08-14 13:56:01.000', 1364);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('StockHistory.*', 'StockHistoryController.*', 1, 'Sumera Khan', NULL, '2018-08-14 13:56:01.000', '2018-08-14 13:56:01.000', 1365);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('StockHistory.index', 'StockHistoryController.index', 1, 'Sumera Khan', NULL, '2018-08-14 13:56:01.000', '2018-08-14 13:56:01.000', 1364);
 
 
+/* Above Done on Staging */
+
+/* Account PBX Blocking - NeonRMDev */
+
+INSERT INTO `tblDynamicFields` (`CompanyID`, `Type`, `FieldDomType`, `FieldName`, `FieldSlug`, `FieldDescription`, `FieldOrder`, `Status`, `created_at`, `created_by`, `updated_at`, `updated_by`, `ItemTypeID`, `Minimum`, `Maximum`, `DefaultValue`, `SelectVal`) VALUES (1, 'account', 'select', 'Pbx account status', 'pbxaccountstatus', 'PBX Account Status', 0, 1, '2018-08-25 13:44:18', 'System', NULL, NULL, 0, 0, 0, NULL, NULL);
+INSERT INTO `tblDynamicFields` (`CompanyID`, `Type`, `FieldDomType`, `FieldName`, `FieldSlug`, `FieldDescription`, `FieldOrder`, `Status`, `created_at`, `created_by`, `updated_at`, `updated_by`, `ItemTypeID`, `Minimum`, `Maximum`, `DefaultValue`, `SelectVal`) VALUES (1, 'account', 'boolean', 'Auto block', 'autoblock', 'PBX Auto Block', 0, 1, '2018-08-25 13:46:10', 'System', NULL, NULL, 0, 0, 0, NULL, NULL);

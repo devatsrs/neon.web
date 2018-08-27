@@ -147,3 +147,6 @@ ALTER TABLE `tblTickets`
 
 INSERT INTO `tblCronJobCommand` (`CronJobCommandID`, `CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`)
 VALUES (534, 1, 4, 'Import Pbx Payments', 'importpbxpayments', '[[{"title":"Import Days Limit","type":"text","value":"2","name":"importdayslimit"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2016-06-09 19:33:05', NULL);
+
+INSERT INTO `tblCronJobCommand` (`CronJobCommandID`, `CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`)
+VALUES (535, 1, 4, 'Export Pbx Payments', 'exportpbxpayments', '[[{"title":"Export Days Limit","type":"text","value":"2","name":"exportdayslimit"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2016-06-09 19:33:05', NULL);

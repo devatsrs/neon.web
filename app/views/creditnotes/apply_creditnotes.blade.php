@@ -105,6 +105,10 @@
                             {  "bSortable": true,
                                 mRender: function (id, type, full) {
                                     var action = '<input type = "hidden"  name = "invoice_id[]" value = "'+full[0]+'" / >';
+                                    action +='<input type = "hidden"  name = "AccountID" value = "{{$AccountID}}" / >';
+                                    action +='<input type = "hidden"  name = "CompanyID" value = "{{$CompanyID}}" / >';
+                                    action +='<input type = "hidden"  name = "CreditNotesID" value = "{{$CreditNotesID}}" / >';
+                                    action +='<input type = "hidden"  name = "invoice_number[]" value = "'+full[1]+'" / >';
                                     action += full[1];
                                     return action;
                                 }

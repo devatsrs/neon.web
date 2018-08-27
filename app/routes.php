@@ -1032,7 +1032,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/creditnotes/creditnoteslog/{id}', 'CreditNotesController@creditnoteslog');
 	Route::any('/creditnotes/ajax_creditnoteslog_datagrid/{id}/{type}', 'CreditNotesController@ajax_creditnoteslog_datagrid');
 	Route::any('/creditnotes/{id}/cview', 'CreditNotesController@cview');
-	Route::any('/creditnotes/{id}/apply_creditnotes', 'CreditNotesController@apply_creditnotes');
+	Route::any('/creditnotes/{accountid}/{id}/apply_creditnotes', 'CreditNotesController@apply_creditnotes');
 	Route::any('/creditnotes/{id}/apply_creditnote_datagrid', 'CreditNotesController@apply_creditnote_datagrid');
 	Route::any('/creditnotes/store_creditnotes', 'CreditNotesController@store_creditnotes');
 
