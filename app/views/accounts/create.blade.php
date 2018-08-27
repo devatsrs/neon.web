@@ -199,6 +199,22 @@
                                             <input type="text" class="form-control" autocomplete="off"  name="vendorname" id="field-1" value="" />
                                         </div>
                                     @endif
+                                        @if($dynamicfield['FieldSlug']=='pbxaccountstatus')
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
+                                        <div class="col-md-4">
+                                            {{Form::select('pbxaccountstatus', array('0'=>'Unblock','1'=>'Block'),'',array("class"=>"form-control select2"))}}
+                                        </div>
+                                        @endif
+                                        @if($dynamicfield['FieldSlug']=='autoblock')
+                                            <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}} <span id="tooltip_lowstock" data-content="If Auto block OFF then Cron job will not change the status of this Account in PBX." data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary" data-original-title="" title="">?</span></label>
+                                            <div class="col-md-4">
+                                                <div class="make-switch switch-small">
+                                                    <input type="checkbox" name="autoblock" value="1">
+                                                </div>
+                                            </div>
+                                        @endif
                                 @endif
                             @endforeach
                         </div>
@@ -209,6 +225,7 @@
                             {{ddl_language("", "LanguageID", ( isset($AccountBilling->Language)?$AccountBilling->Language:Translation::$default_lang_id ),"", "id")}}
                         </div>
                     </div>
+
                     <div class="panel-title desc clear">
                         Description
                     </div>

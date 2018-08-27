@@ -205,6 +205,7 @@ class AccountsController extends \BaseController {
             $data['created_by'] = User::get_user_full_name();
             $data['AccountType'] = 1;
             $data['AccountName'] = trim($data['AccountName']);
+
             if (isset($data['accountgateway'])) {
                 $AccountGateway = implode(',', array_filter(array_unique($data['accountgateway'])));
                 unset($data['accountgateway']);
@@ -285,6 +286,19 @@ class AccountsController extends \BaseController {
                 $VendorName = '';
             }
 
+            if (isset($data['pbxaccountstatus'])) {
+                $pbxaccountstatus = $data['pbxaccountstatus'];
+                unset($data['pbxaccountstatus']);
+            }else{
+                $pbxaccountstatus = 0;
+            }
+
+            if (isset($data['autoblock'])) {
+                $autoblock = $data['autoblock'];
+                unset($data['autoblock']);
+            }else{
+                $autoblock = 0;
+            }
             if ($account = Account::create($data)) {
 
                 $DynamicData = array();
@@ -299,6 +313,16 @@ class AccountsController extends \BaseController {
                 if(!empty($VendorName)){
                     $DynamicData['FieldName'] = 'vendorname';
                     $DynamicData['FieldValue']= $VendorName;
+                    Account::addUpdateAccountDynamicfield($DynamicData);
+                }
+                if(isset($pbxaccountstatus)){
+                    $DynamicData['FieldName'] = 'pbxaccountstatus';
+                    $DynamicData['FieldValue']= $pbxaccountstatus;
+                    Account::addUpdateAccountDynamicfield($DynamicData);
+                }
+                if(isset($autoblock)){
+                    $DynamicData['FieldName'] = 'autoblock';
+                    $DynamicData['FieldValue']= $autoblock;
                     Account::addUpdateAccountDynamicfield($DynamicData);
                 }
 
@@ -650,6 +674,7 @@ class AccountsController extends \BaseController {
             return Response::json(array("status" => "failed", "message" => "Account Name contains illegal character."));
         }
         $data['Status'] = isset($data['Status']) ? 1 : 0;
+
         if(trim($data['Number']) == ''){
             $data['Number'] = Account::getLastAccountNo();
         }
@@ -709,6 +734,21 @@ class AccountsController extends \BaseController {
         }else{
             $VendorName = '';
         }
+
+        if (isset($data['pbxaccountstatus'])) {
+            $pbxaccountstatus = $data['pbxaccountstatus'];
+            unset($data['pbxaccountstatus']);
+        }else{
+            $pbxaccountstatus = 0;
+        }
+
+        if (isset($data['autoblock'])) {
+            $autoblock = $data['autoblock'];
+            unset($data['autoblock']);
+        }else{
+            $autoblock = 0;
+        }
+
         if($data['Billing'] == 1) {
             if($data['NextInvoiceDate']<$data['LastInvoiceDate']){
                 return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
@@ -738,6 +778,16 @@ class AccountsController extends \BaseController {
             if(!empty($VendorName)){
                 $DynamicData['FieldName'] = 'vendorname';
                 $DynamicData['FieldValue']= $VendorName;
+                Account::addUpdateAccountDynamicfield($DynamicData);
+            }
+            if(isset($pbxaccountstatus)){
+                $DynamicData['FieldName'] = 'pbxaccountstatus';
+                $DynamicData['FieldValue']= $pbxaccountstatus;
+                Account::addUpdateAccountDynamicfield($DynamicData);
+            }
+            if(isset($autoblock)){
+                $DynamicData['FieldName'] = 'autoblock';
+                $DynamicData['FieldValue']= $autoblock;
                 Account::addUpdateAccountDynamicfield($DynamicData);
             }
 
