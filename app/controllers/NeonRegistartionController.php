@@ -69,7 +69,7 @@ class NeonRegistartionController extends \BaseController {
                     $Amount = $Payment_data['payment_amount'];
                     if ($Payment_type == 'Paypal' || $Payment_type == 'SagePay') {
                         $PaymentGatewayID = '';
-                        $PaymentGateway = 'Paypal';
+                        $PaymentGateway = $Payment_type;
                     } else {
                         $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($Payment_type);
                         $PaymentGateway = '';
@@ -95,7 +95,7 @@ class NeonRegistartionController extends \BaseController {
 
         if($errormessage=='') {
             /**PayPal**/
-
+            $paypal_button = $sagepay_button = "";
             $paypal = new PaypalIpn($CompanyID);
             if (!empty($paypal->status)) {
                 $paypal->item_title = Company::getName($CompanyID) . ' ' . $AccountName . ' API Invoice ';
@@ -105,6 +105,20 @@ class NeonRegistartionController extends \BaseController {
                 $paypal->amount = $Amount;
 
                 $paypal_button = $paypal->get_api_paynow_button($CompanyID);
+            }
+            if ( (new SagePay($CompanyID))->status()) {
+
+                $SagePay = new SagePay($CompanyID);
+
+                $SagePay->item_title = Company::getName($CompanyID) . ' ' . $AccountName . ' API Invoice ';
+                $SagePay->item_number =  '';
+                $SagePay->curreny_code =  $CurrencyCode;
+
+
+                $SagePay->amount = $Amount;
+
+                $sagepay_button = $SagePay->get_api_paynow_button($CompanyID);
+
             }
         }else{
             $error=1;
@@ -132,7 +146,7 @@ class NeonRegistartionController extends \BaseController {
         $BackRequestUrl = $APILog['RequestUrl'];
         log::info('ErrorMessage : '.$errormessage);
 
-		return View::make('neonregistartion.api_invoice_payment', compact('data','Amount','PaymentGatewayID','PaymentGateway','paypal_button','CustomData','CompanyID','BackRequestUrl','error','errormessage'));
+		return View::make('neonregistartion.api_invoice_payment', compact('data','Amount','PaymentGatewayID','PaymentGateway','paypal_button','sagepay_button','CustomData','CompanyID','BackRequestUrl','error','errormessage'));
 
     }
 

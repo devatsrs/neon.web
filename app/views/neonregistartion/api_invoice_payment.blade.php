@@ -12,7 +12,7 @@
         @if($PaymentGatewayID==PaymentGateway::AuthorizeNet || $PaymentGatewayID==PaymentGateway::Stripe || $PaymentGatewayID==PaymentGateway::FideliPay || $PaymentGatewayID==PaymentGateway::PeleCard || $PaymentGatewayID==PaymentGateway::MerchantWarrior)
             @include('neonregistartion.api_invoice_creditcard')
         @endif
-        @if($PaymentGateway=='Paypal')
+        @if($PaymentGateway=='Paypal' || $PaymentGateway=='SagePay')
             @include('neonregistartion.api_invoice_creditcardother')
         @endif
     @else
