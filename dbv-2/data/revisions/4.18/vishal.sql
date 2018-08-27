@@ -200,3 +200,21 @@ BEGIN
 
 END//
 DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE `prc_getPBXExportPayment`(
+	IN `p_start_date` INT
+)
+BEGIN
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+		select ac.Number,Notes,PaymentDate,Amount
+		from tblPayment inner join NeonRMDev.tblAccount as ac on ac.AccountID=tblPayment.AccountID
+		where
+		PaymentType='Payment In' and tblPayment.Status='Approved' and Recall=0 and PaymentDate>p_start_date;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
