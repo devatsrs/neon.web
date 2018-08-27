@@ -190,7 +190,7 @@ class ProductsController extends \BaseController {
                 $Reason='Stock Arrival With '.$data['Quantity'].' Quantity.';
                 $historyData=array(
                     'CompanyID'=>$companyID,
-                    'ProductID'=>$product['ProductID'],
+                    'ProductID'=>$product->ProductID,
                     'Stock'=>intval($data['Quantity']),
                     'Quantity'=>intval($data['Quantity']),
                     'Reason'=>$Reason,
@@ -225,7 +225,11 @@ class ProductsController extends \BaseController {
         if( $id > 0 ) {
             $data = Input::all();
             $Product = Product::findOrFail($id);
-            $oldQuantity=$Product['Quantity'];
+            $oldQuantity=$Product->Quantity;
+            $OldCode=$Product->Code;
+            if($OldCode=='topup'){
+                return Response::json(array("status" => "failed", "message" => "This Product Can not update."));
+            }
             $user = User::get_user_full_name();
             $roundplaces = $RoundChargesAmount = get_round_decimal_places();
 
