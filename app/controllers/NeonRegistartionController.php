@@ -9,7 +9,7 @@ class NeonRegistartionController extends \BaseController {
      */
     public function index() {
         $data = Input::all();
-
+        $error=0;
         $APILog=array();
         log::info('Data');
         log::info(print_r($data,true));
@@ -34,41 +34,99 @@ class NeonRegistartionController extends \BaseController {
         $CompanyID = User::where(["UserID"=>$UserID])->pluck('CompanyID');
         log::info('CompanyID '.$CompanyID);
 
+        $AccountName='';
+        $CurrencyID=0;
+        $CurrencyCode='';
+        $errormessage='';
         if(!empty($API_Request['AccountID'])){
             $AccountName = Account::where(["AccountID"=>$API_Request['AccountID']])->pluck('AccountName');
             $CurrencyID = Account::where(["AccountID"=>$API_Request['AccountID']])->pluck('CurrencyId');
         }else{
-            $Personal_data = $API_Request['data_user']['personal_data'];
-            $AccountName = $Personal_data['company'];
-            $CurrencyID= $Personal_data['currencyId'];
+            if(isset($API_Request['data_user']['personal_data'])) {
+                $Personal_data = $API_Request['data_user']['personal_data'];
+                if(!empty($Personal_data['company'])){
+                    $AccountName = $Personal_data['company'];
+                }
+                if(!empty($Personal_data['company'])) {
+                    $CurrencyID = $Personal_data['currencyId'];
+                }
+            }else{
+                $errormessage.='Personal Data not define.';
+            }
         }
+        if(!empty($CurrencyID)) {
+            $CurrencyCode = Currency::getCurrency($CurrencyID);
+        }
+        $Payment_type='';
+        $Amount=0;
+        $PaymentGatewayID = '';
+        $PaymentGateway = '';
+        if(isset($API_Request['data_user']['payment_data'][0])) {
+            $Payment_data = $API_Request['data_user']['payment_data'][0];
+            if(isset($Payment_data['payment_type']) && isset($Payment_data['payment_amount'])){
+                $Payment_type = $Payment_data['payment_type'];
+                if($Payment_data['payment_amount'] && is_numeric($Payment_data['payment_amount']) && $Payment_data['payment_amount']>0) {
+                    $Amount = $Payment_data['payment_amount'];
+                    if ($Payment_type == 'Paypal' || $Payment_type == 'SagePay') {
+                        $PaymentGatewayID = '';
+                        $PaymentGateway = $Payment_type;
+                    } else {
+                        $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($Payment_type);
+                        $PaymentGateway = '';
+                    }
+                }else{
+                    $errormessage.=' Payment Amount not set correctly.';
+                }
+            }else{
+                $errormessage.=' Payment Type or Payment Amount not define.';
+            }
 
-        $CurrencyCode = Currency::getCurrency($CurrencyID);
-        $Payment_data = $API_Request['data_user']['payment_data'][0];
-        $Payment_type = $Payment_data['payment_type'];
-        $Amount = $Payment_data['payment_amount'];
-
-        if($Payment_type=='Paypal' || $Payment_type=='SagePay'){
-            $PaymentGatewayID= '';
-            $PaymentGateway = 'Paypal';
         }else{
-            $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($Payment_type);
-            $PaymentGateway = '';
+            $errormessage.=' Payment Data not define.';
         }
         $SessionName = 'APIEncodeData';
         Session::put($SessionName, $Result_Json);
+        if($AccountName==''){
+            $errormessage.=' AccountName not set correctly.';
+        }
+        if(empty($CurrencyID)){
+            $errormessage.=' Currency not set correctly.';
+        }
 
-        /**PayPal**/
+        if($errormessage=='') {
+            /**PayPal**/
+            $paypal_button = $sagepay_button = "";
+            $paypal = new PaypalIpn($CompanyID);
+            if (!empty($paypal->status)) {
+                $paypal->item_title = Company::getName($CompanyID) . ' ' . $AccountName . ' API Invoice ';
+                $paypal->item_number = '';
+                $paypal->curreny_code = $CurrencyCode;
 
-        $paypal = new PaypalIpn($CompanyID);
-        if(!empty($paypal->status)){
-            $paypal->item_title =  Company::getName($CompanyID).' '.$AccountName. ' API Invoice ';
-            $paypal->item_number =  '';
-            $paypal->curreny_code =  $CurrencyCode;
+                $paypal->amount = $Amount;
 
-            $paypal->amount = $Amount;
+                $paypal_button = $paypal->get_api_paynow_button($CompanyID);
+            }
+            if ( (new SagePay($CompanyID))->status()) {
 
-            $paypal_button = $paypal->get_api_paynow_button($CompanyID);
+                $SagePay = new SagePay($CompanyID);
+
+                $SagePay->item_title = Company::getName($CompanyID) . ' ' . $AccountName . ' API Invoice ';
+                $SagePay->item_number =  '';
+                $SagePay->curreny_code =  $CurrencyCode;
+
+
+                $SagePay->amount = $Amount;
+
+                $sagepay_button = $SagePay->get_api_paynow_button($CompanyID);
+
+            }
+        }else{
+            $error=1;
+            $APILog['NeonAccountStatus'] = 'failed';
+            $Response['status'] = 'failed';
+            $Response['NeonStatus'] = 'failed';
+            $Response['NeonMessage'] = $errormessage;
+            $APILog['FinalApiResponse'] = json_encode($Response);
         }
         $CustomData = $Result_Json;
 
@@ -85,7 +143,10 @@ class NeonRegistartionController extends \BaseController {
         log::info('$LastLog ID '.$RegistarionApiLogID);
         Session::put('RegistarionApiLogID', $RegistarionApiLogID);
 
-		return View::make('neonregistartion.api_invoice_payment', compact('data','Amount','PaymentGatewayID','PaymentGateway','paypal_button','CustomData','CompanyID'));
+        $BackRequestUrl = $APILog['RequestUrl'];
+        log::info('ErrorMessage : '.$errormessage);
+
+		return View::make('neonregistartion.api_invoice_payment', compact('data','Amount','PaymentGatewayID','PaymentGateway','paypal_button','sagepay_button','CustomData','CompanyID','BackRequestUrl','error','errormessage'));
 
     }
 
@@ -823,14 +884,12 @@ class NeonRegistartionController extends \BaseController {
         $User = User::where(['UserID'=>$UserID])->first();
         $UserName = $User->FirstName.' '.$User->LastName;
         log::info('Update Api Account Start');
-
+        $account = Account::where('AccountID',$AccountID)->first();
         $Result = $ApiData;
         try{
 
             DB::beginTransaction();
             DB::connection('sqlsrv2')->beginTransaction();
-
-            $account = Account::where('AccountID',$AccountID);
 
             //Account level billing period
             $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'),0);
@@ -1314,6 +1373,16 @@ class NeonRegistartionController extends \BaseController {
             if (!empty($data['TopUpAmount']) && !empty($InvoiceID)) {
                 $InvoiceDetailData = array();
                 $ProductID = Product::where(['CompanyId' => $CompanyID, 'Code' => 'topup'])->pluck('ProductID');
+                if(empty($ProductID)){
+                    $ProductData=array();
+                    $ProductData['CompanyID']=$CompanyID;
+                    $ProductData['Name']='TopUp';
+                    $ProductData['Amount']='0.00';
+                    $ProductData['Description']='TopUp';
+                    $ProductData['Code']='topup';
+                    $product = Product::create($ProductData);
+                    $ProductID = $product->ProductID;
+                }
                 /** if blank need to add first */
                 $InvoiceDetailData['InvoiceID'] = $InvoiceID;
                 $InvoiceDetailData['ProductID'] = $ProductID;
