@@ -74,8 +74,8 @@
 <div class="modal-footer">
   <input type="hidden" name="TicketParent" id="TicketParent" value="{{$parent_id}}" />
     <div class="btn-group">
-        <button type="button" class="btn btn-primary TicketStatus btn-sm" data-status-id="">Send</button>
-        <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <button type="button" class="btn btn-primary TicketStatus btn-sm btn-send-mail" data-status-id="">Send</button>
+        <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split btn-sm btn-send-mail" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <span class="caret"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
