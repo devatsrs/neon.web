@@ -884,14 +884,12 @@ class NeonRegistartionController extends \BaseController {
         $User = User::where(['UserID'=>$UserID])->first();
         $UserName = $User->FirstName.' '.$User->LastName;
         log::info('Update Api Account Start');
-
+        $account = Account::where('AccountID',$AccountID)->first();
         $Result = $ApiData;
         try{
 
             DB::beginTransaction();
             DB::connection('sqlsrv2')->beginTransaction();
-
-            $account = Account::where('AccountID',$AccountID)->first();
 
             //Account level billing period
             $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'),0);
