@@ -729,6 +729,19 @@
             </div>
           </div>          
         </div>
+          <div class="row">
+              <div class="col-md-6">
+                  <div class="form-group">
+                      <label for="field-1" class="control-label">Signature Version:</label>
+                      <div class="styled-select slate">
+                          {{Form::select('SignatureVersion',[''=>'Default','v4'=>'V4'],isset($AmazonData->SignatureVersion)?$AmazonData->SignatureVersion:'',array("class"=>""))}}
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-6">
+
+              </div>
+          </div>
       </div>   
    
 
