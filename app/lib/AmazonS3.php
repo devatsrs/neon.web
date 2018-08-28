@@ -60,13 +60,18 @@ class AmazonS3 {
             return 'NoAmazon';
 		}else{
             self::$isAmazonS3='Amazon';
-			return $s3Client = S3Client::factory(array(
-				'region' => $AmazonData->AmazonAwsRegion,
-				'credentials' => array(
-					'key' => $AmazonData->AmazonKey,
-					'secret' => $AmazonData->AmazonSecret
-				),
-			));
+            $Amazone=array(
+                'region' => $AmazonData->AmazonAwsRegion,
+                'credentials' => array(
+                    'key' => $AmazonData->AmazonKey,
+                    'secret' => $AmazonData->AmazonSecret
+                ),
+            );
+
+            if(isset($AmazonData->SignatureVersion) && $AmazonData->SignatureVersion!=''){
+                $Amazone['signature']=$AmazonData->SignatureVersion;
+            }
+			return $s3Client = S3Client::factory($Amazone);
 		}
 
        /*
