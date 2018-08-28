@@ -496,41 +496,7 @@ $(document).ready(function(e) {
 	////
 
 	//
-	
-		 $("#EmailActionform").submit(function (event) {
-		//////////////////////////          	
-			var email_url 	= 	"<?php echo URL::to('/tickets/'.$ticketdata->TicketID.'/actionsubmit/');?>";
-          	event.stopImmediatePropagation();
-            event.preventDefault();			
-			var formData = new FormData($('#EmailActionform')[0]);
-			
-			$("#EmailAction-model").find('.btn-send-mail').addClass('disabled');
-			$("#EmailAction-model").find('.btn-send-mail').button('loading');
-			 $.ajax({
-                url: email_url,
-                type: 'POST',
-                dataType: 'json',
-				data:formData,
-				async :false,
-				cache: false,
-                contentType: false,
-                processData: false,
-                success: function(response) {
-						$("#EmailAction-model").find('.btn-send-mail').button('reset');
-						if(response.status =='success'){									
-							toastr.success(response.message, "Success", toastr_opts);							
-						//	window.location.href = window.location.href+"#last_item";
-							location.reload();
-                        }else{
-                            toastr.error(response.message, "Error", toastr_opts);
-                        }
-				},
-			});	
-		///////////////////////////////
-		 
-	 });
-	 
-	 
+
 	 $('#UpdateTicketDueTime').submit(function(e) {        
 		//////////////////////////          	
 			var email_url 	= 	"<?php echo URL::to('/tickets/'.$ticketdata->TicketID.'/updateTicketDueTime/');?>";
@@ -814,5 +780,33 @@ $(document).ready(function(e) {
 		console.log("Agent:"+agent);
 		
 	}
+
+    function sumbitReplyTicket(ticketStatus){
+        var email_url 	= 	"<?php echo URL::to('/tickets/'.$ticketdata->TicketID.'/actionsubmit/');?>";
+        var formData = new FormData($('#EmailActionform')[0]);
+        formData.append('ticketStatus', ticketStatus);
+        $("#EmailAction-model").find('.btn-send-mail').addClass('disabled');
+        $("#EmailAction-model").find('.btn-send-mail').button('loading');
+        $.ajax({
+            url: email_url,
+            type: 'POST',
+            dataType: 'json',
+            data:formData,
+            async :false,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function(response) {
+                $("#EmailAction-model").find('.btn-send-mail').button('reset');
+                if(response.status =='success'){
+                    toastr.success(response.message, "Success", toastr_opts);
+                    //	window.location.href = window.location.href+"#last_item";
+                    location.reload();
+                }else{
+                    toastr.error(response.message, "Error", toastr_opts);
+                }
+            },
+        })
+    }
 </script> 
 @stop 
