@@ -8,15 +8,32 @@
 <link rel="stylesheet" type="text/css" href="{{URL::to('/')}}/assets/js/dataTables.bootstrap.js">
 <link rel="stylesheet" type="text/css" href="{{URL::to('/')}}/assets/js/jquery.dataTables.min.js">
 @section('content')
-
-    @if($PaymentGatewayID==PaymentGateway::AuthorizeNet || $PaymentGatewayID==PaymentGateway::Stripe || $PaymentGatewayID==PaymentGateway::FideliPay || $PaymentGatewayID==PaymentGateway::PeleCard || $PaymentGatewayID==PaymentGateway::MerchantWarrior)
-        @include('neonregistartion.api_invoice_creditcard')
+    @if($error==0)
+        @if($PaymentGatewayID==PaymentGateway::AuthorizeNet || $PaymentGatewayID==PaymentGateway::Stripe || $PaymentGatewayID==PaymentGateway::FideliPay || $PaymentGatewayID==PaymentGateway::PeleCard || $PaymentGatewayID==PaymentGateway::MerchantWarrior)
+            @include('neonregistartion.api_invoice_creditcard')
+        @endif
+        @if($PaymentGateway=='Paypal' || $PaymentGateway=='SagePay')
+            @include('neonregistartion.api_invoice_creditcardother')
+        @endif
+    @else
+    <form method="post" id="apiinvoicedone" class="hidden" action="{{$BackRequestUrl}}">
+        <input type="text" name="status" value="failed">
+        <input type="text" name="AccountID" value="0">
+        <input type="text" name="AccountNumber" value="">
+        <input type="text" name="PaymentStatus" value="failed">
+        <input type="text" name="PaymentMessage" value="">
+        <input type="text" name="NeonStatus" value="failed">
+        <input type="text" name="NeonMessage" value="{{$errormessage}}">
+    </form>
     @endif
-    @if($PaymentGateway=='Paypal')
-        @include('neonregistartion.api_invoice_creditcardother')
-    @endif
-
 <script>
+    $(document).ready(function() {
+        var Error='{{$error}}';
+        if(Error==1) {
+            $('#apiinvoicedone').submit();
+        }
+    });
+
     var PaymentGatewayID='{{$PaymentGatewayID}}';
 toastr_opts = {
     "closeButton": true,
