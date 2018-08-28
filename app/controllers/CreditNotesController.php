@@ -94,21 +94,20 @@ class CreditNotesController extends \BaseController {
 
         if($data['InvoiceNumber'] == 0) {
             $AccountInvoices = DB::connection('sqlsrv2')->table('tblInvoice')
-                ->select('InvoiceID', 'InvoiceNumber', 'IssueDate', 'GrandTotal')
+                ->select('InvoiceID', 'FullInvoiceNumber', 'IssueDate', 'GrandTotal')
                 ->where("AccountID", $AccountID)
                 ->where("InvoiceStatus", '<>', 'post')
                 ->where('InvoiceStatus', '<>', 'paid');
         }
         else{
             $AccountInvoices = DB::connection('sqlsrv2')->table('tblInvoice')
-                ->select('InvoiceID', 'InvoiceNumber', 'IssueDate', 'GrandTotal')
+                ->select('InvoiceID', 'FullInvoiceNumber', 'IssueDate', 'GrandTotal')
+                ->leftJoin('tblPayment','tblInvoice.InvoiceId','=','tblPayment.InvoiceID')
                 ->where("AccountID", $AccountID)
                 ->where("InvoiceNumber", $data['InvoiceNumber'])
                 ->where("InvoiceStatus", '<>', 'post')
                 ->where('InvoiceStatus', '<>', 'paid');
         }
-        // ->orderBy("InvoiceTaxRateID", "asc")
-        //->get();
 
         return Datatables::of($AccountInvoices)->make();
     }
@@ -189,16 +188,17 @@ class CreditNotesController extends \BaseController {
         if($AccountID > 0)
         {
             $Invoices 	    =   Invoice::GetInvoiceByAccount($AccountID);
+            $AccountName = Account::find($AccountID)->AccountName;
             $invoicenumbers = array("Select Invoices");
             foreach($Invoices as $invoice)
             {
-                $invoicenumbers[$invoice->InvoiceNumber] = $invoice->InvoiceNumber;
+                $invoicenumbers[$invoice->InvoiceNumber] = $invoice->FullInvoiceNumber;
             }
             $CreditNotes    = 	CreditNotes::find($id);
             $CompanyID      =   $CreditNotes->CompanyID;
             $CreditNotesID  =   $CreditNotes->CreditNotesID;
 
-            return View::make('creditnotes.apply_creditnotes', compact( 'AccountID','CompanyID','CreditNotesID','Invoices','invoicenumbers'));
+            return View::make('creditnotes.apply_creditnotes', compact( 'AccountID','AccountName','CompanyID','CreditNotesID','Invoices','invoicenumbers','CreditNotes'));
         }
     }
 
@@ -206,28 +206,64 @@ class CreditNotesController extends \BaseController {
     {
         $data = Input::all();
         //echo"<pre>"; print_R($data);exit;
-        for($i=0;$i<count($data['invoice_id']);$i++)
-        {
-            if($data['payment'][$i] != "")
-            {
-                $paymentdata = array();
-                $paymentdata['CompanyID']       = $data['CompanyID'];
-                $paymentdata['AccountID']       = $data['AccountID'];
-                $paymentdata['InvoiceNo']       = $data['invoice_number'][$i];
-                $paymentdata['PaymentDate']     = date('Y-m-d H:i:s');
-                $paymentdata['PaymentMethod']   = 'Credit Notes';
-                $paymentdata['PaymentType']     = 'Payment In';
-                $paymentdata['Notes']           = 'Paid By Credit Notes';
-                $paymentdata['Amount']          = $data['payment'][$i];
-                $paymentdata['created_at']      = date("Y-m-d H:i:s");
-                $paymentdata['created_at']      = date("Y-m-d H:i:s");
-                $paymentdata['InvoiceID']       = $data['invoice_id'][$i];
-                $paymentdata['CreditNotesID']   = $data['CreditNotesID'];
-                $payment_insert = Payment::insert($paymentdata);
-                /*if($payment_insert == 1)
-                {
+        if(!array_filter($data['payment'])) {
+            return Response::json(array("status" => "failed", "message" => "Enter Amount For atleast one Invoice"));
+        }
+        else{
+            try {
+                DB::connection('sqlsrv2')->beginTransaction();
+                $totalamount = 0;
+                for ($i = 0; $i < count($data['invoice_id']); $i++) {
+                    if ($data['payment'][$i] != "") {
+                        $paymentdata = array();
+                        $paymentdata['CompanyID'] = $data['CompanyID'];
+                        $paymentdata['AccountID'] = $data['AccountID'];
+                        $paymentdata['InvoiceNo'] = $data['invoice_number'][$i];
+                        $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
+                        $paymentdata['PaymentMethod'] = 'Credit Notes';
+                        $paymentdata['PaymentType'] = 'Payment In';
+                        $paymentdata['Notes'] = 'Paid By Credit Notes';
+                        $paymentdata['Amount'] = $data['payment'][$i];
+                        $paymentdata['created_at'] = date("Y-m-d H:i:s");
+                        $paymentdata['updated_at'] = date("Y-m-d H:i:s");
+                        $paymentdata['InvoiceID'] = $data['invoice_id'][$i];
+                        $paymentdata['CreditNotesID'] = $data['CreditNotesID'];
+                        $creditnote_id = $data['CreditNotesID'];
 
-                }*/
+                        //check specific invoice grand total is greter then creditnotes
+                        $InvoiceAmount = Invoice::find($data['invoice_id'][$i])->GrandTotal;
+                        if($InvoiceAmount > $data['payment'][$i])
+                        {
+                            $payment_insert = Payment::insert($paymentdata);
+                            $totalamount += $data['payment'][$i];
+                        }
+                        else{
+                            return Response::json(array("status" => "failed", "message" => "CreditNote Amount is higher then Invoice Amount."));
+                        }
+                    }
+                }
+                if ($payment_insert == 1) {
+                    $GrandTotal = CreditNotes::find($creditnote_id)->GrandTotal;
+                    $PaidAmount = CreditNotes::find($creditnote_id)->PaidAmount;
+                    $Available_Balance = $GrandTotal - $PaidAmount;
+                    //check if total credit amount is less then available balance or not
+                    if($totalamount < $Available_Balance) {
+                        $CreditNotesData['PaidAmount'] = $PaidAmount + $totalamount;
+                        if (CreditNotes::find($creditnote_id)->update($CreditNotesData)) {
+                            DB::connection('sqlsrv2')->commit();
+                            $redirect_url = URL::previous();
+                            return Response::json(array("status" => "success", "message" => "CreditNotes Applied", "redirect" => $redirect_url));
+                        }
+                    }
+                    else{
+                        return Response::json(array("status" => "failed", "message" => "Not Enough Credit Available."));
+                    }
+                }
+            }
+            catch (Exception $e){
+                Log::info($e);
+                DB::connection('sqlsrv2')->rollback();
+                return Response::json(array("status" => "failed", "message" => "Problem Applying CreditNotes. \n" . $e->getMessage()));
             }
         }
     }
@@ -3184,7 +3220,6 @@ class CreditNotesController extends \BaseController {
     public function ajax_creditnoteslog_datagrid($id,$type) {
         $data = Input::all();
         $data['iDisplayStart'] +=1;
-
 
         //$columns = array('InvoiceNumber','Transaction','Notes','Amount','Status','created_at','InvoiceID');
         $columns = array('Notes','CreditNotesLogStatus','created_at','CreditNotesID');

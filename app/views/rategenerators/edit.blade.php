@@ -134,6 +134,10 @@
                         <div class="col-sm-4">
                             {{ Form::select('GroupBy', array('Code'=>'Code','Desc'=>'Description'), $rategenerators->GroupBy , array("class"=>"select2")) }}
                         </div>
+                        <label for="field-1" class="col-sm-2 control-label">Timezones</label>
+                        <div class="col-sm-4">
+                            {{ Form::select('Timezones[]', $Timezones, explode(',',$rategenerators->Timezones) , array("class"=>"select2 multiselect", "multiple"=>"multiple")) }}
+                        </div>
                     </div>
 
                 </div>
