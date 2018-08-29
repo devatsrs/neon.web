@@ -1288,40 +1288,40 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         }
 
     }
-    public function get_credit($id){
+    public function get_credit($id)
+    {
         $data = Input::all();
         //$CompanyID = User::get_companyID();
         $account = Account::find($id);
         $CompanyID = $account->CompanyId;
         $getdata['AccountID'] = $id;
-        $response =  NeonAPI::request('account/get_creditinfo',$getdata,false,false,false);
-        $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $UnbilledAmount = $VendorUnbilledAmount = $EmailToCustomer= $SOA_Amount = 0;
-        if(!empty($response) && $response->status == 'success' ){
-            if(!empty($response->data->PermanentCredit)){
-                $PermanentCredit = $response->data->PermanentCredit;
+        $response = AccountBalance::where('AccountID', $id)->first(['AccountID', 'PermanentCredit', 'UnbilledAmount', 'EmailToCustomer', 'TemporaryCredit', 'TemporaryCreditDateTime', 'BalanceThreshold', 'BalanceAmount', 'VendorUnbilledAmount']);
+        $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $UnbilledAmount = $VendorUnbilledAmount = $EmailToCustomer = $SOA_Amount = 0;
+        if (!empty($response)) {
+            if (!empty($response->PermanentCredit)) {
+                $PermanentCredit = $response->PermanentCredit;
             }
-            if(!empty($response->data->TemporaryCredit)){
-                $TemporaryCredit = $response->data->TemporaryCredit;
+            if (!empty($response->TemporaryCredit)) {
+                $TemporaryCredit = $response->TemporaryCredit;
             }
-            if(!empty($response->data->BalanceThreshold)){
-                $BalanceThreshold = $response->data->BalanceThreshold;
+            if (!empty($response->BalanceThreshold)) {
+                $BalanceThreshold = $response->BalanceThreshold;
             }
-            $SOA_Amount = AccountBalance::getAccountSOA($CompanyID, $id);
-            if(!empty($response->data->UnbilledAmount)){
-                $UnbilledAmount = $response->data->UnbilledAmount;
+            //$SOA_Amount = AccountBalance::getAccountSOA($CompanyID, $id);
+            $SOA_Amount = AccountBalance::getNewAccountBalance($CompanyID, $id);
+            if (!empty($response->UnbilledAmount)) {
+                $UnbilledAmount = $response->UnbilledAmount;
             }
-            if(!empty($response->data->VendorUnbilledAmount)){
-                $VendorUnbilledAmount = $response->data->VendorUnbilledAmount;
+            if (!empty($response->VendorUnbilledAmount)) {
+                $VendorUnbilledAmount = $response->VendorUnbilledAmount;
             }
-            $BalanceAmount = $SOA_Amount+($UnbilledAmount-$VendorUnbilledAmount);
-            if(!empty($response->data->EmailToCustomer)){
-                $EmailToCustomer = $response->data->EmailToCustomer;
+            //$BalanceAmount = $SOA_Amount + ($UnbilledAmount - $VendorUnbilledAmount);
+            $BalanceAmount = AccountBalance::getNewAccountExposure($CompanyID, $id);
+            if (!empty($response->EmailToCustomer)) {
+                $EmailToCustomer = $response->EmailToCustomer;
             }
-            return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','UnbilledAmount','EmailToCustomer','VendorUnbilledAmount','SOA_Amount'));
-        }else{
-            return view_response_api($response);
         }
-
+        return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','UnbilledAmount','EmailToCustomer','VendorUnbilledAmount','SOA_Amount'));
     }
 
     public function update_credit(){
