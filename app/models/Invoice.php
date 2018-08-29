@@ -731,4 +731,17 @@ class Invoice extends \Eloquent {
         }
         return $Response;
     }
+
+    public static function getTotalTopUp($CompanyID,$AccountID){
+        $TotalTopUp=0;
+        $ProductID = Product::where(['CompanyId' => $CompanyID, 'Code' => 'topup'])->pluck('ProductID');
+        if(!empty($ProductID)) {
+            $TotalTopUp = InvoiceDetail::Join('tblInvoice', 'tblInvoiceDetail.InvoiceID', '=', 'tblInvoice.InvoiceID')
+                ->where(['ProductID' => $ProductID, 'ProductType' => Product::ITEM])
+                ->where(['tblInvoice.AccountID' => $AccountID])
+                ->whereNotIn('InvoiceStatus', ['cancel', 'draft', 'awaiting'])
+                ->sum('LineTotal');
+        }
+        return $TotalTopUp;
+    }
 }
