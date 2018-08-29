@@ -16238,13 +16238,20 @@ GenerateRateTable:BEGIN
 		DECLARE v_Codlen_ int;
 		DECLARE v_p_code__ VARCHAR(50);
 		DECLARE v_Commit int;
+
 		DECLARE EXIT HANDLER FOR SQLEXCEPTION
 		BEGIN
 			SHOW WARNINGS;
 			ROLLBACK;
-			CALL prc_WSJobStatusUpdate(p_jobId, 'F', 'RateTable generation failed', '');
+			INSERT INTO tmp_JobLog_ (Message) VALUES ('RateTable generation failed');
+			-- CALL prc_WSJobStatusUpdate(p_jobId, 'F', 'RateTable generation failed', '');
 
 		END;
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_JobLog_;
+		CREATE TEMPORARY TABLE tmp_JobLog_ (
+			Message longtext
+		);
 
 		SET @@session.collation_connection='utf8_unicode_ci';
 		SET @@session.character_set_client='utf8';
@@ -16273,7 +16280,8 @@ GenerateRateTable:BEGIN
 
 			IF v_RTRowCount_ > 0
 			THEN
-				CALL prc_WSJobStatusUpdate  (p_jobId, 'F', 'RateTable Name is already exist, Please try using another RateTable Name', '');
+				INSERT INTO tmp_JobLog_ (Message) VALUES ('RateTable Name is already exist, Please try using another RateTable Name');
+				-- CALL prc_WSJobStatusUpdate  (p_jobId, 'F', 'RateTable Name is already exist, Please try using another RateTable Name', '');
 				LEAVE GenerateRateTable;
 			END IF;
 		END IF;
@@ -17484,9 +17492,12 @@ GenerateRateTable:BEGIN
 			updated_at = now()
 		WHERE RateTableID = p_RateTableId;
 
-		SELECT p_RateTableId as RateTableID;
+		-- SELECT p_RateTableId as RateTableID;
 
-		CALL prc_WSJobStatusUpdate(p_jobId, 'S', 'RateTable Created Successfully', '');
+		INSERT INTO tmp_JobLog_ (Message) VALUES (p_RateTableId);
+		-- CALL prc_WSJobStatusUpdate(p_jobId, 'S', 'RateTable Created Successfully', '');
+
+		SELECT * FROM tmp_JobLog_;
 
 		COMMIT;
 
@@ -17543,13 +17554,20 @@ GenerateRateTable:BEGIN
 		DECLARE v_Codlen_ int;
 		DECLARE v_p_code__ VARCHAR(50);
 		DECLARE v_Commit int;
+
 		DECLARE EXIT HANDLER FOR SQLEXCEPTION
 		BEGIN
 			show warnings;
 			ROLLBACK;
-			CALL prc_WSJobStatusUpdate(p_jobId, 'F', 'RateTable generation failed', '');
+			INSERT INTO tmp_JobLog_ (Message) VALUES ('RateTable generation failed');
+			-- CALL prc_WSJobStatusUpdate(p_jobId, 'F', 'RateTable generation failed', '');
 
 		END;
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_JobLog_;
+		CREATE TEMPORARY TABLE tmp_JobLog_ (
+			Message longtext
+		);
 
 		SET @@session.collation_connection='utf8_unicode_ci';
 		SET @@session.character_set_client='utf8';
@@ -17577,7 +17595,8 @@ GenerateRateTable:BEGIN
 
 			IF v_RTRowCount_ > 0
 			THEN
-				CALL prc_WSJobStatusUpdate  (p_jobId, 'F', 'RateTable Name is already exist, Please try using another RateTable Name', '');
+				INSERT INTO tmp_JobLog_ (Message) VALUES ('RateTable Name is already exist, Please try using another RateTable Name');
+				-- CALL prc_WSJobStatusUpdate  (p_jobId, 'F', 'RateTable Name is already exist, Please try using another RateTable Name', '');
 				LEAVE GenerateRateTable;
 			END IF;
 		END IF;
@@ -18583,9 +18602,12 @@ END IF;
 			updated_at = now()
 		WHERE RateTableID = p_RateTableId;
 
-		SELECT p_RateTableId as RateTableID;
+		-- SELECT p_RateTableId as RateTableID;
 
-		CALL prc_WSJobStatusUpdate(p_jobId, 'S', 'RateTable Created Successfully', '');
+		INSERT INTO tmp_JobLog_ (Message) VALUES (p_RateTableId);
+		-- CALL prc_WSJobStatusUpdate(p_jobId, 'S', 'RateTable Created Successfully', '');
+
+		SELECT * FROM tmp_JobLog_;
 
 		COMMIT;
 

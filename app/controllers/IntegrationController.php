@@ -580,6 +580,7 @@ class IntegrationController extends \BaseController
 					"AmazonAwsBucket"=>$data['AmazonAwsBucket'],
 					"AmazonAwsUrl"=>$data['AmazonAwsUrl'],
 					"AmazonAwsRegion"=>$data['AmazonAwsRegion'],					
+					"SignatureVersion"=>$data['SignatureVersion'],
 					);
 				 
 				$MandrilDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
