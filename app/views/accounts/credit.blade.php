@@ -74,7 +74,7 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Account Exposure</label>
                         <div class="desc col-sm-4 ">
-                            <input type="text" class="form-control" readonly name="AccountExposure" value="{{$SOA_Amount+($UnbilledAmount - $VendorUnbilledAmount)}}">
+                            <input type="text" class="form-control" readonly name="AccountExposure" value="{{$BalanceAmount}}">
                         </div>
                     </div>
                     <div class="form-group">
