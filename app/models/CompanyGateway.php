@@ -640,6 +640,25 @@ class CompanyGateway extends \Eloquent {
         }
         log::info('-- Create Summary Live END--');
 
+        log::info('-- System Alert --');
+        $SystemAlertCommandID = CronJobCommand::getCronJobCommandIDByCommand('neonalerts',$CompanyID);
+        $SystemAlert_Count = CronJob::where(['CompanyID'=>$CompanyID,'CronJobCommandID'=>$SystemAlertCommandID])->count();
+        if($SystemAlert_Count == 0) {
+            $SystemAlertJobTitle = 'System Alerts';
+            $SystemAlertSetting = '{"ThresholdTime":"30","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"5","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM"}';
+            $SystemAlertLivedata = array();
+            $SystemAlertLivedata['CompanyID'] = $CompanyID;
+            $SystemAlertLivedata['CronJobCommandID'] = $SystemAlertCommandID;
+            $SystemAlertLivedata['Settings'] = $SystemAlertSetting;
+            $SystemAlertLivedata['Status'] = 1;
+            $SystemAlertLivedata['created_by'] = 'system';
+            $SystemAlertLivedata['created_at'] = $today;
+            $SystemAlertLivedata['JobTitle'] = $SystemAlertJobTitle;
+            log::info($SystemAlertLivedata);
+            CronJob::create($SystemAlertLivedata);
+        }
+        log::info('-- System Alert END--');
+
     }
 
 }
