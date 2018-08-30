@@ -10861,7 +10861,7 @@ BEGIN
 			FROM   tmp_customerrateall_2_
 			-- ORDER BY `Rate Prefix`;
 
-			UNION ALL
+			/*UNION ALL
 
 			SELECT distinct
 				CONCAT(EffectiveDate,' 00:00') as `Time of timing replace`,
@@ -10883,7 +10883,7 @@ BEGIN
 				0 AS `Billing Rate for Calling Card Prompt`,
 				0  as `Billing Cycle for Calling Card Prompt`
 			FROM   tmp_customerrateall_
-			WHERE  EndDate IS NOT NULL
+			WHERE  EndDate IS NOT NULL*/
 
 			UNION ALL
 
