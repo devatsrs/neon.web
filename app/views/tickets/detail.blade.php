@@ -786,7 +786,7 @@ $(document).ready(function(e) {
         var formData = new FormData($('#EmailActionform')[0]);
         formData.append('ticketStatus', ticketStatus);
         $("#EmailAction-model").find('.btn-send-mail').addClass('disabled');
-        $("#EmailAction-model").find('.btn-send-mail').button('loading');
+        $("#EmailAction-model").find('.btn-send-mail').eq(0).button('loading');
         $.ajax({
             url: email_url,
             type: 'POST',
@@ -798,6 +798,7 @@ $(document).ready(function(e) {
             processData: false,
             success: function(response) {
                 $("#EmailAction-model").find('.btn-send-mail').button('reset');
+                $("#EmailAction-model").find('.btn-send-mail').removeClass('disabled');
                 if(response.status =='success'){
                     toastr.success(response.message, "Success", toastr_opts);
                     //	window.location.href = window.location.href+"#last_item";
