@@ -16291,6 +16291,7 @@ GenerateRateTable:BEGIN
 			code VARCHAR(50) COLLATE utf8_unicode_ci,
 			description VARCHAR(200) COLLATE utf8_unicode_ci,
 			rate DECIMAL(18, 6),
+			rateN DECIMAL(18, 6),
 			ConnectionFee DECIMAL(18, 6),
 			PreviousRate DECIMAL(18, 6),
 			EffectiveDate DATE DEFAULT NULL,
@@ -16306,6 +16307,7 @@ GenerateRateTable:BEGIN
 			code VARCHAR(50) COLLATE utf8_unicode_ci,
 			description VARCHAR(200) COLLATE utf8_unicode_ci,
 			rate DECIMAL(18, 6),
+			rateN DECIMAL(18, 6),
 			ConnectionFee DECIMAL(18, 6),
 			PreviousRate DECIMAL(18, 6),
 			EffectiveDate DATE DEFAULT NULL,
@@ -16355,6 +16357,7 @@ GenerateRateTable:BEGIN
 		CREATE TEMPORARY TABLE tmp_Vendorrates_  (
 			code VARCHAR(50) COLLATE utf8_unicode_ci,
 			rate DECIMAL(18, 6),
+			rateN DECIMAL(18, 6),
 			ConnectionFee DECIMAL(18, 6),
 			AccountId INT,
 			RowNo INT,
@@ -16370,6 +16373,7 @@ GenerateRateTable:BEGIN
 			code VARCHAR(50) COLLATE utf8_unicode_ci,
 			description VARCHAR(200) COLLATE utf8_unicode_ci,
 			rate DECIMAL(18, 6),
+			rateN DECIMAL(18, 6),
 			ConnectionFee DECIMAL(18, 6),
 			FinalRankNumber int,
 			INDEX tmp_Vendorrates_stage2__code (`RowCode`)
@@ -16386,6 +16390,7 @@ GenerateRateTable:BEGIN
 			RowCode VARCHAR(50) COLLATE utf8_unicode_ci,
 			description VARCHAR(200) COLLATE utf8_unicode_ci,
 			rate DECIMAL(18, 6),
+			rateN DECIMAL(18, 6),
 			ConnectionFee DECIMAL(18, 6),
 			INDEX tmp_Vendorrates_stage2__code (`RowCode`)
 		);
@@ -16413,6 +16418,7 @@ GenerateRateTable:BEGIN
 			AccountName VARCHAR(100) ,
 			Code VARCHAR(50) COLLATE utf8_unicode_ci,
 			Rate DECIMAL(18,6) ,
+			RateN DECIMAL(18,6) ,
 			ConnectionFee DECIMAL(18,6) ,
 			EffectiveDate DATETIME ,
 			Description VARCHAR(255),
@@ -16428,6 +16434,7 @@ GenerateRateTable:BEGIN
 			AccountName VARCHAR(100) ,
 			Code VARCHAR(50) COLLATE utf8_unicode_ci,
 			Rate DECIMAL(18,6) ,
+			RateN DECIMAL(18,6) ,
 			ConnectionFee DECIMAL(18,6) ,
 			EffectiveDate DATETIME ,
 			Description VARCHAR(255),
@@ -16440,6 +16447,7 @@ GenerateRateTable:BEGIN
 			AccountName VARCHAR(100) ,
 			Code VARCHAR(50) COLLATE utf8_unicode_ci,
 			Rate DECIMAL(18,6) ,
+			RateN DECIMAL(18,6) ,
 			ConnectionFee DECIMAL(18,6) ,
 			EffectiveDate DATETIME ,
 			Description VARCHAR(255),
@@ -16457,6 +16465,7 @@ GenerateRateTable:BEGIN
 			Code LONGTEXT,
 			Description varchar(200) ,
 			Rate DECIMAL(18,6) ,
+			RateN DECIMAL(18,6) ,
 			ConnectionFee DECIMAL(18,6) ,
 			EffectiveDate date,
 			TrunkID int,
@@ -16474,6 +16483,7 @@ GenerateRateTable:BEGIN
 			Code varchar(50) COLLATE utf8_unicode_ci,
 			Description varchar(200) ,
 			Rate DECIMAL(18,6) ,
+			RateN DECIMAL(18,6) ,
 			ConnectionFee DECIMAL(18,6) ,
 			EffectiveDate date,
 			TrunkID int,
@@ -16491,6 +16501,7 @@ GenerateRateTable:BEGIN
 			Code varchar(50),
 			Description varchar(200),
 			Rate DECIMAL(18,6) ,
+			RateN DECIMAL(18,6) ,
 			ConnectionFee DECIMAL(18,6) ,
 			EffectiveDate date,
 			TrunkID int,
@@ -16608,7 +16619,7 @@ GenerateRateTable:BEGIN
 
 
 		INSERT INTO tmp_VendorCurrentRates1_
-			Select DISTINCT AccountId,AccountName,Code,Description, Rate,ConnectionFee,EffectiveDate,TrunkID,TimezonesID,CountryID,RateID,Preference
+			Select DISTINCT AccountId,AccountName,Code,Description, Rate, RateN,ConnectionFee,EffectiveDate,TrunkID,TimezonesID,CountryID,RateID,Preference
 			FROM (
 						 SELECT  tblVendorRate.AccountId,tblAccount.AccountName, tblRate.Code, tblRate.Description,
 																																				CASE WHEN  tblAccount.CurrencyId = v_CurrencyID_
@@ -16625,8 +16636,22 @@ GenerateRateTable:BEGIN
 																																						(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = v_CurrencyID_ and  CompanyID = v_CompanyId_ )
 																																						* (tblVendorRate.rate  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = tblAccount.CurrencyId and  CompanyID = v_CompanyId_ ))
 																																					)
-																																				END
-																																																																																																																																														as  Rate,
+																																				END as  Rate,
+																																				CASE WHEN  tblAccount.CurrencyId = v_CurrencyID_
+																																					THEN
+																																						tblVendorRate.RateN
+																																				WHEN  v_CompanyCurrencyID_ = v_CurrencyID_
+																																					THEN
+																																						(
+																																							( tblVendorRate.RateN  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = tblAccount.CurrencyId and  CompanyID = v_CompanyId_ ) )
+																																						)
+																																				ELSE
+																																					(
+
+																																						(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = v_CurrencyID_ and  CompanyID = v_CompanyId_ )
+																																						* (tblVendorRate.RateN  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = tblAccount.CurrencyId and  CompanyID = v_CompanyId_ ))
+																																					)
+																																				END as  RateN,
 							 ConnectionFee,
 																																				DATE_FORMAT (tblVendorRate.EffectiveDate, '%Y-%m-%d') AS EffectiveDate,
 							 tblVendorRate.TrunkID, tblVendorRate.TimezonesID, tblRate.CountryID, tblRate.RateID,IFNULL(vp.Preference, 5) AS Preference,
@@ -16745,7 +16770,7 @@ GenerateRateTable:BEGIN
 
 
 	INSERT INTO tmp_VendorCurrentRates_
-				Select AccountId,AccountName,Code,Description, Rate,ConnectionFee,EffectiveDate,TrunkID,TimezonesID,CountryID,RateID,Preference
+				Select AccountId,AccountName,Code,Description, Rate, RateN,ConnectionFee,EffectiveDate,TrunkID,TimezonesID,CountryID,RateID,Preference
 				FROM (
 							 SELECT * ,
 								 @row_num := IF(@prev_AccountId = AccountID AND @prev_TrunkID = TrunkID AND @prev_TimezonesID = TimezonesID AND @prev_RateId = RateID AND @prev_EffectiveDate >= EffectiveDate, @row_num + 1, 1) AS RowID,
@@ -16808,11 +16833,11 @@ GenerateRateTable:BEGIN
 		THEN
 			-- insert all rates and if code is multiple then insert it as comma seperated values
 			INSERT INTO tmp_VendorCurrentRates_GroupBy_
-				Select AccountId,max(AccountName),max(Code),Description,max(Rate),max(ConnectionFee),max(EffectiveDate),TrunkID,TimezonesID,max(CountryID),max(RateID),max(Preference)
+				Select AccountId,max(AccountName),max(Code),Description,max(Rate),max(RateN),max(ConnectionFee),max(EffectiveDate),TrunkID,TimezonesID,max(CountryID),max(RateID),max(Preference)
 				FROM
 				(
 
-					Select AccountId,AccountName,r.Code,r.Description, Rate,ConnectionFee,EffectiveDate,TrunkID,TimezonesID,r.CountryID,r.RateID,Preference
+					Select AccountId,AccountName,r.Code,r.Description, Rate, RateN,ConnectionFee,EffectiveDate,TrunkID,TimezonesID,r.CountryID,r.RateID,Preference
 					FROM tmp_VendorCurrentRates_ v
 					Inner join  tmp_all_code_ SplitCode   on v.Code = SplitCode.Code
 					Inner join  tblRate r   on r.CodeDeckId = v_codedeckid_ AND r.Code = SplitCode.RowCode
@@ -16825,8 +16850,8 @@ GenerateRateTable:BEGIN
 
 				truncate table tmp_VendorCurrentRates_;
 
-				INSERT INTO tmp_VendorCurrentRates_ (AccountId,AccountName,Code,Description, Rate,ConnectionFee,EffectiveDate,TrunkID,TimezonesID,CountryID,RateID,Preference)
-			  		SELECT AccountId,AccountName,Code,Description, Rate,ConnectionFee,EffectiveDate,TrunkID,TimezonesID,CountryID,RateID,Preference
+				INSERT INTO tmp_VendorCurrentRates_ (AccountId,AccountName,Code,Description, Rate, RateN,ConnectionFee,EffectiveDate,TrunkID,TimezonesID,CountryID,RateID,Preference)
+			  		SELECT AccountId,AccountName,Code,Description, Rate, RateN,ConnectionFee,EffectiveDate,TrunkID,TimezonesID,CountryID,RateID,Preference
 					FROM tmp_VendorCurrentRates_GroupBy_;
 
 
@@ -16844,6 +16869,7 @@ GenerateRateTable:BEGIN
 			AccountName ,
 			Code ,
 			Rate ,
+			RateN ,
 			ConnectionFee,
 			EffectiveDate ,
 			Description ,
@@ -16856,6 +16882,7 @@ GenerateRateTable:BEGIN
 				v.AccountName ,
 				v.Code ,
 				v.Rate ,
+				v.RateN ,
 				v.ConnectionFee,
 				v.EffectiveDate ,
 				v.Description ,
@@ -16875,6 +16902,7 @@ GenerateRateTable:BEGIN
 				v.AccountName ,
 				v.Code ,
 				v.Rate ,
+				v.RateN ,
 				v.ConnectionFee,
 				v.EffectiveDate ,
 				v.Description ,
@@ -16897,6 +16925,7 @@ GenerateRateTable:BEGIN
 				AccountName ,
 				Code ,
 				Rate ,
+				RateN ,
 				ConnectionFee,
 				EffectiveDate ,
 				Description ,
@@ -16917,8 +16946,8 @@ GenerateRateTable:BEGIN
 			SET v_rateRuleId_ = (SELECT rateruleid FROM tmp_Raterules_ rr WHERE rr.RowNo = v_pointer_);
 
 
-				INSERT INTO tmp_Rates2_ (code,description,rate,ConnectionFee)
-				select  code,description,rate,ConnectionFee from tmp_Rates_;
+				INSERT INTO tmp_Rates2_ (code,description,rate,rateN,ConnectionFee)
+				select  code,description,rate,rateN,ConnectionFee from tmp_Rates_;
 
 
 
@@ -16960,6 +16989,7 @@ GenerateRateTable:BEGIN
 						AccountName ,
 						Code ,
 						Rate ,
+						RateN ,
 						ConnectionFee,
 						EffectiveDate ,
 						Description ,
@@ -16973,6 +17003,7 @@ GenerateRateTable:BEGIN
 								vr.AccountName ,
 								vr.Code ,
 								vr.Rate ,
+								vr.RateN ,
 								vr.ConnectionFee,
 								vr.EffectiveDate ,
 								vr.Description ,
@@ -17033,6 +17064,7 @@ GenerateRateTable:BEGIN
 						AccountName ,
 						Code ,
 						Rate ,
+						RateN ,
 						ConnectionFee,
 						EffectiveDate ,
 						Description ,
@@ -17046,6 +17078,7 @@ GenerateRateTable:BEGIN
 								vr.AccountName ,
 								vr.Code ,
 								vr.Rate ,
+								vr.RateN ,
 								vr.ConnectionFee,
 								vr.EffectiveDate ,
 								vr.Description ,
@@ -17113,6 +17146,7 @@ GenerateRateTable:BEGIN
 					vr.code,
 					vr.description,
 					vr.rate,
+					vr.rateN,
 					vr.ConnectionFee,
 					vr.FinalRankNumber
 				FROM tmp_final_VendorRate_ vr
@@ -17135,7 +17169,7 @@ GenerateRateTable:BEGIN
 
 					truncate tmp_Vendorrates_stage3_;
 					INSERT INTO tmp_Vendorrates_stage3_
-						select  vr.RowCode as RowCode ,vr.description , vr.rate as rate , vr.ConnectionFee as  ConnectionFee
+						select  vr.RowCode as RowCode ,vr.description , vr.rate as rate , vr.rateN as rateN , vr.ConnectionFee as  ConnectionFee
 						from tmp_VRatesstage2_ vr
 							INNER JOIN tmp_dupVRatesstage2_ vr2
 								ON (vr.description = vr2.description AND  vr.FinalRankNumber = vr2.FinalRankNumber);
@@ -17149,7 +17183,7 @@ GenerateRateTable:BEGIN
 
 					truncate tmp_Vendorrates_stage3_;
 					INSERT INTO tmp_Vendorrates_stage3_
-						select  vr.RowCode as RowCode ,vr.description , vr.rate as rate , vr.ConnectionFee as  ConnectionFee
+						select  vr.RowCode as RowCode ,vr.description , vr.rate as rate , vr.rateN as rateN , vr.ConnectionFee as  ConnectionFee
 						from tmp_VRatesstage2_ vr
 							INNER JOIN tmp_dupVRatesstage2_ vr2
 								ON (vr.RowCode = vr2.RowCode AND  vr.FinalRankNumber = vr2.FinalRankNumber);
@@ -17157,46 +17191,71 @@ GenerateRateTable:BEGIN
 				END IF;
 
 
-				INSERT IGNORE INTO tmp_Rates_ (code,description,rate,ConnectionFee,PreviousRate)
+				INSERT IGNORE INTO tmp_Rates_ (code,description,rate,rateN,ConnectionFee,PreviousRate)
                 SELECT RowCode,
 		                description,
-                    CASE WHEN rule_mgn.RateRuleId is not null
+                    CASE WHEN rule_mgn1.RateRuleId is not null
                         THEN
-                            CASE WHEN trim(IFNULL(AddMargin,"")) != '' THEN
-                                vRate.rate + (CASE WHEN addmargin LIKE '%p' THEN ((CAST(REPLACE(addmargin, 'p', '') AS DECIMAL(18, 2)) / 100) * vRate.rate) ELSE addmargin END)
-                            WHEN trim(IFNULL(FixedValue,"")) != '' THEN
-                                FixedValue
+                            CASE WHEN trim(IFNULL(rule_mgn1.AddMargin,"")) != '' THEN
+                                vRate.rate + (CASE WHEN rule_mgn1.addmargin LIKE '%p' THEN ((CAST(REPLACE(rule_mgn1.addmargin, 'p', '') AS DECIMAL(18, 2)) / 100) * vRate.rate) ELSE rule_mgn1.addmargin END)
+                            WHEN trim(IFNULL(rule_mgn1.FixedValue,"")) != '' THEN
+                                rule_mgn1.FixedValue
                             ELSE
                                 vRate.rate
                             END
                     ELSE
                         vRate.rate
                     END as Rate,
+                    CASE WHEN rule_mgn2.RateRuleId is not null
+                        THEN
+                            CASE WHEN trim(IFNULL(rule_mgn2.AddMargin,"")) != '' THEN
+                                vRate.rateN + (CASE WHEN rule_mgn2.addmargin LIKE '%p' THEN ((CAST(REPLACE(rule_mgn2.addmargin, 'p', '') AS DECIMAL(18, 2)) / 100) * vRate.rateN) ELSE rule_mgn2.addmargin END)
+                            WHEN trim(IFNULL(rule_mgn2.FixedValue,"")) != '' THEN
+                                rule_mgn2.FixedValue
+                            ELSE
+                                vRate.rateN
+                            END
+                    ELSE
+                        vRate.rateN
+                    END as RateN,
                     ConnectionFee,
 					null AS PreviousRate
                 FROM tmp_Vendorrates_stage3_ vRate
-                LEFT join tblRateRuleMargin rule_mgn on  rule_mgn.RateRuleId = v_rateRuleId_ and vRate.rate Between rule_mgn.MinRate and rule_mgn.MaxRate;
+                LEFT join tblRateRuleMargin rule_mgn1 on  rule_mgn1.RateRuleId = v_rateRuleId_ and vRate.rate Between rule_mgn1.MinRate and rule_mgn1.MaxRate
+                LEFT join tblRateRuleMargin rule_mgn2 on  rule_mgn2.RateRuleId = v_rateRuleId_ and vRate.rateN Between rule_mgn2.MinRate and rule_mgn2.MaxRate;
 
 
 
 
 			ELSE
 
-				INSERT IGNORE INTO tmp_Rates_ (code,description,rate,ConnectionFee,PreviousRate)
+				INSERT IGNORE INTO tmp_Rates_ (code,description,rate,rateN,ConnectionFee,PreviousRate)
                 SELECT RowCode,
 		                description,
-                    CASE WHEN rule_mgn.RateRuleId is not null
+                    CASE WHEN rule_mgn1.RateRuleId is not null
                         THEN
-                            CASE WHEN trim(IFNULL(AddMargin,"")) != '' THEN
-                                vRate.rate + (CASE WHEN addmargin LIKE '%p' THEN ((CAST(REPLACE(addmargin, 'p', '') AS DECIMAL(18, 2)) / 100) * vRate.rate) ELSE addmargin END)
-                            WHEN trim(IFNULL(FixedValue,"")) != '' THEN
-                                FixedValue
+                            CASE WHEN trim(IFNULL(rule_mgn1.AddMargin,"")) != '' THEN
+                                vRate.rate + (CASE WHEN rule_mgn1.addmargin LIKE '%p' THEN ((CAST(REPLACE(rule_mgn1.addmargin, 'p', '') AS DECIMAL(18, 2)) / 100) * vRate.rate) ELSE rule_mgn1.addmargin END)
+                            WHEN trim(IFNULL(rule_mgn1.FixedValue,"")) != '' THEN
+                                rule_mgn1.FixedValue
                             ELSE
                                 vRate.rate
                             END
                     ELSE
                         vRate.rate
                     END as Rate,
+                    CASE WHEN rule_mgn2.RateRuleId is not null
+                        THEN
+                            CASE WHEN trim(IFNULL(rule_mgn2.AddMargin,"")) != '' THEN
+                                vRate.rateN + (CASE WHEN rule_mgn2.addmargin LIKE '%p' THEN ((CAST(REPLACE(rule_mgn2.addmargin, 'p', '') AS DECIMAL(18, 2)) / 100) * vRate.rateN) ELSE rule_mgn2.addmargin END)
+                            WHEN trim(IFNULL(rule_mgn2.FixedValue,"")) != '' THEN
+                                rule_mgn2.FixedValue
+                            ELSE
+                                vRate.rateN
+                            END
+                    ELSE
+                        vRate.rateN
+                    END as RateN,
                     ConnectionFee,
 					null AS PreviousRate
                 FROM
@@ -17205,6 +17264,7 @@ GenerateRateTable:BEGIN
                         max(RowCode) AS RowCode,
                         max(description) AS description,
                         AVG(Rate) as Rate,
+                        AVG(RateN) as RateN,
                         AVG(ConnectionFee) as ConnectionFee
                         from tmp_VRatesstage2_
                         group by
@@ -17214,7 +17274,8 @@ GenerateRateTable:BEGIN
       						END
 
                 )  vRate
-                LEFT join tblRateRuleMargin rule_mgn on  rule_mgn.RateRuleId = v_rateRuleId_ and vRate.rate Between rule_mgn.MinRate and rule_mgn.MaxRate;
+                LEFT join tblRateRuleMargin rule_mgn1 on  rule_mgn1.RateRuleId = v_rateRuleId_ and vRate.rate Between rule_mgn1.MinRate and rule_mgn1.MaxRate
+                LEFT join tblRateRuleMargin rule_mgn2 on  rule_mgn2.RateRuleId = v_rateRuleId_ and vRate.rateN Between rule_mgn2.MinRate and rule_mgn2.MaxRate;
 
 			END IF;
 
@@ -17231,12 +17292,13 @@ GenerateRateTable:BEGIN
 			truncate table tmp_Rates2_;
 			insert into tmp_Rates2_ select * from tmp_Rates_;
 
-				insert ignore into tmp_Rates_ (code,description,rate,ConnectionFee,PreviousRate)
+				insert ignore into tmp_Rates_ (code,description,rate,rateN,ConnectionFee,PreviousRate)
 				select
 				distinct
 					vr.Code,
 					vr.Description,
 					vd.rate,
+					vd.rateN,
 					vd.ConnectionFee,
 					vd.PreviousRate
 				from  tmp_Rates3_ vr
@@ -17260,6 +17322,7 @@ GenerateRateTable:BEGIN
 																		RateTableId,
 																		TimezonesID,
 																		Rate,
+																		RateN,
 																		EffectiveDate,
 																		PreviousRate,
 																		Interval1,
@@ -17271,6 +17334,7 @@ GenerateRateTable:BEGIN
 					p_RateTableId,
 					p_TimezonesID,
 					Rate,
+					RateN,
 					p_EffectiveDate,
 					Rate,
 					Interval1,
@@ -17366,6 +17430,7 @@ GenerateRateTable:BEGIN
 																		RateTableId,
 																		TimezonesID,
 																		Rate,
+																		RateN,
 																		EffectiveDate,
 																		PreviousRate,
 																		Interval1,
@@ -17377,6 +17442,7 @@ GenerateRateTable:BEGIN
 					p_RateTableId AS RateTableId,
 					p_TimezonesID AS TimezonesID,
 					rate.Rate,
+					rate.RateN,
 					rate.EffectiveDate,
 					rate.PreviousRate,
 					tblRate.Interval1,
@@ -17606,6 +17672,7 @@ GenerateRateTable:BEGIN
 			code VARCHAR(50) COLLATE utf8_unicode_ci,
 			description VARCHAR(200) COLLATE utf8_unicode_ci,
 			rate DECIMAL(18, 6),
+			rateN DECIMAL(18, 6),
 			ConnectionFee DECIMAL(18, 6),
 			PreviousRate DECIMAL(18, 6),
 			EffectiveDate DATE DEFAULT NULL,
@@ -17619,6 +17686,7 @@ GenerateRateTable:BEGIN
 			code VARCHAR(50) COLLATE utf8_unicode_ci,
 			description VARCHAR(200) COLLATE utf8_unicode_ci,
 			rate DECIMAL(18, 6),
+			rateN DECIMAL(18, 6),
 			ConnectionFee DECIMAL(18, 6),
 			PreviousRate DECIMAL(18, 6),
 			EffectiveDate DATE DEFAULT NULL,
@@ -17670,6 +17738,7 @@ GenerateRateTable:BEGIN
 		CREATE TEMPORARY TABLE tmp_Vendorrates_  (
 			code VARCHAR(50) COLLATE utf8_unicode_ci,
 			rate DECIMAL(18, 6),
+			rateN DECIMAL(18, 6),
 			ConnectionFee DECIMAL(18, 6),
 			AccountId INT,
 			RowNo INT,
@@ -17685,6 +17754,7 @@ GenerateRateTable:BEGIN
 			code VARCHAR(50) COLLATE utf8_unicode_ci,
 			description VARCHAR(200) COLLATE utf8_unicode_ci,
 			rate DECIMAL(18, 6),
+			rateN DECIMAL(18, 6),
 			ConnectionFee DECIMAL(18, 6),
 			FinalRankNumber int,
 			INDEX tmp_Vendorrates_stage2__code (`RowCode`)
@@ -17701,6 +17771,7 @@ GenerateRateTable:BEGIN
 			RowCode VARCHAR(50) COLLATE utf8_unicode_ci,
 			description VARCHAR(200) COLLATE utf8_unicode_ci,
 			rate DECIMAL(18, 6),
+			rateN DECIMAL(18, 6),
 			ConnectionFee DECIMAL(18, 6),
 			INDEX tmp_Vendorrates_stage2__code (`RowCode`)
 		);
@@ -17728,6 +17799,7 @@ GenerateRateTable:BEGIN
 			AccountName VARCHAR(100) ,
 			Code VARCHAR(50) COLLATE utf8_unicode_ci,
 			Rate DECIMAL(18,6) ,
+			RateN DECIMAL(18,6) ,
 			ConnectionFee DECIMAL(18,6) ,
 			EffectiveDate DATETIME ,
 			Description VARCHAR(255),
@@ -17743,6 +17815,7 @@ GenerateRateTable:BEGIN
 			AccountName VARCHAR(100) ,
 			Code VARCHAR(50) COLLATE utf8_unicode_ci,
 			Rate DECIMAL(18,6) ,
+			RateN DECIMAL(18,6) ,
 			ConnectionFee DECIMAL(18,6) ,
 			EffectiveDate DATETIME ,
 			Description VARCHAR(255),
@@ -17755,6 +17828,7 @@ GenerateRateTable:BEGIN
 			AccountName VARCHAR(100) ,
 			Code VARCHAR(50) COLLATE utf8_unicode_ci,
 			Rate DECIMAL(18,6) ,
+			RateN DECIMAL(18,6) ,
 			ConnectionFee DECIMAL(18,6) ,
 			EffectiveDate DATETIME ,
 			Description VARCHAR(255),
@@ -17772,6 +17846,7 @@ GenerateRateTable:BEGIN
 			Code LONGTEXT,
 			Description varchar(200) ,
 			Rate DECIMAL(18,6) ,
+			RateN DECIMAL(18,6) ,
 			ConnectionFee DECIMAL(18,6) ,
 			EffectiveDate date,
 			TrunkID int,
@@ -17789,6 +17864,7 @@ GenerateRateTable:BEGIN
 			Code varchar(50) COLLATE utf8_unicode_ci,
 			Description varchar(200) ,
 			Rate DECIMAL(18,6) ,
+			RateN DECIMAL(18,6) ,
 			ConnectionFee DECIMAL(18,6) ,
 			EffectiveDate date,
 			TrunkID int,
@@ -17805,6 +17881,7 @@ GenerateRateTable:BEGIN
 			Code varchar(50),
 			Description varchar(200),
 			Rate DECIMAL(18,6) ,
+			RateN DECIMAL(18,6) ,
 			ConnectionFee DECIMAL(18,6) ,
 			EffectiveDate date,
 			TrunkID int,
@@ -17918,7 +17995,7 @@ GenerateRateTable:BEGIN
 
 
 		INSERT INTO tmp_VendorCurrentRates1_
-			Select DISTINCT AccountId,AccountName,Code,Description, Rate,ConnectionFee,EffectiveDate,TrunkID,TimezonesID,CountryID,RateID,Preference
+			Select DISTINCT AccountId,AccountName,Code,Description, Rate, RateN,ConnectionFee,EffectiveDate,TrunkID,TimezonesID,CountryID,RateID,Preference
 			FROM (
 						 SELECT  tblVendorRate.AccountId,tblAccount.AccountName, tblRate.Code, tblRate.Description,
 																																				CASE WHEN  tblAccount.CurrencyId = v_CurrencyID_
@@ -17935,8 +18012,22 @@ GenerateRateTable:BEGIN
 																																						(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = v_CurrencyID_ and  CompanyID = v_CompanyId_ )
 																																						* (tblVendorRate.rate  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = tblAccount.CurrencyId and  CompanyID = v_CompanyId_ ))
 																																					)
-																																				END
-																																																																																																																																														as  Rate,
+																																				END as Rate,
+																																				CASE WHEN  tblAccount.CurrencyId = v_CurrencyID_
+																																					THEN
+																																						tblVendorRate.RateN
+																																				WHEN  v_CompanyCurrencyID_ = v_CurrencyID_
+																																					THEN
+																																						(
+																																							( tblVendorRate.rateN  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = tblAccount.CurrencyId and  CompanyID = v_CompanyId_ ) )
+																																						)
+																																				ELSE
+																																					(
+
+																																						(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = v_CurrencyID_ and  CompanyID = v_CompanyId_ )
+																																						* (tblVendorRate.rateN  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = tblAccount.CurrencyId and  CompanyID = v_CompanyId_ ))
+																																					)
+																																				END as RateN,
 							 ConnectionFee,
 																																				DATE_FORMAT (tblVendorRate.EffectiveDate, '%Y-%m-%d') AS EffectiveDate,
 							 tblVendorRate.TrunkID, tblVendorRate.TimezonesID, tblRate.CountryID, tblRate.RateID,IFNULL(vp.Preference, 5) AS Preference,
@@ -18003,7 +18094,7 @@ GenerateRateTable:BEGIN
 -- leave GenerateRateTable;
 
 		INSERT INTO tmp_VendorCurrentRates_
-		Select AccountId,AccountName,Code,Description, Rate,ConnectionFee,EffectiveDate,TrunkID,TimezonesID,CountryID,RateID,Preference
+		Select AccountId,AccountName,Code,Description, Rate, RateN,ConnectionFee,EffectiveDate,TrunkID,TimezonesID,CountryID,RateID,Preference
 		FROM (
 					 SELECT * ,
 						 @row_num := IF(@prev_AccountId = AccountID AND @prev_TrunkID = TrunkID AND @prev_TimezonesID = TimezonesID AND @prev_RateId = RateID AND @prev_EffectiveDate >= EffectiveDate, @row_num + 1, 1) AS RowID,
@@ -18029,10 +18120,10 @@ GenerateRateTable:BEGIN
 
 			-- insert all rates and if code is multiple then insert it as comma seperated values
 			INSERT INTO tmp_VendorCurrentRates_GroupBy_
-				Select AccountId,max(AccountName),max(Code),Description,max(Rate),max(ConnectionFee),max(EffectiveDate),TrunkID,TimezonesID,max(CountryID),max(RateID),max(Preference)
+				Select AccountId,max(AccountName),max(Code),Description,max(Rate),max(RateN),max(ConnectionFee),max(EffectiveDate),TrunkID,TimezonesID,max(CountryID),max(RateID),max(Preference)
 				FROM
 				(
-					Select AccountId,AccountName,r.Code,r.Description, Rate,ConnectionFee,EffectiveDate,TrunkID,TimezonesID,r.CountryID,r.RateID,Preference
+					Select AccountId,AccountName,r.Code,r.Description, Rate, RateN,ConnectionFee,EffectiveDate,TrunkID,TimezonesID,r.CountryID,r.RateID,Preference
 					FROM tmp_VendorCurrentRates_ v
 					Inner join  tblRate r   on r.CodeDeckId = v_codedeckid_ AND r.Code = v.Code
 				) tmp
@@ -18051,8 +18142,8 @@ END IF;
 
 				truncate table tmp_VendorCurrentRates_;
 
-				INSERT INTO tmp_VendorCurrentRates_ (AccountId,AccountName,Code,Description, Rate,ConnectionFee,EffectiveDate,TrunkID,TimezonesID,CountryID,RateID,Preference)
-			  		SELECT AccountId,AccountName,Code,Description, Rate,ConnectionFee,EffectiveDate,TrunkID,TimezonesID,CountryID,RateID,Preference
+				INSERT INTO tmp_VendorCurrentRates_ (AccountId,AccountName,Code,Description, Rate, RateN,ConnectionFee,EffectiveDate,TrunkID,TimezonesID,CountryID,RateID,Preference)
+			  		SELECT AccountId,AccountName,Code,Description, Rate, RateN,ConnectionFee,EffectiveDate,TrunkID,TimezonesID,CountryID,RateID,Preference
 					FROM tmp_VendorCurrentRates_GroupBy_;
 
 
@@ -18065,6 +18156,7 @@ END IF;
 				AccountName ,
 				Code ,
 				Rate ,
+				RateN ,
 				ConnectionFee,
 				EffectiveDate ,
 				Description ,
@@ -18078,8 +18170,8 @@ END IF;
 			SET v_rateRuleId_ = (SELECT rateruleid FROM tmp_Raterules_ rr WHERE rr.RowNo = v_pointer_);
 
 
-			INSERT INTO tmp_Rates2_ (code,description,rate,ConnectionFee)
-				select  code,description,rate,ConnectionFee from tmp_Rates_;
+			INSERT INTO tmp_Rates2_ (code,description,rate,rateN,ConnectionFee)
+				select  code,description,rate,rateN,ConnectionFee from tmp_Rates_;
 
 				IF p_GroupBy = 'Desc' -- Group By Description
 				THEN
@@ -18117,6 +18209,7 @@ END IF;
 						AccountName ,
 						Code ,
 						Rate ,
+						RateN ,
 						ConnectionFee,
 						EffectiveDate ,
 						Description ,
@@ -18130,6 +18223,7 @@ END IF;
 								vr.AccountName ,
 								vr.Code ,
 								vr.Rate ,
+								vr.RateN ,
 								vr.ConnectionFee,
 								vr.EffectiveDate ,
 								vr.Description ,
@@ -18189,6 +18283,7 @@ END IF;
 						AccountName ,
 						Code ,
 						Rate ,
+						RateN ,
 						ConnectionFee,
 						EffectiveDate ,
 						Description ,
@@ -18202,6 +18297,7 @@ END IF;
 								vr.AccountName ,
 								vr.Code ,
 								vr.Rate ,
+								vr.RateN ,
 								vr.ConnectionFee,
 								vr.EffectiveDate ,
 								vr.Description ,
@@ -18268,6 +18364,7 @@ END IF;
 					vr.code,
 					vr.description,
 					vr.rate,
+					vr.rateN,
 					vr.ConnectionFee,
 					vr.FinalRankNumber
 				FROM tmp_final_VendorRate_ vr
@@ -18290,7 +18387,7 @@ END IF;
 
 					truncate tmp_Vendorrates_stage3_;
 					INSERT INTO tmp_Vendorrates_stage3_
-						select  vr.RowCode as RowCode ,vr.description , vr.rate as rate , vr.ConnectionFee as  ConnectionFee
+						select  vr.RowCode as RowCode ,vr.description , vr.rate as rate , vr.rateN as rateN , vr.ConnectionFee as  ConnectionFee
 						from tmp_VRatesstage2_ vr
 							INNER JOIN tmp_dupVRatesstage2_ vr2
 								ON (vr.description = vr2.description AND  vr.FinalRankNumber = vr2.FinalRankNumber);
@@ -18304,52 +18401,77 @@ END IF;
 
 					truncate tmp_Vendorrates_stage3_;
 					INSERT INTO tmp_Vendorrates_stage3_
-						select  vr.RowCode as RowCode ,vr.description , vr.rate as rate , vr.ConnectionFee as  ConnectionFee
+						select  vr.RowCode as RowCode ,vr.description , vr.rate as rate , vr.rateN as rateN , vr.ConnectionFee as  ConnectionFee
 						from tmp_VRatesstage2_ vr
 							INNER JOIN tmp_dupVRatesstage2_ vr2
 								ON (vr.RowCode = vr2.RowCode AND  vr.FinalRankNumber = vr2.FinalRankNumber);
 
 				END IF;
 
-				INSERT IGNORE INTO tmp_Rates_ (code,description,rate,ConnectionFee,PreviousRate)
+				INSERT IGNORE INTO tmp_Rates_ (code,description,rate,rateN,ConnectionFee,PreviousRate)
                 SELECT RowCode,
 		                description,
-                    CASE WHEN rule_mgn.RateRuleId is not null
+                    CASE WHEN rule_mgn1.RateRuleId is not null
                         THEN
-                            CASE WHEN trim(IFNULL(AddMargin,"")) != '' THEN
-                                vRate.rate + (CASE WHEN addmargin LIKE '%p' THEN ((CAST(REPLACE(addmargin, 'p', '') AS DECIMAL(18, 2)) / 100) * vRate.rate) ELSE addmargin END)
-                            WHEN trim(IFNULL(FixedValue,"")) != '' THEN
-                                FixedValue
+                            CASE WHEN trim(IFNULL(rule_mgn1.AddMargin,"")) != '' THEN
+                                vRate.rate + (CASE WHEN rule_mgn1.addmargin LIKE '%p' THEN ((CAST(REPLACE(rule_mgn1.addmargin, 'p', '') AS DECIMAL(18, 2)) / 100) * vRate.rate) ELSE rule_mgn1.addmargin END)
+                            WHEN trim(IFNULL(rule_mgn1.FixedValue,"")) != '' THEN
+                                rule_mgn1.FixedValue
                             ELSE
                                 vRate.rate
                             END
                     ELSE
                         vRate.rate
                     END as Rate,
+                    CASE WHEN rule_mgn2.RateRuleId is not null
+                        THEN
+                            CASE WHEN trim(IFNULL(rule_mgn2.AddMargin,"")) != '' THEN
+                                vRate.rateN + (CASE WHEN rule_mgn2.addmargin LIKE '%p' THEN ((CAST(REPLACE(rule_mgn2.addmargin, 'p', '') AS DECIMAL(18, 2)) / 100) * vRate.rateN) ELSE rule_mgn2.addmargin END)
+                            WHEN trim(IFNULL(rule_mgn2.FixedValue,"")) != '' THEN
+                                rule_mgn2.FixedValue
+                            ELSE
+                                vRate.rateN
+                            END
+                    ELSE
+                        vRate.rateN
+                    END as RateN,
                     ConnectionFee,
 					null AS PreviousRate
                 FROM tmp_Vendorrates_stage3_ vRate
-                LEFT join tblRateRuleMargin rule_mgn on  rule_mgn.RateRuleId = v_rateRuleId_ and vRate.rate Between rule_mgn.MinRate and rule_mgn.MaxRate;
+                LEFT join tblRateRuleMargin rule_mgn1 on  rule_mgn1.RateRuleId = v_rateRuleId_ and vRate.rate Between rule_mgn1.MinRate and rule_mgn1.MaxRate
+                LEFT join tblRateRuleMargin rule_mgn2 on  rule_mgn2.RateRuleId = v_rateRuleId_ and vRate.rateN Between rule_mgn2.MinRate and rule_mgn2.MaxRate;
 
 
 
 			ELSE
 
-				INSERT IGNORE INTO tmp_Rates_ (code,description,rate,ConnectionFee,PreviousRate)
+				INSERT IGNORE INTO tmp_Rates_ (code,description,rate,rateN,ConnectionFee,PreviousRate)
                 SELECT RowCode,
 		                description,
-                    CASE WHEN rule_mgn.RateRuleId is not null
+                    CASE WHEN rule_mgn1.RateRuleId is not null
                         THEN
-                            CASE WHEN trim(IFNULL(AddMargin,"")) != '' THEN
-                                vRate.rate + (CASE WHEN addmargin LIKE '%p' THEN ((CAST(REPLACE(addmargin, 'p', '') AS DECIMAL(18, 2)) / 100) * vRate.rate) ELSE addmargin END)
-                            WHEN trim(IFNULL(FixedValue,"")) != '' THEN
-                                FixedValue
+                            CASE WHEN trim(IFNULL(rule_mgn1.AddMargin,"")) != '' THEN
+                                vRate.rate + (CASE WHEN rule_mgn1.addmargin LIKE '%p' THEN ((CAST(REPLACE(rule_mgn1.addmargin, 'p', '') AS DECIMAL(18, 2)) / 100) * vRate.rate) ELSE rule_mgn1.addmargin END)
+                            WHEN trim(IFNULL(rule_mgn1.FixedValue,"")) != '' THEN
+                                rule_mgn1.FixedValue
                             ELSE
                                 vRate.rate
                             END
                     ELSE
                         vRate.rate
                     END as Rate,
+                    CASE WHEN rule_mgn2.RateRuleId is not null
+                        THEN
+                            CASE WHEN trim(IFNULL(rule_mgn2.AddMargin,"")) != '' THEN
+                                vRate.rateN + (CASE WHEN rule_mgn2.addmargin LIKE '%p' THEN ((CAST(REPLACE(rule_mgn2.addmargin, 'p', '') AS DECIMAL(18, 2)) / 100) * vRate.rateN) ELSE rule_mgn2.addmargin END)
+                            WHEN trim(IFNULL(rule_mgn2.FixedValue,"")) != '' THEN
+                                rule_mgn2.FixedValue
+                            ELSE
+                                vRate.rateN
+                            END
+                    ELSE
+                        vRate.rateN
+                    END as RateN,
                     ConnectionFee,
 					null AS PreviousRate
                 FROM
@@ -18358,6 +18480,7 @@ END IF;
                         max(RowCode) AS RowCode,
                         max(description) AS description,
                         AVG(Rate) as Rate,
+                        AVG(RateN) as RateN,
                         AVG(ConnectionFee) as ConnectionFee
                         from tmp_VRatesstage2_
                         group by
@@ -18367,7 +18490,8 @@ END IF;
       									END
 
                     )  vRate
-                LEFT join tblRateRuleMargin rule_mgn on  rule_mgn.RateRuleId = v_rateRuleId_ and vRate.rate Between rule_mgn.MinRate and rule_mgn.MaxRate;
+                LEFT join tblRateRuleMargin rule_mgn1 on  rule_mgn1.RateRuleId = v_rateRuleId_ and vRate.rate Between rule_mgn1.MinRate and rule_mgn1.MaxRate
+                LEFT join tblRateRuleMargin rule_mgn2 on  rule_mgn2.RateRuleId = v_rateRuleId_ and vRate.rateN Between rule_mgn2.MinRate and rule_mgn2.MaxRate;
 
 
 
@@ -18389,12 +18513,13 @@ END IF;
 			truncate table tmp_Rates2_;
 			insert into tmp_Rates2_ select * from tmp_Rates_;
 
-			insert ignore into tmp_Rates_ (code,description,rate,ConnectionFee,PreviousRate)
+			insert ignore into tmp_Rates_ (code,description,rate,rateN,ConnectionFee,PreviousRate)
 				select
 				distinct
 					vr.Code,
 					vr.Description,
 					vd.rate,
+					vd.rateN,
 					vd.ConnectionFee,
 					vd.PreviousRate
 				from  tmp_Rates3_ vr
@@ -18418,6 +18543,7 @@ END IF;
 																		RateTableId,
 																		TimezonesID,
 																		Rate,
+																		RateN,
 																		EffectiveDate,
 																		PreviousRate,
 																		Interval1,
@@ -18429,6 +18555,7 @@ END IF;
 					p_RateTableId,
 					p_TimezonesID,
 					Rate,
+					RateN,
 					p_EffectiveDate,
 					Rate,
 					Interval1,
@@ -18514,6 +18641,7 @@ END IF;
 																		RateTableId,
 																		TimezonesID,
 																		Rate,
+																		RateN,
 																		EffectiveDate,
 																		PreviousRate,
 																		Interval1,
@@ -18525,6 +18653,7 @@ END IF;
 					p_RateTableId AS RateTableId,
 					p_TimezonesID AS TimezonesID,
 					rate.Rate,
+					rate.RateN,
 					rate.EffectiveDate,
 					rate.PreviousRate,
 					tblRate.Interval1,
