@@ -518,7 +518,8 @@ class TicketsController extends \BaseController {
 			if(Auth::check()){
 				$EmailFooter = Auth::user()->EmailFooter;
 			}
-			return View::make('tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id','FromEmails','cc','bcc','GroupEmail','conversation','AllEmailsTo', 'emailTemplates', 'EmailFooter'));
+			$ticketStatusArr = TicketsTable::getTicketStatus(0);
+			return View::make('tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id','FromEmails','cc','bcc','GroupEmail','conversation','AllEmailsTo', 'emailTemplates', 'EmailFooter', 'ticketStatusArr'));
 		}else{
             return view_response_api($response);
         }		
