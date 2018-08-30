@@ -32,8 +32,8 @@ class TicketImportRule extends \Eloquent {
 	);
 	
 	static $OperandDropDownitemsSpecific = array(
-		self::SP_IS=>"Is",		
-		self::NOT_IN=>"Is not",			
+		self::IS=>"Is",
+		self::IS_NOT=>"Is not",
 	);
 	
 	static $RuleStatusDropdown = array(
