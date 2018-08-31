@@ -827,13 +827,18 @@ class RateUploadController extends \BaseController {
 
                 foreach($ratesheet as $key => $value)
                 {
+                    $exist = 0;
                     foreach($dialcodessheet as $key1 => $value1)
                     {
-                        if($value[$Join1] == $value1[$Join2])
+                        if(trim($value[$Join1]) == trim($value1[$Join2]))
                         {
                             $results[$key1] = array_merge($value1, $ratesheet[$key]);
+                            $exist++;
                         }
                         unset($results[$key1][""]);
+                    }
+                    if($exist == 0 && !empty($value[$Join1])) {
+                        $error[] = 'Code not exist against '.$value[$Join1].' in dialcode sheet';
                     }
                 }
             }else{

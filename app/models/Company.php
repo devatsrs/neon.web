@@ -102,7 +102,7 @@ class Company extends \Eloquent {
                 $result['LicenceProperties'] = $response['LicenceProperties'];
             }else{
                 \Illuminate\Support\Facades\Log::info("ValidateLicenceKey response");
-                \Illuminate\Support\Facades\Log::info($response);
+                //\Illuminate\Support\Facades\Log::info($response);
                 $result['Status'] = 0 ;
                 $result['Message'] = 'Unable To Validate Licence';
                 $result['ExpiryDate']='';
@@ -192,7 +192,7 @@ class Company extends \Eloquent {
             Session::set('LicenceApiResponse', $valresponse);
             $LicenceApiResponse = $valresponse;
             //Log response;
-            \Illuminate\Support\Facades\Log::info($LicenceApiResponse);
+            //\Illuminate\Support\Facades\Log::info($LicenceApiResponse);
 
         }
         return $LicenceApiResponse;
