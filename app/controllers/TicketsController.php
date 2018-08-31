@@ -506,9 +506,9 @@ class TicketsController extends \BaseController {
 			$cc					 =	  $ResponseData['Cc'];
 			$bcc				 =	  $ResponseData['Bcc'];
 			$GroupEmail			 =	  $ResponseData['GroupEmail'];	
-			if($action_type=='forward'){ //attach current email attachments
+//			if($action_type=='forward'){ //attach current email attachments
 				$data['uploadtext']  = 	 UploadFile::DownloadFileLocal($response_data['AttachmentPaths']);
-			}
+//			}
 			
 			$FromEmails	 				=  TicketGroups::GetGroupsFrom();			
 			$AllEmailsTo 				= 	json_encode(Messages::GetAllSystemEmails(0,true)); 	
