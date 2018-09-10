@@ -326,6 +326,121 @@ DELIMITER ;
 
 ALTER TABLE `tblPayment`
 	ADD COLUMN `CreditNotesID` INT(11) NULL DEFAULT '0' AFTER `TransactionID`;
+	
+
+/* Update Invoice status on bulk upload*/	
+BEGIN
+
+	
+	DECLARE v_UserName varchar(30);
+ 	
+ 	SELECT CONCAT(u.FirstName,CONCAT(' ',u.LastName)) as name into v_UserName from NeonRMDev.tblUser u where u.UserID=p_UserID;
+ 	
+ 	INSERT INTO tblPayment (
+	 		CompanyID,
+	 		 AccountID,
+			 InvoiceNo,
+			 PaymentDate,
+			 PaymentMethod,
+			 PaymentType,
+			 Notes,
+			 Amount,
+			 CurrencyID,
+			 Recall,
+			 `Status`,
+			 created_at,
+			 updated_at,
+			 CreatedBy,
+			 ModifyBy,
+			 RecallReasoan,
+			 RecallBy,
+			 BulkUpload,
+			 InvoiceID
+			 )
+ 	select tp.CompanyID,
+	 		 tp.AccountID,
+			 COALESCE(tp.InvoiceNo,''),
+			 tp.PaymentDate,
+			 tp.PaymentMethod,
+			 tp.PaymentType,
+			 tp.Notes,
+			 tp.Amount,
+			 ac.CurrencyId,
+			 0 as Recall,
+			 tp.Status,
+			 Now() as created_at,
+			 Now() as updated_at,
+			 v_UserName as CreatedBy,
+			 '' as ModifyBy,
+			 '' as RecallReasoan,
+			 '' as RecallBy,
+			 1 as BulkUpload,
+			 InvoiceID
+	from tblTempPayment tp
+	INNER JOIN NeonRMDev.tblAccount ac 
+		ON  ac.AccountID = tp.AccountID  and ac.AccountType = 1 and ac.CurrencyId IS NOT NULL
+	where tp.ProcessID = p_ProcessID
+			AND tp.PaymentDate <= NOW()
+			AND tp.CompanyID = p_CompanyID;
+			
+	DROP TEMPORARY TABLE IF EXISTS tmp_UpdateInvoiceStatus_;
+	CREATE TEMPORARY TABLE tmp_UpdateInvoiceStatus_  (
+		InvoiceID INT,
+		AccountID INT,
+		Status Varchar(255),
+		Note TEXT
+	);
+	
+	INSERT INTO tmp_UpdateInvoiceStatus_ (
+	 		InvoiceID,
+	 		 AccountID,
+			 Status,
+			 Note			 
+			 )
+ 	select 			 
+			 tp.InvoiceID,
+			 tp.AccountID,			 
+		CASE WHEN (tp.Amount>= (inv.GrandTotal -  (SELECT IFNULL(sum(p.Amount),0) FROM tblPayment p WHERE p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) ))
+ 		then 
+ 		'paid' 
+				ELSE 'partially_paid' 
+			END
+			as status,
+			'' as Note
+	from tblTempPayment tp
+	INNER JOIN NeonRMDev.tblAccount ac 
+		ON  ac.AccountID = tp.AccountID  and ac.AccountType = 1 and ac.CurrencyId IS NOT NULL
+		INNER JOIN tblInvoice inv ON tp.InvoiceID=inv.InvoiceID
+	where tp.ProcessID = p_ProcessID
+			AND tp.PaymentDate <= NOW()
+			AND tp.CompanyID = p_CompanyID;
+			
+	 Update tblInvoice i INNER JOIN tmp_UpdateInvoiceStatus_ tmp ON i.InvoiceID=tmp.InvoiceID 
+	 SET i.InvoiceStatus = tmp.Status;
+	 
+	INSERT INTO tblInvoiceLog (
+	 		InvoiceID,			 
+			 Note,
+			 created_at,
+			 updated_at			 
+			 )
+ 	select 			 
+			 tp.InvoiceID,			 	
+			'Paid By System' as Note,
+			 Now() as created_at,
+			 Now() as updated_at	
+	from tblTempPayment tp
+	INNER JOIN NeonRMDev.tblAccount ac 
+		ON  ac.AccountID = tp.AccountID  and ac.AccountType = 1 and ac.CurrencyId IS NOT NULL
+		INNER JOIN tblInvoice inv ON tp.InvoiceID=inv.InvoiceID
+	where tp.ProcessID = p_ProcessID
+			AND tp.PaymentDate <= NOW()
+			AND tp.CompanyID = p_CompanyID;
+			
+	 delete from tblTempPayment where CompanyID = p_CompanyID and ProcessID = p_ProcessID;
+	 
+			
+END
 
 
 
