@@ -259,15 +259,6 @@ class PaymentsController extends \BaseController {
 
     public function payments_quickbookpost(){
         $data = Input::all();
-        /*if(!empty($data['InvoiceIDs'])){
-            $invoiceid = $this->getInvoicesIdByCriteria($data);
-            $invoiceid = rtrim($invoiceid,',');
-            $data['InvoiceIDs'] = $invoiceid;
-            unset($data['criteria']);
-        }
-        else{
-            unset($data['criteria']);
-        }*/
         $CompanyID = User::get_companyID();
         $PaymentIDs =array_filter(explode(',',$data['PaymentIDs']),'intval');
         if (is_array($PaymentIDs) && count($PaymentIDs)) {
