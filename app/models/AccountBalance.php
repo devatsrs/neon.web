@@ -39,6 +39,10 @@ class AccountBalance extends \Eloquent {
         return AccountBalance::where(['AccountID'=>$AccountID])->pluck('BalanceThreshold');
     }
 
+	 public static function getBalanceSOAOffsetAmount($AccountID){
+        return AccountBalance::where(['AccountID'=>$AccountID])->pluck('SOAOffset');
+    }
+
     /**
      * If Account Balance is negative than
      * Prepaid Account = amount is negative to positive
