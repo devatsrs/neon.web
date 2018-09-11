@@ -10,6 +10,7 @@ class Dispute extends \Eloquent {
 	const  PENDING = 0;
 	const SETTLED =1;
 	const CANCEL  = 2;
+	const EMAILTEMPLATE 		= "DisputeEmailCustomer";
 
 	public static $Status = [''=>'Select a Status',self::PENDING=>'Pending',self::SETTLED=>'Settled',self::CANCEL=>'Cancel'];
 

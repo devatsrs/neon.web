@@ -486,10 +486,9 @@ INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `Create
 
 /* Account PBX Blocking - Ratemanagement3 */
 
-INSERT INTO `tblDynamicFields` (`CompanyID`, `Type`, `FieldDomType`, `FieldName`, `FieldSlug`, `FieldDescription`, `FieldOrder`, `Status`, `created_at`, `created_by`, `updated_at`, `updated_by`, `ItemTypeID`, `Minimum`, `Maximum`, `DefaultValue`, `SelectVal`) VALUES (1, 'account', 'select', 'Pbx account status', 'pbxaccountstatus', 'PBX Account Status', 0, 1, '2018-08-25 13:44:18', 'System', NULL, NULL, 0, 0, 0, NULL, NULL);
-INSERT INTO `tblDynamicFields` (`CompanyID`, `Type`, `FieldDomType`, `FieldName`, `FieldSlug`, `FieldDescription`, `FieldOrder`, `Status`, `created_at`, `created_by`, `updated_at`, `updated_by`, `ItemTypeID`, `Minimum`, `Maximum`, `DefaultValue`, `SelectVal`) VALUES (1, 'account', 'boolean', 'Auto block', 'autoblock', 'PBX Auto Block', 0, 1, '2018-08-25 13:46:10', 'System', NULL, NULL, 0, 0, 0, NULL, NULL);
+INSERT INTO `tblDynamicFields` (`CompanyID`, `Type`, `FieldDomType`, `FieldName`, `FieldSlug`, `FieldDescription`, `FieldOrder`, `Status`, `created_at`, `created_by`, `updated_at`, `updated_by`, `ItemTypeID`, `Minimum`, `Maximum`, `DefaultValue`, `SelectVal`) VALUES (1, 'account', 'select', 'Pbx Account Status', 'pbxaccountstatus', 'PBX Account Status', 0, 1, '2018-08-25 13:44:18', 'System', NULL, NULL, 0, 0, 0, NULL, NULL);
+INSERT INTO `tblDynamicFields` (`CompanyID`, `Type`, `FieldDomType`, `FieldName`, `FieldSlug`, `FieldDescription`, `FieldOrder`, `Status`, `created_at`, `created_by`, `updated_at`, `updated_by`, `ItemTypeID`, `Minimum`, `Maximum`, `DefaultValue`, `SelectVal`) VALUES (1, 'account', 'boolean', 'Auto Block', 'autoblock', 'PBX Auto Block', 0, 1, '2018-08-25 13:46:10', 'System', NULL, NULL, 0, 0, 0, NULL, NULL);
 
-/* Above Done on Staging */
 
 /* Mysql process kill on Cron Job Termination */
 USE Ratemanagement3;
@@ -551,7 +550,7 @@ BEGIN
          
 		SELECT
 			jb.Active,
-			CONCAT(jb.PID,CASE WHEN jb.MysqlPID !='' THEN '-' ELSE '' END,jb.MysqlPID) as PID,
+			CONCAT(jb.PID,CASE WHEN jb.MysqlPID !='' THEN '-' ELSE '' END,CASE when jb.MysqlPID!='' THEN jb.MysqlPID ELSE '' END) as PID,
 			jb.JobTitle,                
 			CONCAT(TIMESTAMPDIFF(HOUR,LastRunTime,p_CurrentDateTime),' Hours, ',TIMESTAMPDIFF(minute,LastRunTime,p_CurrentDateTime)%60,' Minutes, ',TIMESTAMPDIFF(second,LastRunTime,p_CurrentDateTime)%60 , ' Seconds' ) AS RunningTime,
 			
@@ -2420,3 +2419,172 @@ BEGIN
 
 END//
 DELIMITER ;
+
+/* Above Done on Staging */
+
+
+/* Dispute NEON-1546 */
+USE NeonBillingDev;
+DELIMITER //
+CREATE PROCEDURE `prc_getDisputes`(
+	IN `p_CompanyID` INT,
+	IN `p_InvoiceType` INT,
+	IN `p_AccountID` INT,
+	IN `p_InvoiceNumber` VARCHAR(100),
+	IN `p_Status` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(50),
+	IN `p_Export` INT
+)
+BEGIN
+
+     DECLARE v_OffSet_ int;
+     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	      
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+
+
+	if p_Export = 0
+	THEN
+
+    			SELECT   
+    			ds.InvoiceType,
+		 		a.AccountName,
+				ds.InvoiceNo,
+				ds.DisputeAmount,
+				 CASE WHEN ds.`Status`= 0 THEN
+				 		'Pending' 
+				WHEN ds.`Status`= 1 THEN
+					'Settled' 
+				WHEN ds.`Status`= 2 THEN
+					'Cancel' 
+				END as `Status`,
+				ds.created_at as `CreatedDate`,
+				ds.CreatedBy,
+				CASE WHEN LENGTH(ds.Notes) > 100 THEN CONCAT(SUBSTRING(ds.Notes, 1, 100) , '...')
+						 ELSE  ds.Notes 
+						 END as ShortNotes ,
+		 		ds.DisputeID,
+		 	   ds.Attachment,
+		 	   a.AccountID,
+		 		ds.Notes,
+		 		ds.Ref
+		 		
+            from tblDispute ds
+            inner join NeonRMDev.tblAccount a on a.AccountID = ds.AccountID
+
+				where ds.CompanyID = p_CompanyID
+
+			   AND (p_InvoiceType = 0 OR ( p_InvoiceType != 0 AND ds.InvoiceType = p_InvoiceType))
+            AND(p_InvoiceNumber is NULL OR ds.InvoiceNo like Concat('%',p_InvoiceNumber,'%'))
+            AND(p_AccountID is NULL OR ds.AccountID = p_AccountID)
+            AND(p_Status is NULL OR ds.`Status` = p_Status)
+           AND(p_StartDate is NULL OR cast(ds.created_at as Date) >= p_StartDate)
+            AND(p_EndDate is NULL OR cast(ds.created_at as Date) <= p_EndDate) 
+            
+         ORDER BY
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN AccountName
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameASC') THEN AccountName
+                END ASC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceNoDESC') THEN InvoiceNo
+                END DESC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceNoASC') THEN InvoiceNo
+                END ASC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DisputeAmountDESC') THEN DisputeAmount
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DisputeAmountASC') THEN DisputeAmount
+                END ASC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_atDESC') THEN ds.created_at
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_atASC') THEN ds.created_at
+                END ASC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'StatusDESC') THEN ds.Status
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'StatusASC') THEN ds.Status
+                END ASC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DisputeIDDESC') THEN DisputeID
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DisputeIDASC') THEN DisputeID
+                END ASC 			 
+					 					 					    	             
+                
+            LIMIT p_RowspPage OFFSET v_OffSet_;
+
+		 
+
+				 SELECT   
+		 		COUNT(ds.DisputeID) AS totalcount,
+		 		sum(ds.DisputeAmount) as TotalDisputeAmount
+            from tblDispute ds
+            inner join NeonRMDev.tblAccount a on a.AccountID = ds.AccountID
+				where ds.CompanyID = p_CompanyID
+
+				AND (p_InvoiceType = 0 OR ( p_InvoiceType != 0 AND ds.InvoiceType = p_InvoiceType))
+            AND(p_InvoiceNumber is NULL OR ds.InvoiceNo like Concat('%',p_InvoiceNumber,'%'))
+            AND(p_AccountID is NULL OR ds.AccountID = p_AccountID)
+            AND(p_Status is NULL OR ds.`Status` = p_Status)
+            AND(p_StartDate is NULL OR cast(ds.created_at as Date) >= p_StartDate)
+            AND(p_EndDate is NULL OR cast(ds.created_at as Date) <= p_EndDate) ;
+            
+            
+	ELSE
+
+				SELECT   
+				ds.InvoiceType,
+		 		a.AccountName,
+				ds.InvoiceNo,
+				ds.DisputeAmount,
+				 CASE WHEN ds.`Status`= 0 THEN
+				 		'Pending' 
+				WHEN ds.`Status`= 1 THEN
+					'Settled' 
+				WHEN ds.`Status`= 2 THEN
+					'Cancel' 
+				END as `Status`,
+				ds.created_at as `CreatedDate`,
+				ds.CreatedBy,
+				CASE WHEN LENGTH(ds.Notes) > 100 THEN CONCAT(SUBSTRING(ds.Notes, 1, 100) , '...')
+						 ELSE  ds.Notes 
+						 END as ShortNotes ,
+		 		ds.Notes
+				
+
+            from tblDispute ds
+            inner join NeonRMDev.tblAccount a on a.AccountID = ds.AccountID
+            
+            
+				where ds.CompanyID = p_CompanyID
+            
+            AND (p_InvoiceType = 0 OR ( p_InvoiceType != 0 AND ds.InvoiceType = p_InvoiceType))
+				AND(p_InvoiceNumber is NULL OR ds.InvoiceNo like Concat('%',p_InvoiceNumber,'%'))
+            AND(p_AccountID is NULL OR ds.AccountID = p_AccountID)
+            AND(p_Status is NULL OR ds.`Status` = p_Status)
+           AND(p_StartDate is NULL OR cast(ds.created_at as Date) >= p_StartDate)
+            AND(p_EndDate is NULL OR cast(ds.created_at as Date) <= p_EndDate) ;
+
+	END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+	
+END//
+DELIMITER ;
+
+
