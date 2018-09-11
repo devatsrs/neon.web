@@ -208,6 +208,11 @@ ALTER TABLE `tblRateTable`
 ALTER TABLE `tblRateGenerator`
 	ADD COLUMN `Timezones` VARCHAR(50) NULL DEFAULT NULL AFTER `Policy`;
 
+ALTER TABLE `tblRateGenerator`
+	ADD COLUMN `IsMerge` TINYINT NULL DEFAULT '0' AFTER `Timezones`,
+	ADD COLUMN `TakePrice` TINYINT NULL DEFAULT '0' AFTER `IsMerge`,
+	ADD COLUMN `MergeInto` INT NULL DEFAULT NULL AFTER `TakePrice`;
+
 
 
 

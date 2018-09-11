@@ -108,12 +108,35 @@
                             {{ Form::select('Timezones[]', $Timezones, [1] , array("class"=>"select2 multiselect", "multiple"=>"multiple")) }}
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Merge Rate By Timezones</label>
+                        <div class="col-sm-4">
+                            <div class="make-switch switch-small">
+                                {{Form::checkbox('IsMerge', 1,  false, array('id' => 'IsMerge') );}}
+                            </div>
+                        </div>
+                        <label class="col-sm-2 control-label IsMerge">Take Price</label>
+                        <div class="col-sm-4 IsMerge">
+                            {{ Form::select('TakePrice', array(RateGenerator::HIGHEST_PRICE=>'Highest Price',RateGenerator::LOWEST_PRICE=>'Lowest Price'), 0 , array("class"=>"select2")) }}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label IsMerge">Merge Into</label>
+                        <div class="col-sm-4 IsMerge">
+                            {{ Form::select('MergeInto', $Timezones, null , array("class"=>"select2")) }}
+                        </div>
+                    </div>
                 </div>
             </div>
 
     </div>
 </div>
 </form>
+<style>
+    .IsMerge {
+        display: none;
+    }
+</style>
 <script type="text/javascript">
     function ajax_form_success(response){
         if(typeof response.redirect != 'undefined' && response.redirect != ''){
@@ -125,6 +148,15 @@
             $("#rategenerator-from").submit();
         });
     });*/
+    $(document).ready(function() {
+        $('#IsMerge').on('change', function(e, s) {
+            if($('#IsMerge').is(':checked')) {
+                $('.IsMerge').show();
+            } else {
+                $('.IsMerge').hide();
+            }
+        });
+    });
 </script>
 @include('currencies.currencymodal')
 @include('trunk.trunkmodal')

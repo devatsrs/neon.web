@@ -139,6 +139,24 @@
                             {{ Form::select('Timezones[]', $Timezones, explode(',',$rategenerators->Timezones) , array("class"=>"select2 multiselect", "multiple"=>"multiple")) }}
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Merge Rate By Timezones</label>
+                        <div class="col-sm-4">
+                            <div class="make-switch switch-small">
+                                {{Form::checkbox('IsMerge', 1,  $rategenerators->IsMerge, array('id' => 'IsMerge') );}}
+                            </div>
+                        </div>
+                        <label class="col-sm-2 control-label IsMerge">Take Price</label>
+                        <div class="col-sm-4 IsMerge">
+                            {{ Form::select('TakePrice', array(RateGenerator::HIGHEST_PRICE=>'Highest Price',RateGenerator::LOWEST_PRICE=>'Lowest Price'), $rategenerators->TakePrice , array("class"=>"select2")) }}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label IsMerge">Merge Into</label>
+                        <div class="col-sm-4 IsMerge">
+                            {{ Form::select('MergeInto', $Timezones, $rategenerators->MergeInto , array("class"=>"select2")) }}
+                        </div>
+                    </div>
 
                 </div>
             </div>
@@ -241,6 +259,9 @@
 <style>
     #sortable tr:hover {
         cursor: all-scroll;
+    }
+    .IsMerge {
+        display: none;
     }
 </style>
 <script type="text/javascript">
@@ -603,6 +624,20 @@
                     $(this).find('.rowcheckbox').prop("checked", false);
                     $(this).removeClass('selected');
                 });
+            }
+        });
+
+        // when page load check if IsMerge checked or not
+        if($('#IsMerge').is(':checked')) {
+            $('.IsMerge').show();
+        } else {
+            $('.IsMerge').hide();
+        }
+        $('#IsMerge').on('change', function(e, s) {
+            if($('#IsMerge').is(':checked')) {
+                $('.IsMerge').show();
+            } else {
+                $('.IsMerge').hide();
             }
         });
     });
