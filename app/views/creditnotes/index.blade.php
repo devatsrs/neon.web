@@ -92,10 +92,10 @@
                      <input type="checkbox" id="selectall" name="checkbox[]" class="" />
                 </div></th>-->
             <th width="20%">Account Name</th>
-            <th width="10%">CreditNotes Number</th>
+            <th width="10%">Number</th>
             <th width="15%">Issue Date</th>
             <th width="10%">Grand Total</th>
-            <th width="10%">CreditNotes Status</th>
+            <th width="10%">Status</th>
             <th width="20%">Action</th>
         </tr>
         </thead>
@@ -251,7 +251,7 @@
 
                                     /*Multiple Dropdown*/
                                     action += '<div class="btn-group">';
-                                    action += ' <a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
+                                    action += ' <a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary btn-sm" data-target="#" href="#">Action<span class="caret"></span></a>';
                                     action += '<ul class="dropdown-menu multi-level dropdown-menu-left" role="menu" aria-labelledby="dropdownMenu">';
 
                                     if('{{User::checkCategoryPermission('CreditNotes','Edit')}}')
@@ -290,7 +290,7 @@
 
                                     //if(full[4] != 'accepted')
                                     {
-                                        action += ' <div class="btn-group"><a href="' + (baseurl + "/creditnotes/{accountid}/{id}/apply_creditnotes").replace("{accountid}",full[8]).replace("{id}",full[5]) +'" class="btn generate btn-success btn-sm">Apply Credit Notes</a></div>'
+
                                         action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Change Status <span class="caret"></span></button>'
                                         action += '<ul class="dropdown-menu dropdown-green" role="menu">';
                                         $.each(creditnotesstatus, function( index, value ) {
@@ -302,6 +302,7 @@
 
                                         action += '</ul>' +
                                                 '</div>';
+                                        action += ' <div class="btn-group margin-top"><a href="' + (baseurl + "/creditnotes/{accountid}/{id}/apply_creditnotes").replace("{accountid}",full[8]).replace("{id}",full[5]) +'" class="btn generate btn-success btn-sm">Apply</a></div>'
                                     }
 
                                     return action;
