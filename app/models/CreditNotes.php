@@ -128,15 +128,15 @@ class CreditNotes extends \Eloquent {
             $file_name 						= 	'CreditNotes--' .$Account->AccountName.'-' .date($CreditNotesTemplate->DateFormat) . '.pdf';
             $htmlfile_name 					= 	'CreditNotes--' .$Account->AccountName.'-' .date($CreditNotesTemplate->DateFormat) . '.html';
             $print_type = 'CreditNotes';
-            $body 	= 	View::make('CreditNotes.pdf', compact('CreditNotes', 'CreditNotesDetail', 'Account', 'CreditNotesTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','CreditNotesItemTaxRates','CreditNotesSubscriptionTaxRates','CreditNotesAllTaxRates','taxes',"CreditNotesDetailItems","CreditNotesDetailISubscription"))->render();
+            $body 	= 	View::make('creditnotes.pdf', compact('CreditNotes', 'CreditNotesDetail', 'Account', 'CreditNotesTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','CreditNotesItemTaxRates','CreditNotesSubscriptionTaxRates','CreditNotesAllTaxRates','taxes',"CreditNotesDetailItems","CreditNotesDetailISubscription"))->render();
             $body 	= 	htmlspecialchars_decode($body);
-            $footer = 	View::make('CreditNotes.pdffooter', compact('CreditNotes','print_type'))->render();
+            $footer = 	View::make('creditnotes.pdffooter', compact('CreditNotes','print_type'))->render();
             $footer = 	htmlspecialchars_decode($footer);
 
-            $header = View::make('CreditNotes.pdfheader', compact('CreditNotes','print_type'))->render();
+            $header = View::make('creditnotes.pdfheader', compact('CreditNotes','print_type'))->render();
             $header = htmlspecialchars_decode($header);
 
-            $amazonPath = AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId,$CreditNotes->AccountID) ;
+            $amazonPath = AmazonS3::generate_path(AmazonS3::$dir['CREDITNOTES_UPLOAD'],$Account->CompanyId,$CreditNotes->AccountID) ;
             $destination_dir = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID) . '/'. $amazonPath;
 
             if (!file_exists($destination_dir))
