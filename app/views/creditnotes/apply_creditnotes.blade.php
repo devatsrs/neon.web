@@ -71,7 +71,7 @@
             <th width="15%">Invoice No.</th>
             <th width="20%">Invoice Date</th>
             <th width="15%">Amount</th>
-            <th width="10%">Balance</th>
+            <th width="10%">Paid Amount</th>
             <th width="10%">Amount To Credit</th>
         </tr>
         </thead>
@@ -140,6 +140,9 @@
                             },  // 3 IssueDate
                             {
                                 "bSortable": false,
+                                mRender: function (id, type, full) {
+                                    return full[4];
+                                }
                             },
                             {
                                 "bSortable": false,
