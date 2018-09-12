@@ -70,7 +70,7 @@ class DisputeController extends \BaseController {
 		$accounts = Account::getAccountIDList();
 		$InvoiceTypes =  array(''=>'Select' , Invoice::INVOICE_OUT=>"Sent",Invoice::INVOICE_IN=>"Received");
 		$emailTemplates = EmailTemplate::getTemplateArray(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE));
-		$bulk_type = 'invoices';
+		$bulk_type = 'disputes';
 		return View::make('disputes.index', compact('id','currency','status','accounts','currency_ids','InvoiceTypes','emailTemplates','bulk_type'));
 
 	}
