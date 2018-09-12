@@ -88,9 +88,9 @@
     <table class="table table-bordered datatable" id="table-4">
         <thead>
         <tr>
-            <th width="5%"><div class="pull-left">
-                    <input type="checkbox" id="selectall" name="checkbox[]" class="" />
-                </div></th>
+            <!-- <th width="5%"><div class="pull-left">
+                     <input type="checkbox" id="selectall" name="checkbox[]" class="" />
+                </div></th>-->
             <th width="20%">Account Name</th>
             <th width="10%">CreditNotes Number</th>
             <th width="15%">Issue Date</th>
@@ -126,11 +126,12 @@
                         if (response_del.status == 'success')
                         {
                             jQuery(this).parent().parent().parent().hide('slow').remove();
+                            ShowToastr("success", response_del.message);
                             data_table.fnFilter('', 0);
                         }
                         else
                         {
-                            ShowToastr("error",response.message);
+                            ShowToastr("error",response_del.message);
                         }
 
                     },
@@ -162,7 +163,7 @@
                 "sAjaxSource": baseurl + "/creditnotes/ajax_datagrid/type",
                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "sPaginationType": "bootstrap",
-                "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+              //  "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "aaSorting": [[3, 'desc']],
                 "fnServerParams": function(aoData) {
                     aoData.push({"name":"CreditNotesType","value":$searchFilter.CreditNotesType},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"CreditNotesNumber","value":$searchFilter.CreditNotesNumber},{"name":"CreditNotesStatus","value":$searchFilter.CreditNotesStatus},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{"name":"CurrencyID","value":$searchFilter.CurrencyID});
@@ -171,10 +172,9 @@
                 },
                 "aoColumns":
                         [
-                            {  "bSortable": false,
+                            /*{  "bSortable": false,
                                 mRender: function ( id, type, full ) {
                                     var action , action = '<div class = "hiddenRowData" >';
-                                    //if (full[4] != 'accepted')
                                     {
                                         action += '<div class="pull-left"><input type="checkbox" class="checkbox rowcheckbox" value="'+full[5]+'" name="CreditNotesID[]"></div>';
                                     }
@@ -182,7 +182,7 @@
                                     return action;
                                 }
 
-                            },  // 0 AccountName
+                            },  // 0 AccountName*/
                             {  "bSortable": true,
 
                                 mRender:function( id, type, full){
@@ -256,7 +256,7 @@
 
                                     if('{{User::checkCategoryPermission('CreditNotes','Edit')}}')
                                     {
-                                        //if(full[4] != 'accepted')
+                                        if(creditnotesstatus[full[4]] != 'Close')
                                         {
                                             action += ' <li><a class="icon-left"  href="' + (baseurl + "/creditnotes/{id}/edit").replace("{id}",full[5]) +'"><i class="entypo-pencil"></i>Edit </a></li>';
                                         }
@@ -395,7 +395,7 @@
 
             });
 
-            $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
+           // $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
 
             $("#creditnotes_filter").submit(function(e){
                 e.preventDefault();
@@ -429,7 +429,7 @@
                         "sAjaxSource": baseurl + "/creditnotes/ajax_datagrid/type",
                         "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                         "sPaginationType": "bootstrap",
-                        "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                        //"sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                         "aaSorting": [[3, 'desc']],},
                     success: function(response1) {
                         console.log("sum of result"+response1);
