@@ -329,6 +329,13 @@ ALTER TABLE `tblPayment`
 	
 
 /* Update Invoice status on bulk upload - change procedure prc_insertPayments*/	
+DROP PROCEDURE IF EXISTS `prc_insertPayments`;
+DELIMITER //
+CREATE PROCEDURE `prc_insertPayments`(
+	IN `p_CompanyID` INT,
+	IN `p_ProcessID` VARCHAR(100),
+	IN `p_UserID` INT
+)
 BEGIN
 
 	
@@ -440,7 +447,8 @@ BEGIN
 	 delete from tblTempPayment where CompanyID = p_CompanyID and ProcessID = p_ProcessID;
 	 
 			
-END
+END//
+DELIMITER ;
 
 /*add creditnotes number fields*/
 
@@ -451,7 +459,7 @@ ALTER TABLE `tblInvoiceTemplate`
 	
 	
 /* procedure changes for display creditnotes amount in invoice listing and exporting */ 	
-
+DROP PROCEDURE IF EXISTS `prc_getInvoice`;
 DELIMITER //
 CREATE PROCEDURE `prc_getInvoice`(
 	IN `p_CompanyID` INT,
