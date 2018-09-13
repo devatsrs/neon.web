@@ -69,6 +69,11 @@ INSERT INTO `tblEmailTemplate` (`CompanyID`, `LanguageID`, `TemplateName`, `Subj
 
 
 /* quick-book payment post changes in prc_CronJobAllPending*/ 
+DROP PROCEDURE IF EXISTS `prc_CronJobAllPending`;
+DELIMITER //
+CREATE PROCEDURE `prc_CronJobAllPending`(
+	IN `p_CompanyID` INT
+)
 BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 
@@ -1561,3 +1566,4 @@ BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END
+DELIMITER ;
