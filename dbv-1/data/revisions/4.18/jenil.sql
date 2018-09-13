@@ -2425,8 +2425,7 @@ DELIMITER ;
 /* For API */
 
 
-USE `NeonBillingDev`;
-
+USE `RMBilling3`;
 DROP PROCEDURE IF EXISTS `prc_getProductsByItemType`;
 DELIMITER //
 CREATE PROCEDURE `prc_getProductsByItemType`(
@@ -2434,6 +2433,7 @@ CREATE PROCEDURE `prc_getProductsByItemType`(
 	IN `p_ItemType` VARCHAR(50),
 	IN `p_PageNumber` INT,
 	IN `p_RowspPage` INT
+
 
 
 )
@@ -2457,7 +2457,8 @@ BEGIN
 	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_products_fields(
 		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 		DynamicFieldsID INT(11),
-		FieldName Varchar(100)
+		FieldName Varchar(100),
+		FieldType Varchar(100)
 	);
 		
 
@@ -2476,6 +2477,21 @@ BEGIN
 				AND tblProduct.Quantity > 0
 				AND tblProduct.Active=1
 			 LIMIT p_RowspPage OFFSET v_OffSet_;
+			 
+			 
+			 SELECT 
+			 	count(*) as totalcount
+			FROM tblItemType
+			INNER JOIN  tblProduct 
+				ON tblProduct.ItemTypeID=tblItemType.ItemTypeID
+			WHERE 
+				tblProduct.CompanyId=p_CompanyID
+				AND tblItemType.title=p_ItemType
+				AND tblProduct.Quantity > 0
+				AND tblProduct.Active=1;
+			 
+			 
+			 
 	ELSE 
 	
 		INSERT INTO tmp_products (ProductID,ItemTypeID)
@@ -2487,17 +2503,25 @@ BEGIN
 				tblProduct.CompanyId=p_CompanyID
 				AND tblProduct.Quantity > 0
 				AND tblProduct.Active=1
-		
 			LIMIT p_RowspPage OFFSET v_OffSet_;
+			
+			SELECT 
+				count(*) as totalcount
+			FROM tblProduct
+			WHERE
+				tblProduct.CompanyId=p_CompanyID
+				AND tblProduct.Quantity > 0
+				AND tblProduct.Active=1;
 			
 	END IF;
 			 
 				
-			INSERT INTO tmp_products_fields (FieldName,DynamicFieldsID)
+			INSERT INTO tmp_products_fields (FieldName,DynamicFieldsID,FieldType)
 			SELECT 
 				DISTINCT a.FieldName,
-				a.DynamicFieldsID
-			FROM Ratemanagement3.tblDynamicFields a
+				a.DynamicFieldsID,
+				a.FieldDomType
+			FROM NeonRMDev.tblDynamicFields a
 			INNER JOIN tmp_products b
 			ON a.ItemTypeID=b.ItemTypeID
 			WHERE 
@@ -2529,14 +2553,15 @@ BEGIN
 			 SET @ProductID=(select ProductID FROM tmp_products WHERE RowID=@v_pointer_);
 			 
 				SET @upateq=CONCAT('UPDATE tmp_products prod
-		  	  	INNER JOIN Ratemanagement3.tblDynamicFieldsValue b ON b.DynamicFieldsID=',@dynamicFieldID,'
-		  	  	INNER JOIN Ratemanagement3.tblDynamicFields a ON a.DynamicFieldsID=b.DynamicFieldsID
+		  	  	INNER JOIN NeonRMDev.tblDynamicFieldsValue b ON b.DynamicFieldsID=',@dynamicFieldID,'
+		  	  	INNER JOIN NeonRMDev.tblDynamicFields a ON a.DynamicFieldsID=b.DynamicFieldsID
 		  		SET `prod`.`',@fieldname,'`=b.FieldValue
 		  		
 		  		WHERE 
 				  prod.ProductID=',@ProductID,'
 				  AND b.ParentID=',@ProductID);
 				  
+				   -- select @upateq;
 				  
 				  PREPARE stm_query1 FROM @upateq;
 				  EXECUTE stm_query1;
@@ -2568,7 +2593,6 @@ BEGIN
 		tmp_products
 		INNER JOIN tblProduct ON tblProduct.ProductID=tmp_products.ProductID;
 		
-
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
@@ -2576,12 +2600,11 @@ END//
 DELIMITER ;
 
 
-/* Above Done on Staging */
-
 
 /* Dispute NEON-1546 */
-USE NeonBillingDev;
+USE RMBilling3;
 DELIMITER //
+DROP PROCEDURE IF EXISTS `prc_getDisputes`;
 CREATE PROCEDURE `prc_getDisputes`(
 	IN `p_CompanyID` INT,
 	IN `p_InvoiceType` INT,
@@ -2632,7 +2655,7 @@ BEGIN
 		 		ds.Ref
 		 		
             from tblDispute ds
-            inner join NeonRMDev.tblAccount a on a.AccountID = ds.AccountID
+            inner join Ratemanagement3.tblAccount a on a.AccountID = ds.AccountID
 
 				where ds.CompanyID = p_CompanyID
 
@@ -2690,7 +2713,7 @@ BEGIN
 		 		COUNT(ds.DisputeID) AS totalcount,
 		 		sum(ds.DisputeAmount) as TotalDisputeAmount
             from tblDispute ds
-            inner join NeonRMDev.tblAccount a on a.AccountID = ds.AccountID
+            inner join Ratemanagement3.tblAccount a on a.AccountID = ds.AccountID
 				where ds.CompanyID = p_CompanyID
 
 				AND (p_InvoiceType = 0 OR ( p_InvoiceType != 0 AND ds.InvoiceType = p_InvoiceType))
@@ -2724,7 +2747,7 @@ BEGIN
 				
 
             from tblDispute ds
-            inner join NeonRMDev.tblAccount a on a.AccountID = ds.AccountID
+            inner join Ratemanagement3.tblAccount a on a.AccountID = ds.AccountID
             
             
 				where ds.CompanyID = p_CompanyID
@@ -2744,12 +2767,13 @@ END//
 DELIMITER ;
 
 
-INSERT INTO `tbljobtype` (`Code`, `Title`, `Description`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`) VALUES ('DR', 'Dispute Bulk Email', NULL, '2018-07-27 18:20:26', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblJobType` (`Code`, `Title`, `Description`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`) VALUES ('DR', 'Dispute Bulk Email', NULL, '2018-07-27 18:20:26', 'RateManagementSystem', NULL, NULL);
 
 
-USE NeonRMDev;
+USE Ratemanagement3;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`%` PROCEDURE `prc_CronJobAllPending`(
+DROP PROCEDURE IF EXISTS `prc_CronJobAllPending`;
+CREATE PROCEDURE `prc_CronJobAllPending`(
 	IN `p_CompanyID` INT
 
 )
@@ -4249,6 +4273,7 @@ END//
 DELIMITER ;
 
 
+/* Above Done on Staging */
 
 
 
