@@ -97,7 +97,7 @@ class InvoiceTemplate extends \Eloquent {
         }
         $CompanyID = User::get_companyID();
 
-        while(Estimate::where(["CreditNotesNumber"=> $NewCreditNotesNumber,'CompanyID'=>$CompanyID])->count()>0)
+        while(CreditNotes::where(["CreditNotesNumber"=> $NewCreditNotesNumber,'CompanyID'=>$CompanyID])->count()>0)
         {
             $NewCreditNotesNumber++;
         }

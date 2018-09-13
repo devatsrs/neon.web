@@ -328,13 +328,13 @@ ALTER TABLE `tblPayment`
 	ADD COLUMN `CreditNotesID` INT(11) NULL DEFAULT '0' AFTER `TransactionID`;
 	
 
-/* Update Invoice status on bulk upload*/	
+/* Update Invoice status on bulk upload - change procedure prc_insertPayments*/	
 BEGIN
 
 	
 	DECLARE v_UserName varchar(30);
  	
- 	SELECT CONCAT(u.FirstName,CONCAT(' ',u.LastName)) as name into v_UserName from NeonRMDev.tblUser u where u.UserID=p_UserID;
+ 	SELECT CONCAT(u.FirstName,CONCAT(' ',u.LastName)) as name into v_UserName from Ratemanagement3.tblUser u where u.UserID=p_UserID;
  	
  	INSERT INTO tblPayment (
 	 		CompanyID,
@@ -377,7 +377,7 @@ BEGIN
 			 1 as BulkUpload,
 			 InvoiceID
 	from tblTempPayment tp
-	INNER JOIN NeonRMDev.tblAccount ac 
+	INNER JOIN Ratemanagement3.tblAccount ac 
 		ON  ac.AccountID = tp.AccountID  and ac.AccountType = 1 and ac.CurrencyId IS NOT NULL
 	where tp.ProcessID = p_ProcessID
 			AND tp.PaymentDate <= NOW()
@@ -408,7 +408,7 @@ BEGIN
 			as status,
 			'' as Note
 	from tblTempPayment tp
-	INNER JOIN NeonRMDev.tblAccount ac 
+	INNER JOIN Ratemanagement3.tblAccount ac 
 		ON  ac.AccountID = tp.AccountID  and ac.AccountType = 1 and ac.CurrencyId IS NOT NULL
 		INNER JOIN tblInvoice inv ON tp.InvoiceID=inv.InvoiceID
 	where tp.ProcessID = p_ProcessID
@@ -430,7 +430,7 @@ BEGIN
 			 Now() as created_at,
 			 Now() as updated_at	
 	from tblTempPayment tp
-	INNER JOIN NeonRMDev.tblAccount ac 
+	INNER JOIN Ratemanagement3.tblAccount ac 
 		ON  ac.AccountID = tp.AccountID  and ac.AccountType = 1 and ac.CurrencyId IS NOT NULL
 		INNER JOIN tblInvoice inv ON tp.InvoiceID=inv.InvoiceID
 	where tp.ProcessID = p_ProcessID
@@ -441,6 +441,13 @@ BEGIN
 	 
 			
 END
+
+/*add creditnotes number fields*/
+
+ALTER TABLE `tblInvoiceTemplate`
+	ADD COLUMN `CreditNotesNumberPrefix` VARCHAR(50) NULL DEFAULT NULL AFTER `LastEstimateNumber`,
+	ADD COLUMN `CreditNotesStartNumber` VARCHAR(50) NULL DEFAULT NULL AFTER `CreditNotesNumberPrefix`,
+	ADD COLUMN `LastCreditNotesNumber` BIGINT(20) NULL DEFAULT NULL AFTER `CreditNotesStartNumber`;
 
 
 

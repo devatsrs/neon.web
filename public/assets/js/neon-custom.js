@@ -2831,8 +2831,10 @@ function showHideControls(form){
     if(form.attr('id')=="add-new-invoice_template-form"){
         toBeHide[0] = ".LastInvoiceNumber";
         toBeHide[1] = ".LastEstimateNumber";
+        toBeHide[2] = ".LastCreditNotesNumber";
         toBeShow[0] = "#InvoiceStartNumberToggle";
         toBeShow[1] = "#EstimateStartNumberToggle";
+        toBeShow[2] = "#CreditNotesStartNumberToggle";
     }
     if(toBeHide.length > 0) {
         for (var i = 0; i < toBeHide.length; i++) {

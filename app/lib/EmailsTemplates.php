@@ -419,8 +419,8 @@ class EmailsTemplates{
 
 	static function setAccountFields($array,$AccountID){
 		$companyID						=	 User::get_companyID();
-		$RoundChargesAmount				=	 getCompanyDecimalPlaces($companyID);
 		$AccoutData 					= 	 Account::find($AccountID);
+		$RoundChargesAmount				=	 get_round_decimal_places($AccountID);
 		$array['AccountName']			=	 $AccoutData->AccountName;
 		$array['FirstName']				=	 $AccoutData->FirstName;
 		$array['LastName']				=	 $AccoutData->LastName;
@@ -434,9 +434,8 @@ class EmailsTemplates{
 		$array['Country']				=	 $AccoutData->Country;
 		$array['Currency']				=	 Currency::where(["CurrencyId"=>$AccoutData->CurrencyId])->pluck("Code");
 		$array['CurrencySign']			=	 Currency::where(["CurrencyId"=>$AccoutData->CurrencyId])->pluck("Symbol");
-		$array['OutstandingExcludeUnbilledAmount'] = Account::getOutstandingAmount($companyID, $AccountID, get_round_decimal_places($AccountID));
-		$array['OutstandingIncludeUnbilledAmount'] = AccountBalance::getBalanceAmount($AccountID);
-		$array['OutstandingIncludeUnbilledAmount'] = number_format($array['OutstandingIncludeUnbilledAmount'], $RoundChargesAmount);
+		$array['OutstandingExcludeUnbilledAmount'] = number_format(AccountBalance::getBalanceSOAOffsetAmount($AccountID),$RoundChargesAmount);
+		$array['OutstandingIncludeUnbilledAmount'] = number_format(AccountBalance::getBalanceAmount($AccountID),$RoundChargesAmount);
 		$array['BalanceThreshold'] 				   = AccountBalance::getBalanceThresholdAmount($AccountID);
 		if(Auth::guest()){
 			return $array;

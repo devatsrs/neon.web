@@ -71,7 +71,7 @@
             <th width="15%">Invoice No.</th>
             <th width="20%">Invoice Date</th>
             <th width="15%">Amount</th>
-            <th width="10%">Balance</th>
+            <th width="10%">Paid Amount</th>
             <th width="10%">Amount To Credit</th>
         </tr>
         </thead>
@@ -79,8 +79,10 @@
         </tbody>
     </table>
     </form>
-    <button value="Save" name="Save" id="SaveButton" class="btn generate btn-success btn-md" >Save</button>
-    <a class="btn btn-success btn-md" href="{{URL::to('creditnotes')}}">Cancel</a>
+    <button value="Save" name="Save" id="SaveButton" class="btn save btn-primary btn-icon btn-sm icon-left hidden-print" >
+        <i class="entypo-floppy"></i>Save</button>
+    <a class="btn btn-danger btn-sm btn-icon icon-left" href="{{URL::to('creditnotes')}}">
+        <i class="entypo-back"></i>Back</a>
 
     <script type="text/javascript">
         var $searchFilter 	= 	{};
@@ -140,6 +142,9 @@
                             },  // 3 IssueDate
                             {
                                 "bSortable": false,
+                                mRender: function (id, type, full) {
+                                    return full[4];
+                                }
                             },
                             {
                                 "bSortable": false,

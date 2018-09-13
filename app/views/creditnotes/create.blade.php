@@ -10,10 +10,10 @@
         <a href="{{URL::to('creditnotes')}}">Credit Notes</a>
     </li>
     <li class="active">
-        <strong>Create Credit Notes</strong>
+        <strong>Create Credit Note</strong>
     </li>
 </ol>
-<h3>Create Credit Notes</h3>
+<h3>Create Credit Note</h3>
 
 @include('includes.errors')
 @include('includes.success')
