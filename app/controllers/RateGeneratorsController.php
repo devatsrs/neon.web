@@ -169,6 +169,8 @@ class RateGeneratorsController extends \BaseController {
         if(!empty($data['IsMerge'])) {
             $rules['TakePrice'] = "required";
             $rules['MergeInto'] = "required";
+        } else {
+            $data['IsMerge'] = 0;
         }
 
         $validator = Validator::make($data, $rules, $message);
