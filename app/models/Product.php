@@ -103,9 +103,10 @@ class Product extends \Eloquent {
     public static function getProductByItemType($data=array()){
         $dataarr=array();
         $query="CALL prc_getProductsByItemType(".$data['CompanyID'].",'".$data['ItemType']."',".$data['PageNumber'].",".$data['RowsPage'].")";
-        $result  = DB::connection('sqlsrv2')->select($query);
-        $dataarr = json_decode(json_encode($result),true);
-        return $dataarr;
+        //$result  = DB::connection('sqlsrv2')->select($query);
+        $result = DataTableSql::of($query,'sqlsrv2')->make(false);
+        //$dataarr = json_decode(json_encode($result),true);
+        return $result;
     }
 
 }
