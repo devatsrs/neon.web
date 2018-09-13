@@ -216,6 +216,7 @@ class Report extends \Eloquent {
             'Owner'=>'Account Manager',
             'CurrencyID' =>'Currency Code',
             'InvoiceType' =>'Invoice Type',
+            'InvoiceNumber' =>'Invoice Number',
             'InvoiceStatus' =>'Invoice Status',
             'TaxRateID' => 'Tax Type',
             'ProductType'=> 'Charge Type',
@@ -225,6 +226,11 @@ class Report extends \Eloquent {
             ),
             'SubscriptionID' => 'Subscription Name',
             'ServiceID' => 'Service Name',
+            'BillingType' => 'Billing Type',
+            'BillingCycleType' => 'Billing Cycle Type',
+            'BillingStartDate' => 'Billing Start Date',
+            'BillingCycleValue' => 'Billing Cycle Start of Day',
+            'BillingClassID' => 'Billing Class',
         ),
         'tax'=>array(
             'Date'=>array(
@@ -600,7 +606,26 @@ class Report extends \Eloquent {
                     $name = '';
                 }
                 break;
-
+            case 'BillingType':
+                $billing_type = AccountApproval::$billing_type;
+                if(!empty($ID) && isset($billing_type[$ID])){
+                    $name = $billing_type[$ID];
+                }else if(!empty($ID)){
+                    $name = $ID;
+                }else{
+                    $name = '';
+                }
+                break;
+            case 'BillingClassID':
+                $BillingClass   = BillingClass::getDropdownIDList();
+                if(!empty($ID) && isset($BillingClass[$ID])){
+                    $name = $BillingClass[$ID];
+                }else if(!empty($ID)){
+                    $name = $ID;
+                }else{
+                    $name = '';
+                }
+                break;
         }
         return $name;
     }

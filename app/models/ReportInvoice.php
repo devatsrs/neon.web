@@ -15,6 +15,8 @@ class ReportInvoice extends \Eloquent{
         'ServiceID' => 'tblInvoice.ServiceID',
         'Code' => 'tblProduct.Code',
         'CurrencyID' => 'tblInvoice.CurrencyID',
+        'BillingType' => 'tblAccountBilling.BillingType',
+        'BillingClassID' => 'tblAccountBilling.BillingClassID',
     );
     public static $database_payment_columns = array(
         'year' => 'YEAR(PaymentDate)',
@@ -24,6 +26,7 @@ class ReportInvoice extends \Eloquent{
         'date' => 'DATE(PaymentDate)',
     );
 
+    public static $AccountBillingJoin = false;
     public static $InvoiceDetailJoin = false;
     public static $InvoiceTaxRateJoin = false;
     public static $AccountJoin = false;
@@ -133,10 +136,20 @@ class ReportInvoice extends \Eloquent{
     }
 
     public static function commonQuery($CompanyID, $data, $filters){
+        $rmdatabseName = getenv('DB_DATABASE');
         self::$dateFilterString = self::$invoiceDataFilterWhere = array();
         $query_common = DB::connection('sqlsrv2')
             ->table('tblInvoice')
             ->where(['tblInvoice.CompanyID' => $CompanyID]);
+
+        if(in_array('BillingType',$data['column']) || in_array('BillingType',$data['row']) || in_array('BillingCycleType',$data['column']) || in_array('BillingCycleType',$data['row']) ||
+            in_array('BillingStartDate',$data['column']) || in_array('BillingStartDate',$data['row']) ||
+            in_array('BillingCycleStartOfDay',$data['column']) || in_array('BillingCycleStartOfDay',$data['row']) ||
+            in_array('BillingClassID',$data['column']) || in_array('BillingClassID',$data['row'])){
+            $query_common->join($rmdatabseName.'.tblAccountBilling', 'tblAccountBilling.AccountID', '=', 'tblInvoice.AccountID');
+            $query_common->where(["tblAccountBilling.ServiceID"=>0]);
+            self::$AccountBillingJoin = true;
+        }
 
         if(in_array('TaxRateID',$data['column']) || in_array('TaxRateID',$data['row']) || in_array('TaxRateID',$data['filter']) || in_array('TotalTax',$data['sum'])){
             $query_common->join('tblInvoiceTaxRate', 'tblInvoice.InvoiceID', '=', 'tblInvoiceTaxRate.InvoiceID');
@@ -193,7 +206,7 @@ class ReportInvoice extends \Eloquent{
                 }else{
                     $query_common->whereIn($key, $filter[$key]);
                 }
-            } else if (!empty($filter['wildcard_match_val']) && in_array($key, array('InvoiceType', 'InvoiceStatus','ProductType'))) {
+            } else if (!empty($filter['wildcard_match_val']) && in_array($key, array('InvoiceNumber', 'InvoiceType', 'InvoiceStatus','ProductType'))) {
                 $query_common->where($key, 'like', str_replace('*', '%', $filter['wildcard_match_val']));
             } else if (!empty($filter['wildcard_match_val']) && !in_array($key, array('year', 'quarter_of_year','month','week_of_year')) ) {
                 $data_in_array = Report::getDataInArray($CompanyID, $key, $filter['wildcard_match_val']);
