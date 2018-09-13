@@ -1455,7 +1455,7 @@ class InvoicesController extends \BaseController {
 			    $max_file_size				=	get_max_file_size();	
 				 
 				if(!empty($Subject) && !empty($Message)){
-					$from	 = $templateData->EmailFrom;	
+					$from	 = $templateData->EmailFrom;
 					return View::make('invoices.email', compact('Invoice', 'Account', 'Subject','Message','CompanyName','from','response_extensions','max_file_size'));
 				}
 				return Response::json(["status" => "failure", "message" => "Subject or message is empty"]);

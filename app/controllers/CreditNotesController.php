@@ -94,21 +94,31 @@ class CreditNotesController extends \BaseController {
 
         if($data['InvoiceNumber'] == 0) {
             $AccountInvoices = DB::connection('sqlsrv2')->table('tblInvoice')
-                ->select('InvoiceID', 'FullInvoiceNumber', 'IssueDate', 'GrandTotal')
-                ->where("AccountID", $AccountID)
-                ->where("InvoiceStatus", '<>', 'post')
-                ->where('InvoiceStatus', '<>', 'paid');
+                ->select(DB::raw("tblInvoice.InvoiceID,FullInvoiceNumber, IssueDate, tblInvoice.GrandTotal,SUM(tblPayment.Amount) as paidsum"))
+                ->leftJoin('tblPayment','tblInvoice.InvoiceID', '=', 'tblPayment.InvoiceID')
+                ->where('tblInvoice.AccountID', $AccountID)
+                ->where('tblInvoice.InvoiceStatus', '<>', 'post')
+                ->where('tblInvoice.InvoiceStatus', '<>', 'paid')
+                ->where('tblPayment.Recall', 0)
+                ->groupBy('tblInvoice.InvoiceID');
         }
         else{
-            $AccountInvoices = DB::connection('sqlsrv2')->table('tblInvoice')
+           /* $AccountInvoices = DB::connection('sqlsrv2')->table('tblInvoice')
                 ->select('InvoiceID', 'FullInvoiceNumber', 'IssueDate', 'GrandTotal')
-                ->leftJoin('tblPayment','tblInvoice.InvoiceId','=','tblPayment.InvoiceID')
                 ->where("AccountID", $AccountID)
                 ->where("InvoiceNumber", $data['InvoiceNumber'])
                 ->where("InvoiceStatus", '<>', 'post')
-                ->where('InvoiceStatus', '<>', 'paid');
-        }
+                ->where('InvoiceStatus', '<>', 'paid');*/
 
+            $AccountInvoices = DB::connection('sqlsrv2')->table('tblInvoice')
+                ->select(DB::raw("tblInvoice.InvoiceID,FullInvoiceNumber, IssueDate, tblInvoice.GrandTotal,SUM(tblPayment.Amount) as paidsum"))
+                ->leftJoin('tblPayment','tblInvoice.InvoiceID', '=', 'tblPayment.InvoiceID')
+                ->where('tblInvoice.AccountID', $AccountID)
+                ->where('tblInvoice.InvoiceNumber', $data['InvoiceNumber'])
+                ->where('tblInvoice.InvoiceStatus', '<>', 'post')
+                ->where('tblInvoice.InvoiceStatus', '<>', 'paid')
+                ->where('tblPayment.Recall',0);
+        }
         return Datatables::of($AccountInvoices)->make();
     }
 
@@ -160,26 +170,32 @@ class CreditNotesController extends \BaseController {
         //$str = preg_replace('/^INV/', '', 'INV021000');;
         if($id > 0)
         {
-
             $CreditNotes 				= 	 CreditNotes::find($id);
-            $CompanyID                  =    $CreditNotes->CompanyID;
-            $CreditNotesBillingClass 	=	 CreditNotes::GetCreditNotesBillingClass($CreditNotes);
-            $CreditNotesDetail 			=	 CreditNotesDetail::where(["CreditNotesID"=>$id])->get();
-            $accounts 					= 	 Account::getAccountIDList();
-            $products 					= 	 Product::getProductDropdownList($CompanyID);
-            $Account 					= 	 Account::where(["AccountID" => $CreditNotes->AccountID])->select(["AccountName","BillingEmail","CurrencyId"])->first(); //"TaxRateID","RoundChargesAmount","InvoiceTemplateID"
-            $CurrencyID 				= 	 !empty($CreditNotes->CurrencyID)?$CreditNotes->CurrencyID:$Account->CurrencyId;
-            $RoundChargesAmount 		= 	 get_round_decimal_places($CreditNotes->AccountID);
-            $InvoiceTemplateID 		    =	 BillingClass::getInvoiceTemplateID($CreditNotesBillingClass);
-            $CreditNotesNumberPrefix 	= 	 ($InvoiceTemplateID>0)?InvoiceTemplate::find($InvoiceTemplateID)->CreditNotesNumberPrefix:'';
-            $Currency 					= 	 Currency::find($CurrencyID);
-            $CurrencyCode 				= 	 !empty($Currency)?$Currency->Code:'';
-            $CompanyName 				= 	 Company::getName($CompanyID);
-            $taxes 						= 	 TaxRate::getTaxRateDropdownIDListForInvoice(0,$CompanyID);
-            $CreditNotesAllTax 			= 	 DB::connection('sqlsrv2')->table('tblCreditNotesTaxRate')->where(["CreditNotesID"=>$id,"CreditNotesTaxType"=>1])->get();
-            $BillingClass				=    BillingClass::getDropdownIDList($CompanyID);
-            $itemtypes 	                = 	 ItemType::getItemTypeDropdownList($CompanyID);
-            return View::make('creditnotes.edit', compact( 'id','itemtypes', 'CreditNotes','CreditNotesDetail','InvoiceTemplateID','CreditNotesNumberPrefix',  'CurrencyCode','CurrencyID','RoundChargesAmount','accounts', 'products', 'taxes','CompanyName','Account','CreditNotesAllTax','BillingClass','CreditNotesBillingClass'));
+            //check if creditnotes are closed or not
+            if($CreditNotes->CreditNotesStatus != 'close') {
+                $CompanyID = $CreditNotes->CompanyID;
+                $CreditNotesBillingClass = CreditNotes::GetCreditNotesBillingClass($CreditNotes);
+                $CreditNotesDetail = CreditNotesDetail::where(["CreditNotesID" => $id])->get();
+                $accounts = Account::getAccountIDList();
+                $products = Product::getProductDropdownList($CompanyID);
+                $Account = Account::where(["AccountID" => $CreditNotes->AccountID])->select(["AccountName", "BillingEmail", "CurrencyId"])->first(); //"TaxRateID","RoundChargesAmount","InvoiceTemplateID"
+                $CurrencyID = !empty($CreditNotes->CurrencyID) ? $CreditNotes->CurrencyID : $Account->CurrencyId;
+                $RoundChargesAmount = get_round_decimal_places($CreditNotes->AccountID);
+                $InvoiceTemplateID = BillingClass::getInvoiceTemplateID($CreditNotesBillingClass);
+                $CreditNotesNumberPrefix = ($InvoiceTemplateID > 0) ? InvoiceTemplate::find($InvoiceTemplateID)->CreditNotesNumberPrefix : '';
+                $Currency = Currency::find($CurrencyID);
+                $CurrencyCode = !empty($Currency) ? $Currency->Code : '';
+                $CompanyName = Company::getName($CompanyID);
+                $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0, $CompanyID);
+                $CreditNotesAllTax = DB::connection('sqlsrv2')->table('tblCreditNotesTaxRate')->where(["CreditNotesID" => $id, "CreditNotesTaxType" => 1])->get();
+                $BillingClass = BillingClass::getDropdownIDList($CompanyID);
+                $itemtypes = ItemType::getItemTypeDropdownList($CompanyID);
+                return View::make('creditnotes.edit', compact('id', 'itemtypes', 'CreditNotes', 'CreditNotesDetail', 'InvoiceTemplateID', 'CreditNotesNumberPrefix', 'CurrencyCode', 'CurrencyID', 'RoundChargesAmount', 'accounts', 'products', 'taxes', 'CompanyName', 'Account', 'CreditNotesAllTax', 'BillingClass', 'CreditNotesBillingClass'));
+            }
+            else{
+                //if creditnotes are closed
+                return Redirect::to(url('/creditnotes'));
+            }
         }
     }
 
@@ -188,8 +204,8 @@ class CreditNotesController extends \BaseController {
         if($AccountID > 0)
         {
             $Invoices 	    =   Invoice::GetInvoiceByAccount($AccountID);
-            $AccountName = Account::find($AccountID)->AccountName;
-            $invoicenumbers = array("Select Invoices");
+            $AccountName    =   Account::find($AccountID)->AccountName;
+            $invoicenumbers =   array("Select Invoices");
             foreach($Invoices as $invoice)
             {
                 $invoicenumbers[$invoice->InvoiceNumber] = $invoice->FullInvoiceNumber;
@@ -206,6 +222,11 @@ class CreditNotesController extends \BaseController {
     {
         $data = Input::all();
         //echo"<pre>"; print_R($data);exit;
+        if(!isset($data['payment']))
+        {
+            return Response::json(array("status" => "failed", "message" => "No Invoices Found"));
+        }
+
         if(!array_filter($data['payment'])) {
             return Response::json(array("status" => "failed", "message" => "Enter Amount For atleast one Invoice"));
         }
@@ -224,6 +245,7 @@ class CreditNotesController extends \BaseController {
                         $paymentdata['PaymentType'] = 'Payment In';
                         $paymentdata['Notes'] = 'Paid By Credit Notes';
                         $paymentdata['Amount'] = $data['payment'][$i];
+                        $paymentdata['Status'] = 'Approved';
                         $paymentdata['created_at'] = date("Y-m-d H:i:s");
                         $paymentdata['updated_at'] = date("Y-m-d H:i:s");
                         $paymentdata['InvoiceID'] = $data['invoice_id'][$i];
@@ -232,10 +254,19 @@ class CreditNotesController extends \BaseController {
 
                         //check specific invoice grand total is greter then creditnotes
                         $InvoiceAmount = Invoice::find($data['invoice_id'][$i])->GrandTotal;
-                        if($InvoiceAmount > $data['payment'][$i])
+                        $TotalPayAmount = DB::connection('sqlsrv2')->table('tblPayment')->where('InvoiceID', $data['invoice_id'][$i])->sum('Amount');
+                        $totalpaidamount = $TotalPayAmount + $data['payment'][$i];
+                        if($InvoiceAmount >= $totalpaidamount)
                         {
                             $payment_insert = Payment::insert($paymentdata);
                             $totalamount += $data['payment'][$i];
+
+                            $creditnotesloddata = array();
+                            $creditnotesloddata['CreditNotesID']= $creditnote_id;
+                            $creditnotesloddata['Note']= 'Paid For Invoice No : '.$data['invoice_number'][$i].' Amount : '.$data['payment'][$i];
+                            $creditnotesloddata['created_at']= date("Y-m-d H:i:s");
+                            $creditnotesloddata['CreditNotesLogStatus']= CreditNotesLog::PAID;
+                            CreditNotesLog::insert($creditnotesloddata);
                         }
                         else{
                             return Response::json(array("status" => "failed", "message" => "CreditNote Amount is higher then Invoice Amount."));
@@ -247,7 +278,7 @@ class CreditNotesController extends \BaseController {
                     $PaidAmount = CreditNotes::find($creditnote_id)->PaidAmount;
                     $Available_Balance = $GrandTotal - $PaidAmount;
                     //check if total credit amount is less then available balance or not
-                    if($totalamount < $Available_Balance) {
+                    if($Available_Balance >= $totalamount) {
                         $CreditNotesData['PaidAmount'] = $PaidAmount + $totalamount;
                         if (CreditNotes::find($creditnote_id)->update($CreditNotesData)) {
                             DB::connection('sqlsrv2')->commit();
@@ -286,7 +317,6 @@ class CreditNotesController extends \BaseController {
                 $isAutoCreditNotesNumber = false;
                 $CreditNotesData["CreditNotesNumber"] =  $data["CreditNotesNumber"];
             }
-
 
             if(isset($data['BillingClassID']) && $data['BillingClassID']>0){
                 $InvoiceTemplateID  = 	BillingClass::getInvoiceTemplateID($data['BillingClassID']);
@@ -988,19 +1018,25 @@ class CreditNotesController extends \BaseController {
     public function delete($id)
     {
         if( $id > 0){
-            try{
-                DB::connection('sqlsrv2')->beginTransaction();
-                CreditNotesTaxRate::where(["CreditNotesID"=>$id])->delete();
-                CreditNotesDetail::where(["CreditNotesID"=>$id])->delete();
-                CreditNotes::find($id)->delete();
-                DB::connection('sqlsrv2')->commit();
-                return Response::json(array("status" => "success", "message" => "CreditNotes Successfully Deleted"));
+            $CreditNotesUsed = Payment::where('CreditNotesID','=',$id)->count();
+            if($CreditNotesUsed == 0)
+            {
+                try{
+                    DB::connection('sqlsrv2')->beginTransaction();
+                    CreditNotesTaxRate::where(["CreditNotesID"=>$id])->delete();
+                    CreditNotesDetail::where(["CreditNotesID"=>$id])->delete();
+                    CreditNotes::find($id)->delete();
+                    DB::connection('sqlsrv2')->commit();
+                    return Response::json(array("status" => "success", "message" => "CreditNotes Successfully Deleted"));
 
-            }catch (Exception $e){
-                DB::connection('sqlsrv2')->rollback();
-                return Response::json(array("status" => "failed", "message" => "CreditNotes is in Use, You cant delete this Currency. \n" . $e->getMessage() ));
+                }catch (Exception $e){
+                    DB::connection('sqlsrv2')->rollback();
+                    return Response::json(array("status" => "failed", "message" => "CreditNotes Delete Failed \n" . $e->getMessage() ));
+                }
             }
-
+            else{
+                return Response::json(array("status" => "failed", "message" => "Invoice Already Paid Using this CreditNotes" ));
+            }
         }
     }
 
@@ -1121,7 +1157,7 @@ class CreditNotesController extends \BaseController {
             }
             $logo_path = CompanyConfiguration::get('UPLOAD_PATH') . '/logo/' . $Account->CompanyId;
             @mkdir($logo_path, 0777, true);
-            //RemoteSSH::run("chmod -R 777 " . $logo_path);
+            RemoteSSH::run("chmod -R 777 " . $logo_path);
             $logo = $logo_path  . '/'  . basename($as3url);
             file_put_contents($logo, file_get_contents($as3url));
             chmod($logo,0777);
@@ -1147,7 +1183,7 @@ class CreditNotesController extends \BaseController {
             }
             $print_type = 'CreditNotes';
             $body = View::make('creditnotes.pdf', compact('CreditNotes', 'CreditNotesDetail', 'Account', 'InvoiceTemplate', 'usage_data', 'CurrencyCode', 'logo','print_type'))->render();
-            $destination_dir = CompanyConfiguration::get('UPLOAD_PATH') . '/'. AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId) ;
+            $destination_dir = CompanyConfiguration::get('UPLOAD_PATH') . '/'. AmazonS3::generate_path(AmazonS3::$dir['CREDITNOTES_UPLOAD'],$Account->CompanyId) ;
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);
             }
@@ -1779,169 +1815,7 @@ class CreditNotesController extends \BaseController {
         }
         exit;
     }
-    public function creditnotes_payment($id,$type)
-    {
-        $request = Input::all();
-        Payment::multiLang_init();
-        $stripeachprofiles=array();
-        $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($type);
-        $account_inv = explode('-', $id);
-        if (isset($account_inv[0]) && intval($account_inv[0]) > 0 && (isset($account_inv[1]) && intval($account_inv[1]) > 0 || isset($request["Amount"]) && intval($request["Amount"]) > 0)) {
-            $AccountID = intval($account_inv[0]);
-            if(!isset($request["Amount"])){
-                $CreditNotesID = intval($account_inv[1]);
-                $CreditNotes = CreditNotes::where(["CreditNotesID" => $CreditNotesID, "AccountID" => $AccountID])->first();
-            }
 
-            $Account = Account::where(['AccountID'=>$AccountID])->first();
-
-            /* stripe ach gateway */
-            if(!empty($type) && $PaymentGatewayID==PaymentGateway::StripeACH){
-                $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($type);
-
-                $data = AccountPaymentProfile::where(["tblAccountPaymentProfile.CompanyID"=>$Account->CompanyId])
-                    ->where(["tblAccountPaymentProfile.AccountID"=>$AccountID])
-                    ->where(["tblAccountPaymentProfile.PaymentGatewayID"=>$PaymentGatewayID])
-                    ->where(["tblAccountPaymentProfile.Status"=>1])
-                    ->get();
-                if(!empty($data) && count($data)){
-                    foreach($data as $profile){
-                        $Options = json_decode($profile->Options);
-                        if(!empty($Options->VerifyStatus) && $Options->VerifyStatus=='verified'){
-                            $stripedata=array();
-                            $stripedata['AccountPaymentProfileID'] = $profile->AccountPaymentProfileID;
-                            $stripedata['Title'] = $profile->Title;
-                            $stripedata['PaymentMethod'] = $type;
-                            $stripedata['isDefault'] = $profile->isDefault;
-                            $stripedata['created_at'] = $profile->created_at;
-                            $CustomerProfileID = $Options->CustomerProfileID;
-                            $verifystatus = $Options->VerifyStatus;
-                            $BankAccountID = $Options->BankAccountID;
-                            $stripedata['CustomerProfileID'] = $CustomerProfileID;
-                            $stripedata['BankAccountID'] = $BankAccountID;
-                            $stripedata['verifystatus'] = $verifystatus;
-                            $stripeachprofiles[]=$stripedata;
-                        }
-                    }
-                }
-            }
-            /* stripe ach gateway end */
-
-            if(isset($CreditNotes) && count($CreditNotes) > 0){
-                $CurrencyCode = Currency::getCurrency($CreditNotes->CurrencyID);
-                $CurrencySymbol =  Currency::getCurrencySymbol($CreditNotes->CurrencyID);
-                return View::make('creditnotes.creditnotes_payment', compact('CreditNotes','CurrencySymbol','Account','CurrencyCode','type','PaymentGatewayID','stripeachprofiles', 'request'));
-            }else if (isset($request["Amount"])){
-                $CurrencyCode = Currency::getCurrency($Account->CurrencyID);
-                $CurrencySymbol =  Currency::getCurrencySymbol($Account->CurrencyId);
-                $request["CreditNotesID"] = (int)CreditNotes::where(array('FullCreditNotesNumber'=>$request['CreditNotesNo'],'AccountID'=>$Account->AccountID))->pluck('CreditNotesID');
-                return View::make('creditnotes.creditnotes_payment', compact('CurrencySymbol','Account','CurrencyCode','type','PaymentGatewayID','stripeachprofiles', 'request'));
-            }
-        }
-    }
-
-    public function pay_creditnotes(){
-        $data = Input::all();
-        $CreditNotesID = $data['CreditNotesID'];
-        $AccountID = $data['AccountID'];
-        $rules = array(
-            'CardNumber' => 'required|digits_between:13,19',
-            'ExpirationMonth' => 'required',
-            'ExpirationYear' => 'required',
-            'NameOnCard' => 'required',
-            'CVVNumber' => 'required',
-            //'Title' => 'required|unique:tblAutorizeCardDetail,NULL,CreditCardID,CompanyID,'.$CompanyID
-        );
-
-        $validator = Validator::make($data, $rules);
-        if ($validator->fails()) {
-            return json_validator_response($validator);
-        }
-        if (date("Y") == $data['ExpirationYear'] && date("m") > $data['ExpirationMonth']) {
-            return Response::json(array("status" => "failed", "message" => "Month must be after " . date("F")));
-        }
-        $card = CreditCard::validCreditCard($data['CardNumber']);
-        if ($card['valid'] == 0) {
-            return Response::json(array("status" => "failed", "message" => "Please enter valid card number"));
-        }
-        $CreditNotes = CreditNotes::where('CreditNotesStatus','!=',CreditNotes::PAID)->where(["CreditNotesID" => $CreditNotesID, "AccountID" => $AccountID])->first();
-        $account = Account::where(['AccountID'=>$AccountID])->first();
-
-        $payment_log = Payment::getPaymentByCreditNotes($CreditNotes->CreditNotesID);
-
-        if(!empty($CreditNotes)) {
-            //$data['GrandTotal'] = $CreditNotes->GrandTotal;
-            $CreditNotes = CreditNotes::find($CreditNotes->CreditNotesID);
-            $data['GrandTotal'] = $payment_log['final_payment'];
-            $data['CreditNotesNumber'] = $CreditNotes->FullCreditNotesNumber;
-            $authorize = new AuthorizeNet();
-            $response = $authorize->pay_creditnotes($data);
-            $Notes = '';
-            if($response->response_code == 1) {
-                $Notes = 'AuthorizeNet transaction_id ' . $response->transaction_id;
-            }else{
-                $Notes = isset($response->response->xml->messages->message->text) && $response->response->xml->messages->message->text != '' ? $response->response->xml->messages->message->text : $response->response_reason_text ;
-            }
-            if ($response->approved) {
-                $paymentdata = array();
-                $paymentdata['CompanyID'] = $CreditNotes->CompanyID;
-                $paymentdata['AccountID'] = $CreditNotes->AccountID;
-                $paymentdata['CreditNotesNo'] = $CreditNotes->FullCreditNotesNumber;
-                $paymentdata['CreditNotesID'] = (int)$CreditNotes->CreditNotesID;
-                $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
-                $paymentdata['PaymentMethod'] = $response->method;
-                $paymentdata['CurrencyID'] = $account->CurrencyId;
-                $paymentdata['PaymentType'] = 'Payment In';
-                $paymentdata['Notes'] = $Notes;
-                $paymentdata['Amount'] = floatval($response->amount);
-                $paymentdata['Status'] = 'Approved';
-                $paymentdata['CreatedBy'] = 'customer';
-                $paymentdata['ModifyBy'] = 'customer';
-                $paymentdata['created_at'] = date('Y-m-d H:i:s');
-                $paymentdata['updated_at'] = date('Y-m-d H:i:s');
-                Payment::insert($paymentdata);
-                $transactiondata = array();
-                $transactiondata['CompanyID'] = $account->CompanyId;
-                $transactiondata['AccountID'] = $AccountID;
-                $transactiondata['CreditNotesID'] = $CreditNotes->CreditNotesID;
-                $transactiondata['Transaction'] = $response->transaction_id;
-                $transactiondata['Notes'] = $Notes;
-                $transactiondata['Amount'] = floatval($response->amount);
-                $transactiondata['Status'] = TransactionLog::SUCCESS;
-                $transactiondata['created_at'] = date('Y-m-d H:i:s');
-                $transactiondata['updated_at'] = date('Y-m-d H:i:s');
-                $transactiondata['CreatedBy'] = 'customer';
-                $transactiondata['ModifyBy'] = 'customer';
-                $transactiondata['Response'] = json_encode($response);
-                TransactionLog::insert($transactiondata);
-                $CreditNotes->update(array('CreditNotesStatus' => CreditNotes::PAID));
-
-                $paymentdata['EmailTemplate'] 		= 	EmailTemplate::getSystemEmailTemplate($CreditNotes->CompanyId, Estimate::CreditNotesPaidNotificationTemplate, $account->LanguageID);
-                $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);
-                $paymentdata['CreditNotes'] = $CreditNotes;
-                Notification::sendEmailNotification(Notification::CreditNotesPaidByCustomer,$paymentdata);
-                return Response::json(array("status" => "success", "message" => "CreditNotes paid successfully"));
-            }else{
-                $transactiondata = array();
-                $transactiondata['CompanyID'] = $CreditNotes->CompanyID;
-                $transactiondata['AccountID'] = $AccountID;
-                $transactiondata['CreditNotesID'] = $CreditNotes->CreditNotesID;
-                $transactiondata['Transaction'] = $response->transaction_id;
-                $transactiondata['Notes'] = $Notes;
-                $transactiondata['Amount'] = floatval(0);
-                $transactiondata['Status'] = TransactionLog::FAILED;
-                $transactiondata['created_at'] = date('Y-m-d H:i:s');
-                $transactiondata['updated_at'] = date('Y-m-d H:i:s');
-                $transactiondata['CreatedBy'] = 'customer';
-                $transactiondata['ModifyBy'] = 'customer';
-                $transactiondata['Response'] = json_encode($response);
-                TransactionLog::insert($transactiondata);
-                return Response::json(array("status" => "failed", "message" => $response->response_reason_text));
-            }
-        }else{
-            return Response::json(array("status" => "failed", "message" => "CreditNotes not found"));
-        }
-    }
     public function creditnotes_thanks($id)
     {
         $account_inv = explode('-', $id);
@@ -2028,878 +1902,6 @@ class CreditNotesController extends \BaseController {
         return $creditnotesid;
     }
 
-    public function sageExport(){
-        $data = Input::all();
-        // Account Manager Condition
-        $userID = 0;
-        if(User::is('AccountManager')) { // Account Manager
-            $userID = User::get_userID();
-        }
-        $companyID = User::get_companyID();
-        if(!empty($data['CreditNotesIDs'])){
-            $query = "call prc_getCreditNotes (".$companyID.",0,'','0000-00-00 00:00:00','0000-00-00 00:00:00',0,'',0,1 ,".count($data['CreditNotesIDs']).",'','',''";
-            if(isset($data['MarkPaid']) && $data['MarkPaid'] == 1){
-                $query = $query.',0,2,0';
-            }else{
-                $query = $query.',0,1,0';
-            }
-            if(!empty($data['CreditNotesIDs'])){
-                $query = $query.",'".$data['CreditNotesIDs']."',".$userID.")";
-            }
-            else
-                $query .= ")";
-            $excel_data  = DB::connection('sqlsrv2')->select($query);
-            $excel_data = json_decode(json_encode($excel_data),true);
-
-            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/CreditNotesSageExport.csv';
-            $NeonExcel = new NeonExcelIO($file_path);
-            $NeonExcel->download_csv($excel_data);
-
-            /*Excel::create('CreditNotesSageExport', function ($excel) use ($excel_data) {
-                $excel->sheet('CreditNotesSageExport', function ($sheet) use ($excel_data) {
-                    $sheet->fromArray($excel_data);
-                });
-
-            })->download('csv');*/
-
-        }else{
-
-            $criteria = json_decode($data['criteria'],true);
-            $criteria['CreditNotesType'] = $criteria['CreditNotesType'] == 'All'?'':$criteria['CreditNotesType'];
-            $criteria['zerovaluecreditnotes'] = $criteria['zerovaluecreditnotes']== 'true'?1:0;
-            $criteria['IssueDateStart'] 	 =  empty($criteria['IssueDateStart'])?'0000-00-00 00:00:00':$criteria['IssueDateStart'];
-            $criteria['IssueDateEnd']        =  empty($criteria['IssueDateEnd'])?'0000-00-00 00:00:00':$criteria['IssueDateEnd'];
-            $criteria['CreditNotesStatus'] = is_array($criteria['CreditNotesStatus'])?implode(',',$criteria['CreditNotesStatus']):$criteria['CreditNotesStatus'];
-            $criteria['Overdue'] = $criteria['Overdue']== 'true'?1:0;
-            $query = "call prc_getCreditNotes (".$companyID.",'".intval($criteria['AccountID'])."','".$criteria['CreditNotesNumber']."','".$criteria['IssueDateStart']."','".$criteria['IssueDateEnd']."','".$criteria['CreditNotesType']."','".$criteria['CreditNotesStatus']."',".$criteria['Overdue'].",'' ,'','','',' ".$criteria['CurrencyID']." '";
-            if(isset($data['MarkPaid']) && $data['MarkPaid'] == 1){
-                $query = $query.',0,2';
-            }else{
-                $query = $query.',0,1';
-            }
-            if(!empty($criteria['zerovaluecreditnotes'])){
-                $query = $query.',1';
-            }else{
-                $query = $query.',0';
-            }
-            $query .= ",'',".$userID.")";
-            $excel_data  = DB::connection('sqlsrv2')->select($query);
-            $excel_data = json_decode(json_encode($excel_data),true);
-
-            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/CreditNotesSageExport.csv';
-            $NeonExcel = new NeonExcelIO($file_path);
-            $NeonExcel->download_csv($excel_data);
-            /*Excel::create('CreditNotesSageExport', function ($excel) use ($excel_data) {
-                $excel->sheet('CreditNotesSageExport', function ($sheet) use ($excel_data) {
-                    $sheet->fromArray($excel_data);
-                });
-            })->download('csv');*/
-
-        }
-
-    }
-
-    public function getCreditNotesDetail(){
-        $data = Input::all();
-        $result = array();
-        $CompanyID = User::get_companyID();
-
-        /*if(!isset($data["CreditNotesID"]) && isset($data["CreditNotesNumber"]) ){
-            $CompanyID = User::get_companyID();
-            $CreditNotes = CreditNotes::where(["CompanyID"=>$CompanyID, "CreditNotesNumber" => trim($data['CreditNotesNumber'])])->select(["CreditNotesID","GrandTotal"])->first();
-
-            $data["CreditNotesID"] = $CreditNotes->CreditNotesID;
-
-            $result["GrandTotal"] = $CreditNotes->GrandTotal;
-
-        }*/
-        $CreditNotesNumber = CreditNotes::where(["CreditNotesID" => $data['CreditNotesID']])->pluck("CreditNotesNumber");
-
-        $CreditNotesDetail = CreditNotesDetail::where(["CreditNotesID" => $data['CreditNotesID']])->select(["CreditNotesDetailID","StartDate", "EndDate","Description", "TotalMinutes"])->first();
-
-        $result["CreditNotesID"] = $data["CreditNotesID"];
-        $result['CreditNotesDetailID'] = $CreditNotesDetail->CreditNotesDetailID;
-
-        $StartTime =  explode(' ',$CreditNotesDetail->StartDate);
-        $EndTime =  explode(' ',$CreditNotesDetail->EndDate);
-
-        $result['StartDate'] = $StartTime[0];
-        $result['EndDate'] = $EndTime[0];
-        $result['Description'] = $CreditNotesDetail->Description;
-        $result['StartTime'] = $StartTime[1];
-        $result['EndTime'] = $EndTime[1];
-        $result['TotalMinutes'] = $CreditNotesDetail->TotalMinutes;
-
-        //$Dispute = Dispute::where(["CreditNotesID"=>$data['CreditNotesID'],"Status"=>Dispute::PENDING])->select(["DisputeID","CreditNotesID","DisputeTotal", "DisputeDifference", "DisputeDifferencePer", "DisputeMinutes","MinutesDifference", "MinutesDifferencePer"])->first();
-        $Dispute = Dispute::where(["CompanyID"=>$CompanyID,  "CreditNotesNo"=>$CreditNotesNumber])->select(["DisputeID","DisputeAmount"])->first();
-
-        if(isset($Dispute->DisputeID)){
-
-            $result["DisputeID"] = $Dispute->DisputeID;
-            $result["DisputeAmount"] = $Dispute->DisputeAmount;
-
-            /*$result["DisputeTotal"] = $Dispute->DisputeTotal;
-            $result["DisputeDifference"] = $Dispute->DisputeDifference;
-            $result["DisputeDifferencePer"] = $Dispute->DisputeDifferencePer;
-            $result["DisputeMinutes"] = $Dispute->DisputeMinutes;
-            $result["MinutesDifference"] = $Dispute->MinutesDifference;
-            $result["MinutesDifferencePer"] = $Dispute->MinutesDifferencePer;*/
-        }
-        return Response::json($result);
-
-    }
-
-    public function creditnotes_in_reconcile()
-    {
-        $data = Input::all();
-        $companyID =  User::get_companyID();
-
-        $rules = array(
-            'AccountID' => 'required',
-            'StartDate' => 'required',
-            'EndDate' => 'required',
-            'GrandTotal'=>'required|numeric',
-            //  'TotalMinutes'=>'required|numeric',
-        );
-
-        $verifier = App::make('validation.presence');
-        $verifier->setConnection('sqlsrvcdr');
-
-
-        $validator = Validator::make($data, $rules);
-
-        $validator->setPresenceVerifier($verifier);
-        if ($validator->fails()) {
-            return json_validator_response($validator);
-        }
-        if($data['StartDate'] > $data['EndDate']){
-            return Response::json(array("status" => "failed", "message" => "Dates are invalid"));
-        }
-
-        $accountID = $data['AccountID'];
-        $StartDate = $data['StartDate'].' '.$data['StartTime'];
-        $EndDate = $data['EndDate'].' '.$data['EndTime'];
-
-        $output = Dispute::reconcile($companyID,$accountID,$StartDate,$EndDate,$data["GrandTotal"],$data["TotalMinutes"]);
-        $message = '';
-        if(isset($data["DisputeID"]) && $data["DisputeID"] > 0 ) {
-            $data['CompanyID'] = $companyID;
-            $data['CreditNotesType'] = CreditNotes::RECEIVED;
-            $status = Dispute::sendDisputeEmailCustomer($data);
-            $message = $status['message'];
-            $output["DisputeID"]  = $data["DisputeID"];
-        }
-
-        return Response::json( array_merge($output, array("status" => "success", "message" => $message  )));
-    }
-
-    /** Paypal ipn url which will be triggered from paypal with payment status and response
-     * @param $id
-     * @return mixed
-     */
-    public function paypal_ipn($id)
-    {
-
-        //@TODO: need to merge all payment gateway payment insert entry.
-
-
-        $account_inv = explode('-', $id);
-        if (isset($account_inv[0]) && intval($account_inv[0]) > 0 && isset($account_inv[1]) && intval($account_inv[1]) >= 0) {
-            $AccountID = intval($account_inv[0]);
-            $CreditNotesID = intval($account_inv[1]);
-
-            if($CreditNotesID!=0){
-                $CreditNotes = CreditNotes::find($CreditNotesID);
-                $CompanyID = $CreditNotes->CompanyID;
-            }else{
-                if(isset($account_inv[2])){
-                    $CreditNotes = CreditNotes::where(array('FullCreditNotesNumber'=>$account_inv[2],'AccountID'=>$AccountID))->first();
-                    if(!empty($CreditNotes) && count($CreditNotes)){
-                        $CompanyID = $CreditNotes->CompanyID;
-                        $CreditNotesID = $CreditNotes->CreditNotesID;
-                    }
-                }
-            }
-            if(!isset($CompanyID)){
-                $account = Account::find($AccountID);
-                $CompanyID = $account->CompanyId;
-            }
-
-            $paypal = new PaypalIpn($CompanyID);
-
-            $data["Notes"]                  = $paypal->get_note();
-            $data["Success"]                = $paypal->success();
-            $data["PaymentMethod"]          = $paypal->method;
-            $data["Amount"]                 = $paypal->get_response_var('mc_gross');
-            $data["Transaction"]            = $paypal->get_response_var('txn_id');
-            $data["PaymentGatewayResponse"] = $paypal->get_full_response();
-
-            return $this->post_payment_process($AccountID,$CreditNotesID,$data);
-        }
-    }
-
-    /** Paypal ipn url which will be triggered from paypal with payment status and response
-     * @param $id
-     * @return mixed
-     */
-    public function sagepay_ipn()
-    {
-
-        //@TODO: need to merge all payment gateway payment insert entry.
-        $CompanyID = 0; // need to change if possible
-
-        //https://sagepay.co.za/integration/sage-pay-integration-documents/pay-now-gateway-technical-guide/
-        $SagePay = new SagePay($CompanyID);
-        $AccountnCreditNotes = $SagePay->getAccountCreditNotesID();
-
-        if ($AccountnCreditNotes != null) { // Extra2 = m5 (hidden field of sagepay form).
-
-            $AccountID = intval($AccountnCreditNotes["AccountID"]);
-            $CreditNotesID = intval($AccountnCreditNotes["CreditNotesID"]);
-
-            $data["Notes"]                  = $SagePay->get_note();
-            $data["Success"]                = $SagePay->success();
-            $data["PaymentMethod"]          = $SagePay->method;
-            $data["Amount"]                 = $SagePay->get_response_var('Amount');
-            $data["Transaction"]            = $SagePay->get_response_var('RequestTrace');
-            $data["PaymentGatewayResponse"] = $SagePay->get_full_response();
-
-            return $this->post_payment_process($AccountID,$CreditNotesID,$data);
-        }
-    }
-
-    /**
-     * Once payment is done call post payment process
-     * to add payment and transaction entries.
-     */
-    public function post_payment_process($AccountID,$CreditNotesID,$data){
-
-        $CreditNotes = CreditNotes::where(["CreditNotesID" => $CreditNotesID, "AccountID" => $AccountID])->first();
-        $transactionResponse = array();
-
-        $transactionResponse['CreatedBy'] = 'Customer';
-        $transactionResponse['CreditNotesID'] = $CreditNotesID;
-        $transactionResponse['AccountID'] = $AccountID;
-        $transactionResponse['transaction_notes'] = $data["Notes"];
-        $transactionResponse['Response'] = $data["PaymentGatewayResponse"];
-        $transactionResponse['Transaction'] = $data["Transaction"];
-        $transactionResponse['PaymentMethod'] = $data["PaymentMethod"];
-
-        if (isset($data["Success"]) && (count($CreditNotes) > 0) || intval($CreditNotesID)==0 ) {
-
-            $PaymentCount = Payment::where('Notes',$data["Notes"])->count();//@TODO: need to check this
-            if($PaymentCount == 0) {
-                $transactionResponse['Amount'] = $data["Amount"];
-                Payment::paymentSuccess($transactionResponse);
-
-                return Response::json(array("status" => "success", "message" => "CreditNotes paid successfully"));
-            }else{
-                \Illuminate\Support\Facades\Log::info("CreditNotes Already paid successfully.");
-                return Response::json(array("status" => "success", "message" => "CreditNotes Already paid successfully"));
-            }
-        } else {
-//            $transactionResponse['Amount'] = floatval($CreditNotes->RemaingAmount);
-            Payment::paymentFail($transactionResponse);
-            //$paypal->log();
-            return Response::json(array("status" => "failed", "message" => "Failed to payment."));
-        }
-
-    }
-
-    public function creditnotes_quickbookpost(){
-        $data = Input::all();
-        if(!empty($data['criteria'])){
-            $creditnotesid = $this->getCreditNotessIdByCriteria($data);
-            $creditnotesid = rtrim($creditnotesid,',');
-            $data['CreditNotesIDs'] = $creditnotesid;
-            unset($data['criteria']);
-        }
-        else{
-            unset($data['criteria']);
-        }
-        //$data['type'] = 'journal';
-        if($data['type'] == 'journal'){
-            $msgtype = 'Journal';
-        }
-        else{
-            $msgtype = 'CreditNotes';
-        }
-        $CompanyID = User::get_companyID();
-        $CreditNotesIDs =array_filter(explode(',',$data['CreditNotesIDs']),'intval');
-        if (is_array($CreditNotesIDs) && count($CreditNotesIDs)) {
-            $jobType = JobType::where(["Code" => 'QIP'])->first(["JobTypeID", "Title"]);
-            $jobStatus = JobStatus::where(["Code" => "P"])->first(["JobStatusID"]);
-            $jobdata["CompanyID"] = $CompanyID;
-            $jobdata["JobTypeID"] = $jobType->JobTypeID ;
-            $jobdata["JobStatusID"] =  $jobStatus->JobStatusID;
-            $jobdata["JobLoggedUserID"] = User::get_userID();
-            $jobdata["Title"] =  $jobType->Title;
-            $jobdata["Description"] = $jobType->Title ;
-            $jobdata["CreatedBy"] = User::get_user_full_name();
-            $jobdata["Options"] = json_encode($data);
-            $jobdata["created_at"] = date('Y-m-d H:i:s');
-            $jobdata["updated_at"] = date('Y-m-d H:i:s');
-            $JobID = Job::insertGetId($jobdata);
-            if($JobID){
-                return json_encode(["status" => "success", "message" => $msgtype." Post in quickbook Job Added in queue to process.You will be notified once job is completed."]);
-            }else{
-                return json_encode(array("status" => "failed", "message" => "Problem Creating ".$msgtype." Post in Quickbook ."));
-            }
-        }
-
-    }
-    public function creditnotes_quickbookexport(){
-        $data = Input::all();
-        $CreditNotesIDs = $data['CreditNotesIDs'];
-        //$data['type'] = 'journal';
-        $CompanyID = User::get_companyID();
-        //$CreditNotesIDs =array_filter(explode(',',$data['CreditNotesIDs']),'intval');
-
-        Log::useFiles(storage_path() . '/logs/quickbook_creditnotesexport-' . $CompanyID . '-' . date('Y-m-d') . '.log');
-
-        try {
-            if (isset($CreditNotesIDs)) {
-
-                $CreditNotesIDs = explode(',',$CreditNotesIDs);
-                $CreditNotesAccounts = array();
-                $CreditNotesItems = array();
-                if(count($CreditNotesIDs) > 0){
-                    foreach ($CreditNotesIDs as $CreditNotesID) {
-                        $CreditNotes = CreditNotes::find($CreditNotesID);
-                        $AccountID = $CreditNotes->AccountID;
-                        $CreditNotesAccounts['AccountID'][] = $AccountID;
-                    }
-                }
-
-                $creditnotesOptions = array();
-                $creditnotesOptions['CompanyID'] = $CompanyID;
-                $creditnotesOptions['CreditNotess'] = $CreditNotesIDs;
-
-                $CreditNotesObject = new CreditNotes();
-                $CreditNotesObject->ExportCreditNotess($creditnotesOptions);
-            }
-        }
-        catch (\Exception $e) {
-
-            Log::info(' ========================== Exception occured =============================');
-            Log::error($e);
-            echo "<pre>";print_r($e);
-            Log::info(' ========================== Exception updated in job and email sent =============================');
-
-        }
-    }
-
-    public function journal_quickbookdexport(){
-        $data = Input::all();
-        $CreditNotesIDs = $data['CreditNotesIDs'];
-        //$data['type'] = 'journal';
-        $CompanyID = User::get_companyID();
-        //$CreditNotesIDs =array_filter(explode(',',$data['CreditNotesIDs']),'intval');
-
-        Log::useFiles(storage_path() . '/logs/qbdesktop_journalexport-' . $CompanyID . '-' . date('Y-m-d') . '.log');
-
-        try {
-            if (isset($CreditNotesIDs)) {
-
-                $CreditNotesIDs = explode(',',$CreditNotesIDs);
-
-                $creditnotesOptions = array();
-                $creditnotesOptions['CompanyID'] = $CompanyID;
-                $creditnotesOptions['CreditNotess'] = $CreditNotesIDs;
-
-                $CreditNotesObject = new CreditNotes();
-                $CreditNotess = $CreditNotesObject->ExportJournals($creditnotesOptions);
-                if($CreditNotess['status'] == 'success')
-                {
-                    return Response::json(array("status" => "success", "message" => $CreditNotess['msg'],"redirect" => $CreditNotess['redirect']));
-                }
-                else{
-                    return Response::json(array("status" => "failed", "message" => $CreditNotess['msg']));
-                }
-            }
-        }
-        catch (\Exception $e) {
-
-            Log::info(' ========================== Exception occured =============================');
-            Log::error($e);
-            Log::info(' ========================== Exception updated in Journal Export =============================');
-            return Response::json(array("status" => "failed", "message" => $e));
-
-        }
-    }
-
-    public function journal_quickbookdexport_download(){
-        $file = $_REQUEST['file'];
-        if (file_exists($file)) {
-            header('Content-Description: File Transfer');
-            header('Content-Type: application/octet-stream');
-            header('Content-Disposition: attachment; filename='.basename($file));
-            header('Content-Transfer-Encoding: binary');
-            header('Expires: 0');
-            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-            header('Pragma: public');
-            header('Content-Length: ' . filesize($file));
-            ob_clean();
-            flush();
-            readfile($file);
-            exit;
-        }
-    }
-
-    public function paypal_cancel($id){
-
-        echo "<center>Opps. Payment Canceled, Please try again.</center>";
-
-    }
-
-    public function stripe_payment(){
-        $data = Input::all();
-        $CreditNotesID = $data['CreditNotesID'];
-        $AccountID = $data['AccountID'];
-        $rules = array(
-            'CardNumber' => 'required|digits_between:13,19',
-            'ExpirationMonth' => 'required',
-            'ExpirationYear' => 'required',
-            'NameOnCard' => 'required',
-            'CVVNumber' => 'required | numeric | digits_between:3,4',
-            //'Title' => 'required|unique:tblAutorizeCardDetail,NULL,CreditCardID,CompanyID,'.$CompanyID
-        );
-
-        $validator = Validator::make($data, $rules);
-        if ($validator->fails()) {
-            return json_validator_response($validator);
-        }
-        if (date("Y") == $data['ExpirationYear'] && date("m") > $data['ExpirationMonth']) {
-            return Response::json(array("status" => "failed", "message" => "Month must be after " . date("F")));
-        }
-        $card = CreditCard::validCreditCard($data['CardNumber']);
-        if ($card['valid'] == 0) {
-            return Response::json(array("status" => "failed", "message" => "Please enter valid card number"));
-        }
-
-        $CreditNotes = CreditNotes::where('CreditNotesStatus','!=',CreditNotes::PAID)->where(["CreditNotesID" => $CreditNotesID, "AccountID" => $AccountID])->first();
-        $data['CurrencyCode'] = Currency::getCurrency($CreditNotes->CurrencyID);
-        if(empty($data['CurrencyCode'])){
-            return Response::json(array("status" => "failed", "message" => "No creditnotes currency available"));
-        }
-
-        if(!empty($CreditNotes)) {
-
-            $CreditNotes = CreditNotes::find($CreditNotes->CreditNotesID);
-
-            $payment_log = Payment::getPaymentByCreditNotes($CreditNotes->CreditNotesID);
-
-            $data['Total'] = $payment_log['final_payment'];
-            $data['FullCreditNotesNumber'] = $CreditNotes->FullCreditNotesNumber;
-
-            $stripedata = array();
-            $stripedata['number'] = $data['CardNumber'];
-            $stripedata['exp_month'] = $data['ExpirationMonth'];
-            $stripedata['cvc'] = $data['CVVNumber'];
-            $stripedata['exp_year'] = $data['ExpirationYear'];
-            $stripedata['name'] = $data['NameOnCard'];
-
-            $stripedata['amount'] = $data['Total'];
-            $stripedata['currency'] = strtolower($data['CurrencyCode']);
-            $stripedata['description'] = $data['FullCreditNotesNumber'].' (CreditNotes) Payment';
-
-            $stripepayment = new StripeBilling($CreditNotes->CompanyID);
-
-            if(empty($stripepayment->status)){
-                return Response::json(array("status" => "failed", "message" => "Stripe Payment not setup correctly"));
-            }
-            $StripeResponse = array();
-
-            $StripeResponse = $stripepayment->create_charge($stripedata);
-
-            if ($StripeResponse['status'] == 'Success') {
-
-                // Add Payment
-                $paymentdata = array();
-                $paymentdata['CompanyID'] = $CreditNotes->CompanyID;
-                $paymentdata['AccountID'] = $AccountID;
-                $paymentdata['CreditNotesNo'] = $CreditNotes->FullCreditNotesNumber;
-                $paymentdata['CreditNotesID'] = (int)$CreditNotes->CreditNotesID;
-                $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
-                $paymentdata['PaymentMethod'] = 'Stripe';
-                $paymentdata['CurrencyID'] = $CreditNotes->CurrencyID;
-                $paymentdata['PaymentType'] = 'Payment In';
-                $paymentdata['Notes'] = $StripeResponse['note'];
-                $paymentdata['Amount'] = $StripeResponse['amount'];
-                $paymentdata['Status'] = 'Approved';
-                $paymentdata['CreatedBy'] = 'Customer';
-                $paymentdata['ModifyBy'] = 'Customer';
-                $paymentdata['created_at'] = date('Y-m-d H:i:s');
-                $paymentdata['updated_at'] = date('Y-m-d H:i:s');
-                Payment::insert($paymentdata);
-
-                \Illuminate\Support\Facades\Log::info("Payment done.");
-                \Illuminate\Support\Facades\Log::info($paymentdata);
-
-                // Add transaction
-                $transactiondata = array();
-                $transactiondata['CompanyID'] = $CreditNotes->CompanyID;
-                $transactiondata['AccountID'] = $AccountID;
-                $transactiondata['CreditNotesID'] = (int)$CreditNotes->CreditNotesID;
-                $transactiondata['Transaction'] = $StripeResponse['id'];
-                $transactiondata['Notes'] = $StripeResponse['note'];
-                $transactiondata['Amount'] = $StripeResponse['amount'];
-                $transactiondata['Status'] = TransactionLog::SUCCESS;
-                $transactiondata['created_at'] = date('Y-m-d H:i:s');
-                $transactiondata['updated_at'] = date('Y-m-d H:i:s');
-                $transactiondata['CreatedBy'] = 'Customer';
-                $transactiondata['ModifyBy'] = 'Customer';
-                $transactiondata['Response'] = json_encode($StripeResponse['response']);
-
-                TransactionLog::insert($transactiondata);
-
-
-                $account = Account::find($AccountID);
-
-                $CreditNotes->update(array('CreditNotesStatus' => CreditNotes::PAID));
-                $paymentdata['EmailTemplate'] 		= 	EmailTemplate::getSystemEmailTemplate($CreditNotes->CompanyId, Estimate::CreditNotesPaidNotificationTemplate, $account->LanguageID);
-                $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);
-                $paymentdata['CreditNotes'] = $CreditNotes;
-                Notification::sendEmailNotification(Notification::CreditNotesPaidByCustomer,$paymentdata);
-                \Illuminate\Support\Facades\Log::info("Transaction done.");
-                \Illuminate\Support\Facades\Log::info($transactiondata);
-
-                return Response::json(array("status" => "success", "message" => "CreditNotes paid successfully"));
-
-            } else {
-
-                $transactiondata = array();
-                $transactiondata['CompanyID'] = $CreditNotes->CompanyID;
-                $transactiondata['AccountID'] = $AccountID;
-                $transactiondata['CreditNotesID'] = $CreditNotes->CreditNotesID;
-                $transactiondata['Transaction'] = '';
-                $transactiondata['Notes'] = $StripeResponse['error'];
-                $transactiondata['Amount'] = floatval(0);
-                $transactiondata['Status'] = TransactionLog::FAILED;
-                $transactiondata['created_at'] = date('Y-m-d H:i:s');
-                $transactiondata['updated_at'] = date('Y-m-d H:i:s');
-                $transactiondata['CreatedBy'] = 'customer';
-                $transactiondata['ModifyBy'] = 'customer';
-                $transactiondata['ModifyBy'] = 'customer';
-                TransactionLog::insert($transactiondata);
-
-                return Response::json(array("status" => "failed", "message" => $StripeResponse['error']));
-            }
-
-        }else{
-            return Response::json(array("status" => "failed", "message" => "CreditNotes not found"));
-        }
-    }
-
-
-    public function stripeach_payment(){
-        $data = Input::all();
-
-        $CreditNotesID = $data['CreditNotesID'];
-        $AccountID = $data['AccountID'];
-
-        $CreditNotes = CreditNotes::where('CreditNotesStatus','!=',CreditNotes::PAID)->where(["CreditNotesID" => $CreditNotesID, "AccountID" => $AccountID])->first();
-        $data['CurrencyCode'] = Currency::getCurrency($CreditNotes->CurrencyID);
-        if(empty($data['CurrencyCode'])){
-            return Response::json(array("status" => "failed", "message" => "No creditnotes currency available"));
-        }
-
-        if(!empty($CreditNotes)) {
-
-            $CreditNotes = CreditNotes::find($CreditNotes->CreditNotesID);
-
-            $payment_log = Payment::getPaymentByCreditNotes($CreditNotes->CreditNotesID);
-
-            $data['Total'] = $payment_log['final_payment'];
-            $data['FullCreditNotesNumber'] = $CreditNotes->FullCreditNotesNumber;
-
-            $stripedata = array();
-
-            $stripedata['amount'] = $data['Total'];
-            $stripedata['currency'] = strtolower($data['CurrencyCode']);
-            $stripedata['description'] = $data['FullCreditNotesNumber'].' (CreditNotes) Payment';
-            $stripedata['customerid'] = $data['CustomerProfileID'];
-
-            $stripepayment = new StripeACH();
-
-            if(empty($stripepayment->status)){
-                return Response::json(array("status" => "failed", "message" => "Stripe ACH Payment not setup correctly"));
-            }
-            $StripeResponse = array();
-
-            $StripeResponse = $stripepayment->createchargebycustomer($stripedata);
-
-            if ($StripeResponse['status'] == 'Success') {
-
-                // Add Payment
-                $paymentdata = array();
-                $paymentdata['CompanyID'] = $CreditNotes->CompanyID;
-                $paymentdata['AccountID'] = $AccountID;
-                $paymentdata['CreditNotesNo'] = $CreditNotes->FullCreditNotesNumber;
-                $paymentdata['CreditNotesID'] = (int)$CreditNotes->CreditNotesID;
-                $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
-                $paymentdata['PaymentMethod'] = 'StripeACH';
-                $paymentdata['CurrencyID'] = $CreditNotes->CurrencyID;
-                $paymentdata['PaymentType'] = 'Payment In';
-                $paymentdata['Notes'] = $StripeResponse['note'];
-                $paymentdata['Amount'] = $StripeResponse['amount'];
-                $paymentdata['Status'] = 'Approved';
-                $paymentdata['CreatedBy'] = 'Customer';
-                $paymentdata['ModifyBy'] = 'Customer';
-                $paymentdata['created_at'] = date('Y-m-d H:i:s');
-                $paymentdata['updated_at'] = date('Y-m-d H:i:s');
-                Payment::insert($paymentdata);
-
-                \Illuminate\Support\Facades\Log::info("Payment done.");
-                \Illuminate\Support\Facades\Log::info($paymentdata);
-
-                // Add transaction
-                $transactiondata = array();
-                $transactiondata['CompanyID'] = $CreditNotes->CompanyID;
-                $transactiondata['AccountID'] = $AccountID;
-                $transactiondata['CreditNotesID'] = (int)$CreditNotes->CreditNotesID;
-                $transactiondata['Transaction'] = $StripeResponse['id'];
-                $transactiondata['Notes'] = $StripeResponse['note'];
-                $transactiondata['Amount'] = $StripeResponse['amount'];
-                $transactiondata['Status'] = TransactionLog::SUCCESS;
-                $transactiondata['created_at'] = date('Y-m-d H:i:s');
-                $transactiondata['updated_at'] = date('Y-m-d H:i:s');
-                $transactiondata['CreatedBy'] = 'Customer';
-                $transactiondata['ModifyBy'] = 'Customer';
-                $transactiondata['Response'] = json_encode($StripeResponse['response']);
-
-                TransactionLog::insert($transactiondata);
-                $account = Account::find($AccountID);
-                $CreditNotes->update(array('CreditNotesStatus' => CreditNotes::PAID));
-                $paymentdata['EmailTemplate'] 		= 	EmailTemplate::getSystemEmailTemplate($CreditNotes->CompanyId, Estimate::CreditNotesPaidNotificationTemplate, $account->LanguageID);
-                $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);
-                $paymentdata['CreditNotes'] = $CreditNotes;
-                Notification::sendEmailNotification(Notification::CreditNotesPaidByCustomer,$paymentdata);
-                \Illuminate\Support\Facades\Log::info("Transaction done.");
-                \Illuminate\Support\Facades\Log::info($transactiondata);
-
-                return Response::json(array("status" => "success", "message" => "CreditNotes paid successfully"));
-
-            } else {
-
-                $transactiondata = array();
-                $transactiondata['CompanyID'] = $CreditNotes->CompanyID;
-                $transactiondata['AccountID'] = $AccountID;
-                $transactiondata['CreditNotesID'] = $CreditNotes->CreditNotesID;
-                $transactiondata['Transaction'] = '';
-                $transactiondata['Notes'] = $StripeResponse['error'];
-                $transactiondata['Amount'] = floatval(0);
-                $transactiondata['Status'] = TransactionLog::FAILED;
-                $transactiondata['created_at'] = date('Y-m-d H:i:s');
-                $transactiondata['updated_at'] = date('Y-m-d H:i:s');
-                $transactiondata['CreatedBy'] = 'customer';
-                $transactiondata['ModifyBy'] = 'customer';
-                $transactiondata['ModifyBy'] = 'customer';
-                TransactionLog::insert($transactiondata);
-
-                return Response::json(array("status" => "failed", "message" => $StripeResponse['error']));
-            }
-
-        }else{
-            return Response::json(array("status" => "failed", "message" => "CreditNotes not found"));
-        }
-    }
-
-
-    public function get_unbill_report($id){
-        $AccountBilling = AccountBilling::getBilling($id, 0);
-        $account = Account::find($id);
-        $lastCreditNotesPeriod = CreditNotes::join('tblCreditNotesDetail','tblCreditNotesDetail.CreditNotesID','=','tblCreditNotes.CreditNotesID')
-            ->where(array('AccountID'=>$account->AccountID,'CreditNotesType'=>CreditNotes::INVOICE_OUT,'ProductType'=>Product::USAGE))
-            ->orderBy('IssueDate','DESC')->limit(1)
-            ->first(['StartDate','EndDate']);
-        $CustomerLastCreditNotesDate = Account::getCustomerLastCreditNotesDate($AccountBilling,$account);
-        $VendorLastCreditNotesDate = Account::getVendorLastCreditNotesDate($AccountBilling,$account);
-        $CurrencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
-        $CustomerEndDate = '';
-        $today = date('Y-m-d');
-        $yesterday = date('Y-m-d', strtotime('-1 day'));
-        $CustomerNextBilling = $VendorNextBilling = array();
-        $StartDate = $CustomerLastCreditNotesDate;
-        if (!empty($AccountBilling) && $AccountBilling->BillingCycleType != 'manual') {
-            $EndDate = $CustomerEndDate = next_billing_date($AccountBilling->BillingCycleType, $AccountBilling->BillingCycleValue, strtotime($CustomerLastCreditNotesDate));
-            while ($EndDate < $today) {
-                $query = DB::connection('neon_report')->table('tblHeader')
-                    ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeader.DateID')
-                    ->where(array('AccountID' => $id))
-                    ->where('date', '>=', $StartDate)
-                    ->where('date', '<', $EndDate);
-                $TotalAmount = (double)$query->sum('TotalCharges');
-                $TotalMinutes = (double)$query->sum('TotalBilledDuration');
-                $CustomerNextBilling[] = array(
-                    'StartDate' => $StartDate,
-                    'EndDate' => $EndDate,
-                    'AccountID' => $id,
-                    'ServiceID' => 0,
-                    'TotalAmount' => $TotalAmount,
-                    'TotalMinutes' => $TotalMinutes,
-                );
-                $StartDate = $EndDate;
-                $EndDate = next_billing_date($AccountBilling->BillingCycleType, $AccountBilling->BillingCycleValue, strtotime($StartDate));
-            }
-        }
-        $EndDate = $today;
-        $query = DB::connection('neon_report')->table('tblHeader')
-            ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeader.DateID')
-            ->where(array('AccountID' => $id))
-            ->where('date', '>=', $StartDate)
-            ->where('date', '<=', $EndDate);
-        $TotalAmount = (double)$query->sum('TotalCharges');
-        $TotalMinutes = (double)$query->sum('TotalBilledDuration');
-        if ($TotalAmount > 0) {
-            $CustomerNextBilling[] = array(
-                'StartDate' => $StartDate,
-                'EndDate' => $EndDate,
-                'AccountID' => $id,
-                'ServiceID' => 0,
-                'TotalAmount' => $TotalAmount,
-                'TotalMinutes' => $TotalMinutes,
-            );
-        }
-        if(strpos($VendorLastCreditNotesDate, "23:59:59") !== false){
-            $VendorLastCreditNotesDate = date('Y-m-d',strtotime($VendorLastCreditNotesDate)+1);
-        }
-
-        $StartDate = $VendorLastCreditNotesDate;
-        if (!empty($AccountBilling) && $AccountBilling->BillingCycleType != 'manual') {
-            $EndDate = next_billing_date($AccountBilling->BillingCycleType, $AccountBilling->BillingCycleValue, strtotime($VendorLastCreditNotesDate));
-            while ($EndDate < $today) {
-                $query = DB::connection('neon_report')->table('tblHeaderV')
-                    ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeaderV.DateID')
-                    ->where(array('VAccountID' => $id))
-                    ->where('date', '>=', $StartDate)
-                    ->where('date', '<', $EndDate);
-                $TotalAmount = (double)$query->sum('TotalCharges');
-                $TotalMinutes = (double)$query->sum('TotalBilledDuration');
-                $VendorNextBilling[] = array(
-                    'StartDate' => $StartDate,
-                    'EndDate' => $EndDate,
-                    'AccountID' => $id,
-                    'ServiceID' => 0,
-                    'TotalAmount' => $TotalAmount,
-                    'TotalMinutes' => $TotalMinutes,
-                );
-                $StartDate = $EndDate;
-                $EndDate = next_billing_date($AccountBilling->BillingCycleType, $AccountBilling->BillingCycleValue, strtotime($StartDate));
-            }
-        }
-        $EndDate = $today;
-        $query = DB::connection('neon_report')->table('tblHeaderV')
-            ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeaderV.DateID')
-            ->where(array('VAccountID' => $id))
-            ->where('date', '>=', $StartDate)
-            ->where('date', '<=', $EndDate);
-        $TotalAmount = (double)$query->sum('TotalCharges');
-        $TotalMinutes = (double)$query->sum('TotalBilledDuration');
-        if ($TotalAmount > 0) {
-            $VendorNextBilling[] = array(
-                'StartDate' => $StartDate,
-                'EndDate' => $EndDate,
-                'AccountID' => $id,
-                'ServiceID' => 0,
-                'TotalAmount' => $TotalAmount,
-                'TotalMinutes' => $TotalMinutes,
-            );
-        }
-
-
-        return View::make('creditnotes.unbilled_table', compact('VendorNextBilling','CustomerNextBilling','CurrencySymbol','CustomerEndDate','CustomerLastCreditNotesDate','today','yesterday','lastCreditNotesPeriod'));
-
-    }
-
-    public function generate_manual_creditnotes(){
-        $data = Input::all();
-        $CompanyID = User::get_companyID();
-        $UserID = User::get_userID();
-        $AccountID = $data['AccountID'];
-        $AccountBilling = AccountBilling::getBilling($AccountID, 0);
-        if ($AccountID > 0 && $AccountBilling->BillingCycleType == 'manual') {
-            $rules = array(
-                'PeriodFrom' => 'required',
-                'PeriodTo' => 'required',
-            );
-            $validator = Validator::make($data, $rules);
-            if ($validator->fails()) {
-                return json_validator_response($validator);
-            }
-            if($data['PeriodFrom'] > $data['PeriodTo']){
-                return Response::json(array("status" => "failed", "message" => "Dates are invalid"));
-            }
-            $AlreadyBilled = CreditNotes::checkIfAccountUsageAlreadyBilled($CompanyID, $AccountID, $data['PeriodFrom'], $data['PeriodTo'], 0);
-            if ($AlreadyBilled) {
-                return Response::json(array("status" => "failed", "message" => "Account already billed for this period.Select different period"));
-            } else {
-                $CronJobCommandID = CronJobCommand::where(array('Command'=>'creditnotesgenerator','CompanyID'=>$CompanyID))->pluck('CronJobCommandID');
-                $CronJobID = CronJob::where(array('CronJobCommandID'=>(int)$CronJobCommandID,'CompanyID'=>$CompanyID))->pluck('CronJobID');
-                if($CronJobID > 0) {
-
-                    $jobType = JobType::where(["Code" => 'BI'])->get(["JobTypeID", "Title"]);
-                    $jobStatus = JobStatus::where(["Code" => "P"])->get(["JobStatusID"]);
-                    $jobdata["CompanyID"] = $CompanyID;
-                    $jobdata["JobTypeID"] = isset($jobType[0]->JobTypeID) ? $jobType[0]->JobTypeID : '';
-                    $jobdata["JobStatusID"] = isset($jobStatus[0]->JobStatusID) ? $jobStatus[0]->JobStatusID : '';
-                    $jobdata["JobLoggedUserID"] = $UserID;
-                    $jobdata["Title"] = "[Manual] " . (isset($jobType[0]->Title) ? $jobType[0]->Title : '') . ' Generate & Send';
-                    $jobdata["Description"] = isset($jobType[0]->Title) ? $jobType[0]->Title : '';
-                    $jobdata["CreatedBy"] = User::get_user_full_name($UserID);
-                    $jobdata['Options'] = json_encode(array('CronJobID'=>$CronJobID,'ManualCreditNotes'=>1)+$data);
-                    $jobdata["created_at"] = date('Y-m-d H:i:s');
-                    $jobdata["updated_at"] = date('Y-m-d H:i:s');
-                    $JobID = Job::insertGetId($jobdata);
-
-                    if($JobID>0) {
-                        return Response::json(array("status" => "success", "message" => "CreditNotes Generation Job Added in queue to process.You will be notified once job is completed. "));
-                    }
-                }
-                return Response::json(array("status" => "error", "message" => "Please Setup CreditNotes Generator in CronJob"));
-
-            }
-
-        } else {
-            return Response::json(array("status" => "failed", "message" => "Please select account or account should have manual billing."));
-        }
-    }
-
-    public function sagepay_return() {
-        $CompanyID =0;
-        $SagePay = new SagePay($CompanyID);
-        $AccountnCreditNotes = $SagePay->getAccountCreditNotesID('m10');
-
-        if(isset($AccountnCreditNotes["AccountID"]) && isset($AccountnCreditNotes["CreditNotesID"])) {
-            $TransactionLog = TransactionLog::where(["AccountID" => $AccountnCreditNotes["AccountID"], "CreditNotesID" => $AccountnCreditNotes["CreditNotesID"]])->orderby("created_at", "desc")->first();
-
-            $TransactionLog = json_decode(json_encode($TransactionLog),true);
-            if($AccountnCreditNotes["CreditNotesID"]==0){
-                return Redirect::to(url('/customer/payments'));
-            }
-            if($TransactionLog["Status"] == TransactionLog::SUCCESS ){
-
-                $Amount = $TransactionLog["Amount"];
-                $Transaction = $TransactionLog["Transaction"];
-
-                echo "<center>" . "Payment done successfully, Your Transaction ID is ". $Transaction .", Amount Received ".  $Amount  . " </center>";
-
-            } else {
-
-                echo "<center>Payment failed, Go back and try again later</center>";
-
-            }
-        }
-
-
-    }
-    public function sagepay_declined() {
-
-        echo "<center>Payment declined, Go back and try again later.</center>";
-
-    }
-
-
     public function bulk_print_creditnotes(){
         $zipfiles = array();
         $data = Input::all();
@@ -2965,225 +1967,6 @@ class CreditNotesController extends \BaseController {
             return Response::json(array("status" => "error", "message" => "Please Select CreditNotes"));
         }
         exit;
-    }
-
-    public function creditnotes_sagepayexport(){
-        $data = Input::all();
-        $MarkPaid = $data['MarkPaid'];
-        if(!empty($data['criteria'])){
-            $creditnotesid = $this->getCreditNotessIdByCriteria($data);
-            $creditnotesid = rtrim($creditnotesid,',');
-            $data['CreditNotesIDs'] = $creditnotesid;
-            unset($data['criteria']);
-        }
-        else{
-            unset($data['criteria']);
-        }
-        $CompanyID = User::get_companyID();
-        $CreditNotesIDs = array_filter(explode(',', $data['CreditNotesIDs']), 'intval');
-        if (is_array($CreditNotesIDs) && count($CreditNotesIDs)) {
-            $SageData = array();
-            $SageData['CompanyID'] = $CompanyID;
-            $SageData['CreditNotess'] = $CreditNotesIDs;
-            $SageData['MarkPaid'] = $MarkPaid;
-
-            $SageDirectDebit = new SagePayDirectDebit($CompanyID);
-            $Response = $SageDirectDebit->sagebatchfileexport($SageData);
-            log::info('Response');
-            log::info($Response);
-            if(!empty($Response['file_path'])){
-                $FilePath = $Response['file_path'];
-                if(file_exists($FilePath)){
-                    download_file($FilePath);
-                }else{
-                    header('Location: '.$FilePath);
-                }
-                exit;
-            }
-        }
-        exit;
-    }
-
-    public function paycreditnotes_withcard($type){
-        $data = Input::all();
-        $CreditNotesID = $data['CreditNotesID'];
-        $AccountID = $data['AccountID'];
-        $CreditNotes = CreditNotes::where('CreditNotesStatus','!=',CreditNotes::PAID)->where(["CreditNotesID" => $CreditNotesID, "AccountID" => $AccountID])->first();
-        if(!empty($CreditNotes) && intval($CreditNotesID)>0 && $data['isCreditNotesPay']) {
-            $payment_log = Payment::getPaymentByCreditNotes($CreditNotes->CreditNotesID);
-
-            $data['GrandTotal'] = $payment_log['final_payment'];
-            $data['CreditNotesNumber'] = $CreditNotes->FullCreditNotesNumber;
-            $data['CompanyID'] = $CreditNotes->CompanyID;
-
-            $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($type);
-            $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
-
-            $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $CreditNotes->CompanyID);
-            $PaymentResponse = $PaymentIntegration->paymentWithCreditCard($data);
-            return json_encode($PaymentResponse);
-        }elseif(isset($data['GrandTotal']) && intval($data['GrandTotal'])>0 && !$data['isCreditNotesPay']){
-            $account = Account::find($AccountID);
-            if(!empty($CreditNotes)){
-                $data['CreditNotesNumber'] = $CreditNotes->FullCreditNotesNumber;
-            }else{
-                $data['CreditNotesNumber'] = '';
-            }
-            $data['CompanyID'] = $account->CompanyId;
-
-            $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($type);
-            $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
-            $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $account->CompanyID);
-            $PaymentResponse = $PaymentIntegration->paymentWithCreditCard($data);
-            return json_encode($PaymentResponse);
-        }else{
-            return Response::json(array("status" => "failed", "message" => cus_lang('PAGE_INVOICE_MSG_INVOICE_NOT_FOUND')));
-        }
-    }
-
-    // not using
-    public function paycreditnotes_withbank($type){
-        $data = Input::all();
-        $CreditNotesID = $data['CreditNotesID'];
-        $AccountID = $data['AccountID'];
-        $CreditNotes = CreditNotes::where('CreditNotesStatus','!=',CreditNotes::PAID)->where(["CreditNotesID" => $CreditNotesID, "AccountID" => $AccountID])->first();
-        if(!empty($CreditNotes) && intval($CreditNotesID)>0) {
-            $CreditNotes = CreditNotes::find($CreditNotes->CreditNotesID);
-
-            $payment_log = Payment::getPaymentByCreditNotes($CreditNotes->CreditNotesID);
-
-            $data['GrandTotal'] = $payment_log['final_payment'];
-            $data['CreditNotesNumber'] = $CreditNotes->FullCreditNotesNumber;
-            $data['CompanyID'] = $CreditNotes->CompanyID;
-
-            $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($type);
-            $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
-
-            $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $CreditNotes->CompanyID);
-            $PaymentResponse = $PaymentIntegration->paymentWithBankDetail($data);
-            return json_encode($PaymentResponse);
-        }elseif(isset($data['GrandTotal']) && intval($data['GrandTotal'])>0){
-            $account = Account::find($AccountID);
-
-            $data['CreditNotesNumber'] = 0;
-            $data['CompanyID'] = $account->CompanyID;
-
-            $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($type);
-            $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
-
-            $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $account->CompanyID);
-            $PaymentResponse = $PaymentIntegration->paymentWithBankDetail($data);
-            return json_encode($PaymentResponse);
-        }else{
-            return Response::json(array("status" => "failed", "message" => "CreditNotes not found"));
-        }
-    }
-
-    /**
-     * Only for guest auth wih profile
-     * like stripeach from creditnotes page
-     */
-    public function paycreditnotes_withprofile($type){
-        $data = Input::all();
-        $CreditNotesID = $data['CreditNotesID'];
-        $AccountID = $data['AccountID'];
-        $CreditNotes = CreditNotes::where('CreditNotesStatus','!=',CreditNotes::PAID)->where(["CreditNotesID" => $CreditNotesID, "AccountID" => $AccountID])->first();
-        if(!empty($CreditNotes) && intval($CreditNotesID)>0 && $data['isCreditNotesPay']) {
-            $CreditNotes = CreditNotes::find($CreditNotes->CreditNotesID);
-            $payment_log = Payment::getPaymentByCreditNotes($CreditNotes->CreditNotesID);
-            $CustomerProfile = AccountPaymentProfile::find($data['AccountPaymentProfileID']);
-            if (!empty($CustomerProfile)) {
-                $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($type);
-                $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
-
-                $PaymentData = array();
-                $PaymentData['AccountID'] = $AccountID;
-                $PaymentData['CompanyID'] = $CreditNotes->CompanyID;
-                $PaymentData['CreatedBy'] = 'customer';
-                $PaymentData['AccountPaymentProfileID'] = $data['AccountPaymentProfileID'];
-                $PaymentData['CreditNotesIDs'] = $CreditNotesID;
-                $PaymentData['CreditNotesNumber'] = $CreditNotes->FullCreditNotesNumber;
-                $PaymentGateway = PaymentGateway::getName($CustomerProfile->PaymentGatewayID);
-                $PaymentData['PaymentGateway'] = $PaymentGateway;
-                $PaymentData['outstanginamount'] = $payment_log['final_payment'];
-
-                $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $CreditNotes->CompanyID);
-                $PaymentResponse = $PaymentIntegration->paymentWithProfile($PaymentData);
-                return json_encode($PaymentResponse);
-
-            }else{
-                return json_encode(array("status" => "failed", "message" => cus_lang('PAGE_INVOICE_MSG_ACCOUNT_PROFILE_NOT_SET')));
-            }
-        }elseif(isset($data['GrandTotal']) && intval($data['GrandTotal'])>0 && !$data['isCreditNotesPay']){
-            $account = Account::find($AccountID);
-
-            $CustomerProfile = AccountPaymentProfile::find($data['AccountPaymentProfileID']);
-            if (!empty($CustomerProfile)) {
-                $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($type);
-                $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
-
-                $PaymentData = array();
-                $PaymentData['AccountID'] = $AccountID;
-                $PaymentData['CompanyID'] = $account->CompanyID;
-                $PaymentData['CreatedBy'] = 'customer';
-                $PaymentData['AccountPaymentProfileID'] = $data['AccountPaymentProfileID'];
-                $PaymentData['CreditNotesIDs'] = $CreditNotesID;
-                $PaymentData['CreditNotesNumber'] = '';
-                $PaymentGateway = PaymentGateway::getName($CustomerProfile->PaymentGatewayID);
-                $PaymentData['PaymentGateway'] = $PaymentGateway;
-                $PaymentData['outstanginamount'] = $data['GrandTotal'];
-                $PaymentData['isCreditNotesPay'] = $data['isCreditNotesPay'];
-                $PaymentData['custome_notes'] = $data['custome_notes'];
-
-                $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $account->CompanyID);
-                $PaymentResponse = $PaymentIntegration->paymentWithProfile($PaymentData);
-                return json_encode($PaymentResponse);
-
-            }else{
-                return json_encode(array("status" => "failed", "message" => cus_lang('PAGE_INVOICE_MSG_ACCOUNT_PROFILE_NOT_SET')));
-            }
-        }else{
-            return Response::json(array("status" => "failed", "message" => cus_lang('PAGE_INVOICE_MSG_INVOICE_NOT_FOUND')));
-        }
-    }
-    /**
-     * Xero Post
-     *
-     */
-    public function creditnotes_xeropost(){
-        $data = Input::All();
-
-        if(!empty($data['criteria'])){
-            $creditnotesid = $this->getCreditNotessIdByCriteria($data);
-            $creditnotesid = rtrim($creditnotesid,',');
-            $data['CreditNotesIDs'] = $creditnotesid;
-            unset($data['criteria']);
-        }
-        else{
-            unset($data['criteria']);
-        }
-        $CompanyID = User::get_companyID();
-        $CreditNotesIDs =array_filter(explode(',',$data['CreditNotesIDs']),'intval');
-        if (is_array($CreditNotesIDs) && count($CreditNotesIDs)) {
-            $jobType = JobType::where(["Code" => 'XIP'])->first(["JobTypeID", "Title"]);
-            $jobStatus = JobStatus::where(["Code" => "P"])->first(["JobStatusID"]);
-            $jobdata["CompanyID"] = $CompanyID;
-            $jobdata["JobTypeID"] = $jobType->JobTypeID ;
-            $jobdata["JobStatusID"] =  $jobStatus->JobStatusID;
-            $jobdata["JobLoggedUserID"] = User::get_userID();
-            $jobdata["Title"] =  $jobType->Title;
-            $jobdata["Description"] = $jobType->Title ;
-            $jobdata["CreatedBy"] = User::get_user_full_name();
-            $jobdata["Options"] = json_encode($data);
-            $jobdata["created_at"] = date('Y-m-d H:i:s');
-            $jobdata["updated_at"] = date('Y-m-d H:i:s');
-            $JobID = Job::insertGetId($jobdata);
-            if($JobID){
-                return json_encode(["status" => "success", "message" => "CreditNotes Post in xero Job Added in queue to process.You will be notified once job is completed."]);
-            }else{
-                return json_encode(array("status" => "failed", "message" => "Problem Creating CreditNotes Post in Xero ."));
-            }
-        }
     }
 
     public function creditnotes_management_chart($id){

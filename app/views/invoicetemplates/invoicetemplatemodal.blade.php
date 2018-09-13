@@ -117,6 +117,25 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="field-1" class="col-sm-2 control-label">CreditNotes Prefix</label>
+                            <div class="col-sm-4">
+                                <input type="text" name="CreditNotesNumberPrefix" class="form-control" id="field-5" placeholder="">
+                            </div>
+                            <div id="CreditNotesStartNumberToggle">
+                                <label for="field-1" class="col-sm-2 control-label">CreditNotes Start Number</label>
+                                <div class="col-sm-4">
+                                    <input type="text" name="CreditNotesStartNumber" class="form-control" id="field-1" placeholder="" value="" />
+                                </div>
+                            </div>
+                            <div class="LastCreditNotesNumber">
+                                <label for="field-1" class="col-sm-2 control-label">Last CreditNotes Number</label>
+                                <div class="col-sm-4">
+                                    <input type="text" name="LastCreditNotesNumber" class="form-control" id="field-5" placeholder="">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
                             <label class="col-sm-2 control-label">Pages</label>
                             <div class="col-sm-7">
                                 <?php  $invoice_page_array =  array(''=>'Select Invoice Pages','single'=>'A single page with totals only','single_with_detail'=>'First page with totals + usage details attached on additional pages')?>

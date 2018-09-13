@@ -340,7 +340,7 @@ class Invoice extends \Eloquent {
 			}	
 			return $InvoiceBillingClass;
 	}
-
+	/*
     public static function GetInvoiceByAccount($AccountID)
     {
         if(!empty($AccountID))
@@ -351,6 +351,24 @@ class Invoice extends \Eloquent {
                 ->where("InvoiceStatus", '<>', 'post')
                 ->where('InvoiceStatus', '<>', 'paid')
                // ->orderBy("InvoiceTaxRateID", "asc")
+                ->get();
+
+            return $AccountInvoices;
+        }
+    }*/
+
+    public static function GetInvoiceByAccount($AccountID)
+    {
+        if(!empty($AccountID))
+        {
+            $AccountInvoices = DB::connection('sqlsrv2')->table('tblInvoice')
+                ->select(DB::raw('*'))
+                ->leftJoin('tblPayment','tblInvoice.InvoiceID', '=', 'tblPayment.InvoiceID')
+                ->where('tblInvoice.AccountID', $AccountID)
+                ->where('tblInvoice.InvoiceStatus', '<>', 'post')
+                ->where('tblInvoice.InvoiceStatus', '<>', 'paid')
+                ->where('tblPayment.Recall', 0)
+                ->groupBy('tblInvoice.InvoiceID')
                 ->get();
 
             return $AccountInvoices;

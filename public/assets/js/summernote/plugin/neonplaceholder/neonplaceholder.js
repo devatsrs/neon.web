@@ -45,7 +45,10 @@ var dropdown_text =  {
         OutstandingExcludeUnbilledAmount:"OutstandingExcludeUnbilledAmount",
         OutstandingIncludeUnbilledAmount:"OutstandingIncludeUnbilledAmount",
         BalanceThreshold:"BalanceThreshold",
-        AccountBlocked:"AccountBlocked"
+        AccountBlocked:"AccountBlocked",
+        DisputeAmount:"DisputeAmount",
+        InvoiceNumber:"InvoiceNumber"
+
 
     },
     ratesheetoptions:{
@@ -298,8 +301,8 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{Country}}'>" + dropdown_text.leadoptions.Country + "</a></li>" +
             "<li><a data-value='{{Currency}}'>" + dropdown_text.leadoptions.Currency + "</a></li>" +
             "<li><a data-value='{{CurrencySign}}'>" + dropdown_text.leadoptions.CurrencySign + "</a></li>" +
-            "<li><a data-value='{{OutstandingExcludeUnbilledAmount}}'>" + dropdown_text.leadoptions.OutstandingExcludeUnbilledAmount + "</a></li>" +
-            "<li><a data-value='{{OutstandingIncludeUnbilledAmount}}'>" + dropdown_text.leadoptions.OutstandingIncludeUnbilledAmount + "</a></li>" +
+            //"<li><a data-value='{{OutstandingExcludeUnbilledAmount}}'>" + dropdown_text.leadoptions.OutstandingExcludeUnbilledAmount + "</a></li>" +
+            //"<li><a data-value='{{OutstandingIncludeUnbilledAmount}}'>" + dropdown_text.leadoptions.OutstandingIncludeUnbilledAmount + "</a></li>" +
             "<li><a data-value='{{BalanceThreshold}}'>" + dropdown_text.leadoptions.BalanceThreshold + "</a></li>" +
             "<li><a data-value='{{AccountBalance}}'>" + dropdown_text.accountbalanceemailreminder.AccountBalance + "</a></li>" +
             "<li><a data-value='{{AccountExposure}}'>" + dropdown_text.accountbalanceemailreminder.AccountExposure + "</a></li>" +
@@ -315,7 +318,11 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{CompanyCountry}}'>" + dropdown_text.Company.Country + "</a></li>" +
             "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>" +
             "<li class='unclick'><a ><b>Others</b></a></li>" +
-            "<li><a data-value='{{Signature}}'>" + dropdown_text.leadoptions.Signature + "</a></li>" ;
+            "<li><a data-value='{{Signature}}'>" + dropdown_text.leadoptions.Signature + "</a></li>" +
+            "<li class='unclick'><a ><b>Disputes</b></a></li>" +
+            "<li><a data-value='{{DisputeAmount}}'>" + dropdown_text.leadoptions.DisputeAmount + "</a></li>" +
+            "<li><a data-value='{{InvoiceNumber}}'>" + dropdown_text.leadoptions.InvoiceNumber + "</a></li>"
+            ;
     },
     "ratetemplateoptions": function () {
         return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
@@ -332,8 +339,8 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{Country}}'>" + dropdown_text.ratetemplateoptions.Country + "</a></li>" +
             "<li><a data-value='{{Currency}}'>" + dropdown_text.ratetemplateoptions.Currency + "</a></li>" +
             "<li><a data-value='{{CurrencySign}}'>" + dropdown_text.ratetemplateoptions.CurrencySign + "</a></li>" +
-            "<li><a data-value='{{OutstandingExcludeUnbilledAmount}}'>" + dropdown_text.ratetemplateoptions.OutstandingExcludeUnbilledAmount + "</a></li>" +
-            "<li><a data-value='{{OutstandingIncludeUnbilledAmount}}'>" + dropdown_text.ratetemplateoptions.OutstandingIncludeUnbilledAmount + "</a></li>" +
+            //"<li><a data-value='{{OutstandingExcludeUnbilledAmount}}'>" + dropdown_text.ratetemplateoptions.OutstandingExcludeUnbilledAmount + "</a></li>" +
+            //"<li><a data-value='{{OutstandingIncludeUnbilledAmount}}'>" + dropdown_text.ratetemplateoptions.OutstandingIncludeUnbilledAmount + "</a></li>" +
             "<li><a data-value='{{BalanceThreshold}}'>" + dropdown_text.ratetemplateoptions.BalanceThreshold + "</a></li>" +
             "<li class='unclick'><a ><b>Company Fields</b></a></li>" +
             "<li><a data-value='{{CompanyName}}'>" + dropdown_text.Company.CompanyName + "</a></li>" +
@@ -625,8 +632,8 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{Country}}'>" + dropdown_text.Tickets.Country + "</a></li>" +
             "<li><a data-value='{{Currency}}'>" + dropdown_text.Tickets.Currency + "</a></li>" +
             "<li><a data-value='{{CurrencySign}}'>" + dropdown_text.Tickets.CurrencySign + "</a></li>" +
-            "<li><a data-value='{{OutstandingExcludeUnbilledAmount}}'>" + dropdown_text.Tickets.OutstandingExcludeUnbilledAmount + "</a></li>" +
-            "<li><a data-value='{{OutstandingIncludeUnbilledAmount}}'>" + dropdown_text.Tickets.OutstandingIncludeUnbilledAmount + "</a></li>" +
+            //"<li><a data-value='{{OutstandingExcludeUnbilledAmount}}'>" + dropdown_text.Tickets.OutstandingExcludeUnbilledAmount + "</a></li>" +
+            //"<li><a data-value='{{OutstandingIncludeUnbilledAmount}}'>" + dropdown_text.Tickets.OutstandingIncludeUnbilledAmount + "</a></li>" +
             "<li><a data-value='{{BalanceThreshold}}'>" + dropdown_text.Tickets.BalanceThreshold + "</a></li>" +
             "<li class='unclick'><a ><b>Invoice Fields</b></a></li>" +
             "<li><a data-value='{{InvoiceNumber}}'>" + dropdown_text.Tickets.InvoiceNumber + "</a></li>" +

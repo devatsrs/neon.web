@@ -50,7 +50,7 @@ var postdata;
         public_vars.$body = $("body");
         //show_loading_bar(40);
 
-        var list_fields  = ['Name','updated_at','ModifiedBy','InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CDRType','GroupByService','ServiceSplit','IgnoreCallCharge','ShowPaymentWidgetInvoice','DefaultTemplate','FooterDisplayOnlyFirstPage'];
+        var list_fields  = ['Name','updated_at','ModifiedBy','InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CreditNotesStartNumber','LastCreditNotesNumber','CreditNotesNumberPrefix','CDRType','GroupByService','ServiceSplit','IgnoreCallCharge','ShowPaymentWidgetInvoice','DefaultTemplate','FooterDisplayOnlyFirstPage','ShowTaxesOnSeparatePage'];
 
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
@@ -157,13 +157,15 @@ var postdata;
         $('#add-new-modal-invoice_template h4').html('Add New InvoiceTemplate');
         $("#add-new-invoice_template-form .LastInvoiceNumber").hide();
 		$("#add-new-invoice_template-form .LastEstimateNumber").hide();
-		
+		$("#add-new-invoice_template-form .LastCreditNotesNumber").hide();
+
 
         $("#add-new-invoice_template-form [name='CompanyLogoUrl']").prop("src",'http://placehold.it/250x100');
         $('#add-new-modal-invoice_template #InvoiceStartNumberToggle ').show();
 		
 		$('#add-new-modal-invoice_template #EstimateStartNumberToggle').show();
-		
+		$('#add-new-modal-invoice_template #CreditNotesStartNumberToggle').show();
+
 		
         $('#add-new-modal-invoice_template').modal('show');
     });
@@ -175,10 +177,12 @@ var postdata;
         $('#add-new-invoice_template-form').trigger("reset");
         $('#add-new-modal-invoice_template #InvoiceStartNumberToggle ').addClass('hidden');
 		$('#add-new-modal-invoice_template #EstimateStartNumberToggle').addClass('hidden');
+		$('#add-new-modal-invoice_template #CreditNotesStartNumberToggle').addClass('hidden');
         $('#add-new-modal-invoice_template').modal('show');
 
         $("#add-new-invoice_template-form .LastInvoiceNumber").removeClass('hidden');
 		$("#add-new-invoice_template-form .LastEstimateNumber").removeClass('hidden');
+		$("#add-new-invoice_template-form .LastCreditNotesNumber").removeClass('hidden');
 
         var cur_obj = $(this).parent().find("div.hiddenRowData");
 
@@ -188,12 +192,14 @@ var postdata;
         $("#add-new-invoice_template-form [name='InvoiceStartNumber']").val(cur_obj.find("input[name='InvoiceStartNumber']").val());
         $("#add-new-invoice_template-form [name='InvoiceNumberPrefix']").val(cur_obj.find("input[name='InvoiceNumberPrefix']").val());
 		$("#add-new-invoice_template-form [name='EstimateNumberPrefix']").val(cur_obj.find("input[name='EstimateNumberPrefix']").val());
+		$("#add-new-invoice_template-form [name='CreditNotesNumberPrefix']").val(cur_obj.find("input[name='CreditNotesNumberPrefix']").val());
         $("#add-new-invoice_template-form [name='InvoicePages']").val(cur_obj.find("input[name='InvoicePages']").val()).trigger("change");
         $("#add-new-invoice_template-form [name='DateFormat']").val(cur_obj.find("input[name='DateFormat']").val()).trigger("change");
         $("#add-new-invoice_template-form [name='CDRType']").val(cur_obj.find("input[name='CDRType']").val()).trigger("change");
         $("#add-new-invoice_template-form [name='LastInvoiceNumber']").val(cur_obj.find("input[name='LastInvoiceNumber']").val());
 		
 		$("#add-new-invoice_template-form [name='LastEstimateNumber']").val(cur_obj.find("input[name='LastEstimateNumber']").val());
+		$("#add-new-invoice_template-form [name='LastCreditNotesNumber']").val(cur_obj.find("input[name='LastCreditNotesNumber']").val());
         $("#add-new-invoice_template-form [name='DefaultTemplate']").val(cur_obj.find("input[name='DefaultTemplate']").val()).trigger("change");
 
         if(cur_obj.find("input[name='ShowZeroCall']").val() == 1 ){
@@ -235,6 +241,11 @@ var postdata;
             $('[name="FooterDisplayOnlyFirstPage"]').prop('checked',true)
         }else{
             $('[name="FooterDisplayOnlyFirstPage"]').prop('checked',false)
+        }
+        if(cur_obj.find("input[name='ShowTaxesOnSeparatePage']").val() == 1 ){
+            $('[name="ShowTaxesOnSeparatePage"]').prop('checked',true)
+        }else{
+            $('[name="ShowTaxesOnSeparatePage"]').prop('checked',false)
         }
 
         var InvoiceTemplateID = cur_obj.find("input[name='InvoiceTemplateID']").val();
@@ -364,6 +375,25 @@ function ajax_update(fullurl,data){
                         </div>
 
                         <div class="form-group">
+                            <label for="field-1" class="col-sm-2 control-label">CreditNotes Prefix</label>
+                            <div class="col-sm-4">
+                                <input type="text" name="CreditNotesNumberPrefix" class="form-control" id="field-5" placeholder="">
+                            </div>
+                            <div id="CreditNotesStartNumberToggle">
+                                <label for="field-1" class="col-sm-2 control-label">CreditNotes Start Number</label>
+                                <div class="col-sm-4">
+                                    <input type="text" name="CreditNotesStartNumber" class="form-control" id="field-1" placeholder="" value="" />
+                                </div>
+                            </div>
+                            <div class="LastCreditNotesNumber">
+                                <label for="field-1" class="col-sm-2 control-label">Last CreditNotes Number</label>
+                                <div class="col-sm-4">
+                                    <input type="text" name="LastCreditNotesNumber" class="form-control" id="field-5" placeholder="">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
                             <label class="col-sm-2 control-label">Pages</label>
                             <div class="col-sm-7">
                             <?php  $invoice_page_array =  array(''=>'Select Invoice Pages','single'=>'A single page with totals only','single_with_detail'=>'First page with totals + usage details attached on additional pages')?>
@@ -456,6 +486,14 @@ function ajax_update(fullurl,data){
                             <div class="col-sm-4">
                                 <p class="make-switch switch-small">
                                     <input type="checkbox" name="FooterDisplayOnlyFirstPage" value="0">
+                                </p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="field-1" class="col-sm-2 control-label">Show Taxes On Separate Page</label>
+                            <div class="col-sm-4">
+                                <p class="make-switch switch-small">
+                                    <input type="checkbox" name="ShowTaxesOnSeparatePage" value="0">
                                 </p>
                             </div>
                         </div>

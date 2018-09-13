@@ -506,9 +506,9 @@ class TicketsController extends \BaseController {
 			$cc					 =	  $ResponseData['Cc'];
 			$bcc				 =	  $ResponseData['Bcc'];
 			$GroupEmail			 =	  $ResponseData['GroupEmail'];	
-			if($action_type=='forward'){ //attach current email attachments
+//			if($action_type=='forward'){ //attach current email attachments
 				$data['uploadtext']  = 	 UploadFile::DownloadFileLocal($response_data['AttachmentPaths']);
-			}
+//			}
 			
 			$FromEmails	 				=  TicketGroups::GetGroupsFrom();			
 			$AllEmailsTo 				= 	json_encode(Messages::GetAllSystemEmails(0,true)); 	
@@ -577,7 +577,7 @@ class TicketsController extends \BaseController {
 		{
 			$attachments 	=   unserialize($Ticketdata->AttachmentPaths);
 			$attachment 	=   $attachments[$attachmentID];  
-			$FilePath 		=  	AmazonS3::preSignedUrl($attachment['filepath']);	
+			$FilePath 		=  	AmazonS3::unSignedUrl($attachment['filepath']);
 			
 			if(file_exists($FilePath)){
 					download_file($FilePath);

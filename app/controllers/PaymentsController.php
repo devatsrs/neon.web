@@ -259,15 +259,6 @@ class PaymentsController extends \BaseController {
 
     public function payments_quickbookpost(){
         $data = Input::all();
-        /*if(!empty($data['InvoiceIDs'])){
-            $invoiceid = $this->getInvoicesIdByCriteria($data);
-            $invoiceid = rtrim($invoiceid,',');
-            $data['InvoiceIDs'] = $invoiceid;
-            unset($data['criteria']);
-        }
-        else{
-            unset($data['criteria']);
-        }*/
         $CompanyID = User::get_companyID();
         $PaymentIDs =array_filter(explode(',',$data['PaymentIDs']),'intval');
         if (is_array($PaymentIDs) && count($PaymentIDs)) {
@@ -653,38 +644,6 @@ class PaymentsController extends \BaseController {
         try {
             DB::connection('sqlsrv2')->beginTransaction();
 
-            $InvoiceData = DB::connection('sqlsrv2')
-                ->table('tblTempPayment')
-                ->where('ProcessID', $ProcessID)
-                ->where('CompanyID', $CompanyID)
-                ->select(['InvoiceID','Amount'])
-                ->get();
-
-            $InvoiceAmount = DB::connection('sqlsrv2')
-                ->table('tblInvoice')
-                ->where('InvoiceID', $InvoiceData[0]->InvoiceID)
-                ->where('CompanyID', $CompanyID)
-                ->pluck('GrandTotal');
-
-            $PaymentOldAmount = DB::connection('sqlsrv2')
-                ->table('tblPayment')
-                ->where('InvoiceID', $InvoiceData[0]->InvoiceID)
-                ->where('CompanyID', $CompanyID)
-                ->sum('Amount');
-               // ->get();
-
-            $TotalPaymentAmount = $PaymentOldAmount + $InvoiceData[0]->Amount;
-
-            if($InvoiceAmount > $TotalPaymentAmount)
-            {
-                $inv_data['InvoiceStatus'] = 'partially_paid';
-            }
-            else{
-                $inv_data['InvoiceStatus'] = 'paid';
-            }
-
-            if(Invoice::find($InvoiceData[0]->InvoiceID)->update($inv_data))
-            {
             $result = DB::connection('sqlsrv2')->statement("CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."','".$UserID."')");
             DB::connection('sqlsrv2')->commit();
 
@@ -692,7 +651,7 @@ class PaymentsController extends \BaseController {
             $jobupdatedata['JobStatusMessage'] = 'Payments uploaded successfully';
             $jobupdatedata['JobStatusID'] = JobStatus::where('Code','S')->pluck('JobStatusID');
             Job::where(["JobID" => $JobID])->update($jobupdatedata);
-            }
+
         }catch ( Exception $err ){
             try{
                 DB::connection('sqlsrv2')->rollback();
