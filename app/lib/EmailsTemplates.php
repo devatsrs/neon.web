@@ -477,5 +477,86 @@ class EmailsTemplates{
 	static function ReplaceEmail($Email,$body){
 		return $EmailMessage = str_replace('#email',$Email,$body);
 	}
+
+	static function SendDisputeSingle($DisputeID,$type="body",$data=array(),$postdata = array()){
+
+		$companyID								=	User::get_companyID();
+		$message								=	 "";
+		$replace_array							=	$data;
+		$DisputeData   							=  	Dispute::find($DisputeID);
+		//$InvoiceDetailPeriod 					= 	InvoiceDetail::where(["InvoiceID" => $DisputeID,'ProductType'=>Product::INVOICE_PERIOD])->first();
+
+		$Account 								= 	Account::find($DisputeData->AccountID);
+		$EmailTemplate 							= 	EmailTemplate::getSystemEmailTemplate($companyID, Dispute::EMAILTEMPLATE, $Account->LanguageID );
+
+		$replace_array							=	EmailsTemplates::setCompanyFields($replace_array,$DisputeData->CompanyID);
+		$replace_array 							=	EmailsTemplates::setAccountFields($replace_array,$DisputeData->AccountID);
+
+		if($type=="subject"){
+			if(isset($postdata['Subject']) && !empty($postdata['Subject'])){
+				$EmailMessage							=	 $postdata['Subject'];
+			}else{
+				$EmailMessage							=	 $EmailTemplate->Subject;
+			}
+		}else{
+			if(isset($postdata['Message']) && !empty($postdata['Message'])){
+				$EmailMessage							=	 $postdata['Message'];
+			}else{
+				$EmailMessage							=	 $EmailTemplate->TemplateBody;
+			}
+		}
+
+
+
+		/*if($data['InvoiceURL']){
+			$replace_array['InvoiceLink'] 			= 	 $data['InvoiceURL'];
+		}else{
+			$replace_array['InvoiceLink'] 			= 	 URL::to('/invoice/'.$DisputeID.'/invoice_preview');
+		}*/
+
+		/*if(!empty($InvoiceDetailPeriod) && isset($InvoiceDetailPeriod->StartDate)) {
+			$replace_array['PeriodFrom'] 			= 	 date('Y-m-d', strtotime($InvoiceDetailPeriod->StartDate));
+		} else {
+			$replace_array['PeriodFrom'] 			= 	 "";
+		}
+		if(!empty($InvoiceDetailPeriod) && isset($InvoiceDetailPeriod->EndDate)) {
+			$replace_array['PeriodTo'] 				= 	 date('Y-m-d', strtotime($InvoiceDetailPeriod->EndDate));
+		} else {
+			$replace_array['PeriodTo'] 				= 	 "";
+		}*/
+
+		$replace_array['InvoiceNumber']			=	 $DisputeData->InvoiceNo;
+		$replace_array['InvoiceType']			=	 ($DisputeData->InvoiceType == Invoice::INVOICE_IN?'Invoice Received':'Invoice Sent');
+		$RoundChargesAmount 					= 	 get_round_decimal_places($DisputeData->AccountID);
+		$replace_array['DisputeAmount']		=	 number_format($DisputeData->DisputeAmount,$RoundChargesAmount);
+
+
+
+		$extraSpecific = [
+			'{{InvoiceNumber}}',
+			"{{InvoiceType}}",
+			'{{DisputeAmount}}'
+			/*"{{InvoiceLink}}"*/
+		];
+
+		$extraDefault	=	EmailsTemplates::$fields;
+
+		$extra = array_merge($extraDefault,$extraSpecific);
+
+		foreach($extra as $item){
+			$item_name = str_replace(array('{','}'),array('',''),$item);
+			if(array_key_exists($item_name,$replace_array)) {
+				$EmailMessage = str_replace($item,$replace_array[$item_name],$EmailMessage);
+			}
+		}
+		return $EmailMessage;
+
+		/*	return array("error"=>"","status"=>"success","data"=>$EmailMessage,"from"=>$EmailTemplate->EmailFrom);
+        }catch (Exception $ex){
+            return array("error"=>$ex->getMessage(),"status"=>"failed","data"=>"","from"=>$EmailTemplate->EmailFrom);
+        }*/
+	}
+
+
 }
 ?>
