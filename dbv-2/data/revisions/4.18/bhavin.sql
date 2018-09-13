@@ -4,6 +4,8 @@ ALTER TABLE `tblInvoiceTemplate`
 	ADD COLUMN `DefaultTemplate` INT NULL DEFAULT '0' AFTER `ShowPaymentWidgetInvoice`;
 ALTER TABLE `tblInvoiceTemplate`	
 	ADD COLUMN `FooterDisplayOnlyFirstPage` INT NULL DEFAULT '0' AFTER `DefaultTemplate`;
+ALTER TABLE `tblInvoiceTemplate`
+	ADD COLUMN `ShowTaxesOnSeparatePage` INT(11) NULL DEFAULT '0' AFTER `FooterDisplayOnlyFirstPage`;	
 
 CREATE TABLE IF NOT EXISTS `tblProcessCallChargesLog` (
   `LogID` bigint(20) NOT NULL AUTO_INCREMENT,
