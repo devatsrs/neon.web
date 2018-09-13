@@ -204,8 +204,8 @@ class CreditNotesController extends \BaseController {
         if($AccountID > 0)
         {
             $Invoices 	    =   Invoice::GetInvoiceByAccount($AccountID);
-            $AccountName = Account::find($AccountID)->AccountName;
-            $invoicenumbers = array("Select Invoices");
+            $AccountName    =   Account::find($AccountID)->AccountName;
+            $invoicenumbers =   array("Select Invoices");
             foreach($Invoices as $invoice)
             {
                 $invoicenumbers[$invoice->InvoiceNumber] = $invoice->FullInvoiceNumber;
@@ -222,6 +222,11 @@ class CreditNotesController extends \BaseController {
     {
         $data = Input::all();
         //echo"<pre>"; print_R($data);exit;
+        if(!isset($data['payment']))
+        {
+            return Response::json(array("status" => "failed", "message" => "No Invoices Found"));
+        }
+
         if(!array_filter($data['payment'])) {
             return Response::json(array("status" => "failed", "message" => "Enter Amount For atleast one Invoice"));
         }
@@ -312,7 +317,6 @@ class CreditNotesController extends \BaseController {
                 $isAutoCreditNotesNumber = false;
                 $CreditNotesData["CreditNotesNumber"] =  $data["CreditNotesNumber"];
             }
-
 
             if(isset($data['BillingClassID']) && $data['BillingClassID']>0){
                 $InvoiceTemplateID  = 	BillingClass::getInvoiceTemplateID($data['BillingClassID']);
@@ -1153,7 +1157,7 @@ class CreditNotesController extends \BaseController {
             }
             $logo_path = CompanyConfiguration::get('UPLOAD_PATH') . '/logo/' . $Account->CompanyId;
             @mkdir($logo_path, 0777, true);
-            //RemoteSSH::run("chmod -R 777 " . $logo_path);
+            RemoteSSH::run("chmod -R 777 " . $logo_path);
             $logo = $logo_path  . '/'  . basename($as3url);
             file_put_contents($logo, file_get_contents($as3url));
             chmod($logo,0777);
@@ -1179,7 +1183,7 @@ class CreditNotesController extends \BaseController {
             }
             $print_type = 'CreditNotes';
             $body = View::make('creditnotes.pdf', compact('CreditNotes', 'CreditNotesDetail', 'Account', 'InvoiceTemplate', 'usage_data', 'CurrencyCode', 'logo','print_type'))->render();
-            $destination_dir = CompanyConfiguration::get('UPLOAD_PATH') . '/'. AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId) ;
+            $destination_dir = CompanyConfiguration::get('UPLOAD_PATH') . '/'. AmazonS3::generate_path(AmazonS3::$dir['CREDITNOTES_UPLOAD'],$Account->CompanyId) ;
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);
             }

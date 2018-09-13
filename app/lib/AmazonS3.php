@@ -23,6 +23,7 @@ class AmazonS3 {
         'INVOICE_PROOF_ATTACHMENT' =>  'InvoiceProofAttachment',
         'INVOICE_UPLOAD' =>  'Invoices',
 		'ESTIMATE_UPLOAD' =>  'estimates',
+		'CREDITNOTES_UPLOAD' =>  'creditnotes',
         'CUSTOMER_PROFILE_IMAGE' =>  'CustomerProfileImage',
         'USER_PROFILE_IMAGE' =>  'UserProfileImage',
         'BULK_LEAD_MAIL_ATTACHEMENT' => 'bulkleadmailattachment',

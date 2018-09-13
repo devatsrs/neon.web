@@ -102,53 +102,9 @@ class Product extends \Eloquent {
 
     public static function getProductByItemType($data=array()){
         $dataarr=array();
-        if($data['ItemType']==''){
-            $ProductList=Product::where(['CompanyId'=>$data['CompanyID'],'Active'=>1])->where('Quantity','>',0)->get();
-        }else{
-            $ProductList = DB::connection('sqlsrv2')->table('tblItemType')
-                ->join('tblProduct', 'tblItemType.ItemTypeID', '=', 'tblProduct.ItemTypeID')
-                ->select('tblProduct.*')
-                ->where(['tblItemType.title'=>$data['ItemType'],'tblProduct.CompanyId'=>$data['CompanyID'],'tblProduct.Active'=>1])
-                ->where('tblProduct.Quantity','>',0)
-                ->get();
-        }
-
-        $Type =  Product::DYNAMIC_TYPE;
-
-        foreach($ProductList as $plist){
-            $Products=array();
-            $ItemTypeID=$plist->ItemTypeID;
-            $Products['ProductID']=$plist->ProductID;
-            $Products['ItemTypeID']=$ItemTypeID;
-            $Products['CompanyId']=$plist->CompanyId;
-            $Products['Name']=$plist->Name;
-            $Products['Code']=$plist->Code;
-            $Products['Description']=$plist->Description;
-            $Products['Amount']=$plist->Amount;
-            $Products['AppliedTo']=$plist->AppliedTo;
-            $Products['Note']=$plist->Note;
-            $Products['Buying_price']=$plist->Buying_price;
-            $Products['Quantity']=$plist->Quantity;
-            $Products['Low_stock_level']=$plist->Low_stock_level;
-            $Products['Enable_stock']=$plist->Enable_stock;
-
-            $DynamicFields = DynamicFields::where('Type',$Type)->where('CompanyID',$data['CompanyID'])->where('ItemTypeID',$ItemTypeID)->where('Status','1')->get();
-            foreach($DynamicFields as $field){
-                $fieldName=$field->FieldName;
-               // echo $field->ProductID;die;
-                $DynamicFieldsValues = DynamicFieldsValue::getDynamicColumnValuesByProductID($field->DynamicFieldsID,$Products['ProductID']);
-                //print_r($DynamicFieldsValues);die;
-                if($DynamicFieldsValues->count() > 0){
-                    foreach ($DynamicFieldsValues as $DynamicFieldsValue) {
-                        $DynamicFieldValue = $DynamicFieldsValue->FieldValue;
-                    }
-                } else {
-                    $DynamicFieldValue = "";
-                }
-                $Products[$fieldName]=$DynamicFieldValue;
-            }
-            $dataarr[]=$Products;
-        }
+        $query="CALL prc_getProductsByItemType(".$data['CompanyID'].",'".$data['ItemType']."',".$data['PageNumber'].",".$data['RowsPage'].")";
+        $result  = DB::connection('sqlsrv2')->select($query);
+        $dataarr = json_decode(json_encode($result),true);
         return $dataarr;
     }
 

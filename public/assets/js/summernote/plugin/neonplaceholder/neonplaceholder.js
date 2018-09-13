@@ -45,7 +45,10 @@ var dropdown_text =  {
         OutstandingExcludeUnbilledAmount:"OutstandingExcludeUnbilledAmount",
         OutstandingIncludeUnbilledAmount:"OutstandingIncludeUnbilledAmount",
         BalanceThreshold:"BalanceThreshold",
-        AccountBlocked:"AccountBlocked"
+        AccountBlocked:"AccountBlocked",
+        DisputeAmount:"DisputeAmount",
+        InvoiceNumber:"InvoiceNumber"
+
 
     },
     ratesheetoptions:{
@@ -315,7 +318,11 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{CompanyCountry}}'>" + dropdown_text.Company.Country + "</a></li>" +
             "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>" +
             "<li class='unclick'><a ><b>Others</b></a></li>" +
-            "<li><a data-value='{{Signature}}'>" + dropdown_text.leadoptions.Signature + "</a></li>" ;
+            "<li><a data-value='{{Signature}}'>" + dropdown_text.leadoptions.Signature + "</a></li>" +
+            "<li class='unclick'><a ><b>Disputes</b></a></li>" +
+            "<li><a data-value='{{DisputeAmount}}'>" + dropdown_text.leadoptions.DisputeAmount + "</a></li>" +
+            "<li><a data-value='{{InvoiceNumber}}'>" + dropdown_text.leadoptions.InvoiceNumber + "</a></li>"
+            ;
     },
     "ratetemplateoptions": function () {
         return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
