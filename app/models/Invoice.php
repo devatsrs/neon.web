@@ -340,7 +340,7 @@ class Invoice extends \Eloquent {
 			}	
 			return $InvoiceBillingClass;
 	}
-
+	/*
     public static function GetInvoiceByAccount($AccountID)
     {
         if(!empty($AccountID))
@@ -355,7 +355,7 @@ class Invoice extends \Eloquent {
 
             return $AccountInvoices;
         }
-    }
+    }*/
 
     public static function GetInvoiceByAccount($AccountID)
     {
