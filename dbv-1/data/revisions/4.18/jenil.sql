@@ -2420,6 +2420,162 @@ BEGIN
 END//
 DELIMITER ;
 
+
+
+/* For API */
+
+
+USE `NeonBillingDev`;
+
+DROP PROCEDURE IF EXISTS `prc_getProductsByItemType`;
+DELIMITER //
+CREATE PROCEDURE `prc_getProductsByItemType`(
+	IN `p_CompanyID` INT,
+	IN `p_ItemType` VARCHAR(50),
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT
+
+
+)
+    DETERMINISTIC
+BEGIN
+	DECLARE v_OffSet_ int;
+	DECLARE v_fieldName VARCHAR(255);
+		
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+	
+	DROP TEMPORARY TABLE IF EXISTS tmp_products;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_products(
+		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		ProductID INT,
+		ItemTypeID INT		
+	);
+	
+	DROP TEMPORARY TABLE IF EXISTS tmp_products_fields;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_products_fields(
+		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		DynamicFieldsID INT(11),
+		FieldName Varchar(100)
+	);
+		
+
+	IF p_ItemType!='' THEN
+	
+		INSERT INTO tmp_products (ProductID,ItemTypeID)
+			SELECT
+					tblProduct.ProductID,
+					tblProduct.ItemTypeID
+			FROM tblItemType
+			INNER JOIN  tblProduct 
+				ON tblProduct.ItemTypeID=tblItemType.ItemTypeID
+			WHERE 
+				tblProduct.CompanyId=p_CompanyID
+				AND tblItemType.title=p_ItemType
+				AND tblProduct.Quantity > 0
+				AND tblProduct.Active=1
+			 LIMIT p_RowspPage OFFSET v_OffSet_;
+	ELSE 
+	
+		INSERT INTO tmp_products (ProductID,ItemTypeID)
+			SELECT
+				tblProduct.ProductID,
+				tblProduct.ItemTypeID
+			FROM tblProduct
+			WHERE
+				tblProduct.CompanyId=p_CompanyID
+				AND tblProduct.Quantity > 0
+				AND tblProduct.Active=1
+		
+			LIMIT p_RowspPage OFFSET v_OffSet_;
+			
+	END IF;
+			 
+				
+			INSERT INTO tmp_products_fields (FieldName,DynamicFieldsID)
+			SELECT 
+				DISTINCT a.FieldName,
+				a.DynamicFieldsID
+			FROM Ratemanagement3.tblDynamicFields a
+			INNER JOIN tmp_products b
+			ON a.ItemTypeID=b.ItemTypeID
+			WHERE 
+				a.Type='product'
+				AND a.CompanyID=p_CompanyID
+				AND a.`Status`=1;	
+						 
+			SET @v_pointer_1 = 1;
+			SET @v_rowCount_1 = (SELECT COUNT(*) FROM tmp_products_fields);
+		
+		 WHILE @v_pointer_1 <= @v_rowCount_1
+		  DO
+		
+			SET @fieldname = (SELECT FieldName from tmp_products_fields where RowID = @v_pointer_1);
+			 
+			SET @statement2 =  CONCAT('ALTER TABLE tmp_products ADD COLUMN `', @fieldname ,'` TEXT NULL;');
+	 	
+			PREPARE stm_query FROM @statement2;
+			EXECUTE stm_query;
+			DEALLOCATE PREPARE stm_query;
+			
+			SET @dynamicFieldID=	(SELECT DynamicFieldsID from tmp_products_fields where RowID = @v_pointer_1);
+		
+			SET @v_pointer_ = 1;
+			SET @v_rowCount_ = (SELECT COUNT(*) FROM tmp_products);
+			WHILE @v_pointer_ <= @v_rowCount_
+		  	DO	
+		  	
+			 SET @ProductID=(select ProductID FROM tmp_products WHERE RowID=@v_pointer_);
+			 
+				SET @upateq=CONCAT('UPDATE tmp_products prod
+		  	  	INNER JOIN Ratemanagement3.tblDynamicFieldsValue b ON b.DynamicFieldsID=',@dynamicFieldID,'
+		  	  	INNER JOIN Ratemanagement3.tblDynamicFields a ON a.DynamicFieldsID=b.DynamicFieldsID
+		  		SET `prod`.`',@fieldname,'`=b.FieldValue
+		  		
+		  		WHERE 
+				  prod.ProductID=',@ProductID,'
+				  AND b.ParentID=',@ProductID);
+				  
+				  
+				  PREPARE stm_query1 FROM @upateq;
+				  EXECUTE stm_query1;
+				  DEALLOCATE PREPARE stm_query1;
+		  		
+		  	SET @v_pointer_ = @v_pointer_ + 1;
+		  	
+		  	END WHILE;
+		
+			SET @v_pointer_1 = @v_pointer_1 + 1;
+	
+	  END WHILE;
+	  
+
+		SELECT 
+		 	tblProduct.CompanyId,	
+			tblProduct.Name,
+			tblProduct.Code,
+			tblProduct.Description,
+			tblProduct.Amount,
+			tblProduct.AppliedTo,
+			tblProduct.Note,
+			tblProduct.Buying_price,	
+			tblProduct.Quantity,
+			tblProduct.Low_stock_level,
+			tblProduct.Enable_stock,
+			tmp_products.*	 	
+		FROM 
+		tmp_products
+		INNER JOIN tblProduct ON tblProduct.ProductID=tmp_products.ProductID;
+		
+
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
 /* Above Done on Staging */
 
 
@@ -4091,5 +4247,8 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END//
 DELIMITER ;
+
+
+
 
 
