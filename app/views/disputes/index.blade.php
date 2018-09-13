@@ -106,8 +106,7 @@
           <tbody>
           </tbody>
         </table>
-  </div>
-</div>
+
      <script type="text/javascript">
 	
 	 var currency_signs = {{$currency_ids}};
