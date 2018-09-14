@@ -307,13 +307,7 @@
                     {
                         "bSortable": false,
                         mRender: function (id, type, full) {
-                            if(full[18] == null)
-                            {
-                                return 0;
-                            }
-                            else{
                                 return full[18];
-                            }
                         }
 
                     }, // 18 CreditNotes Amount
