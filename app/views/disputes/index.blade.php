@@ -64,19 +64,20 @@
                   </div>
               @endif
 
-              @if( User::checkCategoryPermission('Invoice','Edit,Send,Generate,Email'))
                   <div class="input-group-btn">
+                      @if( User::checkCategoryPermission('Disputes','Email'))
                           <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown"
                                   aria-expanded="false">Action <span class="caret"></span></button>
                           <ul class="dropdown-menu dropdown-menu-right" role="menu"
                               style="background-color: #000; border-color: #000; margin-top:0px;">
-                              @if(User::checkCategoryPermission('Invoice','Email'))
+                              @if(User::checkCategoryPermission('Disputes','Email'))
                                   <li> <a class="pay_now create" id="bulk_email" href="javascript:;"> Bulk Email </a> </li>
                               @endif
 
                           </ul>
+                      @endif
                   </div>
-              @endif
+
               </div>
           </div>
 
@@ -228,7 +229,9 @@
                                     if('{{User::checkCategoryPermission('Disputes','Edit')}}' ) {
                                         action += '<li><a data-id="' + id + '" class="edit-dispute icon-left"><i class="entypo-pencil"></i>Edit </a></li>';
                                     }
-                                    action += '<li><a data-id="' + id + '" class="send-disputes icon-left"><i class="entypo-mail"></i>Send </a></li>';
+                                    if('{{User::checkCategoryPermission('Disputes','Send')}}' ) {
+                                        action += '<li><a data-id="' + id + '" class="send-disputes icon-left"><i class="entypo-mail"></i>Send </a></li>';
+                                    }
                                     action += '</ul>';
                                     action += '</div>';
 
