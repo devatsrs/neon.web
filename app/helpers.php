@@ -721,6 +721,9 @@ function bulk_mail($type,$data){
                 if ($type == 'IR') {
                     $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['BULK_INVOICE_MAIL_ATTACHEMENT']);
                 }
+                if ($type == 'DR') {
+                    $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['BULK_DISPUTE_MAIL_ATTACHEMENT']);
+                }
                 $dir = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
                 if (!file_exists($dir)) {
                     mkdir($dir, 777, TRUE);

@@ -4275,5 +4275,15 @@ DELIMITER ;
 
 /* Above Done on Staging */
 
+INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2649, 'Dispute.email', 'DisputeController.email', 1, 'Sumera Saeed', NULL, '2018-09-14 16:10:48.000', '2018-09-14 16:10:50.000', 1367);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1367, 'Disputes.Email', 1, 7);
+
+INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2648, 'Dispute.send', 'DisputeController.send', 1, 'Sumera Saeed', NULL, '2018-09-14 15:52:32.000', '2018-09-14 15:52:33.000', 1366);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1366, 'Disputes.Send', 1, 7);
+
+
+
+
+
 
 

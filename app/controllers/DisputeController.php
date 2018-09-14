@@ -343,13 +343,13 @@ class DisputeController extends \BaseController {
 							if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath,$Dispute->CompanyID)) {
 								return Response::json(array("status" => "failed", "message" => "Failed to upload file." ));
 							}
-							$FilesArray[] = array ("filename"=>$array_file_data['filename'],"filepath"=>$amazonPath . $file_name);
+							$data['AttachmentPaths'][] = array ("filename"=>$array_file_data['filename'],"filepath"=>$amazonPath . $file_name);
 							@unlink($array_file_data['filepath']);
 						}
 						//$data['AttachmentPaths']		=	$FilesArray;
-						array_push($data['AttachmentPaths'],$FilesArray);
+						//array_push($data['AttachmentPaths'],$FilesArray);
 					}
-
+					
 					//attachment Form End
 
 					if(isset($postdata['email_from']) && !empty($postdata['email_from']))
