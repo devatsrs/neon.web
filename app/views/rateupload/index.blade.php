@@ -368,6 +368,7 @@
                     type: 'POST',
                     dataType: 'json',
                     beforeSend: function(){
+                        $('.btn.upload').button('loading');
                         show_loading_bar({
                             pct: 50,
                             delay: 5
@@ -378,6 +379,7 @@
                             pct: 100,
                             delay: 2
                         });
+                        $('.btn.upload').button('reset');
                         if (response.status == 'success') {
                             var SheetNames = response.SheetNames;
                             var Extension = response.FileExtesion;
