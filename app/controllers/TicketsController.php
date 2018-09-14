@@ -577,7 +577,7 @@ class TicketsController extends \BaseController {
 		{
 			$attachments 	=   unserialize($Ticketdata->AttachmentPaths);
 			$attachment 	=   $attachments[$attachmentID];  
-			$FilePath 		=  	AmazonS3::preSignedUrl($attachment['filepath']);	
+			$FilePath 		=  	AmazonS3::unSignedUrl($attachment['filepath']);
 			
 			if(file_exists($FilePath)){
 					download_file($FilePath);

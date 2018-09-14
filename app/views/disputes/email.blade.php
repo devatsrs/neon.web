@@ -57,7 +57,7 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 
 $(document).ready(function ($) {
 	
-	 $("#send-modal-invoice").find(".select22").select2();
+	 $("#send-modal-disputes").find(".select22").select2();
     show_summernote($("#InvoiceMessage"),{});
 	
 		$('#addTtachment').click(function(){
