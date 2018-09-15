@@ -22,11 +22,13 @@
 @include('includes.errors')
 @include('includes.success')
 <p style="text-align: right;">
-    @if($account->IsCustomer==1 || $account->IsVendor==1)
-        <a href="{{URL::to('accounts/authenticate/'.$account->AccountID.'-'.$ServiceID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
-            <i class="entypo-lock"></i>
-            Authentication Rule
-        </a>
+    @if( User::checkCategoryPermission('AuthenticationRule','View'))
+        @if($account->IsCustomer==1 || $account->IsVendor==1)
+            <a href="{{URL::to('accounts/authenticate/'.$account->AccountID.'-'.$ServiceID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
+                <i class="entypo-lock"></i>
+                Authentication Rule
+            </a>
+        @endif
     @endif
     <button type="button"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..." id="save_service">
         <i class="entypo-floppy"></i>
