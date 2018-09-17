@@ -2865,13 +2865,14 @@ function StockHistoryCalculations($data=array()){
 
             if(!empty($getProduct)){
                 $pname=$getProduct['Name'];
+                $pcode=$getProduct['Code'];
                 $getPrevProductHistory = StockHistory::where('CompanyID', $stockarr['CompanyID'])->where('ProductID', $stockarr['ProductID'])->orderby('StockHistoryID', 'desc')->first();
                 if (!empty($getPrevProductHistory)) {
                     $pstock = intval($getPrevProductHistory['Stock']);
                     $remainStock = $pstock - $stockarr['Qty'];
                     $low_stock_level=intval($getProduct['Low_stock_level']);
                     if ($remainStock < 0 || $remainStock <= $low_stock_level) {
-                        $Error[] = $pname . " is below the LowStockLevel.Available Stock is " . $remainStock;
+                        $Error[] = "Invoiced qty is more then available qty: Item {" . $pcode."}";
                     }
                     $invoicemsg="";
                     if($stockarr['InvoiceNumber']!=''){
@@ -2949,6 +2950,7 @@ function stockHistoryUpdateCalculations($data=array()){
                         if (!empty($getProduct)) {
                             $pstock = $getProduct['Quantity'];
                             $pname = $getProduct['Name'];
+                            $pcode = $getProduct['Code'];
                             $low_stock_level = intval($getProduct['Low_stock_level']);
                             if ($stockarr['Qty'] > $stockarr['oldQty']) {
                                 $diffQuantity = $stockarr['Qty'] - $stockarr['oldQty'];
@@ -2958,7 +2960,7 @@ function stockHistoryUpdateCalculations($data=array()){
                                 $updatedStock = $hStock + $diffQuantity;
                             }
                             if ($updatedStock <= $low_stock_level) {
-                                $Error[] = $pname . " is below the LowStockLevel.Available Stock is " . $updatedStock;
+                                $Error[] = "Invoiced qty is more then available qty: Item {" . $pcode."}";
                             }
 
                             $invoicemsg="";

@@ -50,7 +50,7 @@ class Product extends \Eloquent {
             }else{
                 $Where = ["CompanyId"=>$CompanyID,"AppliedTo"=>$AppliedTo];
             }
-            self::$cache['product_dropdown1_cache'] = Product::where($Where)->where("Active",1)->lists('Name','ProductID');
+            self::$cache['product_dropdown1_cache'] = Product::where($Where)->where("Active",1)->orderby('Name')->lists('Name','ProductID');
             Cache::forever('product_dropdown1_cache', array('product_dropdown1_cache' => self::$cache['product_dropdown1_cache']));
         }
         $list = array();
