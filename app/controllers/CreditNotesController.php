@@ -554,9 +554,9 @@ class CreditNotesController extends \BaseController {
                     $creditnotesloddata['CreditNotesID']= $CreditNotes->CreditNotesID;
                     $creditnotesloddata['Note']= 'Updated By '.$CreatedBy.$Extralognote;
                     $creditnotesloddata['created_at']= date("Y-m-d H:i:s");
-                    $creditnotesloddata['CreditNotesLogStatus']= creditnoteslog::UPDATED;
+                    $creditnotesloddata['CreditNotesLogStatus']= CreditNotesLog::UPDATED;
                     $CreditNotes->update($CreditNotesData);
-                    creditnoteslog::insert($creditnotesloddata);
+                    CreditNotesLog::insert($creditnotesloddata);
                     $CreditNotesDetailData = $StockHistoryData = $CreditNotesTaxRates = $CreditNotesAllTaxRates = array();
                     //Delete all CreditNotes Data and then Recreate.
                     CreditNotesDetail::where(["CreditNotesID" => $CreditNotes->CreditNotesID])->delete();
@@ -1060,7 +1060,7 @@ class CreditNotesController extends \BaseController {
             $CurrencySymbol 	= 	Currency::getCurrencySymbol($Account->CurrencyId);
             $creditnotes_status 	= 	 CreditNotes::get_creditnotes_status();
             $CreditNotesStatus =   $creditnotes_status[$CreditNotes->CreditNotesStatus];
-            //$CreditNotesComments =   creditnoteslog::get_comments_count($id);
+            //$CreditNotesComments =   CreditNotesLog::get_comments_count($id);
             return View::make('creditnotes.creditnotes_preview', compact('CreditNotes', 'CreditNotesDetail', 'Account', 'CreditNotesTemplate', 'CurrencyCode', 'logo','CurrencySymbol','CreditNotesStatus'));
         }
     }
@@ -1106,8 +1106,8 @@ class CreditNotesController extends \BaseController {
 
                 $creditnotesloddata['CreditNotesID']= $CreditNotes->CreditNotesID;
                 $creditnotesloddata['created_at']= date("Y-m-d H:i:s");
-                $creditnotesloddata['CreditNotesLogStatus']= creditnoteslog::VIEWED;
-                creditnoteslog::insert($creditnotesloddata);
+                $creditnotesloddata['CreditNotesLogStatus']= CreditNotesLog::VIEWED;
+                CreditNotesLog::insert($creditnotesloddata);
 
                 return self::creditnotes_preview($CreditNotesID);
             }
@@ -1696,8 +1696,8 @@ class CreditNotesController extends \BaseController {
                     $creditnotesloddata['CreditNotesID'] = $CreditNotesID;
                     $creditnotesloddata['Note'] = $creditnotes_status[$data['CreditNotesStatus']].' By ' . $username.$Extralognote;
                     $creditnotesloddata['created_at'] = date("Y-m-d H:i:s");
-                    $creditnotesloddata['CreditNotesLogStatus'] = creditnoteslog::UPDATED;
-                    creditnoteslog::insert($creditnotesloddata);
+                    $creditnotesloddata['CreditNotesLogStatus'] = CreditNotesLog::UPDATED;
+                    CreditNotesLog::insert($creditnotesloddata);
                 }
 
                 return Response::json(array("status" => "success", "message" => "CreditNotes Successfully Updated"));

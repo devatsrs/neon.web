@@ -30,29 +30,26 @@
   <div class="panel panel-primary" data-collapsed="0">
     <div class="panel-body">
       <div class="form-group">
-        <div class="col-sm-4">
+        <div class="col-sm-6">
           <label for="field-1" class="col-sm-3 control-label">*Client</label>
-          <div class="col-sm-9"> {{Form::select('AccountID',$accounts,'',array("class"=>"select2"))}} </div><br>
+          <div class="col-sm-6"> {{Form::select('AccountID',$accounts,'',array("class"=>"select2"))}} </div><br>
 
           <div class="clearfix margin-bottom "></div>
           <label for="field-1" class="col-sm-3 control-label">*Billing Class</label>
-          <div class="col-sm-9">{{Form::select('BillingClassID', $BillingClass, '' ,array("class"=>"select2 small form-control1 small","id"=>"AccountBillingClassID"));}}</div>
+          <div class="col-sm-6">{{Form::select('BillingClassID', $BillingClass, '' ,array("class"=>"select2 small form-control1 small","id"=>"AccountBillingClassID"));}}</div>
           <div class="clearfix margin-bottom "></div>
            <label for="field-1" class="col-sm-3 control-label">*Address</label>
-          <div class="col-sm-9"> {{Form::textarea('Address','',array( "ID"=>"Account_Address", "rows"=>4, "class"=>"form-control"))}} </div>
+          <div class="col-sm-6"> {{Form::textarea('Address','',array( "ID"=>"Account_Address", "rows"=>4, "class"=>"form-control"))}} </div>
           <div class="clearfix margin-bottom "></div>
         </div>
-        <div class="col-sm-4">
 
-            <div class="clearfix margin-bottom "></div>
-        </div>
-        <div class="col-sm-4">
-          <label for="field-1" class="col-sm-4 control-label">*Credit Notes Number</label>
-          <div class="col-sm-8"> {{Form::text('CreditNotesNumber','',array("Placeholder"=>"AUTO", "class"=>"form-control"))}} </div>
+        <div class="col-sm-6">
+          <label for="field-1" class="col-sm-7 control-label">*Credit Note Number</label>
+          <div class="col-sm-5"> {{Form::text('CreditNotesNumber','',array("Placeholder"=>"AUTO", "class"=>"form-control"))}} </div>
           <br />
           <br />
-          <label for="field-1" class="col-sm-4 control-label">*Date of issue</label>
-          <div class="col-sm-8"> {{Form::text('IssueDate',date('Y-m-d'),array("class"=>" form-control datepicker" , "data-startdate"=>date('Y-m-d',strtotime("-2 month")),  "data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"+1w" ,"data-start-view"=>"2"))}} </div>
+          <label for="field-1" class="col-sm-7 control-label">*Date of issue</label>
+          <div class="col-sm-5"> {{Form::text('IssueDate',date('Y-m-d'),array("class"=>" form-control datepicker" , "data-startdate"=>date('Y-m-d',strtotime("-2 month")),  "data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"+1w" ,"data-start-view"=>"2"))}} </div>
           <br />
           <br />
 
@@ -161,7 +158,7 @@
                                     <td>{{Form::text('TotalDiscount','',array("class"=>"form-control TotalDiscount text-right","readonly"=>"readonly"))}}</td>
                             </tr>-->
                             <tr class="grand_total_creditnotes">
-                                    <td >Credit Notes Total </td>
+                                    <td >Credit Note Total </td>
                                     <td>{{Form::text('GrandTotal','',array("class"=>"form-control GrandTotal text-right","readonly"=>"readonly"))}}</td>
                             </tr>
               <tr class="creditnotes_tax_row">
