@@ -93,31 +93,21 @@ class CreditNotesController extends \BaseController {
         $companyID = User::get_companyID();
 
         if($data['InvoiceNumber'] == 0) {
-            $AccountInvoices = DB::connection('sqlsrv2')->table('tblInvoice')
-                ->select(DB::raw("tblInvoice.InvoiceID,FullInvoiceNumber, IssueDate, tblInvoice.GrandTotal,SUM(tblPayment.Amount) as paidsum"))
-                ->leftJoin('tblPayment','tblInvoice.InvoiceID', '=', 'tblPayment.InvoiceID')
+
+            $AccountInvoices = Invoice::select(["tblInvoice.InvoiceID", "tblInvoice.FullInvoiceNumber", "tblInvoice.IssueDate", "tblInvoice.GrandTotal", DB::raw("(select IFNULL(SUM(Amount),0) from tblPayment where tblPayment.InvoiceID=tblInvoice.InvoiceID and tblPayment.Recall=0) as paidsum")])
                 ->where('tblInvoice.AccountID', $AccountID)
                 ->where('tblInvoice.InvoiceStatus', '<>', 'post')
                 ->where('tblInvoice.InvoiceStatus', '<>', 'paid')
-                ->where('tblPayment.Recall', 0)
                 ->groupBy('tblInvoice.InvoiceID');
         }
         else{
-           /* $AccountInvoices = DB::connection('sqlsrv2')->table('tblInvoice')
-                ->select('InvoiceID', 'FullInvoiceNumber', 'IssueDate', 'GrandTotal')
-                ->where("AccountID", $AccountID)
-                ->where("InvoiceNumber", $data['InvoiceNumber'])
-                ->where("InvoiceStatus", '<>', 'post')
-                ->where('InvoiceStatus', '<>', 'paid');*/
 
-            $AccountInvoices = DB::connection('sqlsrv2')->table('tblInvoice')
-                ->select(DB::raw("tblInvoice.InvoiceID,FullInvoiceNumber, IssueDate, tblInvoice.GrandTotal,SUM(tblPayment.Amount) as paidsum"))
-                ->leftJoin('tblPayment','tblInvoice.InvoiceID', '=', 'tblPayment.InvoiceID')
+            $AccountInvoices = Invoice::select(["tblInvoice.InvoiceID", "tblInvoice.FullInvoiceNumber", "tblInvoice.IssueDate", "tblInvoice.GrandTotal", DB::raw("(select IFNULL(SUM(Amount),0) from tblPayment where tblPayment.InvoiceID=tblInvoice.InvoiceID and tblPayment.Recall=0) as paidsum")])
                 ->where('tblInvoice.AccountID', $AccountID)
                 ->where('tblInvoice.InvoiceNumber', $data['InvoiceNumber'])
                 ->where('tblInvoice.InvoiceStatus', '<>', 'post')
-                ->where('tblInvoice.InvoiceStatus', '<>', 'paid')
-                ->where('tblPayment.Recall',0);
+                ->where('tblInvoice.InvoiceStatus', '<>', 'paid');
+
         }
         return Datatables::of($AccountInvoices)->make();
     }
