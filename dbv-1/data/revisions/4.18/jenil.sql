@@ -176,7 +176,6 @@ ALTER TABLE `tblEstimateTaxRate`
 	ADD COLUMN `EstimateDetailID` INT(11) NOT NULL DEFAULT '0' AFTER `EstimateID`;
 	
 
-/* Above db changes of taxrate done - staging */
 DROP PROCEDURE IF EXISTS `prc_CreateInvoiceFromRecurringInvoice`;
 DELIMITER //
 CREATE PROCEDURE `prc_CreateInvoiceFromRecurringInvoice`(
@@ -4454,11 +4453,195 @@ INSERT INTO `tblResource` ( `ResourceName`, `ResourceValue`, `CompanyID`, `Creat
 INSERT INTO `tblResource` ( `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('Authentication.deleteclis', 'AuthenticationController.deleteclis', 1, 'Sumera Saeed', NULL, '2016-07-16 15:42:10.000', '2016-07-16 15:42:10.000', 1368);
 INSERT INTO `tblResource` ( `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ( 'Authentication.addipclis', 'AuthenticationController.addipclis', 1, 'Sumera Saeed', NULL, '2016-07-21 13:00:46.000', '2016-07-21 13:00:46.000', 153);
 
+
+
+/* change of api*/
+
+DROP PROCEDURE IF EXISTS `prc_getProductsByItemType`;
+DELIMITER //
+CREATE PROCEDURE `prc_getProductsByItemType`(
+	IN `p_CompanyID` INT,
+	IN `p_ItemType` VARCHAR(50),
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_Name` VARCHAR(255),
+	IN `p_Description` VARCHAR(255)
+
+)
+    DETERMINISTIC
+BEGIN
+	DECLARE v_OffSet_ int;
+	DECLARE v_fieldName VARCHAR(255);
+		
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+	
+	DROP TEMPORARY TABLE IF EXISTS tmp_products;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_products(
+		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		ProductID INT,
+		ItemTypeID INT		
+	);
+	
+	DROP TEMPORARY TABLE IF EXISTS tmp_products_fields;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_products_fields(
+		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		DynamicFieldsID INT(11),
+		FieldName Varchar(100),
+		FieldType Varchar(100)
+	);
+		
+
+	IF p_ItemType!='' THEN
+	
+		INSERT INTO tmp_products (ProductID,ItemTypeID)
+			SELECT
+					tblProduct.ProductID,
+					tblProduct.ItemTypeID
+			FROM tblItemType
+			INNER JOIN  tblProduct 
+				ON tblProduct.ItemTypeID=tblItemType.ItemTypeID
+			WHERE 
+				tblProduct.CompanyId=p_CompanyID
+				AND tblItemType.title=p_ItemType
+				AND tblProduct.Quantity > 0
+				AND tblProduct.Active=1
+				AND((p_Name ='' OR tblProduct.Name like CONCAT(p_Name,'%')))
+				AND((p_Description ='' OR tblProduct.Description like CONCAT('%',p_Description,'%')))
+			 LIMIT p_RowspPage OFFSET v_OffSet_;
+			 
+			 
+			 SELECT 
+			 	count(*) as totalcount
+			FROM tblItemType
+			INNER JOIN  tblProduct 
+				ON tblProduct.ItemTypeID=tblItemType.ItemTypeID
+			WHERE 
+				tblProduct.CompanyId=p_CompanyID
+				AND tblItemType.title=p_ItemType
+				AND tblProduct.Quantity > 0
+				AND tblProduct.Active=1
+				AND((p_Name ='' OR tblProduct.Name like CONCAT(p_Name,'%')))
+				AND((p_Description ='' OR tblProduct.Description like CONCAT('%',p_Description,'%')));
+			 
+			 
+			 
+	ELSE 
+	
+		INSERT INTO tmp_products (ProductID,ItemTypeID)
+			SELECT
+				tblProduct.ProductID,
+				tblProduct.ItemTypeID
+			FROM tblProduct
+			WHERE
+				tblProduct.CompanyId=p_CompanyID
+				AND tblProduct.Quantity > 0
+				AND tblProduct.Active=1
+				AND((p_Name ='' OR tblProduct.Name like CONCAT(p_Name,'%')))
+				AND((p_Description ='' OR tblProduct.Description like CONCAT('%',p_Description,'%')))
+			LIMIT p_RowspPage OFFSET v_OffSet_;
+			
+			SELECT 
+				count(*) as totalcount
+			FROM tblProduct
+			WHERE
+				tblProduct.CompanyId=p_CompanyID
+				AND tblProduct.Quantity > 0
+				AND tblProduct.Active=1
+				AND((p_Name ='' OR tblProduct.Name like CONCAT(p_Name,'%')))
+				AND((p_Description ='' OR tblProduct.Description like CONCAT('%',p_Description,'%')));
+			
+	END IF;
+			 
+				
+			INSERT INTO tmp_products_fields (FieldName,DynamicFieldsID,FieldType)
+			SELECT 
+				DISTINCT a.FieldName,
+				a.DynamicFieldsID,
+				a.FieldDomType
+			FROM Ratemanagement3.tblDynamicFields a
+			INNER JOIN tmp_products b
+			ON a.ItemTypeID=b.ItemTypeID
+			WHERE 
+				a.Type='product'
+				AND a.CompanyID=p_CompanyID
+				AND a.`Status`=1;	
+						 
+			SET @v_pointer_1 = 1;
+			SET @v_rowCount_1 = (SELECT COUNT(*) FROM tmp_products_fields);
+		
+		 WHILE @v_pointer_1 <= @v_rowCount_1
+		  DO
+		
+			SET @fieldname = (SELECT FieldName from tmp_products_fields where RowID = @v_pointer_1);
+			 
+			SET @statement2 =  CONCAT('ALTER TABLE tmp_products ADD COLUMN `', @fieldname ,'` TEXT NULL;');
+	 	
+			PREPARE stm_query FROM @statement2;
+			EXECUTE stm_query;
+			DEALLOCATE PREPARE stm_query;
+			
+			SET @dynamicFieldID=	(SELECT DynamicFieldsID from tmp_products_fields where RowID = @v_pointer_1);
+		
+			SET @v_pointer_ = 1;
+			SET @v_rowCount_ = (SELECT COUNT(*) FROM tmp_products);
+			WHILE @v_pointer_ <= @v_rowCount_
+		  	DO	
+		  	
+			 SET @ProductID=(select ProductID FROM tmp_products WHERE RowID=@v_pointer_);
+			 
+				SET @upateq=CONCAT('UPDATE tmp_products prod
+		  	  	INNER JOIN Ratemanagement3.tblDynamicFieldsValue b ON b.DynamicFieldsID=',@dynamicFieldID,'
+		  	  	INNER JOIN Ratemanagement3.tblDynamicFields a ON a.DynamicFieldsID=b.DynamicFieldsID
+		  		SET `prod`.`',@fieldname,'`=b.FieldValue
+		  		
+		  		WHERE 
+				  prod.ProductID=',@ProductID,'
+				  AND b.ParentID=',@ProductID);
+				  
+				   -- select @upateq;
+				  
+				  PREPARE stm_query1 FROM @upateq;
+				  EXECUTE stm_query1;
+				  DEALLOCATE PREPARE stm_query1;
+		  		
+		  	SET @v_pointer_ = @v_pointer_ + 1;
+		  	
+		  	END WHILE;
+		
+			SET @v_pointer_1 = @v_pointer_1 + 1;
+	
+	  END WHILE;
+	  
+
+		SELECT 
+		 	tblProduct.CompanyId,	
+			tblProduct.Name,
+			tblProduct.Code,
+			tblProduct.Description,
+			tblProduct.Amount,
+			tblProduct.AppliedTo,
+			tblProduct.Note,
+			tblProduct.Buying_price,	
+			tblProduct.Quantity,
+			tblProduct.Low_stock_level,
+			tblProduct.Enable_stock,
+			tmp_products.*	 	
+		FROM 
+		tmp_products
+		INNER JOIN tblProduct ON tblProduct.ProductID=tmp_products.ProductID;
+			
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
 /* Above Done on Staging */
 
 
 /* dispute changes */
-INSERT INTO `tbljobtype` (`Code`, `Title`, `Description`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`) VALUES ('BDS', 'Bulk Dispute Send', NULL, '2018-09-17 17:33:45', 'System', NULL, NULL);
+INSERT INTO `tblJobType` (`Code`, `Title`, `Description`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`) VALUES ('BDS', 'Bulk Dispute Send', NULL, '2018-09-17 17:33:45', 'System', NULL, NULL);
 
 USE `RMBilling3`;
 DROP PROCEDURE IF EXISTS `prc_getDisputes`;
@@ -4665,7 +4848,6 @@ DELIMITER ;
 
 
 USE `Ratemanagement3`;
-
 DROP PROCEDURE IF EXISTS `prc_CronJobAllPending`;
 DELIMITER //
 CREATE PROCEDURE `prc_CronJobAllPending`(
@@ -6121,7 +6303,47 @@ BEGIN
 	AND TBL2.JobLoggedUserID IS NULL;
 	
 	
-	
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'QPP'
+			AND js.Code = 'p'
+			AND j.CompanyID = p_CompanyID
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'QPP'
+			AND js.Code = 'I'
+			AND j.CompanyID = p_CompanyID
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
 	
 	SELECT
         TBL1.JobID,
@@ -6164,6 +6386,8 @@ BEGIN
         ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
     WHERE TBL1.rowno = 1
     AND TBL2.JobLoggedUserID IS NULL;
+    
+    
     
     
     SELECT
@@ -6213,187 +6437,9 @@ END//
 DELIMITER ;
 
 
-/* change of api*/
 
-DROP PROCEDURE IF EXISTS `prc_getProductsByItemType`;
-DELIMITER //
-CREATE PROCEDURE `prc_getProductsByItemType`(
-	IN `p_CompanyID` INT,
-	IN `p_ItemType` VARCHAR(50),
-	IN `p_PageNumber` INT,
-	IN `p_RowspPage` INT,
-	IN `p_Name` VARCHAR(255),
-	IN `p_Description` VARCHAR(255)
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1370, 'Disputes.Delete', 1, 7);
 
-)
-    DETERMINISTIC
-BEGIN
-	DECLARE v_OffSet_ int;
-	DECLARE v_fieldName VARCHAR(255);
-		
-	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-
-	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-	
-	DROP TEMPORARY TABLE IF EXISTS tmp_products;
-	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_products(
-		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-		ProductID INT,
-		ItemTypeID INT		
-	);
-	
-	DROP TEMPORARY TABLE IF EXISTS tmp_products_fields;
-	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_products_fields(
-		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-		DynamicFieldsID INT(11),
-		FieldName Varchar(100),
-		FieldType Varchar(100)
-	);
-		
-
-	IF p_ItemType!='' THEN
-	
-		INSERT INTO tmp_products (ProductID,ItemTypeID)
-			SELECT
-					tblProduct.ProductID,
-					tblProduct.ItemTypeID
-			FROM tblItemType
-			INNER JOIN  tblProduct 
-				ON tblProduct.ItemTypeID=tblItemType.ItemTypeID
-			WHERE 
-				tblProduct.CompanyId=p_CompanyID
-				AND tblItemType.title=p_ItemType
-				AND tblProduct.Quantity > 0
-				AND tblProduct.Active=1
-				AND((p_Name ='' OR tblProduct.Name like CONCAT(p_Name,'%')))
-				AND((p_Description ='' OR tblProduct.Description like CONCAT('%',p_Description,'%')))
-			 LIMIT p_RowspPage OFFSET v_OffSet_;
-			 
-			 
-			 SELECT 
-			 	count(*) as totalcount
-			FROM tblItemType
-			INNER JOIN  tblProduct 
-				ON tblProduct.ItemTypeID=tblItemType.ItemTypeID
-			WHERE 
-				tblProduct.CompanyId=p_CompanyID
-				AND tblItemType.title=p_ItemType
-				AND tblProduct.Quantity > 0
-				AND tblProduct.Active=1
-				AND((p_Name ='' OR tblProduct.Name like CONCAT(p_Name,'%')))
-				AND((p_Description ='' OR tblProduct.Description like CONCAT('%',p_Description,'%')));
-			 
-			 
-			 
-	ELSE 
-	
-		INSERT INTO tmp_products (ProductID,ItemTypeID)
-			SELECT
-				tblProduct.ProductID,
-				tblProduct.ItemTypeID
-			FROM tblProduct
-			WHERE
-				tblProduct.CompanyId=p_CompanyID
-				AND tblProduct.Quantity > 0
-				AND tblProduct.Active=1
-				AND((p_Name ='' OR tblProduct.Name like CONCAT(p_Name,'%')))
-				AND((p_Description ='' OR tblProduct.Description like CONCAT('%',p_Description,'%')))
-			LIMIT p_RowspPage OFFSET v_OffSet_;
-			
-			SELECT 
-				count(*) as totalcount
-			FROM tblProduct
-			WHERE
-				tblProduct.CompanyId=p_CompanyID
-				AND tblProduct.Quantity > 0
-				AND tblProduct.Active=1
-				AND((p_Name ='' OR tblProduct.Name like CONCAT(p_Name,'%')))
-				AND((p_Description ='' OR tblProduct.Description like CONCAT('%',p_Description,'%')));
-			
-	END IF;
-			 
-				
-			INSERT INTO tmp_products_fields (FieldName,DynamicFieldsID,FieldType)
-			SELECT 
-				DISTINCT a.FieldName,
-				a.DynamicFieldsID,
-				a.FieldDomType
-			FROM Ratemanagement3.tblDynamicFields a
-			INNER JOIN tmp_products b
-			ON a.ItemTypeID=b.ItemTypeID
-			WHERE 
-				a.Type='product'
-				AND a.CompanyID=p_CompanyID
-				AND a.`Status`=1;	
-						 
-			SET @v_pointer_1 = 1;
-			SET @v_rowCount_1 = (SELECT COUNT(*) FROM tmp_products_fields);
-		
-		 WHILE @v_pointer_1 <= @v_rowCount_1
-		  DO
-		
-			SET @fieldname = (SELECT FieldName from tmp_products_fields where RowID = @v_pointer_1);
-			 
-			SET @statement2 =  CONCAT('ALTER TABLE tmp_products ADD COLUMN `', @fieldname ,'` TEXT NULL;');
-	 	
-			PREPARE stm_query FROM @statement2;
-			EXECUTE stm_query;
-			DEALLOCATE PREPARE stm_query;
-			
-			SET @dynamicFieldID=	(SELECT DynamicFieldsID from tmp_products_fields where RowID = @v_pointer_1);
-		
-			SET @v_pointer_ = 1;
-			SET @v_rowCount_ = (SELECT COUNT(*) FROM tmp_products);
-			WHILE @v_pointer_ <= @v_rowCount_
-		  	DO	
-		  	
-			 SET @ProductID=(select ProductID FROM tmp_products WHERE RowID=@v_pointer_);
-			 
-				SET @upateq=CONCAT('UPDATE tmp_products prod
-		  	  	INNER JOIN Ratemanagement3.tblDynamicFieldsValue b ON b.DynamicFieldsID=',@dynamicFieldID,'
-		  	  	INNER JOIN Ratemanagement3.tblDynamicFields a ON a.DynamicFieldsID=b.DynamicFieldsID
-		  		SET `prod`.`',@fieldname,'`=b.FieldValue
-		  		
-		  		WHERE 
-				  prod.ProductID=',@ProductID,'
-				  AND b.ParentID=',@ProductID);
-				  
-				   -- select @upateq;
-				  
-				  PREPARE stm_query1 FROM @upateq;
-				  EXECUTE stm_query1;
-				  DEALLOCATE PREPARE stm_query1;
-		  		
-		  	SET @v_pointer_ = @v_pointer_ + 1;
-		  	
-		  	END WHILE;
-		
-			SET @v_pointer_1 = @v_pointer_1 + 1;
-	
-	  END WHILE;
-	  
-
-		SELECT 
-		 	tblProduct.CompanyId,	
-			tblProduct.Name,
-			tblProduct.Code,
-			tblProduct.Description,
-			tblProduct.Amount,
-			tblProduct.AppliedTo,
-			tblProduct.Note,
-			tblProduct.Buying_price,	
-			tblProduct.Quantity,
-			tblProduct.Low_stock_level,
-			tblProduct.Enable_stock,
-			tmp_products.*	 	
-		FROM 
-		tmp_products
-		INNER JOIN tblProduct ON tblProduct.ProductID=tmp_products.ProductID;
-			
-	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-
-END//
-DELIMITER ;
-
+UPDATE `Ratemanagement3`.`tblResource` SET `CategoryID`='1370' WHERE  `ResourceID`=1837;
 
 
