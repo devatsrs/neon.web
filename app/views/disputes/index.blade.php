@@ -551,6 +551,7 @@
 
                     $('#add-new-dispute').click(function (ev) {
                         ev.preventDefault();
+                        $("#download_attach").html("");
                         $('#add-edit-dispute-form').trigger("reset");
                         $("#add-edit-dispute-form [name='AccountID']").val('').trigger("change");
                         $("#add-edit-dispute-form [name='InvoiceType']").val('').trigger("change");
