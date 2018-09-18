@@ -1296,6 +1296,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/disputes/{id}/view','DisputeController@view');
 	Route::any('/disputes/{id}/disputes_email', 'DisputeController@disputes_email');
 	Route::any('/disputes/{id}/send', 'DisputeController@send');
+	Route::any('/disputes/bulk_send_dispute_mail', 'DisputeController@bulk_send_dispute_mail');
 
 	//DailString
 	Route::any('/dialstrings', "DialStringController@index");
