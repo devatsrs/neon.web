@@ -24,6 +24,8 @@ ALTER TABLE `tblAccountDiscountPlan`
 	DROP INDEX `AccountID`,
 	Add UNIQUE INDEX `AccountID` (`Type`, `AccountID`, `ServiceID`, `AccountSubscriptionID`, `AccountName`, `AccountCLI`, `SubscriptionDiscountPlanID`);	
 
+ALTER TABLE `tblAccountBilling`
+	ADD COLUMN `ServiceBilling` INT(11) NULL DEFAULT '0' AFTER `AutoPayMethod`;
 
 CREATE TABLE IF NOT EXISTS `tblSubscriptionDiscountPlan` (
 	`SubscriptionDiscountPlanID` INT(11) NOT NULL AUTO_INCREMENT,
@@ -587,7 +589,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_getAccountDiscountPlan`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getAccountDiscountPlan`(
+CREATE PROCEDURE `prc_getAccountDiscountPlan`(
 	IN `p_AccountID` INT,
 	IN `p_Type` INT,
 	IN `p_ServiceID` INT,
@@ -651,7 +653,7 @@ THEN
 		ON tblAccountService.AccountID = tblAccount.AccountID
 	LEFT JOIN tblAccountBilling 
 		ON tblAccountBilling.AccountID = tblAccount.AccountID
-		AND (( tblAccountBilling.ServiceID = 0  ) OR ( tblAccountService.ServiceID > 0 AND tblAccountBilling.ServiceID = tblAccountService.ServiceID AND tblAccountService.Status = 1)  ) 
+		AND (( tblAccountBilling.ServiceID = 0  ) OR ( tblAccountService.ServiceID > 0 AND tblAccountBilling.ServiceID = tblAccountService.ServiceID AND tblAccountBilling.ServiceBilling=1 AND tblAccountService.Status = 1)  ) 
 	WHERE tblAccount.CompanyId = p_CompanyID 
 	AND tblAccount.Status = 1 
 	AND AccountType = 1 
@@ -674,7 +676,7 @@ ELSE
 		ON tblAccountService.AccountID = tblAccount.AccountID
 	LEFT JOIN tblAccountBilling 
 		ON tblAccountBilling.AccountID = tblAccount.AccountID
-		AND (( tblAccountBilling.ServiceID = 0  ) OR ( tblAccountService.ServiceID > 0 AND tblAccountBilling.ServiceID = tblAccountService.ServiceID AND tblAccountService.Status = 1)  ) 
+		AND (( tblAccountBilling.ServiceID = 0  ) OR ( tblAccountService.ServiceID > 0 AND tblAccountBilling.ServiceID = tblAccountService.ServiceID AND tblAccountBilling.ServiceBilling=1 AND tblAccountService.Status = 1)  ) 
 	WHERE tblAccount.CompanyId = p_CompanyID 
 	AND tblAccount.Status = 1 
 	AND AccountType = 1 
@@ -784,7 +786,7 @@ BEGIN
 			tblAccount.Blocked
 		FROM tblAccount
 		LEFT JOIN tblAccountBilling abg 
-		ON tblAccount.AccountID = abg.AccountID
+			ON tblAccount.AccountID = abg.AccountID  AND abg.ServiceID = 0
 		LEFT JOIN tblAccountBalance abc
 			ON abc.AccountID = tblAccount.AccountID
 		LEFT JOIN tblUser
@@ -871,7 +873,7 @@ BEGIN
 			COUNT(DISTINCT tblAccount.AccountID) AS totalcount
 		FROM tblAccount
 		LEFT JOIN tblAccountBilling abg 
-		 ON tblAccount.AccountID = abg.AccountID
+		 ON tblAccount.AccountID = abg.AccountID AND abg.ServiceID = 0
 		LEFT JOIN tblAccountBalance abc
 			ON abc.AccountID = tblAccount.AccountID
 		LEFT JOIN tblUser
@@ -918,8 +920,8 @@ BEGIN
 			CONCAT(tblUser.FirstName,' ',tblUser.LastName) as 'Account Owner',
 			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.BalanceAmount,0),v_Round_)) as AccountExposure
 		FROM tblAccount
-			LEFT JOIN tblAccountBilling abg 
-		ON tblAccount.AccountID = abg.AccountID
+		LEFT JOIN tblAccountBilling abg 
+			ON tblAccount.AccountID = abg.AccountID AND abg.ServiceID = 0
 		LEFT JOIN tblAccountBalance abc
 			ON abc.AccountID = tblAccount.AccountID
 		LEFT JOIN tblUser
@@ -958,8 +960,8 @@ BEGIN
 			tblAccount.AccountID,
 			tblAccount.AccountName
 		FROM tblAccount
-			LEFT JOIN tblAccountBilling abg 
-		ON tblAccount.AccountID = abg.AccountID
+		LEFT JOIN tblAccountBilling abg 
+			ON tblAccount.AccountID = abg.AccountID AND abg.ServiceID = 0
 		LEFT JOIN tblAccountBalance abc
 			ON abc.AccountID = tblAccount.AccountID
 		LEFT JOIN tblUser
@@ -1023,8 +1025,8 @@ BEGIN
 		FROM tblAccountBalance ab 
 		INNER JOIN tblAccount a 
 			ON a.AccountID = ab.AccountID
-		INNER JOIN tblAccountBilling abg 
-			ON abg.AccountID  = a.AccountID
+		INNER JOIN tblAccountBilling abg
+			ON abg.AccountID  = a.AccountID  AND abg.ServiceID = 0
 		INNER JOIN tblBillingClass b
 			ON b.BillingClassID = abg.BillingClassID
 		WHERE a.CompanyId = p_CompanyID
