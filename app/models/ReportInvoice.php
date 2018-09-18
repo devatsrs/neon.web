@@ -15,8 +15,15 @@ class ReportInvoice extends \Eloquent{
         'ServiceID' => 'tblInvoice.ServiceID',
         'Code' => 'tblProduct.Code',
         'CurrencyID' => 'tblInvoice.CurrencyID',
-        'BillingType' => 'tblAccountBilling.BillingType',
-        'BillingClassID' => 'tblAccountBilling.BillingClassID',
+        'BillingType' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.BillingType, "")',
+        'BillingClassID' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.BillingClassID, "")',
+        'BillingStartDate' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.BillingStartDate, "")',
+        'BillingCycleType' => "IF(tblAccountNextBilling.BillingCycleType!='', tblAccountNextBilling.BillingCycleType, IF(tblAccountBilling.BillingCycleType!='', tblAccountBilling.BillingCycleType, ''))",
+        'BillingCycleValue' => "IF(tblAccountNextBilling.BillingCycleValue!='', tblAccountNextBilling.BillingCycleValue, IF(tblAccountBilling.BillingCycleValue!='', tblAccountBilling.BillingCycleValue, ''))",
+        'LastInvoiceDate' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.LastInvoiceDate, "")',
+        'NextInvoiceDate' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.NextInvoiceDate, "")',
+        'LastChargeDate' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.LastChargeDate, "")',
+        'NextChargeDate' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.NextChargeDate, "")',
     );
     public static $database_payment_columns = array(
         'year' => 'YEAR(PaymentDate)',
@@ -27,6 +34,7 @@ class ReportInvoice extends \Eloquent{
     );
 
     public static $AccountBillingJoin = false;
+    public static $AccountNextBillingJoin = false;
     public static $InvoiceDetailJoin = false;
     public static $InvoiceTaxRateJoin = false;
     public static $AccountJoin = false;
@@ -136,19 +144,37 @@ class ReportInvoice extends \Eloquent{
     }
 
     public static function commonQuery($CompanyID, $data, $filters){
-        $rmdatabseName = getenv('DB_DATABASE');
+        $RMDB = Config::get('database.connections.sqlsrv.database');
         self::$dateFilterString = self::$invoiceDataFilterWhere = array();
         $query_common = DB::connection('sqlsrv2')
             ->table('tblInvoice')
             ->where(['tblInvoice.CompanyID' => $CompanyID]);
 
-        if(in_array('BillingType',$data['column']) || in_array('BillingType',$data['row']) || in_array('BillingCycleType',$data['column']) || in_array('BillingCycleType',$data['row']) ||
+        if(in_array('BillingType',$data['column']) || in_array('BillingType',$data['row']) ||
             in_array('BillingStartDate',$data['column']) || in_array('BillingStartDate',$data['row']) ||
-            in_array('BillingCycleStartOfDay',$data['column']) || in_array('BillingCycleStartOfDay',$data['row']) ||
-            in_array('BillingClassID',$data['column']) || in_array('BillingClassID',$data['row'])){
-            $query_common->join($rmdatabseName.'.tblAccountBilling', 'tblAccountBilling.AccountID', '=', 'tblInvoice.AccountID');
-            $query_common->where(["tblAccountBilling.ServiceID"=>0]);
+            in_array('BillingCycleType',$data['column']) || in_array('BillingCycleType',$data['row']) ||
+            in_array('BillingCycleValue',$data['column']) || in_array('BillingCycleValue',$data['row']) ||
+            in_array('BillingClassID',$data['column']) || in_array('BillingClassID',$data['row']) ||
+            in_array('LastInvoiceDate',$data['column']) || in_array('LastInvoiceDate',$data['row']) ||
+            in_array('NextInvoiceDate',$data['column']) || in_array('NextInvoiceDate',$data['row']) ||
+            in_array('LastChargeDate',$data['column']) || in_array('LastChargeDate',$data['row']) ||
+            in_array('NextChargeDate',$data['column']) || in_array('NextChargeDate',$data['row'])
+        ){
+            $query_common->leftjoin($RMDB.'.tblAccountBilling', function ($join) {
+                $join->on('tblAccountBilling.AccountID', '=', 'tblInvoice.AccountID')
+                    ->where('tblAccountBilling.ServiceID', '=', 0);
+            }
+            );
             self::$AccountBillingJoin = true;
+        }
+        if( in_array('BillingCycleValue',$data['column']) || in_array('BillingCycleValue',$data['row']) ||
+            in_array('BillingCycleType',$data['column']) || in_array('BillingCycleType',$data['row']) ){
+            $query_common->leftjoin($RMDB.'.tblAccountNextBilling', function ($join) {
+                $join->on('tblAccountNextBilling.AccountID', '=', 'tblInvoice.AccountID')
+                    ->where('tblAccountNextBilling.ServiceID', '=', 0);
+            }
+            );
+            self::$AccountNextBillingJoin = true;
         }
 
         if(in_array('TaxRateID',$data['column']) || in_array('TaxRateID',$data['row']) || in_array('TaxRateID',$data['filter']) || in_array('TotalTax',$data['sum'])){
@@ -172,7 +198,7 @@ class ReportInvoice extends \Eloquent{
             }
 
         }
-        $RMDB = Config::get('database.connections.sqlsrv.database');
+
         if(report_join($data)){
             $query_common->join($RMDB.'.tblAccount', 'tblInvoice.AccountID', '=', 'tblAccount.AccountID');
             self::$AccountJoin = true;
