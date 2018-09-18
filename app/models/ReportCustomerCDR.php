@@ -45,6 +45,7 @@ class ReportCustomerCDR extends \Eloquent{
             }
             foreach ($data['row'] as $column) {
                 if($column == 'CountryID'){
+                    $columnname = $column;
                     $select_columns[] = DB::raw(self::$DetailTable.'.'.$column.' as '.$column) ;
                 }else if(isset(self::$database_columns[$column])){
                     $columnname = $column;
