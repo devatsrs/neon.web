@@ -95,6 +95,7 @@
             <th width="10%">Number</th>
             <th width="15%">Issue Date</th>
             <th width="10%">Grand Total</th>
+            <th width="10%">Available Credit</th>
             <th width="10%">Status</th>
             <th width="20%">Action</th>
         </tr>
@@ -224,13 +225,21 @@
                                 mRender:function( id, type, full){
                                     var output = full[3];
                                     return output;
-                                } },  // 4 GrandTotal
+                                }
+                            },  // 4 GrandTotal
+                            {  "bSortable": true,
+                                mRender:function( id, type, full){
+                                    return  full[11];
+                                }
+
+                            },  // 11 Available Balance
                             {  "bSortable": true,
                                 mRender:function( id, type, full){
                                     return  creditnotesstatus[full[4]];
                                 }
 
                             },  // 5 CreditNotesStatus
+
                             {
                                 "bSortable": false,
                                 mRender: function ( id, type, full ) {

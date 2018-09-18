@@ -124,7 +124,7 @@ BEGIN
 	        
  	 SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
  	 SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
-	 SELECT cr.Symbol INTO v_CurrencyCode_ from Ratemanagement3.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
+	 SELECT cr.Symbol INTO v_CurrencyCode_ from NeonRMDev.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
     IF p_isExport = 0
     THEN
         SELECT 
@@ -138,14 +138,15 @@ BEGIN
         inv.Attachment,
         inv.AccountID,		  
 		  IFNULL(ac.BillingEmail,'') AS BillingEmail,
-		  ROUND(inv.GrandTotal,v_Round_) AS GrandTotal
+		  ROUND(inv.GrandTotal,v_Round_) AS GrandTotal,
+		  IFNULL(inv.GrandTotal - inv.PaidAmount,0) AS CreditNoteAmount
 		  
         FROM tblCreditNotes inv
-        INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = inv.AccountID
+        INNER JOIN NeonRMDev.tblAccount ac ON ac.AccountID = inv.AccountID
         
-		INNER JOIN Ratemanagement3.tblBillingClass b ON inv.BillingClassID = b.BillingClassID	
+		INNER JOIN NeonRMDev.tblBillingClass b ON inv.BillingClassID = b.BillingClassID	
 		LEFT JOIN tblInvoiceTemplate it on b.InvoiceTemplateID = it.InvoiceTemplateID
-        LEFT JOIN Ratemanagement3.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId 
+        LEFT JOIN NeonRMDev.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId 
         WHERE ac.CompanyID = p_CompanyID
         AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
         AND (p_CreditNotesNumber = '' OR ( p_CreditNotesNumber != '' AND inv.CreditNotesNumber = p_CreditNotesNumber))
@@ -186,9 +187,9 @@ BEGIN
             COUNT(*) AS totalcount,  ROUND(SUM(inv.GrandTotal),v_Round_) AS total_grand,v_CurrencyCode_ as currency_symbol
         FROM
         tblCreditNotes inv
-        INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = inv.AccountID
+        INNER JOIN NeonRMDev.tblAccount ac ON ac.AccountID = inv.AccountID
         
-		INNER JOIN Ratemanagement3.tblBillingClass b ON inv.BillingClassID = b.BillingClassID
+		INNER JOIN NeonRMDev.tblBillingClass b ON inv.BillingClassID = b.BillingClassID
 		LEFT JOIN tblInvoiceTemplate it on b.InvoiceTemplateID = it.InvoiceTemplateID
         WHERE ac.CompanyID = p_CompanyID
         AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
@@ -203,12 +204,12 @@ BEGIN
         SELECT ac.AccountName ,
         ( CONCAT(LTRIM(RTRIM(IFNULL(it.InvoiceNumberPrefix,''))), LTRIM(RTRIM(inv.CreditNotesNumber)))) AS CreditNotesNumber,
         inv.IssueDate,
-        ROUND(inv.GrandTotal,v_Round_) AS GrandTotal,
+        ROUND(inv.GrandTotal,v_Round_) AS GrandTotal,        
         inv.CreditNotesStatus
         FROM tblCreditNotes inv
-        INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = inv.AccountID
+        INNER JOIN NeonRMDev.tblAccount ac ON ac.AccountID = inv.AccountID
         
-		INNER JOIN Ratemanagement3.tblBillingClass b ON inv.BillingClassID = b.BillingClassID
+		INNER JOIN NeonRMDev.tblBillingClass b ON inv.BillingClassID = b.BillingClassID
 	    LEFT JOIN tblInvoiceTemplate it on b.InvoiceTemplateID = it.InvoiceTemplateID
         WHERE ac.CompanyID = p_CompanyID
         AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
@@ -224,13 +225,13 @@ BEGIN
         ac.AccountName,
         ( CONCAT(LTRIM(RTRIM(IFNULL(it.InvoiceNumberPrefix,''))), LTRIM(RTRIM(inv.CreditNotesNumber)))) AS CreditNotesNumber,
         inv.IssueDate,
-		  ROUND(inv.GrandTotal,v_Round_) AS GrandTotal,
+		  ROUND(inv.GrandTotal,v_Round_) AS GrandTotal,		  
         inv.CreditNotesStatus,
         inv.CreditNotesID
         FROM tblCreditNotes inv
-        INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = inv.AccountID
+        INNER JOIN NeonRMDev.tblAccount ac ON ac.AccountID = inv.AccountID
        
-		INNER JOIN Ratemanagement3.tblBillingClass b ON inv.BillingClassID = b.BillingClassID
+		INNER JOIN NeonRMDev.tblBillingClass b ON inv.BillingClassID = b.BillingClassID
 		  LEFT JOIN tblInvoiceTemplate it on b.InvoiceTemplateID = it.InvoiceTemplateID
         WHERE ac.CompanyID = p_CompanyID
         AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))

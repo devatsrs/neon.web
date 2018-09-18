@@ -363,8 +363,8 @@ class Invoice extends \Eloquent {
         {
             $AccountInvoices = Invoice::select('InvoiceID','InvoiceNumber','FullInvoiceNumber')
                 ->where('tblInvoice.AccountID', $AccountID)
-                ->where('tblInvoice.InvoiceStatus', '<>', 'post')
-                ->where('tblInvoice.InvoiceStatus', '<>', 'paid')
+                ->where('tblInvoice.GrandTotal','<>', 0)
+                ->whereIn('tblInvoice.InvoiceStatus', array('partially_paid','send','awaiting'))
                 ->groupBy('tblInvoice.InvoiceID')
                 ->get();
 
