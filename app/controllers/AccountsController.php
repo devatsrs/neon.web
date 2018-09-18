@@ -256,6 +256,12 @@ class AccountsController extends \BaseController {
             if($ManualBilling ==0) {
                 Account::$rules['BillingStartDate'] = 'required';
             }
+
+            if($data['BillingStartDate']==$data['NextInvoiceDate']){
+                $data['NextChargeDate']=$data['BillingStartDate'];
+            }else{
+                $data['NextChargeDate'] = date('Y-m-d', strtotime('-1 day', strtotime($data['NextInvoiceDate'])));;
+            }
         }
 
             Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,AccountType,1';
@@ -717,8 +723,14 @@ class AccountsController extends \BaseController {
         }
 
         $invoice_count = Account::getInvoiceCount($id);
-        if($invoice_count == 0){
+        if($invoice_count == 0 && $ManualBilling == 0){
             $data['LastInvoiceDate'] = $data['BillingStartDate'];
+            $data['LastChargeDate'] = $data['BillingStartDate'];
+            if($data['BillingStartDate']==$data['NextInvoiceDate']){
+                $data['NextChargeDate']=$data['BillingStartDate'];
+            }else{
+                $data['NextChargeDate'] = date('Y-m-d', strtotime('-1 day', strtotime($data['NextInvoiceDate'])));;
+            }
         }
 
         if (isset($data['accountgateway'])) {
@@ -748,13 +760,23 @@ class AccountsController extends \BaseController {
         }else{
             $autoblock = 0;
         }
+        /*$test=array();
+        $test['BillingStartDate']=$data['BillingStartDate'];
+        $test['BillingCycleType']=$data['BillingCycleType'];
+        $test['LastInvoiceDate']=$data['LastInvoiceDate'];
+        $test['LastChargeDate']=$data['LastChargeDate'];
+        $test['NextInvoiceDate']=$data['NextInvoiceDate'];
+        $test['NextChargeDate']=$data['NextChargeDate'];
+        log::info(print_r($test,true));*/
 
         if($data['Billing'] == 1) {
-            if($data['NextInvoiceDate']<$data['LastInvoiceDate']){
-                return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
-            }
-            if($data['NextChargeDate']<$data['LastChargeDate']){
-                return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
+            if($ManualBilling == 0){
+                if ($data['NextInvoiceDate'] < $data['LastInvoiceDate']) {
+                    return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
+                }
+                if ($data['NextChargeDate'] < $data['LastChargeDate']) {
+                    return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
+                }
             }
         }
         if($data['AutoPaymentSetting']!='never'){
@@ -792,11 +814,13 @@ class AccountsController extends \BaseController {
             }
 
             if($data['Billing'] == 1) {
-                if($data['NextInvoiceDate']<$data['LastInvoiceDate']){
-                    return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
-                }
-                if($data['NextChargeDate']<$data['LastChargeDate']){
-                    return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
+                if($ManualBilling == 0){
+                    if ($data['NextInvoiceDate'] < $data['LastInvoiceDate']) {
+                        return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
+                    }
+                    if ($data['NextChargeDate'] < $data['LastChargeDate']) {
+                        return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
+                    }
                 }
                 AccountBilling::insertUpdateBilling($id, $data,$ServiceID,$invoice_count);
                 if($ManualBilling == 0){
@@ -1882,33 +1906,40 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
 
                 $invoice_count = Account::getInvoiceCount($id);
+                //new billing
                 if(isset($data['BillingCheck']) && !empty($billing_on_off)) {
                     \Illuminate\Support\Facades\Log::info('--update billing--');
-                    //billing section start
-
-                    $data['LastInvoiceDate'] = $data['BillingStartDate'];
-                    $BillingStartDate= strtotime($data['BillingStartDate']);
-                    $BillingCycleType= $data['BillingCycleType'];
-                    $BillingCycleValue= $data['BillingCycleValue'];
-                    $NextChargedDate='';
-                    $data['NextInvoiceDate'] = next_billing_date($BillingCycleType, $BillingCycleValue, $BillingStartDate);
-                    $data['NextChargeDate'] = date('Y-m-d', strtotime('-1 day', strtotime($data['NextInvoiceDate'])));
-                    AccountBilling::insertUpdateBilling($id, $data, $ServiceID, $invoice_count);
-                    if($ManualBilling ==0) {
-                        AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
+                    $count = AccountBilling::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->count();
+                    if($count==0){
+                        //billing section start
+                        $BillingCycleType= $data['BillingCycleType'];
+                        $BillingCycleValue= $data['BillingCycleValue'];
+                        if($ManualBilling ==0) {
+                            $data['LastInvoiceDate'] = $data['BillingStartDate'];
+                            $BillingStartDate = strtotime($data['BillingStartDate']);
+                            $data['NextInvoiceDate'] = next_billing_date($BillingCycleType, $BillingCycleValue, $BillingStartDate);
+                            $data['NextChargeDate'] = date('Y-m-d', strtotime('-1 day', strtotime($data['NextInvoiceDate'])));
+                        }
+                        AccountBilling::insertUpdateBilling($id, $data, $ServiceID, $invoice_count);
+                        if ($ManualBilling == 0) {
+                            AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
+                        }
+                    }else{
+                        \Illuminate\Support\Facades\Log::info('-- AllReady Billing set. No Billing Change--');
                     }
                     \Illuminate\Support\Facades\Log::info('--update billing over--');
                 }
 
                 if(!empty($update_billing) && $update_billing==1){
                     $count = AccountBilling::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->count();
-                    if($count>0){
+                    $billing_on_off = isset($data['billing_on_off'])?1:0;
+                    $AccBilling = Account::where(['AccountID'=>$id])->pluck('Billing');
+                    //if billing than update account
+                    log::info('Update Billing '.$count.' - '.$update_billing.' - '.$billing_on_off.' - '.$AccBilling);
+                    if($count>0 && ($billing_on_off==1 || $AccBilling==1)){
                         //AccountBilling::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->update($billingupdate);
                         if(!empty($accountbillngdata) && $accountbillngdata==1){
                             $abdata = AccountBilling::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->first();
-
-                            $billingupdate['LastInvoiceDate'] = $abdata->LastInvoiceDate;
-                            $billingupdate['LastChargeDate'] = $abdata->LastChargeDate;
 
                             if(empty($billingupdate['BillingCycleType'])){
                                 $billingupdate['BillingCycleType'] = $abdata->BillingCycleType;
@@ -1919,26 +1950,34 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                             if(empty($billingupdate['BillingStartDate'])){
                                 $billingupdate['BillingStartDate'] = $abdata->BillingStartDate;
                             }
-
-                            $BillingStartDate= strtotime($billingupdate['BillingStartDate']);
+                            $billingupdate['LastInvoiceDate'] = $billingupdate['BillingStartDate'];
+                            $billingupdate['LastChargeDate'] = $billingupdate['BillingStartDate'];
                             $BillingCycleType= $billingupdate['BillingCycleType'];
                             $BillingCycleValue= $billingupdate['BillingCycleValue'];
-                            $NextChargedDate='';
-                            $NextBillingDate = next_billing_date($BillingCycleType, $BillingCycleValue, $BillingStartDate);
-                            $billingupdate['NextInvoiceDate'] = $NextBillingDate;
-                            if($NextBillingDate!=''){
-                                $NextChargedDate = date('Y-m-d', strtotime('-1 day', strtotime($NextBillingDate)));
-                                $billingupdate['NextChargeDate'] = $NextChargedDate;
-                            }
-
-
-                            AccountBilling::insertUpdateBilling($id, $billingupdate, $ServiceID,$invoice_count);
                             if($ManualBilling ==0) {
-                                AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
+                                $BillingStartDate = strtotime($billingupdate['BillingStartDate']);
+                                $NextBillingDate = next_billing_date($BillingCycleType, $BillingCycleValue, $BillingStartDate);
+                                $billingupdate['NextInvoiceDate'] = $NextBillingDate;
+                                if ($NextBillingDate != '') {
+                                    $NextChargedDate = date('Y-m-d', strtotime('-1 day', strtotime($NextBillingDate)));
+                                    $billingupdate['NextChargeDate'] = $NextChargedDate;
+                                }
                             }
+
+                            if($invoice_count==0) {
+                                AccountBilling::insertUpdateBilling($id, $billingupdate, $ServiceID, $invoice_count);
+                                if($ManualBilling ==0) {
+                                    AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
+                                }
+                            }else{
+                                \Illuminate\Support\Facades\Log::info('-- Allready Billing set. No Billing Change.count 0 --');
+                            }
+
                         }else{
                             AccountBilling::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->update($billingupdate);
                         }
+                    }else{
+                        \Illuminate\Support\Facades\Log::info('-- Allready Billing set. No Billing Change--');
                     }
 
                 }
