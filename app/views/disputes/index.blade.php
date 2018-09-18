@@ -250,7 +250,7 @@
                                     }
 
                                     if(full[9]!= ""){
-                                        action += '<span class="col-md-offset-1"><a class="btn btn-success btn-sm btn-icon icon-left"  href="'+downloads_+'" title="" ><i class="entypo-down"></i>Download</a></span>'
+                                        action += '<div class="btn-group"><span class="col-md-offset-1"><a class="btn btn-success btn-sm "  href="'+downloads_+'" title="" ><i class="entypo-down"></i></a></span></div>'
                                     }
 
                                     return action;

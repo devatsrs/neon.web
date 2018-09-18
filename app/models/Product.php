@@ -50,7 +50,7 @@ class Product extends \Eloquent {
             }else{
                 $Where = ["CompanyId"=>$CompanyID,"AppliedTo"=>$AppliedTo];
             }
-            self::$cache['product_dropdown1_cache'] = Product::where($Where)->where("Active",1)->lists('Name','ProductID');
+            self::$cache['product_dropdown1_cache'] = Product::where($Where)->where("Active",1)->orderby('Name')->lists('Name','ProductID');
             Cache::forever('product_dropdown1_cache', array('product_dropdown1_cache' => self::$cache['product_dropdown1_cache']));
         }
         $list = array();
@@ -102,7 +102,7 @@ class Product extends \Eloquent {
 
     public static function getProductByItemType($data=array()){
         $dataarr=array();
-        $query="CALL prc_getProductsByItemType(".$data['CompanyID'].",'".$data['ItemType']."',".$data['PageNumber'].",".$data['RowsPage'].")";
+        $query="CALL prc_getProductsByItemType(".$data['CompanyID'].",'".$data['ItemType']."',".$data['PageNumber'].",".$data['RowsPage'].",'".$data['Name']."','".$data['Description']."')";
         //$result  = DB::connection('sqlsrv2')->select($query);
         $result = DataTableSql::of($query,'sqlsrv2')->make(false);
         //$dataarr = json_decode(json_encode($result),true);

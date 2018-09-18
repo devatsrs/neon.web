@@ -15,6 +15,9 @@ class ProductApiController extends ApiController {
 		}
 		$CompanyID=User::get_companyID();
 		$data['CompanyID']=$CompanyID;
+		$data['Name']=empty($data['Name'])?'':$data['Name'];
+		$data['Description']=empty($data['Description'])?'':$data['Description'];
+
 		$result = Product::getProductByItemType($data);
 
 		return Response::json(["status"=>"success", "data"=>$result]);
