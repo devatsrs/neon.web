@@ -50,6 +50,15 @@ class Report extends \Eloquent {
                 'VatNumber'=>'VatNumber',
                 'TimeZone'=>'TimeZone',
                 'tags'=>'Tag',
+                'BillingType' => 'Billing Type',
+                'BillingCycleType' => 'Billing Cycle Type',
+                'BillingStartDate' => 'Billing Start Date',
+                'BillingCycleValue' => 'Billing Cycle Start of Day',
+                'BillingClassID' => 'Billing Class',
+                'LastInvoiceDate' => 'Last Invoice Date',
+                'NextInvoiceDate' => 'Next Invoice Date',
+                'LastChargeDate' => 'Last Charge Date',
+                'NextChargeDate' => 'Next Charge Date',
             ),
             'CDR'=>array(
                 'connect_time'=>'Connect Time',
@@ -98,6 +107,15 @@ class Report extends \Eloquent {
                 'VatNumber'=>'VatNumber',
                 'TimeZone'=>'TimeZone',
                 'tags'=>'Tag',
+                'BillingType' => 'Billing Type',
+                'BillingCycleType' => 'Billing Cycle Type',
+                'BillingStartDate' => 'Billing Start Date',
+                'BillingCycleValue' => 'Billing Cycle Start of Day',
+                'BillingClassID' => 'Billing Class',
+                'LastInvoiceDate' => 'Last Invoice Date',
+                'NextInvoiceDate' => 'Next Invoice Date',
+                'LastChargeDate' => 'Last Charge Date',
+                'NextChargeDate' => 'Next Charge Date',
             ),
             'CDR'=>array(
                 'connect_time'=>'Connect Time',
@@ -140,6 +158,15 @@ class Report extends \Eloquent {
                 'VatNumber'=>'VatNumber',
                 'TimeZone'=>'TimeZone',
                 'tags'=>'Tag',
+                'BillingType' => 'Billing Type',
+                'BillingCycleType' => 'Billing Cycle Type',
+                'BillingStartDate' => 'Billing Start Date',
+                'BillingCycleValue' => 'Billing Cycle Start of Day',
+                'BillingClassID' => 'Billing Class',
+                'LastInvoiceDate' => 'Last Invoice Date',
+                'NextInvoiceDate' => 'Next Invoice Date',
+                'LastChargeDate' => 'Last Charge Date',
+                'NextChargeDate' => 'Next Charge Date',
             ),
             'VAccountID' =>'Vendor',
             'Owner'=>'Account Manager',
@@ -177,6 +204,15 @@ class Report extends \Eloquent {
                 'VatNumber'=>'VatNumber',
                 'TimeZone'=>'TimeZone',
                 'tags'=>'Tag',
+                'BillingType' => 'Billing Type',
+                'BillingCycleType' => 'Billing Cycle Type',
+                'BillingStartDate' => 'Billing Start Date',
+                'BillingCycleValue' => 'Billing Cycle Start of Day',
+                'BillingClassID' => 'Billing Class',
+                'LastInvoiceDate' => 'Last Invoice Date',
+                'NextInvoiceDate' => 'Next Invoice Date',
+                'LastChargeDate' => 'Last Charge Date',
+                'NextChargeDate' => 'Next Charge Date',
             ),
             'VAccountID' =>'Vendor',
             'Owner'=>'Account Manager',
@@ -212,10 +248,20 @@ class Report extends \Eloquent {
                 'VatNumber'=>'VatNumber',
                 'TimeZone'=>'TimeZone',
                 'tags'=>'Tag',
+                'BillingType' => 'Billing Type',
+                'BillingCycleType' => 'Billing Cycle Type',
+                'BillingStartDate' => 'Billing Start Date',
+                'BillingCycleValue' => 'Billing Cycle Start of Day',
+                'BillingClassID' => 'Billing Class',
+                'LastInvoiceDate' => 'Last Invoice Date',
+                'NextInvoiceDate' => 'Next Invoice Date',
+                'LastChargeDate' => 'Last Charge Date',
+                'NextChargeDate' => 'Next Charge Date',
             ),
             'Owner'=>'Account Manager',
             'CurrencyID' =>'Currency Code',
             'InvoiceType' =>'Invoice Type',
+            'InvoiceNumber' =>'Invoice Number',
             'InvoiceStatus' =>'Invoice Status',
             'TaxRateID' => 'Tax Type',
             'ProductType'=> 'Charge Type',
@@ -225,6 +271,7 @@ class Report extends \Eloquent {
             ),
             'SubscriptionID' => 'Subscription Name',
             'ServiceID' => 'Service Name',
+
         ),
         'tax'=>array(
             'Date'=>array(
@@ -249,6 +296,15 @@ class Report extends \Eloquent {
                 'VatNumber'=>'VatNumber',
                 'TimeZone'=>'TimeZone',
                 'tags'=>'Tag',
+                'BillingType' => 'Billing Type',
+                'BillingCycleType' => 'Billing Cycle Type',
+                'BillingStartDate' => 'Billing Start Date',
+                'BillingCycleValue' => 'Billing Cycle Start of Day',
+                'BillingClassID' => 'Billing Class',
+                'LastInvoiceDate' => 'Last Invoice Date',
+                'NextInvoiceDate' => 'Next Invoice Date',
+                'LastChargeDate' => 'Last Charge Date',
+                'NextChargeDate' => 'Next Charge Date',
             ),
             'Owner'=>'Account Manager',
             'CurrencyID' =>'Currency Code',
@@ -281,6 +337,15 @@ class Report extends \Eloquent {
                 'VatNumber'=>'VatNumber',
                 'TimeZone'=>'TimeZone',
                 'tags'=>'Tag',
+                'BillingType' => 'Billing Type',
+                'BillingCycleType' => 'Billing Cycle Type',
+                'BillingStartDate' => 'Billing Start Date',
+                'BillingCycleValue' => 'Billing Cycle Start of Day',
+                'BillingClassID' => 'Billing Class',
+                'LastInvoiceDate' => 'Last Invoice Date',
+                'NextInvoiceDate' => 'Next Invoice Date',
+                'LastChargeDate' => 'Last Charge Date',
+                'NextChargeDate' => 'Next Charge Date',
             ),
             'Owner'=>'Account Manager',
             'CurrencyID' =>'Currency Code',
@@ -305,6 +370,15 @@ class Report extends \Eloquent {
                 'tags'=>'Tag',
                 'Owner'=>'Account Manager',
                 'CurrencyID' =>'Currency Code',
+                'BillingType' => 'Billing Type',
+                'BillingCycleType' => 'Billing Cycle Type',
+                'BillingStartDate' => 'Billing Start Date',
+                'BillingCycleValue' => 'Billing Cycle Start of Day',
+                'BillingClassID' => 'Billing Class',
+                'LastInvoiceDate' => 'Last Invoice Date',
+                'NextInvoiceDate' => 'Next Invoice Date',
+                'LastChargeDate' => 'Last Charge Date',
+                'NextChargeDate' => 'Next Charge Date',
             ),
         ),
     );
@@ -600,7 +674,26 @@ class Report extends \Eloquent {
                     $name = '';
                 }
                 break;
-
+            case 'BillingType':
+                $billing_type = AccountApproval::$billing_type;
+                if(!empty($ID) && isset($billing_type[$ID])){
+                    $name = $billing_type[$ID];
+                }else if(!empty($ID)){
+                    $name = $ID;
+                }else{
+                    $name = '';
+                }
+                break;
+            case 'BillingClassID':
+                $BillingClass   = BillingClass::getDropdownIDList();
+                if(!empty($ID) && isset($BillingClass[$ID])){
+                    $name = $BillingClass[$ID];
+                }else if(!empty($ID)){
+                    $name = $ID;
+                }else{
+                    $name = '';
+                }
+                break;
         }
         return $name;
     }
