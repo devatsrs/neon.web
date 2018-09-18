@@ -43,7 +43,7 @@
                          &nbsp;&nbsp;<span class="overdue">{{$CreditNotesStatus}}</span>
                     </div>
                 </div>
-                <div class="x-span4 pull-left" > <h1 class="text-center">CreditNotes</h1></div>
+                <div class="x-span4 pull-left" > <h1 class="text-center">Credit Note</h1></div>
                 <div class="x-span8 pull-right" style="margin-top:5px;">
 
                 @if( !empty($CreditNotes->UsagePath))
@@ -77,7 +77,7 @@
                 <iframe src="{{$unsignPDFurl}}" frameborder="1" scrolling="auto" height="100%" width="100%" ></iframe>
             </div>
             @else
-                <center>Error loading CreditNotes, Its need to regenerate.</center>
+                <center>Error loading Credit Note, Its need to regenerate.</center>
             @endif
 
         </div>

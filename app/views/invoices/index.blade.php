@@ -172,7 +172,7 @@
           <th width="6%">Grand Total</th>
           <th width="6%">Paid/OS</th>
           <th width="10%">Status</th>
-          <th width="5%">CreditNotes Amount</th>
+          <th width="5%">Credit</th>
           <th width="10%">Due Date</th>
           {{--<th width="10%">Due Days</th>--}}
           <th width="20%">Action</th>

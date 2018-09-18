@@ -4273,7 +4273,189 @@ END//
 DELIMITER ;
 
 
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('Dispute.email', 'DisputeController.email', 1, 'Sumera Saeed', NULL, '2018-09-14 16:10:48.000', '2018-09-14 16:10:50.000', 1367);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1367, 'Disputes.Email', 1, 7);
+
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('Dispute.send', 'DisputeController.send', 1, 'Sumera Saeed', NULL, '2018-09-14 15:52:32.000', '2018-09-14 15:52:33.000', 1366);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1366, 'Disputes.Send', 1, 7);
+
+use RMBilling3;
+DROP PROCEDURE IF EXISTS `prc_getDisputes`;
+DELIMITER //
+CREATE PROCEDURE `prc_getDisputes`(
+	IN `p_CompanyID` INT,
+	IN `p_InvoiceType` INT,
+	IN `p_AccountID` INT,
+	IN `p_InvoiceNumber` VARCHAR(100),
+	IN `p_Status` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(50),
+	IN `p_Export` INT
+
+)
+BEGIN
+
+     DECLARE v_OffSet_ int;
+     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	      
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+
+
+	if p_Export = 0
+	THEN
+
+    			SELECT   
+    			ds.InvoiceType,
+		 		a.AccountName,
+				ds.InvoiceNo,
+				ds.DisputeAmount,
+				 CASE WHEN ds.`Status`= 0 THEN
+				 		'Pending' 
+				WHEN ds.`Status`= 1 THEN
+					'Settled' 
+				WHEN ds.`Status`= 2 THEN
+					'Cancel' 
+				END as `Status`,
+				ds.created_at as `CreatedDate`,
+				ds.CreatedBy,
+				CASE WHEN LENGTH(ds.Notes) > 100 THEN CONCAT(SUBSTRING(ds.Notes, 1, 100) , '...')
+						 ELSE  ds.Notes 
+						 END as ShortNotes ,
+		 		ds.DisputeID,
+		 	   ds.Attachment,
+		 	   a.AccountID,
+		 		ds.Notes,
+		 		ds.Ref
+		 		
+            from tblDispute ds
+            inner join Ratemanagement3.tblAccount a on a.AccountID = ds.AccountID
+
+				where ds.CompanyID = p_CompanyID
+
+			   AND (p_InvoiceType = 0 OR ( p_InvoiceType != 0 AND ds.InvoiceType = p_InvoiceType))
+            AND(p_InvoiceNumber is NULL OR ds.InvoiceNo like Concat('%',p_InvoiceNumber,'%'))
+            AND(p_AccountID is NULL OR ds.AccountID = p_AccountID)
+            AND(p_Status is NULL OR ds.`Status` = p_Status)
+           AND(p_StartDate is NULL OR cast(ds.created_at as Date) >= p_StartDate)
+            AND(p_EndDate is NULL OR cast(ds.created_at as Date) <= p_EndDate) 
+            
+         ORDER BY
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN AccountName
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameASC') THEN AccountName
+                END ASC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceNoDESC') THEN InvoiceNo
+                END DESC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceNoASC') THEN InvoiceNo
+                END ASC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DisputeAmountDESC') THEN DisputeAmount
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DisputeAmountASC') THEN DisputeAmount
+                END ASC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_atDESC') THEN ds.created_at
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_atASC') THEN ds.created_at
+                END ASC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'StatusDESC') THEN ds.Status
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'StatusASC') THEN ds.Status
+                END ASC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DisputeIDDESC') THEN DisputeID
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DisputeIDASC') THEN DisputeID
+                END ASC 			 
+					 					 					    	             
+                
+            LIMIT p_RowspPage OFFSET v_OffSet_;
+
+		 
+
+				 SELECT   
+		 		COUNT(ds.DisputeID) AS totalcount,
+		 		sum(ds.DisputeAmount) as TotalDisputeAmount
+            from tblDispute ds
+            inner join Ratemanagement3.tblAccount a on a.AccountID = ds.AccountID
+				where ds.CompanyID = p_CompanyID
+
+				AND (p_InvoiceType = 0 OR ( p_InvoiceType != 0 AND ds.InvoiceType = p_InvoiceType))
+            AND(p_InvoiceNumber is NULL OR ds.InvoiceNo like Concat('%',p_InvoiceNumber,'%'))
+            AND(p_AccountID is NULL OR ds.AccountID = p_AccountID)
+            AND(p_Status is NULL OR ds.`Status` = p_Status)
+            AND(p_StartDate is NULL OR cast(ds.created_at as Date) >= p_StartDate)
+            AND(p_EndDate is NULL OR cast(ds.created_at as Date) <= p_EndDate) ;
+            
+            
+	ELSE
+
+				SELECT   
+				ds.InvoiceType,
+		 		a.AccountName,
+				ds.InvoiceNo,
+				ds.DisputeAmount,
+				 CASE WHEN ds.`Status`= 0 THEN
+				 		'Pending' 
+				WHEN ds.`Status`= 1 THEN
+					'Settled' 
+				WHEN ds.`Status`= 2 THEN
+					'Cancel' 
+				END as `Status`,
+				ds.created_at as `CreatedDate`,
+				ds.CreatedBy,
+		 		ds.Notes
+				
+
+            from tblDispute ds
+            inner join Ratemanagement3.tblAccount a on a.AccountID = ds.AccountID
+            
+            
+				where ds.CompanyID = p_CompanyID
+            
+            AND (p_InvoiceType = 0 OR ( p_InvoiceType != 0 AND ds.InvoiceType = p_InvoiceType))
+				AND(p_InvoiceNumber is NULL OR ds.InvoiceNo like Concat('%',p_InvoiceNumber,'%'))
+            AND(p_AccountID is NULL OR ds.AccountID = p_AccountID)
+            AND(p_Status is NULL OR ds.`Status` = p_Status)
+           AND(p_StartDate is NULL OR cast(ds.created_at as Date) >= p_StartDate)
+            AND(p_EndDate is NULL OR cast(ds.created_at as Date) <= p_EndDate) ;
+
+	END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+	
+END//
+DELIMITER ;
+
+/* Authentication - permission*/
+
+INSERT INTO `Ratemanagement3`.`tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1368, 'AuthenticationRule.Delete', 1, 3);
+UPDATE `Ratemanagement3`.`tblResourceCategories` SET `CategoryGroupID`='3' WHERE  `ResourceCategoryName`='AuthenticationRule.Add';
+UPDATE `Ratemanagement3`.`tblResourceCategories` SET `CategoryGroupID`='3' WHERE  `ResourceCategoryName`='AuthenticationRule.View';
+
+INSERT INTO `tblResource` ( `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('Authentication.authenticate_store', 'AuthenticationController.authenticate_store', 1, 'Khurram Saeed', NULL, '2016-02-04 13:12:34.000', '2016-02-04 13:12:34.000', 153);
+INSERT INTO `tblResource` ( `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ( 'Authentication.addIps', 'AuthenticationController.addIps', 1, 'Sumera Saeed', NULL, '2016-06-28 15:01:08.000', '2016-06-28 15:01:08.000', 153);
+INSERT INTO `tblResource` ( `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ( 'Authentication.deleteips', 'AuthenticationController.deleteips', 1, 'Sumera Saeed', NULL, '2016-06-28 15:01:08.000', '2016-06-28 15:01:08.000', 1368);
+INSERT INTO `tblResource` ( `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ( 'Authentication.addclis', 'AuthenticationController.addclis', 1, 'Sumera Saeed', NULL, '2016-07-16 15:42:10.000', '2016-07-16 15:42:10.000', 153);
+INSERT INTO `tblResource` ( `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('Authentication.deleteclis', 'AuthenticationController.deleteclis', 1, 'Sumera Saeed', NULL, '2016-07-16 15:42:10.000', '2016-07-16 15:42:10.000', 1368);
+INSERT INTO `tblResource` ( `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ( 'Authentication.addipclis', 'AuthenticationController.addipclis', 1, 'Sumera Saeed', NULL, '2016-07-21 13:00:46.000', '2016-07-21 13:00:46.000', 153);
+
 /* Above Done on Staging */
+
 
 
 
