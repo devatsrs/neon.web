@@ -28,7 +28,7 @@ class ItemType extends \Eloquent {
         } else {
             $CompanyID = $CompanyID>0 ? $CompanyID : User::get_companyID();
             $Where = ["CompanyId"=>$CompanyID];
-            self::$cache['itemtype_dropdown1_cache'] = ItemType::where($Where)->where("Active",1)->lists('title','ItemTypeID');
+            self::$cache['itemtype_dropdown1_cache'] = ItemType::where($Where)->where("Active",1)->orderby('title')->lists('title','ItemTypeID');
             Cache::forever('itemtype_dropdown1_cache', array('itemtype_dropdown1_cache' => self::$cache['itemtype_dropdown1_cache']));
         }
         $list = array();
