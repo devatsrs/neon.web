@@ -73,8 +73,13 @@ class RateGeneratorsController extends \BaseController {
         );
 
         $message = array(
-            'Timezones.required' => 'Please select atleast 1 Timezone'
+            'Timezones.required' => 'Please select at least 1 Timezone'
         );
+
+        if(!empty($data['IsMerge'])) {
+            $rules['TakePrice'] = "required";
+            $rules['MergeInto'] = "required";
+        }
 
         $validator = Validator::make($data, $rules, $message);
 
@@ -158,8 +163,15 @@ class RateGeneratorsController extends \BaseController {
         );
         
         $message = array(
-            'Timezones.required' => 'Please select atleast 1 Timezone'
+            'Timezones.required' => 'Please select at least 1 Timezone'
         );
+
+        if(!empty($data['IsMerge'])) {
+            $rules['TakePrice'] = "required";
+            $rules['MergeInto'] = "required";
+        } else {
+            $data['IsMerge'] = 0;
+        }
 
         $validator = Validator::make($data, $rules, $message);
 

@@ -49,6 +49,7 @@ class AmazonS3 {
         'XERO_UPLOAD'=>'XeroUpload',
         'GATEWAY_KEY'=>'GatewayKey',
         'DIGITAL_SIGNATURE_KEY'=>'DigitalSignature',
+        'BULK_DISPUTE_MAIL_ATTACHEMENT'=>'bulkdisputemailattachment',
     );
 
     // Instantiate an S3 client

@@ -46,30 +46,38 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="pull-right">
-                    <button type="button" class="btn btn-primary btn-sm  dropdown-toggle" data-toggle="dropdown"
-                            aria-expanded="false">Action <span class="caret"></span></button>
-                    <ul class="dropdown-menu dropdown-menu-left" role="menu"
-                        style="background-color: #000; border-color: #000; margin-top:0px;">
-                        <li>
-                            <a class="create" id="add-clitable" href="javascript:;">
-                                <i class="entypo-plus"></i>
-                                Add
-                            </a>
-                        </li>
-                        <li>
-                            <a class="generate_rate create" id="bulk-delete-cli" href="javascript:;"
-                               style="width:100%">
-                                <i class="entypo-trash"></i>
-                                Delete
-                            </a>
-                        </li>
-                        <li>
-                            <a class="generate_rate create" id="changeSelectedCLI" href="javascript:;">
-                                <i class="entypo-pencil"></i>
-                                Change RateTable
-                            </a>
-                        </li>
-                    </ul>
+                    @if( User::checkCategoryPermission('AuthenticationRule','Add,Delete'))
+                        <button type="button" class="btn btn-primary btn-sm  dropdown-toggle" data-toggle="dropdown"
+                                aria-expanded="false">Action <span class="caret"></span></button>
+                        <ul class="dropdown-menu dropdown-menu-left" role="menu"
+                            style="background-color: #000; border-color: #000; margin-top:0px;">
+                            @if( User::checkCategoryPermission('AuthenticationRule','Add'))
+                                <li>
+                                    <a class="create" id="add-clitable" href="javascript:;">
+                                        <i class="entypo-plus"></i>
+                                        Add
+                                    </a>
+                                </li>
+                            @endif
+                            @if( User::checkCategoryPermission('AuthenticationRule','Delete'))
+                                <li>
+                                    <a class="generate_rate create" id="bulk-delete-cli" href="javascript:;"
+                                       style="width:100%">
+                                        <i class="entypo-trash"></i>
+                                        Delete
+                                    </a>
+                                </li>
+                            @endif
+                            @if( User::checkCategoryPermission('AuthenticationRule','Add'))
+                                <li>
+                                    <a class="generate_rate create" id="changeSelectedCLI" href="javascript:;">
+                                        <i class="entypo-pencil"></i>
+                                        Change RateTable
+                                    </a>
+                                </li>
+                            @endif
+                        </ul>
+                    @endif
                 </div>
             </div>
         </div>

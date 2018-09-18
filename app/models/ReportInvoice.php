@@ -144,11 +144,14 @@ class ReportInvoice extends \Eloquent{
     }
 
     public static function commonQuery($CompanyID, $data, $filters){
+
         $RMDB = Config::get('database.connections.sqlsrv.database');
+
         self::$dateFilterString = self::$invoiceDataFilterWhere = array();
         $query_common = DB::connection('sqlsrv2')
             ->table('tblInvoice')
             ->where(['tblInvoice.CompanyID' => $CompanyID]);
+
 
         if(in_array('BillingType',$data['column']) || in_array('BillingType',$data['row']) ||
             in_array('BillingStartDate',$data['column']) || in_array('BillingStartDate',$data['row']) ||
@@ -232,7 +235,7 @@ class ReportInvoice extends \Eloquent{
                 }else{
                     $query_common->whereIn($key, $filter[$key]);
                 }
-            } else if (!empty($filter['wildcard_match_val']) && in_array($key, array('InvoiceNumber', 'InvoiceType', 'InvoiceStatus','ProductType'))) {
+            } else if (!empty($filter['wildcard_match_val']) && in_array($key, array('InvoiceType', 'InvoiceStatus','ProductType'))) {
                 $query_common->where($key, 'like', str_replace('*', '%', $filter['wildcard_match_val']));
             } else if (!empty($filter['wildcard_match_val']) && !in_array($key, array('year', 'quarter_of_year','month','week_of_year')) ) {
                 $data_in_array = Report::getDataInArray($CompanyID, $key, $filter['wildcard_match_val']);

@@ -361,13 +361,10 @@ class Invoice extends \Eloquent {
     {
         if(!empty($AccountID))
         {
-            $AccountInvoices = DB::connection('sqlsrv2')->table('tblInvoice')
-                ->select(DB::raw("tblInvoice.InvoiceID,FullInvoiceNumber, IssueDate, tblInvoice.GrandTotal,SUM(tblPayment.Amount) as paidsum"))
-                ->leftJoin('tblPayment','tblInvoice.InvoiceID', '=', 'tblPayment.InvoiceID')
+            $AccountInvoices = Invoice::select('InvoiceID','InvoiceNumber','FullInvoiceNumber')
                 ->where('tblInvoice.AccountID', $AccountID)
                 ->where('tblInvoice.InvoiceStatus', '<>', 'post')
                 ->where('tblInvoice.InvoiceStatus', '<>', 'paid')
-                ->where('tblPayment.Recall', 0)
                 ->groupBy('tblInvoice.InvoiceID')
                 ->get();
 

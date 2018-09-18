@@ -93,31 +93,21 @@ class CreditNotesController extends \BaseController {
         $companyID = User::get_companyID();
 
         if($data['InvoiceNumber'] == 0) {
-            $AccountInvoices = DB::connection('sqlsrv2')->table('tblInvoice')
-                ->select(DB::raw("tblInvoice.InvoiceID,FullInvoiceNumber, IssueDate, tblInvoice.GrandTotal,SUM(tblPayment.Amount) as paidsum"))
-                ->leftJoin('tblPayment','tblInvoice.InvoiceID', '=', 'tblPayment.InvoiceID')
+
+            $AccountInvoices = Invoice::select(["tblInvoice.InvoiceID", "tblInvoice.FullInvoiceNumber", "tblInvoice.IssueDate", "tblInvoice.GrandTotal", DB::raw("(select IFNULL(SUM(Amount),0) from tblPayment where tblPayment.InvoiceID=tblInvoice.InvoiceID and tblPayment.Recall=0) as paidsum")])
                 ->where('tblInvoice.AccountID', $AccountID)
                 ->where('tblInvoice.InvoiceStatus', '<>', 'post')
                 ->where('tblInvoice.InvoiceStatus', '<>', 'paid')
-                ->where('tblPayment.Recall', 0)
                 ->groupBy('tblInvoice.InvoiceID');
         }
         else{
-           /* $AccountInvoices = DB::connection('sqlsrv2')->table('tblInvoice')
-                ->select('InvoiceID', 'FullInvoiceNumber', 'IssueDate', 'GrandTotal')
-                ->where("AccountID", $AccountID)
-                ->where("InvoiceNumber", $data['InvoiceNumber'])
-                ->where("InvoiceStatus", '<>', 'post')
-                ->where('InvoiceStatus', '<>', 'paid');*/
 
-            $AccountInvoices = DB::connection('sqlsrv2')->table('tblInvoice')
-                ->select(DB::raw("tblInvoice.InvoiceID,FullInvoiceNumber, IssueDate, tblInvoice.GrandTotal,SUM(tblPayment.Amount) as paidsum"))
-                ->leftJoin('tblPayment','tblInvoice.InvoiceID', '=', 'tblPayment.InvoiceID')
+            $AccountInvoices = Invoice::select(["tblInvoice.InvoiceID", "tblInvoice.FullInvoiceNumber", "tblInvoice.IssueDate", "tblInvoice.GrandTotal", DB::raw("(select IFNULL(SUM(Amount),0) from tblPayment where tblPayment.InvoiceID=tblInvoice.InvoiceID and tblPayment.Recall=0) as paidsum")])
                 ->where('tblInvoice.AccountID', $AccountID)
                 ->where('tblInvoice.InvoiceNumber', $data['InvoiceNumber'])
                 ->where('tblInvoice.InvoiceStatus', '<>', 'post')
-                ->where('tblInvoice.InvoiceStatus', '<>', 'paid')
-                ->where('tblPayment.Recall',0);
+                ->where('tblInvoice.InvoiceStatus', '<>', 'paid');
+
         }
         return Datatables::of($AccountInvoices)->make();
     }
@@ -564,9 +554,9 @@ class CreditNotesController extends \BaseController {
                     $creditnotesloddata['CreditNotesID']= $CreditNotes->CreditNotesID;
                     $creditnotesloddata['Note']= 'Updated By '.$CreatedBy.$Extralognote;
                     $creditnotesloddata['created_at']= date("Y-m-d H:i:s");
-                    $creditnotesloddata['CreditNotesLogStatus']= creditnoteslog::UPDATED;
+                    $creditnotesloddata['CreditNotesLogStatus']= CreditNotesLog::UPDATED;
                     $CreditNotes->update($CreditNotesData);
-                    creditnoteslog::insert($creditnotesloddata);
+                    CreditNotesLog::insert($creditnotesloddata);
                     $CreditNotesDetailData = $StockHistoryData = $CreditNotesTaxRates = $CreditNotesAllTaxRates = array();
                     //Delete all CreditNotes Data and then Recreate.
                     CreditNotesDetail::where(["CreditNotesID" => $CreditNotes->CreditNotesID])->delete();
@@ -1070,7 +1060,7 @@ class CreditNotesController extends \BaseController {
             $CurrencySymbol 	= 	Currency::getCurrencySymbol($Account->CurrencyId);
             $creditnotes_status 	= 	 CreditNotes::get_creditnotes_status();
             $CreditNotesStatus =   $creditnotes_status[$CreditNotes->CreditNotesStatus];
-            //$CreditNotesComments =   creditnoteslog::get_comments_count($id);
+            //$CreditNotesComments =   CreditNotesLog::get_comments_count($id);
             return View::make('creditnotes.creditnotes_preview', compact('CreditNotes', 'CreditNotesDetail', 'Account', 'CreditNotesTemplate', 'CurrencyCode', 'logo','CurrencySymbol','CreditNotesStatus'));
         }
     }
@@ -1116,8 +1106,8 @@ class CreditNotesController extends \BaseController {
 
                 $creditnotesloddata['CreditNotesID']= $CreditNotes->CreditNotesID;
                 $creditnotesloddata['created_at']= date("Y-m-d H:i:s");
-                $creditnotesloddata['CreditNotesLogStatus']= creditnoteslog::VIEWED;
-                creditnoteslog::insert($creditnotesloddata);
+                $creditnotesloddata['CreditNotesLogStatus']= CreditNotesLog::VIEWED;
+                CreditNotesLog::insert($creditnotesloddata);
 
                 return self::creditnotes_preview($CreditNotesID);
             }
@@ -1706,8 +1696,8 @@ class CreditNotesController extends \BaseController {
                     $creditnotesloddata['CreditNotesID'] = $CreditNotesID;
                     $creditnotesloddata['Note'] = $creditnotes_status[$data['CreditNotesStatus']].' By ' . $username.$Extralognote;
                     $creditnotesloddata['created_at'] = date("Y-m-d H:i:s");
-                    $creditnotesloddata['CreditNotesLogStatus'] = creditnoteslog::UPDATED;
-                    creditnoteslog::insert($creditnotesloddata);
+                    $creditnotesloddata['CreditNotesLogStatus'] = CreditNotesLog::UPDATED;
+                    CreditNotesLog::insert($creditnotesloddata);
                 }
 
                 return Response::json(array("status" => "success", "message" => "CreditNotes Successfully Updated"));
