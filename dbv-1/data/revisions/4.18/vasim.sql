@@ -113,6 +113,13 @@ INSERT INTO `tblJobType` (`JobTypeID`, `Code`, `Title`, `Description`, `CreatedD
 INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, NULL, 'Sippy Rate File Status', 'sippyratefilestatus', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2018-08-01 15:11:06', 'RateManagementSystem');
 
 
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1369, 'Leads.Import', 1, 6);
+
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('Imports.leads_download_sample_excel_file', 'ImportsController.leads_download_sample_excel_file', 1, 'Sumera Saeed', NULL, '2016-05-19 19:22:44.000', '2016-05-19 19:22:44.000', 1369);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('Imports.leads_storeTemplate', 'ImportsController.leads_storeTemplate', 1, 'Sumera Saeed', NULL, '2016-05-19 19:22:44.000', '2016-05-19 19:22:44.000', 1369);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('Imports.leads_ajaxfilegrid', 'ImportsController.leads_ajaxfilegrid', 1, 'Sumera Saeed', NULL, '2016-05-19 19:22:44.000', '2016-05-19 19:22:44.000', 1369);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('Imports.leads_check_upload', 'ImportsController.leads_check_upload', 1, 'Sumera Saeed', NULL, '2016-05-19 19:22:44.000', '2016-05-19 19:22:44.000', 1369);
+
 
 
 
