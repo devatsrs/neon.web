@@ -197,7 +197,7 @@
                                     <td>{{Form::text('TotalDiscount',number_format($CreditNotes->TotalDiscount,$RoundChargesAmount),array("class"=>"form-control TotalDiscount text-right","readonly"=>"readonly"))}}</td>
                             </tr>
 -->                         <tr class="grand_total_creditnotes">
-                                <td >CreditNotes Total </td>
+                                <td >Credit Note Total </td>
                                 <td>{{Form::text('GrandTotal',number_format($CreditNotes->GrandTotal,$RoundChargesAmount),array("class"=>"form-control GrandTotal text-right","readonly"=>"readonly"))}}</td>
                             </tr>
                             @if(count($CreditNotesAllTax)>0)

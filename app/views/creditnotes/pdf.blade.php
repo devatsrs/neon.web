@@ -82,9 +82,7 @@ $inlineTaxes        =   [];
                 @if(count($CreditNotesDetailItems)>0)
                   <table border="0" cellspacing="0" cellpadding="0" id="frontinvoice">
                 <thead>
-                <tr>
-                    <th colspan="5" class="desc"><b>ONE OFF Fees</b></th>
-                </tr>
+
                 <tr>
                     <th class="desc"><b>Title</b></th>
                     <th class="desc"><b>Description</b></th>
@@ -146,13 +144,7 @@ $inlineTaxes        =   [];
                         </tr> <?php $item_tax_total = $item_tax_total+$CreditNotesItemTaxRatesData->TaxAmount; ?>
                     @endforeach
                 @endif  
-                @if($item_tax_total>0)
-               		 <tr>
-                            <td colspan="2"></td>
-                            <td colspan="2"><strong>ONE OFF TOTAL</strong></td>
-                            <td class="subtotal">{{$CurrencySymbol}}{{number_format($item_tax_total,$RoundChargesAmount)}}</td>
-                        </tr>
-                @endif  
+
                 </tfoot>
                 </table>
                 @endif
@@ -164,9 +156,7 @@ $inlineTaxes        =   [];
                 @if(count($CreditNotesDetailISubscription)>0)
                   <table border="0" cellspacing="0" cellpadding="0" id="frontinvoice">
                 <thead>
-                <tr>
-                    <th colspan="5" class="desc"><b>RECURRING Fees</b></th>
-                </tr>
+
                 <tr>
                     <th class="desc"><b>Title</b></th>
                     <th class="desc"><b>Description</b></th>
@@ -229,14 +219,7 @@ $inlineTaxes        =   [];
                         </tr>
                     @endforeach
                 @endif
-                
-                @if($subscription_tax_total>0)
-               		 <tr>
-                            <td colspan="2"></td>
-                            <td colspan="2"><strong>Recurring Total	</strong></td>
-                            <td class="subtotal">{{$CurrencySymbol}}{{number_format($subscription_tax_total,$RoundChargesAmount)}}</td>
-                        </tr>
-                @endif  
+
                 </tfoot>
                  </table>
                 @endif
@@ -256,11 +239,7 @@ $inlineTaxes        =   [];
                 @endforeach
                  </tbody>
                 <tfoot>                           
-                <tr>
-                    <td colspan="2"></td>
-                    <td colspan="2">CreditNotes Total</td>
-                    <td class="subtotal">{{$CurrencySymbol}}{{number_format($CreditNotes->CreditNotesTotal,$RoundChargesAmount)}}</td>
-                </tr>
+
                 
                 @if(count($CreditNotesAllTaxRates))
                     @foreach($CreditNotesAllTaxRates as $CreditNotesTaxRate)
