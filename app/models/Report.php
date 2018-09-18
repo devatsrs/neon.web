@@ -694,6 +694,16 @@ class Report extends \Eloquent {
                     $name = '';
                 }
                 break;
+            case 'BillingCycleType':
+                $BillingCycleTypeArray = SortBillingType(1);
+                if(!empty($ID)){
+                    $name = $BillingCycleTypeArray[$ID];
+                }else if(!empty($ID)){
+                    $name = $ID;
+                }else{
+                    $name = '';
+                }
+                break;
         }
         return $name;
     }
