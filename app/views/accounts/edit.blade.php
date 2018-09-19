@@ -614,6 +614,7 @@
                         {{Form::select('SendInvoiceSetting', BillingClass::$SendInvoiceSetting, ( isset($AccountBilling->SendInvoiceSetting)?$AccountBilling->SendInvoiceSetting:'after_admin_review' ),array("class"=>"form-control select2"))}}
                     </div>
                 </div>
+                @if($hiden_class != '')
                 <div class="form-group">
                     <label class="col-md-2 control-label">Last Invoice Date</label>
                     <div class="col-md-4">
@@ -662,14 +663,35 @@
                        @endif
                            {{Form::text('NextChargeDate', $NextChargeDate,array('class'=>'form-control '.$hiden_class.' datepicker next_charged_date',"data-date-format"=>"yyyy-mm-dd"))}}
                     </div>
+                    {{--
                     <div class="col-md-1">
                         @if($hiden_class != '')
                         <button class="btn btn-sm btn-primary tooltip-primary" id="next_charged_edit" data-original-title="Edit Next charged Date" title="" data-placement="top" data-toggle="tooltip">
                             <i class="entypo-pencil"></i>
                         </button>
                         @endif
-                    </div>
+                    </div>--}}
                 </div>
+                @else
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">Next Invoice Date</label>
+                        <div class="col-md-3">
+                            <?php
+                            $NextInvoiceDate = isset($AccountBilling->NextInvoiceDate)?$AccountBilling->NextInvoiceDate:'';
+                            ?>
+                            {{Form::text('NextInvoiceDate', $NextInvoiceDate,array('class'=>'form-control '.$hiden_class.' datepicker next_invoice_date',"data-date-format"=>"yyyy-mm-dd"))}}
+                        </div>
+                        <label class="col-md-2 control-label">Next Charge Date
+                            <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="This is period End Date. e.g. if Billing Cycle is monthly then Next Charge date will be last day of the month  i-e 30/04/2018" data-original-title="Next Charge Date">?</span>
+                        </label>
+                        <div class="col-md-3">
+                            <?php
+                            $NextChargeDate = isset($AccountBilling->NextChargeDate)?$AccountBilling->NextChargeDate:'';
+                            ?>
+                            {{Form::text('NextChargeDate', $NextChargeDate,array('class'=>'form-control '.$hiden_class.' datepicker next_charged_date',"data-date-format"=>"yyyy-mm-dd",'disabled'))}}
+                        </div>
+                    </div>
+                @endif
 
             </div>
         </div>
@@ -881,7 +903,7 @@
                        toastr.error(response.message, "Error", toastr_opts);
               }
             });
-                
+
         });
 
         $('select[name="BillingCycleType"]').on( "change",function(e){
@@ -1138,6 +1160,15 @@
                 return true;
             }
 
+            updatenextchargedate=1;
+            if(billing_disable!=''){
+                LastChargeDate = $('[name="LastChargeDate"]').val();
+                if(BillingStartDate!=LastChargeDate){
+                    updatenextchargedate=0;
+                }
+
+            }
+
             getNextBillingDatec_url =  '{{ URL::to('accounts/getNextBillingDate')}}';
             $.ajax({
                 url: getNextBillingDatec_url,
@@ -1145,7 +1176,9 @@
                 dataType: 'json',
                 success: function(response) {
                     $('[name="NextInvoiceDate"]').val(response.NextBillingDate);
-                    $('[name="NextChargeDate"]').val(response.NextChargedDate);
+                    if(updatenextchargedate==1) {
+                        $('[name="NextChargeDate"]').val(response.NextChargedDate);
+                    }
                 },
                 data: {
                     "BillingStartDate":BillingStartDate,
