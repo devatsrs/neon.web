@@ -462,7 +462,7 @@ function ajax_update(fullurl,data){
                         </div>
                         <div class="form-group">
                             <label for="field-1" class="col-sm-2 control-label">Ignore Call Charges
-                                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If ON then system will not take into count call charges on the invoice. Only subscriotions and addiotnal charges will be shown." data-original-title="Ignore Call Charges">?</span>
+                                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If ON then system will not take into count call charges on the invoice. Only subscriptions and additional charges will be shown." data-original-title="Ignore Call Charges">?</span>
                             </label>
                             <div class="col-sm-4">
                                 <p class="make-switch switch-small">
@@ -477,12 +477,14 @@ function ajax_update(fullurl,data){
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="field-1" class="col-sm-2 control-label">Default Template</label>
+                            <label for="field-1" class="col-sm-2 control-label">Template</label>
                             <div class="col-sm-4">
                                 <?php  $template_array =  array(0=>'Template 1',1=>'Template 2')?>
                                 {{Form::select('DefaultTemplate',$template_array,0,array("class"=>"select2 small"))}}
                             </div>
-                            <label for="field-1" class="col-sm-2 control-label">Display Footer On First Page Only</label>
+                            <label for="field-1" class="col-sm-2 control-label">Display Footer On First Page Only
+                                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If ON then taxes will be displayed on separate page instead of on first page and only workes on Template 1." data-original-title="Display Footer On First Page Only">?</span>
+                            </label>
                             <div class="col-sm-4">
                                 <p class="make-switch switch-small">
                                     <input type="checkbox" name="FooterDisplayOnlyFirstPage" value="0">
