@@ -257,11 +257,6 @@ class AccountsController extends \BaseController {
                 Account::$rules['BillingStartDate'] = 'required';
             }
 
-            if($data['BillingStartDate']==$data['NextInvoiceDate']){
-                $data['NextChargeDate']=$data['BillingStartDate'];
-            }else{
-                $data['NextChargeDate'] = date('Y-m-d', strtotime('-1 day', strtotime($data['NextInvoiceDate'])));;
-            }
         }
 
             Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,AccountType,1';
@@ -333,6 +328,17 @@ class AccountsController extends \BaseController {
                 }
 
                 if($data['Billing'] == 1) {
+                    if($ManualBilling ==0) {
+                        if ($data['BillingStartDate'] == $data['NextInvoiceDate']) {
+                            $data['NextChargeDate'] = $data['BillingStartDate'];
+                        } else {
+                            $BillingStartDate = strtotime($data['BillingStartDate']);
+                            $data['BillingCycleValue'] = empty($data['BillingCycleValue']) ? '' : $data['BillingCycleValue'];
+                            $NextBillingDate = next_billing_date($data['BillingCycleType'], $data['BillingCycleValue'], $BillingStartDate);
+                            $data['NextChargeDate'] = date('Y-m-d', strtotime('-1 day', strtotime($NextBillingDate)));;
+                        }
+                    }
+
                     AccountBilling::insertUpdateBilling($account->AccountID, $data,$ServiceID);
                     if($ManualBilling ==0) {
                         AccountBilling::storeFirstTimeInvoicePeriod($account->AccountID, $ServiceID);
@@ -729,7 +735,10 @@ class AccountsController extends \BaseController {
             if($data['BillingStartDate']==$data['NextInvoiceDate']){
                 $data['NextChargeDate']=$data['BillingStartDate'];
             }else{
-                $data['NextChargeDate'] = date('Y-m-d', strtotime('-1 day', strtotime($data['NextInvoiceDate'])));;
+                $BillingStartDate = strtotime($data['BillingStartDate']);
+                $data['BillingCycleValue'] = empty($data['BillingCycleValue']) ? '' : $data['BillingCycleValue'];
+                $NextBillingDate = next_billing_date($data['BillingCycleType'], $data['BillingCycleValue'], $BillingStartDate);
+                $data['NextChargeDate'] = date('Y-m-d', strtotime('-1 day', strtotime($NextBillingDate)));;
             }
         }
 
