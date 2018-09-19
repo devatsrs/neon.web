@@ -2137,7 +2137,7 @@ function table_html($data,$table_data){
             $table_header .= '<tr>';
             if ($key == 0) {
                 foreach ($data['row'] as $rowkey => $blankrow_name) {
-                    $table_header .= '<td rowspan="' . (count($data['column']) + 1) . '"></td>';
+                    $table_header .= '<td rowspan="' . (count($data['column']) + 1) . '">'.ucwords($blankrow_name).'</td>';
                 }
             }
 
