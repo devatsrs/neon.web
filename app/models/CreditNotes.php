@@ -10,8 +10,14 @@ class CreditNotes extends \Eloquent {
     const  INVOICE_IN= 2;
     const OPEN = 'open';
     const CLOSE = 'close';
+    const DRAFT = 'draft';
+    const SEND = 'send';
+    const AWAITING = 'awaiting';
+    const CANCEL = 'cancel';
+    const RECEIVED = 'received';
+    const PAID = 'paid';
+    const PARTIALLY_PAID = 'partially_paid';
     const ITEM_INVOICE =1;
-    const SEND 				= 	'send';
 	const EMAILTEMPLATE 		= "CreditNotesSingleSend";
 	
     //public static $invoice_status;

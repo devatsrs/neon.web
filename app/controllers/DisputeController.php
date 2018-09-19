@@ -242,6 +242,7 @@ class DisputeController extends \BaseController {
 			$companyID = User::get_companyID();
 			$CompanyName = Company::getName();
 			if (!empty($Currency)) {
+				$Attachment="";
 				$templateData	 	 = 	 EmailTemplate::getSystemEmailTemplate($Dispute->CompanyID, Dispute::EMAILTEMPLATE, $Account->LanguageID );
 				$data['InvoiceURL']	 =   URL::to('/invoice/'.$Dispute->AccountID.'-'.$Dispute->DisputeID.'/cview?email=#email');
 				$Message	 		 =	 EmailsTemplates::SendDisputeSingle($id,'body',$data);
@@ -251,16 +252,94 @@ class DisputeController extends \BaseController {
 				if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); 	}
 				$response_extensions		=	json_encode($response_api_extensions['allowed_extensions']);
 				$max_file_size				=	get_max_file_size();
+				$AttachmentURL=$Dispute->Attachment;
+				if($AttachmentURL!=''){
+					$reversedParts = explode('/', strrev($AttachmentURL), 2);
+					$Attachment=strrev($reversedParts[0]);
+				}
 
 				if(!empty($Subject) && !empty($Message)){
 					$from	 = $templateData->EmailFrom;
-					return View::make('disputes.email', compact('Dispute', 'Account', 'Subject','Message','CompanyName','from','response_extensions','max_file_size'));
+					return View::make('disputes.email', compact('Dispute', 'Account', 'Subject','Message','CompanyName','from','response_extensions','max_file_size','Attachment'));
 				}
 				return Response::json(["status" => "failure", "message" => "Subject or message is empty"]);
 
 
 			}
 		}
+	}
+
+	public function bulk_send_dispute_mail(){
+		$data = Input::all();
+		$companyID = User::get_companyID();
+		if(!empty($data['criteria'])){
+			$disputeid = $this->getDisputesIdByCriteria($data);
+			$disputeid = rtrim($disputeid,',');
+			$data['DisputeIDs'] = $disputeid;
+			unset($data['criteria']);
+		}
+		else{
+			unset($data['criteria']);
+		}
+
+		$jobType = JobType::where(["Code" => 'BDS'])->get(["JobTypeID", "Title"]);
+		$jobStatus = JobStatus::where(["Code" => "P"])->get(["JobStatusID"]);
+		$jobdata["CompanyID"] = $companyID;
+		$jobdata["JobTypeID"] = isset($jobType[0]->JobTypeID) ? $jobType[0]->JobTypeID : '';
+		$jobdata["JobStatusID"] = isset($jobStatus[0]->JobStatusID) ? $jobStatus[0]->JobStatusID : '';
+		$jobdata["JobLoggedUserID"] = User::get_userID();
+		$jobdata["Title"] =  (isset($jobType[0]->Title) ? $jobType[0]->Title : '');
+		$jobdata["Description"] = isset($jobType[0]->Title) ? $jobType[0]->Title : '';
+		$jobdata["CreatedBy"] = User::get_user_full_name();
+		$jobdata["Options"] = json_encode($data);
+		$jobdata["created_at"] = date('Y-m-d H:i:s');
+		$jobdata["updated_at"] = date('Y-m-d H:i:s');
+		$JobID = Job::insertGetId($jobdata);
+		if($JobID){
+			return Response::json(array("status" => "success", "message" => "Bulk Dispute Send Job Added in queue to process.You will be notified once job is completed. "));
+		}else{
+			return Response::json(array("status" => "success", "message" => "Problem Creating Job Bulk Dispute Send."));
+		}
+	}
+
+	public function getDisputesIdByCriteria($data){
+		$companyID = User::get_companyID();
+		$criteria = json_decode($data['criteria'],true);
+		Log::info(print_r($criteria,true));
+		$criteria['InvoiceType'] 		 = 		$criteria['InvoiceType'] == 'All'?'':$criteria['InvoiceType'];
+		$criteria['AccountID'] 				 = 		empty($criteria['AccountID'])?'NULL':$criteria['AccountID'];
+		$criteria['InvoiceNo']				 =		empty($criteria['InvoiceNo'])?'NULL':$criteria['InvoiceNo'];
+		$criteria['Status'] 				 = 		isset($criteria['Status']) && $criteria['Status'] != ''?$criteria['Status']:'NULL';
+
+		$criteria['p_disputestartdate'] 	 = 		$criteria['DisputeDate_StartDate']!=''?$criteria['DisputeDate_StartDate']:'NULL';
+		$criteria['p_disputeenddate'] 	 	 = 		$criteria['DisputeDate_EndDate']!=''?$criteria['DisputeDate_EndDate']:'NULL';
+		$criteria['p_disputestart']			 =		'NULL';
+		$criteria['p_disputeend']			 =		'NULL';
+
+		if($criteria['p_disputestartdate']!='' && $criteria['p_disputestartdate']!='NULL')
+		{
+			$criteria['p_disputestart']		=	"'".$criteria['p_disputestartdate']."'"; //.' '.$data['p_disputestartTime']."'";
+		}
+		if($criteria['p_disputeenddate']!='' && $criteria['p_disputeenddate']!='NULL')
+		{
+			$criteria['p_disputeend']			=	"'".$criteria['p_disputeenddate']."'"; //.' '.$data['p_disputeendtime']."'";
+		}
+
+		if($criteria['p_disputestart']!='NULL' && $criteria['p_disputeend']=='')
+		{
+			$criteria['p_disputeend'] 			= 	"'".date("Y-m-d H:i:s")."'";
+		}
+		Log::info(print_r($criteria,true));
+		$query = "call prc_getDisputes (".$companyID.",".intval($criteria['InvoiceType']).",".$criteria['AccountID'].",".$criteria['InvoiceNo'].",".$criteria['Status'].",".$criteria['p_disputestart'].",".$criteria['p_disputeend'].",'','','','',2)";
+		Log::info($query);
+
+		$exceldatas  = DB::connection('sqlsrv2')->select($query);
+		$exceldatas = json_decode(json_encode($exceldatas),true);
+		$disputeid='';
+		foreach($exceldatas as $exceldata){
+			$disputeid.= $exceldata['DisputeID'].',';
+		}
+		return $disputeid;
 	}
 
 	public function send($id){
@@ -392,6 +471,25 @@ class DisputeController extends \BaseController {
 			}
 		}
 		return $status;
+	}
+
+	public function delete($id) {
+		if( intval($id) > 0){
+			try {
+				$result = Dispute::find($id)->delete();
+				if ($result) {
+					return Response::json(array("status" => "success", "message" => "Dispute Successfully Deleted"));
+				} else {
+					return Response::json(array("status" => "failed", "message" => "Problem Deleting Dispute."));
+				}
+			} catch (Exception $ex) {
+				Log::info("========== Exception Generated While Deleting Dispute ==========");
+				Log::info(print_r($ex,true));
+				return Response::json(array("status" => "failed", "message" => "Dispute is in Use, You cant delete this Dispute."));
+			}
+		}else{
+			return Response::json(array("status" => "failed", "message" => "Dispute is in Use, You cant delete this Dispute."));
+		}
 	}
 
 

@@ -197,7 +197,7 @@
                                     <td>{{Form::text('TotalDiscount',number_format($CreditNotes->TotalDiscount,$RoundChargesAmount),array("class"=>"form-control TotalDiscount text-right","readonly"=>"readonly"))}}</td>
                             </tr>
 -->                         <tr class="grand_total_creditnotes">
-                                <td >CreditNotes Total </td>
+                                <td >Credit Note Total </td>
                                 <td>{{Form::text('GrandTotal',number_format($CreditNotes->GrandTotal,$RoundChargesAmount),array("class"=>"form-control GrandTotal text-right","readonly"=>"readonly"))}}</td>
                             </tr>
                             @if(count($CreditNotesAllTax)>0)
@@ -374,7 +374,7 @@
                 <form id="send-creditnotes-form" method="post" >
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Send CreditNote By Email</h4>
+                        <h4 class="modal-title">Send Credit Note By Email</h4>
                     </div>
                     <div class="modal-body">
 

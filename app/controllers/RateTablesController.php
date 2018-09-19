@@ -452,7 +452,7 @@ class RateTablesController extends \BaseController {
         $RateTableRate['EffectiveDate'] = $data['EffectiveDate'];
         $RateTableRate['EndDate']       = !empty($data['EndDate']) ? $data['EndDate'] : null;
         $RateTableRate['Rate']          = $data['Rate'];
-        $RateTableRate['RateN']         = $data['RateN'];
+        $RateTableRate['RateN']         = !empty($data['RateN']) ? $data['RateN'] : $data['Rate'];
         $RateTableRate['Interval1']     = $data['Interval1'];
         $RateTableRate['IntervalN']     = $data['IntervalN'];
         $RateTableRate['ConnectionFee'] = $data['ConnectionFee'];

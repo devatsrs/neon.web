@@ -73,6 +73,10 @@
                               @if(User::checkCategoryPermission('Disputes','Email'))
                                   <li> <a class="pay_now create" id="bulk_email" href="javascript:;"> Bulk Email </a> </li>
                               @endif
+                              @if(User::checkCategoryPermission('Disputes','Send'))
+                                  <li> <a class="generate_rate create" id="bulk-dispute-send" href="javascript:;"
+                                          style="width:100%"> Send</a> </li>
+                              @endif
 
                           </ul>
                       @endif
@@ -161,7 +165,7 @@
                         },
                         "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                         "sPaginationType": "bootstrap",
-                        "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                        "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                         "aaSorting": [[5, 'desc']],
                         "aoColumns": [
                             {
@@ -174,14 +178,23 @@
                                         invoiceType = ' <button class=" btn btn-primary pull-right" title="Invoice Sent"><i class="entypo-left-bold"></i>SNT</a>';
 
                                     }
-                                    if (full[0] != '{{Invoice::INVOICE_IN}}') {
+                                    //if (full[0] != '{{Invoice::INVOICE_IN}}') {
                                         action += '<div class="pull-left"><input type="checkbox" class="checkbox rowcheckbox" value="' + full[8] + '" name="DisputeID[]"></div>';
-                                    }
+                                    //}
                                     action += invoiceType;
                                     return action;
                                 }
                             },{
                                 "bSortable": true, //Account
+                                mRender: function (id, type, full) {
+                                    var output, account_url;
+                                    output = '<a href="{url}" target="_blank" >{account_name}';
+                                    output += '</a>';
+                                    account_url = baseurl + "/accounts/" + full[10] + "/show";
+                                    output = output.replace("{url}", account_url);
+                                    output = output.replace("{account_name}", id);
+                                    return output;
+                                }
                             },
                             {
                                 "bSortable": true, //InvoiceNo
@@ -232,6 +245,9 @@
                                     if('{{User::checkCategoryPermission('Disputes','Send')}}' ) {
                                         action += '<li><a data-id="' + id + '" class="send-disputes icon-left"><i class="entypo-mail"></i>Send </a></li>';
                                     }
+                                    if('{{User::checkCategoryPermission('Disputes','Delete')}}' ) {
+                                        action += '<li><a href="' + delete_ + '" data-redirect="{{ URL::to('disputes')}}" title="Delete"  class="dispute_delete" data-original-title="Delete" title="" data-placement="top"><i class="entypo-trash"></i>Delete </a></li>';
+                                    }
                                     action += '</ul>';
                                     action += '</div>';
 
@@ -278,11 +294,53 @@
                                 minimumResultsForSearch: -1
                             });
 
+                            $('#table-4 tbody tr').each(function (i, el) {
+                                if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                                    if (checked != '') {
+                                        $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                                        $(this).addClass('selected');
+                                        $('#selectallbutton').prop("checked", true);
+                                    } else {
+                                        $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                                        ;
+                                        $(this).removeClass('selected');
+                                    }
+                                }
+                            });
+
+                            $('#selectallbutton').click(function (ev) {
+                                if ($(this).is(':checked')) {
+                                    checked = 'checked=checked disabled';
+                                    $("#selectall").prop("checked", true).prop('disabled', true);
+                                    if (!$('#changeSelectedInvoice').hasClass('hidden')) {
+                                        $('#table-4 tbody tr').each(function (i, el) {
+                                            if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+
+                                                $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                                                $(this).addClass('selected');
+                                            }
+                                        });
+                                    }
+                                } else {
+                                    checked = '';
+                                    $("#selectall").prop("checked", false).prop('disabled', false);
+                                    if (!$('#changeSelectedInvoice').hasClass('hidden')) {
+                                        $('#table-4 tbody tr').each(function (i, el) {
+                                            if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+
+                                                $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                                                $(this).removeClass('selected');
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+
                         }
 
                     });
 
-
+         $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
                         // Replace Checboxes
                         $(".pagination a").click(function (ev) {
                             replaceCheckboxes();
@@ -374,10 +432,10 @@
                         $("#add-edit-dispute-form [name='InvoiceType']").val('').trigger("change");
                         $('#add-edit-dispute-form').find("input, textarea, select").val("");
                         $('.file-input-name').text('');
-
+                        $("#download_attach").html("");
 
                         var cur_obj = $(this).parent().parent().parent().parent().find("div.hiddenRowData");
-                        console.log(cur_obj);
+                        console.log(list_fields[0]);
                         var select = ['AccountID','InvoiceType'];
                         for(var i = 0 ; i< list_fields.length; i++){
                             field_value = cur_obj.find("input[name='"+list_fields[i]+"']").val();
@@ -388,9 +446,19 @@
                             }else{
                                 if(list_fields[i] != 'Attachment'){
                                     $("#add-edit-dispute-form [name='"+list_fields[i]+"']").val(field_value);
+                                }else{
+                                    //For Attachment
+                                    if(field_value!='' && typeof(field_value)!='undefined'){
+                                        var id=$(this).attr('data-id');
+                                        var downloads_ = "{{ URL::to('disputes/{id}/download_attachment')}}";
+                                        downloads_  = downloads_ .replace( '{id}', id );
+                                        var download_html = '<div class="btn-group"><span class="col-md-offset-1"><a class="btn btn-success btn-sm "  href="'+downloads_+'" title="" ><i class="entypo-down">Download</i></a></span></div>';
+                                        $("#download_attach").html(download_html);
+                                    }
                                 }
                             }
                             response[list_fields[i]] = field_value;
+
                         }
 
                         $('#add-edit-modal-dispute h4').html('Edit Dispute');
@@ -483,6 +551,7 @@
 
                     $('#add-new-dispute').click(function (ev) {
                         ev.preventDefault();
+                        $("#download_attach").html("");
                         $('#add-edit-dispute-form').trigger("reset");
                         $("#add-edit-dispute-form [name='AccountID']").val('').trigger("change");
                         $("#add-edit-dispute-form [name='InvoiceType']").val('').trigger("change");
@@ -624,6 +693,47 @@
                              contentType: false,
                              processData: false
                          });
+                     });
+
+                     $("#bulk-dispute-send").click(function (ev) {
+                         var criteria = '';
+                         if ($('#selectallbutton').is(':checked')) {
+                             criteria = JSON.stringify($searchFilter);
+                         }
+                         var DisputeIDs = [];
+                         var i = 0;
+                         $('#table-4 tr .rowcheckbox:checked').each(function (i, el) {
+                             //console.log($(this).val());
+                             DisputeID = $(this).val();
+                             if (typeof DisputeID != 'undefined' && DisputeID != null && DisputeID != 'null') {
+                                 DisputeIDs[i++] = DisputeID;
+                             }
+                         });
+                         console.log(DisputeIDs);
+
+                         if (DisputeIDs.length) {
+                             if (!confirm('Are you sure you want to send selected disputes?')) {
+                                 return;
+                             }
+                             $.ajax({
+                                 url: baseurl + '/disputes/bulk_send_dispute_mail',
+                                 data: 'DisputeIDs=' + DisputeIDs + '&criteria=' + criteria,
+                                 error: function () {
+                                     toastr.error("error", "Error", toastr_opts);
+                                 },
+                                 dataType: 'json',
+                                 success: function (response) {
+                                     if (response.status == 'success') {
+                                         toastr.success(response.message, "Success", toastr_opts);
+                                     } else {
+                                         toastr.error(response.message, "Error", toastr_opts);
+                                     }
+                                 },
+                                 type: 'POST'
+                             });
+
+                         }
+
                      });
 
                      $("#test").click(function (e) {
@@ -774,6 +884,41 @@
 
                  }
 
+
+                //delete Dispute
+                 $('body').on('click', '.dispute_delete', function (e) {
+                     e.preventDefault();
+
+                     response = confirm('Are you sure?');
+                     if( typeof $(this).attr("data-redirect")=='undefined'){
+                         $(this).attr("data-redirect",'{{ URL::previous() }}')
+                     }
+                     redirect = $(this).attr("data-redirect");
+                     if (response) {
+
+                         $.ajax({
+                             url: $(this).attr("href"),
+                             type: 'POST',
+                             dataType: 'json',
+                             success: function (response) {
+                                 $(".btn.delete").button('reset');
+                                 if (response.status == 'success') {
+                                     toastr.success(response.message, "Success", toastr_opts);
+                                     data_table.fnFilter('', 0);
+                                 } else {
+                                     toastr.error(response.message, "Error", toastr_opts);
+                                 }
+                             },
+                             // Form data
+                             //data: {},
+                             cache: false,
+                             contentType: false,
+                             processData: false
+                         });
+                     }
+                     return false;
+                 });
+
             </script>
     <style>
                 .dataTables_filter label{
@@ -781,6 +926,9 @@
                 }
                 .dataTables_wrapper .export-data{
                     right: 30px !important;
+                }
+                #selectcheckbox {
+                    padding: 15px 10px;
                 }
             </style>
     @include('includes.errors')
@@ -844,6 +992,7 @@
                     <label for="Attachment" class="control-label">Attachment (pdf,png,jpg,gif,xls,csv,xlsx)</label>
                     <div class="clear clearfix"></div>
                     <input id="Attachment" name="Attachment" type="file" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
+                    <div id="download_attach" class="pull-right" style="margin-right: 250px;"></div>
                 </div>
             </div>
             {{--<div class="col-md-12">

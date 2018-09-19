@@ -313,6 +313,7 @@ jQuery(document).ready(function($) {
                        <div class="col-md-6">
                            <div class="form-group ">
                                <label for="field-5" class="control-label">Round Charged Amount (123.45)</label>
+                               <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="Pattern that defines the rounding of a charged amount in an individual xDR. This pattern takes the form of XXX000. An X (to the left) means that the digit in this position will be left unchanged, while a zero (to the right) means that this position will be rounded off. For example, XXXXX.XX000 means that the amount will be rounded up two decimal places, so that 1.2355 becomes 1.24." data-original-title="Round Charged Amount (123.45)">?</span>
                                <div class="input-spinner">
                                    <button type="button" class="btn btn-default">-</button>
                                    {{Form::text('RoundChargedAmount', 2, array("class"=>"form-control", "maxlength"=>"1", "data-min"=>0,"data-max"=>6,"Placeholder"=>"Add Numeric value" , "data-mask"=>"decimal"))}}
@@ -373,6 +374,7 @@ jQuery(document).ready(function($) {
                         <div class="col-md-6">
                             <div class="form-group ">
                                 <label for="field-5" class="control-label">Round Charged Amount (123.45)</label>
+                                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="Pattern that defines the rounding of a charged amount in an individual xDR. This pattern takes the form of XXX000. An X (to the left) means that the digit in this position will be left unchanged, while a zero (to the right) means that this position will be rounded off. For example, XXXXX.XX000 means that the amount will be rounded up two decimal places, so that 1.2355 becomes 1.24." data-original-title="Round Charged Amount (123.45)">?</span>
                                 <div class="input-spinner">
                                     <button type="button" class="btn btn-default">-</button>
                                     {{Form::text('RoundChargedAmount', ( isset($BillingClass->RoundChargesAmount)?$BillingClass->RoundChargesAmount:'2' ),array("class"=>"form-control", "maxlength"=>"1", "data-min"=>0,"data-max"=>6,"Placeholder"=>"Add Numeric value" , "data-mask"=>"decimal"))}}
