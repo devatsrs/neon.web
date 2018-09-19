@@ -96,17 +96,17 @@ class CreditNotesController extends \BaseController {
 
             $AccountInvoices = Invoice::select(["tblInvoice.InvoiceID", "tblInvoice.FullInvoiceNumber", "tblInvoice.IssueDate", "tblInvoice.GrandTotal", DB::raw("(select IFNULL(SUM(Amount),0) from tblPayment where tblPayment.InvoiceID=tblInvoice.InvoiceID and tblPayment.Recall=0) as paidsum")])
                 ->where('tblInvoice.AccountID', $AccountID)
-                ->where('tblInvoice.InvoiceStatus', '<>', 'post')
-                ->where('tblInvoice.InvoiceStatus', '<>', 'paid')
+                ->where('tblInvoice.GrandTotal','<>', 0)
+                ->whereIn('tblInvoice.InvoiceStatus', array('partially_paid','send','awaiting'))
                 ->groupBy('tblInvoice.InvoiceID');
         }
         else{
 
             $AccountInvoices = Invoice::select(["tblInvoice.InvoiceID", "tblInvoice.FullInvoiceNumber", "tblInvoice.IssueDate", "tblInvoice.GrandTotal", DB::raw("(select IFNULL(SUM(Amount),0) from tblPayment where tblPayment.InvoiceID=tblInvoice.InvoiceID and tblPayment.Recall=0) as paidsum")])
                 ->where('tblInvoice.AccountID', $AccountID)
+                ->where('tblInvoice.GrandTotal','<>', 0)
                 ->where('tblInvoice.InvoiceNumber', $data['InvoiceNumber'])
-                ->where('tblInvoice.InvoiceStatus', '<>', 'post')
-                ->where('tblInvoice.InvoiceStatus', '<>', 'paid');
+                ->whereIn('tblInvoice.InvoiceStatus', array('partially_paid','send','awaiting'));
 
         }
         return Datatables::of($AccountInvoices)->make();
@@ -224,6 +224,7 @@ class CreditNotesController extends \BaseController {
             try {
                 DB::connection('sqlsrv2')->beginTransaction();
                 $totalamount = 0;
+                //for loop of each invoices
                 for ($i = 0; $i < count($data['invoice_id']); $i++) {
                     if ($data['payment'][$i] != "") {
                         $paymentdata = array();
@@ -231,9 +232,9 @@ class CreditNotesController extends \BaseController {
                         $paymentdata['AccountID'] = $data['AccountID'];
                         $paymentdata['InvoiceNo'] = $data['invoice_number'][$i];
                         $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
-                        $paymentdata['PaymentMethod'] = 'Credit Notes';
+                        $paymentdata['PaymentMethod'] = 'CREDIT NOTE';
                         $paymentdata['PaymentType'] = 'Payment In';
-                        $paymentdata['Notes'] = 'Paid By Credit Notes';
+                        $paymentdata['Notes'] = 'Paid By Credit Note No. '.$data['CreditNoteNumber'];
                         $paymentdata['Amount'] = $data['payment'][$i];
                         $paymentdata['Status'] = 'Approved';
                         $paymentdata['created_at'] = date("Y-m-d H:i:s");
@@ -250,6 +251,18 @@ class CreditNotesController extends \BaseController {
                         {
                             $payment_insert = Payment::insert($paymentdata);
                             $totalamount += $data['payment'][$i];
+
+                            //update invoice status as paid or partially paid
+                            $InvoiceData = array();
+                            if($InvoiceAmount == $totalpaidamount)
+                            {
+                                $InvoiceData["InvoiceStatus"] = 'paid';
+                                Invoice::find($data['invoice_id'][$i])->update($InvoiceData);
+                            }
+                            else{
+                                $InvoiceData["InvoiceStatus"] = 'partially_paid';
+                                Invoice::find($data['invoice_id'][$i])->update($InvoiceData);
+                            }
 
                             $creditnotesloddata = array();
                             $creditnotesloddata['CreditNotesID']= $creditnote_id;
@@ -273,18 +286,21 @@ class CreditNotesController extends \BaseController {
                         if (CreditNotes::find($creditnote_id)->update($CreditNotesData)) {
                             DB::connection('sqlsrv2')->commit();
                             $redirect_url = URL::previous();
-                            return Response::json(array("status" => "success", "message" => "CreditNotes Applied", "redirect" => $redirect_url));
+                            return Response::json(array("status" => "success", "message" => "Credit Note Applied", "redirect" => $redirect_url));
                         }
                     }
                     else{
                         return Response::json(array("status" => "failed", "message" => "Not Enough Credit Available."));
                     }
                 }
+                else{
+                    return Response::json(array("status" => "failed", "message" => "Failed to Apply Credit Note."));
+                }
             }
             catch (Exception $e){
                 Log::info($e);
                 DB::connection('sqlsrv2')->rollback();
-                return Response::json(array("status" => "failed", "message" => "Problem Applying CreditNotes. \n" . $e->getMessage()));
+                return Response::json(array("status" => "failed", "message" => "Problem Applying Credit Note. \n" . $e->getMessage()));
             }
         }
     }
@@ -420,12 +436,14 @@ class CreditNotesController extends \BaseController {
                 //CreditNotes tax
                 if(isset($data['CreditNotesTaxes']) && is_array($data['CreditNotesTaxes'])){
                     foreach($data['CreditNotesTaxes']['field'] as  $p =>  $CreditNotesTaxes){
-                        $CreditNotesAllTaxRates[$p]['TaxRateID'] 		= 	$CreditNotesTaxes;
-                        $CreditNotesAllTaxRates[$p]['Title'] 			= 	TaxRate::getTaxName($CreditNotesTaxes);
-                        $CreditNotesAllTaxRates[$p]["created_at"] 		= 	date("Y-m-d H:i:s");
-                        $CreditNotesAllTaxRates[$p]["CreditNotesTaxType"] 	= 	1;
-                        $CreditNotesAllTaxRates[$p]["CreditNotesID"] 		= 	$CreditNotes->CreditNotesID;
-                        $CreditNotesAllTaxRates[$p]["TaxAmount"] 		= 	$data['CreditNotesTaxes']['value'][$p];
+                        if(!empty($CreditNotesTaxes)) {
+                            $CreditNotesAllTaxRates[$p]['TaxRateID'] = $CreditNotesTaxes;
+                            $CreditNotesAllTaxRates[$p]['Title'] = TaxRate::getTaxName($CreditNotesTaxes);
+                            $CreditNotesAllTaxRates[$p]["created_at"] = date("Y-m-d H:i:s");
+                            $CreditNotesAllTaxRates[$p]["CreditNotesTaxType"] = 1;
+                            $CreditNotesAllTaxRates[$p]["CreditNotesID"] = $CreditNotes->CreditNotesID;
+                            $CreditNotesAllTaxRates[$p]["TaxAmount"] = $data['CreditNotesTaxes']['value'][$p];
+                        }
                     }
                 }
 
@@ -633,12 +651,14 @@ class CreditNotesController extends \BaseController {
 
                         if(isset($data['CreditNotesTaxes']) && is_array($data['CreditNotesTaxes'])){
                             foreach($data['CreditNotesTaxes']['field'] as  $p =>  $CreditNotesTaxes){
-                                $CreditNotesAllTaxRates[$p]['TaxRateID'] 		= 	$CreditNotesTaxes;
-                                $CreditNotesAllTaxRates[$p]['Title'] 			= 	TaxRate::getTaxName($CreditNotesTaxes);
-                                $CreditNotesAllTaxRates[$p]["created_at"] 		= 	date("Y-m-d H:i:s");
-                                $CreditNotesAllTaxRates[$p]["CreditNotesTaxType"] 	= 	1;
-                                $CreditNotesAllTaxRates[$p]["CreditNotesID"] 		= 	$CreditNotes->CreditNotesID;
-                                $CreditNotesAllTaxRates[$p]["TaxAmount"] 		= 	$data['CreditNotesTaxes']['value'][$p];
+                                if(!empty($CreditNotesTaxes)) {
+                                    $CreditNotesAllTaxRates[$p]['TaxRateID'] = $CreditNotesTaxes;
+                                    $CreditNotesAllTaxRates[$p]['Title'] = TaxRate::getTaxName($CreditNotesTaxes);
+                                    $CreditNotesAllTaxRates[$p]["created_at"] = date("Y-m-d H:i:s");
+                                    $CreditNotesAllTaxRates[$p]["CreditNotesTaxType"] = 1;
+                                    $CreditNotesAllTaxRates[$p]["CreditNotesID"] = $CreditNotes->CreditNotesID;
+                                    $CreditNotesAllTaxRates[$p]["TaxAmount"] = $data['CreditNotesTaxes']['value'][$p];
+                                }
                             }
                         }
 
@@ -1058,8 +1078,8 @@ class CreditNotesController extends \BaseController {
             $Currency 			= 	Currency::find($Account->CurrencyId);
             $CurrencyCode 		= 	!empty($Currency) ? $Currency->Code : '';
             $CurrencySymbol 	= 	Currency::getCurrencySymbol($Account->CurrencyId);
-            $creditnotes_status 	= 	 CreditNotes::get_creditnotes_status();
-            $CreditNotesStatus =   $creditnotes_status[$CreditNotes->CreditNotesStatus];
+            $creditnotes_status = 	 CreditNotes::get_creditnotes_status();
+            $CreditNotesStatus  =   $creditnotes_status[$CreditNotes->CreditNotesStatus];
             //$CreditNotesComments =   CreditNotesLog::get_comments_count($id);
             return View::make('creditnotes.creditnotes_preview', compact('CreditNotes', 'CreditNotesDetail', 'Account', 'CreditNotesTemplate', 'CurrencyCode', 'logo','CurrencySymbol','CreditNotesStatus'));
         }

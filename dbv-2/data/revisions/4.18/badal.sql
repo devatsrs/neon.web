@@ -138,7 +138,8 @@ BEGIN
         inv.Attachment,
         inv.AccountID,		  
 		  IFNULL(ac.BillingEmail,'') AS BillingEmail,
-		  ROUND(inv.GrandTotal,v_Round_) AS GrandTotal
+		  ROUND(inv.GrandTotal,v_Round_) AS GrandTotal,
+		  IFNULL(inv.GrandTotal - inv.PaidAmount,0) AS CreditNoteAmount
 		  
         FROM tblCreditNotes inv
         INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = inv.AccountID
@@ -203,7 +204,7 @@ BEGIN
         SELECT ac.AccountName ,
         ( CONCAT(LTRIM(RTRIM(IFNULL(it.InvoiceNumberPrefix,''))), LTRIM(RTRIM(inv.CreditNotesNumber)))) AS CreditNotesNumber,
         inv.IssueDate,
-        ROUND(inv.GrandTotal,v_Round_) AS GrandTotal,
+        ROUND(inv.GrandTotal,v_Round_) AS GrandTotal,        
         inv.CreditNotesStatus
         FROM tblCreditNotes inv
         INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = inv.AccountID
@@ -224,7 +225,7 @@ BEGIN
         ac.AccountName,
         ( CONCAT(LTRIM(RTRIM(IFNULL(it.InvoiceNumberPrefix,''))), LTRIM(RTRIM(inv.CreditNotesNumber)))) AS CreditNotesNumber,
         inv.IssueDate,
-		  ROUND(inv.GrandTotal,v_Round_) AS GrandTotal,
+		  ROUND(inv.GrandTotal,v_Round_) AS GrandTotal,		  
         inv.CreditNotesStatus,
         inv.CreditNotesID
         FROM tblCreditNotes inv

@@ -419,6 +419,19 @@ class PaymentsController extends \BaseController {
                                 Invoice::find($InvoiceID)->update(["InvoiceStatus"=>Invoice::PARTIALLY_PAID]);
                             }
                         }
+
+                        $CreditNoteID=Payment::where('PaymentID',$PaymentID)->pluck('CreditNotesID');
+                        if(!empty($CreditNoteID)){
+                            $GrandTotal= CreditNotes::where(['CreditNotesID'=>$CreditNoteID])->pluck('GrandTotal');
+                            $paymentTotal = Payment::where(['CreditNotesID'=>$CreditNoteID, 'Recall'=>0])->sum('Amount');
+                            if($paymentTotal==0){
+                                CreditNotes::find($CreditNoteID)->update(["CreditNotesStatus"=>CreditNotes::SEND]);
+                            }else if($paymentTotal>=$GrandTotal){
+                                CreditNotes::find($CreditNoteID)->update(["CreditNotesStatus"=>CreditNotes::PAID]);
+                            }else if($paymentTotal<$GrandTotal){
+                                CreditNotes::find($CreditNoteID)->update(["CreditNotesStatus"=>CreditNotes::PARTIALLY_PAID]);
+                            }
+                        }
                     }
                 }
 

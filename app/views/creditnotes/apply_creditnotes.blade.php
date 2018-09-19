@@ -64,6 +64,13 @@
         <div class="clear"></div>
     </div>
     <br>
+    <div class="form-group pull-right">
+        <button value="Save" name="Save" id="SaveButton" class="btn save btn-primary btn-icon btn-sm icon-left hidden-print" >
+            <i class="entypo-floppy"></i>Save</button>
+        <a class="btn btn-danger btn-sm btn-icon icon-left" href="{{URL::to('creditnotes')}}">
+            <i class="entypo-back"></i>Back</a>
+    </div>
+    <div class="clear"></div>
     <form name="apply_creditnotes" id="apply_creditnotes" role="form" method="post">
     <table class="table table-bordered datatable" id="table-4">
         <thead>
@@ -79,10 +86,10 @@
         </tbody>
     </table>
     </form>
-    <button value="Save" name="Save" id="SaveButton" class="btn save btn-primary btn-icon btn-sm icon-left hidden-print" >
+    <!--<button value="Save" name="Save" id="SaveButton" class="btn save btn-primary btn-icon btn-sm icon-left hidden-print" >
         <i class="entypo-floppy"></i>Save</button>
     <a class="btn btn-danger btn-sm btn-icon icon-left" href="{{URL::to('creditnotes')}}">
-        <i class="entypo-back"></i>Back</a>
+        <i class="entypo-back"></i>Back</a>-->
 
     <script type="text/javascript">
         var $searchFilter 	= 	{};
@@ -125,6 +132,7 @@
                                     action +='<input type = "hidden"  name = "AccountID" value = "{{$AccountID}}" / >';
                                     action +='<input type = "hidden"  name = "CompanyID" value = "{{$CompanyID}}" / >';
                                     action +='<input type = "hidden"  name = "CreditNotesID" value = "{{$CreditNotesID}}" / >';
+                                    action +='<input type = "hidden"  name = "CreditNoteNumber" value = "{{$CreditNotes->CreditNotesNumber}}" / >';
                                     action +='<input type = "hidden"  name = "invoice_number[]" value = "'+full[1]+'" / >';
                                     action += full[1];
                                     return action;
@@ -575,7 +583,7 @@
                 <form id="send-creditnotes-form" method="post" >
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Send CreditNote By Email</h4>
+                        <h4 class="modal-title">Send Credit Note By Email</h4>
                     </div>
                     <div class="modal-body"> </div>
                     <div class="modal-footer">
