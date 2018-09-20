@@ -24,6 +24,8 @@ class ReportInvoice extends \Eloquent{
         'NextInvoiceDate' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.NextInvoiceDate, "")',
         'LastChargeDate' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.LastChargeDate, "")',
         'NextChargeDate' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.NextChargeDate, "")',
+        'IssueDate' => 'DATE_FORMAT(IssueDate,"%Y-%m-%d")',
+        'invoiceDueDate' => 'DATE_ADD(DATE_FORMAT(IssueDate,"%Y-%m-%d"), INTERVAL tblBillingClass.PaymentDueInDays DAY)',
     );
     public static $database_payment_columns = array(
         'year' => 'YEAR(PaymentDate)',
@@ -39,6 +41,7 @@ class ReportInvoice extends \Eloquent{
     public static $InvoiceTaxRateJoin = false;
     public static $AccountJoin = false;
     public static $ProductJoin = false;
+    public static $BillingClassJoin = false;
     public static $dateFilterString = array();
     public static $invoiceDataFilterWhere = array();
 
@@ -161,7 +164,8 @@ class ReportInvoice extends \Eloquent{
             in_array('LastInvoiceDate',$data['column']) || in_array('LastInvoiceDate',$data['row']) ||
             in_array('NextInvoiceDate',$data['column']) || in_array('NextInvoiceDate',$data['row']) ||
             in_array('LastChargeDate',$data['column']) || in_array('LastChargeDate',$data['row']) ||
-            in_array('NextChargeDate',$data['column']) || in_array('NextChargeDate',$data['row'])
+            in_array('NextChargeDate',$data['column']) || in_array('NextChargeDate',$data['row']) ||
+            in_array('invoiceDueDate',$data['column']) || in_array('invoiceDueDate',$data['row'])
         ){
             $query_common->leftjoin($RMDB.'.tblAccountBilling', function ($join) {
                 $join->on('tblAccountBilling.AccountID', '=', 'tblInvoice.AccountID')
@@ -178,6 +182,11 @@ class ReportInvoice extends \Eloquent{
             }
             );
             self::$AccountNextBillingJoin = true;
+        }
+
+        if( in_array('invoiceDueDate',$data['column']) || in_array('invoiceDueDate',$data['row']) ){
+            $query_common->leftjoin($RMDB.'.tblBillingClass', 'tblBillingClass.BillingClassID', '=', 'tblAccountBilling.BillingClassID');
+            self::$BillingClassJoin = true;
         }
 
         if(in_array('TaxRateID',$data['column']) || in_array('TaxRateID',$data['row']) || in_array('TaxRateID',$data['filter']) || in_array('TotalTax',$data['sum'])){
