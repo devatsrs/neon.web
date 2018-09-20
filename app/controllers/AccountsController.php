@@ -697,7 +697,8 @@ class AccountsController extends \BaseController {
             if($account->VerificationStatus == Account::VERIFIED && $account->Status == 1 ) {
                 /* Send mail to Customer */
                 $password       = $data['password'];
-                $data['password']       = Hash::make($password);
+                //$data['password']       = Hash::make($password);
+                $data['password']       = Crypt::encrypt($password);
             }
         }
         $data['Number'] = trim($data['Number']);

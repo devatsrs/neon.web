@@ -70,9 +70,9 @@
                                   aria-expanded="false">Action <span class="caret"></span></button>
                           <ul class="dropdown-menu dropdown-menu-right" role="menu"
                               style="background-color: #000; border-color: #000; margin-top:0px;">
-                              @if(User::checkCategoryPermission('Disputes','Email'))
-                                  <li> <a class="pay_now create" id="bulk_email" href="javascript:;"> Bulk Email </a> </li>
-                              @endif
+                             {{-- @if(User::checkCategoryPermission('Disputes','Email'))
+                                  --}}{{--<li> <a class="pay_now create" id="bulk_email" href="javascript:;"> Bulk Email </a> </li>--}}{{--
+                              @endif--}}
                               @if(User::checkCategoryPermission('Disputes','Send'))
                                   <li> <a class="generate_rate create" id="bulk-dispute-send" href="javascript:;"
                                           style="width:100%"> Send</a> </li>

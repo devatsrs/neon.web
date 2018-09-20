@@ -1707,6 +1707,9 @@ class InvoicesController extends \BaseController {
             $InvoiceIDs =array_filter(explode(',',$data['InvoiceIDs']),'intval');
         }
         if (is_array($InvoiceIDs) && count($InvoiceIDs)) {
+                //Stock History Calculations Start
+                $this->StockHistoryCalculationByInvoiceStatus($data['InvoiceStatus'],$InvoiceIDs);
+                //Stock History Calculations End
 
             if (Invoice::whereIn('InvoiceID',$InvoiceIDs)->update([ 'ModifiedBy'=>$username,'InvoiceStatus' => $data['InvoiceStatus']])) {
                 $Extralognote = '';
@@ -3498,6 +3501,68 @@ class InvoicesController extends \BaseController {
 
     public function api_sagepay_declined($id) {
         echo "<center>Payment declined, Go back and try again later.</center>";
+    }
+
+    public function StockHistoryCalculationByInvoiceStatus($InvoiceStatus,$InvoiceIDs){
+        foreach($InvoiceIDs as $InvoiceID){
+            $StockHistory=array();
+            if($InvoiceStatus == Invoice::CANCEL){
+                $Invoice=Invoice::where('InvoiceID',$InvoiceID)->first();
+                $InvoiceDetailData=InvoiceDetail::where(['InvoiceID'=>$InvoiceID])->get();
+                foreach($InvoiceDetailData as $InvoiceDetail) {
+                    $temparray=array();
+                    if($InvoiceDetail->ProductID >0 && $InvoiceDetail->Qty >0 ){
+                        $companyID = $Invoice->CompanyID;
+                        $reason='delete_prodstock';
+
+                        $temparray['CompanyID']=$companyID;
+                        $temparray['ProductID']=intval($InvoiceDetail->ProductID);
+                        $temparray['InvoiceID']=$InvoiceID;
+                        $temparray['Qty']=$InvoiceDetail->Qty;
+                        $temparray['Reason']=$reason;
+                        $temparray['InvoiceNumber']=$Invoice->FullInvoiceNumber;
+                        $temparray['oldQty']=$InvoiceDetail->Qty;
+                        $temparray['created_by']=User::get_user_full_name();
+
+                        array_push($StockHistory,$temparray);
+                    }
+                }
+                Log::info("===== StockHistory while Cancel Invoice ====");
+                Log::info($StockHistory);
+                if(!empty($StockHistory)){
+                    $historyData=stockHistoryUpdateCalculations($StockHistory);
+                }
+
+            }else{
+                $Invoice=Invoice::where('InvoiceID',$InvoiceID)->first();
+                if(!empty($Invoice) && $Invoice->InvoiceStatus==Invoice::CANCEL){
+                    $StockHistory=array();
+                    $InvoiceDetailData=InvoiceDetail::where(['InvoiceID'=>$InvoiceID])->get();
+                    foreach($InvoiceDetailData as $InvoiceDetail) {
+                        $temparray=array();
+                        if($InvoiceDetail->ProductID >0 && $InvoiceDetail->Qty >0 ){
+                            $companyID = User::get_companyID();
+
+                            $temparray['CompanyID']=$companyID;
+                            $temparray['ProductID']=intval($InvoiceDetail->ProductID);
+                            $temparray['InvoiceID']=$InvoiceID;
+                            $temparray['Qty']=$InvoiceDetail->Qty;
+                            $temparray['Reason']='';
+                            $temparray['InvoiceNumber']=$Invoice->FullInvoiceNumber;
+                            $temparray['created_by']=User::get_user_full_name();
+
+                            array_push($StockHistory,$temparray);
+                        }
+                    }
+                    Log::info("===== StockHistory while Change InvoiceStatus From Cancel ====");
+                    Log::info($StockHistory);
+                    if(!empty($StockHistory)){
+                        $historyData=StockHistoryCalculations($StockHistory);
+                    }
+
+                }
+            }
+        }
     }
 
 }

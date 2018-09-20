@@ -21,7 +21,7 @@ class Dynamiclink extends \Eloquent {
             $name=$linkdata->Title;
             $Link=$linkdata->Link;
             $currencyID=$linkdata->CurrencyID;
-            $Account=  Customer::select('Number','CurrencyId')->where('AccountID',$CM_data['AccountID'])->first();
+            $Account=  Customer::select('Number','CurrencyId','BillingEmail','password')->where('AccountID',$CM_data['AccountID'])->first();
 
             if(!empty($Account) && ($currencyID==0 || $currencyID==$Account->CurrencyId)) {
                 $CM_data['lang'] = NeonCookie::getCookie('customer_language');
@@ -35,6 +35,16 @@ class Dynamiclink extends \Eloquent {
                 $Link = str_replace("{COMPANYID}", $CM_data['CompanyID'], $Link);
                 $Link = str_replace("{LANGUAGE}", $CM_data['lang'], $Link);
                 $Link = str_replace("{ACCOUNTNUMBER}", $CM_data['AccountNo'], $Link);
+
+                $Link = str_replace("{billingemail1}", $Account->BillingEmail, $Link);
+                if(!empty($Account->password)){
+                    try{
+                        $Link = str_replace("{CustomerPanelPassword}", Crypt::decrypt($Account->password), $Link);
+                    }catch(Exception $e){
+                        $Link = str_replace("{CustomerPanelPassword}", '', $Link);
+                    }
+                }
+
                 $rand_no = getRandomNumber(5);
                 $hash = $rand_no . base64_encode(serialize($CM_data)) . $rand_no;
                 if ($reg == 1) {
