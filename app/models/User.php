@@ -42,8 +42,8 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
             //$customer = Customer::where('BillingEmail','like','%'.$data["email"].'%')->first();
 			$customer = Customer::whereRaw("FIND_IN_SET('".$data['email']."',BillingEmail) !=0")->first(); 
             if($customer) {
-                if (Hash::check($data["password"], $customer->password)) {
-                //if (self::checkPassword($data["password"],$customer->password)) {
+                //if (Hash::check($data["password"], $customer->password)) {
+                if (self::checkPassword($data["password"],$customer->password)) {
                     Auth::login($customer);
                     Session::set("customer", 1);
 					Session::set("CustomerEmail", $data["email"]);
