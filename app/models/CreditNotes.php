@@ -133,8 +133,13 @@ class CreditNotes extends \Eloquent {
             $CreditNotesTemplate->DateFormat 	= 	invoice_date_fomat($CreditNotesTemplate->DateFormat);
             $file_name 						= 	'CreditNotes--' .$Account->AccountName.'-' .date($CreditNotesTemplate->DateFormat) . '.pdf';
             $htmlfile_name 					= 	'CreditNotes--' .$Account->AccountName.'-' .date($CreditNotesTemplate->DateFormat) . '.html';
+            $MultiCurrencies=array();
+            $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
+            if($CreditNotesTemplate->ShowTotalInMultiCurrency==1){
+                $MultiCurrencies = Invoice::getTotalAmountInOtherCurrency($Account->CompanyId,$Account->CurrencyId,$CreditNotes->GrandTotal,$RoundChargesAmount);
+            }
             $print_type = 'CreditNotes';
-            $body 	= 	View::make('creditnotes.pdf', compact('CreditNotes', 'CreditNotesDetail', 'Account', 'CreditNotesTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','CreditNotesItemTaxRates','CreditNotesSubscriptionTaxRates','CreditNotesAllTaxRates','taxes',"CreditNotesDetailItems","CreditNotesDetailISubscription"))->render();
+            $body 	= 	View::make('creditnotes.pdf', compact('CreditNotes', 'CreditNotesDetail', 'Account', 'CreditNotesTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','CreditNotesItemTaxRates','CreditNotesSubscriptionTaxRates','CreditNotesAllTaxRates','taxes',"CreditNotesDetailItems","CreditNotesDetailISubscription","MultiCurrencies"))->render();
             $body 	= 	htmlspecialchars_decode($body);
             $footer = 	View::make('creditnotes.pdffooter', compact('CreditNotes','print_type'))->render();
             $footer = 	htmlspecialchars_decode($footer);
@@ -190,9 +195,9 @@ class CreditNotes extends \Eloquent {
 
     public static function get_creditnotes_status(){
         $Company = Company::find(User::get_companyID());
-        $CreditNotesStatus = explode(',',$Company->CreditNotesStatus);
+        $invoiceStatus = explode(',',$Company->InvoiceStatus);
         $creditnotesarray = array(''=>'Select CreditNotes Status',self::OPEN=>'Open',self::CLOSE=>'Close');
-        foreach($CreditNotesStatus as $status){
+        foreach($invoiceStatus as $status){
             $creditnotesarray[$status] = $status;
         }
         return $creditnotesarray;
