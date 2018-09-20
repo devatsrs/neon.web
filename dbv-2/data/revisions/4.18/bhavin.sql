@@ -651,7 +651,8 @@ BEGIN
 		Amount NUMERIC(18, 8),
 		PaymentType VARCHAR(50),
 		InvoiceType INT,
-		TopUpType VARCHAR(50)
+		TopUpType VARCHAR(50),
+		CreditNoteType VARCHAR (50)
 	);
 	
 	DROP TEMPORARY TABLE IF EXISTS tmp_AccountSOABal;
@@ -695,8 +696,20 @@ BEGIN
 	AND ( (i.InvoiceType = 2) OR ( i.InvoiceType = 1 AND i.InvoiceStatus NOT IN ( 'cancel' , 'draft' , 'awaiting') )  )
 	AND (p_AccountID = 0 OR  i.AccountID = p_AccountID);
 	
+	INSERT into tmp_AccountSOA(AccountID,Amount,CreditNoteType)
+	SELECT
+		AccountID,
+		(GrandTotal - PaidAmount) as Amount,
+		'creditnote' as TopUpType
+	FROM tblCreditNotes
+	WHERE CompanyID = p_CompanyID 
+	AND CreditNotesStatus IN ('open')
+	AND (p_AccountID = 0 OR  AccountID = p_AccountID);
+	
+	/** SOAOffSet = soa - topup - creditnotes	 */
+	
 	INSERT INTO tmp_AccountSOABal
-	SELECT AccountID,(SUM(IF(InvoiceType=1,Amount,0)) -  SUM(IF(PaymentType='Payment In',Amount,0))) - (SUM(IF(InvoiceType=2,Amount,0)) - SUM(IF(PaymentType='Payment Out',Amount,0))) - (SUM(IF(TopUpType='topup',Amount,0))) as SOAOffSet 
+	SELECT AccountID,(SUM(IF(InvoiceType=1,Amount,0)) -  SUM(IF(PaymentType='Payment In',Amount,0))) - (SUM(IF(InvoiceType=2,Amount,0)) - SUM(IF(PaymentType='Payment Out',Amount,0))) - (SUM(IF(CreditNoteType='topup',Amount,0))) - (SUM(IF(TopUpType='creditnote',Amount,0))) as SOAOffSet  
 	FROM tmp_AccountSOA 
 	GROUP BY AccountID;
 	
