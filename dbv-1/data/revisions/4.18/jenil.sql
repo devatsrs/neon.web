@@ -6438,7 +6438,8 @@ DELIMITER ;
 
 INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1370, 'Disputes.Delete', 1, 7);
 
-UPDATE `Ratemanagement3`.`tblResource` SET `CategoryID`='1370' WHERE  `ResourceID`=1837;
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('Dispute.delete', 'DisputeController.delete', 1, 'Sumera Saeed', NULL, '2016-05-23 14:46:01.000', '2016-05-23 14:46:01.000', 1370);
+
 
 
 /* Stock History*/
