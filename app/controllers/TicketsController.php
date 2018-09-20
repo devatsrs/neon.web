@@ -519,6 +519,10 @@ class TicketsController extends \BaseController {
 				$EmailFooter = Auth::user()->EmailFooter;
 			}
 			$ticketStatusArr = TicketsTable::getTicketStatus(0);
+			$statusUnResolvedKey = array_search(TicketfieldsValues::$Status_UnResolved, $ticketStatusArr);
+			if($statusUnResolvedKey){
+				unset($ticketStatusArr[$statusUnResolvedKey]);
+			}
 			return View::make('tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id','FromEmails','cc','bcc','GroupEmail','conversation','AllEmailsTo', 'emailTemplates', 'EmailFooter', 'ticketStatusArr'));
 		}else{
             return view_response_api($response);
