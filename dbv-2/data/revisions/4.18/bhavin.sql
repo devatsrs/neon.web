@@ -6,6 +6,8 @@ ALTER TABLE `tblInvoiceTemplate`
 	ADD COLUMN `FooterDisplayOnlyFirstPage` INT NULL DEFAULT '0' AFTER `DefaultTemplate`;
 ALTER TABLE `tblInvoiceTemplate`
 	ADD COLUMN `ShowTaxesOnSeparatePage` INT(11) NULL DEFAULT '0' AFTER `FooterDisplayOnlyFirstPage`;	
+ALTER TABLE `tblInvoiceTemplate`
+	ADD COLUMN `ShowTotalInMultiCurrency` INT(11) NULL DEFAULT '0' AFTER `ShowTaxesOnSeparatePage`;	
 
 CREATE TABLE IF NOT EXISTS `tblProcessCallChargesLog` (
   `LogID` bigint(20) NOT NULL AUTO_INCREMENT,
