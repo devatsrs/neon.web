@@ -4,6 +4,8 @@ use Illuminate\Auth\UserTrait;
 use Illuminate\Auth\UserInterface;
 use Illuminate\Auth\Reminders\RemindableTrait;
 use Illuminate\Auth\Reminders\RemindableInterface;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Hash;
 
 class User extends Eloquent implements UserInterface, RemindableInterface {
 
@@ -45,6 +47,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
                     Auth::login($customer);
                     Session::set("customer", 1);
 					Session::set("CustomerEmail", $data["email"]);
+                    Log::info("============Web Login Success===========");
                     return true;
                 }
             }
