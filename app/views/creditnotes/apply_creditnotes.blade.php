@@ -32,9 +32,9 @@
         <li class="active">
             <a href="{{URL::to('creditnotes')}}">CreditNotes</a>
         </li>
-        <li class="active"> <strong>Apply Credit Notes</strong> </li>
+        <li class="active"> <strong>Apply Credit Note</strong> </li>
     </ol>
-    <h3>Credit Notes</h3>
+    <h3>Apply Credit Note</h3>
     @include('includes.errors')
     @include('includes.success')
             <!-- <a href="javascript:;" id="bulk-creditnotes" class="btn upload btn-primary ">
