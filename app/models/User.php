@@ -47,6 +47,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
                     Auth::login($customer);
                     Session::set("customer", 1);
 					Session::set("CustomerEmail", $data["email"]);
+                    Log::info("============Web Login Success===========");
                     return true;
                 }
             }
