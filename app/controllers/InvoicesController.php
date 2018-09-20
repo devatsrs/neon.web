@@ -3512,7 +3512,7 @@ class InvoicesController extends \BaseController {
                 foreach($InvoiceDetailData as $InvoiceDetail) {
                     $temparray=array();
                     if($InvoiceDetail->ProductID >0 && $InvoiceDetail->Qty >0 ){
-                        $companyID = User::get_companyID();
+                        $companyID = $Invoice->CompanyID;
                         $reason='delete_prodstock';
 
                         $temparray['CompanyID']=$companyID;
