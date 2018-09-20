@@ -59,6 +59,7 @@ class Report extends \Eloquent {
                 'NextInvoiceDate' => 'Next Invoice Date',
                 'LastChargeDate' => 'Last Charge Date',
                 'NextChargeDate' => 'Next Charge Date',
+                'Billing' => 'Is Billing',
             ),
             'CDR'=>array(
                 'connect_time'=>'Connect Time',
@@ -116,6 +117,7 @@ class Report extends \Eloquent {
                 'NextInvoiceDate' => 'Next Invoice Date',
                 'LastChargeDate' => 'Last Charge Date',
                 'NextChargeDate' => 'Next Charge Date',
+                'Billing' => 'Is Billing',
             ),
             'CDR'=>array(
                 'connect_time'=>'Connect Time',
@@ -167,6 +169,7 @@ class Report extends \Eloquent {
                 'NextInvoiceDate' => 'Next Invoice Date',
                 'LastChargeDate' => 'Last Charge Date',
                 'NextChargeDate' => 'Next Charge Date',
+                'Billing' => 'Is Billing',
             ),
             'VAccountID' =>'Vendor',
             'Owner'=>'Account Manager',
@@ -213,6 +216,7 @@ class Report extends \Eloquent {
                 'NextInvoiceDate' => 'Next Invoice Date',
                 'LastChargeDate' => 'Last Charge Date',
                 'NextChargeDate' => 'Next Charge Date',
+                'Billing' => 'Is Billing',
             ),
             'VAccountID' =>'Vendor',
             'Owner'=>'Account Manager',
@@ -257,12 +261,15 @@ class Report extends \Eloquent {
                 'NextInvoiceDate' => 'Next Invoice Date',
                 'LastChargeDate' => 'Last Charge Date',
                 'NextChargeDate' => 'Next Charge Date',
+                'Billing' => 'Is Billing',
             ),
             'Owner'=>'Account Manager',
             'CurrencyID' =>'Currency Code',
             'InvoiceType' =>'Invoice Type',
             'InvoiceNumber' =>'Invoice Number',
             'InvoiceStatus' =>'Invoice Status',
+            'IssueDate' =>'Invoice Date',
+            'invoiceDueDate' =>'Invoice Due Date',
             'TaxRateID' => 'Tax Type',
             'ProductType'=> 'Charge Type',
             'Product' => array(
@@ -305,6 +312,7 @@ class Report extends \Eloquent {
                 'NextInvoiceDate' => 'Next Invoice Date',
                 'LastChargeDate' => 'Last Charge Date',
                 'NextChargeDate' => 'Next Charge Date',
+                'Billing' => 'Is Billing',
             ),
             'Owner'=>'Account Manager',
             'CurrencyID' =>'Currency Code',
@@ -346,6 +354,7 @@ class Report extends \Eloquent {
                 'NextInvoiceDate' => 'Next Invoice Date',
                 'LastChargeDate' => 'Last Charge Date',
                 'NextChargeDate' => 'Next Charge Date',
+                'Billing' => 'Is Billing',
             ),
             'Owner'=>'Account Manager',
             'CurrencyID' =>'Currency Code',
@@ -379,6 +388,7 @@ class Report extends \Eloquent {
                 'NextInvoiceDate' => 'Next Invoice Date',
                 'LastChargeDate' => 'Last Charge Date',
                 'NextChargeDate' => 'Next Charge Date',
+                'Billing' => 'Is Billing',
             ),
         ),
     );
@@ -700,6 +710,15 @@ class Report extends \Eloquent {
                     $name = $BillingCycleTypeArray[$ID];
                 }else if(!empty($ID)){
                     $name = $ID;
+                }else{
+                    $name = '';
+                }
+                break;
+            case 'Billing':
+                if($ID==1){
+                    $name = "On";
+                }else if($ID==0){
+                    $name = "Off";
                 }else{
                     $name = '';
                 }
