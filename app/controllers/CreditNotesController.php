@@ -53,6 +53,10 @@ class CreditNotesController extends \BaseController {
         $data['IssueDateEnd']        =  empty($data['IssueDateEnd'])?'0000-00-00 00:00:00':$data['IssueDateEnd'];
         $sort_column 				 =  $columns[$data['iSortCol_0']];
         $data['CurrencyID'] = empty($data['CurrencyID'])?'0':$data['CurrencyID'];
+        if($data['CreditNotesStatus'] == "")
+        {
+            $data['CreditNotesStatus'] = 'open';
+        }
 
         $query = "call prc_getCreditNotes (".$companyID.",".intval($data['AccountID']).",'".$data['CreditNotesNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."','".$data['CreditNotesStatus']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".strtoupper($data['sSortDir_0'])."',".intval($data['CurrencyID'])."";
 
@@ -89,16 +93,17 @@ class CreditNotesController extends \BaseController {
     public function apply_creditnote_datagrid($AccountID)
     {
         $data = Input::all();
-        // print_r($data);exit;
         $companyID = User::get_companyID();
-
+        /* $data['iDisplayStart'] 		+=	1;
+                   $AccountInvoices = "call prc_getCreditNoteInvoices ('" . $AccountID . "','".intval($data['InvoiceNumber']) . "',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].")";
+                   return DataTableSql::of($AccountInvoices,'sqlsrv2')->make();*/
         if($data['InvoiceNumber'] == 0) {
 
             $AccountInvoices = Invoice::select(["tblInvoice.InvoiceID", "tblInvoice.FullInvoiceNumber", "tblInvoice.IssueDate", "tblInvoice.GrandTotal", DB::raw("(select IFNULL(SUM(Amount),0) from tblPayment where tblPayment.InvoiceID=tblInvoice.InvoiceID and tblPayment.Recall=0) as paidsum")])
                 ->where('tblInvoice.AccountID', $AccountID)
                 ->where('tblInvoice.GrandTotal','<>', 0)
-                ->whereIn('tblInvoice.InvoiceStatus', array('partially_paid','send','awaiting'))
-                ->groupBy('tblInvoice.InvoiceID');
+                ->whereIn('tblInvoice.InvoiceStatus', array('partially_paid','send','awaiting'));
+                //->groupBy('tblInvoice.InvoiceID');
         }
         else{
 

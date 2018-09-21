@@ -50,7 +50,9 @@
       <div class="form-group">
         <label for="EmailActionbody">* Message:</label>
         <textarea name="Message" id="EmailActionbody" class="form-control autogrow editor-email message"   style="height: 175px; overflow: hidden; word-wrap: break-word; resize: none;">
-            {{$EmailFooter}}
+            @if(!empty($EmailFooter))
+            {{"<br><br><br>".$EmailFooter}}
+            @endif
             @if($action_type!='forward')
                 <br><br><br> On <?php echo date('M d, Y,',strtotime($response_data['created_at'])).' at '.date('H:i A, ',strtotime($response_data['created_at'])); echo $response_data['Requester']; ?> wrote: <br>
             @else
