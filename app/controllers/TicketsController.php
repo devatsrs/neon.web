@@ -506,9 +506,9 @@ class TicketsController extends \BaseController {
 			$cc					 =	  $ResponseData['Cc'];
 			$bcc				 =	  $ResponseData['Bcc'];
 			$GroupEmail			 =	  $ResponseData['GroupEmail'];	
-			if($action_type=='forward'){ //attach current email attachments
+//			if($action_type=='forward'){ //attach current email attachments
 				$data['uploadtext']  = 	 UploadFile::DownloadFileLocal($response_data['AttachmentPaths']);
-			}
+//			}
 			
 			$FromEmails	 				=  TicketGroups::GetGroupsFrom();			
 			$AllEmailsTo 				= 	json_encode(Messages::GetAllSystemEmails(0,true)); 	
@@ -518,7 +518,12 @@ class TicketsController extends \BaseController {
 			if(Auth::check()){
 				$EmailFooter = Auth::user()->EmailFooter;
 			}
-			return View::make('tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id','FromEmails','cc','bcc','GroupEmail','conversation','AllEmailsTo', 'emailTemplates', 'EmailFooter'));
+			$ticketStatusArr = TicketsTable::getTicketStatus(0);
+			$statusUnResolvedKey = array_search(TicketfieldsValues::$Status_UnResolved, $ticketStatusArr);
+			if($statusUnResolvedKey){
+				unset($ticketStatusArr[$statusUnResolvedKey]);
+			}
+			return View::make('tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id','FromEmails','cc','bcc','GroupEmail','conversation','AllEmailsTo', 'emailTemplates', 'EmailFooter', 'ticketStatusArr'));
 		}else{
             return view_response_api($response);
         }		
@@ -576,7 +581,7 @@ class TicketsController extends \BaseController {
 		{
 			$attachments 	=   unserialize($Ticketdata->AttachmentPaths);
 			$attachment 	=   $attachments[$attachmentID];  
-			$FilePath 		=  	AmazonS3::preSignedUrl($attachment['filepath']);	
+			$FilePath 		=  	AmazonS3::unSignedUrl($attachment['filepath']);
 			
 			if(file_exists($FilePath)){
 					download_file($FilePath);

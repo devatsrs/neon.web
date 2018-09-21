@@ -1032,7 +1032,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/creditnotes/creditnoteslog/{id}', 'CreditNotesController@creditnoteslog');
 	Route::any('/creditnotes/ajax_creditnoteslog_datagrid/{id}/{type}', 'CreditNotesController@ajax_creditnoteslog_datagrid');
 	Route::any('/creditnotes/{id}/cview', 'CreditNotesController@cview');
-	Route::any('/creditnotes/{id}/apply_creditnotes', 'CreditNotesController@apply_creditnotes');
+	Route::any('/creditnotes/{accountid}/{id}/apply_creditnotes', 'CreditNotesController@apply_creditnotes');
 	Route::any('/creditnotes/{id}/apply_creditnote_datagrid', 'CreditNotesController@apply_creditnote_datagrid');
 	Route::any('/creditnotes/store_creditnotes', 'CreditNotesController@store_creditnotes');
 
@@ -1294,6 +1294,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/disputes/change_status','DisputeController@change_status');
 	Route::any('/disputes/{id}/download_attachment','DisputeController@download_attachment');
 	Route::any('/disputes/{id}/view','DisputeController@view');
+	Route::any('/disputes/{id}/disputes_email', 'DisputeController@disputes_email');
+	Route::any('/disputes/{id}/send', 'DisputeController@send');
+	Route::any('/disputes/bulk_send_dispute_mail', 'DisputeController@bulk_send_dispute_mail');
 
 	//DailString
 	Route::any('/dialstrings', "DialStringController@index");
@@ -1595,6 +1598,10 @@ Route::group(array('before' => 'guest'), function () {
 	Route::any('/api_neonaccountcreation', 'InvoicesController@api_invoice_creditcard_thanks'); //Customer payment pay
 	Route::any('/api_paypal_ipn/{id}', 'InvoicesController@api_paypal_ipn'); //Payment response by paypal.
 	Route::any('/api_paypal_cancel/{id}', 'InvoicesController@api_paypal_cancel'); //Payment response by paypal.
+
+	Route::any('/api_sagepay_return/{id}', 'InvoicesController@api_sagepay_return'); //Payment response by paypal.
+	Route::any('/api_sagepay_declined/{id}', 'InvoicesController@api_sagepay_declined'); //Payment response by paypal.
+	Route::any('/api_sagepay_ipn/{id}', 'InvoicesController@api_sagepay_ipn'); //Payment response by paypal.
 
 });
 

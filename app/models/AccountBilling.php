@@ -119,6 +119,9 @@ class AccountBilling extends \Eloquent {
         if(empty($ServiceID)){
             $ServiceID=0;
         }
+        if(empty($data['ServiceBilling'])){
+            $data['ServiceBilling']=0;
+        }
         if(AccountBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->count() == 0) {
 
             if (!empty($data['BillingClassID'])) {
@@ -184,6 +187,7 @@ class AccountBilling extends \Eloquent {
             }
             $AccountBilling['AccountID'] = $AccountID;
             $AccountBilling['ServiceID'] = $ServiceID;
+            $AccountBilling['ServiceBilling'] = $data['ServiceBilling'];
             AccountBilling::create($AccountBilling);
         }else{
             $AccountBillingObj =  AccountBilling::getBilling($AccountID,$ServiceID);
@@ -258,6 +262,7 @@ class AccountBilling extends \Eloquent {
             else{
                 $AccountBilling['AutoPayMethod'] = 0;
             }
+            $AccountBilling['ServiceBilling'] = $data['ServiceBilling'];
             if(!empty($AccountBilling)){
                 $AccountBillingID=AccountBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->pluck('AccountBillingID');
                 $UpdateAccountBilling = AccountBilling::find($AccountBillingID);

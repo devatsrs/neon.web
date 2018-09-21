@@ -150,8 +150,8 @@ class PaymentsController extends \BaseController {
         $message = '';
         if($isvalid['valid']==1) {
             $save = $isvalid['data'];
-			
-			
+
+
             /* for Adding payment from Invoice  */
             if(isset($save['InvoiceID'])) {
                 $InvoiceID = $save['InvoiceID'];
@@ -164,8 +164,21 @@ class PaymentsController extends \BaseController {
                 $AccountName = $save['AccountName'];
                 unset($save['AccountName']);
             }
+            $PaymentOldAmount = 0;
             if(isset($save['InvoiceNo'])) {
                 $save['InvoiceID'] = (int)Invoice::where(array('FullInvoiceNumber'=>$save['InvoiceNo'],'AccountID'=>$save['AccountID']))->pluck('InvoiceID');
+                $InvoiceID = $save['InvoiceID'];
+                $OutstandingAmount = DB::connection('sqlsrv2')
+                    ->table('tblInvoice')
+                    ->where('InvoiceID', $InvoiceID)
+                    ->where('CompanyID', $save['CompanyID'])
+                    ->pluck('GrandTotal');
+                $PaymentOldAmount = DB::connection('sqlsrv2')
+                    ->table('tblPayment')
+                    ->where('InvoiceID', $InvoiceID)
+                    ->where('CompanyID', $save['CompanyID'])
+                    ->sum('Amount');
+
             }
 
             $save['Status'] = 'Pending Approval';
@@ -179,7 +192,7 @@ class PaymentsController extends \BaseController {
                     $Invoice = Invoice::find($InvoiceID);
                     $CreatedBy = User::get_user_full_name();
                     $invoice_status = Invoice::get_invoice_status();
-                    $amount = $save['Amount'];
+                    $amount = $save['Amount'] + $PaymentOldAmount;
                     $GrandTotal = $Invoice->GrandTotal;
                     $invoiceloddata = array();
                     $invoiceloddata['InvoiceID']= $InvoiceID;
@@ -246,15 +259,6 @@ class PaymentsController extends \BaseController {
 
     public function payments_quickbookpost(){
         $data = Input::all();
-        /*if(!empty($data['InvoiceIDs'])){
-            $invoiceid = $this->getInvoicesIdByCriteria($data);
-            $invoiceid = rtrim($invoiceid,',');
-            $data['InvoiceIDs'] = $invoiceid;
-            unset($data['criteria']);
-        }
-        else{
-            unset($data['criteria']);
-        }*/
         $CompanyID = User::get_companyID();
         $PaymentIDs =array_filter(explode(',',$data['PaymentIDs']),'intval');
         if (is_array($PaymentIDs) && count($PaymentIDs)) {
@@ -413,6 +417,19 @@ class PaymentsController extends \BaseController {
                                 Invoice::find($InvoiceID)->update(["InvoiceStatus"=>Invoice::PAID]);
                             }else if($paymentTotal<$GrandTotal){
                                 Invoice::find($InvoiceID)->update(["InvoiceStatus"=>Invoice::PARTIALLY_PAID]);
+                            }
+                        }
+
+                        $CreditNoteID=Payment::where('PaymentID',$PaymentID)->pluck('CreditNotesID');
+                        if(!empty($CreditNoteID)){
+                            $GrandTotal= CreditNotes::where(['CreditNotesID'=>$CreditNoteID])->pluck('GrandTotal');
+                            $paymentTotal = Payment::where(['CreditNotesID'=>$CreditNoteID, 'Recall'=>0])->sum('Amount');
+                            if($paymentTotal==0){
+                                CreditNotes::find($CreditNoteID)->update(["CreditNotesStatus"=>CreditNotes::SEND]);
+                            }else if($paymentTotal>=$GrandTotal){
+                                CreditNotes::find($CreditNoteID)->update(["CreditNotesStatus"=>CreditNotes::PAID]);
+                            }else if($paymentTotal<$GrandTotal){
+                                CreditNotes::find($CreditNoteID)->update(["CreditNotesStatus"=>CreditNotes::PARTIALLY_PAID]);
                             }
                         }
                     }
@@ -639,6 +656,7 @@ class PaymentsController extends \BaseController {
         //echo "CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."','".$UserID."')";exit();
         try {
             DB::connection('sqlsrv2')->beginTransaction();
+
             $result = DB::connection('sqlsrv2')->statement("CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."','".$UserID."')");
             DB::connection('sqlsrv2')->commit();
 
@@ -646,6 +664,7 @@ class PaymentsController extends \BaseController {
             $jobupdatedata['JobStatusMessage'] = 'Payments uploaded successfully';
             $jobupdatedata['JobStatusID'] = JobStatus::where('Code','S')->pluck('JobStatusID');
             Job::where(["JobID" => $JobID])->update($jobupdatedata);
+
         }catch ( Exception $err ){
             try{
                 DB::connection('sqlsrv2')->rollback();

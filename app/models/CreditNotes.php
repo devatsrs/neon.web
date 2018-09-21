@@ -10,8 +10,14 @@ class CreditNotes extends \Eloquent {
     const  INVOICE_IN= 2;
     const OPEN = 'open';
     const CLOSE = 'close';
+    const DRAFT = 'draft';
+    const SEND = 'send';
+    const AWAITING = 'awaiting';
+    const CANCEL = 'cancel';
+    const RECEIVED = 'received';
+    const PAID = 'paid';
+    const PARTIALLY_PAID = 'partially_paid';
     const ITEM_INVOICE =1;
-    const SEND 				= 	'send';
 	const EMAILTEMPLATE 		= "CreditNotesSingleSend";
 	
     //public static $invoice_status;
@@ -127,16 +133,21 @@ class CreditNotes extends \Eloquent {
             $CreditNotesTemplate->DateFormat 	= 	invoice_date_fomat($CreditNotesTemplate->DateFormat);
             $file_name 						= 	'CreditNotes--' .$Account->AccountName.'-' .date($CreditNotesTemplate->DateFormat) . '.pdf';
             $htmlfile_name 					= 	'CreditNotes--' .$Account->AccountName.'-' .date($CreditNotesTemplate->DateFormat) . '.html';
+            $MultiCurrencies=array();
+            $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
+            if($CreditNotesTemplate->ShowTotalInMultiCurrency==1){
+                $MultiCurrencies = Invoice::getTotalAmountInOtherCurrency($Account->CompanyId,$Account->CurrencyId,$CreditNotes->GrandTotal,$RoundChargesAmount);
+            }
             $print_type = 'CreditNotes';
-            $body 	= 	View::make('CreditNotes.pdf', compact('CreditNotes', 'CreditNotesDetail', 'Account', 'CreditNotesTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','CreditNotesItemTaxRates','CreditNotesSubscriptionTaxRates','CreditNotesAllTaxRates','taxes',"CreditNotesDetailItems","CreditNotesDetailISubscription"))->render();
+            $body 	= 	View::make('creditnotes.pdf', compact('CreditNotes', 'CreditNotesDetail', 'Account', 'CreditNotesTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','CreditNotesItemTaxRates','CreditNotesSubscriptionTaxRates','CreditNotesAllTaxRates','taxes',"CreditNotesDetailItems","CreditNotesDetailISubscription","MultiCurrencies"))->render();
             $body 	= 	htmlspecialchars_decode($body);
-            $footer = 	View::make('CreditNotes.pdffooter', compact('CreditNotes','print_type'))->render();
+            $footer = 	View::make('creditnotes.pdffooter', compact('CreditNotes','print_type'))->render();
             $footer = 	htmlspecialchars_decode($footer);
 
-            $header = View::make('CreditNotes.pdfheader', compact('CreditNotes','print_type'))->render();
+            $header = View::make('creditnotes.pdfheader', compact('CreditNotes','print_type'))->render();
             $header = htmlspecialchars_decode($header);
 
-            $amazonPath = AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId,$CreditNotes->AccountID) ;
+            $amazonPath = AmazonS3::generate_path(AmazonS3::$dir['CREDITNOTES_UPLOAD'],$Account->CompanyId,$CreditNotes->AccountID) ;
             $destination_dir = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID) . '/'. $amazonPath;
 
             if (!file_exists($destination_dir))
@@ -184,9 +195,9 @@ class CreditNotes extends \Eloquent {
 
     public static function get_creditnotes_status(){
         $Company = Company::find(User::get_companyID());
-        $CreditNotesStatus = explode(',',$Company->CreditNotesStatus);
+        $invoiceStatus = explode(',',$Company->InvoiceStatus);
         $creditnotesarray = array(''=>'Select CreditNotes Status',self::OPEN=>'Open',self::CLOSE=>'Close');
-        foreach($CreditNotesStatus as $status){
+        foreach($invoiceStatus as $status){
             $creditnotesarray[$status] = $status;
         }
         return $creditnotesarray;

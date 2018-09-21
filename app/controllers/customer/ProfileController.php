@@ -1,4 +1,5 @@
 <?php
+use Illuminate\Support\Facades\Crypt;
 
 class ProfileController extends \BaseController {
 
@@ -59,7 +60,8 @@ class ProfileController extends \BaseController {
             if($account->VerificationStatus == Account::VERIFIED && $account->Status == 1 ) {
                 /* Send mail to Customer */
                 $password       = $data['password'];
-                $data['password']       = Hash::make($password);
+                //$data['password']       = Hash::make($password);
+                $data['password']         = Crypt::encrypt($password);
             }
         }
         $CustomerPicture = Input::file('Picture');

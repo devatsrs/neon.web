@@ -20,8 +20,8 @@
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{City}}'>" + locale.leadoptions.City + "</a></li>" +                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{PostCode}}'>" + locale.leadoptions.PostCode + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Country}}'>" + locale.leadoptions.Country + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Currency}}'>" + locale.leadoptions.Currency+ "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutstandingExcludeUnbilledAmount}}'>" + locale.leadoptions.OutstandingExcludeUnbilledAmount + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutstandingIncludeUnbilledAmount}}'>" + locale.leadoptions.OutstandingIncludeUnbilledAmount + "</a></li>" +
+                //"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutstandingExcludeUnbilledAmount}}'>" + locale.leadoptions.OutstandingExcludeUnbilledAmount + "</a></li>" +
+                //"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutstandingIncludeUnbilledAmount}}'>" + locale.leadoptions.OutstandingIncludeUnbilledAmount + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{BalanceThreshold}}'>" + locale.leadoptions.BalanceThreshold + "</a></li>" +
                		"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Company Fields</b></a></li>" +			
 		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyName}}'>" + locale.Company.CompanyName + "</a></li>" +
@@ -346,8 +346,8 @@
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{PostCode}}'>" + locale.Tickets.PostCode + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Country}}'>" + locale.Tickets.Country + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Currency}}'>" + locale.Tickets.Currency+ "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutstandingExcludeUnbilledAmount}}'>" + locale.Tickets.OutstandingExcludeUnbilledAmount + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutstandingIncludeUnbilledAmount}}'>" + locale.Tickets.OutstandingIncludeUnbilledAmount + "</a></li>" +
+                //"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutstandingExcludeUnbilledAmount}}'>" + locale.Tickets.OutstandingExcludeUnbilledAmount + "</a></li>" +
+                //"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutstandingIncludeUnbilledAmount}}'>" + locale.Tickets.OutstandingIncludeUnbilledAmount + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{BalanceThreshold}}'>" + locale.Tickets.BalanceThreshold + "</a></li>" +              
 				"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Invoice Fields</b></a></li>" +
 	                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{InvoiceNumber}}'>" + locale.Tickets.InvoiceNumber + "</a></li>" +

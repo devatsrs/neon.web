@@ -83,7 +83,13 @@ class Estimate extends \Eloquent {
             $file_name 						= 	'Estimate--' .$Account->AccountName.'-' .date($EstimateTemplate->DateFormat) . '.pdf';
             $htmlfile_name 					= 	'Estimate--' .$Account->AccountName.'-' .date($EstimateTemplate->DateFormat) . '.html';
 			$print_type = 'Estimate';
-            $body 	= 	View::make('estimates.pdf', compact('Estimate', 'EstimateDetail', 'Account', 'EstimateTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','EstimateItemTaxRates','EstimateSubscriptionTaxRates','EstimateAllTaxRates','taxes',"EstimateDetailItems","EstimateDetailISubscription"))->render();
+
+            $MultiCurrencies=array();
+            $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
+            if($EstimateTemplate->ShowTotalInMultiCurrency==1){
+                $MultiCurrencies = Invoice::getTotalAmountInOtherCurrency($Account->CompanyId,$Account->CurrencyId,$Estimate->GrandTotal,$RoundChargesAmount);
+            }
+            $body 	= 	View::make('estimates.pdf', compact('Estimate', 'EstimateDetail', 'Account', 'EstimateTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','EstimateItemTaxRates','EstimateSubscriptionTaxRates','EstimateAllTaxRates','taxes',"EstimateDetailItems","EstimateDetailISubscription","MultiCurrencies"))->render();
             $body 	= 	htmlspecialchars_decode($body); 
             $footer = 	View::make('estimates.pdffooter', compact('Estimate','print_type'))->render();
             $footer = 	htmlspecialchars_decode($footer);

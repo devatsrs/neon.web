@@ -172,6 +172,7 @@
           <th width="6%">Grand Total</th>
           <th width="6%">Paid/OS</th>
           <th width="10%">Status</th>
+          <th width="5%">Credit</th>
           <th width="10%">Due Date</th>
           {{--<th width="10%">Due Days</th>--}}
           <th width="20%">Action</th>
@@ -303,6 +304,13 @@
                         }
 
                     },  // 7 InvoiceStatus
+                    {
+                        "bSortable": false,
+                        mRender: function (id, type, full) {
+                                return full[18];
+                        }
+
+                    }, // 18 CreditNotes Amount
                     {
                         "bSortable": true,
                         mRender: function (id, type, full) {

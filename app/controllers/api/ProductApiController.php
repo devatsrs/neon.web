@@ -5,8 +5,19 @@ class ProductApiController extends ApiController {
 	public function getListByType()
 	{
 		$data = Input::all();
+		$rules = array(
+			'PageNumber' => 'required',
+			'RowsPage' => 'required',
+		);
+		$validator = Validator::make($data, $rules);
+		if ($validator->fails()) {
+			return Response::json(["status"=>"failed", "message"=>"Please Enter Required Fields."]);
+		}
 		$CompanyID=User::get_companyID();
 		$data['CompanyID']=$CompanyID;
+		$data['Name']=empty($data['Name'])?'':$data['Name'];
+		$data['Description']=empty($data['Description'])?'':$data['Description'];
+
 		$result = Product::getProductByItemType($data);
 
 		return Response::json(["status"=>"success", "data"=>$result]);

@@ -215,4 +215,43 @@ class SagePay
         return ["AccountID" => $AccountID , "InvoiceID" => $InvoiceID];
 
     }
+
+    /**
+     * API paynow button show.
+     */
+    public function get_api_paynow_button($CompanyID){
+
+        $sagepay_url = "https://paynow.sagepay.co.za/site/paynow.aspx";
+
+        $this->amount = number_format($this->amount,2,'.','') ;// paypal gives error if more than 2 decimal placesrequies 2 decimal points
+
+        $custom_fields = "m10=".$CompanyID;
+
+        $return_url = url('/api_sagepay_return/'.$CompanyID);
+        $cancel_url = url('/api_sagepay_declined/'.$CompanyID);
+        $notify_url = url('/api_sagepay_ipn/'.$CompanyID);
+
+
+        $form = '<form name="form" id="sagepayform" method="POST" action="' . $sagepay_url .'" target="_self" class="no-margin">
+                  <input type="hidden" name="m1" value="' . $this->ServiceKey . '"> <!-- // Pay Now Service Key -->
+                  <input type="hidden" name="m2" value="' . $this->SoftwareVendorKey . '"> <!-- // // Software Vendor Key -->
+                  <input type="hidden" name="p2" value="' . $CompanyID.':'.date('YmdHis') . '"> <!-- // // Unique ID for this transaction -->
+                  <input type="hidden" name="p3"  value="' . $this->item_title  .  '"> <!-- // // Description of goods being purchased -->
+                  <input type="hidden" name="p4" value="' . $this->amount  .  '"> <!-- // // Amount to be settled to the credit card -->
+                  <input type="hidden" name="Budget" value="Y"> <!-- // // Budget facility being offered? -->
+                  <input type="hidden" name="m4" value="' . $this->item_number  .  '"> <!-- // // This is an extra field -->
+                  <input type="hidden" name="m5" value="' . $custom_fields  .  '"> <!-- // // This is an extra field -->
+                  <input type="hidden" name="m6" value=""> <!-- // // This is an extra field -->
+                  <input type="hidden" name="m9" value=""> <!-- // // Card holders email address -->
+                  <input type="hidden" name="m10" value="' . $custom_fields  .  '"> <!-- // // M10 data -->
+
+                  <input type="hidden" name="return_url" value="' . $return_url  .  '">
+                  <input type="hidden" name="cancel_url" value="' . $cancel_url  .  '">
+                  <input type="hidden" name="notify_url" value="' . $notify_url  .  '">
+
+                </form>';
+
+        return $form;
+
+    }
 }

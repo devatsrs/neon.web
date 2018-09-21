@@ -10,10 +10,10 @@
             <a href="{{URL::to('creditnotes')}}">CreditNotes</a>
         </li>
         <li class="active">
-            <strong>Edit CreditNotes</strong>
+            <strong>Edit CreditNote</strong>
         </li>
     </ol>
-    <h3>Edit CreditNotes</h3>
+    <h3>Edit CreditNote</h3>
 
     @include('includes.errors')
     @include('includes.success')
@@ -50,20 +50,20 @@
                 <div class="form-group">
 
                     <div class="col-sm-6">
-                        <label for="field-1" class="col-sm-2 control-label">*Client</label>
+                        <label for="field-1" class="col-sm-3 control-label">*Client</label>
                         <div class="col-sm-6">
                             {{Form::select('AccountID',$accounts,$CreditNotes->AccountID,array("class"=>"select2" ,"disabled"=>"disabled"))}}
                             {{Form::hidden('AccountID',$CreditNotes->AccountID)}}
                         </div>
                         <div class="clearfix margin-bottom "></div>
 
-                        <label for="field-1" class="col-sm-2 control-label">*Billing Class</label>
+                        <label for="field-1" class="col-sm-3 control-label">*Billing Class</label>
                         <div class="col-sm-6">
                             {{Form::select('BillingClassID', $BillingClass,$CreditNotesBillingClass,array("class"=>"select2 small form-control1 small","id"=>"AccountBillingClassID","disabled"=>"disabled"));}}
                         </div>
                         <div class="clearfix margin-bottom "></div>
 
-                        <label for="field-1" class="col-sm-2 control-label">*Address</label>
+                        <label for="field-1" class="col-sm-3 control-label">*Address</label>
                         <div class="col-sm-6">
 
                             {{Form::textarea('Address',$CreditNotes->Address,array( "ID"=>"Account_Address", "rows"=>4, "class"=>"form-control"))}}
@@ -73,7 +73,7 @@
 
                     </div>
                     <div class="col-sm-6">
-                        <label for="field-1" class="col-sm-7 control-label">*CreditNotes Number</label>
+                        <label for="field-1" class="col-sm-7 control-label">*Credit Note Number</label>
                         <div class="col-sm-5">
                             {{Form::text('CreditNotesNumber',$CreditNotes->CreditNotesNumber,array("class"=>"form-control","readonly"=>"readonly"))}}
                         </div>
@@ -197,7 +197,7 @@
                                     <td>{{Form::text('TotalDiscount',number_format($CreditNotes->TotalDiscount,$RoundChargesAmount),array("class"=>"form-control TotalDiscount text-right","readonly"=>"readonly"))}}</td>
                             </tr>
 -->                         <tr class="grand_total_creditnotes">
-                                <td >CreditNotes Total </td>
+                                <td >Credit Note Total </td>
                                 <td>{{Form::text('GrandTotal',number_format($CreditNotes->GrandTotal,$RoundChargesAmount),array("class"=>"form-control GrandTotal text-right","readonly"=>"readonly"))}}</td>
                             </tr>
                             @if(count($CreditNotesAllTax)>0)
@@ -374,7 +374,7 @@
                 <form id="send-creditnotes-form" method="post" >
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Send CreditNotes By Email</h4>
+                        <h4 class="modal-title">Send Credit Note By Email</h4>
                     </div>
                     <div class="modal-body">
 

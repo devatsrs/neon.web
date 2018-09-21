@@ -67,13 +67,13 @@
                                 @if(User::checkCategoryPermission('Products','Edit'))
                                     <li class="li_active">
                                         <a class="type_active_deactive" type_ad="active" href="javascript:void(0);" >
-                                            <i class="fa"></i>
+                                            <i class=""></i>
                                             <span>Activate</span>
                                         </a>
                                     </li>
                                     <li class="li_deactive">
                                         <a class="type_active_deactive" type_ad="deactive" href="javascript:void(0);" >
-                                            <i class="fa"></i>
+                                            <i class=""></i>
                                             <span>Deactivate</span>
                                         </a>
                                     </li>
@@ -101,7 +101,7 @@
                                     Add New
                                 </a>
 
-                                <div class="input-group-btn pull-right hidden dropdown" style="margin-right:101px">
+                                <div class="input-group-btn pull-right hidden dropdown" style="width:70px;margin-right:47px">
                                     <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Manage Types <span class="caret"></span></button>
                                         <ul class="dropdown-menu dropdown-menu-right" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;left:-42px;">
                                             @if(User::checkCategoryPermission('ItemType','View'))
@@ -121,7 +121,7 @@
                                                 </li>
                                             @endif
                                         </ul>
-                                    </div>
+                                </div>
                                
                             @endif
                         @endif
@@ -191,7 +191,7 @@
                         "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                         "sPaginationType": "bootstrap",
                         "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                        "aaSorting": [[0, 'asc']],
+                        "aaSorting": [[2, 'asc']],
                         "aoColumns": [
                             {"bSortable": false,
                                 mRender: function(id, type, full) {
@@ -234,13 +234,15 @@
                                         });
                                     }
                                     action += '</div>';
-                                    <?php if(User::checkCategoryPermission('Products','Edit')){ ?>
-                                        action += ' <a data-name = "' + full[1] + '" data-id="' + full[0] + '" title="Edit" class="edit-product btn btn-default btn-sm btn-smtooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
+                                    if(full[3]!='topup') {
+                                        <?php if(User::checkCategoryPermission('Products', 'Edit')){ ?>
+                                                action += ' <a data-name = "' + full[1] + '" data-id="' + full[0] + '" title="Edit" class="edit-product btn btn-default btn-sm btn-smtooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
                                         action += ' <a data-name = "' + full[1] + '" data-id="' + full[0] + '" title="CLone" class="clone-product btn btn-default btn-smtooltip-primary" data-original-title="Clone" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-clone"></i>&nbsp;</a>';
-                                    <?php } ?>
-                                    <?php if(User::checkCategoryPermission('Products','Delete') ){ ?>
-                                        action += ' <a href="'+delete_+'" data-redirect="{{ URL::to('products')}}" title="Delete"  class="btn delete btn-danger btn-default btn-sm btn-smtooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></a>';
-                                     <?php } ?>
+                                        <?php } ?>
+                                                <?php if(User::checkCategoryPermission('Products', 'Delete') ){ ?>
+                                                action += ' <a href="' + delete_ + '" data-redirect="{{ URL::to('products')}}" title="Delete"  class="btn delete btn-danger btn-default btn-sm btn-smtooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></a>';
+                                        <?php } ?>
+                                    }
                                     return action;
                                 }
                             }

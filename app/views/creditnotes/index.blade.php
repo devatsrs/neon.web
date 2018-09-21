@@ -88,14 +88,15 @@
     <table class="table table-bordered datatable" id="table-4">
         <thead>
         <tr>
-            <th width="5%"><div class="pull-left">
-                    <input type="checkbox" id="selectall" name="checkbox[]" class="" />
-                </div></th>
+            <!-- <th width="5%"><div class="pull-left">
+                     <input type="checkbox" id="selectall" name="checkbox[]" class="" />
+                </div></th>-->
             <th width="20%">Account Name</th>
-            <th width="10%">CreditNotes Number</th>
+            <th width="10%">Number</th>
             <th width="15%">Issue Date</th>
             <th width="10%">Grand Total</th>
-            <th width="10%">CreditNotes Status</th>
+            <th width="10%">Available Credit</th>
+            <th width="10%">Status</th>
             <th width="20%">Action</th>
         </tr>
         </thead>
@@ -126,11 +127,12 @@
                         if (response_del.status == 'success')
                         {
                             jQuery(this).parent().parent().parent().hide('slow').remove();
+                            ShowToastr("success", response_del.message);
                             data_table.fnFilter('', 0);
                         }
                         else
                         {
-                            ShowToastr("error",response.message);
+                            ShowToastr("error",response_del.message);
                         }
 
                     },
@@ -162,7 +164,7 @@
                 "sAjaxSource": baseurl + "/creditnotes/ajax_datagrid/type",
                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "sPaginationType": "bootstrap",
-                "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+              //  "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "aaSorting": [[3, 'desc']],
                 "fnServerParams": function(aoData) {
                     aoData.push({"name":"CreditNotesType","value":$searchFilter.CreditNotesType},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"CreditNotesNumber","value":$searchFilter.CreditNotesNumber},{"name":"CreditNotesStatus","value":$searchFilter.CreditNotesStatus},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{"name":"CurrencyID","value":$searchFilter.CurrencyID});
@@ -171,10 +173,9 @@
                 },
                 "aoColumns":
                         [
-                            {  "bSortable": false,
+                            /*{  "bSortable": false,
                                 mRender: function ( id, type, full ) {
                                     var action , action = '<div class = "hiddenRowData" >';
-                                    //if (full[4] != 'accepted')
                                     {
                                         action += '<div class="pull-left"><input type="checkbox" class="checkbox rowcheckbox" value="'+full[5]+'" name="CreditNotesID[]"></div>';
                                     }
@@ -182,7 +183,7 @@
                                     return action;
                                 }
 
-                            },  // 0 AccountName
+                            },  // 0 AccountName*/
                             {  "bSortable": true,
 
                                 mRender:function( id, type, full){
@@ -224,13 +225,21 @@
                                 mRender:function( id, type, full){
                                     var output = full[3];
                                     return output;
-                                } },  // 4 GrandTotal
+                                }
+                            },  // 4 GrandTotal
+                            {  "bSortable": true,
+                                mRender:function( id, type, full){
+                                    return  full[11];
+                                }
+
+                            },  // 11 Available Balance
                             {  "bSortable": true,
                                 mRender:function( id, type, full){
                                     return  creditnotesstatus[full[4]];
                                 }
 
                             },  // 5 CreditNotesStatus
+
                             {
                                 "bSortable": false,
                                 mRender: function ( id, type, full ) {
@@ -251,12 +260,12 @@
 
                                     /*Multiple Dropdown*/
                                     action += '<div class="btn-group">';
-                                    action += ' <a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
+                                    action += ' <a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary btn-sm" data-target="#" href="#">Action<span class="caret"></span></a>';
                                     action += '<ul class="dropdown-menu multi-level dropdown-menu-left" role="menu" aria-labelledby="dropdownMenu">';
 
                                     if('{{User::checkCategoryPermission('CreditNotes','Edit')}}')
                                     {
-                                        //if(full[4] != 'accepted')
+                                        if(creditnotesstatus[full[4]] != 'Close')
                                         {
                                             action += ' <li><a class="icon-left"  href="' + (baseurl + "/creditnotes/{id}/edit").replace("{id}",full[5]) +'"><i class="entypo-pencil"></i>Edit </a></li>';
                                         }
@@ -290,7 +299,7 @@
 
                                     //if(full[4] != 'accepted')
                                     {
-                                        action += ' <div class="btn-group"><a href="' + (baseurl + "/creditnotes/{id}/apply_creditnotes").replace("{id}",full[8]) +'" class="btn generate btn-success btn-sm">Apply Credit Notes</a></div>'
+
                                         action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Change Status <span class="caret"></span></button>'
                                         action += '<ul class="dropdown-menu dropdown-green" role="menu">';
                                         $.each(creditnotesstatus, function( index, value ) {
@@ -302,6 +311,7 @@
 
                                         action += '</ul>' +
                                                 '</div>';
+                                        action += ' <div class="btn-group"><a href="' + (baseurl + "/creditnotes/{accountid}/{id}/apply_creditnotes").replace("{accountid}",full[8]).replace("{id}",full[5]) +'" class="btn generate btn-success btn-sm">Apply</a></div>'
                                     }
 
                                     return action;
@@ -395,7 +405,7 @@
 
             });
 
-            $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
+           // $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
 
             $("#creditnotes_filter").submit(function(e){
                 e.preventDefault();
@@ -429,7 +439,7 @@
                         "sAjaxSource": baseurl + "/creditnotes/ajax_datagrid/type",
                         "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                         "sPaginationType": "bootstrap",
-                        "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                        //"sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                         "aaSorting": [[3, 'desc']],},
                     success: function(response1) {
                         console.log("sum of result"+response1);
@@ -859,7 +869,7 @@
                 <form id="send-creditnotes-form" method="post" >
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Send CreditNotes By Email</h4>
+                        <h4 class="modal-title">Send Credit Note By Email</h4>
                     </div>
                     <div class="modal-body"> </div>
                     <div class="modal-footer">

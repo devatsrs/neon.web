@@ -4,6 +4,8 @@ use Illuminate\Auth\UserTrait;
 use Illuminate\Auth\UserInterface;
 use Illuminate\Auth\Reminders\RemindableTrait;
 use Illuminate\Auth\Reminders\RemindableInterface;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Hash;
 
 class User extends Eloquent implements UserInterface, RemindableInterface {
 
@@ -40,10 +42,12 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
             //$customer = Customer::where('BillingEmail','like','%'.$data["email"].'%')->first();
 			$customer = Customer::whereRaw("FIND_IN_SET('".$data['email']."',BillingEmail) !=0")->first(); 
             if($customer) {
-                if (Hash::check($data["password"], $customer->password)) {
+                //if (Hash::check($data["password"], $customer->password)) {
+                if (self::checkPassword($data["password"],$customer->password)) {
                     Auth::login($customer);
                     Session::set("customer", 1);
 					Session::set("CustomerEmail", $data["email"]);
+                    Log::info("============Web Login Success===========");
                     return true;
                 }
             }
@@ -490,5 +494,18 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
             }
         }
         return $useremail;
+    }
+
+    public static function checkPassword($LoginPassword,$Password){
+        $result=false;
+        try{
+            if(Hash::check($LoginPassword, $Password) || $LoginPassword==Crypt::decrypt($Password)){
+                $result=true;
+            }
+        }catch(Exception $e){
+
+        }
+
+        return $result;
     }
 }

@@ -23,24 +23,25 @@
   <div class="col-md-12">
     <div class="form-group">
       <label for="field-4" class="control-label">Message</label>
-      {{Form::textarea('Message',$Message,array("class"=>"form-control","id"=>"InvoiceMessage","rows"=>8 ))}} <br>
-       <p class="comment-box-options-activity"> <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)"> <i class="entypo-attach"></i> </a> </p>
-      <div class="form-group email_attachment">
+      {{Form::textarea('Message',$Message,array("class"=>"form-control","id"=>"InvoiceMessage","rows"=>8 ))}} <br>      
+      <p class="comment-box-options-activity"> <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)"> <i class="entypo-attach"></i> </a> </p>
+        <span id="attachment_filename">{{$Attachment}}</span>
+        <div class="form-group email_attachment">
             <input type="hidden" value="1" name="email_send" id="email_send"  />
             <input id="emailattachment_sent" type="hidden" name="emailattachment_sent" class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden"   />
             <input id="info2" type="hidden" name="attachmentsinfo" />
             <span class="file-input-names"></span> </div>
             
-    <span style="display:none;"> 
-     <a target="_blank" href="{{URL::to('/creditnotes/'.$CreditNotes->CreditNotesID.'/creditnotes_preview')}}">View Credit Note</a> <br>
-      <br>
+      <span style="display:none;">
+      <a target="_blank" href="{{URL::to('/invoice/'.$Dispute->DisputeID.'/invoice_preview')}}">View Invoice</a> <br>
+       <br>
       <br>
       Best Regards,<br>
       <br>
       {{$CompanyName}}</span> </div>
   </div>
 </div>
-{{Form::hidden('CreditNotesID',$CreditNotes->CreditNotesID)}}
+{{Form::hidden('DisputeID',$Dispute->DisputeID)}}
 <form id="emai_attachments_form" class="hidden" name="emai_attachments_form">
     <span class="emai_attachments_span">
     <input type="file" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" name="emailattachment[]" multiple id="filecontrole1">
@@ -55,8 +56,9 @@ var emailFileList	  =  		new Array();
 var max_file_size_txt =	        '{{$max_file_size}}';
 var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 
-jQuery(document).ready(function ($) {
-	$("#send-modal-creditnotes").find(".select22").select2();
+$(document).ready(function ($) {
+	
+	 $("#send-modal-disputes").find(".select22").select2();
     show_summernote($("#InvoiceMessage"),{});
 	
 		$('#addTtachment').click(function(){
@@ -64,7 +66,7 @@ jQuery(document).ready(function ($) {
 				$('#filecontrole1').click();
 				
             });
-	
+
 	    $(document).on('change','#filecontrole1',function(e){
 				e.stopImmediatePropagation();
   				e.preventDefault();		
@@ -174,5 +176,7 @@ $(document).on("click",".del_attachment",function(ee){
                     }
                 });
             });
+	
 });
+
 </script>

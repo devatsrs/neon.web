@@ -47,7 +47,8 @@ class RateGeneratorsController extends \BaseController {
             $trunk_keys = getDefaultTrunk($trunks);
             $codedecklist = BaseCodeDeck::getCodedeckIDList();
             $currencylist = Currency::getCurrencyDropdownIDList();
-            return View::make('rategenerators.create', compact('trunks','codedecklist','currencylist','trunk_keys'));
+            $Timezones = Timezones::getTimezonesIDList();
+            return View::make('rategenerators.create', compact('trunks','codedecklist','currencylist','trunk_keys','Timezones'));
     }
 
     public function store() {
@@ -57,10 +58,12 @@ class RateGeneratorsController extends \BaseController {
         $data ['CompanyID'] = $companyID;
         $data ['UseAverage'] = isset($data ['UseAverage']) ? 1 : 0;
         $data ['UsePreference'] = isset($data ['UsePreference']) ? 1 : 0;
+        $data ['Timezones'] = isset($data ['Timezones']) ? implode(',', $data['Timezones']) : '';
         $rules = array(
             'CompanyID' => 'required',
             'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,NULL,CompanyID,CompanyID,'.$data['CompanyID'],
             'TrunkID' => 'required',
+            'Timezones' => 'required',
             'RatePosition' => 'required|numeric',
             'UseAverage' => 'required',
             'codedeckid' => 'required',
@@ -69,7 +72,16 @@ class RateGeneratorsController extends \BaseController {
             'GroupBy' => 'required',
         );
 
-        $validator = Validator::make($data, $rules);
+        $message = array(
+            'Timezones.required' => 'Please select at least 1 Timezone'
+        );
+
+        if(!empty($data['IsMerge'])) {
+            $rules['TakePrice'] = "required";
+            $rules['MergeInto'] = "required";
+        }
+
+        $validator = Validator::make($data, $rules, $message);
 
         if ($validator->fails()) {
             return json_validator_response($validator);
@@ -115,9 +127,10 @@ class RateGeneratorsController extends \BaseController {
                     $array_op['disabled'] = "disabled";
                 }
                     $rategenerator = RateGenerator::find($id);
+                $Timezones = Timezones::getTimezonesIDList();
 
                 // Debugbar::info($rategenerator_rules);
-                return View::make('rategenerators.edit', compact('id', 'rategenerators','rategenerator', 'rategenerator_rules','codedecklist', 'trunks','array_op','currencylist'));
+                return View::make('rategenerators.edit', compact('id', 'rategenerators','rategenerator', 'rategenerator_rules','codedecklist', 'trunks','array_op','currencylist','Timezones'));
             }
     }
 
@@ -136,19 +149,31 @@ class RateGeneratorsController extends \BaseController {
         $data ['CompanyID'] = $companyID;
         $data ['UseAverage'] = isset($data ['UseAverage']) ? 1 : 0;
         $data ['UsePreference'] = isset($data ['UsePreference']) ? 1 : 0;
+        $data ['Timezones'] = isset($data ['Timezones']) ? implode(',', $data['Timezones']) : '';
         $rules = array(
             'CompanyID' => 'required',
             'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,'.$RateGenerator->RateGeneratorId.',RateGeneratorID,CompanyID,'.$data['CompanyID'],
             'TrunkID' => 'required',
+            'Timezones' => 'required',
             'RatePosition' => 'required|numeric',
             'UseAverage' => 'required',
             'codedeckid' => 'required',
             'CurrencyID' => 'required',
             'Policy' => 'required',
         );
+        
+        $message = array(
+            'Timezones.required' => 'Please select at least 1 Timezone'
+        );
 
+        if(!empty($data['IsMerge'])) {
+            $rules['TakePrice'] = "required";
+            $rules['MergeInto'] = "required";
+        } else {
+            $data['IsMerge'] = 0;
+        }
 
-        $validator = Validator::make($data, $rules);
+        $validator = Validator::make($data, $rules, $message);
 
         if ($validator->fails()) {
             return json_validator_response($validator);

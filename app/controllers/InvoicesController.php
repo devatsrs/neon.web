@@ -1455,7 +1455,7 @@ class InvoicesController extends \BaseController {
 			    $max_file_size				=	get_max_file_size();	
 				 
 				if(!empty($Subject) && !empty($Message)){
-					$from	 = $templateData->EmailFrom;	
+					$from	 = $templateData->EmailFrom;
 					return View::make('invoices.email', compact('Invoice', 'Account', 'Subject','Message','CompanyName','from','response_extensions','max_file_size'));
 				}
 				return Response::json(["status" => "failure", "message" => "Subject or message is empty"]);
@@ -1707,6 +1707,9 @@ class InvoicesController extends \BaseController {
             $InvoiceIDs =array_filter(explode(',',$data['InvoiceIDs']),'intval');
         }
         if (is_array($InvoiceIDs) && count($InvoiceIDs)) {
+                //Stock History Calculations Start
+                $this->StockHistoryCalculationByInvoiceStatus($data['InvoiceStatus'],$InvoiceIDs);
+                //Stock History Calculations End
 
             if (Invoice::whereIn('InvoiceID',$InvoiceIDs)->update([ 'ModifiedBy'=>$username,'InvoiceStatus' => $data['InvoiceStatus']])) {
                 $Extralognote = '';
@@ -2075,7 +2078,7 @@ class InvoicesController extends \BaseController {
         $Alldata['PaymentResponse'] = json_encode($PaymentResponse);
         $Alldata['APIData'] =  Session::get('APIEncodeData');
         //log::info(print_r($PaymentResponse,true));
-        log::info(print_r($Alldata,true));
+        //log::info(print_r($Alldata,true));
         /*
         if($PaymentResponse['status']=='failed'){
             if(!empty($PaymentResponse['transaction_notes'])){
@@ -3429,6 +3432,137 @@ class InvoicesController extends \BaseController {
 
     public function api_paypal_cancel($id){
         echo "<center>Opps. Payment Canceled, Please try again.</center>";
+    }
+
+    public function api_sagepay_ipn($CompanyID)
+    {
+
+        //https://sagepay.co.za/integration/sage-pay-integration-documents/pay-now-gateway-technical-guide/
+        $SagePay = new SagePay($CompanyID);
+
+        $data["Notes"]                  = $SagePay->get_note();
+        $data["Success"]                = $SagePay->success();
+        $data["PaymentMethod"]          = $SagePay->method;
+        $data["Amount"]                 = $SagePay->get_response_var('Amount');
+        $data["Transaction"]            = $SagePay->get_response_var('RequestTrace');
+        $data["PaymentGatewayResponse"] = $SagePay->get_full_response();
+
+        log::info('api_sagepay_ipn');
+        log::info(print_r($data,true));
+        return Response::json(array("status" => "success", "message" => "Invoice paid successfully","data"=>$data));
+
+    }
+
+    public function api_sagepay_return($id){
+        $data = Input::all();
+
+        log::info('sagepay log');
+        log::info(print_r($data,true));
+
+
+        $PaymentResponse =array();
+        if(isset($data["Success"])){
+            $PaymentResponse['PaymentMethod'] = $data["PaymentMethod"];
+            $PaymentResponse['transaction_notes'] = 'SagePay transaction_id '.$data["Transaction"];
+            $PaymentResponse['Amount'] = floatval($data["Amount"]);
+            $PaymentResponse['Transaction'] = $data["Transaction"];
+            $PaymentResponse['Response'] = $data["PaymentGatewayResponse"];
+            $PaymentResponse['status'] = 'success';
+        }elseif(!empty($data['tx'])){
+            $PaymentResponse['PaymentMethod'] = 'SagePay';
+            $PaymentResponse['transaction_notes'] = 'SagePay transaction_id '.$data['tx'];
+            $PaymentResponse['Amount'] = floatval($data["amt"]);
+            $PaymentResponse['Transaction'] = $data["tx"];
+            $PaymentResponse['Response'] = '';
+            $PaymentResponse['status'] = 'success';
+        }
+
+        $Alldata = array();
+        $Alldata['PaymentResponse'] = json_encode($PaymentResponse);
+        $Alldata['APIData'] =  Session::get('APIEncodeData');
+        //log::info(print_r($PaymentResponse,true));
+        log::info(print_r($Alldata,true));
+        log::info('api_invoice_thanks');
+        $RegistarionApiLogID = Session::get('RegistarionApiLogID');
+        log::info('R LogID '.$RegistarionApiLogID);
+        $RegistarionApiLogUpdate = array();
+        if(!empty($RegistarionApiLogID)){
+            $RegistarionApiLogUpdate['PaymentAmount'] = empty($PaymentResponse['Amount']) ? 0 : $PaymentResponse['Amount'];
+            $RegistarionApiLogUpdate['PaymentResponse'] = json_encode($PaymentResponse);
+            $RegistarionApiLogUpdate['PaymentStatus'] = 'success';
+            DB::table('tblRegistarionApiLog')->where('RegistarionApiLogID', $RegistarionApiLogID)->update($RegistarionApiLogUpdate);
+        }
+        //log::info(json_decode($data['data'],true));
+        //$customdata = json_encode(json_decode($Alldata,true));
+        $customdata = json_encode($Alldata);
+        //$customdata=$data['data'];
+        return View::make('neonregistartion.api_invoice_creditcard_thanks', compact('data','customdata'));
+    }
+
+    public function api_sagepay_declined($id) {
+        echo "<center>Payment declined, Go back and try again later.</center>";
+    }
+
+    public function StockHistoryCalculationByInvoiceStatus($InvoiceStatus,$InvoiceIDs){
+        foreach($InvoiceIDs as $InvoiceID){
+            $StockHistory=array();
+            if($InvoiceStatus == Invoice::CANCEL){
+                $Invoice=Invoice::where('InvoiceID',$InvoiceID)->first();
+                $InvoiceDetailData=InvoiceDetail::where(['InvoiceID'=>$InvoiceID])->get();
+                foreach($InvoiceDetailData as $InvoiceDetail) {
+                    $temparray=array();
+                    if($InvoiceDetail->ProductID >0 && $InvoiceDetail->Qty >0 ){
+                        $companyID = $Invoice->CompanyID;
+                        $reason='delete_prodstock';
+
+                        $temparray['CompanyID']=$companyID;
+                        $temparray['ProductID']=intval($InvoiceDetail->ProductID);
+                        $temparray['InvoiceID']=$InvoiceID;
+                        $temparray['Qty']=$InvoiceDetail->Qty;
+                        $temparray['Reason']=$reason;
+                        $temparray['InvoiceNumber']=$Invoice->FullInvoiceNumber;
+                        $temparray['oldQty']=$InvoiceDetail->Qty;
+                        $temparray['created_by']=User::get_user_full_name();
+
+                        array_push($StockHistory,$temparray);
+                    }
+                }
+                Log::info("===== StockHistory while Cancel Invoice ====");
+                Log::info($StockHistory);
+                if(!empty($StockHistory)){
+                    $historyData=stockHistoryUpdateCalculations($StockHistory);
+                }
+
+            }else{
+                $Invoice=Invoice::where('InvoiceID',$InvoiceID)->first();
+                if(!empty($Invoice) && $Invoice->InvoiceStatus==Invoice::CANCEL){
+                    $StockHistory=array();
+                    $InvoiceDetailData=InvoiceDetail::where(['InvoiceID'=>$InvoiceID])->get();
+                    foreach($InvoiceDetailData as $InvoiceDetail) {
+                        $temparray=array();
+                        if($InvoiceDetail->ProductID >0 && $InvoiceDetail->Qty >0 ){
+                            $companyID = User::get_companyID();
+
+                            $temparray['CompanyID']=$companyID;
+                            $temparray['ProductID']=intval($InvoiceDetail->ProductID);
+                            $temparray['InvoiceID']=$InvoiceID;
+                            $temparray['Qty']=$InvoiceDetail->Qty;
+                            $temparray['Reason']='';
+                            $temparray['InvoiceNumber']=$Invoice->FullInvoiceNumber;
+                            $temparray['created_by']=User::get_user_full_name();
+
+                            array_push($StockHistory,$temparray);
+                        }
+                    }
+                    Log::info("===== StockHistory while Change InvoiceStatus From Cancel ====");
+                    Log::info($StockHistory);
+                    if(!empty($StockHistory)){
+                        $historyData=StockHistoryCalculations($StockHistory);
+                    }
+
+                }
+            }
+        }
     }
 
 }

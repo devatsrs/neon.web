@@ -32,9 +32,9 @@
         <li class="active">
             <a href="{{URL::to('creditnotes')}}">CreditNotes</a>
         </li>
-        <li class="active"> <strong>Apply Credit Notes</strong> </li>
+        <li class="active"> <strong>Apply Credit Note</strong> </li>
     </ol>
-    <h3>Credit Notes</h3>
+    <h3>Apply Credit Note</h3>
     @include('includes.errors')
     @include('includes.success')
             <!-- <a href="javascript:;" id="bulk-creditnotes" class="btn upload btn-primary ">
@@ -42,13 +42,35 @@
         Bulk CreditNotes Generate.
     </a>-->
     </p>
+    <div class="clearfix margin-bottom "></div>
     <div class="row">
         <div  class="col-md-12">
-           
+            <div class="form-group">
+                <div class="col-sm-6">
+                    <div class="col-sm-6"> Credit Note No.: </div>
+                    <div class="clearfix margin-bottom ">{{$CreditNotes->CreditNotesNumber;}}</div>
+                    <div class="col-sm-6"> Credit Note Date : </div>
+                    <div class="clearfix margin-bottom ">{{date('Y-m-d',strtotime($CreditNotes->IssueDate));}}</div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="col-sm-6"> Client :  </div>
+                    <div class="clearfix margin-bottom ">{{$AccountName;}}</div>
+                    <div class="col-sm-6"> Available Credits : </div>
+                    <div class="clearfix margin-bottom ">{{$CreditNotes->GrandTotal - $CreditNotes->PaidAmount;}}</div>
+                </div>
+            </div>
         </div>
         <div class="clear"></div>
     </div>
     <br>
+    <div class="form-group pull-right">
+        <button value="Save" name="Save" id="SaveButton" class="btn save btn-primary btn-icon btn-sm icon-left hidden-print" >
+            <i class="entypo-floppy"></i>Save</button>
+        <a class="btn btn-danger btn-sm btn-icon icon-left" href="{{URL::to('creditnotes')}}">
+            <i class="entypo-back"></i>Back</a>
+    </div>
+    <div class="clear"></div>
     <form name="apply_creditnotes" id="apply_creditnotes" role="form" method="post">
     <table class="table table-bordered datatable" id="table-4">
         <thead>
@@ -56,7 +78,7 @@
             <th width="15%">Invoice No.</th>
             <th width="20%">Invoice Date</th>
             <th width="15%">Amount</th>
-            <th width="10%">Balance</th>
+            <th width="10%">Paid Amount</th>
             <th width="10%">Amount To Credit</th>
         </tr>
         </thead>
@@ -64,8 +86,10 @@
         </tbody>
     </table>
     </form>
-    <button value="Save" name="Save" id="SaveButton" class="btn generate btn-success btn-md" >Save</button>
-    <a class="btn btn-success btn-md" href="{{URL::to('creditnotes')}}">Cancel</a>
+    <!--<button value="Save" name="Save" id="SaveButton" class="btn save btn-primary btn-icon btn-sm icon-left hidden-print" >
+        <i class="entypo-floppy"></i>Save</button>
+    <a class="btn btn-danger btn-sm btn-icon icon-left" href="{{URL::to('creditnotes')}}">
+        <i class="entypo-back"></i>Back</a>-->
 
     <script type="text/javascript">
         var $searchFilter 	= 	{};
@@ -107,6 +131,8 @@
                                     var action = '<input type = "hidden"  name = "invoice_id[]" value = "'+full[0]+'" / >';
                                     action +='<input type = "hidden"  name = "AccountID" value = "{{$AccountID}}" / >';
                                     action +='<input type = "hidden"  name = "CompanyID" value = "{{$CompanyID}}" / >';
+                                    action +='<input type = "hidden"  name = "CreditNotesID" value = "{{$CreditNotesID}}" / >';
+                                    action +='<input type = "hidden"  name = "CreditNoteNumber" value = "{{$CreditNotes->CreditNotesNumber}}" / >';
                                     action +='<input type = "hidden"  name = "invoice_number[]" value = "'+full[1]+'" / >';
                                     action += full[1];
                                     return action;
@@ -124,6 +150,9 @@
                             },  // 3 IssueDate
                             {
                                 "bSortable": false,
+                                mRender: function (id, type, full) {
+                                    return full[4];
+                                }
                             },
                             {
                                 "bSortable": false,
@@ -554,7 +583,7 @@
                 <form id="send-creditnotes-form" method="post" >
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Send CreditNotes By Email</h4>
+                        <h4 class="modal-title">Send Credit Note By Email</h4>
                     </div>
                     <div class="modal-body"> </div>
                     <div class="modal-footer">
