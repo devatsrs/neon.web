@@ -661,7 +661,8 @@ BEGIN
 		Amount NUMERIC(18, 8)
 	);
 
-     
+   --   tblInvoice.InvoiceType = 2 Invoice IN
+   --   tblInvoice.InvoiceType = 1 Invoice OUT  -- not ( 'cancel' , 'draft' , 'awaiting')
 	INSERT into tmp_AccountSOA(AccountID,Amount,InvoiceType)
 	SELECT
 		tblInvoice.AccountID,
@@ -706,13 +707,14 @@ BEGIN
 	AND CreditNotesStatus IN ('open')
 	AND (p_AccountID = 0 OR  AccountID = p_AccountID);
 	
-	/** SOAOffSet = soa - topup - creditnotes	 */
-	
+	/** SOAOffSet = soa( invoiceOut-PaymentIn - InvoiceIn - PaymentOut)    - topup - creditnotes	 */
 	INSERT INTO tmp_AccountSOABal
-	SELECT AccountID,(SUM(IF(InvoiceType=1,Amount,0)) -  SUM(IF(PaymentType='Payment In',Amount,0))) - (SUM(IF(InvoiceType=2,Amount,0)) - SUM(IF(PaymentType='Payment Out',Amount,0))) - (SUM(IF(CreditNoteType='topup',Amount,0))) - (SUM(IF(TopUpType='creditnote',Amount,0))) as SOAOffSet  
+	SELECT AccountID,(SUM(IF(InvoiceType=1,Amount,0)) -  SUM(IF(PaymentType='Payment In',Amount,0))) - (SUM(IF(InvoiceType=2,Amount,0)) - SUM(IF(PaymentType='Payment Out',Amount,0))) - (SUM(IF(TopUpType='topup',Amount,0))) - (SUM(IF(CreditNoteType='creditnote',Amount,0))) as SOAOffSet
 	FROM tmp_AccountSOA 
 	GROUP BY AccountID;
 	
+	
+	-- SOABalance= 0 where AccountID not found 
 	INSERT INTO tmp_AccountSOABal
 	SELECT DISTINCT tblAccount.AccountID ,0 FROM Ratemanagement3.tblAccount
 	LEFT JOIN tmp_AccountSOA ON tblAccount.AccountID = tmp_AccountSOA.AccountID
@@ -720,7 +722,7 @@ BEGIN
 	AND tmp_AccountSOA.AccountID IS NULL
 	AND (p_AccountID = 0 OR  tblAccount.AccountID = p_AccountID);
 	
-
+	-- update SOAOffset (used in Credit Control / AccountBalance )
 	UPDATE Ratemanagement3.tblAccountBalance
 	INNER JOIN tmp_AccountSOABal 
 		ON  tblAccountBalance.AccountID = tmp_AccountSOABal.AccountID
@@ -728,6 +730,7 @@ BEGIN
 	
 	UPDATE Ratemanagement3.tblAccountBalance SET tblAccountBalance.BalanceAmount = COALESCE(tblAccountBalance.SOAOffset,0) + COALESCE(tblAccountBalance.UnbilledAmount,0)  - COALESCE(tblAccountBalance.VendorUnbilledAmount,0);
 	
+	-- New Account entry for tblAccountBalance
 	INSERT INTO Ratemanagement3.tblAccountBalance (AccountID,BalanceAmount,UnbilledAmount,SOAOffset)
 	SELECT tmp_AccountSOABal.AccountID,tmp_AccountSOABal.Amount,0,tmp_AccountSOABal.Amount
 	FROM tmp_AccountSOABal 
