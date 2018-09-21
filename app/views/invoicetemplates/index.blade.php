@@ -50,7 +50,7 @@ var postdata;
         public_vars.$body = $("body");
         //show_loading_bar(40);
 
-        var list_fields  = ['Name','updated_at','ModifiedBy','InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CreditNotesStartNumber','LastCreditNotesNumber','CreditNotesNumberPrefix','CDRType','GroupByService','ServiceSplit','IgnoreCallCharge','ShowPaymentWidgetInvoice','DefaultTemplate','FooterDisplayOnlyFirstPage','ShowTaxesOnSeparatePage'];
+        var list_fields  = ['Name','updated_at','ModifiedBy','InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CreditNotesStartNumber','LastCreditNotesNumber','CreditNotesNumberPrefix','CDRType','GroupByService','ServiceSplit','IgnoreCallCharge','ShowPaymentWidgetInvoice','DefaultTemplate','FooterDisplayOnlyFirstPage','ShowTaxesOnSeparatePage','ShowTotalInMultiCurrency'];
 
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
@@ -246,6 +246,11 @@ var postdata;
             $('[name="ShowTaxesOnSeparatePage"]').prop('checked',true)
         }else{
             $('[name="ShowTaxesOnSeparatePage"]').prop('checked',false)
+        }
+        if(cur_obj.find("input[name='ShowTotalInMultiCurrency']").val() == 1 ){
+            $('[name="ShowTotalInMultiCurrency"]').prop('checked',true)
+        }else{
+            $('[name="ShowTotalInMultiCurrency"]').prop('checked',false)
         }
 
         var InvoiceTemplateID = cur_obj.find("input[name='InvoiceTemplateID']").val();
@@ -496,6 +501,12 @@ function ajax_update(fullurl,data){
                             <div class="col-sm-4">
                                 <p class="make-switch switch-small">
                                     <input type="checkbox" name="ShowTaxesOnSeparatePage" value="0">
+                                </p>
+                            </div>
+                            <label for="field-1" class="col-sm-2 control-label">Show Total In Multi Currency</label>
+                            <div class="col-sm-4">
+                                <p class="make-switch switch-small">
+                                    <input type="checkbox" name="ShowTotalInMultiCurrency" value="0">
                                 </p>
                             </div>
                         </div>

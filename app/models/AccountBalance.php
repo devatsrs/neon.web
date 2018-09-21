@@ -94,21 +94,17 @@ class AccountBalance extends \Eloquent {
     }
 	
     public static function getNewAccountBalance($CompanyID,$AccountID){
-        $SOA_Amount = AccountBalance::getAccountSOA($CompanyID,$AccountID);
-        $TopUp = Invoice::getTotalTopUp($CompanyID,$AccountID);
-        $AccountBalance = $SOA_Amount - $TopUp;
+        $AccountBalance = AccountBalance::getBalanceSOAOffsetAmount($AccountID);
         $AccountBalance = number_format($AccountBalance, get_round_decimal_places($AccountID));
         return $AccountBalance;
     }
 
     public static function getNewAccountExposure($CompanyID,$AccountID){
-        $SOA_Amount = AccountBalance::getAccountSOA($CompanyID,$AccountID);
+        $SOA_Amount = AccountBalance::getBalanceSOAOffsetAmount($AccountID);
         $response = AccountBalance::where('AccountID', $AccountID)->first(['AccountID', 'PermanentCredit', 'UnbilledAmount', 'EmailToCustomer', 'TemporaryCredit', 'TemporaryCreditDateTime', 'BalanceThreshold', 'BalanceAmount', 'VendorUnbilledAmount']);
         $UnbilledAmount = empty($response->UnbilledAmount) ? 0 : $response->UnbilledAmount;
         $VendorUnbilledAmount = empty($response->VendorUnbilledAmount) ? 0 : $response->VendorUnbilledAmount;
         $AccountBalance = $SOA_Amount + ($UnbilledAmount - $VendorUnbilledAmount);
-        $TopUp = Invoice::getTotalTopUp($CompanyID,$AccountID);
-        $AccountBalance = $AccountBalance - $TopUp;
         $AccountBalance = number_format($AccountBalance, get_round_decimal_places($AccountID));
         return $AccountBalance;
     }

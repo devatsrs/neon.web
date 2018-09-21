@@ -70,6 +70,11 @@ $inlineTaxes        =   [];
                 <div id="invoice">
                     <h1>Estimate No: {{$EstimateTemplate->EstimateNumberPrefix}}{{$Estimate->EstimateNumber}}</h1>
                     <div class="date">Estimate Date: {{ date($EstimateTemplate->DateFormat,strtotime($Estimate->IssueDate))}}</div>
+                    @if(!empty($MultiCurrencies))
+                        @foreach($MultiCurrencies as $multiCurrency)
+                            <div>Grand Total In {{$multiCurrency['Title']}} : {{$multiCurrency['Amount']}}</div>
+                        @endforeach
+                    @endif
                 </div>
             </div>
             

@@ -55,7 +55,7 @@ $inlineTaxes        =   [];
             @endif
         </div>
         <div id="company">
-            <h2 class="name"><b>CreditNotes From</b></h2>
+            <h2 class="name"><b>Credit Note From</b></h2>
             <div>{{ nl2br($CreditNotesTemplate->Header)}}</div>
         </div>
     </header>
@@ -64,12 +64,17 @@ $inlineTaxes        =   [];
     <main>
             <div id="details" class="clearfix">
                 <div id="client">
-                    <div class="to"><b>CreditNotes To:</b></div>
+                    <div class="to"><b>Credit Note To:</b></div>
                     <div>{{nl2br($CreditNotes->Address)}}</div>
                 </div>
                 <div id="invoice">
-                    <h1>CreditNotes No: {{$CreditNotesTemplate->CreditNotesNumberPrefix}}{{$CreditNotes->CreditNotesNumber}}</h1>
-                    <div class="date">CreditNotes Date: {{ date($CreditNotesTemplate->DateFormat,strtotime($CreditNotes->IssueDate))}}</div>
+                    <h1>Credit Note No: {{$CreditNotesTemplate->CreditNotesNumberPrefix}}{{$CreditNotes->CreditNotesNumber}}</h1>
+                    <div class="date">Credit Note Date: {{ date($CreditNotesTemplate->DateFormat,strtotime($CreditNotes->IssueDate))}}</div>
+                    @if(!empty($MultiCurrencies))
+                        @foreach($MultiCurrencies as $multiCurrency)
+                            <div>Grand Total In {{$multiCurrency['Title']}} : {{$multiCurrency['Amount']}}</div>
+                        @endforeach
+                    @endif
                 </div>
             </div>
             
