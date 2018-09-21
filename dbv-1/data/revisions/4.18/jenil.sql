@@ -6564,3 +6564,205 @@ DELIMITER ;
 
 /* Above Done on Staging */
 
+/* DB Cleanup - Retension */
+
+
+DROP PROCEDURE IF EXISTS `prc_deleteArchiveOldRate`;
+DELIMITER //
+CREATE PROCEDURE `prc_deleteArchiveOldRate`(
+	IN `p_CompanyID` INT,
+	IN `p_DeleteDate` DATETIME
+
+
+)
+BEGIN
+ 	
+ 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	  
+	  DELETE
+			tblCustomerRateArchive
+	  FROM tblCustomerRateArchive 
+	  INNER JOIN tblAccount 
+		ON tblAccount.AccountID=tblCustomerRateArchive.AccountId
+	  WHERE 
+	  tblAccount.CompanyId=p_CompanyID
+	  AND tblCustomerRateArchive.EffectiveDate <= p_DeleteDate;
+
+		
+	  DELETE
+	  		tblVendorRateArchive
+	  FROM tblVendorRateArchive 
+	  INNER JOIN tblAccount 
+		ON tblAccount.AccountID=tblVendorRateArchive.AccountId
+	  WHERE
+		tblAccount.CompanyId=p_CompanyID
+	  AND EffectiveDate <= p_DeleteDate;
+
+
+	  DELETE
+	  		tblRateTableRateArchive
+	  FROM tblRateTableRateArchive 
+	  INNER JOIN tblRateTable 
+	  ON tblRateTable.RateTableId=tblRateTableRateArchive.RateTableId
+	  WHERE 
+	  tblRateTable.CompanyId=p_CompanyID
+	  AND tblRateTableRateArchive.EffectiveDate <= p_DeleteDate;	  	  
+	  
+	 
+   SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ; 
+END//
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `prc_deleteTickets`;
+DELIMITER //
+CREATE PROCEDURE `prc_deleteTickets`(
+	IN `p_CompanyID` INT,
+	IN `p_DeleteDate` DATETIME
+
+
+
+
+
+
+)
+BEGIN
+ 	DECLARE p_status INT;
+ 	
+ 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+ 	
+ 	DROP TEMPORARY TABLE IF EXISTS tmp_attachments_;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_attachments_(
+		attachment LONGTEXT
+	);
+	  
+	  -- get closed StatusID
+	  SELECT 
+	  		tblTicketfieldsValues.ValuesID INTO p_status 
+	  FROM tblTicketfields 
+	  INNER JOIN tblTicketfieldsValues 
+	 	 	ON tblTicketfields.TicketFieldsID=tblTicketfieldsValues.FieldsID 
+	  WHERE tblTicketfields.FieldType='default_status' 
+		  AND tblTicketfieldsValues.FieldValueAgent='Closed';
+	  
+	  
+	  DELETE
+	  		tblJunkTicketEmail
+	  FROM tblJunkTicketEmail 
+	  INNER JOIN tblTickets
+	  ON tblTickets.TicketID=tblJunkTicketEmail.TicketID
+	  WHERE 
+	  tblTickets.CompanyID=p_CompanyID
+	  AND tblTickets.`Status`=p_status
+	  AND tblTickets.updated_at <= p_DeleteDate;
+	  	  
+	  DELETE
+	  		tblTicketLog
+	  FROM tblTicketLog 
+	  INNER JOIN tblTickets
+	  ON tblTickets.TicketID=tblTicketLog.TicketID
+	  WHERE 
+	  tblTickets.CompanyID=p_CompanyID
+	  AND tblTickets.`Status`=p_status
+	  AND tblTickets.updated_at <= p_DeleteDate;
+	  
+	  -- get attachment to delete files later
+	  INSERT INTO tmp_attachments_
+	  SELECT 
+	  tblTicketsDeletedLog.AttachmentPaths
+	  FROM tblTicketsDeletedLog
+	  INNER JOIN tblTickets
+	  	ON tblTickets.TicketID=tblTicketsDeletedLog.TicketID
+	  WHERE 
+	  tblTickets.CompanyID=p_CompanyID
+	  AND tblTickets.`Status`=p_status
+	  AND tblTicketsDeletedLog.AttachmentPaths!=''
+	  AND tblTickets.updated_at <= p_DeleteDate;
+	  
+	  DELETE
+	  		tblTicketsDeletedLog
+	  FROM tblTicketsDeletedLog 
+	  INNER JOIN tblTickets
+	  	ON tblTickets.TicketID=tblTicketsDeletedLog.TicketID
+	  WHERE 
+	  	tblTickets.CompanyID=p_CompanyID
+	  	AND tblTickets.`Status`=p_status
+	  	AND tblTickets.updated_at <= p_DeleteDate;
+	  
+	  
+	  	
+	  
+	  INSERT INTO tmp_attachments_
+	  SELECT 
+	  AccountEmailLogDeletedLog.AttachmentPaths
+	  FROM AccountEmailLogDeletedLog
+	  INNER JOIN tblTickets
+	  ON tblTickets.TicketID=AccountEmailLogDeletedLog.TicketID
+	  WHERE 
+	  tblTickets.CompanyID=p_CompanyID
+	  AND tblTickets.`Status`=p_status
+	  AND AccountEmailLogDeletedLog.AttachmentPaths!=''
+	  AND tblTickets.updated_at <= p_DeleteDate;
+	  
+	  DELETE
+	  		AccountEmailLogDeletedLog
+	  FROM AccountEmailLogDeletedLog 
+	  INNER JOIN tblTickets
+	  	ON tblTickets.TicketID=AccountEmailLogDeletedLog.TicketID
+	  WHERE 
+	  tblTickets.CompanyID=p_CompanyID
+	  AND tblTickets.`Status`=p_status
+	  AND tblTickets.updated_at <= p_DeleteDate;
+	  
+	   
+	  
+	  INSERT INTO tmp_attachments_
+	  SELECT 
+	  AccountEmailLog.AttachmentPaths
+	  FROM AccountEmailLog
+	  INNER JOIN tblTickets
+	  	ON tblTickets.TicketID=AccountEmailLog.TicketID
+	  WHERE 
+	  tblTickets.CompanyID=p_CompanyID
+	  AND tblTickets.`Status`=p_status
+	  AND AccountEmailLog.AttachmentPaths!=''
+	  AND tblTickets.updated_at <= p_DeleteDate;
+	  	  
+	  DELETE
+	  		AccountEmailLog
+	  FROM AccountEmailLog 
+	  INNER JOIN tblTickets
+	  	ON tblTickets.TicketID=AccountEmailLog.TicketID
+	  WHERE 
+	  tblTickets.CompanyID=p_CompanyID
+	  AND tblTickets.`Status`=p_status
+	  AND tblTickets.updated_at <= p_DeleteDate;
+	  
+	  
+	  INSERT INTO tmp_attachments_
+	  SELECT
+	  		AttachmentPaths
+	  FROM tblTickets
+	  WHERE 
+	  CompanyID=p_CompanyID
+	  AND tblTickets.`Status`=p_status
+	  AND AttachmentPaths!=''
+	  AND updated_at <= p_DeleteDate;
+	  
+	  DELETE 
+	  FROM tblTickets
+	  WHERE 
+	  CompanyID=p_CompanyID
+	  AND tblTickets.`Status`=p_status
+	  AND updated_at <= p_DeleteDate; 
+	  
+	  	  
+	   
+	  SELECT * FROM tmp_attachments_;
+
+		 
+   SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ; 
+END//
+DELIMITER ;
+
+
