@@ -422,6 +422,12 @@ class PaymentsController extends \BaseController {
 
                         $CreditNoteID=Payment::where('PaymentID',$PaymentID)->pluck('CreditNotesID');
                         if(!empty($CreditNoteID)){
+                            //get payment amount from payments - creditnote paid amount
+                            $PaymentRecallAmount=Payment::where('PaymentID',$PaymentID)->pluck('Amount');
+                            $PaidAmount= CreditNotes::where(['CreditNotesID'=>$CreditNoteID])->pluck('PaidAmount');
+                            $RecallAmount = $PaidAmount - $PaymentRecallAmount;
+                            CreditNotes::find($CreditNoteID)->update(array("PaidAmount" => $RecallAmount ));
+
                             $GrandTotal= CreditNotes::where(['CreditNotesID'=>$CreditNoteID])->pluck('GrandTotal');
                             $paymentTotal = Payment::where(['CreditNotesID'=>$CreditNoteID, 'Recall'=>0])->sum('Amount');
                             if($paymentTotal==0){
