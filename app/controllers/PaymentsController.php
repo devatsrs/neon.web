@@ -422,15 +422,21 @@ class PaymentsController extends \BaseController {
 
                         $CreditNoteID=Payment::where('PaymentID',$PaymentID)->pluck('CreditNotesID');
                         if(!empty($CreditNoteID)){
-                            $GrandTotal= CreditNotes::where(['CreditNotesID'=>$CreditNoteID])->pluck('GrandTotal');
+                            //get payment amount from payments - creditnote paid amount
+                            $PaymentRecallAmount=Payment::where('PaymentID',$PaymentID)->pluck('Amount');
+                            $PaidAmount= CreditNotes::where(['CreditNotesID'=>$CreditNoteID])->pluck('PaidAmount');
+                            $RecallAmount = $PaidAmount - $PaymentRecallAmount;
+                            CreditNotes::find($CreditNoteID)->update(array("PaidAmount" => $RecallAmount ));
+
+                            /*$GrandTotal= CreditNotes::where(['CreditNotesID'=>$CreditNoteID])->pluck('GrandTotal');
                             $paymentTotal = Payment::where(['CreditNotesID'=>$CreditNoteID, 'Recall'=>0])->sum('Amount');
                             if($paymentTotal==0){
-                                CreditNotes::find($CreditNoteID)->update(["CreditNotesStatus"=>CreditNotes::SEND]);
+                                Invoice::find($InvoiceID)->update(["InvoiceStatus"=>Invoice::SEND]);
                             }else if($paymentTotal>=$GrandTotal){
-                                CreditNotes::find($CreditNoteID)->update(["CreditNotesStatus"=>CreditNotes::PAID]);
+                                Invoice::find($InvoiceID)->update(["InvoiceStatus"=>Invoice::PAID]);
                             }else if($paymentTotal<$GrandTotal){
-                                CreditNotes::find($CreditNoteID)->update(["CreditNotesStatus"=>CreditNotes::PARTIALLY_PAID]);
-                            }
+                                Invoice::find($InvoiceID)->update(["InvoiceStatus"=>Invoice::PARTIALLY_PAID]);
+                            }*/
                         }
                     }
                 }
