@@ -88,7 +88,7 @@ tfoot {
           <div class="date text-right flip">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_DUE_DATE') {{date($InvoiceTemplate->DateFormat,strtotime($Invoice->IssueDate.' +'.$PaymentDueInDays.' days'))}}</div>
           @if(!empty($MultiCurrencies))
             @foreach($MultiCurrencies as $multiCurrency)
-              <div class="text-right flip">Grand Total In {{$multiCurrency['Title']}} : {{$multiCurrency['Amount']}}</div>
+              <div class="text-right flip">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_TBL_GRAND_TOTAL_IN') {{$multiCurrency['Title']}} : {{$multiCurrency['Amount']}}</div>
             @endforeach
           @endif
         </div>
