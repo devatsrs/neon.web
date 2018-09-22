@@ -179,3 +179,9 @@ Route::filter("role", function ()  {
     }*/
 
 });
+
+Route::filter('auth.api', function(){
+    if(!Auth::check() && !Request::is('api/login') && !Request::is('api/logout')){
+        return Response::json(["status"=>"failed", "message"=>"Not authorized. Please Login"]);
+    }
+});

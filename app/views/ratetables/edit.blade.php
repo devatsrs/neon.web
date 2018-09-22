@@ -19,6 +19,10 @@
                     <input type="hidden" name="TrunkID" value="{{$trunkID}}" >
                 </div>
                 <div class="form-group">
+                    <label class="control-label">Timezone</label>
+                    {{ Form::select('Timezones', $Timezones, '', array("class"=>"select2")) }}
+                </div>
+                <div class="form-group">
                     <label for="field-1" class="control-label">Country</label>
                     {{ Form::select('Country', $countries, Input::old('Country') , array("class"=>"select2")) }}
                 </div>
@@ -102,7 +106,11 @@
         {{--@endif--}}
     </div>
 </div>
-<form id="clear-bulk-rate-form" ><input type="hidden" name="RateTableRateID" /><input type="hidden" name="criteria" /></form>
+<form id="clear-bulk-rate-form" >
+    <input type="hidden" name="RateTableRateID" />
+    <input type="hidden" name="criteria" />
+    <input type="hidden" name="TimezonesID" value="">
+</form>
 
 {{--<div class="row">
     <div class="col-md-12">
@@ -134,6 +142,7 @@
             <th width="5%">Connection Fee</th>
             <th width="5%">Previous Rate ({{$code}})</th>
             <th width="5%">Rate ({{$code}})</th>
+            <th width="5%">RateN ({{$code}})</th>
             <th width="8%">Effective Date</th>
             <th width="9%" style="display: none;">End Date</th>
             <th width="8%">Modified Date</th>
@@ -153,7 +162,7 @@
         var $searchFilter = {};
         var checked='';
         var codedeckid = '{{$id}}';
-        var list_fields  = ['ID','Code','Description','Interval1','IntervalN','ConnectionFee','PreviousRate','Rate','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableRateID','RateID'];
+        var list_fields  = ['ID','Code','Description','Interval1','IntervalN','ConnectionFee','PreviousRate','Rate','RateN','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableRateID','RateID'];
         jQuery(document).ready(function($) {
 
         $('#filter-button-toggle').show();
@@ -203,6 +212,8 @@
             if(RateTableRateIDs.length || $(this).hasClass('clear-rate-table')) {
                 response = confirm('Are you sure?');
                 if (response) {
+                    var TimezonesID     = $searchFilter.Timezones;
+                    $("#clear-bulk-rate-form").find("input[name='TimezonesID']").val(TimezonesID);
 
                     if($(this).hasClass('clear-rate-table')) {
                         var RateTableRateID = $(this).parent().find('.hiddenRowData input[name="RateTableRateID"]').val();
@@ -266,6 +277,7 @@
 
             var RateTableRateIDs = [];
             var RateIDs = [];
+            var TimezonesID = $searchFilter.Timezones;
 
             var i = 0;
             $('#table-4 tr .rowcheckbox:checked').each(function(i, el) {
@@ -285,6 +297,7 @@
             $("#bulk-edit-rate-table-form").find("input[name='Interval1']").val(1);
             $("#bulk-edit-rate-table-form").find("input[name='IntervalN']").val(1);
             $("#bulk-edit-rate-table-form").find("input[name='EffectiveDate']").val(currentDate);
+            $("#bulk-edit-rate-table-form").find("input[name='TimezonesID']").val(TimezonesID);
 
             var criteria = '';
             if ($('#selectallbutton').is(':checked')) {
@@ -454,6 +467,7 @@
         $searchFilter.TrunkID = $("#rate-table-search [name='TrunkID']").val();
         $searchFilter.Effective = Effective = $("#rate-table-search [name='Effective']").val();
         $searchFilter.DiscontinuedRates = DiscontinuedRates = $("#rate-table-search input[name='DiscontinuedRates']").is(':checked') ? 1 : 0;
+        $searchFilter.Timezones = Timezones = $("#rate-table-search select[name='Timezones']").val();
 
         data_table = $("#table-4").DataTable({
             "bDestroy": true, // Destroy when resubmit form
@@ -462,9 +476,9 @@
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "sAjaxSource": baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid",
             "fnServerParams": function(aoData) {
-                aoData.push({"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view});
+                aoData.push({"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view});
+                data_table_extra_params.push({"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones});
             },
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
@@ -504,12 +518,13 @@
                                     return full[7]
                             }
                         }, //7 Rate
-                        {}, //8 Effective Date
+                        {}, //8 RateN
+                        {}, //9 Effective Date
                         {
                             "bVisible" : false
-                        }, //9 End Date
-                        {}, //10 ModifiedDate
-                        {}, //11 ModifiedBy
+                        }, //10 End Date
+                        {}, //11 ModifiedDate
+                        {}, //12 ModifiedBy
                         {
                             mRender: function(id, type, full) {
                                 var action, edit_, delete_;
@@ -616,6 +631,8 @@
                     for(var i = 0 ; i< list_fields.length; i++){
                         $("#edit-rate-table-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                     }
+                    var TimezonesID = $searchFilter.Timezones;
+                    $("#edit-rate-table-form").find("input[name='TimezonesID']").val(TimezonesID);
                     jQuery('#modal-rate-table').modal('show', {backdrop: 'static'});
                 });
 
@@ -712,7 +729,7 @@
             $.ajax({
                 url: baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid_archive_rates",
                 type: 'POST',
-                data: "Codes=" + Codes + "&view=" + view,
+                data: "Codes=" + Codes + "&view=" + view + "&TimezonesID=" + $searchFilter.Timezones,
                 dataType: 'json',
                 cache: false,
                 success: function (response) {
@@ -731,9 +748,9 @@
                     var Code = hiddenRowData.find('input[name="Code"]').val();
                     var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
                     if(view == 1) {
-                        table.append("<thead><tr><th>Code</th><th>Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                        table.append("<thead><tr><th>Code</th><th>Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate</th><th>RateN</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
                     } else {
-                        table.append("<thead><tr><th>Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                        table.append("<thead><tr><th>Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate</th><th>RateN</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
                     }
                     var tbody = $("<tbody></tbody>");
 
@@ -749,6 +766,7 @@
                             html += "<td>" + data['IntervalN'] + "</td>";
                             html += "<td>" + data['ConnectionFee'] + "</td>";
                             html += "<td>" + data['Rate'] + "</td>";
+                            html += "<td>" + data['RateN'] + "</td>";
                             html += "<td>" + data['EffectiveDate'] + "</td>";
                             html += "<td>" + data['EndDate'] + "</td>";
                             html += "<td>" + data['ModifiedDate'] + "</td>";
@@ -786,47 +804,52 @@
                 </div>
 
                 <div class="modal-body">
-
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-4" class="control-label">Effective Date</label>
+                                <label class="control-label">Effective Date</label>
                                 <input type="text"  name="EffectiveDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
                             </div>
                         </div>
-
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Rate</label>
-                                <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
+                                <label class="control-label">Connection Fee</label>
+                                <input type="text" name="ConnectionFee" class="form-control" placeholder="">
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-4" class="control-label">Interval 1</label>
+                                <label class="control-label">Rate</label>
+                                <input type="text" name="Rate" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">RateN</label>
+                                <input type="text" name="RateN" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Interval 1</label>
                                 <input type="text" name="Interval1" class="form-control" value="" />
                             </div>
                         </div>
-
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Interval N</label>
-                                <input type="text" name="IntervalN" class="form-control" id="field-5" placeholder="">
+                                <label class="control-label">Interval N</label>
+                                <input type="text" name="IntervalN" class="form-control" placeholder="">
                             </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Connection Fee</label>
-                                <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
-                            </div>
-                        </div>
                         {{--<div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-4" class="control-label">End Date</label>
+                                <label class="control-label">End Date</label>
                                 <input type="text"  name="EndDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
                             </div>
                         </div>--}}
@@ -840,11 +863,13 @@
                     <input type="hidden" name="criteria" value="">
                     <input type="hidden" name="updateEffectiveDate" value="on">
                     <input type="hidden" name="updateRate" value="on">
+                    <input type="hidden" name="updateRateN" value="on">
                     <input type="hidden" name="updateInterval1" value="on">
                     <input type="hidden" name="updateIntervalN" value="on">
                     <input type="hidden" name="updateConnectionFee" value="on">
                     <input type="hidden" name="updateEndDate" value="on">
                     <input type="hidden" name="updateType" value="singleEdit">
+                    <input type="hidden" name="TimezonesID" value="">
 
                     <button type="submit" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i> Save
@@ -878,25 +903,39 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <input type="checkbox" name="updateEffectiveDate" class="" />
-                                <label for="field-4" class="control-label">Effective Date</label>
+                                <label class="control-label">Effective Date</label>
                                 <input type="text" name="EffectiveDate" class="form-control datepicker"  data-startdate="{{date('Y-m-d')}}" data-date-format="yyyy-mm-dd" value="" />
                             </div>
                         </div>
-
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="checkbox" name="updateConnectionFee" class="" />
+                                <label class="control-label">Connection Fee</label>
+                                <input type="text" name="ConnectionFee" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <input type="checkbox" name="updateRate" class="" />
-                                <label for="field-5" class="control-label">Rate</label>
-                                <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
+                                <label class="control-label">Rate</label>
+                                <input type="text" name="Rate" class="form-control" placeholder="">
                             </div>
                         </div>
-
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="checkbox" name="updateRateN" class="" />
+                                <label class="control-label">RateN</label>
+                                <input type="text" name="RateN" class="form-control" placeholder="">
+                            </div>
+                        </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <input type="checkbox" name="updateInterval1" class="" />
-                                <label for="field-4" class="control-label">Interval 1</label>
+                                <label class="control-label">Interval 1</label>
                                 <input type="text" name="Interval1" class="form-control" value="" />
                             </div>
                         </div>
@@ -904,24 +943,17 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <input type="checkbox" name="updateIntervalN" class="" />
-                                <label for="field-5" class="control-label">Interval N</label>
-                                <input type="text" name="IntervalN" class="form-control" id="field-5" placeholder="">
+                                <label class="control-label">Interval N</label>
+                                <input type="text" name="IntervalN" class="form-control" placeholder="">
                             </div>
                         </div>
 
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <input type="checkbox" name="updateConnectionFee" class="" />
-                                <label for="field-5" class="control-label">Connection Fee</label>
-                                <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
-                            </div>
-                        </div>
                         {{--<div class="col-md-6">
                             <div class="form-group">
                                 <input type="checkbox" name="updateEndDate" class="" />
-                                <label for="field-4" class="control-label">End Date</label>
+                                <label class="control-label">End Date</label>
                                 <input type="text" name="EndDate" class="form-control datepicker"  data-startdate="{{date('Y-m-d')}}" data-date-format="yyyy-mm-dd" value="" />
                             </div>
                         </div>--}}
@@ -933,6 +965,7 @@
                     <input type="hidden" name="RateTableRateID" value="">
                     <input type="hidden" name="RateID" value="">
                     <input type="hidden" name="criteria" value="">
+                    <input type="hidden" name="TimezonesID" value="">
 
                     <button type="submit"
                             class="save btn btn-primary btn-sm btn-icon icon-left"
@@ -962,69 +995,62 @@
                 </div>
 
                 <div class="modal-body">
-
                     <div class="row">
-
                         <div class="col-md-6">
-
                             <div class="form-group">
-                                <label for="field-4" class="control-label">Code</label>
+                                <label class="control-label">Code</label>
                                 {{--{{ Form::select('RateID', array(), '', array("class"=>"select2 rateid_list")) }}--}}
                                 <input type="hidden" id="rateid_list" name="RateID" />
-
                             </div>
 
                         </div>
                         <div class="col-md-6">
-
                             <div class="form-group">
-                                <label for="field-4" class="control-label">Effective Date</label>
-
+                                <label class="control-label">Effective Date</label>
                                 <input type="text" name="EffectiveDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
                             </div>
-
                         </div>
                         <div class="col-md-6 clear">
-
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Rate</label>
-
-                                <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
-
+                                <label class="control-label">Rate</label>
+                                <input type="text" name="Rate" class="form-control" placeholder="">
                             </div>
-
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Connection Fee</label>
-                                <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
+                                <label class="control-label">RateN</label>
+                                <input type="text" name="RateN" class="form-control" placeholder="">
                             </div>
                         </div>
-                        <div class="col-md-6 clear">
-
+                        <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-4" class="control-label">Interval 1</label>
-
+                                <label class="control-label">Connection Fee</label>
+                                <input type="text" name="ConnectionFee" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Interval 1</label>
                                 <input type="text" name="Interval1" class="form-control" value="" />
                             </div>
-
                         </div>
-
                         <div class="col-md-6">
-
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Interval N</label>
-
-                                <input type="text" name="IntervalN" class="form-control" id="field-5" placeholder="">
-
+                                <label class="control-label">Interval N</label>
+                                <input type="text" name="IntervalN" class="form-control" placeholder="">
                             </div>
-
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Timezone</label>
+                                {{ Form::select('TimezonesID', $Timezones, '', array("class"=>"select2")) }}
+                            </div>
                         </div>
 
                         {{--<div class="col-md-6">
 
                             <div class="form-group">
-                                <label for="field-4" class="control-label">End Date</label>
+                                <label class="control-label">End Date</label>
 
                                 <input type="text" name="EndDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
                             </div>

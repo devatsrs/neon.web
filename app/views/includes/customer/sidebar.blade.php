@@ -159,6 +159,24 @@
             </a>
         </li>
         @endif
+
+        <!-- Dynamic Links -->
+        <?php
+        $getDynamicLinks=Dynamiclink::getDynamicLinks();
+        foreach($getDynamicLinks as $linkdata){
+        ?>
+            <li>
+                <a href="{{$linkdata['link']}}" target="_blank">
+                    <i class="glyphicon glyphicon-link"></i>
+                    <span>{{$linkdata['name']}}</span>
+                </a>
+            </li>
+        <?php
+        }
+
+        ?>
+        <!-- End Dynamic Links -->
+
     </ul>
 
 </div>

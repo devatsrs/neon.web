@@ -19,7 +19,7 @@ class CustomersRatesController extends \BaseController {
         $data['Code'] = $data['Code'] != ''?"'".$data['Code']."'":'null';
         $data['Description'] = $data['Description'] != ''?"'".$data['Description']."'":'null';
 
-        $columns = array('RateID','Code','Description','Interval1','IntervalN','ConnectionFee','RoutinePlan','Rate','EffectiveDate','EndDate','LastModifiedDate','LastModifiedBy','CustomerRateId');
+        $columns = array('RateID','Code','Description','Interval1','IntervalN','ConnectionFee','RoutinePlan','Rate','RateN','EffectiveDate','EndDate','LastModifiedDate','LastModifiedBy','CustomerRateId');
         $sort_column = $columns[$data['iSortCol_0']];
         $companyID = User::get_companyID();
 
@@ -30,9 +30,9 @@ class CustomersRatesController extends \BaseController {
         }
 
         if(!empty($data['DiscontinuedRates'])) {
-            $query = "call prc_getDiscontinuedCustomerRateGrid (" . $companyID . "," . $id . "," . $data['Trunk'] . "," . $data['Country'] . "," . $data['Code'] . "," . $data['Description'] . "," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "'";
+            $query = "call prc_getDiscontinuedCustomerRateGrid (" . $companyID . "," . $id . "," . $data['Trunk'] . ",".$data['Timezones']."," . $data['Country'] . "," . $data['Code'] . "," . $data['Description'] . "," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "'";
         } else {
-            $query = "call prc_GetCustomerRate (".$companyID.",".$id.",".$data['Trunk'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."','".$CustomDate."',".$data['Effected_Rates_on_off'].",'".intval($data['RoutinePlanFilter'])."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+            $query = "call prc_GetCustomerRate (".$companyID.",".$id.",".$data['Trunk'].",".$data['Timezones'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."','".$CustomDate."',".$data['Effected_Rates_on_off'].",'".intval($data['RoutinePlanFilter'])."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         }
 
         if(isset($data['Export']) && $data['Export'] == 1) {
@@ -66,7 +66,8 @@ class CustomersRatesController extends \BaseController {
 
         if(!empty($data['Codes'])) {
             $Codes = $data['Codes'];
-            $query = 'call prc_GetCustomerRatesArchiveGrid ('.$companyID.','.$AccountID.',"'.$Codes.'")';
+            $TimezonesID = $data['TimezonesID'];
+            $query = 'call prc_GetCustomerRatesArchiveGrid ('.$companyID.','.$AccountID.','.$TimezonesID.',"'.$Codes.'")';
             //Log::info($query);
             $response['status']     = "success";
             $response['message']    = "Data fetched successfully!";
@@ -92,21 +93,20 @@ class CustomersRatesController extends \BaseController {
 
     public function index($id) {
 
-            $Account = Account::find($id);
-            $countries = $this->countries;
-            $trunks = CustomerTrunk::getTrunkDropdownIDList($id);
-            $trunk_keys = getDefaultTrunk($trunks);
-            $routine = CustomerTrunk::getRoutineDropdownIDList($id);
-            $account_owners = User::getOwnerUsersbyRole();
-            $trunks_routing =$trunks;
-            $trunks_routing[""] = 'Select';
-            if(count($trunks) == 0){
-                return  Redirect::to('customers_rates/settings/'.$id)->with('info_message', 'Please enable trunks against customer to setup rates');
-            }
+        $Account = Account::find($id);
+        $countries = $this->countries;
+        $trunks = CustomerTrunk::getTrunkDropdownIDList($id);
+        $trunk_keys = getDefaultTrunk($trunks);
+        $routine = CustomerTrunk::getRoutineDropdownIDList($id);
+        $account_owners = User::getOwnerUsersbyRole();
+        $trunks_routing =$trunks;
+        $trunks_routing[""] = 'Select';
+        $Timezones      = Timezones::getTimezonesIDList();
+        if(count($trunks) == 0){
+            return  Redirect::to('customers_rates/settings/'.$id)->with('info_message', 'Please enable trunks against customer to setup rates');
+        }
         $CurrencySymbol = Currency::getCurrencySymbol($Account->CurrencyId);
-            return View::make('customersrates.index', compact('id', 'trunks', 'countries','Account','routine','trunks_routing','account_owners','trunk_keys','CurrencySymbol'));
-
-
+        return View::make('customersrates.index', compact('id', 'trunks', 'countries','Account','routine','trunks_routing','account_owners','trunk_keys','CurrencySymbol','Timezones'));
     }
 
     public function settings($id) {
@@ -271,23 +271,24 @@ class CustomersRatesController extends \BaseController {
     }
 
     public function download($id) {
+        $Account = Account::find($id);
+        $trunks = CustomerTrunk::getCustomerTrunk($id); //$this->trunks;
+        $rate_sheet_formates = $this->rate_sheet_formates;
+        $account_owners = User::getOwnerUsersbyRole();
+        //$emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::RATESHEET_TEMPLATE));
+        $emailTemplates = EmailTemplate::getTemplateArray(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE));
+        $accounts = Account::getAccountIDList();
+        $templateoption = [''=>'Select',1=>'New Create',2=>'Update'];
+        $downloadtype = [''=>'Select','xlsx'=>'EXCEL','csv'=>'CSV'];
+        $privacy = EmailTemplate::$privacy;
+        $type = EmailTemplate::$Type;
+        if(count($trunks) == 0){
+            return  Redirect::to('customers_rates/settings/'.$id)->with('info_message', 'Please enable trunks against customer to setup rates');
+        }
+        $bulk_type = 'customers_rates';
+        $Timezones = Timezones::getTimezonesIDList();
 
-            $Account = Account::find($id);
-            $trunks = CustomerTrunk::getCustomerTrunk($id); //$this->trunks;
-            $rate_sheet_formates = $this->rate_sheet_formates;
-            $account_owners = User::getOwnerUsersbyRole();
-            //$emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::RATESHEET_TEMPLATE));
-			$emailTemplates = EmailTemplate::getTemplateArray(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE));
-            $accounts = Account::getAccountIDList();
-            $templateoption = [''=>'Select',1=>'New Create',2=>'Update'];
-            $downloadtype = [''=>'Select','xlsx'=>'EXCEL','csv'=>'CSV'];
-            $privacy = EmailTemplate::$privacy;
-            $type = EmailTemplate::$Type;
-            if(count($trunks) == 0){
-                return  Redirect::to('customers_rates/settings/'.$id)->with('info_message', 'Please enable trunks against customer to setup rates');
-            }
-			$bulk_type = 'customers_rates';	
-            return View::make('customersrates.download', compact('id', 'trunks', 'rate_sheet_formates','Account','account_owners','emailTemplates','templateoption','privacy','type','accounts','downloadtype','bulk_type'));
+        return View::make('customersrates.download', compact('id', 'trunks', 'rate_sheet_formates','Account','account_owners','emailTemplates','templateoption','privacy','type','accounts','downloadtype','bulk_type','Timezones'));
     }
 
     public function process_download($id) {
@@ -296,7 +297,7 @@ class CustomersRatesController extends \BaseController {
             $data = Input::all();
             $test = 0;
             $message = array();
-            $rules = array('isMerge' => 'required', 'Trunks' => 'required', 'Format' => 'required','filetype'=> 'required');
+            $rules = array('isMerge' => 'required', 'Trunks' => 'required', 'Timezones' => 'required', 'Format' => 'required','filetype'=> 'required');
 
             if (!isset($data['isMerge'])) {
                 $data['isMerge'] = 0;
@@ -373,6 +374,7 @@ class CustomersRatesController extends \BaseController {
             'Rate' => 'required|numeric',
             'RateID' => 'required',
             'Trunk' => 'required',
+            'TimezonesID' => 'required',
             'Interval1' => 'required|numeric',
             'IntervalN' => 'required|numeric'
         );
@@ -396,7 +398,9 @@ class CustomersRatesController extends \BaseController {
         //$RateIDs        = "'".implode(',',array_filter(explode(",",$data['RateID']),'intval'))."'";
         $CustomerRateIDs= "'".implode(',',array_filter(explode(",",$data['CustomerRateId']),'intval'))."'";
         $Trunk          = intval($data['Trunk']);
+        $TimezonesID    = intval($data['TimezonesID']);
         $Rate           = $data['Rate'];
+        $RateN          = !empty($data['RateN']) ? $data['RateN'] : $data['Rate'];
         $Interval1      = intval($data['Interval1']);
         $IntervalN      = intval($data['IntervalN']);
         $ConnectionFee  = floatval($data['ConnectionFee']);
@@ -405,7 +409,7 @@ class CustomersRatesController extends \BaseController {
         try {
             DB::beginTransaction();
             //$query = "call prc_CustomerRateUpdateBySelectedRateId (".$company_id.",".$Customers.",".$RateIDs.",".$CustomerRateIDs.",".$Trunk.",".$Rate.",".$ConnectionFee.",".$EffectiveDate.",".$EndDate."," .$Interval1.",".$IntervalN.",".$RoutinePlan.",'".$username."')";
-            $query = "call prc_CustomerRateUpdate (".$Customers.",".$Trunk.",".$CustomerRateIDs.",".$Rate.",".$ConnectionFee.",".$EffectiveDate."," .$Interval1.",".$IntervalN.",".$RoutinePlan.",'".$username."')";
+            $query = "call prc_CustomerRateUpdate (".$Customers.",".$Trunk.",".$TimezonesID.",".$CustomerRateIDs.",".$Rate.",".$RateN.",".$ConnectionFee.",".$EffectiveDate."," .$Interval1.",".$IntervalN.",".$RoutinePlan.",'".$username."')";
             //Log::info($query);
             $results = DB::statement($query);
 
@@ -438,6 +442,7 @@ class CustomersRatesController extends \BaseController {
             'Rate' => 'required|numeric',
             'RateID' => 'required',
             'Trunk' => 'required',
+            'TimezonesID' => 'required',
             'Interval1' => 'required|numeric',
             'IntervalN' => 'required|numeric'
         );
@@ -453,7 +458,9 @@ class CustomersRatesController extends \BaseController {
         $Customers      = "'".implode(',',array_filter($data['customer'],'intval'))."'";
         $RateIDs        = "'".implode(',',array_unique(array_filter(explode(",",$data['RateID']),'intval')))."'";
         $Trunk          = intval($data['Trunk']);
+        $TimezonesID    = intval($data['TimezonesID']);
         $Rate           = $data['Rate'];
+        $RateN          = !empty($data['RateN']) ? $data['RateN'] : $data['Rate'];
         $Interval1      = intval($data['Interval1']);
         $IntervalN      = intval($data['IntervalN']);
         $ConnectionFee  = floatval($data['ConnectionFee']);
@@ -461,7 +468,7 @@ class CustomersRatesController extends \BaseController {
 
         try {
             DB::beginTransaction();
-            $query = "call prc_CustomerRateInsert (".$CompanyID.",".$Customers.",".$Trunk.",".$RateIDs.",".$Rate.",".$ConnectionFee.",".$EffectiveDate."," .$Interval1.",".$IntervalN.",".$RoutinePlan.",'".$username."')";
+            $query = "call prc_CustomerRateInsert (".$CompanyID.",".$Customers.",".$Trunk.",".$TimezonesID.",".$RateIDs.",".$Rate.",".$RateN.",".$ConnectionFee.",".$EffectiveDate."," .$Interval1.",".$IntervalN.",".$RoutinePlan.",'".$username."')";
             //Log::info($query);
             $results = DB::statement($query);
 
@@ -487,7 +494,8 @@ class CustomersRatesController extends \BaseController {
         $rules      = array(
             //'EffectiveDate' => 'required',
             'Rate' => 'required',
-            'Trunk' => 'required'
+            'Trunk' => 'required',
+            'Timezones' => 'required'
         );
         $validator = Validator::make($data, $rules);
         if ($validator->fails()) {
@@ -502,8 +510,9 @@ class CustomersRatesController extends \BaseController {
         $data['EffectiveDate']  = 'NULL'; // not update EffectiveDate
         $EndDate                = !empty($data['EndDate']) ? "'".date("Y-m-d", strtotime($data['EndDate']))."'" : 'NULL';
         $username               = User::get_user_full_name();
+        $data['RateN']          = !empty($data['RateN']) ? $data['RateN'] : $data['Rate'];
 
-        $query      = "call prc_CustomerBulkRateUpdate ('".implode(',',$data['customer'])."',".$data['Trunk'].",".$codedeckid.",".$data['Code'].",".$data['Description'].",".$data['Country'].",".$company_id.",'".$data['Effective']."','".$data['CustomDate']."',".$data['Rate'].",".floatval($data['ConnectionFee']).",".$data['EffectiveDate'].",".$EndDate.",".intval($data['Interval1']).",".intval($data['IntervalN']).",".intval($data['RoutinePlan']).",'".$username."')";
+        $query      = "call prc_CustomerBulkRateUpdate ('".implode(',',$data['customer'])."',".$data['Trunk'].",".$data['Timezones'].",".$codedeckid.",".$data['Code'].",".$data['Description'].",".$data['Country'].",".$company_id.",'".$data['Effective']."','".$data['CustomDate']."',".$data['Rate'].",".$data['RateN'].",".floatval($data['ConnectionFee']).",".$data['EffectiveDate'].",".$EndDate.",".intval($data['Interval1']).",".intval($data['IntervalN']).",".intval($data['RoutinePlan']).",'".$username."')";
         $results    = DB::statement($query);
         if ($results) {
             return Response::json(array("status" => "success", "message" => "Customers Rate Successfully Updated"));
@@ -520,7 +529,8 @@ class CustomersRatesController extends \BaseController {
         $rules      = array(
             'EffectiveDate' => 'required|date_format:Y-m-d|after:'.date('Y-m-d',strtotime('-1 day')),
             'Rate' => 'required',
-            'Trunk' => 'required'
+            'Trunk' => 'required',
+            'Timezones' => 'required'
         );
         $message['EffectiveDate.after'] = "Effective Date can not be past date, it must be today's date or future's date";
 
@@ -536,8 +546,9 @@ class CustomersRatesController extends \BaseController {
         $data['customer']       = array_filter($data['customer'],'intval');
         $EndDate                = !empty($data['EndDate']) ? "'".date("Y-m-d", strtotime($data['EndDate']))."'" : 'NULL';
         $username               = User::get_user_full_name();
+        $data['RateN']          = !empty($data['RateN']) ? $data['RateN'] : $data['Rate'];
 
-        $query      = "call prc_CustomerBulkRateInsert ('".implode(',',$data['customer'])."',".$data['Trunk'].",".$codedeckid.",".$data['Code'].",".$data['Description'].",".$data['Country'].",".$company_id.",".$data['Rate'].",".floatval($data['ConnectionFee']).",'".$data['EffectiveDate']."',".$EndDate.",".intval($data['Interval1']).",".intval($data['IntervalN']).",".intval($data['RoutinePlan']).",'".$username."')";
+        $query      = "call prc_CustomerBulkRateInsert ('".implode(',',$data['customer'])."',".$data['Trunk'].",".$data['Timezones'].",".$codedeckid.",".$data['Code'].",".$data['Description'].",".$data['Country'].",".$company_id.",".$data['Rate'].",".$data['RateN'].",".floatval($data['ConnectionFee']).",'".$data['EffectiveDate']."',".$EndDate.",".intval($data['Interval1']).",".intval($data['IntervalN']).",".intval($data['RoutinePlan']).",'".$username."')";
         $results    = DB::statement($query);
         if ($results) {
             return Response::json(array("status" => "success", "message" => "Customers Rate Successfully Updated"));
@@ -554,6 +565,7 @@ class CustomersRatesController extends \BaseController {
             $username       = User::get_user_full_name();
             $CustomerRateID = $data['CustomerRateID'];
             $TrunkID        = $data['TrunkID'];
+            $TimezonesID    = $data['TimezonesID'];
             $CompanyID      = User::get_companyID();
             $CodedeckID     = CustomerTrunk::where(['AccountID'=>$id,'TrunkID'=>$TrunkID])->pluck('CodeDeckId');
             $Code           = 'NULL';
@@ -561,7 +573,7 @@ class CustomersRatesController extends \BaseController {
             $Country        = 'NULL';
 
             //$query = "call prc_CustomerRateClear (".$id.",".$TrunkID.",'".$CustomerRateID."','".$username."')";
-            $query = "call prc_CustomerRateClear ('".$id."',".$TrunkID.",".$CodedeckID.",'".$CustomerRateID."',".$Code.",".$Description.",".$Country.",".$CompanyID.",'".$username."')";
+            $query = "call prc_CustomerRateClear ('".$id."',".$TrunkID.",".$TimezonesID.",".$CodedeckID.",'".$CustomerRateID."',".$Code.",".$Description.",".$Country.",".$CompanyID.",'".$username."')";
 
             try {
                 DB::beginTransaction();
@@ -594,7 +606,7 @@ class CustomersRatesController extends \BaseController {
         $CustomerRateIDs = 'NULL';
         //Inserting Job Log
         //$results = DB::statement('prc_CustomerBulkRateUpdate ?,?,?,?,?,?,?,?,? ', array(implode(',',$data['customer']),$data['Trunk'],$data['Code'],$data['Description'],$data['Country'],$company_id,$data['Rate'],$data['EffectiveDate'],$username));
-        $query = "call prc_CustomerRateClear ('".implode(',',$data['customer'])."',".$data['Trunk'].",".$codedeckid.",".$CustomerRateIDs.",".$data['Code'].",".$data['Description'].",".$data['Country'].",".$company_id.",'".$username."')";
+        $query = "call prc_CustomerRateClear ('".implode(',',$data['customer'])."',".$data['Trunk'].",".$data['Timezones'].",".$codedeckid.",".$CustomerRateIDs.",".$data['Code'].",".$data['Description'].",".$data['Country'].",".$company_id.",'".$username."')";
         $results = DB::statement($query);
         if ($results) {
             return Response::json(array("status" => "success", "message" => "Customers Rate Successfully Deleted"));

@@ -41,5 +41,11 @@ class DiscountPlan extends \Eloquent
         return $row;
 
     }
+    public static function getDropdownIDListByAccount($AccountID){
+        $Account = Account::find($AccountID);
+        $DropdownIDList = DiscountPlan::where(array("CompanyID"=>$Account->CompanyId,'CurrencyID'=>$Account->CurrencyId))->lists('Name', 'DiscountPlanID');
+        //$DropdownIDList = array('' => "Select") + $DropdownIDList;
+        return $DropdownIDList;
+    }
 
 }

@@ -28,10 +28,15 @@
   <div class="mail-body">
     <div class="mail-header"> 
       <!-- title -->
-        <div class="mail-title">{{imap_mime_header_decode($ticketdata->Subject)[0]->text}} #{{$ticketdata->TicketID}}</div>
+        <div class="mail-title">{{emailHeaderDecode($ticketdata->Subject)}} #{{$ticketdata->TicketID}}</div>
       <div class="mail-date">
-        To: {{$ticketdata->EmailTo}} <br>
-        From: <a class="" href="{{$Requester['URL']}}">{{$Requester['Title']}}</a> ({{$Requester['Email']}})<br>
+          @if($ticketdata->TicketType)
+              <a>{{$Requester['Title']}}</a> emailed <a>{{$ticketdata->EmailTo}}</a> <br>
+              From: {{$Requester['Email']}}<br>
+              @else
+              To: {{$ticketdata->EmailTo}} <br>
+              From: <a class="" href="{{$Requester['URL']}}">{{$Requester['Title']}}</a> ({{$Requester['Email']}})<br>
+          @endif
         @if(!empty($ticketdata->RequesterCC))Cc: {{$ticketdata->RequesterCC}} &nbsp; @endif
         @if(!empty($ticketdata->RequesterBCC))Bcc: {{$ticketdata->RequesterBCC}} @endif
         <br>
@@ -60,9 +65,12 @@
       </div>
       
       <!-- panel body -->
-      <div @if($loop>4) style="display:none;" @endif  class="panel-body"> {{$TicketConversationData->EmailMessage}}
+      <div @if($loop>4) style="display:none;" @endif  class="panel-body">
+          <div class="embed-responsive embed-responsive-4by3 ticketBody" style="display: none;">
+            {{htmlentities($TicketConversationData->EmailMessage)}}
+          </div>
         <?php $attachments = unserialize($TicketConversationData->AttachmentPaths);  ?>
-        @if(count($attachments)>0 && strlen($TicketConversationData->AttachmentPaths)>0)
+        @if(!empty($attachments) && count($attachments)>0 && strlen($TicketConversationData->AttachmentPaths)>0)
         <div class="mail-attachments last_data">
           <h4> <i class="entypo-attach"></i> Attachments <span>({{count($attachments)}})</span> </h4>
           <ul>
@@ -101,13 +109,21 @@
       </div>
       
       <!-- panel body -->
-      <div @if($loop>4) style="display:none;" @endif  class="panel-body">{{$TicketConversationData->Note}}</div>
+      <div @if($loop>4) style="display:none;" @endif  class="panel-body">
+          <div class="embed-responsive embed-responsive-4by3 ticketBody" style="display: none;">
+              {{$TicketConversationData->Note}}
+          </div>
+      </div>
     </div>
     <?php	} ?>
     <?php $loop++; } } } ?>
 
       <?php $attachments = unserialize($ticketdata->AttachmentPaths); ?>
-      <div class="mail-text"> {{$ticketdata->Description}} </div>
+      <div class="mail-text">
+          <div class="embed-responsive embed-responsive-4by3 ticketBody" style="display: none;">
+              {{htmlentities($ticketdata->Description)}}
+          </div>
+      </div>
       @if(count($attachments)>0 && strlen($ticketdata->AttachmentPaths)>0)
           <div class="mail-attachments last_data">
               <h4> <i class="entypo-attach"></i> Attachments <span>({{count($attachments)}})</span> </h4>
@@ -360,6 +376,15 @@ var emailFileListReply 	=		[];
 var CloseStatus			=		'{{$CloseStatus}}';
 var ticketPreMSG        =       '';
 $(document).ready(function(e) {
+    $('.ticketBody').each(function(){
+        var iFrame = $('<iframe class="embed-responsive-item" frameborder="0" allowfullscreen></iframe>');
+        var ticketBodyHtml = $(this).html();
+        $(this).html("").append(iFrame).show();
+        var iFrameDoc = iFrame[0].contentDocument || iFrame[0].contentWindow.document;
+        iFrameDoc.write($("<textarea/>").html(ticketBodyHtml).val());
+        iFrameDoc.close();
+    });
+
     var lightboxhtml = $('<a href="" data-type="image" data-toggle="lightbox" data-title="" data-footer=""></a>');
     $(".mail-body img").each(function(i){
         //var $this = $(this);
@@ -418,12 +443,16 @@ $(document).ready(function(e) {
                     minimumResultsForSearch: -1
                 });
 				mod.find('.select2-container').css('visibility','visible');
+                editor_options.withOutDestroy=true;
                 show_summernote(mod.find('.message'),editor_options);
 			
 		},
 	});
 	
 	});
+    $( document ).on("click",'#EmailAction-model .modal-footer .btn-danger, #EmailAction-model .modal-header .close' ,function(e) {
+            $('#EmailAction-model .modal-content').html('');
+    });
 	$( document ).on("click",'.add_note' ,function(e) {		 
 		var mod = $('#add-note-model');
 		mod.modal("show");	
@@ -467,41 +496,7 @@ $(document).ready(function(e) {
 	////
 
 	//
-	
-		 $("#EmailActionform").submit(function (event) {
-		//////////////////////////          	
-			var email_url 	= 	"<?php echo URL::to('/tickets/'.$ticketdata->TicketID.'/actionsubmit/');?>";
-          	event.stopImmediatePropagation();
-            event.preventDefault();			
-			var formData = new FormData($('#EmailActionform')[0]);
-			
-			$("#EmailAction-model").find('.btn-send-mail').addClass('disabled');
-			$("#EmailAction-model").find('.btn-send-mail').button('loading');
-			 $.ajax({
-                url: email_url,
-                type: 'POST',
-                dataType: 'json',
-				data:formData,
-				async :false,
-				cache: false,
-                contentType: false,
-                processData: false,
-                success: function(response) {
-						$("#EmailAction-model").find('.btn-send-mail').button('reset');
-						if(response.status =='success'){									
-							toastr.success(response.message, "Success", toastr_opts);							
-						//	window.location.href = window.location.href+"#last_item";
-							location.reload();
-                        }else{
-                            toastr.error(response.message, "Error", toastr_opts);
-                        }
-				},
-			});	
-		///////////////////////////////
-		 
-	 });
-	 
-	 
+
 	 $('#UpdateTicketDueTime').submit(function(e) {        
 		//////////////////////////          	
 			var email_url 	= 	"<?php echo URL::to('/tickets/'.$ticketdata->TicketID.'/updateTicketDueTime/');?>";
@@ -773,6 +768,7 @@ $(document).ready(function(e) {
             doc.find('[name="Subject"]').val('');
             doc.find('[name="Message"]').val('');
         }
+        editor_options.withOutDestroy=false;
         show_summernote(doc.find('[name="Message"]'),editor_options);
 
     }
@@ -784,5 +780,34 @@ $(document).ready(function(e) {
 		console.log("Agent:"+agent);
 		
 	}
+
+    function sumbitReplyTicket(ticketStatus){
+        var email_url 	= 	"<?php echo URL::to('/tickets/'.$ticketdata->TicketID.'/actionsubmit/');?>";
+        var formData = new FormData($('#EmailActionform')[0]);
+        formData.append('ticketStatus', ticketStatus);
+        $("#EmailAction-model").find('.btn-send-mail').addClass('disabled');
+        $("#EmailAction-model").find('.btn-send-mail').eq(0).button('loading');
+        $.ajax({
+            url: email_url,
+            type: 'POST',
+            dataType: 'json',
+            data:formData,
+            async :false,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function(response) {
+                $("#EmailAction-model").find('.btn-send-mail').button('reset');
+                $("#EmailAction-model").find('.btn-send-mail').removeClass('disabled');
+                if(response.status =='success'){
+                    toastr.success(response.message, "Success", toastr_opts);
+                    //	window.location.href = window.location.href+"#last_item";
+                    location.reload();
+                }else{
+                    toastr.error(response.message, "Error", toastr_opts);
+                }
+            },
+        })
+    }
 </script> 
 @stop 

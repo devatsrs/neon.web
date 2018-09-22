@@ -205,6 +205,7 @@ class AccountsController extends \BaseController {
             $data['created_by'] = User::get_user_full_name();
             $data['AccountType'] = 1;
             $data['AccountName'] = trim($data['AccountName']);
+
             if (isset($data['accountgateway'])) {
                 $AccountGateway = implode(',', array_filter(array_unique($data['accountgateway'])));
                 unset($data['accountgateway']);
@@ -255,6 +256,7 @@ class AccountsController extends \BaseController {
             if($ManualBilling ==0) {
                 Account::$rules['BillingStartDate'] = 'required';
             }
+
         }
 
             Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,AccountType,1';
@@ -271,6 +273,13 @@ class AccountsController extends \BaseController {
                 return json_validator_response($validator);
             }
 
+            if($data['AutoPaymentSetting']!='never'){
+                if($data['AutoPayMethod']==0){
+                    return Response::json(array("status" => "failed", "message" => "Please Select Auto Pay Method."));
+                }
+
+            }
+
             if(isset($data['vendorname'])){
                 $VendorName = $data['vendorname'];
                 unset($data['vendorname']);
@@ -278,6 +287,19 @@ class AccountsController extends \BaseController {
                 $VendorName = '';
             }
 
+            if (isset($data['pbxaccountstatus'])) {
+                $pbxaccountstatus = $data['pbxaccountstatus'];
+                unset($data['pbxaccountstatus']);
+            }else{
+                $pbxaccountstatus = 0;
+            }
+
+            if (isset($data['autoblock'])) {
+                $autoblock = $data['autoblock'];
+                unset($data['autoblock']);
+            }else{
+                $autoblock = 0;
+            }
             if ($account = Account::create($data)) {
 
                 $DynamicData = array();
@@ -294,8 +316,29 @@ class AccountsController extends \BaseController {
                     $DynamicData['FieldValue']= $VendorName;
                     Account::addUpdateAccountDynamicfield($DynamicData);
                 }
+                if(isset($pbxaccountstatus)){
+                    $DynamicData['FieldName'] = 'pbxaccountstatus';
+                    $DynamicData['FieldValue']= $pbxaccountstatus;
+                    Account::addUpdateAccountDynamicfield($DynamicData);
+                }
+                if(isset($autoblock)){
+                    $DynamicData['FieldName'] = 'autoblock';
+                    $DynamicData['FieldValue']= $autoblock;
+                    Account::addUpdateAccountDynamicfield($DynamicData);
+                }
 
                 if($data['Billing'] == 1) {
+                    if($ManualBilling ==0) {
+                        if ($data['BillingStartDate'] == $data['NextInvoiceDate']) {
+                            $data['NextChargeDate'] = $data['BillingStartDate'];
+                        } else {
+                            $BillingStartDate = strtotime($data['BillingStartDate']);
+                            $data['BillingCycleValue'] = empty($data['BillingCycleValue']) ? '' : $data['BillingCycleValue'];
+                            $NextBillingDate = next_billing_date($data['BillingCycleType'], $data['BillingCycleValue'], $BillingStartDate);
+                            $data['NextChargeDate'] = date('Y-m-d', strtotime('-1 day', strtotime($NextBillingDate)));;
+                        }
+                    }
+
                     AccountBilling::insertUpdateBilling($account->AccountID, $data,$ServiceID);
                     if($ManualBilling ==0) {
                         AccountBilling::storeFirstTimeInvoicePeriod($account->AccountID, $ServiceID);
@@ -544,8 +587,6 @@ class AccountsController extends \BaseController {
         $leadOrAccountCheck = 'account';
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
         $DiscountPlan = DiscountPlan::getDropdownIDList($companyID,(int)$account->CurrencyId);
-        $DiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::OUTBOUND,'ServiceID'=>$ServiceID))->pluck('DiscountPlanID');
-        $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::INBOUND,'ServiceID'=>$ServiceID))->pluck('DiscountPlanID');
         $AccountBilling =  AccountBilling::getBilling($id,$ServiceID);
         $AccountNextBilling =  AccountNextBilling::getBilling($id,$ServiceID);
 		$decimal_places = get_round_decimal_places($id);
@@ -569,6 +610,8 @@ class AccountsController extends \BaseController {
         $accountdetails = AccountDetails::where(['AccountID'=>$id])->first();
         $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
         $accountreseller = Reseller::where('ChildCompanyID',$companyID)->pluck('ResellerID');
+        $DiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::OUTBOUND,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
+        $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::INBOUND,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
         return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller'));
     }
 
@@ -643,6 +686,7 @@ class AccountsController extends \BaseController {
             return Response::json(array("status" => "failed", "message" => "Account Name contains illegal character."));
         }
         $data['Status'] = isset($data['Status']) ? 1 : 0;
+
         if(trim($data['Number']) == ''){
             $data['Number'] = Account::getLastAccountNo();
         }
@@ -653,7 +697,8 @@ class AccountsController extends \BaseController {
             if($account->VerificationStatus == Account::VERIFIED && $account->Status == 1 ) {
                 /* Send mail to Customer */
                 $password       = $data['password'];
-                $data['password']       = Hash::make($password);
+                //$data['password']       = Hash::make($password);
+                $data['password']       = Crypt::encrypt($password);
             }
         }
         $data['Number'] = trim($data['Number']);
@@ -670,7 +715,6 @@ class AccountsController extends \BaseController {
                 Account::$rules['BillingStartDate'] = 'required';
             }
         }
-
         Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,' . $account->AccountID . ',AccountID,AccountType,1';
         Account::$rules['Number'] = 'required|unique:tblAccount,Number,' . $account->AccountID . ',AccountID';
 
@@ -678,7 +722,6 @@ class AccountsController extends \BaseController {
             Account::$rules['vendorname'] = 'required';
             Account::$messages['vendorname.required'] = 'The Vendor Name field is required.';
         }
-
         $validator = Validator::make($data, Account::$rules,Account::$messages);
 
         if ($validator->fails()) {
@@ -687,8 +730,17 @@ class AccountsController extends \BaseController {
         }
 
         $invoice_count = Account::getInvoiceCount($id);
-        if($invoice_count == 0){
+        if($invoice_count == 0 && $ManualBilling == 0){
             $data['LastInvoiceDate'] = $data['BillingStartDate'];
+            $data['LastChargeDate'] = $data['BillingStartDate'];
+            if($data['BillingStartDate']==$data['NextInvoiceDate']){
+                $data['NextChargeDate']=$data['BillingStartDate'];
+            }else{
+                $BillingStartDate = strtotime($data['BillingStartDate']);
+                $data['BillingCycleValue'] = empty($data['BillingCycleValue']) ? '' : $data['BillingCycleValue'];
+                $NextBillingDate = next_billing_date($data['BillingCycleType'], $data['BillingCycleValue'], $BillingStartDate);
+                $data['NextChargeDate'] = date('Y-m-d', strtotime('-1 day', strtotime($NextBillingDate)));;
+            }
         }
 
         if (isset($data['accountgateway'])) {
@@ -704,13 +756,44 @@ class AccountsController extends \BaseController {
         }else{
             $VendorName = '';
         }
+
+        if (isset($data['pbxaccountstatus'])) {
+            $pbxaccountstatus = $data['pbxaccountstatus'];
+            unset($data['pbxaccountstatus']);
+        }else{
+            $pbxaccountstatus = 0;
+        }
+
+        if (isset($data['autoblock'])) {
+            $autoblock = $data['autoblock'];
+            unset($data['autoblock']);
+        }else{
+            $autoblock = 0;
+        }
+        /*$test=array();
+        $test['BillingStartDate']=$data['BillingStartDate'];
+        $test['BillingCycleType']=$data['BillingCycleType'];
+        $test['LastInvoiceDate']=$data['LastInvoiceDate'];
+        $test['LastChargeDate']=$data['LastChargeDate'];
+        $test['NextInvoiceDate']=$data['NextInvoiceDate'];
+        $test['NextChargeDate']=$data['NextChargeDate'];
+        log::info(print_r($test,true));*/
+
         if($data['Billing'] == 1) {
-            if($data['NextInvoiceDate']<$data['LastInvoiceDate']){
-                return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
+            if($ManualBilling == 0){
+                if ($data['NextInvoiceDate'] < $data['LastInvoiceDate']) {
+                    return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
+                }
+                if ($data['NextChargeDate'] < $data['LastChargeDate']) {
+                    return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
+                }
             }
-            if($data['NextChargeDate']<$data['LastChargeDate']){
-                return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
+        }
+        if($data['AutoPaymentSetting']!='never'){
+            if($data['AutoPayMethod']==0){
+                return Response::json(array("status" => "failed", "message" => "Please Select Auto Pay Method."));
             }
+
         }
 
         if ($account->update($data)) {
@@ -729,27 +812,46 @@ class AccountsController extends \BaseController {
                 $DynamicData['FieldValue']= $VendorName;
                 Account::addUpdateAccountDynamicfield($DynamicData);
             }
+            if(isset($pbxaccountstatus)){
+                $DynamicData['FieldName'] = 'pbxaccountstatus';
+                $DynamicData['FieldValue']= $pbxaccountstatus;
+                Account::addUpdateAccountDynamicfield($DynamicData);
+            }
+            if(isset($autoblock)){
+                $DynamicData['FieldName'] = 'autoblock';
+                $DynamicData['FieldValue']= $autoblock;
+                Account::addUpdateAccountDynamicfield($DynamicData);
+            }
 
             if($data['Billing'] == 1) {
-                if($data['NextInvoiceDate']<$data['LastInvoiceDate']){
-                    return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
-                }
-                if($data['NextChargeDate']<$data['LastChargeDate']){
-                    return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
+                if($ManualBilling == 0){
+                    if ($data['NextInvoiceDate'] < $data['LastInvoiceDate']) {
+                        return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
+                    }
+                    if ($data['NextChargeDate'] < $data['LastChargeDate']) {
+                        return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
+                    }
                 }
                 AccountBilling::insertUpdateBilling($id, $data,$ServiceID,$invoice_count);
                 if($ManualBilling == 0){
                     AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
                 }
-                /*
+
                 $AccountPeriod = AccountBilling::getCurrentPeriod($id, date('Y-m-d'),$ServiceID);
+                $OutboundDiscountPlan = empty($data['DiscountPlanID']) ? '' : $data['DiscountPlanID'];
+                $InboundDiscountPlan = empty($data['InboundDiscountPlanID']) ? '' : $data['InboundDiscountPlanID'];
                 if(!empty($AccountPeriod)) {
                     $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
                     $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
                     $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
-                    AccountDiscountPlan::addUpdateDiscountPlan($id, $DiscountPlanID, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID);
-                    AccountDiscountPlan::addUpdateDiscountPlan($id, $InboundDiscountPlanID, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID);
-                } */
+                    $ServiceID=0;
+                    $AccountSubscriptionID = 0;
+                    $AccountName='';
+                    $AccountCLI='';
+                    $SubscriptionDiscountPlanID=0;
+                    AccountDiscountPlan::addUpdateDiscountPlan($id, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+                    AccountDiscountPlan::addUpdateDiscountPlan($id, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+                }
             }
 
             if(trim(Input::get('Number')) == ''){
@@ -1220,40 +1322,40 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         }
 
     }
-    public function get_credit($id){
+    public function get_credit($id)
+    {
         $data = Input::all();
         //$CompanyID = User::get_companyID();
         $account = Account::find($id);
         $CompanyID = $account->CompanyId;
         $getdata['AccountID'] = $id;
-        $response =  NeonAPI::request('account/get_creditinfo',$getdata,false,false,false);
-        $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $UnbilledAmount = $VendorUnbilledAmount = $EmailToCustomer= $SOA_Amount = 0;
-        if(!empty($response) && $response->status == 'success' ){
-            if(!empty($response->data->PermanentCredit)){
-                $PermanentCredit = $response->data->PermanentCredit;
+        $response = AccountBalance::where('AccountID', $id)->first(['AccountID', 'PermanentCredit', 'UnbilledAmount', 'EmailToCustomer', 'TemporaryCredit', 'TemporaryCreditDateTime', 'BalanceThreshold', 'BalanceAmount', 'VendorUnbilledAmount']);
+        $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $UnbilledAmount = $VendorUnbilledAmount = $EmailToCustomer = $SOA_Amount = 0;
+        if (!empty($response)) {
+            if (!empty($response->PermanentCredit)) {
+                $PermanentCredit = $response->PermanentCredit;
             }
-            if(!empty($response->data->TemporaryCredit)){
-                $TemporaryCredit = $response->data->TemporaryCredit;
+            if (!empty($response->TemporaryCredit)) {
+                $TemporaryCredit = $response->TemporaryCredit;
             }
-            if(!empty($response->data->BalanceThreshold)){
-                $BalanceThreshold = $response->data->BalanceThreshold;
+            if (!empty($response->BalanceThreshold)) {
+                $BalanceThreshold = $response->BalanceThreshold;
             }
-            $SOA_Amount = AccountBalance::getAccountSOA($CompanyID, $id);
-            if(!empty($response->data->UnbilledAmount)){
-                $UnbilledAmount = $response->data->UnbilledAmount;
+            //$SOA_Amount = AccountBalance::getAccountSOA($CompanyID, $id);
+            $SOA_Amount = AccountBalance::getNewAccountBalance($CompanyID, $id);
+            if (!empty($response->UnbilledAmount)) {
+                $UnbilledAmount = $response->UnbilledAmount;
             }
-            if(!empty($response->data->VendorUnbilledAmount)){
-                $VendorUnbilledAmount = $response->data->VendorUnbilledAmount;
+            if (!empty($response->VendorUnbilledAmount)) {
+                $VendorUnbilledAmount = $response->VendorUnbilledAmount;
             }
-            $BalanceAmount = $SOA_Amount+($UnbilledAmount-$VendorUnbilledAmount);
-            if(!empty($response->data->EmailToCustomer)){
-                $EmailToCustomer = $response->data->EmailToCustomer;
+            //$BalanceAmount = $SOA_Amount + ($UnbilledAmount - $VendorUnbilledAmount);
+            $BalanceAmount = AccountBalance::getNewAccountExposure($CompanyID, $id);
+            if (!empty($response->EmailToCustomer)) {
+                $EmailToCustomer = $response->EmailToCustomer;
             }
-            return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','UnbilledAmount','EmailToCustomer','VendorUnbilledAmount','SOA_Amount'));
-        }else{
-            return view_response_api($response);
         }
-
+        return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','UnbilledAmount','EmailToCustomer','VendorUnbilledAmount','SOA_Amount'));
     }
 
     public function update_credit(){
@@ -1615,7 +1717,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
            !isset($data['BulkBillingStartDateCheck'])&&
            !isset($data['BulkBillingCycleTypeCheck'])&&
            !isset($data['BulkSendInvoiceSettingCheck'])&&
-           !isset($data['BulkAutoPaymentSettingCheck'])
+           !isset($data['BulkAutoPaymentSettingCheck']) &&
+           !isset($data['BulkAutoPaymentMethodCheck'])
 		  )
 		{
 			return Response::json(array("status" => "error", "message" => "Please select at least one option."));
@@ -1735,6 +1838,12 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                     $billingupdate['AutoPaymentSetting'] = $data['AutoPaymentSetting'];
                 }
             }
+            if(isset($data['BulkAutoPaymentMethodCheck'])){
+                if(!empty($data['AutoPayMethod'])){
+                    $update_billing=1;
+                    $billingupdate['AutoPayMethod'] = $data['AutoPayMethod'];
+                }
+            }
 
             $validator = Validator::make($data, Account::$billingrules, Account::$billingmessages);
             if ($validator->fails()) {
@@ -1807,21 +1916,37 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
 
                 $invoice_count = Account::getInvoiceCount($id);
+                //new billing
                 if(isset($data['BillingCheck']) && !empty($billing_on_off)) {
                     \Illuminate\Support\Facades\Log::info('--update billing--');
-                    //billing section start
-
-                    $data['LastInvoiceDate'] = $data['BillingStartDate'];
-                    AccountBilling::insertUpdateBilling($id, $data, $ServiceID, $invoice_count);
-                    if($ManualBilling ==0) {
-                        AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
+                    $count = AccountBilling::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->count();
+                    if($count==0){
+                        //billing section start
+                        $BillingCycleType= $data['BillingCycleType'];
+                        $BillingCycleValue= $data['BillingCycleValue'];
+                        if($ManualBilling ==0) {
+                            $data['LastInvoiceDate'] = $data['BillingStartDate'];
+                            $BillingStartDate = strtotime($data['BillingStartDate']);
+                            $data['NextInvoiceDate'] = next_billing_date($BillingCycleType, $BillingCycleValue, $BillingStartDate);
+                            $data['NextChargeDate'] = date('Y-m-d', strtotime('-1 day', strtotime($data['NextInvoiceDate'])));
+                        }
+                        AccountBilling::insertUpdateBilling($id, $data, $ServiceID, $invoice_count);
+                        if ($ManualBilling == 0) {
+                            AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
+                        }
+                    }else{
+                        \Illuminate\Support\Facades\Log::info('-- AllReady Billing set. No Billing Change--');
                     }
                     \Illuminate\Support\Facades\Log::info('--update billing over--');
                 }
 
                 if(!empty($update_billing) && $update_billing==1){
                     $count = AccountBilling::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->count();
-                    if($count>0){
+                    $billing_on_off = isset($data['billing_on_off'])?1:0;
+                    $AccBilling = Account::where(['AccountID'=>$id])->pluck('Billing');
+                    //if billing than update account
+                    log::info('Update Billing '.$count.' - '.$update_billing.' - '.$billing_on_off.' - '.$AccBilling);
+                    if($count>0 && ($billing_on_off==1 || $AccBilling==1)){
                         //AccountBilling::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->update($billingupdate);
                         if(!empty($accountbillngdata) && $accountbillngdata==1){
                             $abdata = AccountBilling::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->first();
@@ -1835,13 +1960,34 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                             if(empty($billingupdate['BillingStartDate'])){
                                 $billingupdate['BillingStartDate'] = $abdata->BillingStartDate;
                             }
-                            AccountBilling::insertUpdateBilling($id, $billingupdate, $ServiceID,$invoice_count);
+                            $billingupdate['LastInvoiceDate'] = $billingupdate['BillingStartDate'];
+                            $billingupdate['LastChargeDate'] = $billingupdate['BillingStartDate'];
+                            $BillingCycleType= $billingupdate['BillingCycleType'];
+                            $BillingCycleValue= $billingupdate['BillingCycleValue'];
                             if($ManualBilling ==0) {
-                                AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
+                                $BillingStartDate = strtotime($billingupdate['BillingStartDate']);
+                                $NextBillingDate = next_billing_date($BillingCycleType, $BillingCycleValue, $BillingStartDate);
+                                $billingupdate['NextInvoiceDate'] = $NextBillingDate;
+                                if ($NextBillingDate != '') {
+                                    $NextChargedDate = date('Y-m-d', strtotime('-1 day', strtotime($NextBillingDate)));
+                                    $billingupdate['NextChargeDate'] = $NextChargedDate;
+                                }
                             }
+
+                            if($invoice_count==0) {
+                                AccountBilling::insertUpdateBilling($id, $billingupdate, $ServiceID, $invoice_count);
+                                if($ManualBilling ==0) {
+                                    AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
+                                }
+                            }else{
+                                \Illuminate\Support\Facades\Log::info('-- Allready Billing set. No Billing Change.count 0 --');
+                            }
+
                         }else{
                             AccountBilling::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->update($billingupdate);
                         }
+                    }else{
+                        \Illuminate\Support\Facades\Log::info('-- Allready Billing set. No Billing Change--');
                     }
 
                 }

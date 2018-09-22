@@ -368,6 +368,7 @@
                     type: 'POST',
                     dataType: 'json',
                     beforeSend: function(){
+                        $('.btn.upload').button('loading');
                         show_loading_bar({
                             pct: 50,
                             delay: 5
@@ -378,6 +379,7 @@
                             pct: 100,
                             delay: 2
                         });
+                        $('.btn.upload').button('reset');
                         if (response.status == 'success') {
                             var SheetNames = response.SheetNames;
                             var Extension = response.FileExtesion;
@@ -768,6 +770,7 @@
 
                     var Code            = $('#reviewrates-new-search input[name="Code"]').val();
                     var Description     = $('#reviewrates-new-search input[name="Description"]').val();
+                    var Timezone        = $('#reviewrates-new-search select[name="Timezone"]').val();
                     var RateUploadType  = $("input[name=RateUploadType]:checked").val();
                     var VendorID        = $("select[name=Vendor]:checked").val();
                     var CustomerID      = $("select[name=Customer]:checked").val();
@@ -775,7 +778,7 @@
 
                     $.ajax({
                         url: '{{URL::to('rate_upload/updateTempReviewRates')}}',
-                        data: 'Action=New&TempRateIDs='+TempRateIDs+'&criteria='+criteria+'&ProcessID='+ProcessID+'&Code='+Code+'&Description='+Description+'&RateUploadType='+RateUploadType+'&VendorID='+VendorID+'&CustomerID='+CustomerID+'&RateTableID='+RateTableID+'&'+$('#frm-change-selected-intervals').serialize(),
+                        data: 'Action=New&TempRateIDs='+TempRateIDs+'&criteria='+criteria+'&ProcessID='+ProcessID+'&Code='+Code+'&Description='+Description+'&Timezone='+Timezone+'&RateUploadType='+RateUploadType+'&VendorID='+VendorID+'&CustomerID='+CustomerID+'&RateTableID='+RateTableID+'&'+$('#frm-change-selected-intervals').serialize(),
                         error: function () {
                             toastr.error("error", "Error", toastr_opts);
                         },
@@ -790,6 +793,7 @@
                                 var $searchFilter = {};
                                 $searchFilter.Code = Code;
                                 $searchFilter.Description = Description;
+                                $searchFilter.Timezone = Timezone;
                                 getNewRates(ProcessID, $searchFilter);
                             } else {
                                 toastr.error(response.message, "Error", toastr_opts);
@@ -861,6 +865,7 @@
 
                     var Code            = $('#reviewrates-deleted-search input[name="Code"]').val();
                     var Description     = $('#reviewrates-deleted-search input[name="Description"]').val();
+                    var Timezone        = $('#reviewrates-deleted-search select[name="Timezone"]').val();
                     var RateUploadType  = $("input[name=RateUploadType]:checked").val();
                     var VendorID        = $("select[name=Vendor]:checked").val();
                     var CustomerID      = $("select[name=Customer]:checked").val();
@@ -868,7 +873,7 @@
 
                     $.ajax({
                         url: '{{URL::to('rate_upload/updateTempReviewRates')}}',
-                        data: 'Action=Deleted&TrunkID='+TrunkID+'&VendorRateIDs='+VendorRateIDs+'&criteria='+criteria+'&ProcessID='+ProcessID+'&Code='+Code+'&Description='+Description+'&RateUploadType='+RateUploadType+'&VendorID='+VendorID+'&CustomerID='+CustomerID+'&RateTableID='+RateTableID+'&'+$('#frm-change-selected-enddate').serialize(),
+                        data: 'Action=Deleted&TrunkID='+TrunkID+'&VendorRateIDs='+VendorRateIDs+'&criteria='+criteria+'&ProcessID='+ProcessID+'&Code='+Code+'&Description='+Description+'&Timezone='+Timezone+'&RateUploadType='+RateUploadType+'&VendorID='+VendorID+'&CustomerID='+CustomerID+'&RateTableID='+RateTableID+'&'+$('#frm-change-selected-enddate').serialize(),
                         error: function () {
                             toastr.error("error", "Error", toastr_opts);
                         },
@@ -883,6 +888,7 @@
                                 var $searchFilter = {};
                                 $searchFilter.Code = Code;
                                 $searchFilter.Description = Description;
+                                $searchFilter.Timezone = Timezone;
                                 getDeleteRates(ProcessID, $searchFilter);
                             } else {
                                 toastr.error(response.message, "Error", toastr_opts);
@@ -900,24 +906,28 @@
             $("#reviewrates-new-search,#reviewrates-increased-search,#reviewrates-decreased-search,#reviewrates-deleted-search").submit(function(e) {
                 e.preventDefault();
                 var $ProcessID = $('#ProcessID').val();
-                var Code, Description;
+                var Code, Description, Timezone;
                 var $searchFilter = {};
 
                 if($(this).attr('id') == 'reviewrates-new-search') {
                     $searchFilter.Code = Code = $("#reviewrates-new-search input[name='Code']").val();
                     $searchFilter.Description = Description = $("#reviewrates-new-search input[name='Description']").val();
+                    $searchFilter.Timezone = Timezone = $("#reviewrates-new-search select[name='Timezone']").val();
                     getNewRates($ProcessID, $searchFilter);
                 } else if($(this).attr('id') == 'reviewrates-increased-search') {
                     $searchFilter.Code = Code = $("#reviewrates-increased-search input[name='Code']").val();
                     $searchFilter.Description = Description = $("#reviewrates-increased-search input[name='Description']").val();
+                    $searchFilter.Timezone = Timezone = $("#reviewrates-increased-search select[name='Timezone']").val();
                     getIncreasedRates($ProcessID, $searchFilter);
                 } else if($(this).attr('id') == 'reviewrates-decreased-search') {
                     $searchFilter.Code = Code = $("#reviewrates-decreased-search input[name='Code']").val();
                     $searchFilter.Description = Description = $("#reviewrates-decreased-search input[name='Description']").val();
+                    $searchFilter.Timezone = Timezone = $("#reviewrates-decreased-search select[name='Timezone']").val();
                     getDecreasedRates($ProcessID, $searchFilter);
                 } else if($(this).attr('id') == 'reviewrates-deleted-search') {
                     $searchFilter.Code = Code = $("#reviewrates-deleted-search input[name='Code']").val();
                     $searchFilter.Description = Description = $("#reviewrates-deleted-search input[name='Description']").val();
+                    $searchFilter.Timezone = Timezone = $("#reviewrates-deleted-search select[name='Timezone']").val();
                     getDeleteRates($ProcessID, $searchFilter);
                 }
             });
@@ -1070,6 +1080,7 @@
             var checked_new     = '';
             var Code            = '';
             var Description     = '';
+            var Timezone        = 1;
             var RateUploadType  = $("input[name=RateUploadType]:checked").val();
 
             if($searchFilter.Code != 'undefined' && $searchFilter.Code != undefined) {
@@ -1077,6 +1088,9 @@
             }
             if($searchFilter.Description != 'undefined' && $searchFilter.Description != undefined) {
                 Description = $searchFilter.Description;
+            }
+            if($searchFilter.Timezone != 'undefined' && $searchFilter.Timezone != undefined) {
+                Timezone = $searchFilter.Timezone;
             }
 
             data_table_new = $("#table-reviewrates-new").dataTable({
@@ -1087,9 +1101,9 @@
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox-new.col-xs-1'>'l><'col-xs-6 col-right'<'change-view-new'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"New"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"RateUploadType","value":RateUploadType});
+                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"New"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"RateUploadType","value":RateUploadType});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"New"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"RateUploadType","value":RateUploadType});
+                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"New"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"RateUploadType","value":RateUploadType});
                 },
                 "sPaginationType": "bootstrap",
                 "aaSorting"   : [[1, 'asc']],
@@ -1130,12 +1144,14 @@
                             },//0 TempVendorRateID
                             { "bSortable": true },//1 Code
                             { "bSortable": true },//2 Description
-                            { "bSortable": true },//3 Rate
-                            { "bSortable": true },//4 EffectiveDate
-                            { "bSortable": true },//5 EndDate
-                            { "bSortable": true },//6 ConnectionFee
-                            { "bSortable": false },//7 Interval1
-                            { "bSortable": false },//8 IntervalN
+                            { "bSortable": false},//3 Timezones
+                            { "bSortable": true },//4 Rate
+                            { "bSortable": true },//5 RateN
+                            { "bSortable": true },//6 EffectiveDate
+                            { "bSortable": true },//7 EndDate
+                            { "bSortable": true },//8 ConnectionFee
+                            { "bSortable": false},//9 Interval1
+                            { "bSortable": false},//10 IntervalN
                         ],
                 "fnDrawCallback": function() {
                     $(".dataTables_wrapper select").select2({
@@ -1196,6 +1212,7 @@
         function getIncreasedRates($ProcessID,$searchFilter) {
             var Code            = '';
             var Description     = '';
+            var Timezone        = 1;
             var RateUploadType  = $("input[name=RateUploadType]:checked").val();
 
             if($searchFilter.Code != 'undefined' && $searchFilter.Code != undefined) {
@@ -1203,6 +1220,9 @@
             }
             if($searchFilter.Description != 'undefined' && $searchFilter.Description != undefined) {
                 Description = $searchFilter.Description;
+            }
+            if($searchFilter.Timezone != 'undefined' && $searchFilter.Timezone != undefined) {
+                Timezone = $searchFilter.Timezone;
             }
 
             data_table_increased = $("#table-reviewrates-increased").dataTable({
@@ -1213,9 +1233,9 @@
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox-new.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Increased"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"RateUploadType","value":RateUploadType});
+                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Increased"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"RateUploadType","value":RateUploadType});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Increased"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"RateUploadType","value":RateUploadType});
+                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Increased"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"RateUploadType","value":RateUploadType});
                 },
                 "sPaginationType": "bootstrap",
                 "aaSorting"   : [[1, 'asc']],
@@ -1251,12 +1271,14 @@
                             { "bVisible": false },//0 TempVendorRateID
                             { "bSortable": true },//1 Code
                             { "bSortable": true },//2 Description
-                            { "bSortable": true },//3 Rate
-                            { "bSortable": true },//4 EffectiveDate
-                            { "bSortable": true },//5 EndDate
-                            { "bSortable": true },//6 ConnectionFee
-                            { "bSortable": false },//7 Interval1
-                            { "bSortable": false },//8 IntervalN
+                            { "bSortable": false},//3 Timezones
+                            { "bSortable": true },//4 Rate
+                            { "bSortable": true },//5 RateN
+                            { "bSortable": true },//6 EffectiveDate
+                            { "bSortable": true },//7 EndDate
+                            { "bSortable": true },//8 ConnectionFee
+                            { "bSortable": false},//9 Interval1
+                            { "bSortable": false},//10 IntervalN
                         ],
                 "fnDrawCallback": function() {
                     $(".dataTables_wrapper select").select2({
@@ -1269,6 +1291,7 @@
         function getDecreasedRates($ProcessID,$searchFilter) {
             var Code            = '';
             var Description     = '';
+            var Timezone        = 1;
             var RateUploadType  = $("input[name=RateUploadType]:checked").val();
 
             if($searchFilter.Code != 'undefined' && $searchFilter.Code != undefined) {
@@ -1276,6 +1299,9 @@
             }
             if($searchFilter.Description != 'undefined' && $searchFilter.Description != undefined) {
                 Description = $searchFilter.Description;
+            }
+            if($searchFilter.Timezone != 'undefined' && $searchFilter.Timezone != undefined) {
+                Timezone = $searchFilter.Timezone;
             }
 
 
@@ -1287,9 +1313,9 @@
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox-new.col-xs-1'>'l><'col-xs-6 col-right'<'change'><'export-data'T>>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Decreased"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"RateUploadType","value":RateUploadType});
+                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Decreased"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"RateUploadType","value":RateUploadType});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Decreased"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"RateUploadType","value":RateUploadType});
+                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Decreased"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"RateUploadType","value":RateUploadType});
                 },
                 "sPaginationType": "bootstrap",
                 "aaSorting"   : [[1, 'asc']],
@@ -1325,12 +1351,14 @@
                             { "bVisible": false },//0 TempVendorRateID
                             { "bSortable": true },//1 Code
                             { "bSortable": true },//2 Description
-                            { "bSortable": true },//3 Rate
-                            { "bSortable": true },//4 EffectiveDate
-                            { "bSortable": true },//5 EndDate
-                            { "bSortable": true },//6 ConnectionFee
-                            { "bSortable": false },//7 Interval1
-                            { "bSortable": false },//8 IntervalN
+                            { "bSortable": false},//3 Timezones
+                            { "bSortable": true },//4 Rate
+                            { "bSortable": true },//5 RateN
+                            { "bSortable": true },//6 EffectiveDate
+                            { "bSortable": true },//7 EndDate
+                            { "bSortable": true },//8 ConnectionFee
+                            { "bSortable": false},//9 Interval1
+                            { "bSortable": false},//10 IntervalN
                         ],
                 "fnDrawCallback": function() {
                     $(".dataTables_wrapper select").select2({
@@ -1344,6 +1372,7 @@
             var checked_deleted ='';
             var Code            = '';
             var Description     = '';
+            var Timezone        = 1;
             var RateUploadType  = $("input[name=RateUploadType]:checked").val();
 
             if($searchFilter.Code != 'undefined' && $searchFilter.Code != undefined) {
@@ -1351,6 +1380,9 @@
             }
             if($searchFilter.Description != 'undefined' && $searchFilter.Description != undefined) {
                 Description = $searchFilter.Description;
+            }
+            if($searchFilter.Timezone != 'undefined' && $searchFilter.Timezone != undefined) {
+                Timezone = $searchFilter.Timezone;
             }
 
             data_table_deleted = $("#table-reviewrates-deleted").dataTable({
@@ -1361,9 +1393,9 @@
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox-deleted.col-xs-1'>'l><'col-xs-6 col-right'<'change-view-deleted'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Deleted"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"RateUploadType","value":RateUploadType});
+                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Deleted"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"RateUploadType","value":RateUploadType});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Deleted"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"RateUploadType","value":RateUploadType});
+                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Deleted"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"RateUploadType","value":RateUploadType});
                 },
                 "sPaginationType": "bootstrap",
                 "aaSorting"   : [[1, 'asc']],
@@ -1404,12 +1436,14 @@
                             },//0 TempVendorRateID
                             { "bSortable": true },//1 Code
                             { "bSortable": true },//2 Description
-                            { "bSortable": true },//3 Rate
-                            { "bSortable": true },//4 EffectiveDate
-                            { "bSortable": true },//5 EndDate
-                            { "bSortable": true },//6 ConnectionFee
-                            { "bSortable": false },//7 Interval1
-                            { "bSortable": false },//8 IntervalN
+                            { "bSortable": false},//3 Timezones
+                            { "bSortable": true },//4 Rate
+                            { "bSortable": true },//5 RateN
+                            { "bSortable": true },//6 EffectiveDate
+                            { "bSortable": true },//7 EndDate
+                            { "bSortable": true },//8 ConnectionFee
+                            { "bSortable": false},//9 Interval1
+                            { "bSortable": false},//10 IntervalN
                         ],
                 "fnDrawCallback": function() {
                     $(".dataTables_wrapper select").select2({
@@ -1718,6 +1752,10 @@
                                                     <div class="col-sm-3">
                                                         <input type="text" name="Description" class="form-control" id="field-1" placeholder="" value="" />
                                                     </div>
+                                                    <label class="col-sm-1 control-label">Timezone</label>
+                                                    <div class="col-sm-3">
+                                                        {{Form::select('Timezone', $AllTimezones,'',array("class"=>"select2 small"))}}
+                                                    </div>
                                                 </div>
                                                 <p style="text-align: right; margin: 0;">
                                                     <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
@@ -1738,7 +1776,9 @@
                                             <th width="5%" ><input type="checkbox" id="selectall-new" name="checkbox[]" class="" /></th>
                                             <th width="15%" >Code</th>
                                             <th width="15%" >Description</th>
+                                            <th width="15%" >Timezones</th>
                                             <th width="15%" >Rate</th>
+                                            <th width="15%" >RateN</th>
                                             <th width="15%" >Effective Date</th>
                                             <th width="15%" >End Date</th>
                                             <th width="15%" >Connection Fee</th>
@@ -1777,6 +1817,10 @@
                                                     <div class="col-sm-3">
                                                         <input type="text" name="Description" class="form-control" id="field-1" placeholder="" value="" />
                                                     </div>
+                                                    <label class="col-sm-1 control-label">Timezone</label>
+                                                    <div class="col-sm-3">
+                                                        {{Form::select('Timezone', $AllTimezones,'',array("class"=>"select2 small"))}}
+                                                    </div>
                                                 </div>
                                                 <p style="text-align: right; margin: 0;">
                                                     <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
@@ -1797,7 +1841,9 @@
                                             <th width="5%" ></th>
                                             <th width="15%" >Code</th>
                                             <th width="15%" >Description</th>
+                                            <th width="15%" >Timezones</th>
                                             <th width="15%" >Rate</th>
+                                            <th width="15%" >RateN</th>
                                             <th width="15%" >Effective Date</th>
                                             <th width="15%" >End Date</th>
                                             <th width="15%" >Connection Fee</th>
@@ -1836,6 +1882,10 @@
                                                     <div class="col-sm-3">
                                                         <input type="text" name="Description" class="form-control" id="field-1" placeholder="" value="" />
                                                     </div>
+                                                    <label class="col-sm-1 control-label">Timezone</label>
+                                                    <div class="col-sm-3">
+                                                        {{Form::select('Timezone', $AllTimezones,'',array("class"=>"select2 small"))}}
+                                                    </div>
                                                 </div>
                                                 <p style="text-align: right; margin: 0;">
                                                     <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
@@ -1856,7 +1906,9 @@
                                             <th width="5%" ></th>
                                             <th width="15%" >Code</th>
                                             <th width="15%" >Description</th>
+                                            <th width="15%" >Timezones</th>
                                             <th width="15%" >Rate</th>
+                                            <th width="15%" >RateN</th>
                                             <th width="15%" >Effective Date</th>
                                             <th width="15%" >End Date</th>
                                             <th width="15%" >Connection Fee</th>
@@ -1895,6 +1947,10 @@
                                                     <div class="col-sm-3">
                                                         <input type="text" name="Description" class="form-control" id="field-1" placeholder="" value="" />
                                                     </div>
+                                                    <label class="col-sm-1 control-label">Timezone</label>
+                                                    <div class="col-sm-3">
+                                                        {{Form::select('Timezone', $AllTimezones,'',array("class"=>"select2 small"))}}
+                                                    </div>
                                                 </div>
                                                 <p style="text-align: right; margin: 0;">
                                                     <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
@@ -1915,7 +1971,9 @@
                                             <th width="5%" ><input type="checkbox" id="selectall-deleted" name="checkbox[]" class="" /></th>
                                             <th width="15%" >Code</th>
                                             <th width="15%" >Description</th>
+                                            <th width="15%" >Timezones</th>
                                             <th width="15%" >Rate</th>
+                                            <th width="15%" >RateN</th>
                                             <th width="15%" >Effective Date</th>
                                             <th width="15%" >End Date</th>
                                             <th width="15%" >Connection Fee</th>

@@ -188,6 +188,7 @@
         @if(User::checkCategoryPermission('Invoice','View'))
         <li> <a href="{{URL::to('/invoice')}}">  <span>Invoices</span> </a> </li>
         @endif
+        <li> <a href="{{URL::to('/creditnotes')}}">  <span>Credit Notes</span> </a> </li>
       @if(User::checkCategoryPermission('Payments','View'))
         <li> <a href="{{URL::to('/payments')}}">  <span>Payments</span> </a> </li>
       @endif
@@ -242,8 +243,17 @@
     @endif
     @endif
     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type'] == Company::LICENCE_BILLING || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
-    @if( User::checkCategoryPermission('Analysis','All'))
-      <li> <a href="{{Url::to('/analysis')}}"> <i class="fa fa-bar-chart"></i> <span>Analysis</span> </a> </li>
+    @if( User::checkCategoryPermission('Analysis','All') || User::checkCategoryPermission('Analysis','Customer')  || User::checkCategoryPermission('Analysis','Vendor')  || User::checkCategoryPermission('Analysis','AccountManager') )
+      <?php
+          $analysis_url = Url::to('/analysis');
+          if(User::checkCategoryPermission('Analysis','All') || User::checkCategoryPermission('Analysis','Customer'))
+            $analysis_url = Url::to('/analysis');
+          else if(User::checkCategoryPermission('Analysis','Vendor'))
+            $analysis_url = Url::to('/vendor_analysis');
+          else if(User::checkCategoryPermission('Analysis','AccountManager'))
+            $analysis_url = Url::to('/analysis_manager');
+      ?>
+      <li> <a href="{{$analysis_url}}"> <i class="fa fa-bar-chart"></i> <span>Analysis</span> </a> </li>
     @endif
     @endif
 
@@ -277,6 +287,9 @@
         @if(User::checkCategoryPermission('DestinationGroup','View'))
           <li><a href="{{URL::to('/destination_group_set')}}"><span>Destination Group</span></a></li>
         @endif
+        @if(User::checkCategoryPermission('Timezones','View'))
+          <li><a href="{{URL::to('/timezones')}}"><span>Timezones</span></a></li>
+        @endif
       </ul>
     </li>
     @endif
@@ -286,7 +299,9 @@
     @if(User::checkCategoryPermission('AccountChecklist','View') ||
     User::checkCategoryPermission('CronJob','View') || User::checkCategoryPermission('Retention','View') ||
     User::checkCategoryPermission('UploadFileTemplate','View')||User::checkCategoryPermission('Notification','View')||
-    User::checkCategoryPermission('ServerInfo','View'))
+    User::checkCategoryPermission('ServerInfo','View') ||
+    User::checkCategoryPermission('EmailTemplate','View')
+    )
     <li class="{{check_uri('Admin')}}"> <a href="#"> <i class="fa fa-lock"></i> <span>&nbsp;&nbsp;&nbsp;Admin</span> </a>
       <ul>       
         @if(User::checkCategoryPermission('Notification','View'))
@@ -313,7 +328,12 @@
          @if( User::checkCategoryPermission('ServerInfo','View'))
         <li> <a href="{{URL::to('/serverinfo')}}">  <span>Server Monitor</span> </a> </li>
     	@endif
+          @if( User::checkCategoryPermission('Translate','View'))
           <li> <a href="{{URL::to('/translate')}}">  <span>Translation</span> </a> </li>
+          @endif
+          @if( User::checkCategoryPermission('Dynamiclink','View'))
+            <li> <a href="{{Url::to('/dynamiclink')}}"> <span>&nbsp;Dynamic Link</span> </a> </li>
+          @endif
       </ul>
     </li>
     @endif
@@ -322,7 +342,7 @@
     @endif
     @if( User::checkCategoryPermission('Company','View'))
     <li> <a href="{{Url::to('company')}}"> <i class="glyphicon glyphicon-home"></i> <span>&nbsp;Company</span> </a> </li>
-    @endif  	
+    @endif
     @if( User::checkCategoryPermission('Pages','About'))
     <li> <a href="{{Url::to('/about')}}"> <i class="glyphicon glyphicon-info-sign"></i> <span>&nbsp;About</span> </a> </li>
     @endif

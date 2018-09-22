@@ -103,81 +103,85 @@ class Account extends \Eloquent {
 
         static::created(function($obj)
         {
-            $customer=Session::get('customer');
-            /* 0= user, 1=customer */
-            $UserType = 0;
-            if($customer==1){
-                $UserType = 1;
-            }
-            $UserID = User::get_userID();
-            $CompanyID = User::get_companyID();
-            $IP = get_client_ip();
-            $header = ["UserID"=>$UserID,
-                "CompanyID"=>$CompanyID,
-                "ParentColumnName"=>'AccountID',
-                "Type"=>'account',
-                "IP"=>$IP,
-                "UserType"=>$UserType
-            ];
-            $detail = array();
-            log::info('--create start--');
-            foreach($obj->attributes as $index=>$value){
-                if(array_key_exists($index,Account::$defaultAccountAuditFields)) {
-                        $data = ['OldValue'=>'',
-                            'NewValue'=>$obj->attributes[$index],
-                            'ColumnName'=>$index,
-                            'ParentColumnID'=>$obj->attributes['AccountID']
-                        ];
-                        $detail[]=$data;
+            if(!Auth::guest()) {
+                $customer = Session::get('customer');
+                /* 0= user, 1=customer */
+                $UserType = 0;
+                if ($customer == 1) {
+                    $UserType = 1;
                 }
+                $UserID = User::get_userID();
+                $CompanyID = User::get_companyID();
+                $IP = get_client_ip();
+                $header = ["UserID" => $UserID,
+                    "CompanyID" => $CompanyID,
+                    "ParentColumnName" => 'AccountID',
+                    "Type" => 'account',
+                    "IP" => $IP,
+                    "UserType" => $UserType
+                ];
+                $detail = array();
+                log::info('--create start--');
+                foreach ($obj->attributes as $index => $value) {
+                    if (array_key_exists($index, Account::$defaultAccountAuditFields)) {
+                        $data = ['OldValue' => '',
+                            'NewValue' => $obj->attributes[$index],
+                            'ColumnName' => $index,
+                            'ParentColumnID' => $obj->attributes['AccountID']
+                        ];
+                        $detail[] = $data;
+                    }
+                }
+                Log::info('start');
+                Log::info(print_r($header, true));
+                Log::info(print_r($detail, true));
+                AuditHeader::add_AuditLog($header, $detail);
+                Log::info('end');
+                log::info('--create end--');
             }
-            Log::info('start');
-            Log::info(print_r($header,true));
-            Log::info(print_r($detail,true));
-            AuditHeader::add_AuditLog($header,$detail);
-            Log::info('end');
-            log::info('--create end--');
 
         });
 
 
         static::updated(function($obj) {
-            $customer=Session::get('customer');
-            /* 0= user, 1=customer */
-            $UserType = 1;
-            if($customer==1){
-                $UserType = 0;
-            }
-            $UserID = User::get_userID();
-            $CompanyID = User::get_companyID();
-            $IP = get_client_ip();
-            $header = ["UserID"=>$UserID,
-                       "CompanyID"=>$CompanyID,
-                       "ParentColumnName"=>'AccountID',
-                       "Type"=>'account',
-                       "IP"=>$IP,
-                       "UserType"=>$UserType
-            ];
-            $detail = array();
-            log::info('--update start--');
-            foreach($obj->original as $index=>$value){
-                if(array_key_exists($index,Account::$defaultAccountAuditFields)) {
-                    if($obj->attributes[$index] != $value){
-                        $data = ['OldValue'=>$obj->original[$index],
-                                 'NewValue'=>$obj->attributes[$index],
-                                 'ColumnName'=>$index,
-                                 'ParentColumnID'=>$obj->original['AccountID']
-                        ];
-                        $detail[]=$data;
+            if(!Auth::guest()) {
+                $customer = Session::get('customer');
+                /* 0= user, 1=customer */
+                $UserType = 1;
+                if ($customer == 1) {
+                    $UserType = 0;
+                }
+                $UserID = User::get_userID();
+                $CompanyID = User::get_companyID();
+                $IP = get_client_ip();
+                $header = ["UserID" => $UserID,
+                    "CompanyID" => $CompanyID,
+                    "ParentColumnName" => 'AccountID',
+                    "Type" => 'account',
+                    "IP" => $IP,
+                    "UserType" => $UserType
+                ];
+                $detail = array();
+                log::info('--update start--');
+                foreach ($obj->original as $index => $value) {
+                    if (array_key_exists($index, Account::$defaultAccountAuditFields)) {
+                        if ($obj->attributes[$index] != $value) {
+                            $data = ['OldValue' => $obj->original[$index],
+                                'NewValue' => $obj->attributes[$index],
+                                'ColumnName' => $index,
+                                'ParentColumnID' => $obj->original['AccountID']
+                            ];
+                            $detail[] = $data;
+                        }
                     }
                 }
+                Log::info('start');
+                Log::info(print_r($header, true));
+                Log::info(print_r($detail, true));
+                AuditHeader::add_AuditLog($header, $detail);
+                Log::info('end');
+                log::info('--update end--');
             }
-            Log::info('start');
-            Log::info(print_r($header,true));
-            Log::info(print_r($detail,true));
-            AuditHeader::add_AuditLog($header,$detail);
-            Log::info('end');
-            log::info('--update end--');
         });
     }
 
@@ -628,7 +632,7 @@ class Account extends \Eloquent {
     public static function GetAccountAllEmails($id,$ArrayReturn=false){
 	  $array			 =  array();
 	  $accountemails	 = 	Account::where(array("AccountID"=>$id))->select(array('Email', 'BillingEmail'))->get();
-	  $acccountcontact 	 =  DB::table('tblContact')->where(array("AccountID"=>$id))->get(array("Email"));	
+	  $acccountcontact 	 =  DB::table('tblContact')->where(array("AccountID"=>$id))->orWhere('Owner', $id)->get(array("Email"));
 	  
 	  	
 		if(count($accountemails)>0){
@@ -858,7 +862,8 @@ class Account extends \Eloquent {
                 $accounts->where('Owner', $UserID);
             }
 
-            return $accounts->orderBy("AccountName", "ASC")->get(array('tblAccount.AccountID','AccountName'))->toArray();
+            //return $accounts->orderBy("AccountName", "ASC")->get(array('tblAccount.AccountID','AccountName'))->toArray();
+            return $accounts->select(array('AccountName', 'tblAccount.AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
 
         }
     }

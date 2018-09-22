@@ -148,9 +148,10 @@ class InvoicesController extends \BaseController {
         $InvoiceHideZeroValue = NeonCookie::getCookie('InvoiceHideZeroValue',1);
         $Quickbook = new BillingAPI($CompanyID);
         $check_quickbook = $Quickbook->check_quickbook($CompanyID);
+        $check_quickbook_desktop = $Quickbook->check_quickbook_desktop($CompanyID);
 		$bulk_type = 'invoices';
         //print_r($_COOKIE);exit;
-        return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue','check_quickbook','bulk_type','CompanyID'));
+        return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue','check_quickbook','check_quickbook_desktop','bulk_type','CompanyID'));
 
     }
 
@@ -173,8 +174,9 @@ class InvoicesController extends \BaseController {
         $Type =  Product::DYNAMIC_TYPE;
         $productsControllerObj = new ProductsController();
         $DynamicFields = $productsControllerObj->getDynamicFields($companyID,$Type);
+        $itemtypes 	= 	ItemType::getItemTypeDropdownList($companyID);
 
-        return View::make('invoices.create',compact('accounts','products','taxes','BillingClass','DynamicFields'));
+        return View::make('invoices.create',compact('accounts','products','taxes','BillingClass','DynamicFields','itemtypes'));
 
     }
 
@@ -206,8 +208,13 @@ class InvoicesController extends \BaseController {
             $invoicelog =  InVoiceLog::where(array('InvoiceID'=>$id))->get();
 			$InvoiceAllTax =  InvoiceTaxRate::where(["InvoiceID"=>$id,"InvoiceTaxType"=>1])->get();
 			$BillingClass = BillingClass::getDropdownIDList($CompanyID);
+
+            $Type =  Product::DYNAMIC_TYPE;
+            $productsControllerObj = new ProductsController();
+            $DynamicFields = $productsControllerObj->getDynamicFields($CompanyID,$Type);
+            $itemtypes 	= 	ItemType::getItemTypeDropdownList($CompanyID);
 			
-            return View::make('invoices.edit', compact( 'id', 'Invoice','InvoiceDetail','InvoiceTemplateID','InvoiceNumberPrefix',  'CurrencyCode','CurrencyID','RoundChargesAmount','accounts', 'products', 'taxes','CompanyName','Account','invoicelog','InvoiceAllTax','BillingClass','InvoiceBillingClass'));
+            return View::make('invoices.edit', compact( 'id', 'Invoice','InvoiceDetail','InvoiceTemplateID','InvoiceNumberPrefix',  'CurrencyCode','CurrencyID','RoundChargesAmount','accounts', 'products', 'taxes','CompanyName','Account','invoicelog','InvoiceAllTax','BillingClass','InvoiceBillingClass','DynamicFields','itemtypes'));
         }
     }
 
@@ -218,7 +225,6 @@ class InvoicesController extends \BaseController {
         $data = Input::all();
         unset($data['BarCode']);
         if($data){
-
             $companyID = User::get_companyID();
             $CreatedBy = User::get_user_full_name();
 
@@ -336,8 +342,35 @@ class InvoicesController extends \BaseController {
                         }
                         $i++;
                     }
-                } 
-				
+                }
+
+                //StockHistory
+                $StockHistory=array();
+                $temparray=array();
+                foreach($InvoiceDetailData as $CheckInvoiceHistory){
+                    $prodType=intval($CheckInvoiceHistory['ProductType']);
+                    if($prodType==1) {
+                        $ProductID = intval($CheckInvoiceHistory['ProductID']);
+                        $InvoiceID = intval($CheckInvoiceHistory['InvoiceID']);
+                        $Qty = intval($CheckInvoiceHistory['Qty']);
+                        $temparray['CompanyID']=$companyID;
+                        $temparray['ProductID']=$ProductID;
+                        $temparray['InvoiceID']=$InvoiceID;
+                        $temparray['Qty']=$Qty;
+                        $temparray['Reason']='';
+                        $temparray['InvoiceNumber']=$InvoiceData["FullInvoiceNumber"];
+                        $temparray['created_by']=User::get_user_full_name();
+
+                        array_push($StockHistory,$temparray);
+                        //$returnValidateData = stockHistoryValidateCalculation($companyID, $ProdID, $InvoiceID, $Qty, '', $InvoiceData["FullInvoiceNumber"]);
+                        /*if ($returnValidateData && $returnValidateData['status'] == 'failed') {
+                            return Response::json($returnValidateData);
+                        }*/
+                    }
+                }
+
+                $historyData=StockHistoryCalculations($StockHistory);
+
 				//product tax
 				if(isset($data['Tax']) && is_array($data['Tax'])){
 					foreach($data['Tax'] as $j => $taxdata){
@@ -361,8 +394,8 @@ class InvoicesController extends \BaseController {
 					}
 				}
 				
-                $InvoiceTaxRates 	 = 	merge_tax($InvoiceTaxRates);
-				$InvoiceAllTaxRates  = 	merge_tax($InvoiceAllTaxRates);
+                /*$InvoiceTaxRates 	 = 	merge_tax($InvoiceTaxRates);
+				$InvoiceAllTaxRates  = 	merge_tax($InvoiceAllTaxRates);*/
 				
                 $invoiceloddata = array();
                 $invoiceloddata['InvoiceID']= $Invoice->InvoiceID;
@@ -370,14 +403,18 @@ class InvoicesController extends \BaseController {
                 $invoiceloddata['created_at']= date("Y-m-d H:i:s");
                 $invoiceloddata['InvoiceLogStatus']= InVoiceLog::CREATED;
                 InVoiceLog::insert($invoiceloddata);
-                if(!empty($InvoiceTaxRates)) { //product tax
+                /*if(!empty($InvoiceTaxRates)) { //product tax
                     InvoiceTaxRate::insert($InvoiceTaxRates);
-                }
+                }*/
 				
 				 if(!empty($InvoiceAllTaxRates)) { //Invoice tax
                     InvoiceTaxRate::insert($InvoiceAllTaxRates);
                 } 
-                if (!empty($InvoiceDetailData) && InvoiceDetail::insert($InvoiceDetailData)) { 
+                if (!empty($InvoiceDetailData) && InvoiceDetail::insert($InvoiceDetailData)) {
+                    $InvoiceTaxRates1=TaxRate::getInvoiceTaxRateByProductDetail($Invoice->InvoiceID);
+                    if(!empty($InvoiceTaxRates1)) { //Invoice tax
+                        InvoiceTaxRate::insert($InvoiceTaxRates1);
+                    }
                     $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID); 
                     if (empty($pdf_path)) {
                         $error['message'] = 'Failed to generate Invoice PDF File';
@@ -387,10 +424,16 @@ class InvoicesController extends \BaseController {
                         $Invoice->update(["PDF" => $pdf_path]);
                     }
 
-
                     DB::connection('sqlsrv2')->commit();
-
-                    return Response::json(array("status" => "success", "message" => "Invoice Successfully Created",'LastID'=>$Invoice->InvoiceID,'redirect' => URL::to('/invoice/'.$Invoice->InvoiceID.'/edit')));
+                    $SuccessMsg="Invoice Successfully Created.";
+                    $message='';
+                    if(!empty($historyData)){
+                        foreach($historyData as $msg){
+                            $message.=$msg;
+                            $message.="\n\r";
+                        }
+                    }
+                    return Response::json(array("status" => "success","warning"=>$message, "message" => $SuccessMsg,'LastID'=>$Invoice->InvoiceID,'redirect' => URL::to('/invoice/'.$Invoice->InvoiceID.'/edit')));
                 } else {
                     DB::connection('sqlsrv2')->rollback();
                     return Response::json(array("status" => "failed", "message" => "Problem Creating Invoice."));
@@ -412,10 +455,11 @@ class InvoicesController extends \BaseController {
         $data = Input::all();
         unset($data['BarCode']);
         if(!empty($data) && $id > 0){
-
             $Invoice = Invoice::find($id);
             $companyID = User::get_companyID();
             $CreatedBy = User::get_user_full_name();
+            $FullInvoiceNumber=$Invoice->FullInvoiceNumber;
+            $OldProductsarr=InvoiceDetail::where(['InvoiceID'=>$Invoice->InvoiceID])->get(['ProductID','Qty','ProductType','InvoiceDetailID'])->toArray();
 
             $InvoiceData = array();
             $InvoiceData["CompanyID"] = $companyID;
@@ -477,7 +521,7 @@ class InvoicesController extends \BaseController {
                     $invoiceloddata['InvoiceLogStatus']= InVoiceLog::UPDATED;
                     $Invoice->update($InvoiceData);
                     InVoiceLog::insert($invoiceloddata);
-					$InvoiceDetailData = $InvoiceTaxRates = $InvoiceAllTaxRates = array();
+					$InvoiceDetailData = $StockHistoryData = $InvoiceTaxRates = $InvoiceAllTaxRates = array();
                     //Delete all Invoice Data and then Recreate.
                     InvoiceDetail::where(["InvoiceID" => $Invoice->InvoiceID])->delete();
                     InvoiceTaxRate::where(["InvoiceID" => $Invoice->InvoiceID])->delete();
@@ -491,13 +535,23 @@ class InvoicesController extends \BaseController {
                                     if(!empty($value)) {
                                         $pid = explode('-', $value);
                                         $InvoiceDetailData[$i][$field] = $pid[1];
+                                        $StockHistoryData[$i][$field] = $pid[1];
+                                        $StockHistoryData[$i]["InvoiceID"] = $Invoice->InvoiceID;
+
+                                        /**
+                                         *  1. if product is new not in old and exists in new
+                                         *  2. existinsg product checke update qty with old
+                                         */
+
                                     } else {
                                         $InvoiceDetailData[$i][$field] = "";
+                                        $StockHistoryData[$i][$field] = "";
                                     }
                                 }else{
                                     $InvoiceDetailData[$i][$field] = $value;
+                                    $StockHistoryData[$i][$field] = $value;
                                 }
-								$InvoiceDetailData[$i]["Discount"] 	= 	0;
+                                $InvoiceDetailData[$i]["Discount"] 	= 	0;
                                 $InvoiceDetailData[$i]["InvoiceID"] = $Invoice->InvoiceID;
                                 $InvoiceDetailData[$i]["created_at"] = date("Y-m-d H:i:s");
                                 $InvoiceDetailData[$i]["updated_at"] = date("Y-m-d H:i:s");
@@ -529,7 +583,7 @@ class InvoicesController extends \BaseController {
                                 $i++;								
                             }
                         }
-						
+
 						if(isset($data['Tax']) && is_array($data['Tax'])){
 							foreach($data['Tax'] as $j => $taxdata)
 							{
@@ -542,28 +596,32 @@ class InvoicesController extends \BaseController {
 						}
 						
 						if(isset($data['InvoiceTaxes']) && is_array($data['InvoiceTaxes'])){
-					foreach($data['InvoiceTaxes']['field'] as  $p =>  $InvoiceTaxes){						
-						$InvoiceAllTaxRates[$p]['TaxRateID'] 		= 	$InvoiceTaxes;
-						$InvoiceAllTaxRates[$p]['Title'] 			= 	TaxRate::getTaxName($InvoiceTaxes);
-						$InvoiceAllTaxRates[$p]["created_at"] 		= 	date("Y-m-d H:i:s");
-						$InvoiceAllTaxRates[$p]["InvoiceTaxType"] 	= 	1;
-						$InvoiceAllTaxRates[$p]["InvoiceID"] 		= 	$Invoice->InvoiceID; 
-						$InvoiceAllTaxRates[$p]["TaxAmount"] 		= 	$data['InvoiceTaxes']['value'][$p];
-					}
-				}
+                            foreach($data['InvoiceTaxes']['field'] as  $p =>  $InvoiceTaxes){
+                                $InvoiceAllTaxRates[$p]['TaxRateID'] 		= 	$InvoiceTaxes;
+                                $InvoiceAllTaxRates[$p]['Title'] 			= 	TaxRate::getTaxName($InvoiceTaxes);
+                                $InvoiceAllTaxRates[$p]["created_at"] 		= 	date("Y-m-d H:i:s");
+                                $InvoiceAllTaxRates[$p]["InvoiceTaxType"] 	= 	1;
+                                $InvoiceAllTaxRates[$p]["InvoiceID"] 		= 	$Invoice->InvoiceID;
+                                $InvoiceAllTaxRates[$p]["TaxAmount"] 		= 	$data['InvoiceTaxes']['value'][$p];
+                            }
+				        }
 						
-                        $InvoiceTaxRates 	  =     merge_tax($InvoiceTaxRates);
-						$InvoiceAllTaxRates   = 	merge_tax($InvoiceAllTaxRates);
+                        /*$InvoiceTaxRates 	  =     merge_tax($InvoiceTaxRates);
+						$InvoiceAllTaxRates   = 	merge_tax($InvoiceAllTaxRates);*/
 						
-                        if(!empty($InvoiceTaxRates)) { //product tax
+                        /*if(!empty($InvoiceTaxRates)) { //product tax
                             InvoiceTaxRate::insert($InvoiceTaxRates);
-                        }
+                        }*/
 						
 						 if(!empty($InvoiceAllTaxRates)) { //Invoice tax
                  		   InvoiceTaxRate::insert($InvoiceAllTaxRates);
-               		 }
+                         }
 						
                         if (!empty($InvoiceDetailData) && InvoiceDetail::insert($InvoiceDetailData)) {
+                            $InvoiceTaxRates1=TaxRate::getInvoiceTaxRateByProductDetail($Invoice->InvoiceID);
+                            if(!empty($InvoiceTaxRates1)) { //Invoice tax
+                                InvoiceTaxRate::insert($InvoiceTaxRates1);
+                            }
                             $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID);
                             if (empty($pdf_path)) {
                                 $error['message'] = 'Failed to generate Invoice PDF File';
@@ -573,8 +631,91 @@ class InvoicesController extends \BaseController {
                                 $Invoice->update(["PDF" => $pdf_path]);
                             }
 
+                            //StockHistory Maintain
+                            $MultiProductSumQtyArr=array();
+                            $OldProductsarr=sumofQtyIfSameProduct($OldProductsarr);
+                            $MultiProductSumQtyArr=sumofQtyIfSameProduct($InvoiceDetailData);
+
+                            $StockHistory=array();
+                            $temparray=array();
+
+                            //For Create New If not Exist
+                            foreach($MultiProductSumQtyArr as $InvoiceHistory){
+                                $prodType=intval($InvoiceHistory['ProductType']);
+                                if($prodType==1) {
+                                    $ProdID = intval($InvoiceHistory['ProductID']);
+                                    $InvoiceID = intval($InvoiceHistory['InvoiceID']);
+                                    $Qty = intval($InvoiceHistory['Qty']);
+                                    $key_of_arr = searchArrayByProductID($ProdID, $OldProductsarr);
+                                    if(intval($key_of_arr) < 0){
+                                        //Create New
+                                        $temparray['CompanyID']=$companyID;
+                                        $temparray['ProductID']=$ProdID;
+                                        $temparray['InvoiceID']=$InvoiceID;
+                                        $temparray['Qty']=$Qty;
+                                        $temparray['Reason']='';
+                                        $temparray['InvoiceNumber']=$FullInvoiceNumber;
+                                        $temparray['created_by']=User::get_user_full_name();
+
+                                        array_push($StockHistory,$temparray);
+
+                                    }
+                                }
+                            }
+
+                            if(!empty($StockHistory)){
+                                $historyData=StockHistoryCalculations($StockHistory);
+                            }
+
+                            //StockHistory update/delete.
+                            $StockHistoryUpdate=array();
+                            $temparrayUpdate=array();
+                            foreach($OldProductsarr as $OldProduct){
+                                $prodType=intval($OldProduct['ProductType']);
+                                $ProdID=$OldProduct['ProductID'];
+                                $oldQty=intval($OldProduct['Qty']);
+                                if($prodType==1) {
+                                    $InvoiceDetailID=$OldProduct['InvoiceDetailID'];
+                                    $InvoiceNo=Invoice::where('InvoiceID',$id)->pluck('FullInvoiceNumber');
+                                    $key_of_arr = searchArrayByProductID($ProdID, $MultiProductSumQtyArr);
+                                    if(intval($key_of_arr)>=0){
+                                        //Update Prod
+                                        $res_prod=getArrayByProductID($ProdID, $MultiProductSumQtyArr);
+                                        $temparrayUpdate['ProductID']=intval($res_prod['ProductID']);
+                                        $temparrayUpdate['Qty']=intval($res_prod['Qty']);
+                                        $temparrayUpdate['Reason']='';
+                                        $temparrayUpdate['oldQty']=$oldQty;
+
+                                    }else{
+                                        //delete Prod
+                                        $temparrayUpdate['ProductID']=$ProdID;
+                                        $temparrayUpdate['Qty']=$OldProduct['Qty'];
+                                        $temparrayUpdate['Reason']='delete_prodstock';
+                                        $temparrayUpdate['oldQty']=$oldQty;
+                                    }
+                                    $temparrayUpdate['CompanyID']=$companyID;
+                                    $temparrayUpdate['InvoiceID']=$id;
+                                    $temparrayUpdate['InvoiceNumber']=$InvoiceNo;
+                                    $temparrayUpdate['created_by']=User::get_user_full_name();
+                                    array_push($StockHistoryUpdate,$temparrayUpdate);
+                                }
+                            }
+
+                            if(!empty($StockHistoryUpdate)){
+                                $historyData=stockHistoryUpdateCalculations($StockHistoryUpdate);
+                            }
+
+                            //End Stock History Maintain
+
                             DB::connection('sqlsrv2')->commit();
-                            return Response::json(array("status" => "success", "message" => "Invoice Successfully Updated", 'LastID' => $Invoice->InvoiceID));
+                            $message='';
+                            if(!empty($historyData)){
+                                foreach($historyData as $msg){
+                                    $message.=$msg;
+                                    $message.="\n";
+                                }
+                            }
+                            return Response::json(array("status" => "success","warning"=>$message, "message" => "Invoice Successfully Updated", 'LastID' => $Invoice->InvoiceID));
                         } else {
                             DB::connection('sqlsrv2')->rollback();
                             return Response::json(array("status" => "failed", "message" => "Problem Updating Invoice."));
@@ -1314,7 +1455,7 @@ class InvoicesController extends \BaseController {
 			    $max_file_size				=	get_max_file_size();	
 				 
 				if(!empty($Subject) && !empty($Message)){
-					$from	 = $templateData->EmailFrom;	
+					$from	 = $templateData->EmailFrom;
 					return View::make('invoices.email', compact('Invoice', 'Account', 'Subject','Message','CompanyName','from','response_extensions','max_file_size'));
 				}
 				return Response::json(["status" => "failure", "message" => "Subject or message is empty"]);
@@ -1400,7 +1541,15 @@ class InvoicesController extends \BaseController {
 						$data['InvoiceURL']		=   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email='.$singleemail);
 						$body					=	EmailsTemplates::ReplaceEmail($singleemail,$postdata['Message']);
 						$data['Subject']		=	$postdata['Subject'];
-						
+                        $InvoiceBillingClass =	 Invoice::GetInvoiceBillingClass($Invoice);
+
+                        $invoicePdfSend = CompanySetting::getKeyVal('invoicePdfSend');
+                        if($invoicePdfSend!='Invalid Key' && $invoicePdfSend && !empty($Invoice->PDF) ){
+                            $data['AttachmentPaths']= array([
+                                "filename"=>pathinfo($Invoice->PDF, PATHINFO_BASENAME),
+                                "filepath"=>$Invoice->PDF
+                            ]);
+                        }
 						if(isset($postdata['email_from']) && !empty($postdata['email_from']))
 						{
 							$data['EmailFrom']	=	$postdata['email_from'];	
@@ -1466,7 +1615,15 @@ class InvoicesController extends \BaseController {
             $data['InvoiceURL']		= 	URL::to('/invoice/'.$Invoice->InvoiceID.'/invoice_preview');
 			$body					=	$postdata['Message'];
 			$data['Subject']		=	$postdata['Subject'];
-			
+
+            $invoicePdfSend = CompanySetting::getKeyVal('invoicePdfSend');
+            if($invoicePdfSend!='Invalid Key' && $invoicePdfSend && !empty($Invoice->PDF) ){
+                $data['AttachmentPaths']= array([
+                        "filename"=>pathinfo($Invoice->PDF, PATHINFO_BASENAME),
+                    "filepath"=>$Invoice->PDF
+                ]);
+            }
+
 			if(isset($postdata['email_from']) && !empty($postdata['email_from']))
 			{
 				$data['EmailFrom']	=	$postdata['email_from'];	
@@ -1550,6 +1707,9 @@ class InvoicesController extends \BaseController {
             $InvoiceIDs =array_filter(explode(',',$data['InvoiceIDs']),'intval');
         }
         if (is_array($InvoiceIDs) && count($InvoiceIDs)) {
+                //Stock History Calculations Start
+                $this->StockHistoryCalculationByInvoiceStatus($data['InvoiceStatus'],$InvoiceIDs);
+                //Stock History Calculations End
 
             if (Invoice::whereIn('InvoiceID',$InvoiceIDs)->update([ 'ModifiedBy'=>$username,'InvoiceStatus' => $data['InvoiceStatus']])) {
                 $Extralognote = '';
@@ -1847,6 +2007,107 @@ class InvoicesController extends \BaseController {
                 return View::make('invoices.invoice_thanks', compact('Invoice'));
             }
         }
+    }
+    public function api_invoice_thanks($id){
+        $data = Input::all();
+
+        log::info('paypal log');
+        log::info(print_r($data,true));
+        /*
+        $data['mc_gross'] = '10.00';
+        $data['protection_eligibility'] = 'Eligible';
+        $data['address_status'] = 'confirmed';
+        $data['payer_id'] = 'RD3R6ZAKRY9FE';
+        $data['tax'] = '0.00';
+        $data['address_street'] = '1 Main St';
+        $data['payment_date'] = '05:41:07 Aug 06, 2018 PDT';
+        $data['payment_status'] = 'Completed';
+        $data['charset'] = 'utf-8';
+        $data['address_zip'] = '95131';
+        $data['first_name'] = 'Test';
+        $data['mc_fee'] = '0.59';
+        $data['address_country_code'] = 'US';
+        $data['address_name'] = 'Test User';
+        $data['notify_version'] = '3.9';
+        $data['custom'] = '5';
+        $data['payer_status'] = 'verified';
+        $data['business'] = 'vishal.jagani-facilitator@code-desk.com';
+        $data['address_country'] = 'United States';
+        $data['address_city'] = 'San Jose';
+        $data['quantity'] = '1';
+        $data['payer_email'] = 'devens_1212647640_per@yahoo.com';
+        $data['verify_sign'] = 'A3a-JHspcfFmwpElPB6mqlkSmHIUAnb4hxngI8JtHz9XHxXJIbHnqRHR';
+        $data['txn_id'] = '9GD55899ER875904A';
+        $data['payment_type'] = 'instant';
+        $data['last_name'] = 'User';
+        $data['address_state'] = 'CA';
+        $data['receiver_email'] = 'vishal.jagani-facilitator@code-desk.com';
+        $data['payment_fee'] = '0.59';
+        $data['receiver_id'] = 'P3KJJHVM8JVNL';
+        $data['txn_type'] = 'web_accept';
+        $data['item_name'] = 'Wavetel Ltd dev Local test account API Invoice';
+        $data['mc_currency'] = 'USD';
+        $data['item_number'] = '';
+        $data['residence_country'] = 'US';
+        $data['test_ipn'] = '1';
+        $data['handling_amount'] = '0.00';
+        $data['transaction_subject'] = '';
+        $data['payment_gross'] = '10.00';
+        $data['shipping'] = '0.00';
+        $data['auth'] = 'AEh45IkItw..cmGcPtOfY0a8Vrz0c55nwDg7b5WRTwuMw-NO-pp.BB8A6SmBkh7wRlyKbZvKEUD6QjuLVJIipFg'; */
+
+
+        $PaymentResponse =array();
+        if(isset($data["Success"])){
+            $PaymentResponse['PaymentMethod'] = $data["PaymentMethod"];
+            $PaymentResponse['transaction_notes'] = 'PayPal transaction_id '.$data["Transaction"];
+            $PaymentResponse['Amount'] = floatval($data["Amount"]);
+            $PaymentResponse['Transaction'] = $data["Transaction"];
+            $PaymentResponse['Response'] = $data["PaymentGatewayResponse"];
+            $PaymentResponse['status'] = 'success';
+        }elseif(!empty($data['tx'])){
+            $PaymentResponse['PaymentMethod'] = 'Paypal';
+            $PaymentResponse['transaction_notes'] = 'PayPal transaction_id '.$data['tx'];
+            $PaymentResponse['Amount'] = floatval($data["amt"]);
+            $PaymentResponse['Transaction'] = $data["tx"];
+            $PaymentResponse['Response'] = '';
+            $PaymentResponse['status'] = 'success';
+        }
+
+        $Alldata = array();
+        $Alldata['PaymentResponse'] = json_encode($PaymentResponse);
+        $Alldata['APIData'] =  Session::get('APIEncodeData');
+        //log::info(print_r($PaymentResponse,true));
+        //log::info(print_r($Alldata,true));
+        /*
+        if($PaymentResponse['status']=='failed'){
+            if(!empty($PaymentResponse['transaction_notes'])){
+                $message = $PaymentResponse['transaction_notes'];
+            }else{
+                $message = empty($PaymentResponse['message']) ? '' :$PaymentResponse['message'];
+            }
+            return Response::json(["status"=>"failed","message" => $message, "data"=>$PaymentResponse]);
+        }else{
+            return Response::json(["status"=>"success","message" => "Create Payment Successfully", "data"=>json_encode($Alldata)]);
+        }*/
+
+
+        log::info(print_r($Alldata,true));
+        log::info('api_invoice_thanks');
+        $RegistarionApiLogID = Session::get('RegistarionApiLogID');
+        log::info('R LogID '.$RegistarionApiLogID);
+        $RegistarionApiLogUpdate = array();
+        if(!empty($RegistarionApiLogID)){
+            $RegistarionApiLogUpdate['PaymentAmount'] = empty($PaymentResponse['Amount']) ? 0 : $PaymentResponse['Amount'];
+            $RegistarionApiLogUpdate['PaymentResponse'] = json_encode($PaymentResponse);
+            $RegistarionApiLogUpdate['PaymentStatus'] = 'success';
+            DB::table('tblRegistarionApiLog')->where('RegistarionApiLogID', $RegistarionApiLogID)->update($RegistarionApiLogUpdate);
+        }
+        //log::info(json_decode($data['data'],true));
+        //$customdata = json_encode(json_decode($Alldata,true));
+        $customdata = json_encode($Alldata);
+        //$customdata=$data['data'];
+        return View::make('neonregistartion.api_invoice_creditcard_thanks', compact('data','customdata'));
     }
     public function generate(){
         $CompanyID = User::get_companyID();
@@ -2208,7 +2469,13 @@ class InvoicesController extends \BaseController {
         else{
             unset($data['criteria']);
         }
-        $data['type'] = 'journal';
+        //$data['type'] = 'journal';
+        if($data['type'] == 'journal'){
+            $msgtype = 'Journal';
+        }
+        else{
+            $msgtype = 'Invoice';
+        }
         $CompanyID = User::get_companyID();
         $InvoiceIDs =array_filter(explode(',',$data['InvoiceIDs']),'intval');
         if (is_array($InvoiceIDs) && count($InvoiceIDs)) {
@@ -2226,12 +2493,109 @@ class InvoicesController extends \BaseController {
             $jobdata["updated_at"] = date('Y-m-d H:i:s');
             $JobID = Job::insertGetId($jobdata);
             if($JobID){
-                return json_encode(["status" => "success", "message" => "Invoice Post in quickbook Job Added in queue to process.You will be notified once job is completed."]);
+                return json_encode(["status" => "success", "message" => $msgtype." Post in quickbook Job Added in queue to process.You will be notified once job is completed."]);
             }else{
-                return json_encode(array("status" => "failed", "message" => "Problem Creating Invoice Post in Quickbook ."));
+                return json_encode(array("status" => "failed", "message" => "Problem Creating ".$msgtype." Post in Quickbook ."));
             }
         }
 
+    }
+    public function invoice_quickbookexport(){
+        $data = Input::all();
+        $InvoiceIDs = $data['InvoiceIDs'];
+        //$data['type'] = 'journal';
+        $CompanyID = User::get_companyID();
+        //$InvoiceIDs =array_filter(explode(',',$data['InvoiceIDs']),'intval');
+
+        Log::useFiles(storage_path() . '/logs/quickbook_invoiceexport-' . $CompanyID . '-' . date('Y-m-d') . '.log');
+
+        try {
+            if (isset($InvoiceIDs)) {
+
+                $InvoiceIDs = explode(',',$InvoiceIDs);
+                $InvoiceAccounts = array();
+                $InvoiceItems = array();
+                if(count($InvoiceIDs) > 0){
+                    foreach ($InvoiceIDs as $InvoiceID) {
+                        $Invoice = Invoice::find($InvoiceID);
+                        $AccountID = $Invoice->AccountID;
+                        $InvoiceAccounts['AccountID'][] = $AccountID;
+                    }
+                }
+
+                $invoiceOptions = array();
+                $invoiceOptions['CompanyID'] = $CompanyID;
+                $invoiceOptions['Invoices'] = $InvoiceIDs;
+
+                $InvoiceObject = new Invoice();
+                $InvoiceObject->ExportInvoices($invoiceOptions);
+            }
+        }
+        catch (\Exception $e) {
+
+            Log::info(' ========================== Exception occured =============================');
+            Log::error($e);
+            echo "<pre>";print_r($e);
+            Log::info(' ========================== Exception updated in job and email sent =============================');
+
+        }
+    }
+
+    public function journal_quickbookdexport(){
+        $data = Input::all();
+        $InvoiceIDs = $data['InvoiceIDs'];
+        //$data['type'] = 'journal';
+        $CompanyID = User::get_companyID();
+        //$InvoiceIDs =array_filter(explode(',',$data['InvoiceIDs']),'intval');
+
+        Log::useFiles(storage_path() . '/logs/qbdesktop_journalexport-' . $CompanyID . '-' . date('Y-m-d') . '.log');
+
+        try {
+            if (isset($InvoiceIDs)) {
+
+                $InvoiceIDs = explode(',',$InvoiceIDs);
+
+                $invoiceOptions = array();
+                $invoiceOptions['CompanyID'] = $CompanyID;
+                $invoiceOptions['Invoices'] = $InvoiceIDs;
+
+                $InvoiceObject = new Invoice();
+                $Invoices = $InvoiceObject->ExportJournals($invoiceOptions);
+                if($Invoices['status'] == 'success')
+                {
+                    return Response::json(array("status" => "success", "message" => $Invoices['msg'],"redirect" => $Invoices['redirect']));
+                }
+                else{
+                    return Response::json(array("status" => "failed", "message" => $Invoices['msg']));
+                }
+            }
+        }
+        catch (\Exception $e) {
+
+            Log::info(' ========================== Exception occured =============================');
+            Log::error($e);
+            Log::info(' ========================== Exception updated in Journal Export =============================');
+            return Response::json(array("status" => "failed", "message" => $e));
+
+        }
+    }
+
+    public function journal_quickbookdexport_download(){
+        $file = $_REQUEST['file'];
+        if (file_exists($file)) {
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename='.basename($file));
+            header('Content-Transfer-Encoding: binary');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            header('Pragma: public');
+            header('Content-Length: ' . filesize($file));
+            ob_clean();
+            flush();
+            readfile($file);
+            exit;
+        }
     }
 
     public function paypal_cancel($id){
@@ -2995,4 +3359,210 @@ class InvoicesController extends \BaseController {
             return View::make('invoices.invoice_chart', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode','ManagementReports','CurrencySymbol','RoundChargesAmount'));
         }
     }
+
+    /**api paypal */
+    /** Paypal ipn url which will be triggered from paypal with payment status and response
+     * @param $id
+     * @return mixed
+     */
+    public function api_paypal_ipn($id)
+    {
+
+        //@TODO: need to merge all payment gateway payment insert entry.
+
+        $CompanyID=$id;
+        $paypal = new PaypalIpn($CompanyID);
+
+        $data["Notes"]                  = $paypal->get_note();
+        $data["Success"]                = $paypal->success();
+        $data["PaymentMethod"]          = $paypal->method;
+        $data["Amount"]                 = $paypal->get_response_var('mc_gross');
+        $data["Transaction"]            = $paypal->get_response_var('txn_id');
+        $data["PaymentGatewayResponse"] = $paypal->get_full_response();
+
+        log::info('api_paypal_ipn');
+        log::info(print_r($data,true));
+        return Response::json(array("status" => "success", "message" => "Invoice paid successfully","data"=>$data));
+        /*
+
+        $account_inv = explode('-', $id);
+        if (isset($account_inv[0]) && intval($account_inv[0]) > 0 && isset($account_inv[1]) && intval($account_inv[1]) >= 0) {
+            $AccountID = intval($account_inv[0]);
+            $InvoiceID = intval($account_inv[1]);
+
+            if($InvoiceID!=0){
+                $Invoice = Invoice::find($InvoiceID);
+                $CompanyID = $Invoice->CompanyID;
+            }else{
+                if(isset($account_inv[2])){
+                    $Invoice = Invoice::where(array('FullInvoiceNumber'=>$account_inv[2],'AccountID'=>$AccountID))->first();
+                    if(!empty($Invoice) && count($Invoice)){
+                        $CompanyID = $Invoice->CompanyID;
+                        $InvoiceID = $Invoice->InvoiceID;
+                    }
+                }
+            }
+            if(!isset($CompanyID)){
+                $account = Account::find($AccountID);
+                $CompanyID = $account->CompanyId;
+            }
+
+            $paypal = new PaypalIpn($CompanyID);
+
+            $data["Notes"]                  = $paypal->get_note();
+            $data["Success"]                = $paypal->success();
+            $data["PaymentMethod"]          = $paypal->method;
+            $data["Amount"]                 = $paypal->get_response_var('mc_gross');
+            $data["Transaction"]            = $paypal->get_response_var('txn_id');
+            $data["PaymentGatewayResponse"] = $paypal->get_full_response();
+
+            return $this->post_payment_process($AccountID,$InvoiceID,$data);
+        }
+        */
+    }
+    public function api_invoice_creditcard_thanks(){
+        $data = Input::all();
+        log::info(print_r($data,true));
+        log::info('api_invoice_thanks');
+        //log::info(json_decode($data['data'],true));
+        $customdata = json_encode(json_decode($data['data'],true));
+        //$customdata=$data['data'];
+        return View::make('neonregistartion.api_invoice_creditcard_thanks', compact('data','customdata'));
+    }
+
+    public function api_paypal_cancel($id){
+        echo "<center>Opps. Payment Canceled, Please try again.</center>";
+    }
+
+    public function api_sagepay_ipn($CompanyID)
+    {
+
+        //https://sagepay.co.za/integration/sage-pay-integration-documents/pay-now-gateway-technical-guide/
+        $SagePay = new SagePay($CompanyID);
+
+        $data["Notes"]                  = $SagePay->get_note();
+        $data["Success"]                = $SagePay->success();
+        $data["PaymentMethod"]          = $SagePay->method;
+        $data["Amount"]                 = $SagePay->get_response_var('Amount');
+        $data["Transaction"]            = $SagePay->get_response_var('RequestTrace');
+        $data["PaymentGatewayResponse"] = $SagePay->get_full_response();
+
+        log::info('api_sagepay_ipn');
+        log::info(print_r($data,true));
+        return Response::json(array("status" => "success", "message" => "Invoice paid successfully","data"=>$data));
+
+    }
+
+    public function api_sagepay_return($id){
+        $data = Input::all();
+
+        log::info('sagepay log');
+        log::info(print_r($data,true));
+
+
+        $PaymentResponse =array();
+        if(isset($data["Success"])){
+            $PaymentResponse['PaymentMethod'] = $data["PaymentMethod"];
+            $PaymentResponse['transaction_notes'] = 'SagePay transaction_id '.$data["Transaction"];
+            $PaymentResponse['Amount'] = floatval($data["Amount"]);
+            $PaymentResponse['Transaction'] = $data["Transaction"];
+            $PaymentResponse['Response'] = $data["PaymentGatewayResponse"];
+            $PaymentResponse['status'] = 'success';
+        }elseif(!empty($data['tx'])){
+            $PaymentResponse['PaymentMethod'] = 'SagePay';
+            $PaymentResponse['transaction_notes'] = 'SagePay transaction_id '.$data['tx'];
+            $PaymentResponse['Amount'] = floatval($data["amt"]);
+            $PaymentResponse['Transaction'] = $data["tx"];
+            $PaymentResponse['Response'] = '';
+            $PaymentResponse['status'] = 'success';
+        }
+
+        $Alldata = array();
+        $Alldata['PaymentResponse'] = json_encode($PaymentResponse);
+        $Alldata['APIData'] =  Session::get('APIEncodeData');
+        //log::info(print_r($PaymentResponse,true));
+        log::info(print_r($Alldata,true));
+        log::info('api_invoice_thanks');
+        $RegistarionApiLogID = Session::get('RegistarionApiLogID');
+        log::info('R LogID '.$RegistarionApiLogID);
+        $RegistarionApiLogUpdate = array();
+        if(!empty($RegistarionApiLogID)){
+            $RegistarionApiLogUpdate['PaymentAmount'] = empty($PaymentResponse['Amount']) ? 0 : $PaymentResponse['Amount'];
+            $RegistarionApiLogUpdate['PaymentResponse'] = json_encode($PaymentResponse);
+            $RegistarionApiLogUpdate['PaymentStatus'] = 'success';
+            DB::table('tblRegistarionApiLog')->where('RegistarionApiLogID', $RegistarionApiLogID)->update($RegistarionApiLogUpdate);
+        }
+        //log::info(json_decode($data['data'],true));
+        //$customdata = json_encode(json_decode($Alldata,true));
+        $customdata = json_encode($Alldata);
+        //$customdata=$data['data'];
+        return View::make('neonregistartion.api_invoice_creditcard_thanks', compact('data','customdata'));
+    }
+
+    public function api_sagepay_declined($id) {
+        echo "<center>Payment declined, Go back and try again later.</center>";
+    }
+
+    public function StockHistoryCalculationByInvoiceStatus($InvoiceStatus,$InvoiceIDs){
+        foreach($InvoiceIDs as $InvoiceID){
+            $StockHistory=array();
+            if($InvoiceStatus == Invoice::CANCEL){
+                $Invoice=Invoice::where('InvoiceID',$InvoiceID)->first();
+                $InvoiceDetailData=InvoiceDetail::where(['InvoiceID'=>$InvoiceID])->get();
+                foreach($InvoiceDetailData as $InvoiceDetail) {
+                    $temparray=array();
+                    if($InvoiceDetail->ProductID >0 && $InvoiceDetail->Qty >0 ){
+                        $companyID = $Invoice->CompanyID;
+                        $reason='delete_prodstock';
+
+                        $temparray['CompanyID']=$companyID;
+                        $temparray['ProductID']=intval($InvoiceDetail->ProductID);
+                        $temparray['InvoiceID']=$InvoiceID;
+                        $temparray['Qty']=$InvoiceDetail->Qty;
+                        $temparray['Reason']=$reason;
+                        $temparray['InvoiceNumber']=$Invoice->FullInvoiceNumber;
+                        $temparray['oldQty']=$InvoiceDetail->Qty;
+                        $temparray['created_by']=User::get_user_full_name();
+
+                        array_push($StockHistory,$temparray);
+                    }
+                }
+                Log::info("===== StockHistory while Cancel Invoice ====");
+                Log::info($StockHistory);
+                if(!empty($StockHistory)){
+                    $historyData=stockHistoryUpdateCalculations($StockHistory);
+                }
+
+            }else{
+                $Invoice=Invoice::where('InvoiceID',$InvoiceID)->first();
+                if(!empty($Invoice) && $Invoice->InvoiceStatus==Invoice::CANCEL){
+                    $StockHistory=array();
+                    $InvoiceDetailData=InvoiceDetail::where(['InvoiceID'=>$InvoiceID])->get();
+                    foreach($InvoiceDetailData as $InvoiceDetail) {
+                        $temparray=array();
+                        if($InvoiceDetail->ProductID >0 && $InvoiceDetail->Qty >0 ){
+                            $companyID = User::get_companyID();
+
+                            $temparray['CompanyID']=$companyID;
+                            $temparray['ProductID']=intval($InvoiceDetail->ProductID);
+                            $temparray['InvoiceID']=$InvoiceID;
+                            $temparray['Qty']=$InvoiceDetail->Qty;
+                            $temparray['Reason']='';
+                            $temparray['InvoiceNumber']=$Invoice->FullInvoiceNumber;
+                            $temparray['created_by']=User::get_user_full_name();
+
+                            array_push($StockHistory,$temparray);
+                        }
+                    }
+                    Log::info("===== StockHistory while Change InvoiceStatus From Cancel ====");
+                    Log::info($StockHistory);
+                    if(!empty($StockHistory)){
+                        $historyData=StockHistoryCalculations($StockHistory);
+                    }
+
+                }
+            }
+        }
+    }
+
 }

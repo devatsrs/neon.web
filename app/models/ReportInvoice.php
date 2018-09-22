@@ -15,6 +15,17 @@ class ReportInvoice extends \Eloquent{
         'ServiceID' => 'tblInvoice.ServiceID',
         'Code' => 'tblProduct.Code',
         'CurrencyID' => 'tblInvoice.CurrencyID',
+        'BillingType' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.BillingType, "")',
+        'BillingClassID' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.BillingClassID, "")',
+        'BillingStartDate' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.BillingStartDate, "")',
+        'BillingCycleType' => "IF(tblAccountNextBilling.BillingCycleType!='', tblAccountNextBilling.BillingCycleType, IF(tblAccountBilling.BillingCycleType!='', tblAccountBilling.BillingCycleType, ''))",
+        'BillingCycleValue' => "IF(tblAccountNextBilling.BillingCycleValue!='', tblAccountNextBilling.BillingCycleValue, IF(tblAccountBilling.BillingCycleValue!='', tblAccountBilling.BillingCycleValue, ''))",
+        'LastInvoiceDate' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.LastInvoiceDate, "")',
+        'NextInvoiceDate' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.NextInvoiceDate, "")',
+        'LastChargeDate' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.LastChargeDate, "")',
+        'NextChargeDate' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.NextChargeDate, "")',
+        'IssueDate' => 'DATE_FORMAT(IssueDate,"%Y-%m-%d")',
+        'invoiceDueDate' => 'DATE_ADD(DATE_FORMAT(IssueDate,"%Y-%m-%d"), INTERVAL tblBillingClass.PaymentDueInDays DAY)',
     );
     public static $database_payment_columns = array(
         'year' => 'YEAR(PaymentDate)',
@@ -24,11 +35,15 @@ class ReportInvoice extends \Eloquent{
         'date' => 'DATE(PaymentDate)',
     );
 
+    public static $AccountBillingJoin = false;
+    public static $AccountNextBillingJoin = false;
     public static $InvoiceDetailJoin = false;
     public static $InvoiceTaxRateJoin = false;
     public static $AccountJoin = false;
     public static $ProductJoin = false;
+    public static $BillingClassJoin = false;
     public static $dateFilterString = array();
+    public static $invoiceDataFilterWhere = array();
 
     public static function generateQuery($CompanyID, $data, $filters){
         $select_columns = array();
@@ -109,6 +124,7 @@ class ReportInvoice extends \Eloquent{
             $orders_columns[]  = $colname;
 
         }
+
         if($setting_af_re['applylimit']) {
             foreach($orders_columns as $order_column) {
                 $final_query->orderby(DB::raw($order_column), $setting_af_re['order']);
@@ -125,33 +141,76 @@ class ReportInvoice extends \Eloquent{
         } else {
             $response['data'] = array();
         }
-
+        log::info($final_query->toSql());
 
         return $response;
     }
 
     public static function commonQuery($CompanyID, $data, $filters){
-        self::$dateFilterString = array();
+
+        $RMDB = Config::get('database.connections.sqlsrv.database');
+
+        self::$dateFilterString = self::$invoiceDataFilterWhere = array();
         $query_common = DB::connection('sqlsrv2')
             ->table('tblInvoice')
             ->where(['tblInvoice.CompanyID' => $CompanyID]);
 
-        if(in_array('TaxRateID',$data['column']) || in_array('TaxRateID',$data['row']) || in_array('TaxRateID',$data['filter'])){
+
+        if(in_array('BillingType',$data['column']) || in_array('BillingType',$data['row']) ||
+            in_array('BillingStartDate',$data['column']) || in_array('BillingStartDate',$data['row']) ||
+            in_array('BillingCycleType',$data['column']) || in_array('BillingCycleType',$data['row']) ||
+            in_array('BillingCycleValue',$data['column']) || in_array('BillingCycleValue',$data['row']) ||
+            in_array('BillingClassID',$data['column']) || in_array('BillingClassID',$data['row']) ||
+            in_array('LastInvoiceDate',$data['column']) || in_array('LastInvoiceDate',$data['row']) ||
+            in_array('NextInvoiceDate',$data['column']) || in_array('NextInvoiceDate',$data['row']) ||
+            in_array('LastChargeDate',$data['column']) || in_array('LastChargeDate',$data['row']) ||
+            in_array('NextChargeDate',$data['column']) || in_array('NextChargeDate',$data['row']) ||
+            in_array('invoiceDueDate',$data['column']) || in_array('invoiceDueDate',$data['row'])
+        ){
+            $query_common->leftjoin($RMDB.'.tblAccountBilling', function ($join) {
+                $join->on('tblAccountBilling.AccountID', '=', 'tblInvoice.AccountID')
+                    ->where('tblAccountBilling.ServiceID', '=', 0);
+            }
+            );
+            self::$AccountBillingJoin = true;
+        }
+        if( in_array('BillingCycleValue',$data['column']) || in_array('BillingCycleValue',$data['row']) ||
+            in_array('BillingCycleType',$data['column']) || in_array('BillingCycleType',$data['row']) ){
+            $query_common->leftjoin($RMDB.'.tblAccountNextBilling', function ($join) {
+                $join->on('tblAccountNextBilling.AccountID', '=', 'tblInvoice.AccountID')
+                    ->where('tblAccountNextBilling.ServiceID', '=', 0);
+            }
+            );
+            self::$AccountNextBillingJoin = true;
+        }
+
+        if( in_array('invoiceDueDate',$data['column']) || in_array('invoiceDueDate',$data['row']) ){
+            $query_common->leftjoin($RMDB.'.tblBillingClass', 'tblBillingClass.BillingClassID', '=', 'tblAccountBilling.BillingClassID');
+            self::$BillingClassJoin = true;
+        }
+
+        if(in_array('TaxRateID',$data['column']) || in_array('TaxRateID',$data['row']) || in_array('TaxRateID',$data['filter']) || in_array('TotalTax',$data['sum'])){
             $query_common->join('tblInvoiceTaxRate', 'tblInvoice.InvoiceID', '=', 'tblInvoiceTaxRate.InvoiceID');
+            $query_common->leftjoin('tblInvoiceDetail', 'tblInvoiceDetail.InvoiceDetailID', '=', 'tblInvoiceTaxRate.InvoiceDetailID');
             self::$InvoiceTaxRateJoin = true;
+           // self::$InvoiceDetailJoin = true;
+
         }
         if(in_array('ProductID',$data['column']) || in_array('ProductID',$data['row']) || in_array('ProductID',$data['filter']) || in_array('ProductType',$data['column']) || in_array('ProductType',$data['row']) || in_array('ProductType',$data['filter']) || in_array('SubscriptionID',$data['column']) || in_array('SubscriptionID',$data['row']) || in_array('SubscriptionID',$data['filter']) || in_array('Code',$data['column']) || in_array('Code',$data['row']) || in_array('Code',$data['filter'])){
             $query_common->join('tblInvoiceDetail', 'tblInvoice.InvoiceID', '=', 'tblInvoiceDetail.InvoiceID');
-            self::$InvoiceDetailJoin = true;
-            if(in_array('ProductID',$data['column']) || in_array('ProductID',$data['row']) || in_array('ProductID',$data['filter']) || in_array('Code',$data['column']) || in_array('Code',$data['row']) || in_array('Code',$data['filter'])){
-                $query_common->whereRaw(' ( tblInvoiceDetail.ProductType = '.Product::ITEM .' OR tblInvoiceDetail.ProductType ='.Product::ONEOFFCHARGE.')');
-                $query_common->join('tblProduct', 'tblProduct.ProductID', '=', 'tblInvoiceDetail.ProductID');
-                self::$ProductJoin = true;
-            }else if(in_array('SubscriptionID',$data['column']) || in_array('SubscriptionID',$data['row']) || in_array('SubscriptionID',$data['filter'])){
-                $query_common->whereRaw(' ( tblInvoiceDetail.ProductType = '.Product::SUBSCRIPTION.')');
+            if(!self::$InvoiceDetailJoin) {
+                self::$InvoiceDetailJoin = true;
+                if (in_array('ProductID', $data['column']) || in_array('ProductID', $data['row']) || in_array('ProductID', $data['filter']) || in_array('Code', $data['column']) || in_array('Code', $data['row']) || in_array('Code', $data['filter'])) {
+                    $query_common->whereRaw(' ( tblInvoiceDetail.ProductType = ' . Product::ITEM . ' OR tblInvoiceDetail.ProductType =' . Product::ONEOFFCHARGE . ')');
+                    $query_common->join('tblProduct', 'tblProduct.ProductID', '=', 'tblInvoiceDetail.ProductID');
+                    self::$ProductJoin = true;
+                } else if (in_array('SubscriptionID', $data['column']) || in_array('SubscriptionID', $data['row']) || in_array('SubscriptionID', $data['filter'])) {
+                    $query_common->whereRaw(' ( tblInvoiceDetail.ProductType = ' . Product::SUBSCRIPTION . ')');
+                }
             }
+
         }
-        $RMDB = Config::get('database.connections.sqlsrv.database');
+
         if(report_join($data)){
             $query_common->join($RMDB.'.tblAccount', 'tblInvoice.AccountID', '=', 'tblAccount.AccountID');
             self::$AccountJoin = true;
@@ -169,7 +228,10 @@ class ReportInvoice extends \Eloquent{
             }
             if(self::$InvoiceTaxRateJoin == false && in_array($key,array('TaxRateID'))){
                 $query_common->join('tblInvoiceTaxRate', 'tblInvoice.InvoiceID', '=', 'tblInvoiceTaxRate.InvoiceID');
-                self::$InvoiceTaxRateJoin = true;
+                if(!self::$InvoiceDetailJoin) {
+                    $query_common->leftjoin('tblInvoiceDetail', 'tblInvoiceDetail.InvoiceDetailID', '=', 'tblInvoiceTaxRate.InvoiceDetailID');
+                    self::$InvoiceTaxRateJoin = true;
+                }
             }
 
             if (!empty($filter[$key]) && is_array($filter[$key])) {
@@ -193,10 +255,12 @@ class ReportInvoice extends \Eloquent{
                 if (!empty($filter['start_date'])) {
                     $query_common->where('IssueDate', '>=', str_replace('*', '%', $filter['start_date']));
                     self::$dateFilterString[] = 'PaymentDate >= "'. str_replace('*', '%', $filter['start_date']).'"';
+                    self::$invoiceDataFilterWhere[] = 'IssueDate'. '>="'. str_replace('*', '%', $filter['start_date']).'"';
                 }
                 if (!empty($filter['end_date'])) {
                     $query_common->where('IssueDate', '<=', str_replace('*', '%', $filter['end_date']));
                     self::$dateFilterString[] = 'PaymentDate <= "'. str_replace('*', '%', $filter['end_date']).'"';
+                    self::$invoiceDataFilterWhere[] = 'IssueDate'. '<="'. str_replace('*', '%', $filter['end_date']).'"';
                 }
             }else if (!empty($filter['wildcard_match_val']) && in_array($key, array('year', 'quarter_of_year','month','week_of_year'))) {
                 $query_common->whereRaw(self::$database_columns[$key].' like "'.str_replace('*', '%', $filter['wildcard_match_val']).'"');
@@ -259,10 +323,13 @@ class ReportInvoice extends \Eloquent{
         }else if($colname == 'OutStanding'){
             $extra_query = !empty(self::$dateFilterString)?implode(' AND ',self::$dateFilterString):' 1=1 ';
             $measure_name = "(SUM(tblInvoice.GrandTotal) - (SELECT SUM(Amount) FROM tblPayment WHERE ( FIND_IN_SET(tblPayment.InvoiceID,group_concat(tblInvoice.InvoiceID)) OR (tblPayment.InvoiceID =0 ".$extra_query_3." AND ".$extra_query.")) AND $extra_query_2 AND Status='Approved' AND Recall = '0'))";
-        }else if(self::$InvoiceTaxRateJoin == false && in_array($colname,array('TotalTax'))){
-            $measure_name = "SUM(tblInvoice." . $colname . ")";
+        }else if(self::$InvoiceTaxRateJoin == true && in_array($colname,array('TotalTax'))){
+            $measure_name = "SUM(tblInvoiceTaxRate.TaxAmount)";
         }else if(self::$InvoiceDetailJoin == false && in_array($colname,array('GrandTotal'))){
             $measure_name = "SUM(tblInvoice." . $colname . ")";
+        }else if(self::$InvoiceDetailJoin == false && in_array($colname,array('SubTotal'))){
+            //$measure_name = "SUM(tblInvoice." . $colname . ")";
+            $measure_name = "IFNULL(SUM(tblInvoiceDetail.LineTotal),SUM(tblInvoice.".$colname."))";
         }
         return $measure_name ;
     }

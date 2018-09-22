@@ -102,6 +102,11 @@
                         {{ Form::select('Trunk', $trunks, $trunk_keys, array("class"=>"select2")) }}
                     </div>
 
+                    <label class="col-sm-1 control-label">Timezone</label>
+                    <div class="col-sm-3">
+                        {{ Form::select('Timezones', $Timezones, '', array("class"=>"select2")) }}
+                    </div>
+
                 </div>
                 <p style="text-align: right;">
                     <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
@@ -155,8 +160,9 @@ jQuery(document).ready(function($) {
         $searchFilter.Trunk = Trunk = $("#vendor-rate-search select[name='Trunk']").val();
         $searchFilter.Country = Country = $("#vendor-rate-search select[name='Country']").val();
         $searchFilter.Code = Code = $("#vendor-rate-search input[name='Code']").val();
-        $searchFilter.Description = Description = $("#vendor-rate-search input[name='Description']").val();
+        $searchFilter.Timezones = Timezones = $("#vendor-rate-search select[name='Timezones']").val();
 
+        $searchFilter.Description = Description = $("#vendor-rate-search input[name='Description']").val();
         if(Trunk == '' || typeof Trunk  == 'undefined'){
            toastr.error("Please Select a Trunk", "Error", toastr_opts);
            return false;
@@ -167,9 +173,9 @@ jQuery(document).ready(function($) {
             "bServerSide": true,
             "sAjaxSource": baseurl + "/vendor_rates/{{$id}}/search_ajax_datagrid_preference/type",
             "fnServerParams": function(aoData) {
-                aoData.push( {"name": "Trunk", "value": Trunk}, {"name": "Country", "value": Country}, {"name": "Code", "value": Code}, {"name": "Description", "value": Description});
+                aoData.push( {"name": "Trunk", "value": Trunk}, {"name": "Country", "value": Country}, {"name": "Code", "value": Code}, {"name": "Description", "value": Description}, {"name": "Timezones", "value": Timezones});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push(  {"name": "Trunk", "value": Trunk}, {"name": "Country", "value": Country},  {"name": "Code", "value": Code}, {"name": "Description", "value": Description},{"name":"Export","value":1});
+                data_table_extra_params.push(  {"name": "Trunk", "value": Trunk}, {"name": "Country", "value": Country},  {"name": "Code", "value": Code}, {"name": "Description", "value": Description}, {"name": "Timezones", "value": Timezones},{"name":"Export","value":1});
             },
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",

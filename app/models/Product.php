@@ -29,7 +29,8 @@ class Product extends \Eloquent {
 
     static public function checkForeignKeyById($id) {
         $hasAccountApprovalList = InvoiceDetail::where("ProductID",$id)->count();
-        if( intval($hasAccountApprovalList) > 0){
+        $Code=Product::where("ProductID",$id)->pluck('Code');
+        if( intval($hasAccountApprovalList) > 0 && $Code!='topup'){
             return true;
         }else{
             return false;
@@ -49,7 +50,7 @@ class Product extends \Eloquent {
             }else{
                 $Where = ["CompanyId"=>$CompanyID,"AppliedTo"=>$AppliedTo];
             }
-            self::$cache['product_dropdown1_cache'] = Product::where($Where)->where("Active",1)->lists('Name','ProductID');
+            self::$cache['product_dropdown1_cache'] = Product::where($Where)->where("Active",1)->orderby('Name')->lists('Name','ProductID');
             Cache::forever('product_dropdown1_cache', array('product_dropdown1_cache' => self::$cache['product_dropdown1_cache']));
         }
         $list = array();
@@ -97,6 +98,15 @@ class Product extends \Eloquent {
 
         Cache::flush("product_dropdown1_cache");
 
+    }
+
+    public static function getProductByItemType($data=array()){
+        $dataarr=array();
+        $query="CALL prc_getProductsByItemType(".$data['CompanyID'].",'".$data['ItemType']."',".$data['PageNumber'].",".$data['RowsPage'].",'".$data['Name']."','".$data['Description']."')";
+        //$result  = DB::connection('sqlsrv2')->select($query);
+        $result = DataTableSql::of($query,'sqlsrv2')->make(false);
+        //$dataarr = json_decode(json_encode($result),true);
+        return $result;
     }
 
 }

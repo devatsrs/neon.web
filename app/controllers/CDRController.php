@@ -307,6 +307,41 @@ class CDRController extends BaseController {
             return array("status" => "failed", "message" => "Job Insertion Error");
         }
     }
+    public function rate_vendorcdr(){
+
+        $data = Input::all();
+        $CompanyID = User::get_companyID();
+        $histdata = array();
+        $rules = array(
+            'CompanyGatewayID' => 'required',
+        );
+        if($data['RateMethod'] == 'SpecifyRate') {
+            $rules['SpecifyRate'] = 'required|numeric';
+        }
+
+        $validator = Validator::make($data, $rules);
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+        $jobType = JobType::where(["Code" => 'RCV'])->get(["JobTypeID", "Title"]);
+        $jobStatus = JobStatus::where(["Code" => "P"])->get(["JobStatusID"]);
+        $histdata['CompanyID'] = $jobdata["CompanyID"] = $CompanyID;
+        $jobdata["JobTypeID"] = isset($jobType[0]->JobTypeID) ? $jobType[0]->JobTypeID : '';
+        $jobdata["JobStatusID"] = isset($jobStatus[0]->JobStatusID) ? $jobStatus[0]->JobStatusID : '';
+        $jobdata["JobLoggedUserID"] = User::get_userID();
+        $jobdata["Title"] = (isset($jobType[0]->Title) ? $jobType[0]->Title : '');
+        $jobdata["Description"] = isset($jobType[0]->Title) ? $jobType[0]->Title : '';
+        $histdata['CreatedBy'] = $jobdata["CreatedBy"] = User::get_user_full_name();
+        $jobdata["Options"] = json_encode($data);
+        $jobdata["created_at"] = date('Y-m-d H:i:s');
+        $jobdata["updated_at"] = date('Y-m-d H:i:s');
+        $JobID = Job::insertGetId($jobdata);
+        if ($JobID) {
+            return array("status" => "success", "message" => "Job Logged Successfully");
+        } else {
+            return array("status" => "failed", "message" => "Job Insertion Error");
+        }
+    }
     public function ajaxfilegrid(){
         try {
             $data = Input::all();
@@ -327,7 +362,7 @@ class CDRController extends BaseController {
         }
     }
     public function storeTemplate() {
-        $data = Input::all();
+        $data = json_decode(str_replace('Skip loading','',json_encode(Input::all(),true)),true);//Input::all();
         $CompanyID = User::get_companyID();
         if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
             $rules = array('TemplateName' => 'required|unique:tblFileUploadTemplate,Title,'.$data['FileUploadTemplateID'].',FileUploadTemplateID',
@@ -387,8 +422,8 @@ class CDRController extends BaseController {
         $save = ['CompanyID'=>$CompanyID,'Title'=>$data['TemplateName'],'TemplateFile'=>$amazonPath.$file_name];
         $save['created_by'] = User::get_user_full_name();
         $option["option"]= $data['option'];//['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
-        $option["selection"] = $data['selection'];//['connect_time'=>$data['connect_time'],'disconnect_time'=>$data['disconnect_time'],'billed_duration'=>$data['billed_duration'],'duration'=>$data['duration'],'cld'=>$data['cld'],'cli'=>$data['cli'],'Account'=>$data['Account'],'cost'=>$data['cost']];
-        $save['Options'] = json_encode($option);
+        $option["selection"] = filterArrayRemoveNewLines($data['selection']);//['connect_time'=>$data['connect_time'],'disconnect_time'=>$data['disconnect_time'],'billed_duration'=>$data['billed_duration'],'duration'=>$data['duration'],'cld'=>$data['cld'],'cli'=>$data['cli'],'Account'=>$data['Account'],'cost'=>$data['cost']];
+        $save['Options'] = str_replace('Skip loading','',json_encode($option));//json_encode($option);
         $save['FileUploadTemplateTypeID'] = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_CDR);
         if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
             $template = FileUploadTemplate::find($data['FileUploadTemplateID']);
@@ -555,7 +590,7 @@ class CDRController extends BaseController {
     public function vendorcdr_upload() {
         $companyID = User::get_companyID();
         $gateway = CompanyGateway::getCompanyGatewayIdList($companyID);
-        $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_VENDORCDR);
+        $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_VENDORCDR));
         $trunks = Trunk::getTrunkDropdownIDList($companyID);
         $trunks = $trunks+array(0=>'Find From VendorPrefix');
         return View::make('cdrupload.vendorcdrupload',compact('dashboardData','account','gateway','UploadTemplate','trunks'));
@@ -614,7 +649,7 @@ class CDRController extends BaseController {
         }
     }
     public function storeVendorTemplate() {
-        $data = Input::all();
+        $data = json_decode(str_replace('Skip loading','',json_encode(Input::all(),true)),true);//Input::all();
         $CompanyID = User::get_companyID();
         if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
             $rules = array('TemplateName' => 'required|unique:tblFileUploadTemplate,Title,'.$data['FileUploadTemplateID'].',FileUploadTemplateID',
@@ -643,8 +678,8 @@ class CDRController extends BaseController {
         $save = ['CompanyID'=>$CompanyID,'Title'=>$data['TemplateName'],'TemplateFile'=>$amazonPath.$file_name];
         $save['created_by'] = User::get_user_full_name();
         $option["option"]= $data['option'];//['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
-        $option["selection"] = $data['selection'];//['connect_time'=>$data['connect_time'],'disconnect_time'=>$data['disconnect_time'],'billed_duration'=>$data['billed_duration'],'duration'=>$data['duration'],'cld'=>$data['cld'],'cli'=>$data['cli'],'Account'=>$data['Account'],'cost'=>$data['cost']];
-        $save['Options'] = json_encode($option);
+        $option["selection"] = filterArrayRemoveNewLines($data['selection']);//['connect_time'=>$data['connect_time'],'disconnect_time'=>$data['disconnect_time'],'billed_duration'=>$data['billed_duration'],'duration'=>$data['duration'],'cld'=>$data['cld'],'cli'=>$data['cli'],'Account'=>$data['Account'],'cost'=>$data['cost']];
+        $save['Options'] = str_replace('Skip loading','',json_encode($option));//json_encode($option);
         $save['FileUploadTemplateTypeID'] = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_VENDORCDR);
         if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
             $template = FileUploadTemplate::find($data['FileUploadTemplateID']);

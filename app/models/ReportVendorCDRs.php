@@ -11,10 +11,21 @@ class ReportVendorCDRs extends \Eloquent{
         'date' => 'DATE(StartDate)',
         'hour' => 'HOUR(connect_time)',
         'minute' => 'MINUTE(connect_time)',
+        'BillingType' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.BillingType, "")',
+        'BillingClassID' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.BillingClassID, "")',
+        'BillingStartDate' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.BillingStartDate, "")',
+        'BillingCycleType' => "IF(tblAccountNextBilling.BillingCycleType!='', tblAccountNextBilling.BillingCycleType, IF(tblAccountBilling.BillingCycleType!='', tblAccountBilling.BillingCycleType, ''))",
+        'BillingCycleValue' => "IF(tblAccountNextBilling.BillingCycleValue!='', tblAccountNextBilling.BillingCycleValue, IF(tblAccountBilling.BillingCycleValue!='', tblAccountBilling.BillingCycleValue, ''))",
+        'LastInvoiceDate' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.LastInvoiceDate, "")',
+        'NextInvoiceDate' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.NextInvoiceDate, "")',
+        'LastChargeDate' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.LastChargeDate, "")',
+        'NextChargeDate' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.NextChargeDate, "")',
     );
     public static  $AccountJoin = false;
     public static  $CodeJoin = false;
     public static  $DetailTable = 'tblVendorCDR';
+    public static  $AccountBillingJoin = false;
+    public static  $AccountNextBillingJoin = false;
 
     public static function generateSummaryQuery($CompanyID, $data, $filters){
         $setting_ag = isset($data['setting_ag'])?json_decode($data['setting_ag'],true):array();
@@ -102,6 +113,34 @@ class ReportVendorCDRs extends \Eloquent{
             $query_common->join($RMDB.'.tblAccount', 'tblVendorCDRHeader.AccountID', '=', 'tblAccount.AccountID');
             self::$AccountJoin = true;
         }
+
+        if(in_array('BillingType',$data['column']) || in_array('BillingType',$data['row']) ||
+            in_array('BillingStartDate',$data['column']) || in_array('BillingStartDate',$data['row']) ||
+            in_array('BillingCycleType',$data['column']) || in_array('BillingCycleType',$data['row']) ||
+            in_array('BillingCycleValue',$data['column']) || in_array('BillingCycleValue',$data['row']) ||
+            in_array('BillingClassID',$data['column']) || in_array('BillingClassID',$data['row']) ||
+            in_array('LastInvoiceDate',$data['column']) || in_array('LastInvoiceDate',$data['row']) ||
+            in_array('NextInvoiceDate',$data['column']) || in_array('NextInvoiceDate',$data['row']) ||
+            in_array('LastChargeDate',$data['column']) || in_array('LastChargeDate',$data['row']) ||
+            in_array('NextChargeDate',$data['column']) || in_array('NextChargeDate',$data['row'])
+        ){
+            $query_common->leftjoin($RMDB.'.tblAccountBilling', function ($join) {
+                $join->on('tblAccountBilling.AccountID', '=', 'tblAccount.AccountID')
+                    ->where('tblAccountBilling.ServiceID', '=', 0);
+            }
+            );
+            self::$AccountBillingJoin = true;
+        }
+        if( in_array('BillingCycleValue',$data['column']) || in_array('BillingCycleValue',$data['row']) ||
+            in_array('BillingCycleType',$data['column']) || in_array('BillingCycleType',$data['row']) ){
+            $query_common->leftjoin($RMDB.'.tblAccountNextBilling', function ($join) {
+                $join->on('tblAccountNextBilling.AccountID', '=', 'tblAccount.AccountID')
+                    ->where('tblAccountNextBilling.ServiceID', '=', 0);
+            }
+            );
+            self::$AccountNextBillingJoin = true;
+        }
+
         if(in_array('DestinationBreak',$data['column']) || in_array('DestinationBreak',$data['row']) || in_array('DestinationBreak',$data['filter']) || in_array('CountryID',$data['column']) || in_array('CountryID',$data['row']) || in_array('CountryID',$data['filter'])){
             $DefaultCodedeck = BaseCodeDeck::where(["CompanyID"=>$CompanyID,"DefaultCodedeck"=>1])->pluck("CodeDeckId");
             $query_common->join($RMDB.'.tblRate', 'tblRate.Code', '=', self::$DetailTable.'.area_prefix');

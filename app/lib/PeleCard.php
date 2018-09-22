@@ -51,11 +51,11 @@ class PeleCard {
     public function doValidation($data){
         $ValidationResponse = array();
         $rules = array(
-            'CardNumber' => 'required|digits_between:13,19',
+            'CardNumber' => 'required|digits_between:9,19',
             'ExpirationMonth' => 'required',
             'ExpirationYear' => 'required',
             'NameOnCard' => 'required',
-            'CVVNumber' => 'required',
+            //'CVVNumber' => 'required',
             //'Title' => 'required|unique:tblAutorizeCardDetail,NULL,CreditCardID,CompanyID,'.$CompanyID
         );
 
@@ -74,12 +74,12 @@ class PeleCard {
             $ValidationResponse['message'] = "Month must be after " . date("F");
             return $ValidationResponse;
         }
-        $card = CreditCard::validCreditCard($data['CardNumber']);
+        /*$card = CreditCard::validCreditCard($data['CardNumber']);
         if ($card['valid'] == 0) {
             $ValidationResponse['status'] = 'failed';
             $ValidationResponse['message'] = "Please enter valid card number";
             return $ValidationResponse;
-        }
+        }*/
 
         $ValidationResponse['status'] = 'success';
         return $ValidationResponse;
@@ -121,6 +121,7 @@ class PeleCard {
         $pelecarddata['AccountID']      = $data['AccountID'];
         $pelecarddata['Token']          = $PeleCardObj->Token;
         $pelecarddata['CVVNumber']      = $PeleCardObj->CVVNumber;
+        $pelecarddata['PeleCardID']     = !empty($PeleCardObj->PeleCardID) ? $PeleCardObj->PeleCardID : '';
 
         $transactionResponse = array();
 
@@ -211,7 +212,7 @@ class PeleCard {
                 'total'                 => str_replace(',','',str_replace('.','',$data['GrandTotal'])),
                 'currency'              => $currency,
                 'cvv2'                  => $data['CVVNumber'],
-                'id'                    => $data['AccountID'],
+                'id'                    => $data['PeleCardID'],//$data['AccountID'],
                 'authorizationNumber'   => "",
                 'paramX'                => $data['InvoiceNumber']
             );
@@ -246,6 +247,72 @@ class PeleCard {
         return $response;
     }
 
+    public function payInvoiceWithApi($data){
+        try {
+            $InvoiceCurrency    = Currency::getCurrency($data['CurrencyId']);
+            $currency           = "1";
+
+            if(strtolower($InvoiceCurrency) != "ils") {
+                if(strtolower($InvoiceCurrency) == "usd") {
+                    $currency   = "2";
+                } else if(strtolower($InvoiceCurrency) == "eur") {
+                    $currency   = "978";
+                } else if(strtolower($InvoiceCurrency) == "gbp") {
+                    $currency   = "286";
+                } else {
+                    $currency   = "0";
+                }
+            }
+
+            $token              = "";
+            $creditCard         = $data['CardNumber'];
+            $creditCardDateMmYy = $data['ExpirationMonth'].substr($data['ExpirationYear'], -2);
+
+            $postdata = array(
+                'terminalNumber'        => $this->terminalNumber,
+                'user'                  => $this->user,
+                'password'              => $this->password,
+                'shopNumber'            => "001",
+                'creditCard'            => $creditCard,
+                'creditCardDateMmYy'    => $creditCardDateMmYy,
+                'token'                 => $token,
+                'total'                 => str_replace(',','',str_replace('.','',$data['GrandTotal'])),
+                'currency'              => $currency,
+                'cvv2'                  => $data['CVVNumber'],
+                'id'                    => $data['PeleCardID'],//$data['AccountID'],
+                'authorizationNumber'   => "",
+                'paramX'                => $data['InvoiceNumber']
+            );
+            $jsonData = json_encode($postdata);
+
+            try {
+                $res = $this->sendCurlRequest($this->PeleCardUrl,$jsonData);
+            } catch (\Guzzle\Http\Exception\CurlException $e) {
+                log::info($e->getMessage());
+                $response['status']         = 'fail';
+                $response['error']          = $e->getMessage();
+            }
+
+            if(!empty($res['StatusCode']) && $res['StatusCode']=='000'){
+                $response['status']         = 'success';
+                $response['note']           = 'PeleCard transaction_id '.$res['ResultData']['PelecardTransactionId'];
+                $response['transaction_id'] = $res['ResultData']['PelecardTransactionId'];
+                $response['amount']         = $data['GrandTotal'];
+                $response['response']       = $res;
+            }else{
+                $response['status']         = 'fail';
+                $response['transaction_id'] = !empty($res['ResultData']['PelecardTransactionId']) ? $res['ResultData']['PelecardTransactionId'] : "";
+                $response['error']          = $res['ErrorMessage'];
+                $response['response']       = $res;
+                Log::info(print_r($res,true));
+            }
+        } catch (Exception $e) {
+            log::info($e->getMessage());
+            $response['status']             = 'fail';
+            $response['error']              = $e->getMessage();
+        }
+        return $response;
+    }
 
     public function createProfile($data){
         $CustomerID         = $data['AccountID'];
@@ -266,7 +333,7 @@ class PeleCard {
         $PeleCardResponse = $this->createPeleCardProfile($data);
         if ($PeleCardResponse["status"] == "success") {
             $option = array(
-                'Token' => $PeleCardResponse['Token'],'VoucherId' => $PeleCardResponse['VoucherId'],'CVVNumber' => $data['CVVNumber']
+                'Token' => $PeleCardResponse['Token'],'VoucherId' => $PeleCardResponse['VoucherId'],'CVVNumber' => $data['CVVNumber'],'PeleCardID' => $data['PeleCardID']
             );
             $CardDetail = array('Title' => $data['Title'],
                 'Options' => json_encode($option),
@@ -408,6 +475,28 @@ class PeleCard {
         $result = curl_exec($ch);
         $res = json_decode($result, true);
         return $res;
+    }
+
+    public function paymentValidateWithApiCreditCard($data){
+        return $this->doValidation($data);
+    }
+
+    public function paymentWithApiCreditCard($data){
+        $PeleCardResponse = $this->payInvoiceWithApi($data);
+        $Response = array();
+        if($PeleCardResponse['status']=='success') {
+            $Response['PaymentMethod']      = 'CREDIT CARD';
+            $Response['transaction_notes']  = $PeleCardResponse['note'];
+            $Response['Amount']             = floatval($PeleCardResponse['amount']);
+            $Response['Transaction']        = $PeleCardResponse['transaction_id'];
+            $Response['Response']           = $PeleCardResponse['response'];
+            $Response['status']             = 'success';
+        }else{
+            $Response['transaction_notes']  = $PeleCardResponse['error'];
+            $Response['status']             = 'failed';
+            $Response['Response']           = $PeleCardResponse['response'];
+        }
+        return $Response;
     }
 
 }

@@ -20,6 +20,7 @@ class Payment extends \Eloquent {
         'MasterCard'=>'MasterCard',
         'Visa'=>'Visa',
         "JCB"=>"JCB",
+        'IsraCard'=>'IsraCard',
     );
     public static $account_holder_type = array(
         'individual'=>'individual',
@@ -57,6 +58,7 @@ class Payment extends \Eloquent {
             'MasterCard'=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_MASTERCARD"),
             'Visa'=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_VISA"),
             "JCB"=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_JCB"),
+            "IsraCard"=>cus_lang("PAGE_PAYMENT_FIELD_CREDIT_CARD_TYPE_DDL_ISRACARD"),
         );
     }
 
@@ -447,10 +449,8 @@ class Payment extends \Eloquent {
             if(!empty($EmailTemplate) && isset($EmailTemplate->Status) && $EmailTemplate->Status == 1 ){
                 $paymentdata['EmailTemplate'] = $EmailTemplate;
                 $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);
-                if(empty($Invoice)){
-                    $paymentdata['Invoice'] = $Invoice;
-                    Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$paymentdata);
-                }
+                $paymentdata['Invoice'] = $Invoice;
+                Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$paymentdata);
             }
         }else{
             $companyID = $paymentdata['CompanyID'];
@@ -515,5 +515,32 @@ class Payment extends \Eloquent {
         $transactiondata['ModifyBy'] = $data['CreatedBy'];
         $transactiondata['Response'] = json_encode($data['Response']);
         TransactionLog::insert($transactiondata);
+    }
+
+    public static function paymentList(){
+        $paymentsType = array();
+        $CompanyID = User::get_companyID();
+        if(is_authorize($CompanyID)){
+            $paymentsType["AuthorizeNet"]="AuthorizeNet";
+        }
+        if(is_Stripe($CompanyID)){
+            $paymentsType["Stripe"]="Stripe";
+        }
+        if(is_FideliPay($CompanyID)){
+            $paymentsType["FideliPay"]="FideliPay";
+        }
+        if(is_StripeACH($CompanyID)){
+           // $paymentsType["StripeACH"]="StripeACH";
+        }
+        if(is_paypal($CompanyID)){
+            $paymentsType["Paypal"]="Paypal";
+        }
+        if(is_sagepay($CompanyID)){
+            $paymentsType["SagePay"]="SagePay";
+        }
+        if(is_pelecard($CompanyID)){
+            $paymentsType["PeleCard"]="PeleCard";
+        }
+        return $paymentsType;
     }
 }

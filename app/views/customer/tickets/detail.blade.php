@@ -25,14 +25,18 @@
   
     <div class="mail-header"> 
       <!-- title -->
-      <div class="mail-title">{{$ticketdata->Subject}} #{{$ticketdata->TicketID}}</div>
+      <div class="mail-title">{{emailHeaderDecode($ticketdata->Subject)}} #{{$ticketdata->TicketID}}</div>
       <div class="mail-date">
       @if(!empty($ticketemaildata->Cc))@lang('routes.MAIL_LBL_CC') {{$ticketemaildata->Cc}}<br>@endif @if(!empty($ticketemaildata->Bcc))@lang('routes.MAIL_LBL_BCC'){{$ticketemaildata->Bcc}}<br>@endif
        {{\Carbon\Carbon::createFromTimeStamp(strtotime($ticketdata->created_at))->diffForHumans()}}</div>
       <!-- links --> 
     </div>   
      <?php $attachments = unserialize($ticketdata->AttachmentPaths); ?> 
-     <div class="mail-text @if(count($attachments)<1 || strlen($ticketdata->AttachmentPaths)<1) last_data  @endif "> {{$ticketdata->Description}} </div>
+     <div class="mail-text @if(count($attachments)<1 || strlen($ticketdata->AttachmentPaths)<1) last_data  @endif ">
+		 <div class="embed-responsive embed-responsive-4by3 ticketBody" style="display: none;">
+		 	{{htmlentities($ticketdata->Description)}}
+		 </div>
+	 </div>
     @if(count($attachments)>0 && strlen($ticketdata->AttachmentPaths)>0)
     <div class="mail-attachments last_data">
       <h4> <i class="entypo-attach"></i> @lang('routes.MAIL_LBL_ATTACHMENTS') <span>({{count($attachments)}})</span> </h4>
@@ -83,7 +87,10 @@
       </div>
       
       <!-- panel body -->
-      <div @if($loop>4) style="display:none;" @endif class="panel-body"> {{$TicketConversationData->EmailMessage}}
+      <div @if($loop>4) style="display:none;" @endif class="panel-body">
+		  <div class="embed-responsive embed-responsive-4by3 ticketBody" style="display: none;">
+		  	{{htmlentities($TicketConversationData->EmailMessage)}}
+		  </div>
         <?php $attachments = unserialize($TicketConversationData->AttachmentPaths);  ?>
         @if(count($attachments)>0 && strlen($TicketConversationData->AttachmentPaths)>0)
         <div class="mail-attachments last_data">
@@ -239,7 +246,14 @@ var max_file_size	  	=	    '{{str_replace("M","",$max_file_size)}}';
 var emailFileListReply 	=		[];
 var CloseStatus			=		'{{$CloseStatus}}';
 $(document).ready(function(e) {	
-	
+	$('.ticketBody').each(function(){
+		var iFrame = $('<iframe class="embed-responsive-item" frameborder="0" allowfullscreen></iframe>');
+		var ticketBodyHtml = $(this).html();
+		$(this).html("").append(iFrame).show();
+		var iFrameDoc = iFrame[0].contentDocument || iFrame[0].contentWindow.document;
+		iFrameDoc.write($("<textarea/>").html(ticketBodyHtml).val());
+		iFrameDoc.close();
+	});
 	$( document ).on("click",'.email_action' ,function(e) {			
 		var url 		    = 	  baseurl + '/customer/tickets/ticket_action';
 		var action_type     =     $(this).attr('action_type');

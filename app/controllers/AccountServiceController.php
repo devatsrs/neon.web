@@ -35,8 +35,8 @@ class AccountServiceController extends \BaseController {
         $AccountBilling =  AccountBilling::getBilling($id,$ServiceID);
         $AccountNextBilling =  AccountNextBilling::getBilling($id,$ServiceID);
 
-        $DiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::OUTBOUND,'ServiceID'=>$ServiceID))->pluck('DiscountPlanID');
-        $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::INBOUND,'ServiceID'=>$ServiceID))->pluck('DiscountPlanID');
+        $DiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::OUTBOUND,'ServiceID'=>$ServiceID,'AccountSubscriptionID'=>0))->pluck('DiscountPlanID');
+        $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::INBOUND,'ServiceID'=>$ServiceID,'AccountSubscriptionID'=>0))->pluck('DiscountPlanID');
 
         $ServiceTitle = AccountService::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->pluck('ServiceTitle');
         $ServiceDescription = AccountService::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->pluck('ServiceDescription');
@@ -112,6 +112,7 @@ class AccountServiceController extends \BaseController {
 
             $date = date('Y-m-d H:i:s');
             $data['Billing'] = isset($data['Billing']) ? 1 : 0;
+            $data['ServiceBilling'] = isset($data['ServiceBilling']) ? 1 : 0;
             $CompanyID = User::get_companyID();
             if(empty($data['ServiceTitleShow'])){
                 if(empty($data['ServiceDescription'])){
@@ -119,12 +120,14 @@ class AccountServiceController extends \BaseController {
                 }
             }
 
-            if(!empty($data['BillingStartDate']) || !empty($data['BillingCycleType']) || !empty($data['BillingCycleValue']) || !empty($data['BillingClassID'])){
-                AccountService::$rules['BillingCycleType'] = 'required';
-                AccountService::$rules['BillingStartDate'] = 'required';
-                AccountService::$rules['BillingClassID'] = 'required';
-                if(isset($data['BillingCycleValue'])){
-                    AccountService::$rules['BillingCycleValue'] = 'required';
+            if($data['ServiceBilling'] == 1) {
+                if (!empty($data['BillingStartDate']) || !empty($data['BillingCycleType']) || !empty($data['BillingCycleValue']) || !empty($data['BillingClassID'])) {
+                    AccountService::$rules['BillingCycleType'] = 'required';
+                    AccountService::$rules['BillingStartDate'] = 'required';
+                    AccountService::$rules['BillingClassID'] = 'required';
+                    if (isset($data['BillingCycleValue'])) {
+                        AccountService::$rules['BillingCycleValue'] = 'required';
+                    }
                 }
             }
 
@@ -140,29 +143,41 @@ class AccountServiceController extends \BaseController {
             //billing
             //$invoice_count = Account::getInvoiceCount($AccountID);
             $invoice_count = 0;
-            if($invoice_count == 0){
+            if($invoice_count == 0 && $data['ServiceBilling'] == 1){
                 $data['LastInvoiceDate'] = $data['BillingStartDate'];
+                $data['LastChargeDate'] = $data['BillingStartDate'];
+                if($data['BillingStartDate']==$data['NextInvoiceDate']){
+                    $data['NextChargeDate']=$data['BillingStartDate'];
+                }else{
+                    $data['NextChargeDate'] = date('Y-m-d', strtotime('-1 day', strtotime($data['NextInvoiceDate'])));;
+                }
             }
 
-            if(!empty($data['BillingStartDate']) || !empty($data['BillingCycleType']) || !empty($data['BillingCycleValue'])  || !empty($data['BillingClassID'])){
-                if($data['NextInvoiceDate']<$data['LastInvoiceDate']){
-                    return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
+            $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'), 0);
+
+            if($data['ServiceBilling'] == 1) {
+                if (!empty($data['BillingStartDate']) || !empty($data['BillingCycleType']) || !empty($data['BillingCycleValue']) || !empty($data['BillingClassID'])) {
+                    if ($data['NextInvoiceDate'] < $data['LastInvoiceDate']) {
+                        return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
+                    }
+                    if ($data['NextChargeDate'] < $data['LastChargeDate']) {
+                        return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
+                    }
+                    AccountBilling::insertUpdateBilling($AccountID, $data, $ServiceID, $invoice_count);
+                    AccountBilling::storeFirstTimeInvoicePeriod($AccountID, $ServiceID);
+                    $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'), $ServiceID);
                 }
-                if($data['NextChargeDate']<$data['LastChargeDate']){
-                    return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
-                }
-                AccountBilling::insertUpdateBilling($AccountID, $data,$ServiceID,$invoice_count);
-                AccountBilling::storeFirstTimeInvoicePeriod($AccountID,$ServiceID);
-                $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'),$ServiceID);
-            }else{
-                $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'),0);
             }
             if(!empty($AccountPeriod)) {
                 $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
                 $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
                 $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
-                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID);
-                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID);
+                $AccountSubscriptionID = 0;
+                $AccountName='';
+                $AccountCLI='';
+                $SubscriptionDiscountPlanID=0;
+                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
             }
 
 

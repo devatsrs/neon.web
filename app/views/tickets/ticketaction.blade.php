@@ -41,16 +41,28 @@
         </div>
       <div class="form-group">
         <label for="EmailActionSubject">* Subject:</label>
-        <input type="text"  class="form-control" name="Subject" id="EmailActionSubject" value="@if($action_type!='forward') RE: @else FW:  @endif {{imap_mime_header_decode($response_data['Subject'])[0]->text}}" />
+
+        {{--<input type="text"  class="form-control" name="Subject" id="EmailActionSubject" value="@if($action_type!='forward') RE: @else FW:  @endif {{htmlentities(imap_mime_header_decode($response_data['Subject'])[0]->text)}}" />--}}
+
+        <input type="text"  class="form-control" name="Subject" id="EmailActionSubject" value="@if($action_type!='forward') RE: @else FW:  @endif {{htmlentities(emailHeaderDecode($response_data['Subject']))}}" />
+
       </div>
       <div class="form-group">
         <label for="EmailActionbody">* Message:</label>
-        <textarea name="Message" id="EmailActionbody" class="form-control autogrow editor-email message"   style="height: 175px; overflow: hidden; word-wrap: break-word; resize: none;"> @if($action_type!='forward')<br><br><br> On <?php echo date('M d, Y,',strtotime($response_data['created_at'])).' at '.date('H:i A, ',strtotime($response_data['created_at'])); echo $response_data['Requester']; ?> wrote: <br>
-  @else <br><br><br> ---------- Forwarded message ----------<br>
-From: <?php $AccountEmail; ?><br>
-Subject: <?php echo $response_data['Subject']; ?>....<br>
-Date: <?php echo date('M d, Y,',strtotime($response_data['created_at'])).' at '.date('H:i A, ',strtotime($response_data['created_at'])); ?><br>
-@endif{{$conversation}}</textarea>
+        <textarea name="Message" id="EmailActionbody" class="form-control autogrow editor-email message"   style="height: 175px; overflow: hidden; word-wrap: break-word; resize: none;">
+            @if(!empty($EmailFooter))
+            {{"<br><br><br>".$EmailFooter}}
+            @endif
+            @if($action_type!='forward')
+                <br><br><br> On <?php echo date('M d, Y,',strtotime($response_data['created_at'])).' at '.date('H:i A, ',strtotime($response_data['created_at'])); echo $response_data['Requester']; ?> wrote: <br>
+            @else
+                <br><br><br> ---------- Forwarded message ----------<br>
+                From: <?php $AccountEmail; ?><br>
+                Subject: <?php echo $response_data['Subject']; ?>....<br>
+                Date: <?php echo date('M d, Y,',strtotime($response_data['created_at'])).' at '.date('H:i A, ',strtotime($response_data['created_at'])); ?><br>
+            @endif
+                {{$conversation}}
+        </textarea>
       </div>
       <p class="comment-box-options-activity"> <a id="addReplyTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)"> <i class="entypo-attach"></i> </a> </p>
       <div class="form-group email_attachment">
@@ -63,7 +75,17 @@ Date: <?php echo date('M d, Y,',strtotime($response_data['created_at'])).' at '.
 </div>
 <div class="modal-footer">
   <input type="hidden" name="TicketParent" id="TicketParent" value="{{$parent_id}}" />
-  <button type="submit" id="EmailAction-edit"  class="save btn btn-primary btn-send-mail btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Send </button>
+    <div class="btn-group">
+        <button type="button" class="btn btn-primary TicketStatus btn-sm btn-send-mail" data-status-id="">Send</button>
+        <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split btn-sm btn-send-mail" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
+            @foreach($ticketStatusArr as $statusId=>$status)
+                <li> <a href="javascript:;" class="TicketStatus" data-status-id="{{$statusId}}"> {{$status}}</a> </li>
+            @endforeach
+        </ul>
+    </div>
   <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
 </div>
 <script>
@@ -78,6 +100,11 @@ Date: <?php echo date('M d, Y,',strtotime($response_data['created_at'])).' at '.
 	 emailFileListReply.push(img_array_final[i].filename);	
  }
 	@endif
+
+	$(".TicketStatus").click(function () {
+        var TicketStatus = $(this).attr("data-status-id");
+        sumbitReplyTicket(TicketStatus);
+    });
 	
 	
 </script>

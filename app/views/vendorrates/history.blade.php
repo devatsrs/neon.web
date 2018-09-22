@@ -11,10 +11,10 @@
         {{customer_dropbox($id,["IsVendor"=>1])}}
     </li>
     <li class="active">
-        <strong>Customer Rate Sheet Upload/Download History</strong>
+        <strong>Vendor Rate Sheet History</strong>
     </li>
 </ol>
-<h3>Vendor Rate Sheet Upload/Download History</h3>
+<h3>Vendor Rate Sheet History</h3>
 
 @include('accounts.errormessage')
 <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->

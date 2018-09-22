@@ -193,4 +193,56 @@ class NeonAPI{
         }
         return $filesArray;
     }
+
+    public static function RegisterApiLogin($data){
+        try{
+            if(!Auth::attempt(array('EmailAddress' => $data['EmailAddress'], 'password' => $data['password'] ,'Status'=> 1 ))){
+                return false;
+            }
+            $ReturnData=array();
+            $user = User::where(['EmailAddress'=>$data['EmailAddress'],'Status'=>1])->first();
+            $ReturnData['UserID']=$user->UserID;
+            $ReturnData['CompanyID']=$user->CompanyID;
+            $ReturnData['FirstName']=$user->FirstName;
+            $ReturnData['LastName']=$user->LastName;
+            $ReturnData['EmailAddress']=$user->EmailAddress;
+            $ReturnData['Roles']=$user->Roles;
+            $ReturnData['AccountingUser']=$user->Roles;
+
+            Log::info(print_r($user,true));
+            User::find($user->UserID)->update(['LastLoginDate' => date('Y-m-d H:i:s')]);
+            return $ReturnData;
+        }catch(Exception $e){
+            Log::info("RegisterApiLogin ".$e->getMessage());
+            return false;
+        }
+
+
+    }
+
+    public static function getLicenceResponse($request){
+        $license  = $request->only('LicenceKey','CompanyName');
+        $license['LicenceHost'] = $request->getHttpHost();
+        $license['LicenceIP'] = $request->getClientIp();
+        $licenseCacheKey = 'LicenceApiResponse' . $license['LicenceKey'];
+        Log::info("getLicenceResponse");
+        Log::info($license);
+        if (!Cache::has($licenseCacheKey)) {
+            $LicenceApiResponse = Company::ValidateApiLicenceKey($license);
+            if (!empty($LicenceApiResponse)) {
+                if ($LicenceApiResponse['Status'] != 1) {
+                    return $LicenceApiResponse;
+                }
+                Cache::forever($licenseCacheKey, $LicenceApiResponse);
+            } else {
+                $LicenceApiResponse['Status'] = 0;
+                $LicenceApiResponse['Message'] = 'Some thing wrong with license';
+            }
+        }else{
+            $LicenceApiResponse = Cache::get($licenseCacheKey);
+        }
+        return $LicenceApiResponse;
+    }
+
+
 }

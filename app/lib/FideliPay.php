@@ -284,7 +284,8 @@ class FideliPay {
                 $response['status'] = 'success';
                 $response['transaction_id'] = $res->RefNum;
                 $response['note'] = 'FideliPay transaction_id '.$res->RefNum;
-                $Amount = ($res->AuthAmount);
+                //$Amount = ($res->AuthAmount);
+                $Amount = $data['GrandTotal'];
                 $response['amount'] = $Amount;
                 $response['response'] = $res;
             }else{
@@ -465,4 +466,24 @@ class FideliPay {
         return $response;
     }
 
+    public function paymentValidateWithApiCreditCard($data){
+        return $this->doValidation($data);
+    }
+    public function paymentWithApiCreditCard($data){
+        $FideliPayResponse = $this->pay_invoice($data);
+        $Response = array();
+        if($FideliPayResponse['status']=='success') {
+            $Response['PaymentMethod'] = 'CREDIT CARD';
+            $Response['transaction_notes'] = $FideliPayResponse['note'];
+            $Response['Amount'] = floatval($FideliPayResponse['amount']);
+            $Response['Transaction'] = $FideliPayResponse['transaction_id'];
+            $Response['Response'] = $FideliPayResponse['response'];
+            $Response['status'] = 'success';
+        }else{
+            $Response['transaction_notes'] = $FideliPayResponse['error'];
+            $Response['status'] = 'failed';
+            $Response['Response']='';
+        }
+        return $Response;
+    }
 }

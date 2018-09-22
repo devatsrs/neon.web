@@ -270,7 +270,33 @@
 		    var tax_final  = 	parseFloat(TaxAmount1+TaxAmount2);
 		   
            $('#oneofcharge-form [name="TaxAmount"]').val(tax_final.toFixed(parseInt(decimal_places)));
-           submit_ajax_datatable(_url,$(this).serialize(),0,data_table_char);
+           //submit_ajax_datatable(_url,$(this).serialize(),0,data_table_char);
+           $.ajax({
+               url:_url, //Server script to process data
+               type: 'POST',
+               dataType: 'json',
+               success: function(response) {
+                   $(".btn").button('reset');
+                   if (response.status == 'success') {
+                       if(typeof response.warning != 'undefined' && response.warning != '') {
+                           toastr.warning(response.warning, "Error", toastr_opts);
+                       }
+                       $('.modal').modal('hide');
+                       toastr.success(response.message, "Success", toastr_opts);
+                       if( typeof data_table_char !=  'undefined'){
+                           data_table_char.fnFilter('', 0);
+                       }
+
+                   } else {
+                       toastr.error(response.message, "Error", toastr_opts);
+                   }
+
+               },
+               data: $(this).serialize(),
+               //Options to tell jQuery not to process data or worry about content-type.
+               cache: false
+           });
+
            //data_table_char.fnFilter('', 0);
        });
 	   
@@ -316,7 +342,23 @@
             $('#oneofcharge-form').find('[name="Price"]').val(total);
         }
 
+        $(document).on("keypress",".Qty",function (event) {
+            return isDecimal(event, this)
+        });
+
     });
+
+    function isDecimal(evt, element) {
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (
+                //(charCode != 45 || $(element).val().indexOf('-') != -1) &&      // “-” CHECK MINUS, AND ONLY ONE.
+        (charCode != 46 || $(element).val().indexOf('.') != -1) &&      // “.” CHECK DOT, AND ONLY ONE.
+        (charCode < 48 || charCode > 57)
+        ) {
+            return false;
+        }
+        return true;
+    }
 </script>
 <!--@include('includes.ajax_data_grid')-->
 @section('footer_ext')
@@ -355,7 +397,7 @@
                         <div class="col-md-12">
                         <div class="form-group">
                             <label for="field-5" class="control-label">Qty</label>
-                            <input type="text" name="Qty" class="form-control" value="1" data-mask="decimal" data-min="1" />
+                            <input type="text" name="Qty" class="form-control Qty" value="1" data-min="1" />
                         </div>
                     </div>
                     </div>

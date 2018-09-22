@@ -21,6 +21,7 @@ class AccountBilling extends \Eloquent {
         'NextChargeDate'=>'NextChargeDate',
         'BillingClassID'=>'BillingClassID',
         'ServiceID'=>'ServiceID',
+        'AutoPayMethod'=>'AutoPayMethod',
 
     ];
 
@@ -30,89 +31,96 @@ class AccountBilling extends \Eloquent {
 
         static::created(function($obj)
         {
-            log::info('AccountBilling Create Boot');
-            $customer=Session::get('customer');
-            /* 0= user, 1=customer */
-            $UserType = 0;
-            if($customer==1){
-                $UserType = 1;
-            }
-            $UserID = User::get_userID();
-            $CompanyID = User::get_companyID();
-            $IP = get_client_ip();
-            $header = ["UserID"=>$UserID,
-                "CompanyID"=>$CompanyID,
-                "ParentColumnName"=>'AccountBillingID',
-                "Type"=>'accountbilling',
-                "IP"=>$IP,
-                "UserType"=>$UserType
-            ];
-            $detail = array();
-            log::info('--Account Billing create start--');
-            foreach($obj->attributes as $index=>$value){
-                if(array_key_exists($index,AccountBilling::$defaultAccountAuditFields)) {
-                    $data = ['OldValue'=>'',
-                        'NewValue'=>$obj->attributes[$index],
-                        'ColumnName'=>$index,
-                        'ParentColumnID'=>$obj->attributes['AccountBillingID']
-                    ];
-                    $detail[]=$data;
+            if(!Auth::guest()) {
+                log::info('AccountBilling Create Boot');
+                $customer = Session::get('customer');
+                /* 0= user, 1=customer */
+                $UserType = 0;
+                if ($customer == 1) {
+                    $UserType = 1;
                 }
+                $UserID = User::get_userID();
+                $CompanyID = User::get_companyID();
+                $IP = get_client_ip();
+                $header = ["UserID" => $UserID,
+                    "CompanyID" => $CompanyID,
+                    "ParentColumnName" => 'AccountBillingID',
+                    "Type" => 'accountbilling',
+                    "IP" => $IP,
+                    "UserType" => $UserType
+                ];
+                $detail = array();
+                log::info('--Account Billing create start--');
+                foreach ($obj->attributes as $index => $value) {
+                    if (array_key_exists($index, AccountBilling::$defaultAccountAuditFields)) {
+                        $data = ['OldValue' => '',
+                            'NewValue' => $obj->attributes[$index],
+                            'ColumnName' => $index,
+                            'ParentColumnID' => $obj->attributes['AccountBillingID']
+                        ];
+                        $detail[] = $data;
+                    }
+                }
+                Log::info('start');
+                Log::info(print_r($header, true));
+                Log::info(print_r($detail, true));
+                AuditHeader::add_AuditLog($header, $detail);
+                Log::info('end');
+                log::info('--Account Billing create end--');
             }
-            Log::info('start');
-            Log::info(print_r($header,true));
-            Log::info(print_r($detail,true));
-            AuditHeader::add_AuditLog($header,$detail);
-            Log::info('end');
-            log::info('--Account Billing create end--');
 
         });
 
 
         static::updated(function($obj) {
-            log::info('AccountBilling Update Boot');
-            $customer=Session::get('customer');
-            /* 0= user, 1=customer */
-            $UserType = 1;
-            if($customer==1){
-                $UserType = 0;
-            }
-            $UserID = User::get_userID();
-            $CompanyID = User::get_companyID();
-            $IP = get_client_ip();
-            $header = ["UserID"=>$UserID,
-                "CompanyID"=>$CompanyID,
-                "ParentColumnName"=>'AccountBillingID',
-                "Type"=>'accountbilling',
-                "IP"=>$IP,
-                "UserType"=>$UserType
-            ];
-            $detail = array();
-            log::info('--Account Billing update start--');
-            foreach($obj->original as $index=>$value){
-                if(array_key_exists($index,AccountBilling::$defaultAccountAuditFields)) {
-                    if($obj->attributes[$index] != $value){
-                        $data = ['OldValue'=>$obj->original[$index],
-                            'NewValue'=>$obj->attributes[$index],
-                            'ColumnName'=>$index,
-                            'ParentColumnID'=>$obj->original['AccountBillingID']
-                        ];
-                        $detail[]=$data;
+            if(!Auth::guest()) {
+                log::info('AccountBilling Update Boot');
+                $customer = Session::get('customer');
+                /* 0= user, 1=customer */
+                $UserType = 1;
+                if ($customer == 1) {
+                    $UserType = 0;
+                }
+                $UserID = User::get_userID();
+                $CompanyID = User::get_companyID();
+                $IP = get_client_ip();
+                $header = ["UserID" => $UserID,
+                    "CompanyID" => $CompanyID,
+                    "ParentColumnName" => 'AccountBillingID',
+                    "Type" => 'accountbilling',
+                    "IP" => $IP,
+                    "UserType" => $UserType
+                ];
+                $detail = array();
+                log::info('--Account Billing update start--');
+                foreach ($obj->original as $index => $value) {
+                    if (array_key_exists($index, AccountBilling::$defaultAccountAuditFields)) {
+                        if ($obj->attributes[$index] != $value) {
+                            $data = ['OldValue' => $obj->original[$index],
+                                'NewValue' => $obj->attributes[$index],
+                                'ColumnName' => $index,
+                                'ParentColumnID' => $obj->original['AccountBillingID']
+                            ];
+                            $detail[] = $data;
+                        }
                     }
                 }
+                Log::info('start');
+                Log::info(print_r($header, true));
+                Log::info(print_r($detail, true));
+                AuditHeader::add_AuditLog($header, $detail);
+                Log::info('end');
+                log::info('--Account Billing update end--');
             }
-            Log::info('start');
-            Log::info(print_r($header,true));
-            Log::info(print_r($detail,true));
-            AuditHeader::add_AuditLog($header,$detail);
-            Log::info('end');
-            log::info('--Account Billing update end--');
         });
     }
 
     public static function insertUpdateBilling($AccountID,$data=array(),$ServiceID,$invoice_count=0){
         if(empty($ServiceID)){
             $ServiceID=0;
+        }
+        if(empty($data['ServiceBilling'])){
+            $data['ServiceBilling']=0;
         }
         if(AccountBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->count() == 0) {
 
@@ -132,6 +140,12 @@ class AccountBilling extends \Eloquent {
 
             if (!empty($data['AutoPaymentSetting'])) {
                 $AccountBilling['AutoPaymentSetting'] = $data['AutoPaymentSetting'];
+            }
+            if (!empty($data['AutoPayMethod'])) {
+                $AccountBilling['AutoPayMethod'] = $data['AutoPayMethod'];
+            }
+            else{
+                $AccountBilling['AutoPayMethod'] = 0;
             }
 
             if (!empty($data['BillingStartDate'])) {
@@ -173,6 +187,7 @@ class AccountBilling extends \Eloquent {
             }
             $AccountBilling['AccountID'] = $AccountID;
             $AccountBilling['ServiceID'] = $ServiceID;
+            $AccountBilling['ServiceBilling'] = $data['ServiceBilling'];
             AccountBilling::create($AccountBilling);
         }else{
             $AccountBillingObj =  AccountBilling::getBilling($AccountID,$ServiceID);
@@ -241,6 +256,13 @@ class AccountBilling extends \Eloquent {
             if (!empty($data['AutoPaymentSetting'])) {
                 $AccountBilling['AutoPaymentSetting'] = $data['AutoPaymentSetting'];
             }
+            if (!empty($data['AutoPayMethod'])) {
+                $AccountBilling['AutoPayMethod'] = $data['AutoPayMethod'];
+            }
+            else{
+                $AccountBilling['AutoPayMethod'] = 0;
+            }
+            $AccountBilling['ServiceBilling'] = $data['ServiceBilling'];
             if(!empty($AccountBilling)){
                 $AccountBillingID=AccountBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->pluck('AccountBillingID');
                 $UpdateAccountBilling = AccountBilling::find($AccountBillingID);

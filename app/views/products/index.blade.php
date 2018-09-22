@@ -10,6 +10,10 @@
             </h2>
             <form id="product_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
                 <div class="form-group">
+                    <label for="field-5" class="control-label">Item Type </label>
+                    {{Form::select('ItemTypeID',$itemtypes,'',array("class"=>"form-control select2 small"))}}
+                </div>
+                <div class="form-group">
                     <label for="field-1" class="control-label">Name</label>
                     {{ Form::text('Name', '', array("class"=>"form-control")) }}
                 </div>
@@ -63,16 +67,24 @@
                                 @if(User::checkCategoryPermission('Products','Edit'))
                                     <li class="li_active">
                                         <a class="type_active_deactive" type_ad="active" href="javascript:void(0);" >
-                                            <i class="fa fa-plus-circle"></i>
+                                            <i class=""></i>
                                             <span>Activate</span>
                                         </a>
                                     </li>
                                     <li class="li_deactive">
                                         <a class="type_active_deactive" type_ad="deactive" href="javascript:void(0);" >
-                                            <i class="fa fa-minus-circle"></i>
+                                            <i class=""></i>
                                             <span>Deactivate</span>
                                         </a>
                                     </li>
+                                    @if(User::checkCategoryPermission('StockHistory','View'))
+                                    <li class="">
+                                        <a class="" href="{{  URL::to('products/stockhistory') }}" >
+                                            <i class=""></i>
+                                            <span>History</span>
+                                        </a>
+                                    </li>
+                                    @endif
                                 @endif
                             </ul>
                         </div><!-- /btn-group -->
@@ -88,20 +100,47 @@
                                     <i class="entypo-plus"></i>
                                     Add New
                                 </a>
+
+                                <div class="input-group-btn pull-right hidden dropdown" style="width:70px;margin-right:47px">
+                                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Manage Types <span class="caret"></span></button>
+                                        <ul class="dropdown-menu dropdown-menu-right" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;left:-42px;">
+                                            @if(User::checkCategoryPermission('ItemType','View'))
+                                                <li class="li_type">
+                                                    <a href="{{  URL::to('products/itemtypes') }}" id="manage-type" class="btn btn-primary pull-left">
+                                                        <i class=""></i>
+                                                        Manage Types
+                                                    </a>
+                                                </li>
+                                            @endif
+                                            @if(User::checkCategoryPermission('DynamicField','Edit'))
+                                                <li class="li_dynamic">
+                                                    <a class="btn btn-primary pull-left"  href="{{  URL::to('products/dynamicfields') }}" >
+                                                        <i class=""></i>
+                                                        <span>Manage Dynamic Fields</span>
+                                                    </a>
+                                                </li>
+                                            @endif
+                                        </ul>
+                                </div>
+                               
                             @endif
                         @endif
 
                     </div>
                     <div class="clear"></div>
                 </div>
+
             <br>
             <table class="table table-bordered datatable" id="table-4">
                 <thead>
                 <tr>
                     <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
-                    <th width="30%">Name</th>
+                    <th width="10%">Item Type</th>
+                    <th width="20%">Name</th>
                     <th width="10%">Code</th>
-                    <th width="10%">Unit Cost</th>
+                    <th width="5%">Buying Price</th>
+                    <th width="5%">Unit Cost</th>
+                    <th width="5%">Quantity</th>
                     <th width="20%">Last Updated</th>
                     <th width="10%">Active</th>
                     <th width="20%">Action</th>
@@ -112,7 +151,7 @@
             </table>
             <script type="text/javascript">
                 var checked = '';
-                var list_fields  = ['ProductID','Name','Code','Amount','updated_at','Active','Description','Note','AppliedTo'];
+                var list_fields  = ['ProductID','title','Name','Code','Buying_price','Amount','Quantity','updated_at','Active','Description','Note','AppliedTo','Low_stock_level','ItemTypeID'];
                 var $searchFilter = {};
                 var update_new_url;
                 var postdata;
@@ -121,6 +160,7 @@
                     $('#filter-button-toggle').show();
 
                     public_vars.$body = $("body");
+                    $searchFilter.ItemTypeID = $("#product_filter [name='ItemTypeID']").val();
                     $searchFilter.Name = $("#product_filter [name='Name']").val();
                     $searchFilter.Code = $("#product_filter [name='Code']").val();
                     $searchFilter.Active = $("#product_filter select[name='Active']").val();
@@ -132,13 +172,16 @@
                         "bServerSide": true,
                         "sAjaxSource": baseurl + "/products/ajax_datagrid/type",
                         "fnServerParams": function (aoData) {
-                            aoData.push({ "name": "Name", "value": $searchFilter.Name },
+                            aoData.push({ "name": "ItemTypeID", "value": $searchFilter.ItemTypeID },
+                                        { "name": "Name", "value": $searchFilter.Name },
                                         { "name": "Code","value": $searchFilter.Code },
+                                        { "name": "Low_stock_level","value": $searchFilter.Low_stock_level },
                                         { "name": "Active", "value": $searchFilter.Active },
                                         { "name": "AppliedTo", "value": $searchFilter.AppliedTo });
 
                             data_table_extra_params.length = 0;
-                            data_table_extra_params.push({ "name": "Name", "value": $searchFilter.Name },
+                            data_table_extra_params.push({ "name": "ItemTypeID", "value": $searchFilter.ItemTypeID },
+                                                        { "name": "Name", "value": $searchFilter.Name },
                                                         { "name": "Code","value": $searchFilter.Code },
                                                         { "name": "Active", "value": $searchFilter.Active },
                                                         { "name": "AppliedTo", "value": $searchFilter.AppliedTo },
@@ -148,7 +191,7 @@
                         "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                         "sPaginationType": "bootstrap",
                         "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                        "aaSorting": [[0, 'asc']],
+                        "aaSorting": [[2, 'asc']],
                         "aoColumns": [
                             {"bSortable": false,
                                 mRender: function(id, type, full) {
@@ -156,10 +199,13 @@
                                     return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
                                 }
                             },
-                            {  "bSortable": true },  // 1 Item Name
-                            {  "bSortable": true },  // 2 Item Code
-                            {  "bSortable": true },  // 3 Unit Cost
-                            {  "bSortable": true },  // 4 updated_at
+                            {  "bSortable": true }, //  1Item Type
+                            {  "bSortable": true },  // 2 Item Name
+                            {  "bSortable": true },  // 3 Item Code
+                            {  "bSortable": true }, //  4 Buying Price
+                            {  "bSortable": true },  // 5 Unit Cost
+                            {  "bSortable": true },  // 6 Quantity
+                            {  "bSortable": true },  // 7 updated_at
                             {  "bSortable": true,
                                 mRender: function (val){
                                     if(val==1){
@@ -188,13 +234,15 @@
                                         });
                                     }
                                     action += '</div>';
-                                    <?php if(User::checkCategoryPermission('Products','Edit')){ ?>
-                                        action += ' <a data-name = "' + full[1] + '" data-id="' + full[0] + '" title="Edit" class="edit-product btn btn-default btn-sm btn-smtooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
+                                    if(full[3]!='topup') {
+                                        <?php if(User::checkCategoryPermission('Products', 'Edit')){ ?>
+                                                action += ' <a data-name = "' + full[1] + '" data-id="' + full[0] + '" title="Edit" class="edit-product btn btn-default btn-sm btn-smtooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
                                         action += ' <a data-name = "' + full[1] + '" data-id="' + full[0] + '" title="CLone" class="clone-product btn btn-default btn-smtooltip-primary" data-original-title="Clone" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-clone"></i>&nbsp;</a>';
-                                    <?php } ?>
-                                    <?php if(User::checkCategoryPermission('Products','Delete') ){ ?>
-                                        action += ' <a href="'+delete_+'" data-redirect="{{ URL::to('products')}}" title="Delete"  class="btn delete btn-danger btn-default btn-sm btn-smtooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></a>';
-                                     <?php } ?>
+                                        <?php } ?>
+                                                <?php if(User::checkCategoryPermission('Products', 'Delete') ){ ?>
+                                                action += ' <a href="' + delete_ + '" data-redirect="{{ URL::to('products')}}" title="Delete"  class="btn delete btn-danger btn-default btn-sm btn-smtooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></a>';
+                                        <?php } ?>
+                                    }
                                     return action;
                                 }
                             }
@@ -312,7 +360,6 @@
 
                         if(SelectedIDs=='' || criteria_ac=='')
                         {
-                            alert('hi');
                             alert("Please select atleast one account.");
                             return false;
                         }
@@ -349,6 +396,7 @@
 
                     $("#product_filter").submit(function(e){
                         e.preventDefault();
+                        $searchFilter.ItemTypeID = $("#product_filter [name='ItemTypeID']").val();
                         $searchFilter.Name = $("#product_filter [name='Name']").val();
                         $searchFilter.Code = $("#product_filter [name='Code']").val();
                         $searchFilter.Active = $("#product_filter [name='Active']").val();
@@ -364,12 +412,25 @@
                         replaceCheckboxes();
                     });
 
+                    $('#add-edit-modal-product').on('hidden.bs.modal', function () {
+                        $("#add-edit-product-form").find("input:hidden[name=ItemTypeID]").remove();
+                        $("#add-edit-modal-product [name='ItemTypeID']").val('0').trigger('change');
+                        $("#add-edit-modal-product [name='ItemTypeID']").removeAttr('disabled');
+                    });
+
                     $('table tbody').on('click', '.edit-product', function (ev) {
                         ev.preventDefault();
                         ev.stopPropagation();
                         $('#add-edit-product-form').trigger("reset");
                         var cur_obj = $(this).prev("div.hiddenRowData");
                         for(var i = 0 ; i< list_fields.length; i++){
+                            if(list_fields[i] == 'ItemTypeID'){
+                                $("#add-edit-product-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
+                                var valitemid=$("input[name='"+list_fields[i]+"']").val();
+                                $("#add-edit-product-form [name='"+list_fields[i]+"']").attr("disabled",true);
+                                var h_ItemTypeID='<input type="hidden" name="ItemTypeID" value="'+valitemid+'" />';
+                                $("#add-edit-product-form").append(h_ItemTypeID);
+                            }
 
                             if(list_fields[i] == 'Active'){
                                 if(cur_obj.find("input[name='"+list_fields[i]+"']").val() == 1){
@@ -403,6 +464,9 @@
                         $('#add-edit-product-form').trigger("reset");
                         var cur_obj = $(this).prev().prev("div.hiddenRowData");
                         for(var i = 0 ; i< list_fields.length; i++){
+                            if(list_fields[i] == 'ItemTypeID'){
+                                $("#add-edit-product-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
+                            }
 
                             if(list_fields[i] == 'Active'){
                                 if(cur_obj.find("input[name='"+list_fields[i]+"']").val() == 1){

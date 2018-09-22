@@ -35,7 +35,7 @@
     @if(User::checkCategoryPermission('CustomersRates','Download'))
     <li>
         <a href="{{ URL::to('/customers_rates/'.$id.'/download') }}" >
-            Download Rate sheet
+            Download Rate Sheet
         </a>
     </li>
     @endif
@@ -122,6 +122,12 @@
 
                            </div>
                            <div class="form-group">
+
+                               <label class="col-sm-1 control-label">Timezone</label>
+                               <div class="col-sm-3">
+                                   {{ Form::select('Timezones', $Timezones, '', array("class"=>"select2")) }}
+                               </div>
+
                                <label for="field-1" class="col-sm-1 control-label RoutinePlan">Routing Plan</label>
                                <div class="col-sm-3">
                                    {{ Form::select('RoutinePlanFilter', $trunks_routing, '', array("class"=>"select2 RoutinePlan")) }}
@@ -201,6 +207,7 @@
                     <form id="clear-bulk-rate-form" >
                         <input type="hidden" name="CustomerRateID" value="">
                         <input type="hidden" name="TrunkID" value="">
+                        <input type="hidden" name="TimezonesID" value="">
                     </form>
                 </div><!-- /btn-group -->
                  {{--@if( User::checkCategoryPermission('CustomersRates','Create'))
@@ -225,10 +232,11 @@
                     <th width="5%">Connection Fee</th>
                     <th width="5%" class="routng_plan_cl">Routing plan</th>
                     <th width="5%">Rate ({{$CurrencySymbol}})</th>
+                    <th width="5%">RateN ({{$CurrencySymbol}})</th>
                     <th width="8%">Effective Date</th>
                     <th width="8%" class="hidden">End Date</th>
-                    <th width="10%">Modified Date</th>
-                    <th width="10%">Modified By</th>
+                    <th width="8%">Modified Date</th>
+                    <th width="8%">Modified By</th>
                     <th width="20%">Action</th>
                 </tr>
             </thead>
@@ -243,7 +251,7 @@
             var checked='';
             var update_new_url;
             var first_call = true;
-            var list_fields  = ['RateID','Code','Description','Interval1','IntervalN','ConnectionFee','RoutinePlanName','Rate','EffectiveDate','EndDate','LastModifiedDate','LastModifiedBy','CustomerRateId','TrunkID','RateTableRateId'];
+            var list_fields  = ['RateID','Code','Description','Interval1','IntervalN','ConnectionFee','RoutinePlanName','Rate','RateN','EffectiveDate','EndDate','LastModifiedDate','LastModifiedBy','CustomerRateId','TrunkID','RateTableRateId'];
             var routinejson ='{{json_encode($routine)}}';
                     jQuery(document).ready(function($) {
                         checkrouting($("#customer-rate-table-search select[name='Trunk']").val());
@@ -268,6 +276,7 @@
                             $searchFilter.Effected_Rates_on_off = $("#customer-rate-table-search input[name='Effected_Rates_on_off']").prop("checked");
                             $searchFilter.RoutinePlanFilter = $("#customer-rate-table-search select[name='RoutinePlanFilter']").val();
                             $searchFilter.DiscontinuedRates = DiscontinuedRates = $("#customer-rate-table-search input[name='DiscontinuedRates']").is(':checked') ? 1 : 0;
+                            $searchFilter.Timezones = Timezones = $("#customer-rate-table-search select[name='Timezones']").val();
 
                             if($searchFilter.Trunk == '' || typeof $searchFilter.Trunk  == 'undefined'){
                                toastr.error("Please Select a Trunk", "Error", toastr_opts);
@@ -280,14 +289,14 @@
                                 "bServerSide": true,
                                 "sAjaxSource": baseurl + "/customers_rates/{{$id}}/search_ajax_datagrid/type",
                                 "fnServerParams": function(aoData) {
-                                    aoData.push({"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country}, {"name": "Trunk", "value": $searchFilter.Trunk}, {"name": "Effective", "value": $searchFilter.Effective},{"name": "Effected_Rates_on_off", "value": $searchFilter.Effected_Rates_on_off},{"name": "RoutinePlanFilter", "value": $searchFilter.RoutinePlanFilter}, {"name": "DiscontinuedRates", "value": DiscontinuedRates}, {"name": "CustomDate", "value": $searchFilter.CustomDate});
+                                    aoData.push({"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country}, {"name": "Trunk", "value": $searchFilter.Trunk}, {"name": "Effective", "value": $searchFilter.Effective},{"name": "Effected_Rates_on_off", "value": $searchFilter.Effected_Rates_on_off},{"name": "RoutinePlanFilter", "value": $searchFilter.RoutinePlanFilter}, {"name": "DiscontinuedRates", "value": DiscontinuedRates}, {"name": "CustomDate", "value": $searchFilter.CustomDate}, {"name": "Timezones", "value": $searchFilter.Timezones});
                                     data_table_extra_params.length = 0;
-                                    data_table_extra_params.push({"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country}, {"name": "Trunk", "value": $searchFilter.Trunk}, {"name": "Effective", "value": $searchFilter.Effective},{"name": "RoutinePlanFilter", "value": $searchFilter.RoutinePlanFilter},{"name":"Export","value":1},{"name": "Effected_Rates_on_off", "value": $searchFilter.Effected_Rates_on_off}, {"name": "DiscontinuedRates", "value": DiscontinuedRates}, {"name": "CustomDate", "value": $searchFilter.CustomDate});
+                                    data_table_extra_params.push({"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country}, {"name": "Trunk", "value": $searchFilter.Trunk}, {"name": "Effective", "value": $searchFilter.Effective},{"name": "RoutinePlanFilter", "value": $searchFilter.RoutinePlanFilter},{"name":"Export","value":1},{"name": "Effected_Rates_on_off", "value": $searchFilter.Effected_Rates_on_off}, {"name": "DiscontinuedRates", "value": DiscontinuedRates}, {"name": "CustomDate", "value": $searchFilter.CustomDate}, {"name": "Timezones", "value": $searchFilter.Timezones});
                                 },
                                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                                 "sPaginationType": "bootstrap",
                                  "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                                 "aaSorting": [[8, "asc"]],
+                                 "aaSorting": [[9, "asc"]],
                                  "aoColumns":
                                         [
                                             {"bSortable": false, //RateID
@@ -300,13 +309,14 @@
                                             {}, //3Interval1
                                             {}, //4IntervalN
                                             {}, //5 ConnectionFee
-                                            {}, //4IntervalN
-                                            {}, //5Rate
-                                            {}, //6Effective Date
-                                            {"bVisible": false}, //6End Date
-                                            {}, //7LastModifiedDate
-                                            {}, //8LastModifiedBy
-                                            {// 9 CustomerRateId
+                                            {}, //6RoutinePlanName
+                                            {}, //7Rate
+                                            {}, //8RateN
+                                            {}, //9Effective Date
+                                            {"bVisible": false}, //10End Date
+                                            {}, //11LastModifiedDate
+                                            {}, //12LastModifiedBy
+                                            {// 13 CustomerRateId
                                                 mRender: function(id, type, full) {
                                                     var action, edit_, delete_;
                                                     edit_ = "{{ URL::to('/customers_rates/{id}/edit')}}";
@@ -318,10 +328,10 @@
                                                     CustomerRateID  = id;
                                                     RateID = full[0];
 
-                                                    Rate = ( full[6] == null )? 0:full[6];
+                                                    Rate = ( full[7] == null )? 0:full[7];
                                                     Interval1 = ( full[3] == null )? 1:full[3];
                                                     IntervalN = ( full[4] == null )? 1:full[4];
-                                                    RoutinePlan = ( full[5] == null )? '':full[5];
+                                                    RoutinePlan = ( full[6] == null )? '':full[6];
 
                                                     date = new Date();
                                                     var month = date.getMonth()+1;
@@ -419,6 +429,7 @@
 
                                         $("#edit-customer-rate-form").find("input[name='EffectiveDate']").val(EffectiveDate);
                                         $("#edit-customer-rate-form").find("input[name='Trunk']").val($searchFilter.Trunk);
+                                        $("#edit-customer-rate-form").find("input[name='TimezonesID']").val($searchFilter.Timezones);
 
                                         $("#edit-customer-rate-form [name='RoutinePlan']").select2().select2('val',RoutinePlanval);
                                         var display_routine = false;
@@ -616,6 +627,7 @@
                         $("#bulk-edit-customer-rate-form").find("input[name='RateID']").val(RateIDs.join(","));
                         $("#bulk-edit-customer-rate-form").find("input[name='CustomerRateId']").val(CustomerRateIDs.join(","));
                         $("#bulk-edit-customer-rate-form").find("input[name='Trunk']").val($searchFilter.Trunk);
+                        $("#bulk-edit-customer-rate-form").find("input[name='TimezonesID']").val($searchFilter.Timezones);
 
                         $("#bulk-edit-customer-rate-form")[0].reset();
                         $("#bulk-edit-customer-rate-form [name='Interval1']").val(1);
@@ -667,6 +679,7 @@
                         //Trunk = $("#customer-rate-table-search").find("select[name='Trunk']").val();
                         $("#add-selected-customer-rate-form").find("input[name='RateID']").val(RateIDs.join(","));
                         $("#add-selected-customer-rate-form").find("input[name='Trunk']").val($searchFilter.Trunk);
+                        $("#add-selected-customer-rate-form").find("input[name='TimezonesID']").val($searchFilter.Timezones);
 
                         $("#add-selected-customer-rate-form")[0].reset();
                         $("#add-selected-customer-rate-form [name='Interval1']").val(1);
@@ -789,6 +802,10 @@
                     }
                     if($searchFilter.Trunk != ''){
                         search_html += '<div class="col-md-6"><div class="form-group"><label for="field-1" class="control-label">Trunk</label><div class=""><p class="form-control-static" >'+$("#customer-rate-table-search select[name='Trunk']").find("[value='"+$searchFilter.Trunk+"']").text()+'</p></div></div></div>';
+                        col_count++;
+                    }
+                    if($searchFilter.Timezones != ''){
+                        search_html += '<div class="col-md-6"><div class="form-group"><label for="field-1" class="control-label">Timezones</label><div class=""><p class="form-control-static" >'+$("#customer-rate-table-search select[name='Timezones']").find("[value='"+$searchFilter.Timezones+"']").text()+'</p></div></div></div>';
                         col_count++;
                     }
                     search_html+='</div>';
@@ -946,6 +963,7 @@
                                 e.preventDefault();
                                 var CustomerRateIDs = [];
                                 var TrunkID = $searchFilter.Trunk;
+                                var TimezonesID = $searchFilter.Timezones;
                                 var i = 0;
                                 $('#table-4 tr.selected td div.hiddenRowData input[name="CustomerRateId').each(function (i, el) {
                                     CustomerRateID = $(this).val();
@@ -953,6 +971,7 @@
                                 });
 
                                 $("#clear-bulk-rate-form").find("input[name='TrunkID']").val(TrunkID);
+                                $("#clear-bulk-rate-form").find("input[name='TimezonesID']").val(TimezonesID);
 
                                 if (CustomerRateIDs.length || $(this).hasClass('clear-customer-rate')) {
                                     response = confirm('Are you sure?');
@@ -1050,9 +1069,9 @@
                     dataType: 'json',
                     success: function(response) {
                         $("#submit-bulk-data-new").button('reset');
-                        $('#modal-BulkCustomerRate-new').modal('hide');
-
                         if (response.status == 'success') {
+                            $('#modal-BulkCustomerRate-new').modal('hide');
+
                             toastr.success(response.message, "Success", toastr_opts);
                             $("#customer-rate-table-search").submit();
                         } else {
@@ -1170,7 +1189,7 @@
                     $.ajax({
                         url: baseurl + "/customers_rates/{{$id}}/search_ajax_datagrid_archive_rates",
                         type: 'POST',
-                        data: "Codes=" + Codes,
+                        data: "Codes=" + Codes+"&TimezonesID="+$searchFilter.Timezones,
                         dataType: 'json',
                         cache: false,
                         success: function (response) {
@@ -1187,7 +1206,7 @@
                             var hiddenRowData = tr.find('.hiddenRowData');
                             var Code = hiddenRowData.find('input[name="Code"]').val();
                             var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
-                            table.append("<thead><tr><th>Code</th><th>Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                            table.append("<thead><tr><th>Code</th><th>Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate</th><th>RateN</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
                             //var tbody = $("<tbody></tbody>");
 
                             ArchiveRates.forEach(function (data) {
@@ -1200,6 +1219,7 @@
                                 html += "<td>" + data['IntervalN'] + "</td>";
                                 html += "<td>" + data['ConnectionFee'] + "</td>";
                                 html += "<td>" + data['Rate'] + "</td>";
+                                html += "<td>" + data['RateN'] + "</td>";
                                 html += "<td>" + data['EffectiveDate'] + "</td>";
                                 html += "<td>" + data['EndDate'] + "</td>";
                                 html += "<td>" + data['ModifiedDate'] + "</td>";
@@ -1261,53 +1281,41 @@
                 </div>
 
                 <div class="modal-body">
-
                     <div class="row">
                         <div class="col-md-6">
-
                             <div class="form-group">
                                 <label for="field-4" class="control-label">Effective Date</label>
-
                                 <input type="text" name="EffectiveDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-date-format="yyyy-mm-dd" value="" />
                             </div>
-
                         </div>
-
                         <div class="col-md-6">
-
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Rate</label>
-
-                                <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
-
+                                <label class="control-label">Rate</label>
+                                <input type="text" name="Rate" class="form-control" placeholder="">
                             </div>
-
                         </div>
-
                         <div class="col-md-6">
-
+                            <div class="form-group">
+                                <label class="control-label">RateN</label>
+                                <input type="text" name="RateN" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-4" class="control-label">Interval 1</label>
-
                                 <input type="text" name="Interval1" class="form-control" value="" />
                             </div>
-
                         </div>
-
                         <div class="col-md-6">
-
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Interval N</label>
-
-                                <input type="text" name="IntervalN" class="form-control" id="field-5" placeholder="">
-
+                                <label class="control-label">Interval N</label>
+                                <input type="text" name="IntervalN" class="form-control" placeholder="">
                             </div>
-
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Connection Fee</label>
-                                <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
+                                <label class="control-label">Connection Fee</label>
+                                <input type="text" name="ConnectionFee" class="form-control" placeholder="">
                             </div>
                         </div>
 
@@ -1322,14 +1330,10 @@
                         </div>--}}
 
                          <div class="col-md-6 RoutinePlan-modal">
-
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Routing plan</label>
-
+                                <label class="control-label">Routing plan</label>
                                 {{ Form::select('RoutinePlan', $trunks_routing, '', array("class"=>"select2")) }}
-
                             </div>
-
                         </div>
                     </div>
 
@@ -1340,6 +1344,7 @@
                     <input type="hidden" name="CustomerRateId" value="">
                     <input type="hidden" name="Type" value="1">
                     <input type="hidden" name="Trunk" value="{{Input::get('Trunk')}}">
+                    <input type="hidden" name="TimezonesID" value="">
 
                     <button type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i>
@@ -1381,8 +1386,22 @@
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Rate</label>
-                                <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
+                                <label class="control-label">Connection Fee</label>
+                                <input type="text" name="ConnectionFee" class="form-control" placeholder="">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Rate</label>
+                                <input type="text" name="Rate" class="form-control" placeholder="">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">RateN</label>
+                                <input type="text" name="RateN" class="form-control" placeholder="">
                             </div>
                         </div>
 
@@ -1395,20 +1414,14 @@
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Interval N</label>
-                                <input type="text" name="IntervalN" class="form-control" id="field-5" placeholder="">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Connection Fee</label>
-                                <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
+                                <label class="control-label">Interval N</label>
+                                <input type="text" name="IntervalN" class="form-control" placeholder="">
                             </div>
                         </div>
 
                         <div class="col-md-6 RoutinePlan-modal">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Routing plan</label>
+                                <label class="control-label">Routing plan</label>
                                 {{ Form::select('RoutinePlan', $trunks_routing, '', array("class"=>"select2")) }}
                             </div>
                         </div>
@@ -1447,6 +1460,7 @@
                 <div class="modal-footer">
                     <input type="hidden" name="RateID" value="">
                     <input type="hidden" name="Trunk" value="">
+                    <input type="hidden" name="TimezonesID" value="">
 
                     <button type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i>
@@ -1487,40 +1501,33 @@
                         </div>--}}
 
                         <div class="col-md-6">
-
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Rate</label>
-
-                                <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
-
+                                <label class="control-label">Rate</label>
+                                <input type="text" name="Rate" class="form-control" placeholder="">
                             </div>
-
                         </div>
-
                         <div class="col-md-6">
-
+                            <div class="form-group">
+                                <label class="control-label">RateN</label>
+                                <input type="text" name="RateN" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-4" class="control-label">Interval 1</label>
-
                                 <input type="text" name="Interval1" class="form-control" value="" />
                             </div>
-
                         </div>
-
                         <div class="col-md-6">
-
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Interval N</label>
-
-                                <input type="text" name="IntervalN" class="form-control" id="field-5" placeholder="">
-
+                                <label class="control-label">Interval N</label>
+                                <input type="text" name="IntervalN" class="form-control" placeholder="">
                             </div>
-
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Connection Fee</label>
-                                <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
+                                <label class="control-label">Connection Fee</label>
+                                <input type="text" name="ConnectionFee" class="form-control" placeholder="">
                             </div>
                         </div>
 
@@ -1535,18 +1542,11 @@
                         </div>--}}
 
                         <div class="col-md-6 RoutinePlan-modal">
-
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Routing plan</label>
-
+                                <label class="control-label">Routing plan</label>
                                 {{ Form::select('RoutinePlan', $trunks_routing, '', array("class"=>"select2")) }}
-
                             </div>
-
                         </div>
-
-
-
                     </div>
                     {{--<div style="max-height: 500px; overflow-y: auto; overflow-x: hidden;" >
                         <h4 > Click <span class="label label-info" onclick="$('.my_account_table-6').toggle();$('#table-6_wrapper').toggle();"  style="cursor: pointer">here</span> to select additional customer accounts you want to update.</h4>
@@ -1582,6 +1582,7 @@
                     <input type="hidden" name="RateID" value="">
                     <input type="hidden" name="CustomerRateId" value="">
                     <input type="hidden" name="Trunk" value="">
+                    <input type="hidden" name="TimezonesID" value="">
 
                     <button type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i>
@@ -1613,62 +1614,46 @@
                     </div>
                     <div id="text-boxes" class="row">
                         <div class="col-md-6" style="display: none;" id="BulkInsert-EffectiveBox">
-
                             <div class="form-group">
                                 <label for="field-4" class="control-label">Effective Date</label>
-
                                 <input type="text" name="EffectiveDate" class="form-control datepicker"  data-startdate="{{date('Y-m-d')}}" data-date-format="yyyy-mm-dd" value="" />
                             </div>
-
                         </div>
-
                         <div class="col-md-6">
-
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Rate</label>
-
-                                <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
-
+                                <label class="control-label">Rate</label>
+                                <input type="text" name="Rate" class="form-control" placeholder="">
                             </div>
-
                         </div>
-
                         <div class="col-md-6">
-
+                            <div class="form-group">
+                                <label class="control-label">RateN</label>
+                                <input type="text" name="RateN" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-4" class="control-label">Interval 1</label>
-
                                 <input type="text" name="Interval1" class="form-control" value="" />
                             </div>
-
-                        </div>
-
-                        <div class="col-md-6">
-
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Interval N</label>
-
-                                <input type="text" name="IntervalN" class="form-control" id="field-5" placeholder="">
-
-                            </div>
-
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Connection Fee</label>
-                                <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
+                                <label class="control-label">Interval N</label>
+                                <input type="text" name="IntervalN" class="form-control" placeholder="">
                             </div>
                         </div>
-
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Connection Fee</label>
+                                <input type="text" name="ConnectionFee" class="form-control" placeholder="">
+                            </div>
+                        </div>
                          <div class="col-md-6 RoutinePlan-modal">
-
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Routing plan</label>
-
+                                <label class="control-label">Routing plan</label>
                                 {{ Form::select('RoutinePlan', $trunks_routing, '', array("class"=>"select2")) }}
-
                             </div>
-
                         </div>
                         {{--<div class="col-md-6">
 
@@ -1744,6 +1729,12 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
+                                <label class="control-label">Timezones</label>
+                                {{ Form::select('TimezonesID', $Timezones, '', array("class"=>"select2","id"=>"TimezonesID")) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
                                 <label class="control-label">Code</label>
                                 <input type="hidden" id="rateid_list" name="RateID" />
                             </div>
@@ -1763,13 +1754,13 @@
                         <div class="col-md-6 clear">
                             <div class="form-group">
                                 <label class="control-label">Rate</label>
-                                <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
+                                <input type="text" name="Rate" class="form-control" placeholder="">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label">Connection Fee</label>
-                                <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
+                                <input type="text" name="ConnectionFee" class="form-control" placeholder="">
                             </div>
                         </div>
                         <div class="col-md-6 clear">
@@ -1781,7 +1772,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label">Interval N</label>
-                                <input type="text" name="IntervalN" class="form-control" id="field-5" placeholder="">
+                                <input type="text" name="IntervalN" class="form-control" placeholder="">
                             </div>
                         </div>
 

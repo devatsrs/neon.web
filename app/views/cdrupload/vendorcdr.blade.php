@@ -92,7 +92,7 @@
 <h3>Vendor CDR</h3>
 
 @if(User::checkCategoryPermission('CDR','Delete') )
-    <button id="delete-vendor-cdr" class="btn btn-danger btn-sm btn-icon icon-left pull-right" data-loading-text="Loading..."> <i class="entypo-trash"></i> Delete</button>
+    <button id="delete-vendor-cdr" class="btn btn-danger btn-sm btn-icon icon-left pull-right mar-left-2" data-loading-text="Loading..."> <i class="entypo-trash"></i> Delete</button>
 @endif
 <form id="delete-vendor-cdr-form" >
     <input type="hidden" name="VendorCDRIDs" />
@@ -101,6 +101,11 @@
 
 @include('includes.errors')
 @include('includes.success')
+
+    <a href="javascript:void(0)" id="cdr_rerate" class="btn btn-primary btn-sm btn-icon icon-left pull-right hidden">
+        <i class="entypo-check"></i>
+        <span>CDR Rerate</span>
+    </a>
 <ul class="nav nav-tabs bordered">
   <!-- available classes "bordered", "right-aligned" -->
   <li > <a href="{{ URL::to('cdr_show') }}" > <span class="hidden-xs">Customer CDR</span> </a> </li>
@@ -177,6 +182,15 @@ var CurrencyCode = '';
 
         $('input[name="StartTime"]').click();
         public_vars.$body = $("body");
+
+        $('#bluk_CompanyGatewayID1').change(function(e){
+            if($(this).val()){
+                $('#cdr_rerate').removeClass('hidden');
+            }else{
+                $('#cdr_rerate').addClass('hidden');
+            }
+        });
+        $('#bluk_CompanyGatewayID1').trigger('change');
 
         $('#bluk_CompanyGatewayID').change(function(e){
         if($(this).val()){
@@ -436,6 +450,40 @@ var CurrencyCode = '';
                    submit_ajax(baseurl + "/cdr_upload/delete_cdr",$.param($searchFilter))
                 }
             });
+            $('#cdr_rerate').on('click',function (e) {
+                if(typeof $searchFilter.StartDate  == 'undefined' || $searchFilter.StartDate.trim() == ''){
+                    toastr.error("Please Select a Start date then search", "Error", toastr_opts);
+                    return false;
+                }
+                if(typeof $searchFilter.EndDate  == 'undefined' || $searchFilter.EndDate.trim() == ''){
+                    toastr.error("Please Select a End date then search", "Error", toastr_opts);
+                    return false;
+                }
+                if(typeof $searchFilter.CompanyGatewayID  == 'undefined' || $searchFilter.CompanyGatewayID.trim() == ''){
+                    toastr.error("Please Select a Gateway then search", "Error", toastr_opts);
+                    return false;
+                }
+                if($("#table-4 tbody tr").html().indexOf("No data available in table") > 0){
+                    toastr.error("No data available To ReRate", "Error", toastr_opts);
+                    return false;
+                }
+                $("#cdr-rerate-user").modal('show', {backdrop: 'static'});
+                /*response = confirm('Are you sure?');
+                 if (response) {
+                 submit_ajax(baseurl + "/rate_cdr",$.param($searchFilter))
+                 }*/
+            });
+            $('#cdr-rerate-form [name="RateMethod"]').change(function (e) {
+                e.preventDefault();
+                $('#cdr-rerate-form [name="SpecifyRate"]').parents('.row').addClass('hidden');
+                if ($(this).val() != 'CurrentRate' ) {
+                    $('#cdr-rerate-form [name="SpecifyRate"]').parents('.row').removeClass('hidden');
+                }
+            });
+            $("#cdr-rerate-form").submit(function (e) {
+                e.preventDefault();
+                submit_ajax(baseurl + "/rate_vendorcdr",$.param($searchFilter)+'&'+$(this).serialize())
+            });
 
         $("#delete-vendor-cdr").click(function(e) {
             e.preventDefault();
@@ -514,4 +562,47 @@ var CurrencyCode = '';
     padding: 15px 10px;
 }
 </style>
-@stop 
+@stop
+@section('footer_ext')
+    @parent
+    <div class="modal fade in" id="cdr-rerate-user">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="cdr-rerate-form" method="post">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">CDR Rerate</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Rerate Method</label>
+                                    {{ Form::select('RateMethod',VendorCDR::$RateMethod, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row hidden">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Rerate Method Value</label>
+                                    <input type="text" name="SpecifyRate" class="form-control" value=""/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..." id="rerate-customer-cdr">
+                            <i class="entypo-floppy"></i>
+                            Rerate
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@stop

@@ -30,11 +30,12 @@
 </ol>
 <h3>Authentication Rule</h3>
 <p style="text-align: right;">
-
-    <button type="button" id="save_account" data-loading-text = "Loading..." class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-        <i class="entypo-floppy"></i>
-        Save
-    </button>
+    @if( User::checkCategoryPermission('AuthenticationRule','Add'))
+        <button type="button" id="save_account" data-loading-text = "Loading..." class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+            <i class="entypo-floppy"></i>
+            Save
+        </button>
+    @endif
 
 
     @if($ServiceID=='0')
@@ -90,23 +91,29 @@
                         <div class="desc col-sm-5 customer_accountip hidden table_{{count($AccountIPList)}}" >
                             <div class="row dropdown">
                                 <div  class="col-md-12">
-                                    <div class="input-group-btn pull-right" style="width:70px;">
-                                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
-                                        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
-                                            <li class="li_active">
-                                                <a class="customer-add-ip" type_ad="active" href="javascript:void(0);" >
-                                                    <i class="entypo-plus"></i>
-                                                    <span>Add</span>
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a href="javascript:void(0);" class="customer-delete-ip" >
-                                                    <i class="entypo-trash"></i>
-                                                    <span>Delete</span>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div><!-- /btn-group -->
+                                    @if( User::checkCategoryPermission('AuthenticationRule','Add,Delete'))
+                                        <div class="input-group-btn pull-right" style="width:70px;">
+                                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
+                                            <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
+                                                @if( User::checkCategoryPermission('AuthenticationRule','Add'))
+                                                    <li class="li_active">
+                                                        <a class="customer-add-ip" type_ad="active" href="javascript:void(0);" >
+                                                            <i class="entypo-plus"></i>
+                                                            <span>Add</span>
+                                                        </a>
+                                                    </li>
+                                                @endif
+                                                @if( User::checkCategoryPermission('AuthenticationRule','Delete'))
+                                                    <li>
+                                                        <a href="javascript:void(0);" class="customer-delete-ip" >
+                                                            <i class="entypo-trash"></i>
+                                                            <span>Delete</span>
+                                                        </a>
+                                                    </li>
+                                                @endif
+                                            </ul>
+                                        </div><!-- /btn-group -->
+                                    @endif
                                 </div>
                                 <div class="clear"></div>
                             </div>
@@ -133,7 +140,9 @@
                                                 {{$cip['ServiceName']}}
                                             </td>
                                             <td>
-                                                <button type="button" title="delete IP" class="btn btn-danger icon-left btn-sm customer-delete-ip"> <i class="entypo-trash"></i> </button>
+                                                @if( User::checkCategoryPermission('AuthenticationRule','Delete'))
+                                                    <button type="button" title="delete IP" class="btn btn-danger icon-left btn-sm customer-delete-ip"> <i class="entypo-trash"></i> </button>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach
@@ -198,23 +207,29 @@
                         <div class="desc col-sm-5 vendor_accountip hidden table_{{count($AccountIPList)}}" >
                             <div class="row dropdown">
                                 <div  class="col-md-12">
+                                    @if( User::checkCategoryPermission('AuthenticationRule','Add,Delete'))
                                     <div class="input-group-btn pull-right" style="width:70px;">
                                         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
                                         <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
-                                            <li class="li_active">
-                                                <a class="vendor-add-ip" type_ad="active" href="javascript:void(0);" >
-                                                    <i class="entypo-plus"></i>
-                                                    <span>Add</span>
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a href="javascript:void(0);" class="vendor-delete-ip" >
-                                                    <i class="entypo-trash"></i>
-                                                    <span>Delete</span>
-                                                </a>
-                                            </li>
+                                            @if( User::checkCategoryPermission('AuthenticationRule','Add'))
+                                                <li class="li_active">
+                                                    <a class="vendor-add-ip" type_ad="active" href="javascript:void(0);" >
+                                                        <i class="entypo-plus"></i>
+                                                        <span>Add</span>
+                                                    </a>
+                                                </li>
+                                            @endif
+                                            @if( User::checkCategoryPermission('AuthenticationRule','Delete'))
+                                                <li>
+                                                    <a href="javascript:void(0);" class="vendor-delete-ip" >
+                                                        <i class="entypo-trash"></i>
+                                                        <span>Delete</span>
+                                                    </a>
+                                                </li>
+                                            @endif
                                         </ul>
                                     </div><!-- /btn-group -->
+                                    @endif
                                 </div>
                                 <div class="clear"></div>
                             </div>
@@ -256,23 +271,29 @@
                         <div class="desc col-sm-5 vendor_accountcli table_{{count($AccountCLIList)}}" >
                             <div class="row dropdown">
                                 <div  class="col-md-12">
-                                    <div class="input-group-btn pull-right" style="width:70px;">
-                                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
-                                        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
-                                            <li class="li_active">
-                                                <a class="vendor-add-cli" type_ad="active" href="javascript:void(0);" >
-                                                    <i class="entypo-plus"></i>
-                                                    <span>Add</span>
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a href="javascript:void(0);" class="vendor-delete-cli" >
-                                                    <i class="entypo-trash"></i>
-                                                    <span>Delete</span>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div><!-- /btn-group -->
+                                    @if( User::checkCategoryPermission('AuthenticationRule','Add,Delete'))
+                                        <div class="input-group-btn pull-right" style="width:70px;">
+                                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
+                                            <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
+                                                @if( User::checkCategoryPermission('AuthenticationRule','Add'))
+                                                    <li class="li_active">
+                                                        <a class="vendor-add-cli" type_ad="active" href="javascript:void(0);" >
+                                                            <i class="entypo-plus"></i>
+                                                            <span>Add</span>
+                                                        </a>
+                                                    </li>
+                                                @endif
+                                                @if( User::checkCategoryPermission('AuthenticationRule','Delete'))
+                                                    <li>
+                                                        <a href="javascript:void(0);" class="vendor-delete-cli" >
+                                                            <i class="entypo-trash"></i>
+                                                            <span>Delete</span>
+                                                        </a>
+                                                    </li>
+                                                @endif
+                                            </ul>
+                                        </div><!-- /btn-group -->
+                                    @endif
                                 </div>
                                 <div class="clear"></div>
                             </div>

@@ -54,7 +54,7 @@ class CallShop{
                         $CompanyID = $addparams['CompanyID'];
                         $ProcessID = $addparams['ProcessID'];
                         foreach ($results as $temp_row) {
-                            $count = DB::table('tblAccount')->where(["AccountName" => $temp_row->usuario, "AccountType" => 1,"CompanyId"=>$CompanyID])->count();
+                            $count = DB::table('tblAccount')->where(["AccountName" => $temp_row->usuario, "AccountType" => 1])->count();
                             if($count==0){
                                 $tempItemData['AccountName'] = $temp_row->usuario;
                                 $tempItemData['Number'] = $temp_row->usuario;

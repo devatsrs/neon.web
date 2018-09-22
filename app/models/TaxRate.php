@@ -120,4 +120,61 @@ class TaxRate extends \Eloquent {
     public static function getTaxName($TaxRateId){
         return $TaxRate = TaxRate::where(["TaxRateId"=>$TaxRateId])->pluck('Title');
     }
+
+    public static function calculateProductTaxAmount($TaxRateID,$Price) {
+
+        if($TaxRateID>0){
+
+            $TaxRate = TaxRate::where("TaxRateID",$TaxRateID)->first();
+
+            if(isset($TaxRate->TaxType) && isset($TaxRate->Amount) ) {
+
+               // if ($TaxRate->TaxType == TaxRate::TAX_ALL) {
+
+                    if (isset($TaxRate->FlatStatus) && isset($TaxRate->Amount)) {
+
+                        if ($TaxRate->FlatStatus == 1) {
+
+                            return (($Price) + $TaxRate->Amount);
+
+                        } else {
+                            return (($Price * $TaxRate->Amount) / 100);
+
+                        }
+                    }
+               // }
+            }
+        }
+        return 0;
+
+    }
+
+    public static function getInvoiceTaxRateByProductDetail($invoiceID){
+        $InvoiceDetail=InvoiceDetail::where('InvoiceID',$invoiceID)->select('InvoiceDetailID','TaxRateID','TaxRateID2','Price')->get();
+        $Result = array();
+        foreach($InvoiceDetail as $data) {
+            if (!empty($data->TaxRateID)) {
+                $TaxRate = array();
+                $TaxRate['TaxRateID'] = $data->TaxRateID;
+                $TaxRate['InvoiceDetailID'] = $data->InvoiceDetailID;
+                $TaxRate['Title'] = TaxRate::getTaxName($data->TaxRateID);
+                $TaxRate['created_at'] = date("Y-m-d H:i:s");
+                $TaxRate['InvoiceID'] = $invoiceID;
+                $TaxRate['TaxAmount'] = TaxRate::calculateProductTaxAmount($data->TaxRateID, $data->Price);
+                $Result[] = $TaxRate;
+            }
+            if (!empty($data->TaxRateID2)) {
+                $TaxRate = array();
+                $TaxRate['TaxRateID'] = $data->TaxRateID2;
+                $TaxRate['InvoiceDetailID'] = $data->InvoiceDetailID;
+                $TaxRate['Title'] = TaxRate::getTaxName($data->TaxRateID2);
+                $TaxRate['created_at'] = date("Y-m-d H:i:s");
+                $TaxRate['InvoiceID'] = $invoiceID;
+                $TaxRate['TaxAmount'] = TaxRate::calculateProductTaxAmount($data->TaxRateID2, $data->Price);
+                $Result[] = $TaxRate;
+            }
+        }
+        return $Result;
+    }
+
 }

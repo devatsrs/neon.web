@@ -23,6 +23,7 @@ class AmazonS3 {
         'INVOICE_PROOF_ATTACHMENT' =>  'InvoiceProofAttachment',
         'INVOICE_UPLOAD' =>  'Invoices',
 		'ESTIMATE_UPLOAD' =>  'estimates',
+		'CREDITNOTES_UPLOAD' =>  'creditnotes',
         'CUSTOMER_PROFILE_IMAGE' =>  'CustomerProfileImage',
         'USER_PROFILE_IMAGE' =>  'UserProfileImage',
         'BULK_LEAD_MAIL_ATTACHEMENT' => 'bulkleadmailattachment',
@@ -48,6 +49,7 @@ class AmazonS3 {
         'XERO_UPLOAD'=>'XeroUpload',
         'GATEWAY_KEY'=>'GatewayKey',
         'DIGITAL_SIGNATURE_KEY'=>'DigitalSignature',
+        'BULK_DISPUTE_MAIL_ATTACHEMENT'=>'bulkdisputemailattachment',
     );
 
     // Instantiate an S3 client
@@ -60,13 +62,18 @@ class AmazonS3 {
             return 'NoAmazon';
 		}else{
             self::$isAmazonS3='Amazon';
-			return $s3Client = S3Client::factory(array(
-				'region' => $AmazonData->AmazonAwsRegion,
-				'credentials' => array(
-					'key' => $AmazonData->AmazonKey,
-					'secret' => $AmazonData->AmazonSecret
-				),
-			));
+            $Amazone=array(
+                'region' => $AmazonData->AmazonAwsRegion,
+                'credentials' => array(
+                    'key' => $AmazonData->AmazonKey,
+                    'secret' => $AmazonData->AmazonSecret
+                ),
+            );
+
+            if(isset($AmazonData->SignatureVersion) && $AmazonData->SignatureVersion!=''){
+                $Amazone['signature']=$AmazonData->SignatureVersion;
+            }
+			return $s3Client = S3Client::factory($Amazone);
 		}
 
        /*

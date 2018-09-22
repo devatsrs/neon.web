@@ -7,7 +7,7 @@ class InvoiceTemplatesController extends \BaseController {
         $CompanyID = User::get_companyID();
         $invoiceCompanies = InvoiceTemplate::where("CompanyID", $CompanyID);
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceStartNumber','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CDRType','GroupByService')->get();
+            $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceStartNumber','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CreditNotesStartNumber','LastCreditNotesNumber','CreditNotesNumberPrefix','CDRType','GroupByService','IgnoreCallCharge','ShowPaymentWidgetInvoice','DefaultTemplate','FooterDisplayOnlyFirstPage','ShowTaxesOnSeparatePage','ShowTotalInMultiCurrency')->get();
             $invoiceCompanies = json_decode(json_encode($invoiceCompanies),true);
             if($type=='csv'){
                 $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Invoice Template.csv';
@@ -19,7 +19,7 @@ class InvoiceTemplatesController extends \BaseController {
                 $NeonExcel->download_excel($invoiceCompanies);
             }
         }
-        $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CDRType','GroupByService','ServiceSplit');
+        $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CreditNotesStartNumber','LastCreditNotesNumber','CreditNotesNumberPrefix','CDRType','GroupByService','ServiceSplit','IgnoreCallCharge','ShowPaymentWidgetInvoice','DefaultTemplate','FooterDisplayOnlyFirstPage','ShowTaxesOnSeparatePage','ShowTotalInMultiCurrency');
         return Datatables::of($invoiceCompanies)->make();
     }
 
@@ -48,7 +48,7 @@ class InvoiceTemplatesController extends \BaseController {
         }elseif($type==3){
 
             /* Default Value */
-            $test_detail='[{"Title":"Prefix","ValuesID":"1","UsageName":"Prefix","Status":true,"FieldOrder":1},{"Title":"CLI","ValuesID":"2","UsageName":"CLI","Status":true,"FieldOrder":2},{"Title":"CLD","ValuesID":"3","UsageName":"CLD","Status":true,"FieldOrder":3},{"Title":"ConnectTime","ValuesID":"4","UsageName":"Connect Time","Status":true,"FieldOrder":4},{"Title":"DisconnectTime","ValuesID":"4","UsageName":"Disconnect Time","Status":true,"FieldOrder":5},{"Title":"BillDuration","ValuesID":"6","UsageName":"Duration","Status":true,"FieldOrder":6},{"Title":"ChargedAmount","ValuesID":"7","UsageName":"Cost","Status":true,"FieldOrder":7}]';
+            $test_detail='[{"Title":"Prefix","ValuesID":"1","UsageName":"Prefix","Status":true,"FieldOrder":1},{"Title":"CLI","ValuesID":"2","UsageName":"CLI","Status":true,"FieldOrder":2},{"Title":"CLD","ValuesID":"3","UsageName":"CLD","Status":true,"FieldOrder":3},{"Title":"ConnectTime","ValuesID":"4","UsageName":"Connect Time","Status":true,"FieldOrder":4},{"Title":"DisconnectTime","ValuesID":"4","UsageName":"Disconnect Time","Status":true,"FieldOrder":5},{"Title":"BillDuration","ValuesID":"6","UsageName":"Duration","Status":true,"FieldOrder":6},{"Title":"ChargedAmount","ValuesID":"7","UsageName":"Cost","Status":true,"FieldOrder":7},{"Title":"BillDurationMinutes","ValuesID":"8","UsageName":"DurationMinutes","Status":false,"FieldOrder":8},{"Title":"Country","ValuesID":"9","UsageName":"Country","Status":false,"FieldOrder":9},{"Title":"CallType","ValuesID":"10","UsageName":"CallType","Status":false,"FieldOrder":10},{"Title":"Description","ValuesID":"11","UsageName":"Description","Status":false,"FieldOrder":11}]';
 
             $detail_values  =  json_decode($test_detail,true);
 
@@ -60,7 +60,16 @@ class InvoiceTemplatesController extends \BaseController {
 
                 $usageColumns = json_decode($InvoiceTemplate->UsageColumn,true);
                 if(!empty($usageColumns['Detail'])){
+                    $default_column=array_column($detail_values, 'Title');
+                    $db_column=array_column($usageColumns['Detail'], 'Title');
+                    $diff_arrr=array_diff($default_column ,$db_column);
 
+                    foreach($diff_arrr as $val){
+                        $key = array_search($val, array_column($detail_values, 'Title'));
+                        if(array_key_exists($key,$detail_values)){
+                            $usageColumns['Detail'][]=$detail_values[$key];
+                        }
+                    }
                     $detail_values = $usageColumns['Detail'];
                 }
 
@@ -103,8 +112,13 @@ class InvoiceTemplatesController extends \BaseController {
                 $data['ShowZeroCall'] = isset($data['ShowZeroCall']) ? 1 : 0;
                 $data['ShowPrevBal'] = isset($data['ShowPrevBal']) ? 1 : 0;
                 $data['ShowBillingPeriod'] = isset($data['ShowBillingPeriod']) ? 1 : 0;
+                $data['IgnoreCallCharge'] = isset($data['IgnoreCallCharge']) ? 1 : 0;
+                $data['ShowPaymentWidgetInvoice'] = isset($data['ShowPaymentWidgetInvoice']) ? 1 : 0;
                 $data['GroupByService'] = isset($data['GroupByService']) ? 1 : 0;
                 $data['ServiceSplit'] = isset($data['ServiceSplit']) ? 1 : 0;
+                $data['FooterDisplayOnlyFirstPage'] = isset($data['FooterDisplayOnlyFirstPage']) ? 1 : 0;
+                $data['ShowTaxesOnSeparatePage'] = isset($data['ShowTaxesOnSeparatePage']) ? 1 : 0;
+                $data['ShowTotalInMultiCurrency'] = isset($data['ShowTotalInMultiCurrency']) ? 1 : 0;
             }
             unset($data['EditPage']);
             unset($data['ServicePage']);
@@ -142,6 +156,10 @@ class InvoiceTemplatesController extends \BaseController {
 			if(!isset($data['EstimateStartNumber'])){
                 //If saved from view.
                 unset($rules['EstimateStartNumber']);
+            }
+            if(!isset($data['CreditNotesStartNumber'])){
+                //If saved from view.
+                unset($rules['CreditNotesStartNumber']);
             }
             $verifier = App::make('validation.presence');
             $verifier->setConnection('sqlsrv2');
@@ -207,8 +225,13 @@ class InvoiceTemplatesController extends \BaseController {
         $data['ShowZeroCall'] = isset($data['ShowZeroCall']) ? 1 : 0;
         $data['ShowPrevBal'] = isset($data['ShowPrevBal']) ? 1 : 0;
         $data['ShowBillingPeriod'] = isset($data['ShowBillingPeriod']) ? 1 : 0;
+        $data['IgnoreCallCharge'] = isset($data['IgnoreCallCharge']) ? 1 : 0;
+        $data['ShowPaymentWidgetInvoice'] = isset($data['ShowPaymentWidgetInvoice']) ? 1 : 0;
         $data['GroupByService'] = isset($data['GroupByService']) ? 1 : 0;
         $data['ServiceSplit'] = isset($data['ServiceSplit']) ? 1 : 0;
+        $data['FooterDisplayOnlyFirstPage'] = isset($data['FooterDisplayOnlyFirstPage']) ? 1 : 0;
+        $data['ShowTaxesOnSeparatePage'] = isset($data['ShowTaxesOnSeparatePage']) ? 1 : 0;
+        $data['ShowTotalInMultiCurrency'] = isset($data['ShowTotalInMultiCurrency']) ? 1 : 0;
         unset($data['InvoiceTemplateID']);
         unset($data['EditPage']);
         $rules = array(

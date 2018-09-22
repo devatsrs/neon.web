@@ -150,8 +150,8 @@ class PaymentsController extends \BaseController {
         $message = '';
         if($isvalid['valid']==1) {
             $save = $isvalid['data'];
-			
-			
+
+
             /* for Adding payment from Invoice  */
             if(isset($save['InvoiceID'])) {
                 $InvoiceID = $save['InvoiceID'];
@@ -164,8 +164,21 @@ class PaymentsController extends \BaseController {
                 $AccountName = $save['AccountName'];
                 unset($save['AccountName']);
             }
+            $PaymentOldAmount = 0;
             if(isset($save['InvoiceNo'])) {
                 $save['InvoiceID'] = (int)Invoice::where(array('FullInvoiceNumber'=>$save['InvoiceNo'],'AccountID'=>$save['AccountID']))->pluck('InvoiceID');
+                $InvoiceID = $save['InvoiceID'];
+                $OutstandingAmount = DB::connection('sqlsrv2')
+                    ->table('tblInvoice')
+                    ->where('InvoiceID', $InvoiceID)
+                    ->where('CompanyID', $save['CompanyID'])
+                    ->pluck('GrandTotal');
+                $PaymentOldAmount = DB::connection('sqlsrv2')
+                    ->table('tblPayment')
+                    ->where('InvoiceID', $InvoiceID)
+                    ->where('CompanyID', $save['CompanyID'])
+                    ->sum('Amount');
+
             }
 
             $save['Status'] = 'Pending Approval';
@@ -179,7 +192,7 @@ class PaymentsController extends \BaseController {
                     $Invoice = Invoice::find($InvoiceID);
                     $CreatedBy = User::get_user_full_name();
                     $invoice_status = Invoice::get_invoice_status();
-                    $amount = $save['Amount'];
+                    $amount = $save['Amount'] + $PaymentOldAmount;
                     $GrandTotal = $Invoice->GrandTotal;
                     $invoiceloddata = array();
                     $invoiceloddata['InvoiceID']= $InvoiceID;
@@ -242,6 +255,33 @@ class PaymentsController extends \BaseController {
         }else{
             return $isvalid['message'];
         }
+    }
+
+    public function payments_quickbookpost(){
+        $data = Input::all();
+        $CompanyID = User::get_companyID();
+        $PaymentIDs =array_filter(explode(',',$data['PaymentIDs']),'intval');
+        if (is_array($PaymentIDs) && count($PaymentIDs)) {
+            $jobType = JobType::where(["Code" => 'QPP'])->first(["JobTypeID", "Title"]);
+            $jobStatus = JobStatus::where(["Code" => "P"])->first(["JobStatusID"]);
+            $jobdata["CompanyID"] = $CompanyID;
+            $jobdata["JobTypeID"] = $jobType->JobTypeID ;
+            $jobdata["JobStatusID"] =  $jobStatus->JobStatusID;
+            $jobdata["JobLoggedUserID"] = User::get_userID();
+            $jobdata["Title"] =  $jobType->Title;
+            $jobdata["Description"] = $jobType->Title ;
+            $jobdata["CreatedBy"] = User::get_user_full_name();
+            $jobdata["Options"] = json_encode($data);
+            $jobdata["created_at"] = date('Y-m-d H:i:s');
+            $jobdata["updated_at"] = date('Y-m-d H:i:s');
+            $JobID = Job::insertGetId($jobdata);
+            if($JobID){
+                return json_encode(["status" => "success", "message" => "Payment Post in quickbook Job Added in queue to process.You will be notified once job is completed."]);
+            }else{
+                return json_encode(array("status" => "failed", "message" => "Problem Payment Post in Quickbook ."));
+            }
+        }
+
     }
 
 
@@ -351,18 +391,56 @@ class PaymentsController extends \BaseController {
                 if(!empty($criteria['InvoiceNo'])){
                     $Payments->where('InvoiceNo','like','%'.$criteria['InvoiceNo'].'%');
                 }
-                $result = $Payments->update($data);
+                $PaymentIDs = $Payments->lists('PaymentID');
+                $result = Payment::whereIn('PaymentID',$PaymentIDs)->update($data);
             }
             elseif(is_array($PaymentIDs)){
                 $result = Payment::whereIn('PaymentID',$PaymentIDs)->update($data);
             }else{
                 if($id>0) {
+                    $PaymentIDs=array($id);
                     $result = Payment::find($id)->update($data);
                 }else{
                     return Response::json(array("status" => "failed", "message" => "Problem Changing Payment Status."));
                 }
             }
             if ($result) {
+                if(is_array($PaymentIDs)){
+                    foreach($PaymentIDs as $PaymentID){
+                        $InvoiceID=Payment::where('PaymentID',$PaymentID)->pluck('InvoiceID');
+                        if(!empty($InvoiceID)){
+                            $GrandTotal= Invoice::where(['InvoiceID'=>$InvoiceID])->pluck('GrandTotal');
+                            $paymentTotal = Payment::where(['InvoiceID'=>$InvoiceID, 'Recall'=>0])->sum('Amount');
+                            if($paymentTotal==0){
+                                Invoice::find($InvoiceID)->update(["InvoiceStatus"=>Invoice::SEND]);
+                            }else if($paymentTotal>=$GrandTotal){
+                                Invoice::find($InvoiceID)->update(["InvoiceStatus"=>Invoice::PAID]);
+                            }else if($paymentTotal<$GrandTotal){
+                                Invoice::find($InvoiceID)->update(["InvoiceStatus"=>Invoice::PARTIALLY_PAID]);
+                            }
+                        }
+
+                        $CreditNoteID=Payment::where('PaymentID',$PaymentID)->pluck('CreditNotesID');
+                        if(!empty($CreditNoteID)){
+                            //get payment amount from payments - creditnote paid amount
+                            $PaymentRecallAmount=Payment::where('PaymentID',$PaymentID)->pluck('Amount');
+                            $PaidAmount= CreditNotes::where(['CreditNotesID'=>$CreditNoteID])->pluck('PaidAmount');
+                            $RecallAmount = $PaidAmount - $PaymentRecallAmount;
+                            CreditNotes::find($CreditNoteID)->update(array("PaidAmount" => $RecallAmount ));
+
+                            /*$GrandTotal= CreditNotes::where(['CreditNotesID'=>$CreditNoteID])->pluck('GrandTotal');
+                            $paymentTotal = Payment::where(['CreditNotesID'=>$CreditNoteID, 'Recall'=>0])->sum('Amount');
+                            if($paymentTotal==0){
+                                Invoice::find($InvoiceID)->update(["InvoiceStatus"=>Invoice::SEND]);
+                            }else if($paymentTotal>=$GrandTotal){
+                                Invoice::find($InvoiceID)->update(["InvoiceStatus"=>Invoice::PAID]);
+                            }else if($paymentTotal<$GrandTotal){
+                                Invoice::find($InvoiceID)->update(["InvoiceStatus"=>Invoice::PARTIALLY_PAID]);
+                            }*/
+                        }
+                    }
+                }
+
                 return Response::json(array("status" => "success", "message" => "Payment Status Changed Successfully"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Changing Payment Status."));
@@ -525,7 +603,7 @@ class PaymentsController extends \BaseController {
     }
 
     public function confirm_bulk_upload() {
-        $data = Input::all();
+        $data = json_decode(str_replace('Skip loading','',json_encode(Input::all(),true)),true);//Input::all();
         $CompanyID = User::get_companyID();
         $ProcessID = $data['ProcessID'];
 
@@ -546,8 +624,8 @@ class PaymentsController extends \BaseController {
             $save = ['CompanyID' => $CompanyID, 'Title' => $data['TemplateName'], 'TemplateFile' => $amazonPath . $file_name];
             $save['created_by'] = User::get_user_full_name();
             $option["option"] = $data['option'];
-            $option["selection"] = $data['selection'];
-            $save['Options'] = json_encode($option);
+            $option["selection"] = filterArrayRemoveNewLines($data['selection']);
+            $save['Options'] = str_replace('Skip loading','',json_encode($option));//json_encode($option);
 
             if ( isset($data['PaymentUploadTemplateID']) && $data['PaymentUploadTemplateID'] > 0 ) {
                 $template = PaymentUploadTemplate::find($data['PaymentUploadTemplateID']);
@@ -584,6 +662,7 @@ class PaymentsController extends \BaseController {
         //echo "CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."','".$UserID."')";exit();
         try {
             DB::connection('sqlsrv2')->beginTransaction();
+
             $result = DB::connection('sqlsrv2')->statement("CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."','".$UserID."')");
             DB::connection('sqlsrv2')->commit();
 
@@ -591,6 +670,7 @@ class PaymentsController extends \BaseController {
             $jobupdatedata['JobStatusMessage'] = 'Payments uploaded successfully';
             $jobupdatedata['JobStatusID'] = JobStatus::where('Code','S')->pluck('JobStatusID');
             Job::where(["JobID" => $JobID])->update($jobupdatedata);
+
         }catch ( Exception $err ){
             try{
                 DB::connection('sqlsrv2')->rollback();

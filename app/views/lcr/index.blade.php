@@ -29,6 +29,10 @@
                     {{ Form::select('Trunk', $trunks, $trunk_keys, array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
+                    <label class="control-label">Timezone</label>
+                    {{ Form::select('Timezones', $Timezones, '', array("class"=>"select2")) }}
+                </div>
+                <div class="form-group">
                     <label for="field-1" class="control-label">CodeDeck</label>
                     {{ Form::select('CodeDeckId', $codedecklist, $DefaultCodedeck , array("class"=>"select2")) }}
                 </div>
@@ -218,7 +222,7 @@
 
             $("#lcr-search-form").submit(function(e) {
                 $(".vendorRateInfo").addClass('hide');
-                var Code, Description, Currency,CodeDeck,Use_Preference,vendor_block,show_all_vendor_codes,Policy,LCRPosition,GroupBy,SelectedEffectiveDate,aoColumns,aoColumnDefs,accounts;
+                var Code, Description, Currency,CodeDeck,Use_Preference,vendor_block,show_all_vendor_codes,Policy,LCRPosition,GroupBy,SelectedEffectiveDate,aoColumns,aoColumnDefs,accounts,Timezones;
                 Code = $("#lcr-search-form input[name='Code']").val();
                 Description = $("#lcr-search-form input[name='Description']").val();
                 Currency = $("#lcr-search-form select[name='Currency']").val();
@@ -232,6 +236,8 @@
                 GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
                 SelectedEffectiveDate = $("#lcr-search-form input[name='SelectedEffectiveDate']").val();
                 Accounts = $("#lcr-search-form select[name='Accounts[]']").val();
+                Timezones = $("#lcr-search-form select[name='Timezones']").val();
+
                 if(LCRPosition=='5'){
                     setTimeout(function(){
                         $('#dt_company6').addClass("hidden");
@@ -857,9 +863,9 @@
                     "bServerSide": true,
                     "sAjaxSource": baseurl + "/lcr/search_ajax_datagrid/type",
                     "fnServerParams": function(aoData) {
-                        aoData.push({"name": "Code", "value": Code},{"name": "Description", "value": Description},{"name": "LCRPosition", "value": LCRPosition},{"name": "Accounts", "value": Accounts},  {"name": "Currency", "value": Currency}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference},{"name": "vendor_block", "value": vendor_block},{"name": "show_all_vendor_codes", "value": show_all_vendor_codes},{"name": "GroupBy", "value": GroupBy},{ "name" : "SelectedEffectiveDate"  , "value" : SelectedEffectiveDate },{"name":"Policy","value":Policy});
+                        aoData.push({"name": "Code", "value": Code},{"name": "Description", "value": Description},{"name": "LCRPosition", "value": LCRPosition},{"name": "Accounts", "value": Accounts},  {"name": "Currency", "value": Currency}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference},{"name": "vendor_block", "value": vendor_block},{"name": "show_all_vendor_codes", "value": show_all_vendor_codes},{"name": "GroupBy", "value": GroupBy},{ "name" : "SelectedEffectiveDate"  , "value" : SelectedEffectiveDate },{"name":"Policy","value":Policy},{"name":"Timezones","value":Timezones});
                         data_table_extra_params.length = 0;
-                        data_table_extra_params.push({"name": "Code", "value": Code},{"name": "Description", "value": Description},{"name": "LCRPosition", "value": LCRPosition},{"name": "Accounts", "value": Accounts},  {"name": "Currency", "value": Currency}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference},{"name": "vendor_block", "value": vendor_block},{"name": "show_all_vendor_codes", "value": show_all_vendor_codes},{"name": "GroupBy", "value": GroupBy},{ "name" : "SelectedEffectiveDate"  , "value" : SelectedEffectiveDate },{"name":"Policy","value":Policy},{"name":"Export","value":1});
+                        data_table_extra_params.push({"name": "Code", "value": Code},{"name": "Description", "value": Description},{"name": "LCRPosition", "value": LCRPosition},{"name": "Accounts", "value": Accounts},  {"name": "Currency", "value": Currency}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference},{"name": "vendor_block", "value": vendor_block},{"name": "show_all_vendor_codes", "value": show_all_vendor_codes},{"name": "GroupBy", "value": GroupBy},{ "name" : "SelectedEffectiveDate"  , "value" : SelectedEffectiveDate },{"name":"Policy","value":Policy},{"name":"Timezones","value":Timezones},{"name":"Export","value":1});
                     },
                     "iDisplayLength": 10,
                     "sPaginationType": "bootstrap",
@@ -991,6 +997,7 @@
             $('#table-4 tbody').on('click','.blockingbycode',function(){
                 var descriptioname = $(this).parent().siblings(":first").text();
                 Trunk = $("#lcr-search-form select[name='Trunk']").val();
+                Timezones = $("#lcr-search-form select[name='Timezones']").val();
                 CodeDeck = $("#lcr-search-form select[name='CodeDeckId']").val();
                 GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
                 var thisclass = $(this);
@@ -1009,6 +1016,7 @@
                         id: thisid,
                         acc_id: thisaccid,
                         trunk: Trunk,
+                        Timezones: Timezones,
                         CodeDeckId: CodeDeck,
                         rowcode: rowcode,
                         GroupBy: GroupBy,
@@ -1150,6 +1158,7 @@
             $(document).on('click','.openPopup',function(){
                 var descriptioname = $(this).parent().siblings(":first").text();
                 Trunk = $("#lcr-search-form select[name='Trunk']").val();
+                Timezones = $("#lcr-search-form select[name='Timezones']").val();
                 CodeDeck = $("#lcr-search-form select[name='CodeDeckId']").val();
                 GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
                 var thisclass = $(this);
@@ -1163,6 +1172,7 @@
                     dataType: 'json',
                     data: {
                         trunk: Trunk,
+                        Timezones: Timezones,
                         CodeDeckId: CodeDeck,
                         GroupBy: GroupBy,
                         acc_id:thisaccid,
@@ -1175,6 +1185,7 @@
                     {
                         var codedescription = GroupBy=='description' ? descriptioname : rowcode;
                         Trunk = $("#lcr-search-form select[name='Trunk']").val();
+                        Timezones = $("#lcr-search-form select[name='Timezones']").val();
                         CodeDeck = $("#lcr-search-form select[name='CodeDeckId']").val();
                         GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
                         //var thisclass = $(this);
@@ -1193,6 +1204,7 @@
                                 '<input type="hidden" name="id" value='+thisid+'>' +
                                 '<input type="hidden" name="acc_id" value='+thisaccid+'>' +
                                 '<input type="hidden" name="trunk" value='+Trunk+'>' +
+                                '<input type="hidden" name="Timezones" value='+Timezones+'>' +
                                 '<input type="hidden" name="CodeDeckId" value='+CodeDeck+'>' +
                                 '<input type="hidden" name="GroupBy" value='+GroupBy+'>' +
                                 '<input type="hidden" name="rowcode" value='+rowcode+'>' +

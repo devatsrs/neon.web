@@ -10,6 +10,7 @@ class Dispute extends \Eloquent {
 	const  PENDING = 0;
 	const SETTLED =1;
 	const CANCEL  = 2;
+	const EMAILTEMPLATE 		= "DisputeEmailCustomer";
 
 	public static $Status = [''=>'Select a Status',self::PENDING=>'Pending',self::SETTLED=>'Settled',self::CANCEL=>'Cancel'];
 
@@ -150,6 +151,7 @@ class Dispute extends \Eloquent {
 
 		$disputeData["Status"]      = isset($data["Status"])?$data["Status"]:0;
 		$disputeData["Notes"]      = isset($data["Notes"])?$data["Notes"]:"";
+		$disputeData["Ref"]      = isset($data["Ref"])?$data["Ref"]:"";
 		$disputeData['created_at']  = date("Y-m-d H:i:s");
 		$disputeData['CreatedBy']   = User::get_user_full_name();
 

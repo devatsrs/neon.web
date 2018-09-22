@@ -22,6 +22,10 @@
             <form id="add-new-form" method="post">
 
                 <div class="float-right">
+                    <button type="button" id="autoImportInboxSetting-test"  class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <i class="entypo-check"></i>
+                        Test
+                    </button>
                     @if(User::checkCategoryPermission('AutoImport','Add'))
                     <button type="button" id="autoImportInboxSetting-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i>
@@ -68,7 +72,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group ">
                                         <label for="field-5" class="control-label">Password</label>
-                                        <input type="password" name="password" class="form-control" placeholder="Password" />
+                                        <input type="password" name="password" class="form-control" value="{{isset($autoimportSetting->password)?$autoimportSetting->password:'';}}" placeholder="Password" />
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -145,6 +149,26 @@
     </div>
     <script type="text/javascript">
         jQuery(document).ready(function($) {
+
+            $("#autoImportInboxSetting-test").click(function(ev) {
+                var formData = $('#add-new-form').serialize();
+                update_new_url = baseurl + '/auto_rate_import/validConnection';
+                $.ajax({
+                    url: update_new_url,
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        if (response.status == 'success') {
+                            toastr.success(response.message, "Success", toastr_opts);
+                            data_table.fnFilter('', 0);
+                            location.reload();
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                            data_table.fnFilter('', 0);
+                        }
+                    },
+                });
+            });
 
             $("#autoImportInboxSetting-update").click(function (){
                   //  e.preventDefault();

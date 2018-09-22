@@ -4,10 +4,21 @@ class ReportCustomerCDR extends \Eloquent{
     public static $database_columns = array(
         'AccountID' => 'tblHeader.AccountID',
         'DestinationBreak' => 'tblRate.Description',
+        'BillingType' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.BillingType, "")',
+        'BillingClassID' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.BillingClassID, "")',
+        'BillingStartDate' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.BillingStartDate, "")',
+        'BillingCycleType' => "IF(tblAccountNextBilling.BillingCycleType!='', tblAccountNextBilling.BillingCycleType, IF(tblAccountBilling.BillingCycleType!='', tblAccountBilling.BillingCycleType, ''))",
+        'BillingCycleValue' => "IF(tblAccountNextBilling.BillingCycleValue!='', tblAccountNextBilling.BillingCycleValue, IF(tblAccountBilling.BillingCycleValue!='', tblAccountBilling.BillingCycleValue, ''))",
+        'LastInvoiceDate' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.LastInvoiceDate, "")',
+        'NextInvoiceDate' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.NextInvoiceDate, "")',
+        'LastChargeDate' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.LastChargeDate, "")',
+        'NextChargeDate' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.NextChargeDate, "")',
     );
     public static  $AccountJoin = false;
     public static  $CodeJoin = false;
     public static  $DetailTable = 'tblUsageSummaryDay';
+    public static  $AccountBillingJoin = false;
+    public static  $AccountNextBillingJoin = false;
 
     public static function generateSummaryQuery($CompanyID, $data, $filters){
         $setting_ag = isset($data['setting_ag'])?json_decode($data['setting_ag'],true):array();
@@ -19,7 +30,9 @@ class ReportCustomerCDR extends \Eloquent{
             if(substr($filters['date']['start_date'],0,10) == date('Y-m-d') || substr($filters['date']['end_date'],0,10) == date('Y-m-d')){
                 $query_distinct2 = self::commonCDRQuery($CompanyID, $data, $filters,true);
                 foreach ($data['row'] as $column) {
-                    if(isset(self::$database_columns[$column])){
+                    if($column == 'CountryID'){
+                        $select_columns2[] = DB::raw(self::$DetailTable.'.'.$column.' as '.$column) ;
+                    }else if(isset(self::$database_columns[$column])){
                         $select_columns2[] = DB::raw(self::$database_columns[$column].' as '.$column) ;
                     }else {
                         $columnname = report_col_name($column);
@@ -31,7 +44,10 @@ class ReportCustomerCDR extends \Eloquent{
                 $query_distinct->union($query_distinct2);
             }
             foreach ($data['row'] as $column) {
-                if(isset(self::$database_columns[$column])){
+                if($column == 'CountryID'){
+                    $columnname = $column;
+                    $select_columns[] = DB::raw(self::$DetailTable.'.'.$column.' as '.$column) ;
+                }else if(isset(self::$database_columns[$column])){
                     $columnname = $column;
                     $select_columns[] = DB::raw(self::$database_columns[$column].' as '.$column) ;
                 }else {
@@ -52,7 +68,10 @@ class ReportCustomerCDR extends \Eloquent{
         }
         $final_query = self::commonCDRQuery($CompanyID, $data, $filters,false);
         foreach ($data['column'] as $column) {
-            if(isset(self::$database_columns[$column])){
+            if($column == 'CountryID'){
+                $final_query->groupby(self::$DetailTable.'.'.$column);
+                $select_columns[] = DB::raw(self::$DetailTable.'.'.$column.' as '.$column) ;
+            }else if(isset(self::$database_columns[$column])){
                 $final_query->groupby($column);
                 $select_columns[] = DB::raw(self::$database_columns[$column].' as '.$column) ;
             }else {
@@ -62,7 +81,9 @@ class ReportCustomerCDR extends \Eloquent{
             }
         }
         foreach ($data['row'] as $column) {
-            if(isset(self::$database_columns[$column])){
+            if($column == 'CountryID'){
+                $final_query->groupby(self::$DetailTable.'.'.$column);
+            }else if(isset(self::$database_columns[$column])){
                 $final_query->groupby($column);
             }else {
                 $columnname = report_col_name($column);
@@ -83,7 +104,10 @@ class ReportCustomerCDR extends \Eloquent{
         if(substr($filters['date']['start_date'],0,10) == date('Y-m-d') || substr($filters['date']['end_date'],0,10) == date('Y-m-d')){
             $final_query2 = self::commonCDRQuery($CompanyID, $data, $filters,true);
             foreach ($data['column'] as $column) {
-                if(isset(self::$database_columns[$column])){
+                if($column == 'CountryID'){
+                    $final_query2->groupby(self::$DetailTable.'.'.$column);
+                    $select_columns2[] = DB::raw(self::$DetailTable.'.'.$column.' as '.$column) ;
+                }else if(isset(self::$database_columns[$column])){
                     $final_query2->groupby($column);
                     $select_columns2[] = DB::raw(self::$database_columns[$column].' as '.$column) ;
                 }else {
@@ -93,7 +117,9 @@ class ReportCustomerCDR extends \Eloquent{
                 }
             }
             foreach ($data['row'] as $column) {
-                if(isset(self::$database_columns[$column])){
+                if($column == 'CountryID'){
+                    $final_query2->groupby(self::$DetailTable.'.'.$column);
+                }else if(isset(self::$database_columns[$column])){
                     $final_query2->groupby($column);
                 }else {
                     $columnname = report_col_name($column);
@@ -168,8 +194,45 @@ class ReportCustomerCDR extends \Eloquent{
             self::$CodeJoin = true;
         }
 
+        if(in_array('BillingType',$data['column']) || in_array('BillingType',$data['row']) ||
+            in_array('BillingStartDate',$data['column']) || in_array('BillingStartDate',$data['row']) ||
+            in_array('BillingCycleType',$data['column']) || in_array('BillingCycleType',$data['row']) ||
+            in_array('BillingCycleValue',$data['column']) || in_array('BillingCycleValue',$data['row']) ||
+            in_array('BillingClassID',$data['column']) || in_array('BillingClassID',$data['row']) ||
+            in_array('LastInvoiceDate',$data['column']) || in_array('LastInvoiceDate',$data['row']) ||
+            in_array('NextInvoiceDate',$data['column']) || in_array('NextInvoiceDate',$data['row']) ||
+            in_array('LastChargeDate',$data['column']) || in_array('LastChargeDate',$data['row']) ||
+            in_array('NextChargeDate',$data['column']) || in_array('NextChargeDate',$data['row'])
+        ){
+            $query_common->leftjoin($RMDB.'.tblAccountBilling', function ($join) {
+                $join->on('tblAccountBilling.AccountID', '=', 'tblAccount.AccountID')
+                    ->where('tblAccountBilling.ServiceID', '=', 0);
+            }
+            );
+            self::$AccountBillingJoin = true;
+        }
+        if( in_array('BillingCycleValue',$data['column']) || in_array('BillingCycleValue',$data['row']) ||
+            in_array('BillingCycleType',$data['column']) || in_array('BillingCycleType',$data['row']) ){
+            $query_common->leftjoin($RMDB.'.tblAccountNextBilling', function ($join) {
+                $join->on('tblAccountNextBilling.AccountID', '=', 'tblAccount.AccountID')
+                    ->where('tblAccountNextBilling.ServiceID', '=', 0);
+            }
+            );
+            self::$AccountNextBillingJoin = true;
+        }
+
+
         foreach ($filters as $key => $filter) {
-            if ($key == 'multiday_hour') {
+            if($key == 'CountryID'){
+                if (!empty($filter['wildcard_match_val'])) {
+                    $data_in_array = Report::getDataInArray($CompanyID, $key, $filter['wildcard_match_val']);
+                    if (!empty($data_in_array)) {
+                        $query_common->whereIn(self::$DetailTable.'.'.$key, $data_in_array);
+                    }
+                } else if (!empty($filter[$key]) && is_array($filter[$key])) {
+                    $query_common->whereIn(self::$DetailTable.'.'.$key, $filter[$key]);
+                }
+            }else if ($key == 'multiday_hour') {
                 if (!empty($filters['date']['start_date'])) {
                     $query_common->where(function ($query) use($filters, $filter){
                         $query->where(function ($query_inner) use($filters, $filter){

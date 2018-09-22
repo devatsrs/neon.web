@@ -19,6 +19,7 @@ class SiteIntegration{
  static    $paypalSlug			=	'paypal';
  static    $outlookcalenarSlug	=	'outlook';
  static    $QuickBookSlug		=	'quickbook';
+ static    $QuickBookDesktopSlug=	'quickbookdesktop';
  static    $StripeSlug			=	'stripe';
  static    $StripeACHSlug		=	'stripeach';
  static    $SagePaySlug			=	'sagepay';
@@ -26,6 +27,7 @@ class SiteIntegration{
  static    $FideliPaySlug =	'fidelipay';
  static    $XeroSlug =	'xero';
  static    $PeleCardSlug		=	'pelecard';
+ static    $MerchantWarriorSlug		=	'merchantwarrior';
 
  	public function __construct(){
 	

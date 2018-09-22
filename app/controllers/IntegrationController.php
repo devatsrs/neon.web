@@ -419,6 +419,45 @@ class IntegrationController extends \BaseController
 				return Response::json(array("status" => "success", "message" => "FideliPay Settings Successfully Updated"));
 			}
 
+			if($data['secondcategory']=='MerchantWarrior')
+			{
+				$rules = array(
+					'merchantUUID'	 => 'required',
+					'apiKey'	 => 'required',
+					'apiPassphrase'	 => 'required'
+				);
+
+				$validator = Validator::make($data, $rules);
+
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+
+				$data['MerchantWarriorLive'] 		= 	isset($data['MerchantWarriorLive'])?1:0;
+				$data['Status'] 		= 	isset($data['Status'])?1:0;
+
+				$MerchantWarriorData = array(
+					"merchantUUID"=>$data['merchantUUID'],
+					"apiKey"=>$data['apiKey'],
+					"apiPassphrase"=>$data['apiPassphrase'],
+					"MerchantWarriorLive"=>$data['MerchantWarriorLive'],
+				);
+
+				$MerchantWarriorDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+
+				if(count($MerchantWarriorDbData)>0)
+				{
+					$SaveData = array("Settings"=>json_encode($MerchantWarriorData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$MerchantWarriorDbData->IntegrationConfigurationID))->update($SaveData);
+				}
+				else
+				{
+					$SaveData = array("Settings"=>json_encode($MerchantWarriorData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::create($SaveData);
+				}
+				return Response::json(array("status" => "success", "message" => "MerchantWarrior Settings Successfully Updated"));
+			}
+
 			if($data['secondcategory']=='PeleCard')
 			{
 				$PeleCardDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
@@ -541,6 +580,7 @@ class IntegrationController extends \BaseController
 					"AmazonAwsBucket"=>$data['AmazonAwsBucket'],
 					"AmazonAwsUrl"=>$data['AmazonAwsUrl'],
 					"AmazonAwsRegion"=>$data['AmazonAwsRegion'],					
+					"SignatureVersion"=>$data['SignatureVersion'],
 					);
 				 
 				$MandrilDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
@@ -738,6 +778,38 @@ class IntegrationController extends \BaseController
 					IntegrationConfiguration::create($SaveData);
 				}
 				return Response::json(array("status" => "success", "message" => "QuickBook Settings Successfully Updated", "quickbookredirect" =>1));
+
+			}
+
+			if($data['secondcategory']=='Quickbook Desktop') {
+
+				$QuickBookDesktopDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+
+
+				$data['Status'] 				= 	isset($data['Status'])?1:0;
+				$data['QuickBookSandbox'] 	= 	isset($QuickBook['Sandbox'])?1:0;
+				$data['InvoiceAccount'] 	= 	isset($data['InvoiceAccount'])?$data['InvoiceAccount']:'';
+				$data['PaymentAccount'] 	= 	isset($data['PaymentAccount'])?$data['PaymentAccount']:'';
+
+				$QuickBookData = array();
+				$QuickBookData = $data;
+				unset($QuickBookData['firstcategory']);
+				unset($QuickBookData['secondcategory']);
+				unset($QuickBookData['firstcategoryid']);
+				unset($QuickBookData['secondcategoryid']);
+				unset($QuickBookData['Status']);
+
+				//$QuickBookDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+
+				if(count($QuickBookDesktopDbData)>0) {
+					$SaveData = array("Settings"=>json_encode($QuickBookData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$QuickBookDesktopDbData->IntegrationConfigurationID))->update($SaveData);
+
+				} else {
+					$SaveData = array("Settings"=>json_encode($QuickBookData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::create($SaveData);
+				}
+				return Response::json(array("status" => "success", "message" => "QuickBook Desktop Settings Successfully Updated", "quickbookredirect" =>1));
 
 			}
 

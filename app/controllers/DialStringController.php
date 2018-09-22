@@ -419,7 +419,7 @@ class DialStringController extends \BaseController {
 
 
     public function storeTemplate($id) {
-        $data = Input::all();
+        $data = json_decode(str_replace('Skip loading','',json_encode(Input::all(),true)),true);//Input::all();
         $CompanyID = User::get_companyID();
         DialStringCode::$DialStringUploadrules['selection.DialString'] = 'required';
         DialStringCode::$DialStringUploadrules['selection.ChargeCode'] = 'required';
@@ -443,8 +443,8 @@ class DialStringController extends \BaseController {
             $save = ['CompanyID' => $CompanyID, 'Title' => $data['TemplateName'], 'TemplateFile' => $amazonPath . $file_name];
             $save['created_by'] = User::get_user_full_name();
             $option["option"] = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
-            $option["selection"] = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
-            $save['Options'] = json_encode($option);
+            $option["selection"] = filterArrayRemoveNewLines($data['selection']);//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
+            $save['Options'] = str_replace('Skip loading','',json_encode($option));//json_encode($option);
             $save['FileUploadTemplateTypeID'] = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_DIALSTRING);
             if (isset($data['uploadtemplate']) && $data['uploadtemplate'] > 0) {
                 $template = FileUploadTemplate::find($data['uploadtemplate']);
@@ -456,8 +456,8 @@ class DialStringController extends \BaseController {
         }
         $save = array();
         $option["option"]=  $data['option'];
-        $option["selection"] = $data['selection'];
-        $save['Options'] = json_encode($option);
+        $option["selection"] = filterArrayRemoveNewLines($data['selection']);
+        $save['Options'] = str_replace('Skip loading','',json_encode($option));//json_encode($option);
         $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
         $save['full_path'] = $fullPath;
         $save["DialStringID"] = $id;

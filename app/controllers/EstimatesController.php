@@ -115,7 +115,8 @@ class EstimatesController extends \BaseController {
         $taxes 	  = TaxRate::getTaxRateDropdownIDListForInvoice(0,$CompanyID);
 		$BillingClass = BillingClass::getDropdownIDList($CompanyID);
         //$gateway_product_ids = Product::getGatewayProductIDs();
-        return View::make('estimates.create',compact('accounts','products','taxes','BillingClass'));
+        $itemtypes 	= 	ItemType::getItemTypeDropdownList($CompanyID);
+        return View::make('estimates.create',compact('accounts','itemtypes','products','taxes','BillingClass'));
 
     }
 
@@ -145,7 +146,8 @@ class EstimatesController extends \BaseController {
             $taxes 						= 	 TaxRate::getTaxRateDropdownIDListForInvoice(0,$CompanyID);
 			$EstimateAllTax 			= 	 DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->where(["EstimateID"=>$id,"EstimateTaxType"=>1])->get();
 			$BillingClass				=    BillingClass::getDropdownIDList($CompanyID);
-            return View::make('estimates.edit', compact( 'id', 'Estimate','EstimateDetail','EstimateTemplateID','EstimateNumberPrefix',  'CurrencyCode','CurrencyID','RoundChargesAmount','accounts', 'products', 'taxes','CompanyName','Account','EstimateAllTax','BillingClass','EstimateBillingClass'));
+            $itemtypes 	= 	ItemType::getItemTypeDropdownList($CompanyID);
+            return View::make('estimates.edit', compact( 'id','itemtypes', 'Estimate','EstimateDetail','EstimateTemplateID','EstimateNumberPrefix',  'CurrencyCode','CurrencyID','RoundChargesAmount','accounts', 'products', 'taxes','CompanyName','Account','EstimateAllTax','BillingClass','EstimateBillingClass'));
         }
     }
 
@@ -316,9 +318,9 @@ class EstimatesController extends \BaseController {
 					}
 				}
 				
-                $EstimateItemTaxRates 	 		 = 	merge_tax($EstimateItemTaxRates);
+                /*$EstimateItemTaxRates 	 		 = 	merge_tax($EstimateItemTaxRates);
 				$EstimateSubscriptionTaxRates 	 = 	merge_tax($EstimateSubscriptionTaxRates);
-				$EstimateAllTaxRates 			 = 	merge_tax($EstimateAllTaxRates);
+				$EstimateAllTaxRates 			 = 	merge_tax($EstimateAllTaxRates);*/
 				
 				
                 $EstimateLogData = array();
@@ -328,20 +330,24 @@ class EstimatesController extends \BaseController {
                 $EstimateLogData['EstimateLogStatus']= EstimateLog::CREATED;
                 EstimateLog::insert($EstimateLogData);
 				
-                if(!empty($EstimateItemTaxRates)) { //product item tax
+                /*if(!empty($EstimateItemTaxRates)) { //product item tax
                     DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateItemTaxRates);
                 }
 				
 				if(!empty($EstimateSubscriptionTaxRates)) { //product subscription tax
                     DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateSubscriptionTaxRates);
-                }
+                }*/
 				
 				 if(!empty($EstimateAllTaxRates)) { //estimate tax
-                    DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateAllTaxRates);
+                     EstimateTaxRate::insert($EstimateAllTaxRates);
                 }
 //Log::info(print_r($EstimateDetailData,true));
                 if (!empty($EstimateDetailData) && EstimateDetail::insert($EstimateDetailData))
 				{
+                    $InvoiceTaxRates1=EstimateTaxRate::getEstimateTaxRateByProductDetail($Estimate->EstimateID);
+                    if(!empty($InvoiceTaxRates1)) { //Invoice tax
+                        EstimateTaxRate::insert($InvoiceTaxRates1);
+                    }
                     $pdf_path = Estimate::generate_pdf($Estimate->EstimateID);
 					
                     if (empty($pdf_path))
@@ -541,24 +547,28 @@ class EstimatesController extends \BaseController {
 							}
 						}
 
-                        $EstimateItemTaxRates 	 		 = 	merge_tax($EstimateItemTaxRates);
+                        /*$EstimateItemTaxRates 	 		 = 	merge_tax($EstimateItemTaxRates);
 						$EstimateSubscriptionTaxRates 	 = 	merge_tax($EstimateSubscriptionTaxRates);
-						$EstimateAllTaxRates 			 =  merge_tax($EstimateAllTaxRates);
+						$EstimateAllTaxRates 			 =  merge_tax($EstimateAllTaxRates);*/
 						
-                         if(!empty($EstimateItemTaxRates)) { //product item tax
+                         /*if(!empty($EstimateItemTaxRates)) { //product item tax
 							DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateItemTaxRates);
 						}
 						
 						if(!empty($EstimateSubscriptionTaxRates)) { //product subscription tax
 							DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateSubscriptionTaxRates);
-						}
+						}*/
 						
 						if(!empty($EstimateAllTaxRates)) {
-                            DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateAllTaxRates);
+                            EstimateTaxRate::insert($EstimateAllTaxRates);
                         }
 
                         if (!empty($EstimateDetailData) && EstimateDetail::insert($EstimateDetailData))
 						{
+                            $InvoiceTaxRates1=EstimateTaxRate::getEstimateTaxRateByProductDetail($Estimate->EstimateID);
+                            if(!empty($InvoiceTaxRates1)) { //Invoice tax
+                                EstimateTaxRate::insert($InvoiceTaxRates1);
+                            }
                             $pdf_path = Estimate::generate_pdf($Estimate->EstimateID);
 							
                             if (empty($pdf_path))

@@ -15,7 +15,7 @@ class ResellerController extends BaseController {
        //$data['Status'] = $data['Status']== 'true'?1:0;
 
        $resellers = Reseller::leftJoin('tblAccount','tblAccount.AccountID','=','tblReseller.AccountID')
-                    ->select(["tblReseller.ResellerID","tblAccount.AccountName","tblReseller.Email",DB::raw("(select count(*) from tblAccount a where a.CompanyId=tblReseller.ChildCompanyID and a.IsCustomer=1) as NumberOfAccount"),"tblReseller.AccountID","tblReseller.Status","tblReseller.AllowWhiteLabel","tblReseller.CompanyID","tblReseller.ChildCompanyID"])
+                    ->select(["tblReseller.ResellerID","tblAccount.AccountName","tblReseller.Email",DB::raw("(select count(*) from tblAccount a where a.CompanyId=tblReseller.ChildCompanyID) as NumberOfAccount"),"tblReseller.AccountID","tblReseller.Status","tblReseller.AllowWhiteLabel","tblReseller.CompanyID","tblReseller.ChildCompanyID"])
                     ->where(["tblReseller.CompanyID" => $companyID]);
         if($data['Status']==1){
             $resellers->where(["tblReseller.Status" => 1]);

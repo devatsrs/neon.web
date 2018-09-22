@@ -729,6 +729,19 @@
             </div>
           </div>          
         </div>
+          <div class="row">
+              <div class="col-md-6">
+                  <div class="form-group">
+                      <label for="field-1" class="control-label">Signature Version:</label>
+                      <div class="styled-select slate">
+                          {{Form::select('SignatureVersion',[''=>'Default','v4'=>'V4'],isset($AmazonData->SignatureVersion)?$AmazonData->SignatureVersion:'',array("class"=>""))}}
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-6">
+
+              </div>
+          </div>
       </div>   
    
 
@@ -955,6 +968,75 @@
         </div>
       <!-- Quick Book End-->
 
+        <!-- Quick Book Desktop-->
+        <?php
+        $QuickBookDesktopDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$QuickBookDesktopSlug);
+        $QBDesktopData   = isset($QuickBookDesktopDbData->Settings)?json_decode($QuickBookDesktopDbData->Settings,true):"";
+        ?>
+        <div class="subcategorycontent" id="subcategorycontent{{$QuickBookDesktopDbData->Slug}}">
+            <!-- quickbook form start-->
+
+            <div class="panel panel-primary" data-collapsed="0">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        Chart of Accounts Mapping
+                    </div>
+
+                    <div class="panel-options">
+                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="col-md-6  margin-top">
+                        <div class="form-group">
+                            <label for="field-1" class="col-sm-4 control-label">Invoice:</label>
+                            <div class="col-sm-8">
+                                <input type="text"  class="form-control" name="InvoiceAccount" value="{{isset($QBDesktopData['InvoiceAccount'])?$QBDesktopData['InvoiceAccount']:""}}" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 margin-top">
+                        <div class="form-group">
+                            <label for="field-1" class="col-sm-4 control-label">Payment:</label>
+                            <div class="col-sm-8">
+                                <input type="text"  class="form-control" name="PaymentAccount" value="{{isset($QBDesktopData['PaymentAccount'])?$QBDesktopData['PaymentAccount']:""}}" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clear"></div>
+                    <?php $count=0; ?>
+                    @if(!empty($TaxLists)&& count($TaxLists)>0)
+                        @foreach($TaxLists as $TaxList)
+                            <div class="col-md-6  margin-top">
+                                <div class="form-group">
+                                    <label for="field-1" class="col-sm-4 control-label">{{$TaxList->Title}}:</label>
+                                    <div class="col-sm-8">
+                                        <input type="text"  class="form-control" name="Tax[{{$TaxList->TaxRateId}}]" value="{{isset($QBDesktopData['Tax'][$TaxList->TaxRateId])?$QBDesktopData['Tax'][$TaxList->TaxRateId]:""}}" />
+                                    </div>
+                                </div>
+                            </div>
+                            <?php $count++; ?>
+                            @if($count%2 == 0)
+                                <div class="clear"></div>
+                            @endif
+                        @endforeach
+                    @endif
+                    <div class="col-md-6  margin-top">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Active:</label>
+                            <div class="col-sm-8" id="QuickBookDesktopStatusDiv">
+                                <input id="QuickBookDesktopStatus" class="subcatstatus" Divid="QuickBookDesktopStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($QuickBookDesktopDbData->Status) && $QuickBookDesktopDbData->Status==1){ ?>   checked="checked"<?php } ?> >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- quickbook form end-->
+        </div>
+        <!-- Quick Book Desktop End-->
+
         <!-- Xero -->
         <?php
         $XeroDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$XeroSlug);
@@ -1070,6 +1152,50 @@
         </div>
         <!-- Xero End-->
 
+        <?php
+        $MerchantWarriorData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$MerchantWarriorSlug);
+        $MerchantWarrior   = isset($MerchantWarriorData->Settings)?json_decode($MerchantWarriorData->Settings):"";
+        ?>
+        <div class="subcategorycontent" id="subcategorycontent{{$MerchantWarriorData->Slug}}">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">* Merchant UUID:</label>
+                        <input type="text"  class="form-control" name="merchantUUID" value="{{isset($MerchantWarrior->merchantUUID)?$MerchantWarrior->merchantUUID:''}}" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">* API Key:</label>
+                        <input type="text"  class="form-control" name="apiKey" value="{{isset($MerchantWarrior->apiKey)?$MerchantWarrior->apiKey:''}}" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">* Api Passphrase:</label>
+                        <input type="text"  class="form-control" name="apiPassphrase" value="{{isset($MerchantWarrior->apiPassphrase)?$MerchantWarrior->apiPassphrase:''}}" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">* Live:</label>
+                        <div id="MerchantWarriorLiveDiv">
+                            <input id="MerchantWarriorLive" class="subcatstatus" Divid="MerchantWarriorLiveDiv" name="MerchantWarriorLive" type="checkbox" value="1" <?php if(isset($MerchantWarrior->MerchantWarriorLive) && $MerchantWarrior->MerchantWarriorLive==1){ ?>   checked="checked"<?php } ?> >
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">Active:</label>
+                        <div id="MerchantWarriorStatusDiv">
+                            <input id="MerchantWarriorStatus" class="subcatstatus" Divid="MerchantWarriorStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($MerchantWarriorData->Status) && $MerchantWarriorData->Status==1){ ?>   checked="checked"<?php } ?> >
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </div>
 

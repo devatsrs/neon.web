@@ -15,14 +15,13 @@ class ProductsController extends \BaseController {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         $data['iDisplayStart'] +=1;
-        $columns = ['ProductID','Name','Code','Amount','updated_at','Active'];
+        $columns = ['ProductID','title','Name','Code','Buying_price','Amount','Quantity','updated_at','Active','Description','Note','AppliedTo','Low_stock_level','ItemTypeID'];
         $sort_column = $columns[$data['iSortCol_0']];
         if($data['AppliedTo'] == ''){
             $data['AppliedTo'] = 'null';
         }
 
-        $query = "call prc_getProducts (".$CompanyID.", '".$data['Name']."','".$data['Code']."','".$data['Active']."',".$data['AppliedTo'].", ".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
-
+        $query = "call prc_getProducts (".$CompanyID.", '".$data['Name']."','".$data['Code']."','".$data['Active']."',".$data['AppliedTo'].", ".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."','".$data['ItemTypeID']."'";
         $Type =  Product::DYNAMIC_TYPE;
         $DynamicFields = $this->getDynamicFields($CompanyID,$Type);
 
@@ -93,7 +92,8 @@ class ProductsController extends \BaseController {
         $companyID = User::get_companyID();
         $gateway = CompanyGateway::getCompanyGatewayIdList();
         $DynamicFields = $this->getDynamicFields($companyID,$Type);
-        return View::make('products.index', compact('id','gateway','DynamicFields'));
+        $itemtypes 	= 	ItemType::getItemTypeDropdownList($companyID);
+        return View::make('products.index', compact('id','gateway','DynamicFields','itemtypes'));
     }
 
 	/**
@@ -103,7 +103,6 @@ class ProductsController extends \BaseController {
 	 * @return Response
 	 */
     public function create(){
-
         $data = Input::all();
         $companyID = User::get_companyID();
         $roundplaces = $RoundChargesAmount = get_round_decimal_places();
@@ -115,15 +114,39 @@ class ProductsController extends \BaseController {
         unset($data['ProductID']);
         unset($data['ProductClone']);
 
+        if(isset($data['Quantity']) && $data['Quantity']!=''){
+            $data['Enable_stock']=1;
+        }
+
         if(isset($data['DynamicFields'])) {
             $j=0;
             foreach($data['DynamicFields'] as $key => $value) {
                 $key = (int) $key;
-                if(!empty($data['DynamicFields'][$key])){
-                    $DynamicFields[$j]['FieldValue'] = trim($data['DynamicFields'][$key]);
-                } else {
-                    $DynamicFields[$j]['FieldValue'] = "";
+                if(isset($_FILES["DynamicFields"]["name"][$key])){
+                    $dynamicImage = $_FILES["DynamicFields"]["name"][$key];
+                    if($dynamicImage){
+                        $upload_path = CompanyConfiguration::get('UPLOAD_PATH',$companyID)."/";
+                        $fileUrl=$companyID."/dynamicfields/";
+                        if (!file_exists($upload_path.$fileUrl)) {
+                            mkdir($upload_path.$fileUrl, 0777, true);
+                        }
+                        $dynamicImage=time().$dynamicImage;
+                        $success=move_uploaded_file($_FILES["DynamicFields"]["tmp_name"][$key],$upload_path.$fileUrl.$dynamicImage);
+                        if($success){
+                            $DynamicFields[$j]['FieldValue']=$fileUrl.$dynamicImage;
+                        }else{
+                            $DynamicFields[$j]['FieldValue']="";
+                            return Response::json(array("status" => "failed", "message" => "Error: There was a problem uploading your file. Please try again."));
+                        }
+                    }
+                }else{
+                    if(!empty($data['DynamicFields'][$key])){
+                        $DynamicFields[$j]['FieldValue'] = trim($data['DynamicFields'][$key]);
+                    } else {
+                        $DynamicFields[$j]['FieldValue'] = "";
+                    }
                 }
+
                 $DynamicFields[$j]['DynamicFieldsID'] = $key;
                 $DynamicFields[$j]['CompanyID'] = $companyID;
                 $DynamicFields[$j]['created_at'] = date('Y-m-d H:i:s.000');
@@ -132,7 +155,9 @@ class ProductsController extends \BaseController {
             }
             unset($data['DynamicFields']);
         }
-
+        if(isset($data['hDynamicFields'])){
+            unset($data['hDynamicFields']);
+        }
         if(isset($DynamicFields)) {
             if ($error = DynamicFieldsValue::validate($DynamicFields)) {
                 return $error;
@@ -141,6 +166,7 @@ class ProductsController extends \BaseController {
 
         $rules = array(
             'CompanyID' => 'required',
+            'ItemTypeID' => 'required',
             'Name' => 'required',
             'Amount' => 'required|numeric',
             'Description' => 'required',
@@ -159,6 +185,21 @@ class ProductsController extends \BaseController {
 
         $data["Amount"] = number_format(str_replace(",","",$data["Amount"]),$roundplaces,".","");
         if ($product = Product::create($data)) {
+            //Create Entry For Stock History
+            if(isset($data['Quantity']) && $data['Quantity']!='' && intval($data['Quantity'])>0){
+                $Reason='Stock Arrival With '.$data['Quantity'].' Quantity.';
+                $historyData=array(
+                    'CompanyID'=>$companyID,
+                    'ProductID'=>$product->ProductID,
+                    'Stock'=>intval($data['Quantity']),
+                    'Quantity'=>intval($data['Quantity']),
+                    'Reason'=>$Reason,
+                    'created_at'=>date('Y-m-d H:i:s'),
+                    'created_by'=>$data["CreatedBy"]
+                );
+                StockHistory::create($historyData);
+
+            }
             if(isset($DynamicFields) && count($DynamicFields)>0) {
                 for($k=0; $k<count($DynamicFields); $k++) {
                     $DynamicFields[$k]['ParentID'] = $product->ProductID;
@@ -184,6 +225,11 @@ class ProductsController extends \BaseController {
         if( $id > 0 ) {
             $data = Input::all();
             $Product = Product::findOrFail($id);
+            $oldQuantity=$Product->Quantity;
+            $OldCode=$Product->Code;
+            if($OldCode=='topup'){
+                return Response::json(array("status" => "failed", "message" => "This Product Can not update."));
+            }
             $user = User::get_user_full_name();
             $roundplaces = $RoundChargesAmount = get_round_decimal_places();
 
@@ -193,10 +239,40 @@ class ProductsController extends \BaseController {
             $data["ModifiedBy"] = $user;
             unset($data['ProductClone']);
 
+            if(isset($data['Quantity']) && $data['Quantity']!=''){
+                $data['Enable_stock']=1;
+            }
+
             if(isset($data['DynamicFields']) && count($data['DynamicFields']) > 0) {
                 $CompanyID = User::get_companyID();
                 foreach ($data['DynamicFields'] as $key => $value) {
                     $key = (int) $key;
+
+                    if(isset($_FILES["DynamicFields"]["name"][$key])){
+                        $dynamicImage = $_FILES["DynamicFields"]["name"][$key];
+                        if($dynamicImage){
+                            $upload_path = CompanyConfiguration::get('UPLOAD_PATH',$companyID)."/";
+                            $fileUrl=$companyID."/dynamicfields/";
+                            if (!file_exists($upload_path.$fileUrl)) {
+                                mkdir($upload_path.$fileUrl, 0777, true);
+                            }
+                            $dynamicImage=time().$dynamicImage;
+                            $success=move_uploaded_file($_FILES["DynamicFields"]["tmp_name"][$key],$upload_path.$fileUrl.$dynamicImage);
+                            if($success){
+                                $DynamicFields['FieldValue']=$fileUrl.$dynamicImage;
+                                $value=$fileUrl.$dynamicImage;
+                            }else{
+                                $DynamicFields['FieldValue']="";
+                                return Response::json(array("status" => "failed", "message" => "Error: There was a problem uploading your file. Please try again."));
+                            }
+                        }
+                    }else{
+                        if(!empty($data['DynamicFields'][$key])){
+                            $DynamicFields['FieldValue'] = $value;
+                        } else {
+                            $DynamicFields['FieldValue'] = "";
+                        }
+                    }
                     $isDynamicFields = DB::table('tblDynamicFieldsValue')
                         ->where('CompanyID',$CompanyID)
                         ->where('ParentID',$data['ProductID'])
@@ -206,17 +282,22 @@ class ProductsController extends \BaseController {
                         $isDynamicFields = $isDynamicFields->first();
 
                         $DynamicFields['DynamicFieldsID'] = $key;
-                        $DynamicFields['FieldValue'] = $value;
+                        //$DynamicFields['FieldValue'] = $value;
                         $DynamicFields['DynamicFieldsValueID'] = $isDynamicFields->DynamicFieldsValueID;
 
                         if($error = DynamicFieldsValue::validateOnUpdate($DynamicFields)){
                             return $error;
                         }
 
-                        DynamicFieldsValue::where('CompanyID',$CompanyID)
-                            ->where('ParentID',$data['ProductID'])
-                            ->where('DynamicFieldsID',$key)
-                            ->update(['FieldValue' => $value, 'updated_at' => date('Y-m-d H:i:s.000'), 'updated_by' => $user]);
+                        $getdynamicField=DynamicFields::where('DynamicFieldsID',$key)->get();
+                        if($getdynamicField[0]->FieldDomType=='file' && $value==''){
+
+                        }else {
+                            DynamicFieldsValue::where('CompanyID', $CompanyID)
+                                ->where('ParentID', $data['ProductID'])
+                                ->where('DynamicFieldsID', $key)
+                                ->update(['FieldValue' => $value, 'updated_at' => date('Y-m-d H:i:s.000'), 'updated_by' => $user]);
+                        }
                     } else {
                         $DynamicFields['CompanyID'] = $companyID;
                         $DynamicFields['ParentID'] = $data['ProductID'];
@@ -240,6 +321,7 @@ class ProductsController extends \BaseController {
 
             $rules = array(
                 'CompanyID' => 'required',
+                'ItemTypeID' => 'required',
                 'Name' => 'required',
                 'Amount' => 'required|numeric',
                 'Description' => 'required',
@@ -256,7 +338,23 @@ class ProductsController extends \BaseController {
             }
 
             $data["Amount"] = number_format(str_replace(",","",$data["Amount"]),$roundplaces,".","");
+            if(isset($data['hDynamicFields'])){
+                unset($data['hDynamicFields']);
+            }
             if ($Product->update($data)) {
+                if($oldQuantity > 0 && $oldQuantity!=$data['Quantity']){
+                    $Reason='Stock Received – qty '.$data['Quantity'];
+                    $historyData=array(
+                        'CompanyID'=>$companyID,
+                        'ProductID'=>$id,
+                        'Stock'=>intval($data['Quantity']),
+                        'Quantity'=>intval($data['Quantity']),
+                        'Reason'=>$Reason,
+                        'created_at'=>date('Y-m-d H:i:s'),
+                        'created_by'=>$data["ModifiedBy"]
+                    );
+                    StockHistory::create($historyData);
+                }
                 return Response::json(array("status" => "success", "message" => "Product Successfully Updated"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Product."));
@@ -283,13 +381,23 @@ class ProductsController extends \BaseController {
                         $companyID = User::get_companyID();
                         $action = "delete";
                         $DynamicFields = $this->getDynamicFields($companyID,$Type,$action);
-
                         if($DynamicFields['totalfields'] > 0){
                             $DynamicFieldsIDs = array();
                             foreach ($DynamicFields['fields'] as $field) {
                                 $DynamicFieldsIDs[] = $field->DynamicFieldsID;
                             }
-                            DynamicFieldsValue::deleteDynamicColumnValuesByProductID($companyID,$id,$DynamicFieldsIDs);
+                            //Image Delete
+                            $upload_path = CompanyConfiguration::get('UPLOAD_PATH',$companyID)."/";
+                            $getDynamicValues=DynamicFieldsValue::where('ParentID',$id)->get();
+                            if($getDynamicValues){
+                                foreach($getDynamicValues as $key =>$val){
+                                    if (file_exists($upload_path.$val->FieldValue) && $val->FieldValue!='') {
+                                        unlink($upload_path.$val->FieldValue);
+                                    }
+                                }
+                            }
+                           // DynamicFieldsValue::deleteDynamicValuesByProductID($companyID,$id,$DynamicFieldsIDs);
+                            DynamicFieldsValue::deleteDynamicValuesByProductID($companyID,$id);
                         }
                         return Response::json(array("status" => "success", "message" => "Product Successfully Deleted"));
                     } else {
@@ -411,7 +519,7 @@ class ProductsController extends \BaseController {
      * @return mixed
      */
     public function storeTemplate() {
-        $data = Input::all();
+        $data = json_decode(str_replace('Skip loading','',json_encode(Input::all(),true)),true);//Input::all();
         $CompanyID = User::get_companyID();
         if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
             $rules = array('TemplateName' => 'required|unique:tblFileUploadTemplate,Title,'.$data['FileUploadTemplateID'].',FileUploadTemplateID',
@@ -494,8 +602,8 @@ class ProductsController extends \BaseController {
         $save = ['CompanyID'=>$CompanyID,'Title'=>$data['TemplateName'],'TemplateFile'=>$amazonPath.$file_name];
         $save['created_by'] = User::get_user_full_name();
         $option["option"]= $data['option'];//['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
-        $option["selection"] = $data['selection'];//['connect_time'=>$data['connect_time'],'disconnect_time'=>$data['disconnect_time'],'billed_duration'=>$data['billed_duration'],'duration'=>$data['duration'],'cld'=>$data['cld'],'cli'=>$data['cli'],'Account'=>$data['Account'],'cost'=>$data['cost']];
-        $save['Options'] = json_encode($option);
+        $option["selection"] = filterArrayRemoveNewLines($data['selection']);//['connect_time'=>$data['connect_time'],'disconnect_time'=>$data['disconnect_time'],'billed_duration'=>$data['billed_duration'],'duration'=>$data['duration'],'cld'=>$data['cld'],'cli'=>$data['cli'],'Account'=>$data['Account'],'cost'=>$data['cost']];
+        $save['Options'] = str_replace('Skip loading','',json_encode($option));//json_encode($option);
         $save['FileUploadTemplateTypeID'] = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_ITEM);
         if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
             $template = FileUploadTemplate::find($data['FileUploadTemplateID']);
@@ -647,4 +755,34 @@ class ProductsController extends \BaseController {
 
 
     }
+
+    public function change_type($itemTypeid){
+        if($itemTypeid > 0){
+            $Type =  Product::DYNAMIC_TYPE;
+            $data=Input::all();
+            $CompanyID = User::get_companyID();
+            $DynamicFields['fields'] = DynamicFields::where('Type',$Type)->where('CompanyID',$CompanyID)->where('ItemTypeID',$itemTypeid)->where('Status','1')->orderByRaw('case FieldOrder when 0 then 2 else 1 end, FieldOrder')->get();
+            $DynamicFields['totalfields'] = count($DynamicFields['fields']);
+            if(count($DynamicFields) > 0 ){
+               return View::make('products.ajax_dynamicfield_html',compact('DynamicFields','data'));
+            }
+        }
+    }
+
+    public function download_dynamicfield($id){
+        if($id > 0){
+            $get=DynamicFieldsValue::where('DynamicFieldsValueID',$id)->get();
+            if($get){
+                $CompanyID = User::get_companyID();
+                $upload_path = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID)."/";
+                $FieldValue=$get[0]->FieldValue;
+                $FilePath=$upload_path.$FieldValue;
+                if(file_exists($FilePath)){
+                    download_file($FilePath);
+                }
+            }
+
+        }
+    }
+
 }

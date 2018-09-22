@@ -45,11 +45,13 @@
         Verify
     </a>
     @endif
-    @if($account->IsCustomer==1 || $account->IsVendor==1)
-    <a href="{{URL::to('accounts/authenticate/'.$account->AccountID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
-        <i class="entypo-lock"></i>
-        Authentication Rule
-    </a>
+    @if( User::checkCategoryPermission('AuthenticationRule','View'))
+        @if($account->IsCustomer==1 || $account->IsVendor==1)
+        <a href="{{URL::to('accounts/authenticate/'.$account->AccountID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
+            <i class="entypo-lock"></i>
+            Authentication Rule
+        </a>
+        @endif
     @endif
     <button type="button" id="save_account" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
         <i class="entypo-floppy"></i>
@@ -247,6 +249,22 @@
                             <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
                             <div class="col-md-4">
                                 <input type="text" class="form-control" autocomplete="off"  name="vendorname" id="field-1" value="{{$dynamicfield['FieldValue']}}" />
+                            </div>
+                        @endif
+                        @if($dynamicfield['FieldSlug']=='pbxaccountstatus')
+                            </div>
+                    <div class="form-group">
+                            <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
+                            <div class="col-md-4">
+                                {{Form::select('pbxaccountstatus', array('0'=>'Unblock','1'=>'Block'), (isset($dynamicfield['FieldValue'])? explode(',',$dynamicfield['FieldValue']) : array() ) ,array("class"=>"form-control select2"))}}
+                            </div>
+                        @endif
+                        @if($dynamicfield['FieldSlug']=='autoblock')
+                            <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}} <span id="tooltip_lowstock" data-content="If Auto block OFF then Cron job will not change the status of this Account in PBX." data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary" data-original-title="" title="">?</span></label>
+                            <div class="col-md-4">
+                                <div class="make-switch switch-small">
+                                    <input type="checkbox" @if($dynamicfield['FieldValue'] == 1 )checked="" @endif name="autoblock" value="1">
+                                </div>
                             </div>
                         @endif
                     @endif
@@ -580,17 +598,23 @@
                         </div>
                     </div>
                 </div>
-                 <div class="form-group">
-                     <label class="col-md-2 control-label">Send Invoice via Email</label>
-                     <div class="col-md-4">
-                         {{Form::select('SendInvoiceSetting', BillingClass::$SendInvoiceSetting, ( isset($AccountBilling->SendInvoiceSetting)?$AccountBilling->SendInvoiceSetting:'after_admin_review' ),array("class"=>"form-control select2"))}}
-                     </div>
-                     <label class="col-md-2 control-label">Auto Pay</label>
-                     <div class="col-md-4">
-                         {{Form::select('AutoPaymentSetting', BillingClass::$AutoPaymentSetting, ( isset($AccountBilling->AutoPaymentSetting)?$AccountBilling->AutoPaymentSetting:'never' ),array("class"=>"form-control select2 small"))}}
-                     </div>
-
+                <div class="form-group">
+                    <label class="col-md-2 control-label">Auto Pay</label>
+                    <div class="col-md-4">
+                        {{Form::select('AutoPaymentSetting', BillingClass::$AutoPaymentSetting, ( isset($AccountBilling->AutoPaymentSetting)?$AccountBilling->AutoPaymentSetting:'never' ),array("class"=>"form-control select2 small"))}}
+                    </div>
+                    <label class="col-md-2 control-label">Auto Pay Method</label>
+                    <div class="col-md-4">
+                        {{Form::select('AutoPayMethod', BillingClass::$AutoPayMethod, ( isset($AccountBilling->AutoPayMethod)?$AccountBilling->AutoPayMethod:'0' ),array("class"=>"form-control select2 small"))}}
+                    </div>
+                 </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label">Send Invoice via Email</label>
+                    <div class="col-md-4">
+                        {{Form::select('SendInvoiceSetting', BillingClass::$SendInvoiceSetting, ( isset($AccountBilling->SendInvoiceSetting)?$AccountBilling->SendInvoiceSetting:'after_admin_review' ),array("class"=>"form-control select2"))}}
+                    </div>
                 </div>
+                @if($hiden_class != '')
                 <div class="form-group">
                     <label class="col-md-2 control-label">Last Invoice Date</label>
                     <div class="col-md-4">
@@ -627,7 +651,9 @@
                         {{Form::hidden('LastChargeDate', $LastChargeDate)}}
                         {{$LastChargeDate}}
                     </div>
-                    <label class="col-md-2 control-label">Next Charge Date</label>
+                    <label class="col-md-2 control-label">Next Charge Date
+                        <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="This is period End Date. e.g. if Billing Cycle is monthly then Next Charge date will be last day of the month  i-e 30/04/2018" data-original-title="Next Charge Date">?</span>
+                    </label>
                     <div class="col-md-3">
                         <?php
                         $NextChargeDate = isset($AccountBilling->NextChargeDate)?$AccountBilling->NextChargeDate:'';
@@ -637,17 +663,41 @@
                        @endif
                            {{Form::text('NextChargeDate', $NextChargeDate,array('class'=>'form-control '.$hiden_class.' datepicker next_charged_date',"data-date-format"=>"yyyy-mm-dd"))}}
                     </div>
+                    {{--
                     <div class="col-md-1">
                         @if($hiden_class != '')
                         <button class="btn btn-sm btn-primary tooltip-primary" id="next_charged_edit" data-original-title="Edit Next charged Date" title="" data-placement="top" data-toggle="tooltip">
                             <i class="entypo-pencil"></i>
                         </button>
                         @endif
-                    </div>
+                    </div>--}}
                 </div>
+                @else
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">Next Invoice Date</label>
+                        <div class="col-md-3">
+                            <?php
+                            $NextInvoiceDate = isset($AccountBilling->NextInvoiceDate)?$AccountBilling->NextInvoiceDate:'';
+                            ?>
+                            {{Form::text('NextInvoiceDate', $NextInvoiceDate,array('class'=>'form-control '.$hiden_class.' datepicker next_invoice_date',"data-date-format"=>"yyyy-mm-dd"))}}
+                        </div>
+                        <label class="col-md-2 control-label">Next Charge Date
+                            <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="This is period End Date. e.g. if Billing Cycle is monthly then Next Charge date will be last day of the month  i-e 30/04/2018" data-original-title="Next Charge Date">?</span>
+                        </label>
+                        <div class="col-md-3">
+                            <?php
+                            $NextChargeDate = isset($AccountBilling->NextChargeDate)?$AccountBilling->NextChargeDate:'';
+                            ?>
+                            {{Form::text('NextChargeDate', $NextChargeDate,array('class'=>'form-control '.$hiden_class.' datepicker next_charged_date',"data-date-format"=>"yyyy-mm-dd",'disabled'))}}
+                        </div>
+                    </div>
+                @endif
 
             </div>
         </div>
+        @if(AccountBilling::where(array('AccountID'=>$account->AccountID,'BillingCycleType'=>'manual'))->count() == 0 || !empty($BillingCycleType))
+            @include('accountdiscountplan.index')
+        @endif
         @if(User::checkCategoryPermission('AccountService','View'))
             @include('accountservices.index')
         @endif
@@ -713,6 +763,10 @@
                             <li>
                                 <input type="radio" class="icheck-11" id="minimal-radio-6-11" name="PaymentMethod" value="StripeACH" @if( $account->PaymentMethod == 'StripeACH' ) checked="" @endif />
                                 <label for="minimal-radio-6-11">Stripe ACH</label>
+                            </li>
+                            <li>
+                                <input type="radio" class="icheck-11" id="minimal-radio-11-11" name="PaymentMethod" value="MerchantWarrior" @if( $account->PaymentMethod == 'MerchantWarrior' ) checked="" @endif />
+                                <label for="minimal-radio-11-11">MerchantWarrior</label>
                             </li>
                             <li>
                                 <input tabindex="8" class="icheck-11" type="radio" id="minimal-radio-2-11" name="PaymentMethod" value="Wire Transfer" @if( $account->PaymentMethod == 'Wire Transfer' ) checked="" @endif />
@@ -849,7 +903,7 @@
                        toastr.error(response.message, "Error", toastr_opts);
               }
             });
-                
+
         });
 
         $('select[name="BillingCycleType"]').on( "change",function(e){
@@ -906,7 +960,7 @@
                 BillingChanged = true;
             }
             if(selection=='weekly' || selection=='monthly_anniversary' || selection=='in_specific_days' || selection=='subscription' || selection=='manual'){
-                //nothing
+                changeBillingDates('');
             }else{
                 changeBillingDates('');
             }
@@ -1055,6 +1109,14 @@
                                 $("select[name='BillingTimezone']").select2().select2('val', response.data.BillingTimezone);
                             }
                             $("[name='SendInvoiceSetting']").select2().select2('val',response.data.SendInvoiceSetting);
+                            if(response.data.AutoPaymentSetting == null || response.data.AutoPaymentSetting == '') {
+                                $("[name='AutoPaymentSetting']").select2().select2('val', 'never');
+                            }
+                            else{
+                                $("[name='AutoPaymentSetting']").select2().select2('val', response.data.AutoPaymentSetting);
+                            }
+                            $("[name='AutoPayMethod']").select2().select2('val', response.data.AutoPayMethod);
+
                         }
                     },
                 });
@@ -1098,6 +1160,15 @@
                 return true;
             }
 
+            updatenextchargedate=1;
+            if(billing_disable!=''){
+                LastChargeDate = $('[name="LastChargeDate"]').val();
+                if(BillingStartDate!=LastChargeDate){
+                    updatenextchargedate=0;
+                }
+
+            }
+
             getNextBillingDatec_url =  '{{ URL::to('accounts/getNextBillingDate')}}';
             $.ajax({
                 url: getNextBillingDatec_url,
@@ -1105,7 +1176,9 @@
                 dataType: 'json',
                 success: function(response) {
                     $('[name="NextInvoiceDate"]').val(response.NextBillingDate);
-                    $('[name="NextChargeDate"]').val(response.NextChargedDate);
+                    if(updatenextchargedate==1) {
+                        $('[name="NextChargeDate"]').val(response.NextChargedDate);
+                    }
                 },
                 data: {
                     "BillingStartDate":BillingStartDate,
@@ -1190,6 +1263,7 @@
         </div>
     </div>
 </div>
+@include('accountdiscountplan.discountplanmodal')
 <script>
 setTimeout(function(){
 	$('#CustomerPassword_hide').hide();

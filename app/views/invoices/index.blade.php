@@ -130,7 +130,12 @@
             <li> <a class="pay_now create" id="bulk_email" href="javascript:;"> Bulk Email </a> </li>
             @endif
             @if(User::checkCategoryPermission('Invoice','Post') && !empty($check_quickbook))
-            <li> <a class="quickbookpost create" id="quickbook_post" href="javascript:;"> QuickBook Post </a> </li>
+            <li> <a class="quickbookpost create" id="quickbook_post" href="javascript:;"> QuickBook Journal Post </a> </li>
+            <li> <a class="quickbookpost create" id="quickbook_post_invoice" href="javascript:;"> QuickBook Invoice Post </a> </li>
+            @endif
+            @if(User::checkCategoryPermission('Invoice','Post') && !empty($check_quickbook_desktop))
+           <!-- <li> <a class="quickbookpost create" id="quickbook_invoice_export" href="javascript:;"> QuickBook Desktop Invoice Export (IIF)</a> </li>-->
+            <li> <a class="quickbookpost create" id="quickbookd_journal_export" href="javascript:;"> QuickBook D Journal Export (IIF)</a> </li>
             @endif
             @if(User::checkCategoryPermission('Invoice','Post') && is_Xero($CompanyID))
             <li> <a class="xeropost create" id="xero_post" href="javascript:;"> Xero Post </a> </li>
@@ -167,6 +172,7 @@
           <th width="6%">Grand Total</th>
           <th width="6%">Paid/OS</th>
           <th width="10%">Status</th>
+          <th width="5%">Credit</th>
           <th width="10%">Due Date</th>
           {{--<th width="10%">Due Days</th>--}}
           <th width="20%">Action</th>
@@ -298,6 +304,13 @@
                         }
 
                     },  // 7 InvoiceStatus
+                    {
+                        "bSortable": false,
+                        mRender: function (id, type, full) {
+                                return full[18];
+                        }
+
+                    }, // 18 CreditNotes Amount
                     {
                         "bSortable": true,
                         mRender: function (id, type, full) {
@@ -1343,6 +1356,27 @@
                 }
                 var InvoiceIDs = [];
                 var i = 0;
+                if (!confirm('Are you sure you want to post in quickbook selected invoices journal?')) {
+                    return;
+                }
+                $('#table-4 tr .rowcheckbox:checked').each(function (i, el) {
+                    InvoiceID = $(this).val();
+                    if (typeof InvoiceID != 'undefined' && InvoiceID != null && InvoiceID != 'null') {
+                        InvoiceIDs[i++] = InvoiceID;
+                    }
+                });
+                if (InvoiceIDs.length) {
+                    submit_ajax(baseurl + '/invoice/invoice_quickbookpost', 'InvoiceIDs=' + InvoiceIDs.join(",") + '&criteria=' + criteria + '&type=journal')
+                }
+            });
+
+            $("#quickbook_post_invoice").click(function (ev) {
+                var criteria = '';
+                if ($('#selectallbutton').is(':checked')) {
+                    criteria = JSON.stringify($searchFilter);
+                }
+                var InvoiceIDs = [];
+                var i = 0;
                 if (!confirm('Are you sure you want to post in quickbook selected invoices?')) {
                     return;
                 }
@@ -1353,9 +1387,75 @@
                     }
                 });
                 if (InvoiceIDs.length) {
-                    submit_ajax(baseurl + '/invoice/invoice_quickbookpost', 'InvoiceIDs=' + InvoiceIDs.join(",") + '&criteria=' + criteria)
+                    submit_ajax(baseurl + '/invoice/invoice_quickbookpost', 'InvoiceIDs=' + InvoiceIDs.join(",") + '&criteria=' + criteria + '&type=invoice')
                 }
             });
+
+            $("#quickbook_invoice_export").click(function (ev) {
+                var criteria = '';
+                if ($('#selectallbutton').is(':checked')) {
+                    criteria = JSON.stringify($searchFilter);
+                }
+                var InvoiceIDs = [];
+                var i = 0;
+                if (!confirm('Are you sure you want to Export Quickbook selected invoices?')) {
+                    return;
+                }
+                $('#table-4 tr .rowcheckbox:checked').each(function (i, el) {
+                    InvoiceID = $(this).val();
+                    if (typeof InvoiceID != 'undefined' && InvoiceID != null && InvoiceID != 'null') {
+                        InvoiceIDs[i++] = InvoiceID;
+                    }
+                });
+                if (InvoiceIDs.length) {
+                    submit_ajax(baseurl + '/invoice/invoice_quickbookexport', 'InvoiceIDs=' + InvoiceIDs.join(",") + '&criteria=' + criteria )
+                }
+            });
+
+            $("#quickbookd_journal_export").click(function (ev) {
+                var criteria = '';
+                if ($('#selectallbutton').is(':checked')) {
+                    criteria = JSON.stringify($searchFilter);
+                }
+                var InvoiceIDs = [];
+                var i = 0;
+                if (!confirm('Are you sure you want to Export Quickbook selected Journals?')) {
+                    return;
+                }
+                $('#table-4 tr .rowcheckbox:checked').each(function (i, el) {
+                    InvoiceID = $(this).val();
+                    if (typeof InvoiceID != 'undefined' && InvoiceID != null && InvoiceID != 'null') {
+                        InvoiceIDs[i++] = InvoiceID;
+                    }
+                });
+                if (InvoiceIDs.length) {
+                    //submit_ajax(baseurl + '/invoice/journal_quickbookdexport', 'InvoiceIDs=' + InvoiceIDs.join(",") + '&criteria=' + criteria )
+                    $.ajax({
+                        url:baseurl + '/invoice/journal_quickbookdexport',
+                        type: 'POST',
+                        dataType: 'json',
+                        success: function(response) {
+                            $(".btn").button('reset');
+                            if (response.status == 'success') {
+                                $('.modal').modal('hide');
+                                toastr.success(response.message, "Success", toastr_opts);
+
+                                if(typeof response.redirect != 'undefined' && response.redirect != ''){
+                                    var url = baseurl + '/invoice/journal_quickbookdexport_download';
+                                    var data = '?file=' + response.redirect ;
+                                    window.location.href = url + data;
+                                }
+                            } else {
+                                toastr.error(response.message, "Error", toastr_opts);
+                            }
+                        },
+                        data: 'InvoiceIDs=' + InvoiceIDs.join(","),
+                        //Options to tell jQuery not to process data or worry about content-type.
+                        cache: false
+                    });
+                }
+            });
+
             $("#xero_post").click(function (ev) {
                 var criteria = '';
                 if ($('#selectallbutton').is(':checked')) {

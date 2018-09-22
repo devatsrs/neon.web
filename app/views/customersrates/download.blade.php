@@ -35,7 +35,7 @@
     @endif
     <li class="active">
         <a href="{{ URL::to('/customers_rates/'.$id.'/download') }}" >
-             Download Rate sheet
+             Download Rate Sheet
         </a>
     </li>
     @if(User::checkCategoryPermission('CustomersRates','History'))
@@ -77,6 +77,22 @@
                         </div>
                         @endif
                    @endforeach
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="field-1" class="col-sm-3 control-label">Timezones</label>
+                <div class="col-sm-5">
+                    @foreach ($Timezones as $key => $value)
+                        @if(!empty($key))
+                            <div class="col-sm-4">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" name="Timezones[]" value="{{$key}}" >{{$value}}
+                                    </label>
+                                </div>
+                            </div>
+                        @endif
+                    @endforeach
                 </div>
             </div>
             <div class="form-group">
@@ -195,12 +211,12 @@ jQuery(document).ready(function ($) {
 
             if($(this).val()=='{{RateSheetFormate::RATESHEET_FORMAT_VOS20}}'){
                 $('#fileeffective').empty();
-                var html ='<option value="Now">Now</option><option value="Future">Future</option><option value="CustomDate" selected="selected">Custom Date</option>';
-                $('#fileeffective').append(html);
+                var html ='<option value="Now" selected="selected">Now</option><option value="Future">Future</option><option value="CustomDate">Custom Date</option>';
+                $('#fileeffective').append(html).trigger('change');
             }else{
                 $('#fileeffective').empty();
-                var html ='<option value="Now">Now</option><option value="Future">Future</option><option value="CustomDate" selected="selected">Custom Date</option><option value="All">All</option>';
-                $('#fileeffective').append(html);
+                var html ='<option value="Now" selected="selected">Now</option><option value="Future">Future</option><option value="CustomDate">Custom Date</option><option value="All">All</option>';
+                $('#fileeffective').append(html).trigger('change');
             }
 
 

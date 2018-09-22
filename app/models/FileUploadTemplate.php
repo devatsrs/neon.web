@@ -75,7 +75,7 @@ class FileUploadTemplate extends \Eloquent {
             //$option["Sheet"]          = !empty($data['Sheet']) ? $data['Sheet'] : '';
             //$option["importratesheet"]  = !empty($data['importratesheet']) ? $data['importratesheet'] : '';
             $option["option"]           = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
-            $option["selection"]        = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
+            $option["selection"]        = filterArrayRemoveNewLines($data['selection']);//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
 
             if(isset($data['RateUploadType']) && ($data['RateUploadType'] == 'ratetable' || $data['RateUploadType'] == 'vendor')) {
 
@@ -84,19 +84,23 @@ class FileUploadTemplate extends \Eloquent {
                 if (!empty($data['importdialcodessheet'])) {
                     $option["skipRows_sheet2"] = array("start_row" => !empty($data["start_row_sheet2"]) ? $data["start_row_sheet2"] : 0, "end_row" => !empty($data["end_row_sheet2"]) ? $data["end_row_sheet2"] : 0);
                     $option["importdialcodessheet"] = !empty($data['importdialcodessheet']) ? $data['importdialcodessheet'] : '';
-                    $option["selection2"] = $data['selection2'];
+                    $option["selection2"] = filterArrayRemoveNewLines($data['selection2']);
                 }
                 $option['Settings']['checkbox_replace_all'] = $data['checkbox_replace_all'];
                 $option['Settings']['checkbox_rates_with_effected_from'] = $data['checkbox_rates_with_effected_from'];
                 $option['Settings']['checkbox_add_new_codes_to_code_decks'] = $data['checkbox_add_new_codes_to_code_decks'];
                 $option['Settings']['checkbox_review_rates'] = $data['checkbox_review_rates'];
                 $option['Settings']['radio_list_option'] = $data['radio_list_option'];
-                $option['Trunk'] = $data['Trunk'];
+                if($data['RateUploadType'] == RateUpload::vendor || $data['RateUploadType'] == RateUpload::customer) {
+                    $option['Trunk'] = $data['Trunk'];
+                } else if($data['RateUploadType'] == RateUpload::ratetable) {
+                    $RateTable       = RateTable::find($data['Ratetable']);
+                    $option['Trunk'] = $RateTable->TrunkID;
+                }
             }
             $save['Options']          = str_replace('Skip loading','',json_encode($option));
             $save['FileUploadTemplateTypeID']               = $data['TemplateType'];
 
-            //echo "<pre>";print_r($option);exit;
             try {
                 if ($result = FileUploadTemplate::create($save)) {
                     $response['status']     = "success";
@@ -113,7 +117,7 @@ class FileUploadTemplate extends \Eloquent {
             }
         } else { //update template
             $template = FileUploadTemplate::find($data['FileUploadTemplateID']);
-            //print_R($template);exit;
+            
             if($template) {
                 $rules["TemplateName"]  = 'required|unique:tblFileUploadTemplate,Title,' . $data['FileUploadTemplateID'] . ',FileUploadTemplateID';
                 $rules['TemplateType']  = 'required';
@@ -153,21 +157,27 @@ class FileUploadTemplate extends \Eloquent {
                 $save['updated_by']         = User::get_user_full_name();
                 //$option["Sheet"]          = !empty($data['Sheet']) ? $data['Sheet'] : '';
                 $option["option"]           = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
-                $option["selection"]        = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
-                if(isset($data['RateUploadType']) && ($data['RateUploadType'] == 'ratetable' || $data['RateUploadType'] == 'vendor')) {
+                $option["selection"]        = filterArrayRemoveNewLines($data['selection']);//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
+                if(isset($data['RateUploadType']) && ($data['RateUploadType'] == RateUpload::ratetable || $data['RateUploadType'] == RateUpload::vendor || $data['RateUploadType'] == RateUpload::customer)) {
                     $option["skipRows"]         = array( "start_row"=>!empty($data["start_row"]) ? $data["start_row"] : 0, "end_row"=>!empty($data["end_row"]) ? $data["end_row"] : 0 );
                     $option["importratesheet"] = !empty($data['importratesheet']) ? $data['importratesheet'] : '';
                     if (!empty($data['importdialcodessheet'])) {
                         $option["skipRows_sheet2"] = array("start_row" => !empty($data["start_row_sheet2"]) ? $data["start_row_sheet2"] : 0, "end_row" => !empty($data["end_row_sheet2"]) ? $data["end_row_sheet2"] : 0);
                         $option["importdialcodessheet"] = !empty($data['importdialcodessheet']) ? $data['importdialcodessheet'] : '';
-                        $option["selection2"] = $data['selection2'];
+                        $option["selection2"] = filterArrayRemoveNewLines($data['selection2']);
                     }
                     $option['Settings']['checkbox_replace_all'] = $data['checkbox_replace_all'];
                     $option['Settings']['checkbox_rates_with_effected_from'] = $data['checkbox_rates_with_effected_from'];
                     $option['Settings']['checkbox_add_new_codes_to_code_decks'] = $data['checkbox_add_new_codes_to_code_decks'];
                     $option['Settings']['checkbox_review_rates'] = $data['checkbox_review_rates'];
                     $option['Settings']['radio_list_option'] = $data['radio_list_option'];
-                    $option['Trunk'] = $data['Trunk'];
+
+                    if($data['RateUploadType'] == RateUpload::vendor || $data['RateUploadType'] == RateUpload::customer) {
+                        $option['Trunk'] = $data['Trunk'];
+                    } else if($data['RateUploadType'] == RateUpload::ratetable) {
+                        $RateTable       = RateTable::find($data['Ratetable']);
+                        $option['Trunk'] = $RateTable->TrunkID;
+                    }
                 }
                 $save['Options']            = str_replace('Skip loading','',json_encode($option));
                 $save['FileUploadTemplateTypeID']               = $data['TemplateType'];
@@ -236,7 +246,7 @@ class FileUploadTemplate extends \Eloquent {
             $rules_for_type['selection.Code']                               = 'required';
             $rules_for_type['selection.Description']                        = 'required';
             $rules_for_type['selection.Amount']                             = 'required';
-        }else if($data['TemplateType'] == 8) { //vendor rate
+        }else if($data['TemplateType'] == 8 || $data['TemplateType'] == 10 || $data['TemplateType'] == 11) { //vendor rate / RateTable Rate / Customer Rate Respectively
 
             if(!empty($data['importdialcodessheet'])) {
                 $rules_for_type['selection.Join1'] = 'required';
@@ -259,8 +269,28 @@ class FileUploadTemplate extends \Eloquent {
                 $message_for_type['selection.Code.required'] = "Code Field is required";
                 $message_for_type['selection.Description.required'] = "Description Field is required";
             }
-            $rules_for_type['selection.Rate']            = 'required';
-            $message_for_type['selection.Rate.required'] = "Rate Field is required";
+            
+            $Timezones = Timezones::getTimezonesIDList(1);//no default timezones, only user defined timezones
+            if(count($Timezones) > 0) { // if there are any timezones available
+                $TimezonesIDsArray = array();
+                foreach ($Timezones as $ID => $Title) {
+                    $TimezonesIDsArray[] = 'selection.Rate'.$ID;
+                }
+                $TimezonesIDsString = implode(',',$TimezonesIDsArray);
+
+                $rules_for_type['selection.Rate']                        = 'required_without_all:'.$TimezonesIDsString;
+                $message_for_type['selection.Rate.required_without_all'] = "Please select Rate against at least any one timezone.";
+                $TimezonesIDsArray[] = 'selection.Rate';
+                foreach ($Timezones as $ID => $Title) {
+                    $TimezonesIDsString = implode(',',array_diff($TimezonesIDsArray, array('selection.Rate'.$ID)));
+                    $rules_for_type['selection.Rate'.$ID]                           = 'required_without_all:'.$TimezonesIDsString;
+                    $message_for_type['selection.Rate'.$ID.'.required_without_all'] = "Please select Rate against at least any one timezone.";
+                }
+            } else { // if there is only 1 timezone, default timezone
+                $rules_for_type['selection.Rate']            = 'required';
+                $message_for_type['selection.Rate.required'] = "Rate Field is required";
+            }
+            
             $option["skipRows"] = array("start_row" => $data["start_row"], "end_row" => $data["end_row"]);
 
         }else if($data['TemplateType'] == 9) { //payment

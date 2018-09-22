@@ -121,6 +121,13 @@
                     </div>
 
                 </div>
+                <div class="form-group">
+                    <label class="col-sm-1 control-label">Timezone</label>
+                    <div class="col-sm-3">
+                        {{ Form::select('Timezones', $Timezones, '', array("class"=>"select2")) }}
+                    </div>
+                </div>
+
                 <p style="text-align: right;">
                     <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
                         <i class="entypo-search"></i>
@@ -148,6 +155,7 @@
     <form id="clear-bulk-rate-form" >
         <input type="hidden" name="VendorRateID" value="">
         <input type="hidden" name="TrunkID" value="">
+        <input type="hidden" name="TimezonesID" value="">
         <input type="hidden" name="criteria" value="">
     </form>
 </div>
@@ -163,10 +171,11 @@
         <th width="5%">Interval 1</th>
         <th width="5%">Interval N</th>
         <th width="5%">Rate ({{$CurrencySymbol}})</th>
-        <th width="10%">Effective Date</th>
-        <th width="10%">End Date</th>
-        <th width="10%">Modified Date</th>
-        <th width="10%">Modified By</th>
+        <th width="5%">RateN ({{$CurrencySymbol}})</th>
+        <th width="8%">Effective Date</th>
+        <th width="8%">End Date</th>
+        <th width="8%">Modified Date</th>
+        <th width="8%">Modified By</th>
         <th width="20%">Action</th>
     </tr>
 </thead>
@@ -178,7 +187,7 @@
 <script type="text/javascript">
     var $searchFilter = {};
     var checked='';
-    var list_fields  = ['VendorRateID','Code','Description','ConnectionFee','Interval1','IntervalN','Rate','EffectiveDate','EndDate','updated_at','updated_by'];
+    var list_fields  = ['VendorRateID','Code','Description','ConnectionFee','Interval1','IntervalN','Rate','RateN','EffectiveDate','EndDate','updated_at','updated_by'];
     var Code, Description, Country,Trunk,Effective,update_new_url;
 
 jQuery(document).ready(function($) {
@@ -213,6 +222,7 @@ jQuery(document).ready(function($) {
 
         var VendorRateIDs   = [];
         var TrunkID         = $searchFilter.Trunk;
+        var TimezonesID     = $searchFilter.Timezones;
         var i = 0;
         $('#table-4 tr .rowcheckbox:checked').each(function(i, el) {
             VendorRateID = $(this).val();
@@ -220,6 +230,7 @@ jQuery(document).ready(function($) {
         });
 
         $("#clear-bulk-rate-form").find("input[name='TrunkID']").val(TrunkID);
+        $("#clear-bulk-rate-form").find("input[name='TimezonesID']").val(TimezonesID);
 
         if(VendorRateIDs.length || $(this).hasClass('clear-vendor-rate')) {
             response = confirm('Are you sure?');
@@ -286,6 +297,7 @@ jQuery(document).ready(function($) {
 
         var VendorRateIDs   = [];
         var TrunkID         = $searchFilter.Trunk;
+        var TimezonesID     = $searchFilter.Timezones;
 
         var i = 0;
         $('#table-4 tr .rowcheckbox:checked').each(function(i, el) {
@@ -303,6 +315,7 @@ jQuery(document).ready(function($) {
         $("#bulk-edit-vendor-rate-form").find("input[name='IntervalN']").val(1);
         $("#bulk-edit-vendor-rate-form").find("input[name='EffectiveDate']").val(currentDate);
         $("#bulk-edit-vendor-rate-form").find("input[name='TrunkID']").val(TrunkID);
+        $("#bulk-edit-vendor-rate-form").find("input[name='TimezonesID']").val(TimezonesID);
 
         var criteria = '';
         if ($('#selectallbutton').is(':checked')) {
@@ -390,7 +403,7 @@ jQuery(document).ready(function($) {
             $.ajax({
                 url : baseurl + "/vendor_rates/{{$id}}/search_ajax_datagrid_archive_rates",
                 type : 'POST',
-                data : "Codes="+Codes,
+                data : "Codes="+Codes+"&TimezonesID="+$searchFilter.Timezones+"&TrunkID="+$searchFilter.Trunk,
                 dataType : 'json',
                 cache: false,
                 success : function(response){
@@ -408,7 +421,7 @@ jQuery(document).ready(function($) {
                     var hiddenRowData = tr.find('.hiddenRowData');
                     var Code = hiddenRowData.find('input[name="Code"]').val();
                     var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
-                    table.append("<thead><tr><th>Code</th><th>Description</th><th>Connection Fee</th><th>Interval 1</th><th>Interval N</th><th>Rate</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                    table.append("<thead><tr><th>Code</th><th>Description</th><th>Connection Fee</th><th>Interval 1</th><th>Interval N</th><th>Rate</th><th>RateN</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
                     var tbody = $("<tbody></tbody>");
 
                     /*ArchiveRates.sort(function(obj1, obj2) {
@@ -425,6 +438,7 @@ jQuery(document).ready(function($) {
                             html += "<td>" + data['Interval1'] + "</td>";
                             html += "<td>" + data['IntervalN'] + "</td>";
                             html += "<td>" + data['Rate'] + "</td>";
+                            html += "<td>" + data['RateN'] + "</td>";
                             html += "<td>" + data['EffectiveDate'] + "</td>";
                             html += "<td>" + data['EndDate'] + "</td>";
                             html += "<td>" + data['ModifiedDate'] + "</td>";
@@ -449,6 +463,7 @@ jQuery(document).ready(function($) {
         $searchFilter.Code = Code = $("#vendor-rate-search input[name='Code']").val();
         $searchFilter.Description = Description = $("#vendor-rate-search input[name='Description']").val();
         $searchFilter.DiscontinuedRates = DiscontinuedRates = $("#vendor-rate-search input[name='DiscontinuedRates']").is(':checked') ? 1 : 0;
+        $searchFilter.Timezones = Timezones = $("#vendor-rate-search select[name='Timezones']").val();
 
         if(Trunk == '' || typeof Trunk  == 'undefined'){
             toastr.error("Please Select a Trunk", "Error", toastr_opts);
@@ -461,9 +476,9 @@ jQuery(document).ready(function($) {
             "bServerSide": true,
             "sAjaxSource": baseurl + "/vendor_rates/{{$id}}/search_ajax_datagrid",
             "fnServerParams": function(aoData) {
-                aoData.push({"name": "Effective", "value": Effective}, {"name": "Trunk", "value": Trunk}, {"name": "Country", "value": Country}, {"name": "Code", "value": Code}, {"name": "Description", "value": Description}, {"name": "DiscontinuedRates", "value": DiscontinuedRates});
+                aoData.push({"name": "Effective", "value": Effective}, {"name": "Trunk", "value": Trunk}, {"name": "Country", "value": Country}, {"name": "Code", "value": Code}, {"name": "Description", "value": Description}, {"name": "DiscontinuedRates", "value": DiscontinuedRates}, {"name": "Timezones", "value": Timezones});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name": "Effective", "value": Effective}, {"name": "Trunk", "value": Trunk}, {"name": "Country", "value": Country},  {"name": "Code", "value": Code}, {"name": "Description", "value": Description}, {"name": "DiscontinuedRates", "value": DiscontinuedRates});
+                data_table_extra_params.push({"name": "Effective", "value": Effective}, {"name": "Trunk", "value": Trunk}, {"name": "Country", "value": Country},  {"name": "Code", "value": Code}, {"name": "Description", "value": Description}, {"name": "DiscontinuedRates", "value": DiscontinuedRates}, {"name": "Timezones", "value": Timezones});
             },
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
@@ -482,11 +497,12 @@ jQuery(document).ready(function($) {
                         {}, //4 Interval1
                         {}, //5 IntervalN
                         {}, //6 Rate
-                        {}, //7 EffectiveDate
-                        {}, //8 EndDate
-                        {}, //9 updated at
-                        {}, //10 updated by
-                        {// 11 Action
+                        {}, //7 RateN
+                        {}, //8 EffectiveDate
+                        {}, //9 EndDate
+                        {}, //10 updated at
+                        {}, //11 updated by
+                        {// 12 Action
                             mRender: function(id, type, full) {
 
                                 var action, edit_, delete_,VendorRateID;
@@ -559,11 +575,13 @@ jQuery(document).ready(function($) {
                 $(".edit-vendor-rate.btn").click(function(ev) {
                     ev.stopPropagation();
                     var TrunkID = $searchFilter.Trunk;
+                    var TimezonesID = $searchFilter.Timezones;
                     var cur_obj = $(this).prev("div.hiddenRowData");
                     for(var i = 0 ; i< list_fields.length; i++){
                         $("#edit-vendor-rate-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                     }
                     $("#edit-vendor-rate-form").find("input[name='TrunkID']").val(TrunkID);
+                    $("#edit-vendor-rate-form").find("input[name='TimezonesID']").val(TimezonesID);
                     jQuery('#modal-VendorRate').modal('show', {backdrop: 'static'});
                 });
 
@@ -665,11 +683,24 @@ jQuery(document).ready(function($) {
                                 <input type="text"  name="EffectiveDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
                             </div>
                         </div>
-
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-4" class="control-label">End Date</label>
+                                <input type="text"  name="EndDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Rate</label>
                                 <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">RateN</label>
+                                <input type="text" name="RateN" class="form-control" id="field-5" placeholder="">
                             </div>
                         </div>
                     </div>
@@ -680,7 +711,6 @@ jQuery(document).ready(function($) {
                                 <input type="text" name="Interval1" class="form-control" value="" />
                             </div>
                         </div>
-
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Interval N</label>
@@ -695,12 +725,6 @@ jQuery(document).ready(function($) {
                                 <input type="text" name="ConnectionFee" class="form-control" id="field-5" placeholder="">
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="field-4" class="control-label">End Date</label>
-                                <input type="text"  name="EndDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
-                            </div>
-                        </div>
                     </div>
 
                 </div>
@@ -708,9 +732,11 @@ jQuery(document).ready(function($) {
                 <div class="modal-footer">
                     <input type="hidden" name="VendorRateID" value="">
                     <input type="hidden" name="TrunkID" value="">
+                    <input type="hidden" name="TimezonesID" value="">
                     <input type="hidden" name="criteria" value="">
                     <input type="hidden" name="updateEffectiveDate" value="on">
                     <input type="hidden" name="updateRate" value="on">
+                    <input type="hidden" name="updateRateN" value="on">
                     <input type="hidden" name="updateInterval1" value="on">
                     <input type="hidden" name="updateIntervalN" value="on">
                     <input type="hidden" name="updateConnectionFee" value="on">
@@ -755,9 +781,25 @@ jQuery(document).ready(function($) {
 
                         <div class="col-md-6">
                             <div class="form-group">
+                                <input type="checkbox" name="updateEndDate" class="" />
+                                <label for="field-4" class="control-label">End Date</label>
+                                <input type="text" name="EndDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}"  data-date-format="yyyy-mm-dd" value="" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
                                 <input type="checkbox" name="updateRate" class="" />
-                                <label for="field-5" class="control-label">Rate</label>
-                                <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
+                                <label class="control-label">Rate</label>
+                                <input type="text" name="Rate" class="form-control" placeholder="">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="checkbox" name="updateRateN" class="" />
+                                <label class="control-label">RateN</label>
+                                <input type="text" name="RateN" class="form-control" placeholder="">
                             </div>
                         </div>
 
@@ -785,14 +827,6 @@ jQuery(document).ready(function($) {
                             </div>
                         </div>
 
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <input type="checkbox" name="updateEndDate" class="" />
-                                <label for="field-4" class="control-label">End Date</label>
-                                <input type="text" name="EndDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}"  data-date-format="yyyy-mm-dd" value="" />
-                            </div>
-                        </div>
-
                     </div>
 
                 </div>
@@ -800,6 +834,7 @@ jQuery(document).ready(function($) {
                 <div class="modal-footer">
                     <input type="hidden" name="VendorRateID" value="">
                     <input type="hidden" name="TrunkID" value="">
+                    <input type="hidden" name="TimezonesID" value="">
                     <input type="hidden" name="criteria" value="">
 
                     <button type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">

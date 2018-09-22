@@ -199,6 +199,22 @@
                                             <input type="text" class="form-control" autocomplete="off"  name="vendorname" id="field-1" value="" />
                                         </div>
                                     @endif
+                                        @if($dynamicfield['FieldSlug']=='pbxaccountstatus')
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
+                                        <div class="col-md-4">
+                                            {{Form::select('pbxaccountstatus', array('0'=>'Unblock','1'=>'Block'),'',array("class"=>"form-control select2"))}}
+                                        </div>
+                                        @endif
+                                        @if($dynamicfield['FieldSlug']=='autoblock')
+                                            <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}} <span id="tooltip_lowstock" data-content="If Auto block OFF then Cron job will not change the status of this Account in PBX." data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary" data-original-title="" title="">?</span></label>
+                                            <div class="col-md-4">
+                                                <div class="make-switch switch-small">
+                                                    <input type="checkbox" name="autoblock" value="1">
+                                                </div>
+                                            </div>
+                                        @endif
                                 @endif
                             @endforeach
                         </div>
@@ -209,6 +225,7 @@
                             {{ddl_language("", "LanguageID", ( isset($AccountBilling->Language)?$AccountBilling->Language:Translation::$default_lang_id ),"", "id")}}
                         </div>
                     </div>
+
                     <div class="panel-title desc clear">
                         Description
                     </div>
@@ -349,21 +366,30 @@
                         <div class="col-md-4">
                             {{Form::text('NextInvoiceDate', '',array('class'=>'form-control datepicker next_invoice_date',"data-date-format"=>"yyyy-mm-dd"))}}
                         </div>
-                        <label class="col-md-2 control-label">Next Charge Date</label>
+                        <label class="col-md-2 control-label">Next Charge Date
+                            <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="This is period End Date. e.g. if Billing Cycle is monthly then Next Charge date will be last day of the month  i-e 30/04/2018" data-original-title="Next Charge Date">?</span>
+                        </label>
                         <div class="col-md-4">
-                            {{Form::text('NextChargeDate', '',array('class'=>'form-control datepicker next_charged_date',"data-date-format"=>"yyyy-mm-dd"))}}
+                            {{Form::text('NextChargeDate', '',array('class'=>'form-control datepicker next_charged_date',"data-date-format"=>"yyyy-mm-dd",'disabled'))}}
                         </div>
                     </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label">Auto Pay</label>
+                    <div class="col-md-4">
+                        {{Form::select('AutoPaymentSetting', BillingClass::$AutoPaymentSetting, "never" ,array("class"=>"form-control select2 small"))}}
+                    </div>
+                    <label class="col-md-2 control-label">Auto Pay Method</label>
+                    <div class="col-md-4">
+                        {{Form::select('AutoPayMethod', BillingClass::$AutoPayMethod, ( isset($AccountBilling->AutoPayMethod)?$AccountBilling->AutoPayMethod:'0' ),array("class"=>"form-control select2 small"))}}
+                    </div>
+                </div>
                 <div class="form-group">
                     <label class="col-md-2 control-label">Send Invoice via Email</label>
                     <div class="col-md-4">
                         {{Form::select('SendInvoiceSetting', BillingClass::$SendInvoiceSetting, "after_admin_review" ,array("class"=>"form-control select2"))}}
                     </div>
-                    <label class="col-md-2 control-label">Auto Pay</label>
-                    <div class="col-md-4">
-                        {{Form::select('AutoPaymentSetting', BillingClass::$AutoPaymentSetting, "never" ,array("class"=>"form-control select2 small"))}}
-                    </div>
                 </div>
+
                 </div>
                 </div>
         </form>
@@ -408,7 +434,7 @@
                     break;
             }
             if(selection=='weekly' || selection=='monthly_anniversary' || selection=='in_specific_days' || selection=='subscription' || selection=='manual'){
-                //nothing change
+                changeBillingDates('');
             }else{
                 changeBillingDates('');
             }
@@ -437,6 +463,13 @@
                         if (response.status == 'success') {
                             $("[name='BillingTimezone']").select2().select2('val',response.data.BillingTimezone);
                             $("[name='SendInvoiceSetting']").select2().select2('val',response.data.SendInvoiceSetting);
+                            if(response.data.AutoPaymentSetting == null || response.data.AutoPaymentSetting == '') {
+                                $("[name='AutoPaymentSetting']").select2().select2('val', 'never');
+                            }
+                            else{
+                                $("[name='AutoPaymentSetting']").select2().select2('val', response.data.AutoPaymentSetting);
+                            }
+                            $("[name='AutoPayMethod']").select2().select2('val', response.data.AutoPayMethod);
                         } else {
                             $("[name='BillingTimezone']").select2().select2('val','');
                             $("[name='SendInvoiceSetting']").select2().select2('val','');
@@ -486,7 +519,7 @@
             //var BillingCycleValue;
             BillingStartDate = $('[name="BillingStartDate"]').val();
             BillingCycleType = $('select[name="BillingCycleType"]').val();
-            if(BillingCycleType==''){
+            if(BillingCycleValue==''){
                 BillingCycleValue = $('[name="BillingCycleValue"]').val();
             }
             //alert(BillingCycleValue);

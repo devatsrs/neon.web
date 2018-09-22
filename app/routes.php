@@ -115,6 +115,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('customer/profile', array('as' => 'profile_show', 'uses' => 'ProfileController@show'));
     Route::any('customer/profile/edit', array('as' => 'profile_edit', 'uses' => 'ProfileController@edit'));
     Route::any('customer/profile/update', array('as' => 'profile_update', 'uses' => 'ProfileController@update'));
+
 	//User
 	Route::any('users', array("as" => "users", "uses" => "UsersController@index"));
 	Route::any('/users/add', "UsersController@add");
@@ -272,13 +273,22 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('account_subscription/{id}/store', 'AccountSubscriptionController@store');
 	Route::any('account_subscription/{subscription_id}/update', 'AccountSubscriptionController@update')->where('subscription_id', '(.[09]*)+');
 	Route::any('account_subscription/{subscription_id}/delete', 'AccountSubscriptionController@delete')->where('subscription_id', '(.[09]*)+');
-	
+	Route::any('account_subscription/getDiscountPlanByAccount', 'AccountSubscriptionController@getDiscountPlanByAccount');
+
 	Route::any('accounts/{id}/subscription/ajax_datagrid', 'AccountSubscriptionController@ajax_datagrid');
 	Route::any('accounts/{id}/subscription/store', 'AccountSubscriptionController@store');
 	Route::any('accounts/{id}/subscription/{subscription_id}/update', 'AccountSubscriptionController@update')->where('subscription_id', '(.[09]*)+');
 	Route::any('accounts/{id}/subscription/{subscription_id}/delete', 'AccountSubscriptionController@delete')->where('subscription_id', '(.[09]*)+');
+	Route::any('accounts/{id}/subscription/store_discountplan', 'AccountSubscriptionController@store_discountplan');
+	Route::any('accounts/{id}/subscription/get_discountplan', 'AccountSubscriptionController@get_discountplan');
+	Route::any('accounts/{id}/subscription/edit_discountplan', 'AccountSubscriptionController@edit_discountplan');
+	Route::any('accounts/{id}/subscription/update_discountplan', 'AccountSubscriptionController@update_discountplan');
+	Route::any('accounts/{id}/subscription/delete_discountplan', 'AccountSubscriptionController@delete_discountplan');
+	Route::any('accounts/{id}/subscription/bulkupdate_discountplan', 'AccountSubscriptionController@bulkupdate_discountplan');
+	Route::any('accounts/{id}/subscription/bulkdelete_discountplan', 'AccountSubscriptionController@bulkdelete_discountplan');
 
-    //Account One of charge
+
+	//Account One of charge
     Route::any('accounts/{id}/oneofcharge/ajax_datagrid', 'AccountOneOffChargeController@ajax_datagrid');
     Route::any('accounts/{id}/oneofcharge/store', 'AccountOneOffChargeController@store');
     Route::any('accounts/{id}/oneofcharge/{oneofcharge_id}/update', 'AccountOneOffChargeController@update')->where('oneofcharge_id', '(.[09]*)+');
@@ -737,10 +747,13 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/auto_rate_import/autoimport','AutoImportController@index');
 	Route::any('/auto_rate_import/autoimport/ajax_datagrid/{type}','AutoImportController@ajax_datagrid');
 	Route::any('/auto_rate_import/autoimport/readmail/{id}','AutoImportController@GetemailReadById');
+	Route::any('/auto_rate_import/autoimport/recheckmail/{id}','AutoImportController@RecheckMail');
+	Route::any('/auto_rate_import/autoimport/{id}/getAttachment/{attachmentID}','AutoImportController@GetAttachment');
 
 	Route::any('/auto_rate_import/ajax_datagrid/{type}','AutoRateImportController@ajax_datagrid');
 	Route::any('/auto_rate_import/import_inbox_setting','AutoRateImportController@index');
 	Route::any('/auto_rate_import/storeAndUpdate','AutoRateImportController@inboxSettingStoreAndUpdate');
+	Route::any('/auto_rate_import/validConnection','AutoRateImportController@validConnection');
 
 	Route::any('/auto_rate_import/account_setting','AutoRateImportController@accountSetting');
 	Route::any('/auto_rate_import/account_setting/store','AutoRateImportController@accountSettingStore');
@@ -764,6 +777,13 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/about', 'PagesController@about');
 	Route::resource('page', 'PagesController');
 	Route::controller('page', 'PagesController');
+
+	//Dynamic Links
+	Route::any('/dynamiclink', 'DynamiclinkController@index');
+	Route::any('/dynamiclink/ajax_datagrid/{type}', 'DynamiclinkController@ajax_datagrid');
+	Route::any('/dynamiclink/create', 'DynamiclinkController@create');
+	Route::any('/dynamiclink/{id}/update', 'DynamiclinkController@update');
+	Route::any('/dynamiclink/{id}/delete', 'DynamiclinkController@delete');
 
 	//Account Approval
 
@@ -851,6 +871,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/payments/check_upload', 'PaymentsController@check_upload');
 	Route::any('/payments/ajaxfilegrid', 'PaymentsController@ajaxfilegrid');
 	Route::any('/payments/download_sample_excel_file', 'PaymentsController@download_sample_excel_file');
+	Route::any('/payments/payments_quickbookpost', 'PaymentsController@payments_quickbookpost');
 
 	//Currency
 	Route::any('/currency/ajax_datagrid', 'CurrenciesController@ajax_datagrid');
@@ -916,6 +937,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/cdr_upload/storeTemplate', 'CDRController@storeTemplate');
     Route::any('/cdr_upload/ajaxfilegrid', 'CDRController@ajaxfilegrid');
     Route::any('/rate_cdr', 'CDRController@rate_cdr');
+    Route::any('/rate_vendorcdr', 'CDRController@rate_vendorcdr');
 	Route::any('/vendorcdr_show', 'CDRController@vendorcdr_show');
 	Route::any('/cdr_upload/ajax_datagrid_vendorcdr/{type}', 'CDRController@ajax_datagrid_vendorcdr');
 	Route::any('/cdr_upload/ajax_datagrid_vendorcdr_total/{type}', 'CDRController@ajax_datagrid_vendorcdr_total');	
@@ -989,6 +1011,37 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/recurringprofiles/generate', 'RecurringInvoiceController@generate');
     ///////////////////////////
 
+	//Credit Notes
+	Route::any('/creditnotes', 'CreditNotesController@index');
+	Route::any('/creditnotes/create', 'CreditNotesController@create');
+	Route::any('/creditnotes/store', 'CreditNotesController@store');
+	Route::any('/creditnotes/bulk_send_invoice_mail', 'CreditNotesController@bulk_send_invoice_mail');
+	Route::any('/creditnotes/bulk_print_invoice', 'CreditNotesController@bulk_print_invoice');
+	Route::any('/creditnotes/invoice_regen', 'CreditNotesController@invoice_regen');
+	Route::any('/creditnotes/{id}/edit', 'CreditNotesController@edit');
+	Route::any('/creditnotes/{id}/delete', 'CreditNotesController@delete');
+	Route::any('/creditnotes/{id}/view', 'CreditNotesController@view');
+	Route::any('/creditnotes/{id}/update', 'CreditNotesController@update');
+	Route::any('/creditnotes/{id}/creditnotes_preview', 'CreditNotesController@creditnotes_preview');
+	Route::any('/creditnotes/display_creditnotes/{id}', 'CreditNotesController@display_creditnotes');
+	Route::any('/creditnotes/download_creditnotes/{id}', 'CreditNotesController@download_creditnotes');
+	Route::any('/creditnotes/creditnotes_change_Status', 'CreditNotesController@creditnotes_change_Status');
+	Route::any('/creditnotes/{id}/send', 'CreditNotesController@send');
+	Route::any('/creditnotes/{id}/ajax_getEmailTemplate', 'CreditNotesController@ajax_getEmailTemplate');
+	Route::any('/creditnotes/{id}/creditnotes_email', 'CreditNotesController@creditnotes_email');
+	Route::any('/creditnotes/creditnoteslog/{id}', 'CreditNotesController@creditnoteslog');
+	Route::any('/creditnotes/ajax_creditnoteslog_datagrid/{id}/{type}', 'CreditNotesController@ajax_creditnoteslog_datagrid');
+	Route::any('/creditnotes/{id}/cview', 'CreditNotesController@cview');
+	Route::any('/creditnotes/{accountid}/{id}/apply_creditnotes', 'CreditNotesController@apply_creditnotes');
+	Route::any('/creditnotes/{id}/apply_creditnote_datagrid', 'CreditNotesController@apply_creditnote_datagrid');
+	Route::any('/creditnotes/store_creditnotes', 'CreditNotesController@store_creditnotes');
+
+	Route::any('/creditnotes/ajax_datagrid/{type}', 'CreditNotesController@ajax_datagrid');
+	Route::any('/creditnotes/ajax_datagrid_total', 'CreditNotesController@ajax_datagrid_total');
+	Route::any('/creditnotes/calculate_total', 'CreditNotesController@calculate_total');
+	Route::any('/creditnotes/get_account_info', 'CreditNotesController@getAccountInfo');
+	Route::any('/creditnotes/get_billingclass_info', 'CreditNotesController@getBillingclassInfo');
+
 	//Invoice
 	Route::any('/invoice', 'InvoicesController@index');
 	Route::any('/invoice/create', 'InvoicesController@create');
@@ -1029,6 +1082,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/reconcile', 'InvoicesController@invoice_in_reconcile');
     Route::any('/invoice/download_atatchment/{id}', 'InvoicesController@download_attachment');
 	Route::any('/invoice/invoice_quickbookpost', 'InvoicesController@invoice_quickbookpost');
+	Route::any('/invoice/invoice_quickbookexport', 'InvoicesController@invoice_quickbookexport');
+	Route::any('/invoice/journal_quickbookdexport', 'InvoicesController@journal_quickbookdexport');
+	Route::any('/invoice/journal_quickbookdexport_download', 'InvoicesController@journal_quickbookdexport_download');
 	Route::any('/get_unbill_report/{id}', 'InvoicesController@get_unbill_report');
 	Route::any('/generate_manual_invoice', 'InvoicesController@generate_manual_invoice');
 	Route::any('/invoice/invoice_sagepayexport', 'InvoicesController@invoice_sagepayexport');
@@ -1149,8 +1205,30 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/product/{id}/get/{FieldName}', 'ProductsController@get')->where('FieldName', '(.[azAZ]*)+');
     Route::any('/billing_subscription/{id}/get/{FieldName}', 'BillingSubscriptionController@get')->where('FieldName', '(.[azAZ]*)+');
 
+	Route::any('/products/{id}/change_type', 'ProductsController@change_type');
+	Route::any('/products/dynamicfield/{id}/download', 'ProductsController@download_dynamicfield');
 
-    Route::any('/billing_dashboard/invoice_expense_chart', 'BillingDashboard@invoice_expense_chart');
+	Route::any('/products/itemtypes', 'ItemTypeController@index');
+	Route::any('/products/itemtypes/ajax_datagrid/{type}', 'ItemTypeController@ajax_datagrid');
+	Route::any('/products/itemtypes/create', 'ItemTypeController@create');
+	Route::any('/products/itemtypes/{id}/update', 'ItemTypeController@update');
+	Route::any('/products/itemtypes/{id}/delete', 'ItemTypeController@delete');
+	Route::any('/products/itemtypes/update_bulk_itemtypes_status', 'ItemTypeController@UpdateBulkItemTypeStatus');
+
+	Route::any('/products/dynamicfields', 'DynamicFieldController@index');
+	Route::any('/products/dynamicfields/ajax_datagrid/{type}', 'DynamicFieldController@ajax_datagrid');
+	Route::any('/products/dynamicfields/create', 'DynamicFieldController@create');
+	Route::any('/products/dynamicfields/{id}/update', 'DynamicFieldController@update');
+	Route::any('/products/dynamicfields/{id}/delete', 'DynamicFieldController@delete');
+	Route::any('/products/dynamicfields/update_bulk_dynamicfields_status', 'DynamicFieldController@UpdateBulkDynamicFieldStatus');
+	Route::any('/products/dynamicfields/delete_bulk_dynamicfields', 'DynamicFieldController@DeleteBulkDynamicField');
+
+	Route::any('/products/stockhistory', 'StockHistoryController@index');
+	Route::any('/products/stockhistory/ajax_datagrid/{type}', 'StockHistoryController@ajax_datagrid');
+
+
+
+	Route::any('/billing_dashboard/invoice_expense_chart', 'BillingDashboard@invoice_expense_chart');
     Route::any('/billing_dashboard/invoice_expense_total', 'BillingDashboard@invoice_expense_total');
     Route::any('/billing_dashboard/invoice_expense_total_widget', 'BillingDashboard@invoice_expense_total_widget');
 	Route::any('/billing_dashboard/ajax_top_pincode', 'BillingDashboard@ajax_top_pincode');
@@ -1216,6 +1294,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/disputes/change_status','DisputeController@change_status');
 	Route::any('/disputes/{id}/download_attachment','DisputeController@download_attachment');
 	Route::any('/disputes/{id}/view','DisputeController@view');
+	Route::any('/disputes/{id}/disputes_email', 'DisputeController@disputes_email');
+	Route::any('/disputes/{id}/send', 'DisputeController@send');
+	Route::any('/disputes/bulk_send_dispute_mail', 'DisputeController@bulk_send_dispute_mail');
 
 	//DailString
 	Route::any('/dialstrings', "DialStringController@index");
@@ -1402,6 +1483,17 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('reseller/profile', array('as' => 'profile_show', 'uses' => 'ResellerProfileController@show'));
 	Route::any('reseller/profile/edit', array('as' => 'profile_edit', 'uses' => 'ResellerProfileController@edit'));
 	Route::any('reseller/profile/update', array('as' => 'profile_update', 'uses' => 'ResellerProfileController@update'));
+
+	//Timezones
+	Route::any('/timezones','TimezonesController@index');
+	Route::any('/timezones/getTimezonesVariables','TimezonesController@getTimezonesVariables');
+	Route::any('/timezones/search_ajax_datagrid/{type}','TimezonesController@search_ajax_datagrid');
+	Route::any('/timezones/changeSelectedStatus/{type}','TimezonesController@changeSelectedStatus');
+	Route::any('/timezones/store','TimezonesController@store');
+	Route::any('/timezones/update/{id}','TimezonesController@update');
+	Route::any('/timezones/{id}/delete/{type}','TimezonesController@delete');
+	Route::controller('timezones', 'TimezonesController');
+
 });
 
 Route::group(array('before' => 'global_admin'), function () {
@@ -1499,6 +1591,18 @@ Route::group(array('before' => 'guest'), function () {
 	//test pages
 	Route::any('/test', 'TestController@index');
 
+	Route::any('/globalneonregistarion', 'NeonRegistartionController@index');
+	Route::any('/globalneonregistarion/createaccount', 'NeonRegistartionController@createaccount');
+	Route::any('/globalneonregistarion/createpayment', 'NeonRegistartionController@createpayment');
+	Route::any('/api_accountcreation/{id}', 'InvoicesController@api_invoice_thanks'); //Customer payment pay
+	Route::any('/api_neonaccountcreation', 'InvoicesController@api_invoice_creditcard_thanks'); //Customer payment pay
+	Route::any('/api_paypal_ipn/{id}', 'InvoicesController@api_paypal_ipn'); //Payment response by paypal.
+	Route::any('/api_paypal_cancel/{id}', 'InvoicesController@api_paypal_cancel'); //Payment response by paypal.
+
+	Route::any('/api_sagepay_return/{id}', 'InvoicesController@api_sagepay_return'); //Payment response by paypal.
+	Route::any('/api_sagepay_declined/{id}', 'InvoicesController@api_sagepay_declined'); //Payment response by paypal.
+	Route::any('/api_sagepay_ipn/{id}', 'InvoicesController@api_sagepay_ipn'); //Payment response by paypal.
+
 });
 
 Route::any('terms', "HomeController@terms");
@@ -1506,3 +1610,25 @@ Route::any('terms', "HomeController@terms");
 /*
  * save isGuest to skip routes/urls for user permission
  * */
+
+Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
+{
+	Route::post('login', 'ApiController@login');
+	Route::get('logout', 'ApiController@logout');
+	Route::get('currency/list', 'CurrencyApiController@getList');
+	Route::get('billingType/list', 'BillingTypeApiController@getList');
+	Route::get('billingCycle/list', 'BillingCycleApiController@getList');
+	Route::get('billingClass/list', 'BillingClassApiController@getList');
+	Route::post('billingClass/getTaxRateList', 'BillingClassApiController@getTaxRateList');
+	Route::get('service/list', 'ServiceApiController@getList');
+	Route::get('discount/list', 'DiscountPlanApiController@getList');
+	Route::get('subscription/list', 'SubscriptionApiController@getList');
+	Route::get('inboundOutbound/list/{CurrencyID}', 'InboundOutboundApiController@getList');
+	Route::get('payment/list', 'PaymentApiController@getList');
+	Route::post('accounts/validEmail', 'AccountsApiController@validEmail');
+	Route::post('company/validCompanyName', 'CompaniesApiController@validCompanyName');
+	Route::get('taxRates/getTaxRates', 'TaxRatesApiController@getTaxRates');
+	Route::post('products/getProductsByType', 'ProductApiController@getListByType');
+	Route::post('products/ProductUpdateStock', 'ProductApiController@UpdateStockCalculation');
+	Route::post('getAccountbilling/{AccountID}', 'AccountBillingApiController@getAccountBilling');
+});

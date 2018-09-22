@@ -547,6 +547,7 @@ function getFileContent($file_name, $data, $Sheet=''){
 
     $counter = 1;
     foreach ($results[0] as $index => $value) {
+        $index = preg_replace('/\s+/', ' ', trim($index));//remove new lines (/r/n) etc...
         if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
             $columns[$counter] = 'Col' . $counter;
         } else {
@@ -618,6 +619,7 @@ function getFileContentSheet2($file_name, $data, $Sheet=''){
 
     $counter = 1;
     foreach ($results[0] as $index => $value) {
+        $index = preg_replace('/\s+/', ' ', trim($index));//remove new lines (/r/n) etc...
         if (isset($data['option']['Firstrow']) && $data['option']['Firstrow'] == 'data') {
             $columns[$counter] = 'Col' . $counter;
         } else {
@@ -718,6 +720,9 @@ function bulk_mail($type,$data){
                 }
                 if ($type == 'IR') {
                     $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['BULK_INVOICE_MAIL_ATTACHEMENT']);
+                }
+                if ($type == 'DR') {
+                    $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['BULK_DISPUTE_MAIL_ATTACHEMENT']);
                 }
                 $dir = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
                 if (!file_exists($dir)) {
@@ -1700,6 +1705,9 @@ function is_FideliPay($CompanyID){
 function is_Xero($CompanyID){
     return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$XeroSlug,$CompanyID);
 }
+function is_merchantwarrior($CompanyID){
+    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$MerchantWarriorSlug,$CompanyID);
+}
 function change_timezone($billing_timezone,$timezone,$date){
     if(!empty($timezone) && !empty($billing_timezone)) {
         date_default_timezone_set($billing_timezone);
@@ -2129,7 +2137,7 @@ function table_html($data,$table_data){
             $table_header .= '<tr>';
             if ($key == 0) {
                 foreach ($data['row'] as $rowkey => $blankrow_name) {
-                    $table_header .= '<td rowspan="' . (count($data['column']) + 1) . '"></td>';
+                    $table_header .= '<td rowspan="' . (count($data['column']) + 1) . '">'.ucwords($blankrow_name).'</td>';
                 }
             }
 
@@ -2516,7 +2524,7 @@ function getInvoicePayments($CompanyID){
 }
 
 function is_PayNowInvoice($CompanyID){
-    if(is_authorize($CompanyID) || is_Stripe($CompanyID) || is_StripeACH($CompanyID) || is_FideliPay($CompanyID)){
+    if(is_authorize($CompanyID) || is_Stripe($CompanyID) || is_StripeACH($CompanyID) || is_FideliPay($CompanyID) || is_pelecard($CompanyID)){
         return true;
     }
     return false;
@@ -2742,4 +2750,288 @@ function cleanarray($data = [],$unset=[]){
         }
     }
     return $data;
+}
+function emailHeaderDecode($emailHtml) {
+    if(is_string($emailHtml)){
+
+        $matches = null;
+
+        /* Repair instances where two encodings are together and separated by a space (strip the spaces) */
+        $emailHtml = preg_replace('/(=\?[^ ?]+\?[BQbq]\?[^ ?]+\?=)\s+(=\?[^ ?]+\?[BQbq]\?[^ ?]+\?=)/', "$1$2", $emailHtml);
+
+        /* Now see if any encodings exist and match them */
+        if (!preg_match_all('/=\?([^ ?]+)\?([BQbq])\?([^ ?]+)\?=/', $emailHtml, $matches, PREG_SET_ORDER)) {
+            return $emailHtml;
+        }
+        foreach ($matches as $header_match) {
+            list($match, $charset, $encoding, $data) = $header_match;
+            $encoding = strtoupper($encoding);
+            switch ($encoding) {
+                case 'B':
+                    $data = base64_decode($data);
+                    break;
+                case 'Q':
+                    $data = quoted_printable_decode(str_replace("_", " ", $data));
+                    break;
+            }
+            // This part needs to handle every charset
+            switch (strtoupper($charset)) {
+                case "UTF-8":
+                    break;
+            }
+            $emailHtml = str_replace($match, $data, $emailHtml);
+        }
+    }
+    return $emailHtml;
+}
+
+function filterArrayRemoveNewLines($arr) { // remove new lines (/r/n) etc...
+    //return preg_replace('/s+/', ' ', trim($arr));
+    foreach ($arr as $key => $value) {
+        $oldkey = $key;
+        /*$key = str_replace("\r", '', $key);
+        $key = str_replace("\n", '', $key);*/
+        $key = preg_replace('/\s+/', ' ',$key);
+        $arr[$key] = $value;
+        if($key != $oldkey)
+            unset($arr[$oldkey]);
+    }
+    return $arr;
+}
+
+function array_key_exists_wildcard ( $arr, $search ) {
+    $search = str_replace( '*', '###star_needle###', $search );
+    $search = preg_quote( $search, '/' ); # This is important!
+    $search = str_replace( '###star_needle###', '.*?', $search );
+    $search = '/^' . $search . '$/i';
+
+    return preg_grep( $search, array_keys( $arr ) );
+}
+
+function searchArrayByProductID($id, $array) {
+    foreach ($array as $key => $val) {
+        if ($val['ProductID'] == $id) {
+            return $key;
+        }
+    }
+    return -1;
+}
+
+function getArrayByProductID($id,$array){
+    foreach ($array as $key => $val) {
+        if ($val['ProductID'] == $id) {
+            return array('ProductID'=>$val['ProductID'],'Qty'=>$val['Qty']);
+        }
+    }
+    return null;
+}
+
+function array_group_by($array, $key) {
+    $return = array();
+    foreach($array as $val) {
+        $return[$val[$key]][] = $val;
+    }
+    return $return;
+}
+
+function sumofQtyIfSameProduct($inpuarr){
+    $mainarr=array_group_by($inpuarr,'ProductID');
+    $resarr=array();
+    foreach($mainarr as $valmain){
+        $cnt=1;
+        $arr=array();
+        foreach ($valmain as $key => $val) {
+            if ($cnt == 1) {
+                $arr += $val;
+            } else {
+                if ($val['Qty']) {
+                    $arr['Qty'] = $arr['Qty'] + $val['Qty'];
+                }
+            }
+            $cnt++;
+        }
+        array_push($resarr, $arr);
+    }
+    return $resarr;
+}
+
+function StockHistoryCalculations($data=array()){
+    $Error=array();
+    $TempStockData=array();
+    $StockData=array();
+    foreach($data as $stockarr){
+        if($stockarr['CompanyID'] > 0 && $stockarr['ProductID'] > 0 && $stockarr['Qty'] >0){
+            $getProduct = Product::where(['ProductID'=>$stockarr['ProductID'],'Enable_stock'=>1])->first();
+
+            if(!empty($getProduct)){
+                $pname=$getProduct['Name'];
+                $pcode=$getProduct['Code'];
+                $getPrevProductHistory = StockHistory::where('CompanyID', $stockarr['CompanyID'])->where('ProductID', $stockarr['ProductID'])->orderby('StockHistoryID', 'desc')->first();
+                if (!empty($getPrevProductHistory)) {
+                    $pstock = intval($getPrevProductHistory['Stock']);
+                    $remainStock = $pstock - $stockarr['Qty'];
+                    $low_stock_level=intval($getProduct['Low_stock_level']);
+                    if ($remainStock < 0 || $remainStock <= $low_stock_level) {
+                        $Error[] = "Invoiced qty is more then available qty: Item {" . $pcode."}";
+                    }
+                    $invoicemsg="";
+                    if($stockarr['InvoiceNumber']!=''){
+                        $invoicemsg='{'.$stockarr['InvoiceNumber'].'}';
+                    }
+                    $reason="Invoice Generated ".$invoicemsg." - qty ".$stockarr['Qty'];
+
+                    $TempStockData['CompanyID']=$stockarr['CompanyID'];
+                    $TempStockData['ProductID']=$stockarr['ProductID'];
+                    $TempStockData['InvoiceID']=$stockarr['InvoiceID'];
+                    $TempStockData['InvoiceNumber']=$stockarr['InvoiceNumber'];
+                    $TempStockData['Stock']=$remainStock;
+                    $TempStockData['Quantity']=$stockarr['Qty'];
+                    $TempStockData['Reason']=$reason;
+                    $TempStockData['created_at']=date('Y-m-d H:i:s');
+                    $TempStockData['created_by']=$stockarr['created_by'];
+
+                    $StockData[]=$TempStockData;
+                    //array_push($StockData,$TempStockData);
+
+                }
+            }
+        }
+    }
+
+    if(!empty($StockData)){
+        StockHistory::insert($StockData);
+        foreach($StockData as $updatestock){
+            $getProduct = Product::where('ProductID',$updatestock['ProductID'])->first();
+            if(!empty($getProduct)){
+                $getProduct->update(['Quantity'=>$updatestock['Stock']]);
+            }
+        }
+    }
+    return $Error;
+}
+
+function stockHistoryUpdateCalculations($data=array()){
+    $Error=array();
+    $StockData=array();
+    foreach($data as $stockarr){
+        $TempStockData=array();
+        if($stockarr['CompanyID'] > 0 && $stockarr['ProductID'] > 0 && $stockarr['Qty'] > 0){
+            $getStockHistory = StockHistory::where('ProductID', $stockarr['ProductID'])->orderby('StockHistoryID', 'desc')->first();
+            if(!empty($getStockHistory)){
+                $low_stock_alert=0;
+                $hQuantity=intval($getStockHistory['Quantity']);
+                $hStock=intval($getStockHistory['Stock']);
+                $InvoiceNo=$getStockHistory['InvoiceNumber'];
+                if($stockarr['Reason']=='delete_prodstock'){
+                    //if Delete Stock
+                    $getProduct = Product::where(['ProductID'=>$stockarr['ProductID'],'Enable_stock'=>1])->first();
+                    if (!empty($getProduct)) {
+                        $pname = $getProduct['Name'];
+                        $low_stock_level = intval($getProduct['Low_stock_level']);
+                        $updatedStock = $hStock + $stockarr['oldQty'];
+                        $reason=$pname.' Deleted. Item Quantity '.$stockarr['Qty'].' Revert back to Stock.';
+
+                        $TempStockData['CompanyID']=$stockarr['CompanyID'];
+                        $TempStockData['ProductID']=$stockarr['ProductID'];
+                        $TempStockData['InvoiceID']=$stockarr['InvoiceID'];
+                        $TempStockData['InvoiceNumber']=$stockarr['InvoiceNumber'];
+                        $TempStockData['Stock']=$updatedStock;
+                        $TempStockData['Quantity']=$stockarr['Qty'];
+                        $TempStockData['Reason']=$reason;
+                        $TempStockData['created_at']=date('Y-m-d H:i:s');
+                        $TempStockData['created_by']=$stockarr['created_by'];
+
+                        $StockData[]=$TempStockData;
+
+                    }
+                }else{
+                    if($stockarr['oldQty']!=$stockarr['Qty']) {
+                        $getProduct = Product::where(['ProductID'=>$stockarr['ProductID'],'Enable_stock'=>1])->first();
+                        if (!empty($getProduct)) {
+                            $pstock = $getProduct['Quantity'];
+                            $pname = $getProduct['Name'];
+                            $pcode = $getProduct['Code'];
+                            $low_stock_level = intval($getProduct['Low_stock_level']);
+                            if ($stockarr['Qty'] > $stockarr['oldQty']) {
+                                $diffQuantity = $stockarr['Qty'] - $stockarr['oldQty'];
+                                $updatedStock = $hStock - $diffQuantity;
+                            } else {
+                                $diffQuantity = $stockarr['oldQty'] - $stockarr['Qty'];
+                                $updatedStock = $hStock + $diffQuantity;
+                            }
+                            if ($updatedStock <= $low_stock_level) {
+                                $Error[] = "Invoiced qty is more then available qty: Item {" . $pcode."}";
+                            }
+
+                            $invoicemsg="";
+                            if($InvoiceNo!=''){
+                                $invoicemsg='{'.$InvoiceNo.'}';
+                            }
+                            $reason="Invoice Updated ".$invoicemsg." - qty ".$stockarr['Qty'];
+
+                            $TempStockData['CompanyID']=$stockarr['CompanyID'];
+                            $TempStockData['ProductID']=$stockarr['ProductID'];
+                            $TempStockData['InvoiceID']=$stockarr['InvoiceID'];
+                            $TempStockData['InvoiceNumber']=$stockarr['InvoiceNumber'];
+                            $TempStockData['Stock']=$updatedStock;
+                            $TempStockData['Quantity']=$diffQuantity;
+                            $TempStockData['Reason']=$reason;
+                            $TempStockData['created_at']=date('Y-m-d H:i:s');
+                            $TempStockData['created_by']=$stockarr['created_by'];
+
+                            $StockData[]=$TempStockData;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if(!empty($StockData)){
+        StockHistory::insert($StockData);
+        foreach($StockData as $updatestock){
+            $getProduct = Product::where('ProductID',$updatestock['ProductID'])->first();
+            if(!empty($getProduct)){
+                $getProduct->update(['Quantity'=>$updatestock['Stock']]);
+            }
+        }
+    }
+    return $Error;
+}
+
+function getRandomNumber($digits=5){
+    $rand_no= rand(pow(10, $digits-1), pow(10, $digits)-1);
+    return $rand_no;
+}
+
+function getLanguageValue($val){
+    $name=$val;
+    $langs = Translation::get_language_labels('en');
+    $json_file = json_decode($langs->Translation, true);
+    $key=array_search($val,$json_file);
+    if(!empty($key)){
+        $name=cus_lang($key);
+    }
+    return $name;
+}
+
+function getCompanyDecimalPlaces($CompanyID=0, $value=""){
+    $RoundChargesAmount = CompanySetting::getKeyVal('RoundChargesAmount', $CompanyID);
+    $RoundChargesAmount=($RoundChargesAmount !='Invalid Key')?$RoundChargesAmount:2;
+
+    if(!empty($value) && is_numeric($value)){
+        $formatedValue=number_format($value, $RoundChargesAmount);
+        if($formatedValue){
+            return $formatedValue;
+        }
+        return $value;
+    }else{
+        return $RoundChargesAmount;
+    }
+}
+
+function terminateMysqlProcess($pid){
+    $cmd="KILL ".$pid;
+    DB::connection('sqlsrv2')->select($cmd);
+
 }
