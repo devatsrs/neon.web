@@ -64,7 +64,7 @@
                     <input type="text" name="Title" class="form-control" id="field-5" placeholder="">
                 </div>
                 <div class="form-group">
-                    <label for="field-5" class="control-label">Link <span id="tooltip_Link" data-content="lang={LANGUAGE},  AccountID={ACCOUNTID}, AccountNo={ACCOUNTNUMBER}, CompanyID={COMPANYID}" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> *</label>
+                    <label for="field-5" class="control-label">Link <span id="tooltip_Link" data-content="lang={LANGUAGE},  AccountID={ACCOUNTID}, AccountNo={ACCOUNTNUMBER}, CompanyID={COMPANYID}, username={billingemail1}, Password={CustomerPanelPassword}" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> *</label>
                     <input type="text" name="Link" class="form-control" id="field-5" placeholder="">
                 </div>
                 <div class="form-group">
