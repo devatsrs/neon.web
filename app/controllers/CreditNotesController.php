@@ -53,6 +53,10 @@ class CreditNotesController extends \BaseController {
         $data['IssueDateEnd']        =  empty($data['IssueDateEnd'])?'0000-00-00 00:00:00':$data['IssueDateEnd'];
         $sort_column 				 =  $columns[$data['iSortCol_0']];
         $data['CurrencyID'] = empty($data['CurrencyID'])?'0':$data['CurrencyID'];
+        if($data['CreditNotesStatus'] == "")
+        {
+            $data['CreditNotesStatus'] = 'open';
+        }
 
         $query = "call prc_getCreditNotes (".$companyID.",".intval($data['AccountID']).",'".$data['CreditNotesNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."','".$data['CreditNotesStatus']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".strtoupper($data['sSortDir_0'])."',".intval($data['CurrencyID'])."";
 
@@ -89,16 +93,23 @@ class CreditNotesController extends \BaseController {
     public function apply_creditnote_datagrid($AccountID)
     {
         $data = Input::all();
-        // print_r($data);exit;
         $companyID = User::get_companyID();
+        $data['iDisplayStart'] 		+=	1;
+        if(empty($data['InvoiceNumber']))
+        {
+            $data['InvoiceNumber'] = '';
+        }
+        $AccountInvoices = "call prc_getCreditNoteInvoices ('" . $AccountID . "','".$data['InvoiceNumber'] . "',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].")";
 
-        if($data['InvoiceNumber'] == 0) {
+        return DataTableSql::of($AccountInvoices,'sqlsrv2')->make();
+
+        /*if($data['InvoiceNumber'] == 0) {
 
             $AccountInvoices = Invoice::select(["tblInvoice.InvoiceID", "tblInvoice.FullInvoiceNumber", "tblInvoice.IssueDate", "tblInvoice.GrandTotal", DB::raw("(select IFNULL(SUM(Amount),0) from tblPayment where tblPayment.InvoiceID=tblInvoice.InvoiceID and tblPayment.Recall=0) as paidsum")])
                 ->where('tblInvoice.AccountID', $AccountID)
                 ->where('tblInvoice.GrandTotal','<>', 0)
-                ->whereIn('tblInvoice.InvoiceStatus', array('partially_paid','send','awaiting'))
-                ->groupBy('tblInvoice.InvoiceID');
+                ->whereIn('tblInvoice.InvoiceStatus', array('partially_paid','send','awaiting'));
+                //->groupBy('tblInvoice.InvoiceID');
         }
         else{
 
@@ -109,7 +120,7 @@ class CreditNotesController extends \BaseController {
                 ->whereIn('tblInvoice.InvoiceStatus', array('partially_paid','send','awaiting'));
 
         }
-        return Datatables::of($AccountInvoices)->make();
+        return Datatables::of($AccountInvoices)->make();*/
     }
 
     /**
@@ -198,7 +209,7 @@ class CreditNotesController extends \BaseController {
             $invoicenumbers =   array("Select Invoices");
             foreach($Invoices as $invoice)
             {
-                $invoicenumbers[$invoice->InvoiceNumber] = $invoice->FullInvoiceNumber;
+                $invoicenumbers[$invoice->FullInvoiceNumber] = $invoice->FullInvoiceNumber;
             }
             $CreditNotes    = 	CreditNotes::find($id);
             $CompanyID      =   $CreditNotes->CompanyID;
@@ -212,6 +223,7 @@ class CreditNotesController extends \BaseController {
     {
         $data = Input::all();
         //echo"<pre>"; print_R($data);exit;
+        $CurrencyId = Account::where(['AccountID'=>$data['AccountID']])->pluck('CurrencyId');
         if(!isset($data['payment']))
         {
             return Response::json(array("status" => "failed", "message" => "No Invoices Found"));
@@ -241,6 +253,7 @@ class CreditNotesController extends \BaseController {
                         $paymentdata['updated_at'] = date("Y-m-d H:i:s");
                         $paymentdata['InvoiceID'] = $data['invoice_id'][$i];
                         $paymentdata['CreditNotesID'] = $data['CreditNotesID'];
+                        $paymentdata['CurrencyId'] = $CurrencyId;
                         $creditnote_id = $data['CreditNotesID'];
 
                         //check specific invoice grand total is greter then creditnotes

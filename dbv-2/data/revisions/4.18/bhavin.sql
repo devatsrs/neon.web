@@ -6,6 +6,8 @@ ALTER TABLE `tblInvoiceTemplate`
 	ADD COLUMN `FooterDisplayOnlyFirstPage` INT NULL DEFAULT '0' AFTER `DefaultTemplate`;
 ALTER TABLE `tblInvoiceTemplate`
 	ADD COLUMN `ShowTaxesOnSeparatePage` INT(11) NULL DEFAULT '0' AFTER `FooterDisplayOnlyFirstPage`;	
+ALTER TABLE `tblInvoiceTemplate`
+	ADD COLUMN `ShowTotalInMultiCurrency` INT(11) NULL DEFAULT '0' AFTER `ShowTaxesOnSeparatePage`;	
 
 CREATE TABLE IF NOT EXISTS `tblProcessCallChargesLog` (
   `LogID` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -649,7 +651,8 @@ BEGIN
 		Amount NUMERIC(18, 8),
 		PaymentType VARCHAR(50),
 		InvoiceType INT,
-		TopUpType VARCHAR(50)
+		TopUpType VARCHAR(50),
+		CreditNoteType VARCHAR (50)
 	);
 	
 	DROP TEMPORARY TABLE IF EXISTS tmp_AccountSOABal;
@@ -658,7 +661,8 @@ BEGIN
 		Amount NUMERIC(18, 8)
 	);
 
-     
+   --   tblInvoice.InvoiceType = 2 Invoice IN
+   --   tblInvoice.InvoiceType = 1 Invoice OUT  -- not ( 'cancel' , 'draft' , 'awaiting')
 	INSERT into tmp_AccountSOA(AccountID,Amount,InvoiceType)
 	SELECT
 		tblInvoice.AccountID,
@@ -693,11 +697,24 @@ BEGIN
 	AND ( (i.InvoiceType = 2) OR ( i.InvoiceType = 1 AND i.InvoiceStatus NOT IN ( 'cancel' , 'draft' , 'awaiting') )  )
 	AND (p_AccountID = 0 OR  i.AccountID = p_AccountID);
 	
+	INSERT into tmp_AccountSOA(AccountID,Amount,CreditNoteType)
+	SELECT
+		AccountID,
+		(GrandTotal - PaidAmount) as Amount,
+		'creditnote' as TopUpType
+	FROM tblCreditNotes
+	WHERE CompanyID = p_CompanyID 
+	AND CreditNotesStatus IN ('open')
+	AND (p_AccountID = 0 OR  AccountID = p_AccountID);
+	
+	/** SOAOffSet = soa( invoiceOut-PaymentIn - InvoiceIn - PaymentOut)    - topup - creditnotes	 */
 	INSERT INTO tmp_AccountSOABal
-	SELECT AccountID,(SUM(IF(InvoiceType=1,Amount,0)) -  SUM(IF(PaymentType='Payment In',Amount,0))) - (SUM(IF(InvoiceType=2,Amount,0)) - SUM(IF(PaymentType='Payment Out',Amount,0))) - (SUM(IF(TopUpType='topup',Amount,0))) as SOAOffSet 
+	SELECT AccountID,(SUM(IF(InvoiceType=1,Amount,0)) -  SUM(IF(PaymentType='Payment In',Amount,0))) - (SUM(IF(InvoiceType=2,Amount,0)) - SUM(IF(PaymentType='Payment Out',Amount,0))) - (SUM(IF(TopUpType='topup',Amount,0))) - (SUM(IF(CreditNoteType='creditnote',Amount,0))) as SOAOffSet
 	FROM tmp_AccountSOA 
 	GROUP BY AccountID;
 	
+	
+	-- SOABalance= 0 where AccountID not found 
 	INSERT INTO tmp_AccountSOABal
 	SELECT DISTINCT tblAccount.AccountID ,0 FROM Ratemanagement3.tblAccount
 	LEFT JOIN tmp_AccountSOA ON tblAccount.AccountID = tmp_AccountSOA.AccountID
@@ -705,7 +722,7 @@ BEGIN
 	AND tmp_AccountSOA.AccountID IS NULL
 	AND (p_AccountID = 0 OR  tblAccount.AccountID = p_AccountID);
 	
-
+	-- update SOAOffset (used in Credit Control / AccountBalance )
 	UPDATE Ratemanagement3.tblAccountBalance
 	INNER JOIN tmp_AccountSOABal 
 		ON  tblAccountBalance.AccountID = tmp_AccountSOABal.AccountID
@@ -713,6 +730,7 @@ BEGIN
 	
 	UPDATE Ratemanagement3.tblAccountBalance SET tblAccountBalance.BalanceAmount = COALESCE(tblAccountBalance.SOAOffset,0) + COALESCE(tblAccountBalance.UnbilledAmount,0)  - COALESCE(tblAccountBalance.VendorUnbilledAmount,0);
 	
+	-- New Account entry for tblAccountBalance
 	INSERT INTO Ratemanagement3.tblAccountBalance (AccountID,BalanceAmount,UnbilledAmount,SOAOffset)
 	SELECT tmp_AccountSOABal.AccountID,tmp_AccountSOABal.Amount,0,tmp_AccountSOABal.Amount
 	FROM tmp_AccountSOABal 

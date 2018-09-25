@@ -148,9 +148,14 @@ class Invoice extends \Eloquent {
             }else{
                 $arrSignature["UseDigitalSignature"]=false;
             }
+            $MultiCurrencies=array();
+            $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
+            if($InvoiceTemplate->ShowTotalInMultiCurrency==1){
+                $MultiCurrencies = Invoice::getTotalAmountInOtherCurrency($Account->CompanyId,$Account->CurrencyId,$Invoice->GrandTotal,$RoundChargesAmount);
+            }
 			
 			$print_type = 'Invoice';
-            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','InvoiceTaxRates','PaymentDueInDays','InvoiceAllTaxRates','language' ,'arrSignature'))->render();
+            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','InvoiceTaxRates','PaymentDueInDays','InvoiceAllTaxRates','language' ,'arrSignature','RoundChargesAmount','MultiCurrencies'))->render();
 
             $body = htmlspecialchars_decode($body);  
             $footer = View::make('invoices.pdffooter', compact('Invoice','print_type'))->render();
@@ -284,6 +289,8 @@ class Invoice extends \Eloquent {
         $replace_array['CompanyName'] = Company::getName($Account->CompanyId);
         $replace_array['CompanyVAT'] = Company::getCompanyField($Account->CompanyId,"VAT");
         $replace_array['CompanyAddress'] = Company::getCompanyFullAddress($Account->CompanyId);
+        $replace_array['AccountBalance'] = Company::getCompanyFullAddress($Account->CompanyId);
+        $replace_array['AccountBalance'] = $replace_array['Currency'] ."". AccountBalance::getAccountBalance($Account->AccountID);
 
         return $replace_array;
     }
@@ -312,7 +319,8 @@ class Invoice extends \Eloquent {
             '{Currency}',
             '{CompanyName}',
             '{CompanyVAT}',
-            '{CompanyAddress}'
+            '{CompanyAddress}',
+            '{AccountBalance}'
         ];
 
         foreach($extra as $item){
@@ -365,7 +373,7 @@ class Invoice extends \Eloquent {
                 ->where('tblInvoice.AccountID', $AccountID)
                 ->where('tblInvoice.GrandTotal','<>', 0)
                 ->whereIn('tblInvoice.InvoiceStatus', array('partially_paid','send','awaiting'))
-                ->groupBy('tblInvoice.InvoiceID')
+               // ->groupBy('tblInvoice.InvoiceID')
                 ->get();
 
             return $AccountInvoices;
@@ -758,5 +766,38 @@ class Invoice extends \Eloquent {
                 ->sum('LineTotal');
         }
         return $TotalTopUp;
+    }
+
+    public static function getTotalAmountInOtherCurrency($CompanyID,$BaseCurrencyID,$Amount,$RoundChargesAmount){
+        $Results=array();
+        $CompanyCurrencyID=Company::where('CompanyID',$CompanyID)->pluck('CurrencyId');
+        if(!empty($CompanyCurrencyID)) {
+            $Currencies = Currency::where('CurrencyId', '<>', $BaseCurrencyID)->get();
+            if (!empty($Currencies) && count($Currencies) > 0) {
+                foreach ($Currencies as $currency) {
+                    $CurrencyID = $currency->CurrencyId;
+                    $ConversionRate = CurrencyConversion::where('CurrencyID', $CurrencyID)->pluck('Value');
+                    $Title = Currency::getCurrencyCode($CurrencyID);
+                    $Symbol = Currency::getCurrencySymbol($CurrencyID);
+                    if (!empty($ConversionRate)) {
+                        $temp = array();
+                        $temp['Title'] = $Title;
+                        if ($BaseCurrencyID == $CompanyCurrencyID) {
+                            $TempAmount = ($Amount * $ConversionRate);
+                            $TempAmount = number_format($TempAmount,$RoundChargesAmount);
+
+                        }else{
+                            $ACConversionRate = CurrencyConversion::where('CurrencyID',$BaseCurrencyID)->pluck('Value');
+                            $TempAmount = ($ConversionRate) * ($Amount/$ACConversionRate);
+                            $TempAmount = number_format($TempAmount,$RoundChargesAmount);
+                        }
+                        $temp['Amount'] = $Symbol . $TempAmount;
+                        $Results[] = $temp;
+                    }
+                }
+
+            }
+        }
+        return $Results;
     }
 }
