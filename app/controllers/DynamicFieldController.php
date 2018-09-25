@@ -97,7 +97,7 @@ class DynamicFieldController extends \BaseController {
         }
 
         //Check FieldName duplicate
-        $cnt_duplidate = DynamicFields::where('FieldName',$data['FieldName'])->where('ItemTypeID',$data['ItemTypeID'])->get()->count();
+        $cnt_duplidate = DynamicFields::where('FieldName',$data['FieldName'])->get()->count();
         if($cnt_duplidate > 0){
             return Response::json(array("status" => "failed", "message" => "Dynamic Field With This Name Already Exists."));
         }
