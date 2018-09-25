@@ -141,7 +141,7 @@
             <th width="3%">Interval N</th>
             <th width="5%">Connection Fee</th>
             <th width="5%">Previous Rate ({{$code}})</th>
-            <th width="5%">Rate ({{$code}})</th>
+            <th width="5%">Rate1 ({{$code}})</th>
             <th width="5%">RateN ({{$code}})</th>
             <th width="8%">Effective Date</th>
             <th width="9%" style="display: none;">End Date</th>
@@ -449,6 +449,16 @@
             var Codes   = $this.prevAll("div.hiddenRowData").find("input[name='Code']").val();
             getArchiveRateTableRates($this,Codes);
         });
+
+        //set RateN value = Rate1 value if RateN value is blank
+        $(document).on('focusout','.Rate1', function() {
+            var formid = $(this).closest("form").attr('id');
+            var val = $(this).val();
+
+            if($('#'+formid+' .RateN').val() == '') {
+                $('#'+formid+' .RateN').val(val);
+            }
+        });
     });
 
     function rateDataTable() {
@@ -748,9 +758,9 @@
                     var Code = hiddenRowData.find('input[name="Code"]').val();
                     var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
                     if(view == 1) {
-                        table.append("<thead><tr><th>Code</th><th>Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate</th><th>RateN</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                        table.append("<thead><tr><th>Code</th><th>Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate1</th><th>RateN</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
                     } else {
-                        table.append("<thead><tr><th>Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate</th><th>RateN</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                        table.append("<thead><tr><th>Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate1</th><th>RateN</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
                     }
                     var tbody = $("<tbody></tbody>");
 
@@ -821,14 +831,14 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="control-label">Rate</label>
-                                <input type="text" name="Rate" class="form-control" placeholder="">
+                                <label class="control-label">Rate1</label>
+                                <input type="text" name="Rate" class="form-control Rate1" placeholder="">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label">RateN</label>
-                                <input type="text" name="RateN" class="form-control" placeholder="">
+                                <input type="text" name="RateN" class="form-control RateN" placeholder="">
                             </div>
                         </div>
                     </div>
@@ -919,15 +929,15 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <input type="checkbox" name="updateRate" class="" />
-                                <label class="control-label">Rate</label>
-                                <input type="text" name="Rate" class="form-control" placeholder="">
+                                <label class="control-label">Rate1</label>
+                                <input type="text" name="Rate" class="form-control Rate1" placeholder="">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <input type="checkbox" name="updateRateN" class="" />
                                 <label class="control-label">RateN</label>
-                                <input type="text" name="RateN" class="form-control" placeholder="">
+                                <input type="text" name="RateN" class="form-control RateN" placeholder="">
                             </div>
                         </div>
                     </div>
@@ -1012,14 +1022,14 @@
                         </div>
                         <div class="col-md-6 clear">
                             <div class="form-group">
-                                <label class="control-label">Rate</label>
-                                <input type="text" name="Rate" class="form-control" placeholder="">
+                                <label class="control-label">Rate1</label>
+                                <input type="text" name="Rate" class="form-control Rate1" placeholder="">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label">RateN</label>
-                                <input type="text" name="RateN" class="form-control" placeholder="">
+                                <input type="text" name="RateN" class="form-control RateN" placeholder="">
                             </div>
                         </div>
                         <div class="col-md-6">

@@ -666,6 +666,10 @@ BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 
+	/*
+		always round value to up. ex: 0.000145 to 4 decimal point will be 0.0002
+		cost = ROUND((CEIL(cost * POWER(10,IFNULL(rt.RoundChargedAmount,6)))/POWER(10,IFNULL(rt.RoundChargedAmount,6))),IFNULL(rt.RoundChargedAmount,6))
+	*/
 	SET @stm = CONCAT('
 		UPDATE
 			RMCDR3.`' , p_tbltempusagedetail_name , '` ud
@@ -674,7 +678,7 @@ BEGIN
 		INNER JOIN
 			Ratemanagement3.`tblRateTable` rt ON rt.RateTableID = ct.RateTableID
 		SET
-			cost = ROUND(cost, rt.RoundChargedAmount)
+			cost = ROUND((CEIL(cost * POWER(10,IFNULL(rt.RoundChargedAmount,6)))/POWER(10,IFNULL(rt.RoundChargedAmount,6))),IFNULL(rt.RoundChargedAmount,6))
 		WHERE
 			ct.AccountID IS NOT NULL AND
 			rt.RoundChargedAmount IS NOT NULL AND
