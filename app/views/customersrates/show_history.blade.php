@@ -52,6 +52,20 @@
             <div class="col-sm-12">{{$trunkname}}</div>
         </div>	
         @endif
+        <?php
+        if (isset($Options->Timezones)) {
+            $Timezones = $Options->Timezones;
+            $TimezonesName = '';
+            $TimezonesName = Timezones::getTimezonesName($Timezones);
+        }
+        ?>
+        @if(isset($Timezones) && !empty($Timezones))
+            <div class="form-group">
+                <label class="control-label col-sm-12 bold">Timezones</label>
+                <div class="col-sm-12">{{$TimezonesName}}</div>
+            </div>
+        @endif
+
         @endif
    	
         @if( isset($history_file->FilePath) && !empty($history_file->FilePath))
