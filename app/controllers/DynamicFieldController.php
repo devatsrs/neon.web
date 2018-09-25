@@ -151,6 +151,12 @@ class DynamicFieldController extends \BaseController {
                 return json_validator_response($validator);
             }
 
+            //Check FieldName duplicate
+            $cnt_duplidate = DynamicFields::where('FieldName',$data['FieldName'])->where('DynamicFieldsID','!=',$dynamicfield->DynamicFieldsID)->get()->count();
+            if($cnt_duplidate > 0){
+                return Response::json(array("status" => "failed", "message" => "Dynamic Field With This Name Already Exists."));
+            }
+
             if ($dynamicfield->update($data)) {
                 return Response::json(array("status" => "success", "message" => "Dynamic Field Successfully Updated"));
             } else {
