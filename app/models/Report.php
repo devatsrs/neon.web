@@ -266,7 +266,7 @@ class Report extends \Eloquent {
             'Owner'=>'Account Manager',
             'CurrencyID' =>'Currency Code',
             'InvoiceType' =>'Invoice Type',
-            'InvoiceNumber' =>'Invoice Number',
+            'FullInvoiceNumber' =>'Invoice Number',
             'InvoiceStatus' =>'Invoice Status',
             'IssueDate' =>'Invoice Date',
             'invoiceDueDate' =>'Invoice Due Date',
