@@ -11,7 +11,10 @@
             </div>
         </div>
         <div class="form-group">
-            <label for="field-1" class="col-sm-2 control-label">Country Code</label>
+            <label for="field-1" class="col-sm-2 control-label">
+                Country Code
+                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="Country Code only requires when you have seperate columns for Country Codes and City Codes in your rate file." data-original-title="Country Code">?</span>
+            </label>
             <div class="col-sm-4">
                 {{Form::select('selection[CountryCode]', $columns,(isset($attrselection->CountryCode)?$attrselection->CountryCode:''),array("class"=>"select2 small"))}}
             </div>
@@ -111,7 +114,10 @@
                             <div class="col-sm-4">
                                 {{Form::select('selection['.$Rate1Column.']', $columns,(isset($attrselection->$Rate1Column)?$attrselection->$Rate1Column:''),array("class"=>"select2 small"))}}
                             </div>
-                            <label class="col-sm-2 control-label">Rate N</label>
+                            <label class="col-sm-2 control-label">
+                                Rate N
+                                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="Optional. If RateN not selected then RateN will be same as Rate1." data-original-title="Rate N">?</span>
+                            </label>
                             <div class="col-sm-4">
                                 {{Form::select('selection['.$RateNColumn.']', $columns,(isset($attrselection->$RateNColumn)?$attrselection->$RateNColumn:''),array("class"=>"select2 small"))}}
                             </div>
