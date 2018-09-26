@@ -476,7 +476,9 @@ class DisputeController extends \BaseController {
 	public function delete($id) {
 		if( intval($id) > 0){
 			try {
-				$result = Dispute::find($id)->delete();
+				$Dispute=Dispute::find($id);
+				AmazonS3::delete($Dispute->Attachment);
+				$result = $Dispute->delete();
 				if ($result) {
 					return Response::json(array("status" => "success", "message" => "Dispute Successfully Deleted"));
 				} else {

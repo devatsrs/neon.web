@@ -975,18 +975,19 @@
                     <input type="text" name="DisputeAmount" class="form-control" id="field-5" placeholder="" >
                 </div>
           </div>
-          <div class="col-md-12">
-            <div class="form-group">
-              <label for="field-5" class="control-label">Notes</label>
-              <textarea name="Notes" class="form-control" id="field-5" rows="10" placeholder=""></textarea>
-            </div>
-          </div>
             <div class="col-md-12">
                 <div class="form-group">
                     <label for="field-5" class="control-label">Ref</label>
                     <input type="text" id="Ref" name="Ref" class="form-control" id="field-5" placeholder="">
                 </div>
             </div>
+          <div class="col-md-12">
+            <div class="form-group">
+              <label for="field-5" class="control-label">Notes</label>
+              <textarea name="Notes" class="form-control" id="field-5" rows="10" placeholder=""></textarea>
+            </div>
+          </div>
+
             <div class="col-md-12">
                 <div class="form-group">
                     <label for="Attachment" class="control-label">Attachment (pdf,png,jpg,gif,xls,csv,xlsx)</label>
