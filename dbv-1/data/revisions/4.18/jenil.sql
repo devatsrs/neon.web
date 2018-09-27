@@ -6562,5 +6562,409 @@ BEGIN
 END//
 DELIMITER ;
 
-/* Above Done on Staging */
 
+/* DB Cleanup - Retension */
+
+
+DROP PROCEDURE IF EXISTS `prc_deleteArchiveOldRate`;
+DELIMITER //
+CREATE PROCEDURE `prc_deleteArchiveOldRate`(
+	IN `p_CompanyID` INT,
+	IN `p_DeleteDate` DATETIME
+
+
+)
+BEGIN
+ 	
+ 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	  
+	  DELETE
+			tblCustomerRateArchive
+	  FROM tblCustomerRateArchive 
+	  INNER JOIN tblAccount 
+		ON tblAccount.AccountID=tblCustomerRateArchive.AccountId
+	  WHERE 
+	  tblAccount.CompanyId=p_CompanyID
+	  AND tblCustomerRateArchive.EffectiveDate <= p_DeleteDate;
+
+		
+	  DELETE
+	  		tblVendorRateArchive
+	  FROM tblVendorRateArchive 
+	  INNER JOIN tblAccount 
+		ON tblAccount.AccountID=tblVendorRateArchive.AccountId
+	  WHERE
+		tblAccount.CompanyId=p_CompanyID
+	  AND EffectiveDate <= p_DeleteDate;
+
+
+	  DELETE
+	  		tblRateTableRateArchive
+	  FROM tblRateTableRateArchive 
+	  INNER JOIN tblRateTable 
+	  ON tblRateTable.RateTableId=tblRateTableRateArchive.RateTableId
+	  WHERE 
+	  tblRateTable.CompanyId=p_CompanyID
+	  AND tblRateTableRateArchive.EffectiveDate <= p_DeleteDate;	  	  
+	  
+	 
+   SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ; 
+END//
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `prc_deleteTickets`;
+DELIMITER //
+CREATE PROCEDURE `prc_deleteTickets`(
+	IN `p_CompanyID` INT,
+	IN `p_DeleteDate` DATETIME
+
+
+
+
+
+
+)
+BEGIN
+ 	DECLARE p_status INT;
+ 	
+ 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+ 	
+ 	DROP TEMPORARY TABLE IF EXISTS tmp_attachments_;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_attachments_(
+		attachment LONGTEXT
+	);
+	  
+	  -- get closed StatusID
+	  SELECT 
+	  		tblTicketfieldsValues.ValuesID INTO p_status 
+	  FROM tblTicketfields 
+	  INNER JOIN tblTicketfieldsValues 
+	 	 	ON tblTicketfields.TicketFieldsID=tblTicketfieldsValues.FieldsID 
+	  WHERE tblTicketfields.FieldType='default_status' 
+		  AND tblTicketfieldsValues.FieldValueAgent='Closed';
+	  
+	  
+	  DELETE
+	  		tblJunkTicketEmail
+	  FROM tblJunkTicketEmail 
+	  INNER JOIN tblTickets
+	  ON tblTickets.TicketID=tblJunkTicketEmail.TicketID
+	  WHERE 
+	  tblTickets.CompanyID=p_CompanyID
+	  AND tblTickets.`Status`=p_status
+	  AND tblTickets.updated_at <= p_DeleteDate;
+	  	  
+	  DELETE
+	  		tblTicketLog
+	  FROM tblTicketLog 
+	  INNER JOIN tblTickets
+	  ON tblTickets.TicketID=tblTicketLog.TicketID
+	  WHERE 
+	  tblTickets.CompanyID=p_CompanyID
+	  AND tblTickets.`Status`=p_status
+	  AND tblTickets.updated_at <= p_DeleteDate;
+	  
+	  -- get attachment to delete files later
+	  INSERT INTO tmp_attachments_
+	  SELECT 
+	  tblTicketsDeletedLog.AttachmentPaths
+	  FROM tblTicketsDeletedLog
+	  INNER JOIN tblTickets
+	  	ON tblTickets.TicketID=tblTicketsDeletedLog.TicketID
+	  WHERE 
+	  tblTickets.CompanyID=p_CompanyID
+	  AND tblTickets.`Status`=p_status
+	  AND tblTicketsDeletedLog.AttachmentPaths!=''
+	  AND tblTickets.updated_at <= p_DeleteDate;
+	  
+	  DELETE
+	  		tblTicketsDeletedLog
+	  FROM tblTicketsDeletedLog 
+	  INNER JOIN tblTickets
+	  	ON tblTickets.TicketID=tblTicketsDeletedLog.TicketID
+	  WHERE 
+	  	tblTickets.CompanyID=p_CompanyID
+	  	AND tblTickets.`Status`=p_status
+	  	AND tblTickets.updated_at <= p_DeleteDate;
+	  
+	  
+	  	
+	  
+	  INSERT INTO tmp_attachments_
+	  SELECT 
+	  AccountEmailLogDeletedLog.AttachmentPaths
+	  FROM AccountEmailLogDeletedLog
+	  INNER JOIN tblTickets
+	  ON tblTickets.TicketID=AccountEmailLogDeletedLog.TicketID
+	  WHERE 
+	  tblTickets.CompanyID=p_CompanyID
+	  AND tblTickets.`Status`=p_status
+	  AND AccountEmailLogDeletedLog.AttachmentPaths!=''
+	  AND tblTickets.updated_at <= p_DeleteDate;
+	  
+	  DELETE
+	  		AccountEmailLogDeletedLog
+	  FROM AccountEmailLogDeletedLog 
+	  INNER JOIN tblTickets
+	  	ON tblTickets.TicketID=AccountEmailLogDeletedLog.TicketID
+	  WHERE 
+	  tblTickets.CompanyID=p_CompanyID
+	  AND tblTickets.`Status`=p_status
+	  AND tblTickets.updated_at <= p_DeleteDate;
+	  
+	   
+	  
+	  INSERT INTO tmp_attachments_
+	  SELECT 
+	  AccountEmailLog.AttachmentPaths
+	  FROM AccountEmailLog
+	  INNER JOIN tblTickets
+	  	ON tblTickets.TicketID=AccountEmailLog.TicketID
+	  WHERE 
+	  tblTickets.CompanyID=p_CompanyID
+	  AND tblTickets.`Status`=p_status
+	  AND AccountEmailLog.AttachmentPaths!=''
+	  AND tblTickets.updated_at <= p_DeleteDate;
+	  	  
+	  DELETE
+	  		AccountEmailLog
+	  FROM AccountEmailLog 
+	  INNER JOIN tblTickets
+	  	ON tblTickets.TicketID=AccountEmailLog.TicketID
+	  WHERE 
+	  tblTickets.CompanyID=p_CompanyID
+	  AND tblTickets.`Status`=p_status
+	  AND tblTickets.updated_at <= p_DeleteDate;
+	  
+	  
+	  INSERT INTO tmp_attachments_
+	  SELECT
+	  		AttachmentPaths
+	  FROM tblTickets
+	  WHERE 
+	  CompanyID=p_CompanyID
+	  AND tblTickets.`Status`=p_status
+	  AND AttachmentPaths!=''
+	  AND updated_at <= p_DeleteDate;
+	  
+	  DELETE 
+	  FROM tblTickets
+	  WHERE 
+	  CompanyID=p_CompanyID
+	  AND tblTickets.`Status`=p_status
+	  AND updated_at <= p_DeleteDate; 
+	  
+	  	  
+	   
+	  SELECT * FROM tmp_attachments_;
+
+		 
+   SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ; 
+END//
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `prc_getProductsByItemType`;
+DELIMITER //
+CREATE PROCEDURE `prc_getProductsByItemType`(
+	IN `p_CompanyID` INT,
+	IN `p_ItemType` VARCHAR(50),
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_Name` VARCHAR(255),
+	IN `p_Description` VARCHAR(255)
+
+
+
+)
+    DETERMINISTIC
+BEGIN
+	DECLARE v_OffSet_ int;
+	DECLARE v_fieldName VARCHAR(255);
+		
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+	
+	DROP TEMPORARY TABLE IF EXISTS tmp_products;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_products(
+		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		ProductID INT,
+		ItemTypeID INT		
+	);
+	
+	DROP TEMPORARY TABLE IF EXISTS tmp_products_fields;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_products_fields(
+		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		DynamicFieldsID INT(11),
+		FieldName Varchar(100),
+		FieldType Varchar(100)
+	);
+		
+
+	IF p_ItemType!='' THEN
+	
+		INSERT INTO tmp_products (ProductID,ItemTypeID)
+			SELECT
+					tblProduct.ProductID,
+					tblProduct.ItemTypeID
+			FROM tblItemType
+			INNER JOIN  tblProduct 
+				ON tblProduct.ItemTypeID=tblItemType.ItemTypeID
+			WHERE 
+				tblProduct.CompanyId=p_CompanyID
+				AND tblItemType.title=p_ItemType
+				AND tblProduct.Quantity > 0
+				AND tblProduct.Active=1
+				AND(
+						(p_Name ='' OR tblProduct.Name like CONCAT(p_Name,'%'))
+					OR
+						(p_Description ='' OR tblProduct.Description like CONCAT('%',p_Description,'%'))	
+					)
+				
+			 LIMIT p_RowspPage OFFSET v_OffSet_;
+			 
+			 
+			 SELECT 
+			 	count(*) as totalcount
+			FROM tblItemType
+			INNER JOIN  tblProduct 
+				ON tblProduct.ItemTypeID=tblItemType.ItemTypeID
+			WHERE 
+				tblProduct.CompanyId=p_CompanyID
+				AND tblItemType.title=p_ItemType
+				AND tblProduct.Quantity > 0
+				AND tblProduct.Active=1
+				AND(
+						(p_Name ='' OR tblProduct.Name like CONCAT(p_Name,'%'))
+					OR
+						(p_Description ='' OR tblProduct.Description like CONCAT('%',p_Description,'%'))	
+					);
+			 
+			 
+			 
+	ELSE 
+	
+		INSERT INTO tmp_products (ProductID,ItemTypeID)
+			SELECT
+				tblProduct.ProductID,
+				tblProduct.ItemTypeID
+			FROM tblProduct
+			WHERE
+				tblProduct.CompanyId=p_CompanyID
+				AND tblProduct.Quantity > 0
+				AND tblProduct.Active=1
+				AND(
+						(p_Name ='' OR tblProduct.Name like CONCAT(p_Name,'%'))
+						OR
+						(p_Description ='' OR tblProduct.Description like CONCAT('%',p_Description,'%'))
+					)
+				
+			LIMIT p_RowspPage OFFSET v_OffSet_;
+			
+			SELECT 
+				count(*) as totalcount
+			FROM tblProduct
+			WHERE
+				tblProduct.CompanyId=p_CompanyID
+				AND tblProduct.Quantity > 0
+				AND tblProduct.Active=1
+				AND(
+						(p_Name ='' OR tblProduct.Name like CONCAT(p_Name,'%'))
+						OR
+						(p_Description ='' OR tblProduct.Description like CONCAT('%',p_Description,'%'))
+					);
+			
+	END IF;
+			 
+				
+			INSERT INTO tmp_products_fields (FieldName,DynamicFieldsID,FieldType)
+			SELECT 
+				DISTINCT a.FieldName,
+				a.DynamicFieldsID,
+				a.FieldDomType
+			FROM Ratemanagement3.tblDynamicFields a
+			INNER JOIN tmp_products b
+			ON a.ItemTypeID=b.ItemTypeID
+			WHERE 
+				a.Type='product'
+				AND a.CompanyID=p_CompanyID
+				AND a.`Status`=1;	
+						 
+			SET @v_pointer_1 = 1;
+			SET @v_rowCount_1 = (SELECT COUNT(*) FROM tmp_products_fields);
+		
+		 WHILE @v_pointer_1 <= @v_rowCount_1
+		  DO
+		
+			SET @fieldname = (SELECT FieldName from tmp_products_fields where RowID = @v_pointer_1);
+			 
+			SET @statement2 =  CONCAT('ALTER TABLE tmp_products ADD COLUMN `', @fieldname ,'` TEXT NULL;');
+	 	
+			PREPARE stm_query FROM @statement2;
+			EXECUTE stm_query;
+			DEALLOCATE PREPARE stm_query;
+			
+			SET @dynamicFieldID=	(SELECT DynamicFieldsID from tmp_products_fields where RowID = @v_pointer_1);
+		
+			SET @v_pointer_ = 1;
+			SET @v_rowCount_ = (SELECT COUNT(*) FROM tmp_products);
+			WHILE @v_pointer_ <= @v_rowCount_
+		  	DO	
+		  	
+			 SET @ProductID=(select ProductID FROM tmp_products WHERE RowID=@v_pointer_);
+			 
+				SET @upateq=CONCAT('UPDATE tmp_products prod
+		  	  	INNER JOIN Ratemanagement3.tblDynamicFieldsValue b ON b.DynamicFieldsID=',@dynamicFieldID,'
+		  	  	INNER JOIN Ratemanagement3.tblDynamicFields a ON a.DynamicFieldsID=b.DynamicFieldsID
+		  		SET `prod`.`',@fieldname,'`=b.FieldValue
+		  		
+		  		WHERE 
+				  prod.ProductID=',@ProductID,'
+				  AND b.ParentID=',@ProductID);
+				  
+				   -- select @upateq;
+				  
+				  PREPARE stm_query1 FROM @upateq;
+				  EXECUTE stm_query1;
+				  DEALLOCATE PREPARE stm_query1;
+		  		
+		  	SET @v_pointer_ = @v_pointer_ + 1;
+		  	
+		  	END WHILE;
+		
+			SET @v_pointer_1 = @v_pointer_1 + 1;
+	
+	  END WHILE;
+	  
+
+		SELECT 
+		 	tblProduct.CompanyId,	
+			tblProduct.Name,
+			tblProduct.Code,
+			tblProduct.Description,
+			tblProduct.Amount,
+			tblProduct.AppliedTo,
+			tblProduct.Note,
+			tblProduct.Buying_price,	
+			tblProduct.Quantity,
+			tblProduct.Low_stock_level,
+			tblProduct.Enable_stock,
+			tmp_products.*	 	
+		FROM 
+		tmp_products
+		INNER JOIN tblProduct ON tblProduct.ProductID=tmp_products.ProductID;
+		
+		/*select count(*) as totalcount
+			FROM 
+		tmp_products
+		INNER JOIN tblProduct ON tblProduct.ProductID=tmp_products.ProductID;*/
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
+/* Above Done on Staging */

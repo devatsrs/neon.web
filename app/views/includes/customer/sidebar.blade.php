@@ -79,6 +79,11 @@
                     </a>
                 </li>
                 @endif
+                <li>
+                    <a href="{{Url::to('customer/creditnotes')}}">
+                        <span>Credit Notes</span>
+                    </a>
+                </li>
                 @if(CompanyConfiguration::get('CUSTOMER_PAYMENT_DISPLAY') == 1)
                 <li>
                     <a href="{{URL::to('customer/payments')}}">

@@ -20,8 +20,52 @@
 </p>
 </div>-->
 <br>
-<div class="btn btn-primary btn-lg">Current Version: <strong>v4.17</strong></div>
+<div class="btn btn-primary btn-lg">Current Version: <strong>v4.18</strong></div>
 <br>
+<h2>
+    <span class="label label-success">4.18</span> &nbsp; Version Highlights
+</h2>
+
+<div class="col-md-12">
+    <div class="row">
+        <ul class="version-highlights full-width">
+            <li>
+                <div class="notes full-width ">
+                    <h3>ChangeLog</h3>
+                    <h4>24-09-2018</h4>
+                    01. Added Integration with Quickbook Desktop.<br>
+                    02. Added option to post invoices and payments to Quickbook and XERO.<br>
+                    03. Added Integration with Merchant Warrior.<br>
+                    04. Added New Invoice Format(Template 2) In InvoiceTemplate. With two columns on the first page.<br>
+                    05. Improved Reseller section.<br>
+                    06. Added option to display invoice total on invoice PDF in multi-currency.<br>
+                    07. Added option to Digitally Sign Invoice.<br>
+                    08. Added new feature "Inventory Management".<br>
+                    09. Added option to email disputes.<br>
+                    10. Added new dimensions and measures in reports.<br>
+                    11. Added option to Import and Export payments from PBX.<br>
+                    12. Added Integration with Voip.ms gateway.<br>
+                    13. Added option of vendor cdr re-rating.<br>
+                    14. Added option to create Credit Notes.<br>
+                    15. Added new cron job for Sippy to export Customer Rates.<br>
+                    16. Added new option to create and Upload rates against Time zones. <br>
+                    17. Added new field ‘Round Charged Amount’ against Rate Table.<br>
+                    18. Added new field RateN against Customer, Vendor and Rate Table rates. <br>
+                    19. Fixed few issues related to Tickets.<br>
+                    20. Added option to select Discount plans at account level.<br>
+                    21. Added option to set Accounts/Extensions under accounts subscriptions and specify discount plans against them.<br>
+                    22. Added new notification ‘Account Balance’.<br>
+                    23. Added   ‘Account Balance Warning’ under Billing class to send reminders about account balance.<br>
+                    24. Added option to Block/Unblock account in PBX from Account screen.<br>
+                    25. Added new Retention options: Failed Calls, Tickets and Archived Rates.<br>
+                    26. Added option to attach pdf(invoice) in send invoice email.<br>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+</div>
+<div class="clear"></div>
 <h2>
     <span class="label label-success">4.17</span> &nbsp; Version Highlights
 </h2>
@@ -69,6 +113,9 @@
 
 </div>
 <div class="clear"></div>
+<h2>
+    <span class="label label-success">4.16</span> &nbsp; Version Highlights
+</h2>
 
 <div class="col-md-12">
     <div class="row">

@@ -48,9 +48,9 @@ class TranslateController extends \BaseController {
             $html_translation='<label data-languages="'.$data["Language"].'" class="label_language hidden" data-system-name="'.$key.'" >'.htmlentities($translation).'</label>
                                 <input type="text" value="'.htmlentities($translation).'" data-languages="'.$data["Language"].'" class="text_language form-control"  data-system-name="'.$key.'" />';
 
-
+			$global_admin=intval(Session::get("global_admin" , 0));
 //            delete lable btn
-            if(!empty(intval(Session::get("global_admin" , 0)))){
+            if(!empty($global_admin)){
                 $html_translation.='<input type="button" value="Delete" data-languages="'.$data["Language"].'" class="text_delete form-control btn-danger"  data-system-name="'.$key.'" />';
             }
 

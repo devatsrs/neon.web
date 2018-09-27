@@ -94,10 +94,16 @@ class CreditNotesController extends \BaseController {
     {
         $data = Input::all();
         $companyID = User::get_companyID();
-        /* $data['iDisplayStart'] 		+=	1;
-                   $AccountInvoices = "call prc_getCreditNoteInvoices ('" . $AccountID . "','".intval($data['InvoiceNumber']) . "',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].")";
-                   return DataTableSql::of($AccountInvoices,'sqlsrv2')->make();*/
-        if($data['InvoiceNumber'] == 0) {
+        $data['iDisplayStart'] 		+=	1;
+        if(empty($data['InvoiceNumber']))
+        {
+            $data['InvoiceNumber'] = '';
+        }
+        $AccountInvoices = "call prc_getCreditNoteInvoices ('" . $AccountID . "','".$data['InvoiceNumber'] . "',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].")";
+
+        return DataTableSql::of($AccountInvoices,'sqlsrv2')->make();
+
+        /*if($data['InvoiceNumber'] == 0) {
 
             $AccountInvoices = Invoice::select(["tblInvoice.InvoiceID", "tblInvoice.FullInvoiceNumber", "tblInvoice.IssueDate", "tblInvoice.GrandTotal", DB::raw("(select IFNULL(SUM(Amount),0) from tblPayment where tblPayment.InvoiceID=tblInvoice.InvoiceID and tblPayment.Recall=0) as paidsum")])
                 ->where('tblInvoice.AccountID', $AccountID)
@@ -114,7 +120,7 @@ class CreditNotesController extends \BaseController {
                 ->whereIn('tblInvoice.InvoiceStatus', array('partially_paid','send','awaiting'));
 
         }
-        return Datatables::of($AccountInvoices)->make();
+        return Datatables::of($AccountInvoices)->make();*/
     }
 
     /**
@@ -203,7 +209,7 @@ class CreditNotesController extends \BaseController {
             $invoicenumbers =   array("Select Invoices");
             foreach($Invoices as $invoice)
             {
-                $invoicenumbers[$invoice->InvoiceNumber] = $invoice->FullInvoiceNumber;
+                $invoicenumbers[$invoice->FullInvoiceNumber] = $invoice->FullInvoiceNumber;
             }
             $CreditNotes    = 	CreditNotes::find($id);
             $CompanyID      =   $CreditNotes->CompanyID;
@@ -217,6 +223,7 @@ class CreditNotesController extends \BaseController {
     {
         $data = Input::all();
         //echo"<pre>"; print_R($data);exit;
+        $CurrencyId = Account::where(['AccountID'=>$data['AccountID']])->pluck('CurrencyId');
         if(!isset($data['payment']))
         {
             return Response::json(array("status" => "failed", "message" => "No Invoices Found"));
@@ -246,6 +253,7 @@ class CreditNotesController extends \BaseController {
                         $paymentdata['updated_at'] = date("Y-m-d H:i:s");
                         $paymentdata['InvoiceID'] = $data['invoice_id'][$i];
                         $paymentdata['CreditNotesID'] = $data['CreditNotesID'];
+                        $paymentdata['CurrencyId'] = $CurrencyId;
                         $creditnote_id = $data['CreditNotesID'];
 
                         //check specific invoice grand total is greter then creditnotes
@@ -1085,8 +1093,15 @@ class CreditNotesController extends \BaseController {
             $CurrencySymbol 	= 	Currency::getCurrencySymbol($Account->CurrencyId);
             $creditnotes_status = 	 CreditNotes::get_creditnotes_status();
             $CreditNotesStatus  =   $creditnotes_status[$CreditNotes->CreditNotesStatus];
+            $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($CreditNotes->AccountID);
+            $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
+            if(empty($InvoiceTemplate->CompanyLogoUrl)){
+                $logo = 'http://placehold.it/250x100';
+            }else{
+                $logo = AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key);
+            }
             //$CreditNotesComments =   CreditNotesLog::get_comments_count($id);
-            return View::make('creditnotes.creditnotes_preview', compact('CreditNotes', 'CreditNotesDetail', 'Account', 'CreditNotesTemplate', 'CurrencyCode', 'logo','CurrencySymbol','CreditNotesStatus'));
+            return View::make('creditnotes.creditnotes_cview', compact('CreditNotes', 'CreditNotesDetail', 'Account', 'CreditNotesTemplate', 'CurrencyCode', 'logo','CurrencySymbol','CreditNotesStatus'));
         }
     }
 

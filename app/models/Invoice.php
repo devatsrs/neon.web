@@ -373,7 +373,7 @@ class Invoice extends \Eloquent {
                 ->where('tblInvoice.AccountID', $AccountID)
                 ->where('tblInvoice.GrandTotal','<>', 0)
                 ->whereIn('tblInvoice.InvoiceStatus', array('partially_paid','send','awaiting'))
-                ->groupBy('tblInvoice.InvoiceID')
+               // ->groupBy('tblInvoice.InvoiceID')
                 ->get();
 
             return $AccountInvoices;

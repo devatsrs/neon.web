@@ -119,6 +119,7 @@ INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `Create
 INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('Imports.leads_storeTemplate', 'ImportsController.leads_storeTemplate', 1, 'Sumera Saeed', NULL, '2016-05-19 19:22:44.000', '2016-05-19 19:22:44.000', 1369);
 INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('Imports.leads_ajaxfilegrid', 'ImportsController.leads_ajaxfilegrid', 1, 'Sumera Saeed', NULL, '2016-05-19 19:22:44.000', '2016-05-19 19:22:44.000', 1369);
 INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('Imports.leads_check_upload', 'ImportsController.leads_check_upload', 1, 'Sumera Saeed', NULL, '2016-05-19 19:22:44.000', '2016-05-19 19:22:44.000', 1369);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('Imports.import_leads', 'ImportsController.import_leads', 1, 'Sumera Saeed', NULL, '2016-05-19 19:22:44.000', '2016-05-19 19:22:44.000', 1369);
 
 
 
@@ -195,14 +196,14 @@ ALTER TABLE `tblCustomerRateArchive`
 	ADD COLUMN `RateN` DECIMAL(18,6) NOT NULL DEFAULT '0.000000' AFTER `Rate`;
 
 ALTER TABLE `tblVendorPreference`
-	ADD COLUMN `TimezonesID` INT(11) NOT NULL AFTER `TrunkID`,
+	ADD COLUMN `TimezonesID` INT(11) NOT NULL DEFAULT '1' AFTER `TrunkID`,
 	DROP INDEX `IX_UniqueAccountId_Pref_RateId_TrunkId`,
 	ADD UNIQUE INDEX `IX_UniqueAccountId_Pref_RateId_TrunkId_TimezonesID` (`AccountId`, `Preference`, `RateId`, `TrunkID`, `TimezonesID`),
 	DROP INDEX `IX_AccountID_TrunkID_RateID`,
 	ADD INDEX `IX_AccountID_TrunkID_TimezonesID_RateID` (`AccountId`, `TrunkID`, `TimezonesID`, `RateId`);
 
 ALTER TABLE `tblVendorBlocking`
-	ADD COLUMN `TimezonesID` INT(11) NOT NULL AFTER `TrunkID`,
+	ADD COLUMN `TimezonesID` INT(11) NOT NULL DEFAULT '1' AFTER `TrunkID`,
 	DROP INDEX `IX_UniqueAccountId_TrunkId_RateId_CountryId`,
 	ADD UNIQUE INDEX `IX_UniqueAccountId_TrunkId_TimezonesID_RateId_CountryId` (`TrunkID`, `TimezonesID`, `RateId`, `CountryId`, `AccountId`),
 	DROP INDEX `IX_tblVendorBlocking_CountryId_TrunkID`,
@@ -18975,4 +18976,46 @@ END IF;
 
 
 	END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_CustomerRateForExport`;
+DELIMITER //
+CREATE PROCEDURE `prc_CustomerRateForExport`(
+	IN `p_CompanyID` INT,
+	IN `p_CustomerID` INT ,
+	IN `p_TrunkID` INT,
+	IN `p_NameFormat` VARCHAR(50),
+	IN `p_Account` VARCHAR(200),
+	IN `p_Trunk` VARCHAR(200) ,
+	IN `p_TrunkPrefix` VARCHAR(50),
+	IN `p_Effective` VARCHAR(50)
+)
+BEGIN
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	CALL prc_GetCustomerRate(p_CompanyID,p_CustomerID,p_TrunkID,null,null,null,null,p_Effective,CURDATE(),1,0,0,0,'','',-1);
+
+	SELECT
+		p_NameFormat AS AuthRule,
+		p_Account AS AccountName,
+		p_Trunk AS Trunk,
+		p_TrunkPrefix AS CustomerTrunkPrefix,
+		Code,
+		Description,
+		Rate,
+		EffectiveDate,
+		ConnectionFee,
+		Interval1,
+		IntervalN,
+		Prefix AS TrunkPrefix,
+		RatePrefix AS TrunkRatePrefix,
+		AreaPrefix AS TrunkAreaPrefix
+	FROM tmp_customerrate_;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
 DELIMITER ;

@@ -266,7 +266,7 @@ class Report extends \Eloquent {
             'Owner'=>'Account Manager',
             'CurrencyID' =>'Currency Code',
             'InvoiceType' =>'Invoice Type',
-            'InvoiceNumber' =>'Invoice Number',
+            'FullInvoiceNumber' =>'Invoice Number',
             'InvoiceStatus' =>'Invoice Status',
             'IssueDate' =>'Invoice Date',
             'invoiceDueDate' =>'Invoice Due Date',
@@ -448,10 +448,11 @@ class Report extends \Eloquent {
         ),
         'tax'=>array(
             'GrandTotal' => 'Total',
-            'PaidTotal' => 'Payment Amount',
             'OutStanding' => 'OutStanding Amount',
             'TotalTax' => 'Tax Total',
             'SubTotal' => 'Sub Total',
+            'TotalTaxSubTotal'=>'Total Tax + Subtotal',
+            'ItemLineTotal' =>'Item LineTotal'
         ),
         'payment'=>array(
             'Amount' => 'Total',
@@ -516,7 +517,7 @@ class Report extends \Eloquent {
                 $response = ReportInvoice::generateQuery($CompanyID,$data,$filters);
                 break;
             case 'tax':
-                $response = ReportInvoice::generateQuery($CompanyID,$data,$filters);
+                $response = ReportTax::generateQuery($CompanyID,$data,$filters);
                 break;
             case 'payment':
                 $response = ReportPayment::generateQuery($CompanyID,$data,$filters);

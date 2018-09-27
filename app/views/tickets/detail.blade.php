@@ -31,11 +31,12 @@
         <div class="mail-title">{{emailHeaderDecode($ticketdata->Subject)}} #{{$ticketdata->TicketID}}</div>
       <div class="mail-date">
           @if($ticketdata->TicketType)
-              <a>{{$Requester['Title']}}</a> emailed <a>{{$ticketdata->EmailTo}}</a> <br>
-              From: {{$Requester['Email']}}<br>
+              <a>{{$TicketEmail->Emailfrom}}</a> emailed <a>{{$ticketdata->EmailTo}}</a> <br>
+              {{--From: {{$Requester['Email']}}<br>--}}
               @else
+              From: {{$TicketEmail->Emailfrom}} <br>
               To: {{$ticketdata->EmailTo}} <br>
-              From: <a class="" href="{{$Requester['URL']}}">{{$Requester['Title']}}</a> ({{$Requester['Email']}})<br>
+              {{--From: <a class="" href="{{$Requester['URL']}}">{{$Requester['Title']}}</a> ({{$Requester['Email']}})<br>--}}
           @endif
         @if(!empty($ticketdata->RequesterCC))Cc: {{$ticketdata->RequesterCC}} &nbsp; @endif
         @if(!empty($ticketdata->RequesterBCC))Bcc: {{$ticketdata->RequesterBCC}} @endif
