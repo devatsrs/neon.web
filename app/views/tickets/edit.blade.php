@@ -282,6 +282,7 @@ var img_array		   =    '{{$ticketSavedData['AttachmentPaths']['attachmentsinfo']
 	  
 	  $(document).on('change','#{{$htmlgroupID}}',function(e){
 		   var changeGroupID =  	$(this).val();
+		  	var AgentID = {{$ticketSavedData['default_agent']}};
 		   if(changeGroupID==0){
 		   		 $('#{{$htmlagentID}} option:gt(0)').remove();
 				 return false;
@@ -305,9 +306,14 @@ var img_array		   =    '{{$ticketSavedData['AttachmentPaths']['attachmentsinfo']
 						   var $el = this;		   
 						   //$('#{{$htmlagentID}} option:gt(0)').remove();
 						   $('#{{$htmlagentID}} option').remove();
-						   $.each(response.data, function(key,value) {							  
-							  $('#{{$htmlagentID}}').append($("<option></option>").attr("value", value).text(key));
-							});	
+						   $.each(response.data, function(key,value) {
+							   if(value == AgentID)
+								   $('#{{$htmlagentID}}').append($("<option></option>").attr("value", value).attr("selected", "selected").text(key));
+							   else
+								   $('#{{$htmlagentID}}').append($("<option></option>").attr("value", value).text(key));
+
+							   $('#{{$htmlagentID}}').trigger('change');
+							});
 						}else{
 							toastr.error(response.message, "Error", toastr_opts);
 						}                   
