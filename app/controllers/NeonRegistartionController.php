@@ -1,5 +1,5 @@
 <?php
-
+use Illuminate\Support\Facades\Crypt;
 class NeonRegistartionController extends \BaseController {
     /**
      * Display a listing of the resource.
@@ -335,7 +335,8 @@ class NeonRegistartionController extends \BaseController {
             $dataAccount['Email'] = $PersonalData['user_id'];
             $dataAccount['IsCustomer'] = 1;
             $dataAccount['BillingEmail']= $PersonalData['user_id'];
-            $dataAccount['password'] = Hash::make($PersonalData['password']);
+            //$dataAccount['password'] = Hash::make($PersonalData['password']);
+            $dataAccount['password'] = Crypt::encrypt($PersonalData['password']);
             $dataAccount['Billing'] = 1;
             $dataAccount['created_by'] = $UserName;
             $dataAccount['VerificationStatus'] = Account::VERIFIED;

@@ -1,5 +1,5 @@
 <?php
-
+use Illuminate\Support\Facades\Crypt;
 class ResellerController extends BaseController {
 
     public function __construct() {
@@ -88,7 +88,8 @@ class ResellerController extends BaseController {
                 return json_validator_response($validator);
             }
 
-            $data['Password'] = Hash::make($data['Password']);
+            //$data['Password'] = Hash::make($data['Password']);
+            $data['Password'] = Crypt::encrypt($data['Password']);
 
             $Account = Account::find($data['AccountID']);
             $data['AllowWhiteLabel'] = isset($data['AllowWhiteLabel']) ? 1 : 0;
@@ -198,7 +199,8 @@ class ResellerController extends BaseController {
         }
 
         if(!empty($data['Password'])){
-            $data['Password'] = Hash::make($data['Password']);
+           // $data['Password'] = Hash::make($data['Password']);
+            $data['Password'] = Crypt::encrypt($data['Password']);
         }else{
             unset($data['Password']);
         }

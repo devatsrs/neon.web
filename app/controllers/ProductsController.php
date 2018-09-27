@@ -110,6 +110,8 @@ class ProductsController extends \BaseController {
         $data['Active'] = isset($data['Active']) ? 1 : 0;
         $data["CreatedBy"] = User::get_user_full_name();
         $data["AppliedTo"] = empty($data['AppliedTo']) ? Product::Customer : $data['AppliedTo'];
+        $data['Quantity']=($data['Quantity']!='')?$data['Quantity']:NULL;
+        $data['Low_stock_level']=($data['Low_stock_level']!='')?$data['Low_stock_level']:NULL;
 
         unset($data['ProductID']);
         unset($data['ProductClone']);
@@ -237,11 +239,16 @@ class ProductsController extends \BaseController {
             $data["CompanyID"] = $companyID;
             $data['Active'] = isset($data['Active']) ? 1 : 0;
             $data["ModifiedBy"] = $user;
+            $data['Quantity']=($data['Quantity']!='')?$data['Quantity']:NULL;
+            $data['Low_stock_level']=($data['Low_stock_level']!='')?$data['Low_stock_level']:NULL;
             unset($data['ProductClone']);
 
             if(isset($data['Quantity']) && $data['Quantity']!=''){
                 $data['Enable_stock']=1;
+            }else{
+                $data['Enable_stock']=0;
             }
+
 
             if(isset($data['DynamicFields']) && count($data['DynamicFields']) > 0) {
                 $CompanyID = User::get_companyID();
@@ -342,7 +349,7 @@ class ProductsController extends \BaseController {
                 unset($data['hDynamicFields']);
             }
             if ($Product->update($data)) {
-                if($oldQuantity > 0 && $oldQuantity!=$data['Quantity']){
+                if( !empty($data['Quantity']) && $oldQuantity!=$data['Quantity']){
                     $Reason='Stock Received – qty '.$data['Quantity'];
                     $historyData=array(
                         'CompanyID'=>$companyID,
