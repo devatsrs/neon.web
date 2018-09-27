@@ -328,8 +328,10 @@ class ReportInvoice extends \Eloquent{
         }else if(self::$InvoiceDetailJoin == false && in_array($colname,array('GrandTotal'))){
             $measure_name = "SUM(tblInvoice." . $colname . ")";
         }else if(self::$InvoiceDetailJoin == false && in_array($colname,array('SubTotal'))){
-            //$measure_name = "SUM(tblInvoice." . $colname . ")";
-            $measure_name = "IFNULL(SUM(tblInvoiceDetail.LineTotal),SUM(tblInvoice.".$colname."))";
+            $measure_name = "SUM(tblInvoice." . $colname . ")";
+           // $measure_name = "IFNULL(SUM(tblInvoiceDetail.LineTotal),SUM(tblInvoice.".$colname."))";
+        }else if(self::$InvoiceDetailJoin == false && in_array($colname,array('TotalTaxSubTotal'))){
+            $measure_name = "SUM(tblInvoiceTaxRate.TaxAmount) +  SUM(tblInvoice.SubTotal)";
         }
         return $measure_name ;
     }

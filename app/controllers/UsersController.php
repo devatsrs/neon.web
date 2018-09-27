@@ -1,5 +1,5 @@
 <?php
-
+use Illuminate\Support\Facades\Crypt;
 class UsersController extends BaseController {
 
     public function __construct() {
@@ -53,7 +53,8 @@ class UsersController extends BaseController {
             return json_validator_response($validator);
         }
         if(!empty($data['password'])){
-            $data['password'] = Hash::make($data['password']);
+            //$data['password'] = Hash::make($data['password']);
+            $data['password'] = Crypt::encrypt($data['password']);
         }else{
             unset($data['password']);
         }
@@ -125,7 +126,8 @@ class UsersController extends BaseController {
         }
 
         if(!empty($data['password'])){
-            $data['password'] = Hash::make($data['password']);
+            //$data['password'] = Hash::make($data['password']);
+            $data['password'] =Crypt::encrypt($data['password']);
         }else{
             unset($data['password']);
         }
@@ -319,7 +321,8 @@ class UsersController extends BaseController {
         }
 
         if(!empty($data['password'])){
-            $user_data['password'] = Hash::make($data['password']);
+            //$user_data['password'] = Hash::make($data['password']);
+            $user_data['password'] = Crypt::encrypt($data['password']);
         }else{
             unset($user_data['password']);
         }
