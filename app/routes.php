@@ -28,6 +28,12 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('customer/invoice/ajax_datagrid_total', 'InvoicesCustomerController@ajax_datagrid_total');
 	Route::any('customer/invoice/getInvoiceDetail', 'InvoicesCustomerController@getInvoiceDetail');
 
+	//Credit Notes
+	Route::any('customer/creditnotes', 'CreditNotesCustomerController@index');
+	Route::any('customer/creditnotes/ajax_datagrid/{type}', 'CreditNotesCustomerController@ajax_datagrid');
+	Route::any('customer/creditnotes/ajax_datagrid_total', 'CreditNotesCustomerController@ajax_datagrid_total');
+	Route::any('customer/creditnotes/getCreditNotesDetail', 'CreditNotesCustomerController@getCreditNotesDetail');
+
     //payment
     Route::any('customer/payments', 'PaymentsCustomerController@index');
     Route::any('customer/payments/create', 'PaymentsCustomerController@create');
@@ -1022,16 +1028,17 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/creditnotes/{id}/delete', 'CreditNotesController@delete');
 	Route::any('/creditnotes/{id}/view', 'CreditNotesController@view');
 	Route::any('/creditnotes/{id}/update', 'CreditNotesController@update');
+
 	Route::any('/creditnotes/{id}/creditnotes_preview', 'CreditNotesController@creditnotes_preview');
-	Route::any('/creditnotes/display_creditnotes/{id}', 'CreditNotesController@display_creditnotes');
-	Route::any('/creditnotes/download_creditnotes/{id}', 'CreditNotesController@download_creditnotes');
+	//Route::any('/creditnotes/display_creditnotes/{id}', 'CreditNotesController@display_creditnotes');
+	//Route::any('/creditnotes/download_creditnotes/{id}', 'CreditNotesController@download_creditnotes');
 	Route::any('/creditnotes/creditnotes_change_Status', 'CreditNotesController@creditnotes_change_Status');
 	Route::any('/creditnotes/{id}/send', 'CreditNotesController@send');
 	Route::any('/creditnotes/{id}/ajax_getEmailTemplate', 'CreditNotesController@ajax_getEmailTemplate');
 	Route::any('/creditnotes/{id}/creditnotes_email', 'CreditNotesController@creditnotes_email');
 	Route::any('/creditnotes/creditnoteslog/{id}', 'CreditNotesController@creditnoteslog');
 	Route::any('/creditnotes/ajax_creditnoteslog_datagrid/{id}/{type}', 'CreditNotesController@ajax_creditnoteslog_datagrid');
-	Route::any('/creditnotes/{id}/cview', 'CreditNotesController@cview');
+	//Route::any('/creditnotes/{id}/cview', 'CreditNotesController@cview');
 	Route::any('/creditnotes/{accountid}/{id}/apply_creditnotes', 'CreditNotesController@apply_creditnotes');
 	Route::any('/creditnotes/{id}/apply_creditnote_datagrid', 'CreditNotesController@apply_creditnote_datagrid');
 	Route::any('/creditnotes/store_creditnotes', 'CreditNotesController@store_creditnotes');
@@ -1566,6 +1573,10 @@ Route::group(array('before' => 'guest'), function () {
     Route::any('/invoice_thanks/{id}', 'InvoicesController@invoice_thanks'); //Customer payment pay
     Route::any('/paypal_ipn/{id}', 'InvoicesController@paypal_ipn'); //Payment response by paypal.
     Route::any('/paypal_cancel/{id}', 'InvoicesController@paypal_cancel'); //Payment response by paypal.
+
+	Route::any('/creditnotes/{id}/cview', 'CreditNotesController@cview');
+	Route::any('/creditnotes/display_creditnotes/{id}', 'CreditNotesController@display_creditnotes');
+	Route::any('/creditnotes/download_creditnotes/{id}', 'CreditNotesController@download_creditnotes');
 
 	Route::any('/sagepay_ipn', 'InvoicesController@sagepay_ipn'); //Payment response by sagepay.
 	Route::any('/sagepay_declined', 'InvoicesController@sagepay_declined'); //Payment declined.
