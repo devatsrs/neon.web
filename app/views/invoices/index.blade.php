@@ -50,6 +50,10 @@
                     </p>
                 </div>
                 <div class="form-group">
+                    <label class="control-label">Tag</label>
+                    <input class="form-control tags" name="tag" type="text" >
+                </div>
+                <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
                         <i class="entypo-search"></i>
@@ -207,6 +211,7 @@
             $searchFilter.zerovalueinvoice = $("#invoice_filter [name='zerovalueinvoice']").prop("checked");
             $searchFilter.CurrencyID = $("#invoice_filter [name='CurrencyID']").val();
             $searchFilter.Overdue = $("#invoice_filter [name='Overdue']").prop("checked");
+            $searchFilter.tag = $("#invoice_filter [name='tag']").val();
 
             data_table = $("#table-4").dataTable({
                 "bDestroy": true,
@@ -226,7 +231,8 @@
                             {"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},
                             {"name": "zerovalueinvoice","value": $searchFilter.zerovalueinvoice},
                             {"name": "CurrencyID", "value": $searchFilter.CurrencyID},
-                            {"name": "Overdue","value": $searchFilter.Overdue});
+                            {"name": "Overdue","value": $searchFilter.Overdue},
+                            {"name": "tag","value": $searchFilter.tag});
                     data_table_extra_params.length = 0;
                     data_table_extra_params.push({"name": "InvoiceType","value": $searchFilter.InvoiceType},
                             {"name": "AccountID", "value": $searchFilter.AccountID},
@@ -238,7 +244,8 @@
                             {"name": "Export", "value": 1},
                             {"name": "zerovalueinvoice","value": $searchFilter.zerovalueinvoice},
                             {"name": "CurrencyID", "value": $searchFilter.CurrencyID},
-                            {"name": "Overdue","value": $searchFilter.Overdue});
+                            {"name": "Overdue","value": $searchFilter.Overdue},
+                            {"name": "tag","value": $searchFilter.tag});
                 },
                 "aoColumns": [
                     {
@@ -505,6 +512,7 @@
                 $searchFilter.zerovalueinvoice = $("#invoice_filter [name='zerovalueinvoice']").prop("checked");
                 $searchFilter.CurrencyID = $("#invoice_filter [name='CurrencyID']").val();
                 $searchFilter.Overdue = $("#invoice_filter [name='Overdue']").prop("checked");
+                $searchFilter.tag = $("#invoice_filter [name='tag']").val();
                 data_table.fnFilter('', 0);
                 return false;
             });
@@ -525,6 +533,7 @@
                         "zerovalueinvoice": $("#invoice_filter [name='zerovalueinvoice']").prop("checked"),
                         "CurrencyID": $("#invoice_filter [name='CurrencyID']").val(),
                         "Overdue": $("#invoice_filter [name='Overdue']").prop("checked"),
+                        "tag": $("#invoice_filter [name='tag']").val(),
                         "bDestroy": true,
                         "bProcessing": true,
                         "bServerSide": true,

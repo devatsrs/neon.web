@@ -74,6 +74,10 @@
                     <label class="control-label" for="field-1">Trunk</label>
                     {{ Form::select('Trunk',$trunks,$trunk, array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                 </div>
+                <div class="form-group">
+                    <label class="control-label">Tag</label>
+                    <input class="form-control tags" name="tag" type="text" >
+                </div>
                 <!--
                 <div class="form-group">
                     <label class="control-label" for="field-1">Reseller</label>
@@ -250,6 +254,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
 			$searchFilter.CurrencyID 			= 		$("#cdr_filter [name='CurrencyID']").val();
             $searchFilter.area_prefix 			= 		$("#cdr_filter [name='area_prefix']").val();
             $searchFilter.Trunk 			    = 		$("#cdr_filter [name='Trunk']").val();
+            $searchFilter.tag 			        = 		$("#cdr_filter [name='tag']").val();
 
 
             if(typeof $searchFilter.StartDate  == 'undefined' || $searchFilter.StartDate.trim() == ''){
@@ -283,7 +288,8 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                             {"name":"zerovaluecost","value":$searchFilter.zerovaluecost},
                             {"name":"area_prefix","value":$searchFilter.area_prefix},
                             {"name":"Trunk","value":$searchFilter.Trunk},
-                            {"name":"CurrencyID","value":$searchFilter.CurrencyID}
+                            {"name":"CurrencyID","value":$searchFilter.CurrencyID},
+                            {"name":"tag","value":$searchFilter.tag}
                     );
                     data_table_extra_params.length = 0;
                     data_table_extra_params.push(
@@ -299,7 +305,8 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                             {"name":"zerovaluecost","value":$searchFilter.zerovaluecost},
                             {"name":"area_prefix","value":$searchFilter.area_prefix},
                             {"name":"Trunk","value":$searchFilter.Trunk},
-                            {"name":"CurrencyID","value":$searchFilter.CurrencyID}
+                            {"name":"CurrencyID","value":$searchFilter.CurrencyID},
+                            {"name":"tag","value":$searchFilter.tag}
                     );
                 },
                 "sPaginationType": "bootstrap",
