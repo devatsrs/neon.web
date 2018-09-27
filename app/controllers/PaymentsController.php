@@ -22,7 +22,8 @@ class PaymentsController extends \BaseController {
 			$data['p_paymentstart']			 =		'null';		
 			$data['p_paymentend']			 =		'null';
 			$data['CurrencyID'] 			 = 		empty($data['CurrencyID'])?'0':$data['CurrencyID'];
-			 
+			$data['tag'] 			 = 		empty($data['tag'])?'':$data['tag'];
+
 			if($data['p_paymentstartdate']!='' && $data['p_paymentstartdate']!='null' && $data['p_paymentstartTime']!='')
 			{
 				 $data['p_paymentstart']		=	"'".$data['p_paymentstartdate'].' '.$data['p_paymentstartTime']."'";	
@@ -48,7 +49,7 @@ class PaymentsController extends \BaseController {
                 $userID = User::get_userID();
             }
 
-			$query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",'',".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".$data['CurrencyID'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,".$data['p_paymentstart'].",".$data['p_paymentend'].",0,".$userID.")";
+			$query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",'',".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".$data['CurrencyID'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,".$data['p_paymentstart'].",".$data['p_paymentend'].",0,".$userID.",'".$data['tag']."')";
 		   
 			$result   = DataTableSql::of($query,'sqlsrv2')->getProcResult(array('ResultCurrentPage','Total_grand_field'));
 			$result2  = $result['data']['Total_grand_field'][0]->total_grand;
@@ -76,6 +77,7 @@ class PaymentsController extends \BaseController {
 		$data['p_paymentstart']			 =		'null';		
 		$data['p_paymentend']			 =		'null';
 		$data['CurrencyID'] 			 = 		empty($data['CurrencyID'])?'0':$data['CurrencyID'];
+        $data['tag'] 			 = 		empty($data['tag'])?'':$data['tag'];
 		 
 		if($data['p_paymentstartdate']!='' && $data['p_paymentstartdate']!='null' && $data['p_paymentstartTime']!='')
 		{
@@ -104,7 +106,7 @@ class PaymentsController extends \BaseController {
 
         $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",'',".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".$data['CurrencyID'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,".$data['p_paymentstart'].",".$data['p_paymentend']."";
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $excel_data  = DB::connection('sqlsrv2')->select($query.',1,'.$userID.')');
+            $excel_data  = DB::connection('sqlsrv2')->select($query.',1,'.$userID.',"'.$data['tag'].'")');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
                 $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Payment.csv';
@@ -116,7 +118,7 @@ class PaymentsController extends \BaseController {
                 $NeonExcel->download_excel($excel_data);
             }
         }
-        $query .=',0,'.$userID.')';
+        $query .=',0,'.$userID.',"'.$data['tag'].'")';
         return DataTableSql::of($query,'sqlsrv2')->make();
     }
     /**
