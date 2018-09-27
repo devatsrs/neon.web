@@ -196,11 +196,12 @@ class CDRController extends BaseController {
         $columns 					 = 	 array('UsageDetailID','AccountName','connect_time','disconnect_time','billed_duration','cost','cli','cld');
         $sort_column 				 = 	 $columns[$data['iSortCol_0']];
 		$data['CurrencyID'] 		 = 	 empty($data['CurrencyID'])?'0':$data['CurrencyID'];
+        $data['tag'] 			 = 		empty($data['tag'])?'':$data['tag'];
 
         $query = "call prc_GetCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",".(int)$data['ResellerOwner'].",'".$data['CDRType']."' ,'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluecost'].",".$data['CurrencyID'].",'".$data['area_prefix']."','".$data['Trunk']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         //log::info("call prc_GetCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",".(int)$data['ResellerOwner'].",'".$data['CDRType']."' ,'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluecost'].",".$data['CurrencyID'].",'".$data['area_prefix']."','".$data['Trunk']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)");
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
+            $excel_data  = DB::connection('sqlsrv2')->select($query.',1,"'.$data['tag'].'")');
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
@@ -219,7 +220,8 @@ class CDRController extends BaseController {
                 });
             })->download('xls');*/
         }
-         $query .=',0)';
+         $query .=',0,"'.$data['tag'].'")';
+        //echo $query;die;
         return DataTableSql::of($query, 'sqlsrv2')->make();
     }
     public function delete_customer_cdr(){
@@ -562,10 +564,11 @@ class CDRController extends BaseController {
         $sort_column 				 	 = 	 $columns[$data['iSortCol_0']];
 
 		$data['CurrencyID'] 		 	 = 	 empty($data['CurrencyID'])?'0':$data['CurrencyID'];
+        $data['tag'] 			         = 	 empty($data['tag'])?'':$data['tag'];
         $query = "call prc_GetVendorCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluebuyingcost'].",".$data['CurrencyID'].",'".$data['area_prefix']."','".$data['Trunk']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
+            $excel_data  = DB::connection('sqlsrv2')->select($query.',1,"'.$data['tag'].'")');
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
@@ -583,7 +586,7 @@ class CDRController extends BaseController {
                 });
             })->download('xls');*/
         }
-        $query .=',0)';
+        $query .=',0,"'.$data['tag'].'")';
 
         return DataTableSql::of($query, 'sqlsrv2')->make();
     }
