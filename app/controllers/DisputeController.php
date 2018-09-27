@@ -23,6 +23,7 @@ class DisputeController extends \BaseController {
 		$data['p_disputeenddate'] 	 	 = 		$data['DisputeDate_EndDate']!=''?$data['DisputeDate_EndDate']:'NULL';
 		$data['p_disputestart']			 =		'NULL';
 		$data['p_disputeend']			 =		'NULL';
+		$data['tag']					 =		(isset($data['tag']) && $data['tag']!='')?$data['tag']:'';
 
 		if($data['p_disputestartdate']!='' && $data['p_disputestartdate']!='NULL')
 		{
@@ -44,7 +45,7 @@ class DisputeController extends \BaseController {
 		$query = "call prc_getDisputes (".$CompanyID.",".intval($data['InvoiceType']).",".$data['AccountID'].",".$data['InvoiceNo'].",".$data['Status'].",".$data['p_disputestart'].",".$data['p_disputeend'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
 		if(isset($data['Export']) && $data['Export'] == 1) {
-			$excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
+			$excel_data  = DB::connection('sqlsrv2')->select($query.',1,"'.$data['tag'].'")');
 			$excel_data = json_decode(json_encode($excel_data),true);
 			if($type=='csv'){
 				$file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Dispute.csv';
@@ -56,7 +57,7 @@ class DisputeController extends \BaseController {
 				$NeonExcel->download_excel($excel_data);
 			}
 		}
-		$query .=',0)';
+		$query .=',0,"'.$data['tag'].'")';
 		return DataTableSql::of($query,'sqlsrv2')->make();
 	}
 
@@ -315,6 +316,7 @@ class DisputeController extends \BaseController {
 		$criteria['p_disputeenddate'] 	 	 = 		$criteria['DisputeDate_EndDate']!=''?$criteria['DisputeDate_EndDate']:'NULL';
 		$criteria['p_disputestart']			 =		'NULL';
 		$criteria['p_disputeend']			 =		'NULL';
+		$data['tag']					 =		(isset($criteria['tag']) && $criteria['tag']!='')?$criteria['tag']:'';
 
 		if($criteria['p_disputestartdate']!='' && $criteria['p_disputestartdate']!='NULL')
 		{
@@ -330,7 +332,7 @@ class DisputeController extends \BaseController {
 			$criteria['p_disputeend'] 			= 	"'".date("Y-m-d H:i:s")."'";
 		}
 		Log::info(print_r($criteria,true));
-		$query = "call prc_getDisputes (".$companyID.",".intval($criteria['InvoiceType']).",".$criteria['AccountID'].",".$criteria['InvoiceNo'].",".$criteria['Status'].",".$criteria['p_disputestart'].",".$criteria['p_disputeend'].",'','','','',2)";
+		$query = "call prc_getDisputes (".$companyID.",".intval($criteria['InvoiceType']).",".$criteria['AccountID'].",".$criteria['InvoiceNo'].",".$criteria['Status'].",".$criteria['p_disputestart'].",".$criteria['p_disputeend'].",'','','','',2,'".$data['tag']."')";
 		Log::info($query);
 
 		$exceldatas  = DB::connection('sqlsrv2')->select($query);
