@@ -31,8 +31,8 @@
         <div class="mail-title">{{emailHeaderDecode($ticketdata->Subject)}} #{{$ticketdata->TicketID}}</div>
       <div class="mail-date">
           @if($ticketdata->TicketType)
-              <a>{{$Requester['Title']}}</a> emailed <a>{{$ticketdata->EmailTo}}</a> <br>
-              From: {{$Requester['Email']}}<br>
+              <a>{{$TicketEmail->Emailfrom}}</a> emailed <a>{{$ticketdata->EmailTo}}</a> <br>
+              {{--From: {{$Requester['Email']}}<br>--}}
               @else
               To: {{$ticketdata->EmailTo}} <br>
               From: <a class="" href="{{$Requester['URL']}}">{{$Requester['Title']}}</a> ({{$Requester['Email']}})<br>

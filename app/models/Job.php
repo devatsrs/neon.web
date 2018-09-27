@@ -982,7 +982,7 @@ class Job extends \Eloquent {
                 $format = "";
             }
 
-            $data["Title"] = Account::getCompanyNameByID($data["AccountID"]) . ' ' . $format.' ('.$Effective.') ';
+            $Title = Account::getCompanyNameByID($data["AccountID"]) . ' ' . $format.' ('.$Effective.')';
             $data["Description"] = Account::getCompanyNameByID($data["AccountID"]) . ' ' . isset($jobType[0]->Title) ? $jobType[0]->Title : '';
 
             $timezones = $options['Timezones'];
@@ -991,6 +991,9 @@ class Job extends \Eloquent {
 
                 $options['Timezones'] = $timezone;
                 $data["Options"] = json_encode(self::removeUnnecesorryOptions($jobType, $options));
+
+                $TimezoneTitle = Timezones::getTimezonesName($timezone);
+                $data["Title"] = $Title . ' (' . $TimezoneTitle . ')';
 
                 $validator = Validator::make($data, $rules);
 
@@ -1022,7 +1025,7 @@ class Job extends \Eloquent {
                 $format = "";
             }
 
-            $data["Title"] = Account::getCompanyNameByID($data["AccountID"]) . ' ' . $format.' ('.$Effective.') ';
+            $Title = Account::getCompanyNameByID($data["AccountID"]) . ' ' . $format.' ('.$Effective.') ';
             $data["Description"] = Account::getCompanyNameByID($data["AccountID"]) . ' ' . isset($jobType[0]->Title) ? $jobType[0]->Title : '';
 
             $trunks = $options['Trunks'];
@@ -1037,6 +1040,9 @@ class Job extends \Eloquent {
 
                     $options['Timezones'] = $timezone;
                     $data["Options"] = json_encode(self::removeUnnecesorryOptions($jobType, $options));
+
+                    $TimezoneTitle = Timezones::getTimezonesName($timezone);
+                    $data["Title"] = $Title . ' (' . $TimezoneTitle . ')';
 
                     $validator = Validator::make($data, $rules);
 

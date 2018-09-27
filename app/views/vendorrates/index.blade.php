@@ -170,7 +170,7 @@
         <th width="5%">Connection Fee</th>
         <th width="5%">Interval 1</th>
         <th width="5%">Interval N</th>
-        <th width="5%">Rate ({{$CurrencySymbol}})</th>
+        <th width="5%">Rate1 ({{$CurrencySymbol}})</th>
         <th width="5%">RateN ({{$CurrencySymbol}})</th>
         <th width="8%">Effective Date</th>
         <th width="8%">End Date</th>
@@ -380,6 +380,16 @@ jQuery(document).ready(function($) {
         var Codes   = $this.prevAll("div.hiddenRowData").find("input[name='Code']").val();
         getArchiveVendorRates($this,Codes);
     });
+
+    //set RateN value = Rate1 value if RateN value is blank
+    $(document).on('focusout','.Rate1', function() {
+        var formid = $(this).closest("form").attr('id');
+        var val = $(this).val();
+
+        if($('#'+formid+' .RateN').val() == '') {
+            $('#'+formid+' .RateN').val(val);
+        }
+    });
 });
 
     function getArchiveVendorRates($clickedButton,Codes) {
@@ -421,7 +431,7 @@ jQuery(document).ready(function($) {
                     var hiddenRowData = tr.find('.hiddenRowData');
                     var Code = hiddenRowData.find('input[name="Code"]').val();
                     var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
-                    table.append("<thead><tr><th>Code</th><th>Description</th><th>Connection Fee</th><th>Interval 1</th><th>Interval N</th><th>Rate</th><th>RateN</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                    table.append("<thead><tr><th>Code</th><th>Description</th><th>Connection Fee</th><th>Interval 1</th><th>Interval N</th><th>Rate1</th><th>RateN</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
                     var tbody = $("<tbody></tbody>");
 
                     /*ArchiveRates.sort(function(obj1, obj2) {
@@ -693,14 +703,14 @@ jQuery(document).ready(function($) {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Rate</label>
-                                <input type="text" name="Rate" class="form-control" id="field-5" placeholder="">
+                                <label for="field-5" class="control-label">Rate1</label>
+                                <input type="text" name="Rate" class="form-control Rate1" id="field-5" placeholder="">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">RateN</label>
-                                <input type="text" name="RateN" class="form-control" id="field-5" placeholder="">
+                                <input type="text" name="RateN" class="form-control RateN" id="field-5" placeholder="">
                             </div>
                         </div>
                     </div>
@@ -790,8 +800,8 @@ jQuery(document).ready(function($) {
                         <div class="col-md-6">
                             <div class="form-group">
                                 <input type="checkbox" name="updateRate" class="" />
-                                <label class="control-label">Rate</label>
-                                <input type="text" name="Rate" class="form-control" placeholder="">
+                                <label class="control-label">Rate1</label>
+                                <input type="text" name="Rate" class="form-control Rate1" placeholder="">
                             </div>
                         </div>
 
@@ -799,7 +809,7 @@ jQuery(document).ready(function($) {
                             <div class="form-group">
                                 <input type="checkbox" name="updateRateN" class="" />
                                 <label class="control-label">RateN</label>
-                                <input type="text" name="RateN" class="form-control" placeholder="">
+                                <input type="text" name="RateN" class="form-control RateN" placeholder="">
                             </div>
                         </div>
 
