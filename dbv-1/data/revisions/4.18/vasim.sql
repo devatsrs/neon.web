@@ -196,14 +196,14 @@ ALTER TABLE `tblCustomerRateArchive`
 	ADD COLUMN `RateN` DECIMAL(18,6) NOT NULL DEFAULT '0.000000' AFTER `Rate`;
 
 ALTER TABLE `tblVendorPreference`
-	ADD COLUMN `TimezonesID` INT(11) NOT NULL AFTER `TrunkID`,
+	ADD COLUMN `TimezonesID` INT(11) NOT NULL DEFAULT '1' AFTER `TrunkID`,
 	DROP INDEX `IX_UniqueAccountId_Pref_RateId_TrunkId`,
 	ADD UNIQUE INDEX `IX_UniqueAccountId_Pref_RateId_TrunkId_TimezonesID` (`AccountId`, `Preference`, `RateId`, `TrunkID`, `TimezonesID`),
 	DROP INDEX `IX_AccountID_TrunkID_RateID`,
 	ADD INDEX `IX_AccountID_TrunkID_TimezonesID_RateID` (`AccountId`, `TrunkID`, `TimezonesID`, `RateId`);
 
 ALTER TABLE `tblVendorBlocking`
-	ADD COLUMN `TimezonesID` INT(11) NOT NULL AFTER `TrunkID`,
+	ADD COLUMN `TimezonesID` INT(11) NOT NULL DEFAULT '1' AFTER `TrunkID`,
 	DROP INDEX `IX_UniqueAccountId_TrunkId_RateId_CountryId`,
 	ADD UNIQUE INDEX `IX_UniqueAccountId_TrunkId_TimezonesID_RateId_CountryId` (`TrunkID`, `TimezonesID`, `RateId`, `CountryId`, `AccountId`),
 	DROP INDEX `IX_tblVendorBlocking_CountryId_TrunkID`,
