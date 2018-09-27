@@ -452,6 +452,7 @@ class Report extends \Eloquent {
             'OutStanding' => 'OutStanding Amount',
             'TotalTax' => 'Tax Total',
             'SubTotal' => 'Sub Total',
+            'TotalTaxSubTotal'=>'Total Tax + Subtotal',
         ),
         'payment'=>array(
             'Amount' => 'Total',
