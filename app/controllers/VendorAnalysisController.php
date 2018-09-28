@@ -57,8 +57,10 @@ class VendorAnalysisController extends BaseController {
             $data['StartDate'] = change_timezone($data['TimeZone'], $CompanyTimezone, $data['StartDate']);
             $data['EndDate'] = change_timezone($data['TimeZone'], $CompanyTimezone, $data['EndDate']);
         }
+        $data['tag']=isset($data['tag']) && $data['tag']!=''?$data['tag']:'';
+
         $query .= "('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "' ,'".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','" . $data['UserID'] . "','" . $data['Admin'] . "'".",0,0,'',''";
-        $query .= ",2)";
+        $query .= ",2,'".$data['tag']."')";
         $TopReports = DataTableSql::of($query, 'neon_report')->getProcResult(array('CallCount','CallCost','CallMinutes'));
 
         $indexcount = 0;
@@ -122,6 +124,7 @@ class VendorAnalysisController extends BaseController {
         $data = Input::all();
         $companyID = User::get_companyID();
         $Trunk = Trunk::getTrunkName($data['TrunkID']);
+        $data['tag']=isset($data['tag']) && $data['tag']!=''?$data['tag']:'';
         $reponse = array();
         if(!empty($data['TimeZone'])) {
             $CompanyTimezone = Config::get('app.timezone');
@@ -129,7 +132,7 @@ class VendorAnalysisController extends BaseController {
             $data['EndDate'] = change_timezone($data['TimeZone'], $CompanyTimezone, $data['EndDate']);
         }
         $report_type = get_report_type($data['StartDate'],$data['EndDate']);
-        $query = "call prc_getVendorReportByTime ('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','" . $data['UserID'] . "','" . $data['Admin'] . "',".$report_type.")";
+        $query = "call prc_getVendorReportByTime ('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','" . $data['UserID'] . "','" . $data['Admin'] . "',".$report_type.",'".$data['tag']."')";
         $TopReports = DB::connection('neon_report')->select($query);
         $series = $category1 = $category2 = $category3 = array();
         $cat_index = 0;
@@ -194,10 +197,11 @@ class VendorAnalysisController extends BaseController {
             $data['EndDate'] = change_timezone($data['TimeZone'], $CompanyTimezone, $data['EndDate']);
         }
         $sort_column = $columns[$data['iSortCol_0']];
+        $data['tag']=isset($data['tag']) && $data['tag']!=''?$data['tag']:'';
 
         $query .= "('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','" . $data['UserID'] . "','" . $data['Admin'] . "'".",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $excel_data  = DB::connection('neon_report')->select($query.',1)');
+            $excel_data  = DB::connection('neon_report')->select($query.',1,"'.$data['tag'].'")');
             $excel_data = json_decode(json_encode($excel_data),true);
             if ($type == 'csv') {
                 $file_path = CompanyConfiguration::get('UPLOAD_PATH') . '/'.ucfirst($data['chart_type']).'Reports.csv';
@@ -209,7 +213,7 @@ class VendorAnalysisController extends BaseController {
                 $NeonExcel->download_excel($excel_data);
             }
         }
-        $query .= ",0)";
+        $query .= ",0,'".$data['tag']."')";
         return DataTableSql::of($query,'neon_report')->make();
     }
 
