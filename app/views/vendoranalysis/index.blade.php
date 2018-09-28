@@ -74,6 +74,10 @@
                     @endif
                 </div>
                 <div class="form-group">
+                    <label class="control-label">Tag</label>
+                    <input class="form-control tags" name="tag" type="text" >
+                </div>
+                <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
                         <i class="entypo-search"></i>
