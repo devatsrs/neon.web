@@ -8,7 +8,7 @@
     <?php
     $PDFurl 		= 	"";
     $unsignPDFurl 	= 	"";
-	
+
     if(!empty($CreditNotes->PDF))
 	{
         /*if(is_amazon() == false)
@@ -42,21 +42,9 @@
                          &nbsp;&nbsp;<span class="overdue">{{$CreditNotesStatus}}</span>
                     </div>
                 </div>
-                <div class="x-span4 pull-left" > <h1 class="text-center">CreditNotes</h1></div>
+                <div class="x-span4 pull-left" > <h1 class="text-center">Credit Note</h1></div>
                 <div class="x-span8 pull-right" style="margin-top:5px;">
 
-                 <a id="comment-creditnotes" class="pull-right  btn btn-sm btn-info btn-icon icon-left hidden-print">
-                     Comment @if($CreditNotesComments>0)({{$CreditNotesComments}})@endif
-                     <i class="fa fa-comment-o"></i>
-                 </a><div class="pull-right"> &nbsp;</div>
-                <a id="reject-creditnotes" class="pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print">
-                    Reject
-                    <i class="fa fa-times"></i>
-                </a><div class="pull-right"> &nbsp;</div>
-                <a id="accept-creditnotes" class="pull-right  btn btn-sm btn-success btn-icon icon-left hidden-print">
-                    Accept
-                    <i class="fa fa-check"></i>
-                </a><div class="pull-right"> &nbsp;</div>
                 @if( !empty($CreditNotes->UsagePath))
 
                 <a href="{{$cdownload_usage}}" class="btn pull-right btn-success btn-sm btn-icon icon-left">
@@ -88,7 +76,7 @@
                 <iframe src="{{$unsignPDFurl}}" frameborder="1" scrolling="auto" height="100%" width="100%" ></iframe>
             </div>
             @else
-                <center>Error loading CreditNotes, Its need to regenerate.</center>
+                <center>Error loading Credit Notes, Its need to regenerate.</center>
             @endif
 
         </div>
