@@ -32,7 +32,7 @@
             <li>
                 <div class="notes full-width ">
                     <h3>ChangeLog</h3>
-                    <h4>24-09-2018</h4>
+                    <h4>28-09-2018</h4>
                     01. Added Integration with Quickbook Desktop.<br>
                     02. Added option to post invoices and payments to Quickbook and XERO.<br>
                     03. Added Integration with Merchant Warrior.<br>
@@ -59,6 +59,7 @@
                     24. Added option to Block/Unblock account in PBX from Account screen.<br>
                     25. Added new Retention options: Failed Calls, Tickets and Archived Rates.<br>
                     26. Added option to attach pdf(invoice) in send invoice email.<br>
+                    27. Added new column BillDurationMinutes,Country,CallType,Description in Usage Column of Invoice Template.<br>
                 </div>
             </li>
         </ul>
