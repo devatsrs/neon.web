@@ -127,7 +127,9 @@ class AnalysisController extends BaseController {
         $companyID = User::get_companyID();
         $Trunk = Trunk::getTrunkName($data['TrunkID']);
         $data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
+        $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
         $data['tag'] = 	 empty($data['tag'])?'':$data['tag'];
+
 
         $reponse = array();
         if(!empty($data['TimeZone'])) {
