@@ -5,7 +5,7 @@
     <li><a href="{{URL::to('/creditnotes')}}">CreditNotes</a></li>
     <li class="active"><strong>{{$creditnotesnumber}}</strong></li>
 </ol>
-<h3>View CreditNotes Log</h3>
+<h3>View Credit Note Log</h3>
 <div class="float-right" >
     <a href="{{URL::to('/creditnotes')}}"  class="btn btn-primary btn-sm btn-icon icon-left" >
         <i class="entypo-floppy"></i>

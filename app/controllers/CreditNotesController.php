@@ -1093,8 +1093,15 @@ class CreditNotesController extends \BaseController {
             $CurrencySymbol 	= 	Currency::getCurrencySymbol($Account->CurrencyId);
             $creditnotes_status = 	 CreditNotes::get_creditnotes_status();
             $CreditNotesStatus  =   $creditnotes_status[$CreditNotes->CreditNotesStatus];
+            $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($CreditNotes->AccountID);
+            $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
+            if(empty($InvoiceTemplate->CompanyLogoUrl)){
+                $logo = 'http://placehold.it/250x100';
+            }else{
+                $logo = AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key);
+            }
             //$CreditNotesComments =   CreditNotesLog::get_comments_count($id);
-            return View::make('creditnotes.creditnotes_preview', compact('CreditNotes', 'CreditNotesDetail', 'Account', 'CreditNotesTemplate', 'CurrencyCode', 'logo','CurrencySymbol','CreditNotesStatus'));
+            return View::make('creditnotes.creditnotes_cview', compact('CreditNotes', 'CreditNotesDetail', 'Account', 'CreditNotesTemplate', 'CurrencyCode', 'logo','CurrencySymbol','CreditNotesStatus'));
         }
     }
 
