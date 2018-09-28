@@ -34,6 +34,10 @@
                     {{ Form::select('Status', Dispute::$Status, Dispute::PENDING, array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
                 </div>
                 <div class="form-group">
+                    <label class="control-label">Tag</label>
+                    <input class="form-control tags" name="tag" type="text" >
+                </div>
+                <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
                         <i class="entypo-search"></i>
@@ -136,6 +140,7 @@
          $searchFilter.AccountID   = $("#dispute-table-search select[name='AccountID']").val();
          $searchFilter.InvoiceNo   = $("#dispute-table-search input[name='InvoiceNo']").val();
          $searchFilter.Status   = $("#dispute-table-search select[name='Status']").val();
+         $searchFilter.tag   = $("#dispute-table-search select[name='tag']").val();
 
          data_table = $("#table-4").dataTable({
                         "bDestroy": true,
@@ -149,7 +154,8 @@
                                     {"name": "InvoiceType","value": $searchFilter.InvoiceType},
                                     {"name": "Status","value": $searchFilter.Status},
 									{"name": "DisputeDate_StartDate","value": $searchFilter.DisputeDate_StartDate},
-									{"name": "DisputeDate_EndDate","value": $searchFilter.DisputeDate_EndDate}
+									{"name": "DisputeDate_EndDate","value": $searchFilter.DisputeDate_EndDate},
+									{"name": "tag","value": $searchFilter.tag}
 
                             );
                             data_table_extra_params.length = 0;
@@ -160,6 +166,7 @@
                                     {"name": "Status","value": $searchFilter.Status},
 									{"name": "DisputeDate_StartDate","value": $searchFilter.DisputeDate_StartDate},
 									{"name": "DisputeDate_EndDate","value": $searchFilter.DisputeDate_EndDate},
+									{"name": "tag","value": $searchFilter.tag},
                                     {"name":"Export","value":1});
 
                         },
@@ -586,6 +593,7 @@
                          $searchFilter.Status = $("#dispute-table-search select[name='Status']").val();
                          $searchFilter.DisputeDate_StartDate = $("#dispute-table-search input[name='DisputeDate_StartDate']").val();
                          $searchFilter.DisputeDate_EndDate   = $("#dispute-table-search input[name='DisputeDate_EndDate']").val();
+                         $searchFilter.tag   = $("#dispute-table-search input[name='tag']").val();
 
 
                          data_table.fnFilter('', 0);
@@ -975,18 +983,19 @@
                     <input type="text" name="DisputeAmount" class="form-control" id="field-5" placeholder="" >
                 </div>
           </div>
-          <div class="col-md-12">
-            <div class="form-group">
-              <label for="field-5" class="control-label">Notes</label>
-              <textarea name="Notes" class="form-control" id="field-5" rows="10" placeholder=""></textarea>
-            </div>
-          </div>
             <div class="col-md-12">
                 <div class="form-group">
                     <label for="field-5" class="control-label">Ref</label>
                     <input type="text" id="Ref" name="Ref" class="form-control" id="field-5" placeholder="">
                 </div>
             </div>
+          <div class="col-md-12">
+            <div class="form-group">
+              <label for="field-5" class="control-label">Notes</label>
+              <textarea name="Notes" class="form-control" id="field-5" rows="10" placeholder=""></textarea>
+            </div>
+          </div>
+
             <div class="col-md-12">
                 <div class="form-group">
                     <label for="Attachment" class="control-label">Attachment (pdf,png,jpg,gif,xls,csv,xlsx)</label>

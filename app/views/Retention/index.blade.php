@@ -80,14 +80,14 @@
     </div>
 
     <div class="form-group">
-        <label for="field-1" class="col-sm-2 control-label">Deleted ticket after days : </label>
+        <label for="field-1" class="col-sm-2 control-label">Tickets : </label>
         <div class="col-sm-2">
             <input type="text" name="TableData[DeleteTickets]" class="form-control" value="{{isset($DataRetenion->DeleteTickets)?$DataRetenion->DeleteTickets:''}}"/>
         </div>
         <div class="col-sm-8"></div>
     </div>
     <div class="form-group">
-        <label for="field-1" class="col-sm-2 control-label">Archive old rates delete after days : </label>
+        <label for="field-1" class="col-sm-2 control-label">Delete archived rates : </label>
         <div class="col-sm-2">
             <input type="text" name="TableData[ArchiveOldRate]" class="form-control" value="{{isset($DataRetenion->ArchiveOldRate)?$DataRetenion->ArchiveOldRate:''}}"/>
         </div>

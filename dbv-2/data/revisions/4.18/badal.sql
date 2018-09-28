@@ -932,10 +932,130 @@ DROP TEMPORARY TABLE IF EXISTS tmp_CreditNotes_;
 END//
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `prc_CustomerPanel_getCreditNotes`;
+DELIMITER //
+CREATE PROCEDURE `prc_CustomerPanel_getCreditNotes`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_CreditNotesNumber` VARCHAR(50),
+	IN `p_IssueDateStart` DATETIME,
+	IN `p_IssueDateEnd` DATETIME,
+	IN `p_CreditNotesStatus` VARCHAR(50),
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_CurrencyID` INT,
+	IN `p_isExport` INT
 
-
-
-
-
-
+)
+BEGIN
+    
+    DECLARE v_OffSet_ INT;
+    DECLARE v_Round_ INT;    
+    DECLARE v_CurrencyCode_ VARCHAR(50);
+ 	 SET sql_mode = 'ALLOW_INVALID_DATES';
+    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	        
+ 	 SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+ 	 SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+	 SELECT cr.Symbol INTO v_CurrencyCode_ from Ratemanagement3.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
+    IF p_isExport = 0
+    THEN
+        SELECT         
+        CONCAT(LTRIM(RTRIM(cn.CreditNotesNumber))) AS CreditNotesNumber,
+        cn.IssueDate,
+        CONCAT(IFNULL(cr.Symbol,''),ROUND(cn.GrandTotal,v_Round_)) AS GrandTotal2,		
+        cn.CreditNotesStatus,
+        cn.CreditNotesID,
+        cn.Description,
+        cn.Attachment,
+        cn.AccountID,		  
+		  IFNULL(ac.BillingEmail,'') AS BillingEmail,
+		  ROUND(cn.GrandTotal,v_Round_) AS GrandTotal,
+		  IFNULL(cn.GrandTotal - cn.PaidAmount,0) AS CreditNoteAmount
+		  
+        FROM tblCreditNotes cn
+        INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = cn.AccountID
+        
+		INNER JOIN Ratemanagement3.tblBillingClass b ON cn.BillingClassID = b.BillingClassID	
+		LEFT JOIN tblInvoiceTemplate it on b.InvoiceTemplateID = it.InvoiceTemplateID
+        LEFT JOIN Ratemanagement3.tblCurrency cr ON cn.CurrencyID   = cr.CurrencyId 
+        WHERE ac.CompanyID = p_CompanyID
+        	AND (cn.AccountID = p_AccountID)
+        AND (p_CreditNotesNumber = '' OR ( p_CreditNotesNumber != '' AND cn.CreditNotesNumber = p_CreditNotesNumber))
+        AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND cn.IssueDate >= p_IssueDateStart))
+        AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND cn.IssueDate <= p_IssueDateEnd))
+        AND (p_CreditNotesStatus = '' OR ( p_CreditNotesStatus != '' AND cn.CreditNotesStatus = p_CreditNotesStatus))
+		AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND cn.CurrencyID = p_CurrencyID))
+        ORDER BY
+                CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN ac.AccountName
+            END DESC,
+                CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameASC') THEN ac.AccountName
+            END ASC,
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreditNotesStatusDESC') THEN cn.CreditNotesStatus
+            END DESC,
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreditNotesStatusASC') THEN cn.CreditNotesStatus
+            END ASC,
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreditNotesNumberASC') THEN cn.CreditNotesNumber
+            END ASC,
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreditNotesNumberDESC') THEN cn.CreditNotesNumber
+            END DESC,
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IssueDateASC') THEN cn.IssueDate
+            END ASC,
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IssueDateDESC') THEN cn.IssueDate
+            END DESC,
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GrandTotalDESC') THEN cn.GrandTotal
+            END DESC,
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GrandTotalASC') THEN cn.GrandTotal
+            END ASC,
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreditNotesIDDESC') THEN cn.CreditNotesID
+            END DESC,
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreditNotesIDASC') THEN cn.CreditNotesID
+            END ASC
+        
+        LIMIT p_RowspPage OFFSET v_OffSet_;
+        
+        
+        SELECT
+            COUNT(*) AS totalcount,  ROUND(SUM(cn.GrandTotal),v_Round_) AS total_grand,v_CurrencyCode_ as currency_symbol
+        FROM
+        tblCreditNotes cn
+        INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = cn.AccountID
+        
+		INNER JOIN Ratemanagement3.tblBillingClass b ON cn.BillingClassID = b.BillingClassID
+		LEFT JOIN tblInvoiceTemplate it on b.InvoiceTemplateID = it.InvoiceTemplateID
+        WHERE ac.CompanyID = p_CompanyID
+        AND (cn.AccountID = p_AccountID)
+        AND (p_CreditNotesNumber = '' OR ( p_CreditNotesNumber != '' AND cn.CreditNotesNumber = p_CreditNotesNumber))
+        AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND cn.IssueDate >= p_IssueDateStart))
+        AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND cn.IssueDate <= p_IssueDateEnd))
+        AND (p_CreditNotesStatus = '' OR ( p_CreditNotesStatus != '' AND cn.CreditNotesStatus = p_CreditNotesStatus))
+		AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND cn.CurrencyID = p_CurrencyID));
+    END IF;
+    IF p_isExport = 1
+    THEN
+        SELECT 
+        ( CONCAT(LTRIM(RTRIM(IFNULL(it.InvoiceNumberPrefix,''))), LTRIM(RTRIM(cn.CreditNotesNumber)))) AS Number,
+        cn.IssueDate,
+        ROUND(cn.GrandTotal,v_Round_) AS GrandTotal,
+		IFNULL(cn.GrandTotal - cn.PaidAmount,0) AS AvailableBalance,        
+        cn.CreditNotesStatus AS Status
+        FROM tblCreditNotes cn
+        INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = cn.AccountID
+        
+		INNER JOIN Ratemanagement3.tblBillingClass b ON cn.BillingClassID = b.BillingClassID
+	    LEFT JOIN tblInvoiceTemplate it on b.InvoiceTemplateID = it.InvoiceTemplateID
+        WHERE ac.CompanyID = p_CompanyID
+        AND (cn.AccountID = p_AccountID)
+        AND (p_CreditNotesNumber = '' OR ( p_CreditNotesNumber != '' AND cn.CreditNotesNumber = p_CreditNotesNumber))
+        AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND cn.IssueDate >= p_IssueDateStart))
+        AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND cn.IssueDate <= p_IssueDateEnd))
+        AND (p_CreditNotesStatus = '' OR ( p_CreditNotesStatus != '' AND cn.CreditNotesStatus = p_CreditNotesStatus))
+		AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND cn.CurrencyID = p_CurrencyID));
+    END IF;
+    
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+    END//
+DELIMITER ;
 
