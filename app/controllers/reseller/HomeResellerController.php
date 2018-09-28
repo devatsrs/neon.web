@@ -24,7 +24,8 @@ class HomeResellerController extends BaseController {
             // && NeonAPI::login("reseller")
             //if (Auth::attempt(array('EmailAddress' => $data['email'], 'password' => $data['password'] ,'Status'=> 1 )) && NeonAPI::login("reseller")) {}
             $Count=0;
-            $Users = User::where('EmailAddress',$data['email'])->first();
+            //$Users = User::where('EmailAddress',$data['email'])->first();
+            $Users = User::where(['EmailAddress'=>$data['email'],"Status"=>1])->first();
             if(!empty($Users) && count($Users)>0){
                 $CompanyID = $Users->CompanyID;
                 $Resellers = Reseller::where('ChildCompanyID',$CompanyID)->first();
@@ -33,7 +34,9 @@ class HomeResellerController extends BaseController {
                 }
             }
 
-            if (Auth::attempt(array('EmailAddress' => $data['email'], 'password' => $data['password'] ,'Status'=> 1 )) && $Count==1 && NeonAPI::login("reseller")){
+            //if (Auth::attempt(array('EmailAddress' => $data['email'], 'password' => $data['password'] ,'Status'=> 1 )) && $Count==1 && NeonAPI::login("reseller")){
+            if (User::checkPassword($data["password"],$Users->password) && $Count==1 && NeonAPI::login("reseller")){
+                Auth::login($Users);
                 log::info('reseller');
                 Session::set("reseller", 1);
                 User::setUserPermission();

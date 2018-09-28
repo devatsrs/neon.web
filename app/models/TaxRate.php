@@ -135,7 +135,7 @@ class TaxRate extends \Eloquent {
 
                         if ($TaxRate->FlatStatus == 1) {
 
-                            return (($Price) + $TaxRate->Amount);
+                            return $TaxRate->Amount;
 
                         } else {
                             return (($Price * $TaxRate->Amount) / 100);

@@ -1,5 +1,5 @@
 <?php
-
+use Illuminate\Support\Facades\Crypt;
 class NeonRegistartionController extends \BaseController {
     /**
      * Display a listing of the resource.
@@ -335,7 +335,8 @@ class NeonRegistartionController extends \BaseController {
             $dataAccount['Email'] = $PersonalData['user_id'];
             $dataAccount['IsCustomer'] = 1;
             $dataAccount['BillingEmail']= $PersonalData['user_id'];
-            $dataAccount['password'] = Hash::make($PersonalData['password']);
+            //$dataAccount['password'] = Hash::make($PersonalData['password']);
+            $dataAccount['password'] = Crypt::encrypt($PersonalData['password']);
             $dataAccount['Billing'] = 1;
             $dataAccount['created_by'] = $UserName;
             $dataAccount['VerificationStatus'] = Account::VERIFIED;
@@ -1368,6 +1369,51 @@ class NeonRegistartionController extends \BaseController {
             }
             /** Subscription insert end */
 
+            /** Product insert start */
+            if (!empty($data['ProductData']) && !empty($InvoiceID)) {
+                $ProductDatas = $data['ProductData'];
+
+                foreach ($ProductDatas as $ProductData) {
+                    $InvoiceDetailData = array();
+                    $InvoiceDetailData['InvoiceID'] = $InvoiceID;
+                    $InvoiceDetailData['ProductID'] = $ProductData['ProductID'];
+                    //$Description = BillingSubscription::where("SubscriptionID", $ProductData['ProductID'])->pluck("Description");
+                    $InvoiceDetailData['Description'] = $ProductData['Description'];
+                    $InvoiceDetailData['Price'] = $ProductData['Price'];
+                    $InvoiceDetailData['Qty'] = $ProductData['Qty'];
+                    $InvoiceDetailData['TaxAmount'] = 0;
+                    $InvoiceDetailData['LineTotal'] = $ProductData['LineTotal'];
+                    $InvoiceDetailData['StartDate'] = '';
+                    $InvoiceDetailData['EndDate'] = '';
+                    $InvoiceDetailData['Discount'] = 0;
+                    $InvoiceDetailData['TaxRateID'] = 0;
+                    $InvoiceDetailData['TaxRateID2'] = 0;
+                    $InvoiceDetailData['CreatedBy'] = $CreatedBy;
+                    $InvoiceDetailData['ModifiedBy'] = $CreatedBy;
+                    $InvoiceDetailData['created_at'] = $created_at;
+                    $InvoiceDetailData['updated_at'] = $created_at;
+                    $InvoiceDetailData['ProductType'] = Product::ITEM;
+                    $InvoiceDetailData['ServiceID'] = 0;
+                    $InvoiceDetailData['AccountSubscriptionID'] = 0;
+                    $InvoiceDetails = InvoiceDetail::create($InvoiceDetailData);
+
+                    if (isset($InvoiceDetails) && !empty($ProductData['TaxRateData'])) {
+                        foreach ($ProductData['TaxRateData'] as $TaxRateData) {
+                            $InvoiceTaxRates = array();
+                            $InvoiceTaxRates['InvoiceID'] = $InvoiceID;
+                            $InvoiceTaxRates['InvoiceDetailID'] = $InvoiceDetails->InvoiceDetailID;
+                            $InvoiceTaxRates['TaxRateID'] = $TaxRateData['TaxRateID'];
+                            $InvoiceTaxRates['TaxAmount'] = $TaxRateData['TaxAmount'];
+                            $Title = TaxRate::where("TaxRateId", $TaxRateData['TaxRateID'])->pluck("Title");
+                            $InvoiceTaxRates['Title'] = $Title;
+                            $InvoiceTaxRates['InvoiceTaxType'] = 0;
+                            InvoiceTaxRate::create($InvoiceTaxRates);
+                        }
+                    }
+                }
+            }
+            /** Product insert end */
+
             /** TopUp as product insert start */
 
             if (!empty($data['TopUpAmount']) && !empty($InvoiceID)) {
@@ -1422,6 +1468,26 @@ class NeonRegistartionController extends \BaseController {
                     $InvoiceTaxRates['InvoiceTaxType'] = 1;
                     InvoiceTaxRate::create($InvoiceTaxRates);
                 }
+            }
+
+            //StockHistory
+            $StockHistory=array();
+            $temparray=array();
+            $InvoiceDetailStockData=InvoiceDetail::where(['InvoiceID'=>$InvoiceID,'ProductType'=>1])->get();
+            if(!empty($InvoiceDetailStockData) && count($InvoiceDetailStockData)>0) {
+                foreach ($InvoiceDetailStockData as $CheckInvoiceHistory) {
+                        $ProductID = intval($CheckInvoiceHistory->ProductID);
+                        $Qty = intval($CheckInvoiceHistory['Qty']);
+                        $temparray['CompanyID'] = $CompanyID;
+                        $temparray['ProductID'] = $ProductID;
+                        $temparray['InvoiceID'] = $InvoiceID;
+                        $temparray['Qty'] = $Qty;
+                        $temparray['Reason'] = '';
+                        $temparray['InvoiceNumber'] = $InvoiceData["FullInvoiceNumber"];
+                        $temparray['created_by'] = $CreatedBy;
+                        array_push($StockHistory, $temparray);
+                }
+                $historyData=StockHistoryCalculations($StockHistory);
             }
 
             /** All Over Tax insert End */
