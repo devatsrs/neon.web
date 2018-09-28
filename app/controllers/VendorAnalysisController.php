@@ -125,6 +125,7 @@ class VendorAnalysisController extends BaseController {
         $companyID = User::get_companyID();
         $Trunk = Trunk::getTrunkName($data['TrunkID']);
         $data['tag']=isset($data['tag']) && $data['tag']!=''?$data['tag']:'';
+        $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
         $reponse = array();
         if(!empty($data['TimeZone'])) {
             $CompanyTimezone = Config::get('app.timezone');
