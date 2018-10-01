@@ -128,6 +128,7 @@ class AnalysisController extends BaseController {
         $Trunk = Trunk::getTrunkName($data['TrunkID']);
         $data['ResellerOwner'] = empty($data['ResellerOwner'])?'0':$data['ResellerOwner'];
         $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
+        $data['CompanyGatewayID'] = empty($data['CompanyGatewayID'])?'0':$data['CompanyGatewayID'];
         $data['tag'] = 	 empty($data['tag'])?'':$data['tag'];
 
 
