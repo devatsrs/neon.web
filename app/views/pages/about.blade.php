@@ -58,7 +58,7 @@
                     23. Added   ‘Account Balance Warning’ under Billing class to send reminders about account balance.<br>
                     24. Added option to Block/Unblock account in PBX from Account screen.<br>
                     25. Added new Retention options: Failed Calls, Tickets and Archived Rates.<br>
-                    26. Added option to attach pdf(invoice) in send invoice email.<br>
+                    26. Added option to send invoices as an attachment.<br>
                     27. Added new column BillDurationMinutes,Country,CallType,Description in Usage Column of Invoice Template.<br>
                 </div>
             </li>
