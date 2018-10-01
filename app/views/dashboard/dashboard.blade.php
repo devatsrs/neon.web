@@ -23,6 +23,7 @@
         $dashsearchFilter.TrunkID = '0';
         $dashsearchFilter.TimeZone = '';
         $dashsearchFilter.CurrencyID = '0';
+        $dashsearchFilter.tag = '';
         var cdr_url = "{{URL::to('cdr_show')}}";
         var customer_login = 0;
         var toFixed = '{{get_round_decimal_places()}}';

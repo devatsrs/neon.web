@@ -963,7 +963,7 @@ BEGIN
     IF p_isExport = 0
     THEN
         SELECT         
-        CONCAT(LTRIM(RTRIM(cn.CreditNotesNumber))) AS CreditNotesNumber,
+        cn.FullCreditNotesNumber AS CreditNotesNumber,
         cn.IssueDate,
         CONCAT(IFNULL(cr.Symbol,''),ROUND(cn.GrandTotal,v_Round_)) AS GrandTotal2,		
         cn.CreditNotesStatus,
@@ -1036,7 +1036,7 @@ BEGIN
     IF p_isExport = 1
     THEN
         SELECT 
-        ( CONCAT(LTRIM(RTRIM(IFNULL(it.InvoiceNumberPrefix,''))), LTRIM(RTRIM(cn.CreditNotesNumber)))) AS Number,
+        cn.FullCreditNotesNumber AS CreditNotesNumber,
         cn.IssueDate,
         ROUND(cn.GrandTotal,v_Round_) AS GrandTotal,
 		IFNULL(cn.GrandTotal - cn.PaidAmount,0) AS AvailableBalance,        
