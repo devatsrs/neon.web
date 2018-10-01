@@ -96,6 +96,7 @@ function set_search_parameter(submit_form){
     $searchFilter.TrunkID = $(submit_form).find("[name='TrunkID']").val();
     $searchFilter.CurrencyID = $(submit_form).find("[name='CurrencyID']").val();
     $searchFilter.TimeZone = $(submit_form).find("[name='TimeZone']").val();
+    $searchFilter.tag = $(submit_form).find("[name='tag']").val();
 }
 function loadBarChart(chart_type,submit_data){
     loading(".bar_chart",1);
@@ -242,7 +243,8 @@ function loadTable(table_id,pageSize,$searchFilter){
                 {"name": "Prefix","value": $searchFilter.Prefix},
                 {"name": "TrunkID","value": $searchFilter.TrunkID},
                 {"name": "TimeZone","value": $searchFilter.TimeZone},
-                {"name": "CurrencyID","value": $searchFilter.CurrencyID}
+                {"name": "CurrencyID","value": $searchFilter.CurrencyID},
+                {"name": "tag","value": $searchFilter.tag}
 
 
             );
@@ -260,6 +262,7 @@ function loadTable(table_id,pageSize,$searchFilter){
                 {"name": "TrunkID","value": $searchFilter.TrunkID},
                 {"name": "TimeZone","value": $searchFilter.TimeZone},
                 {"name": "CurrencyID","value": $searchFilter.CurrencyID},
+                {"name": "tag","value": $searchFilter.tag},
                 {"name":"Export","value":1});
 
         },
