@@ -903,7 +903,7 @@ DROP TEMPORARY TABLE IF EXISTS tmp_CreditNotes_;
 		INSERT INTO tmp_CreditNotes_
 		select 
 			`tblInvoice`.`InvoiceID`,
- 			`tblInvoice`.`FullInvoiceNumber`,
+ 			IFNULL(`tblInvoice`.`FullInvoiceNumber`,'') AS FullInvoiceNumber,
   			`tblInvoice`.`IssueDate`,
    		`tblInvoice`.`GrandTotal`,
 			(select IFNULL(SUM(Amount),0) from tblPayment where tblPayment.InvoiceID=tblInvoice.InvoiceID and tblPayment.Recall=0) as TotalPayment,
@@ -925,7 +925,8 @@ DROP TEMPORARY TABLE IF EXISTS tmp_CreditNotes_;
             COUNT(*) AS totalcount
         FROM
         tmp_CreditNotes_ cn
-        INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = cn.AccountID;
+        INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = cn.AccountID
+        where cn.GrandTotal > cn.TotalPayment;
 			
 			SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
