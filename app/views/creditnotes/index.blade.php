@@ -22,7 +22,7 @@
                     {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"select2"))}}
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="control-label">CreditNotes Number</label>
+                    <label for="field-1" class="control-label">Credit Note Number</label>
                     {{ Form::text('CreditNotesNumber', '', array("class"=>"form-control")) }}
                 </div>
                 <div class="form-group">
@@ -335,7 +335,7 @@
                     ]
                 },
                 "fnDrawCallback": function() {
-                    //get_total_grand();
+                    get_total_grand();
                     $('#table-4 tbody tr').each(function(i, el) {
                         if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
                             if (checked != '') {
@@ -445,7 +445,7 @@
                         console.log("sum of result"+response1);
                         if(response1.total_grand!=null)
                         {
-                            $('#table-4 tbody').append('<tr><td><strong>Total</strong></td><td align="right" colspan="3"></td><td><strong>'+response1.total_grand+'</strong></td><td colspan="2"></td></tr>');
+                            $('#table-4 tbody').append('<tr><td><strong>Total</strong></td><td align="right" colspan="2"></td><td><strong>'+response1.total_grand+'</strong></td><td colspan="2"></td></tr>');
                         }
                     },
                 });
