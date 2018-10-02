@@ -401,6 +401,7 @@ class Report extends \Eloquent {
             'duration2' => ' Duration (min)',
             'cost' => 'Cost',
             'UsageDetailID' => ' Call Count',
+            'avgrate' => ' Average Rate(min)',
         ),
         'vendorcdr'=>array(
             'billed_duration' => 'Billed Duration (sec)',
@@ -410,6 +411,7 @@ class Report extends \Eloquent {
             'selling_cost' => 'Selling Cost',
             'buying_cost' => 'Buying Cost',
             'VendorCDRID' => ' Call Count',
+            'avgratevendorcdr' => ' Average Rate(min)',
         ),
         'summary'=>array(
             'TotalCharges' => 'Revenue',
@@ -424,6 +426,7 @@ class Report extends \Eloquent {
             'MarginPercentage' => 'Margin %',
             'ACD' => 'ACD',
             'ASR' => 'ASR',
+            'avgratesummary' => ' Average Rate(min)',
         ),
         'vsummary'=>array(
             'TotalCharges' => 'Cost',
@@ -438,6 +441,7 @@ class Report extends \Eloquent {
             'MarginPercentage' => 'Margin %',
             'ACD' => 'ACD',
             'ASR' => 'ASR',
+            'avgratesummary' => ' Average Rate(min)',
         ),
         'invoice'=>array(
             'GrandTotal' => 'Total',
