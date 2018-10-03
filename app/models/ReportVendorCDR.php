@@ -2,7 +2,7 @@
 class ReportVendorCDR extends \Eloquent{
 
     public static $database_columns = array(
-        'AccountID' => 'tblVendorSummaryDay.AccountID',
+        'AccountID' => 'tblHeaderV.VAccountID',
         'DestinationBreak' => 'tblRate.Description',
         'BillingType' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.BillingType, "")',
         'BillingClassID' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.BillingClassID, "")',
@@ -76,6 +76,9 @@ class ReportVendorCDR extends \Eloquent{
         }
         foreach ($data['row'] as $column) {
             if(isset(self::$database_columns[$column])){
+                if($column=='AccountID'){
+                    $column=self::$database_columns[$column];
+                }
                 $final_query->groupby($column);
             }else {
                 $columnname = report_col_name($column);
