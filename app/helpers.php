@@ -2654,6 +2654,12 @@ function get_measure_name($colname,$Table){
         $measure_name = "ROUND(COALESCE(SUM(".$Table.".duration),0)/ 60,0) ";
     }else if($colname == 'duration1'){
         $measure_name ="ROUND(COALESCE(SUM(".$Table.".billed_duration),0)/ 60,0) ";
+    }else if($colname == 'avgrate'){
+        $measure_name ="ROUND((COALESCE(SUM(".$Table.".cost),0)/COALESCE(SUM(".$Table.".billed_duration)))*60,6) ";
+    }else if($colname == 'avgratesummary'){
+        $measure_name ="ROUND((COALESCE(SUM(".$Table.".TotalCharges),0)/COALESCE(SUM(".$Table.".TotalBilledDuration)))*60,6) ";
+    }else if($colname == 'avgratevendorcdr'){
+        $measure_name ="ROUND((COALESCE(SUM(".$Table.".buying_cost),0)/COALESCE(SUM(".$Table.".billed_duration)))*60,6) ";
     }
     return $measure_name;
 }
