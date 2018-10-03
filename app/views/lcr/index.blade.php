@@ -29,20 +29,6 @@
                     {{ Form::select('Trunk', $trunks, $trunk_keys, array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
-                    <label class="control-label">Merge Timezones</label>
-                    <p class="make-switch switch-small">
-                        <input id="merge_timezones" name="merge_timezones" type="checkbox" value="1">
-                    </p>
-                </div>
-                <div class="form-group TimezonesMergedBox" style="display: none;">
-                    <label class="control-label">Timezones</label>
-                    {{ Form::select('TimezonesMerged[]', $Timezones, '', array("class"=>"select2","multiple"=>"multiple")) }}
-                </div>
-                <div class="form-group TimezonesMergedBox" style="display: none;">
-                    <label class="control-label">Take Price</label>
-                    {{ Form::select('TakePrice', array(RateGenerator::HIGHEST_PRICE=>'Highest Price',RateGenerator::LOWEST_PRICE=>'Lowest Price'), 0 , array("class"=>"select2")) }}
-                </div>
-                <div class="form-group" id="TimezonesBox">
                     <label class="control-label">Timezone</label>
                     {{ Form::select('Timezones', $Timezones, '', array("class"=>"select2")) }}
                 </div>
@@ -236,7 +222,7 @@
 
             $("#lcr-search-form").submit(function(e) {
                 $(".vendorRateInfo").addClass('hide');
-                var Code, Description, Currency,CodeDeck,Use_Preference,vendor_block,show_all_vendor_codes,Policy,LCRPosition,GroupBy,SelectedEffectiveDate,aoColumns,aoColumnDefs,accounts,Timezones,merge_timezones,TimezonesMerged,TakePrice;
+                var Code, Description, Currency,CodeDeck,Use_Preference,vendor_block,show_all_vendor_codes,Policy,LCRPosition,GroupBy,SelectedEffectiveDate,aoColumns,aoColumnDefs,accounts,Timezones;
                 Code = $("#lcr-search-form input[name='Code']").val();
                 Description = $("#lcr-search-form input[name='Description']").val();
                 Currency = $("#lcr-search-form select[name='Currency']").val();
@@ -251,9 +237,6 @@
                 SelectedEffectiveDate = $("#lcr-search-form input[name='SelectedEffectiveDate']").val();
                 Accounts = $("#lcr-search-form select[name='Accounts[]']").val();
                 Timezones = $("#lcr-search-form select[name='Timezones']").val();
-                merge_timezones = $("#lcr-search-form [name='merge_timezones']").prop("checked");
-                TimezonesMerged = $("#lcr-search-form select[name='TimezonesMerged[]']").val();
-                TakePrice       = $("#lcr-search-form select[name='TakePrice']").val();
 
                 if(LCRPosition=='5'){
                     setTimeout(function(){
@@ -291,15 +274,12 @@
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-
-                                        if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
-                                                    '<i class="fa '+blockfa+'"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
-                                                    '<i class="fa fa-pencil"></i></a>'+hr;
-                                        }
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -330,15 +310,12 @@
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-
-                                        if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title=' + countryblocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-countryBlockingID="' + BlockingCountryId + '" id="' + blockid + '" class="blockingbycode btn btn-' + Countryblockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '">' +
-                                                    '<i class="fa fa-pencil"></i></a>' + hr;
-                                        }
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -369,15 +346,12 @@
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-
-                                        if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title=' + countryblocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-countryBlockingID="' + BlockingCountryId + '" id="' + blockid + '" class="blockingbycode btn btn-' + Countryblockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '">' +
-                                                    '<i class="fa fa-pencil"></i></a>' + hr;
-                                        }
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -408,14 +382,12 @@
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-                                        if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title=' + countryblocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-countryBlockingID="' + BlockingCountryId + '" id="' + blockid + '" class="blockingbycode btn btn-' + Countryblockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '">' +
-                                                    '<i class="fa fa-pencil"></i></a>' + hr;
-                                        }
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -446,15 +418,12 @@
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-
-                                        if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title=' + countryblocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-countryBlockingID="' + BlockingCountryId + '" id="' + blockid + '" class="blockingbycode btn btn-' + Countryblockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '">' +
-                                                    '<i class="fa fa-pencil"></i></a>' + hr;
-                                        }
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -506,15 +475,12 @@
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-
-                                        if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title=' + countryblocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-countryBlockingID="' + BlockingCountryId + '" id="' + blockid + '" class="blockingbycode btn btn-' + Countryblockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '">' +
-                                                    '<i class="fa fa-pencil"></i></a>' + hr;
-                                        }
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -545,15 +511,12 @@
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-
-                                        if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title=' + countryblocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-countryBlockingID="' + BlockingCountryId + '" id="' + blockid + '" class="blockingbycode btn btn-' + Countryblockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '">' +
-                                                    '<i class="fa fa-pencil"></i></a>' + hr;
-                                        }
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -584,15 +547,12 @@
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-
-                                        if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title=' + countryblocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-countryBlockingID="' + BlockingCountryId + '" id="' + blockid + '" class="blockingbycode btn btn-' + Countryblockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '">' +
-                                                    '<i class="fa fa-pencil"></i></a>' + hr;
-                                        }
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -623,15 +583,12 @@
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-
-                                        if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title=' + countryblocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-countryBlockingID="' + BlockingCountryId + '" id="' + blockid + '" class="blockingbycode btn btn-' + Countryblockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '">' +
-                                                    '<i class="fa fa-pencil"></i></a>' + hr;
-                                        }
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -662,15 +619,12 @@
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-
-                                        if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title=' + countryblocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-countryBlockingID="' + BlockingCountryId + '" id="' + blockid + '" class="blockingbycode btn btn-' + Countryblockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '">' +
-                                                    '<i class="fa fa-pencil"></i></a>' + hr;
-                                        }
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -701,15 +655,12 @@
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-
-                                        if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title=' + countryblocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-countryBlockingID="' + BlockingCountryId + '" id="' + blockid + '" class="blockingbycode btn btn-' + Countryblockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '">' +
-                                                    '<i class="fa fa-pencil"></i></a>' + hr;
-                                        }
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -740,15 +691,12 @@
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-
-                                        if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title=' + countryblocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-countryBlockingID="' + BlockingCountryId + '" id="' + blockid + '" class="blockingbycode btn btn-' + Countryblockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '">' +
-                                                    '<i class="fa fa-pencil"></i></a>' + hr;
-                                        }
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -779,15 +727,12 @@
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-
-                                        if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title=' + countryblocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-countryBlockingID="' + BlockingCountryId + '" id="' + blockid + '" class="blockingbycode btn btn-' + Countryblockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '">' +
-                                                    '<i class="fa fa-pencil"></i></a>' + hr;
-                                        }
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -818,15 +763,12 @@
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-
-                                        if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title=' + countryblocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-countryBlockingID="' + BlockingCountryId + '" id="' + blockid + '" class="blockingbycode btn btn-' + Countryblockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '">' +
-                                                    '<i class="fa fa-pencil"></i></a>' + hr;
-                                        }
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -857,15 +799,12 @@
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
-
-                                        if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title=' + countryblocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-countryBlockingID="' + BlockingCountryId + '" id="' + blockid + '" class="blockingbycode btn btn-' + Countryblockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '">' +
-                                                    '<i class="fa fa-pencil"></i></a>' + hr;
-                                        }
+                                        action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                                '<i class="fa '+blockfa+'"></i></a>' +
+                                                '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
+                                                '<i class="fa fa-globe"></i></a>' +
+                                                '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                '<i class="fa fa-pencil"></i></a>'+hr;
                                     }
                                     return action;
                                 }
@@ -924,9 +863,9 @@
                     "bServerSide": true,
                     "sAjaxSource": baseurl + "/lcr/search_ajax_datagrid/type",
                     "fnServerParams": function(aoData) {
-                        aoData.push({"name": "Code", "value": Code},{"name": "Description", "value": Description},{"name": "LCRPosition", "value": LCRPosition},{"name": "Accounts", "value": Accounts},  {"name": "Currency", "value": Currency}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference},{"name": "vendor_block", "value": vendor_block},{"name": "show_all_vendor_codes", "value": show_all_vendor_codes},{"name": "GroupBy", "value": GroupBy},{ "name" : "SelectedEffectiveDate"  , "value" : SelectedEffectiveDate },{"name":"Policy","value":Policy},{"name":"Timezones","value":Timezones},{"name":"merge_timezones","value":merge_timezones},{"name":"TimezonesMerged","value":TimezonesMerged},{"name":"TakePrice","value":TakePrice});
+                        aoData.push({"name": "Code", "value": Code},{"name": "Description", "value": Description},{"name": "LCRPosition", "value": LCRPosition},{"name": "Accounts", "value": Accounts},  {"name": "Currency", "value": Currency}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference},{"name": "vendor_block", "value": vendor_block},{"name": "show_all_vendor_codes", "value": show_all_vendor_codes},{"name": "GroupBy", "value": GroupBy},{ "name" : "SelectedEffectiveDate"  , "value" : SelectedEffectiveDate },{"name":"Policy","value":Policy},{"name":"Timezones","value":Timezones});
                         data_table_extra_params.length = 0;
-                        data_table_extra_params.push({"name": "Code", "value": Code},{"name": "Description", "value": Description},{"name": "LCRPosition", "value": LCRPosition},{"name": "Accounts", "value": Accounts},  {"name": "Currency", "value": Currency}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference},{"name": "vendor_block", "value": vendor_block},{"name": "show_all_vendor_codes", "value": show_all_vendor_codes},{"name": "GroupBy", "value": GroupBy},{ "name" : "SelectedEffectiveDate"  , "value" : SelectedEffectiveDate },{"name":"Policy","value":Policy},{"name":"Timezones","value":Timezones},{"name":"merge_timezones","value":merge_timezones},{"name":"TimezonesMerged","value":TimezonesMerged},{"name":"TakePrice","value":TakePrice},{"name":"Export","value":1});
+                        data_table_extra_params.push({"name": "Code", "value": Code},{"name": "Description", "value": Description},{"name": "LCRPosition", "value": LCRPosition},{"name": "Accounts", "value": Accounts},  {"name": "Currency", "value": Currency}, {"name": "Trunk", "value": Trunk},{"name": "CodeDeck", "value": CodeDeck},{"name": "Use_Preference", "value": Use_Preference},{"name": "vendor_block", "value": vendor_block},{"name": "show_all_vendor_codes", "value": show_all_vendor_codes},{"name": "GroupBy", "value": GroupBy},{ "name" : "SelectedEffectiveDate"  , "value" : SelectedEffectiveDate },{"name":"Policy","value":Policy},{"name":"Timezones","value":Timezones},{"name":"Export","value":1});
                     },
                     "iDisplayLength": 10,
                     "sPaginationType": "bootstrap",
@@ -1294,15 +1233,6 @@
                 // return false;
             });
 
-            $('#merge_timezones').on('change', function() {
-                if($(this).is(":checked")) {
-                    $('.TimezonesMergedBox').show();
-                    $('#TimezonesBox').hide();
-                } else {
-                    $('#TimezonesBox').show();
-                    $('.TimezonesMergedBox').hide();
-                }
-            });
 
         });
 
