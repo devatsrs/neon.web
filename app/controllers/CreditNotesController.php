@@ -1699,7 +1699,7 @@ class CreditNotesController extends \BaseController {
         $jobdata["updated_at"] = date('Y-m-d H:i:s');
         $JobID = Job::insertGetId($jobdata);
         if($JobID){
-            return Response::json(array("status" => "success", "message" => "Bulk CreditNotes Send Job Added in queue to process.You will be notified once job is completed. "));
+            return Response::json(array("status" => "success", "message" => "Bulk Credit Notes Send Job Added in queue to process.You will be notified once job is completed. "));
         }else{
             return Response::json(array("status" => "success", "message" => "Problem Creating Job Bulk CreditNotes Send."));
         }
