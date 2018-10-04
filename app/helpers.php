@@ -900,6 +900,10 @@ function email_log($data){
         $data['EmailTo'] = implode(',',$data['EmailTo']);
     }
 
+    if(empty($data['EmailFrom'])){
+        $data['EmailFrom'] = User::get_user_email();
+    }
+
     if(!isset($data['cc']) || !is_array($data['cc']))
     {
         $data['cc'] = array();
@@ -915,7 +919,7 @@ function email_log($data){
 		$data['message_id'] = '';
 	}
 
-    $logData = ['EmailFrom'=>User::get_user_email(),
+    $logData = ['EmailFrom'=>$data['EmailFrom'],
         'EmailTo'=>$data['EmailTo'],
         'Subject'=>$data['Subject'],
         'Message'=>$data['Message'],
