@@ -39,8 +39,11 @@
         <li>
             <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
+        <li>
+            <a href="{{URL::to('products')}}"><i class=""></i>Items</a>
+        </li>
         <li class="active">
-            <a href="javascript:void(0)">Item Types</a>
+            <strong>Item Types</strong>
         </li>
     </ol>
 
@@ -50,10 +53,11 @@
             <div class="clear"></div>
                 <div class="row">
                     <div  class="col-md-12">
-                        <a href="{{ URL::to('/products')  }}" class="btn btn-primary pull-right">
+                        {{--<a href="{{ URL::to('/products')  }}" class="btn btn-primary pull-right">
                             <i class=""></i>
                             Back
-                        </a>
+                        </a>--}}
+                        <a href="{{ URL::to('/products')  }}" class="btn btn-danger btn-md btn-icon icon-left pull-right" > <i class="entypo-cancel"></i> Close </a>
                         @if(User::checkCategoryPermission('ItemType','Edit'))
                         <div class="input-group-btn pull-right hidden dropdown" style="width:78px;">
                             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
@@ -97,7 +101,7 @@
                 <thead>
                 <tr>
                     <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
-                    <th width="30%">Title</th>
+                    <th width="26%">Title</th>
                     <th width="20%">Last Updated</th>
                     <th width="10%">Active</th>
                     <th width="20%">Action</th>
@@ -165,6 +169,9 @@
                                     var delete_ = "{{ URL::to('products/itemtypes/{id}/delete')}}";
                                     delete_  = delete_ .replace( '{id}', full[0] );
 
+                                    var url_="{{ URL::to('products/dynamicfields/{id}/view') }}";
+                                    url_  = url_ .replace( '{id}', full[0] );
+
                                     action = '<div class = "hiddenRowData" >';
                                     for(var i = 0 ; i< list_fields.length; i++){
                                         action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
@@ -177,6 +184,11 @@
                                     <?php if(User::checkCategoryPermission('ItemType','Delete') ){ ?>
                                         action += ' <a href="'+delete_+'" data-redirect="{{ URL::to('products')}}" title="Delete"  class="btn delete btn-danger btn-default btn-sm btn-smtooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></a>';
                                      <?php } ?>
+                                     if(full[3]==1) {
+                                         <?php if(User::checkCategoryPermission('DynamicField', 'View') ){ ?>
+                                                 action += '<a href="'+url_+'" data-toggle="tooltip" title="Dynamic Fields"  class="btn btn-default btn-sm btn-smtooltip-primary" style="margin-left:3px;"><i class="glyphicon glyphicon-th"></i> </a>';
+                                         <?php } ?>
+                                     }
                                     return action;
                                 }
                             }
