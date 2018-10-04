@@ -190,14 +190,14 @@ class ProductsController extends \BaseController {
         $data["Amount"] = number_format(str_replace(",","",$data["Amount"]),$roundplaces,".","");
 
         //Product Upload Start
-        $Attachment = !empty($data['ProductImage']) ? 1 : 0;
-        unset($data['ProductImage']);
+        $Attachment = !empty($data['Image']) ? 1 : 0;
+        unset($data['Image']);
 
-        if (Input::hasFile('ProductImage') && $Attachment==1){
+        if (Input::hasFile('Image') && $Attachment==1){
             $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
             $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PRODUCT_ATTACHMENTS'],'',$data['CompanyID']) ;
             $destinationPath = $upload_path . '/' . $amazonPath;
-            $proof = Input::file('ProductImage');
+            $proof = Input::file('Image');
 
             $ext = $proof->getClientOriginalExtension();
             if (in_array(strtolower($ext), array('jpeg','png','jpg','gif'))) {
@@ -208,12 +208,12 @@ class ProductsController extends \BaseController {
                 if(!AmazonS3::upload($destinationPath.$filename,$amazonPath,$data['CompanyID'])){
                     return Response::json(array("status" => "failed", "message" => "Failed to upload."));
                 }
-                $data['ProductImage'] = $amazonPath . $filename;
+                $data['Image'] = $amazonPath . $filename;
             }else{
                 return Response::json(array("status" => "failed", "message" => "Please Upload file with given extensions."));
             }
         }else{
-            unset($data['ProductImage']);
+            unset($data['Image']);
         }
 
         //Product Upload End
@@ -382,14 +382,14 @@ class ProductsController extends \BaseController {
             }
 
             //Product Upload Start
-            $Attachment = !empty($data['ProductImage']) ? 1 : 0;
-            unset($data['ProductImage']);
+            $Attachment = !empty($data['Image']) ? 1 : 0;
+            unset($data['Image']);
 
-            if (Input::hasFile('ProductImage') && $Attachment==1){
+            if (Input::hasFile('Image') && $Attachment==1){
                 $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PRODUCT_ATTACHMENTS'],'',$data['CompanyID']) ;
                 $destinationPath = $upload_path . '/' . $amazonPath;
-                $proof = Input::file('ProductImage');
+                $proof = Input::file('Image');
 
                 $ext = $proof->getClientOriginalExtension();
                 if (in_array(strtolower($ext), array('jpeg','png','jpg','gif'))) {
@@ -400,13 +400,13 @@ class ProductsController extends \BaseController {
                     if(!AmazonS3::upload($destinationPath.$filename,$amazonPath,$data['CompanyID'])){
                         return Response::json(array("status" => "failed", "message" => "Failed to upload."));
                     }
-                    $data['ProductImage'] = $amazonPath . $filename;
+                    $data['Image'] = $amazonPath . $filename;
 
                 }else{
                     return Response::json(array("status" => "failed", "message" => "Please Upload file with given extensions."));
                 }
             }else{
-                unset($data['ProductImage']);
+                unset($data['Image']);
             }
 
             //Product Upload End
@@ -446,8 +446,8 @@ class ProductsController extends \BaseController {
             if(!Product::checkForeignKeyById($id)) {
                 try {
                     $result = Product::find($id);
-                    if(!empty($result->ProductImage)){
-                        AmazonS3::delete($result->ProductImage);
+                    if(!empty($result->Image)){
+                        AmazonS3::delete($result->Image);
                     }
                     $result->delete();
                     if ($result) {
@@ -860,7 +860,7 @@ class ProductsController extends \BaseController {
     }
 
     public function  download_attachment($id){
-        $FileName = Product::where(["ProductID"=>$id])->pluck('ProductImage');
+        $FileName = Product::where(["ProductID"=>$id])->pluck('Image');
         $FilePath =  AmazonS3::preSignedUrl($FileName);
         download_file($FilePath);
 
