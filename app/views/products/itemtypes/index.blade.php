@@ -150,19 +150,7 @@
                                     return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
                                 }
                             },
-                            {
-                                "bSortable": true,
-                                mRender: function (id, type, full) {
-                                    var title_grid = full[1];
-                                    if(full[3]==1){
-                                        var url_="{{ URL::to('products/dynamicfields/{id}/view') }}";
-                                        url_  = url_ .replace( '{id}', full[0] );
-                                        title_grid+='<a href="'+url_+'" data-toggle="tooltip" title="Dynamic Fields"  class="btn btn-primary pull-right"><i class="glyphicon glyphicon-th"></i> </a>';
-                                    }
-                                    return title_grid;
-                                }
-
-                            },  // 1 Title
+                            {  "bSortable": true },  // 1 Title
                             {  "bSortable": true },  // 2 updated_at
                             {  "bSortable": true,
                                 mRender: function (val){
@@ -181,6 +169,9 @@
                                     var delete_ = "{{ URL::to('products/itemtypes/{id}/delete')}}";
                                     delete_  = delete_ .replace( '{id}', full[0] );
 
+                                    var url_="{{ URL::to('products/dynamicfields/{id}/view') }}";
+                                    url_  = url_ .replace( '{id}', full[0] );
+
                                     action = '<div class = "hiddenRowData" >';
                                     for(var i = 0 ; i< list_fields.length; i++){
                                         action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
@@ -193,6 +184,11 @@
                                     <?php if(User::checkCategoryPermission('ItemType','Delete') ){ ?>
                                         action += ' <a href="'+delete_+'" data-redirect="{{ URL::to('products')}}" title="Delete"  class="btn delete btn-danger btn-default btn-sm btn-smtooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></a>';
                                      <?php } ?>
+                                     if(full[3]==1) {
+                                         <?php if(User::checkCategoryPermission('DynamicField', 'View') ){ ?>
+                                                 action += '<a href="'+url_+'" data-toggle="tooltip" title="Dynamic Fields"  class="btn btn-default btn-sm btn-smtooltip-primary" style="margin-left:3px;"><i class="glyphicon glyphicon-th"></i> </a>';
+                                         <?php } ?>
+                                     }
                                     return action;
                                 }
                             }

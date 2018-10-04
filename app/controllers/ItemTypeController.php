@@ -156,6 +156,9 @@ class ItemTypeController extends \BaseController {
         if( intval($id) > 0){
             if(!ItemType::checkForeignKeyById($id)) {
                 try {
+                    //delete its DynamicFields
+                    $DynamicField=DynamicFields::where('ItemTypeID',$id)->delete();
+
                     $result = ItemType::find($id)->delete();
                     if ($result) {
                         return Response::json(array("status" => "success", "message" => "Item Type Successfully Deleted"));
