@@ -190,7 +190,7 @@
                     <label for="field-5" class="control-label col-sm-2">Image <br> (.jpeg, .png, .jpg, .gif)</label>
                     <div class="col-sm-4">
                         <div class="clear clearfix"></div>
-                        <input id="ProductImage" name="ProductImage" type="file" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
+                        <input id="Image" name="Image" type="file" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
                         <div id="download_attach" class="pull-right" style="margin-right: 150px;"></div>
                     </div>
                 </div>
