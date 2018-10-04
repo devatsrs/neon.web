@@ -136,7 +136,7 @@
                 <div class="form-group">
                     <label for="field-5" class="control-label col-sm-2">Buying Price </label>
                     <div class="col-sm-4">
-                        <input type="text" name="Buying_price" class="form-control" id="field-5" placeholder="" maxlength="10">
+                        <input type="text" name="BuyingPrice" class="form-control" id="field-5" placeholder="" maxlength="10">
                     </div>
                     <label for="field-5" class="control-label col-sm-2">Unit Cost(Selling Price) *</label>
                     <div class="col-sm-4">
@@ -156,7 +156,7 @@
                     <label for="field-5" class="control-label col-sm-2">Low Stock Level  <span id="tooltip_lowstock" data-content="Low Stock Reminder will be sent if stock will go below this level" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></label>
 
                     <div class="col-sm-4">
-                        <input type="text" name="Low_stock_level" class="form-control" id="field-5" placeholder="" maxlength="10">
+                        <input type="text" name="LowStockLevel" class="form-control" id="field-5" placeholder="" maxlength="10">
                     </div>
                 </div>
             </div>
