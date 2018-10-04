@@ -1200,6 +1200,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/products/{id}/update', 'ProductsController@update');
 	Route::any('/products/{id}/delete', 'ProductsController@delete');
 	Route::any('/products/ajax_datagrid/{type}', 'ProductsController@ajax_datagrid');
+	Route::any('/product/{id}/download_attachment','ProductsController@download_attachment');
 
 	Route::any('/products/upload', 'ProductsController@upload');
 	Route::any('/products/check_upload', 'ProductsController@check_upload');
@@ -1208,6 +1209,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/products/get_product_by_barcode/{BarCode}', 'ProductsController@getProductByBarCode');
 	Route::any('/products_upload/download_sample_excel_file', 'ProductsController@download_sample_excel_file');
 	Route::any('/products/update_bulk_product_status', 'ProductsController@UpdateBulkProductStatus');
+	Route::any('/products/ajax_datagrid_total', 'ProductsController@ajax_datagrid_total');
 
 	Route::any('/product/{id}/get/{FieldName}', 'ProductsController@get')->where('FieldName', '(.[azAZ]*)+');
     Route::any('/billing_subscription/{id}/get/{FieldName}', 'BillingSubscriptionController@get')->where('FieldName', '(.[azAZ]*)+');
@@ -1229,6 +1231,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/products/dynamicfields/{id}/delete', 'DynamicFieldController@delete');
 	Route::any('/products/dynamicfields/update_bulk_dynamicfields_status', 'DynamicFieldController@UpdateBulkDynamicFieldStatus');
 	Route::any('/products/dynamicfields/delete_bulk_dynamicfields', 'DynamicFieldController@DeleteBulkDynamicField');
+	Route::any('/products/dynamicfields/{id}/view', 'DynamicFieldController@ViewByType');
 
 	Route::any('/products/stockhistory', 'StockHistoryController@index');
 	Route::any('/products/stockhistory/ajax_datagrid/{type}', 'StockHistoryController@ajax_datagrid');

@@ -3041,3 +3041,7 @@ function terminateMysqlProcess($pid){
     DB::connection('sqlsrv2')->select($cmd);
 
 }
+
+function getItemType($id){
+    return ItemType::where('ItemTypeID',$id)->pluck('title');
+}

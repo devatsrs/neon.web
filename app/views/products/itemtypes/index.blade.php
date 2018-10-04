@@ -39,8 +39,11 @@
         <li>
             <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
+        <li>
+            <a href="{{URL::to('products')}}"><i class=""></i>Items</a>
+        </li>
         <li class="active">
-            <a href="javascript:void(0)">Item Types</a>
+            <strong>Item Types</strong>
         </li>
     </ol>
 
@@ -50,10 +53,11 @@
             <div class="clear"></div>
                 <div class="row">
                     <div  class="col-md-12">
-                        <a href="{{ URL::to('/products')  }}" class="btn btn-primary pull-right">
+                        {{--<a href="{{ URL::to('/products')  }}" class="btn btn-primary pull-right">
                             <i class=""></i>
                             Back
-                        </a>
+                        </a>--}}
+                        <a href="{{ URL::to('/products')  }}" class="btn btn-danger btn-md btn-icon icon-left pull-right" > <i class="entypo-cancel"></i> Close </a>
                         @if(User::checkCategoryPermission('ItemType','Edit'))
                         <div class="input-group-btn pull-right hidden dropdown" style="width:78px;">
                             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
@@ -97,7 +101,7 @@
                 <thead>
                 <tr>
                     <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
-                    <th width="30%">Title</th>
+                    <th width="26%">Title</th>
                     <th width="20%">Last Updated</th>
                     <th width="10%">Active</th>
                     <th width="20%">Action</th>
@@ -146,7 +150,19 @@
                                     return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
                                 }
                             },
-                            {  "bSortable": true },  // 1 Title
+                            {
+                                "bSortable": true,
+                                mRender: function (id, type, full) {
+                                    var title_grid = full[1];
+                                    if(full[3]==1){
+                                        var url_="{{ URL::to('products/dynamicfields/{id}/view') }}";
+                                        url_  = url_ .replace( '{id}', full[0] );
+                                        title_grid+='<a href="'+url_+'" data-toggle="tooltip" title="Dynamic Fields"  class="btn btn-primary pull-right"><i class="glyphicon glyphicon-th"></i> </a>';
+                                    }
+                                    return title_grid;
+                                }
+
+                            },  // 1 Title
                             {  "bSortable": true },  // 2 updated_at
                             {  "bSortable": true,
                                 mRender: function (val){

@@ -1,5 +1,5 @@
 <?php
-
+use Illuminate\Support\Facades\Input;
 class ProductsController extends \BaseController {
 
     var $model = 'Product';
@@ -13,6 +13,8 @@ class ProductsController extends \BaseController {
 
     public function ajax_datagrid($type) {
         $data = Input::all();
+        $data['SearchStock']=!empty($data['SearchStock'])?$data['SearchStock']:'';
+        $data['SearchDynamicFields']=!empty($data['SearchDynamicFields'])?$data['SearchDynamicFields']:'';
         $CompanyID = User::get_companyID();
         $data['iDisplayStart'] +=1;
         $columns = ['ProductID','title','Name','Code','Buying_price','Amount','Quantity','updated_at','Active','Description','Note','AppliedTo','Low_stock_level','ItemTypeID'];
@@ -26,7 +28,7 @@ class ProductsController extends \BaseController {
         $DynamicFields = $this->getDynamicFields($CompanyID,$Type);
 
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
+            $excel_data  = DB::connection('sqlsrv2')->select($query.',1,"'.$data['SearchStock'].'","'.$data['SearchDynamicFields'].'")');
             if($DynamicFields['totalfields'] > 0){
                 foreach ($excel_data as $key => $value) {
                     foreach ($DynamicFields['fields'] as $field) {
@@ -60,7 +62,7 @@ class ProductsController extends \BaseController {
                 });
             })->download('xls');*/
         }
-        $query .=',0)';
+        $query .=',0,"'.$data['SearchStock'].'","'.$data['SearchDynamicFields'].'")';
         $data = DataTableSql::of($query,'sqlsrv2')->make(false);
 
         if($DynamicFields['totalfields'] > 0){
@@ -79,7 +81,6 @@ class ProductsController extends \BaseController {
                 }
             }
         }
-
         return Response::json($data);
 //        return DataTableSql::of($query,'sqlsrv2')->make();
     }
@@ -112,6 +113,7 @@ class ProductsController extends \BaseController {
         $data["AppliedTo"] = empty($data['AppliedTo']) ? Product::Customer : $data['AppliedTo'];
         $data['Quantity']=($data['Quantity']!='')?$data['Quantity']:NULL;
         $data['Low_stock_level']=($data['Low_stock_level']!='')?$data['Low_stock_level']:NULL;
+        $data['Buying_price']=empty($data['Buying_price'])?0:$data['Buying_price'];
 
         unset($data['ProductID']);
         unset($data['ProductClone']);
@@ -186,6 +188,35 @@ class ProductsController extends \BaseController {
         }
 
         $data["Amount"] = number_format(str_replace(",","",$data["Amount"]),$roundplaces,".","");
+
+        //Product Upload Start
+        $Attachment = !empty($data['ProductImage']) ? 1 : 0;
+        unset($data['ProductImage']);
+
+        if (Input::hasFile('ProductImage') && $Attachment==1){
+            $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
+            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PRODUCT_ATTACHMENTS'],'',$data['CompanyID']) ;
+            $destinationPath = $upload_path . '/' . $amazonPath;
+            $proof = Input::file('ProductImage');
+
+            $ext = $proof->getClientOriginalExtension();
+            if (in_array(strtolower($ext), array('jpeg','png','jpg','gif'))) {
+
+                $filename = rename_upload_file($destinationPath,$proof->getClientOriginalName());
+
+                $proof->move($destinationPath,$filename);
+                if(!AmazonS3::upload($destinationPath.$filename,$amazonPath,$data['CompanyID'])){
+                    return Response::json(array("status" => "failed", "message" => "Failed to upload."));
+                }
+                $data['ProductImage'] = $amazonPath . $filename;
+            }else{
+                return Response::json(array("status" => "failed", "message" => "Please Upload file with given extensions."));
+            }
+        }else{
+            unset($data['ProductImage']);
+        }
+
+        //Product Upload End
         if ($product = Product::create($data)) {
             //Create Entry For Stock History
             if(isset($data['Quantity']) && $data['Quantity']!='' && intval($data['Quantity'])>0){
@@ -241,6 +272,7 @@ class ProductsController extends \BaseController {
             $data["ModifiedBy"] = $user;
             $data['Quantity']=($data['Quantity']!='')?$data['Quantity']:NULL;
             $data['Low_stock_level']=($data['Low_stock_level']!='')?$data['Low_stock_level']:NULL;
+            $data['Buying_price']=empty($data['Buying_price'])?0:$data['Buying_price'];
             unset($data['ProductClone']);
 
             if(isset($data['Quantity']) && $data['Quantity']!=''){
@@ -348,6 +380,37 @@ class ProductsController extends \BaseController {
             if(isset($data['hDynamicFields'])){
                 unset($data['hDynamicFields']);
             }
+
+            //Product Upload Start
+            $Attachment = !empty($data['ProductImage']) ? 1 : 0;
+            unset($data['ProductImage']);
+
+            if (Input::hasFile('ProductImage') && $Attachment==1){
+                $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
+                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PRODUCT_ATTACHMENTS'],'',$data['CompanyID']) ;
+                $destinationPath = $upload_path . '/' . $amazonPath;
+                $proof = Input::file('ProductImage');
+
+                $ext = $proof->getClientOriginalExtension();
+                if (in_array(strtolower($ext), array('jpeg','png','jpg','gif'))) {
+
+                    $filename = rename_upload_file($destinationPath,$proof->getClientOriginalName());
+
+                    $proof->move($destinationPath,$filename);
+                    if(!AmazonS3::upload($destinationPath.$filename,$amazonPath,$data['CompanyID'])){
+                        return Response::json(array("status" => "failed", "message" => "Failed to upload."));
+                    }
+                    $data['ProductImage'] = $amazonPath . $filename;
+
+                }else{
+                    return Response::json(array("status" => "failed", "message" => "Please Upload file with given extensions."));
+                }
+            }else{
+                unset($data['ProductImage']);
+            }
+
+            //Product Upload End
+            //print_r($data);exit();
             if ($Product->update($data)) {
                 if( !empty($data['Quantity']) && $oldQuantity!=$data['Quantity']){
                     $Reason='Stock Received – qty '.$data['Quantity'];
@@ -382,7 +445,11 @@ class ProductsController extends \BaseController {
         if( intval($id) > 0){
             if(!Product::checkForeignKeyById($id)) {
                 try {
-                    $result = Product::find($id)->delete();
+                    $result = Product::find($id);
+                    if(!empty($result->ProductImage)){
+                        AmazonS3::delete($result->ProductImage);
+                    }
+                    $result->delete();
                     if ($result) {
                         $Type =  Product::DYNAMIC_TYPE;
                         $companyID = User::get_companyID();
@@ -442,6 +509,7 @@ class ProductsController extends \BaseController {
         $CompanyID = User::get_companyID();
         $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_ITEM));
         $DynamicFields = $this->getDynamicFields($CompanyID,$Type);
+
         return View::make('products.upload',compact('UploadTemplate','DynamicFields'));
     }
 
@@ -515,7 +583,6 @@ class ProductsController extends \BaseController {
             $grid['FileUploadTemplate']['Options'] = array();
             $grid['FileUploadTemplate']['Options']['option'] = $data['option'];
             $grid['FileUploadTemplate']['Options']['selection'] = $data['selection'];
-
             return Response::json(array("status" => "success", "message" => "data refreshed", "data" => $grid));
         }catch (Exception $e){
             return Response::json(array("status" => "failed", "message" => $e->getMessage()));
@@ -792,4 +859,56 @@ class ProductsController extends \BaseController {
         }
     }
 
+    public function  download_attachment($id){
+        $FileName = Product::where(["ProductID"=>$id])->pluck('ProductImage');
+        $FilePath =  AmazonS3::preSignedUrl($FileName);
+        download_file($FilePath);
+
+    }
+
+    public function ajax_datagrid_total()
+    {
+        $data 						 = 	Input::all();
+        $data['SearchStock']=!empty($data['SearchStock'])?$data['SearchStock']:'';
+        $data['SearchDynamicFields']=!empty($data['SearchDynamicFields'])?$data['SearchDynamicFields']:'';
+        if($data['AppliedTo'] == ''){
+            $data['AppliedTo'] = 'null';
+        }
+        $data['iDisplayStart'] 		 =	0;
+        $data['iDisplayStart'] 		+=	1;
+        $data['iSortCol_0']			 =  0;
+        $data['sSortDir_0']			 =  'desc';
+        $companyID 					 =  User::get_companyID();
+        $columns = ['ProductID','title','Name','Code','Buying_price','Amount','Quantity','updated_at','Active','Description','Note','AppliedTo','Low_stock_level','ItemTypeID'];
+        $sort_column 				 =  $columns[$data['iSortCol_0']];
+
+        $query = "call prc_getProducts (".$companyID.", '".$data['Name']."','".$data['Code']."','".$data['Active']."',".$data['AppliedTo'].", ".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."','".$data['ItemTypeID']."'";
+
+        if(isset($data['Export']) && $data['Export'] == 1)
+        {
+            $excel_data  = DB::connection('sqlsrv2')->select($query.',1,"'.$data['SearchStock'].'","'.$data['SearchDynamicFields'].'")');
+            $excel_data = json_decode(json_encode($excel_data),true);
+            Excel::create('Invoice', function ($excel) use ($excel_data)
+            {
+                $excel->sheet('Invoice', function ($sheet) use ($excel_data)
+                {
+                    $sheet->fromArray($excel_data);
+                });
+            })->download('xls');
+        }
+
+        $query .=',0,"'.$data['SearchStock'].'","'.$data['SearchDynamicFields'].'")';
+
+        $result   = DataTableSql::of($query,'sqlsrv2')->getProcResult(array('ResultCurrentPage','Total_grand'));
+
+        $result2  = $result['data']['Total_grand'][0]->total_grand;
+        $result4  = array(
+            "total_grand"=>$result2,
+        );
+
+        return json_encode($result4,JSON_NUMERIC_CHECK);
+    }
+
+
 }
+
