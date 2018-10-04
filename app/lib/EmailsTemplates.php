@@ -37,7 +37,8 @@ class EmailsTemplates{
 		"{{Logo}}",
 		"{{InvoiceLink}}",
 		"{{InvoiceNumber}}",
-		"{{DisputeAmount}}"
+		"{{DisputeAmount}}",
+		"{{CreditnotesGrandTotal}}"
 	);
 
 
@@ -236,13 +237,13 @@ class EmailsTemplates{
 
 		$replace_array['CreditNotesNumber']		=	 isset($data['CreditNotesNumber'])?$data['CreditNotesNumber']:$CreditNotesNumber;
 		$RoundChargesAmount 					= 	 get_round_decimal_places($CreditNotesData->AccountID);
-		$replace_array['CreditNotesGrandTotal']	=	 number_format($CreditNotesData->GrandTotal,$RoundChargesAmount);
+		$replace_array['CreditnotesGrandTotal']	=	 number_format($CreditNotesData->GrandTotal,$RoundChargesAmount);
 		//$replace_array['Comment']				=	 isset($data['Comment'])?$data['Comment']:EmailsTemplates::GetCreditNotesComments($CreditNotesID);
 
 
 		$extraSpecific = [
 			'{{CreditNotesNumber}}',
-			'{{CreditNotesGrandTotal}}',
+			'{{CreditnotesGrandTotal}}',
 			"{{CreditNotesLink}}",
 			"{{Comment}}",
 			"{{Message}}",
