@@ -50,6 +50,7 @@ class AmazonS3 {
         'GATEWAY_KEY'=>'GatewayKey',
         'DIGITAL_SIGNATURE_KEY'=>'DigitalSignature',
         'BULK_DISPUTE_MAIL_ATTACHEMENT'=>'bulkdisputemailattachment',
+        'PRODUCT_ATTACHMENTS'=>'ProductAttachment',
     );
 
     // Instantiate an S3 client
