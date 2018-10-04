@@ -146,7 +146,7 @@
             </table>
             <script type="text/javascript">
                 var checked = '';
-                var list_fields  = ['ProductID','title','Name','Code','Buying_price','Amount','Quantity','updated_at','Active','Description','Note','AppliedTo','Low_stock_level','ItemTypeID','ProductImage'];
+                var list_fields  = ['ProductID','title','Name','Code','BuyingPrice','Amount','Quantity','updated_at','Active','Description','Note','AppliedTo','LowStockLevel','ItemTypeID','Image'];
                 var $searchFilter = {};
                 var update_new_url;
                 var postdata;
@@ -172,7 +172,7 @@
                             aoData.push({ "name": "ItemTypeID", "value": $searchFilter.ItemTypeID },
                                         { "name": "Name", "value": $searchFilter.Name },
                                         { "name": "Code","value": $searchFilter.Code },
-                                        { "name": "Low_stock_level","value": $searchFilter.Low_stock_level },
+                                        { "name": "LowStockLevel","value": $searchFilter.Low_stock_level },
                                         { "name": "Active", "value": $searchFilter.Active },
                                         { "name": "AppliedTo", "value": $searchFilter.AppliedTo },
                                         { "name": "SearchStock", "value": $searchFilter.SearchStock },
@@ -328,7 +328,7 @@
                                 "ItemTypeID": $searchFilter.ItemTypeID,
                                 "Name": $searchFilter.Name,
                                 "Code": $searchFilter.Code,
-                                "Low_stock_level": $searchFilter.Low_stock_level,
+                                "LowStockLevel": $searchFilter.Low_stock_level,
                                 "Active":$searchFilter.Active,
                                 "AppliedTo":$searchFilter.AppliedTo,
                                 "SearchStock": $searchFilter.SearchStock,
@@ -486,7 +486,7 @@
                                 }
                             }else if(list_fields[i] == 'AppliedTo'){
                                 $("#add-edit-product-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
-                            }else if(list_fields[i] == 'ProductImage'){
+                            }else if(list_fields[i] == 'Image'){
                                 //For Attachment
                                 var field_value = cur_obj.find("input[name='"+list_fields[i]+"']").val();
                                 if(field_value!='' && typeof(field_value)!='undefined'){
@@ -534,7 +534,7 @@
                                 }
                             }else if(list_fields[i] == 'AppliedTo'){
                                 $("#add-edit-product-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
-                            }else if(list_fields[i] == 'ProductImage'){
+                            }else if(list_fields[i] == 'Image'){
                                 //For Attachment
 
 

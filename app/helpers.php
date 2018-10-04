@@ -2867,7 +2867,7 @@ function StockHistoryCalculations($data=array()){
     $StockData=array();
     foreach($data as $stockarr){
         if($stockarr['CompanyID'] > 0 && $stockarr['ProductID'] > 0 && $stockarr['Qty'] >0){
-            $getProduct = Product::where(['ProductID'=>$stockarr['ProductID'],'Enable_stock'=>1])->first();
+            $getProduct = Product::where(['ProductID'=>$stockarr['ProductID'],'EnableStock'=>1])->first();
 
             if(!empty($getProduct)){
                 $pname=$getProduct['Name'];
@@ -2876,7 +2876,7 @@ function StockHistoryCalculations($data=array()){
                 if (!empty($getPrevProductHistory)) {
                     $pstock = intval($getPrevProductHistory['Stock']);
                     $remainStock = $pstock - $stockarr['Qty'];
-                    $low_stock_level=intval($getProduct['Low_stock_level']);
+                    $low_stock_level=intval($getProduct['LowStockLevel']);
                     if ($remainStock < 0 || $remainStock <= $low_stock_level) {
                         $Error[] = "Invoiced qty is more then available qty: Item {" . $pcode."}";
                     }
@@ -2930,10 +2930,10 @@ function stockHistoryUpdateCalculations($data=array()){
                 $InvoiceNo=$getStockHistory['InvoiceNumber'];
                 if($stockarr['Reason']=='delete_prodstock'){
                     //if Delete Stock
-                    $getProduct = Product::where(['ProductID'=>$stockarr['ProductID'],'Enable_stock'=>1])->first();
+                    $getProduct = Product::where(['ProductID'=>$stockarr['ProductID'],'EnableStock'=>1])->first();
                     if (!empty($getProduct)) {
                         $pname = $getProduct['Name'];
-                        $low_stock_level = intval($getProduct['Low_stock_level']);
+                        $low_stock_level = intval($getProduct['LowStockLevel']);
                         $updatedStock = $hStock + $stockarr['oldQty'];
                         $reason=$pname.' Deleted. Item Quantity '.$stockarr['Qty'].' Revert back to Stock.';
 
@@ -2952,12 +2952,12 @@ function stockHistoryUpdateCalculations($data=array()){
                     }
                 }else{
                     if($stockarr['oldQty']!=$stockarr['Qty']) {
-                        $getProduct = Product::where(['ProductID'=>$stockarr['ProductID'],'Enable_stock'=>1])->first();
+                        $getProduct = Product::where(['ProductID'=>$stockarr['ProductID'],'EnableStock'=>1])->first();
                         if (!empty($getProduct)) {
                             $pstock = $getProduct['Quantity'];
                             $pname = $getProduct['Name'];
                             $pcode = $getProduct['Code'];
-                            $low_stock_level = intval($getProduct['Low_stock_level']);
+                            $low_stock_level = intval($getProduct['LowStockLevel']);
                             if ($stockarr['Qty'] > $stockarr['oldQty']) {
                                 $diffQuantity = $stockarr['Qty'] - $stockarr['oldQty'];
                                 $updatedStock = $hStock - $diffQuantity;
