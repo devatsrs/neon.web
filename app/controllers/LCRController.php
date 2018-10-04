@@ -25,15 +25,15 @@ class LCRController extends \BaseController {
             NeonCookie::setCookie('LCRGroupBy',$data['GroupBy'],60);
         }
 
+        $data['merge_timezones'] = $data['merge_timezones'] == 'true' ? 1 : 0;
+        $data['Timezones'] = $data['merge_timezones'] == 1 ? $data['TimezonesMerged'] : $data['Timezones'];
+
         if( $data['Policy'] == LCR::LCR ) {
-
             //log::info("call prc_GetLCR (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."',0)");
-            $query = "call prc_GetLCR (".$companyID.",".$data['Trunk'].",".$data['Timezones'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."','".intval($data['vendor_block'])."','".$data['GroupBy']."','".$data['SelectedEffectiveDate']."','".intval($data['show_all_vendor_codes'])."' ";
+            $query = "call prc_GetLCR (".$companyID.",".$data['Trunk'].",'".$data['Timezones']."',".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."','".intval($data['vendor_block'])."','".$data['GroupBy']."','".$data['SelectedEffectiveDate']."','".intval($data['show_all_vendor_codes'])."' ,'".$data['merge_timezones']."' ,'".intval($data['TakePrice'])."' ";
         } else {
-
             //log::info("call prc_GetLCRwithPrefix (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."','".$data['GroupBy']."',0)");
-            $query = "call prc_GetLCRwithPrefix (".$companyID.",".$data['Trunk'].",".$data['Timezones'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."','".intval($data['vendor_block'])."','".$data['GroupBy']."','".$data['SelectedEffectiveDate']."' ,'".intval($data['show_all_vendor_codes'])."' ";
-
+            $query = "call prc_GetLCRwithPrefix (".$companyID.",".$data['Trunk'].",'".$data['Timezones']."',".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."','".intval($data['vendor_block'])."','".$data['GroupBy']."','".$data['SelectedEffectiveDate']."' ,'".intval($data['show_all_vendor_codes'])."' ,'".$data['merge_timezones']."' ,'".intval($data['TakePrice'])."' ";
         }
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
@@ -128,7 +128,9 @@ class LCRController extends \BaseController {
                 ->join('tblAccount as acc', 'cr.CustomerID', '=', 'acc.AccountID')
                 ->join('tblCustomerTrunk as ct', 'acc.AccountID', '=', 'ct.AccountID')
                 ->join('tblCurrency as c', 'c.CurrencyId', '=', 'acc.CurrencyId')
+                ->join('tblTimezones as tz', 'tz.TimezonesID', '=', 'cr.TimezonesID')
                 ->where('r.Code', '=', $postdata['code'])
+                ->where('cr.TimezonesID', '=', $postdata['TimezonesID'])
                 ->where('acc.Status', '=', '1')
                 ->where('acc.IsCustomer', '=', '1')
                 ->groupby('acc.AccountName')
@@ -141,7 +143,9 @@ class LCRController extends \BaseController {
                 ->join('tblAccount as acc', 'cr.CustomerID', '=', 'acc.AccountID')
                 ->join('tblCustomerTrunk as ct', 'acc.AccountID', '=', 'ct.AccountID')
                 ->join('tblCurrency as c', 'c.CurrencyId', '=', 'acc.CurrencyId')
+                ->join('tblTimezones as tz', 'tz.TimezonesID', '=', 'cr.TimezonesID')
                 ->where('r.Description', '=', $postdata['code'])
+                ->where('cr.TimezonesID', '=', $postdata['TimezonesID'])
                 ->where('acc.Status', '=', '1')
                 ->where('acc.IsCustomer', '=', '1')
                 ->where('ct.Status', '=', '1')
