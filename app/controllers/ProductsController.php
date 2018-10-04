@@ -17,7 +17,7 @@ class ProductsController extends \BaseController {
         $data['SearchDynamicFields']=!empty($data['SearchDynamicFields'])?$data['SearchDynamicFields']:'';
         $CompanyID = User::get_companyID();
         $data['iDisplayStart'] +=1;
-        $columns = ['ProductID','title','Name','Code','Buying_price','Amount','Quantity','updated_at','Active','Description','Note','AppliedTo','Low_stock_level','ItemTypeID'];
+        $columns = ['ProductID','title','Name','Code','BuyingPrice','Amount','Quantity','updated_at','Active','Description','Note','AppliedTo','LowStockLevel','ItemTypeID'];
         $sort_column = $columns[$data['iSortCol_0']];
         if($data['AppliedTo'] == ''){
             $data['AppliedTo'] = 'null';
@@ -112,14 +112,14 @@ class ProductsController extends \BaseController {
         $data["CreatedBy"] = User::get_user_full_name();
         $data["AppliedTo"] = empty($data['AppliedTo']) ? Product::Customer : $data['AppliedTo'];
         $data['Quantity']=($data['Quantity']!='')?$data['Quantity']:NULL;
-        $data['Low_stock_level']=($data['Low_stock_level']!='')?$data['Low_stock_level']:NULL;
-        $data['Buying_price']=empty($data['Buying_price'])?0:$data['Buying_price'];
+        $data['LowStockLevel']=($data['LowStockLevel']!='')?$data['LowStockLevel']:NULL;
+        $data['BuyingPrice']=empty($data['BuyingPrice'])?0:$data['BuyingPrice'];
 
         unset($data['ProductID']);
         unset($data['ProductClone']);
 
         if(isset($data['Quantity']) && $data['Quantity']!=''){
-            $data['Enable_stock']=1;
+            $data['EnableStock']=1;
         }
 
         if(isset($data['DynamicFields'])) {
@@ -271,14 +271,14 @@ class ProductsController extends \BaseController {
             $data['Active'] = isset($data['Active']) ? 1 : 0;
             $data["ModifiedBy"] = $user;
             $data['Quantity']=($data['Quantity']!='')?$data['Quantity']:NULL;
-            $data['Low_stock_level']=($data['Low_stock_level']!='')?$data['Low_stock_level']:NULL;
-            $data['Buying_price']=empty($data['Buying_price'])?0:$data['Buying_price'];
+            $data['LowStockLevel']=($data['LowStockLevel']!='')?$data['LowStockLevel']:NULL;
+            $data['BuyingPrice']=empty($data['BuyingPrice'])?0:$data['BuyingPrice'];
             unset($data['ProductClone']);
 
             if(isset($data['Quantity']) && $data['Quantity']!=''){
-                $data['Enable_stock']=1;
+                $data['EnableStock']=1;
             }else{
-                $data['Enable_stock']=0;
+                $data['EnableStock']=0;
             }
 
 
@@ -879,7 +879,7 @@ class ProductsController extends \BaseController {
         $data['iSortCol_0']			 =  0;
         $data['sSortDir_0']			 =  'desc';
         $companyID 					 =  User::get_companyID();
-        $columns = ['ProductID','title','Name','Code','Buying_price','Amount','Quantity','updated_at','Active','Description','Note','AppliedTo','Low_stock_level','ItemTypeID'];
+        $columns = ['ProductID','title','Name','Code','BuyingPrice','Amount','Quantity','updated_at','Active','Description','Note','AppliedTo','LowStockLevel','ItemTypeID'];
         $sort_column 				 =  $columns[$data['iSortCol_0']];
 
         $query = "call prc_getProducts (".$companyID.", '".$data['Name']."','".$data['Code']."','".$data['Active']."',".$data['AppliedTo'].", ".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."','".$data['ItemTypeID']."'";
