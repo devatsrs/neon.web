@@ -1021,9 +1021,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/creditnotes', 'CreditNotesController@index');
 	Route::any('/creditnotes/create', 'CreditNotesController@create');
 	Route::any('/creditnotes/store', 'CreditNotesController@store');
-	Route::any('/creditnotes/bulk_send_invoice_mail', 'CreditNotesController@bulk_send_invoice_mail');
-	Route::any('/creditnotes/bulk_print_invoice', 'CreditNotesController@bulk_print_invoice');
-	Route::any('/creditnotes/invoice_regen', 'CreditNotesController@invoice_regen');
+	Route::any('/creditnotes/bulk_send_creditnote_mail', 'CreditNotesController@bulk_send_creditnote_mail');
 	Route::any('/creditnotes/{id}/edit', 'CreditNotesController@edit');
 	Route::any('/creditnotes/{id}/delete', 'CreditNotesController@delete');
 	Route::any('/creditnotes/{id}/view', 'CreditNotesController@view');
