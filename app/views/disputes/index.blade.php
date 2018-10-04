@@ -34,7 +34,7 @@
                     {{ Form::select('Status', Dispute::$Status, Dispute::PENDING, array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
                 </div>
                 <div class="form-group">
-                    <label class="control-label">Tag</label>
+                    <label class="control-label">Account Tag</label>
                     <input class="form-control tags" name="tag" type="text" >
                 </div>
                 <div class="form-group">
