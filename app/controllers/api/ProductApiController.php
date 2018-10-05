@@ -42,14 +42,14 @@ class ProductApiController extends ApiController {
 			$data['InvoiceID']='';
 		}
 		$InvoiceNo=Invoice::where('InvoiceID',$data['InvoiceID'])->pluck('FullInvoiceNumber');
-		$getProduct = Product::where(['CompanyID'=>$CompanyID,'ProductID'=>$data['ProductID'],'Enable_stock'=>1])->first();
+		$getProduct = Product::where(['CompanyID'=>$CompanyID,'ProductID'=>$data['ProductID'],'EnableStock'=>1])->first();
 		if(!empty($getProduct)){
 			$pname=$getProduct['Name'];
 			$getPrevProductHistory = StockHistory::where(['CompanyID'=>$CompanyID,'ProductID'=>$data['ProductID']])->orderby('StockHistoryID', 'desc')->first();
 			if (!empty($getPrevProductHistory)) {
 				$pstock = intval($getPrevProductHistory['Stock']);
 				$remainStock = $pstock - $data['Qty'];
-				$low_stock_level=intval($getProduct['Low_stock_level']);
+				$low_stock_level=intval($getProduct['LowStockLevel']);
 				if ($remainStock < 0 || $remainStock <= $low_stock_level) {
 					$message = $pname . " is below the Lowlevel Stock.Available Stock is " . $remainStock;
 				}

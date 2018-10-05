@@ -1599,13 +1599,13 @@ class CreditNotesController extends \BaseController {
             else
             {
                 $status['status'] 					= "success";
-                $CreditNotes->update(['CreditNotesStatus' => CreditNotes::SEND ]);
+                //$CreditNotes->update(['CreditNotesStatus' => CreditNotes::SEND ]);
 
                 $creditnotesloddata = array();
                 $creditnotesloddata['CreditNotesID']= $CreditNotes->CreditNotesID;
                 $creditnotesloddata['Note']= 'Sent By '.$CreatedBy;
                 $creditnotesloddata['created_at']= date("Y-m-d H:i:s");
-                $creditnotesloddata['CreditNotesLogStatus']= CreditNotesLog::SENT;
+                //$creditnotesloddata['CreditNotesLogStatus']= CreditNotesLog::SENT;
                 CreditNotesLog::insert($creditnotesloddata);
 
                 /*
@@ -1680,20 +1680,12 @@ class CreditNotesController extends \BaseController {
         }
         return $status;
     }
-    public function bulk_send_creditnotes_mail(){
+    public function bulk_send_creditnote_mail(){
         $data = Input::all();
         $companyID = User::get_companyID();
-        if(!empty($data['criteria'])){
-            $creditnotesid = $this->getCreditNotessIdByCriteria($data);
-            $creditnotesid = rtrim($creditnotesid,',');
-            $data['CreditNotesIDs'] = $creditnotesid;
-            unset($data['criteria']);
-        }
-        else{
-            unset($data['criteria']);
-        }
+        unset($data['criteria']);
 
-        $jobType = JobType::where(["Code" => 'BIS'])->get(["JobTypeID", "Title"]);
+        $jobType = JobType::where(["Code" => 'BCS'])->get(["JobTypeID", "Title"]);
         $jobStatus = JobStatus::where(["Code" => "P"])->get(["JobStatusID"]);
         $jobdata["CompanyID"] = $companyID;
         $jobdata["JobTypeID"] = isset($jobType[0]->JobTypeID) ? $jobType[0]->JobTypeID : '';
@@ -1707,7 +1699,7 @@ class CreditNotesController extends \BaseController {
         $jobdata["updated_at"] = date('Y-m-d H:i:s');
         $JobID = Job::insertGetId($jobdata);
         if($JobID){
-            return Response::json(array("status" => "success", "message" => "Bulk CreditNotes Send Job Added in queue to process.You will be notified once job is completed. "));
+            return Response::json(array("status" => "success", "message" => "Bulk Credit Notes Send Job Added in queue to process.You will be notified once job is completed. "));
         }else{
             return Response::json(array("status" => "success", "message" => "Problem Creating Job Bulk CreditNotes Send."));
         }

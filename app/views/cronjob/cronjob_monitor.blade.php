@@ -163,7 +163,7 @@
 
                                 mRender: function ( RunningTime, type, full ) {
                                     var PID =  full[1];
-                                    if(PID > 0){
+                                    if(PID != ''){
                                         RunningTime = RunningTime.replace("0 Hours, ", "")
                                         RunningTime = RunningTime.replace("0 Minutes, ", "");
                                         return RunningTime;

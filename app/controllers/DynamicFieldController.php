@@ -17,7 +17,6 @@ class DynamicFieldController extends \BaseController {
         $data['iDisplayStart'] +=1;
         $columns = ['DynamicFieldsID','title','FieldName','FieldDomType','created_at','Status','FieldDescription','FieldOrder','FieldSlug','Type','ItemTypeID','Minimum','Maximum','DefaultValue','SelectVal'];
         $sort_column = $columns[$data['iSortCol_0']];
-
         $query = "call prc_getDynamicTypes (".$CompanyID.", '".$data['FieldName']."','".$data['FieldDomType']."','".$data['Active']."','product','".$data['ItemTypeID']."', ".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
@@ -97,7 +96,7 @@ class DynamicFieldController extends \BaseController {
         }
 
         //Check FieldName duplicate
-        $cnt_duplidate = DynamicFields::where('FieldName',$data['FieldName'])->get()->count();
+        $cnt_duplidate = DynamicFields::where('FieldName',$data['FieldName'])->where('ItemTypeID',$data['ItemTypeID'])->get()->count();
         if($cnt_duplidate > 0){
             return Response::json(array("status" => "failed", "message" => "Dynamic Field With This Name Already Exists."));
         }
@@ -152,7 +151,7 @@ class DynamicFieldController extends \BaseController {
             }
 
             //Check FieldName duplicate
-            $cnt_duplidate = DynamicFields::where('FieldName',$data['FieldName'])->where('DynamicFieldsID','!=',$dynamicfield->DynamicFieldsID)->get()->count();
+            $cnt_duplidate = DynamicFields::where('FieldName',$data['FieldName'])->where('ItemTypeID',$data['ItemTypeID'])->where('DynamicFieldsID','!=',$dynamicfield->DynamicFieldsID)->get()->count();
             if($cnt_duplidate > 0){
                 return Response::json(array("status" => "failed", "message" => "Dynamic Field With This Name Already Exists."));
             }
@@ -343,6 +342,22 @@ class DynamicFieldController extends \BaseController {
             return Response::json(array("status" => "failed", "message" => "No Dynamic Field status selected"));
         }
 
+    }
+
+    public function getDynamicFieldsByItemType($CompanyID, $Type=Product::DYNAMIC_TYPE,$ItemTypeID){
+        $dynamicFields['fields'] = DynamicFields::where(['Type'=>$Type,'CompanyID'=>$CompanyID,'Status'=>1,'ItemTypeID'=>$ItemTypeID])->get();
+        $dynamicFields['totalfields'] = count($dynamicFields['fields']);
+
+        return $dynamicFields;
+    }
+
+    public function ViewByType($ItemTypeID){
+        $Type =  Product::DYNAMIC_TYPE;
+        $companyID = User::get_companyID();
+        $gateway = CompanyGateway::getCompanyGatewayIdList();
+        $DynamicFields = $this->getDynamicFieldsByItemType($companyID,$Type,$ItemTypeID);
+        $itemtypes 	= 	ItemType::getItemTypeDropdownList($companyID);
+        return View::make('products.dynamicfields.index', compact('id','gateway','DynamicFields','itemtypes','ItemTypeID'));
     }
 
 }
