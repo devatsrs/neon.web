@@ -8625,12 +8625,6 @@ END//
 DELIMITER ;
 
 
-
-
-/* Above Done on Staging */
-
-
-
 USE StagingReport;
 
 DROP PROCEDURE IF EXISTS `fnUsageSummary`;
@@ -11721,3 +11715,724 @@ BEGIN
 END//
 DELIMITER ;
 
+
+
+ALTER TABLE `tblProduct`
+	ADD COLUMN `ProductImage` TEXT NULL DEFAULT NULL AFTER `Enable_stock`;
+	
+
+DROP PROCEDURE IF EXISTS `prc_getProducts`;
+DELIMITER //
+CREATE PROCEDURE `prc_getProducts`(
+	IN `p_CompanyID` INT,
+	IN `p_Name` VARCHAR(50),
+	IN `p_Code` VARCHAR(50),
+	IN `p_Active` VARCHAR(1),
+	IN `p_AppliedTo` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_ItemTypeID` INT,
+	IN `p_Export` INT,
+	IN `SearchStock` VARCHAR(50),
+	IN `SearchDynamicFields` VARCHAR(255)
+
+
+
+
+
+)
+    DETERMINISTIC
+BEGIN
+     DECLARE v_OffSet_ int;
+	  DECLARE p_cntProduct int;
+	  DECLARE v_Round_ int;
+	  DECLARE v_TotalCount int;
+	  
+     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	      
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+	
+	DROP TEMPORARY TABLE IF EXISTS tmp_SearchProducts_;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_SearchProducts_(
+		ProductID INT		
+	);
+	
+	IF SearchDynamicFields !='' THEN
+		INSERT INTO tmp_SearchProducts_(ProductID)
+		SELECT 
+			dfv.ParentID
+		FROM  Ratemanagement3.tblDynamicFieldsValue dfv
+		INNER JOIN Ratemanagement3.tblDynamicFields df
+		ON df.DynamicFieldsID=dfv.DynamicFieldsID
+		INNER JOIN tblProduct b
+		ON b.ProductID = dfv.ParentID
+		WHERE 
+		dfv.FieldValue like  CONCAT('%',SearchDynamicFields,'%')
+		AND df.`Type`='product'
+		AND df.Status=1
+		AND dfv.CompanyID=p_CompanyID
+		AND df.FieldDomType!='file'
+		GROUP BY dfv.ParentID;
+		
+	END IF;
+	
+	SELECT COUNT(*) as cnt INTO p_cntProduct FROM tmp_SearchProducts_;  	
+	
+	 if p_Export = 0
+	THEN
+	
+    SELECT   
+			tblProduct.ProductID,
+			tblItemType.title,
+			tblProduct.Name,
+			tblProduct.Code,
+			tblProduct.Buying_price,
+			tblProduct.Amount,
+			tblProduct.Quantity,
+			tblProduct.updated_at,
+			tblProduct.Active,
+			tblProduct.Description,
+			tblProduct.Note,
+			tblProduct.AppliedTo,
+			tblProduct.Low_stock_level,
+			tblProduct.ItemTypeID,
+			tblProduct.ProductImage	
+            from tblProduct LEFT JOIN tblItemType ON tblProduct.ItemTypeID = tblItemType.ItemTypeID
+            LEFT JOIN tmp_SearchProducts_ ON tmp_SearchProducts_.ProductID=tblProduct.ProductID
+            where tblProduct.CompanyID = p_CompanyID
+			AND (p_Name ='' OR tblProduct.Name like Concat('%',p_Name,'%'))
+				AND ((p_ItemTypeID ='' OR tblProduct.ItemTypeID like CONCAT(p_ItemTypeID,'%')))
+            AND((p_Code ='' OR tblProduct.Code like CONCAT(p_Code,'%')))
+            AND((p_Active = '' OR tblProduct.Active = p_Active))
+            AND((p_AppliedTo is null OR tblProduct.AppliedTo = p_AppliedTo))
+            AND (SearchStock='' OR 
+			 	(
+					 CASE WHEN SearchStock='Instock' THEN 
+					 	tblProduct.Quantity > 0 
+					 WHEN SearchStock='LowLevel' THEN 
+					 	tblProduct.Quantity < tblProduct.Low_stock_level 
+				    WHEN SearchStock='Outstock' THEN 
+					 	tblProduct.Quantity < 0 
+					 ELSE 
+					 	SearchStock=''  
+					 END 
+			   )
+		     )
+		       AND(p_cntProduct = 0 OR tmp_SearchProducts_.ProductID IS NOT NULL)
+         ORDER BY
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'NameDESC') THEN Name
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'NameASC') THEN Name
+                END ASC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeDESC') THEN Code
+                END DESC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeASC') THEN Code
+                END ASC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AmountDESC') THEN Amount
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AmountASC') THEN Amount
+                END ASC,
+            CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'Buying_priceDESC') THEN Buying_price
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'Buying_priceASC') THEN Buying_price
+                END ASC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'QuantityDESC') THEN Quantity
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'QuantityASC') THEN Quantity
+                END ASC,
+                
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atDESC') THEN tblProduct.updated_at
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atASC') THEN tblProduct.updated_at
+                END ASC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ActiveDESC') THEN tblProduct.Active
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ActiveASC') THEN tblProduct.Active
+                END ASC
+            LIMIT p_RowspPage OFFSET v_OffSet_;
+            
+				
+				SELECT
+            COUNT(tblProduct.ProductID) INTO v_TotalCount
+            from tblProduct LEFT JOIN tblItemType ON tblProduct.ItemTypeID = tblItemType.ItemTypeID
+            LEFT JOIN tmp_SearchProducts_ ON tmp_SearchProducts_.ProductID=tblProduct.ProductID
+            where tblProduct.CompanyID = p_CompanyID
+			AND (p_Name ='' OR tblProduct.Name like Concat('%',p_Name,'%'))
+				AND ((p_ItemTypeID ='' OR tblProduct.ItemTypeID like CONCAT(p_ItemTypeID,'%')))
+            AND((p_Code ='' OR tblProduct.Code like CONCAT(p_Code,'%')))
+            AND((p_Active = '' OR tblProduct.Active = p_Active))
+            AND((p_AppliedTo is null OR tblProduct.AppliedTo = p_AppliedTo))
+            AND (SearchStock='' OR 
+			 	(
+					 CASE WHEN SearchStock='Instock' THEN 
+					 	tblProduct.Quantity > 0 
+					 WHEN SearchStock='LowLevel' THEN 
+					 	tblProduct.Quantity < tblProduct.Low_stock_level 
+				    WHEN SearchStock='Outstock' THEN 
+					 	tblProduct.Quantity < 0 
+					 ELSE 
+					 	SearchStock=''  
+					 END 
+			   )
+		     )
+		       AND(p_cntProduct = 0 OR tmp_SearchProducts_.ProductID IS NOT NULL);
+		       
+	   SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+	   
+	   SELECT 
+	   	v_TotalCount as totalcount,
+	   	ROUND(sum(tblProduct.Quantity),v_Round_) as total_grand
+   	from tblProduct LEFT JOIN tblItemType ON tblProduct.ItemTypeID = tblItemType.ItemTypeID
+         LEFT JOIN tmp_SearchProducts_ ON tmp_SearchProducts_.ProductID=tblProduct.ProductID
+         where tblProduct.CompanyID = p_CompanyID
+		AND (p_Name ='' OR tblProduct.Name like Concat('%',p_Name,'%'))
+			AND ((p_ItemTypeID ='' OR tblProduct.ItemTypeID like CONCAT(p_ItemTypeID,'%')))
+         AND((p_Code ='' OR tblProduct.Code like CONCAT(p_Code,'%')))
+         AND((p_Active = '' OR tblProduct.Active = p_Active))
+         AND((p_AppliedTo is null OR tblProduct.AppliedTo = p_AppliedTo))
+         AND (SearchStock='' OR 
+		 	(
+				 CASE WHEN SearchStock='Instock' THEN 
+				 	tblProduct.Quantity > 0 
+				 WHEN SearchStock='LowLevel' THEN 
+				 	tblProduct.Quantity < tblProduct.Low_stock_level 
+			    WHEN SearchStock='Outstock' THEN 
+				 	tblProduct.Quantity < 0 
+				 ELSE 
+				 	SearchStock=''  
+				 END 
+		   )
+	     )
+	       AND(p_cntProduct = 0 OR tmp_SearchProducts_.ProductID IS NOT NULL);
+	   	
+	   	
+
+	ELSE
+
+			SELECT
+			tblProduct.ProductID,
+			tblItemType.title,
+			tblProduct.Name,
+			tblProduct.Code,
+			tblProduct.Buying_price,
+			tblProduct.Amount,
+			tblProduct.Quantity,
+			tblProduct.updated_at,
+			tblProduct.Active,
+			tblProduct.Description,
+			tblProduct.Note,
+			tblProduct.AppliedTo,
+			tblProduct.Low_stock_level,
+			tblProduct.ItemTypeID	
+            from tblProduct LEFT JOIN tblItemType ON tblProduct.ItemTypeID = tblItemType.ItemTypeID
+            LEFT JOIN tmp_SearchProducts_ ON tmp_SearchProducts_.ProductID=tblProduct.ProductID
+			where tblProduct.CompanyID = p_CompanyID
+			AND (p_Name ='' OR tblProduct.Name like Concat('%',p_Name,'%'))
+				AND ((p_ItemTypeID ='' OR tblProduct.ItemTypeID like CONCAT(p_ItemTypeID,'%')))
+            AND((p_Code ='' OR tblProduct.Code like CONCAT(p_Code,'%')))
+            AND((p_Active = '' OR tblProduct.Active = p_Active))
+            AND((p_AppliedTo is null OR tblProduct.AppliedTo = p_AppliedTo))
+            AND (SearchStock='' OR 
+			 	(
+					 CASE WHEN SearchStock='Instock' THEN 
+					 	tblProduct.Quantity > 0 
+					 WHEN SearchStock='LowLevel' THEN 
+					 	tblProduct.Quantity < tblProduct.Low_stock_level 
+				    WHEN SearchStock='Outstock' THEN 
+					 	tblProduct.Quantity < 0 
+					 ELSE 
+					 	SearchStock=''  
+					 END 
+			   )
+		     )
+		       AND(p_cntProduct = 0 OR tmp_SearchProducts_.ProductID IS NOT NULL);
+
+	END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+	
+END//
+DELIMITER ;
+
+
+
+ALTER TABLE `tblProduct`
+	CHANGE COLUMN `Buying_price` `BuyingPrice` DECIMAL(18,2) NULL DEFAULT NULL AFTER `ItemTypeID`;
+	
+ALTER TABLE `tblProduct`
+	CHANGE COLUMN `Low_stock_level` `LowStockLevel` INT(11) NULL DEFAULT NULL AFTER `Quantity`;	
+
+ALTER TABLE `tblProduct`
+	CHANGE COLUMN `Enable_stock` `EnableStock` TINYINT(1) NULL DEFAULT '0' AFTER `LowStockLevel`;
+	
+DROP PROCEDURE IF EXISTS `prc_getProductsByItemType`;
+DELIMITER //
+CREATE PROCEDURE `prc_getProductsByItemType`(
+	IN `p_CompanyID` INT,
+	IN `p_ItemType` VARCHAR(50),
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_Name` VARCHAR(255),
+	IN `p_Description` VARCHAR(255)
+
+)
+    DETERMINISTIC
+BEGIN
+	DECLARE v_OffSet_ int;
+	DECLARE v_fieldName VARCHAR(255);
+		
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+	
+	DROP TEMPORARY TABLE IF EXISTS tmp_products;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_products(
+		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		ProductID INT,
+		ItemTypeID INT		
+	);
+	
+	DROP TEMPORARY TABLE IF EXISTS tmp_products_fields;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_products_fields(
+		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		DynamicFieldsID INT(11),
+		FieldName Varchar(100),
+		FieldType Varchar(100)
+	);
+		
+
+	IF p_ItemType!='' THEN
+	
+		INSERT INTO tmp_products (ProductID,ItemTypeID)
+			SELECT
+					tblProduct.ProductID,
+					tblProduct.ItemTypeID
+			FROM tblItemType
+			INNER JOIN  tblProduct 
+				ON tblProduct.ItemTypeID=tblItemType.ItemTypeID
+			WHERE 
+				tblProduct.CompanyId=p_CompanyID
+				AND tblItemType.title=p_ItemType
+				AND tblProduct.Quantity > 0
+				AND tblProduct.Active=1
+				AND(
+						(p_Name ='' OR tblProduct.Name like CONCAT(p_Name,'%'))
+					OR
+						(p_Description ='' OR tblProduct.Description like CONCAT('%',p_Description,'%'))	
+					)
+				
+			 LIMIT p_RowspPage OFFSET v_OffSet_;
+			 
+			 
+			 
+	ELSE 
+	
+		INSERT INTO tmp_products (ProductID,ItemTypeID)
+			SELECT
+				tblProduct.ProductID,
+				tblProduct.ItemTypeID
+			FROM tblProduct
+			WHERE
+				tblProduct.CompanyId=p_CompanyID
+				AND tblProduct.Quantity > 0
+				AND tblProduct.Active=1
+				AND(
+						(p_Name ='' OR tblProduct.Name like CONCAT(p_Name,'%'))
+						OR
+						(p_Description ='' OR tblProduct.Description like CONCAT('%',p_Description,'%'))
+					)
+				
+			LIMIT p_RowspPage OFFSET v_OffSet_;
+			
+			
+			
+	END IF;
+			 
+				
+			INSERT INTO tmp_products_fields (FieldName,DynamicFieldsID,FieldType)
+			SELECT 
+				DISTINCT 
+				CASE WHEN c.title!=null or c.title!='' THEN CONCAT(c.title,'_',a.FieldName) ELSE  a.FieldName END as FieldName,
+				a.DynamicFieldsID,
+				a.FieldDomType
+			FROM Ratemanagement3.tblDynamicFields a
+			INNER JOIN tmp_products b
+			ON a.ItemTypeID=b.ItemTypeID
+			LEFT JOIN tblItemType c
+			ON c.ItemTypeID=a.ItemTypeID
+			WHERE 
+				a.Type='product'
+				AND a.CompanyID=p_CompanyID
+				AND a.`Status`=1;	
+						 
+			SET @v_pointer_1 = 1;
+			SET @v_rowCount_1 = (SELECT COUNT(*) FROM tmp_products_fields);
+		
+		 WHILE @v_pointer_1 <= @v_rowCount_1
+		  DO
+		
+			SET @fieldname = (SELECT FieldName from tmp_products_fields where RowID = @v_pointer_1);
+			 
+			SET @statement2 =  CONCAT('ALTER TABLE tmp_products ADD COLUMN `', @fieldname ,'` TEXT NULL;');
+	 	
+			PREPARE stm_query FROM @statement2;
+			EXECUTE stm_query;
+			DEALLOCATE PREPARE stm_query;
+			
+			SET @dynamicFieldID=	(SELECT DynamicFieldsID from tmp_products_fields where RowID = @v_pointer_1);
+		
+			SET @v_pointer_ = 1;
+			SET @v_rowCount_ = (SELECT COUNT(*) FROM tmp_products);
+			WHILE @v_pointer_ <= @v_rowCount_
+		  	DO	
+		  	
+			 SET @ProductID=(select ProductID FROM tmp_products WHERE RowID=@v_pointer_);
+			 
+				SET @upateq=CONCAT('UPDATE tmp_products prod
+		  	  	INNER JOIN Ratemanagement3.tblDynamicFieldsValue b ON b.DynamicFieldsID=',@dynamicFieldID,'
+		  	  	INNER JOIN Ratemanagement3.tblDynamicFields a ON a.DynamicFieldsID=b.DynamicFieldsID
+		  		SET `prod`.`',@fieldname,'`=b.FieldValue
+		  		
+		  		WHERE 
+				  prod.ProductID=',@ProductID,'
+				  AND b.ParentID=',@ProductID);
+				  
+				   -- select @upateq;
+				  
+				  PREPARE stm_query1 FROM @upateq;
+				  EXECUTE stm_query1;
+				  DEALLOCATE PREPARE stm_query1;
+		  		
+		  	SET @v_pointer_ = @v_pointer_ + 1;
+		  	
+		  	END WHILE;
+		
+			SET @v_pointer_1 = @v_pointer_1 + 1;
+	
+	  END WHILE;
+	  
+
+		SELECT 
+		 	tblProduct.CompanyId,	
+			tblProduct.Name,
+			tblProduct.Code,
+			tblProduct.Description,
+			tblProduct.Amount,
+			tblProduct.AppliedTo,
+			tblProduct.Note,
+			tblProduct.BuyingPrice,	
+			tblProduct.Quantity,
+			tblProduct.LowStockLevel,
+			tblProduct.EnableStock,
+			tblProduct.Image,
+			tmp_products.*	 	
+		FROM 
+		tmp_products
+		INNER JOIN tblProduct ON tblProduct.ProductID=tmp_products.ProductID;
+		
+		select count(*) as totalcount
+			FROM 
+		tmp_products
+		INNER JOIN tblProduct ON tblProduct.ProductID=tmp_products.ProductID;
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `prc_getProducts`;
+DELIMITER //
+CREATE PROCEDURE `prc_getProducts`(
+	IN `p_CompanyID` INT,
+	IN `p_Name` VARCHAR(50),
+	IN `p_Code` VARCHAR(50),
+	IN `p_Active` VARCHAR(1),
+	IN `p_AppliedTo` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_ItemTypeID` INT,
+	IN `p_Export` INT,
+	IN `SearchStock` VARCHAR(50),
+	IN `SearchDynamicFields` VARCHAR(255)
+
+)
+    DETERMINISTIC
+BEGIN
+     DECLARE v_OffSet_ int;
+	  DECLARE p_cntProduct int;
+	  DECLARE v_Round_ int;
+	  DECLARE v_TotalCount int;
+	  
+     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	      
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+	
+	DROP TEMPORARY TABLE IF EXISTS tmp_SearchProducts_;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_SearchProducts_(
+		ProductID INT		
+	);
+	
+	IF SearchDynamicFields !='' THEN
+		INSERT INTO tmp_SearchProducts_(ProductID)
+		SELECT 
+			dfv.ParentID
+		FROM  Ratemanagement3.tblDynamicFieldsValue dfv
+		INNER JOIN Ratemanagement3.tblDynamicFields df
+		ON df.DynamicFieldsID=dfv.DynamicFieldsID
+		INNER JOIN tblProduct b
+		ON b.ProductID = dfv.ParentID
+		WHERE 
+		dfv.FieldValue like  CONCAT('%',SearchDynamicFields,'%')
+		AND df.`Type`='product'
+		AND df.Status=1
+		AND dfv.CompanyID=p_CompanyID
+		AND df.FieldDomType!='file'
+		GROUP BY dfv.ParentID;
+		
+	END IF;
+	
+	SELECT COUNT(*) as cnt INTO p_cntProduct FROM tmp_SearchProducts_;  	
+	
+	 if p_Export = 0
+	THEN
+	
+    SELECT   
+			tblProduct.ProductID,
+			tblItemType.title,
+			tblProduct.Name,
+			tblProduct.Code,
+			tblProduct.BuyingPrice,
+			tblProduct.Amount,
+			tblProduct.Quantity,
+			tblProduct.updated_at,
+			tblProduct.Active,
+			tblProduct.Description,
+			tblProduct.Note,
+			tblProduct.AppliedTo,
+			tblProduct.LowStockLevel,
+			tblProduct.ItemTypeID,
+			tblProduct.Image	
+            from tblProduct LEFT JOIN tblItemType ON tblProduct.ItemTypeID = tblItemType.ItemTypeID
+            LEFT JOIN tmp_SearchProducts_ ON tmp_SearchProducts_.ProductID=tblProduct.ProductID
+            where tblProduct.CompanyID = p_CompanyID
+			AND (p_Name ='' OR tblProduct.Name like Concat('%',p_Name,'%'))
+				AND ((p_ItemTypeID ='' OR tblProduct.ItemTypeID like CONCAT(p_ItemTypeID,'%')))
+            AND((p_Code ='' OR tblProduct.Code like CONCAT(p_Code,'%')))
+            AND((p_Active = '' OR tblProduct.Active = p_Active))
+            AND((p_AppliedTo is null OR tblProduct.AppliedTo = p_AppliedTo))
+            AND (SearchStock='' OR 
+			 	(
+					 CASE WHEN SearchStock='Instock' THEN 
+					 	tblProduct.Quantity > 0 
+					 WHEN SearchStock='LowLevel' THEN 
+					 	tblProduct.Quantity < tblProduct.LowStockLevel 
+				    WHEN SearchStock='Outstock' THEN 
+					 	tblProduct.Quantity < 0 
+					 ELSE 
+					 	SearchStock=''  
+					 END 
+			   )
+		     )
+		       AND(p_cntProduct = 0 OR tmp_SearchProducts_.ProductID IS NOT NULL)
+         ORDER BY
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'NameDESC') THEN Name
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'NameASC') THEN Name
+                END ASC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeDESC') THEN Code
+                END DESC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeASC') THEN Code
+                END ASC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AmountDESC') THEN Amount
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AmountASC') THEN Amount
+                END ASC,
+            CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'BuyingPriceDESC') THEN BuyingPrice
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'BuyingPriceASC') THEN BuyingPrice
+                END ASC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'QuantityDESC') THEN Quantity
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'QuantityASC') THEN Quantity
+                END ASC,
+                
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atDESC') THEN tblProduct.updated_at
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atASC') THEN tblProduct.updated_at
+                END ASC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ActiveDESC') THEN tblProduct.Active
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ActiveASC') THEN tblProduct.Active
+                END ASC
+            LIMIT p_RowspPage OFFSET v_OffSet_;
+            
+				
+				SELECT
+            COUNT(tblProduct.ProductID) INTO v_TotalCount
+            from tblProduct LEFT JOIN tblItemType ON tblProduct.ItemTypeID = tblItemType.ItemTypeID
+            LEFT JOIN tmp_SearchProducts_ ON tmp_SearchProducts_.ProductID=tblProduct.ProductID
+            where tblProduct.CompanyID = p_CompanyID
+			AND (p_Name ='' OR tblProduct.Name like Concat('%',p_Name,'%'))
+				AND ((p_ItemTypeID ='' OR tblProduct.ItemTypeID like CONCAT(p_ItemTypeID,'%')))
+            AND((p_Code ='' OR tblProduct.Code like CONCAT(p_Code,'%')))
+            AND((p_Active = '' OR tblProduct.Active = p_Active))
+            AND((p_AppliedTo is null OR tblProduct.AppliedTo = p_AppliedTo))
+            AND (SearchStock='' OR 
+			 	(
+					 CASE WHEN SearchStock='Instock' THEN 
+					 	tblProduct.Quantity > 0 
+					 WHEN SearchStock='LowLevel' THEN 
+					 	tblProduct.Quantity < tblProduct.LowStockLevel 
+				    WHEN SearchStock='Outstock' THEN 
+					 	tblProduct.Quantity < 0 
+					 ELSE 
+					 	SearchStock=''  
+					 END 
+			   )
+		     )
+		       AND(p_cntProduct = 0 OR tmp_SearchProducts_.ProductID IS NOT NULL);
+		       
+	   SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+	   
+	   SELECT 
+	   	v_TotalCount as totalcount,
+	   	ROUND(sum(tblProduct.Quantity),v_Round_) as total_grand
+   	from tblProduct LEFT JOIN tblItemType ON tblProduct.ItemTypeID = tblItemType.ItemTypeID
+         LEFT JOIN tmp_SearchProducts_ ON tmp_SearchProducts_.ProductID=tblProduct.ProductID
+         where tblProduct.CompanyID = p_CompanyID
+		AND (p_Name ='' OR tblProduct.Name like Concat('%',p_Name,'%'))
+			AND ((p_ItemTypeID ='' OR tblProduct.ItemTypeID like CONCAT(p_ItemTypeID,'%')))
+         AND((p_Code ='' OR tblProduct.Code like CONCAT(p_Code,'%')))
+         AND((p_Active = '' OR tblProduct.Active = p_Active))
+         AND((p_AppliedTo is null OR tblProduct.AppliedTo = p_AppliedTo))
+         AND (SearchStock='' OR 
+		 	(
+				 CASE WHEN SearchStock='Instock' THEN 
+				 	tblProduct.Quantity > 0 
+				 WHEN SearchStock='LowLevel' THEN 
+				 	tblProduct.Quantity < tblProduct.LowStockLevel 
+			    WHEN SearchStock='Outstock' THEN 
+				 	tblProduct.Quantity < 0 
+				 ELSE 
+				 	SearchStock=''  
+				 END 
+		   )
+	     )
+	       AND(p_cntProduct = 0 OR tmp_SearchProducts_.ProductID IS NOT NULL);
+	   	
+	   	
+
+	ELSE
+
+			SELECT
+			tblProduct.ProductID,
+			tblItemType.title,
+			tblProduct.Name,
+			tblProduct.Code,
+			tblProduct.BuyingPrice,
+			tblProduct.Amount,
+			tblProduct.Quantity,
+			tblProduct.updated_at,
+			tblProduct.Active,
+			tblProduct.Description,
+			tblProduct.Note,
+			tblProduct.AppliedTo,
+			tblProduct.LowStockLevel,
+			tblProduct.ItemTypeID	
+            from tblProduct LEFT JOIN tblItemType ON tblProduct.ItemTypeID = tblItemType.ItemTypeID
+            LEFT JOIN tmp_SearchProducts_ ON tmp_SearchProducts_.ProductID=tblProduct.ProductID
+			where tblProduct.CompanyID = p_CompanyID
+			AND (p_Name ='' OR tblProduct.Name like Concat('%',p_Name,'%'))
+				AND ((p_ItemTypeID ='' OR tblProduct.ItemTypeID like CONCAT(p_ItemTypeID,'%')))
+            AND((p_Code ='' OR tblProduct.Code like CONCAT(p_Code,'%')))
+            AND((p_Active = '' OR tblProduct.Active = p_Active))
+            AND((p_AppliedTo is null OR tblProduct.AppliedTo = p_AppliedTo))
+            AND (SearchStock='' OR 
+			 	(
+					 CASE WHEN SearchStock='Instock' THEN 
+					 	tblProduct.Quantity > 0 
+					 WHEN SearchStock='LowLevel' THEN 
+					 	tblProduct.Quantity < tblProduct.LowStockLevel 
+				    WHEN SearchStock='Outstock' THEN 
+					 	tblProduct.Quantity < 0 
+					 ELSE 
+					 	SearchStock=''  
+					 END 
+			   )
+		     )
+		       AND(p_cntProduct = 0 OR tmp_SearchProducts_.ProductID IS NOT NULL);
+
+	END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+	
+END//
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `prc_getLowStockItemsAlert`;
+DELIMITER //
+CREATE PROCEDURE `prc_getLowStockItemsAlert`(
+	IN `p_CompanyID` INT(11)
+
+)
+BEGIN
+		
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	SELECT  
+		it.title AS title,
+		p.Name,
+		p.Code,
+		p.Quantity as Stock,
+		p.LowStockLevel 
+	FROM tblProduct p
+		LEFT join tblItemType it on it.ItemTypeID=p.ItemTypeID 
+	WHERE p.EnableStock=1
+		AND p.LowStockLevel >= 0 
+		AND p.CompanyId=p_CompanyID 
+		AND p.Quantity <= p.LowStockLevel 
+		AND p.Active=1;
+	
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+/* Above Done on Staging */
