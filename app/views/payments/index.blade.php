@@ -64,7 +64,7 @@
                     {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(!empty(Input::get('CurrencyID'))?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"select2 small"))}}
                 </div>
                 <div class="form-group">
-                    <label class="control-label">Tag</label>
+                    <label class="control-label">Account Tag</label>
                     <input class="form-control tags" name="tag" type="text" >
                 </div>
                 <div class="form-group">

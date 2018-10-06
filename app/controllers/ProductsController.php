@@ -471,8 +471,11 @@ class ProductsController extends \BaseController {
                                 }
                             }
                            // DynamicFieldsValue::deleteDynamicValuesByProductID($companyID,$id,$DynamicFieldsIDs);
+                            Log::info("delete DynamicFieldValue ProductID=".$id);
                             DynamicFieldsValue::deleteDynamicValuesByProductID($companyID,$id);
                         }
+                        Log::info("==Delete StockHistory productId=".$id);
+                        StockHistory::where('ProductID',$id)->delete();
                         return Response::json(array("status" => "success", "message" => "Product Successfully Deleted"));
                     } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Deleting Product."));

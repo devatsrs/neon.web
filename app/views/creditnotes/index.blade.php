@@ -60,27 +60,11 @@
     </a>-->
     </p>
     <div class="row">
-        <div  class="col-md-12">
-            <!--<div class="input-group-btn pull-right" style="width:70px;"> @if( User::checkCategoryPermission('CreditNotes','Edit'))
-                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
-                    <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
-                        @if(User::checkCategoryPermission('CreditNotes','Edit'))
-                            <li> <a class="delete_bulk" id="delete_bulk" href="javascript:;" > Delete </a> </li>
-                        @endif
-                        @if(User::checkCategoryPermission('CreditNotes','Edit'))
-                            <li> <a class="convert_invoice" id="convert_invoice" href="javascript:;" >Accept and generate invoice</a> </li>
-                        @endif
-                    </ul>
-                @endif
-                <form id="clear-bulk-rate-form" >
-                    <input type="hidden" name="CustomerRateIDs" value="">
-                </form>
-            </div>
-            -->
+        <div class="col-md-12">
+            <a href="javascript:;" id="bulk-creditnotes-send" class="btn btn-primary pull-right"> Bulk Send</a>
             @if(User::checkCategoryPermission('CreditNotes','Add'))
                 <a href="{{URL::to("creditnotes/create")}}" id="add-new-creditnotes" class="btn btn-primary pull-right"> <i class="entypo-plus"></i> Add New</a>
-                @endif
-                        <!-- /btn-group -->
+            @endif
         </div>
         <div class="clear"></div>
     </div>
@@ -88,9 +72,9 @@
     <table class="table table-bordered datatable" id="table-4">
         <thead>
         <tr>
-            <!-- <th width="5%"><div class="pull-left">
+            <th width="5%"><div class="pull-left">
                      <input type="checkbox" id="selectall" name="checkbox[]" class="" />
-                </div></th>-->
+                </div></th>
             <th width="20%">Account Name</th>
             <th width="10%">Number</th>
             <th width="15%">Issue Date</th>
@@ -164,7 +148,7 @@
                 "sAjaxSource": baseurl + "/creditnotes/ajax_datagrid/type",
                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "sPaginationType": "bootstrap",
-              //  "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "aaSorting": [[3, 'desc']],
                 "fnServerParams": function(aoData) {
                     aoData.push({"name":"CreditNotesType","value":$searchFilter.CreditNotesType},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"CreditNotesNumber","value":$searchFilter.CreditNotesNumber},{"name":"CreditNotesStatus","value":$searchFilter.CreditNotesStatus},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{"name":"CurrencyID","value":$searchFilter.CurrencyID});
@@ -173,7 +157,7 @@
                 },
                 "aoColumns":
                         [
-                            /*{  "bSortable": false,
+                            {  "bSortable": false,
                                 mRender: function ( id, type, full ) {
                                     var action , action = '<div class = "hiddenRowData" >';
                                     {
@@ -183,7 +167,7 @@
                                     return action;
                                 }
 
-                            },  // 0 AccountName*/
+                            },  // 0 AccountName
                             {  "bSortable": true,
 
                                 mRender:function( id, type, full){
@@ -405,7 +389,7 @@
 
             });
 
-           // $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
+            $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
 
             $("#creditnotes_filter").submit(function(e){
                 e.preventDefault();
@@ -439,13 +423,13 @@
                         "sAjaxSource": baseurl + "/creditnotes/ajax_datagrid/type",
                         "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                         "sPaginationType": "bootstrap",
-                        //"sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                        "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                         "aaSorting": [[3, 'desc']],},
                     success: function(response1) {
                         console.log("sum of result"+response1);
                         if(response1.total_grand!=null)
                         {
-                            $('#table-4 tbody').append('<tr><td><strong>Total</strong></td><td align="right" colspan="2"></td><td><strong>'+response1.total_grand+'</strong></td><td colspan="2"></td></tr>');
+                            $('#table-4 tbody').append('<tr><td><strong>Total</strong></td><td align="right" colspan="3"></td><td><strong>'+response1.total_grand+'</strong></td><td colspan="2"></td></tr>');
                         }
                     },
                 });
@@ -684,7 +668,7 @@
                     submit_ajax(update_new_url,formData)
 
                 }else{
-                    toastr.error("Please Select CreditNotess Status", "Error", toastr_opts);
+                    toastr.error("Please Select Credit Note Status", "Error", toastr_opts);
                     $(this).find(".cancelbutton]").button("reset");
                     return false;
                 }
@@ -766,14 +750,14 @@
                         CreditNotesIDs[i++] = CreditNotesID;
                     }
                 });
-                console.log(CreditNotesIDs);
+                    console.log(CreditNotesIDs);
 
                 if(CreditNotesIDs.length){
-                    if (!confirm('Are you sure you want to send selected CreditNotess?')) {
+                    if (!confirm('Are you sure you want to send selected Credit Notes?')) {
                         return;
                     }
                     $.ajax({
-                        url: baseurl + '/creditnotes/bulk_send_creditnotes_mail',
+                        url: baseurl + '/creditnotes/bulk_send_creditnote_mail',
                         data: 'CreditNotesIDs='+CreditNotesIDs+'&criteria='+criteria,
                         error: function () {
                             toastr.error("error", "Error", toastr_opts);

@@ -75,7 +75,7 @@
                     {{ Form::select('Trunk',$trunks,$trunk, array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                 </div>
                 <div class="form-group">
-                    <label class="control-label">Tag</label>
+                    <label class="control-label">Account Tag</label>
                     <input class="form-control tags" name="tag" type="text" >
                 </div>
                 <!--
