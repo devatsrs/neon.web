@@ -182,6 +182,27 @@ Route::filter("role", function ()  {
 
 Route::filter('auth.api', function(){
     if(!Auth::check() && !Request::is('api/login') && !Request::is('api/logout')){
-        return Response::json(["status"=>"failed", "message"=>"Not authorized. Please Login"]);
+        $LicenceApiResponse = Company::getLicenceResponse();
+
+        if(!$LicenceApiResponse["Status"]){
+            return Response::json($LicenceApiResponse);
+        }
+        $Request = Input::all();
+        $rules = array(
+            'EmailAddress' =>  'required',
+            'password' => 'required',
+        );
+        $validator = Validator::make($Request, $rules);
+
+        if ($validator->fails()) {
+            return Response::json(["status"=>"failed", "message"=>"Not authorized. Please Login"]);
+        }
+
+        $validate=NeonAPI::RegisterApiLogin($Request);
+        if (! $validate ) {
+            return Response::json(["status"=>"failed", "message"=>"Not authorized. Please Login"]);
+        }
+        return;
+        //return Response::json(["status"=>"failed", "message"=>"Not authorized. Please Login"]);
     }
 });
