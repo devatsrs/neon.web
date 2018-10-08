@@ -42,7 +42,7 @@
                     07. Added option to Digitally Sign Invoice.<br>
                     08. Added new feature "Inventory Management".<br>
                     09. Added option to email disputes.<br>
-                    10. Added new dimensions and measures in reports.<br>
+                    10. Added new dimensions and measures in reports: Avg Rate,Invoice Number,Invoice Date,Invoice Due Date,Account Billing Options etc.<br>
                     11. Added option to Import and Export payments from PBX.<br>
                     12. Added Integration with Voip.ms gateway.<br>
                     13. Added option of vendor cdr re-rating.<br>
