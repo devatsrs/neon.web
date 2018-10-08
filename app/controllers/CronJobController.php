@@ -240,7 +240,8 @@ class CronJobController extends \BaseController {
                 $data['Status'] = -1;
             }
         }
-        $data['Type'] = $data['Type']==''?0:$data['Type'];
+        $data['Type']  = empty($data['Type']) ? 0 : $data['Type'];
+        $data['Title'] = empty($data['Title']) ? '': $data['Title'];
 
         $companyID = User::get_companyID();
         $columns = array('Active','PID','JobTitle','RunningTime','LastRunTime','NextRunTime');
