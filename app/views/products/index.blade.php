@@ -11,7 +11,7 @@
             <form id="product_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
                 <div class="form-group">
                     <label for="field-5" class="control-label">Available</label>
-                    {{Form::select('SearchStock',[''=>'Select','Instock'=>'In Stock','Outstock'=>'Out Of Stock','LowLevel'=>'Low Level Stock'],'',array("class"=>"form-control select2 small"))}}
+                    {{Form::select('SearchStock',[''=>'Select','Instock'=>'In Stock','Outstock'=>'Out Of Stock','LowLevel'=>'Low Stock Level'],'',array("class"=>"form-control select2 small"))}}
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Search</label>
