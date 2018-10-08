@@ -182,6 +182,11 @@ Route::filter("role", function ()  {
 
 Route::filter('auth.api', function(){
     if(!Auth::check() && !Request::is('api/login') && !Request::is('api/logout')){
+        $LicenceApiResponse = Company::getLicenceResponse();
+
+        if(!$LicenceApiResponse["Status"]){
+            return Response::json($LicenceApiResponse);
+        }
         $Request = Input::all();
         $rules = array(
             'EmailAddress' =>  'required',
