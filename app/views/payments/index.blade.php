@@ -939,6 +939,54 @@
                         //}
                     });
 
+
+                    $('#PaymentMethod').on('change', function() {
+                        if(this.value == 'CREDIT NOTE')
+                        {
+                            var formData = new FormData($('#add-edit-payment-form')[0]);
+                            $.ajax({
+                                url:'{{URL::to('payments/getcreditnotes')}}',
+                                type: 'POST',
+                                dataType: 'json',
+                                success: function(response) {
+                                    //alert(JSON.stringify(response.data));
+                                    if (response.status == 'success') {
+                                        var data = response.data;
+                                        var options = '<option value="">Select Credit Note</option>';
+                                        Object.keys(data).forEach(function(key) {
+                                            var total = data[key].GrandTotal - data[key].PaidAmount;
+                                            if(total != 0)
+                                            {
+                                                options += '<option value='+data[key].CreditNotesID+'>'+total.toFixed(2)+'</option>';
+                                            }
+                                        });
+                                        $("#CreditNotesList").select2("destroy").select2();
+                                        $('#CreditNotesList').html(options);
+                                        $('#creditnotebox').removeClass('hidden');
+                                    } else {
+                                        toastr.error(response.message, "Credit Note Not Available For this Account", toastr_opts);
+                                    }
+                                    //$('#table-4_processing').addClass('hidden');
+                                },
+                                data: formData,
+                                cache: false,
+                                contentType: false,
+                                processData: false
+                            });
+                        }
+                        else{
+                            $('#creditnotebox').addClass('hidden');
+                        }
+                    });
+
+                    $('#CreditNotesList').on('click', function() {
+                        var id = $('#CreditNotesList option:selected').val();
+                        if(id != "")
+                            $('input[name="Amount"]').val($('#CreditNotesList option:selected').text());
+                        else
+                            $('input[name="Amount"]').val("");
+                    });
+
                     function createGrid(data){
                         var tr = $('#tablemapping thead tr');
                         var body = $('#tablemapping tbody');
@@ -1187,8 +1235,15 @@
             <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Payment Method *</label>
-              {{ Form::select('PaymentMethod', Payment::$method, '', array("class"=>"select2 small")) }} </div>
+              {{ Form::select('PaymentMethod', Payment::$method, '', array("class"=>"select2 small","id"=>"PaymentMethod")) }} </div>
           </div>
+          </div>
+          <div class="row hidden" id="creditnotebox">
+              <div class="col-md-12">
+                  <div class="form-group">
+                      <label for="field-5" class="control-label">Credit Notes *</label>
+                      {{ Form::select('CreditNotesList', ['' => 'Select Credit Note'] , '', array("class"=>"select2 small","id"=>"CreditNotesList")) }} </div>
+              </div>
           </div>
           <div class="row">
             <div class="col-md-12">

@@ -279,7 +279,7 @@ class CreditNotesController extends \BaseController {
 
                             $creditnotesloddata = array();
                             $creditnotesloddata['CreditNotesID']= $creditnote_id;
-                            $creditnotesloddata['Note']= 'Paid For Invoice No : '.$data['invoice_number'][$i].' Amount : '.$data['payment'][$i];
+                            $creditnotesloddata['Note']= 'Paid For Invoice No : '.$data['invoice_number'][$i].' Of Amount : '.$data['payment'][$i];
                             $creditnotesloddata['created_at']= date("Y-m-d H:i:s");
                             $creditnotesloddata['CreditNotesLogStatus']= CreditNotesLog::PAID;
                             CreditNotesLog::insert($creditnotesloddata);

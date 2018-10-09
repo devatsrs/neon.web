@@ -188,7 +188,25 @@ class PaymentsController extends \BaseController {
                 $save['Status'] = 'Approved';
                 $sendemail = 0;
             }
-			unset($save['Currency']); 
+			unset($save['Currency']);
+            //print_R($save);exit;
+            if(!empty($save['CreditNotesList'])) {
+                $save['CreditNotesID'] = $save['CreditNotesList'];
+                unset($save['CreditNotesList']);
+                $creditnote_id = $save['CreditNotesID'];
+                $GrandTotal = CreditNotes::find($creditnote_id)->GrandTotal;
+                $PaidAmount = CreditNotes::find($creditnote_id)->PaidAmount;
+                $Available_Balance = $GrandTotal - $PaidAmount;
+                $Available_Balance = number_format((float)$Available_Balance, 2, '.', '');
+
+                if($Available_Balance >= $save['Amount']) {
+                    $CreditNotesData['PaidAmount'] = $PaidAmount + $save['Amount'];
+                }
+                else {
+                    return Response::json(array("status" => "failed", "message" => "Not Enough Credit Available"));
+                }
+                //print_R($CreditNotesData);exit;
+            }
             if (Payment::create($save)) {
                 if(isset($InvoiceID) && !empty($InvoiceID)){
                     $Invoice = Invoice::find($InvoiceID);
@@ -211,6 +229,20 @@ class PaymentsController extends \BaseController {
                     }
 
                     InVoiceLog::insert($invoiceloddata);
+                }
+                if(isset($CreditNotesData['PaidAmount'])) {
+                    CreditNotes::find($creditnote_id)->update($CreditNotesData);
+                    $creditnotesloddata = array();
+                    $creditnotesloddata['CreditNotesID']= $creditnote_id;
+                    if(isset($InvoiceID) && !empty($InvoiceID)){
+                        $creditnotesloddata['Note']= 'Added Direct Payment For Invoice No : '.$Invoice->FullInvoiceNumber.' of Amount : '.$save['Amount'];
+                    }
+                    else{
+                        $creditnotesloddata['Note']= 'Added Direct Payment of Amount : '.$save['Amount'];
+                    }
+                    $creditnotesloddata['created_at']= date("Y-m-d H:i:s");
+                    $creditnotesloddata['CreditNotesLogStatus']= CreditNotesLog::PAID;
+                    CreditNotesLog::insert($creditnotesloddata);
                 }
                 if($sendemail==1) {
                     $companyID = User::get_companyID();
@@ -282,6 +314,19 @@ class PaymentsController extends \BaseController {
             }else{
                 return json_encode(array("status" => "failed", "message" => "Problem Payment Post in Quickbook ."));
             }
+        }
+
+    }
+
+    public function getcreditnotes()
+    {
+        $data = Input::all();
+        $CreditNotes = CreditNotes::where("AccountID", $data['AccountID'])->get(["CreditNotesID", "GrandTotal", "PaidAmount"]);
+        if(count($CreditNotes) > 0){
+            return Response::json(array("status" => "success", "data" => $CreditNotes));
+        }
+        else{
+            return Response::json(array("status" => "failed"));
         }
 
     }
