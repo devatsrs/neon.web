@@ -187,7 +187,12 @@ Route::filter('auth.api', function(){
         if(!$LicenceApiResponse["Status"]){
             return Response::json($LicenceApiResponse);
         }
-        $Request = Input::all();
+        $Request = [];
+        if(isset($_SERVER["PHP_AUTH_USER"]) && isset($_SERVER["PHP_AUTH_PW"])) {
+            $Request["EmailAddress"] = $_SERVER["PHP_AUTH_USER"];
+            $Request["password"] = $_SERVER["PHP_AUTH_PW"];
+        }
+
         $rules = array(
             'EmailAddress' =>  'required',
             'password' => 'required',
