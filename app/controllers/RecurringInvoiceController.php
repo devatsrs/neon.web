@@ -225,12 +225,14 @@ class RecurringInvoiceController extends \BaseController {
 				//RecurringInvoice tax
 				if(isset($data['RecurringInvoiceTaxes']) && is_array($data['RecurringInvoiceTaxes'])){
 					foreach($data['RecurringInvoiceTaxes']['field'] as  $p =>  $RecurringInvoiceTaxes){
-						$RecurringInvoiceAllTaxRates[$p]['TaxRateID'] 		= 	$RecurringInvoiceTaxes;
-						$RecurringInvoiceAllTaxRates[$p]['Title'] 			= 	TaxRate::getTaxName($RecurringInvoiceTaxes);
-						$RecurringInvoiceAllTaxRates[$p]["created_at"] 		= 	date("Y-m-d H:i:s");
-						$RecurringInvoiceAllTaxRates[$p]["RecurringInvoiceTaxType"] = 	1;
-						$RecurringInvoiceAllTaxRates[$p]["RecurringInvoiceID"] 		= 	$RecurringInvoice->RecurringInvoiceID;
-						$RecurringInvoiceAllTaxRates[$p]["TaxAmount"] 		= 	$data['RecurringInvoiceTaxes']['value'][$p];
+                        if(!empty($RecurringInvoiceTaxes)) {
+                            $RecurringInvoiceAllTaxRates[$p]['TaxRateID'] = $RecurringInvoiceTaxes;
+                            $RecurringInvoiceAllTaxRates[$p]['Title'] = TaxRate::getTaxName($RecurringInvoiceTaxes);
+                            $RecurringInvoiceAllTaxRates[$p]["created_at"] = date("Y-m-d H:i:s");
+                            $RecurringInvoiceAllTaxRates[$p]["RecurringInvoiceTaxType"] = 1;
+                            $RecurringInvoiceAllTaxRates[$p]["RecurringInvoiceID"] = $RecurringInvoice->RecurringInvoiceID;
+                            $RecurringInvoiceAllTaxRates[$p]["TaxAmount"] = $data['RecurringInvoiceTaxes']['value'][$p];
+                        }
 					}
 				}
 				
@@ -408,12 +410,14 @@ class RecurringInvoiceController extends \BaseController {
 							//RecurringInvoice tax
 						if(isset($data['RecurringInvoiceTaxes']) && is_array($data['RecurringInvoiceTaxes'])){
 							foreach($data['RecurringInvoiceTaxes']['field'] as  $p =>  $RecurringInvoiceTaxes){
-								$RecurringInvoiceAllTaxRates[$p]['TaxRateID'] 		= 	$RecurringInvoiceTaxes;
-								$RecurringInvoiceAllTaxRates[$p]['Title'] 			= 	TaxRate::getTaxName($RecurringInvoiceTaxes);
-								$RecurringInvoiceAllTaxRates[$p]["created_at"] 		= 	date("Y-m-d H:i:s");
-								$RecurringInvoiceAllTaxRates[$p]["RecurringInvoiceTaxType"] = 	1;
-								$RecurringInvoiceAllTaxRates[$p]["RecurringInvoiceID"] 		= 	$RecurringInvoice->RecurringInvoiceID;
-								$RecurringInvoiceAllTaxRates[$p]["TaxAmount"] 		= 	$data['RecurringInvoiceTaxes']['value'][$p];
+                                if(!empty($RecurringInvoiceTaxes)) {
+                                    $RecurringInvoiceAllTaxRates[$p]['TaxRateID'] = $RecurringInvoiceTaxes;
+                                    $RecurringInvoiceAllTaxRates[$p]['Title'] = TaxRate::getTaxName($RecurringInvoiceTaxes);
+                                    $RecurringInvoiceAllTaxRates[$p]["created_at"] = date("Y-m-d H:i:s");
+                                    $RecurringInvoiceAllTaxRates[$p]["RecurringInvoiceTaxType"] = 1;
+                                    $RecurringInvoiceAllTaxRates[$p]["RecurringInvoiceID"] = $RecurringInvoice->RecurringInvoiceID;
+                                    $RecurringInvoiceAllTaxRates[$p]["TaxAmount"] = $data['RecurringInvoiceTaxes']['value'][$p];
+                                }
 							}
 						}
 
