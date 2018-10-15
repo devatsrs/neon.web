@@ -308,13 +308,15 @@ class EstimatesController extends \BaseController {
 				
 				//estimate tax
 				if(isset($data['EstimateTaxes']) && is_array($data['EstimateTaxes'])){
-					foreach($data['EstimateTaxes']['field'] as  $p =>  $EstimateTaxes){						
-						$EstimateAllTaxRates[$p]['TaxRateID'] 		= 	$EstimateTaxes;
-						$EstimateAllTaxRates[$p]['Title'] 			= 	TaxRate::getTaxName($EstimateTaxes);
-						$EstimateAllTaxRates[$p]["created_at"] 		= 	date("Y-m-d H:i:s");
-						$EstimateAllTaxRates[$p]["EstimateTaxType"] = 	1;
-						$EstimateAllTaxRates[$p]["EstimateID"] 		= 	$Estimate->EstimateID; 
-						$EstimateAllTaxRates[$p]["TaxAmount"] 		= 	$data['EstimateTaxes']['value'][$p];
+					foreach($data['EstimateTaxes']['field'] as  $p =>  $EstimateTaxes){
+                        if(!empty($EstimateTaxes)) {
+                            $EstimateAllTaxRates[$p]['TaxRateID'] = $EstimateTaxes;
+                            $EstimateAllTaxRates[$p]['Title'] = TaxRate::getTaxName($EstimateTaxes);
+                            $EstimateAllTaxRates[$p]["created_at"] = date("Y-m-d H:i:s");
+                            $EstimateAllTaxRates[$p]["EstimateTaxType"] = 1;
+                            $EstimateAllTaxRates[$p]["EstimateID"] = $Estimate->EstimateID;
+                            $EstimateAllTaxRates[$p]["TaxAmount"] = $data['EstimateTaxes']['value'][$p];
+                        }
 					}
 				}
 				
@@ -537,13 +539,15 @@ class EstimatesController extends \BaseController {
 						
 							//estimate tax
 						if(isset($data['EstimateTaxes']) && is_array($data['EstimateTaxes'])){
-							foreach($data['EstimateTaxes']['field'] as  $p =>  $EstimateTaxes){						
-								$EstimateAllTaxRates[$p]['TaxRateID'] 		= 	$EstimateTaxes;
-								$EstimateAllTaxRates[$p]['Title'] 			= 	TaxRate::getTaxName($EstimateTaxes);
-								$EstimateAllTaxRates[$p]["created_at"] 		= 	date("Y-m-d H:i:s");
-								$EstimateAllTaxRates[$p]["EstimateTaxType"] = 	1;
-								$EstimateAllTaxRates[$p]["EstimateID"] 		= 	$Estimate->EstimateID; 
-								$EstimateAllTaxRates[$p]["TaxAmount"] 		= 	$data['EstimateTaxes']['value'][$p];
+							foreach($data['EstimateTaxes']['field'] as  $p =>  $EstimateTaxes){
+                                if(!empty($EstimateTaxes)) {
+                                    $EstimateAllTaxRates[$p]['TaxRateID'] = $EstimateTaxes;
+                                    $EstimateAllTaxRates[$p]['Title'] = TaxRate::getTaxName($EstimateTaxes);
+                                    $EstimateAllTaxRates[$p]["created_at"] = date("Y-m-d H:i:s");
+                                    $EstimateAllTaxRates[$p]["EstimateTaxType"] = 1;
+                                    $EstimateAllTaxRates[$p]["EstimateID"] = $Estimate->EstimateID;
+                                    $EstimateAllTaxRates[$p]["TaxAmount"] = $data['EstimateTaxes']['value'][$p];
+                                }
 							}
 						}
 

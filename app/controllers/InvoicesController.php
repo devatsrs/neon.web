@@ -384,13 +384,15 @@ class InvoicesController extends \BaseController {
 				
 				//Invoice tax
 				if(isset($data['InvoiceTaxes']) && is_array($data['InvoiceTaxes'])){
-					foreach($data['InvoiceTaxes']['field'] as  $p =>  $InvoiceTaxes){						
-						$InvoiceAllTaxRates[$p]['TaxRateID'] 		= 	$InvoiceTaxes;
-						$InvoiceAllTaxRates[$p]['Title'] 			= 	TaxRate::getTaxName($InvoiceTaxes);
-						$InvoiceAllTaxRates[$p]["created_at"] 		= 	date("Y-m-d H:i:s");
-						$InvoiceAllTaxRates[$p]["InvoiceTaxType"] 	= 	1;
-						$InvoiceAllTaxRates[$p]["InvoiceID"] 		= 	$Invoice->InvoiceID; 
-						$InvoiceAllTaxRates[$p]["TaxAmount"] 		= 	$data['InvoiceTaxes']['value'][$p];
+					foreach($data['InvoiceTaxes']['field'] as  $p =>  $InvoiceTaxes){
+                        if(!empty($InvoiceTaxes)) {
+                            $InvoiceAllTaxRates[$p]['TaxRateID'] = $InvoiceTaxes;
+                            $InvoiceAllTaxRates[$p]['Title'] = TaxRate::getTaxName($InvoiceTaxes);
+                            $InvoiceAllTaxRates[$p]["created_at"] = date("Y-m-d H:i:s");
+                            $InvoiceAllTaxRates[$p]["InvoiceTaxType"] = 1;
+                            $InvoiceAllTaxRates[$p]["InvoiceID"] = $Invoice->InvoiceID;
+                            $InvoiceAllTaxRates[$p]["TaxAmount"] = $data['InvoiceTaxes']['value'][$p];
+                        }
 					}
 				}
 				
@@ -597,12 +599,14 @@ class InvoicesController extends \BaseController {
 						
 						if(isset($data['InvoiceTaxes']) && is_array($data['InvoiceTaxes'])){
                             foreach($data['InvoiceTaxes']['field'] as  $p =>  $InvoiceTaxes){
-                                $InvoiceAllTaxRates[$p]['TaxRateID'] 		= 	$InvoiceTaxes;
-                                $InvoiceAllTaxRates[$p]['Title'] 			= 	TaxRate::getTaxName($InvoiceTaxes);
-                                $InvoiceAllTaxRates[$p]["created_at"] 		= 	date("Y-m-d H:i:s");
-                                $InvoiceAllTaxRates[$p]["InvoiceTaxType"] 	= 	1;
-                                $InvoiceAllTaxRates[$p]["InvoiceID"] 		= 	$Invoice->InvoiceID;
-                                $InvoiceAllTaxRates[$p]["TaxAmount"] 		= 	$data['InvoiceTaxes']['value'][$p];
+                                if(!empty($InvoiceTaxes)) {
+                                    $InvoiceAllTaxRates[$p]['TaxRateID'] = $InvoiceTaxes;
+                                    $InvoiceAllTaxRates[$p]['Title'] = TaxRate::getTaxName($InvoiceTaxes);
+                                    $InvoiceAllTaxRates[$p]["created_at"] = date("Y-m-d H:i:s");
+                                    $InvoiceAllTaxRates[$p]["InvoiceTaxType"] = 1;
+                                    $InvoiceAllTaxRates[$p]["InvoiceID"] = $Invoice->InvoiceID;
+                                    $InvoiceAllTaxRates[$p]["TaxAmount"] = $data['InvoiceTaxes']['value'][$p];
+                                }
                             }
 				        }
 						
