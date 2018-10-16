@@ -196,22 +196,30 @@ class NeonAPI{
 
     public static function RegisterApiLogin($data){
         try{
-            if(!Auth::attempt(array('EmailAddress' => $data['EmailAddress'], 'password' => $data['password'] ,'Status'=> 1 ))){
+            /*if(!Auth::attempt(array('EmailAddress' => $data['EmailAddress'], 'password' => $data['password'] ,'Status'=> 1 ))){
                 return false;
-            }
-            $ReturnData=array();
+            }*/
             $user = User::where(['EmailAddress'=>$data['EmailAddress'],'Status'=>1])->first();
-            $ReturnData['UserID']=$user->UserID;
-            $ReturnData['CompanyID']=$user->CompanyID;
-            $ReturnData['FirstName']=$user->FirstName;
-            $ReturnData['LastName']=$user->LastName;
-            $ReturnData['EmailAddress']=$user->EmailAddress;
-            $ReturnData['Roles']=$user->Roles;
-            $ReturnData['AccountingUser']=$user->Roles;
+            if(!empty($user)){
+                if (User::checkPassword($data["password"],$user->password)) {
+                    $ReturnData=array();
 
-            Log::info(print_r($user,true));
-            User::find($user->UserID)->update(['LastLoginDate' => date('Y-m-d H:i:s')]);
-            return $ReturnData;
+                    $ReturnData['UserID']=$user->UserID;
+                    $ReturnData['CompanyID']=$user->CompanyID;
+                    $ReturnData['FirstName']=$user->FirstName;
+                    $ReturnData['LastName']=$user->LastName;
+                    $ReturnData['EmailAddress']=$user->EmailAddress;
+                    $ReturnData['Roles']=$user->Roles;
+                    $ReturnData['AccountingUser']=$user->Roles;
+
+                    Log::info(print_r($user,true));
+                    User::find($user->UserID)->update(['LastLoginDate' => date('Y-m-d H:i:s')]);
+                    return $ReturnData;
+                }else{
+                    return false;
+                }
+            }
+
         }catch(Exception $e){
             Log::info("RegisterApiLogin ".$e->getMessage());
             return false;

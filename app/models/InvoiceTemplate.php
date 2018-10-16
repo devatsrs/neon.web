@@ -49,7 +49,7 @@ class InvoiceTemplate extends \Eloquent {
     public static function getNextInvoiceNumber($InvoiceTemplateid){
         $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateid);
         $NewInvoiceNumber =  (($InvoiceTemplate->LastInvoiceNumber > 0)?($InvoiceTemplate->LastInvoiceNumber + 1):$InvoiceTemplate->InvoiceStartNumber);
-        $CompanyID = User::get_companyID();
+        $CompanyID = $InvoiceTemplate->CompanyID;
         while(Invoice::where(["InvoiceNumber"=> $NewInvoiceNumber,'CompanyID'=>$CompanyID])->count()>0){
             $NewInvoiceNumber++;
         }
@@ -97,7 +97,7 @@ class InvoiceTemplate extends \Eloquent {
         }
         $CompanyID = User::get_companyID();
 
-        while(Estimate::where(["CreditNotesNumber"=> $NewCreditNotesNumber,'CompanyID'=>$CompanyID])->count()>0)
+        while(CreditNotes::where(["CreditNotesNumber"=> $NewCreditNotesNumber,'CompanyID'=>$CompanyID])->count()>0)
         {
             $NewCreditNotesNumber++;
         }

@@ -47,12 +47,18 @@
                             }
 
                             $(el).append(newState);
-                            self.trigger('change');
+                            if(composit!=1){
+                                self.trigger('change');
+                            }
                             $(el).append($(el).find("option:gt(1)").sort(function (a, b) {
                                 return a.text == b.text ? 0 : a.text < b.text ? -1 : 1;
                             }));
                         });
                         $('select[data-active="1"]').change();
+                        if(composit==1){
+                            var itemdropdown=$('#rowContainer .itemrow').find(".product_dropdown");
+                            $('option:selected', itemdropdown).remove();
+                        }
                     }
                 }else{
                     toastr.error(response.message, "Error", toastr_opts);
@@ -128,9 +134,9 @@
         <div class="row margin-top">
             <div class="col-md-12">
                 <div class="form-group">
-                    <label for="field-5" class="control-label col-sm-2">Buying Price *</label>
+                    <label for="field-5" class="control-label col-sm-2">Buying Price </label>
                     <div class="col-sm-4">
-                        <input type="text" name="Buying_price" class="form-control" id="field-5" placeholder="" maxlength="10">
+                        <input type="text" name="BuyingPrice" class="form-control" id="field-5" placeholder="" maxlength="10">
                     </div>
                     <label for="field-5" class="control-label col-sm-2">Unit Cost(Selling Price) *</label>
                     <div class="col-sm-4">
@@ -150,7 +156,7 @@
                     <label for="field-5" class="control-label col-sm-2">Low Stock Level  <span id="tooltip_lowstock" data-content="Low Stock Reminder will be sent if stock will go below this level" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></label>
 
                     <div class="col-sm-4">
-                        <input type="text" name="Low_stock_level" class="form-control" id="field-5" placeholder="" maxlength="10">
+                        <input type="text" name="LowStockLevel" class="form-control" id="field-5" placeholder="" maxlength="10">
                     </div>
                 </div>
             </div>
@@ -181,6 +187,12 @@
                         {{Form::select('AppliedTo',Product::$AppliedTo,'',array("class"=>"form-control select2 small"))}}
                     </div>
 
+                    <label for="field-5" class="control-label col-sm-2">Image <br> (.jpeg, .png, .jpg, .gif)</label>
+                    <div class="col-sm-4">
+                        <div class="clear clearfix"></div>
+                        <input id="Image" name="Image" type="file" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
+                        <div id="download_attach" class="pull-right" style="margin-right: 150px;"></div>
+                    </div>
                 </div>
             </div>
         </div>

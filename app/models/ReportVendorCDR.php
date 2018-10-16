@@ -2,12 +2,23 @@
 class ReportVendorCDR extends \Eloquent{
 
     public static $database_columns = array(
-        'AccountID' => 'tblVendorSummaryDay.AccountID',
+        'AccountID' => 'tblHeaderV.VAccountID',
         'DestinationBreak' => 'tblRate.Description',
+        'BillingType' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.BillingType, "")',
+        'BillingClassID' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.BillingClassID, "")',
+        'BillingStartDate' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.BillingStartDate, "")',
+        'BillingCycleType' => "IF(tblAccountNextBilling.BillingCycleType!='', tblAccountNextBilling.BillingCycleType, IF(tblAccountBilling.BillingCycleType!='', tblAccountBilling.BillingCycleType, ''))",
+        'BillingCycleValue' => "IF(tblAccountNextBilling.BillingCycleValue!='', tblAccountNextBilling.BillingCycleValue, IF(tblAccountBilling.BillingCycleValue!='', tblAccountBilling.BillingCycleValue, ''))",
+        'LastInvoiceDate' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.LastInvoiceDate, "")',
+        'NextInvoiceDate' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.NextInvoiceDate, "")',
+        'LastChargeDate' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.LastChargeDate, "")',
+        'NextChargeDate' => 'IF(tblAccountBilling.ServiceID = 0, tblAccountBilling.NextChargeDate, "")',
     );
     public static $AccountJoin = false;
     public static  $CodeJoin = false;
     public static  $DetailTable = 'tblVendorSummaryDay';
+    public static  $AccountBillingJoin = false;
+    public static  $AccountNextBillingJoin = false;
 
     public static function generateSummaryQuery($CompanyID, $data, $filters){
         $setting_ag = isset($data['setting_ag'])?json_decode($data['setting_ag'],true):array();
@@ -65,6 +76,9 @@ class ReportVendorCDR extends \Eloquent{
         }
         foreach ($data['row'] as $column) {
             if(isset(self::$database_columns[$column])){
+                if($column=='AccountID'){
+                    $column=self::$database_columns[$column];
+                }
                 $final_query->groupby($column);
             }else {
                 $columnname = report_col_name($column);
@@ -168,6 +182,34 @@ class ReportVendorCDR extends \Eloquent{
             $query_common->where('CodeDeckId', intval($DefaultCodedeck));
             self::$CodeJoin = true;
         }
+
+        if(in_array('BillingType',$data['column']) || in_array('BillingType',$data['row']) ||
+            in_array('BillingStartDate',$data['column']) || in_array('BillingStartDate',$data['row']) ||
+            in_array('BillingCycleType',$data['column']) || in_array('BillingCycleType',$data['row']) ||
+            in_array('BillingCycleValue',$data['column']) || in_array('BillingCycleValue',$data['row']) ||
+            in_array('BillingClassID',$data['column']) || in_array('BillingClassID',$data['row']) ||
+            in_array('LastInvoiceDate',$data['column']) || in_array('LastInvoiceDate',$data['row']) ||
+            in_array('NextInvoiceDate',$data['column']) || in_array('NextInvoiceDate',$data['row']) ||
+            in_array('LastChargeDate',$data['column']) || in_array('LastChargeDate',$data['row']) ||
+            in_array('NextChargeDate',$data['column']) || in_array('NextChargeDate',$data['row'])
+        ){
+            $query_common->leftjoin($RMDB.'.tblAccountBilling', function ($join) {
+                $join->on('tblAccountBilling.AccountID', '=', 'tblHeaderV.VAccountID')
+                    ->where('tblAccountBilling.ServiceID', '=', 0);
+            }
+            );
+            self::$AccountBillingJoin = true;
+        }
+        if( in_array('BillingCycleValue',$data['column']) || in_array('BillingCycleValue',$data['row']) ||
+            in_array('BillingCycleType',$data['column']) || in_array('BillingCycleType',$data['row']) ){
+            $query_common->leftjoin($RMDB.'.tblAccountNextBilling', function ($join) {
+                $join->on('tblAccountNextBilling.AccountID', '=', 'tblHeaderV.VAccountID')
+                    ->where('tblAccountNextBilling.ServiceID', '=', 0);
+            }
+            );
+            self::$AccountNextBillingJoin = true;
+        }
+
         foreach ($filters as $key => $filter) {
             if (!empty($filter[$key]) && is_array($filter[$key]) && !in_array($key, array('GatewayAccountPKID', 'GatewayVAccountPKID'))) {
                 if(isset(self::$database_columns[$key])) {

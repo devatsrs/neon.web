@@ -24,7 +24,7 @@
 
                 <div class="form-group">
                     <label for="field-5" class="control-label">Item Type </label>
-                    {{Form::select('ItemTypeID',$itemtypes,'',array("class"=>"form-control select2 small"))}}
+                    {{Form::select('ItemTypeID',$itemtypes,$ItemTypeID,array("class"=>"form-control select2 small"))}}
                 </div>
 
                 <div class="form-group">
@@ -52,8 +52,14 @@
         <li>
             <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
+        <li>
+            <a href="{{URL::to('products')}}"><i class=""></i>Items</a>
+        </li>
+        <li>
+            <a href="{{URL::to('products/itemtypes')}}"><i class=""></i>Item Types</a>
+        </li>
         <li class="active">
-            <a href="javascript:void(0)">Dynamic Fields</a>
+            <strong>Dynamic Fields</strong>
         </li>
     </ol>
 
@@ -63,15 +69,16 @@
             <div class="clear"></div>
                 <div class="row">
                     <div  class="col-md-12">
-                        <a href="{{ URL::to('/products')  }}" class="btn btn-primary pull-right">
+                        {{--<a href="{{ URL::to('/products')  }}" class="btn btn-primary pull-right">
                             <i class=""></i>
                             Back
-                        </a>
-                        @if(User::checkCategoryPermission('Products','Edit'))
+                        </a>--}}
+                        <a href="{{ URL::to('/products/itemtypes')  }}" class="btn btn-danger btn-md btn-icon icon-left pull-right"> <i class="entypo-cancel"></i> Close </a>
+                        @if(User::checkCategoryPermission('DynamicField','Edit'))
                         <div class="input-group-btn pull-right hidden dropdown" style="width:78px;">
                             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
                             <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
-                                @if(User::checkCategoryPermission('Products','Edit'))
+                                @if(User::checkCategoryPermission('DynamicField','Edit'))
                                     <li class="li_active">
                                         <a class="type_active_deactive" type_ad="active" href="javascript:void(0);" >
                                             <i class="fa fa-plus-circle"></i>
@@ -96,7 +103,7 @@
                         @endif
 
                         @if( User::is_admin() || User::is('BillingAdmin'))
-                            @if(User::checkCategoryPermission('Products','Add'))
+                            @if(User::checkCategoryPermission('DynamicField','Add'))
 
                                 <a href="#" data-action="showAddModal" id="add-new-dynamicfield" data-type="Dynamic Field" data-modal="add-edit-modal-dynamicfield" class="btn btn-primary pull-right">
                                     <i class="entypo-plus"></i>
@@ -199,10 +206,10 @@
                                     }
 
                                     action += '</div>';
-                                    <?php if(User::checkCategoryPermission('Products','Edit')){ ?>
+                                    <?php if(User::checkCategoryPermission('DynamicField','Edit')){ ?>
                                         action += ' <a data-name = "' + full[1] + '" data-id="' + full[0] + '" title="Edit" class="edit-dynamicfield btn btn-default btn-sm btn-smtooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
                                     <?php } ?>
-                                    <?php if(User::checkCategoryPermission('Products','Delete') ){ ?>
+                                    <?php if(User::checkCategoryPermission('DynamicField','Delete') ){ ?>
                                         action += ' <a href="'+delete_+'" data-redirect="{{ URL::to('products')}}" title="Delete"  class="btn delete btn-danger btn-default btn-sm btn-smtooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></a>';
                                      <?php } ?>
                                     return action;
@@ -482,7 +489,12 @@
                         $("#add-edit-modal-dynamicfield [name='ProductClone']").val(0);
                         $("#add-edit-modal-dynamicfield [name='ItemTypeID']").removeAttr('disabled');
                         $("#add-edit-modal-dynamicfield [name='FieldDomType']").removeAttr('disabled');
-                        $("#add-edit-modal-dynamicfield [name='ItemTypeID']").val('0').trigger('change');
+                        var ItemTypeid=$("#dynamicfield_filter [name='ItemTypeID']").val();
+                        setTimeout(function(){
+                            console.log("ItemTypeID="+ItemTypeid);
+                            $("#add-edit-modal-dynamicfield [name='ItemTypeID']").val(ItemTypeid).trigger('change');
+                        }, 1000);
+
                     });
                     /*$('#add-new-itemtype').click(function (ev) {
                         ev.preventDefault();

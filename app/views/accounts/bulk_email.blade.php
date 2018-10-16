@@ -81,6 +81,14 @@
                 <input type="hidden" name="test" value="0"/>
                 <input type="hidden" name="testEmail" value=""/>
                 <input type="hidden" name="email_template_privacy" value="0">
+                @elseif(isset($bulk_type) && $bulk_type == 'disputes')
+                  <input type="hidden" name="SelectedIDs"/>
+                  <input type="hidden" name="criteria"/>
+                  <input type="hidden" name="Type" value="0"/>
+                  <input type="hidden" name="type" value="DR"/>
+                  <input type="hidden" name="test" value="0"/>
+                  <input type="hidden" name="testEmail" value=""/>
+                  <input type="hidden" name="email_template_privacy" value="0">
                 @elseif(isset($bulk_type) && $bulk_type == 'customers_rates')
                 <input type="hidden" name="SelectedIDs" />
                 <input type="hidden" name="test" value="0" />
@@ -153,7 +161,7 @@
           </div>
           @endif </div>
         <div class="modal-footer">
-          <button type="submit"  class=" @if(isset($bulk_type) && ($bulk_type == 'customers_rates' || $bulk_type == 'accounts')) lead @elseif(isset($bulk_type) &&  $bulk_type == 'invoices') alerta @endif btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Send </button>
+          <button type="submit"  class=" @if(isset($bulk_type) && ($bulk_type == 'customers_rates' || $bulk_type == 'accounts')) lead @elseif(isset($bulk_type) &&  ($bulk_type == 'invoices' || $bulk_type == 'disputes')) alerta @endif btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Send </button>
           <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
         </div>
       </form>

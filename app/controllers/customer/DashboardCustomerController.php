@@ -59,7 +59,7 @@ class DashboardCustomerController extends BaseController {
             $getdata['AccountID'] = $CustomerID;
             $response =  NeonAPI::request('account/get_creditinfo',$getdata,false,false,false);
             if(!empty($response) && $response->status == 'success' ) {
-                $SOA_Amount = AccountBalance::getAccountSOA($companyID, $CustomerID);
+                $SOA_Amount = AccountBalance::getBalanceSOAOffsetAmount($CustomerID);
                 if(!empty($response->data->UnbilledAmount)){
                     $UnbilledAmount = $response->data->UnbilledAmount;
                 }
@@ -112,10 +112,11 @@ class DashboardCustomerController extends BaseController {
             $CurrencySymbol = Currency::getCurrencySymbol($CurrencyID);
         }
         $companyID = User::get_companyID();
+        $TotalOutstanding = AccountBalance::getBalanceSOAOffsetAmount($CustomerID);
         $query = "call prc_getDashboardTotalOutStanding ('". $companyID  . "',  '". $CurrencyID  . "',".$CustomerID.")";
         $InvoiceExpenseResult = DB::connection('sqlsrv2')->select($query);
         if(!empty($InvoiceExpenseResult) && isset($InvoiceExpenseResult[0])) {
-            $InvoiceExpenseResult[0]->TotalOutstanding=AccountBalance::getAccountOutstandingBalance($CustomerID,$InvoiceExpenseResult[0]->TotalOutstanding);
+            $InvoiceExpenseResult[0]->TotalOutstanding=AccountBalance::getAccountOutstandingBalance($CustomerID,$TotalOutstanding);
             return Response::json(array("data" =>$InvoiceExpenseResult[0],'CurrencyCode'=>$CurrencyCode,'CurrencySymbol'=>$CurrencySymbol));
         }
     }
@@ -291,7 +292,7 @@ class DashboardCustomerController extends BaseController {
             $CustomDate = date('Y-m-d');
         }
 
-        $query = "call prc_GetCustomerRate (".$CompanyID.",".$CustomerID.",".$data['Trunk'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."','".$CustomDate."',".$data['Effected_Rates_on_off'].",'".intval($data['RoutinePlanFilter'])."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query = "call prc_GetCustomerRate (".$CompanyID.",".$CustomerID.",".$data['Trunk'].",NULL,".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."','".$CustomDate."',".$data['Effected_Rates_on_off'].",'".intval($data['RoutinePlanFilter'])."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',2)');

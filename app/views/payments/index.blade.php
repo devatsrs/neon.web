@@ -64,6 +64,10 @@
                     {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(!empty(Input::get('CurrencyID'))?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"select2 small"))}}
                 </div>
                 <div class="form-group">
+                    <label class="control-label">Account Tag</label>
+                    <input class="form-control tags" name="tag" type="text" >
+                </div>
+                <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
                         <i class="entypo-search"></i>
@@ -284,6 +288,7 @@
                     $searchFilter.PaymentDate_EndDate   = $("#payment-table-search input[name='PaymentDate_EndDate']").val();
                     $searchFilter.PaymentDate_EndTime   = $("#payment-table-search input[name='PaymentDate_EndTime']").val();
                     $searchFilter.CurrencyID 			= $("#payment-table-search select[name='CurrencyID']").val();
+                    $searchFilter.tag = $("#payment-table-search [name='tag']").val();
                     if($("#payment-table-search select[name='recall_on_off']")) {
                         $searchFilter.recall_on_off = $("#payment-table-search [name='recall_on_off']").prop("checked");
                     }else{
@@ -307,7 +312,8 @@
 									{"name": "PaymentDate_StartTime","value": $searchFilter.PaymentDate_StartTime},
 									{"name": "PaymentDate_EndDate","value": $searchFilter.PaymentDate_EndDate},
 									{"name": "PaymentDate_EndTime","value": $searchFilter.PaymentDate_EndTime},
-									{"name": "CurrencyID","value": $searchFilter.CurrencyID}
+									{"name": "CurrencyID","value": $searchFilter.CurrencyID},
+									{"name": "tag","value": $searchFilter.tag}
 
                             );
                             data_table_extra_params.length = 0;
@@ -323,6 +329,7 @@
 									{"name": "PaymentDate_EndDate","value": $searchFilter.PaymentDate_EndDate},
 									{"name": "PaymentDate_EndTime","value": $searchFilter.PaymentDate_EndTime},
 									{"name": "CurrencyID","value": $searchFilter.CurrencyID},
+									{"name": "tag","value": $searchFilter.tag},
                                     {"name":"Export","value":1}
                             );
 
@@ -1008,7 +1015,8 @@
 				"PaymentDate_EndDate":$("#payment-table-search input[name='PaymentDate_EndDate']").val(),
 				"PaymentDate_EndTime":$("#payment-table-search input[name='PaymentDate_EndTime']").val(),
 				"CurrencyID":$("#payment-table-search select[name='CurrencyID']").val(),	
-				"recall_on_off":$searchFilter.recall_on_off = $("#payment-table-search [name='recall_on_off']").prop("checked"),				
+				"tag":$("#payment-table-search select[name='tag']").val(),
+				"recall_on_off":$searchFilter.recall_on_off = $("#payment-table-search [name='recall_on_off']").prop("checked"),
 				"bDestroy": true,
 				"bProcessing":true,
 				"bServerSide":true,
@@ -1057,6 +1065,7 @@
                         $searchFilter.PaymentDate_EndDate   = $("#payment-table-search input[name='PaymentDate_EndDate']").val();
                         $searchFilter.PaymentDate_EndTime   = $("#payment-table-search input[name='PaymentDate_EndTime']").val();
                         $searchFilter.CurrencyID 			= $("#payment-table-search select[name='CurrencyID']").val();
+                        $searchFilter.tag 			= $("#payment-table-search input[name='tag']").val();
                         if($("#payment-table-search select[name='recall_on_off']")) {
                             $searchFilter.recall_on_off = $("#payment-table-search [name='recall_on_off']").prop("checked");
                         }else{

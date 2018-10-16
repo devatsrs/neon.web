@@ -62,11 +62,13 @@
                                 <div class="col-sm-12">Partial File</div>
                             @endif
                             <?php $Options = json_decode($Options->Options); ?>
-                            @if(isset($Options->skipRows->start_row) && (int) $Options->skipRows->start_row > 0)
-                                <div class="col-sm-12">Skips rows from Start - {{$skipRows->skipRows->start_row}}</div>
-                            @endif
-                            @if(isset($Options->skipRows->end_row) && (int) $Options->skipRows->end_row > 0)
-                                <div class="col-sm-12">Skips rows from Bottom - {{$skipRows->skipRows->end_row}}</div>
+                            @if(isset($Options->skipRows))
+                                @if(isset($Options->skipRows->start_row) && (int) $Options->skipRows->start_row > 0)
+                                    <div class="col-sm-12">Skips rows from Start - {{$Options->skipRows->start_row}}</div>
+                                @endif
+                                @if(isset($Options->skipRows->end_row) && (int) $Options->skipRows->end_row > 0)
+                                    <div class="col-sm-12">Skips rows from Bottom - {{$Options->skipRows->end_row}}</div>
+                                @endif
                             @endif
                             @if(!empty($Options->Sheet))
                                 <div class="col-sm-12">Sheet Name : {{$Options->Sheet}}</div>
@@ -111,6 +113,20 @@
             <div class="col-sm-12">{{$trunkname}}</div>
         </div>
         @endif
+        <?php
+        if (isset($Options->Timezones)) {
+            $Timezones = $Options->Timezones;
+            $TimezonesName = '';
+            $TimezonesName = Timezones::getTimezonesName($Timezones);
+        }
+        ?>
+        @if(isset($Timezones) && !empty($Timezones))
+            <div class="form-group">
+                <label class="control-label col-sm-12 bold">Timezones</label>
+                <div class="col-sm-12">{{$TimezonesName}}</div>
+            </div>
+        @endif
+
         @endif
 
         @if( isset($history_file->FilePath) && !empty($history_file->FilePath))

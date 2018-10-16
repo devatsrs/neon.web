@@ -10,6 +10,14 @@
             </h2>
             <form id="product_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
                 <div class="form-group">
+                    <label for="field-5" class="control-label">Available</label>
+                    {{Form::select('SearchStock',[''=>'Select','Instock'=>'In Stock','Outstock'=>'Out Of Stock','LowLevel'=>'Low Stock Level'],'',array("class"=>"form-control select2 small"))}}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Search</label>
+                    {{ Form::text('SearchDynamicFields', '', array("class"=>"form-control")) }}
+                </div>
+                <div class="form-group">
                     <label for="field-5" class="control-label">Item Type </label>
                     {{Form::select('ItemTypeID',$itemtypes,'',array("class"=>"form-control select2 small"))}}
                 </div>
@@ -67,23 +75,24 @@
                                 @if(User::checkCategoryPermission('Products','Edit'))
                                     <li class="li_active">
                                         <a class="type_active_deactive" type_ad="active" href="javascript:void(0);" >
-                                            <i class="fa"></i>
+                                            <i class=""></i>
                                             <span>Activate</span>
                                         </a>
                                     </li>
                                     <li class="li_deactive">
                                         <a class="type_active_deactive" type_ad="deactive" href="javascript:void(0);" >
-                                            <i class="fa"></i>
+                                            <i class=""></i>
                                             <span>Deactivate</span>
                                         </a>
                                     </li>
-
+                                    @if(User::checkCategoryPermission('StockHistory','View'))
                                     <li class="">
                                         <a class="" href="{{  URL::to('products/stockhistory') }}" >
                                             <i class=""></i>
                                             <span>History</span>
                                         </a>
                                     </li>
+                                    @endif
                                 @endif
                             </ul>
                         </div><!-- /btn-group -->
@@ -100,25 +109,14 @@
                                     Add New
                                 </a>
 
-                                <div class="input-group-btn pull-right hidden dropdown" style="margin-right:101px">
-                                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Manage Types <span class="caret"></span></button>
-                                        <ul class="dropdown-menu dropdown-menu-right" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;left:-42px;">
-                                            @if(User::checkCategoryPermission('Products','Edit'))
-                                                <li class="li_type">
-                                                    <a href="{{  URL::to('products/itemtypes') }}" id="manage-type" class="btn btn-primary pull-left">
-                                                        <i class=""></i>
-                                                        Manage Types
-                                                    </a>
-                                                </li>
-                                                <li class="li_dynamic">
-                                                    <a class="btn btn-primary pull-left"  href="{{  URL::to('products/dynamicfields') }}" >
-                                                        <i class=""></i>
-                                                        <span>Manage Dynamic Fields</span>
-                                                    </a>
-                                                </li>
+
+                                            @if(User::checkCategoryPermission('ItemType','View'))
+                                                <a href="{{  URL::to('products/itemtypes') }}" class="btn btn-primary pull-right" style="margin-right:2px;">
+                                                    <i class="entypo-list"></i>
+                                                    Manage Types
+                                                </a>
                                             @endif
-                                        </ul>
-                                    </div>
+
                                
                             @endif
                         @endif
@@ -148,7 +146,7 @@
             </table>
             <script type="text/javascript">
                 var checked = '';
-                var list_fields  = ['ProductID','title','Name','Code','Buying_price','Amount','Quantity','updated_at','Active','Description','Note','AppliedTo','Low_stock_level','ItemTypeID'];
+                var list_fields  = ['ProductID','title','Name','Code','BuyingPrice','Amount','Quantity','updated_at','Active','Description','Note','AppliedTo','LowStockLevel','ItemTypeID','Image'];
                 var $searchFilter = {};
                 var update_new_url;
                 var postdata;
@@ -162,6 +160,8 @@
                     $searchFilter.Code = $("#product_filter [name='Code']").val();
                     $searchFilter.Active = $("#product_filter select[name='Active']").val();
                     $searchFilter.AppliedTo = $("#product_filter select[name='AppliedTo']").val();
+                    $searchFilter.SearchDynamicFields = $("#product_filter select[name='SearchDynamicFields']").val();
+                    $searchFilter.SearchStock = $("#product_filter select[name='SearchStock']").val();
 
                     data_table = $("#table-4").dataTable({
                         "bDestroy": true,
@@ -172,9 +172,11 @@
                             aoData.push({ "name": "ItemTypeID", "value": $searchFilter.ItemTypeID },
                                         { "name": "Name", "value": $searchFilter.Name },
                                         { "name": "Code","value": $searchFilter.Code },
-                                        { "name": "Low_stock_level","value": $searchFilter.Low_stock_level },
+                                        { "name": "LowStockLevel","value": $searchFilter.Low_stock_level },
                                         { "name": "Active", "value": $searchFilter.Active },
-                                        { "name": "AppliedTo", "value": $searchFilter.AppliedTo });
+                                        { "name": "AppliedTo", "value": $searchFilter.AppliedTo },
+                                        { "name": "SearchStock", "value": $searchFilter.SearchStock },
+                                        { "name": "SearchDynamicFields", "value": $searchFilter.SearchDynamicFields });
 
                             data_table_extra_params.length = 0;
                             data_table_extra_params.push({ "name": "ItemTypeID", "value": $searchFilter.ItemTypeID },
@@ -182,13 +184,15 @@
                                                         { "name": "Code","value": $searchFilter.Code },
                                                         { "name": "Active", "value": $searchFilter.Active },
                                                         { "name": "AppliedTo", "value": $searchFilter.AppliedTo },
+                                                        { "name": "SearchDynamicFields", "value": $searchFilter.SearchDynamicFields },
+                                                        { "name": "SearchStock", "value": $searchFilter.SearchStock },
                                                         { "name": "Export", "value": 1});
 
                         },
                         "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                         "sPaginationType": "bootstrap",
                         "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                        "aaSorting": [[0, 'asc']],
+                        "aaSorting": [[2, 'asc']],
                         "aoColumns": [
                             {"bSortable": false,
                                 mRender: function(id, type, full) {
@@ -231,13 +235,15 @@
                                         });
                                     }
                                     action += '</div>';
-                                    <?php if(User::checkCategoryPermission('Products','Edit')){ ?>
-                                        action += ' <a data-name = "' + full[1] + '" data-id="' + full[0] + '" title="Edit" class="edit-product btn btn-default btn-sm btn-smtooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
+                                    if(full[3]!='topup') {
+                                        <?php if(User::checkCategoryPermission('Products', 'Edit')){ ?>
+                                                action += ' <a data-name = "' + full[1] + '" data-id="' + full[0] + '" title="Edit" class="edit-product btn btn-default btn-sm btn-smtooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
                                         action += ' <a data-name = "' + full[1] + '" data-id="' + full[0] + '" title="CLone" class="clone-product btn btn-default btn-smtooltip-primary" data-original-title="Clone" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-clone"></i>&nbsp;</a>';
-                                    <?php } ?>
-                                    <?php if(User::checkCategoryPermission('Products','Delete') ){ ?>
-                                        action += ' <a href="'+delete_+'" data-redirect="{{ URL::to('products')}}" title="Delete"  class="btn delete btn-danger btn-default btn-sm btn-smtooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></a>';
-                                     <?php } ?>
+                                        <?php } ?>
+                                                <?php if(User::checkCategoryPermission('Products', 'Delete') ){ ?>
+                                                action += ' <a href="' + delete_ + '" data-redirect="{{ URL::to('products')}}" title="Delete"  class="btn delete btn-danger btn-default btn-sm btn-smtooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></a>';
+                                        <?php } ?>
+                                    }
                                     return action;
                                 }
                             }
@@ -259,6 +265,7 @@
                             ]
                         },
                         "fnDrawCallback": function () {
+                            get_quantity_total(); //get result total
                             $(".dataTables_wrapper select").select2({
                                 minimumResultsForSearch: -1
                             });
@@ -311,6 +318,40 @@
                         }
 
                     });
+
+                    function get_quantity_total() {
+                        $.ajax({
+                            url: baseurl + "/products/ajax_datagrid_total",
+                            type: 'GET',
+                            dataType: 'json',
+                            data: {
+                                "ItemTypeID": $searchFilter.ItemTypeID,
+                                "Name": $searchFilter.Name,
+                                "Code": $searchFilter.Code,
+                                "LowStockLevel": $searchFilter.Low_stock_level,
+                                "Active":$searchFilter.Active,
+                                "AppliedTo":$searchFilter.AppliedTo,
+                                "SearchStock": $searchFilter.SearchStock,
+                                "SearchDynamicFields": $searchFilter.SearchDynamicFields,
+                                "bDestroy": true,
+                                "bProcessing": true,
+                                "bServerSide": true,
+                                "sAjaxSource": baseurl + "/products/ajax_datagrid/type",
+                                "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
+                                "sPaginationType": "bootstrap",
+                                "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                                "aaSorting": [[3, 'desc']]
+                            },
+                            success: function (response1) {
+                                //console.log("sum of result"+response1);
+                                if (response1.total_grand != null) {
+                                    $('.result_row').remove();
+                                    $('.result_row').hide();
+                                    $('#table-4 tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td align="right" colspan="5"></td><td><strong>' + response1.total_grand + '</strong></td><td colspan="3"></td></tr>');
+                                }
+                            }
+                        });
+                    }
 
                     // select all records which are showing in list
                     $("#selectall").click(function (ev) {
@@ -380,6 +421,8 @@
                                 "Code":$("#product_filter [name='Code']").val(),
                                 "Active":$("#product_filter [name='Active']").val(),
                                 "AppliedTo":$("#product_filter [name='AppliedTo']").val(),
+                                "SearchDynamicFields":$("#product_filter [name='SearchDynamicFields']").val(),
+                                "SearchStock":$("#product_filter [name='SearchStock']").val(),
                                 "SelectedIDs":SelectedIDs,
                                 "criteria_ac":criteria_ac,
                                 "type_active_deactive":type_active_deactive,
@@ -396,6 +439,8 @@
                         $searchFilter.Code = $("#product_filter [name='Code']").val();
                         $searchFilter.Active = $("#product_filter [name='Active']").val();
                         $searchFilter.AppliedTo = $("#product_filter [name='AppliedTo']").val();
+                        $searchFilter.SearchDynamicFields = $("#product_filter [name='SearchDynamicFields']").val();
+                        $searchFilter.SearchStock = $("#product_filter [name='SearchStock']").val();
                          data_table.fnFilter('', 0);
                         return false;
                     });
@@ -417,14 +462,20 @@
                         ev.preventDefault();
                         ev.stopPropagation();
                         $('#add-edit-product-form').trigger("reset");
+                        $("#download_attach").html("");
+                        $(".file-input-name").html("");
                         var cur_obj = $(this).prev("div.hiddenRowData");
                         for(var i = 0 ; i< list_fields.length; i++){
                             if(list_fields[i] == 'ItemTypeID'){
                                 $("#add-edit-product-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
                                 var valitemid=$("input[name='"+list_fields[i]+"']").val();
-                                $("#add-edit-product-form [name='"+list_fields[i]+"']").attr("disabled",true);
-                                var h_ItemTypeID='<input type="hidden" name="ItemTypeID" value="'+valitemid+'" />';
-                                $("#add-edit-product-form").append(h_ItemTypeID);
+
+                                if(cur_obj.find("input[name='"+list_fields[i]+"']").val() >0) {
+                                    $("#add-edit-product-form [name='" + list_fields[i] + "']").attr("disabled", true);
+
+                                    var h_ItemTypeID = '<input type="hidden" name="ItemTypeID" value="' + valitemid + '" />';
+                                    $("#add-edit-product-form").append(h_ItemTypeID);
+                                }
                             }
 
                             if(list_fields[i] == 'Active'){
@@ -435,6 +486,16 @@
                                 }
                             }else if(list_fields[i] == 'AppliedTo'){
                                 $("#add-edit-product-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
+                            }else if(list_fields[i] == 'Image'){
+                                //For Attachment
+                                var field_value = cur_obj.find("input[name='"+list_fields[i]+"']").val();
+                                if(field_value!='' && typeof(field_value)!='undefined'){
+                                    var id=$(this).attr('data-id');
+                                    var downloads_ = "{{ URL::to('product/{id}/download_attachment')}}";
+                                    downloads_  = downloads_ .replace( '{id}', id );
+                                    var download_html = '<div class="btn-group"><span class="col-md-offset-1"><a href="'+downloads_+'" class="btn btn-success btn-md btn-icon icon-left"><i class="entypo-down"></i>Download</a></span></div>';
+                                    $("#download_attach").html(download_html);
+                                }
                             }else{
                                 $("#add-edit-product-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                             }
@@ -457,6 +518,8 @@
                         ev.preventDefault();
                         ev.stopPropagation();
                         $('#add-edit-product-form').trigger("reset");
+                        $("#download_attach").html("");
+                        $(".file-input-name").html("");
                         var cur_obj = $(this).prev().prev("div.hiddenRowData");
                         for(var i = 0 ; i< list_fields.length; i++){
                             if(list_fields[i] == 'ItemTypeID'){
@@ -466,11 +529,15 @@
                             if(list_fields[i] == 'Active'){
                                 if(cur_obj.find("input[name='"+list_fields[i]+"']").val() == 1){
                                     $('#add-edit-product-form [name="Active"]').prop('checked',true)
-                                }else if(list_fields[i] == 'AppliedTo'){
-                                    $("#add-edit-product-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
                                 }else{
                                     $('#add-edit-product-form [name="Active"]').prop('checked',false)
                                 }
+                            }else if(list_fields[i] == 'AppliedTo'){
+                                $("#add-edit-product-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
+                            }else if(list_fields[i] == 'Image'){
+                                //For Attachment
+
+
                             }else{
                                 $("#add-edit-product-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                             }
@@ -492,6 +559,8 @@
 
                     $('#add-new-product').click(function (ev) {
                         $("#add-edit-modal-product [name='ProductClone']").val(0);
+                        $("#download_attach").html("");
+                        $(".file-input-name").html("");
                     });
                     /*$('#add-new-product').click(function (ev) {
                         ev.preventDefault();

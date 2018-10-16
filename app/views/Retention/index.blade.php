@@ -44,6 +44,13 @@
         <div class="col-sm-8"></div>
     </div>
     <div class="form-group">
+        <label for="field-1" class="col-sm-2 control-label">CDR Failed Calls: </label>
+        <div class="col-sm-2">
+            <input type="text" name="TableData[CDRFailedCalls]" class="form-control" value="{{isset($DataRetenion->CDRFailedCalls)?$DataRetenion->CDRFailedCalls:''}}"/>
+        </div>
+        <div class="col-sm-8"></div>
+    </div>
+    <div class="form-group">
         <label for="field-1" class="col-sm-2 control-label">Cron Job History :</label>
         <div class="col-sm-2">
             <input type="text" name="TableData[Cronjob]" class="form-control" value="{{isset($DataRetenion->Cronjob)?$DataRetenion->Cronjob:''}}"/>
@@ -68,6 +75,21 @@
         <label for="field-1" class="col-sm-2 control-label">Vendor Rate Sheet Upload/Download History : </label>
         <div class="col-sm-2">
             <input type="text" name="TableData[VendorRateSheet]" class="form-control" value="{{isset($DataRetenion->VendorRateSheet)?$DataRetenion->VendorRateSheet:''}}"/>
+        </div>
+        <div class="col-sm-8"></div>
+    </div>
+
+    <div class="form-group">
+        <label for="field-1" class="col-sm-2 control-label">Tickets : </label>
+        <div class="col-sm-2">
+            <input type="text" name="TableData[DeleteTickets]" class="form-control" value="{{isset($DataRetenion->DeleteTickets)?$DataRetenion->DeleteTickets:''}}"/>
+        </div>
+        <div class="col-sm-8"></div>
+    </div>
+    <div class="form-group">
+        <label for="field-1" class="col-sm-2 control-label">Delete archived rates : </label>
+        <div class="col-sm-2">
+            <input type="text" name="TableData[ArchiveOldRate]" class="form-control" value="{{isset($DataRetenion->ArchiveOldRate)?$DataRetenion->ArchiveOldRate:''}}"/>
         </div>
         <div class="col-sm-8"></div>
     </div>

@@ -50,7 +50,9 @@
       <div class="form-group">
         <label for="EmailActionbody">* Message:</label>
         <textarea name="Message" id="EmailActionbody" class="form-control autogrow editor-email message"   style="height: 175px; overflow: hidden; word-wrap: break-word; resize: none;">
-            {{$EmailFooter}}
+            @if(!empty($EmailFooter))
+            {{"<br><br><br>".$EmailFooter}}
+            @endif
             @if($action_type!='forward')
                 <br><br><br> On <?php echo date('M d, Y,',strtotime($response_data['created_at'])).' at '.date('H:i A, ',strtotime($response_data['created_at'])); echo $response_data['Requester']; ?> wrote: <br>
             @else
@@ -73,7 +75,17 @@
 </div>
 <div class="modal-footer">
   <input type="hidden" name="TicketParent" id="TicketParent" value="{{$parent_id}}" />
-  <button type="submit" id="EmailAction-edit"  class="save btn btn-primary btn-send-mail btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Send </button>
+    <div class="btn-group">
+        <button type="button" class="btn btn-primary TicketStatus btn-sm btn-send-mail" data-status-id="">Send</button>
+        <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split btn-sm btn-send-mail" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
+            @foreach($ticketStatusArr as $statusId=>$status)
+                <li> <a href="javascript:;" class="TicketStatus" data-status-id="{{$statusId}}"> {{$status}}</a> </li>
+            @endforeach
+        </ul>
+    </div>
   <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
 </div>
 <script>
@@ -88,6 +100,11 @@
 	 emailFileListReply.push(img_array_final[i].filename);	
  }
 	@endif
+
+	$(".TicketStatus").click(function () {
+        var TicketStatus = $(this).attr("data-status-id");
+        sumbitReplyTicket(TicketStatus);
+    });
 	
 	
 </script>

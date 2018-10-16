@@ -22,7 +22,7 @@
                     {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"select2"))}}
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="control-label">CreditNotes Number</label>
+                    <label for="field-1" class="control-label">Credit Note Number</label>
                     {{ Form::text('CreditNotesNumber', '', array("class"=>"form-control")) }}
                 </div>
                 <div class="form-group">
@@ -60,27 +60,11 @@
     </a>-->
     </p>
     <div class="row">
-        <div  class="col-md-12">
-            <!--<div class="input-group-btn pull-right" style="width:70px;"> @if( User::checkCategoryPermission('CreditNotes','Edit'))
-                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
-                    <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
-                        @if(User::checkCategoryPermission('CreditNotes','Edit'))
-                            <li> <a class="delete_bulk" id="delete_bulk" href="javascript:;" > Delete </a> </li>
-                        @endif
-                        @if(User::checkCategoryPermission('CreditNotes','Edit'))
-                            <li> <a class="convert_invoice" id="convert_invoice" href="javascript:;" >Accept and generate invoice</a> </li>
-                        @endif
-                    </ul>
-                @endif
-                <form id="clear-bulk-rate-form" >
-                    <input type="hidden" name="CustomerRateIDs" value="">
-                </form>
-            </div>
-            -->
+        <div class="col-md-12">
+            <a href="javascript:;" id="bulk-creditnotes-send" class="btn btn-primary pull-right"> Bulk Send</a>
             @if(User::checkCategoryPermission('CreditNotes','Add'))
                 <a href="{{URL::to("creditnotes/create")}}" id="add-new-creditnotes" class="btn btn-primary pull-right"> <i class="entypo-plus"></i> Add New</a>
-                @endif
-                        <!-- /btn-group -->
+            @endif
         </div>
         <div class="clear"></div>
     </div>
@@ -89,13 +73,14 @@
         <thead>
         <tr>
             <th width="5%"><div class="pull-left">
-                    <input type="checkbox" id="selectall" name="checkbox[]" class="" />
+                     <input type="checkbox" id="selectall" name="checkbox[]" class="" />
                 </div></th>
             <th width="20%">Account Name</th>
-            <th width="10%">CreditNotes Number</th>
+            <th width="10%">Number</th>
             <th width="15%">Issue Date</th>
             <th width="10%">Grand Total</th>
-            <th width="10%">CreditNotes Status</th>
+            <th width="10%">Available Credit</th>
+            <th width="10%">Status</th>
             <th width="20%">Action</th>
         </tr>
         </thead>
@@ -126,11 +111,12 @@
                         if (response_del.status == 'success')
                         {
                             jQuery(this).parent().parent().parent().hide('slow').remove();
+                            ShowToastr("success", response_del.message);
                             data_table.fnFilter('', 0);
                         }
                         else
                         {
-                            ShowToastr("error",response.message);
+                            ShowToastr("error",response_del.message);
                         }
 
                     },
@@ -174,7 +160,6 @@
                             {  "bSortable": false,
                                 mRender: function ( id, type, full ) {
                                     var action , action = '<div class = "hiddenRowData" >';
-                                    //if (full[4] != 'accepted')
                                     {
                                         action += '<div class="pull-left"><input type="checkbox" class="checkbox rowcheckbox" value="'+full[5]+'" name="CreditNotesID[]"></div>';
                                     }
@@ -224,13 +209,21 @@
                                 mRender:function( id, type, full){
                                     var output = full[3];
                                     return output;
-                                } },  // 4 GrandTotal
+                                }
+                            },  // 4 GrandTotal
+                            {  "bSortable": true,
+                                mRender:function( id, type, full){
+                                    return  full[11];
+                                }
+
+                            },  // 11 Available Balance
                             {  "bSortable": true,
                                 mRender:function( id, type, full){
                                     return  creditnotesstatus[full[4]];
                                 }
 
                             },  // 5 CreditNotesStatus
+
                             {
                                 "bSortable": false,
                                 mRender: function ( id, type, full ) {
@@ -251,12 +244,12 @@
 
                                     /*Multiple Dropdown*/
                                     action += '<div class="btn-group">';
-                                    action += ' <a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
+                                    action += ' <a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary btn-sm" data-target="#" href="#">Action<span class="caret"></span></a>';
                                     action += '<ul class="dropdown-menu multi-level dropdown-menu-left" role="menu" aria-labelledby="dropdownMenu">';
 
                                     if('{{User::checkCategoryPermission('CreditNotes','Edit')}}')
                                     {
-                                        //if(full[4] != 'accepted')
+                                        if(creditnotesstatus[full[4]] != 'Close')
                                         {
                                             action += ' <li><a class="icon-left"  href="' + (baseurl + "/creditnotes/{id}/edit").replace("{id}",full[5]) +'"><i class="entypo-pencil"></i>Edit </a></li>';
                                         }
@@ -290,7 +283,7 @@
 
                                     //if(full[4] != 'accepted')
                                     {
-                                        action += ' <div class="btn-group"><a href="' + (baseurl + "/creditnotes/{id}/apply_creditnotes").replace("{id}",full[8]) +'" class="btn generate btn-success btn-sm">Apply Credit Notes</a></div>'
+
                                         action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Change Status <span class="caret"></span></button>'
                                         action += '<ul class="dropdown-menu dropdown-green" role="menu">';
                                         $.each(creditnotesstatus, function( index, value ) {
@@ -302,6 +295,7 @@
 
                                         action += '</ul>' +
                                                 '</div>';
+                                        action += ' <div class="btn-group"><a href="' + (baseurl + "/creditnotes/{accountid}/{id}/apply_creditnotes").replace("{accountid}",full[8]).replace("{id}",full[5]) +'" class="btn generate btn-success btn-sm">Apply</a></div>'
                                     }
 
                                     return action;
@@ -325,7 +319,7 @@
                     ]
                 },
                 "fnDrawCallback": function() {
-                    //get_total_grand();
+                    get_total_grand();
                     $('#table-4 tbody tr').each(function(i, el) {
                         if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
                             if (checked != '') {
@@ -674,7 +668,7 @@
                     submit_ajax(update_new_url,formData)
 
                 }else{
-                    toastr.error("Please Select CreditNotess Status", "Error", toastr_opts);
+                    toastr.error("Please Select Credit Note Status", "Error", toastr_opts);
                     $(this).find(".cancelbutton]").button("reset");
                     return false;
                 }
@@ -756,14 +750,14 @@
                         CreditNotesIDs[i++] = CreditNotesID;
                     }
                 });
-                console.log(CreditNotesIDs);
+                    console.log(CreditNotesIDs);
 
                 if(CreditNotesIDs.length){
-                    if (!confirm('Are you sure you want to send selected CreditNotess?')) {
+                    if (!confirm('Are you sure you want to send selected Credit Notes?')) {
                         return;
                     }
                     $.ajax({
-                        url: baseurl + '/creditnotes/bulk_send_creditnotes_mail',
+                        url: baseurl + '/creditnotes/bulk_send_creditnote_mail',
                         data: 'CreditNotesIDs='+CreditNotesIDs+'&criteria='+criteria,
                         error: function () {
                             toastr.error("error", "Error", toastr_opts);
@@ -859,7 +853,7 @@
                 <form id="send-creditnotes-form" method="post" >
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Send CreditNotes By Email</h4>
+                        <h4 class="modal-title">Send Credit Note By Email</h4>
                     </div>
                     <div class="modal-body"> </div>
                     <div class="modal-footer">

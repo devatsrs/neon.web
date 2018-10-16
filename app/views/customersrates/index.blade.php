@@ -231,7 +231,7 @@
                     <th width="5%">Interval N</th>
                     <th width="5%">Connection Fee</th>
                     <th width="5%" class="routng_plan_cl">Routing plan</th>
-                    <th width="5%">Rate ({{$CurrencySymbol}})</th>
+                    <th width="5%">Rate1 ({{$CurrencySymbol}})</th>
                     <th width="5%">RateN ({{$CurrencySymbol}})</th>
                     <th width="8%">Effective Date</th>
                     <th width="8%" class="hidden">End Date</th>
@@ -1061,6 +1061,16 @@
                             }
                         });
                         $('#customer-rate-table-search select[name="Effective"]').val('Now').trigger('change');
+
+                        //set RateN value = Rate1 value if RateN value is blank
+                        $(document).on('focusout','.Rate1', function() {
+                            var formid = $(this).closest("form").attr('id');
+                            var val = $(this).val();
+
+                            if($('#'+formid+' .RateN').val() == '') {
+                                $('#'+formid+' .RateN').val(val);
+                            }
+                        });
             });
             function bulk_update_or_clear(fullurl,searchFilter){
                 $.ajax({
@@ -1206,7 +1216,7 @@
                             var hiddenRowData = tr.find('.hiddenRowData');
                             var Code = hiddenRowData.find('input[name="Code"]').val();
                             var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
-                            table.append("<thead><tr><th>Code</th><th>Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate</th><th>RateN</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                            table.append("<thead><tr><th>Code</th><th>Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate1</th><th>RateN</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
                             //var tbody = $("<tbody></tbody>");
 
                             ArchiveRates.forEach(function (data) {
@@ -1290,14 +1300,14 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="control-label">Rate</label>
-                                <input type="text" name="Rate" class="form-control" placeholder="">
+                                <label class="control-label">Rate1</label>
+                                <input type="text" name="Rate" class="form-control Rate1" placeholder="">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label">RateN</label>
-                                <input type="text" name="RateN" class="form-control" placeholder="">
+                                <input type="text" name="RateN" class="form-control RateN" placeholder="">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -1393,15 +1403,15 @@
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="control-label">Rate</label>
-                                <input type="text" name="Rate" class="form-control" placeholder="">
+                                <label class="control-label">Rate1</label>
+                                <input type="text" name="Rate" class="form-control Rate1" placeholder="">
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label">RateN</label>
-                                <input type="text" name="RateN" class="form-control" placeholder="">
+                                <input type="text" name="RateN" class="form-control RateN" placeholder="">
                             </div>
                         </div>
 
@@ -1502,14 +1512,14 @@
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="control-label">Rate</label>
-                                <input type="text" name="Rate" class="form-control" placeholder="">
+                                <label class="control-label">Rate1</label>
+                                <input type="text" name="Rate" class="form-control Rate1" placeholder="">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label">RateN</label>
-                                <input type="text" name="RateN" class="form-control" placeholder="">
+                                <input type="text" name="RateN" class="form-control RateN" placeholder="">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -1621,14 +1631,14 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="control-label">Rate</label>
-                                <input type="text" name="Rate" class="form-control" placeholder="">
+                                <label class="control-label">Rate1</label>
+                                <input type="text" name="Rate" class="form-control Rate1" placeholder="">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label">RateN</label>
-                                <input type="text" name="RateN" class="form-control" placeholder="">
+                                <input type="text" name="RateN" class="form-control RateN" placeholder="">
                             </div>
                         </div>
                         <div class="col-md-6">

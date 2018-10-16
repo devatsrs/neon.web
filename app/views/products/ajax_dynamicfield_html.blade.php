@@ -117,7 +117,7 @@
             format:'yyyy-mm-dd H:i:00'
         });
         // Replaced File Input
-        $("input.file2[type=file]").each(function(i, el)
+        $("input.file2[type=file]").not("#Image").each(function(i, el)
         {
             var $this = $(el),
                     label = attrDefault($this, 'label', 'Browse');

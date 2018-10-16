@@ -13,7 +13,7 @@
     <div class="col-md-4"></div>
     <div class="col-md-4">
         <div class="modal-header">            
-                <h4 class="modal-title">Neon Account Creating..</h4>
+                <h4 class="modal-title">Registering...</h4>
         </div>
     </div>
 </div>

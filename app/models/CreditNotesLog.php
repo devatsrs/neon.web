@@ -15,8 +15,9 @@ class CreditNotesLog extends \Eloquent {
     const REGENERATED  =6;
     const POST  = 7;
     const COMMENT  =9;
+    const PAID  =10;
 
-    public static $log_status = array(self::CREATED=>'Created',self::VIEWED=>'Viewed',self::CANCEL=>'Cancel',self::SENT=>'Sent',self::UPDATED=>'Updated',self::REGENERATED => 'Regenerated',self::POST => 'Post',self::COMMENT => 'Comment');
+    public static $log_status = array(self::CREATED=>'Created',self::VIEWED=>'Viewed',self::CANCEL=>'Cancel',self::SENT=>'Sent',self::UPDATED=>'Updated',self::REGENERATED => 'Regenerated',self::POST => 'Post',self::COMMENT => 'Comment',self::PAID => 'Paid');
 
     public static function get_comments($CreditNotesID){
         $CreditNotesComment 	= 	CreditNotesLog::where(["CreditNotesID" => $CreditNotesID,"CreditNotesLogStatus" =>CreditNotesLog::COMMENT])->orderBy("CreditNotesLogID", "asc")->get();

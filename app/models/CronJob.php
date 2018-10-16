@@ -182,6 +182,7 @@ class CronJob extends \Eloquent {
         $LastRunTime = $CronJob->LastRunTime;
         $ComanyName = Company::getName($CompanyID);
         $PID = $CronJob->PID;
+        $MysqlPID=$CronJob->MysqlPID;
 
         $minute = CronJob::calcTimeDiff($LastRunTime);
 
@@ -189,9 +190,20 @@ class CronJob extends \Eloquent {
         $ActiveCronJobEmailTo = isset($cronsetting['ErrorEmail']) ? $cronsetting['ErrorEmail'] : '';
 
         $ReturnStatus = terminate_process($PID);
+        if($MysqlPID!=''){
+            try{
+                $MysqlProcess=DB::select("SELECT * FROM INFORMATION_SCHEMA.PROCESSLIST where ID=".$MysqlPID);
+                if(!empty($MysqlProcess)){
+                    terminateMysqlProcess($MysqlPID);
+                }
+            }catch (\Exception $err) {
+                Log::error($err);
+            }
+
+        }
 
         //Kill the process.
-        $CronJob->update([ "PID"=>"", "Active"=>0,"LastRunTime" => date('Y-m-d H:i:00')]);
+        $CronJob->update([ "PID"=>"", "Active"=>0,"LastRunTime" => date('Y-m-d H:i:00'),"MysqlPID"=>"","ProcessID"=>""]);
 
         CronJobLog::createLog($CronJobID,["CronJobStatus"=>CronJob::CRON_FAIL, "Message"=> "Terminated by " . User::get_user_full_name()]);
 

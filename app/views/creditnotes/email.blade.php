@@ -32,7 +32,7 @@
             <span class="file-input-names"></span> </div>
             
     <span style="display:none;"> 
-     <a target="_blank" href="{{URL::to('/creditnotes/'.$CreditNotes->CreditNotesID.'/creditnotes_preview')}}">View CreditNotes</a> <br>
+     <a target="_blank" href="{{URL::to('/creditnotes/'.$CreditNotes->CreditNotesID.'/creditnotes_preview')}}">View Credit Note</a> <br>
       <br>
       <br>
       Best Regards,<br>

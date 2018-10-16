@@ -5,8 +5,19 @@ class ProductApiController extends ApiController {
 	public function getListByType()
 	{
 		$data = Input::all();
+		$rules = array(
+			'PageNumber' => 'required',
+			'RowsPage' => 'required',
+		);
+		$validator = Validator::make($data, $rules);
+		if ($validator->fails()) {
+			return Response::json(["status"=>"failed", "message"=>"Please Enter Required Fields."]);
+		}
 		$CompanyID=User::get_companyID();
 		$data['CompanyID']=$CompanyID;
+		$data['Name']=empty($data['Name'])?'':$data['Name'];
+		$data['Description']=empty($data['Description'])?'':$data['Description'];
+
 		$result = Product::getProductByItemType($data);
 
 		return Response::json(["status"=>"success", "data"=>$result]);
@@ -31,14 +42,14 @@ class ProductApiController extends ApiController {
 			$data['InvoiceID']='';
 		}
 		$InvoiceNo=Invoice::where('InvoiceID',$data['InvoiceID'])->pluck('FullInvoiceNumber');
-		$getProduct = Product::where(['CompanyID'=>$CompanyID,'ProductID'=>$data['ProductID'],'Enable_stock'=>1])->first();
+		$getProduct = Product::where(['CompanyID'=>$CompanyID,'ProductID'=>$data['ProductID'],'EnableStock'=>1])->first();
 		if(!empty($getProduct)){
 			$pname=$getProduct['Name'];
 			$getPrevProductHistory = StockHistory::where(['CompanyID'=>$CompanyID,'ProductID'=>$data['ProductID']])->orderby('StockHistoryID', 'desc')->first();
 			if (!empty($getPrevProductHistory)) {
 				$pstock = intval($getPrevProductHistory['Stock']);
 				$remainStock = $pstock - $data['Qty'];
-				$low_stock_level=intval($getProduct['Low_stock_level']);
+				$low_stock_level=intval($getProduct['LowStockLevel']);
 				if ($remainStock < 0 || $remainStock <= $low_stock_level) {
 					$message = $pname . " is below the Lowlevel Stock.Available Stock is " . $remainStock;
 				}

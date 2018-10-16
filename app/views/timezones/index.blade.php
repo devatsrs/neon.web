@@ -56,12 +56,12 @@
                                 @if(User::checkCategoryPermission('Timezones','Edit'))
                                     <li>
                                         <a class="changeSelectedStatus" id="ActiveSelected" href="javascript:;" >
-                                            Active Selected
+                                            Activate
                                         </a>
                                     </li>
                                     <li>
                                         <a class="changeSelectedStatus" id="DeactiveSelected" href="javascript:;" >
-                                            Deactive Selected
+                                            Deactivate
                                         </a>
                                     </li>
                                 @endif

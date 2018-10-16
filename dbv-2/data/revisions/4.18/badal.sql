@@ -38,11 +38,13 @@ CREATE TABLE `tblCreditNotes` (
 	`FullCreditNotesNumber` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
 	`ServiceID` INT(11) NULL DEFAULT '0',
 	`BillingClassID` INT(11) NULL DEFAULT NULL,
+	`PaidAmount` DECIMAL(18,6) NULL DEFAULT '0.000000',
 	PRIMARY KEY (`CreditNotesID`),
 	INDEX `IX_AccountID_Status_CompanyID` (`AccountID`, `CreditNotesStatus`, `CompanyID`)
 )
 COLLATE='utf8_unicode_ci'
 ENGINE=InnoDB;
+
 
 CREATE TABLE `tblCreditNotesDetail` (
 	`CreditNotesDetailID` INT(11) NOT NULL AUTO_INCREMENT,
@@ -81,6 +83,7 @@ CREATE TABLE `tblCreditNotesTaxRate` (
 	`CreditNotesTaxRateID` INT(11) NOT NULL AUTO_INCREMENT,
 	`CreditNotesID` INT(11) NOT NULL,
 	`TaxRateID` INT(11) NOT NULL,
+	`CreditNotesDetailID` INT(11) NOT NULL DEFAULT '0',
 	`TaxAmount` DECIMAL(18,6) NOT NULL,
 	`Title` VARCHAR(500) NOT NULL COLLATE 'utf8_unicode_ci',
 	`CreditNotesTaxType` TINYINT(4) NOT NULL DEFAULT '0',
@@ -88,13 +91,14 @@ CREATE TABLE `tblCreditNotesTaxRate` (
 	`ModifiedBy` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
 	`created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
 	`updated_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-	PRIMARY KEY (`CreditNotesTaxRateID`),
-	UNIQUE INDEX `IX_EstimateTaxRateUnique` (`CreditNotesID`, `TaxRateID`, `CreditNotesTaxType`)
+	PRIMARY KEY (`CreditNotesTaxRateID`)
 )
 COLLATE='utf8_unicode_ci'
-ENGINE=InnoDB;
+ENGINE=InnoDB
+;
 
 /*procedure for list credit notes */
+DROP PROCEDURE IF EXISTS `prc_getCreditNotes`;
 DELIMITER //
 CREATE PROCEDURE `prc_getCreditNotes`(
 	IN `p_CompanyID` INT,
@@ -109,7 +113,6 @@ CREATE PROCEDURE `prc_getCreditNotes`(
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_CurrencyID` INT,
 	IN `p_isExport` INT
-
 )
 BEGIN
     
@@ -126,116 +129,117 @@ BEGIN
     THEN
         SELECT 
         ac.AccountName,
-        CONCAT(LTRIM(RTRIM(inv.CreditNotesNumber))) AS CreditNotesNumber,
-        inv.IssueDate,
-        CONCAT(IFNULL(cr.Symbol,''),ROUND(inv.GrandTotal,v_Round_)) AS GrandTotal2,		
-        inv.CreditNotesStatus,
-        inv.CreditNotesID,
-        inv.Description,
-        inv.Attachment,
-        inv.AccountID,		  
+        CONCAT(LTRIM(RTRIM(cn.CreditNotesNumber))) AS CreditNotesNumber,
+        cn.IssueDate,
+        CONCAT(IFNULL(cr.Symbol,''),ROUND(cn.GrandTotal,v_Round_)) AS GrandTotal2,		
+        cn.CreditNotesStatus,
+        cn.CreditNotesID,
+        cn.Description,
+        cn.Attachment,
+        cn.AccountID,		  
 		  IFNULL(ac.BillingEmail,'') AS BillingEmail,
-		  ROUND(inv.GrandTotal,v_Round_) AS GrandTotal
+		  ROUND(cn.GrandTotal,v_Round_) AS GrandTotal,
+		  IFNULL(cn.GrandTotal - cn.PaidAmount,0) AS CreditNoteAmount
 		  
-        FROM tblCreditNotes inv
-        INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = inv.AccountID
+        FROM tblCreditNotes cn
+        INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = cn.AccountID
         
-		INNER JOIN Ratemanagement3.tblBillingClass b ON inv.BillingClassID = b.BillingClassID	
+		INNER JOIN Ratemanagement3.tblBillingClass b ON cn.BillingClassID = b.BillingClassID	
 		LEFT JOIN tblInvoiceTemplate it on b.InvoiceTemplateID = it.InvoiceTemplateID
-        LEFT JOIN Ratemanagement3.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId 
+        LEFT JOIN Ratemanagement3.tblCurrency cr ON cn.CurrencyID   = cr.CurrencyId 
         WHERE ac.CompanyID = p_CompanyID
-        AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
-        AND (p_CreditNotesNumber = '' OR ( p_CreditNotesNumber != '' AND inv.CreditNotesNumber = p_CreditNotesNumber))
-        AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND inv.IssueDate >= p_IssueDateStart))
-        AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND inv.IssueDate <= p_IssueDateEnd))
-        AND (p_CreditNotesStatus = '' OR ( p_CreditNotesStatus != '' AND inv.CreditNotesStatus = p_CreditNotesStatus))
-		AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID))
+        AND (p_AccountID = 0 OR ( p_AccountID != 0 AND cn.AccountID = p_AccountID))
+        AND (p_CreditNotesNumber = '' OR ( p_CreditNotesNumber != '' AND cn.CreditNotesNumber = p_CreditNotesNumber))
+        AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND cn.IssueDate >= p_IssueDateStart))
+        AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND cn.IssueDate <= p_IssueDateEnd))
+        AND (p_CreditNotesStatus = '' OR ( p_CreditNotesStatus != '' AND cn.CreditNotesStatus = p_CreditNotesStatus))
+		AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND cn.CurrencyID = p_CurrencyID))
         ORDER BY
                 CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN ac.AccountName
             END DESC,
                 CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameASC') THEN ac.AccountName
             END ASC,
-            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreditNotesStatusDESC') THEN inv.CreditNotesStatus
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreditNotesStatusDESC') THEN cn.CreditNotesStatus
             END DESC,
-            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreditNotesStatusASC') THEN inv.CreditNotesStatus
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreditNotesStatusASC') THEN cn.CreditNotesStatus
             END ASC,
-            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreditNotesNumberASC') THEN inv.CreditNotesNumber
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreditNotesNumberASC') THEN cn.CreditNotesNumber
             END ASC,
-            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreditNotesNumberDESC') THEN inv.CreditNotesNumber
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreditNotesNumberDESC') THEN cn.CreditNotesNumber
             END DESC,
-            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IssueDateASC') THEN inv.IssueDate
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IssueDateASC') THEN cn.IssueDate
             END ASC,
-            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IssueDateDESC') THEN inv.IssueDate
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IssueDateDESC') THEN cn.IssueDate
             END DESC,
-            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GrandTotalDESC') THEN inv.GrandTotal
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GrandTotalDESC') THEN cn.GrandTotal
             END DESC,
-            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GrandTotalASC') THEN inv.GrandTotal
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GrandTotalASC') THEN cn.GrandTotal
             END ASC,
-            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreditNotesIDDESC') THEN inv.CreditNotesID
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreditNotesIDDESC') THEN cn.CreditNotesID
             END DESC,
-            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreditNotesIDASC') THEN inv.CreditNotesID
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreditNotesIDASC') THEN cn.CreditNotesID
             END ASC
         
         LIMIT p_RowspPage OFFSET v_OffSet_;
         
         
         SELECT
-            COUNT(*) AS totalcount,  ROUND(SUM(inv.GrandTotal),v_Round_) AS total_grand,v_CurrencyCode_ as currency_symbol
+            COUNT(*) AS totalcount,  ROUND(SUM(cn.GrandTotal),v_Round_) AS total_grand,v_CurrencyCode_ as currency_symbol
         FROM
-        tblCreditNotes inv
-        INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = inv.AccountID
+        tblCreditNotes cn
+        INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = cn.AccountID
         
-		INNER JOIN Ratemanagement3.tblBillingClass b ON inv.BillingClassID = b.BillingClassID
+		INNER JOIN Ratemanagement3.tblBillingClass b ON cn.BillingClassID = b.BillingClassID
 		LEFT JOIN tblInvoiceTemplate it on b.InvoiceTemplateID = it.InvoiceTemplateID
         WHERE ac.CompanyID = p_CompanyID
-        AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
-        AND (p_CreditNotesNumber = '' OR ( p_CreditNotesNumber != '' AND inv.CreditNotesNumber = p_CreditNotesNumber))
-        AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND inv.IssueDate >= p_IssueDateStart))
-        AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND inv.IssueDate <= p_IssueDateEnd))
-        AND (p_CreditNotesStatus = '' OR ( p_CreditNotesStatus != '' AND inv.CreditNotesStatus = p_CreditNotesStatus))
-		AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID));
+        AND (p_AccountID = 0 OR ( p_AccountID != 0 AND cn.AccountID = p_AccountID))
+        AND (p_CreditNotesNumber = '' OR ( p_CreditNotesNumber != '' AND cn.CreditNotesNumber = p_CreditNotesNumber))
+        AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND cn.IssueDate >= p_IssueDateStart))
+        AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND cn.IssueDate <= p_IssueDateEnd))
+        AND (p_CreditNotesStatus = '' OR ( p_CreditNotesStatus != '' AND cn.CreditNotesStatus = p_CreditNotesStatus))
+		AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND cn.CurrencyID = p_CurrencyID));
     END IF;
     IF p_isExport = 1
     THEN
         SELECT ac.AccountName ,
-        ( CONCAT(LTRIM(RTRIM(IFNULL(it.InvoiceNumberPrefix,''))), LTRIM(RTRIM(inv.CreditNotesNumber)))) AS CreditNotesNumber,
-        inv.IssueDate,
-        ROUND(inv.GrandTotal,v_Round_) AS GrandTotal,
-        inv.CreditNotesStatus
-        FROM tblCreditNotes inv
-        INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = inv.AccountID
+        ( CONCAT(LTRIM(RTRIM(IFNULL(it.InvoiceNumberPrefix,''))), LTRIM(RTRIM(cn.CreditNotesNumber)))) AS CreditNotesNumber,
+        cn.IssueDate,
+        ROUND(cn.GrandTotal,v_Round_) AS GrandTotal,        
+        cn.CreditNotesStatus
+        FROM tblCreditNotes cn
+        INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = cn.AccountID
         
-		INNER JOIN Ratemanagement3.tblBillingClass b ON inv.BillingClassID = b.BillingClassID
+		INNER JOIN Ratemanagement3.tblBillingClass b ON cn.BillingClassID = b.BillingClassID
 	    LEFT JOIN tblInvoiceTemplate it on b.InvoiceTemplateID = it.InvoiceTemplateID
         WHERE ac.CompanyID = p_CompanyID
-        AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
-        AND (p_CreditNotesNumber = '' OR ( p_CreditNotesNumber != '' AND inv.CreditNotesNumber = p_CreditNotesNumber))
-        AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND inv.IssueDate >= p_IssueDateStart))
-        AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND inv.IssueDate <= p_IssueDateEnd))
-        AND (p_CreditNotesStatus = '' OR ( p_CreditNotesStatus != '' AND inv.CreditNotesStatus = p_CreditNotesStatus))
-		AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID));
+        AND (p_AccountID = 0 OR ( p_AccountID != 0 AND cn.AccountID = p_AccountID))
+        AND (p_CreditNotesNumber = '' OR ( p_CreditNotesNumber != '' AND cn.CreditNotesNumber = p_CreditNotesNumber))
+        AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND cn.IssueDate >= p_IssueDateStart))
+        AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND cn.IssueDate <= p_IssueDateEnd))
+        AND (p_CreditNotesStatus = '' OR ( p_CreditNotesStatus != '' AND cn.CreditNotesStatus = p_CreditNotesStatus))
+		AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND cn.CurrencyID = p_CurrencyID));
     END IF;
      IF p_isExport = 2
     THEN
         SELECT ac.AccountID ,
         ac.AccountName,
-        ( CONCAT(LTRIM(RTRIM(IFNULL(it.InvoiceNumberPrefix,''))), LTRIM(RTRIM(inv.CreditNotesNumber)))) AS CreditNotesNumber,
-        inv.IssueDate,
-		  ROUND(inv.GrandTotal,v_Round_) AS GrandTotal,
-        inv.CreditNotesStatus,
-        inv.CreditNotesID
-        FROM tblCreditNotes inv
-        INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = inv.AccountID
+        ( CONCAT(LTRIM(RTRIM(IFNULL(it.InvoiceNumberPrefix,''))), LTRIM(RTRIM(cn.CreditNotesNumber)))) AS CreditNotesNumber,
+        cn.IssueDate,
+		  ROUND(cn.GrandTotal,v_Round_) AS GrandTotal,		  
+        cn.CreditNotesStatus,
+        cn.CreditNotesID
+        FROM tblCreditNotes cn
+        INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = cn.AccountID
        
-		INNER JOIN Ratemanagement3.tblBillingClass b ON inv.BillingClassID = b.BillingClassID
+		INNER JOIN Ratemanagement3.tblBillingClass b ON cn.BillingClassID = b.BillingClassID
 		  LEFT JOIN tblInvoiceTemplate it on b.InvoiceTemplateID = it.InvoiceTemplateID
         WHERE ac.CompanyID = p_CompanyID
-        AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
-        AND (p_CreditNotesNumber = '' OR ( p_CreditNotesNumber != '' AND inv.CreditNotesNumber = p_CreditNotesNumber))
-        AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND inv.IssueDate >= p_IssueDateStart))
-        AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND inv.IssueDate <= p_IssueDateEnd))
-        AND (p_CreditNotesStatus = '' OR ( p_CreditNotesStatus != '' AND inv.CreditNotesStatus = p_CreditNotesStatus))
-		AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID));
+        AND (p_AccountID = 0 OR ( p_AccountID != 0 AND cn.AccountID = p_AccountID))
+        AND (p_CreditNotesNumber = '' OR ( p_CreditNotesNumber != '' AND cn.CreditNotesNumber = p_CreditNotesNumber))
+        AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND cn.IssueDate >= p_IssueDateStart))
+        AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND cn.IssueDate <= p_IssueDateEnd))
+        AND (p_CreditNotesStatus = '' OR ( p_CreditNotesStatus != '' AND cn.CreditNotesStatus = p_CreditNotesStatus))
+		AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND cn.CurrencyID = p_CurrencyID));
     END IF; 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
     END//
@@ -243,6 +247,7 @@ DELIMITER ;
 
 /*procedure for list credit notes logs*/
 
+DROP PROCEDURE IF EXISTS `prc_GetCreditNotesLog`;
 DELIMITER //
 CREATE PROCEDURE `prc_GetCreditNotesLog`(IN `p_CompanyID` INT, IN `p_CreditNotesID` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(50), IN `p_isExport` INT)
 BEGIN
@@ -321,7 +326,737 @@ END//
 DELIMITER ;
 
 
+ALTER TABLE `tblPayment`
+	ADD COLUMN `CreditNotesID` INT(11) NULL DEFAULT '0' AFTER `TransactionID`;
+	
+
+/* Update Invoice status on bulk upload - change procedure prc_insertPayments*/	
+DROP PROCEDURE IF EXISTS `prc_insertPayments`;
+DELIMITER //
+CREATE PROCEDURE `prc_insertPayments`(
+	IN `p_CompanyID` INT,
+	IN `p_ProcessID` VARCHAR(100),
+	IN `p_UserID` INT
+)
+BEGIN
+
+	
+	DECLARE v_UserName varchar(30);
+ 	
+ 	SELECT CONCAT(u.FirstName,CONCAT(' ',u.LastName)) as name into v_UserName from Ratemanagement3.tblUser u where u.UserID=p_UserID;
+ 	
+ 	INSERT INTO tblPayment (
+	 		CompanyID,
+	 		 AccountID,
+			 InvoiceNo,
+			 PaymentDate,
+			 PaymentMethod,
+			 PaymentType,
+			 Notes,
+			 Amount,
+			 CurrencyID,
+			 Recall,
+			 `Status`,
+			 created_at,
+			 updated_at,
+			 CreatedBy,
+			 ModifyBy,
+			 RecallReasoan,
+			 RecallBy,
+			 BulkUpload,
+			 InvoiceID
+			 )
+ 	select tp.CompanyID,
+	 		 tp.AccountID,
+			 COALESCE(tp.InvoiceNo,''),
+			 tp.PaymentDate,
+			 tp.PaymentMethod,
+			 tp.PaymentType,
+			 tp.Notes,
+			 tp.Amount,
+			 ac.CurrencyId,
+			 0 as Recall,
+			 tp.Status,
+			 Now() as created_at,
+			 Now() as updated_at,
+			 v_UserName as CreatedBy,
+			 '' as ModifyBy,
+			 '' as RecallReasoan,
+			 '' as RecallBy,
+			 1 as BulkUpload,
+			 InvoiceID
+	from tblTempPayment tp
+	INNER JOIN Ratemanagement3.tblAccount ac 
+		ON  ac.AccountID = tp.AccountID  and ac.AccountType = 1 and ac.CurrencyId IS NOT NULL
+	where tp.ProcessID = p_ProcessID
+			AND tp.PaymentDate <= NOW()
+			AND tp.CompanyID = p_CompanyID;
+			
+	DROP TEMPORARY TABLE IF EXISTS tmp_UpdateInvoiceStatus_;
+	CREATE TEMPORARY TABLE tmp_UpdateInvoiceStatus_  (
+		InvoiceID INT,
+		AccountID INT,
+		Status Varchar(255),
+		Note TEXT
+	);
+	
+	INSERT INTO tmp_UpdateInvoiceStatus_ (
+	 		InvoiceID,
+	 		 AccountID,
+			 Status,
+			 Note			 
+			 )
+ 	select 			 
+			 tp.InvoiceID,
+			 tp.AccountID,			 
+		CASE WHEN (tp.Amount>= (inv.GrandTotal -  (SELECT IFNULL(sum(p.Amount),0) FROM tblPayment p WHERE p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) ))
+ 		then 
+ 		'paid' 
+				ELSE 'partially_paid' 
+			END
+			as status,
+			'' as Note
+	from tblTempPayment tp
+	INNER JOIN Ratemanagement3.tblAccount ac 
+		ON  ac.AccountID = tp.AccountID  and ac.AccountType = 1 and ac.CurrencyId IS NOT NULL
+		INNER JOIN tblInvoice inv ON tp.InvoiceID=inv.InvoiceID
+	where tp.ProcessID = p_ProcessID
+			AND tp.PaymentDate <= NOW()
+			AND tp.CompanyID = p_CompanyID;
+			
+	 Update tblInvoice i INNER JOIN tmp_UpdateInvoiceStatus_ tmp ON i.InvoiceID=tmp.InvoiceID 
+	 SET i.InvoiceStatus = tmp.Status;
+	 
+	INSERT INTO tblInvoiceLog (
+	 		InvoiceID,			 
+			 Note,
+			 created_at,
+			 updated_at			 
+			 )
+ 	select 			 
+			 tp.InvoiceID,			 	
+			'Paid By System' as Note,
+			 Now() as created_at,
+			 Now() as updated_at	
+	from tblTempPayment tp
+	INNER JOIN Ratemanagement3.tblAccount ac 
+		ON  ac.AccountID = tp.AccountID  and ac.AccountType = 1 and ac.CurrencyId IS NOT NULL
+		INNER JOIN tblInvoice inv ON tp.InvoiceID=inv.InvoiceID
+	where tp.ProcessID = p_ProcessID
+			AND tp.PaymentDate <= NOW()
+			AND tp.CompanyID = p_CompanyID;
+			
+	 delete from tblTempPayment where CompanyID = p_CompanyID and ProcessID = p_ProcessID;
+	 
+			
+END//
+DELIMITER ;
+
+/*add creditnotes number fields*/
+
+ALTER TABLE `tblInvoiceTemplate`
+	ADD COLUMN `CreditNotesNumberPrefix` VARCHAR(50) NULL DEFAULT NULL AFTER `LastEstimateNumber`,
+	ADD COLUMN `CreditNotesStartNumber` VARCHAR(50) NULL DEFAULT NULL AFTER `CreditNotesNumberPrefix`,
+	ADD COLUMN `LastCreditNotesNumber` BIGINT(20) NULL DEFAULT NULL AFTER `CreditNotesStartNumber`;
+	
+	
+/* procedure changes for display creditnotes amount in invoice listing and exporting */ 	
+DROP PROCEDURE IF EXISTS `prc_getInvoice`;
+DELIMITER //
+CREATE PROCEDURE `prc_getInvoice`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_InvoiceNumber` VARCHAR(50),
+	IN `p_IssueDateStart` DATETIME,
+	IN `p_IssueDateEnd` DATETIME,
+	IN `p_InvoiceType` INT,
+	IN `p_InvoiceStatus` LONGTEXT,
+	IN `p_IsOverdue` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_CurrencyID` INT,
+	IN `p_isExport` INT,
+	IN `p_sageExport` INT,
+	IN `p_zerovalueinvoice` INT,
+	IN `p_InvoiceID` LONGTEXT,
+	IN `p_userID` INT
+)
+BEGIN
+	DECLARE v_OffSet_ int;
+	DECLARE v_Round_ int;
+	DECLARE v_CurrencyCode_ VARCHAR(50);
+	DECLARE v_TotalCount int;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	SET  sql_mode='ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+	SELECT cr.Symbol INTO v_CurrencyCode_ from Ratemanagement3.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_Invoices_;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
+		InvoiceType tinyint(1),
+		AccountName varchar(100),
+		InvoiceNumber varchar(100),
+		IssueDate datetime,
+		InvoicePeriod varchar(100),
+		CurrencySymbol varchar(5),
+		Currency varchar(50),
+		GrandTotal decimal(18,6),
+		TotalPayment decimal(18,6),
+		PendingAmount decimal(18,6),
+		InvoiceStatus varchar(50),
+		CreditNoteAmount decimal(18,6),
+		InvoiceID int,
+		Description varchar(500),
+		Attachment varchar(255),
+		AccountID int,
+		ItemInvoice tinyint(1),
+		BillingEmail varchar(255),
+		AccountNumber varchar(100),
+		PaymentDueInDays int,
+		PaymentDate datetime,
+		SubTotal decimal(18,6),
+		TotalTax decimal(18,6),
+		NominalAnalysisNominalAccountNumber varchar(100),
+		TotalMinutes BIGINT(20)
+	);
+
+		INSERT INTO tmp_Invoices_
+		SELECT inv.InvoiceType ,
+			ac.AccountName,
+			FullInvoiceNumber as InvoiceNumber,
+			inv.IssueDate,
+			IF(invd.StartDate IS NULL ,'',CONCAT('From ',date(invd.StartDate) ,'<br> To ',date(invd.EndDate))) as InvoicePeriod,
+			IFNULL(cr.Symbol,'') as CurrencySymbol,
+			cr.Code AS Currency,
+			inv.GrandTotal as GrandTotal,
+			(SELECT IFNULL(sum(p.Amount),0) FROM tblPayment p WHERE p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) as TotalPayment,
+			(inv.GrandTotal -  (SELECT IFNULL(sum(p.Amount),0) FROM tblPayment p WHERE p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) ) as `PendingAmount`,
+			inv.InvoiceStatus,
+			(SELECT IFNULL(sum(GrandTotal) - sum(PaidAmount),0)  FROM tblCreditNotes c WHERE c.AccountID = inv.AccountID and c.CreditNotesStatus='open' and inv.InvoiceType=1) as CreditNoteAmount,
+			inv.InvoiceID,
+			inv.Description,
+			inv.Attachment,
+			inv.AccountID,
+			inv.ItemInvoice,
+			IFNULL(ac.BillingEmail,'') as BillingEmail,
+			ac.Number,
+			if (inv.BillingClassID > 0,
+				 (SELECT IFNULL(b.PaymentDueInDays,0) FROM Ratemanagement3.tblBillingClass b where  b.BillingClassID =inv.BillingClassID),
+				 (SELECT IFNULL(b.PaymentDueInDays,0) FROM Ratemanagement3.tblAccountBilling ab INNER JOIN Ratemanagement3.tblBillingClass b ON b.BillingClassID =ab.BillingClassID WHERE ab.AccountID = ac.AccountID AND ab.ServiceID = inv.ServiceID LIMIT 1)
+			) as PaymentDueInDays,
+			(SELECT PaymentDate FROM tblPayment p WHERE p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.Recall =0 AND p.AccountID = inv.AccountID ORDER BY PaymentID DESC LIMIT 1) AS PaymentDate,
+			inv.SubTotal,
+			inv.TotalTax,
+			ac.NominalAnalysisNominalAccountNumber,
+			IFNULL((SELECT SUM(IFNULL(TotalMinutes,0)) FROM tblInvoiceDetail tid WHERE tid.InvoiceID=inv.InvoiceID GROUP BY tid.InvoiceID),0) AS TotalMinutes
+			FROM tblInvoice inv
+			INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = inv.AccountID
+			LEFT JOIN tblInvoiceDetail invd ON invd.InvoiceID = inv.InvoiceID AND (invd.ProductType = 5 OR inv.InvoiceType = 2)
+			LEFT JOIN Ratemanagement3.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId
+			WHERE ac.CompanyID = p_CompanyID
+			AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
+			AND (p_userID = 0 OR ac.Owner = p_userID)
+			AND (p_InvoiceNumber = '' OR (inv.FullInvoiceNumber like Concat('%',p_InvoiceNumber,'%')))
+			AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND inv.IssueDate >= p_IssueDateStart))
+			AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND inv.IssueDate <= p_IssueDateEnd))
+			AND (p_InvoiceType = 0 OR ( p_InvoiceType != 0 AND inv.InvoiceType = p_InvoiceType))
+			AND (p_InvoiceStatus = '' OR ( p_InvoiceStatus != '' AND FIND_IN_SET(inv.InvoiceStatus,p_InvoiceStatus) ))
+			AND (p_zerovalueinvoice = 0 OR ( p_zerovalueinvoice = 1 AND inv.GrandTotal != 0))
+			AND (p_InvoiceID = '' OR (p_InvoiceID !='' AND FIND_IN_SET (inv.InvoiceID,p_InvoiceID)!= 0 ))
+			AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID));	
+
+	IF p_isExport = 0 and p_sageExport = 0
+	THEN
+
+		SELECT
+			InvoiceType ,
+			AccountName,
+			InvoiceNumber,
+			IssueDate,
+			InvoicePeriod,
+			CONCAT(CurrencySymbol, ROUND(GrandTotal,v_Round_)) as GrandTotal2,
+			CONCAT(CurrencySymbol,ROUND(TotalPayment,v_Round_),'/',ROUND(PendingAmount,v_Round_)) as `PendingAmount`,
+			InvoiceStatus,			
+			DATE(DATE_ADD(IssueDate, INTERVAL IFNULL(PaymentDueInDays,0) DAY)) AS DueDate,
+			IF(InvoiceStatus IN ('send','awaiting'), IF(DATEDIFF(CURDATE(),DATE(DATE_ADD(IssueDate, INTERVAL IFNULL(PaymentDueInDays,0) DAY))) > 0,DATEDIFF(CURDATE(),DATE(DATE_ADD(IssueDate, INTERVAL IFNULL(PaymentDueInDays,0) DAY))),''), '') AS DueDays,
+			InvoiceID,
+			Description,
+			Attachment,
+			AccountID,
+			PendingAmount as OutstandingAmount,
+			ItemInvoice,
+			BillingEmail,
+			GrandTotal,
+			CreditNoteAmount
+		FROM tmp_Invoices_
+		WHERE (p_IsOverdue = 0
+					OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
+							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
+							AND(PendingAmount>0)
+						)
+				)
+		ORDER BY
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN AccountName
+				END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameASC') THEN AccountName
+				END ASC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceTypeDESC') THEN InvoiceType
+				END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceTypeASC') THEN InvoiceType
+				END ASC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceStatusDESC') THEN InvoiceStatus
+				END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceStatusASC') THEN InvoiceStatus
+				END ASC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceNumberASC') THEN InvoiceNumber
+				END ASC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceNumberDESC') THEN InvoiceNumber
+				END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IssueDateASC') THEN IssueDate
+				END ASC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IssueDateDESC') THEN IssueDate
+				END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoicePeriodASC') THEN InvoicePeriod
+				END ASC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoicePeriodDESC') THEN InvoicePeriod
+				END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GrandTotalDESC') THEN GrandTotal
+				END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GrandTotalASC') THEN GrandTotal
+				END ASC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceIDDESC') THEN InvoiceID
+				END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceIDASC') THEN InvoiceID
+				END ASC
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+
+		SELECT COUNT(*) INTO v_TotalCount
+		FROM tmp_Invoices_
+		WHERE (p_IsOverdue = 0
+					OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
+							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
+							AND(PendingAmount>0)
+						)
+				);
+
+		SELECT
+			v_TotalCount AS totalcount,
+			ROUND(sum(GrandTotal),v_Round_) as total_grand,
+			ROUND(sum(TotalPayment),v_Round_) as `TotalPayment`,
+			ROUND(sum(PendingAmount),v_Round_) as `TotalPendingAmount`,
+			v_CurrencyCode_ as currency_symbol
+		FROM tmp_Invoices_
+			WHERE ((InvoiceStatus IS NULL) OR (InvoiceStatus NOT IN('draft','Cancel')))
+			AND (p_IsOverdue = 0
+					OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
+							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
+							AND(PendingAmount>0)
+						)
+				);
+
+	END IF;
+	IF p_isExport = 1
+	THEN
+
+		SELECT
+			AccountName ,
+			InvoiceNumber,
+			IssueDate,
+			REPLACE(InvoicePeriod, '<br>', '') as InvoicePeriod,
+			CONCAT(CurrencySymbol, ROUND(GrandTotal,v_Round_)) as GrandTotal,
+			CONCAT(CurrencySymbol,ROUND(TotalPayment,v_Round_),'/',ROUND(PendingAmount,v_Round_)) as `Paid/OS`,
+			InvoiceStatus,
+			CreditNoteAmount,
+			InvoiceType,
+			ItemInvoice
+		FROM tmp_Invoices_
+		WHERE
+				(p_IsOverdue = 0
+					OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
+							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
+							AND(PendingAmount>0)
+						)
+				);
+		END IF;
+	IF p_isExport = 2
+	THEN
+
+		
+
+		SELECT
+			AccountName ,
+			InvoiceNumber,
+			IssueDate,
+			REPLACE(InvoicePeriod, '<br>', '') as InvoicePeriod,
+			CONCAT(CurrencySymbol, ROUND(GrandTotal,v_Round_)) as GrandTotal,
+			CONCAT(CurrencySymbol,ROUND(TotalPayment,v_Round_),'/',ROUND(PendingAmount,v_Round_)) as `Paid/OS`,
+			InvoiceStatus,
+			CreditNoteAmount,
+			InvoiceType,
+			ItemInvoice,
+			InvoiceID
+		FROM tmp_Invoices_
+		WHERE
+				(p_IsOverdue = 0
+					OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
+							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
+							AND(PendingAmount>0)
+						)
+				);
+
+	END IF;
+	
+	IF p_isExport = 3 -- api
+	THEN
+
+		SELECT
+			InvoiceID,
+			AccountName,
+			InvoiceNumber,
+			IssueDate,
+			InvoicePeriod,
+			CONCAT(CurrencySymbol, ROUND(GrandTotal,v_Round_)) as GrandTotal2,
+			CONCAT(CurrencySymbol,ROUND(TotalPayment,v_Round_),'/',ROUND(PendingAmount,v_Round_)) as `PendingAmount`,
+			InvoiceStatus,
+			DATE(DATE_ADD(IssueDate, INTERVAL IFNULL(PaymentDueInDays,0) DAY)) AS DueDate,
+			IF(InvoiceStatus IN ('send','awaiting'), IF(DATEDIFF(CURDATE(),DATE(DATE_ADD(IssueDate, INTERVAL IFNULL(PaymentDueInDays,0) DAY))) > 0,DATEDIFF(CURDATE(),DATE(DATE_ADD(IssueDate, INTERVAL IFNULL(PaymentDueInDays,0) DAY))),''), '') AS DueDays,
+			Currency,
+			InvoiceID,
+			Description,
+			Attachment,
+			AccountID,
+			PendingAmount as OutstandingAmount,
+			ItemInvoice,
+			BillingEmail,
+			GrandTotal,
+			TotalMinutes
+		FROM tmp_Invoices_
+		WHERE (p_IsOverdue = 0
+					OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
+							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
+							AND(PendingAmount>0)
+						)
+				)
+		ORDER BY
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN AccountName
+				END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameASC') THEN AccountName
+				END ASC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceTypeDESC') THEN InvoiceType
+				END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceTypeASC') THEN InvoiceType
+				END ASC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceStatusDESC') THEN InvoiceStatus
+				END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceStatusASC') THEN InvoiceStatus
+				END ASC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceNumberASC') THEN InvoiceNumber
+				END ASC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceNumberDESC') THEN InvoiceNumber
+				END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IssueDateASC') THEN IssueDate
+				END ASC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IssueDateDESC') THEN IssueDate
+				END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoicePeriodASC') THEN InvoicePeriod
+				END ASC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoicePeriodDESC') THEN InvoicePeriod
+				END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GrandTotalDESC') THEN GrandTotal
+				END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GrandTotalASC') THEN GrandTotal
+				END ASC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceIDDESC') THEN InvoiceID
+				END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceIDASC') THEN InvoiceID
+				END ASC
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+		
+		SELECT COUNT(*) INTO v_TotalCount
+		FROM tmp_Invoices_
+		WHERE (p_IsOverdue = 0
+					OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
+							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
+							AND(PendingAmount>0)
+						)
+				);
+
+		SELECT
+			v_TotalCount AS totalcount,
+			ROUND(sum(GrandTotal),v_Round_) as total_grand,
+			ROUND(sum(TotalPayment),v_Round_) as `TotalPayment`,
+			ROUND(sum(PendingAmount),v_Round_) as `TotalPendingAmount`,
+			v_CurrencyCode_ as currency_symbol
+		FROM tmp_Invoices_
+			WHERE ((InvoiceStatus IS NULL) OR (InvoiceStatus NOT IN('draft','Cancel')))
+			AND (p_IsOverdue = 0
+					OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
+							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
+							AND(PendingAmount>0)
+						)
+				);
+
+	END IF;
+
+	IF p_sageExport =1 OR p_sageExport =2
+	THEN
+			
+
+		IF p_sageExport = 2
+		THEN
+			UPDATE tblInvoice  inv
+			INNER JOIN Ratemanagement3.tblAccount ac
+				ON ac.AccountID = inv.AccountID
+			INNER JOIN Ratemanagement3.tblAccountBilling ab
+				ON ab.AccountID = ac.AccountID AND ab.ServiceID = inv.ServiceID
+			INNER JOIN Ratemanagement3.tblBillingClass b
+				ON ab.BillingClassID = b.BillingClassID
+			INNER JOIN Ratemanagement3.tblCurrency c
+				ON c.CurrencyId = ac.CurrencyId
+			SET InvoiceStatus = 'paid'
+			WHERE ac.CompanyID = p_CompanyID
+				AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
+				AND (p_userID = 0 OR ac.Owner = p_userID)
+				AND (p_InvoiceNumber = '' OR (inv.FullInvoiceNumber like Concat('%',p_InvoiceNumber,'%')))
+				AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND inv.IssueDate >= p_IssueDateStart))
+				AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND inv.IssueDate <= p_IssueDateEnd))
+				AND (p_InvoiceType = 0 OR ( p_InvoiceType != 0 AND inv.InvoiceType = p_InvoiceType))
+				AND (p_InvoiceStatus = '' OR ( p_InvoiceStatus != '' AND FIND_IN_SET(inv.InvoiceStatus,p_InvoiceStatus) ))
+				AND (p_zerovalueinvoice = 0 OR ( p_zerovalueinvoice = 1 AND inv.GrandTotal != 0))
+				AND (p_InvoiceID = '' OR (p_InvoiceID !='' AND FIND_IN_SET (inv.InvoiceID,p_InvoiceID)!= 0 ))
+				AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID))
+				AND (p_IsOverdue = 0
+					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(b.PaymentDueInDays,0)
+							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
+							AND((inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) )>0)
+						)
+				);
+		END IF;
+		SELECT
+			AccountNumber,
+			DATE_FORMAT(DATE_ADD(IssueDate,INTERVAL PaymentDueInDays DAY), '%Y-%m-%d') AS DueDate,
+			GrandTotal AS GoodsValueInAccountCurrency,
+			GrandTotal AS SalControlValueInBaseCurrency,
+			1 AS DocumentToBaseCurrencyRate,
+			1 AS DocumentToAccountCurrencyRate,
+			DATE_FORMAT(IssueDate, '%Y-%m-%d') AS PostedDate,
+			InvoiceNumber AS TransactionReference,
+			'' AS SecondReference,
+			'' AS Source,
+			4 AS SYSTraderTranType, 
+			DATE_FORMAT(PaymentDate ,'%Y-%m-%d') AS TransactionDate,
+			TotalTax AS TaxValue,
+			SubTotal AS `NominalAnalysisTransactionValue/1`,
+			NominalAnalysisNominalAccountNumber AS `NominalAnalysisNominalAccountNumber/1`,
+			'NEON' AS `NominalAnalysisNominalAnalysisNarrative/1`,
+			'' AS `NominalAnalysisTransactionAnalysisCode/1`,
+			1 AS `TaxAnalysisTaxRate/1`,
+			SubTotal AS `TaxAnalysisGoodsValueBeforeDiscount/1`,
+			TotalTax as   `TaxAnalysisTaxOnGoodsValue/1`
+		FROM tmp_Invoices_
+		WHERE
+				(p_IsOverdue = 0
+					OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
+							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
+							AND(PendingAmount>0)
+						)
+				);
+
+	END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
 
 
 
+/* Add Procedure for get invoices list for specific credit notes*/
+DROP PROCEDURE IF EXISTS `prc_getCreditNoteInvoices`;
+DELIMITER //
+CREATE PROCEDURE `prc_getCreditNoteInvoices`(
+	IN `p_AccountID` INT,
+	IN `p_InvoiceNumber` VARCHAR(50),
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT
+)
+BEGIN
+DECLARE v_OffSet_ int;
+
+SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+
+DROP TEMPORARY TABLE IF EXISTS tmp_CreditNotes_;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CreditNotes_(
+		InvoiceID int,		
+		FullInvoiceNumber varchar(100),
+		IssueDate datetime,	
+		GrandTotal decimal(18,6),
+		TotalPayment decimal(18,6),
+		AccountID int
+	);
+
+		INSERT INTO tmp_CreditNotes_
+		select 
+			`tblInvoice`.`InvoiceID`,
+ 			IFNULL(`tblInvoice`.`FullInvoiceNumber`,'') AS FullInvoiceNumber,
+  			`tblInvoice`.`IssueDate`,
+   		`tblInvoice`.`GrandTotal`,
+			(select IFNULL(SUM(Amount),0) from tblPayment where tblPayment.InvoiceID=tblInvoice.InvoiceID and tblPayment.Recall=0) as TotalPayment,
+			p_AccountID as AccountID
+			from `tblInvoice` 
+			where `tblInvoice`.`AccountID` = p_AccountID 
+			and `tblInvoice`.`GrandTotal` <> 0 
+		  	and (p_InvoiceNumber = '' OR ( p_InvoiceNumber != '' AND `tblInvoice`.`FullInvoiceNumber` = p_InvoiceNumber))
+			and `tblInvoice`.`InvoiceStatus` in ('partially_paid','send','awaiting');
+			
+			
+			select 	*
+			from `tmp_CreditNotes_`
+			where `tmp_CreditNotes_`.`GrandTotal` > `tmp_CreditNotes_`.`TotalPayment` 
+			
+			 LIMIT p_RowspPage OFFSET v_OffSet_;		
+			 
+		 SELECT
+            COUNT(*) AS totalcount
+        FROM
+        tmp_CreditNotes_ cn
+        INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = cn.AccountID
+        where cn.GrandTotal > cn.TotalPayment;
+			
+			SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_CustomerPanel_getCreditNotes`;
+DELIMITER //
+CREATE PROCEDURE `prc_CustomerPanel_getCreditNotes`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_CreditNotesNumber` VARCHAR(50),
+	IN `p_IssueDateStart` DATETIME,
+	IN `p_IssueDateEnd` DATETIME,
+	IN `p_CreditNotesStatus` VARCHAR(50),
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_CurrencyID` INT,
+	IN `p_isExport` INT
+
+)
+BEGIN
+    
+    DECLARE v_OffSet_ INT;
+    DECLARE v_Round_ INT;    
+    DECLARE v_CurrencyCode_ VARCHAR(50);
+ 	 SET sql_mode = 'ALLOW_INVALID_DATES';
+    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	        
+ 	 SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+ 	 SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+	 SELECT cr.Symbol INTO v_CurrencyCode_ from Ratemanagement3.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
+    IF p_isExport = 0
+    THEN
+        SELECT         
+        cn.FullCreditNotesNumber AS CreditNotesNumber,
+        cn.IssueDate,
+        CONCAT(IFNULL(cr.Symbol,''),ROUND(cn.GrandTotal,v_Round_)) AS GrandTotal2,		
+        cn.CreditNotesStatus,
+        cn.CreditNotesID,
+        cn.Description,
+        cn.Attachment,
+        cn.AccountID,		  
+		  IFNULL(ac.BillingEmail,'') AS BillingEmail,
+		  ROUND(cn.GrandTotal,v_Round_) AS GrandTotal,
+		  IFNULL(cn.GrandTotal - cn.PaidAmount,0) AS CreditNoteAmount
+		  
+        FROM tblCreditNotes cn
+        INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = cn.AccountID
+        
+		INNER JOIN Ratemanagement3.tblBillingClass b ON cn.BillingClassID = b.BillingClassID	
+		LEFT JOIN tblInvoiceTemplate it on b.InvoiceTemplateID = it.InvoiceTemplateID
+        LEFT JOIN Ratemanagement3.tblCurrency cr ON cn.CurrencyID   = cr.CurrencyId 
+        WHERE ac.CompanyID = p_CompanyID
+        	AND (cn.AccountID = p_AccountID)
+        AND (p_CreditNotesNumber = '' OR ( p_CreditNotesNumber != '' AND cn.CreditNotesNumber = p_CreditNotesNumber))
+        AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND cn.IssueDate >= p_IssueDateStart))
+        AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND cn.IssueDate <= p_IssueDateEnd))
+        AND (p_CreditNotesStatus = '' OR ( p_CreditNotesStatus != '' AND cn.CreditNotesStatus = p_CreditNotesStatus))
+		AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND cn.CurrencyID = p_CurrencyID))
+        ORDER BY
+                CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN ac.AccountName
+            END DESC,
+                CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameASC') THEN ac.AccountName
+            END ASC,
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreditNotesStatusDESC') THEN cn.CreditNotesStatus
+            END DESC,
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreditNotesStatusASC') THEN cn.CreditNotesStatus
+            END ASC,
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreditNotesNumberASC') THEN cn.CreditNotesNumber
+            END ASC,
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreditNotesNumberDESC') THEN cn.CreditNotesNumber
+            END DESC,
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IssueDateASC') THEN cn.IssueDate
+            END ASC,
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IssueDateDESC') THEN cn.IssueDate
+            END DESC,
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GrandTotalDESC') THEN cn.GrandTotal
+            END DESC,
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GrandTotalASC') THEN cn.GrandTotal
+            END ASC,
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreditNotesIDDESC') THEN cn.CreditNotesID
+            END DESC,
+            CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreditNotesIDASC') THEN cn.CreditNotesID
+            END ASC
+        
+        LIMIT p_RowspPage OFFSET v_OffSet_;
+        
+        
+        SELECT
+            COUNT(*) AS totalcount,  ROUND(SUM(cn.GrandTotal),v_Round_) AS total_grand,v_CurrencyCode_ as currency_symbol
+        FROM
+        tblCreditNotes cn
+        INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = cn.AccountID
+        
+		INNER JOIN Ratemanagement3.tblBillingClass b ON cn.BillingClassID = b.BillingClassID
+		LEFT JOIN tblInvoiceTemplate it on b.InvoiceTemplateID = it.InvoiceTemplateID
+        WHERE ac.CompanyID = p_CompanyID
+        AND (cn.AccountID = p_AccountID)
+        AND (p_CreditNotesNumber = '' OR ( p_CreditNotesNumber != '' AND cn.CreditNotesNumber = p_CreditNotesNumber))
+        AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND cn.IssueDate >= p_IssueDateStart))
+        AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND cn.IssueDate <= p_IssueDateEnd))
+        AND (p_CreditNotesStatus = '' OR ( p_CreditNotesStatus != '' AND cn.CreditNotesStatus = p_CreditNotesStatus))
+		AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND cn.CurrencyID = p_CurrencyID));
+    END IF;
+    IF p_isExport = 1
+    THEN
+        SELECT 
+        cn.FullCreditNotesNumber AS CreditNotesNumber,
+        cn.IssueDate,
+        ROUND(cn.GrandTotal,v_Round_) AS GrandTotal,
+		IFNULL(cn.GrandTotal - cn.PaidAmount,0) AS AvailableBalance,        
+        cn.CreditNotesStatus AS Status
+        FROM tblCreditNotes cn
+        INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = cn.AccountID
+        
+		INNER JOIN Ratemanagement3.tblBillingClass b ON cn.BillingClassID = b.BillingClassID
+	    LEFT JOIN tblInvoiceTemplate it on b.InvoiceTemplateID = it.InvoiceTemplateID
+        WHERE ac.CompanyID = p_CompanyID
+        AND (cn.AccountID = p_AccountID)
+        AND (p_CreditNotesNumber = '' OR ( p_CreditNotesNumber != '' AND cn.CreditNotesNumber = p_CreditNotesNumber))
+        AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND cn.IssueDate >= p_IssueDateStart))
+        AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND cn.IssueDate <= p_IssueDateEnd))
+        AND (p_CreditNotesStatus = '' OR ( p_CreditNotesStatus != '' AND cn.CreditNotesStatus = p_CreditNotesStatus))
+		AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND cn.CurrencyID = p_CurrencyID));
+    END IF;
+    
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+    END//
+DELIMITER ;
 

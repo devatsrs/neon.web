@@ -83,7 +83,7 @@
         <thead>
         <tr>
             <th width="5%"></th>
-            <th width="5%">PID</th>
+            <th width="5%">PID/SqlPID</th>
             <th width="20%">Title</th>
             <th width="20%">Running Since</th>
             <th width="15%">Last Run Time</th>
@@ -163,7 +163,7 @@
 
                                 mRender: function ( RunningTime, type, full ) {
                                     var PID =  full[1];
-                                    if(PID > 0){
+                                    if(PID != ''){
                                         RunningTime = RunningTime.replace("0 Hours, ", "")
                                         RunningTime = RunningTime.replace("0 Minutes, ", "");
                                         return RunningTime;

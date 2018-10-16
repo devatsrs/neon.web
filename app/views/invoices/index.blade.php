@@ -50,6 +50,10 @@
                     </p>
                 </div>
                 <div class="form-group">
+                    <label class="control-label">Account Tag</label>
+                    <input class="form-control tags" name="tag" type="text" >
+                </div>
+                <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
                         <i class="entypo-search"></i>
@@ -172,6 +176,7 @@
           <th width="6%">Grand Total</th>
           <th width="6%">Paid/OS</th>
           <th width="10%">Status</th>
+          <th width="5%">Available Credit Notes</th>
           <th width="10%">Due Date</th>
           {{--<th width="10%">Due Days</th>--}}
           <th width="20%">Action</th>
@@ -206,6 +211,7 @@
             $searchFilter.zerovalueinvoice = $("#invoice_filter [name='zerovalueinvoice']").prop("checked");
             $searchFilter.CurrencyID = $("#invoice_filter [name='CurrencyID']").val();
             $searchFilter.Overdue = $("#invoice_filter [name='Overdue']").prop("checked");
+            $searchFilter.tag = $("#invoice_filter [name='tag']").val();
 
             data_table = $("#table-4").dataTable({
                 "bDestroy": true,
@@ -225,7 +231,8 @@
                             {"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},
                             {"name": "zerovalueinvoice","value": $searchFilter.zerovalueinvoice},
                             {"name": "CurrencyID", "value": $searchFilter.CurrencyID},
-                            {"name": "Overdue","value": $searchFilter.Overdue});
+                            {"name": "Overdue","value": $searchFilter.Overdue},
+                            {"name": "tag","value": $searchFilter.tag});
                     data_table_extra_params.length = 0;
                     data_table_extra_params.push({"name": "InvoiceType","value": $searchFilter.InvoiceType},
                             {"name": "AccountID", "value": $searchFilter.AccountID},
@@ -237,7 +244,8 @@
                             {"name": "Export", "value": 1},
                             {"name": "zerovalueinvoice","value": $searchFilter.zerovalueinvoice},
                             {"name": "CurrencyID", "value": $searchFilter.CurrencyID},
-                            {"name": "Overdue","value": $searchFilter.Overdue});
+                            {"name": "Overdue","value": $searchFilter.Overdue},
+                            {"name": "tag","value": $searchFilter.tag});
                 },
                 "aoColumns": [
                     {
@@ -303,6 +311,13 @@
                         }
 
                     },  // 7 InvoiceStatus
+                    {
+                        "bSortable": false,
+                        mRender: function (id, type, full) {
+                                return full[18];
+                        }
+
+                    }, // 18 CreditNotes Amount
                     {
                         "bSortable": true,
                         mRender: function (id, type, full) {
@@ -497,6 +512,7 @@
                 $searchFilter.zerovalueinvoice = $("#invoice_filter [name='zerovalueinvoice']").prop("checked");
                 $searchFilter.CurrencyID = $("#invoice_filter [name='CurrencyID']").val();
                 $searchFilter.Overdue = $("#invoice_filter [name='Overdue']").prop("checked");
+                $searchFilter.tag = $("#invoice_filter [name='tag']").val();
                 data_table.fnFilter('', 0);
                 return false;
             });
@@ -517,6 +533,7 @@
                         "zerovalueinvoice": $("#invoice_filter [name='zerovalueinvoice']").prop("checked"),
                         "CurrencyID": $("#invoice_filter [name='CurrencyID']").val(),
                         "Overdue": $("#invoice_filter [name='Overdue']").prop("checked"),
+                        "tag": $("#invoice_filter [name='tag']").val(),
                         "bDestroy": true,
                         "bProcessing": true,
                         "bServerSide": true,

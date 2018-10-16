@@ -1,5 +1,12 @@
 USE `Ratemanagement3`;
 
+
+
+RENAME TABLE `tblRateSheetDetailsArchive` TO `tblRateSheetDetailsArchive__not_in_use`;
+RENAME TABLE `tblRateSheetArchive` TO `tblRateSheetArchive__not_in_use`;
+-- RENAME TABLE `tblTicketsDetails` TO `tblTicketsDetails__not_in_use`;
+
+
 -- Ticket: Account import filter #3746
 
 -- Dumping structure for procedure NeonRMDev.prc_WSProcessImportAccount

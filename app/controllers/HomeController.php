@@ -1,5 +1,5 @@
 <?php
-
+use Illuminate\Support\Facades\Crypt;
 class HomeController extends BaseController {
 
     var $dashboard_url = 'process_redirect';
@@ -140,7 +140,8 @@ class HomeController extends BaseController {
                 }
             }
             $Count=1;
-            $Users = User::where('EmailAddress',$data['email'])->first();
+            //$Users = User::where('EmailAddress',$data['email'])->first();
+            $Users = User::where(['EmailAddress'=>$data['email'],"Status"=>1])->first();
             if(!empty($Users) && count($Users)>0){
                 $CompanyID = $Users->CompanyID;
                 $Resellers = Reseller::where('ChildCompanyID',$CompanyID)->first();
@@ -149,7 +150,9 @@ class HomeController extends BaseController {
                 }
             }
             //if Normal User
-            if (Auth::attempt(array('EmailAddress' => $data['email'], 'password' => $data['password'] ,'Status'=> 1 )) && $Count==1  && NeonAPI::login()) {
+            //if (Auth::attempt(array('EmailAddress' => $data['email'], 'password' => $data['password'] ,'Status'=> 1 )) && $Count==1  && NeonAPI::login()) {
+            if (User::checkPassword($data["password"],$Users->password) && $Count==1  && NeonAPI::login()) {
+                Auth::login($Users);
                 User::setUserPermission();
                 Log::info("Current Login Date : ".date('Y-m-d H:i:s'));
                 User::find(Auth::user()->UserID)->update(['LastLoginDate' => date('Y-m-d H:i:s')]);
@@ -222,7 +225,8 @@ class HomeController extends BaseController {
         $UserData['FirstName']      = $data['FirstName'];
         $UserData['LastName']       = $data['LastName'];
         $UserData['EmailAddress']   = $data['Email'];
-        $UserData['Password']       = Hash::make($data['Password']);
+        //$UserData['Password']       = Hash::make($data['Password']);
+        $UserData['Password']       = Crypt::encrypt($data['Password']);
         $UserData['Status']       =   1;
         $UserData['AdminUser']       =   1;
         $UserData['Roles']       =   'Admin';
@@ -330,7 +334,8 @@ class HomeController extends BaseController {
                 echo json_encode(array("status" => "failed", "message" => "Invalid Token."));
                 exit;
             } else {
-                $user->password = Hash::make($data['password']);
+                //$user->password = Hash::make($data['password']);
+                $user->password = Crypt::encrypt($data['password']);
                 $user->remember_token = 'NUll';
                 $user->save();
                 /*$data = array('user' => $user);
