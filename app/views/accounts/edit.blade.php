@@ -737,6 +737,10 @@
                                 <label for="minimal-radio-3-11">AuthorizeNet</label>
                             </li>
                             <li>
+                                <input type="radio" class="icheck-11" id="minimal-radio-12-11" name="PaymentMethod" value="AuthorizeNetEcheck" @if( $account->PaymentMethod == 'AuthorizeNetEcheck' ) checked="" @endif />
+                                <label for="minimal-radio-12-11">AuthorizeNet Echeck</label>
+                            </li>
+                            <li>
                                 <input type="radio" class="icheck-11" id="minimal-radio-9-11" name="PaymentMethod" value="FideliPay" @if( $account->PaymentMethod == 'FideliPay' ) checked="" @endif />
                                 <label for="minimal-radio-9-11">FideliPay</label>
                             </li>
