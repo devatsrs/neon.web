@@ -60,6 +60,7 @@
                     25. Added new Retention options: Failed Calls, Tickets and Archived Rates.<br>
                     26. Added option to send invoices as an attachment.<br>
                     27. Added new column BillDurationMinutes,Country,CallType,Description in Usage Column of Invoice Template.<br>
+                    28. Added new Payment Integration with Authorize.Net eCheck.<br>
                 </div>
             </li>
         </ul>
