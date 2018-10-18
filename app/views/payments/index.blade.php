@@ -939,6 +939,9 @@
                         //}
                     });
 
+                    $('#Account_ID').change(function() {
+                        $('#PaymentMethod').change();
+                    });
 
                     $('#PaymentMethod').on('change', function() {
                         if(this.value == 'CREDIT NOTE')
@@ -1218,7 +1221,7 @@
             <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Account Name * <span id="currency"></span></label>
-              {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
+              {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","id"=>"Account_ID","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
               <input type="hidden" name="AccountName" />
             </div>
           </div>

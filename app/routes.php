@@ -1047,6 +1047,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/creditnotes/calculate_total', 'CreditNotesController@calculate_total');
 	Route::any('/creditnotes/get_account_info', 'CreditNotesController@getAccountInfo');
 	Route::any('/creditnotes/get_billingclass_info', 'CreditNotesController@getBillingclassInfo');
+	Route::any('/creditnotes/allocate_payment', 'CreditNotesController@allocate_payment');
 
 	//Invoice
 	Route::any('/invoice', 'InvoicesController@index');

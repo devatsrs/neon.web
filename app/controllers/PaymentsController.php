@@ -153,7 +153,11 @@ class PaymentsController extends \BaseController {
         if($isvalid['valid']==1) {
             $save = $isvalid['data'];
 
-
+//print_R($save);exit;
+            if($save['PaymentMethod'] == 'CREDIT NOTE' && $save['CreditNotesList'] == "")
+            {
+                return Response::json(array("status" => "failed", "message" => "Please Select Credit Note"));
+            }
             /* for Adding payment from Invoice  */
             if(isset($save['InvoiceID'])) {
                 $InvoiceID = $save['InvoiceID'];
@@ -189,10 +193,9 @@ class PaymentsController extends \BaseController {
                 $sendemail = 0;
             }
 			unset($save['Currency']);
-            //print_R($save);exit;
+
             if(!empty($save['CreditNotesList'])) {
                 $save['CreditNotesID'] = $save['CreditNotesList'];
-                unset($save['CreditNotesList']);
                 $creditnote_id = $save['CreditNotesID'];
                 $GrandTotal = CreditNotes::find($creditnote_id)->GrandTotal;
                 $PaidAmount = CreditNotes::find($creditnote_id)->PaidAmount;
@@ -207,6 +210,8 @@ class PaymentsController extends \BaseController {
                 }
                 //print_R($CreditNotesData);exit;
             }
+            //print_r($save);exit;
+            unset($save['CreditNotesList']);
             if (Payment::create($save)) {
                 if(isset($InvoiceID) && !empty($InvoiceID)){
                     $Invoice = Invoice::find($InvoiceID);
@@ -232,17 +237,17 @@ class PaymentsController extends \BaseController {
                 }
                 if(isset($CreditNotesData['PaidAmount'])) {
                     CreditNotes::find($creditnote_id)->update($CreditNotesData);
-                    $creditnotesloddata = array();
-                    $creditnotesloddata['CreditNotesID']= $creditnote_id;
+                    $creditnoteslogdata = array();
+                    $creditnoteslogdata['CreditNotesID']= $creditnote_id;
                     if(isset($InvoiceID) && !empty($InvoiceID)){
-                        $creditnotesloddata['Note']= 'Added Direct Payment For Invoice No : '.$Invoice->FullInvoiceNumber.' of Amount : '.$save['Amount'];
+                        $creditnoteslogdata['Note']= 'Added Direct Payment For Invoice No : '.$Invoice->FullInvoiceNumber.' of Amount : '.$save['Amount'];
                     }
                     else{
-                        $creditnotesloddata['Note']= 'Added Direct Payment of Amount : '.$save['Amount'];
+                        $creditnoteslogdata['Note']= 'Added Direct Payment of Amount : '.$save['Amount'];
                     }
-                    $creditnotesloddata['created_at']= date("Y-m-d H:i:s");
-                    $creditnotesloddata['CreditNotesLogStatus']= CreditNotesLog::PAID;
-                    CreditNotesLog::insert($creditnotesloddata);
+                    $creditnoteslogdata['created_at']= date("Y-m-d H:i:s");
+                    $creditnoteslogdata['CreditNotesLogStatus']= CreditNotesLog::PAID;
+                    CreditNotesLog::insert($creditnoteslogdata);
                 }
                 if($sendemail==1) {
                     $companyID = User::get_companyID();
