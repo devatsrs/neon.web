@@ -81,6 +81,10 @@
                     {{ Form::select('ResellerOwner',$reseller_owners,'', array("class"=>"select2")) }}
                 </div>-->
                 <div class="form-group">
+                    <label class="control-label">Account Tag</label>
+                    <input class="form-control tags" name="tag" type="text" >
+                </div>
+                <div class="form-group">
                     <br/>
                     <input type="hidden" name="ResellerOwner" value="0">
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">

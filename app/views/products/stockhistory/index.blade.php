@@ -56,10 +56,7 @@
                 <div class="row">
                     <div  class="col-md-12">
                         @if( User::is_admin() || User::is('BillingAdmin'))
-                            <a href="{{ URL::to('/products')  }}" class="btn btn-primary pull-right">
-                                <i class=""></i>
-                                Back
-                            </a>
+                            <a href="{{ URL::to('/products')  }}" class="btn btn-danger btn-sm btn-icon icon-left pull-right"> <i class="entypo-cancel"></i> Close </a>
                         @endif
 
                     </div>

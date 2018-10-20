@@ -277,12 +277,12 @@ class CreditNotesController extends \BaseController {
                                 Invoice::find($data['invoice_id'][$i])->update($InvoiceData);
                             }
 
-                            $creditnotesloddata = array();
-                            $creditnotesloddata['CreditNotesID']= $creditnote_id;
-                            $creditnotesloddata['Note']= 'Paid For Invoice No : '.$data['invoice_number'][$i].' Amount : '.$data['payment'][$i];
-                            $creditnotesloddata['created_at']= date("Y-m-d H:i:s");
-                            $creditnotesloddata['CreditNotesLogStatus']= CreditNotesLog::PAID;
-                            CreditNotesLog::insert($creditnotesloddata);
+                            $creditnoteslogdata = array();
+                            $creditnoteslogdata['CreditNotesID']= $creditnote_id;
+                            $creditnoteslogdata['Note']= 'Paid For Invoice No : '.$data['invoice_number'][$i].' Of Amount : '.$data['payment'][$i];
+                            $creditnoteslogdata['created_at']= date("Y-m-d H:i:s");
+                            $creditnoteslogdata['CreditNotesLogStatus']= CreditNotesLog::PAID;
+                            CreditNotesLog::insert($creditnoteslogdata);
                         }
                         else{
                             return Response::json(array("status" => "failed", "message" => "CreditNote Amount is higher then Invoice Amount."));
@@ -463,12 +463,12 @@ class CreditNotesController extends \BaseController {
                 //$CreditNotesTaxRates 	 = 	merge_tax($CreditNotesTaxRates);
                // $CreditNotesAllTaxRates  = 	merge_tax($CreditNotesAllTaxRates);
 
-                $creditnotesloddata = array();
-                $creditnotesloddata['CreditNotesID']= $CreditNotes->CreditNotesID;
-                $creditnotesloddata['Note']= 'Created By '.$CreatedBy;
-                $creditnotesloddata['created_at']= date("Y-m-d H:i:s");
-                $creditnotesloddata['CreditNotesLogStatus']= CreditNotesLog::CREATED;
-                CreditNotesLog::insert($creditnotesloddata);
+                $creditnoteslogdata = array();
+                $creditnoteslogdata['CreditNotesID']= $CreditNotes->CreditNotesID;
+                $creditnoteslogdata['Note']= 'Created By '.$CreatedBy;
+                $creditnoteslogdata['created_at']= date("Y-m-d H:i:s");
+                $creditnoteslogdata['CreditNotesLogStatus']= CreditNotesLog::CREATED;
+                CreditNotesLog::insert($creditnoteslogdata);
                 /*if(!empty($CreditNotesTaxRates)) { //product tax
                     CreditNotesTaxRate::insert($CreditNotesTaxRates);
                 }*/
@@ -581,13 +581,13 @@ class CreditNotesController extends \BaseController {
                     if($CreditNotes->GrandTotal != $CreditNotesData['GrandTotal']){
                         $Extralognote = ' Total '.$CreditNotes->GrandTotal.' To '.$CreditNotesData['GrandTotal'];
                     }
-                    $creditnotesloddata = array();
-                    $creditnotesloddata['CreditNotesID']= $CreditNotes->CreditNotesID;
-                    $creditnotesloddata['Note']= 'Updated By '.$CreatedBy.$Extralognote;
-                    $creditnotesloddata['created_at']= date("Y-m-d H:i:s");
-                    $creditnotesloddata['CreditNotesLogStatus']= CreditNotesLog::UPDATED;
+                    $creditnoteslogdata = array();
+                    $creditnoteslogdata['CreditNotesID']= $CreditNotes->CreditNotesID;
+                    $creditnoteslogdata['Note']= 'Updated By '.$CreatedBy.$Extralognote;
+                    $creditnoteslogdata['created_at']= date("Y-m-d H:i:s");
+                    $creditnoteslogdata['CreditNotesLogStatus']= CreditNotesLog::UPDATED;
                     $CreditNotes->update($CreditNotesData);
-                    CreditNotesLog::insert($creditnotesloddata);
+                    CreditNotesLog::insert($creditnoteslogdata);
                     $CreditNotesDetailData = $StockHistoryData = $CreditNotesTaxRates = $CreditNotesAllTaxRates = array();
                     //Delete all CreditNotes Data and then Recreate.
                     CreditNotesDetail::where(["CreditNotesID" => $CreditNotes->CreditNotesID])->delete();
@@ -1063,6 +1063,57 @@ class CreditNotesController extends \BaseController {
         }
     }
 
+    public function allocate_payment() {
+        $data = Input::all();
+        $creditnote_id = $data['id'];
+        $CreditNotes = CreditNotes::find($creditnote_id);
+        $GrandTotal = $CreditNotes['GrandTotal'];
+        $PaidAmount = $CreditNotes['PaidAmount'];
+        $Available_Balance = $GrandTotal - $PaidAmount;
+        $Available_Balance = number_format((float)$Available_Balance, 2, '.', '');
+        try {
+            DB::connection('sqlsrv2')->beginTransaction();
+            $paymentdata = array();
+            $paymentdata['CompanyID'] = $CreditNotes['CompanyID'];
+            $paymentdata['AccountID'] = $CreditNotes['AccountID'];
+            $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
+            $paymentdata['PaymentMethod'] = 'CREDIT NOTE';
+            $paymentdata['PaymentType'] = 'Payment In';
+            $paymentdata['Notes'] = 'Paid By Credit Note No. ' . $CreditNotes['CreditNoteNumber'];
+            $paymentdata['Amount'] = $Available_Balance;
+            $paymentdata['Status'] = 'Approved';
+            $paymentdata['created_at'] = date("Y-m-d H:i:s");
+            $paymentdata['updated_at'] = date("Y-m-d H:i:s");
+            $paymentdata['CreditNotesID'] = $CreditNotes['CreditNotesID'];
+            $paymentdata['CurrencyId'] = $CreditNotes['CurrencyID'];
+            if (Payment::create($paymentdata)) {
+                $CreditNotesData['PaidAmount'] = $PaidAmount + $Available_Balance;
+                if(CreditNotes::find($creditnote_id)->update($CreditNotesData))
+                {
+                    $creditnoteslogdata = array();
+                    $creditnoteslogdata['CreditNotesID']= $creditnote_id;
+                    $creditnoteslogdata['Note']= 'Added Direct Payment of Amount : '.$Available_Balance;
+                    $creditnoteslogdata['created_at']= date("Y-m-d H:i:s");
+                    $creditnoteslogdata['CreditNotesLogStatus']= CreditNotesLog::PAID;
+                    CreditNotesLog::insert($creditnoteslogdata);
+
+                    DB::connection('sqlsrv2')->commit();
+                    $redirect_url = URL::previous();
+                    return Response::json(array("status" => "success", "message" => "Credit Note Payment Allocated", "redirect" => $redirect_url));
+                }
+                else {
+                    return Response::json(array("status" => "failed", "message" => "Credit Note Amount Update Failed"));
+                }
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Payment Creation Failed"));
+            }
+        }
+        catch (Exception $e){
+            Log::info($e);
+            DB::connection('sqlsrv2')->rollback();
+            return Response::json(array("status" => "failed", "message" => "Allocation of Payment Failed. \n" . $e->getMessage()));
+        }
+    }
 
     public function print_preview($id) {
         //not in use.
@@ -1138,16 +1189,16 @@ class CreditNotesController extends \BaseController {
             $CreditNotesID = intval($account_inv[1]);
             $CreditNotes = CreditNotes::where(["CreditNotesID"=>$CreditNotesID,"AccountID"=>$AccountID])->first();
             if(count($CreditNotes)>0) {
-                $creditnotesloddata = array();
-                $creditnotesloddata['Note']= 'Viewed By Unknown';
+                $creditnoteslogdata = array();
+                $creditnoteslogdata['Note']= 'Viewed By Unknown';
                 if(!empty($_GET['email'])){
-                    $creditnotesloddata['Note']= 'Viewed By '. $_GET['email'];
+                    $creditnoteslogdata['Note']= 'Viewed By '. $_GET['email'];
                 }
 
-                $creditnotesloddata['CreditNotesID']= $CreditNotes->CreditNotesID;
-                $creditnotesloddata['created_at']= date("Y-m-d H:i:s");
-                $creditnotesloddata['CreditNotesLogStatus']= CreditNotesLog::VIEWED;
-                CreditNotesLog::insert($creditnotesloddata);
+                $creditnoteslogdata['CreditNotesID']= $CreditNotes->CreditNotesID;
+                $creditnoteslogdata['created_at']= date("Y-m-d H:i:s");
+                $creditnoteslogdata['CreditNotesLogStatus']= CreditNotesLog::VIEWED;
+                CreditNotesLog::insert($creditnoteslogdata);
 
                 return self::creditnotes_preview($CreditNotesID);
             }
@@ -1599,14 +1650,14 @@ class CreditNotesController extends \BaseController {
             else
             {
                 $status['status'] 					= "success";
-                $CreditNotes->update(['CreditNotesStatus' => CreditNotes::SEND ]);
+                //$CreditNotes->update(['CreditNotesStatus' => CreditNotes::SEND ]);
 
-                $creditnotesloddata = array();
-                $creditnotesloddata['CreditNotesID']= $CreditNotes->CreditNotesID;
-                $creditnotesloddata['Note']= 'Sent By '.$CreatedBy;
-                $creditnotesloddata['created_at']= date("Y-m-d H:i:s");
-                $creditnotesloddata['CreditNotesLogStatus']= CreditNotesLog::SENT;
-                CreditNotesLog::insert($creditnotesloddata);
+                $creditnoteslogdata = array();
+                $creditnoteslogdata['CreditNotesID']= $CreditNotes->CreditNotesID;
+                $creditnoteslogdata['Note']= 'Sent By '.$CreatedBy;
+                $creditnoteslogdata['created_at']= date("Y-m-d H:i:s");
+                //$creditnoteslogdata['CreditNotesLogStatus']= CreditNotesLog::SENT;
+                CreditNotesLog::insert($creditnoteslogdata);
 
                 /*
                     Insert email log in account
@@ -1680,20 +1731,12 @@ class CreditNotesController extends \BaseController {
         }
         return $status;
     }
-    public function bulk_send_creditnotes_mail(){
+    public function bulk_send_creditnote_mail(){
         $data = Input::all();
         $companyID = User::get_companyID();
-        if(!empty($data['criteria'])){
-            $creditnotesid = $this->getCreditNotessIdByCriteria($data);
-            $creditnotesid = rtrim($creditnotesid,',');
-            $data['CreditNotesIDs'] = $creditnotesid;
-            unset($data['criteria']);
-        }
-        else{
-            unset($data['criteria']);
-        }
+        unset($data['criteria']);
 
-        $jobType = JobType::where(["Code" => 'BIS'])->get(["JobTypeID", "Title"]);
+        $jobType = JobType::where(["Code" => 'BCS'])->get(["JobTypeID", "Title"]);
         $jobStatus = JobStatus::where(["Code" => "P"])->get(["JobStatusID"]);
         $jobdata["CompanyID"] = $companyID;
         $jobdata["JobTypeID"] = isset($jobType[0]->JobTypeID) ? $jobType[0]->JobTypeID : '';
@@ -1707,7 +1750,7 @@ class CreditNotesController extends \BaseController {
         $jobdata["updated_at"] = date('Y-m-d H:i:s');
         $JobID = Job::insertGetId($jobdata);
         if($JobID){
-            return Response::json(array("status" => "success", "message" => "Bulk CreditNotes Send Job Added in queue to process.You will be notified once job is completed. "));
+            return Response::json(array("status" => "success", "message" => "Bulk Credit Notes Send Job Added in queue to process.You will be notified once job is completed. "));
         }else{
             return Response::json(array("status" => "success", "message" => "Problem Creating Job Bulk CreditNotes Send."));
         }
@@ -1732,12 +1775,12 @@ class CreditNotesController extends \BaseController {
                      $Extralognote = ' Cancel Reason: '.$data['CancelReason'];
                  }*/
                 foreach($CreditNotesIDs as $CreditNotesID) {
-                    $creditnotesloddata = array();
-                    $creditnotesloddata['CreditNotesID'] = $CreditNotesID;
-                    $creditnotesloddata['Note'] = $creditnotes_status[$data['CreditNotesStatus']].' By ' . $username.$Extralognote;
-                    $creditnotesloddata['created_at'] = date("Y-m-d H:i:s");
-                    $creditnotesloddata['CreditNotesLogStatus'] = CreditNotesLog::UPDATED;
-                    CreditNotesLog::insert($creditnotesloddata);
+                    $creditnoteslogdata = array();
+                    $creditnoteslogdata['CreditNotesID'] = $CreditNotesID;
+                    $creditnoteslogdata['Note'] = $creditnotes_status[$data['CreditNotesStatus']].' By ' . $username.$Extralognote;
+                    $creditnoteslogdata['created_at'] = date("Y-m-d H:i:s");
+                    $creditnoteslogdata['CreditNotesLogStatus'] = CreditNotesLog::UPDATED;
+                    CreditNotesLog::insert($creditnoteslogdata);
                 }
 
                 return Response::json(array("status" => "success", "message" => "CreditNotes Successfully Updated"));

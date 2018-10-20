@@ -50,7 +50,7 @@
                     </p>
                 </div>
                 <div class="form-group">
-                    <label class="control-label">Tag</label>
+                    <label class="control-label">Account Tag</label>
                     <input class="form-control tags" name="tag" type="text" >
                 </div>
                 <div class="form-group">
@@ -176,7 +176,7 @@
           <th width="6%">Grand Total</th>
           <th width="6%">Paid/OS</th>
           <th width="10%">Status</th>
-          <th width="5%">Credit</th>
+          <th width="5%">Available Credit Notes</th>
           <th width="10%">Due Date</th>
           {{--<th width="10%">Due Days</th>--}}
           <th width="20%">Action</th>
@@ -1537,6 +1537,49 @@
                 }
             });
 
+            $('#Account_ID').change(function() {
+                $('#PaymentMethod').change();
+            });
+
+            $('#PaymentMethod').on('change', function() {
+                if(this.value == 'CREDIT NOTE')
+                {
+                    var formData = new FormData($('#add-edit-payment-form')[0]);
+                    $.ajax({
+                        url:'{{URL::to('payments/getcreditnotes')}}',
+                        type: 'POST',
+                        dataType: 'json',
+                        success: function(response) {
+                            //alert(JSON.stringify(response.data));
+                            if (response.status == 'success') {
+                                var data = response.data;
+                                var options = '<option value="">Select Credit Note</option>';
+                                Object.keys(data).forEach(function(key) {
+                                    var total = data[key].GrandTotal - data[key].PaidAmount;
+                                    if(total != 0)
+                                    {
+                                        options += '<option value='+data[key].CreditNotesID+'>'+total.toFixed(2)+'</option>';
+                                    }
+                                });
+                                $("#CreditNotesList").select2("destroy").select2();
+                                $('#CreditNotesList').html(options);
+                                $('#creditnotebox').removeClass('hidden');
+                            } else {
+                                toastr.error(response.message, "Credit Note Not Available For this Account", toastr_opts);
+                            }
+                            //$('#table-4_processing').addClass('hidden');
+                        },
+                        data: formData,
+                        cache: false,
+                        contentType: false,
+                        processData: false
+                    });
+                }
+                else{
+                    $('#creditnotebox').addClass('hidden');
+                }
+            });
+
         });
 
     </script>
@@ -2006,7 +2049,7 @@
               <div class="form-group">
                 <label for="field-5" class="control-label">Account Name * <span
                                                 id="AccountID_currency"></span></label>
-                {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
+                {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","id"=>"Account_ID","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
                 <input type="hidden" name="AccountName"/>
               </div>
             </div>
@@ -2021,8 +2064,17 @@
             <div class="col-md-12">
               <div class="form-group">
                 <label for="field-5" class="control-label">Payment Method *</label>
-                {{ Form::select('PaymentMethod',Payment::$method, '', array("class"=>"select2 small")) }} </div>
+                {{ Form::select('PaymentMethod',Payment::$method, '', array("class"=>"select2 small","id"=>"PaymentMethod")) }} </div>
             </div>
+
+              <div class="hidden" id="creditnotebox">
+                  <div class="col-md-12">
+                      <div class="form-group">
+                          <label for="field-5" class="control-label">Credit Notes *</label>
+                          {{ Form::select('CreditNotesList', ['' => 'Select Credit Note'] , '', array("class"=>"select2 small","id"=>"CreditNotesList")) }} </div>
+                  </div>
+              </div>
+
             <div class="col-md-12">
               <div class="form-group">
                 <label for="field-5" class="control-label">Action *</label>

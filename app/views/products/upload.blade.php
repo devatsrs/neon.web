@@ -209,7 +209,13 @@
                                                 </div>
                                                 <div class="form-group">
                                             @endif
-                                            <label for="field-1" class="col-sm-2 control-label">{{ $field->FieldName }}</label>
+                                            <label for="field-1" class="col-sm-2 control-label">
+                                                @if($field->ItemTypeID > 0)
+                                                    {{getItemType($field->ItemTypeID)}}_{{ $field->FieldName }}
+                                                @else
+                                                    {{ $field->FieldName }}
+                                                @endif
+                                            </label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[DynamicFields-'.$field->DynamicFieldsID.']', array(),'',array("class"=>"select2 small"))}}
                                             </div>

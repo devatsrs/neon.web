@@ -384,13 +384,15 @@ class InvoicesController extends \BaseController {
 				
 				//Invoice tax
 				if(isset($data['InvoiceTaxes']) && is_array($data['InvoiceTaxes'])){
-					foreach($data['InvoiceTaxes']['field'] as  $p =>  $InvoiceTaxes){						
-						$InvoiceAllTaxRates[$p]['TaxRateID'] 		= 	$InvoiceTaxes;
-						$InvoiceAllTaxRates[$p]['Title'] 			= 	TaxRate::getTaxName($InvoiceTaxes);
-						$InvoiceAllTaxRates[$p]["created_at"] 		= 	date("Y-m-d H:i:s");
-						$InvoiceAllTaxRates[$p]["InvoiceTaxType"] 	= 	1;
-						$InvoiceAllTaxRates[$p]["InvoiceID"] 		= 	$Invoice->InvoiceID; 
-						$InvoiceAllTaxRates[$p]["TaxAmount"] 		= 	$data['InvoiceTaxes']['value'][$p];
+					foreach($data['InvoiceTaxes']['field'] as  $p =>  $InvoiceTaxes){
+                        if(!empty($InvoiceTaxes)) {
+                            $InvoiceAllTaxRates[$p]['TaxRateID'] = $InvoiceTaxes;
+                            $InvoiceAllTaxRates[$p]['Title'] = TaxRate::getTaxName($InvoiceTaxes);
+                            $InvoiceAllTaxRates[$p]["created_at"] = date("Y-m-d H:i:s");
+                            $InvoiceAllTaxRates[$p]["InvoiceTaxType"] = 1;
+                            $InvoiceAllTaxRates[$p]["InvoiceID"] = $Invoice->InvoiceID;
+                            $InvoiceAllTaxRates[$p]["TaxAmount"] = $data['InvoiceTaxes']['value'][$p];
+                        }
 					}
 				}
 				
@@ -597,12 +599,14 @@ class InvoicesController extends \BaseController {
 						
 						if(isset($data['InvoiceTaxes']) && is_array($data['InvoiceTaxes'])){
                             foreach($data['InvoiceTaxes']['field'] as  $p =>  $InvoiceTaxes){
-                                $InvoiceAllTaxRates[$p]['TaxRateID'] 		= 	$InvoiceTaxes;
-                                $InvoiceAllTaxRates[$p]['Title'] 			= 	TaxRate::getTaxName($InvoiceTaxes);
-                                $InvoiceAllTaxRates[$p]["created_at"] 		= 	date("Y-m-d H:i:s");
-                                $InvoiceAllTaxRates[$p]["InvoiceTaxType"] 	= 	1;
-                                $InvoiceAllTaxRates[$p]["InvoiceID"] 		= 	$Invoice->InvoiceID;
-                                $InvoiceAllTaxRates[$p]["TaxAmount"] 		= 	$data['InvoiceTaxes']['value'][$p];
+                                if(!empty($InvoiceTaxes)) {
+                                    $InvoiceAllTaxRates[$p]['TaxRateID'] = $InvoiceTaxes;
+                                    $InvoiceAllTaxRates[$p]['Title'] = TaxRate::getTaxName($InvoiceTaxes);
+                                    $InvoiceAllTaxRates[$p]["created_at"] = date("Y-m-d H:i:s");
+                                    $InvoiceAllTaxRates[$p]["InvoiceTaxType"] = 1;
+                                    $InvoiceAllTaxRates[$p]["InvoiceID"] = $Invoice->InvoiceID;
+                                    $InvoiceAllTaxRates[$p]["TaxAmount"] = $data['InvoiceTaxes']['value'][$p];
+                                }
                             }
 				        }
 						
@@ -1591,6 +1595,7 @@ class InvoicesController extends \BaseController {
 				//$data['Message'] = $body;
 				$message_id 	=  isset($status['message_id'])?$status['message_id']:"";
                 $logData = ['AccountID'=>$Invoice->AccountID,
+                    'EmailFrom'=>$data['EmailFrom'],
                     'EmailTo'=>$CustomerEmail,
                     'Subject'=>$data['Subject'],
                     'Message'=>$body,
@@ -3190,6 +3195,46 @@ class InvoicesController extends \BaseController {
             $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $account->CompanyID);
             $PaymentResponse = $PaymentIntegration->paymentWithCreditCard($data);
             return json_encode($PaymentResponse);
+        }else{
+            return Response::json(array("status" => "failed", "message" => cus_lang('PAGE_INVOICE_MSG_INVOICE_NOT_FOUND')));
+        }
+    }
+
+    //using for authorize echeck
+    public function payinvoice_withbankdetail($type){
+        $data = Input::all();
+        $InvoiceID = $data['InvoiceID'];
+        $AccountID = $data['AccountID'];
+        $Invoice = Invoice::where('InvoiceStatus','!=',Invoice::PAID)->where(["InvoiceID" => $InvoiceID, "AccountID" => $AccountID])->first();
+        if(!empty($Invoice) && intval($InvoiceID)>0 && $data['isInvoicePay']) {
+            $payment_log = Payment::getPaymentByInvoice($Invoice->InvoiceID);
+
+            $data['GrandTotal'] = $payment_log['final_payment'];
+            $data['InvoiceNumber'] = $Invoice->FullInvoiceNumber;
+            $data['CompanyID'] = $Invoice->CompanyID;
+
+            $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($type);
+            $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
+            $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $Invoice->CompanyID);
+            $PaymentResponse = $PaymentIntegration->paymentWithBankDetail($data);
+            return json_encode($PaymentResponse);
+        }elseif(isset($data['GrandTotal']) && intval($data['GrandTotal'])>0 && !$data['isInvoicePay']){
+            return Response::json(array("status" => "failed", "message" =>"failed"));
+            /*
+            $account = Account::find($AccountID);
+            if(!empty($Invoice)){
+                $data['InvoiceNumber'] = $Invoice->FullInvoiceNumber;
+            }else{
+                $data['InvoiceNumber'] = '';
+            }
+            $data['CompanyID'] = $account->CompanyId;
+
+            $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($type);
+            $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
+            $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $account->CompanyID);
+            $PaymentResponse = $PaymentIntegration->paymentWithBankDetail($data);
+            return json_encode($PaymentResponse);
+            */
         }else{
             return Response::json(array("status" => "failed", "message" => cus_lang('PAGE_INVOICE_MSG_INVOICE_NOT_FOUND')));
         }

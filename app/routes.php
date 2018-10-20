@@ -878,6 +878,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/payments/ajaxfilegrid', 'PaymentsController@ajaxfilegrid');
 	Route::any('/payments/download_sample_excel_file', 'PaymentsController@download_sample_excel_file');
 	Route::any('/payments/payments_quickbookpost', 'PaymentsController@payments_quickbookpost');
+	Route::any('/payments/getcreditnotes', 'PaymentsController@getcreditnotes');
 
 	//Currency
 	Route::any('/currency/ajax_datagrid', 'CurrenciesController@ajax_datagrid');
@@ -1021,9 +1022,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/creditnotes', 'CreditNotesController@index');
 	Route::any('/creditnotes/create', 'CreditNotesController@create');
 	Route::any('/creditnotes/store', 'CreditNotesController@store');
-	Route::any('/creditnotes/bulk_send_invoice_mail', 'CreditNotesController@bulk_send_invoice_mail');
-	Route::any('/creditnotes/bulk_print_invoice', 'CreditNotesController@bulk_print_invoice');
-	Route::any('/creditnotes/invoice_regen', 'CreditNotesController@invoice_regen');
+	Route::any('/creditnotes/bulk_send_creditnote_mail', 'CreditNotesController@bulk_send_creditnote_mail');
 	Route::any('/creditnotes/{id}/edit', 'CreditNotesController@edit');
 	Route::any('/creditnotes/{id}/delete', 'CreditNotesController@delete');
 	Route::any('/creditnotes/{id}/view', 'CreditNotesController@view');
@@ -1048,6 +1047,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/creditnotes/calculate_total', 'CreditNotesController@calculate_total');
 	Route::any('/creditnotes/get_account_info', 'CreditNotesController@getAccountInfo');
 	Route::any('/creditnotes/get_billingclass_info', 'CreditNotesController@getBillingclassInfo');
+	Route::any('/creditnotes/allocate_payment', 'CreditNotesController@allocate_payment');
 
 	//Invoice
 	Route::any('/invoice', 'InvoicesController@index');
@@ -1200,6 +1200,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/products/{id}/update', 'ProductsController@update');
 	Route::any('/products/{id}/delete', 'ProductsController@delete');
 	Route::any('/products/ajax_datagrid/{type}', 'ProductsController@ajax_datagrid');
+	Route::any('/product/{id}/download_attachment','ProductsController@download_attachment');
 
 	Route::any('/products/upload', 'ProductsController@upload');
 	Route::any('/products/check_upload', 'ProductsController@check_upload');
@@ -1208,6 +1209,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/products/get_product_by_barcode/{BarCode}', 'ProductsController@getProductByBarCode');
 	Route::any('/products_upload/download_sample_excel_file', 'ProductsController@download_sample_excel_file');
 	Route::any('/products/update_bulk_product_status', 'ProductsController@UpdateBulkProductStatus');
+	Route::any('/products/ajax_datagrid_total', 'ProductsController@ajax_datagrid_total');
 
 	Route::any('/product/{id}/get/{FieldName}', 'ProductsController@get')->where('FieldName', '(.[azAZ]*)+');
     Route::any('/billing_subscription/{id}/get/{FieldName}', 'BillingSubscriptionController@get')->where('FieldName', '(.[azAZ]*)+');
@@ -1229,6 +1231,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/products/dynamicfields/{id}/delete', 'DynamicFieldController@delete');
 	Route::any('/products/dynamicfields/update_bulk_dynamicfields_status', 'DynamicFieldController@UpdateBulkDynamicFieldStatus');
 	Route::any('/products/dynamicfields/delete_bulk_dynamicfields', 'DynamicFieldController@DeleteBulkDynamicField');
+	Route::any('/products/dynamicfields/{id}/view', 'DynamicFieldController@ViewByType');
 
 	Route::any('/products/stockhistory', 'StockHistoryController@index');
 	Route::any('/products/stockhistory/ajax_datagrid/{type}', 'StockHistoryController@ajax_datagrid');
@@ -1566,6 +1569,7 @@ Route::group(array('before' => 'guest'), function () {
     Route::any('/invoice/download_invoice/{id}', 'InvoicesController@download_invoice');
 	Route::any('/invoice_payment/{id}/{type}', 'InvoicesController@invoice_payment'); //Customer payment View
     Route::any('/payinvoice_withcard/{type}', 'InvoicesController@payinvoice_withcard'); //Customer payment pay with credit card
+    Route::any('/payinvoice_withbankdetail/{type}', 'InvoicesController@payinvoice_withbankdetail'); //Customer payment pay with bank detail
     Route::any('/payinvoice_withprofile/{type}', 'InvoicesController@payinvoice_withprofile'); //Customer payment pay with credit card
     Route::any('/pay_invoice', 'InvoicesController@pay_invoice'); //Customer payment pay
 	Route::any('/stripe_payment', 'InvoicesController@stripe_payment'); //Customer payment with stripe

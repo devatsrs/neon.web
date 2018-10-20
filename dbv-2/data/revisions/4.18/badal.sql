@@ -430,8 +430,7 @@ BEGIN
 	INSERT INTO tblInvoiceLog (
 	 		InvoiceID,			 
 			 Note,
-			 created_at,
-			 updated_at			 
+			 created_at
 			 )
  	select 			 
 			 tp.InvoiceID,			 	
@@ -903,7 +902,7 @@ DROP TEMPORARY TABLE IF EXISTS tmp_CreditNotes_;
 		INSERT INTO tmp_CreditNotes_
 		select 
 			`tblInvoice`.`InvoiceID`,
- 			`tblInvoice`.`FullInvoiceNumber`,
+ 			IFNULL(`tblInvoice`.`FullInvoiceNumber`,'') AS FullInvoiceNumber,
   			`tblInvoice`.`IssueDate`,
    		`tblInvoice`.`GrandTotal`,
 			(select IFNULL(SUM(Amount),0) from tblPayment where tblPayment.InvoiceID=tblInvoice.InvoiceID and tblPayment.Recall=0) as TotalPayment,
@@ -925,7 +924,8 @@ DROP TEMPORARY TABLE IF EXISTS tmp_CreditNotes_;
             COUNT(*) AS totalcount
         FROM
         tmp_CreditNotes_ cn
-        INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = cn.AccountID;
+        INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = cn.AccountID
+        where cn.GrandTotal > cn.TotalPayment;
 			
 			SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
@@ -963,7 +963,7 @@ BEGIN
     IF p_isExport = 0
     THEN
         SELECT         
-        CONCAT(LTRIM(RTRIM(cn.CreditNotesNumber))) AS CreditNotesNumber,
+        cn.FullCreditNotesNumber AS CreditNotesNumber,
         cn.IssueDate,
         CONCAT(IFNULL(cr.Symbol,''),ROUND(cn.GrandTotal,v_Round_)) AS GrandTotal2,		
         cn.CreditNotesStatus,
@@ -1036,7 +1036,7 @@ BEGIN
     IF p_isExport = 1
     THEN
         SELECT 
-        ( CONCAT(LTRIM(RTRIM(IFNULL(it.InvoiceNumberPrefix,''))), LTRIM(RTRIM(cn.CreditNotesNumber)))) AS Number,
+        cn.FullCreditNotesNumber AS CreditNotesNumber,
         cn.IssueDate,
         ROUND(cn.GrandTotal,v_Round_) AS GrandTotal,
 		IFNULL(cn.GrandTotal - cn.PaidAmount,0) AS AvailableBalance,        

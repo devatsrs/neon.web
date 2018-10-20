@@ -22,7 +22,7 @@
                     {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"select2"))}}
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="control-label">CreditNotes Number</label>
+                    <label for="field-1" class="control-label">Credit Note Number</label>
                     {{ Form::text('CreditNotesNumber', '', array("class"=>"form-control")) }}
                 </div>
                 <div class="form-group">
@@ -60,27 +60,12 @@
     </a>-->
     </p>
     <div class="row">
-        <div  class="col-md-12">
-            <!--<div class="input-group-btn pull-right" style="width:70px;"> @if( User::checkCategoryPermission('CreditNotes','Edit'))
-                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
-                    <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
-                        @if(User::checkCategoryPermission('CreditNotes','Edit'))
-                            <li> <a class="delete_bulk" id="delete_bulk" href="javascript:;" > Delete </a> </li>
-                        @endif
-                        @if(User::checkCategoryPermission('CreditNotes','Edit'))
-                            <li> <a class="convert_invoice" id="convert_invoice" href="javascript:;" >Accept and generate invoice</a> </li>
-                        @endif
-                    </ul>
-                @endif
-                <form id="clear-bulk-rate-form" >
-                    <input type="hidden" name="CustomerRateIDs" value="">
-                </form>
-            </div>
-            -->
+        <div class="col-md-12">
+            <a href="javascript:;" id="bulk-allocate-payment" class="btn btn-primary pull-right"> Bulk Allocate Payment</a>
+            <a href="javascript:;" id="bulk-creditnotes-send" class="btn btn-primary pull-right"> Bulk Send</a>
             @if(User::checkCategoryPermission('CreditNotes','Add'))
                 <a href="{{URL::to("creditnotes/create")}}" id="add-new-creditnotes" class="btn btn-primary pull-right"> <i class="entypo-plus"></i> Add New</a>
-                @endif
-                        <!-- /btn-group -->
+            @endif
         </div>
         <div class="clear"></div>
     </div>
@@ -88,9 +73,9 @@
     <table class="table table-bordered datatable" id="table-4">
         <thead>
         <tr>
-            <!-- <th width="5%"><div class="pull-left">
+            <th width="5%"><div class="pull-left">
                      <input type="checkbox" id="selectall" name="checkbox[]" class="" />
-                </div></th>-->
+                </div></th>
             <th width="20%">Account Name</th>
             <th width="10%">Number</th>
             <th width="15%">Issue Date</th>
@@ -108,6 +93,32 @@
         var checked			=	'';
         var update_new_url;
         var postdata;
+        var base_url		= 	"{{ URL::to('creditnotes')}}";
+        function allocate_payment(id){
+
+            if(confirm('Are you sure you want to Allocate Payment?'))
+            {
+                $.ajax({
+                    url: base_url + "/allocate_payment",
+                    type: 'POST',
+                    data: {
+                        "id": id
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        $(this).button('reset');
+                        if (response.status == 'success') {
+                            toastr.success(response.message, "Success", toastr_opts);
+                            if(typeof response.redirect != 'undefined' && response.redirect != ''){
+                                window.location = response.redirect;
+                            }
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                    }
+                });
+            }
+        }
         jQuery(document).ready(function ($) {
 
             $('#filter-button-toggle').show();
@@ -145,7 +156,7 @@
             public_vars.$body = $("body");
             //show_loading_bar(40);
             var base_url_creditnotes 		= 	"{{ URL::to('creditnotes')}}";
-            var creditnotesstatus 			=	{{$creditnotes_status_json}};
+            var creditnotestatus 			=	{{$creditnotes_status_json}};
             var creditnotes_Status_Url 	= 	"{{ URL::to('creditnotes/creditnotes_change_Status')}}";
             var delete_url_bulk 		= 	"{{ URL::to('creditnotes/creditnotes_delete_bulk')}}";
             var list_fields  			= 	['AccountName','CreditNotesNumber','IssueDate','GrandTotal','CreditNotesStatus','CreditNotesID','Description','Attachment','AccountID','BillingEmail'];
@@ -164,7 +175,7 @@
                 "sAjaxSource": baseurl + "/creditnotes/ajax_datagrid/type",
                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "sPaginationType": "bootstrap",
-              //  "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "aaSorting": [[3, 'desc']],
                 "fnServerParams": function(aoData) {
                     aoData.push({"name":"CreditNotesType","value":$searchFilter.CreditNotesType},{"name":"AccountID","value":$searchFilter.AccountID},{"name":"CreditNotesNumber","value":$searchFilter.CreditNotesNumber},{"name":"CreditNotesStatus","value":$searchFilter.CreditNotesStatus},{"name":"IssueDateStart","value":$searchFilter.IssueDateStart},{"name":"IssueDateEnd","value":$searchFilter.IssueDateEnd},{"name":"CurrencyID","value":$searchFilter.CurrencyID});
@@ -173,7 +184,7 @@
                 },
                 "aoColumns":
                         [
-                            /*{  "bSortable": false,
+                            {  "bSortable": false,
                                 mRender: function ( id, type, full ) {
                                     var action , action = '<div class = "hiddenRowData" >';
                                     {
@@ -183,17 +194,13 @@
                                     return action;
                                 }
 
-                            },  // 0 AccountName*/
+                            },  // 0 AccountName
                             {  "bSortable": true,
 
                                 mRender:function( id, type, full){
                                     var output , account_url;
 
                                     output = '<a href="{url}" target="_blank" >{account_name}';
-                                    if(full[9] =='')
-                                    {
-                                        output+= '<br> <span class="text-danger"><small>(Email not setup)</small></span>';
-                                    }
                                     output+= '</a>';
                                     account_url = baseurl + "/accounts/"+ full[8] + "/show";
                                     output = output.replace("{url}",account_url);
@@ -235,7 +242,7 @@
                             },  // 11 Available Balance
                             {  "bSortable": true,
                                 mRender:function( id, type, full){
-                                    return  creditnotesstatus[full[4]];
+                                    return  creditnotestatus[full[4]];
                                 }
 
                             },  // 5 CreditNotesStatus
@@ -265,7 +272,7 @@
 
                                     if('{{User::checkCategoryPermission('CreditNotes','Edit')}}')
                                     {
-                                        if(creditnotesstatus[full[4]] != 'Close')
+                                        if(creditnotestatus[full[4]] != 'Close')
                                         {
                                             action += ' <li><a class="icon-left"  href="' + (baseurl + "/creditnotes/{id}/edit").replace("{id}",full[5]) +'"><i class="entypo-pencil"></i>Edit </a></li>';
                                         }
@@ -302,16 +309,18 @@
 
                                         action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Change Status <span class="caret"></span></button>'
                                         action += '<ul class="dropdown-menu dropdown-green" role="menu">';
-                                        $.each(creditnotesstatus, function( index, value ) {
+                                        $.each(creditnotestatus, function( index, value ) {
 
-                                            action +='<li><a data-creditnotesstatus="' + index+ '" data-creditnotesid="' + full[5]+ '" href="' + creditnotes_Status_Url+ '" class="changestatus" >'+value+'</a></li>';
+                                            action +='<li><a data-creditnotestatus="' + index+ '" data-creditnotesid="' + full[5]+ '" href="' + creditnotes_Status_Url+ '" class="changestatus" >'+value+'</a></li>';
 
 
                                         });
 
                                         action += '</ul>' +
                                                 '</div>';
-                                        action += ' <div class="btn-group"><a href="' + (baseurl + "/creditnotes/{accountid}/{id}/apply_creditnotes").replace("{accountid}",full[8]).replace("{id}",full[5]) +'" class="btn generate btn-success btn-sm">Apply</a></div>'
+                                        action += ' <div class="btn-group"><a href="' + (baseurl + "/creditnotes/{accountid}/{id}/apply_creditnotes").replace("{accountid}",full[8]).replace("{id}",full[5]) +'" class="btn generate btn-success btn-sm">Apply</a></div>';
+                                        //action += ' <div class="btn-group"><a href="' + (baseurl + "/creditnotes/{id}/allocate_payment").replace("{id}",full[5]) +'" class="btn generate btn-success btn-sm" onclick="'+ allocate_payment(full[5]) +'">Allocate Payment</a></div>';
+                                        action += ' <div class="btn-group"><a href="'+ "javascript:allocate_payment (" +full[5]+ ")" +'" class="btn generate btn-success btn-sm">Allocate Payment</a></div>';
                                     }
 
                                     return action;
@@ -335,7 +344,7 @@
                     ]
                 },
                 "fnDrawCallback": function() {
-                    //get_total_grand();
+                    get_total_grand();
                     $('#table-4 tbody tr').each(function(i, el) {
                         if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
                             if (checked != '') {
@@ -374,6 +383,8 @@
                     $(".dataTables_wrapper select").select2({
                         minimumResultsForSearch: -1
                     });
+
+
                     $('#selectallbutton').click(function(ev) {
                         if($(this).is(':checked')){
                             checked = 'checked=checked disabled';
@@ -405,7 +416,7 @@
 
             });
 
-           // $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
+            $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
 
             $("#creditnotes_filter").submit(function(e){
                 e.preventDefault();
@@ -439,7 +450,7 @@
                         "sAjaxSource": baseurl + "/creditnotes/ajax_datagrid/type",
                         "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                         "sPaginationType": "bootstrap",
-                        //"sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                        "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                         "aaSorting": [[3, 'desc']],},
                     success: function(response1) {
                         console.log("sum of result"+response1);
@@ -530,7 +541,7 @@
                 }
                 console.log(CreditNotesIDs);
 
-                if (!confirm('Are you sure you to change status of selected creditnotess ?')) {
+                if (!confirm('Are you sure you to change status of selected creditnotes ?')) {
                     return;
                 }
 
@@ -623,7 +634,7 @@
                 }
                 console.log(CreditNotesIDs);
 
-                if (!confirm('Are you sure to delete selected creditnotess?')) {
+                if (!confirm('Are you sure to delete selected creditnotes?')) {
                     return;
                 }
 
@@ -684,7 +695,7 @@
                     submit_ajax(update_new_url,formData)
 
                 }else{
-                    toastr.error("Please Select CreditNotess Status", "Error", toastr_opts);
+                    toastr.error("Please Select Credit Note Status", "Error", toastr_opts);
                     $(this).find(".cancelbutton]").button("reset");
                     return false;
                 }
@@ -724,7 +735,7 @@
                             toastr.error(response.message, "Error", toastr_opts);
                         }
                     },
-                    data:'CreditNotesStatus='+$(this).attr('data-creditnotesstatus')+'&CreditNotesIDs='+$(this).attr('data-creditnotesid')
+                    data:'CreditNotesStatus='+$(this).attr('data-creditnotestatus')+'&CreditNotesIDs='+$(this).attr('data-creditnotesid')
 
                 });
                 return false;
@@ -766,14 +777,14 @@
                         CreditNotesIDs[i++] = CreditNotesID;
                     }
                 });
-                console.log(CreditNotesIDs);
+                    console.log(CreditNotesIDs);
 
                 if(CreditNotesIDs.length){
-                    if (!confirm('Are you sure you want to send selected CreditNotess?')) {
+                    if (!confirm('Are you sure you want to send selected Credit Notes?')) {
                         return;
                     }
                     $.ajax({
-                        url: baseurl + '/creditnotes/bulk_send_creditnotes_mail',
+                        url: baseurl + '/creditnotes/bulk_send_creditnote_mail',
                         data: 'CreditNotesIDs='+CreditNotesIDs+'&criteria='+criteria,
                         error: function () {
                             toastr.error("error", "Error", toastr_opts);
