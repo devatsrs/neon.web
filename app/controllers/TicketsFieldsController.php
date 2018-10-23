@@ -329,8 +329,8 @@ private $validlicense;
 							if(!isset($choices_data->ValuesID)){ 
 								$choicesdata['FieldType']	     		= 		1;					
 								$choicesdata['created_at']       		= 		date("Y-m-d H:i:s");
-								$choicesdata['created_by']       		= 		User::get_user_full_name();	
-								TicketfieldsValues::insertGetId($choicesdata);	
+								$choicesdata['created_by']       		= 		User::get_user_full_name();
+								$TicketfieldsValues=TicketfieldsValues::insertGetId($choicesdata);
 								Translation::add_system_name("CUST_PANEL_PAGE_TICKET_FIELDS_".$choicesdata['FieldsID']."_VALUE_".$TicketfieldsValues, $choicesdata['FieldValueCustomer']);
 								continue;				
 							}
