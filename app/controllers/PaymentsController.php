@@ -326,7 +326,7 @@ class PaymentsController extends \BaseController {
     public function getcreditnotes()
     {
         $data = Input::all();
-        $CreditNotes = CreditNotes::where("AccountID", $data['AccountID'])->get(["CreditNotesID", "GrandTotal", "PaidAmount"]);
+        $CreditNotes = CreditNotes::where("AccountID", $data['AccountID'])->get(["CreditNotesID","CreditNotesNumber", "GrandTotal", "PaidAmount"]);
         if(count($CreditNotes) > 0){
             return Response::json(array("status" => "success", "data" => $CreditNotes));
         }

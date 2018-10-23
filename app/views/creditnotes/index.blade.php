@@ -320,7 +320,7 @@
                                                 '</div>';
                                         action += ' <div class="btn-group"><a href="' + (baseurl + "/creditnotes/{accountid}/{id}/apply_creditnotes").replace("{accountid}",full[8]).replace("{id}",full[5]) +'" class="btn generate btn-success btn-sm">Apply</a></div>';
                                         //action += ' <div class="btn-group"><a href="' + (baseurl + "/creditnotes/{id}/allocate_payment").replace("{id}",full[5]) +'" class="btn generate btn-success btn-sm" onclick="'+ allocate_payment(full[5]) +'">Allocate Payment</a></div>';
-                                        action += ' <div class="btn-group"><a href="'+ "javascript:allocate_payment (" +full[5]+ ")" +'" class="btn generate btn-success btn-sm">Allocate Payment</a></div>';
+                                        action += ' <div class="btn-group"><a href="'+ "javascript:allocate_payment (" +full[5]+ ")" +'" class="btn generate btn-success btn-sm"><i data-toggle="tooltip" title="Allocate Payment" class="glyphicon glyphicon-transfer"></i></a></div>';
                                     }
 
                                     return action;
@@ -804,6 +804,48 @@
 
             });
 
+            $("#bulk-allocate-payment").click(function(ev) {
+
+                var CreditNotesIDs = [];
+                var i = 0;
+                $('#table-4 tr .rowcheckbox:checked').each(function(i, el) {
+                    //console.log($(this).val());
+                    CreditNotesID = $(this).val();
+                    if(typeof CreditNotesID != 'undefined' && CreditNotesID != null && CreditNotesID != 'null'){
+                        CreditNotesIDs[i++] = CreditNotesID;
+                    }
+                });
+                console.log(CreditNotesIDs);
+
+                if(CreditNotesIDs.length){
+                    if (!confirm('Are you sure you want to send selected Credit Notes?')) {
+                        return;
+                    }
+                    $.ajax({
+                        url: baseurl + '/creditnotes/bulk_allocate_creditnote_payment',
+                        data: 'CreditNotesIDs='+CreditNotesIDs,
+                        error: function () {
+                            toastr.error("error", "Error", toastr_opts);
+                        },
+                        dataType: 'json',
+                        success: function (response) {
+                            if (response.status == 'success') {
+                                toastr.success(response.message, "Success", toastr_opts);
+                            } else {
+                                toastr.error(response.message, "Error", toastr_opts);
+                            }
+                            setTimeout( function(){
+                                if(typeof response.redirect != 'undefined' && response.redirect != ''){
+                                    window.location = response.redirect;
+                                }
+                            }  , 4000 );
+
+                        },
+                        type: 'POST'
+                    });
+
+                }
+            });
 
             $("#test").click(function(e){
                 e.preventDefault();

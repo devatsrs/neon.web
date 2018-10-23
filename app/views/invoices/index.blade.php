@@ -1558,7 +1558,7 @@
                                     var total = data[key].GrandTotal - data[key].PaidAmount;
                                     if(total != 0)
                                     {
-                                        options += '<option value='+data[key].CreditNotesID+'>'+total.toFixed(2)+'</option>';
+                                        options += '<option value='+data[key].CreditNotesID+'>No.' +data[key].CreditNotesNumber+' - '+ total.toFixed(2)+'</option>';
                                     }
                                 });
                                 $("#CreditNotesList").select2("destroy").select2();

@@ -246,7 +246,7 @@ class CreditNotesController extends \BaseController {
                         $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
                         $paymentdata['PaymentMethod'] = 'CREDIT NOTE';
                         $paymentdata['PaymentType'] = 'Payment In';
-                        $paymentdata['Notes'] = 'Paid By Credit Note No. '.$data['CreditNoteNumber'];
+                        $paymentdata['Notes'] = 'Paid By Credit Note No. '.$data['CreditNotesNumber'];
                         $paymentdata['Amount'] = $data['payment'][$i];
                         $paymentdata['Status'] = 'Approved';
                         $paymentdata['created_at'] = date("Y-m-d H:i:s");
@@ -1071,47 +1071,153 @@ class CreditNotesController extends \BaseController {
         $PaidAmount = $CreditNotes['PaidAmount'];
         $Available_Balance = $GrandTotal - $PaidAmount;
         $Available_Balance = number_format((float)$Available_Balance, 2, '.', '');
-        try {
-            DB::connection('sqlsrv2')->beginTransaction();
-            $paymentdata = array();
-            $paymentdata['CompanyID'] = $CreditNotes['CompanyID'];
-            $paymentdata['AccountID'] = $CreditNotes['AccountID'];
-            $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
-            $paymentdata['PaymentMethod'] = 'CREDIT NOTE';
-            $paymentdata['PaymentType'] = 'Payment In';
-            $paymentdata['Notes'] = 'Paid By Credit Note No. ' . $CreditNotes['CreditNoteNumber'];
-            $paymentdata['Amount'] = $Available_Balance;
-            $paymentdata['Status'] = 'Approved';
-            $paymentdata['created_at'] = date("Y-m-d H:i:s");
-            $paymentdata['updated_at'] = date("Y-m-d H:i:s");
-            $paymentdata['CreditNotesID'] = $CreditNotes['CreditNotesID'];
-            $paymentdata['CurrencyId'] = $CreditNotes['CurrencyID'];
-            if (Payment::create($paymentdata)) {
-                $CreditNotesData['PaidAmount'] = $PaidAmount + $Available_Balance;
-                if(CreditNotes::find($creditnote_id)->update($CreditNotesData))
-                {
-                    $creditnoteslogdata = array();
-                    $creditnoteslogdata['CreditNotesID']= $creditnote_id;
-                    $creditnoteslogdata['Note']= 'Added Direct Payment of Amount : '.$Available_Balance;
-                    $creditnoteslogdata['created_at']= date("Y-m-d H:i:s");
-                    $creditnoteslogdata['CreditNotesLogStatus']= CreditNotesLog::PAID;
-                    CreditNotesLog::insert($creditnoteslogdata);
+        if($Available_Balance > 0) {
+            try {
+                DB::connection('sqlsrv2')->beginTransaction();
+                $paymentdata = array();
+                $paymentdata['CompanyID'] = $CreditNotes['CompanyID'];
+                $paymentdata['AccountID'] = $CreditNotes['AccountID'];
+                $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
+                $paymentdata['PaymentMethod'] = 'CREDIT NOTE';
+                $paymentdata['PaymentType'] = 'Payment In';
+                $paymentdata['Notes'] = 'Paid By Credit Note No. ' . $CreditNotes['CreditNotesNumber'];
+                $paymentdata['Amount'] = $Available_Balance;
+                $paymentdata['Status'] = 'Approved';
+                $paymentdata['created_at'] = date("Y-m-d H:i:s");
+                $paymentdata['updated_at'] = date("Y-m-d H:i:s");
+                $paymentdata['CreditNotesID'] = $CreditNotes['CreditNotesID'];
+                $paymentdata['CurrencyId'] = $CreditNotes['CurrencyID'];
+                if (Payment::create($paymentdata)) {
+                    $CreditNotesData['PaidAmount'] = $PaidAmount + $Available_Balance;
+                    if (CreditNotes::find($creditnote_id)->update($CreditNotesData)) {
+                        $creditnoteslogdata = array();
+                        $creditnoteslogdata['CreditNotesID'] = $creditnote_id;
+                        $creditnoteslogdata['Note'] = 'Added Direct Payment of Amount : ' . $Available_Balance;
+                        $creditnoteslogdata['created_at'] = date("Y-m-d H:i:s");
+                        $creditnoteslogdata['CreditNotesLogStatus'] = CreditNotesLog::PAID;
+                        CreditNotesLog::insert($creditnoteslogdata);
 
-                    DB::connection('sqlsrv2')->commit();
-                    $redirect_url = URL::previous();
-                    return Response::json(array("status" => "success", "message" => "Credit Note Payment Allocated", "redirect" => $redirect_url));
+                        DB::connection('sqlsrv2')->commit();
+                        $redirect_url = URL::previous();
+                        return Response::json(array("status" => "success", "message" => "Credit Note Payment Allocated", "redirect" => $redirect_url));
+                    } else {
+                        return Response::json(array("status" => "failed", "message" => "Credit Note Amount Update Failed"));
+                    }
+                } else {
+                    return Response::json(array("status" => "failed", "message" => "Payment Creation Failed"));
                 }
-                else {
-                    return Response::json(array("status" => "failed", "message" => "Credit Note Amount Update Failed"));
-                }
-            } else {
-                return Response::json(array("status" => "failed", "message" => "Payment Creation Failed"));
+            } catch (Exception $e) {
+                Log::info($e);
+                DB::connection('sqlsrv2')->rollback();
+                return Response::json(array("status" => "failed", "message" => "Allocation of Payment Failed. \n" . $e->getMessage()));
             }
         }
-        catch (Exception $e){
-            Log::info($e);
-            DB::connection('sqlsrv2')->rollback();
-            return Response::json(array("status" => "failed", "message" => "Allocation of Payment Failed. \n" . $e->getMessage()));
+        else {
+            return Response::json(array("status" => "failed", "message" => "Credit Note Balance Not Available"));
+        }
+    }
+
+    public function bulk_allocate_creditnote_payment(){
+        $data = Input::all();
+        $creditnote_ids = explode(",",$data['CreditNotesIDs']);
+        $message_array = array();
+        $redirect_url = URL::previous();
+        foreach($creditnote_ids as $creditnote_id) {
+
+            $CreditNotes = CreditNotes::find($creditnote_id);
+            $GrandTotal = $CreditNotes['GrandTotal'];
+            $PaidAmount = $CreditNotes['PaidAmount'];
+            $Available_Balance = $GrandTotal - $PaidAmount;
+            $Available_Balance = number_format((float)$Available_Balance, 2, '.', '');
+            if($Available_Balance > 0) {
+                try {
+                    DB::connection('sqlsrv2')->beginTransaction();
+                    $paymentdata = array();
+                    $paymentdata['CompanyID'] = $CreditNotes['CompanyID'];
+                    $paymentdata['AccountID'] = $CreditNotes['AccountID'];
+                    $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
+                    $paymentdata['PaymentMethod'] = 'CREDIT NOTE';
+                    $paymentdata['PaymentType'] = 'Payment In';
+                    $paymentdata['Notes'] = 'Paid By Credit Note No. ' . $CreditNotes['CreditNotesNumber'];
+                    $paymentdata['Amount'] = $Available_Balance;
+                    $paymentdata['Status'] = 'Approved';
+                    $paymentdata['created_at'] = date("Y-m-d H:i:s");
+                    $paymentdata['updated_at'] = date("Y-m-d H:i:s");
+                    $paymentdata['CreditNotesID'] = $CreditNotes['CreditNotesID'];
+                    $paymentdata['CurrencyId'] = $CreditNotes['CurrencyID'];
+                    if (Payment::create($paymentdata)) {
+                        $CreditNotesData['PaidAmount'] = $PaidAmount + $Available_Balance;
+                        if (CreditNotes::find($creditnote_id)->update($CreditNotesData)) {
+                            $creditnoteslogdata = array();
+                            $creditnoteslogdata['CreditNotesID'] = $creditnote_id;
+                            $creditnoteslogdata['Note'] = 'Added Direct Payment of Amount : ' . $Available_Balance;
+                            $creditnoteslogdata['created_at'] = date("Y-m-d H:i:s");
+                            $creditnoteslogdata['CreditNotesLogStatus'] = CreditNotesLog::PAID;
+                            CreditNotesLog::insert($creditnoteslogdata);
+
+                            DB::connection('sqlsrv2')->commit();
+                            array_push($message_array, "Credit Note No." . $CreditNotes['CreditNotesNumber'] . " Payment Allocated ");
+                            if ($creditnote_id === end($creditnote_ids)) {
+                                $message = implode("<br>", $message_array);
+                                if (strpos($message, 'Failed') !== false) {
+                                    return Response::json(array("status" => "failed", "message" => $message, "redirect" => $redirect_url));
+                                }
+                                else{
+                                    return Response::json(array("status" => "success", "message" => $message, "redirect" => $redirect_url));
+                                }
+                            }
+                        } else {
+                            array_push($message_array, "Credit Note No." . $CreditNotes['CreditNotesNumber'] . " Amount Update Failed");
+                            if ($creditnote_id === end($creditnote_ids)) {
+                                $message = implode("<br>", $message_array);
+                                if (strpos($message, 'Failed') !== false) {
+                                    return Response::json(array("status" => "failed", "message" => $message, "redirect" => $redirect_url));
+                                }
+                                else{
+                                    return Response::json(array("status" => "success", "message" => $message, "redirect" => $redirect_url));
+                                }
+                            }
+                        }
+                    } else {
+                        array_push($message_array, "Credit Note No." . $CreditNotes['CreditNotesNumber'] . " Payment Creation Failed ");
+                        if ($creditnote_id === end($creditnote_ids)) {
+                            $message = implode("<br>", $message_array);
+                            if (strpos($message, 'Failed') !== false) {
+                                return Response::json(array("status" => "failed", "message" => $message, "redirect" => $redirect_url));
+                            }
+                            else{
+                                return Response::json(array("status" => "success", "message" => $message, "redirect" => $redirect_url));
+                            }
+                        }
+                    }
+                } catch (Exception $e) {
+                    Log::info($e);
+                    DB::connection('sqlsrv2')->rollback();
+                    array_push($message_array, "Credit Note No." . $CreditNotes['CreditNotesNumber'] . " Allocation of Payment Failed");
+                    if ($creditnote_id === end($creditnote_ids)) {
+                        $message = implode("<br>", $message_array);
+                        if (strpos($message, 'Failed') !== false) {
+                            return Response::json(array("status" => "failed", "message" => $message, "redirect" => $redirect_url));
+                        }
+                        else{
+                            return Response::json(array("status" => "success", "message" => $message, "redirect" => $redirect_url));
+                        }
+                    }
+                }
+            }
+            else {
+                array_push($message_array, "Failed, Credit Note No." . $CreditNotes['CreditNotesNumber'] . " Balance Not Available");
+                if ($creditnote_id === end($creditnote_ids)) {
+                    $message = implode("<br>", $message_array);
+                    if (strpos($message, 'Failed') !== false) {
+                        return Response::json(array("status" => "failed", "message" => $message, "redirect" => $redirect_url));
+                    }
+                    else{
+                        return Response::json(array("status" => "success", "message" => $message, "redirect" => $redirect_url));
+                    }
+                }
+                //return Response::json(array("status" => "failed", "message" => "Credit Note Balance Not Available"));
+            }
         }
     }
 
