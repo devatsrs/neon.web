@@ -86,13 +86,25 @@ class PaymentIntegration {
 	}
 	
 	public function paymentWithBankDetail($data){
-
 		$response = $this->paymentValidateWithBankDetail($data);
 		if($response['status']=='failed'){
 			return $response;
 		}
-
-		return $this->request->paymentWithBankDetail($data);
+		$transactionResponse = $this->request->paymentWithBankDetail($data);
+		$transactionResponse['InvoiceID'] = $data['InvoiceID'];
+		$transactionResponse['AccountID'] = $data['AccountID'];
+		$transactionResponse['isInvoicePay'] = $data['isInvoicePay'];
+		if(!$data['isInvoicePay']){
+			$transactionResponse['custome_notes'] = $data['custome_notes'];
+		}
+		$transactionResponse['CreatedBy'] = 'customer';
+		if($transactionResponse['status']=='success'){
+			Payment::paymentSuccess($transactionResponse);
+			return array("status" => "success", "message" => "Invoice paid successfully");
+		}else{
+			Payment::paymentFail($transactionResponse);
+			return array("status" => "failed", "message" => $transactionResponse['transaction_notes']);
+		}
 	}
 
 	public function paymentValidateWithBankDetail($data){

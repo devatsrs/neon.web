@@ -3200,6 +3200,46 @@ class InvoicesController extends \BaseController {
         }
     }
 
+    //using for authorize echeck
+    public function payinvoice_withbankdetail($type){
+        $data = Input::all();
+        $InvoiceID = $data['InvoiceID'];
+        $AccountID = $data['AccountID'];
+        $Invoice = Invoice::where('InvoiceStatus','!=',Invoice::PAID)->where(["InvoiceID" => $InvoiceID, "AccountID" => $AccountID])->first();
+        if(!empty($Invoice) && intval($InvoiceID)>0 && $data['isInvoicePay']) {
+            $payment_log = Payment::getPaymentByInvoice($Invoice->InvoiceID);
+
+            $data['GrandTotal'] = $payment_log['final_payment'];
+            $data['InvoiceNumber'] = $Invoice->FullInvoiceNumber;
+            $data['CompanyID'] = $Invoice->CompanyID;
+
+            $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($type);
+            $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
+            $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $Invoice->CompanyID);
+            $PaymentResponse = $PaymentIntegration->paymentWithBankDetail($data);
+            return json_encode($PaymentResponse);
+        }elseif(isset($data['GrandTotal']) && intval($data['GrandTotal'])>0 && !$data['isInvoicePay']){
+            return Response::json(array("status" => "failed", "message" =>"failed"));
+            /*
+            $account = Account::find($AccountID);
+            if(!empty($Invoice)){
+                $data['InvoiceNumber'] = $Invoice->FullInvoiceNumber;
+            }else{
+                $data['InvoiceNumber'] = '';
+            }
+            $data['CompanyID'] = $account->CompanyId;
+
+            $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($type);
+            $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
+            $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $account->CompanyID);
+            $PaymentResponse = $PaymentIntegration->paymentWithBankDetail($data);
+            return json_encode($PaymentResponse);
+            */
+        }else{
+            return Response::json(array("status" => "failed", "message" => cus_lang('PAGE_INVOICE_MSG_INVOICE_NOT_FOUND')));
+        }
+    }
+
     // not using
     public function payinvoice_withbank($type){
         $data = Input::all();
