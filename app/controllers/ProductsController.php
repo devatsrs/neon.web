@@ -235,8 +235,10 @@ class ProductsController extends \BaseController {
             }
             if(isset($DynamicFields) && count($DynamicFields)>0) {
                 for($k=0; $k<count($DynamicFields); $k++) {
-                    $DynamicFields[$k]['ParentID'] = $product->ProductID;
-                    DB::table('tblDynamicFieldsValue')->insert($DynamicFields[$k]);
+                    if(trim($DynamicFields[$k]['FieldValue'])!='') {
+                        $DynamicFields[$k]['ParentID'] = $product->ProductID;
+                        DB::table('tblDynamicFieldsValue')->insert($DynamicFields[$k]);
+                    }
                 }
             }
             return Response::json(array("status" => "success", "message" => "Product Successfully Created",'newcreated'=>$product));
@@ -338,21 +340,23 @@ class ProductsController extends \BaseController {
                                 ->update(['FieldValue' => $value, 'updated_at' => date('Y-m-d H:i:s.000'), 'updated_by' => $user]);
                         }
                     } else {
-                        $DynamicFields['CompanyID'] = $companyID;
-                        $DynamicFields['ParentID'] = $data['ProductID'];
-                        $DynamicFields['DynamicFieldsID'] = $key;
-                        $DynamicFields['FieldValue'] = $value;
-                        $DynamicFields['DynamicFieldsValueID'] = 'NULL';
-                        $DynamicFields['created_at'] = date('Y-m-d H:i:s.000');
-                        $DynamicFields['created_by'] = $user;
-                        $DynamicFields['updated_at'] = date('Y-m-d H:i:s.000');
-                        $DynamicFields['updated_by'] = $user;
+                        if(trim($value)!='') {
+                            $DynamicFields['CompanyID'] = $companyID;
+                            $DynamicFields['ParentID'] = $data['ProductID'];
+                            $DynamicFields['DynamicFieldsID'] = $key;
+                            $DynamicFields['FieldValue'] = $value;
+                            $DynamicFields['DynamicFieldsValueID'] = 'NULL';
+                            $DynamicFields['created_at'] = date('Y-m-d H:i:s.000');
+                            $DynamicFields['created_by'] = $user;
+                            $DynamicFields['updated_at'] = date('Y-m-d H:i:s.000');
+                            $DynamicFields['updated_by'] = $user;
 
-                        if($error = DynamicFieldsValue::validateOnUpdate($DynamicFields)){
-                            return $error;
+                            if ($error = DynamicFieldsValue::validateOnUpdate($DynamicFields)) {
+                                return $error;
+                            }
+
+                            DynamicFieldsValue::insert($DynamicFields);
                         }
-
-                        DynamicFieldsValue::insert($DynamicFields);
                     }
                 }
                 unset($data['DynamicFields']);
