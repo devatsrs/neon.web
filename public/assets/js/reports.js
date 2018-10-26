@@ -222,7 +222,6 @@ function reloadCharts(table_id,pageSize,$searchFilter){
 
     if(typeof retailmonitor != 'undefined' && retailmonitor == 1){
 
-
         if($searchFilter.chart_type == 'mdn') {
             /* get calls reports for retail*/
             getMostDailedCall($searchFilter);
@@ -300,7 +299,7 @@ function loadTable(table_id,pageSize,$searchFilter){
             mRender:function( id, type, full){
                 var output,chart_type_param;
 
-                if($searchFilter.chart_type == 'trunk' || $searchFilter.chart_type == 'prefix'){
+                if($searchFilter.chart_type == 'trunk' || $searchFilter.chart_type == 'prefix' || $searchFilter.chart_type == 'extension' ){
                     chart_type_param = $searchFilter.chart_type+'='+id+'&';
                 }
                 if($searchFilter.chart_type == 'gateway'){

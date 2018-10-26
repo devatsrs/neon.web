@@ -1,4 +1,4 @@
-<div class="tab-pane {{!in_array('AnalysisMonitor',$MonitorDashboardSetting)?'active':''}}" id="mdn" >
+<div class="tab-pane {{!in_array('DestinationMonitor',$MonitorDashboardSetting)?'active':''}}" id="mdn" >
     <div class="row">
         <div class="col-sm-12">
             <div class="panel panel-default loading">
@@ -72,7 +72,9 @@
 </div>
 <script type="text/javascript">
     var retailmonitor = 1;
-    @if(!in_array('AnalysisMonitor',$MonitorDashboardSetting))
-    var hidecallmonitor =1;
+    @if( (empty($MonitorDashboardSetting)) || in_array('DestinationMonitor',$MonitorDashboardSetting) ||  in_array('DestinationBreakMonitor',$MonitorDashboardSetting) ||  in_array('PrefixMonitor',$MonitorDashboardSetting)
+       ||  in_array('ExtensionMonitor',$MonitorDashboardSetting) ||  in_array('TrunkMonitor',$MonitorDashboardSetting) ||  in_array('AccountMonitor',$MonitorDashboardSetting) ||  in_array('GatewayMonitor',$MonitorDashboardSetting))
+    @else
+        var hidecallmonitor =1;
     @endif
 </script>

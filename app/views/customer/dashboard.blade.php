@@ -80,20 +80,30 @@
     <div class="row">
         <div class="col-md-12">
         <ul class="nav nav-tabs">
-            @if( (empty($MonitorDashboardSetting)) ||  in_array('AnalysisMonitor',$MonitorDashboardSetting))
+            @if( (empty($MonitorDashboardSetting)) ||  in_array('DestinationMonitor',$MonitorDashboardSetting))
             <li class="active"><a href="#tab1" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_DESTINATION_TITLE")</a></li>
-            <li ><a href="#tab2" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_DESTINATION_BREAK_TITLE")</a></li>
+            @endif
+                @if( (empty($MonitorDashboardSetting)) ||  in_array('DestinationBreakMonitor',$MonitorDashboardSetting))
+                    <li ><a href="#tab2" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_DESTINATION_BREAK_TITLE")</a></li>
+                @endif
+                @if( (empty($MonitorDashboardSetting)) ||  in_array('PrefixMonitor',$MonitorDashboardSetting))
             <li ><a href="#tab3" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_PREFIX_TITLE")</a></li>
+                @endif
+                @if( (empty($MonitorDashboardSetting)) ||  in_array('TrunkMonitor',$MonitorDashboardSetting))
             <li ><a href="#tab4" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_TRUNK_TITLE")</a></li>
             @endif
-            @if((empty($MonitorDashboardSetting)) ||  in_array('CallMonitor',$MonitorDashboardSetting))
-            <li class="{{!in_array('AnalysisMonitor',$MonitorDashboardSetting)?'active':''}}"><a href="#mdn" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_MOST_DIALLED_NUMBER_TITLE")</a></li>
+            @if((empty($MonitorDashboardSetting)) ||  in_array('MostDialledCallMonitor',$MonitorDashboardSetting))
+            <li class="{{!in_array('DestinationMonitor',$MonitorDashboardSetting)?'active':''}}"><a href="#mdn" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_MOST_DIALLED_NUMBER_TITLE")</a></li>
+                @endif
+                @if( (empty($MonitorDashboardSetting)) ||  in_array('LongestDurationsCallMonitor',$MonitorDashboardSetting))
             <li ><a href="#ldc" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_LONGEST_DURATIONS_CALLS_TITLE")</a></li>
+                @endif
+                @if( (empty($MonitorDashboardSetting)) ||  in_array('MostExpensiveMonitor',$MonitorDashboardSetting))
             <li ><a href="#mec" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_MOST_EXPENSIVE_CALLS_TITLE")</a></li>
             @endif
         </ul>
         <div class="tab-content">
-            @if( (empty($MonitorDashboardSetting)) ||  in_array('AnalysisMonitor',$MonitorDashboardSetting))
+            @if( (empty($MonitorDashboardSetting)) || in_array('DestinationMonitor',$MonitorDashboardSetting) ||  in_array('DestinationBreakMonitor',$MonitorDashboardSetting) ||  in_array('PrefixMonitor',$MonitorDashboardSetting) ||  in_array('TrunkMonitor',$MonitorDashboardSetting))
             <div class="tab-pane active" id="tab1" >
                 <div class="row">
                 <div class="col-md-4">
@@ -435,7 +445,7 @@
                 </div>
             </div>
             @endif
-            @if((empty($MonitorDashboardSetting)) ||  in_array('CallMonitor',$MonitorDashboardSetting))
+            @if((empty($MonitorDashboardSetting)) ||  in_array('MostDialledCallMonitor',$MonitorDashboardSetting) || in_array('LongestDurationsCallMonitor',$MonitorDashboardSetting) || in_array('MostExpensiveMonitor',$MonitorDashboardSetting) )
                 @include('dashboard.retailmonitor')
             @endif
         </div>
