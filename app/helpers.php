@@ -1364,16 +1364,17 @@ function isJson($string) {
  */
 function get_round_decimal_places($AccountID = 0) {
 
-    $RoundChargesAmount = 2;
     if($AccountID>0){
-        $RoundChargesAmount = AccountBilling::getRoundChargesAmount($AccountID);
-    }
-    if ( empty($RoundChargesAmount) ) {
-        $RoundCharges=CompanySetting::getKeyVal('RoundChargesAmount');
-        if($RoundCharges!='Invalid Key'){
-            $RoundChargesAmount = $RoundCharges;
-        }
-    }
+		$RoundChargesAmount = AccountBilling::getRoundChargesAmount($AccountID);
+	}else{
+		$RoundCharges=CompanySetting::getKeyVal('RoundChargesAmount');
+		if($RoundCharges!='Invalid Key'){
+			$RoundChargesAmount = $RoundCharges;
+		}
+	}
+	if(empty($RoundChargesAmount)){
+		$RoundChargesAmount = 2;
+	}
     return $RoundChargesAmount;
 }
 

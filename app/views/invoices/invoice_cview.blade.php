@@ -82,6 +82,9 @@
                              @if(($PaymentMethod == 'MerchantWarrior') && (is_merchantwarrior($Invoice->CompanyID)  ) )
                                   <li> <a class="generate_rate create" href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/MerchantWarrior');}}" id="pay_MerchantWarrior" href="javascript:;"> MerchantWarrior </a> </li>
                               @endif
+                             @if(($PaymentMethod == 'AuthorizeNetEcheck') && (is_authorize($Invoice->CompanyID)  ) )
+                                  <li> <a class="generate_rate create" href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/AuthorizeNetEcheck');}}" id="pay_AuthorizeNetEcheck" href="javascript:;"> AuthorizeNet Echeck </a> </li>
+                              @endif
 
                           @else
                               @if(is_authorize($Invoice->CompanyID))
@@ -107,6 +110,9 @@
                               @endif
                               @if(is_merchantwarrior($Invoice->CompanyID))
                               <li> <a class="generate_rate create" href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/MerchantWarrior');}}" id="pay_MerchantWarrior" href="javascript:;"> MerchantWarrior </a> </li>
+                              @endif
+                              @if(is_authorize($Invoice->CompanyID))
+                              <li> <a class="generate_rate create" href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/AuthorizeNetEcheck');}}" id="pay_AuthorizeNetEcheck" href="javascript:;"> AuthorizeNet Echeck </a> </li>
                               @endif
                           @endif
                       </ul>

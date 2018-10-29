@@ -28,7 +28,7 @@ class AnalysisController extends BaseController {
         $trunks = Trunk::getTrunkDropdownIDList($companyID);
         $currency = Currency::getCurrencyDropdownIDList($companyID);
         $timezones = TimeZone::getTimeZoneDropdownList();
-        $MonitorDashboardSetting 	= 	array_filter(explode(',',CompanyConfiguration::get('MONITOR_DASHBOARD')));
+        $MonitorDashboardSetting 	= 	array_filter(explode(',',CompanyConfiguration::getValueConfigurationByKey('MONITOR_DASHBOARD',$companyID)));
         $reseller_owners = Reseller::getDropdownIDList($companyID);
         return View::make('analysis.index',compact('gateway','UserID','Country','account','DefaultCurrencyID','original_startdate','original_enddate','isAdmin','trunks','currency','timezones','MonitorDashboardSetting','account_owners','reseller_owners'));
     }
@@ -55,6 +55,8 @@ class AnalysisController extends BaseController {
             $query = "call prc_getAccountReportAll ";
         }elseif($data['chart_type'] == 'description') {
             $query = "call prc_getDescReportAll ";
+        }elseif($data['chart_type'] == 'extension') {
+            $query = "call prc_getExtensionReportAll ";
         }
         if(!empty($data['TimeZone'])) {
             $CompanyTimezone = Config::get('app.timezone');
@@ -201,6 +203,9 @@ class AnalysisController extends BaseController {
         }elseif($data['chart_type'] == 'description') {
             $columns = array('Description','CallCount','TotalMinutes','TotalCost','ACD','ASR','TotalMargin','MarginPercentage');
             $query = "call prc_getDescReportAll ";
+        }elseif($data['chart_type'] == 'extension') {
+            $columns = array('extension','CallCount','TotalMinutes','TotalCost','ACD','ASR','TotalMargin','MarginPercentage');
+            $query = "call prc_getExtensionReportAll ";
         }
         if(!empty($data['TimeZone'])) {
             $CompanyTimezone = Config::get('app.timezone');
@@ -210,7 +215,6 @@ class AnalysisController extends BaseController {
         $sort_column = $columns[$data['iSortCol_0']];
 
         $query .= "('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['ResellerOwner']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','".$data['CDRType']."','" . $data['UserID'] . "','" . $data['Admin'] . "'".",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
-        log::info($query);
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('neon_report')->select($query.',1,"'.$data['tag'].'")');
             $excel_data = json_decode(json_encode($excel_data),true);
@@ -225,6 +229,7 @@ class AnalysisController extends BaseController {
             }
         }
         $query .= ",0,'".$data['tag']."')";
+        log::info($query);
         return DataTableSql::of($query,'neon_report')->make();
     }
     public function customer_index(){
@@ -242,7 +247,7 @@ class AnalysisController extends BaseController {
         $is_vendor = Customer::get_currentUser()->IsVendor;
         $CurrencyID = Customer::get_currentUser()->CurrencyId;
         $timezones = TimeZone::getTimeZoneDropdownList();
-        $MonitorDashboardSetting 	= 	array_filter(explode(',',CompanyConfiguration::get('CUSTOMER_MONITOR_DASHBOARD')));
+        $MonitorDashboardSetting 	= 	array_filter(explode(',',CompanyConfiguration::getValueConfigurationByKey('CUSTOMER_MONITOR_DASHBOARD',$companyID)));
 
         return View::make('customer.analysis.index',compact('gateway','UserID','Country','account','DefaultCurrencyID','original_startdate','original_enddate','isAdmin','trunks','currency','is_customer','is_vendor','CurrencyID','timezones','MonitorDashboardSetting'));
     }
@@ -286,7 +291,7 @@ class AnalysisController extends BaseController {
         $trunks = Trunk::getTrunkDropdownIDList($companyID);
         $currency = Currency::getCurrencyDropdownIDList($companyID);
         $timezones = TimeZone::getTimeZoneDropdownList();
-        $MonitorDashboardSetting = array_filter(explode(',', CompanyConfiguration::get('MONITOR_DASHBOARD')));
+        $MonitorDashboardSetting = array_filter(explode(',', CompanyConfiguration::getValueConfigurationByKey('MONITOR_DASHBOARD',$companyID)));
 
         return View::make('analysis.accountmanagerindex', compact('gateway', 'UserID', 'Country', 'account', 'DefaultCurrencyID', 'original_startdate', 'original_enddate', 'isAdmin', 'trunks', 'currency', 'timezones', 'MonitorDashboardSetting', 'users'));
 

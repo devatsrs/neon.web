@@ -114,22 +114,37 @@
     <div class="row">
         <div class="col-md-12">
                 <ul class="nav nav-tabs">
-                    @if( (empty($MonitorDashboardSetting)) ||  in_array('AnalysisMonitor',$MonitorDashboardSetting))
+                    @if( (empty($MonitorDashboardSetting)) ||  in_array('DestinationMonitor',$MonitorDashboardSetting))
                     <li class="active"><a href="#tab1" data-toggle="tab">Destination</a></li>
+                    @endif
+                    @if( (empty($MonitorDashboardSetting)) ||  in_array('DestinationBreakMonitor',$MonitorDashboardSetting))
                     <li ><a href="#tab2" data-toggle="tab">Destination Break</a></li>
+                    @endif
+                    @if( (empty($MonitorDashboardSetting)) ||  in_array('PrefixMonitor',$MonitorDashboardSetting))
                     <li ><a href="#tab3" data-toggle="tab">Prefix</a></li>
+                    @endif
+                    @if( (empty($MonitorDashboardSetting)) ||  in_array('TrunkMonitor',$MonitorDashboardSetting))
                     <li ><a href="#tab4" data-toggle="tab">Trunk</a></li>
+                    @endif
+                    @if( (empty($MonitorDashboardSetting)) ||  in_array('AccountMonitor',$MonitorDashboardSetting))
                     <li ><a href="#tab5" data-toggle="tab">Account</a></li>
+                    @endif
+                    @if( (empty($MonitorDashboardSetting)) ||  in_array('GatewayMonitor',$MonitorDashboardSetting))
                     <li ><a href="#tab6" data-toggle="tab">Gateway</a></li>
                     @endif
-                    @if((empty($MonitorDashboardSetting)) ||  in_array('CallMonitor',$MonitorDashboardSetting))
-                    <li class="{{!in_array('AnalysisMonitor',$MonitorDashboardSetting)?'active':''}}"><a href="#mdn" data-toggle="tab">Most Dialled Number</a></li>
+                    @if((empty($MonitorDashboardSetting)) ||  in_array('MostDialledCallMonitor',$MonitorDashboardSetting))
+                    <li class="{{!in_array('DestinationMonitor',$MonitorDashboardSetting)?'active':''}}"><a href="#mdn" data-toggle="tab">Most Dialled Number</a></li>
+                    @endif
+                    @if( (empty($MonitorDashboardSetting)) ||  in_array('LongestDurationsCallMonitor',$MonitorDashboardSetting))
                     <li ><a href="#ldc" data-toggle="tab">Longest Durations Calls</a></li>
+                    @endif
+                    @if( (empty($MonitorDashboardSetting)) ||  in_array('MostExpensiveMonitor',$MonitorDashboardSetting))
                     <li ><a href="#mec" data-toggle="tab">Most Expensive Calls</a></li>
                     @endif
                 </ul>
                 <div class="tab-content">
-                    @if( (empty($MonitorDashboardSetting)) ||  in_array('AnalysisMonitor',$MonitorDashboardSetting))
+                    @if( (empty($MonitorDashboardSetting)) || in_array('DestinationMonitor',$MonitorDashboardSetting) ||  in_array('DestinationBreakMonitor',$MonitorDashboardSetting) ||  in_array('PrefixMonitor',$MonitorDashboardSetting)
+                     ||  in_array('TrunkMonitor',$MonitorDashboardSetting) ||  in_array('AccountMonitor',$MonitorDashboardSetting) ||  in_array('GatewayMonitor',$MonitorDashboardSetting))
                     <div class="tab-pane active" id="tab1" >
                         <div class="row">
                             <div class="col-md-4">
@@ -639,8 +654,8 @@
                         </div>
                     </div>
                     @endif
-                    @if((empty($MonitorDashboardSetting)) ||  in_array('CallMonitor',$MonitorDashboardSetting))
-                    @include('dashboard.retailmonitor')
+                    @if((empty($MonitorDashboardSetting)) ||  in_array('MostDialledCallMonitor',$MonitorDashboardSetting) || in_array('LongestDurationsCallMonitor',$MonitorDashboardSetting) || in_array('MostExpensiveMonitor',$MonitorDashboardSetting) )
+                        @include('dashboard.retailmonitor')
                     @endif
                 </div>
             </div>

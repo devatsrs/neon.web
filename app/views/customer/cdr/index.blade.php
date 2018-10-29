@@ -122,6 +122,10 @@
                                 <div class="col-md-2">
                                     {{ Form::select('Trunk',$trunks,$trunk, array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
+                                <label class="col-md-1 control-label" for="field-1">@lang('routes.CUST_PANEL_PAGE_CDR_FILTER_FIELD_EXTENSION')</label>
+                                <div class="col-md-2">
+                                    <input type="text" name="extension" class="form-control mid_fld "  value="{{Input::get('extension')}}"  />
+                                </div>
 
                             </div>
                             <p class="pull-right">
@@ -156,6 +160,7 @@
                         <th width="10%" >@lang('routes.CUST_PANEL_PAGE_CDR_TBL_CLD')</th>
                         <th width="10%" >@lang('routes.CUST_PANEL_PAGE_CDR_TBL_PREFIX')</th>
                         <th width="10%" >@lang('routes.CUST_PANEL_PAGE_CDR_TBL_TRUNK')</th>
+                        <th width="10%" >@lang('routes.CUST_PANEL_PAGE_CDR_TBL_EXTENSION')</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -207,6 +212,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
             $searchFilter.CurrencyID 			= 		'{{$CurrencyID}}';
             $searchFilter.area_prefix 			= 		$("#cdr_filter [name='area_prefix']").val();
             $searchFilter.Trunk 			    = 		$("#cdr_filter [name='Trunk']").val();
+            $searchFilter.extension 		    = 		$("#cdr_filter [name='extension']").val();
 
 
             if(typeof $searchFilter.StartDate  == 'undefined' || $searchFilter.StartDate.trim() == ''){
@@ -242,7 +248,8 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                             {"name":"zerovaluecost","value":$searchFilter.zerovaluecost},
                             {"name":"area_prefix","value":$searchFilter.area_prefix},
                             {"name":"Trunk","value":$searchFilter.Trunk},
-                            {"name":"CurrencyID","value":$searchFilter.CurrencyID}
+                            {"name":"CurrencyID","value":$searchFilter.CurrencyID},
+                            {"name":"extension","value":$searchFilter.extension}
                     );
                     data_table_extra_params.length = 0;
                     data_table_extra_params.push(
@@ -257,7 +264,8 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                             {"name":"zerovaluecost","value":$searchFilter.zerovaluecost},
                             {"name":"area_prefix","value":$searchFilter.area_prefix},
                             {"name":"Trunk","value":$searchFilter.Trunk},
-                            {"name":"CurrencyID","value":$searchFilter.CurrencyID}
+                            {"name":"CurrencyID","value":$searchFilter.CurrencyID},
+                            {"name":"extension","value":$searchFilter.extension}
                     );
                 },
                 "sPaginationType": "bootstrap",
@@ -303,7 +311,12 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                     { "bSortable": false },
                     { "bSortable": false },
                     { "bSortable": false },
-                    { "bSortable": false } /*,
+                    { "bSortable": false },
+                    { "bSortable": false,
+                        mRender: function(id, type, full) {
+                            return full[17];
+                        }
+                    }/*,
                          { mRender: function(id, type, full) {
                              action = '<div class = "hiddenRowData" >';
                              for(var i = 0 ; i< list_fields.length; i++){
