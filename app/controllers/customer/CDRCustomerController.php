@@ -46,6 +46,7 @@ class CDRCustomerController extends BaseController {
         $account                     = Account::find($data['AccountID']);
         $CurrencyId                  = $account->CurrencyId;
         $CurrencyID 		 = 	 empty($CurrencyId)?'0':$CurrencyId;
+        $extension = empty($data['extension']) ? '' : $data['extension'];
         $area_prefix = $Trunk = '';
 
         $ResellerID = 0;
@@ -59,7 +60,7 @@ class CDRCustomerController extends BaseController {
         $query = "call prc_GetCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",".(int)$ResellerID.",'".$data['CDRType']."' ,'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluecost'].",".$CurrencyID.",'".$data['area_prefix']."','".$data['Trunk']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $excel_data  = DB::connection('sqlsrv2')->select($query.',1,"")');
+            $excel_data  = DB::connection('sqlsrv2')->select($query.',1,"","'.$extension.'")');
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
@@ -102,7 +103,7 @@ class CDRCustomerController extends BaseController {
             }
 
         }
-         $query .=',0,"")';
+         $query .=',0,"","'.$extension.'")';
         log::info($query);
         return DataTableSql::of($query, 'sqlsrv2')->make();
     }

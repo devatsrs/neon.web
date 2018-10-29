@@ -122,49 +122,83 @@
             @include('analysis.map')
             @include('analysis.chartreport')
     <ul class="nav nav-tabs refresh_tab">
-        @if( (empty($MonitorDashboardSetting)) ||  in_array('AnalysisMonitor',$MonitorDashboardSetting))
+        @if( (empty($MonitorDashboardSetting)) ||  in_array('DestinationMonitor',$MonitorDashboardSetting))
         <li class="active"><a href="#destination" data-toggle="tab">Destination</a></li>
+        @endif
+        @if( (empty($MonitorDashboardSetting)) ||  in_array('DestinationBreakMonitor',$MonitorDashboardSetting))
         <li ><a href="#description" data-toggle="tab">Destination Break</a></li>
+        @endif
+        @if( (empty($MonitorDashboardSetting)) ||  in_array('PrefixMonitor',$MonitorDashboardSetting))
         <li ><a href="#prefix" data-toggle="tab">Prefix</a></li>
+        @endif
+        @if( (empty($MonitorDashboardSetting)) ||  in_array('TrunkMonitor',$MonitorDashboardSetting))
         <li ><a href="#trunk" data-toggle="tab">Trunk</a></li>
+        @endif
+        @if( (empty($MonitorDashboardSetting)) ||  in_array('ExtensionMonitor',$MonitorDashboardSetting))
+        <li ><a href="#extension" data-toggle="tab">Extension</a></li>
+        @endif
+        @if( (empty($MonitorDashboardSetting)) ||  in_array('AccountMonitor',$MonitorDashboardSetting))
         <li ><a href="#account" data-toggle="tab">Account</a></li>
+        @endif
+        @if( (empty($MonitorDashboardSetting)) ||  in_array('GatewayMonitor',$MonitorDashboardSetting))
         <li ><a href="#gateway" data-toggle="tab">Gateway</a></li>
         @endif
-        @if((empty($MonitorDashboardSetting)) ||  in_array('CallMonitor',$MonitorDashboardSetting))
-            <li class="{{!in_array('AnalysisMonitor',$MonitorDashboardSetting)?'active':''}}"><a href="#mdn" data-toggle="tab">Most Dialled Number</a></li>
-            <li ><a href="#ldc" data-toggle="tab">Longest Durations Calls</a></li>
-            <li ><a href="#mec" data-toggle="tab">Most Expensive Calls</a></li>
+
+        @if((empty($MonitorDashboardSetting)) ||  in_array('MostDialledCallMonitor',$MonitorDashboardSetting))
+            <li class="{{!in_array('DestinationMonitor',$MonitorDashboardSetting)?'active':''}}"><a href="#mdn" data-toggle="tab">Most Dialled Number</a></li>
+        @endif
+        @if( (empty($MonitorDashboardSetting)) ||  in_array('LongestDurationsCallMonitor',$MonitorDashboardSetting))
+        <li ><a href="#ldc" data-toggle="tab">Longest Durations Calls</a></li>
+        @endif
+        @if( (empty($MonitorDashboardSetting)) ||  in_array('MostExpensiveMonitor',$MonitorDashboardSetting))
+        <li ><a href="#mec" data-toggle="tab">Most Expensive Calls</a></li>
         @endif
     </ul>
     <div class="tab-content">
-        @if( (empty($MonitorDashboardSetting)) ||  in_array('AnalysisMonitor',$MonitorDashboardSetting))
+        @if( (empty($MonitorDashboardSetting)) ||  in_array('DestinationMonitor',$MonitorDashboardSetting))
         <div class="tab-pane active" id="destination" >
             @include('analysis.destination')
             @include('analysis.destination_grid')
         </div>
+        @endif
+        @if( (empty($MonitorDashboardSetting)) ||  in_array('DestinationBreakMonitor',$MonitorDashboardSetting))
         <div class="tab-pane" id="description" >
             @include('analysis.desc')
             @include('analysis.desc_grid')
         </div>
+        @endif
+        @if( (empty($MonitorDashboardSetting)) ||  in_array('PrefixMonitor',$MonitorDashboardSetting))
         <div class="tab-pane" id="prefix" >
             @include('analysis.prefix')
             @include('analysis.prefix_grid')
         </div>
+        @endif
+        @if( (empty($MonitorDashboardSetting)) ||  in_array('TrunkMonitor',$MonitorDashboardSetting))
         <div class="tab-pane" id="trunk" >
             @include('analysis.trunk')
             @include('analysis.trunk_grid')
         </div>
+        @endif
+        @if( (empty($MonitorDashboardSetting)) ||  in_array('ExtensionMonitor',$MonitorDashboardSetting))
+        <div class="tab-pane" id="extension" >
+            @include('analysis.extension')
+            @include('analysis.extension_grid')
+        </div>
+        @endif
+        @if( (empty($MonitorDashboardSetting)) ||  in_array('AccountMonitor',$MonitorDashboardSetting))
         <div class="tab-pane" id="account" >
             @include('analysis.account')
             @include('analysis.account_grid')
         </div>
+        @endif
+        @if( (empty($MonitorDashboardSetting)) ||  in_array('GatewayMonitor',$MonitorDashboardSetting))
         <div class="tab-pane" id="gateway" >
             @include('analysis.gateway')
             @include('analysis.gateway_grid')
         </div>
         @endif
 
-        @if((empty($MonitorDashboardSetting)) ||  in_array('CallMonitor',$MonitorDashboardSetting))
+        @if((empty($MonitorDashboardSetting)) ||  in_array('MostDialledCallMonitor',$MonitorDashboardSetting) || in_array('LongestDurationsCallMonitor',$MonitorDashboardSetting) || in_array('MostExpensiveMonitor',$MonitorDashboardSetting) )
             @include('dashboard.retailmonitor')
         @endif
 
