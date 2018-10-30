@@ -81,7 +81,7 @@
                 <label for="GroupName" class="col-sm-3 control-label">Enable SSL</label>
                 <div class="col-sm-9">
                     <p class="make-switch switch-small">
-                        <input type="checkbox" {{isset($ticketdata->GroupEmailIsSSL)?'checked':'';}}  name="GroupEmailIsSSL" >
+                        <input type="checkbox" {{isset($ticketdata->GroupEmailIsSSL) && $ticketdata->GroupEmailIsSSL==1?'checked':'';}}  name="GroupEmailIsSSL" >
                     </p>
                 </div>
             </div>

@@ -37,6 +37,9 @@
     @if($PaymentGatewayID==PaymentGateway::StripeACH)
         @include('invoices.invoice_bankaccount')
     @endif
+    @if($PaymentGatewayID==PaymentGateway::AuthorizeNetEcheck)
+        @include('invoices.invoice_authorizebankaccount')
+    @endif
 
 <script>
     var PaymentGatewayID='{{$PaymentGatewayID}}';

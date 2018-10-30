@@ -42,7 +42,7 @@
                     07. Added option to Digitally Sign Invoice.<br>
                     08. Added new feature "Inventory Management".<br>
                     09. Added option to email disputes.<br>
-                    10. Added new dimensions and measures in reports.<br>
+                    10. Added new dimensions and measures in reports: Avg Rate,Invoice Number,Invoice Date,Invoice Due Date,Account Billing Options etc.<br>
                     11. Added option to Import and Export payments from PBX.<br>
                     12. Added Integration with Voip.ms gateway.<br>
                     13. Added option of vendor cdr re-rating.<br>
@@ -60,6 +60,7 @@
                     25. Added new Retention options: Failed Calls, Tickets and Archived Rates.<br>
                     26. Added option to send invoices as an attachment.<br>
                     27. Added new column BillDurationMinutes,Country,CallType,Description in Usage Column of Invoice Template.<br>
+                    28. Added new Payment Integration with Authorize.Net eCheck.<br>
                 </div>
             </li>
         </ul>

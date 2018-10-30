@@ -430,8 +430,7 @@ BEGIN
 	INSERT INTO tblInvoiceLog (
 	 		InvoiceID,			 
 			 Note,
-			 created_at,
-			 updated_at			 
+			 created_at
 			 )
  	select 			 
 			 tp.InvoiceID,			 	
