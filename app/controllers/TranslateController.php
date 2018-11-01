@@ -150,14 +150,27 @@ class TranslateController extends \BaseController {
                         $translation_data[strtoupper("CUST_PANEL_PAGE_TICKET_FIELDS_PRIORITY_VAL_".$TicketPriority->PriorityValue)]=$TicketPriority->PriorityValue;
                     }
 
-                    $themes_data = Themes::all();
-                    foreach($themes_data as $theme){
-                        $domainUrl_key = preg_replace('/[^A-Za-z0-9\-]/', '', $theme->DomainUrl);
+                    //$themes_data = Themes::all();
+                    $CompanyID 				= 	User::get_companyID();
+                    $themes = Themes::where(['CompanyID'=>$CompanyID,'ThemeStatus'=>'active']);
+                    $CountTheme=$themes->count();
+                    $themes_data=$themes->get();
+                    if($CountTheme > 0){
+                        foreach($themes_data as $theme){
+                            $domainUrl_key = preg_replace('/[^A-Za-z0-9\-]/', '', $theme->DomainUrl);
+                            $domainUrl_key = strtoupper(preg_replace('/-+/', '_',$domainUrl_key));
+
+                            $translation_data["THEMES_".$domainUrl_key."_FOOTERTEXT"]=$theme->FooterText;
+                            $translation_data["THEMES_".$domainUrl_key."_LOGIN_MSG"]=isset($theme->LoginMessage)?$theme->LoginMessage:'';
+                            $translation_data["THEMES_".$domainUrl_key."_TITLE"]=$theme->Title;
+                        }
+                    }else{
+                        $domainUrl_key = preg_replace('/[^A-Za-z0-9\-]/', '', $_SERVER['HTTP_HOST']);
                         $domainUrl_key = strtoupper(preg_replace('/-+/', '_',$domainUrl_key));
 
-                        $translation_data["THEMES_".$domainUrl_key."_FOOTERTEXT"]=$theme->FooterText;
-                        $translation_data["THEMES_".$domainUrl_key."_LOGIN_MSG"]=$theme->LoginMessage;
-                        $translation_data["THEMES_".$domainUrl_key."_TITLE"]=$theme->Title;
+                        $translation_data["THEMES_".$domainUrl_key."_FOOTERTEXT"]='';
+                        $translation_data["THEMES_".$domainUrl_key."_LOGIN_MSG"]='Dear user, Please login below!';
+                        $translation_data["THEMES_".$domainUrl_key."_TITLE"]='';
                     }
                 }
 
