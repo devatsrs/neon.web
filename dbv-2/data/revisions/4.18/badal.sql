@@ -1091,3 +1091,10 @@ ALTER TABLE `tblEstimateDetail`
 	ADD COLUMN `DiscountType` VARCHAR(100) NULL DEFAULT NULL AFTER `DiscountAmount`;
 ALTER TABLE `tblEstimateDetail`
 	ADD COLUMN `DiscountLineAmount` DECIMAL(18,6) NULL DEFAULT '0.000000' AFTER `DiscountType`;
+
+ALTER TABLE `tblCreditNotesDetail`
+	ADD COLUMN `DiscountAmount` DECIMAL(18,6) NULL DEFAULT '0.000000' AFTER `ProductType`;
+ALTER TABLE `tblCreditNotesDetail`
+	ADD COLUMN `DiscountType` VARCHAR(100) NULL DEFAULT NULL AFTER `DiscountAmount`;
+ALTER TABLE `tblCreditNotesDetail`
+	ADD COLUMN `DiscountLineAmount` DECIMAL(18,6) NULL DEFAULT '0.000000' AFTER `DiscountType`;
