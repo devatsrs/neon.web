@@ -344,6 +344,19 @@ class InvoicesController extends \BaseController {
                     }
                 }
 
+                //unset discount amount & type if not selected
+                $i=0;
+                foreach($InvoiceDetailData as $idata)
+                {
+                    if($idata["DiscountAmount"] == "" || $idata["DiscountAmount"] == 0)
+                    {
+                        $InvoiceDetailData[$i]["DiscountAmount"] = "";
+                        $InvoiceDetailData[$i]["DiscountType"] = null;
+                    }
+                    $InvoiceDetailData[$i]["DiscountLineAmount"] = ($InvoiceDetailData[$i]["Price"] * $InvoiceDetailData[$i]["Qty"]) - $InvoiceDetailData[$i]["LineTotal"];
+                    $i++;
+                }
+
                 //StockHistory
                 $StockHistory=array();
                 $temparray=array();
@@ -617,10 +630,21 @@ class InvoicesController extends \BaseController {
                             InvoiceTaxRate::insert($InvoiceTaxRates);
                         }*/
 
+                        $i=0;
+                        foreach($InvoiceDetailData as $idata)
+                        {
+                            if($idata["DiscountAmount"] == "" || $idata["DiscountAmount"] == 0)
+                            {
+                                $InvoiceDetailData[$i]["DiscountAmount"] = "";
+                                $InvoiceDetailData[$i]["DiscountType"] = null;
+                            }
+                            $InvoiceDetailData[$i]["DiscountLineAmount"] = ($InvoiceDetailData[$i]["Price"] * $InvoiceDetailData[$i]["Qty"]) - $InvoiceDetailData[$i]["LineTotal"];
+                            $i++;
+                        }
+
 						 if(!empty($InvoiceAllTaxRates)) { //Invoice tax
                  		   InvoiceTaxRate::insert($InvoiceAllTaxRates);
                          }
-						
                         if (!empty($InvoiceDetailData) && InvoiceDetail::insert($InvoiceDetailData)) {
                             $InvoiceTaxRates1=TaxRate::getInvoiceTaxRateByProductDetail($Invoice->InvoiceID);
                             if(!empty($InvoiceTaxRates1)) { //Invoice tax

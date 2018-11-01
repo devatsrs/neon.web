@@ -205,12 +205,14 @@ class CreditNotes extends \Eloquent {
     /**
      * not in use
     */
-    public static function getFullCreditNotesNumber($Invoice,$AccountBilling){
-        $InvoiceNumberPrefix = '';
-        if(!empty($AccountBilling->InvoiceTemplateID)) {
-            $InvoiceNumberPrefix = InvoiceTemplate::find($AccountBilling->InvoiceTemplateID)->InvoiceNumberPrefix;
+    public static function getFullCreditNotesNumber($CreditNotes,$InvoiceTemplateID)
+    {
+        $CreditNotesNumberPrefix = '';
+        if(!empty($InvoiceTemplateID))
+        {
+            $CreditNotesNumberPrefix = InvoiceTemplate::find($InvoiceTemplateID)->CreditNotesNumberPrefix;
         }
-        return $InvoiceNumberPrefix.$Invoice->InvoiceNumber;
+        return $CreditNotesNumberPrefix.$CreditNotes->CreditNotesNumber;
     }
 
     public static function getCookie($name,$val=''){
