@@ -222,9 +222,7 @@ class CronJobController extends \BaseController {
         return DataTableSql::of($query)->make();
     }
 
-    public function activecronjob(){
-        return View::make('cronjob.activecronjob');
-    }
+
 
     public function activecronjob_ajax_datagrid(){
         $data = Input::all();
