@@ -5,7 +5,7 @@ class CreditNotesLog extends \Eloquent {
     protected $fillable = [];
     protected $guarded = array('CreditNotesLogID');
     protected $table = 'tblCreditNotesLog';
-    protected  $primaryKey = "InvoiceLogID";
+    protected  $primaryKey = "CreditNotesLogID";
 
     const CREATED = 1;
     const UPDATED = 2;

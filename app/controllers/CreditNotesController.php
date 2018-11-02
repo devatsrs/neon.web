@@ -473,6 +473,19 @@ class CreditNotesController extends \BaseController {
                     CreditNotesTaxRate::insert($CreditNotesTaxRates);
                 }*/
 
+                //unset discount amount & type if not selected
+                $i=0;
+                foreach($CreditNotesDetailData as $idata)
+                {
+                    if($idata["DiscountAmount"] == "" || $idata["DiscountAmount"] == 0)
+                    {
+                        $CreditNotesDetailData[$i]["DiscountAmount"] = "";
+                        $CreditNotesDetailData[$i]["DiscountType"] = null;
+                    }
+                    $CreditNotesDetailData[$i]["DiscountLineAmount"] = ($CreditNotesDetailData[$i]["Price"] * $CreditNotesDetailData[$i]["Qty"]) - $CreditNotesDetailData[$i]["LineTotal"];
+                    $i++;
+                }
+
                 if(!empty($CreditNotesAllTaxRates)) { //CreditNotes tax
                     CreditNotesTaxRate::insert($CreditNotesAllTaxRates);
                 }
@@ -493,14 +506,7 @@ class CreditNotesController extends \BaseController {
 
                     DB::connection('sqlsrv2')->commit();
                     $SuccessMsg="Credit Notes Successfully Created.";
-                    $message='';
-                    /* if(!empty($historyData)){
-                         foreach($historyData as $msg){
-                             $message.=$msg;
-                             $message.="\n\r";
-                         }
-                     }*/
-                    return Response::json(array("status" => "success","warning"=>$message, "message" => $SuccessMsg,'LastID'=>$CreditNotes->CreditNotesID,'redirect' => URL::to('/creditnotes/'.$CreditNotes->CreditNotesID.'/edit')));
+                    return Response::json(array("status" => "success", "message" => $SuccessMsg,'LastID'=>$CreditNotes->CreditNotesID,'redirect' => URL::to('/creditnotes/'.$CreditNotes->CreditNotesID.'/edit')));
                 } else {
                     DB::connection('sqlsrv2')->rollback();
                     return Response::json(array("status" => "failed", "message" => "Problem Creating Credit Notes."));
@@ -630,23 +636,6 @@ class CreditNotesController extends \BaseController {
                                 if(empty($CreditNotesDetailData[$i]['ProductID'])){
                                     unset($CreditNotesDetailData[$i]);
                                 }
-                                /*if($field == 'TaxRateID'){
-									$txname = TaxRate::getTaxName($value);
-                                    $CreditNotesTaxRates[$txname][$j][$field] = $value;
-                                    $CreditNotesTaxRates[$txname][$j]['Title'] = TaxRate::getTaxName($value);
-                                    $CreditNotesTaxRates[$txname][$j]["created_at"] = date("Y-m-d H:i:s");
-                                    $CreditNotesTaxRates[$txname][$j]["CreditNotesID"] = $CreditNotes->CreditNotesID;
-                                }
-								if($field == 'TaxRateID2'){
-									$txname = TaxRate::getTaxName($value);
-                                    $CreditNotesTaxRates[$txname][$j][$field] = $value;
-                                    $CreditNotesTaxRates[$txname][$j]['Title'] = TaxRate::getTaxName($value);
-                                    $CreditNotesTaxRates[$txname][$j]["created_at"] = date("Y-m-d H:i:s");
-                                    $CreditNotesTaxRates[$txname][$j]["CreditNotesID"] = $CreditNotes->CreditNotesID;
-                                }
-                                if($field == 'TaxAmount'){
-                                    $CreditNotesTaxRates[$txname][$field] = str_replace(",","",$value);
-                                }*/
                                 $i++;
                             }
                         }
@@ -675,12 +664,19 @@ class CreditNotesController extends \BaseController {
                             }
                         }
 
-                       // $CreditNotesTaxRates 	  =     merge_tax($CreditNotesTaxRates);
-                        //$CreditNotesAllTaxRates   = 	merge_tax($CreditNotesAllTaxRates);
 
-                      /*  if(!empty($CreditNotesTaxRates)) { //product tax
-                            CreditNotesTaxRate::insert($CreditNotesTaxRates);
-                        }*/
+                        //unset discount amount & type if not selected
+                        $i=0;
+                        foreach($CreditNotesDetailData as $idata)
+                        {
+                            if($idata["DiscountAmount"] == "" || $idata["DiscountAmount"] == 0)
+                            {
+                                $CreditNotesDetailData[$i]["DiscountAmount"] = "";
+                                $CreditNotesDetailData[$i]["DiscountType"] = null;
+                            }
+                            $CreditNotesDetailData[$i]["DiscountLineAmount"] = ($CreditNotesDetailData[$i]["Price"] * $CreditNotesDetailData[$i]["Qty"]) - $CreditNotesDetailData[$i]["LineTotal"];
+                            $i++;
+                        }
 
                         if(!empty($CreditNotesAllTaxRates)) { //CreditNotes tax
                             CreditNotesTaxRate::insert($CreditNotesAllTaxRates);
@@ -701,91 +697,8 @@ class CreditNotesController extends \BaseController {
                                 $CreditNotes->update(["PDF" => $pdf_path]);
                             }
 
-                            //StockHistory Maintain
-                            $MultiProductSumQtyArr=array();
-                            $OldProductsarr=sumofQtyIfSameProduct($OldProductsarr);
-                            $MultiProductSumQtyArr=sumofQtyIfSameProduct($CreditNotesDetailData);
-
-                            $StockHistory=array();
-                            $temparray=array();
-
-                            //For Create New If not Exist
-                            foreach($MultiProductSumQtyArr as $CreditNotesHistory){
-                                $prodType=intval($CreditNotesHistory['ProductType']);
-                                if($prodType==1) {
-                                    $ProdID = intval($CreditNotesHistory['ProductID']);
-                                    $CreditNotesID = intval($CreditNotesHistory['CreditNotesID']);
-                                    $Qty = intval($CreditNotesHistory['Qty']);
-                                    $key_of_arr = searchArrayByProductID($ProdID, $OldProductsarr);
-                                    if(intval($key_of_arr) < 0){
-                                        //Create New
-                                        $temparray['CompanyID']=$companyID;
-                                        $temparray['ProductID']=$ProdID;
-                                        $temparray['CreditNotesID']=$CreditNotesID;
-                                        $temparray['Qty']=$Qty;
-                                        $temparray['Reason']='';
-                                        $temparray['CreditNotesNumber']=$FullCreditNotesNumber;
-                                        $temparray['created_by']=User::get_user_full_name();
-
-                                        array_push($StockHistory,$temparray);
-
-                                    }
-                                }
-                            }
-
-                            if(!empty($StockHistory)){
-                                $historyData=StockHistoryCalculations($StockHistory);
-                            }
-
-                            //StockHistory update/delete.
-                            $StockHistoryUpdate=array();
-                            $temparrayUpdate=array();
-                            foreach($OldProductsarr as $OldProduct){
-                                $prodType=intval($OldProduct['ProductType']);
-                                $ProdID=$OldProduct['ProductID'];
-                                $oldQty=intval($OldProduct['Qty']);
-                                if($prodType==1) {
-                                    $CreditNotesDetailID=$OldProduct['CreditNotesDetailID'];
-                                    $CreditNotesNo=CreditNotes::where('CreditNotesID',$id)->pluck('FullCreditNotesNumber');
-                                    $key_of_arr = searchArrayByProductID($ProdID, $MultiProductSumQtyArr);
-                                    if(intval($key_of_arr)>=0){
-                                        //Update Prod
-                                        $res_prod=getArrayByProductID($ProdID, $MultiProductSumQtyArr);
-                                        $temparrayUpdate['ProductID']=intval($res_prod['ProductID']);
-                                        $temparrayUpdate['Qty']=intval($res_prod['Qty']);
-                                        $temparrayUpdate['Reason']='';
-                                        $temparrayUpdate['oldQty']=$oldQty;
-
-                                    }else{
-                                        //delete Prod
-                                        $temparrayUpdate['ProductID']=$ProdID;
-                                        $temparrayUpdate['Qty']=$OldProduct['Qty'];
-                                        $temparrayUpdate['Reason']='delete_prodstock';
-                                        $temparrayUpdate['oldQty']=$oldQty;
-                                    }
-                                    $temparrayUpdate['CompanyID']=$companyID;
-                                    $temparrayUpdate['CreditNotesID']=$id;
-                                    $temparrayUpdate['CreditNotesNumber']=$CreditNotesNo;
-                                    $temparrayUpdate['created_by']=User::get_user_full_name();
-                                    array_push($StockHistoryUpdate,$temparrayUpdate);
-                                }
-                            }
-
-                            if(!empty($StockHistoryUpdate)){
-                                $historyData=stockHistoryUpdateCalculations($StockHistoryUpdate);
-                            }
-
-                            //End Stock History Maintain
-
                             DB::connection('sqlsrv2')->commit();
-                            $message='';
-                            if(!empty($historyData)){
-                                foreach($historyData as $msg){
-                                    $message.=$msg;
-                                    $message.="\n";
-                                }
-                            }
-                            return Response::json(array("status" => "success","warning"=>$message, "message" => "CreditNotes Successfully Updated", 'LastID' => $CreditNotes->CreditNotesID));
+                            return Response::json(array("status" => "success", "message" => "CreditNotes Successfully Updated", 'LastID' => $CreditNotes->CreditNotesID));
                         } else {
                             DB::connection('sqlsrv2')->rollback();
                             return Response::json(array("status" => "failed", "message" => "Problem Updating CreditNotes."));

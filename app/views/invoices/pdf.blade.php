@@ -106,6 +106,7 @@ tfoot {
           <th class="desc"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_TBL_DESCRIPTION')</b></th>
           <th class="rightalign"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_TBL_QUANTITY')</b></th>
           <th class="rightalign"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_TBL_PRICE')</b></th>
+          <th class="rightalign"><b>@lang("routes.CUST_PANEL_PAGE_INVOICE_PDF_TBL_DISCOUNT")</b></th>
           <th class="total"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_TBL_LINE_TOTAL')</b></th>
         </tr>
         </thead>
@@ -119,6 +120,11 @@ tfoot {
                 <td class="desc">{{nl2br($ProductRow->Description)}}</td>
                 <td class="rightalign leftsideview">{{$ProductRow->Qty}}</td>
                 <td class="rightalign leftsideview">{{number_format($ProductRow->Price,$RoundChargesAmount)}}</td>
+                <td class="rightalign leftsideview">
+                  @if(!empty($ProductRow->DiscountAmount) && !empty($ProductRow->DiscountType))
+                    {{number_format($ProductRow->DiscountAmount,$RoundChargesAmount)}}@if($ProductRow->DiscountType=='Percentage') % @endif
+                  @endif
+                </td>
                 <td class="total leftsideview">{{number_format($ProductRow->LineTotal,$RoundChargesAmount)}}</td>
               </tr> 
             {{--@endif--}}
@@ -126,7 +132,7 @@ tfoot {
         </tbody>
         <tfoot>
         <tr>
-          <td colspan="2"></td>
+          <td colspan="3"></td>
           <td colspan="2">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_TBL_SUB_TOTAL')</td>
           <td class="subtotal leftsideview">{{$CurrencySymbol}}{{number_format($Invoice->SubTotal,$RoundChargesAmount)}}</td>
         </tr>
@@ -134,7 +140,7 @@ tfoot {
         @if(count($InvoiceAllTaxRates))
           @foreach($InvoiceAllTaxRates as $InvoiceTaxRate)
             <tr>
-              <td colspan="2"></td>
+              <td colspan="3"></td>
               <td colspan="2">{{$InvoiceTaxRate->Title}}</td>
               <td class="subtotal leftsideview">{{$CurrencySymbol}}{{number_format($InvoiceTaxRate->TaxAmount,$RoundChargesAmount)}}</td>
             </tr>
@@ -142,7 +148,7 @@ tfoot {
                 @endif
         
         <tr>
-          <td colspan="2"></td>
+          <td colspan="3"></td>
           <td colspan="2"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_TBL_GRAND_TOTAL')</b></td>
           <td class="subtotal leftsideview"><b>{{$CurrencySymbol}}{{number_format($Invoice->GrandTotal,$RoundChargesAmount)}}</b></td>
         </tr>
