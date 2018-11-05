@@ -878,6 +878,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/payments/ajaxfilegrid', 'PaymentsController@ajaxfilegrid');
 	Route::any('/payments/download_sample_excel_file', 'PaymentsController@download_sample_excel_file');
 	Route::any('/payments/payments_quickbookpost', 'PaymentsController@payments_quickbookpost');
+	Route::any('/payments/getcreditnotes', 'PaymentsController@getcreditnotes');
 
 	//Currency
 	Route::any('/currency/ajax_datagrid', 'CurrenciesController@ajax_datagrid');
@@ -1046,6 +1047,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/creditnotes/calculate_total', 'CreditNotesController@calculate_total');
 	Route::any('/creditnotes/get_account_info', 'CreditNotesController@getAccountInfo');
 	Route::any('/creditnotes/get_billingclass_info', 'CreditNotesController@getBillingclassInfo');
+	Route::any('/creditnotes/allocate_payment', 'CreditNotesController@allocate_payment');
+	Route::any('/creditnotes/bulk_allocate_creditnote_payment', 'CreditNotesController@bulk_allocate_creditnote_payment');
 
 	//Invoice
 	Route::any('/invoice', 'InvoicesController@index');

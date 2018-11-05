@@ -430,8 +430,7 @@ BEGIN
 	INSERT INTO tblInvoiceLog (
 	 		InvoiceID,			 
 			 Note,
-			 created_at,
-			 updated_at			 
+			 created_at
 			 )
  	select 			 
 			 tp.InvoiceID,			 	
@@ -1060,3 +1059,42 @@ BEGIN
     END//
 DELIMITER ;
 
+ALTER TABLE `tblAccountSubscription`
+	ADD COLUMN `DiscountAmount` DECIMAL(18,6) NULL DEFAULT '0.000000' AFTER `Status`;
+ALTER TABLE `tblAccountSubscription`
+	ADD COLUMN `DiscountType` VARCHAR(100) NULL DEFAULT NULL AFTER `DisountAmount`;
+
+ALTER TABLE `tblAccountOneOffCharge`
+	ADD COLUMN `DiscountAmount` DECIMAL(18,6) NULL DEFAULT '0.000000' AFTER `ServiceID`;
+ALTER TABLE `tblAccountOneOffCharge`
+	ADD COLUMN `DiscountType` VARCHAR(100) NULL DEFAULT NULL AFTER `DiscountAmount`;
+
+ALTER TABLE `tblInvoiceDetail`
+  ADD COLUMN `AccountOneOffChargeID` INT(11) NULL DEFAULT '0' AFTER `AccountSubscriptionID`;
+ALTER TABLE `tblInvoiceDetail`
+	ADD COLUMN `DiscountAmount` DECIMAL(18,6) NULL DEFAULT '0.000000' AFTER `AccountOneOffChargeID`;
+ALTER TABLE `tblInvoiceDetail`
+	ADD COLUMN `DiscountType` VARCHAR(100) NULL DEFAULT NULL AFTER `DiscountAmount`;
+ALTER TABLE `tblInvoiceDetail`
+	ADD COLUMN `DiscountLineAmount` DECIMAL(18,6) NULL DEFAULT '0.000000' AFTER `DiscountType`;
+
+ALTER TABLE `tblRecurringInvoiceDetail`
+	ADD COLUMN `DiscountAmount` DECIMAL(18,6) NULL DEFAULT '0.000000' AFTER `ProductType`;
+ALTER TABLE `tblRecurringInvoiceDetail`
+	ADD COLUMN `DiscountType` VARCHAR(100) NULL DEFAULT NULL AFTER `DiscountAmount`;
+ALTER TABLE `tblRecurringInvoiceDetail`
+	ADD COLUMN `DiscountLineAmount` DECIMAL(18,6) NULL DEFAULT '0.000000' AFTER `DiscountType`;
+
+ALTER TABLE `tblEstimateDetail`
+	ADD COLUMN `DiscountAmount` DECIMAL(18,6) NULL DEFAULT '0.000000' AFTER `ProductType`;
+ALTER TABLE `tblEstimateDetail`
+	ADD COLUMN `DiscountType` VARCHAR(100) NULL DEFAULT NULL AFTER `DiscountAmount`;
+ALTER TABLE `tblEstimateDetail`
+	ADD COLUMN `DiscountLineAmount` DECIMAL(18,6) NULL DEFAULT '0.000000' AFTER `DiscountType`;
+
+ALTER TABLE `tblCreditNotesDetail`
+	ADD COLUMN `DiscountAmount` DECIMAL(18,6) NULL DEFAULT '0.000000' AFTER `ProductType`;
+ALTER TABLE `tblCreditNotesDetail`
+	ADD COLUMN `DiscountType` VARCHAR(100) NULL DEFAULT NULL AFTER `DiscountAmount`;
+ALTER TABLE `tblCreditNotesDetail`
+	ADD COLUMN `DiscountLineAmount` DECIMAL(18,6) NULL DEFAULT '0.000000' AFTER `DiscountType`;

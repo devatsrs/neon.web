@@ -184,7 +184,7 @@ $(document).ready(function(){
             }
         }
     });
-    $("#InvoiceTable").delegate( '.Price , .Qty , .Discount, .TaxRateID, .TaxRateID2' ,'change',function (e) {
+    $("#InvoiceTable").delegate( '.Price , .Qty , .Discount, .DiscountAmount, .DiscountType, .TaxRateID, .TaxRateID2' ,'change',function (e) {
         var $this = $(this);
         var $row = $this.parents("tr");		
         cal_line_total($row);
@@ -267,6 +267,16 @@ $(document).ready(function(){
 				  var obj 		 =   $(el).parent().parent();
 				  var price 	 = 	 parseFloat(obj.find(".Price").val().replace(/,/g,''));	
  			      var qty 		 =	 parseInt(obj.find(".Qty").val());
+                var discount = parseFloat(obj.find(".DiscountAmount").val().replace(/,/g,''));
+                var discount_type = obj.find(".DiscountType option:selected").val();
+                if(discount_type == 'Percentage')
+                {
+                    var disc_amount = parseFloat(parseFloat(parseFloat(price * qty) * discount ) / 100 );
+                    var line_total = parseFloat( parseFloat( parseFloat(price * qty) - disc_amount )) ;
+                }
+                else{
+                    var line_total = parseFloat( parseFloat( parseFloat(price * qty) - discount )) ;
+                }
 				  
 				  var taxAmount  =   parseFloat(tt.attr("data-amount").replace(/,/g,''));				
 				  var flatstatus = 	 parseFloat(tt.attr("data-flatstatus").replace(/,/g,''));
@@ -275,7 +285,7 @@ $(document).ready(function(){
 				  if(flatstatus == 1){
 						var tax = parseFloat( ( taxAmount) );
 				   }else{
-						var tax = parseFloat( (price * qty * taxAmount)/100 );
+						var tax = parseFloat( (line_total * taxAmount)/100 );
 				   }				
              }			
 			 if(Tax_type[$this.val()]!= null){
@@ -401,13 +411,24 @@ $(document).ready(function(){
         var qty = parseFloat(obj.find(".Qty").val());
         //var discount = parseFloat(obj.find(".Discount").val().replace(/,/g,''));
 		var discount = 0;
+        var discount = parseFloat(obj.find(".DiscountAmount").val().replace(/,/g,''));
+        var discount_type = obj.find(".DiscountType option:selected").val();
+        if(discount_type == 'Percentage')
+        {
+            var disc_amount = parseFloat(parseFloat(parseFloat(price * qty) * discount ) / 100 );
+            var line_total = parseFloat( parseFloat( parseFloat(price * qty) - disc_amount )) ;
+        }
+        else{
+            var line_total = parseFloat( parseFloat( parseFloat(price * qty) - discount )) ;
+        }
+
         var taxAmount  =  parseFloat(obj.find(".TaxRateID option:selected").attr("data-amount").replace(/,/g,''));
 		
         var flatstatus = parseFloat(obj.find(".TaxRateID option:selected").attr("data-flatstatus").replace(/,/g,''));
         if(flatstatus == 1){
             var tax = parseFloat( ( taxAmount) );
         }else{
-            var tax = parseFloat( (price * qty * taxAmount)/100 );
+            var tax = parseFloat( (line_total * taxAmount)/100 );
         }
 		
 		var taxAmount2 =  parseFloat(obj.find(".TaxRateID2 option:selected").attr("data-amount").replace(/,/g,''));
@@ -416,7 +437,7 @@ $(document).ready(function(){
         if(flatstatus2 == 1){
             var tax2 = parseFloat( ( taxAmount2) );
         }else{
-            var tax2 = parseFloat( (price * qty * taxAmount2)/100 );
+            var tax2 = parseFloat( (line_total * taxAmount2)/100 );
         }
 		
 		var tax1val = obj.find("select.TaxRateID").val();
@@ -428,8 +449,7 @@ $(document).ready(function(){
 		var tax_final  = 	parseFloat(tax+tax2);
 		tax_final  	   = 	tax_final.toFixed(decimal_places);
         obj.find('.TaxAmount').val(tax_final);
-        var line_total = parseFloat( parseFloat( parseFloat(price * qty) - discount )) ;
-
+        //var line_total = parseFloat( parseFloat( parseFloat(line_total) - discount )) ;
         obj.find('.LineTotal').val(line_total.toFixed(decimal_places));
 
         calculate_total();
@@ -592,7 +612,7 @@ $(document).ready(function(){
     });
 	$("textarea.autogrow").autosize();
 
-    $(document).on("keypress",".Qty",function (event) {
+    $(document).on("keypress",".Price,.Qty,.DiscountAmount",function (event) {
         return isDecimal(event, this)
     });
 });

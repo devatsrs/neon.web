@@ -7,7 +7,8 @@ class AccountOneOffChargeController extends \BaseController {
     public function ajax_datagrid($id){
         $data = Input::all();
         $id=$data['account_id'];
-        $select = ["tblProduct.Name", "tblAccountOneOffCharge.Description", "tblAccountOneOffCharge.Qty" ,"tblAccountOneOffCharge.Price","tblAccountOneOffCharge.Date","tblAccountOneOffCharge.TaxAmount","tblAccountOneOffCharge.created_at","tblAccountOneOffCharge.CreatedBy","tblAccountOneOffCharge.AccountOneOffChargeID","tblProduct.ProductID","tblAccountOneOffCharge.TaxRateID","tblAccountOneOffCharge.TaxRateID2"];
+        $select = ["tblProduct.Name", "tblAccountOneOffCharge.Description", "tblAccountOneOffCharge.Qty" ,"tblAccountOneOffCharge.Price","tblAccountOneOffCharge.Date","tblAccountOneOffCharge.TaxAmount","tblAccountOneOffCharge.created_at","tblAccountOneOffCharge.CreatedBy","tblAccountOneOffCharge.AccountOneOffChargeID","tblProduct.ProductID","tblAccountOneOffCharge.TaxRateID","tblAccountOneOffCharge.TaxRateID2","tblAccountOneOffCharge.DiscountAmount","tblAccountOneOffCharge.DiscountType"];
+
         $accountOneOffCharge = AccountOneOffCharge::join('tblProduct', 'tblAccountOneOffCharge.ProductID', '=', 'tblProduct.ProductID')->where("tblAccountOneOffCharge.AccountID",$id);
         if(!empty($data['OneOfCharge_ProductID'])){
             $accountOneOffCharge->where('tblAccountOneOffCharge.ProductID','=',$data['OneOfCharge_ProductID']);
