@@ -767,17 +767,17 @@ BEGIN
 		UPDATE   RMCDR3.`' , p_tbltempusagedetail_name , '` ud
 		LEFT JOIN Ratemanagement3.tmp_codes_ cr ON cr.Code = ud.area_prefix
 		SET cost =
-		CASE WHEN  billed_second >= Interval1
-		THEN
-			(Rate/60.0)*Interval1+CEILING((billed_second-Interval1)/IntervalN)*(Rate/60.0)*IntervalN+IFNULL(ConnectionFee,0)
-		ElSE
-			CASE WHEN  billed_second > 0
+			CASE WHEN  billed_second >= 1
 			THEN
-				Rate+IFNULL(ConnectionFee,0)
-			ELSE
-				0
+				(',p_SpecifyRate,'/60.0)*1+CEILING((billed_second-1)/1)*(',p_SpecifyRate,'/60.0)*1
+			ElSE
+				CASE WHEN  billed_second > 0
+				THEN
+					',p_SpecifyRate,'
+				ELSE
+					0
+				END
 			END
-		END
 		,is_rerated=1
 		,duration = billed_second
 		,billed_duration =
