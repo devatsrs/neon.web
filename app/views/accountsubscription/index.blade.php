@@ -137,7 +137,8 @@
                     $('#subscription-form [name="DailyFee"]').val(daily.toFixed(decimal_places));
                 });
 
-            var list_fields  = ["AID","SequenceNo", "Name", "InvoiceDescription", "Qty", "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee","tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee","tblBillingSubscription.MonthlyFee", "tblBillingSubscription.QuarterlyFee", "tblBillingSubscription.AnnuallyFee", "AccountSubscriptionID", "SubscriptionID","ExemptTax","Status","AnnuallyFee","QuarterlyFee","MonthlyFee","WeeklyFee","DailyFee","ActivationFee"];
+            var list_fields  = ["AID","SequenceNo", "Name", "InvoiceDescription", "Qty", "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee","tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee","tblBillingSubscription.MonthlyFee", "tblBillingSubscription.QuarterlyFee", "tblBillingSubscription.AnnuallyFee", "AccountSubscriptionID", "SubscriptionID","ExemptTax","Status","DiscountAmount","DiscountType","AnnuallyFee","QuarterlyFee","MonthlyFee","WeeklyFee","DailyFee","ActivationFee"];
+
             public_vars.$body = $("body");
             var $search = {};
             var subscription_add_url = baseurl + "/accounts/{{$account->AccountID}}/subscription/store";
@@ -732,6 +733,21 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Discount</label>
+                                <input type="text" name="DiscountAmount" class="form-control" value=""  />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Discount Type</label>
+                                {{ Form::select('DiscountType', array('Flat' => 'Flat', 'Percentage' => 'Percentage') ,'', array("class"=>"form-control") ) }}
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row">
                         <div class="col-md-12">
                         <div class="form-group">
