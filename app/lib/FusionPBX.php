@@ -62,7 +62,7 @@ class FusionPBX{
                                 $tempItemData['AccountName'] = !empty($temp_row->domain_description)?$temp_row->domain_description:$temp_row->domain_name;
 
                                 if(isset($Settings['NameFormat']) && $Settings['NameFormat'] == 'NAME') {
-                                    $tempItemData['Number'] = "";
+                                    //$tempItemData['Number'] = "";
                                 } else {
                                     $tempItemData['Number'] = $temp_row->domain_name;
                                 }
