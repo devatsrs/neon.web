@@ -188,7 +188,7 @@ $(document).ready(function(){
             }
         }
     });
-    $("#EstimateTable").delegate( '.Price , .Qty , .Discount, .TaxRateID , .TaxRateID2','change',function (e) {
+    $("#EstimateTable").delegate( '.Price , .Qty , .Discount, .DiscountAmount, .DiscountType, .TaxRateID , .TaxRateID2','change',function (e) {
 		
         var $this = $(this);
         var $row = $this.parents("tr");
@@ -284,6 +284,16 @@ $(document).ready(function(){
                     var obj 		 =   $(el).parent().parent();
                     var price 	 = 	 parseFloat(obj.find(".Price").val().replace(/,/g,''));
                     var qty 		 =	 parseInt(obj.find(".Qty").val());
+                    var discount = parseFloat(obj.find(".DiscountAmount").val().replace(/,/g,''));
+                    var discount_type = obj.find(".DiscountType option:selected").val();
+                    if(discount_type == 'Percentage')
+                    {
+                        var disc_amount = parseFloat(parseFloat(parseFloat(price * qty) * discount ) / 100 );
+                        var line_total = parseFloat( parseFloat( parseFloat(price * qty) - disc_amount )) ;
+                    }
+                    else{
+                        var line_total = parseFloat( parseFloat( parseFloat(price * qty) - discount )) ;
+                    }
 
                     var taxAmount  =   parseFloat(tt.attr("data-amount").replace(/,/g,''));
                     var flatstatus = 	 parseFloat(tt.attr("data-flatstatus").replace(/,/g,''));
@@ -292,7 +302,7 @@ $(document).ready(function(){
                     if(flatstatus == 1){
                         var tax = parseFloat( ( taxAmount) );
                     }else{
-                        var tax = parseFloat( (price * qty * taxAmount)/100 );
+                        var tax = parseFloat( (line_total * taxAmount)/100 );
                     }
                 }
                 //if(productType==txtITEM) {
@@ -435,13 +445,24 @@ $(document).ready(function(){
 
         var qty = parseInt(obj.find(".Qty").val());
        // var discount = parseFloat(obj.find(".Discount").val().replace(/,/g,''));
-	 var  discount = 0;
+	     var  discount = 0;
+        var discount = parseFloat(obj.find(".DiscountAmount").val().replace(/,/g,''));
+        var discount_type = obj.find(".DiscountType option:selected").val();
+        if(discount_type == 'Percentage')
+        {
+            var disc_amount = parseFloat(parseFloat(parseFloat(price * qty) * discount ) / 100 );
+            var line_total = parseFloat( parseFloat( parseFloat(price * qty) - disc_amount )) ;
+        }
+        else{
+            var line_total = parseFloat( parseFloat( parseFloat(price * qty) - discount )) ;
+        }
+
         var taxAmount = parseFloat(obj.find(".TaxRateID option:selected").attr("data-amount").replace(/,/g,''));
         var flatstatus = parseFloat(obj.find(".TaxRateID option:selected").attr("data-flatstatus").replace(/,/g,''));
         if(flatstatus == 1){
             var tax = parseFloat( ( taxAmount) );
         }else{
-            var tax = parseFloat( (price * qty * taxAmount)/100 );
+            var tax = parseFloat( (line_total * taxAmount)/100 );
         }
 		
 		var taxAmount2 =  parseFloat(obj.find(".TaxRateID2 option:selected").attr("data-amount").replace(/,/g,''));
@@ -450,7 +471,7 @@ $(document).ready(function(){
         if(flatstatus2 == 1){
             var tax2 = parseFloat( ( taxAmount2) );
         }else{
-            var tax2 = parseFloat( (price * qty * taxAmount2)/100 );
+            var tax2 = parseFloat( (line_total * taxAmount2)/100 );
         }
 		
 		var tax1val = obj.find("select.TaxRateID").val();
@@ -464,7 +485,7 @@ $(document).ready(function(){
 		
 		
         obj.find('.TaxAmount').val(tax_final);
-        var line_total = parseFloat( parseFloat( parseFloat(price * qty) - discount )) ;
+        //var line_total = parseFloat( parseFloat( parseFloat(price * qty) - discount )) ;
 
         obj.find('.LineTotal').val(line_total.toFixed(decimal_places));
         calculate_total();

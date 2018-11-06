@@ -95,6 +95,7 @@ $inlineTaxes        =   [];
                     <th class="desc"><b>Description</b></th>
                     <th class="rightalign"><b>Quantity</b></th>
                     <th class="rightalign"><b>Price</b></th>
+                    <th class="rightalign"><b>Discount</b></th>
                     <th class="total"><b>Line Total</b></th>
                 </tr>
                 </thead>
@@ -128,6 +129,11 @@ $inlineTaxes        =   [];
                                 <td class="desc">{{nl2br($ProductItemRow->Description)}}</td>
                                 <td class="rightalign">{{$ProductItemRow->Qty}}</td>
                                 <td class="rightalign">{{number_format($ProductItemRow->Price,$RoundChargesAmount)}}</td>
+                                <td class="rightalign leftsideview">
+                                    @if(!empty($ProductItemRow->DiscountAmount) && !empty($ProductItemRow->DiscountType))
+                                        {{number_format($ProductItemRow->DiscountAmount,$RoundChargesAmount)}}@if($ProductItemRow->DiscountType=='Percentage') % @endif
+                                    @endif
+                                </td>
                                 <td class="total">{{number_format($ProductItemRow->LineTotal,$RoundChargesAmount)}}</td>
                             </tr>   
                 @endforeach
@@ -136,7 +142,7 @@ $inlineTaxes        =   [];
                 <?php $item_tax_total = 0; ?>
                  @if($grand_total_item > 0)
                     <tr>
-                        <td colspan="2"></td>
+                        <td colspan="3"></td>
                         <td colspan="2">Sub Total</td>
                         <td class="subtotal">{{$CurrencySymbol}}{{number_format($grand_total_item,$RoundChargesAmount)}}</td>
                         <?php $item_tax_total = $grand_total_item; ?>
@@ -145,7 +151,7 @@ $inlineTaxes        =   [];
                 @if(count($EstimateItemTaxRates) > 0) 
                     @foreach($EstimateItemTaxRates as $EstimateItemTaxRatesData)
                         <tr>
-                            <td colspan="2"></td>
+                            <td colspan="3"></td>
                             <td colspan="2">{{$EstimateItemTaxRatesData->Title}}</td>
                             <td class="subtotal">{{$CurrencySymbol}}{{number_format($EstimateItemTaxRatesData->TaxAmount,$RoundChargesAmount)}}</td>
                         </tr> <?php $item_tax_total = $item_tax_total+$EstimateItemTaxRatesData->TaxAmount; ?>
@@ -153,7 +159,7 @@ $inlineTaxes        =   [];
                 @endif  
                 @if($item_tax_total>0)
                		 <tr>
-                            <td colspan="2"></td>
+                            <td colspan="3"></td>
                             <td colspan="2"><strong>ONE OFF TOTAL</strong></td>
                             <td class="subtotal">{{$CurrencySymbol}}{{number_format($item_tax_total,$RoundChargesAmount)}}</td>
                         </tr>
@@ -177,6 +183,7 @@ $inlineTaxes        =   [];
                     <th class="desc"><b>Description</b></th>
                     <th class="rightalign"><b>Quantity</b></th>
                     <th class="rightalign"><b>Price</b></th>
+                    <th class="rightalign"><b>Discount</b></th>
                     <th class="total"><b>Line Total</b></th>
                 </tr>
                 </thead>
@@ -209,6 +216,11 @@ $inlineTaxes        =   [];
                                 <td class="desc">{{nl2br($ProductRow->Description)}}</td>
                                 <td class="rightalign">{{$ProductRow->Qty}}</td>
                                 <td class="rightalign">{{number_format($ProductRow->Price,$RoundChargesAmount)}}</td>
+                                <td class="rightalign leftsideview">
+                                    @if(!empty($ProductItemRow->DiscountAmount) && !empty($ProductItemRow->DiscountType))
+                                        {{number_format($ProductItemRow->DiscountAmount,$RoundChargesAmount)}}@if($ProductItemRow->DiscountType=='Percentage') % @endif
+                                    @endif
+                                </td>
                                 <td class="total">{{number_format($ProductRow->LineTotal,$RoundChargesAmount)}}</td>
                             </tr>   
                 @endforeach
@@ -217,7 +229,7 @@ $inlineTaxes        =   [];
                 <?php  $subscription_tax_total = 0; ?>
                 @if($grand_total_subscription > 0)
                     <tr>
-                        <td colspan="2"></td>
+                        <td colspan="3"></td>
                         <td colspan="2">Sub Total</td>
                         <td class="subtotal">{{$CurrencySymbol}}{{number_format($grand_total_subscription,$RoundChargesAmount)}}</td>
                         <?php $subscription_tax_total = $grand_total_subscription; ?>
@@ -227,7 +239,7 @@ $inlineTaxes        =   [];
                   @if(count($EstimateSubscriptionTaxRates) > 0)
                     @foreach($EstimateSubscriptionTaxRates as $EstimateSubscriptionTaxRatesData)
                         <tr>
-                            <td colspan="2"></td>
+                            <td colspan="3"></td>
                             <td colspan="2">{{$EstimateSubscriptionTaxRatesData->Title}}</td>
                             <td class="subtotal">{{$CurrencySymbol}}{{number_format($EstimateSubscriptionTaxRatesData->TaxAmount,$RoundChargesAmount)}}</td>
                             <?php $subscription_tax_total = $subscription_tax_total+$EstimateSubscriptionTaxRatesData->TaxAmount; ?>
@@ -237,7 +249,7 @@ $inlineTaxes        =   [];
                 
                 @if($subscription_tax_total>0)
                		 <tr>
-                            <td colspan="2"></td>
+                            <td colspan="3"></td>
                             <td colspan="2"><strong>Recurring Total	</strong></td>
                             <td class="subtotal">{{$CurrencySymbol}}{{number_format($subscription_tax_total,$RoundChargesAmount)}}</td>
                         </tr>
@@ -262,7 +274,7 @@ $inlineTaxes        =   [];
                  </tbody>
                 <tfoot>                           
                 <tr>
-                    <td colspan="2"></td>
+                    <td colspan="3"></td>
                     <td colspan="2">Estimate Total</td>
                     <td class="subtotal">{{$CurrencySymbol}}{{number_format($Estimate->EstimateTotal,$RoundChargesAmount)}}</td>
                 </tr>
@@ -270,7 +282,7 @@ $inlineTaxes        =   [];
                 @if(count($EstimateAllTaxRates))
                     @foreach($EstimateAllTaxRates as $EstimateTaxRate)
                         <tr>
-                            <td colspan="2"></td>
+                            <td colspan="3"></td>
                             <td colspan="2">{{$EstimateTaxRate->Title}}</td>
                             <td class="subtotal">{{$CurrencySymbol}}{{number_format($EstimateTaxRate->TaxAmount,$RoundChargesAmount)}}</td>
                         </tr>
@@ -278,7 +290,7 @@ $inlineTaxes        =   [];
                 @endif
                 
                 <tr>
-                    <td colspan="2"></td>
+                    <td colspan="3"></td>
                     <td colspan="2"><b>Grand Total</b></td>
                     <td class="subtotal"><b>{{$CurrencySymbol}}{{number_format($Estimate->GrandTotal,$RoundChargesAmount)}}</b></td>
                 </tr>

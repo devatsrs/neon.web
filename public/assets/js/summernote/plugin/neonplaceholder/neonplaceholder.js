@@ -321,7 +321,9 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{Signature}}'>" + dropdown_text.leadoptions.Signature + "</a></li>" +
             "<li class='unclick'><a ><b>Disputes</b></a></li>" +
             "<li><a data-value='{{DisputeAmount}}'>" + dropdown_text.leadoptions.DisputeAmount + "</a></li>" +
-            "<li><a data-value='{{InvoiceNumber}}'>" + dropdown_text.leadoptions.InvoiceNumber + "</a></li>"
+            "<li><a data-value='{{InvoiceNumber}}'>" + dropdown_text.leadoptions.InvoiceNumber + "</a></li>" +
+            "<li class='unclick'><a ><b>Invoice</b></a></li>" +
+            "<li><a data-value='{{InvoiceLink}}'>" + dropdown_text.autopaymentoptions.InvoiceLink + "</a></li>"
             ;
     },
     "ratetemplateoptions": function () {

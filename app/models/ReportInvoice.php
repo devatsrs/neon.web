@@ -189,7 +189,7 @@ class ReportInvoice extends \Eloquent{
             self::$BillingClassJoin = true;
         }
 
-        if(in_array('TaxRateID',$data['column']) || in_array('TaxRateID',$data['row']) || in_array('TaxRateID',$data['filter']) || in_array('TotalTax',$data['sum'])){
+        if(in_array('TaxRateID',$data['column']) || in_array('TaxRateID',$data['row']) || in_array('TaxRateID',$data['filter']) || in_array('TotalTax',$data['sum']) || in_array('DiscountLineAmount',$data['sum'] )){
             $query_common->join('tblInvoiceTaxRate', 'tblInvoice.InvoiceID', '=', 'tblInvoiceTaxRate.InvoiceID');
             $query_common->leftjoin('tblInvoiceDetail', 'tblInvoiceDetail.InvoiceDetailID', '=', 'tblInvoiceTaxRate.InvoiceDetailID');
             self::$InvoiceTaxRateJoin = true;
@@ -317,6 +317,8 @@ class ReportInvoice extends \Eloquent{
             $measure_name = "SUM(tblInvoiceTaxRate.TaxAmount) ";
         }else if($colname == 'GrandTotal' && self::$InvoiceDetailJoin == true){
             $measure_name = "SUM(tblInvoiceDetail.LineTotal) ";
+        }else if($colname == 'DiscountLineAmount' && self::$InvoiceDetailJoin == true){
+            $measure_name = "SUM(tblInvoiceDetail.DiscountLineAmount) ";
         }else if($colname == 'PaidTotal'){
             $extra_query = !empty(self::$dateFilterString)?implode(' AND ',self::$dateFilterString):' 1=1 ';
             $measure_name = " (SELECT SUM(Amount) FROM tblPayment WHERE (FIND_IN_SET(tblPayment.InvoiceID,group_concat(tblInvoice.InvoiceID)) OR (tblPayment.InvoiceID =0 ".$extra_query_3." AND ".$extra_query.") ) AND $extra_query_2 AND Status='Approved' AND Recall = '0') ";
@@ -327,6 +329,8 @@ class ReportInvoice extends \Eloquent{
             $measure_name = "SUM(tblInvoiceTaxRate.TaxAmount)";
         }else if(self::$InvoiceDetailJoin == false && in_array($colname,array('GrandTotal'))){
             $measure_name = "SUM(tblInvoice." . $colname . ")";
+        }else if(self::$InvoiceDetailJoin == false && in_array($colname,array('DiscountLineAmount'))){
+            $measure_name = "SUM(tblInvoiceDetail." . $colname . ")";
         }else if(self::$InvoiceDetailJoin == false && in_array($colname,array('SubTotal'))){
             $measure_name = "SUM(tblInvoice." . $colname . ")";
            // $measure_name = "IFNULL(SUM(tblInvoiceDetail.LineTotal),SUM(tblInvoice.".$colname."))";
