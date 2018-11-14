@@ -199,7 +199,7 @@ class ReportInvoice extends \Eloquent{
 
         if(in_array('DiscountLineAmount',$data['sum'] )){
             $query_common->leftjoin('tblInvoiceDetail', 'tblInvoiceDetail.InvoiceID', '=', 'tblInvoice.InvoiceID');
-            self::$InvoiceTaxRateJoin = true;
+            self::$InvoiceDetailJoin = true;
         }
 
         if(in_array('ProductID',$data['column']) || in_array('ProductID',$data['row']) || in_array('ProductID',$data['filter']) || in_array('ProductType',$data['column']) || in_array('ProductType',$data['row']) || in_array('ProductType',$data['filter']) || in_array('SubscriptionID',$data['column']) || in_array('SubscriptionID',$data['row']) || in_array('SubscriptionID',$data['filter']) || in_array('Code',$data['column']) || in_array('Code',$data['row']) || in_array('Code',$data['filter'])){
