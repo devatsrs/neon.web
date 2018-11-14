@@ -131,8 +131,8 @@ class CreditNotes extends \Eloquent {
             file_put_contents($logo, file_get_contents($as3url));
 
             $CreditNotesTemplate->DateFormat 	= 	invoice_date_fomat($CreditNotesTemplate->DateFormat);
-            $file_name 						= 	'CreditNotes--' .$Account->AccountName.'-' .date($CreditNotesTemplate->DateFormat) . '.pdf';
-            $htmlfile_name 					= 	'CreditNotes--' .$Account->AccountName.'-' .date($CreditNotesTemplate->DateFormat) . '.html';
+            $file_name 						= 	'CreditNotes--' .$Account->AccountID.'-' .date($CreditNotesTemplate->DateFormat) . '.pdf';
+            $htmlfile_name 					= 	'CreditNotes--' .$Account->AccountID.'-' .date($CreditNotesTemplate->DateFormat) . '.html';
             $MultiCurrencies=array();
             $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
             if($CreditNotesTemplate->ShowTotalInMultiCurrency==1){
