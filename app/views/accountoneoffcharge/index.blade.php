@@ -95,8 +95,9 @@
 
     jQuery(document).ready(function ($) {
        var data_table_char;
-       var list_fields  = ["Name","Description", "Qty" ,"Price","Date","TaxAmount","created_at","CreatedBy","AccountOneOffChargeID","ProductID","TaxRateID","TaxRateID2"];
-       var getProductInfo_url = baseurl + "/accounts/{{$account->AccountID}}/oneofcharge/{id}/ajax_getproductinfo";
+       var list_fields  = ["Name","Description", "Qty" ,"Price","Date","TaxAmount","created_at","CreatedBy","AccountOneOffChargeID","ProductID","TaxRateID","TaxRateID2","DiscountAmount","DiscountType"];
+
+        var getProductInfo_url = baseurl + "/accounts/{{$account->AccountID}}/oneofcharge/{id}/ajax_getproductinfo";
        var oneofcharge_add_url = baseurl + "/accounts/{{$account->AccountID}}/oneofcharge/store";
        var oneofcharge_edit_url = baseurl + "/accounts/{{$account->AccountID}}/oneofcharge/{id}/update";
        var oneofcharge_delete_url = baseurl + "/accounts/{{$account->AccountID}}/oneofcharge/{id}/delete";
@@ -460,6 +461,22 @@
                         </div>
                     </div>
                     </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Discount</label>
+                                <input type="text" name="DiscountAmount" class="form-control" value=""  />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Discount Type</label>
+                                {{ Form::select('DiscountType', array('Flat' => 'Flat', 'Percentage' => 'Percentage') ,'', array("class"=>"form-control") ) }}
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
                 <div class="modal-footer">
                      <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left" data-loading-text="Loading...">

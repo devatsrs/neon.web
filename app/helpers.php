@@ -705,6 +705,9 @@ function bulk_mail($type,$data){
         if ($data['message'] == "") {
             return Response::json(array("status" => "error", "message" => "Message should not empty."));
         }
+        if($type=='CD' && (!isset($data['Timezones']) || empty($data['Timezones']))){
+            return Response::json(array("status" => "error", "message" => "Timezone field is required."));
+        }
 
         if (Input::hasFile('attachment')) {
             $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
