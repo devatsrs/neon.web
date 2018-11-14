@@ -189,13 +189,19 @@ class ReportInvoice extends \Eloquent{
             self::$BillingClassJoin = true;
         }
 
-        if(in_array('TaxRateID',$data['column']) || in_array('TaxRateID',$data['row']) || in_array('TaxRateID',$data['filter']) || in_array('TotalTax',$data['sum']) || in_array('DiscountLineAmount',$data['sum'] )){
+        if(in_array('TaxRateID',$data['column']) || in_array('TaxRateID',$data['row']) || in_array('TaxRateID',$data['filter']) || in_array('TotalTax',$data['sum'])){
             $query_common->join('tblInvoiceTaxRate', 'tblInvoice.InvoiceID', '=', 'tblInvoiceTaxRate.InvoiceID');
             $query_common->leftjoin('tblInvoiceDetail', 'tblInvoiceDetail.InvoiceDetailID', '=', 'tblInvoiceTaxRate.InvoiceDetailID');
             self::$InvoiceTaxRateJoin = true;
            // self::$InvoiceDetailJoin = true;
 
         }
+
+        if(in_array('DiscountLineAmount',$data['sum'] )){
+            $query_common->leftjoin('tblInvoiceDetail', 'tblInvoiceDetail.InvoiceID', '=', 'tblInvoice.InvoiceID');
+            self::$InvoiceTaxRateJoin = true;
+        }
+
         if(in_array('ProductID',$data['column']) || in_array('ProductID',$data['row']) || in_array('ProductID',$data['filter']) || in_array('ProductType',$data['column']) || in_array('ProductType',$data['row']) || in_array('ProductType',$data['filter']) || in_array('SubscriptionID',$data['column']) || in_array('SubscriptionID',$data['row']) || in_array('SubscriptionID',$data['filter']) || in_array('Code',$data['column']) || in_array('Code',$data['row']) || in_array('Code',$data['filter'])){
             $query_common->join('tblInvoiceDetail', 'tblInvoice.InvoiceID', '=', 'tblInvoiceDetail.InvoiceID');
             if(!self::$InvoiceDetailJoin) {
