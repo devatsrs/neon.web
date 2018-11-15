@@ -34,7 +34,7 @@
 
 
              <br>
-             <span class="time">{{\Carbon\Carbon::createFromTimeStamp(strtotime($row->created_at))->diffForHumans()}}</span>
+             <span class="time">{{\Carbon\Carbon::createFromTimeStamp(strtotime($row->created_at))->diffForHumans()}}  ({{$row->created_at}})</span>
 
 
 
