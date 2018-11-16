@@ -113,6 +113,7 @@
   <!-- Mail Body start -->
   <div class="mail-body"> 
     <!-- mail table -->
+     <div id="table-4_processing1" class="dataTables_processing" style="visibility: hidden">Processing...</div>
     <div class="inbox">
         <div id="table-4_processing" class="dataTables_processing">Processing...</div>
     </div>
@@ -184,7 +185,10 @@ $(document).ready(function(e) {
 		e.preventDefault();		
 		currentpage = -1;
 		clicktype   = 'next';
-		ShowResult(clicktype);
+        $('#table-4_processing1').css('visibility','visible');
+        setTimeout(function(){
+            ShowResult(clicktype);
+        },10);
 		return false;		
     });	
 	
@@ -200,7 +204,6 @@ $(document).ready(function(e) {
         $search.StartDate 	= 	$("#tickets_filter").find('[name="StartDate"]').val();
         $search.EndDate 	= 	$("#tickets_filter").find('[name="EndDate"]').val();
 
-        $('#table-4_processing').removeClass('hidden');
 		 $.ajax({
 					url: ajax_url,
 					type: 'POST',
@@ -208,7 +211,7 @@ $(document).ready(function(e) {
 					async :false,
 					data:{formData:$search,currentpage:currentpage,per_page:per_page,clicktype:clicktype,sort_fld:sort_fld,sort_type:sort_type},
 					success: function(response) {
-						
+                        $('#table-4_processing1').css('visibility','hidden');
 						if(response.length>0)
 						{
 							if(isJson(response))
@@ -232,7 +235,6 @@ $(document).ready(function(e) {
 							
 							 $('.inbox').html('');
 							 $('.inbox').html(response);
-                            $('#table-4_processing').addClass('hidden');
 							 if(clicktype=='next')
 							 {
 								currentpage =  currentpage+1;
@@ -245,11 +247,10 @@ $(document).ready(function(e) {
                     				minimumResultsForSearch: -1
                 				});
 								$('.mail-select-options .select2').css("visibility","visible");
+
 						}
 						else
-						{ 	
-												
-												
+						{
 							if(clicktype=='next')
 							 {
 								$('.next').addClass('disabled');
@@ -259,7 +260,6 @@ $(document).ready(function(e) {
 								$('.back').addClass('disabled');
 							 }						
 						}
-					
 					}
 				});	
 	}
