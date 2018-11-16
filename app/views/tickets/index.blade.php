@@ -43,6 +43,14 @@
                     {{Form::select('overdue[]', TicketsTable::$DueFilter, $overdueVal ,array("class"=>"select2","multiple"=>"multiple"))}}
                 </div>
                 <div class="form-group">
+                    <label for="field-1" class="control-label"> Date Start</label>
+                    {{ Form::text('StartDate', !empty(Input::get('StartDate'))?Input::get('StartDate'):'', array("class"=>"form-control small-date-input datepicker", "data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label"> Date End</label>
+                    {{ Form::text('EndDate', !empty(Input::get('EndDate'))?Input::get('EndDate'):'', array("class"=>"form-control small-date-input datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
+                </div>
+                <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
                         <i class="entypo-search"></i>
@@ -189,8 +197,10 @@ $(document).ready(function(e) {
 		$search.group 		= 	$("#tickets_filter").find('[name="group[]"]').val();
 		$search.agent 		= 	$("#tickets_filter").find('[name="agent[]"]').val();
 		$search.DueBy 		= 	$("#tickets_filter").find('[name="overdue[]"]').val();
-		
+        $search.StartDate 	= 	$("#tickets_filter").find('[name="StartDate"]').val();
+        $search.EndDate 	= 	$("#tickets_filter").find('[name="EndDate"]').val();
 
+        $('#table-4_processing').removeClass('hidden');
 		 $.ajax({
 					url: ajax_url,
 					type: 'POST',
@@ -221,7 +231,8 @@ $(document).ready(function(e) {
 							}
 							
 							 $('.inbox').html('');
-							 $('.inbox').html(response);	
+							 $('.inbox').html(response);
+                            $('#table-4_processing').addClass('hidden');
 							 if(clicktype=='next')
 							 {
 								currentpage =  currentpage+1;
@@ -267,7 +278,7 @@ $(document).ready(function(e) {
 	$(document).on('click','.export_btn',function(e){
 		e.stopImmediatePropagation();
 		e.preventDefault();		
-			
+
 		var $search 		= 	{};
         $search.Search 		= 	$("#tickets_filter").find('[name="search"]').val();
 		$search.status		= 	$("#tickets_filter").find('[name="status[]"]').val();
@@ -275,9 +286,11 @@ $(document).ready(function(e) {
 		$search.group 		= 	$("#tickets_filter").find('[name="group[]"]').val();
 		$search.agent 		= 	$("#tickets_filter").find('[name="agent[]"]').val();
 		$search.DueBy 		= 	$("#tickets_filter").find('[name="overdue[]"]').val();
+        $search.StartDate 	= 	$("#tickets_filter").find('[name="StartDate"]').val();
+        $search.EndDate 	= 	$("#tickets_filter").find('[name="EndDate"]').val();
 		var export_type		=	$(this).attr('action_type');
 		
-		ajax_url_export = ajax_url_export+"?Search="+$search.Search+"&status="+$search.status+"&priority="+$search.priority+"&group="+$search.group+"&agent="+$search.agent+"&DueBy="+$search.DueBy+"&sort_fld="+sort_fld+"&sort_type="+sort_type+"&export_type="+export_type+"&Export=1";
+		ajax_url_export = ajax_url_export+"?Search="+$search.Search+"&status="+$search.status+"&priority="+$search.priority+"&group="+$search.group+"&agent="+$search.agent+"&DueBy="+$search.DueBy+"&sort_fld="+sort_fld+"&sort_type="+sort_type+"&export_type="+export_type+"&StartDate="+$search.StartDate+"&EndDate="+$search.EndDate+"&Export=1";
 		window.location = ajax_url_export;
 		 /*$.ajax({
 					url: ajax_url_export,

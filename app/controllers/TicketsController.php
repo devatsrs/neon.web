@@ -69,7 +69,7 @@ class TicketsController extends \BaseController {
 	  
 	  public function ajex_result() {
 	
-	    $data 						= 	Input::all(); 
+	    $data 						= 	Input::all();
 		$data['currentpages']		=	$data['currentpage'];
 		if($data['clicktype']=='next'){
 			$data['iDisplayStart']  	= 	($data['currentpage']+1)*$data['per_page'];
@@ -95,6 +95,9 @@ class TicketsController extends \BaseController {
 		$data['iSortCol_0']			= 	 $data['sort_fld'];
 		$data['sSortDir_0']			= 	 $data['sort_type'];
 		$data['iDisplayLength'] 	= 	 $data['per_page'];
+	  	$data['StartDate'] 			= 	 $data['formData']['StartDate'];
+	  	$data['EndDate'] 			= 	 $data['formData']['EndDate'];
+
 		$companyID					= 	 User::get_companyID();
 		$array						=  	 $this->GetResult($data);
 
@@ -107,7 +110,7 @@ class TicketsController extends \BaseController {
 			\Illuminate\Support\Facades\Log::info("Ticket token_expired");
 			\Illuminate\Support\Facades\Log::info(print_r($array,true));
 			return json_response_api($array);  
-		}	
+		}
 		
 		$resultpage  				=  	 $array->resultpage;			
 		$result 					= 	 $array->ResultCurrentPage;
@@ -160,6 +163,16 @@ class TicketsController extends \BaseController {
 		if(isset($postdata['DueBy']) && $postdata['DueBy']!='null')
 		{
 			$data['DueBy'] 			= 	 $postdata['DueBy'];		
+		}
+
+		if(isset($postdata['StartDate']) && $postdata['StartDate']!='null')
+		{
+			$data['StartDate'] 			= 	 $postdata['StartDate'];
+		}
+
+		if(isset($postdata['EndDate']) && $postdata['EndDate']!='null')
+		{
+			$data['EndDate'] 			= 	 $postdata['EndDate'];
 		}
 		
 		$data['iSortCol_0']			= 	 $postdata['sort_fld'];

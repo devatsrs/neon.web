@@ -799,6 +799,7 @@
     var FirstTimeTrigger = true;
     var ResellerCount = '{{$ResellerCount}}';
     var AccountResellerCount = '{{$accountreseller}}';
+    var BillingChangeStatus = 0;
     jQuery(document).ready(function ($) {
         if(AccountResellerCount>0 || ResellerCount>0){
             $("#desablereseller").addClass('deactivate');
@@ -1003,6 +1004,7 @@
 
         $('#billing_edit').on( "click",function(e){
             e.preventDefault();
+            BillingChangeStatus = 1;
             $('[name="BillingCycleType"]').removeClass('hidden');
             $('body').find(".billing_options_active").removeClass('hidden');
             $('.billing_edit_text').addClass('hidden');
@@ -1016,6 +1018,7 @@
 
         $('#next_invoice_edit').on( "click",function(e){
             e.preventDefault();
+            BillingChangeStatus = 1;
             $('[name="NextInvoiceDate"]').removeClass('hidden');
             $('.next_invoice_edit_text').addClass('hidden');
             $(this).addClass('hidden');
@@ -1179,9 +1182,11 @@
                 type: 'POST',
                 dataType: 'json',
                 success: function(response) {
-                    $('[name="NextInvoiceDate"]').val(response.NextBillingDate);
-                    if(updatenextchargedate==1) {
-                        $('[name="NextChargeDate"]').val(response.NextChargedDate);
+                    if(BillingChangeStatus==1) {
+                        $('[name="NextInvoiceDate"]').val(response.NextBillingDate);
+                        if (updatenextchargedate == 1) {
+                            $('[name="NextChargeDate"]').val(response.NextChargedDate);
+                        }
                     }
                 },
                 data: {
