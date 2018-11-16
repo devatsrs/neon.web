@@ -173,6 +173,15 @@
             </div>
         </div>
 
+        <div class="form-group">
+            <label class="col-md-2 control-label">Currency</label>
+            <div class="col-md-4">
+                <!--{Form::select('CurrencyId', $currencies, '' ,array("class"=>"form-control select2"))}}-->
+                {{Form::SelectControl('currency',0,$company->CurrencyId,0,'CurrencyId')}}
+            </div>
+
+        </div>
+
         <div class="panel-title desc clear">
             Description
         </div>
