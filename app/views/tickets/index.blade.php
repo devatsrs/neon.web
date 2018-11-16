@@ -199,8 +199,8 @@ $(document).ready(function(e) {
 		$search.DueBy 		= 	$("#tickets_filter").find('[name="overdue[]"]').val();
         $search.StartDate 	= 	$("#tickets_filter").find('[name="StartDate"]').val();
         $search.EndDate 	= 	$("#tickets_filter").find('[name="EndDate"]').val();
-		
 
+        $('#table-4_processing').removeClass('hidden');
 		 $.ajax({
 					url: ajax_url,
 					type: 'POST',
@@ -231,7 +231,8 @@ $(document).ready(function(e) {
 							}
 							
 							 $('.inbox').html('');
-							 $('.inbox').html(response);	
+							 $('.inbox').html(response);
+                            $('#table-4_processing').addClass('hidden');
 							 if(clicktype=='next')
 							 {
 								currentpage =  currentpage+1;
