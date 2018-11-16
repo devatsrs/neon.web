@@ -172,8 +172,11 @@ $(document).ready(function(e) {
     });
 
 	$(document).on('click','.move_mail',function(){
-		var clicktype = $(this).attr('movetype');	
-        ShowResult(clicktype);
+		var clicktype = $(this).attr('movetype');
+        $('#table-4_processing1').css('visibility','visible');
+        setTimeout(function(){
+            ShowResult(clicktype);
+        },10);
     });
 	setTimeout(function(){
 	$('.filter_minimize_btn').click();
@@ -270,7 +273,10 @@ $(document).ready(function(e) {
 		per_page = $(this).val();		
 		clicktype   = 'next';
 		currentpage =  currentpage-1;
-		ShowResult(clicktype);
+        $('#table-4_processing1').css('visibility','visible');
+        setTimeout(function(){
+            ShowResult(clicktype);
+        },10);
 		return false;		
 		
 	});
@@ -318,8 +324,12 @@ $(document).ready(function(e) {
 		}	
 		if(sort_fld!='' && sort_type!='' ){
 			currentpage	 	=  -1;
-			clicktype   	= 'next';			
-			ShowResult(clicktype);
+			clicktype   	= 'next';
+            $('#table-4_processing1').css('visibility','visible');
+            setTimeout(function(){
+                ShowResult(clicktype);
+            },10);
+			//ShowResult(clicktype);
 		}	 
     });
 
