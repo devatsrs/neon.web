@@ -100,7 +100,8 @@ class LeadsController extends \BaseController {
             $companyID = User::get_companyID();
             $account_owners = User::getOwnerUsersbyRole();
             $countries = $this->countries;
-            return View::make('leads.create', compact('account_owners', 'update_url', 'countries'));
+            $company = Company::find($companyID);
+            return View::make('leads.create', compact('account_owners', 'update_url', 'countries','company'));
     }
 
     /**
@@ -298,6 +299,7 @@ class LeadsController extends \BaseController {
             'Owner' =>      'required',
             'CompanyID' =>  'required',
             'AccountName' => 'required|unique:tblAccount,AccountName,'.$lead->AccountID . ',AccountID,CompanyID,'.$data['CompanyID'],
+            'CurrencyId' =>  'required',
         );
 
         $validator = Validator::make($data, $rules);
