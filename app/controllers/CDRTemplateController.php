@@ -21,7 +21,8 @@ class CDRTemplateController extends BaseController {
         $Services = Service::getDropdownIDList($CompanyID);
         $Services = array('Service'=>$Services);
 
-        $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_CDR));
+        $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_FTPCDR));
+
         return View::make('cdrtemplate.upload',compact('UploadTemplate','CompanyGatewayID','Trunks','Services'));
     }
 
@@ -103,7 +104,7 @@ class CDRTemplateController extends BaseController {
         $option["selection"] = filterArrayRemoveNewLines($data['selection']);//['connect_time'=>$data['connect_time'],'disconnect_time'=>$data['disconnect_time'],'billed_duration'=>$data['billed_duration'],'duration'=>$data['duration'],'cld'=>$data['cld'],'cli'=>$data['cli'],'Account'=>$data['Account'],'cost'=>$data['cost']];
         $option["CompanyGatewayID"] = $data['CompanyGatewayID'];
         $save['Options'] = str_replace('Skip loading','',json_encode($option));//json_encode($option);
-        $save['FileUploadTemplateTypeID'] = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_CDR);
+        $save['FileUploadTemplateTypeID'] = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_FTPCDR);
         if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
             $template = FileUploadTemplate::find($data['FileUploadTemplateID']);
             $template->update($save);
@@ -154,7 +155,7 @@ class CDRTemplateController extends BaseController {
                 $data['Escape'] = $options['option']['Escape'];
                 $data['Firstrow'] = $options['option']['Firstrow'];
             }
-		 
+
             if (!empty($file_name)) {
                 $grid = getFileContent($file_name, $data);
                 $grid['tempfilename'] = $file_name;
@@ -169,4 +170,114 @@ class CDRTemplateController extends BaseController {
             return Response::json(array("status" => "failed", "message" => $e->getMessage()));
         }
     }
+
+    public function editTemplate($id){
+        $grid=array();
+        if($id > 0){
+            $FileUploadTemplate = FileUploadTemplate::find($id);
+            if (!empty($FileUploadTemplate)) {
+                $file_name = '';
+
+                $grid['FileUploadTemplate'] = json_decode(json_encode($FileUploadTemplate), true);
+                $grid['FileUploadTemplate']['Options'] = json_decode($FileUploadTemplate->Options, true);
+
+                $templateoptions=$grid['FileUploadTemplate']['Options'];
+                $csvoption = $templateoptions['option'];
+                $attrselection = $templateoptions['selection'];
+                $attrskiprows = isset($templateoptions['skipRows']) ? $templateoptions['skipRows'] : '';
+
+                if(!empty($csvoption['Delimiter'])){
+                    Config::set('excel::csv.delimiter', $csvoption['Delimiter']);
+                }
+                if(!empty($csvoption['Enclosure'])){
+                    Config::set('excel::csv.enclosure', $csvoption['Enclosure']);
+                }
+                if(!empty($csvoption['Escape'])){
+                    Config::set('excel::csv.line_ending', $csvoption['Escape']);
+                }
+
+                if (!empty($grid['FileUploadTemplate']['TemplateFile'])) {
+                    $path = AmazonS3::unSignedUrl($grid['FileUploadTemplate']['TemplateFile']);
+                    if (strpos($path, "https://") !== false) {
+                        $file = CompanyConfiguration::get('TEMP_PATH') . '/' . basename($path);
+                        file_put_contents($file, file_get_contents($path));
+                        $file_name = $file;
+                    } else {
+                        $file_name = $path;
+                    }
+                }
+                if(!empty($file_name)){
+                    $grid1 = getFileContent($file_name,[]);
+                    $grid['columns'] = $grid1['columns'];
+                    $grid['rows'] = $grid1['rows'];
+                }
+            }
+
+            //echo "<pre>";print_r($grid);die;
+            return Response::json(array("status" => "success", "message" => "success", "data" => $grid));
+        }else{
+            return Response::json(array("status" => "failed", "message" => "Template Not Found."));
+        }
+
+
+    }
+
+    public function updateTemplate(){
+        $data = json_decode(str_replace('Skip loading','',json_encode(Input::all(),true)),true);//Input::all();
+
+        $rules = array(
+            'FileUploadTemplateID' => 'required',
+            'CompanyGatewayID' => 'required'
+        );
+
+        $rules['billed_duration'] = 'required';
+        $rules['cld'] = 'required';
+
+        if(!empty($data['selection']['ChargeCode'])){
+            $data['ChargeCode'] = $data['selection']['ChargeCode'];
+        }
+        if(!empty($data['selection']['Account'])){
+            $data['Account'] = $data['selection']['Account'];
+        }
+        if(!empty($data['selection']['Authentication'])){
+            $data['Authentication'] = $data['selection']['Authentication'];
+        }
+        if(!empty($data['selection']['connect_datetime'])){
+            $data['connect_datetime'] = $data['selection']['connect_datetime'];
+        }
+        if(!empty($data['selection']['billed_duration'])){
+            $data['billed_duration'] = $data['selection']['billed_duration'];
+        }
+        if(!empty($data['selection']['cld'])){
+            $data['cld'] = $data['selection']['cld'];
+        }
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+
+        $option["option"]= $data['option'];//['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
+        $option["selection"] = filterArrayRemoveNewLines($data['selection']);//['connect_time'=>$data['connect_time'],'disconnect_time'=>$data['disconnect_time'],'billed_duration'=>$data['billed_duration'],'duration'=>$data['duration'],'cld'=>$data['cld'],'cli'=>$data['cli'],'Account'=>$data['Account'],'cost'=>$data['cost']];
+
+        $option["CompanyGatewayID"] = $data['CompanyGatewayID'];
+        $save['Options'] = str_replace('Skip loading','',json_encode($option));//json_encode($option);
+        //print_r($save);die;
+        if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
+            $template = FileUploadTemplate::find($data['FileUploadTemplateID']);
+            if(!empty($template)){
+                //print_r($save);die;
+                $template->update($save);
+                return Response::json(array("status" => "success", "message" => "CDR Template successfully Updated"));
+            }else{
+                return Response::json(array("status" => "failed", "message" => "Template Not Found."));
+            }
+
+        }else{
+            return Response::json(array("status" => "failed", "message" => "Something went wrong."));
+        }
+
+    }
+
+
 }
