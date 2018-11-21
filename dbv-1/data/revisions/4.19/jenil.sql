@@ -54,7 +54,7 @@ BEGIN
      
      SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
      
-     CALL NeonRMDev.prc_UpdateMysqlPID(p_processId);
+     CALL Ratemanagement3.prc_UpdateMysqlPID(p_processId);
           
    	WHILE DATE(p_StartDate) <= DATE(p_EndDate) DO
    	
@@ -146,9 +146,14 @@ CREATE PROCEDURE `prc_GetSystemTicket`(
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_isExport` INT,
 	IN `p_StartDate` DATETIME,
-	IN `p_EndDate` DATETIME
+	IN `p_EndDate` DATETIME,
+	IN `p_is_StartDate` INT,
+	IN `p_is_EndDate` INT
+
+
 )
 BEGIN
+
 	DECLARE v_OffSet_ int;
 	DECLARE v_Round_ int;
 	DECLARE v_Groups_ varchar(200);
@@ -205,8 +210,8 @@ BEGIN
 			AND (P_Priority = '' OR find_in_set(T.`Priority`,P_Priority))
 			AND (P_Group = '' OR find_in_set(T.`Group`,P_Group))
 			AND (P_Agent = '' OR find_in_set(T.`Agent`,P_Agent))
-			AND (p_StartDate = '0000-00-00 00:00:00' OR ( p_StartDate != '0000-00-00 00:00:00' AND T.created_at >= p_StartDate))
-			AND (p_EndDate = '0000-00-00 00:00:00' OR ( p_EndDate != '0000-00-00 00:00:00' AND T.created_at <= p_EndDate))
+			AND (p_is_StartDate = 0 OR ( p_is_StartDate != 0 AND DATE(T.created_at) >= p_StartDate))
+			AND (p_is_EndDate = 0 OR ( p_is_EndDate != 0 AND DATE(T.created_at) <= p_EndDate))
 			AND (
 					P_DueBy = '' OR
 					(  P_DueBy != '' AND
@@ -279,8 +284,8 @@ BEGIN
 			AND (P_Priority = '' OR find_in_set(T.`Priority`,P_Priority))
 			AND (P_Group = '' OR find_in_set(T.`Group`,P_Group))
 			AND (P_Agent = '' OR find_in_set(T.`Agent`,P_Agent))
-			AND (p_StartDate = '0000-00-00 00:00:00' OR ( p_StartDate != '0000-00-00 00:00:00' AND T.created_at >= p_StartDate))
-			AND (p_EndDate = '0000-00-00 00:00:00' OR ( p_EndDate != '0000-00-00 00:00:00' AND T.created_at <= p_EndDate))
+			AND (p_is_StartDate = 0 OR ( p_is_StartDate != 0 AND DATE(T.created_at) >= p_StartDate))
+			AND (p_is_EndDate = 0 OR ( p_is_EndDate != 0 AND DATE(T.created_at) <= p_EndDate))
 			AND ((P_DueBy = ''
 			OR (find_in_set('Today',P_DueBy) AND DATE(T.DueDate) = DATE(P_CurrentDate)))
 			OR (find_in_set('Tomorrow',P_DueBy) AND DATE(T.DueDate) =  DATE(DATE_ADD(P_CurrentDate, INTERVAL 1 Day)))
@@ -307,8 +312,8 @@ BEGIN
 			AND (P_Priority = '' OR find_in_set(T.`Priority`,P_Priority))
 			AND (P_Group = '' OR find_in_set(T.`Group`,P_Group))
 			AND (P_Agent = '' OR find_in_set(T.`Agent`,P_Agent))
-			AND (p_StartDate = '0000-00-00 00:00:00' OR ( p_StartDate != '0000-00-00 00:00:00' AND T.created_at >= p_StartDate))
-			AND (p_EndDate = '0000-00-00 00:00:00' OR ( p_EndDate != '0000-00-00 00:00:00' AND T.created_at <= p_EndDate))
+			AND (p_is_StartDate = 0 OR ( p_is_StartDate != 0 AND DATE(T.created_at) >= p_StartDate))
+			AND (p_is_EndDate = 0 OR ( p_is_EndDate != 0 AND DATE(T.created_at) <= p_EndDate))
 			AND ((P_DueBy = ''
 			OR (find_in_set('Today',P_DueBy) AND DATE(T.DueDate) = DATE(P_CurrentDate)))
 			OR (find_in_set('Tomorrow',P_DueBy) AND DATE(T.DueDate) =  DATE(DATE_ADD(P_CurrentDate, INTERVAL 1 Day)))
@@ -348,8 +353,8 @@ BEGIN
 			AND (P_Priority = '' OR find_in_set(T.`Priority`,P_Priority))
 			AND (P_Group = '' OR find_in_set(T.`Group`,P_Group))
 			AND (P_Agent = '' OR find_in_set(T.`Agent`,P_Agent))
-			AND (p_StartDate = '0000-00-00 00:00:00' OR ( p_StartDate != '0000-00-00 00:00:00' AND T.created_at >= p_StartDate))
-			AND (p_EndDate = '0000-00-00 00:00:00' OR ( p_EndDate != '0000-00-00 00:00:00' AND T.created_at <= p_EndDate))
+			AND (p_is_StartDate = 0 OR ( p_is_StartDate != 0 AND DATE(T.created_at) >= p_StartDate))
+			AND (p_is_EndDate = 0 OR ( p_is_EndDate != 0 AND DATE(T.created_at) <= p_EndDate))
 			AND ((P_DueBy = ''
 			OR (find_in_set('Today',P_DueBy) AND DATE(T.DueDate) = DATE(P_CurrentDate)))
 			OR (find_in_set('Tomorrow',P_DueBy) AND DATE(T.DueDate) =  DATE(DATE_ADD(P_CurrentDate, INTERVAL 1 Day)))
@@ -357,7 +362,15 @@ BEGIN
 			OR (find_in_set('Overdue',P_DueBy) AND P_CurrentDate >=  T.DueDate ));
 	END IF;
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
 END//
 DELIMITER ;
+
+
+/* Admin - Update Template - bug - 1642 */
+
+INSERT INTO `Ratemanagement3`.`tblFileUploadTemplateType` (`TemplateType`, `Title`, `UploadDir`, `created_at`) VALUES ('FTPCDR', 'FTP CDR', 'CDR_UPLOAD', '2018-11-19 16:28:34');
+
+
 
 

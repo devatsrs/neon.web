@@ -281,6 +281,7 @@ var $searchFilter = {};
 var update_new_url;
 var postdata;
 var click_btn;
+var is_upload=0;
     jQuery(document).ready(function ($) {
         public_vars.$body = $("body");
         //show_loading_bar(40);
@@ -312,6 +313,7 @@ var click_btn;
                     });
 
                     if (response.status == 'success') {
+                        is_upload=1;
                         toastr.success(response.message, "Success", toastr_opts);
                         reloadJobsDrodown(0);
                          var data = response.data;
@@ -383,7 +385,16 @@ var click_btn;
                 e.preventDefault();
             });
             $("#save_template").click(function(e){
-                update_new_url = '{{URL::to('cdr_template/storeTemplate')}}';
+                var FileUploadTemplateID=$('select[name=FileUploadTemplateID]').val();
+
+                if(FileUploadTemplateID!='' && is_upload==0){
+                    console.log("update template");
+                    update_new_url = '{{URL::to('cdr_template/updateTemplate')}}';
+                }else{
+                    console.log("store template");
+                    update_new_url = '{{URL::to('cdr_template/storeTemplate')}}';
+                }
+
                 click_btn = $(this);
             });
             $('#add-template-form').submit(function(e){
@@ -414,6 +425,38 @@ var click_btn;
         $('#add-template-form [name="TemplateName"]').val($(this).val()==''?'':$(this).select2('data').text);
     });
 
+    $("select[name=FileUploadTemplateID]").change(function (ev) {
+
+        var FileUploadTemplateID=$(this).val();
+        if(FileUploadTemplateID > 0){
+
+            $.ajax({url: '{{URL::to('cdr_template/edittemplate')}}/'+FileUploadTemplateID,
+                success: function(response){
+                if (response.status == 'success') {
+                    reloadJobsDrodown(0);
+                    var data = response.data;
+                    $('#add-template').removeClass('hidden');
+                    $('#add-template').show();
+                   /* var scrollTo = $('#add-template').offset().top;
+                    $('html, body').animate({scrollTop:scrollTo}, 1000);*/
+                    createGrid(data);
+
+                } else {
+                    toastr.error(response.message, "Error", toastr_opts);
+                }
+            }
+            });
+
+        }else{
+            $('#add-template').addClass('hidden');
+            $('#add-template').hide();
+            $('.btn.upload').button('reset');
+            $("input[type=file]").val('');
+            $(".file-input-name").html('');
+        }
+
+    });
+
     function createGrid(data){
         var tr = $('#table-4 thead tr');
         var body = $('#table-4 tbody');
@@ -434,7 +477,7 @@ var click_btn;
         $("#mapping select").each(function(i, el){
             if(el.name !='selection[DateFormat]' && el.name != 'selection[Authentication]' && el.name != 'selection[InboundRateTableID]' && el.name != 'selection[OutboundRateTableID]' && el.name != 'selection[ServiceID]' && el.name != 'selection[TrunkID]'){
                 var self = $('#add-template-form [name="'+el.name+'"]');
-                rebuildSelect2(self,data.columns,'Skip loading');
+                CDRrebuildSelect2(self,data.columns,'Skip loading');
             }else if( el.name == 'selection[ServiceID]' || el.name == 'selection[TrunkID]'){
                 var self = $('#add-template-form [name="'+el.name+'"]');
                 var label = 'Map From File';
