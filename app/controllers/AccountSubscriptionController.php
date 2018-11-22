@@ -18,7 +18,8 @@ public function main() {
     public function ajax_datagrid($id){
         $data = Input::all();        
         $id=$data['account_id'];
-        $select = ["tblAccountSubscription.AccountSubscriptionID as AID","tblAccountSubscription.SequenceNo","tblBillingSubscription.Name", "InvoiceDescription", "Qty" ,"tblAccountSubscription.StartDate",DB::raw("IF(tblAccountSubscription.EndDate = '0000-00-00','',tblAccountSubscription.EndDate) as EndDate"),"tblAccountSubscription.ActivationFee","tblAccountSubscription.DailyFee","tblAccountSubscription.WeeklyFee","tblAccountSubscription.MonthlyFee","tblAccountSubscription.QuarterlyFee","tblAccountSubscription.AnnuallyFee","tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SubscriptionID","tblAccountSubscription.ExemptTax","tblAccountSubscription.Status"];
+        $select = ["tblAccountSubscription.AccountSubscriptionID as AID","tblAccountSubscription.SequenceNo","tblBillingSubscription.Name", "InvoiceDescription", "Qty" ,"tblAccountSubscription.StartDate",DB::raw("IF(tblAccountSubscription.EndDate = '0000-00-00','',tblAccountSubscription.EndDate) as EndDate"),"tblAccountSubscription.ActivationFee","tblAccountSubscription.DailyFee","tblAccountSubscription.WeeklyFee","tblAccountSubscription.MonthlyFee","tblAccountSubscription.QuarterlyFee","tblAccountSubscription.AnnuallyFee","tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SubscriptionID","tblAccountSubscription.ExemptTax","tblAccountSubscription.Status","tblAccountSubscription.DiscountAmount","tblAccountSubscription.DiscountType"];
+
         $subscriptions = AccountSubscription::join('tblBillingSubscription', 'tblAccountSubscription.SubscriptionID', '=', 'tblBillingSubscription.SubscriptionID')->where("tblAccountSubscription.AccountID",$id);        
         if(!empty($data['SubscriptionName'])){
             $subscriptions->where('tblBillingSubscription.Name','Like','%'.trim($data['SubscriptionName']).'%');
@@ -47,7 +48,7 @@ public function main() {
         $data 						 = 	Input::all(); //Log::info(print_r($data,true));
         $data['iDisplayStart'] 		+=	1;
         $companyID 					 =  User::get_companyID(); 
-        $columns 					 =  ['SequenceNo','AccountName','ServiceName','Name','Qty','StartDate','EndDate','ActivationFee','DailyFee','WeeklyFee','MonthlyFee','QuarterlyFee','AnnuallyFee'];   
+        $columns 					 =  ['SequenceNo','AccountName','ServiceName','Name','Qty','StartDate','EndDate','ActivationFee','DailyFee','WeeklyFee','MonthlyFee','QuarterlyFee','AnnuallyFee','DiscountAmount','DiscountType'];
         $sort_column 				 =  $columns[$data['iSortCol_0']];
         $data['AccountID'] 			 =  empty($data['AccountID'])?'0':$data['AccountID'];
 		if($data['Active'] == 'true'){

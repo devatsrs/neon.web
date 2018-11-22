@@ -339,6 +339,19 @@ class EstimatesController extends \BaseController {
 				if(!empty($EstimateSubscriptionTaxRates)) { //product subscription tax
                     DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateSubscriptionTaxRates);
                 }*/
+
+                //unset discount amount & type if not selected
+                $i=0;
+                foreach($EstimateDetailData as $idata)
+                {
+                    if($idata["DiscountAmount"] == "" || $idata["DiscountAmount"] == 0)
+                    {
+                        $EstimateDetailData[$i]["DiscountAmount"] = "";
+                        $EstimateDetailData[$i]["DiscountType"] = null;
+                    }
+                    $EstimateDetailData[$i]["DiscountLineAmount"] = ($EstimateDetailData[$i]["Price"] * $EstimateDetailData[$i]["Qty"]) - $EstimateDetailData[$i]["LineTotal"];
+                    $i++;
+                }
 				
 				 if(!empty($EstimateAllTaxRates)) { //estimate tax
                      EstimateTaxRate::insert($EstimateAllTaxRates);
@@ -562,6 +575,19 @@ class EstimatesController extends \BaseController {
 						if(!empty($EstimateSubscriptionTaxRates)) { //product subscription tax
 							DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateSubscriptionTaxRates);
 						}*/
+
+                        //unset discount amount & type if not selected
+                        $i=0;
+                        foreach($EstimateDetailData as $idata)
+                        {
+                            if($idata["DiscountAmount"] == "" || $idata["DiscountAmount"] == 0)
+                            {
+                                $EstimateDetailData[$i]["DiscountAmount"] = "";
+                                $EstimateDetailData[$i]["DiscountType"] = null;
+                            }
+                            $EstimateDetailData[$i]["DiscountLineAmount"] = ($EstimateDetailData[$i]["Price"] * $EstimateDetailData[$i]["Qty"]) - $EstimateDetailData[$i]["LineTotal"];
+                            $i++;
+                        }
 						
 						if(!empty($EstimateAllTaxRates)) {
                             EstimateTaxRate::insert($EstimateAllTaxRates);

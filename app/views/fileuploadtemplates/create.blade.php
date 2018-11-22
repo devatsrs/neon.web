@@ -10,7 +10,7 @@
         if(isset($template)) {
             $TemplateIDV    = !empty($template->FileUploadTemplateID) ? $template->FileUploadTemplateID : '';
             $TemplateNameV  = !empty($template->Title) ? $template->Title : '';
-            $TemplateTypeV  = !empty($template->Type) ? $template->Type : '';
+            $TemplateTypeV  = !empty($template->FileUploadTemplateTypeID) ? $template->FileUploadTemplateTypeID : '';
             $post_url       = URL::to('uploadtemplate/'.$TemplateIDV.'/edit');
         } else {
             $post_url       = URL::to('uploadtemplate/create');
@@ -191,6 +191,9 @@
                     </div>
                     <div class="panel-body field-remaping" id="field-remaping-9" style="{{ $TemplateTypeV==9 ? '' : 'display: none;' }}">
                         @include('fileuploadtemplates.paymenttemplate')
+                    </div>
+                    <div class="panel-body field-remaping" id="field-remaping-12" style="{{ $TemplateTypeV==12 ? '' : 'display: none;' }}">
+                        @include('fileuploadtemplates.ftpcdrtemplate')
                     </div>
                 </div>
             </form>
