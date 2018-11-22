@@ -172,6 +172,8 @@ class TranslateController extends \BaseController {
                         $translation_data["THEMES_".$domainUrl_key."_LOGIN_MSG"]='Dear user, Please login below!';
                         $translation_data["THEMES_".$domainUrl_key."_TITLE"]='';
                     }
+
+
                 }
 
                 ksort($translation_data);

@@ -115,6 +115,7 @@
             @if($configtitle['name'] == 'ImportDays') <span data-original-title="Import Payments Day" data-content="if blank then system will import payments from last 7 days." data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> @endif
             @if($configtitle['name'] == 'AlertEmailInterval') <span data-original-title="What is Alert Active Email Time?" data-content="It is interval time to send Email If any cron job is running out of its threshold time" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> @endif
             @if($configtitle['name'] == 'StartDate' && $StartDateMessage!='') <span data-original-title="Dates" data-content="{{$StartDateMessage}}" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> @endif
+            @if($configtitle['name'] == 'CDRImportStartDate') <span data-original-title="CDR Import Start Date" data-content="Trigger Summary for same date if you Re-Import Previous date data." data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> @endif
             </label>
             @if($configtitle['type'] == 'select' && isset($configtitle['multiple']) &&  $configtitle['multiple'] == 'multiple')
             {{Form::select('Setting['.$configtitle['name'].'][]',$configtitle['value'],$selectd_val, array( "class"=>"select2",'multiple',"data-placeholder"=>$configtitle['placeholder']))}}
