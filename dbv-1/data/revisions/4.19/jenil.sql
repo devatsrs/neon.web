@@ -1,131 +1,5 @@
 /* 4.19*/
-/* Task:- PBX Re-Import CDR */
 
-/*
-
-ID-96 , Download Fusion PBX CDR
-[[{"title":"Fusion PBX Max Interval","type":"text","value":"","name":"MaxInterval"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"},{"title":"CDR Import Start Date","type":"text","datepicker":"","value":"","name":"CDRImportStartDate"}]]
-
-ID -8, Download PBX CDR
-[[{"title":"PBX Max Interval","type":"text","value":"","name":"MaxInterval"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"},{"title":"CDR Import Start Date","type":"text","datepicker":"","value":"","name":"CDRImportStartDate"}]]
-
-ID - 83 Download MOR CDR
-[[{"title":"MOR Max Interval","type":"text","value":"","name":"MaxInterval"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"},{"title":"CDR Import Start Date","type":"text","datepicker":"","value":"","name":"CDRImportStartDate"}]]
-
-ID- 85 Download Streamco CDR
-[[{"title":"STREMCO Max Interval","type":"text","value":"","name":"MaxInterval"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"},{"title":"CDR Import Start Date","type":"text","datepicker":"","value":"","name":"CDRImportStartDate"}]]
-
-ID- 98 Download M2 CDR
-[[{"title":"M2 Max Interval","type":"text","value":"","name":"MaxInterval"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"},{"title":"CDR Import Start Date","type":"text","datepicker":"","value":"","name":"CDRImportStartDate"}]]
-
-ID-217 Download VoipNow CDR
-[[{"title":"Max Interval","type":"text","value":"","name":"MaxInterval"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"},{"title":"CDR Import Start Date","type":"text","datepicker":"","value":"","name":"CDRImportStartDate"}]]
-
-ID-531 Download SippySQL CDR
-[[{"title":"SippySQL Max Interval","type":"text","value":"","name":"MaxInterval"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"},{"title":"CDR Import Start Date","type":"text","datepicker":"","value":"","name":"CDRImportStartDate"}]]
-
-ID - 3 Download Porta CDR
-[[{"title":"Porta Max Interval","type":"text","value":"","name":"MaxInterval"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"},{"title":"CDR Import Start Date","type":"text","datepicker":"","value":"","name":"CDRImportStartDate"}]]
-
-ID - 532 Download Voip.MS CDR
-[[{"title":"Voip.ms Max Interval","type":"text","value":"","name":"MaxInterval"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"},{"title":"CDR Import Start Date","type":"text","datepicker":"","value":"","name":"CDRImportStartDate"}]]
-
-
-except vois or sippy
-
-*/
-
-/* 
-porta remain 
-getStartDate  - TempUsageDownloadLog() every file
-*/
-/* NeonCDRDev */
-
-
-DROP PROCEDURE IF EXISTS `prc_deleteCDRFromDate`;
-DELIMITER //
-CREATE PROCEDURE `prc_deleteCDRFromDate`(
-	IN `p_StartDate` DATE,
-	IN `p_CompanyGatewayID` INT(11),
-	IN `p_processId` INT,
-	IN `p_EndDate` DATE
-)
-BEGIN
-     
-     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-     
-     CALL Ratemanagement3.prc_UpdateMysqlPID(p_processId);
-          
-   	WHILE DATE(p_StartDate) <= DATE(p_EndDate) DO
-   	
-   		
-			 DELETE r 
-			FROM tblRetailUsageDetail r 
-			JOIN tblUsageDetails d 
-				on d.UsageDetailID=r.UsageDetailID AND d.ID = r.ID  
-			JOIN tblUsageHeader h 
-				on h.UsageHeaderID=d.UsageHeaderID 
-			WHERE h.StartDate = p_StartDate AND h.CompanyGatewayID=p_CompanyGatewayID;
-			
-			 DELETE d
-			FROM tblUsageDetailFailedCall d 
-			JOIN tblUsageHeader h 
-				on h.UsageHeaderID=d.UsageHeaderID 
-			WHERE h.StartDate = p_StartDate AND h.CompanyGatewayID=p_CompanyGatewayID;
-	
-	
-			 DELETE d
-			FROM tblUsageDetails d 
-			JOIN tblUsageHeader h 
-				on h.UsageHeaderID=d.UsageHeaderID
-			WHERE h.StartDate = p_StartDate AND h.CompanyGatewayID=p_CompanyGatewayID;
-		
-		
-			 DELETE 
-			FROM tblUsageHeader 
-			WHERE StartDate = p_StartDate AND CompanyGatewayID=p_CompanyGatewayID;
-			
-			
-			DELETE 
-			FROM suretelBilling.tblTempUsageDownloadLog
-			WHERE CompanyGatewayID=p_CompanyGatewayID AND DATE_FORMAT(end_time, "%Y-%m-%d") = p_StartDate;
-		
-		
-			/* Vendor Tables */
-				
-			DELETE tblVendorCDR
-			-- select *
-		   FROM tblVendorCDR
-			INNER JOIN tblVendorCDRHeader
-				ON tblVendorCDR.VendorCDRHeaderID = tblVendorCDRHeader.VendorCDRHeaderID
-		   WHERE StartDate = p_StartDate
-		   AND tblVendorCDRHeader.CompanyGatewayID = p_CompanyGatewayID;
-		 
-		 
-		   DELETE tblVendorCDRFailed
-		  FROM tblVendorCDRFailed
-		  INNER JOIN tblVendorCDRHeader
-		  	ON tblVendorCDRFailed.VendorCDRHeaderID = tblVendorCDRHeader.VendorCDRHeaderID
-		  WHERE StartDate = p_StartDate
-		  AND tblVendorCDRHeader.CompanyGatewayID = p_CompanyGatewayID;
-		
-						
-			DELETE
-			FROM tblVendorCDRHeader
-			WHERE StartDate = p_StartDate
-			AND CompanyGatewayID = p_CompanyGatewayID;
-		
-		
-   		SET p_StartDate = DATE_ADD(p_StartDate, INTERVAL 1 DAY);
-   	
-   	END WHILE;
-     
-     
-	      
-	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-	
-END//
-DELIMITER ;
 
 /* ticket changes - 1657 */
 
@@ -370,6 +244,141 @@ DELIMITER ;
 /* Admin - Update Template - bug - 1642 */
 
 INSERT INTO `Ratemanagement3`.`tblFileUploadTemplateType` (`TemplateType`, `Title`, `UploadDir`, `created_at`) VALUES ('FTPCDR', 'FTP CDR', 'CDR_UPLOAD', '2018-11-19 16:28:34');
+
+
+/* Above Done on Staging */
+
+
+
+/* Task:- PBX Re-Import CDR */
+
+/*
+
+ID-96 , Download Fusion PBX CDR
+[[{"title":"Fusion PBX Max Interval","type":"text","value":"","name":"MaxInterval"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"},{"title":"CDR Import Start Date","type":"text","datepicker":"","value":"","name":"CDRImportStartDate"}]]
+
+ID -8, Download PBX CDR
+[[{"title":"PBX Max Interval","type":"text","value":"","name":"MaxInterval"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"},{"title":"CDR Import Start Date","type":"text","datepicker":"","value":"","name":"CDRImportStartDate"}]]
+
+ID - 83 Download MOR CDR
+[[{"title":"MOR Max Interval","type":"text","value":"","name":"MaxInterval"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"},{"title":"CDR Import Start Date","type":"text","datepicker":"","value":"","name":"CDRImportStartDate"}]]
+
+ID- 85 Download Streamco CDR
+[[{"title":"STREMCO Max Interval","type":"text","value":"","name":"MaxInterval"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"},{"title":"CDR Import Start Date","type":"text","datepicker":"","value":"","name":"CDRImportStartDate"}]]
+
+ID- 98 Download M2 CDR
+[[{"title":"M2 Max Interval","type":"text","value":"","name":"MaxInterval"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"},{"title":"CDR Import Start Date","type":"text","datepicker":"","value":"","name":"CDRImportStartDate"}]]
+
+ID-217 Download VoipNow CDR
+[[{"title":"Max Interval","type":"text","value":"","name":"MaxInterval"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"},{"title":"CDR Import Start Date","type":"text","datepicker":"","value":"","name":"CDRImportStartDate"}]]
+
+ID-531 Download SippySQL CDR
+[[{"title":"SippySQL Max Interval","type":"text","value":"","name":"MaxInterval"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"},{"title":"CDR Import Start Date","type":"text","datepicker":"","value":"","name":"CDRImportStartDate"}]]
+
+ID - 3 Download Porta CDR
+[[{"title":"Porta Max Interval","type":"text","value":"","name":"MaxInterval"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"},{"title":"CDR Import Start Date","type":"text","datepicker":"","value":"","name":"CDRImportStartDate"}]]
+
+ID - 532 Download Voip.MS CDR
+[[{"title":"Voip.ms Max Interval","type":"text","value":"","name":"MaxInterval"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"},{"title":"CDR Import Start Date","type":"text","datepicker":"","value":"","name":"CDRImportStartDate"}]]
+
+
+except vois or sippy
+
+*/
+
+/* 
+porta remain 
+getStartDate  - TempUsageDownloadLog() every file
+*/
+/* NeonCDRDev */
+
+
+DROP PROCEDURE IF EXISTS `prc_deleteCDRFromDate`;
+DELIMITER //
+CREATE PROCEDURE `prc_deleteCDRFromDate`(
+	IN `p_StartDate` DATE,
+	IN `p_CompanyGatewayID` INT(11),
+	IN `p_processId` INT,
+	IN `p_EndDate` DATE
+)
+BEGIN
+     
+     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+     
+     CALL Ratemanagement3.prc_UpdateMysqlPID(p_processId);
+          
+   	WHILE DATE(p_StartDate) <= DATE(p_EndDate) DO
+   	
+   		
+			 DELETE r 
+			FROM tblRetailUsageDetail r 
+			JOIN tblUsageDetails d 
+				on d.UsageDetailID=r.UsageDetailID AND d.ID = r.ID  
+			JOIN tblUsageHeader h 
+				on h.UsageHeaderID=d.UsageHeaderID 
+			WHERE h.StartDate = p_StartDate AND h.CompanyGatewayID=p_CompanyGatewayID;
+			
+			 DELETE d
+			FROM tblUsageDetailFailedCall d 
+			JOIN tblUsageHeader h 
+				on h.UsageHeaderID=d.UsageHeaderID 
+			WHERE h.StartDate = p_StartDate AND h.CompanyGatewayID=p_CompanyGatewayID;
+	
+	
+			 DELETE d
+			FROM tblUsageDetails d 
+			JOIN tblUsageHeader h 
+				on h.UsageHeaderID=d.UsageHeaderID
+			WHERE h.StartDate = p_StartDate AND h.CompanyGatewayID=p_CompanyGatewayID;
+		
+		
+			 DELETE 
+			FROM tblUsageHeader 
+			WHERE StartDate = p_StartDate AND CompanyGatewayID=p_CompanyGatewayID;
+			
+			
+			DELETE 
+			FROM RMBilling3.tblTempUsageDownloadLog
+			WHERE CompanyGatewayID=p_CompanyGatewayID AND DATE_FORMAT(end_time, "%Y-%m-%d") = p_StartDate;
+		
+		
+			/* Vendor Tables */
+				
+			DELETE tblVendorCDR
+			-- select *
+		   FROM tblVendorCDR
+			INNER JOIN tblVendorCDRHeader
+				ON tblVendorCDR.VendorCDRHeaderID = tblVendorCDRHeader.VendorCDRHeaderID
+		   WHERE StartDate = p_StartDate
+		   AND tblVendorCDRHeader.CompanyGatewayID = p_CompanyGatewayID;
+		 
+		 
+		   DELETE tblVendorCDRFailed
+		  FROM tblVendorCDRFailed
+		  INNER JOIN tblVendorCDRHeader
+		  	ON tblVendorCDRFailed.VendorCDRHeaderID = tblVendorCDRHeader.VendorCDRHeaderID
+		  WHERE StartDate = p_StartDate
+		  AND tblVendorCDRHeader.CompanyGatewayID = p_CompanyGatewayID;
+		
+						
+			DELETE
+			FROM tblVendorCDRHeader
+			WHERE StartDate = p_StartDate
+			AND CompanyGatewayID = p_CompanyGatewayID;
+		
+		
+   		SET p_StartDate = DATE_ADD(p_StartDate, INTERVAL 1 DAY);
+   	
+   	END WHILE;
+     
+     
+	      
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+	
+END//
+DELIMITER ;
+
+
 
 
 
