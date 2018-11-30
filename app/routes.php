@@ -959,6 +959,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/cdr_template/check_upload', 'CDRTemplateController@check_upload');
 	Route::any('/cdr_template/ajaxfilegrid', 'CDRTemplateController@ajaxfilegrid');
 	Route::any('/cdr_template/storeTemplate', 'CDRTemplateController@storeTemplate');
+	Route::any('/cdr_template/edittemplate/{id}', 'CDRTemplateController@editTemplate');
+	Route::any('/cdr_template/updateTemplate', 'CDRTemplateController@updateTemplate');
 
 	/////////////////
 	//Estimates
