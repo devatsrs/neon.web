@@ -45,7 +45,8 @@ class BillingClassController extends \BaseController {
             $InvoiceReminders = json_decode($response->data->InvoiceReminderSettings);
             $LowBalanceReminder = json_decode($response->data->LowBalanceReminderSettings);
             $BalanceWarning = json_decode($response->data->BalanceWarningSettings);
-            return View::make('billingclass.edit', compact('BillingClassList','BillingClass','InvoiceReminders','LowBalanceReminder','BalanceWarning','accounts'));
+            $PaymentReminders = json_decode($response->data->PaymentReminderSettings);
+            return View::make('billingclass.edit', compact('BillingClassList','BillingClass','InvoiceReminders','PaymentReminders','LowBalanceReminder','BalanceWarning','accounts'));
             //return View::make('billingclass.edit', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','BillingClass','PaymentReminders','LowBalanceReminder','InvoiceTemplates','BillingClassList','InvoiceReminders','accounts','privacy','type'));
         }else{
             return view_response_api($response);
