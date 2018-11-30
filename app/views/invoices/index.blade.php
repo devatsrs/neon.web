@@ -150,6 +150,9 @@
             @if(is_SagePayDirectDebit($CompanyID))
             <li> <a class="sagepost create" id="sage-post" href="javascript:;"> Sage Pay Direct Debit Export </a> </li>
             @endif
+            @if(is_FastPay($CompanyID))
+            <li> <a class="create" id="fastpay-export" href="javascript:;"> FastPay Export </a> </li>
+            @endif
           </ul>
           @endif
           <form id="clear-bulk-rate-form">
@@ -1534,6 +1537,39 @@
                         data_table.fnFilter('', 0);
                     }, 1000);
                     //submit_ajax(baseurl + '/invoice/invoice_sagepayexport', 'InvoiceIDs=' + InvoiceIDs.join(",") + '&criteria=' + criteria + '&MarkPaid=' + MarkPaid)
+                }
+            });
+
+            $("#fastpay-export").click(function (ev){
+                var criteria = '';
+                if ($('#selectallbutton').is(':checked')) {
+                    criteria = JSON.stringify($searchFilter);
+                }
+                var InvoiceIDs = [];
+                var i = 0;
+
+                $('#table-4 tr .rowcheckbox:checked').each(function (i, el) {
+                    InvoiceID = $(this).val();
+                    if (typeof InvoiceID != 'undefined' && InvoiceID != null && InvoiceID != 'null') {
+                        InvoiceIDs[i++] = InvoiceID;
+                    }
+                });
+
+                if (InvoiceIDs.length) {
+                    if (!confirm('Are you sure you want to Export Selected Invoices Account Information?')) {
+                        return;
+                    }
+                    var url = baseurl + '/invoice/invoice_fastpayexport';
+                    var data = '?InvoiceIDs=' + InvoiceIDs.join(",") + '&criteria=' + criteria;
+
+                    window.location.href = url + data;
+                    setTimeout(function () {
+                        data_table.fnFilter('', 0);
+                    }, 1000);
+                    //submit_ajax(baseurl + '/invoice/invoice_fastpayexport', 'InvoiceIDs=' + InvoiceIDs.join(",") + '&criteria=' + criteria)
+                }
+                else{
+                    toastr.error("Please Select Invoices to Export", "Error", toastr_opts);
                 }
             });
 
