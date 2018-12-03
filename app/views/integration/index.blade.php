@@ -1196,7 +1196,25 @@
                 </div>
             </div>
         </div>
+        <!-- fastpay start -->
+        <?php
+        $FastPayDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$FastPaySlug);
+        $FastPayData   = isset($FastPayDbData->Settings)?json_decode($FastPayDbData->Settings):"";
+        ?>
+        <div class="subcategorycontent" id="subcategorycontent{{$FastPayDbData->Slug}}">
 
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">Active:</label>
+                        <div id="FastPayStatusDiv">
+                            <input id="FastPayStatus" class="subcatstatus" Divid="FastPayStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($FastPayDbData->Status) && $FastPayDbData->Status==1){ ?>   checked="checked"<?php } ?> >
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- fastpay end -->
     </div>
 
   <ul class="pager wizard">
