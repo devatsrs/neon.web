@@ -458,6 +458,26 @@ class IntegrationController extends \BaseController
 				return Response::json(array("status" => "success", "message" => "MerchantWarrior Settings Successfully Updated"));
 			}
 
+			if($data['secondcategory']=='FastPay')
+			{
+
+				$data['Status'] 		= 	isset($data['Status'])?1:0;
+
+				$FastPayDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+
+				if(count($FastPayDbData)>0)
+				{
+					$SaveData = array("updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$FastPayDbData->IntegrationConfigurationID))->update($SaveData);
+				}
+				else
+				{
+					$SaveData = array("IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::create($SaveData);
+				}
+				return Response::json(array("status" => "success", "message" => "FastPay Settings Successfully Updated"));
+			}
+
 			if($data['secondcategory']=='PeleCard')
 			{
 				$PeleCardDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();

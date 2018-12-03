@@ -411,7 +411,11 @@ class RateTablesController extends \BaseController {
         $data['Code']           = $data['Code'] != ''?"'".$data['Code']."'":'null';
         $data['Description']    = $data['Description'] != ''?"'".$data['Description']."'":'null';
 
-        $query = " call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$view.",null,null,null,null,1)";
+        if(!empty($data['DiscontinuedRates'])) {
+            $query = " call prc_getDiscontinuedRateTableRateGrid (".$companyID.",".$id.",".$data['Timezones'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",".$view.",null,null,null,null,1)";
+        } else {
+            $query = " call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$view.",null,null,null,null,1)";
+        }
 
         DB::setFetchMode( PDO::FETCH_ASSOC );
         $rate_table_rates  = DB::select($query);
