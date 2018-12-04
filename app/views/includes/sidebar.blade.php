@@ -290,6 +290,9 @@
         @if(User::checkCategoryPermission('Timezones','View'))
           <li><a href="{{URL::to('/timezones')}}"><span>Timezones</span></a></li>
         @endif
+        @if(User::checkCategoryPermission('DIDCategory','View'))
+          <li><a href="{{URL::to('/did')}}"><span>DID Category</span></a></li>
+        @endif
       </ul>
     </li>
     @endif
