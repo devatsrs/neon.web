@@ -51,13 +51,6 @@
                     </select>
                 </div>
 
-                @if($rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
-                    <div class="form-group">
-                        <label class="control-label">Routing Category</label>
-                        {{ Form::select('RoutingCategoryID', $RoutingCategories, '', array("class"=>"select2")) }}
-                    </div>
-                @endif
-
                 <div class="form-group">
                     <label for="field-1" class="control-label">Group By</label>
                     <select class="select2" name="GroupBy" id="GroupBy">
@@ -122,7 +115,7 @@
     </div>
 </div>
 <form id="clear-bulk-rate-form" >
-    <input type="hidden" name="RateTableRateID" />
+    <input type="hidden" name="RateTableDIDRateID" />
     <input type="hidden" name="criteria" />
     <input type="hidden" name="TimezonesID" value="">
 </form>
@@ -154,19 +147,23 @@
             <th width="10%">Origination Description</th>
             <th width="4%" id="Code-Header">Destination Code</th>
             <th width="10%">Destination Description</th>
-            <th width="3%">Interval 1</th>
-            <th width="3%">Interval N</th>
-            <th width="5%">Connection Fee</th>
-            <th width="5%">Previous Rate ({{$code}})</th>
-            <th width="5%">Rate1 ({{$code}})</th>
-            <th width="5%">RateN ({{$code}})</th>
+            <th width="3%">One-Off Cost ({{$code}})</th>
+            <th width="3%">Monthly cost ({{$code}})</th>
+            <th width="5%">Cost Per Call ({{$code}})</th>
+            <th width="5%">Cost Per Minute ({{$code}})</th>
+            <th width="5%">Surcharge Per Call ({{$code}})</th>
+            <th width="5%">Surcharge Per Minute ({{$code}})</th>
+            <th width="5%">Outpayment Per Call ({{$code}})</th>
+            <th width="5%">Outpayment Per Minute ({{$code}})</th>
+            <th width="5%">Surcharges ({{$code}})</th>
+            <th width="5%">Chargeback ({{$code}})</th>
+            <th width="5%">Collection Cost ({{$code}})</th>
+            <th width="5%">Collection Cost (%)</th>
+            <th width="5%">Registration Cost ({{$code}})</th>
             <th width="8%">Effective Date</th>
             <th width="9%" style="display: none;">End Date</th>
             <th width="8%">Modified Date</th>
             <th width="10%">Modified By</th>
-            @if($rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
-            <th width="10%">Routing Category</th>
-            @endif
             <th width="20%" > Action</th>
         </tr>
         </thead>
@@ -182,7 +179,7 @@
         var $searchFilter = {};
         var checked='';
         var codedeckid = '{{$id}}';
-        var list_fields  = ['ID','OriginationCode','OriginationDescription','Code','Description','Interval1','IntervalN','ConnectionFee','PreviousRate','Rate','RateN','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableRateID','OriginationRateID','RateID','RoutingCategoryID','RoutingCategoryName'];
+        var list_fields  = ['ID','OriginationCode','OriginationDescription','Code','Description','OneOffCost','MonthlyCost','CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableDIDRateID','OriginationRateID','RateID'];
         jQuery(document).ready(function($) {
 
         $('#filter-button-toggle').show();
@@ -204,7 +201,6 @@
                 return rateDataTable(view);*/
             return rateDataTable();
         });
-        $("#rate-table-search").trigger('submit');
 
         $('#table-4 tbody').on('click', 'tr', function() {
             if(!$(this).hasClass('no-selection')) {
@@ -223,22 +219,22 @@
         $(document).off('click.clear-rate','.btn.clear-rate-table,#clear-bulk-rate');
         $(document).on('click.clear-rate','.btn.clear-rate-table,#clear-bulk-rate',function(ev) {
 
-            var RateTableRateIDs = [];
+            var RateTableDIDRateIDs = [];
             var i = 0;
             $('#table-4 tr .rowcheckbox:checked').each(function(i, el) {
-                RateTableRateID = $(this).val();
-                RateTableRateIDs[i++] = RateTableRateID;
+                RateTableDIDRateID = $(this).val();
+                RateTableDIDRateIDs[i++] = RateTableDIDRateID;
             });
 
-            if(RateTableRateIDs.length || $(this).hasClass('clear-rate-table')) {
+            if(RateTableDIDRateIDs.length || $(this).hasClass('clear-rate-table')) {
                 response = confirm('Are you sure?');
                 if (response) {
                     var TimezonesID     = $searchFilter.Timezones;
                     $("#clear-bulk-rate-form").find("input[name='TimezonesID']").val(TimezonesID);
 
                     if($(this).hasClass('clear-rate-table')) {
-                        var RateTableRateID = $(this).parent().find('.hiddenRowData input[name="RateTableRateID"]').val();
-                        $("#clear-bulk-rate-form").find("input[name='RateTableRateID']").val(RateTableRateID);
+                        var RateTableDIDRateID = $(this).parent().find('.hiddenRowData input[name="RateTableDIDRateID"]').val();
+                        $("#clear-bulk-rate-form").find("input[name='RateTableDIDRateID']").val(RateTableDIDRateID);
                         $("#clear-bulk-rate-form").find("input[name='criteria']").val('');
                     }
 
@@ -246,16 +242,16 @@
                         var criteria='';
                         if($('#selectallbutton').is(':checked')){
                             criteria = JSON.stringify($searchFilter);
-                            $("#clear-bulk-rate-form").find("input[name='RateTableRateID']").val('');
+                            $("#clear-bulk-rate-form").find("input[name='RateTableDIDRateID']").val('');
                             $("#clear-bulk-rate-form").find("input[name='criteria']").val(criteria);
                         }else{
-                            var RateTableRateIDs = [];
+                            var RateTableDIDRateIDs = [];
                             var i = 0;
                             $('#table-4 tr .rowcheckbox:checked').each(function(i, el) {
-                                RateTableRateID = $(this).val();
-                                RateTableRateIDs[i++] = RateTableRateID;
+                                RateTableDIDRateID = $(this).val();
+                                RateTableDIDRateIDs[i++] = RateTableDIDRateID;
                             });
-                            $("#clear-bulk-rate-form").find("input[name='RateTableRateID']").val(RateTableRateIDs.join(","))
+                            $("#clear-bulk-rate-form").find("input[name='RateTableDIDRateID']").val(RateTableDIDRateIDs.join(","))
                             $("#clear-bulk-rate-form").find("input[name='criteria']").val('');
                         }
                     }
@@ -263,7 +259,7 @@
                     var formData = new FormData($('#clear-bulk-rate-form')[0]);
 
                     $.ajax({
-                        url: baseurl + '/rate_tables/{{$id}}/clear_rate', //Server script to process data
+                        url: baseurl + '/rate_tables/{{$id}}/clear_did_rate', //Server script to process data
                         type: 'POST',
                         dataType: 'json',
                         success: function(response) {
@@ -296,15 +292,15 @@
         $(document).off('click.change-bulk-rate','#change-bulk-rate');
         $(document).on('click.change-bulk-rate','#change-bulk-rate',function(ev) {
 
-            var RateTableRateIDs = [];
+            var RateTableDIDRateIDs = [];
             var RateIDs = [];
             var TimezonesID = $searchFilter.Timezones;
 
             var i = 0;
             $('#table-4 tr .rowcheckbox:checked').each(function(i, el) {
                 //console.log($(this).val());
-                RateTableRateID = $(this).val();
-                RateTableRateIDs[i] = RateTableRateID;
+                RateTableDIDRateID = $(this).val();
+                RateTableDIDRateIDs[i] = RateTableDIDRateID;
                 RateID = $(this).parents("tr").find("div.hiddenRowData").find("input[name='RateID']").val();
                 RateIDs[i] = RateID;
                 i++;
@@ -323,10 +319,10 @@
             var criteria = '';
             if ($('#selectallbutton').is(':checked')) {
                 criteria = JSON.stringify($searchFilter);
-                $("#bulk-edit-rate-table-form").find("input[name='RateTableRateID']").val('');
+                $("#bulk-edit-rate-table-form").find("input[name='RateTableDIDRateID']").val('');
                 $("#bulk-edit-rate-table-form").find("input[name='criteria']").val(criteria);
             } else {
-                $("#bulk-edit-rate-table-form").find("input[name='RateTableRateID']").val(RateTableRateIDs.join(","));
+                $("#bulk-edit-rate-table-form").find("input[name='RateTableDIDRateID']").val(RateTableDIDRateIDs.join(","));
                 $("#bulk-edit-rate-table-form").find("input[name='criteria']").val('');
             }
 
@@ -340,7 +336,7 @@
         $("#bulk-edit-rate-table-form,#edit-rate-table-form").submit(function() {
             var formData = new FormData($(this)[0]);
             $.ajax({
-                url: baseurl + '/rate_tables/{{$id}}/update_rate_table_rate', //Server script to process data
+                url: baseurl + '/rate_tables/{{$id}}/update_rate_table_did_rate', //Server script to process data
                 type: 'POST',
                 dataType: 'json',
                 success: function(response) {
@@ -366,9 +362,6 @@
             return false;
         });
 
-
-
-
         // Replace Checboxes
         $(".pagination a").click(function(ev) {
             replaceCheckboxes();
@@ -376,9 +369,6 @@
         $("#add-new-rate").click(function(e){
             e.preventDefault();
             $("#new-rate-form")[0].reset();
-            $("#new-rate-form .rateid_list").select2("val","");
-            $("#new-rate-form .rateid_list").select2("val","");
-            $("#new-rate-form select[name=RoutingCategoryID]").select2("val", "");
             //$("#new-rate-form [name='RateID']").select2().select2('val','');
             $("#modal-add-new").modal('show');
         });
@@ -472,16 +462,14 @@
             var $this   = $(this);
             var RateID   = $this.prevAll("div.hiddenRowData").find("input[name='RateID']").val();
             var OriginationRateID = $this.prevAll("div.hiddenRowData").find("input[name='OriginationRateID']").val();
-            getArchiveRateTableRates($this,RateID,OriginationRateID);
+            getArchiveRateTableDIDRates($this,RateID,OriginationRateID);
         });
 
-        //set RateN value = Rate1 value if RateN value is blank
-        $(document).on('focusout','.Rate1', function() {
-            var formid = $(this).closest("form").attr('id');
-            var val = $(this).val();
-
-            if($('#'+formid+' .RateN').val() == '') {
-                $('#'+formid+' .RateN').val(val);
+        $(".numbercheck").keypress(function (e) {
+            //allow only float value, numbers and one dot(.) only
+            if ((e.which != 46 || $(this).val().indexOf('.') != -1) && e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+                //display error message
+                return false;
             }
         });
     });
@@ -505,18 +493,18 @@
         $searchFilter.Effective = Effective = $("#rate-table-search [name='Effective']").val();
         $searchFilter.DiscontinuedRates = DiscontinuedRates = $("#rate-table-search input[name='DiscontinuedRates']").is(':checked') ? 1 : 0;
         $searchFilter.Timezones = Timezones = $("#rate-table-search select[name='Timezones']").val();
-        $searchFilter.RoutingCategoryID = RoutingCategoryID = $("#rate-table-search select[name='RoutingCategoryID']").val();
 
         data_table = $("#table-4").DataTable({
             "bDestroy": true, // Destroy when resubmit form
             "bProcessing": true,
             "bServerSide": true,
+            "scrollX": true,
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "sAjaxSource": baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid",
             "fnServerParams": function(aoData) {
-                aoData.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones},{"name": "RoutingCategoryID", "value": RoutingCategoryID});
+                aoData.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones},{"name": "RoutingCategoryID", "value": RoutingCategoryID});
+                data_table_extra_params.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones});
             },
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
@@ -544,43 +532,34 @@
                             "defaultContent": ''
                         }, //3 Destination Code
                         {}, //4 Destination description
-                        {}, //5 interval 1
-                        {}, //6 interval n
-                        {}, //7 ConnectionFee
-                        {}, //8 PreviousRate
-                        {
-                            mRender: function(id, type, full) {
-                                if(full[9] > full[8])
-                                    return full[9]+'<span style="color: green;" data-toggle="tooltip" data-title="Rate Increase" data-placement="top">&#9650;</span>';
-                                else if(full[9] < full[8])
-                                    return full[9]+'<span style="color: red;" data-toggle="tooltip" data-title="Rate Decrease" data-placement="top">&#9660;</span>';
-                                else
-                                    return full[9]
-                            }
-                        }, //9 Rate
-                        {}, //10 RateN
-                        {}, //11 Effective Date
+                        {}, //5 OneOffCost,
+                        {}, //6 MonthlyCost,
+                        {}, //7 CostPerCall,
+                        {}, //8 CostPerMinute,
+                        {}, //9 SurchargePerCall,
+                        {}, //10 SurchargePerMinute,
+                        {}, //11 OutpaymentPerCall,
+                        {}, //12 OutpaymentPerMinute,
+                        {}, //13 Surcharges,
+                        {}, //14 Chargeback,
+                        {}, //15 CollectionCostAmount,
+                        {}, //16 CollectionCostPercentage,
+                        {}, //17 RegistrationCostPerNumber,
+                        {}, //18 Effective Date
                         {
                             "bVisible" : false
-                        }, //12 End Date
-                        {}, //13 ModifiedDate
-                        {}, //14 ModifiedBy
-                        @if($rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
-                        {
-                            mRender: function(id, type, full) {
-                                return full[19]
-                            }
-                        }, //19 RoutingCategoryName
-                        @endif
+                        }, //19 End Date
+                        {}, //20 ModifiedDate
+                        {}, //21 ModifiedBy
                         {
                             mRender: function(id, type, full) {
                                 var action, edit_, delete_;
                                 clerRate_ = "{{ URL::to('/rate_tables/{id}/clear_rate')}}";
 
-                                clerRate_ = clerRate_.replace('{id}', full[15]);
+                                clerRate_ = clerRate_.replace('{id}', id);
                                 action = '<div class = "hiddenRowData" >';
                                 for(var i = 0 ; i< list_fields.length; i++){
-                                    action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
+                                    action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                 }
                                 action += '</div>';
                                 <?php if(User::checkCategoryPermission('RateTables','Edit')) { ?>
@@ -591,7 +570,7 @@
 
                                 action += ' <a href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</a>';
 
-                                if (full[15] != null && full[15] != 0) {
+                                if (id != null && id != 0) {
                                     <?php if(User::checkCategoryPermission('RateTables','Delete')) { ?>
                                         if(DiscontinuedRates == 0) {
                                             action += ' <button title="Delete" href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-xs" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
@@ -650,12 +629,10 @@
                             contentType: false,
                             processData: false
                         });
-
-
                     }
                     return false;
+                })
 
-                });
                 $("#selectall").off('click');
                 $("#selectall").click(function(ev) {
                     var is_checked = $(this).is(':checked');
@@ -687,7 +664,6 @@
                     }
                     var TimezonesID = $searchFilter.Timezones;
                     $("#edit-rate-table-form").find("input[name='TimezonesID']").val(TimezonesID);
-                    $("#edit-rate-table-form").find("select[name='RoutingCategoryID']").select2("val",cur_obj.find("input[name='RoutingCategoryID']").val());
                     jQuery('#modal-rate-table').modal('show', {backdrop: 'static'});
                 });
 
@@ -755,7 +731,7 @@
         return false;
     }
 
-    function getArchiveRateTableRates($clickedButton,RateID,OriginationRateID) {
+    function getArchiveRateTableDIDRates($clickedButton,RateID,OriginationRateID) {
         //var Codes = new Array();
         var ArchiveRates;
         /*$("#table-4 tr td:nth-child(2)").each(function(){
@@ -802,16 +778,11 @@
                     var hiddenRowData = tr.find('.hiddenRowData');
                     var Code = hiddenRowData.find('input[name="Code"]').val();
                     var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
-                    var header = "<thead><tr><th>Origination Code</th><th>Origination Description</th>";
                     if(view == 1) {
-                        header += "<th>Destination Code</th>";
+                        table.append("<thead><tr><th>Origination Code</th><th>Origination Description</th><th>Destination Code</th><th>Destination Description</th><th>OneOffCost</th><th>MonthlyCost</th><th>CostPerCall</th><th>CostPerMinute</th><th>SurchargePerCall</th><th>SurchargePerMinute</th><th>OutpaymentPerCall</th><th>OutpaymentPerMinute</th><th>Surcharges</th><th>Chargeback</th><th>CollectionCostAmount</th><th>CollectionCostPercentage</th><th>RegistrationCostPerNumber</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                    } else {
+                        table.append("<thead><tr><th>Origination Code</th><th>Origination Description</th><th>Destination Description</th><th>OneOffCost</th><th>MonthlyCost</th><th>CostPerCall</th><th>CostPerMinute</th><th>SurchargePerCall</th><th>SurchargePerMinute</th><th>OutpaymentPerCall</th><th>OutpaymentPerMinute</th><th>Surcharges</th><th>Chargeback</th><th>CollectionCostAmount</th><th>CollectionCostPercentage</th><th>RegistrationCostPerNumber</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
                     }
-                    header += "<th>Destination Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate1</th><th>RateN</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th>";
-                    @if($rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
-                        header += "<th>Routing Category</th>";
-                    @endif
-                    header += "</tr></thead>";
-                    table.append(header);
                     var tbody = $("<tbody></tbody>");
 
                     ArchiveRates.forEach(function (data) {
@@ -826,18 +797,23 @@
                                 html += "<td>" + data['Code'] + "</td>";
                             }
                             html += "<td>" + data['Description'] + "</td>";
-                            html += "<td>" + data['Interval1'] + "</td>";
-                            html += "<td>" + data['IntervalN'] + "</td>";
-                            html += "<td>" + data['ConnectionFee'] + "</td>";
-                            html += "<td>" + data['Rate'] + "</td>";
-                            html += "<td>" + data['RateN'] + "</td>";
+                            html += "<td>" + data['OneOffCost'] + "</td>";
+                            html += "<td>" + (data['MonthlyCost'] != null?data['MonthlyCost']:'') + "</td>";
+                            html += "<td>" + (data['CostPerCall'] != null?data['CostPerCall']:'') + "</td>";
+                            html += "<td>" + (data['CostPerMinute'] != null?data['CostPerMinute']:'') + "</td>";
+                            html += "<td>" + (data['SurchargePerCall'] != null?data['SurchargePerCall']:'') + "</td>";
+                            html += "<td>" + (data['SurchargePerMinute'] != null?data['SurchargePerMinute']:'') + "</td>";
+                            html += "<td>" + (data['OutpaymentPerCall'] != null?data['OutpaymentPerCall']:'') + "</td>";
+                            html += "<td>" + (data['OutpaymentPerMinute'] != null?data['OutpaymentPerMinute']:'') + "</td>";
+                            html += "<td>" + (data['Surcharges'] != null?data['Surcharges']:'') + "</td>";
+                            html += "<td>" + (data['Chargeback'] != null?data['Chargeback']:'') + "</td>";
+                            html += "<td>" + (data['CollectionCostAmount'] != null?data['CollectionCostAmount']:'') + "</td>";
+                            html += "<td>" + (data['CollectionCostPercentage'] != null?data['CollectionCostPercentage']:'') + "</td>";
+                            html += "<td>" + (data['RegistrationCostPerNumber'] != null?data['RegistrationCostPerNumber']:'') + "</td>";
                             html += "<td>" + data['EffectiveDate'] + "</td>";
                             html += "<td>" + data['EndDate'] + "</td>";
                             html += "<td>" + data['ModifiedDate'] + "</td>";
                             html += "<td>" + data['ModifiedBy'] + "</td>";
-                            @if($rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
-                            html += "<td>" + data['RoutingCategoryName'] + "</td>";
-                            @endif
                             html += "</tr>";
                             table.append(html);
                         //}
@@ -888,50 +864,84 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="control-label">Connection Fee</label>
-                                <input type="text" name="ConnectionFee" class="form-control" placeholder="">
+                                <label class="control-label">One-Off Cost</label>
+                                <input type="text" name="OneOffCost" class="form-control numbercheck" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Monthly Cost</label>
+                                <input type="text" name="MonthlyCost" class="form-control numbercheck" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Cost Per Call</label>
+                                <input type="text" name="CostPerCall" class="form-control numbercheck" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Cost Per Minute</label>
+                                <input type="text" name="CostPerMinute" class="form-control numbercheck" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Surcharge Per Call</label>
+                                <input type="text" name="SurchargePerCall" class="form-control numbercheck" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Surcharge Per Minute</label>
+                                <input type="text" name="SurchargePerMinute" class="form-control numbercheck" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Outpayment Per Call</label>
+                                <input type="text" name="OutpaymentPerCall" class="form-control numbercheck" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Outpayment Per Minute</label>
+                                <input type="text" name="OutpaymentPerMinute" class="form-control numbercheck" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Surcharges</label>
+                                <input type="text" name="Surcharges" class="form-control numbercheck" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Chargeback</label>
+                                <input type="text" name="Chargeback" class="form-control numbercheck" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Collection Cost (Amount)</label>
+                                <input type="text" name="CollectionCostAmount" class="form-control numbercheck" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Collection Cost (Percentage)</label>
+                                <input type="text" name="CollectionCostPercentage" class="form-control numbercheck" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Registration Cost Per Number</label>
+                                <input type="text" name="RegistrationCostPerNumber" class="form-control numbercheck" placeholder="">
                             </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="control-label">Rate1</label>
-                                <input type="text" name="Rate" class="form-control Rate1" placeholder="">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="control-label">RateN</label>
-                                <input type="text" name="RateN" class="form-control RateN" placeholder="">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="control-label">Interval 1</label>
-                                <input type="text" name="Interval1" class="form-control" value="" />
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="control-label">Interval N</label>
-                                <input type="text" name="IntervalN" class="form-control" placeholder="">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-
-                        @if($rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="control-label">Routing Category</label>
-                                    {{ Form::select('RoutingCategoryID', $RoutingCategories, '', array("class"=>"select2")) }}
-                                </div>
-                            </div>
-                        @endif
-
                         {{--<div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label">End Date</label>
@@ -943,21 +953,26 @@
                 </div>
 
                 <div class="modal-footer">
-                    <input type="hidden" name="RateTableRateID" value="">
+                    <input type="hidden" name="RateTableDIDRateID" value="">
                     <input type="hidden" name="RateID" value="">
                     <input type="hidden" name="criteria" value="">
                     <input type="hidden" name="updateEffectiveDate" value="on">
                     <input type="hidden" name="updateOriginationRateID" value="on">
-                    <input type="hidden" name="updateRate" value="on">
-                    <input type="hidden" name="updateRateN" value="on">
-                    <input type="hidden" name="updateInterval1" value="on">
-                    <input type="hidden" name="updateIntervalN" value="on">
-                    <input type="hidden" name="updateConnectionFee" value="on">
+                    <input type="hidden" name="updateOneOffCost" value="on">
+                    <input type="hidden" name="updateMonthlyCost" value="on">
+                    <input type="hidden" name="updateCostPerCall" value="on">
+                    <input type="hidden" name="updateCostPerMinute" value="on">
+                    <input type="hidden" name="updateSurchargePerCall" value="on">
+                    <input type="hidden" name="updateSurchargePerMinute" value="on">
+                    <input type="hidden" name="updateOutpaymentPerCall" value="on">
+                    <input type="hidden" name="updateOutpaymentPerMinute" value="on">
+                    <input type="hidden" name="updateSurcharges" value="on">
+                    <input type="hidden" name="updateChargeback" value="on">
+                    <input type="hidden" name="updateCollectionCostAmount" value="on">
+                    <input type="hidden" name="updateCollectionCostPercentage" value="on">
+                    <input type="hidden" name="updateRegistrationCostPerNumber" value="on">
                     <input type="hidden" name="updateEndDate" value="on">
                     <input type="hidden" name="updateType" value="singleEdit">
-                    @if($rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
-                    <input type="hidden" name="updateRoutingCategoryID" value="on">
-                    @endif
                     <input type="hidden" name="TimezonesID" value="">
 
                     <button type="submit" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
@@ -1007,71 +1022,101 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <input type="checkbox" name="updateConnectionFee" class="" />
-                                <label class="control-label">Connection Fee</label>
-                                <input type="text" name="ConnectionFee" class="form-control" placeholder="">
+                                <input type="checkbox" name="updateOneOffCost" class="" />
+                                <label class="control-label">One-Off Cost</label>
+                                <input type="text" name="OneOffCost" class="form-control numbercheck" value="" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="checkbox" name="updateMonthlyCost" class="" />
+                                <label class="control-label">Monthly Cost</label>
+                                <input type="text" name="MonthlyCost" class="form-control numbercheck" value="" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="checkbox" name="updateCostPerCall" class="" />
+                                <label class="control-label">Cost Per Call</label>
+                                <input type="text" name="CostPerCall" class="form-control numbercheck" value="" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="checkbox" name="updateCostPerMinute" class="" />
+                                <label class="control-label">Cost Per Minute</label>
+                                <input type="text" name="CostPerMinute" class="form-control numbercheck" value="" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="checkbox" name="updateSurchargePerCall" class="" />
+                                <label class="control-label">Surcharge Per Call</label>
+                                <input type="text" name="SurchargePerCall" class="form-control numbercheck" value="" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="checkbox" name="updateSurchargePerMinute" class="" />
+                                <label class="control-label">Surcharge Per Minute</label>
+                                <input type="text" name="SurchargePerMinute" class="form-control numbercheck" value="" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="checkbox" name="updateOutpaymentPerCall" class="" />
+                                <label class="control-label">Outpayment Per Call</label>
+                                <input type="text" name="OutpaymentPerCall" class="form-control numbercheck" value="" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="checkbox" name="updateOutpaymentPerMinute" class="" />
+                                <label class="control-label">Outpayment Per Minute</label>
+                                <input type="text" name="OutpaymentPerMinute" class="form-control numbercheck" value="" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="checkbox" name="updateSurcharges" class="" />
+                                <label class="control-label">Surcharges</label>
+                                <input type="text" name="Surcharges" class="form-control numbercheck" value="" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="checkbox" name="updateChargeback" class="" />
+                                <label class="control-label">Chargeback</label>
+                                <input type="text" name="Chargeback" class="form-control numbercheck" value="" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="checkbox" name="updateCollectionCostAmount" class="" />
+                                <label class="control-label">Collection Cost (Amount)</label>
+                                <input type="text" name="CollectionCostAmount" class="form-control numbercheck" value="" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="checkbox" name="updateCollectionCostPercentage" class="" />
+                                <label class="control-label">Collection Cost (Percentage)</label>
+                                <input type="text" name="CollectionCostPercentage" class="form-control numbercheck" value="" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="checkbox" name="updateRegistrationCostPerNumber" class="" />
+                                <label class="control-label">Registration Cost Per Number</label>
+                                <input type="text" name="RegistrationCostPerNumber" class="form-control numbercheck" value="" />
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <input type="checkbox" name="updateRate" class="" />
-                                <label class="control-label">Rate1</label>
-                                <input type="text" name="Rate" class="form-control Rate1" placeholder="">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <input type="checkbox" name="updateRateN" class="" />
-                                <label class="control-label">RateN</label>
-                                <input type="text" name="RateN" class="form-control RateN" placeholder="">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <input type="checkbox" name="updateInterval1" class="" />
-                                <label class="control-label">Interval 1</label>
-                                <input type="text" name="Interval1" class="form-control" value="" />
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <input type="checkbox" name="updateIntervalN" class="" />
-                                <label class="control-label">Interval N</label>
-                                <input type="text" name="IntervalN" class="form-control" placeholder="">
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="row">
-
-                        @if($rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <input type="checkbox" name="updateRoutingCategoryID" class="" />
-                                    <label class="control-label">Routing Category</label>
-                                    {{ Form::select('RoutingCategoryID', $RoutingCategories, '', array("class"=>"select2")) }}
-                                </div>
-                            </div>
-                        @endif
-
-                        {{--<div class="col-md-6">
-                            <div class="form-group">
-                                <input type="checkbox" name="updateEndDate" class="" />
-                                <label class="control-label">End Date</label>
-                                <input type="text" name="EndDate" class="form-control datepicker"  data-startdate="{{date('Y-m-d')}}" data-date-format="yyyy-mm-dd" value="" />
-                            </div>
-                        </div>--}}
-                     </div>
 
                 </div>
 
                 <div class="modal-footer">
-                    <input type="hidden" name="RateTableRateID" value="">
+                    <input type="hidden" name="RateTableDIDRateID" value="">
                     <input type="hidden" name="RateID" value="">
                     <input type="hidden" name="criteria" value="">
                     <input type="hidden" name="TimezonesID" value="">
@@ -1127,60 +1172,88 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="control-label">Connection Fee</label>
-                                <input type="text" name="ConnectionFee" class="form-control" placeholder="">
-                            </div>
-                        </div>
-                        <div class="col-md-6 clear">
-                            <div class="form-group">
-                                <label class="control-label">Rate1</label>
-                                <input type="text" name="Rate" class="form-control Rate1" placeholder="">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="control-label">RateN</label>
-                                <input type="text" name="RateN" class="form-control RateN" placeholder="">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="control-label">Interval 1</label>
-                                <input type="text" name="Interval1" class="form-control" value="" />
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="control-label">Interval N</label>
-                                <input type="text" name="IntervalN" class="form-control" placeholder="">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
                                 <label class="control-label">Timezone</label>
                                 {{ Form::select('TimezonesID', $Timezones, '', array("class"=>"select2")) }}
                             </div>
                         </div>
-
-                        @if($rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="control-label">Routing Category</label>
-                                    {{ Form::select('RoutingCategoryID', $RoutingCategories, '', array("class"=>"select2")) }}
-                                </div>
-                            </div>
-                        @endif
-
-                        {{--<div class="col-md-6">
-
+                        <div class="col-md-6">
                             <div class="form-group">
-                                <label class="control-label">End Date</label>
-
-                                <input type="text" name="EndDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
+                                <label class="control-label">One-Off Cost</label>
+                                <input type="text" name="OneOffCost" class="form-control numbercheck" placeholder="">
                             </div>
-
-                        </div>--}}
-
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Monthly Cost</label>
+                                <input type="text" name="MonthlyCost" class="form-control numbercheck" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Cost Per Call</label>
+                                <input type="text" name="CostPerCall" class="form-control numbercheck" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Cost Per Minute</label>
+                                <input type="text" name="CostPerMinute" class="form-control numbercheck" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Surcharge Per Call</label>
+                                <input type="text" name="SurchargePerCall" class="form-control numbercheck" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Surcharge Per Minute</label>
+                                <input type="text" name="SurchargePerMinute" class="form-control numbercheck" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Outpayment Per Call</label>
+                                <input type="text" name="OutpaymentPerCall" class="form-control numbercheck" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Outpayment Per Minute</label>
+                                <input type="text" name="OutpaymentPerMinute" class="form-control numbercheck" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Surcharges</label>
+                                <input type="text" name="Surcharges" class="form-control numbercheck" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Chargeback</label>
+                                <input type="text" name="Chargeback" class="form-control numbercheck" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Collection Cost (Amount)</label>
+                                <input type="text" name="CollectionCostAmount" class="form-control numbercheck" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Collection Cost (Percentage)</label>
+                                <input type="text" name="CollectionCostPercentage" class="form-control numbercheck" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Registration Cost Per Number</label>
+                                <input type="text" name="RegistrationCostPerNumber" class="form-control numbercheck" placeholder="">
+                            </div>
+                        </div>
                     </div>
 
                 </div>
