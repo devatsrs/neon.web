@@ -186,6 +186,13 @@ Route::group(array('before' => 'auth'), function () {
 	Route::resource('trunks', 'TrunkController');
 	Route::controller('trunks', 'TrunkController');
 
+	//DID
+	Route::any('/did', 'DIDCategoryController@index');
+	Route::any('/did/ajax_datagrid/{type}', 'DIDCategoryController@ajax_datagrid');
+	Route::any('/did/create', 'DIDCategoryController@create');
+	Route::any('/did/{id}/update', 'DIDCategoryController@update');
+	Route::any('/did/{id}/delete', 'DIDCategoryController@delete');
+
 
 	//CodeDecks
 	Route::any('/codedecks/store', array('as' => 'codedecks_store', 'uses' => 'CodeDecksController@store'));
