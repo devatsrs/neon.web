@@ -104,7 +104,7 @@ var postdata;
                 }, //2   Status
                 {                       //3
                    "bSortable": true,
-                    mRender: function ( id, type, full ) {						
+                    mRender: function ( id, type, full ) {
                     var GatewayID = full[3]>0?full[3]:'';
                         var action ='';
                          action = '<div class = "hiddenRowData" >';
@@ -148,7 +148,7 @@ var postdata;
             }, "fnInfoCallback": function( oSettings, iStart, iEnd, iMax, iTotal, sPre ) {
 				if(selectedID!='' && selectedID!='0' && iTotal==0){
 					$('#add-new-config').click();
-				}	
+				}
   },
            "fnDrawCallback": function() {
                    //onDelete Click
@@ -241,9 +241,19 @@ var postdata;
             $('#CDRMapping').removeClass('hidden');
         }
 
+        // if SippySFTP or SippySQL then
+        if(GatewayID == 6 || GatewayID == 15) {
+            var CompanyGatewayID = $("#add-new-config-form [name='CompanyGatewayID']").val();
+            var mapping_button = '<a class="btn btn-primary pull-left btn-sm btn-icon icon-right" id="btn-destinationset" href="'+baseurl+'/sippy_rate_push/'+CompanyGatewayID+'/destinationsetmapping" style="align"><i class="fa fa-external-link"></i>Destination Sets Mapping</a>';
+            $('#add-new-modal-config .modal-footer').prepend(mapping_button);
+        }
+
         $('#add-new-modal-config h4').html('Edit Gateway');
         $('#add-new-modal-config').modal('show');
     });
+    $('#add-new-modal-config').on('hidden.bs.modal', function () {
+        $('#btn-destinationset').remove();
+    })
     $('[name="Status_name"]').change(function(e){
         if($(this).prop('checked')){
             $("#add-new-config-form [name='Status']").val(1);
@@ -254,7 +264,7 @@ var postdata;
     });
     $('#add-new-config-form').submit(function(e){
         e.preventDefault();
-        var CompanyGatewayID = $("#add-new-config-form [name='CompanyGatewayID']").val()
+        var CompanyGatewayID = $("#add-new-config-form [name='CompanyGatewayID']").val();
         if( typeof CompanyGatewayID != 'undefined' && CompanyGatewayID != ''){
             update_new_url = baseurl + '/gateway/update/'+CompanyGatewayID;
         }else{
@@ -307,14 +317,14 @@ var postdata;
                     $('#ajax_config_html').html('');
                 }
             });
-			
+
 		 $("#gateway_form").submit(function(e){
             e.preventDefault();
             $searchFilter.Gateway = $("#gateway_form [name='Gateway']").val();
             data_table.fnFilter('', 0);
             return false;
         });
-		
+
 		function getQueryVariable(variable) {
   var query = window.location.search.substring(1);
   var vars = query.split("&");
@@ -323,7 +333,7 @@ var postdata;
     if (pair[0] == variable) {
       return pair[1];
     }
-  } 
+  }
   alert('Query Variable ' + variable + ' not found');
 }
 
