@@ -51,10 +51,22 @@
                     </select>
                 </div>
 
-                @if($rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+                @if($rateTable->Type == RateTable::TYPE_VOICECALL && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                     <div class="form-group">
                         <label class="control-label">Routing Category</label>
                         {{ Form::select('RoutingCategoryID', $RoutingCategories, '', array("class"=>"select2")) }}
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Preference</label>
+                        <input type="text" name="Preference" class="form-control" placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Blocked</label>
+                        <select name="Blocked" class="select2" data-allow-clear="true" data-placeholder="Select Status">
+                            <option value="" selected="selected">All</option>
+                            <option value="1">Blocked</option>
+                            <option value="0">Unblocked</option>
+                        </select>
                     </div>
                 @endif
 
@@ -164,8 +176,10 @@
             <th width="9%" style="display: none;">End Date</th>
             <th width="8%">Modified Date</th>
             <th width="10%">Modified By</th>
-            @if($rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+            @if($rateTable->Type == RateTable::TYPE_VOICECALL && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
             <th width="10%">Routing Category</th>
+            <th width="4%">Preference</th>
+            <th width="4%">Blocked</th>
             @endif
             <th width="20%" > Action</th>
         </tr>
@@ -182,7 +196,7 @@
         var $searchFilter = {};
         var checked='';
         var codedeckid = '{{$id}}';
-        var list_fields  = ['ID','OriginationCode','OriginationDescription','Code','Description','Interval1','IntervalN','ConnectionFee','PreviousRate','Rate','RateN','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableRateID','OriginationRateID','RateID','RoutingCategoryID','RoutingCategoryName'];
+        var list_fields  = ['ID','OriginationCode','OriginationDescription','Code','Description','Interval1','IntervalN','ConnectionFee','PreviousRate','Rate','RateN','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableRateID','OriginationRateID','RateID','RoutingCategoryID','RoutingCategoryName','Preference','Blocked'];
         jQuery(document).ready(function($) {
 
         $('#filter-button-toggle').show();
@@ -507,16 +521,25 @@
         $searchFilter.Timezones = Timezones = $("#rate-table-search select[name='Timezones']").val();
         $searchFilter.RoutingCategoryID = RoutingCategoryID = $("#rate-table-search select[name='RoutingCategoryID']").val();
 
+        @if($rateTable->Type == RateTable::TYPE_VOICECALL && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+        $searchFilter.Preference = Preference = $("#rate-table-search input[name='Preference']").val();
+        $searchFilter.Blocked = Blocked = $("#rate-table-search select[name='Blocked']").val();
+        @else
+        $searchFilter.Preference = Preference = null;
+        $searchFilter.Blocked = Blocked = null;
+        @endif
+
         data_table = $("#table-4").DataTable({
             "bDestroy": true, // Destroy when resubmit form
             "bProcessing": true,
             "bServerSide": true,
+            "scrollX": true,
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "sAjaxSource": baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid",
             "fnServerParams": function(aoData) {
-                aoData.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones},{"name": "RoutingCategoryID", "value": RoutingCategoryID});
+                aoData.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones},{"name": "RoutingCategoryID", "value": RoutingCategoryID},{"name": "Preference", "value": Preference},{"name": "Blocked", "value": Blocked});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones},{"name": "RoutingCategoryID", "value": RoutingCategoryID});
+                data_table_extra_params.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones},{"name": "RoutingCategoryID", "value": RoutingCategoryID},{"name": "Preference", "value": Preference},{"name": "Blocked", "value": Blocked});
             },
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
@@ -565,12 +588,26 @@
                         }, //12 End Date
                         {}, //13 ModifiedDate
                         {}, //14 ModifiedBy
-                        @if($rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+                        @if($rateTable->Type == RateTable::TYPE_VOICECALL && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                         {
                             mRender: function(id, type, full) {
                                 return full[19]
                             }
                         }, //19 RoutingCategoryName
+                        {
+                            mRender: function(id, type, full) {
+                                return full[20]
+                            }
+                        }, //20 Preference
+                        {
+                            className: 'text-center',
+                            mRender: function(id, type, full) {
+                                if(full[21] == 0)
+                                    return '<i class="fa fa-unlock" style="color: green; font-size: 20px;"></i>';
+                                else if(full[21] == 1)
+                                    return '<i class="fa fa-lock" style="color: red; font-size: 20px;"></i>';
+                            }
+                        }, //21 Blocked
                         @endif
                         {
                             mRender: function(id, type, full) {
@@ -580,7 +617,7 @@
                                 clerRate_ = clerRate_.replace('{id}', full[15]);
                                 action = '<div class = "hiddenRowData" >';
                                 for(var i = 0 ; i< list_fields.length; i++){
-                                    action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
+                                    action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                 }
                                 action += '</div>';
                                 <?php if(User::checkCategoryPermission('RateTables','Edit')) { ?>
@@ -688,6 +725,17 @@
                     var TimezonesID = $searchFilter.Timezones;
                     $("#edit-rate-table-form").find("input[name='TimezonesID']").val(TimezonesID);
                     $("#edit-rate-table-form").find("select[name='RoutingCategoryID']").select2("val",cur_obj.find("input[name='RoutingCategoryID']").val());
+
+                    if(cur_obj.find("input[name='Blocked']").val() == 1) {
+                        $("#edit-rate-table-form").find("input[name='Blocked']").attr("checked","checked");
+                        $("#edit-rate-table-form").find("input[name='Blocked']").parent("div.switch-animate").removeClass('switch-off');
+                        $("#edit-rate-table-form").find("input[name='Blocked']").parent("div.switch-animate").addClass('switch-on');
+                    } else {
+                        $("#edit-rate-table-form").find("input[name='Blocked']").removeAttr("checked");
+                        $("#edit-rate-table-form").find("input[name='Blocked']").parent("div.switch-animate").removeClass('switch-on');
+                        $("#edit-rate-table-form").find("input[name='Blocked']").parent("div.switch-animate").addClass('switch-off');
+                    }
+
                     jQuery('#modal-rate-table').modal('show', {backdrop: 'static'});
                 });
 
@@ -807,8 +855,10 @@
                         header += "<th>Destination Code</th>";
                     }
                     header += "<th>Destination Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate1</th><th>RateN</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th>";
-                    @if($rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+                    @if($rateTable->Type == RateTable::TYPE_VOICECALL && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                         header += "<th>Routing Category</th>";
+                        header += "<th>Preference</th>";
+                        header += "<th>Blocked</th>";
                     @endif
                     header += "</tr></thead>";
                     table.append(header);
@@ -835,9 +885,18 @@
                             html += "<td>" + data['EndDate'] + "</td>";
                             html += "<td>" + data['ModifiedDate'] + "</td>";
                             html += "<td>" + data['ModifiedBy'] + "</td>";
-                            @if($rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
-                            html += "<td>" + data['RoutingCategoryName'] + "</td>";
+
+                            @if($rateTable->Type == RateTable::TYPE_VOICECALL && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+                                data['Preference'] = data['Preference'] != null ? data['Preference'] : '';
+                                html += "<td>" + data['RoutingCategoryName'] + "</td>";
+                                html += "<td>" + data['Preference'] + "</td>";
+
+                                if(data['Blocked'] == 0)
+                                    html += '<td><i class="fa fa-unlock" style="color: green; font-size: 20px;"></i></td>';
+                                else if(data['Blocked'] == 1)
+                                    html += '<td><i class="fa fa-lock" style="color: red; font-size: 20px;"></i></td>';
                             @endif
+
                             html += "</tr>";
                             table.append(html);
                         //}
@@ -922,12 +981,25 @@
                         </div>
                     </div>
                     <div class="row">
-
-                        @if($rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+                        @if($rateTable->Type == RateTable::TYPE_VOICECALL && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="control-label">Routing Category</label>
                                     {{ Form::select('RoutingCategoryID', $RoutingCategories, '', array("class"=>"select2")) }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Preference</label>
+                                    <input type="text" name="Preference" class="form-control" placeholder="">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Blocked</label><br/>
+                                    <p class="make-switch switch-small">
+                                        {{Form::checkbox('Blocked', '1', false, array())}}
+                                    </p>
                                 </div>
                             </div>
                         @endif
@@ -955,8 +1027,10 @@
                     <input type="hidden" name="updateConnectionFee" value="on">
                     <input type="hidden" name="updateEndDate" value="on">
                     <input type="hidden" name="updateType" value="singleEdit">
-                    @if($rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+                    @if($rateTable->Type == RateTable::TYPE_VOICECALL && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                     <input type="hidden" name="updateRoutingCategoryID" value="on">
+                    <input type="hidden" name="updatePreference" value="on">
+                    <input type="hidden" name="updateBlocked" value="on">
                     @endif
                     <input type="hidden" name="TimezonesID" value="">
 
@@ -1049,12 +1123,28 @@
                     </div>
                     <div class="row">
 
-                        @if($rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+                        @if($rateTable->Type == RateTable::TYPE_VOICECALL && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <input type="checkbox" name="updateRoutingCategoryID" class="" />
                                     <label class="control-label">Routing Category</label>
                                     {{ Form::select('RoutingCategoryID', $RoutingCategories, '', array("class"=>"select2")) }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="checkbox" name="updatePreference" class="" />
+                                    <label class="control-label">Preference</label>
+                                    <input type="text" name="Preference" class="form-control" placeholder="">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="checkbox" name="updateBlocked" class="" />
+                                    <label class="control-label">Blocked</label><br/>
+                                    <p class="make-switch switch-small">
+                                        {{Form::checkbox('Blocked', '1', false, array())}}
+                                    </p>
                                 </div>
                             </div>
                         @endif
@@ -1162,11 +1252,25 @@
                             </div>
                         </div>
 
-                        @if($rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+                        @if($rateTable->Type == RateTable::TYPE_VOICECALL && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="control-label">Routing Category</label>
                                     {{ Form::select('RoutingCategoryID', $RoutingCategories, '', array("class"=>"select2")) }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Preference</label>
+                                    <input type="text" name="Preference" class="form-control" placeholder="">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Blocked</label><br/>
+                                    <p class="make-switch switch-small">
+                                        {{Form::checkbox('Blocked', '1', false, array())}}
+                                    </p>
                                 </div>
                             </div>
                         @endif
