@@ -18,6 +18,14 @@
                     {{ Form::select('TrunkID', $trunks, '', array("class"=>"select2","data-type"=>"trunk")) }}
                 </div>
                 <div class="form-group">
+                    <label class="control-label">Type</label>
+                    {{Form::select('Type', [""=>"select"]+RateTable::$types, '',array("class"=>"form-control select2"))}}
+                </div>
+                <div class="form-group">
+                    <label class="control-label">DID Category</label>
+                    {{Form::select('DIDCategoryID', $DIDCategory, '',array("class"=>"form-control select2"))}}
+                </div>
+                <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
                         <i class="entypo-search"></i>
@@ -70,9 +78,11 @@
                             <table class="table table-bordered datatable" id="table-4">
                                 <thead>
                                     <tr>
+                                        <th >Type</th>
                                         <th >Name</th>
                                         <th >Currency</th>
                                         <th >Trunk</th>
+                                        <th >DID Category</th>
                                         <th >Codedeck</th>
                                         <th >Last Updated</th>
                                          <th >Action</th>
@@ -99,6 +109,9 @@ jQuery(document).ready(function($) {
     var update_new_url;
     $searchFilter.TrunkID = $("#ratetable_filter [name='TrunkID']").val();
     $searchFilter.Search = $('#ratetable_filter [name="Search"]').val();
+    $searchFilter.Type = $('#ratetable_filter [name="Type"]').val();
+    $searchFilter.DIDCategoryID = $('#ratetable_filter [name="DIDCategoryID"]').val();
+
     data_table = $("#table-4").dataTable({
         "bDestroy": true,
         "bProcessing": true,
@@ -110,15 +123,22 @@ jQuery(document).ready(function($) {
         "oTableTools": {},
         "aaSorting": [[0, "asc"]],
         "fnServerParams": function(aoData) {
-            aoData.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"Search","value":$searchFilter.Search});
+            aoData.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"Search","value":$searchFilter.Search},{"name":"Type","value":$searchFilter.Type},{"name":"DIDCategoryID","value":$searchFilter.DIDCategoryID});
             data_table_extra_params.length = 0;
-            data_table_extra_params.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"Search","value":$searchFilter.Search});
+            data_table_extra_params.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"Search","value":$searchFilter.Search},{"name":"Type","value":$searchFilter.Type},{"name":"DIDCategoryID","value":$searchFilter.DIDCategoryID});
         },
         "fnRowCallback": function(nRow, aData) {
             $(nRow).attr("id", "host_row_" + aData[2]);
         },
         "aoColumns":
                 [
+                    {
+                        mRender: function(id, type, full) {
+                            var Types = JSON.parse('{{json_encode(RateTable::$types)}}');
+                            return Types[full[0]];
+                        }
+                    },
+                    {},
                     {},
                     {},
                     {},
@@ -130,11 +150,11 @@ jQuery(document).ready(function($) {
                             view_ = "{{ URL::to('/rate_tables/{id}/view')}}";
                             delete_ = "{{ URL::to('/rate_tables/{id}/delete')}}";
 
-                            view_ = view_.replace('{id}', id);
-                            delete_ = delete_.replace('{id}', id);
+                            view_ = view_.replace('{id}', full[7]);
+                            delete_ = delete_.replace('{id}', full[7]);
 
                             action = '<a title="View" href="' + view_ + '" class="btn btn-default btn-sm"><i class="fa fa-eye"></i></a>&nbsp;';
-                            action += '<a title="Edit" data-id="'+  id +'" data-rateTableName="'+full[0]+'" data-TrunkID="'+full[6]+'" data-CurrencyID="'+full[7]+'" data-RoundChargedAmount="'+full[8]+'" data-MinimumCallCharge="'+full[9]+'" data-DIDCategoryID="'+full[10]+'" data-Type="'+full[11]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
+                            action += '<a title="Edit" data-id="'+  full[7] +'" data-Type="'+full[0]+'" data-rateTableName="'+full[1]+'" data-TrunkID="'+full[8]+'" data-CurrencyID="'+full[9]+'" data-RoundChargedAmount="'+full[10]+'" data-MinimumCallCharge="'+full[11]+'" data-DIDCategoryID="'+full[12]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
 
                             <?php if(User::checkCategoryPermission('RateTables','Delete') ) { ?>
                                 action += ' <a title="Delete" href="' + delete_ + '" data-redirect="{{URL::to("/rate_tables")}}"  class="btn btn-default delete btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';
@@ -251,6 +271,8 @@ jQuery(document).ready(function($) {
         e.preventDefault();
         $searchFilter.TrunkID = $("#ratetable_filter [name='TrunkID']").val();
         $searchFilter.Search = $('#ratetable_filter [name="Search"]').val();
+        $searchFilter.Type = $('#ratetable_filter [name="Type"]').val();
+        $searchFilter.DIDCategoryID = $('#ratetable_filter [name="DIDCategoryID"]').val();
         data_table.fnFilter('', 0);
         return false;
      });
@@ -276,7 +298,7 @@ jQuery(document).ready(function($) {
             return false;
         }
     });
-    $('#add-new-form input[name=Type]').on("change",function() {
+    $('#add-new-form select[name=Type]').on("change",function() {
         var val = $(this).val();
         if(val == 1) {
             $('#box-DIDCategory').hide();
@@ -309,14 +331,7 @@ jQuery(document).ready(function($) {
                         <div class="col-md-6">
                             <div class="form-group ">
                                 <label class="control-label">Type</label><br/>
-                                <label class="radio-inline">
-                                    {{Form::radio('Type', RateTable::TYPE_VOICECALL, true,array("class"=>""))}}
-                                    Voice Call
-                                </label>
-                                <label class="radio-inline">
-                                    {{Form::radio('Type', RateTable::TYPE_DID, false,array("class"=>""))}}
-                                    DID
-                                </label>
+                                {{Form::select('Type', RateTable::$types, '',array("class"=>"form-control select2"))}}
                             </div>
                         </div>
                         <div class="col-md-6">
