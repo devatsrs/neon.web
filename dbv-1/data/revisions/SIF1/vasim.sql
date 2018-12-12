@@ -243,7 +243,7 @@ ThisSP:BEGIN
 		IFNULL(p_Interval1,rtr.Interval1) AS Interval1,
 		IFNULL(p_IntervalN,rtr.IntervalN) AS IntervalN,
 		IFNULL(p_ConnectionFee,rtr.ConnectionFee) AS ConnectionFee,
-		IFNULL(p_RoutingCategoryID,rtr.RoutingCategoryID) AS RoutingCategoryID,
+		IF(p_RoutingCategoryID='',NULL,IFNULL(p_RoutingCategoryID,rtr.RoutingCategoryID)) AS RoutingCategoryID,
 		IF(p_Preference='',NULL,IFNULL(p_Preference,rtr.Preference)) AS Preference,
 		IFNULL(p_Blocked,rtr.Blocked) AS Blocked
 	FROM

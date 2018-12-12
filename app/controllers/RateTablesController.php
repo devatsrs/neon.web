@@ -9,7 +9,7 @@ class RateTablesController extends \BaseController {
             ->join('tblCodeDeck','tblCodeDeck.CodeDeckId','=','tblRateTable.CodeDeckId')
             ->leftjoin('tblTrunk','tblTrunk.TrunkID','=','tblRateTable.TrunkID')
             ->leftjoin('tblDIDCategory','tblDIDCategory.DIDCategoryID','=','tblRateTable.DIDCategoryID')
-            ->select(['tblRateTable.Type','tblRateTable.RateTableName','tblCurrency.Code', 'tblTrunk.Trunk as trunkName', 'tblDIDCategory.CategoryName as CategoryName','tblCodeDeck.CodeDeckName','tblRateTable.updated_at','tblRateTable.RateTableId', 'tblRateTable.TrunkID', 'tblRateTable.CurrencyID', 'tblRateTable.RoundChargedAmount', 'tblRateTable.MinimumCallCharge', 'tblRateTable.DIDCategoryID'])
+            ->select(['tblRateTable.Type','tblRateTable.AppliedTo','tblRateTable.RateTableName','tblCurrency.Code', 'tblTrunk.Trunk as trunkName', 'tblDIDCategory.CategoryName as CategoryName','tblCodeDeck.CodeDeckName','tblRateTable.updated_at','tblRateTable.RateTableId', 'tblRateTable.TrunkID', 'tblRateTable.CurrencyID', 'tblRateTable.RoundChargedAmount', 'tblRateTable.MinimumCallCharge', 'tblRateTable.DIDCategoryID'])
             ->where("tblRateTable.CompanyId",$CompanyID);
         //$rate_tables = RateTable::join('tblCurrency', 'tblCurrency.CurrencyId', '=', 'tblRateTable.CurrencyId')->where(["tblRateTable.CompanyId" => $CompanyID])->select(["tblRateTable.RateTableName","Code","tblRateTable.updated_at", "tblRateTable.RateTableId"]);
         $data = Input::all();
@@ -21,6 +21,9 @@ class RateTablesController extends \BaseController {
         }
         if(!empty($data['DIDCategoryID'])){
             $rate_tables->where('tblRateTable.DIDCategoryID',$data['DIDCategoryID']);
+        }
+        if(!empty($data['AppliedTo'])){
+            $rate_tables->where('tblRateTable.AppliedTo',$data['AppliedTo']);
         }
 		if($data['Search']!=''){
             $rate_tables->WhereRaw('tblRateTable.RateTableName like "%'.$data['Search'].'%"'); 
@@ -341,7 +344,7 @@ class RateTablesController extends \BaseController {
                     }
                 }
                 if(!empty($data['updateRoutingCategoryID'])) {
-                    if(!empty($data['RoutingCategoryID'])) {
+                    if(isset($data['RoutingCategoryID'])) {
                         $RoutingCategoryID = "'".$data['RoutingCategoryID']."'";
                     } else {
                         $error=1;
