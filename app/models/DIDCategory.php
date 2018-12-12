@@ -22,4 +22,23 @@ class DidCategory extends \Eloquent{
         return $row;
     }
 
+    public static function getDIDCategoryDropDownList($CompanyID=0){
+        $company_id = $CompanyID>0?$CompanyID : User::get_companyID();
+        $row = DIDCategory::where(array('CompanyID'=>$company_id))->lists('CategoryName', 'DIDCategoryID');
+        if(!empty($row)){
+            $row = array(""=> "Select")+$row;
+        }
+        return $row;
+
+    }
+
+    static public function checkForeignKeyById($id) {
+        $hasAccountApprovalList = DIDCategory::where("DIDCategoryID",$id)->count();
+        if( intval($hasAccountApprovalList) > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
 }
