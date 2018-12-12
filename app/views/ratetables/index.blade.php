@@ -97,170 +97,196 @@ jQuery(document).ready(function($) {
 
     var $searchFilter = {};
     var update_new_url;
-        $searchFilter.TrunkID = $("#ratetable_filter [name='TrunkID']").val();
-		$searchFilter.Search = $('#ratetable_filter [name="Search"]').val();
-        data_table = $("#table-4").dataTable({
-            "bDestroy": true,
-            "bProcessing": true,
-            "bServerSide": true,
-            "sAjaxSource": baseurl + "/rate_tables/ajax_datagrid",
-            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
-            "sPaginationType": "bootstrap",
-            "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-            "oTableTools": {},
-            "aaSorting": [[0, "asc"]],
-            "fnServerParams": function(aoData) {
-                aoData.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"Search","value":$searchFilter.Search});
-                data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"Search","value":$searchFilter.Search});
-            },
-            "fnRowCallback": function(nRow, aData) {
-                $(nRow).attr("id", "host_row_" + aData[2]);
-            },
-            "aoColumns":
-                    [
-                        {},
-                        {},
-                        {},
-                        {},
-                        {},
+    $searchFilter.TrunkID = $("#ratetable_filter [name='TrunkID']").val();
+    $searchFilter.Search = $('#ratetable_filter [name="Search"]').val();
+    data_table = $("#table-4").dataTable({
+        "bDestroy": true,
+        "bProcessing": true,
+        "bServerSide": true,
+        "sAjaxSource": baseurl + "/rate_tables/ajax_datagrid",
+        "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
+        "sPaginationType": "bootstrap",
+        "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+        "oTableTools": {},
+        "aaSorting": [[0, "asc"]],
+        "fnServerParams": function(aoData) {
+            aoData.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"Search","value":$searchFilter.Search});
+            data_table_extra_params.length = 0;
+            data_table_extra_params.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"Search","value":$searchFilter.Search});
+        },
+        "fnRowCallback": function(nRow, aData) {
+            $(nRow).attr("id", "host_row_" + aData[2]);
+        },
+        "aoColumns":
+                [
+                    {},
+                    {},
+                    {},
+                    {},
+                    {},
+                    {
+                        mRender: function(id, type, full) {
+                            var action, view_, delete_;
+                            view_ = "{{ URL::to('/rate_tables/{id}/view')}}";
+                            delete_ = "{{ URL::to('/rate_tables/{id}/delete')}}";
+
+                            view_ = view_.replace('{id}', id);
+                            delete_ = delete_.replace('{id}', id);
+
+                            action = '<a title="View" href="' + view_ + '" class="btn btn-default btn-sm"><i class="fa fa-eye"></i></a>&nbsp;';
+                            action += '<a title="Edit" data-id="'+  id +'" data-rateTableName="'+full[0]+'" data-TrunkID="'+full[6]+'" data-CurrencyID="'+full[7]+'" data-RoundChargedAmount="'+full[8]+'" data-MinimumCallCharge="'+full[9]+'" data-DIDCategoryID="'+full[10]+'" data-Type="'+full[11]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
+
+                            <?php if(User::checkCategoryPermission('RateTables','Delete') ) { ?>
+                                action += ' <a title="Delete" href="' + delete_ + '" data-redirect="{{URL::to("/rate_tables")}}"  class="btn btn-default delete btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';
+                            <?php } ?>
+                            //action += status_link;
+                            return action;
+                        }
+                    },
+                ],
+                "oTableTools":
+                {
+                    "aButtons": [
                         {
-                            mRender: function(id, type, full) {
-                                var action, view_, delete_;
-                                view_ = "{{ URL::to('/rate_tables/{id}/view')}}";
-                                delete_ = "{{ URL::to('/rate_tables/{id}/delete')}}";
+                            "sExtends": "download",
+                            "sButtonText": "EXCEL",
+                            "sUrl": baseurl + "/rate_tables/exports/xlsx",
+                            sButtonClass: "save-collection btn-sm"
+                        },
+                        {
+                            "sExtends": "download",
+                            "sButtonText": "CSV",
+                            "sUrl": baseurl + "/rate_tables/exports/csv",
+                            sButtonClass: "save-collection btn-sm"
+                        }
+                    ]
+                },
+        "fnDrawCallback": function() {
+            $(".dataTables_wrapper select").select2({
+                minimumResultsForSearch: -1
+            });
 
-                                view_ = view_.replace('{id}', id);
-                                delete_ = delete_.replace('{id}', id);
+            $(".btn.delete").click(function(e) {
+                e.preventDefault();
+                response = confirm('Are you sure?');
+                //redirect = ($(this).attr("data-redirect") == 'undefined') ? "{{URL::to('/rate_tables')}}" : $(this).attr("data-redirect");
+                if (response) {
+                    $(this).text('Loading..');
+                    $('#table-4_processing').css('visibility','visible');
+                    $.ajax({
+                        url: $(this).attr("href"),
+                        type: 'POST',
+                        dataType: 'json',
+                        beforeSend: function(){
+                        //    $(this).text('Loading..');
+                        },
+                        success: function(response) {
+                            if (response.status == 'success') {
+                                toastr.success(response.message, "Success", toastr_opts);
+                                data_table.fnFilter('', 0);
+                            } else {
+                                toastr.error(response.message, "Error", toastr_opts);
+                                data_table.fnFilter('', 0);
+                            }
+                            $('#table-4_processing').css('visibility','hidden');
+                        },
+                        // Form data
+                        //data: {},
+                        cache: false,
+                        contentType: false,
+                        processData: false
+                    });
+                }
+                return false;
 
-                                action = '<a title="View" href="' + view_ + '" class="btn btn-default btn-sm"><i class="fa fa-eye"></i></a>&nbsp;';
-                                action += '<a title="Edit" data-id="'+  id +'" data-rateTableName="'+full[0]+'" data-TrunkID="'+full[6]+'" data-CurrencyID="'+full[7]+'" data-RoundChargedAmount="'+full[8]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
-
-                                <?php if(User::checkCategoryPermission('RateTables','Delete') ) { ?>
-                                    action += ' <a title="Delete" href="' + delete_ + '" data-redirect="{{URL::to("/rate_tables")}}"  class="btn btn-default delete btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';
-                                <?php } ?>
-                                //action += status_link;
-                                return action;
+            });
+            $(".btn.change_status").click(function(e) {
+                //redirect = ($(this).attr("data-redirect") == 'undefined') ? "{{URL::to('/rate_tables')}}" : $(this).attr("data-redirect");
+                 $(this).button('loading');
+                    $.ajax({
+                        url: $(this).attr("href"),
+                        type: 'POST',
+                        dataType: 'json',
+                        success: function(response) {
+                            $(this).button('reset');
+                            if (response.status == 'success') {
+                                toastr.success(response.message, "Success", toastr_opts);
+                                data_table.fnFilter('', 0);
+                            } else {
+                                toastr.error(response.message, "Error", toastr_opts);
                             }
                         },
-                    ],
-                    "oTableTools":
-                    {
-                        "aButtons": [
-                            {
-                                "sExtends": "download",
-                                "sButtonText": "EXCEL",
-                                "sUrl": baseurl + "/rate_tables/exports/xlsx",
-                                sButtonClass: "save-collection btn-sm"
-                            },
-                            {
-                                "sExtends": "download",
-                                "sButtonText": "CSV",
-                                "sUrl": baseurl + "/rate_tables/exports/csv",
-                                sButtonClass: "save-collection btn-sm"
-                            }
-                        ]
-                    }, 
-            "fnDrawCallback": function() {
-                $(".dataTables_wrapper select").select2({
-                    minimumResultsForSearch: -1
-                });
 
-                $(".btn.delete").click(function(e) {
-                    e.preventDefault();
-                    response = confirm('Are you sure?');
-                    //redirect = ($(this).attr("data-redirect") == 'undefined') ? "{{URL::to('/rate_tables')}}" : $(this).attr("data-redirect");
-                    if (response) {
-                        $(this).text('Loading..');
-                        $('#table-4_processing').css('visibility','visible');
-                        $.ajax({
-                            url: $(this).attr("href"),
-                            type: 'POST',
-                            dataType: 'json',
-                            beforeSend: function(){
-                            //    $(this).text('Loading..');
-                            },
-                            success: function(response) {
-                                if (response.status == 'success') {
-                                    toastr.success(response.message, "Success", toastr_opts);
-                                    data_table.fnFilter('', 0);
-                                } else {
-                                    toastr.error(response.message, "Error", toastr_opts);
-                                    data_table.fnFilter('', 0);
-                                }
-                                $('#table-4_processing').css('visibility','hidden');
-                            },
-                            // Form data
-                            //data: {},
-                            cache: false,
-                            contentType: false,
-                            processData: false
-                        });
-                    }
-                    return false;
-
-                });
-                $(".btn.change_status").click(function(e) {
-                    //redirect = ($(this).attr("data-redirect") == 'undefined') ? "{{URL::to('/rate_tables')}}" : $(this).attr("data-redirect");
-                     $(this).button('loading');
-                        $.ajax({
-                            url: $(this).attr("href"),
-                            type: 'POST',
-                            dataType: 'json',
-                            success: function(response) {
-                                $(this).button('reset');
-                                if (response.status == 'success') {
-                                    toastr.success(response.message, "Success", toastr_opts);
-                                    data_table.fnFilter('', 0);
-                                } else {
-                                    toastr.error(response.message, "Error", toastr_opts);
-                                }
-                            },
-
-                            // Form data
-                            //data: {},
-                            cache: false,
-                            contentType: false,
-                            processData: false
-                        });
-                    return false;
-                });
-            }
-        });
-        $('table tbody').on('click','.edit-ratetable',function(ev){
-            ev.preventDefault();
-            ev.stopPropagation();
-            $('#modal-edit-new-rate-table').trigger("reset");
-            $("#modal-edit-new-rate-table [name='RateTableId']").val($(this).attr('data-id'));
-            $("#modal-edit-new-rate-table [name='RateTableName']").val($(this).attr('data-ratetablename'));
-            $("#modal-edit-new-rate-table [name='TrunkID']").select2('val', $(this).attr('data-TrunkID'));
-            $("#modal-edit-new-rate-table [name='CurrencyID']").select2('val', $(this).attr('data-CurrencyID'));
-            $("#modal-edit-new-rate-table [name='RoundChargedAmount']").val($(this).attr('data-RoundChargedAmount'));
-            $('#modal-edit-new-rate-table').modal('show');
-        });
-        $("#ratetable_filter").submit(function(e) {
-            e.preventDefault();
-            $searchFilter.TrunkID = $("#ratetable_filter [name='TrunkID']").val();
-			$searchFilter.Search = $('#ratetable_filter [name="Search"]').val();
-            data_table.fnFilter('', 0);
-            return false;
-         });
-         $("#add-new-rate-table").click(function(ev) {
-             ev.preventDefault();
-             $('#modal-add-new-rate-table').modal('show', {backdrop: 'static'});
-         });
-         $("#add-new-form").submit(function(ev){
-            ev.preventDefault();
-            update_new_url = baseurl + '/rate_tables/store';
-            submit_ajax(update_new_url,$("#add-new-form").serialize());
-         });
-        $("#edit-form").submit(function(ev){
-            ev.preventDefault();
-            var RateTableId = $("#modal-edit-new-rate-table [name='RateTableId']").val();
-            update_new_url = baseurl + '/rate_tables/edit/'+RateTableId;
-            submit_ajax(update_new_url,$("#edit-form").serialize());
-        });
+                        // Form data
+                        //data: {},
+                        cache: false,
+                        contentType: false,
+                        processData: false
+                    });
+                return false;
+            });
+        }
     });
+    $('table tbody').on('click','.edit-ratetable',function(ev){
+        ev.preventDefault();
+        ev.stopPropagation();
+        $('#modal-edit-new-rate-table').trigger("reset");
+        $("#modal-edit-new-rate-table [name='RateTableId']").val($(this).attr('data-id'));
+        $("#modal-edit-new-rate-table [name='RateTableName']").val($(this).attr('data-ratetablename'));
+        $("#modal-edit-new-rate-table [name='TrunkID']").select2('val', $(this).attr('data-TrunkID'));
+        $("#modal-edit-new-rate-table [name='CurrencyID']").select2('val', $(this).attr('data-CurrencyID'));
+        $("#modal-edit-new-rate-table [name='RoundChargedAmount']").val($(this).attr('data-RoundChargedAmount'));
+        $("#modal-edit-new-rate-table [name='MinimumCallCharge']").val($(this).attr('data-MinimumCallCharge'));
+        $("#modal-edit-new-rate-table [name='DIDCategoryID']").select2('val', $(this).attr('data-DIDCategoryID'));
+        if($(this).attr('data-Type') == 1) {
+            $('#box-edit-DIDCategory').hide();
+            $('#box-edit-Trunk').show();
+        } else {
+            $('#box-edit-Trunk').hide();
+            $('#box-edit-DIDCategory').show();
+        }
+        $('#modal-edit-new-rate-table').modal('show');
+    });
+    $("#ratetable_filter").submit(function(e) {
+        e.preventDefault();
+        $searchFilter.TrunkID = $("#ratetable_filter [name='TrunkID']").val();
+        $searchFilter.Search = $('#ratetable_filter [name="Search"]').val();
+        data_table.fnFilter('', 0);
+        return false;
+     });
+     $("#add-new-rate-table").click(function(ev) {
+         ev.preventDefault();
+         $('#modal-add-new-rate-table').modal('show', {backdrop: 'static'});
+     });
+     $("#add-new-form").submit(function(ev){
+        ev.preventDefault();
+        update_new_url = baseurl + '/rate_tables/store';
+        submit_ajax(update_new_url,$("#add-new-form").serialize());
+     });
+    $("#edit-form").submit(function(ev){
+        ev.preventDefault();
+        var RateTableId = $("#modal-edit-new-rate-table [name='RateTableId']").val();
+        update_new_url = baseurl + '/rate_tables/edit/'+RateTableId;
+        submit_ajax(update_new_url,$("#edit-form").serialize());
+    });
+    $(".numbercheck").keypress(function (e) {
+        //allow only float value, numbers and one dot(.) only
+        if ((e.which != 46 || $(this).val().indexOf('.') != -1) && e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+            //display error message
+            return false;
+        }
+    });
+    $('#add-new-form input[name=Type]').on("change",function() {
+        var val = $(this).val();
+        if(val == 1) {
+            $('#box-DIDCategory').hide();
+            $('#box-Trunk').show();
+        } else {
+            $('#box-Trunk').hide();
+            $('#box-DIDCategory').show();
+        }
+    });
+});
 
 </script>
 @include('includes.errors')
@@ -282,45 +308,89 @@ jQuery(document).ready(function($) {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group ">
+                                <label class="control-label">Type</label><br/>
+                                <label class="radio-inline">
+                                    {{Form::radio('Type', RateTable::TYPE_VOICECALL, true,array("class"=>""))}}
+                                    Voice Call
+                                </label>
+                                <label class="radio-inline">
+                                    {{Form::radio('Type', RateTable::TYPE_DID, false,array("class"=>""))}}
+                                    DID
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group ">
                                 <label for="field-5" class="control-label">Codedeck</label>
                                 {{Form::select('CodedeckId', $codedecks, '',array("class"=>"form-control select2"))}}
                             </div>
                         </div>
-                         <div class="col-md-6">
+                    </div>
+                    <div class="row">
+                         <div class="col-md-6" id="box-Trunk">
                             <div class="form-group ">
                                 <label for="field-5" class="control-label">Trunk</label>
                                 {{Form::SelectControl('trunk')}}
                                <!-- {Form::select('TrunkID', $trunks, $trunk_keys,array("class"=>"form-control select2"))}}-->
                             </div>
                         </div>
-                         </div>
+                        <div class="col-md-6" id="box-DIDCategory" style="display: none;">
+                            <div class="form-group">
+                                <label class="control-label">Category</label>
+                                {{Form::select('DIDCategoryID', $DIDCategory, '',array("class"=>"form-control select2"))}}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label for="field-5" class="control-label">Currency</label>
+                                {{Form::SelectControl('currency')}}
+                                        <!--{ Form::select('CurrencyID', $currencylist,  '', array("class"=>"select2")) }}-->
+                            </div>
+                        </div>
+                    </div>
                     <div class="row">
-                       <div class="col-md-6">
-                           <div class="form-group ">
-                               <label for="field-5" class="control-label">Currency</label>
-                               {{Form::SelectControl('currency')}}
-                               <!--{ Form::select('CurrencyID', $currencylist,  '', array("class"=>"select2")) }}-->
-                           </div>
-                       </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-4" class="control-label">RateTable Name</label>
                                 <input type="text" name="RateTableName" class="form-control" value="" />
                             </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label for="field-5" class="control-label">Round Charged Amount (123.45)</label>
+                                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="it's round up the value to given decimal points. Ex: you have entered 2 in Round Charged Amount then it will round the CDR amount like this : amount is 1.2355 becomes 1.24. Note that rounding off is always done upwards." data-original-title="Round Charged Amount (123.45)">?</span>
+                                <div class="input-spinner">
+                                    <button type="button" class="btn btn-default">-</button>
+                                    {{Form::text('RoundChargedAmount', 2, array("class"=>"form-control", "maxlength"=>"1", "data-min"=>0,"data-max"=>6,"Placeholder"=>"Add Numeric value" , "data-mask"=>"decimal"))}}
+                                    <button type="button" class="btn btn-default">+</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="row">
-                       <div class="col-md-6">
-                           <div class="form-group ">
-                               <label for="field-5" class="control-label">Round Charged Amount (123.45)</label>
-                               <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="it's round up the value to given decimal points. Ex: you have entered 2 in Round Charged Amount then it will round the CDR amount like this : amount is 1.2355 becomes 1.24. Note that rounding off is always done upwards." data-original-title="Round Charged Amount (123.45)">?</span>
-                               <div class="input-spinner">
-                                   <button type="button" class="btn btn-default">-</button>
-                                   {{Form::text('RoundChargedAmount', 2, array("class"=>"form-control", "maxlength"=>"1", "data-min"=>0,"data-max"=>6,"Placeholder"=>"Add Numeric value" , "data-mask"=>"decimal"))}}
-                                   <button type="button" class="btn btn-default">+</button>
-                               </div>
-                           </div>
-                       </div>
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label class="control-label">Minimum Call Charge</label>
+                                <input type="text" name="MinimumCallCharge" class="form-control numbercheck" value="" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label class="control-label">Applied To</label><br/>
+                                <label class="radio-inline">
+                                    {{Form::radio('AppliedTo', RateTable::APPLIED_TO_CUSTOMER, true,array("class"=>""))}}
+                                    Customer
+                                </label>
+                                <label class="radio-inline">
+                                    {{Form::radio('AppliedTo', RateTable::APPLIED_TO_VENDOR, false,array("class"=>""))}}
+                                    Vendor
+                                </label>
+                                <label class="radio-inline">
+                                    {{Form::radio('AppliedTo', RateTable::APPLIED_TO_RESELLER, false,array("class"=>""))}}
+                                    Reseller
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -347,11 +417,17 @@ jQuery(document).ready(function($) {
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-6" id="box-edit-Trunk">
                             <div class="form-group ">
                                 <label for="field-5" class="control-label">Trunk</label>
                                 {{Form::SelectControl('trunk')}}
                                         <!-- {Form::select('TrunkID', $trunks, $trunk_keys,array("class"=>"form-control select2"))}}-->
+                            </div>
+                        </div>
+                        <div class="col-md-6" id="box-edit-DIDCategory">
+                            <div class="form-group">
+                                <label class="control-label">Category</label>
+                                {{Form::select('DIDCategoryID', $DIDCategory, '',array("class"=>"form-control select2"))}}
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -380,6 +456,14 @@ jQuery(document).ready(function($) {
                                     {{Form::text('RoundChargedAmount', ( isset($BillingClass->RoundChargesAmount)?$BillingClass->RoundChargesAmount:'2' ),array("class"=>"form-control", "maxlength"=>"1", "data-min"=>0,"data-max"=>6,"Placeholder"=>"Add Numeric value" , "data-mask"=>"decimal"))}}
                                     <button type="button" class="btn btn-default">+</button>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label class="control-label">Minimum Call Charge</label>
+                                <input type="text" name="MinimumCallCharge" class="form-control numbercheck" value="" />
                             </div>
                         </div>
                     </div>
