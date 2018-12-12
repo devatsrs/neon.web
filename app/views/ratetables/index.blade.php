@@ -14,12 +14,12 @@
                     <input class="form-control" name="Search" id="Search"  type="text" >
                 </div>
                 <div class="form-group">
-                    <label class="control-label" for="field-1">Trunk</label>
-                    {{ Form::select('TrunkID', $trunks, '', array("class"=>"select2","data-type"=>"trunk")) }}
-                </div>
-                <div class="form-group">
                     <label class="control-label">Type</label>
                     {{Form::select('Type', [""=>"select"]+RateTable::$types, '',array("class"=>"form-control select2"))}}
+                </div>
+                <div class="form-group">
+                    <label class="control-label" for="field-1">Trunk</label>
+                    {{ Form::select('TrunkID', $trunks, '', array("class"=>"select2","data-type"=>"trunk")) }}
                 </div>
                 <div class="form-group">
                     <label class="control-label">DID Category</label>
