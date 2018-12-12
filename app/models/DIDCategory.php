@@ -23,10 +23,9 @@ class DidCategory extends \Eloquent{
         return $row;
     }
 
-
     static public function checkForeignKeyById($id) {
-        $hasAccountApprovalList = DIDCategory::where("DIDCategoryID",$id)->count();
-        if( intval($hasAccountApprovalList) > 0){
+        $hasAccountApprovalList = RateTable::where("DIDCategoryID",$id)->count();
+        if(!intval($hasAccountApprovalList) > 0){
             return true;
         }else{
             return false;
