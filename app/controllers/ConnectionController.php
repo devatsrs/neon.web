@@ -12,7 +12,7 @@ class ConnectionController extends \BaseController {
             return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
         }
         $Type=[''=>'Select']+VendorConnection::$Type_array;
-        $DIDCategories=DIDCategory::getDIDCategoryDropDownList($companyID);
+        $DIDCategories=DIDCategory::getCategoryDropdownIDList($companyID);
         $CurrencyID=Account::getCurrencyIDByAccount($id);
 
         $TariffDID=RateTable::getDIDTariffDropDownList($companyID,VendorConnection::Type_DID,$CurrencyID);

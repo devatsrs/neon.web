@@ -704,7 +704,7 @@
                 });
 
                 //Bulk Form Submit
-                $("#bulk-edit-connection-form").submit(function(e) {
+                $("#bulk-edit-connection-form").unbind().submit(function(e) {
                     e.preventDefault();
                     console.log("Bulk Submit");
 

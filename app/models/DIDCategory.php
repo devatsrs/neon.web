@@ -12,8 +12,9 @@ class DidCategory extends \Eloquent{
     protected $table = 'tblDIDCategory';
     protected $primaryKey = "DIDCategoryID";
 
-    public static function getCategoryDropdownIDList($CompanyID)
+    public static function getCategoryDropdownIDList($CompanyID=0)
     {
+        $CompanyID = $CompanyID>0?$CompanyID : User::get_companyID();
         $result = self::where(["CompanyID" => $CompanyID])->select(array('CategoryName', 'DIDCategoryID'))->orderBy('CategoryName')->lists('CategoryName', 'DIDCategoryID');
         $row = array("" => "Select");
         if (!empty($result)) {
@@ -22,19 +23,9 @@ class DidCategory extends \Eloquent{
         return $row;
     }
 
-    public static function getDIDCategoryDropDownList($CompanyID=0){
-        $company_id = $CompanyID>0?$CompanyID : User::get_companyID();
-        $row = DIDCategory::where(array('CompanyID'=>$company_id))->lists('CategoryName', 'DIDCategoryID');
-        if(!empty($row)){
-            $row = array(""=> "Select")+$row;
-        }
-        return $row;
-
-    }
-
     static public function checkForeignKeyById($id) {
-        $hasAccountApprovalList = DIDCategory::where("DIDCategoryID",$id)->count();
-        if( intval($hasAccountApprovalList) > 0){
+        $hasAccountApprovalList = RateTable::where("DIDCategoryID",$id)->count();
+        if(!intval($hasAccountApprovalList) > 0){
             return true;
         }else{
             return false;
