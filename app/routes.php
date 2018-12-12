@@ -514,6 +514,15 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/vendor_rates/{id}/customerdownloadtype/{type}', 'VendorRatesController@vendordownloadtype');
 	Route::any('/vendor_rates/{id}/search_ajax_datagrid_archive_rates', 'VendorRatesController@search_ajax_datagrid_archive_rates'); // get archive rates for vendor rates grid
 
+	//Vendor Connection
+	Route::any('/vendor_rates/connection/{id}/search_ajax_datagrid/{type}', 'ConnectionController@search_ajax_datagrid');
+	Route::any('/vendor_rates/connection/{id}', 'ConnectionController@index');
+	Route::any('/vendor_rates/connection/{id}/create', 'ConnectionController@create');
+	Route::any('/vendor_rates/connection/{id}/update/{conid}', 'ConnectionController@update');
+	Route::any('/vendor_rates/connection/{id}/delete', 'ConnectionController@delete');
+	Route::any('/vendor_rates/connection/{id}/statusupdate/{status}', 'ConnectionController@updatestatus');
+	Route::any('/vendor_rates/connection/bulk_update_connection/{id}', 'ConnectionController@bulk_update_connection');
+
 	Route::resource('vendor_rates', 'VendorRatesController');
 	Route::controller('vendor_rates', 'VendorRatesController');
 
