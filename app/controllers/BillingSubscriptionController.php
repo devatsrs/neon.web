@@ -343,7 +343,7 @@ class BillingSubscriptionController extends \BaseController {
                         AmazonS3::delete($BillingSubscription->Image);
                     }
                     $result = $BillingSubscription->delete();
-                    Log::info("delete DynamicFieldValue ProductID2=".$id);
+                    Log::info("delete DynamicFieldValue ProductID=".$id);
                     if ($result) {
                         $Type =  Subscription::DYNAMIC_TYPE;
                         $companyID = User::get_companyID();
