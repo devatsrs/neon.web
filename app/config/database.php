@@ -142,6 +142,18 @@ return array(
 			'prefix'    => '',
 			'strict'    => false,
 		],
+                /** Neon Routing Database **/
+		'sqlsrvrouting' => [
+			'driver'    => 'mysql',
+			'host'      => "localhost",
+			'database'  => getenv('DB_DATABASERouting'),
+			'username'  => getenv('DB_USERNAMERouting'),
+			'password'  => substr(getenv('DB_PASSWORDRouting'),5),
+			'charset'   => 'utf8',
+			'collation' => 'utf8_unicode_ci',
+			'prefix'    => '',
+			'strict'    => false,
+		],
 
 	),
 

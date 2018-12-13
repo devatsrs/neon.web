@@ -1546,6 +1546,24 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/timezones/update/{id}','TimezonesController@update');
 	Route::any('/timezones/{id}/delete/{type}','TimezonesController@delete');
 	Route::controller('timezones', 'TimezonesController');
+        
+        
+        //routing category
+	Route::any('/routingcategory/ajax_datagrid', 'RoutingCategoryController@ajax_datagrid');
+	Route::any('/routingcategory', 'RoutingCategoryController@index');
+	Route::any('/routingcategory/create', 'RoutingCategoryController@create');
+	Route::any('/routingcategory/update/{id}', 'RoutingCategoryController@update');
+	Route::any('/routingcategory/{id}/delete', 'RoutingCategoryController@delete');
+        Route::any('/routingcategory/update_fields_sorting', 'RoutingCategoryController@update_fields_sorting');
+        
+        //routing Profiles
+	Route::any('/routingprofiles/ajax_datagrid', 'RoutingProfilesController@ajax_datagrid');
+	Route::any('/routingprofiles', 'RoutingProfilesController@index');
+        Route::any('/assignrouting', 'AssignRoutingController@index');
+	Route::any('/routingprofiles/create', 'RoutingProfilesController@create');
+        Route::any('/routingprofiles/ajaxcall/{id}', 'RoutingProfilesController@ajaxcall');
+	Route::any('/routingprofiles/update/{id}', 'RoutingProfilesController@update');
+	Route::any('/routingprofiles/{id}/delete', 'RoutingProfilesController@delete');
 
 });
 
