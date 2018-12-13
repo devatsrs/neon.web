@@ -10,6 +10,14 @@ class RateTable extends \Eloquent
     protected static $rate_table_cache = array();
     public static $enable_cache = false;
 
+    const TYPE_VOICECALL = 1;
+    const TYPE_DID = 2;
+    const APPLIED_TO_CUSTOMER = 1;
+    const APPLIED_TO_VENDOR = 2;
+    const APPLIED_TO_RESELLER = 3;
+    public static $types = array( self::TYPE_VOICECALL => 'Voice Call',self::TYPE_DID=>'DID');
+    public static $AppliedTo = array( self::APPLIED_TO_CUSTOMER => 'Customer',self::APPLIED_TO_VENDOR=>'Vendor',self::APPLIED_TO_RESELLER=>'Reseller');
+
     /*
      * Option = ["TrunkID" = int ,... ]
      * */
@@ -88,4 +96,21 @@ class RateTable extends \Eloquent
         }
         return true;
     }
+
+    public static function getDIDTariffDropDownList($CompanyID,$Type,$CurrencyID){
+        $row=array();
+
+        if($Type==VendorConnection::Type_DID){
+            $row = RateTable::where(array('CompanyID'=>$CompanyID,'Type'=>2,'AppliedTo'=>2,'CurrencyID'=>$CurrencyID))->lists('RateTableName', 'RateTableId');
+        }else if($Type==VendorConnection::Type_VoiceCall){
+            $row = RateTable::where(array('CompanyID'=>$CompanyID,'Type'=>1,'AppliedTo'=>2,'CurrencyID'=>$CurrencyID))->lists('RateTableName', 'RateTableId');
+        }
+
+        if(!empty($row)){
+            $row = array(""=> "Select")+$row;
+        }
+        return $row;
+
+    }
+
 }

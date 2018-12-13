@@ -186,6 +186,13 @@ Route::group(array('before' => 'auth'), function () {
 	Route::resource('trunks', 'TrunkController');
 	Route::controller('trunks', 'TrunkController');
 
+	//DID
+	Route::any('/did', 'DIDCategoryController@index');
+	Route::any('/did/ajax_datagrid/{type}', 'DIDCategoryController@ajax_datagrid');
+	Route::any('/did/create', 'DIDCategoryController@create');
+	Route::any('/did/{id}/update', 'DIDCategoryController@update');
+	Route::any('/did/{id}/delete', 'DIDCategoryController@delete');
+
 
 	//CodeDecks
 	Route::any('/codedecks/store', array('as' => 'codedecks_store', 'uses' => 'CodeDecksController@store'));
@@ -507,6 +514,15 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/vendor_rates/{id}/customerdownloadtype/{type}', 'VendorRatesController@vendordownloadtype');
 	Route::any('/vendor_rates/{id}/search_ajax_datagrid_archive_rates', 'VendorRatesController@search_ajax_datagrid_archive_rates'); // get archive rates for vendor rates grid
 
+	//Vendor Connection
+	Route::any('/vendor_rates/connection/{id}/search_ajax_datagrid/{type}', 'ConnectionController@search_ajax_datagrid');
+	Route::any('/vendor_rates/connection/{id}', 'ConnectionController@index');
+	Route::any('/vendor_rates/connection/{id}/create', 'ConnectionController@create');
+	Route::any('/vendor_rates/connection/{id}/update/{conid}', 'ConnectionController@update');
+	Route::any('/vendor_rates/connection/{id}/delete', 'ConnectionController@delete');
+	Route::any('/vendor_rates/connection/{id}/statusupdate/{status}', 'ConnectionController@updatestatus');
+	Route::any('/vendor_rates/connection/bulk_update_connection/{id}', 'ConnectionController@bulk_update_connection');
+
 	Route::resource('vendor_rates', 'VendorRatesController');
 	Route::controller('vendor_rates', 'VendorRatesController');
 
@@ -719,7 +735,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rate_tables/{id}/view', 'RateTablesController@view');
     Route::any('/rate_tables/{id}/add_newrate', 'RateTablesController@add_newrate');
 	Route::any('/rate_tables/{id}/clear_rate', 'RateTablesController@clear_rate');
+	Route::any('/rate_tables/{id}/clear_did_rate', 'RateTablesController@clear_did_rate');
 	Route::any('/rate_tables/{id}/update_rate_table_rate', 'RateTablesController@update_rate_table_rate');
+	Route::any('/rate_tables/{id}/update_rate_table_did_rate', 'RateTablesController@update_rate_table_did_rate');
 	//Route::any('/rate_tables/{id}/bulk_update_rate_table_rate', 'RateTablesController@bulk_update_rate_table_rate');
 	Route::any('/rate_tables/{id}/bulk_clear_rate_table_rate', 'RateTablesController@bulk_clear_rate_table_rate');
 	Route::any('/rate_tables/{id}/change_status/{status}', 'RateTablesController@change_status')->where('status', '(.[09]*)+');

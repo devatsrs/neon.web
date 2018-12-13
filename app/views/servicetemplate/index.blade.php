@@ -48,7 +48,7 @@
 <h3>Service Template</h3>
 <p class="text-right">
 @if(User::checkCategoryPermission('Service','Add'))
-    <a href="#" data-action="showAddModal" data-type="service" data-modal="add-new-modal-service" class="btn btn-primary">
+    <a href="#" data-action="showAddServiceTemplateModal" data-type="service" data-modal="add-new-modal-service" class="btn btn-primary">
         <i class="entypo-plus"></i>
         Add New
     </a>
@@ -72,6 +72,34 @@
 </table>
 
 <script type="text/javascript">
+
+    function resetFormFields() {
+        document.getElementById("SubscriptionIDListBody").innerHTML="";
+        document.getElementById('categoryTariffIDListBody').innerHTML="";
+        document.getElementById("selectedSubscription").value="";
+        document.getElementById("selectedcategotyTariff").value="";
+        saveSelectedCategoryTariff="";
+        saveSelectedSubscription="";
+        $("#add-new-service-form [name='CurrencyId']").prop('disabled',false);//disabled="true"
+        $("#add-new-service-form [name='ServiceId']").select2().select2('val','');
+        $("#add-new-service-form [name='OutboundDiscountPlanId']").select2().select2('val','');
+        $("#add-new-service-form [name='InboundDiscountPlanId']").select2().select2('val','');
+        $("#add-new-service-form [name='OutboundRateTableId']").select2().select2('val','');
+    }
+    $(document).on('click','[data-action="showAddServiceTemplateModal"]' ,function(e) {
+        //alert("Called");
+        resetFormFields();
+        e.preventDefault();
+        var self = $(this);
+        var modal = $('#'+self.attr('data-modal'));
+        var forms = modal.find('form');
+        forms.each(function(index,form){
+            resetForm($(form),self.attr('data-type'));
+        });
+        modal.modal('show');
+        modal.find('h4').html("Add New"+getTitle(self.attr('data-type')));
+    });
+
     var $searchFilter = {};
     jQuery(document).ready(function ($) {
 
@@ -111,6 +139,7 @@
                         var action , edit_ , show_, delete_ ;
                         //alert("Called2");
                         //alert(full);
+                        resetFormFields();
                         action = '<div class = "hiddenRowData"  >';
 
                         action += '<input type = "hidden"  name = "ServiceName" value = "' + (full[1] != null ? full[1] : '') + '" / >';
@@ -224,6 +253,7 @@
         });
 
         $('table tbody').on('click','.edit-service',function(ev){
+            resetFormFields();
             ev.preventDefault();
             ev.stopPropagation();
             $('#add-new-service-form').trigger("reset");

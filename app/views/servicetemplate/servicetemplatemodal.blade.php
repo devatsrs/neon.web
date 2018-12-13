@@ -210,7 +210,7 @@
         url = baseurl + "/servicesTemplate/selectDataOnCurrency" +
                 "?selectedCurrency=" + selected_currency + "&selectedData=editSelectedTemplateSubscription&editServiceTemplateID="+editServiceTemplateID;
          // alert("url :" + url);
-        $.get(url, function (data, status) {
+        $.post(url, function (data, status) {
             //  var res = data.split('/>');
             //   alert(data);
             document.getElementById("SubscriptionIDListBody").innerHTML = "" + data;
@@ -227,7 +227,7 @@
         url = baseurl + "/servicesTemplate/selectDataOnCurrency" +
                 "?selectedCurrency=" + selected_currency + "&selectedData=editSelectedTemplateDIDTariff&editServiceTemplateID="+editServiceTemplateID;
         //alert("url :" + url);
-        $.get(url, function (data, status) {
+        $.post(url, function (data, status) {
             //  var res = data.split('/>');
              //  alert(data);
 
@@ -254,7 +254,7 @@
         }
         url = baseurl + "/servicesTemplate/selectDataOnCurrency?selectedCurrency=" + selected_currency + "&selectedData=service";
         // alert("url :" + url);
-        $.get(url, function (data, status) {
+        $.post(url, function (data, status) {
             //  var res = data.split('/>');
             //alert(data);
             document.getElementById("ServiceId").innerHTML = "" + data;
@@ -273,7 +273,7 @@
         //
         url = baseurl + "/servicesTemplate/selectDataOnCurrency?selectedCurrency=" + selected_currency + "&selectedData=outboundPlan";
         // alert("url :" + url);
-        $.get(url, function (data, status) {
+        $.post(url, function (data, status) {
             // var res = data.split('/>');
            // alert(data);
             document.getElementById("OutboundDiscountPlanId").innerHTML = "" + data;
@@ -285,7 +285,7 @@
         }, 'html');
         url = baseurl + "/servicesTemplate/selectDataOnCurrency?selectedCurrency=" + selected_currency + "&selectedData=inboundPlan";
         // alert("url :" + url);
-        $.get(url, function (data, status) {
+        $.post(url, function (data, status) {
             // var res = data.split('/>');
             document.getElementById("InboundDiscountPlanId").innerHTML = "" + data;
             var InboundDiscountPlanID = $("div.hiddenRowData").find("input[name='InboundDiscountPlanID']").val();
@@ -296,7 +296,7 @@
 
         url = baseurl + "/servicesTemplate/selectDataOnCurrency?selectedCurrency=" + selected_currency + "&selectedData=outboundTariff";
         // alert("url :" + url);
-        $.get(url, function (data, status) {
+        $.post(url, function (data, status) {
             // var res = data.split('/>');
             document.getElementById("OutboundRateTableId").innerHTML = "" + data;
             var OutboundTariffId = $("div.hiddenRowData").find("input[name='OutboundTariffId']").val();
@@ -307,7 +307,7 @@
 
         url = baseurl + "/servicesTemplate/selectDataOnCurrency?selectedCurrency=" + selected_currency + "&selectedData=templateSubscriptionList";
         // alert("url :" + url);
-        $.get(url, function (data, status) {
+        $.post(url, function (data, status) {
             // var res = data.split('/>');
             //  alert(data);
             document.getElementById("templateSubscriptionList").innerHTML = "" + data;
@@ -340,7 +340,7 @@
             url = baseurl + "/servicesTemplate/selectDataOnCurrency" +
                     "?selectedCurrency=" + selected_currency + "&selectedData=DidCategoryID&selected_didCategory="+selected_didCategory;
            //  alert("url :" + url);
-            $.get(url, function (data, status) {
+            $.post(url, function (data, status) {
                 //  var res = data.split('/>');
              //   alert(data);
                 document.getElementById("DidCategoryTariffID").innerHTML = "" + data;
@@ -381,6 +381,9 @@
             document.getElementById('templateSubscriptionList').innerHTML = templateSubscriptionList;
             document.getElementById("SubscriptionIDListBody").innerHTML = SubscriptionIDListBody;
             document.getElementById("selectedSubscription").value = saveSelectedSubscription;
+
+
+
             var tabel = document.getElementById('servicetable');
             var rijen = tabel.rows.length;
             for (i = 1; i < rijen; i++){
@@ -720,8 +723,8 @@
                                                 <select onchange="ShowTariffOnSelectedCategory();" id="DidCategoryID" name="DidCategoryID" class="form-control">
                                                     <?php
                                                     $index1 = 0;?>
-                                                    @foreach(DIDCategory::getDIDCategory() as $categoryIDTariff)
-                                                        <option id="didCategoty{{$index1++}}" value="{{$categoryIDTariff["DIDCategoryID"]}}">{{$categoryIDTariff["CategoryName"]}}</option>
+                                                    @foreach(DIDCategory::getCategoryDropdownIDList() as $DIDCategoryID  => $CategoryName)
+                                                        <option id="didCategoty{{$index1++}}" value="{{$DIDCategoryID}}">{{$CategoryName}}</option>
                                                     @endforeach
 
                                                 </select>
