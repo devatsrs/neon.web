@@ -17,6 +17,11 @@
 <h3>Vendor Rates</h3>
 @include('accounts.errormessage')
 <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
+    <li class="">
+        <a href="{{ URL::to('/vendor_rates/connection/'.$id) }}" >
+            <span class="hidden-xs">Connection</span>
+        </a>
+    </li>
 <li class="active">
     <a href="{{ URL::to('vendor_rates/'.$id) }}" >
         <span class="hidden-xs">Vendor Rate</span>

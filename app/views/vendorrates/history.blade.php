@@ -18,11 +18,18 @@
 
 @include('accounts.errormessage')
 <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
-<li>
+@if(User::checkCategoryPermission('VendorRates','Connection'))
+    <li class="">
+    <a href="{{ URL::to('/vendor_rates/connection/'.$id) }}" >
+        <span class="hidden-xs">Connection</span>
+    </a>
+    </li>
+@endif
+{{--<li>
     <a href="{{ URL::to('vendor_rates/'.$id) }}" >
         <span class="hidden-xs">Vendor Rate</span>
     </a>
-</li>
+</li>--}}
 {{--@if(User::checkCategoryPermission('VendorRates','Upload'))
 <li>
     <a href="{{ URL::to('/vendor_rates/'.$id.'/upload') }}" >
@@ -37,13 +44,13 @@
     </a>
 </li>
 @endif
-@if(User::checkCategoryPermission('VendorRates','Settings'))
+{{--@if(User::checkCategoryPermission('VendorRates','Settings'))
 <li>
     <a href="{{ URL::to('/vendor_rates/'.$id.'/settings') }}" >
         <span class="hidden-xs">Settings</span>
     </a>
 </li>
-@endif
+@endif--}}
 @if(User::checkCategoryPermission('VendorRates','Blocking'))
 <li >
     <a href="{{ URL::to('vendor_blocking/'.$id) }}" >
