@@ -522,6 +522,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/vendor_rates/connection/{id}/delete', 'ConnectionController@delete');
 	Route::any('/vendor_rates/connection/{id}/statusupdate/{status}', 'ConnectionController@updatestatus');
 	Route::any('/vendor_rates/connection/bulk_update_connection/{id}', 'ConnectionController@bulk_update_connection');
+	Route::any('/vendor_rates/connection/{id}/get_tariff_by_category_trunk', 'ConnectionController@get_tariff_by_category_trunk');
 
 	Route::resource('vendor_rates', 'VendorRatesController');
 	Route::controller('vendor_rates', 'VendorRatesController');
