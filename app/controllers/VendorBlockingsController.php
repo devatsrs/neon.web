@@ -81,44 +81,18 @@ class VendorBlockingsController extends \BaseController {
     public function blockunblockcode()
     {
 
-        $postdata = Input::all();
-        $CompanyID = User::get_companyID();
-        $preference =  !empty($postdata['preference']) ? $postdata['preference'] : 0;
-        $acc_id =  $postdata['acc_id'];
-        $trunk =  $postdata['trunk'];
-        $Timezones =  $postdata['Timezones'];
-        $rowcode = $postdata["rowcode"];
-        $CodeDeckId = $postdata["CodeDeckId"];
-        $description = $postdata["description"];
+        $data = Input::all();
+
+        $Blocked =  $data['Blocked']==0 ? 1 : 0;
+
         $username = User::get_user_full_name();
-        $blockId = $postdata["id"];
 
+        RateTableRate::where(["RateTableRateID"=>$data["RateTableRateID"]])->update(["Blocked"=>$Blocked,"ModifiedBy"=>$username]);
 
-        if( $postdata['countryBlockingID'] ==  'codewiseBlocking' ){
-            $p_action = '';
-            $countryBlockingID = 0;
-        }else{
-            if( $postdata['countryBlockingID'] > 0 ){
-                $p_action = 'country_unblock';
-                $countryBlockingID = $postdata['countryBlockingID'];
-            }else {
-                $p_action = 'country_block';
-                $countryBlockingID = 0;
-            }
-        }
-        $query = "call prc_lcrBlockUnblock (".$CompanyID.",'".$postdata["GroupBy"]."',".$blockId.",".$preference.",".$acc_id.",".$trunk.",".$Timezones.",".$rowcode.",".$CodeDeckId.",'".$description."','".$username."','".$p_action."','".$countryBlockingID."')";
-        DB::select($query);
-        \Illuminate\Support\Facades\Log::info($query);
-        //$results = DB::select($query);
-        //$preference = isset($results[0]->Preference) ? $results[0]->Preference : '';
-        $msgVendor = $blockId > 0 ? 'Unblocked' : 'Blocked';
-        try{
-            $message =  "Vendor ".$msgVendor." Successfully";
-            return json_encode(["status" => "success", "message" => $message]);
-        }catch ( Exception $ex ){
-            $message =  "Oops Somethings Wrong !";
-            return json_encode(["status" => "fail", "message" => $message]);
-        }
+        $message =  "Block Status Update Successfully";
+
+        return json_encode(["status" => "success", "message" => $message,"Blocked"=>$Blocked]);
+
 
     }
 

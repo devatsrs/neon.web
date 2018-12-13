@@ -336,12 +336,14 @@ class BillingSubscriptionController extends \BaseController {
 
             if(!BillingSubscription::checkForeignKeyById($id)){
                 try{
+                    Log::info("delete DynamicFieldValue ProductID1=".$id);
                     $BillingSubscription = BillingSubscription::find($id);
                     AmazonS3::delete($BillingSubscription->CompanyLogoAS3Key);
                     if(!empty($BillingSubscription->Image)){
                         AmazonS3::delete($BillingSubscription->Image);
                     }
                     $result = $BillingSubscription->delete();
+                    Log::info("delete DynamicFieldValue ProductID=".$id);
                     if ($result) {
                         $Type =  Subscription::DYNAMIC_TYPE;
                         $companyID = User::get_companyID();
@@ -353,6 +355,7 @@ class BillingSubscriptionController extends \BaseController {
                                 $DynamicFieldsIDs[] = $field->DynamicFieldsID;
                             }
                             //Image Delete
+                            Log::info("delete DynamicFieldValue ProductID3=".$id);
                             $upload_path = CompanyConfiguration::get('UPLOAD_PATH',$companyID)."/";
                             $getDynamicValues=DynamicFieldsValue::where('ParentID',$id)->get();
                             if($getDynamicValues){
