@@ -201,6 +201,9 @@
           @if(User::checkCategoryPermission('Service','View'))
             <li> <a href="{{URL::to('/services')}}">  <span>Services</span> </a> </li>
           @endif
+          @if(User::checkCategoryPermission('Service','View'))
+            <li> <a href="{{URL::to('/servicesTemplate')}}">  <span>Services Template</span> </a> </li>
+          @endif
           @if(User::checkCategoryPermission('BillingSubscription','View'))
             <li> <a href="{{URL::to('/billing_subscription')}}">  <span>Subscription</span> </a> </li>
           @endif

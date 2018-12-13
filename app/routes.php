@@ -1437,6 +1437,15 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('services/delete/{id}', 'ServicesController@delete');
 	Route::any('services/exports/{type}', 'ServicesController@exports');
 
+	// services Templates
+	Route::any('servicesTemplate', 'ServicesTemplateController@index');
+	Route::any('servicesTemplate/ajax_datagrid', 'ServicesTemplateController@ajax_datagrid');
+	Route::any('/servicesTemplate/selectDataOnCurrency', 'ServicesTemplateController@selectDataOnCurrency');
+	Route::any('servicesTemplate/store', 'ServicesTemplateController@store');
+	Route::any('servicesTemplate/update/{id}', 'ServicesTemplateController@update');
+	Route::any('servicesTemplate/delete/{id}', 'ServicesTemplateController@delete');
+	Route::any('servicesTemplate/exports/{type}', 'ServicesTemplateController@exports');
+
 	//accountservice	
 	Route::any('accountservices/{id}/addservices', 'AccountServiceController@addservices');
 	Route::any('accountservices/{id}/edit/{serviceid}', 'AccountServiceController@edit');
