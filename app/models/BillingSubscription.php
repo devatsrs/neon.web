@@ -81,4 +81,15 @@ class BillingSubscription extends \Eloquent {
 
     }
 
+    public static function getSubscriptionsListDropList(){
+        $CompanyID = User::get_companyID();
+        $BillingSubscription = BillingSubscription::select(['Name','SubscriptionID'])->get();
+        $BillingSubscriptionArr = json_decode(json_encode($BillingSubscription),true);
+       // $BillingSubscription = BillingSubscription::where(["CompanyID"=>$CompanyID])->lists('Name','SubscriptionID');
+      //  $BillingSubscription = array('' => "Select") + $BillingSubscription;
+       // print_r($BillingSubscription);
+       // exit;
+        return $BillingSubscriptionArr;
+    }
+
 }

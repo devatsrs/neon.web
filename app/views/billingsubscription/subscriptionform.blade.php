@@ -1,7 +1,9 @@
 <script type="text/javascript">
     $(document).ready(function(){
+
         var txtSubscription = '{{Product::$TypetoProducts[Product::SUBSCRIPTION]}}';
         var productsubscription = $("#add-edit-product-subscription [name='productsubscription']").val();
+
         $('#add-new-billing_subscription-form').submit(function(e){
             e.preventDefault();
             var modal = $(this).parents('.modal');
@@ -16,6 +18,7 @@
             }else{
                 update_new_url = baseurl + '/billing_subscription/create';
             }
+
 
             showAjaxScript(update_new_url, new FormData($(this)[0]), function(response){
                 $(".btn").button('reset');
@@ -59,6 +62,32 @@
             });
             return false;
         });
+
+        $('table tbody').on('click','.edit-billing_subscription',function(e){
+            e.preventDefault();
+            e.stopPropagation();
+            var data = $("#add-new-billing_subscription-form [name='SubscriptionID']").val();
+
+
+            $.ajax({
+                type: "GET",
+                url: "billing_subscription/dynamicField/typesAccess/"+data,
+                cache: false,
+                success: function(response){
+                    console.info(response);
+                    $('#ajax_dynamicfield_html').html(response);
+                    //perform operation
+                },
+                error: function(error) {
+                    alert(error);
+                    $('#ajax_dynamicfield_html').html('');
+                    $(".btn").button('reset');
+                    ShowToastr("error", error);
+                }
+            });
+        });
+
+
     });
 
     function txtChange(obj){
@@ -202,7 +231,12 @@
                 </div>
             </div>
         </div>
+
+        <div id="ajax_dynamicfield_html" class="margin-top"></div>
+
     </div>
+
+
     <div class="modal-footer">
         <input type="hidden" name="SubscriptionID" value="" />
         <input type="hidden" name="SubscriptionClone" value="" />

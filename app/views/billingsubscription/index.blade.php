@@ -59,11 +59,19 @@
 
 <p style="text-align: right;">
 @if(User::checkCategoryPermission('BillingSubscription','Add'))
+<a href="{{  URL::to('billing_subscription/subscription_types') }}" class="btn btn-primary pull-right" style="margin-right:2px;">
+    <i class="glyphicon glyphicon-th"></i>
+    Dynamic Fields
+</a>
+@endif
+
+@if(User::checkCategoryPermission('BillingSubscription','Add'))
 <a href="#" id="add-new-billing_subscription" class="btn btn-primary ">
     <i class="entypo-plus"></i>
     Add New
 </a>
 @endif
+
 </p>
 <table class="table table-bordered datatable" id="table-4">
 <thead>
@@ -225,6 +233,23 @@ jQuery(document).ready(function ($) {
         $("#add-new-modal-billing_subscription [name=CurrencyID]").prop("disabled",false);
         $("#add-new-billing_subscription-form select[name=CurrencyID]").val('').trigger("change");
 
+
+        $.ajax({
+            type: "POST",
+            url: "billing_subscription/dynamicField/fieldAccess",
+            cache: false,
+            success: function(response){
+                console.info(response);
+                $('#ajax_dynamicfield_html').html(response);
+                //perform operation
+            },
+            error: function(error) {
+                alert(error);
+                $('#ajax_dynamicfield_html').html('');
+                $(".btn").button('reset');
+                ShowToastr("error", error);
+            }
+        });
     });
     $('table tbody').on('click','.edit-billing_subscription',function(e){
         e.preventDefault();
@@ -234,6 +259,7 @@ jQuery(document).ready(function ($) {
         $('#add-new-modal-billing_subscription').modal('show');
 
         var $this = $(this);
+
         $.each(list_fields, function( index, field_name ) {
             var val = $this.prev("div.hiddenRowData").find("input[name='"+field_name+"']").val();
             $("#add-new-billing_subscription-form [name='"+field_name+"']").val(val!='null'?val:'');
@@ -247,6 +273,7 @@ jQuery(document).ready(function ($) {
                 }
             }
         });
+
         if($("#add-new-modal-billing_subscription select[name=CurrencyID]").val() > 0 ){
             //$("#add-new-modal-billing_subscription select[name=CurrencyID]").prop("disabled",true);
         }
