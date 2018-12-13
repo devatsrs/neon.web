@@ -31,13 +31,14 @@ class ConnectionController extends \BaseController {
         $data['IP'] = !empty($data['IP'])?$data['IP']:'';
         $data['ConnectionType'] = !empty($data['ConnectionType'])?$data['ConnectionType']:'';
         $data['Name'] = !empty($data['Name'])?$data['Name']:'';
+        $data['DIDCategoryID'] = !empty($data['DIDCategoryID'])?$data['DIDCategoryID']:0;
 
-        $columns = array('VendorConnectionID','Name','ConnectionType','IP','Active','created_at','DIDCategoryID','Tariff','TrunkID','CLIRule','CLDRule','CallPrefix','Port','Username');
+        $columns = array('VendorConnectionID','Name','ConnectionType','IP','Active','TrunkName','CategoryName','created_at','DIDCategoryID','Tariff','TrunkID','CLIRule','CLDRule','CallPrefix','Port','Username','PrefixCDR','SipHeader','AuthenticationMode');
 
         $sort_column = $columns[$data['iSortCol_0']];
         $companyID = User::get_companyID();
 
-        $query = "call prc_getVendorConnection (" . $companyID . "," . $id . "," . $data['TrunkID'] . ",'" . $data['IP'] . "','" . $data['ConnectionType'] . "','" . $data['Name'] . "'," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "'";
+        $query = "call prc_getVendorConnection (" . $companyID . "," . $id . "," . $data['TrunkID'] . ",'" . $data['IP'] . "','" . $data['ConnectionType'] . "',".$data['DIDCategoryID'].",'" . $data['Name'] . "'," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv')->select($query.',1)');
@@ -97,7 +98,6 @@ class ConnectionController extends \BaseController {
                     'Name' => 'required',
                     'CompanyID' => 'required',
                     'TrunkID' => 'required',
-                    'Tariff' => 'required',
 
                 );
             }else{
@@ -200,7 +200,6 @@ class ConnectionController extends \BaseController {
                     'Name' => 'required',
                     'CompanyID' => 'required',
                     'TrunkID' => 'required',
-                    'Tariff' => 'required',
 
                 );
             }

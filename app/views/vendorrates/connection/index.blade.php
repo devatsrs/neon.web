@@ -78,7 +78,6 @@
 </ul>
 
 
-
 <div class="row">
     <div class="col-md-12">
         <form role="form" id="vendor-rate-search" method="get"  action="{{URL::to('vendor_rates/'.$id.'/search')}}" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
@@ -97,25 +96,36 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-1 control-label">Type</label>
                         <div class="col-sm-3">
-                            {{ Form::select('ConnectionType', [''=>'Both']+VendorConnection::$Type_array, '', array("class"=>"select2")) }}
+                            {{ Form::select('ConnectionType', [''=>'All']+VendorConnection::$Type_array, '', array("class"=>"select2 FilterConnectionType")) }}
                         </div>
 
                         <label for="field-1" class="col-sm-1 control-label">Name</label>
                         <div class="col-sm-3">
                             <input type="text" name="Name" class="form-control" id="filter-0" placeholder="" value="{{Input::get('IP')}}" />
                         </div>
-                    </div>
 
-                    <div class="form-group">
-
-                        <label for="field-1" class="col-sm-1 control-label">Trunk</label>
-                        <div class="col-sm-3">
-                            {{ Form::select('TrunkID', $trunks, '', array("class"=>"select2")) }}
+                        <div class="FilterCategory">
+                            <label for="field-1" class="col-sm-1 control-label">Category</label>
+                            <div class="col-sm-3">
+                                {{ Form::select('DIDCategoryID', $DIDCategories, '', array("class"=>"select2")) }}
+                            </div>
                         </div>
 
-                        <label for="field-1" class="col-sm-1 control-label">IP</label>
-                        <div class="col-sm-3">
-                            <input type="text" name="IP" class="form-control" id="filter-1" placeholder="" value="{{Input::get('IP')}}" />
+                    </div>
+
+                    <div class="form-group FilterVoiceCallDiv">
+
+                        <div class="FilterIP">
+                            <label for="field-1" class="col-sm-1 control-label">IP</label>
+                            <div class="col-sm-3">
+                                <input type="text" name="IP" class="form-control" id="filter-1" placeholder="" value="{{Input::get('IP')}}" />
+                            </div>
+                        </div>
+                        <div class="FilterTrunk">
+                            <label for="field-1" class="col-sm-1 control-label">Trunk</label>
+                            <div class="col-sm-3">
+                                {{ Form::select('TrunkID', $trunks, '', array("class"=>"select2")) }}
+                            </div>
                         </div>
 
 
@@ -140,14 +150,14 @@
             @if(User::checkCategoryPermission('Products','Edit'))
                 <li class="">
                     <a class="btn btn-primary btn-sm btn-icon icon-left" id="changeStatus" href="javascript:;">
-                        <i class="entypo-floppy"></i>
+                        <i class=""></i>
                         Change Status
                     </a>
                 </li>
                 <li class="">
                     <a class="btn btn-primary btn-sm btn-icon icon-left" id="delete_multiconnection" href="javascript:;">
-                        <i class="entypo-floppy"></i>
-                        Delete Connection
+                        <i class=""></i>
+                        Delete
                     </a>
                 </li>
 
@@ -169,11 +179,13 @@
     <thead>
     <tr>
         <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
-        <th width="20%">Name</th>
-        <th width="15%">Type</th>
-        <th width="15%">IP</th>
-        <th width="15%">Status</th>
-        <th width="20%">Created At</th>
+        <th width="15%">Name</th>
+        <th width="10%">Type</th>
+        <th width="10%">IP</th>
+        <th width="10%">Status</th>
+        <th width="10%">Trunk</th>
+        <th width="15%">Category</th>
+        <th width="15%">Created At</th>
         <th width="25%">Action</th>
     </tr>
     </thead>
@@ -186,8 +198,8 @@
 <script type="text/javascript">
     var $searchFilter = {};
     var checked='';
-    var list_fields  = ['VendorConnectionID','Name','ConnectionType','IP','Active','created_at','DIDCategoryID','Tariff','TrunkID','CLIRule','CLDRule','CallPrefix','Port','Username','PrefixCDR'];
-    var TrunkID, IP, ConnectionType,Name,update_new_url;
+    var list_fields  = ['VendorConnectionID','Name','ConnectionType','IP','Active','TrunkName','CategoryName','created_at','DIDCategoryID','Tariff','TrunkID','CLIRule','CLDRule','CallPrefix','Port','Username','PrefixCDR','SipHeader','AuthenticationMode'];
+    var TrunkID, IP, ConnectionType,Name,DIDCategoryID,update_new_url;
 
     jQuery(document).ready(function($) {
         var ArchiveRates;
@@ -399,12 +411,13 @@
         $searchFilter.IP = IP = $("#vendor-rate-search input[name='IP']").val();
         $searchFilter.ConnectionType = ConnectionType = $("#vendor-rate-search select[name='ConnectionType']").val();
         $searchFilter.Name = Name = $("#vendor-rate-search input[name='Name']").val();
-
+        $searchFilter.DIDCategoryID = DIDCategoryID = $("#vendor-rate-search select[name='DIDCategoryID']").val();
 
         /* if(ConnectionType == '' || typeof ConnectionType  == 'undefined'){
              toastr.error("Please Select Type", "Error", toastr_opts);
              return false;
          }*/
+
         data_table = $("#table-4").DataTable({
             "bDestroy": true, // Destroy when resubmit form
             "bAutoWidth": false,
@@ -412,14 +425,14 @@
             "bServerSide": true,
             "sAjaxSource": baseurl + "/vendor_rates/connection/{{$id}}/search_ajax_datagrid/type",
             "fnServerParams": function(aoData) {
-                aoData.push({"name": "TrunkID", "value": TrunkID}, {"name": "IP", "value": IP}, {"name": "ConnectionType", "value": ConnectionType},{"name": "Name", "value": Name});
+                aoData.push({"name": "TrunkID", "value": TrunkID}, {"name": "IP", "value": IP}, {"name": "ConnectionType", "value": ConnectionType},{"name": "Name", "value": Name},{"name": "DIDCategoryID", "value": DIDCategoryID});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name": "TrunkID", "value": TrunkID}, {"name": "IP", "value": IP}, {"name": "ConnectionType", "value": ConnectionType},{"name": "Name", "value": Name},{ "name": "Export", "value": 1});
+                data_table_extra_params.push({"name": "TrunkID", "value": TrunkID}, {"name": "IP", "value": IP}, {"name": "ConnectionType", "value": ConnectionType},{"name": "Name", "value": Name},{"name": "DIDCategoryID", "value": DIDCategoryID},{ "name": "Export", "value": 1});
             },
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-            "aaSorting": [5, "desc"],
+            "aaSorting": [7, "desc"],
             "aoColumns":
                     [
                         {"bSortable": false, //RateID
@@ -431,7 +444,7 @@
                         {"bSortable": true}, //2 IP
                         {"bSortable": true}, //3 Type
                         {
-                            "bSortable": true, //Active
+                            "bSortable": true, //4 Active
                             mRender: function ( id, type, full ) {
                                 var action='';
                                 var checked="";
@@ -450,7 +463,9 @@
                             }
 
                         },
-                        {"bSortable": true}, //5 created at
+                        {"bSortable": false}, //5 TrunkName
+                        {"bSortable": false}, //6 CategoryName
+                        {"bSortable": true}, //7 created at
                         {// 6 Action
                             "bSortable": false,
                             mRender: function(id, type, full) {
@@ -516,6 +531,20 @@
                     });
                 });
 
+
+                $(".FilterConnectionType").change(function() {
+                   var Type=$(this).val();
+                   if(Type=='DID'){
+                       $(".FilterVoiceCallDiv").css('display','none');
+                   }else if(Type=='VoiceCall'){
+                       $(".FilterVoiceCallDiv").css('display','block');
+                       $(".FilterCategory").css('display','none');
+                   }else{
+                       $(".FilterVoiceCallDiv").css('display','block');
+                       $(".FilterCategory").css('display','block');
+                    }
+
+                });
                 //Edit Button
                 $(".edit-vendor-rate.btn").off('click');
 
@@ -987,17 +1016,18 @@
 
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Port</label>
-                                    <input type="text" name="voice[Port]" class="form-control" id="field-5" placeholder="">
+                                    <label for="field-5" class="control-label">IP</label>
+                                    <input type="text" name="voice[IP]" class="form-control" id="field-4" placeholder="">
                                 </div>
                             </div>
 
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">IP</label>
-                                    <input type="text" name="voice[IP]" class="form-control" id="field-4" placeholder="">
+                                    <label for="field-5" class="control-label">Port</label>
+                                    <input type="text" name="voice[Port]" class="form-control" id="field-5" placeholder="">
                                 </div>
                             </div>
+
                         </div>
 
                         <div class="row">
@@ -1019,18 +1049,36 @@
                         </div>
 
                         <div class="row">
+
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Tariff*</label>
+                                    <label for="field-5" class="control-label">Sip Header</label>
+                                    <input type="text" name="voice[SipHeader]" class="form-control" id="field-8" placeholder="">
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Authentication Mode</label>
+                                    <input type="text" name="voice[AuthenticationMode]" class="form-control" id="field-9" placeholder="">
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Tariff</label>
                                     {{ Form::select('voice[Tariff]', $TariffVoiceCall, '', array("class"=>"select2")) }}
                                 </div>
                             </div>
 
                             <div class="col-md-6">
                                 <div class="form-group" style="margin-top:15px;">
-                                    <label for="field-5" class="control-label">Active</label>
+                                    <label for="field-5" class="control-label">Use Prefix In CDR</label>
                                     <p class="make-switch switch-small">
-                                        <input id="voice[Active]" name="voice[Active]" type="checkbox" value="1" checked >
+                                        <input id="voice[PrefixCDR]" name="voice[PrefixCDR]" type="checkbox" value="1" >
                                     </p>
                                 </div>
 
@@ -1041,9 +1089,9 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Use Prefix In CDR</label>
+                                    <label for="field-5" class="control-label">Active</label>
                                     <p class="make-switch switch-small">
-                                        <input id="voice[PrefixCDR]" name="voice[PrefixCDR]" type="checkbox" value="1" >
+                                        <input id="voice[Active]" name="voice[Active]" type="checkbox" value="1" checked >
                                     </p>
                                 </div>
 
@@ -1052,7 +1100,6 @@
 
 
                     </div>
-
 
                 </div>
 
