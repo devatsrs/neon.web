@@ -14,12 +14,16 @@
                     <input class="form-control" name="Search" id="Search"  type="text" >
                 </div>
                 <div class="form-group">
-                    <label class="control-label" for="field-1">Trunk</label>
-                    {{ Form::select('TrunkID', $trunks, '', array("class"=>"select2","data-type"=>"trunk")) }}
-                </div>
-                <div class="form-group">
                     <label class="control-label">Type</label>
                     {{Form::select('Type', [""=>"select"]+RateTable::$types, '',array("class"=>"form-control select2"))}}
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Applied To</label>
+                    {{Form::select('AppliedTo', [""=>"select"]+RateTable::$AppliedTo, '',array("class"=>"form-control select2"))}}
+                </div>
+                <div class="form-group">
+                    <label class="control-label" for="field-1">Trunk</label>
+                    {{ Form::select('TrunkID', $trunks, '', array("class"=>"select2","data-type"=>"trunk")) }}
                 </div>
                 <div class="form-group">
                     <label class="control-label">DID Category</label>
@@ -79,6 +83,7 @@
                                 <thead>
                                     <tr>
                                         <th >Type</th>
+                                        <th >Applied To</th>
                                         <th >Name</th>
                                         <th >Currency</th>
                                         <th >Trunk</th>
@@ -111,6 +116,7 @@ jQuery(document).ready(function($) {
     $searchFilter.Search = $('#ratetable_filter [name="Search"]').val();
     $searchFilter.Type = $('#ratetable_filter [name="Type"]').val();
     $searchFilter.DIDCategoryID = $('#ratetable_filter [name="DIDCategoryID"]').val();
+    $searchFilter.AppliedTo = $('#ratetable_filter [name="AppliedTo"]').val();
 
     data_table = $("#table-4").dataTable({
         "bDestroy": true,
@@ -123,9 +129,9 @@ jQuery(document).ready(function($) {
         "oTableTools": {},
         "aaSorting": [[0, "asc"]],
         "fnServerParams": function(aoData) {
-            aoData.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"Search","value":$searchFilter.Search},{"name":"Type","value":$searchFilter.Type},{"name":"DIDCategoryID","value":$searchFilter.DIDCategoryID});
+            aoData.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"Search","value":$searchFilter.Search},{"name":"Type","value":$searchFilter.Type},{"name":"DIDCategoryID","value":$searchFilter.DIDCategoryID},{"name":"AppliedTo","value":$searchFilter.AppliedTo});
             data_table_extra_params.length = 0;
-            data_table_extra_params.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"Search","value":$searchFilter.Search},{"name":"Type","value":$searchFilter.Type},{"name":"DIDCategoryID","value":$searchFilter.DIDCategoryID});
+            data_table_extra_params.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"Search","value":$searchFilter.Search},{"name":"Type","value":$searchFilter.Type},{"name":"DIDCategoryID","value":$searchFilter.DIDCategoryID},{"name":"AppliedTo","value":$searchFilter.AppliedTo});
         },
         "fnRowCallback": function(nRow, aData) {
             $(nRow).attr("id", "host_row_" + aData[2]);
@@ -136,6 +142,12 @@ jQuery(document).ready(function($) {
                         mRender: function(id, type, full) {
                             var Types = JSON.parse('{{json_encode(RateTable::$types)}}');
                             return Types[full[0]];
+                        }
+                    },
+                    {
+                        mRender: function(id, type, full) {
+                            var AppliedTo = JSON.parse('{{json_encode(RateTable::$AppliedTo)}}');
+                            return AppliedTo[full[1]];
                         }
                     },
                     {},
@@ -150,11 +162,14 @@ jQuery(document).ready(function($) {
                             view_ = "{{ URL::to('/rate_tables/{id}/view')}}";
                             delete_ = "{{ URL::to('/rate_tables/{id}/delete')}}";
 
-                            view_ = view_.replace('{id}', full[7]);
-                            delete_ = delete_.replace('{id}', full[7]);
+                            view_ = view_.replace('{id}', full[8]);
+                            delete_ = delete_.replace('{id}', full[8]);
+
+                            full[11] = full[11] == null ? "" : full[11];
+                            full[12] = full[12] == null ? "" : full[12];
 
                             action = '<a title="View" href="' + view_ + '" class="btn btn-default btn-sm"><i class="fa fa-eye"></i></a>&nbsp;';
-                            action += '<a title="Edit" data-id="'+  full[7] +'" data-Type="'+full[0]+'" data-rateTableName="'+full[1]+'" data-TrunkID="'+full[8]+'" data-CurrencyID="'+full[9]+'" data-RoundChargedAmount="'+full[10]+'" data-MinimumCallCharge="'+full[11]+'" data-DIDCategoryID="'+full[12]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
+                            action += '<a title="Edit" data-id="'+  full[8] +'" data-Type="'+full[0]+'" data-rateTableName="'+full[2]+'" data-TrunkID="'+full[9]+'" data-CurrencyID="'+full[10]+'" data-RoundChargedAmount="'+full[11]+'" data-MinimumCallCharge="'+full[12]+'" data-DIDCategoryID="'+full[13]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
 
                             <?php if(User::checkCategoryPermission('RateTables','Delete') ) { ?>
                                 action += ' <a title="Delete" href="' + delete_ + '" data-redirect="{{URL::to("/rate_tables")}}"  class="btn btn-default delete btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';
@@ -273,6 +288,7 @@ jQuery(document).ready(function($) {
         $searchFilter.Search = $('#ratetable_filter [name="Search"]').val();
         $searchFilter.Type = $('#ratetable_filter [name="Type"]').val();
         $searchFilter.DIDCategoryID = $('#ratetable_filter [name="DIDCategoryID"]').val();
+        $searchFilter.AppliedTo = $('#ratetable_filter [name="AppliedTo"]').val();
         data_table.fnFilter('', 0);
         return false;
      });
