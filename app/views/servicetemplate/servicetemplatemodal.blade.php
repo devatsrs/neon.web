@@ -45,7 +45,7 @@
             data.append ('selectedSubscription', document.getElementById("selectedSubscription").value);
             data.append ('selectedcategotyTariff', document.getElementById("selectedcategotyTariff").value);
             //alert("selectedSubscription" + document.getElementById("selectedSubscription").value);
-            alert("selectedcategotyTariff" + document.getElementById("selectedcategotyTariff").value);
+           // alert("selectedcategotyTariff" + document.getElementById("selectedcategotyTariff").value);
             showAjaxScript(update_new_url, data, function(response){
                 document.getElementById("Service-update").disabled = false;
                 $(".btn").button('reset');
