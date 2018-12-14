@@ -50,11 +50,11 @@
             <a href="{{URL::to('billing_subscription')}}"><i class=""></i>Subscription</a>
         </li>
         <li class="active">
-            <strong>Subscriptions Dynamic Fields</strong>
+            <strong>Dynamic Fields</strong>
         </li>
     </ol>
 
-    <h3>Subscriptions Dynamic Fields</h3>
+    <h3>Dynamic Fields</h3>
     <div class="tab-content">
         <div class="tab-pane active" id="customer_rate_tab_content">
             <div class="clear"></div>
@@ -399,6 +399,8 @@
                             if(list_fields[i] == 'FieldDomType'){
                                 $("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
                                 var valdomtype=$("input[name='"+list_fields[i]+"']").val();
+                                $("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").attr("disabled",true);
+
                                 var h_FieldDomType='<input type="hidden" name="FieldDomType" value="'+valdomtype+'" />';
                                 $("#add-edit-dynamicfield-form").append(h_FieldDomType);
                             }
