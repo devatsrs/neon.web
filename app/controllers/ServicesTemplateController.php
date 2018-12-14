@@ -17,11 +17,27 @@ class ServicesTemplateController extends BaseController {
        $companyID = User::get_companyID();
       // $data['ServiceStatus'] = $data['ServiceStatus']== 'true'?1:0;
 
+        $iSortCol_0 = isset($data['iSortCol_0']) ? $data['iSortCol_0']:1;
+        $sSortDir_0 = '';
+        if (isset($data['sSortDir_0'])) {
+            $sSortDir_0 = $data['sSortDir_0'];
+        }else {
+            $sSortDir_0 = "ASC";
+        }
+
+        Log::info('$sSortDir_0..' . $sSortDir_0);
+        if ($iSortCol_0 == 1 || $iSortCol_0 == 0) {
+            $iSortCol_0 = "tblServiceTemplate.Name";
+        } else if ($iSortCol_0 == 2) {
+            $iSortCol_0 = "tblService.ServiceName";
+        }else if ($iSortCol_0 == 3) {
+            $iSortCol_0 = "tblCurrency.Code";
+        }
         $servicesTemplate = ServiceTemplate::
         Join('tblService','tblService.ServiceID','=','tblServiceTemplate.ServiceId')
             ->Join('tblCurrency','tblServiceTemplate.CurrencyId','=','tblCurrency.CurrencyId')
             ->select(['tblService.ServiceId','tblServiceTemplate.Name','tblService.ServiceName','tblCurrency.Code','tblServiceTemplate.OutboundRateTableId','tblServiceTemplate.ServiceTemplateId','tblServiceTemplate.CurrencyId','tblServiceTemplate.InboundDiscountPlanId','tblServiceTemplate.OutboundDiscountPlanId'])
-            ->orderBy("tblServiceTemplate.Name", "ASC");
+            ->orderBy($iSortCol_0, $sSortDir_0);
 
         Log::info('$servicesTemplate AJAX.$data[\'ServiceId\']' . $data['ServiceId']);
         Log::info('$servicesTemplate AJAX.$data[\'ServiceName\']' . $data['ServiceName']);
