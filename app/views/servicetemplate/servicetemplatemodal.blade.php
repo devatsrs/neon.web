@@ -324,6 +324,7 @@
             // $("#serviceBasedOnCurreny").html(data);
         }, 'html');
 
+        ShowTariffOnSelectedCategory();
 
     }
     $(document).ready(function(){
@@ -349,11 +350,12 @@
 
             url = baseurl + "/servicesTemplate/selectDataOnCurrency" +
                     "?selectedCurrency=" + selected_currency + "&selectedData=DidCategoryID&selected_didCategory="+selected_didCategory;
-           //  alert("url :" + url);
+            // alert("url :" + url);
             $.post(url, function (data, status) {
                 //  var res = data.split('/>');
              //   alert(data);
                 document.getElementById("DidCategoryTariffID").innerHTML = "" + data;
+                 saveDidCategoryTariffID = document.getElementById("DidCategoryTariffID").innerHTML;
                 // $("#serviceBasedOnCurreny").html(data);
             }, 'html');
 
@@ -391,7 +393,7 @@
             document.getElementById('templateSubscriptionList').innerHTML = templateSubscriptionList;
             document.getElementById("SubscriptionIDListBody").innerHTML = SubscriptionIDListBody;
             document.getElementById("selectedSubscription").value = saveSelectedSubscription;
-
+            saveDidCategoryTariffID = document.getElementById("DidCategoryTariffID").innerHTML;
 
 
             var tabel = document.getElementById('servicetable');
@@ -409,6 +411,7 @@
             document.getElementById("ActiveTabContent").innerHTML = document.getElementById("ContentSubscriptionTab").innerHTML;
             document.getElementById("selectedcategotyTariff").value = saveSelectedCategoryTariff;
         } else if (showTabId == "InboundTariffTab") {
+            //alert(saveDidCategoryTariffID);
             document.getElementById("tab2").setAttribute("class", "active");
             document.getElementById("tab1").setAttribute("class", "");
 
@@ -426,6 +429,7 @@
             document.getElementById('DidCategoryTariffID').innerHTML = DidCategoryTariffID;
             document.getElementById('categoryTariffIDListBody').innerHTML = categoryTariffIDListBody;
             document.getElementById("selectedcategotyTariff").value = saveSelectedCategoryTariff;
+            document.getElementById("DidCategoryTariffID").innerHTML = saveDidCategoryTariffID;
             var tabel = document.getElementById('categotyTarifftable');
             var rijen = tabel.rows.length;
             for (i = 1; i < rijen; i++){
@@ -497,6 +501,9 @@
         var DidCategoryTariffIDText = SelectedDidCategoryTariffID.text();
         var DidCategoryTariffID = SelectedDidCategoryTariffID.val();
         //alert(SelectedDidCategoryID + ":" + SelectedDidCategoryTariffID.val());
+        if (typeof DidCategoryID == 'undefined' || DidCategoryID == '') {
+            DidCategoryID = "0";
+        }
         if (typeof DidCategoryID != 'undefined' && DidCategoryID != '' && typeof DidCategoryTariffID != 'undefined' && DidCategoryTariffID != '') {
             // alert("Selected Option Text: "+optionText + " " + optionID);
             // alert(document.getElementById("SubscriptionIDListBody"));
@@ -579,12 +586,14 @@
         AddSubscriptionInTableWithHtml(optionText,optionID);
     }
 
+
     var rowCategoryTariffHtmlIndex = 0;
     var rowSubscriptionHtmlIndex = 0;
     var SubscriptionIDListBody = '';
     var categoryTariffIDListBody = '';
     var saveSelectedSubscription = '';
     var saveSelectedCategoryTariff = '';
+    var saveDidCategoryTariffID = '';
     var templateSubscriptionList = '';
     var DidCategoryTariffID = '';
     var DidCategoryIndexValue = -1;

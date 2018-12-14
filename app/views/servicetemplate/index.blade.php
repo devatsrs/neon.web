@@ -78,13 +78,17 @@
         document.getElementById('categoryTariffIDListBody').innerHTML="";
         document.getElementById("selectedSubscription").value="";
         document.getElementById("selectedcategotyTariff").value="";
+        document.getElementById("DidCategoryTariffID").innerHTML = "";
         document.getElementById("tab1").setAttribute("class", "active");
         document.getElementById("tab2").setAttribute("class", "");
+       // document.getElementById("ContentSubscriptionTab").innerHTML = "";
+       // document.getElementById("ContentInboundTariffTab").innerHTML= "";
 
         saveSelectedCategoryTariff="";
         saveSelectedSubscription="";
         SubscriptionIDListBody = "";
         categoryTariffIDListBody = "";
+        saveDidCategoryTariffID = "";
         $("#add-new-service-form [name='CurrencyId']").prop('disabled',false);//disabled="true"
         $("#add-new-service-form [name='ServiceId']").select2().select2('val','');
         $("#add-new-service-form [name='OutboundDiscountPlanId']").select2().select2('val','');
@@ -103,6 +107,7 @@
         });
        // alert(document.getElementById("SubscriptionIDListBody").innerHTML);
        // alert(document.getElementById('categoryTariffIDListBody').innerHTML);
+       // alert(categoryTariffIDListBody);
         modal.modal('show');
        // modal.find('h4').html("Add New"+getTitle(self.attr('data-type')));
         $('#add-new-modal-service h5').html('Add Service Template');
