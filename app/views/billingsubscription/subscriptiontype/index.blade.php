@@ -8,7 +8,7 @@
                 <i class="fa fa-filter"></i>
                 Filter
             </h2>
-            <form id="dynamicfield_filter" method="get" class="form-horizontal form-groups-bordered validate" novalidate>
+            <form id="dynamicfield_filter" method="get" class="form-horizontal form-groups-bordered validate" novalidate action="javascript:void(0);">
                 <div class="form-group">
                     <label for="field-1" class="control-label">Field Name</label>
                     {{ Form::text('FieldName', '', array("class"=>"form-control")) }}
@@ -17,7 +17,7 @@
                 <div class="form-group">
                     <label for="field-5" class="control-label">DOM Type </label>
                     <?php
-                    $FieldDomTypes=[''=>'Select DOM Type','string'=>'String','numeric'=>'Numeric','textarea'=>'Text Area','select'=>'Select','file'=>'File','datetime'=>'DateTime','boolean'=>'Boolean'];
+                    $FieldDomTypes=[''=>'Select DOM Type','string'=>'String','numeric'=>'Numeric','textarea'=>'Text Area','select'=>'Select','file'=>'File','datetime'=>'DateTime','boolean'=>'Boolean', 'numericPerCall' => 'Charge Per Call', 'numericePerMin' => 'Charge Per Minute'];
                     ?>
                     {{Form::select('FieldDomType',$FieldDomTypes,'',array("class"=>"form-control select2 small"))}}
                 </div>
@@ -61,11 +61,11 @@
             <div class="row">
                 <div  class="col-md-12">
                     <a href="{{ URL::to('/billing_subscription')  }}" class="btn btn-danger btn-md btn-icon icon-left pull-right" > <i class="entypo-cancel"></i> Close </a>
-                    @if(User::checkCategoryPermission('ItemType','Edit'))
+                    @if(User::checkCategoryPermission('Subscription','Edit'))
                         <div class="input-group-btn pull-right hidden dropdown" style="width:78px;">
                             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
                             <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
-                                @if(User::checkCategoryPermission('ItemType','Edit'))
+                                @if(User::checkCategoryPermission('Subscription','Edit'))
                                     <li class="li_active">
                                         <a class="type_active_deactive" type_ad="active" href="javascript:void(0);" >
                                             <i class="fa fa-plus-circle"></i>
@@ -85,7 +85,7 @@
                     @endif
 
                     @if( User::is_admin() || User::is('BillingAdmin'))
-                        @if(User::checkCategoryPermission('ItemType','Add'))
+                        @if(User::checkCategoryPermission('Subscription','Add'))
 
                             <a href="#" data-action="showAddModal" id="add-new-itemtype" data-type="Dynamic Field" data-modal="add-edit-modal-itemtype" class="btn btn-primary pull-right">
                                 <i class="entypo-plus"></i>
@@ -104,7 +104,7 @@
                 <thead>
                     <tr>
                         <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
-                        <th width="15%">Fileds Name</th>
+                        <th width="15%">Filed Name</th>
                         <th width="20%">DOM Type</th>
                         <th width="15%">created_at</th>
                         <th width="15%">Status</th>
@@ -129,7 +129,6 @@
                     public_vars.$body = $("body");
                     $searchFilter.FieldName = $("#dynamicfield_filter [name='FieldName']").val();
                     $searchFilter.FieldDomType = $("#dynamicfield_filter [name='FieldDomType']").val();
-                    $searchFilter.ItemTypeID = $("#dynamicfield_filter [name='ItemTypeID']").val();
                     $searchFilter.Active = $("#dynamicfield_filter select[name='Active']").val();
 
                     data_table = $("#table-4").dataTable({
@@ -139,15 +138,14 @@
                         "sAjaxSource": baseurl + "/billing_subscription/subcriptiontypes/getFields/type",
                         "fnServerParams": function (aoData) {
 
+
                             aoData.push({ "name": "FieldName", "value": $searchFilter.FieldName },
                                     { "name": "FieldDomType", "value": $searchFilter.FieldDomType },
-                                    { "name": "ItemTypeID", "value": $searchFilter.ItemTypeID },
                                     { "name": "Active", "value": $searchFilter.Active });
 
                             data_table_extra_params.length = 0;
                             data_table_extra_params.push({ "name": "FieldName", "value": $searchFilter.FieldName },
                                     { "name": "FieldDomType", "value": $searchFilter.FieldDomType },
-                                    { "name": "ItemTypeID", "value": $searchFilter.ItemTypeID },
                                     { "name": "Active", "value": $searchFilter.Active },
                                     { "name": "Export", "value": 1});
 
@@ -194,14 +192,14 @@
                                     }
 
                                     action += '</div>';
-                                    <?php if(User::checkCategoryPermission('ItemType','Edit')){ ?>
+                                    <?php if(User::checkCategoryPermission('Subscription','Edit')){ ?>
                                             action += ' <a data-name = "' + full[1] + '" data-id="' + full[0] + '" title="Edit" class="edit-subscription btn btn-default btn-sm btn-smtooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
                                     <?php } ?>
-                                            <?php if(User::checkCategoryPermission('ItemType','Delete') ){ ?>
+                                            <?php if(User::checkCategoryPermission('Subscription','Delete') ){ ?>
                                             action += ' <a href="'+delete_+'" data-redirect="{{ URL::to('products')}}" title="Delete"  class="btn delete btn-danger btn-default btn-sm btn-smtooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></a>';
                                     <?php } ?>
                                     if(full[3]==1) {
-                                        <?php if(User::checkCategoryPermission('DynamicField', 'View') ){ ?>
+                                        <?php if(User::checkCategoryPermission('Subscription', 'View') ){ ?>
                                                 action += '<a href="'+url_+'" data-toggle="tooltip" title="Dynamic Fields"  class="btn btn-default btn-sm btn-smtooltip-primary" style="margin-left:3px;"><i class="glyphicon glyphicon-th"></i> </a>';
                                         <?php } ?>
                                     }
@@ -359,10 +357,12 @@
 
                     });
 
-                    $("#itemtype_filter").submit(function(e){
+                    $("#dynamicfield_filter").submit(function(e){
                         e.preventDefault();
-                        $searchFilter.title = $("#itemtype_filter [name='title']").val();
-                        $searchFilter.Active = $("#itemtype_filter [name='Active']").val();
+
+                        $searchFilter.FieldName = $("#dynamicfield_filter [name='FieldName']").val();
+                        $searchFilter.FieldDomType = $("#dynamicfield_filter [name='FieldDomType']").val();
+                        $searchFilter.Active = $("#dynamicfield_filter [name='Active']").val();
                         data_table.fnFilter('', 0);
                         return false;
                     });
@@ -380,14 +380,15 @@
                         $('#add-edit-itemtype-form').trigger("reset");
                         var cur_obj = $(this).prev("div.hiddenRowData");
                         for(var i = 0 ; i< list_fields.length; i++){
-                            if(list_fields[i] == 'ItemTypeID'){
-                                var ItemTypeID=cur_obj.find("input[name='"+list_fields[i]+"']").val();
-                                if(ItemTypeID=='' || typeof (ItemTypeID)=='undefined'){
-                                    ItemTypeID=0;
+                            if(list_fields[i] == 'DynamicFieldsID'){
+                                var DynamicFieldsID=cur_obj.find("input[name='"+list_fields[i]+"']").val();
+                                if(DynamicFieldsID=='' || typeof (DynamicFieldsID)=='undefined'){
+                                    DynamicFieldsID=0;
                                 }
-                                $("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").val(ItemTypeID).trigger("change");
+                                $("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").val(DynamicFieldsID).trigger("change");
                                 var valitemid=$("input[name='"+list_fields[i]+"']").val();
-                                if(ItemTypeID > 0){
+                                if(DynamicFieldsID > 0){
+
                                     $("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").attr("disabled",true);
                                     var h_ItemTypeID='<input type="hidden" name="ItemTypeID" value="'+valitemid+'" />';
                                     $("#add-edit-dynamicfield-form").append(h_ItemTypeID);
@@ -398,7 +399,6 @@
                             if(list_fields[i] == 'FieldDomType'){
                                 $("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
                                 var valdomtype=$("input[name='"+list_fields[i]+"']").val();
-                                $("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").attr("disabled",true);
                                 var h_FieldDomType='<input type="hidden" name="FieldDomType" value="'+valdomtype+'" />';
                                 $("#add-edit-dynamicfield-form").append(h_FieldDomType);
                             }
