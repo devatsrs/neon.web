@@ -8,9 +8,9 @@ class ConnectionController extends \BaseController {
     {
         $companyID = User::get_companyID();
         $trunks = VendorTrunk::getTrunkDropdownIDList($id);
-        if(count($trunks) == 0){
+        /*if(count($trunks) == 0){
             return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
-        }
+        }*/
         $Type=[''=>'Select']+VendorConnection::$Type_array;
         $DIDCategories=DIDCategory::getCategoryDropdownIDList($companyID);
         $CurrencyID=Account::getCurrencyIDByAccount($id);

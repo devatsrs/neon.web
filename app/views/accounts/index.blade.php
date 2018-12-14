@@ -416,6 +416,7 @@
                                 vendor_blocking_ = "{{Url::to('/vendor_rates/{id}')}}";
 								subscriptions_ = "{{ URL::to('account_subscription/')}}?id={id}";
 								authenticate_ = "{{Url::to('/accounts/authenticate/{id}')}}";
+								connection_ = "{{Url::to('/vendor_rates/connection/{id}')}}";
 
                                 edit_ = edit_.replace( '{id}', full[0] );
                                 show_ = show_.replace( '{id}', full[0] );
@@ -427,6 +428,7 @@
                                 vendor_blocking_ = vendor_blocking_.replace( '{id}', full[0] );
 								subscriptions_ = subscriptions_.replace( '{id}', full[0] );
 								authenticate_ = authenticate_.replace( '{id}', full[0] );
+                                connection_ = connection_.replace( '{id}', full[0] );
                                 action = '';
                                 
 								
@@ -494,7 +496,7 @@
 
                                 if(full[11]==1 && full[12]=='{{Account::VERIFIED}}'){
                                     <?php if(User::checkCategoryPermission('VendorRates','View')){ ?>
-                                        action += '&nbsp;<button redirecto="'+vendor_blocking_+'" title="Vendor" class="btn small_icons btn-info btn-xs"><i class="fa fa-slideshare"></i></button>';
+                                        action += '&nbsp;<button redirecto="'+connection_+'" title="Vendor" class="btn small_icons btn-info btn-xs"><i class="fa fa-slideshare"></i></button>';
                                     <?php } ?>
                                 } 								
 								

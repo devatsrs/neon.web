@@ -22,11 +22,13 @@
 @include('includes.success')
 
 <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
-    <li class="active">
-        <a href="{{ URL::to('/vendor_rates/connection/'.$id) }}" >
-            <span class="hidden-xs">Connection</span>
-        </a>
-    </li>
+    @if(User::checkCategoryPermission('VendorRates','Connection'))
+        <li class="active">
+            <a href="{{ URL::to('/vendor_rates/connection/'.$id) }}" >
+                <span class="hidden-xs">Connection</span>
+            </a>
+        </li>
+    @endif
     {{--<li>
         <a href="{{ URL::to('vendor_rates/'.$id) }}" >
             <span class="hidden-xs">Vendor Rate</span>
@@ -614,10 +616,14 @@
                 $(".FilterConnectionType").change(function() {
                    var Type=$(this).val();
                    if(Type=='DID'){
+                       $(".FilterCategory").css('display','block');
                        $(".FilterVoiceCallDiv").css('display','none');
+                       $("select[name='TrunkID']").select2('val','');
+                       $("input[name='IP']").val('');
                    }else if(Type=='VoiceCall'){
                        $(".FilterVoiceCallDiv").css('display','block');
                        $(".FilterCategory").css('display','none');
+                       $("select[name='DIDCategoryID']").select2('val','');
                    }else{
                        $(".FilterVoiceCallDiv").css('display','block');
                        $(".FilterCategory").css('display','block');
