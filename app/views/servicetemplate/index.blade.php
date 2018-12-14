@@ -297,6 +297,7 @@
             $("#add-new-service-form [name='ServiceID']").val($(this).attr('data-id'));
             $('#add-new-modal-service  Service Template');
             $('#add-new-modal-service h5').html('Edit Service Template');
+            document.getElementById("ActiveTabContent").innerHTML = document.getElementById("ContentSubscriptionTab").innerHTML;
             $('#add-new-modal-service').modal('show');
 
 
