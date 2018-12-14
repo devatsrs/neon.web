@@ -920,6 +920,30 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/billing_subscription/{id}/getSubscriptionData_ajax', 'BillingSubscriptionController@getSubscriptionData_ajax');
     Route::any('/billing_subscription/{id}/get/{FieldName}', 'BillingSubscriptionController@get')->where('FieldName', '(.[azAZ]*)+');
 
+
+	Route::any('/billing_subscription/ajax_datagrid/{type}', 'BillingSubscriptionController@ajax_datagrid');
+	Route::any('/billing_subscription/update/{id}', 'BillingSubscriptionController@update');
+	Route::any('/billing_subscription', 'BillingSubscriptionController@index');
+	Route::any('/billing_subscription/subscription_types', 'BillingSubscriptionController@viewSubscriptionDynamicFields');
+	Route::any('/billing_subscription/subcriptiontypes/getFields/{type}', 'BillingSubscriptionController@ajax_GetSubscriptions');
+
+	Route::any('/billing_subscription/ajax_datagrid/{type}', 'BillingSubscriptionController@ajax_datagrid');
+	Route::any('/billing_subscription/update/{id}', 'BillingSubscriptionController@update');
+	Route::any('/billing_subscription', 'BillingSubscriptionController@index');
+	Route::any('/billing_subscription/subscription_types', 'BillingSubscriptionController@viewSubscriptionDynamicFields');
+	Route::any('/billing_subscription/subcriptiontypes/getFields/{type}', 'BillingSubscriptionController@ajax_GetSubscriptions');
+	Route::any('/billing_subscription/create', 'BillingSubscriptionController@create');
+	Route::any('/billing_subscription/update/{id}', 'BillingSubscriptionController@update');
+	Route::any('/billing_subscription/{id}/delete', 'BillingSubscriptionController@delete');
+	Route::any('/billing_subscription/{id}/getSubscriptionData_ajax', 'BillingSubscriptionController@getSubscriptionData_ajax');
+	Route::any('/billing_subscription/{id}/get/{FieldName}', 'BillingSubscriptionController@get')->where('FieldName', '(.[azAZ]*)+');
+	Route::any('/billing_subscription/dynamicfields/create', 'BillingSubscriptionController@addDynamicFields');
+	Route::any('/billing_subscription/dynamicfields/{id}/update','BillingSubscriptionController@updateDynamicField');
+	Route::any('/billing_subscription/dynamicField/{id}/delete', 'BillingSubscriptionController@deleteDynamicFields');
+	Route::any('/billing_subscription/dynamicField/update_bulk_itemtypes_status', 'BillingSubscriptionController@UpdateBulkItemTypeStatus');
+	Route::any('/billing_subscription/dynamicField/typesAccess/{data}', 'BillingSubscriptionController@getSubscritionsType');
+	Route::any('/billing_subscription/dynamicField/fieldAccess', 'BillingSubscriptionController@getSubscritionsField');
+
 	//InvoiceTemplate
 	Route::any('/invoice_template/ajax_datagrid/{type}', 'InvoiceTemplatesController@ajax_datagrid');
 	Route::any('/invoice_template', 'InvoiceTemplatesController@index');
