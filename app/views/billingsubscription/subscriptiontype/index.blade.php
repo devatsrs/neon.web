@@ -471,9 +471,17 @@
 
                          ev.preventDefault();
                         $("#add-edit-product-form [name='ProductID']").val('');
-                      $('.modal-title').text('Add subscription');
+                        $('.modal-title').text('Add subscription');
+                      for(var i = 0 ; i< list_fields.length; i++) {
 
-                      $('#add-edit-modal-product').modal('show');
+                          if (list_fields[i] == 'FieldDomType') {
+
+                              $("#add-edit-dynamicfield-form [name='" + list_fields[i] + "']").attr("disabled", false);
+                          }
+                      }
+
+
+                         $('#add-edit-modal-product').modal('show');
 
                      });
 
