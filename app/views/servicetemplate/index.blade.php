@@ -78,8 +78,13 @@
         document.getElementById('categoryTariffIDListBody').innerHTML="";
         document.getElementById("selectedSubscription").value="";
         document.getElementById("selectedcategotyTariff").value="";
+        document.getElementById("tab1").setAttribute("class", "active");
+        document.getElementById("tab2").setAttribute("class", "");
+
         saveSelectedCategoryTariff="";
         saveSelectedSubscription="";
+        SubscriptionIDListBody = "";
+        categoryTariffIDListBody = "";
         $("#add-new-service-form [name='CurrencyId']").prop('disabled',false);//disabled="true"
         $("#add-new-service-form [name='ServiceId']").select2().select2('val','');
         $("#add-new-service-form [name='OutboundDiscountPlanId']").select2().select2('val','');
@@ -96,8 +101,11 @@
         forms.each(function(index,form){
             resetForm($(form),self.attr('data-type'));
         });
+       // alert(document.getElementById("SubscriptionIDListBody").innerHTML);
+       // alert(document.getElementById('categoryTariffIDListBody').innerHTML);
         modal.modal('show');
-        modal.find('h4').html("Add New"+getTitle(self.attr('data-type')));
+       // modal.find('h4').html("Add New"+getTitle(self.attr('data-type')));
+        $('#add-new-modal-service h5').html('Add Service Template');
     });
 
     var $searchFilter = {};
@@ -262,6 +270,9 @@
             CurrencyID = $(this).prev("div.hiddenRowData").find("input[name='CurrencyID']").val();
 
             ServiceId = $(this).prev("div.hiddenRowData").find("input[name='ServiceId']").val();
+            var OutboundDiscountPlanID= $(this).prev("div.hiddenRowData").find("input[name='OutboundDiscountPlanID']").val();
+            var InboundDiscountPlanID= $(this).prev("div.hiddenRowData").find("input[name='InboundDiscountPlanID']").val();
+            var OutboundTariffId= $(this).prev("div.hiddenRowData").find("input[name='OutboundTariffId']").val();
             CompanyGatewayID = $(this).prev("div.hiddenRowData").find("input[name='CompanyGatewayID']").val();
             Status = $(this).prev("div.hiddenRowData").find("input[name='Status']").val();
             if(Status == 1 ){
@@ -273,9 +284,9 @@
             $("#add-new-service-form [name='Name']").val(ServiceTemplateName);
             $("#add-new-service-form [name='CurrencyId']").select2().select2('val',CurrencyID);
             $("#add-new-service-form [name='CurrencyId']").prop('disabled',true);//disabled="true"
-            loadValuesBasedOnCurrency(CurrencyID,true);
+            loadValuesBasedOnCurrency(CurrencyID,true,ServiceId,OutboundDiscountPlanID,InboundDiscountPlanID,OutboundTariffId);
             editSelectedTemplateSubscription(CurrencyID,id);
-           // alert(ServiceId);
+            //alert(ServiceId);
             $("#add-new-service-form [name='ServiceId']").select2().select2('val',ServiceId);
             $("#add-new-service-form [name='CompanyGatewayID']").select2().select2('val',CompanyGatewayID);
             $("#add-new-service-form [name='ServiceID']").val($(this).attr('data-id'));
