@@ -40,13 +40,14 @@
                 update_new_url = baseurl + '/servicesTemplate/store';
                 //alert(document.getElementById("selectedSubscription").value);
             }
-
+            document.getElementById("Service-update").disabled = true;
             var data = new FormData(($('#add-new-service-form')[0]));
             data.append ('selectedSubscription', document.getElementById("selectedSubscription").value);
             data.append ('selectedcategotyTariff', document.getElementById("selectedcategotyTariff").value);
             //alert("selectedSubscription" + document.getElementById("selectedSubscription").value);
-            //alert("selectedcategotyTariff" + document.getElementById("selectedcategotyTariff").value);
+            alert("selectedcategotyTariff" + document.getElementById("selectedcategotyTariff").value);
             showAjaxScript(update_new_url, data, function(response){
+                document.getElementById("Service-update").disabled = false;
                 $(".btn").button('reset');
                 if (response.status == 'success') {
                     $('#add-new-modal-service').modal('hide');
@@ -263,6 +264,8 @@
             //alert("ServiceId" + ServiceId);
             if (ServiceId != '') {
                 $("#add-new-service-form [name='ServiceId']").select2().select2('val', ServiceId);
+            }else {
+                $("#add-new-service-form [name='ServiceId']").select2().select2('val', '');
             }
             // $("#serviceBasedOnCurreny").html(data);
         }, 'html');
@@ -285,6 +288,8 @@
            // alert(OutboundDiscountPlanID);
             if (OutboundDiscountPlanID) {
                 $("#add-new-service-form [name='OutboundDiscountPlanId']").select2().select2('val', OutboundDiscountPlanID);
+            }else {
+                $("#add-new-service-form [name='OutboundDiscountPlanId']").select2().select2('val', '');
             }
 
             // $("#serviceBasedOnCurreny").html(data);
@@ -297,6 +302,8 @@
             //var InboundDiscountPlanID = $("div.hiddenRowData").find("input[name='InboundDiscountPlanID']").val();
             if (InboundDiscountPlanID != null) {
                 $("#add-new-service-form [name='InboundDiscountPlanId']").select2().select2('val', InboundDiscountPlanID);
+            }else {
+                $("#add-new-service-form [name='InboundDiscountPlanId']").select2().select2('val', '');
             }
 
             // $("#serviceBasedOnCurreny").html(data);
@@ -310,6 +317,8 @@
            // var OutboundTariffId = $("div.hiddenRowData").find("input[name='OutboundTariffId']").val();
             if (OutboundTariffId != null) {
                 $("#add-new-service-form [name='OutboundRateTableId']").select2().select2('val', OutboundTariffId);
+            }else {
+                $("#add-new-service-form [name='OutboundRateTableId']").select2().select2('val', '');
             }
 
             // $("#serviceBasedOnCurreny").html(data);
@@ -455,7 +464,7 @@
 
 
     function RemoveCategoryTariffRowInTable(rowID) {
-        var removeValue = rowID.substr("SubscriptionRowID".length, rowID.length) + ",";
+        var removeValue = rowID.substr("CategoryTariffRowID".length, rowID.length) + ",";
         // alert(removeValue);
         var selectedselectedcategotyTariff = document.getElementById("selectedcategotyTariff").value;
         var removalueIndex = selectedselectedcategotyTariff.indexOf(removeValue);
@@ -517,7 +526,7 @@
             var colValue = DidCategoryID;
             //
             var selectedselectedcategotyTariff = document.getElementById("selectedcategotyTariff").value;
-            //alert("selectedselectedcategotyTariff in add:" + selectedSubscription);
+           // alert("selectedselectedcategotyTariff in add:" + selectedselectedcategotyTariff);
             if (selectedselectedcategotyTariff.indexOf(CategoryTariffValue) == -1) {
                 var rowCategoryTariffHtml =
                         '<tr class="draggable" + ' +
@@ -788,7 +797,7 @@
                     </div>
 
                     <div class="modal-footer" style="vertical-align: top">
-                        <button type="submit" id="Service-update"  class="save btn btn-primary btn-sm btn-icon icon-left" >
+                        <button type="submit" id="Service-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                             <i class="entypo-floppy"></i>
                             Save
                         </button>

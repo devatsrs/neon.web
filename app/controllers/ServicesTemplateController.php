@@ -34,7 +34,7 @@ class ServicesTemplateController extends BaseController {
             $iSortCol_0 = "tblCurrency.Code";
         }
         $servicesTemplate = ServiceTemplate::
-        Join('tblService','tblService.ServiceID','=','tblServiceTemplate.ServiceId')
+        leftJoin('tblService','tblService.ServiceID','=','tblServiceTemplate.ServiceId')
             ->Join('tblCurrency','tblServiceTemplate.CurrencyId','=','tblCurrency.CurrencyId')
             ->select(['tblService.ServiceId','tblServiceTemplate.Name','tblService.ServiceName','tblCurrency.Code','tblServiceTemplate.OutboundRateTableId','tblServiceTemplate.ServiceTemplateId','tblServiceTemplate.CurrencyId','tblServiceTemplate.InboundDiscountPlanId','tblServiceTemplate.OutboundDiscountPlanId'])
             ->orderBy($iSortCol_0, $sSortDir_0);
@@ -229,7 +229,9 @@ class ServicesTemplateController extends BaseController {
                     if ($validator->fails()) {
                         return json_validator_response($validator);
                     }
-                    $ServiceTemplateData['ServiceId'] = $data['ServiceId'];
+                    if (isset($data['ServiceId']) && $data['ServiceId'] != '') {
+                        $ServiceTemplateData['ServiceId'] = $data['ServiceId'];
+                    }
                     $ServiceTemplateData['Name'] = $data['Name'];
                     if ($OutboundDiscountPlanId != '') {
                         $ServiceTemplateData['OutboundDiscountPlanId'] = $OutboundDiscountPlanId;
@@ -320,7 +322,9 @@ class ServicesTemplateController extends BaseController {
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
-            $ServiceTemplateData['ServiceId'] = $data['ServiceId'];
+            if (isset($data['ServiceId']) && $data['ServiceId'] != '') {
+                $ServiceTemplateData['ServiceId'] = $data['ServiceId'];
+            }
             $ServiceTemplateData['Name'] = $data['Name'];
             if ($OutboundDiscountPlanId != '') {
                 $ServiceTemplateData['OutboundDiscountPlanId'] = $OutboundDiscountPlanId;
@@ -351,9 +355,10 @@ class ServicesTemplateController extends BaseController {
                     Log::info('Service Template Controller.' . $subsription);
                     ServiceTemapleSubscription::create($ServiceTemapleSubscription);
                 }
-                $ServiceTemapleInboundTariff['ServiceTemplateID'] = $ServiceTemplate->ServiceTemplateId;
+
                 foreach ($CategoryTariffList as $index1 => $CategoryTariffValue) {
                     try {
+                        $ServiceTemapleInboundTariff['ServiceTemplateID'] = $ServiceTemplate->ServiceTemplateId;
                         Log::info('$CategoryTariffValue1.' . $CategoryTariffValue);
                         $DIDRateTableList = explode("-", $CategoryTariffValue);
                         //Log::info('$CategoryTariffValue1.' . $DIDRateTableList);
@@ -362,7 +367,15 @@ class ServicesTemplateController extends BaseController {
                             $ServiceTemapleInboundTariff['DIDCategoryId'] = $DIDRateTableList[0];
                         }
                         $ServiceTemapleInboundTariff['RateTableId'] = $DIDRateTableList[1];
+                        Log::info('$DIDRateTableList[0].' . $DIDRateTableList[0]);
+                        Log::info('$DIDRateTableList[1].' . $DIDRateTableList[1]);
+
                         ServiceTemapleInboundTariff::create($ServiceTemapleInboundTariff);
+                        $DIDRateTableList[0] = '';
+                        $DIDRateTableList[1] = '';
+                        $DIDRateTableList = '';
+                        $ServiceTemapleInboundTariff = '';
+
                     }catch(Exception $ex){
                         Log::info('Error while inserting..' . $ex->getMessage());
                     }
