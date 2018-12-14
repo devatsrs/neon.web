@@ -96,4 +96,21 @@ class RateTable extends \Eloquent
         }
         return true;
     }
+
+    public static function getDIDTariffDropDownList($CompanyID,$Type,$CurrencyID){
+        $row=array();
+
+        if($Type==VendorConnection::Type_DID){
+            $row = RateTable::where(array('CompanyID'=>$CompanyID,'Type'=>2,'AppliedTo'=>2,'CurrencyID'=>$CurrencyID))->lists('RateTableName', 'RateTableId');
+        }else if($Type==VendorConnection::Type_VoiceCall){
+            $row = RateTable::where(array('CompanyID'=>$CompanyID,'Type'=>1,'AppliedTo'=>2,'CurrencyID'=>$CurrencyID))->lists('RateTableName', 'RateTableId');
+        }
+
+        if(!empty($row)){
+            $row = array(""=> "Select")+$row;
+        }
+        return $row;
+
+    }
+
 }

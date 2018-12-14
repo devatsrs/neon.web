@@ -872,4 +872,12 @@ class Account extends \Eloquent {
         return  CustomerTrunk::where(["AccountID"=>$AccountID,"TrunkID" => $TrunkID])->pluck('CodeDeckId');
     }
 
+    public static function getCurrencyIDByAccount($id=0){
+        $currency =  Account::select('tblAccount.CurrencyId')->join('tblCurrency','tblAccount.CurrencyId','=','tblCurrency.CurrencyId')->where(['tblAccount.AccountID'=>intval($id)])->first();
+        if(!empty($currency)){
+            return $currency->CurrencyId;
+        }
+        return "";
+    }
+
 }

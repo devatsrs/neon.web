@@ -143,8 +143,6 @@ class DIDCategoryController extends \BaseController {
         if( intval($id) > 0){
             if(DIDCategory::checkForeignKeyById($id)) {
                 try {
-                    //delete its DynamicFields
-
                     $result = DIDCategory::find($id)->delete();
                     if ($result) {
                         return Response::json(array("status" => "success", "message" => "DID Category Successfully Deleted"));
@@ -155,7 +153,7 @@ class DIDCategoryController extends \BaseController {
                     return Response::json(array("status" => "failed", "message" => "Problem Deleting DID Category."));
                 }
             }else{
-                return Response::json(array("status" => "failed", "message" => "DID Category not Found."));
+                return Response::json(array("status" => "failed", "message" => "DID Category is in Use."));
             }
         }else{
             return Response::json(array("status" => "failed", "message" => "DID Category not Found."));

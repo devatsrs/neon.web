@@ -162,10 +162,10 @@
                     <input type="checkbox" id="selectall" name="checkbox[]" />
                 </div>
             </th>
-            <th width="4%">Origination Code</th>
-            <th width="10%">Origination Description</th>
-            <th width="4%" id="Code-Header">Destination Code</th>
-            <th width="10%">Destination Description</th>
+            <th width="4%">Orig. Code</th>
+            <th width="10%">Orig. Description</th>
+            <th width="4%" id="Code-Header">Dest. Code</th>
+            <th width="10%">Dest. Description</th>
             <th width="3%">Interval 1</th>
             <th width="3%">Interval N</th>
             <th width="5%">Connection Fee</th>
@@ -658,7 +658,7 @@
             },
             "fnDrawCallback": function() {
                 if(view==1){
-                    $('#Code-Header').html('Destination Code');
+                    $('#Code-Header').html('Dest. Code');
                 }else{
                     $('#Code-Header').html('');
                 }
@@ -850,11 +850,11 @@
                     var hiddenRowData = tr.find('.hiddenRowData');
                     var Code = hiddenRowData.find('input[name="Code"]').val();
                     var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
-                    var header = "<thead><tr><th>Origination Code</th><th>Origination Description</th>";
+                    var header = "<thead><tr><th>Orig. Code</th><th>Orig. Description</th>";
                     if(view == 1) {
-                        header += "<th>Destination Code</th>";
+                        header += "<th>Dest. Code</th>";
                     }
-                    header += "<th>Destination Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate1</th><th>RateN</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th>";
+                    header += "<th>Dest. Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate1</th><th>RateN</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th>";
                     @if($rateTable->Type == RateTable::TYPE_VOICECALL && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                         header += "<th>Routing Category</th>";
                         header += "<th>Preference</th>";

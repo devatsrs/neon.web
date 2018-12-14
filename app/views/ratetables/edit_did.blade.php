@@ -143,10 +143,10 @@
                     <input type="checkbox" id="selectall" name="checkbox[]" />
                 </div>
             </th>
-            <th width="4%">Origination Code</th>
-            <th width="10%">Origination Description</th>
-            <th width="4%" id="Code-Header">Destination Code</th>
-            <th width="10%">Destination Description</th>
+            <th width="4%">Orig. Code</th>
+            <th width="10%">Orig. Description</th>
+            <th width="4%" id="Code-Header">Dest. Code</th>
+            <th width="10%">Dest. Description</th>
             <th width="3%">One-Off Cost ({{$code}})</th>
             <th width="3%">Monthly cost ({{$code}})</th>
             <th width="5%">Cost Per Call ({{$code}})</th>
@@ -201,6 +201,7 @@
                 return rateDataTable(view);*/
             return rateDataTable();
         });
+        $("#rate-table-search").trigger('submit');
 
         $('#table-4 tbody').on('click', 'tr', function() {
             if(!$(this).hasClass('no-selection')) {
@@ -600,7 +601,7 @@
             },
             "fnDrawCallback": function() {
                 if(view==1){
-                    $('#Code-Header').html('Destination Code');
+                    $('#Code-Header').html('Dest. Code');
                 }else{
                     $('#Code-Header').html('');
                 }
@@ -779,9 +780,9 @@
                     var Code = hiddenRowData.find('input[name="Code"]').val();
                     var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
                     if(view == 1) {
-                        table.append("<thead><tr><th>Origination Code</th><th>Origination Description</th><th>Destination Code</th><th>Destination Description</th><th>OneOffCost</th><th>MonthlyCost</th><th>CostPerCall</th><th>CostPerMinute</th><th>SurchargePerCall</th><th>SurchargePerMinute</th><th>OutpaymentPerCall</th><th>OutpaymentPerMinute</th><th>Surcharges</th><th>Chargeback</th><th>CollectionCostAmount</th><th>CollectionCostPercentage</th><th>RegistrationCostPerNumber</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                        table.append("<thead><tr><th>Orig. Code</th><th>Orig. Description</th><th>Dest. Code</th><th>Dest. Description</th><th>OneOffCost</th><th>MonthlyCost</th><th>CostPerCall</th><th>CostPerMinute</th><th>SurchargePerCall</th><th>SurchargePerMinute</th><th>OutpaymentPerCall</th><th>OutpaymentPerMinute</th><th>Surcharges</th><th>Chargeback</th><th>CollectionCostAmount</th><th>CollectionCostPercentage</th><th>RegistrationCostPerNumber</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
                     } else {
-                        table.append("<thead><tr><th>Origination Code</th><th>Origination Description</th><th>Destination Description</th><th>OneOffCost</th><th>MonthlyCost</th><th>CostPerCall</th><th>CostPerMinute</th><th>SurchargePerCall</th><th>SurchargePerMinute</th><th>OutpaymentPerCall</th><th>OutpaymentPerMinute</th><th>Surcharges</th><th>Chargeback</th><th>CollectionCostAmount</th><th>CollectionCostPercentage</th><th>RegistrationCostPerNumber</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                        table.append("<thead><tr><th>Orig. Code</th><th>Orig. Description</th><th>Dest. Description</th><th>OneOffCost</th><th>MonthlyCost</th><th>CostPerCall</th><th>CostPerMinute</th><th>SurchargePerCall</th><th>SurchargePerMinute</th><th>OutpaymentPerCall</th><th>OutpaymentPerMinute</th><th>Surcharges</th><th>Chargeback</th><th>CollectionCostAmount</th><th>CollectionCostPercentage</th><th>RegistrationCostPerNumber</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
                     }
                     var tbody = $("<tbody></tbody>");
 

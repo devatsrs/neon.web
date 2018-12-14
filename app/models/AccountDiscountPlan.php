@@ -44,4 +44,13 @@ class AccountDiscountPlan extends \Eloquent
 
     }
 
+    public static function getDiscountPlanList($type){
+        $DropdownIDList = AccountDiscountPlan::where(array('Type'=>$type))->lists('DiscountPlanID', 'DiscountPlanID');
+        $DropdownIDList = array('' => "Select") + $DropdownIDList;
+        return $DropdownIDList;
+    }
+
+//$DiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::OUTBOUND,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
+//$InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::INBOUND,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
+
 }
