@@ -256,9 +256,10 @@ class ServicesTemplateController extends BaseController {
                             Log::info('Service Template Controller.' . $subsription);
                             ServiceTemapleSubscription::create($ServiceTemapleSubscription);
                         }
-                        $ServiceTemapleInboundTariff['ServiceTemplateID'] = $ServiceTemplate->ServiceTemplateId;
+
                         foreach ($CategoryTariffList as $index1 => $CategoryTariffValue) {
                             try {
+                                $ServiceTemapleInboundTariff['ServiceTemplateID'] = $ServiceTemplate->ServiceTemplateId;
                                 Log::info('$CategoryTariffValue1.' . $CategoryTariffValue);
                                 $DIDRateTableList = explode("-", $CategoryTariffValue);
                                 //Log::info('$CategoryTariffValue1.' . $DIDRateTableList);
@@ -268,6 +269,10 @@ class ServicesTemplateController extends BaseController {
                                 }
                                 $ServiceTemapleInboundTariff['RateTableId'] = $DIDRateTableList[1];
                                 ServiceTemapleInboundTariff::create($ServiceTemapleInboundTariff);
+                                $DIDRateTableList[0] = '';
+                                $DIDRateTableList[1] = '';
+                                $DIDRateTableList = '';
+                                $ServiceTemapleInboundTariff = '';
                             }catch (Exception $ex){
                                 
                             }

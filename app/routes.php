@@ -1437,6 +1437,16 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/clitable/update','AccountsController@clitable_update');
 
 	// services
+	Route::any('servicesTemplate', 'ServicesTemplateController@index');
+	Route::any('servicesTemplate/ajax_datagrid', 'ServicesTemplateController@ajax_datagrid');
+	Route::any('servicesTemplate/store', 'ServicesTemplateController@store');
+	Route::any('servicesTemplate/update/{id}', 'ServicesTemplateController@update');
+	Route::any('servicesTemplate/delete/{id}', 'ServicesTemplateController@delete');
+	Route::any('servicesTemplate/exports/{type}', 'ServicesTemplateController@exports');
+	Route::any('servicesTemplate/selectDataOnCurrency', 'ServicesTemplateController@selectDataOnCurrency');
+
+
+	// services
 	Route::any('services', 'ServicesController@index');
 	Route::any('services/ajax_datagrid', 'ServicesController@ajax_datagrid');
 	Route::any('services/store', 'ServicesController@store');
