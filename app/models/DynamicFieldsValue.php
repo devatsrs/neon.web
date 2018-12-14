@@ -19,6 +19,16 @@ class DynamicFieldsValue extends \Eloquent {
                                     ->get();
     }
 
+    public static function getDynamicColumnValuesSubscription($DynamicFieldsID) {
+        $CompanyID = User::get_companyID();
+
+        return DynamicFieldsValue::where('CompanyID',$CompanyID)
+            ->where('DynamicFieldsID',$DynamicFieldsID)
+            ->get();
+    }
+
+
+
     public static function deleteDynamicColumnValuesByProductID($CompanyID,$ProductID,$DynamicFieldsIDs) {
         return DynamicFieldsValue::where('CompanyID',$CompanyID)
                                     ->where('ParentID',$ProductID)

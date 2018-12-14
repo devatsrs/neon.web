@@ -56,18 +56,9 @@
                     {{Form::select('Currency', $currencies, $CurrencyID ,array("class"=>"form-control select2"))}}
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="control-label">LCR Policy</label>
-                    {{ Form::select('Policy', LCR::$policy, LCR::LCR_PREFIX , array("class"=>"select2")) }}
-                </div>
-                <div class="form-group">
                     <label for="field-1" class="control-label">Show Positions</label>
                     {{ Form::select('LCRPosition', LCR::$position, $LCRPosition , array("class"=>"select2")) }}
                 </div>
-                <div class="form-group">
-                    <label for="field-1" class="control-label">Group By</label>
-                    {{Form::select('GroupBy', ["code"=>"Code", "description" => "Description"], $GroupBy ,array("class"=>"form-control select2"))}}
-                </div>
-
                 <div class="form-group">
                     <label for="field-1" class="control-label">Vendors</label>
                     {{Form::select('Accounts[]', $all_accounts, array() ,array("class"=>"form-control select2",'multiple'))}}
@@ -90,12 +81,6 @@
                         <input id="show_customer_rate" name="show_all_vendor_codes" type="checkbox" value="1">
                     </p>
                 </div>
-                {{--   <div class="form-group">
-                       <label for="field-1" class="control-label">Show Customer Sell Rate</label>
-                       <p class="make-switch switch-small">
-                           <input id="show_customer_rate" name="show_customer_rate" type="checkbox" value="1">
-                       </p>
-                   </div>--}}
                 <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
@@ -218,7 +203,7 @@
 
                     <div class="modal-body"></div>
                     <div class="modal-footer">
-                        <button type="button" id="preference-update" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..." style="visibility: visible;"> <i class="entypo-floppy"></i> Save </button>
+                        <button type="submit" id="preference-update" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..." style="visibility: visible;"> <i class="entypo-floppy"></i> Save </button>
                         <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
                     </div>
                 </form>
@@ -297,24 +282,23 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var BlockingCountryId = blockdata[3];
+                                        var Preference = blockdata[3];
+                                        var RateTableRateID = blockdata[4];
 
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
-                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blocktitle = blockid == 0 ? '"Block Code "' : '"UnBlock Code "';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa fa-unlock';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
 
-                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
-                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+                                        var countryblocktitle = Preference == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = Preference == 0 ? 'danger' : 'success';
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
 
                                         if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
+                                            action += '<a style="margin-left:3px" href="javascript:;" title='+blocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'"  data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"  id="'+blockid+'" class="blockingbycode btn btn-'+blockclass+' btn-xs pull-right">' +
                                                     '<i class="fa '+blockfa+'"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title='+countryblocktitle+' data-id="'+accountId+'" data-rowcode="'+RowCode+'" data-countryBlockingID="'+BlockingCountryId+'" id="'+blockid+'" class="blockingbycode btn btn-'+Countryblockclass+' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'" id="'+blockid+'">' +
+                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="'+accountId+'" data-rowcode="'+RowCode+'"  data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"  id="'+blockid+'">' +
                                                     '<i class="fa fa-pencil"></i></a>'+hr;
                                         }
                                     }
@@ -336,14 +320,15 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var BlockingCountryId = blockdata[3];
+                                        var Preference = blockdata[3];
+                                        var RateTableRateID = blockdata[4];
 
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
-                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blocktitle = blockid == 0 ? '"Block Code "' : '"UnBlock Code "';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa fa-unlock';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
 
-                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
-                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+                                        var countryblocktitle = Preference == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = Preference == 0 ? 'danger' : 'success';
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
@@ -351,8 +336,6 @@
                                         if(!merge_timezones) {
                                             action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
                                                     '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title=' + countryblocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-countryBlockingID="' + BlockingCountryId + '" id="' + blockid + '" class="blockingbycode btn btn-' + Countryblockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
                                                     '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '">' +
                                                     '<i class="fa fa-pencil"></i></a>' + hr;
                                         }
@@ -375,14 +358,15 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var BlockingCountryId = blockdata[3];
+                                        var Preference = blockdata[3];
+                                        var RateTableRateID = blockdata[4];
 
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
-                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blocktitle = blockid == 0 ? '"Block Code "' : '"UnBlock Code "';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa fa-unlock';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
 
-                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
-                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+                                        var countryblocktitle = Preference == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = Preference == 0 ? 'danger' : 'success';
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
@@ -390,8 +374,6 @@
                                         if(!merge_timezones) {
                                             action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
                                                     '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title=' + countryblocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-countryBlockingID="' + BlockingCountryId + '" id="' + blockid + '" class="blockingbycode btn btn-' + Countryblockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
                                                     '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '">' +
                                                     '<i class="fa fa-pencil"></i></a>' + hr;
                                         }
@@ -414,22 +396,21 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var BlockingCountryId = blockdata[3];
+                                        var Preference = blockdata[3];
+                                        var RateTableRateID = blockdata[4];
 
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
-                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blocktitle = blockid == 0 ? '"Block Code "' : '"UnBlock Code "';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa fa-unlock';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
 
-                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
-                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+                                        var countryblocktitle = Preference == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = Preference == 0 ? 'danger' : 'success';
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         if(!merge_timezones) {
                                             action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
                                                     '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title=' + countryblocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-countryBlockingID="' + BlockingCountryId + '" id="' + blockid + '" class="blockingbycode btn btn-' + Countryblockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
                                                     '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '">' +
                                                     '<i class="fa fa-pencil"></i></a>' + hr;
                                         }
@@ -452,14 +433,15 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var BlockingCountryId = blockdata[3];
+                                        var Preference = blockdata[3];
+                                        var RateTableRateID = blockdata[4];
 
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
-                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blocktitle = blockid == 0 ? '"Block Code "' : '"UnBlock Code "';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa fa-unlock';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
 
-                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
-                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+                                        var countryblocktitle = Preference == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = Preference == 0 ? 'danger' : 'success';
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
@@ -467,8 +449,6 @@
                                         if(!merge_timezones) {
                                             action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
                                                     '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title=' + countryblocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-countryBlockingID="' + BlockingCountryId + '" id="' + blockid + '" class="blockingbycode btn btn-' + Countryblockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
                                                     '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '">' +
                                                     '<i class="fa fa-pencil"></i></a>' + hr;
                                         }
@@ -512,14 +492,15 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var BlockingCountryId = blockdata[3];
+                                        var Preference = blockdata[3];
+                                        var RateTableRateID = blockdata[4];
 
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
-                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blocktitle = blockid == 0 ? '"Block Code "' : '"UnBlock Code "';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa fa-unlock';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
 
-                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
-                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+                                        var countryblocktitle = Preference == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = Preference == 0 ? 'danger' : 'success';
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
@@ -527,8 +508,6 @@
                                         if(!merge_timezones) {
                                             action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
                                                     '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title=' + countryblocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-countryBlockingID="' + BlockingCountryId + '" id="' + blockid + '" class="blockingbycode btn btn-' + Countryblockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
                                                     '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '">' +
                                                     '<i class="fa fa-pencil"></i></a>' + hr;
                                         }
@@ -551,14 +530,15 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var BlockingCountryId = blockdata[3];
+                                        var Preference = blockdata[3];
+                                        var RateTableRateID = blockdata[4];
 
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
-                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blocktitle = blockid == 0 ? '"Block Code "' : '"UnBlock Code "';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa fa-unlock';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
 
-                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
-                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+                                        var countryblocktitle = Preference == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = Preference == 0 ? 'danger' : 'success';
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
@@ -566,8 +546,6 @@
                                         if(!merge_timezones) {
                                             action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
                                                     '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title=' + countryblocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-countryBlockingID="' + BlockingCountryId + '" id="' + blockid + '" class="blockingbycode btn btn-' + Countryblockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
                                                     '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '">' +
                                                     '<i class="fa fa-pencil"></i></a>' + hr;
                                         }
@@ -590,14 +568,15 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var BlockingCountryId = blockdata[3];
+                                        var Preference = blockdata[3];
+                                        var RateTableRateID = blockdata[4];
 
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
-                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blocktitle = blockid == 0 ? '"Block Code "' : '"UnBlock Code "';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa fa-unlock';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
 
-                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
-                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+                                        var countryblocktitle = Preference == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = Preference == 0 ? 'danger' : 'success';
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
@@ -605,8 +584,6 @@
                                         if(!merge_timezones) {
                                             action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
                                                     '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title=' + countryblocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-countryBlockingID="' + BlockingCountryId + '" id="' + blockid + '" class="blockingbycode btn btn-' + Countryblockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
                                                     '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '">' +
                                                     '<i class="fa fa-pencil"></i></a>' + hr;
                                         }
@@ -629,14 +606,15 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var BlockingCountryId = blockdata[3];
+                                        var Preference = blockdata[3];
+                                        var RateTableRateID = blockdata[4];
 
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
-                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blocktitle = blockid == 0 ? '"Block Code "' : '"UnBlock Code "';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa fa-unlock';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
 
-                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
-                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+                                        var countryblocktitle = Preference == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = Preference == 0 ? 'danger' : 'success';
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
@@ -644,8 +622,6 @@
                                         if(!merge_timezones) {
                                             action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
                                                     '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title=' + countryblocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-countryBlockingID="' + BlockingCountryId + '" id="' + blockid + '" class="blockingbycode btn btn-' + Countryblockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
                                                     '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '">' +
                                                     '<i class="fa fa-pencil"></i></a>' + hr;
                                         }
@@ -668,14 +644,15 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var BlockingCountryId = blockdata[3];
+                                        var Preference = blockdata[3];
+                                        var RateTableRateID = blockdata[4];
 
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
-                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blocktitle = blockid == 0 ? '"Block Code "' : '"UnBlock Code "';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa fa-unlock';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
 
-                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
-                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+                                        var countryblocktitle = Preference == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = Preference == 0 ? 'danger' : 'success';
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
@@ -683,8 +660,6 @@
                                         if(!merge_timezones) {
                                             action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
                                                     '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title=' + countryblocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-countryBlockingID="' + BlockingCountryId + '" id="' + blockid + '" class="blockingbycode btn btn-' + Countryblockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
                                                     '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '">' +
                                                     '<i class="fa fa-pencil"></i></a>' + hr;
                                         }
@@ -707,14 +682,15 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var BlockingCountryId = blockdata[3];
+                                        var Preference = blockdata[3];
+                                        var RateTableRateID = blockdata[4];
 
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
-                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blocktitle = blockid == 0 ? '"Block Code "' : '"UnBlock Code "';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa fa-unlock';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
 
-                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
-                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+                                        var countryblocktitle = Preference == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = Preference == 0 ? 'danger' : 'success';
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
@@ -722,8 +698,6 @@
                                         if(!merge_timezones) {
                                             action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
                                                     '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title=' + countryblocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-countryBlockingID="' + BlockingCountryId + '" id="' + blockid + '" class="blockingbycode btn btn-' + Countryblockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
                                                     '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '">' +
                                                     '<i class="fa fa-pencil"></i></a>' + hr;
                                         }
@@ -746,14 +720,15 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var BlockingCountryId = blockdata[3];
+                                        var Preference = blockdata[3];
+                                        var RateTableRateID = blockdata[4];
 
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
-                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blocktitle = blockid == 0 ? '"Block Code "' : '"UnBlock Code "';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa fa-unlock';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
 
-                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
-                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+                                        var countryblocktitle = Preference == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = Preference == 0 ? 'danger' : 'success';
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
@@ -761,8 +736,6 @@
                                         if(!merge_timezones) {
                                             action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
                                                     '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title=' + countryblocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-countryBlockingID="' + BlockingCountryId + '" id="' + blockid + '" class="blockingbycode btn btn-' + Countryblockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
                                                     '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '">' +
                                                     '<i class="fa fa-pencil"></i></a>' + hr;
                                         }
@@ -785,14 +758,15 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var BlockingCountryId = blockdata[3];
+                                        var Preference = blockdata[3];
+                                        var RateTableRateID = blockdata[4];
 
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
-                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blocktitle = blockid == 0 ? '"Block Code "' : '"UnBlock Code "';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa fa-unlock';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
 
-                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
-                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+                                        var countryblocktitle = Preference == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = Preference == 0 ? 'danger' : 'success';
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
@@ -800,8 +774,6 @@
                                         if(!merge_timezones) {
                                             action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
                                                     '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title=' + countryblocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-countryBlockingID="' + BlockingCountryId + '" id="' + blockid + '" class="blockingbycode btn btn-' + Countryblockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
                                                     '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '">' +
                                                     '<i class="fa fa-pencil"></i></a>' + hr;
                                         }
@@ -824,14 +796,15 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var BlockingCountryId = blockdata[3];
+                                        var Preference = blockdata[3];
+                                        var RateTableRateID = blockdata[4];
 
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
-                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blocktitle = blockid == 0 ? '"Block Code "' : '"UnBlock Code "';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa fa-unlock';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
 
-                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
-                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+                                        var countryblocktitle = Preference == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = Preference == 0 ? 'danger' : 'success';
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
@@ -839,8 +812,6 @@
                                         if(!merge_timezones) {
                                             action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
                                                     '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title=' + countryblocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-countryBlockingID="' + BlockingCountryId + '" id="' + blockid + '" class="blockingbycode btn btn-' + Countryblockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
                                                     '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '">' +
                                                     '<i class="fa fa-pencil"></i></a>' + hr;
                                         }
@@ -863,14 +834,15 @@
                                         var blockid = blockdata[0];
                                         var accountId = blockdata[1];
                                         var RowCode = blockdata[2];
-                                        var BlockingCountryId = blockdata[3];
+                                        var Preference = blockdata[3];
+                                        var RateTableRateID = blockdata[4];
 
-                                        var blocktitle = blockid == 0 ? '"Code Block"' : '"Code UnBlock"';
-                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa-unlock-alt';
+                                        var blocktitle = blockid == 0 ? '"Block Code "' : '"UnBlock Code "';
+                                        var blockfa = blockid == 0 ? 'fa-lock' : 'fa fa-unlock';
                                         var blockclass = blockid == 0 ? 'danger' : 'success';
 
-                                        var countryblocktitle = BlockingCountryId == 0 ? '"Country Block"' : '"Country UnBlock"';
-                                        var Countryblockclass = BlockingCountryId == 0 ? 'danger' : 'success';
+                                        var countryblocktitle = Preference == 0 ? '"Country Block"' : '"Country UnBlock"';
+                                        var Countryblockclass = Preference == 0 ? 'danger' : 'success';
 
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
@@ -878,8 +850,6 @@
                                         if(!merge_timezones) {
                                             action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
                                                     '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a style="margin-left:3px" href="javascript:;" title=' + countryblocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-countryBlockingID="' + BlockingCountryId + '" id="' + blockid + '" class="blockingbycode btn btn-' + Countryblockclass + ' btn-xs pull-right">' +
-                                                    '<i class="fa fa-globe"></i></a>' +
                                                     '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '" id="' + blockid + '">' +
                                                     '<i class="fa fa-pencil"></i></a>' + hr;
                                         }
@@ -1086,20 +1056,15 @@
                 if(typeof countryBlockingID  == 'undefined' || countryBlockingID == '' ) {
                     var countryBlockingID = 'codewiseBlocking';
                 }
+                var RateTableRateID = thisclass.attr("data-ratetablerateid");
+
                 $.ajax({
                     type: "POST",
                     url: baseurl + '/vendor_blocking_lrc/blockunblockcode',
                     dataType: 'json',
                     data: {
-                        id: thisid,
-                        acc_id: thisaccid,
-                        trunk: Trunk,
-                        Timezones: Timezones,
-                        CodeDeckId: CodeDeck,
-                        rowcode: rowcode,
-                        GroupBy: GroupBy,
-                        description:descriptioname,
-                        countryBlockingID:countryBlockingID,
+                        Blocked: thisid,
+                        RateTableRateID: RateTableRateID,
                     },
                     success: function(data){
                         ShowToastr("success",data.message);
@@ -1242,68 +1207,33 @@
 
             /* Edit preference */
             $(document).on('click','.openPopup',function(){
-                var descriptioname = $(this).parent().siblings(":first").text();
-                Trunk = $("#lcr-search-form select[name='Trunk']").val();
-                Timezones = $("#lcr-search-form select[name='Timezones']").val();
-                CodeDeck = $("#lcr-search-form select[name='CodeDeckId']").val();
-                GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
+
                 var thisclass = $(this);
-                var thisaccid = thisclass.attr("data-id");
-                var thisid = thisclass.attr("id");
-                var thisaccid = thisclass.attr("data-id");
-                var rowcode = thisclass.attr("data-rowcode");
-                $.ajax({
-                    type: "POST",
-                    url: baseurl + '/lcr/edit_preference',
-                    dataType: 'json',
-                    data: {
-                        trunk: Trunk,
-                        Timezones: Timezones,
-                        CodeDeckId: CodeDeck,
-                        GroupBy: GroupBy,
-                        acc_id:thisaccid,
-                        rowcode:rowcode,
-                        preference:'',
-                        id:'',
-                        description:descriptioname
-                    },
-                    success: function(data)
-                    {
-                        var codedescription = GroupBy=='description' ? descriptioname : rowcode;
-                        Trunk = $("#lcr-search-form select[name='Trunk']").val();
-                        Timezones = $("#lcr-search-form select[name='Timezones']").val();
-                        CodeDeck = $("#lcr-search-form select[name='CodeDeckId']").val();
-                        GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
-                        //var thisclass = $(this);
-                        // var thisid = thisclass.attr("id");
-                        // var thisaccid = thisclass.attr("data-id");
-                        // var rowcode = thisclass.attr("data-rowcode");
-                        var data = '<div class="row">' +
-                                '<div class="col-md-12">' +
-                                '<div class="form-group">' +
-                                '<label for="field-5" class="control-label">Enter Preference <strong>('+codedescription+')</strong></label>' +
-                                '<input type="number" value="'+data.preference+'" id="txtpreference" name="preference" class="form-control" placeholder="Enter Preference">' +
-                                '</div>' +
-                                '</div>' +
-                                '</div>' +
-                                '<input type="hidden" name="description" value="'+descriptioname+'">' +
-                                '<input type="hidden" name="id" value='+thisid+'>' +
-                                '<input type="hidden" name="acc_id" value='+thisaccid+'>' +
-                                '<input type="hidden" name="trunk" value='+Trunk+'>' +
-                                '<input type="hidden" name="Timezones" value='+Timezones+'>' +
-                                '<input type="hidden" name="CodeDeckId" value='+CodeDeck+'>' +
-                                '<input type="hidden" name="GroupBy" value='+GroupBy+'>' +
-                                '<input type="hidden" name="rowcode" value='+rowcode+'>' +
-                                '<input type="hidden" class="form-control">';
-                        $('.modal-body').html(data);
-                        $('#myModal').modal({show:true});
-                    }
-                });
+                var preference = thisclass.attr("data-preference");
+                var ratetablerateid = thisclass.attr("data-ratetablerateid");
+
+
+
+                var data = '<div class="row">' +
+                        '<div class="col-md-12">' +
+                        '<div class="form-group">' +
+                        '<label for="field-5" class="control-label">Enter Preference</label>' +
+                        '<input type="number" value="'+preference+'" id="txtpreference" name="preference" class="form-control" placeholder="Enter Preference">' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>' +
+                        '<input type="hidden" name="RateTableRateID" value='+ratetablerateid+'>' +
+                        '<input type="hidden" class="form-control">';
+                $('.modal-body').html(data);
+                $('#myModal').modal({show:true});
+
 
             });
             /* Edit Preference*/
 
-            $('#preference-update').click(function(){
+            $('#edit-preference-form').submit(function(e){
+
+                e.preventDefault();
                 $.ajax({
                     type: "POST",
                     url: baseurl + '/lcr/edit_preference',

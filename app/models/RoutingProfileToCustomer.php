@@ -1,11 +1,11 @@
 <?php
-class RoutingCategory extends \Eloquent {
-    protected $guarded = array("RoutingCategoryID");
-    protected $table = "tblRoutingCategory";
-    protected $primaryKey = "RoutingCategoryID";
+class RoutingProfileToCustomer extends \Eloquent {
+    protected $guarded = array("RoutingProfileToCustomerID");
+    protected $table = "RoutingProfileToCustomer";
+    protected $primaryKey = "RoutingProfileToCustomerID";
     protected $connection = 'sqlsrvrouting';
     protected $fillable = array(
-        'CompanyID','Name','Description','created_at'
+        'CompanyID','RoutingProfileID','AccountID','TrunkID','ServiceID','created_at'
     );
 
     public static $rules = array(
@@ -15,7 +15,6 @@ class RoutingCategory extends \Eloquent {
         /*
          * Tables To Check Foreign Key before Delete.
          * */
-
         $hasInAccount = RoutingProfileCategory::where("RoutingCategoryID",$id)->count();
         if( intval($hasInAccount) > 0 ){
             return true;
@@ -26,12 +25,7 @@ class RoutingCategory extends \Eloquent {
     }
 	
     public static function getCategoryDropdownIDList($CompanyID){
-        $result = self::where(["CompanyID"=>$CompanyID])->select(array('Name', 'RoutingCategoryID'))->orderBy('Name')->lists('Name', 'RoutingCategoryID');
-        $row = array(""=> "Select");
-        if(!empty($result)){
-            $row = array(""=> "Select")+$result;
-        }
-        return $row;
+        
     }
 
     public static function clearCache(){

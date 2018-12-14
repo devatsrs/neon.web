@@ -190,7 +190,6 @@ class ConnectionController extends \BaseController {
                 $rules = array(
                     'Name' => 'required',
                     'CompanyID' => 'required',
-                    'DIDCategoryID' => 'required',
                     'Tariff' => 'required',
 
                 );
@@ -199,7 +198,6 @@ class ConnectionController extends \BaseController {
                 $rules = array(
                     'Name' => 'required',
                     'CompanyID' => 'required',
-                    'TrunkID' => 'required',
 
                 );
             }
@@ -361,6 +359,43 @@ class ConnectionController extends \BaseController {
             }
         }
 
+    }
+
+    public function get_tariff_by_category_trunk($AccountID){
+        $Result=array();
+        $options='';
+        if($AccountID >0){
+
+            $data = Input::all();
+            $CompanyID = User::get_companyID();
+            $CurrencyID=Account::getCurrencyIDByAccount($AccountID);
+
+           if(isset($data['categoryID'])){
+               //Type DID
+
+               if($data['categoryID'] > 0){
+                   $Result = RateTable::where(array('CompanyID'=>$CompanyID,'Type'=>RateTable::TYPE_DID,'AppliedTo'=>RateTable::APPLIED_TO_VENDOR,'CurrencyID'=>$CurrencyID,'DIDCategoryID'=>$data['categoryID']))->lists('RateTableName', 'RateTableId');
+               }else{
+                   $Result = RateTable::where(array('CompanyID'=>$CompanyID,'Type'=>RateTable::TYPE_DID,'AppliedTo'=>RateTable::APPLIED_TO_VENDOR,'CurrencyID'=>$CurrencyID))->lists('RateTableName', 'RateTableId');
+               }
+
+           }else if(isset($data['TrunkID'])){
+               //Type VoiceCall
+               if($data['TrunkID'] > 0){
+                   $Result = RateTable::where(array('CompanyID'=>$CompanyID,'Type'=>RateTable::TYPE_VOICECALL,'AppliedTo'=>RateTable::APPLIED_TO_VENDOR,'CurrencyID'=>$CurrencyID,'TrunkID'=>$data['TrunkID']))->lists('RateTableName', 'RateTableId');
+               }else{
+                   $Result = RateTable::where(array('CompanyID'=>$CompanyID,'Type'=>RateTable::TYPE_VOICECALL,'AppliedTo'=>RateTable::APPLIED_TO_VENDOR,'CurrencyID'=>$CurrencyID))->lists('RateTableName', 'RateTableId');
+               }
+           }
+
+        }
+        //print_r($Result);
+        $options.="<option value=''>Select</option>";
+        foreach($Result as $key =>$val){
+            $options.="<option value='".$key."'>".$val."</option>";
+        }
+
+        return $options;
     }
 
 }
