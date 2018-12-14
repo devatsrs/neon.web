@@ -182,15 +182,16 @@ class RoutingProfilesController extends \BaseController {
             }
 	}
         public function exports($type){
+            
             $CompanyID = User::get_companyID();
             $RoutingProfiles = RoutingProfiles::where(["CompanyID" => $CompanyID])->get(['Name','Description']);
             $RoutingProfiles = json_decode(json_encode($RoutingProfiles),true);
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/RoutingCategory.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/RoutingProfile.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($RoutingProfiles);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/RoutingCategory.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/RoutingProfile.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($RoutingProfiles);
             }

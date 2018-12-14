@@ -333,6 +333,7 @@
             selected_currency = $("#serviceTemplateCurreny").val();
 
             data = {company: selected_company};
+            resetFormFields();
             loadValuesBasedOnCurrency(selected_currency,false,'','','','');
         });
 
@@ -503,6 +504,7 @@
         //alert(SelectedDidCategoryID + ":" + SelectedDidCategoryTariffID.val());
         if (typeof DidCategoryID == 'undefined' || DidCategoryID == '') {
             DidCategoryID = "0";
+            DidCategoryIDText= "";
         }
         if (typeof DidCategoryID != 'undefined' && DidCategoryID != '' && typeof DidCategoryTariffID != 'undefined' && DidCategoryTariffID != '') {
             // alert("Selected Option Text: "+optionText + " " + optionID);

@@ -29,19 +29,21 @@ class RoutingCategoryController extends \BaseController {
             unset($data['RoutingCategoryID']);
             $rules = array(
                 'Name' => 'required',
-                'Description' => 'required',
             );
             $validator = Validator::make($data, $rules);
 
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
-
-            if ($RoutingCategory = RoutingCategory::create($data)) {
-                RoutingCategory::clearCache();
-                return Response::json(array("status" => "success", "message" => "Routing Category Successfully Created",'LastID'=>$RoutingCategory->RoutingCategoryID,'newcreated'=>$RoutingCategory));
-            } else {
-                return Response::json(array("status" => "failed", "message" => "Problem Creating Routing Category."));
+            if ($RoutingCategory = RoutingCategory::checkCategoryName($data["Name"])) {
+                if ($RoutingCategory = RoutingCategory::create($data)) {
+                    RoutingCategory::clearCache();
+                    return Response::json(array("status" => "success", "message" => "Routing Category Successfully Created",'LastID'=>$RoutingCategory->RoutingCategoryID,'newcreated'=>$RoutingCategory));
+                } else {
+                    return Response::json(array("status" => "failed", "message" => "Problem Creating Routing Category."));
+                }
+            }else{
+                return Response::json(array("status" => "failed", "message" => "Routing Category with this name already exist."));
             }
             
         
@@ -82,30 +84,34 @@ class RoutingCategoryController extends \BaseController {
 	public function update($id)
 	{   
             if( $id > 0 ) {
-            $data = Input::all();
-            $RoutingCategory = RoutingCategory::findOrFail($id);
-            $companyID = User::get_companyID();
-            $data['CompanyID'] = $companyID;
-            $data["UpdatedBy"] = User::get_user_full_name();
-            $rules = array(
-                'Name' => 'required',
-                'Description' => 'required',
-            );
-            $validator = Validator::make($data, $rules);
+                $data = Input::all();
+                $RoutingCategory = RoutingCategory::findOrFail($id);
+                $companyID = User::get_companyID();
+                $data['CompanyID'] = $companyID;
+                $data["UpdatedBy"] = User::get_user_full_name();
+                $rules = array(
+                    'Name' => 'required',
+                    'Description' => 'required',
+                );
+                $validator = Validator::make($data, $rules);
 
-            if ($validator->fails()) {
-                return json_validator_response($validator);
-            }
-            unset($data['RoutingCategoryID']);
-            if ($RoutingCategory->update($data)) {
-                RoutingCategory::clearCache();
-                return Response::json(array("status" => "success", "message" => "Routing Category Successfully Updated"));
-            } else {
+                if ($validator->fails()) {
+                    return json_validator_response($validator);
+                }
+                unset($data['RoutingCategoryID']);
+                if ($RoutingCategoryDup = RoutingCategory::checkCategoryNameAndID($data["Name"],$id)) {
+                    if ($RoutingCategory->update($data)) {
+                        RoutingCategory::clearCache();
+                        return Response::json(array("status" => "success", "message" => "Routing Category Successfully Updated"));
+                    } else {
+                        return Response::json(array("status" => "failed", "message" => "Problem Updating Routing Category."));
+                    }
+                }else{
+                    return Response::json(array("status" => "failed", "message" => "Routing Category with this name already exist."));
+                }
+            }else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Routing Category."));
             }
-        }else {
-            return Response::json(array("status" => "failed", "message" => "Problem Updating Routing Category."));
-        }
         
 	}
 
@@ -140,6 +146,7 @@ class RoutingCategoryController extends \BaseController {
             }
 	}
         public function exports($type){
+            
             $CompanyID = User::get_companyID();
             $RoutingCategory = RoutingCategory::where(["CompanyID" => $CompanyID])->get(['Name','Description']);
             $RoutingCategory = json_decode(json_encode($RoutingCategory),true);

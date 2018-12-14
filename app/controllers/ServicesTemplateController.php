@@ -154,7 +154,7 @@ class ServicesTemplateController extends BaseController {
                 Log::info('$billing subscription count.' . count($billingsubsforsrvtemplate));
             }
 
-            $selectedDIDCategoryTariffQuery = 'select rate.RateTableId as RateTableID,rate.RateTableName,rate.DIDCategoryID,(select didCat.CategoryName from tblDIDCategory didCat where didCat.DIDCategoryID = rate.DIDCategoryID) as CategoryName from tblRateTable rate where rate.RateTableId in (select tariff.RateTableId from tblServiceTemapleInboundTariff tariff where tariff.ServiceTemplateID = '.$data['editServiceTemplateID'] .')';
+            $selectedDIDCategoryTariffQuery = 'select tariff.RateTableId as RateTableID,tariff.DIDCategoryId as DIDCategoryID,(select didCat.CategoryName from tblDIDCategory didCat where didCat.DIDCategoryID = tariff.DIDCategoryId) as CategoryName,(select rate.RateTableName from tblRateTable rate where rate.RateTableId = tariff.RateTableId) as RateTableName from tblServiceTemapleInboundTariff tariff where tariff.ServiceTemplateID ='.$data['editServiceTemplateID'];
             Log::info('$selectedDIDCategoryTariffQuery query.' . $selectedDIDCategoryTariffQuery);
             $selecteddidcategorytariflist = DB::select($selectedDIDCategoryTariffQuery);
             Log::info('$selecteddidcategorytariflist count.' . count($selecteddidcategorytariflist));

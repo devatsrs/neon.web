@@ -2,10 +2,49 @@
 
 class AssignRoutingController extends \BaseController {
 
-    public function ajax_datagrid() {
+    public function ajax_datagrid($type) {
 
-        $RoutingProfiles = RoutingProfiles::select('Name','Description', 'RoutingProfileID', 'RoutingPolicy');
-        return Datatables::of($RoutingProfiles)->make();
+        $data = Input::all();
+        $SourceCustomers = empty($data['SourceCustomers']) ? '' : $data['SourceCustomers'];
+        if ($SourceCustomers == 'null') {
+            $SourceCustomers = '';
+        }
+        $ratetableeid = empty($data['RateTableId']) ? 0 : $data['RateTableId'];
+        $TrunkID = empty($data['TrunkID']) ? 0 : $data['TrunkID'];
+        $CompanyID = User::get_companyID();
+        $services = !empty($data["services"]) ? $data["services"] : 0;
+        $data['iDisplayStart'] +=1;
+        $columns = array('AccountID','AccountName','InRateTableName','OutRateTableName','ServiceName','ServiceID');
+        $sort_column = $columns[$data['iSortCol_0']];
+        $query = "call prc_getAssignRoutingProfileByAccount (".$CompanyID.",'".$data["level"]."',".$TrunkID.",'".$SourceCustomers."',".$services.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."' ";
+
+        if(isset($data['Export']) && $data['Export'] == 1) {
+            $excel_data  = DB::select($query.',1)');
+            $excel_data = json_decode(json_encode($excel_data),true);
+            foreach($excel_data as $rowno => $rows){
+                foreach($rows as $colno => $colval){
+                    $excel_data[$rowno][$colno] = str_replace( "<br>" , "\n" ,$colval );
+                }
+            }
+
+            if($type=='csv'){
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/ApplyAssignRouting.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/ApplyAssignRouting.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+        }
+        $query .=',0)';
+        
+        Log::info('query:.' . $query);
+        
+        \Illuminate\Support\Facades\Log::info($query);
+
+        return DataTableSql::of($query,'sqlsrvrouting')->make();
+
     }
 
 	public function index()
