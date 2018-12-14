@@ -18,7 +18,7 @@ class ConnectionController extends \BaseController {
         $TariffDID=RateTable::getDIDTariffDropDownList($companyID,VendorConnection::Type_DID,$CurrencyID);
         $TariffVoiceCall=RateTable::getDIDTariffDropDownList($companyID,VendorConnection::Type_VoiceCall,$CurrencyID);
 
-        return View::make('vendorrates.connection.index', compact('id','trunks','Type','DIDCategories','TariffDID','TariffVoiceCall'));
+        return View::make('vendorrates.connection', compact('id','trunks','Type','DIDCategories','TariffDID','TariffVoiceCall'));
 
     }
 
@@ -129,7 +129,7 @@ class ConnectionController extends \BaseController {
             }
 
             //check Duplicate
-            $checkduplicate=VendorConnection::where(['ConnectionType'=>$data['ConnectionType'],'Name'=>$data['Name']])->get()->count();
+            $checkduplicate=VendorConnection::where(['ConnectionType'=>$data['ConnectionType'],'Name'=>$data['Name'],'AccountId'=>$id])->get()->count();
             if($checkduplicate > 0){
                 return Response::json(array("status" => "failed", "message" => "Type with this Name Already Exists."));
             }
