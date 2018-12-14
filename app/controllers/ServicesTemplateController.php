@@ -20,7 +20,8 @@ class ServicesTemplateController extends BaseController {
         $servicesTemplate = ServiceTemplate::
         Join('tblService','tblService.ServiceID','=','tblServiceTemplate.ServiceId')
             ->Join('tblCurrency','tblServiceTemplate.CurrencyId','=','tblCurrency.CurrencyId')
-            ->select(['tblService.ServiceId','tblServiceTemplate.Name','tblService.ServiceName','tblCurrency.Code','tblServiceTemplate.OutboundRateTableId','tblServiceTemplate.ServiceTemplateId','tblServiceTemplate.CurrencyId','tblServiceTemplate.InboundDiscountPlanId','tblServiceTemplate.OutboundDiscountPlanId']);
+            ->select(['tblService.ServiceId','tblServiceTemplate.Name','tblService.ServiceName','tblCurrency.Code','tblServiceTemplate.OutboundRateTableId','tblServiceTemplate.ServiceTemplateId','tblServiceTemplate.CurrencyId','tblServiceTemplate.InboundDiscountPlanId','tblServiceTemplate.OutboundDiscountPlanId'])
+            ->orderBy("tblServiceTemplate.Name", "ASC");
 
         Log::info('$servicesTemplate AJAX.$data[\'ServiceId\']' . $data['ServiceId']);
         Log::info('$servicesTemplate AJAX.$data[\'ServiceName\']' . $data['ServiceName']);
@@ -412,15 +413,34 @@ class ServicesTemplateController extends BaseController {
             $data = Input::all();
             //$data['ServiceStatus']=$data['ServiceStatus']=='true'?1:0;
 
-        $exportSelectedTemplate = "select tempalte.ServiceTemplateId,".
+       /* $exportSelectedTemplate = "select tempalte.ServiceTemplateId,".
                                 "(select service1.ServiceName from tblService service1 where service1.ServiceID = tempalte.ServiceId) as serviceName,".
                                 "(select accountPlan.Name from tblDiscountPlan accountPlan where accountPlan.DiscountPlanID = tempalte.InboundDiscountPlanId) as InboundDiscountPlanId,".
                                 "(select accountPlan.Name from tblDiscountPlan accountPlan where accountPlan.DiscountPlanID = tempalte.OutboundDiscountPlanId) as OutboundDiscountPlanId,".
                                 "(select GROUP_CONCAT(billSubscription.Name SEPARATOR ', ' ) as serviceSubscription from speakintelligentBilling.tblBillingSubscription billSubscription where billSubscription.SubscriptionID in (select billSubs.SubscriptionId from tblServiceTemapleSubscription billSubs where billSubs.ServiceTemplateID = tempalte.ServiceTemplateId)) as subscriptionList,".
                                 "(select GROUP_CONCAT(rateTable.RateTableName SEPARATOR ', ' ) as categoryTariff from tblRateTable rateTable where rateTable.RateTableId in (select categoryTariff.RateTableId from tblServiceTemapleInboundTariff categoryTariff where categoryTariff.ServiceTemplateID = tempalte.ServiceTemplateId)) as categoryTariff ".
                                 "from tblServiceTemplate tempalte";
-        Log::info('$exportSelectedTemplate query.' . $exportSelectedTemplate);
-        $exportSelectedTemplate = DB::select($exportSelectedTemplate);
+       DB::select($exportSelectedTemplate)
+       */
+        $exportSelectedTemplate = ServiceTemplate::
+        Join('tblService','tblService.ServiceID','=','tblServiceTemplate.ServiceId')
+            ->Join('tblCurrency','tblServiceTemplate.CurrencyId','=','tblCurrency.CurrencyId')
+            ->select(['tblService.ServiceId','tblServiceTemplate.Name','tblService.ServiceName','tblCurrency.Code','tblServiceTemplate.OutboundRateTableId','tblServiceTemplate.ServiceTemplateId','tblServiceTemplate.CurrencyId','tblServiceTemplate.InboundDiscountPlanId','tblServiceTemplate.OutboundDiscountPlanId'])
+            ->orderBy("tblServiceTemplate.Name", "ASC");
+
+        if($data['ServiceName'] != ''){
+            Log::info('$servicesTemplate AJAX.$data[\'ServiceName\']' . 'set the value');
+            $exportSelectedTemplate->where('tblServiceTemplate.Name','like','%'.$data['ServiceName'].'%');
+        }
+        if($data['FilterCurrencyId'] != ''){
+            $exportSelectedTemplate->where(["tblServiceTemplate.CurrencyId" => $data['FilterCurrencyId']]);
+        }
+        if($data['ServiceId'] != ''){
+            $exportSelectedTemplate->where(["tblServiceTemplate.ServiceId"=>$data['ServiceId']]);
+        }
+
+        Log::info('$exportSelectedTemplate query.' . $exportSelectedTemplate->toSql());
+        $exportSelectedTemplate = $exportSelectedTemplate->get();
         Log::info('$exportSelectedTemplate count.' . count($exportSelectedTemplate));
 
 
