@@ -53,7 +53,11 @@ class RoutingProfilesController extends \BaseController {
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
-          
+            if(isset($data['Status'])){
+                $data['Status']=1;
+            }else{
+                $data['Status']=0;
+            }
             if ($RoutingProfiles = RoutingProfiles::create($data)) {
                 RoutingProfiles::clearCache();
                 $orderingCnt=1;
