@@ -13,8 +13,10 @@ class BillingSubscription extends \Eloquent {
 	public static $Advance = array(''=>'All',0=>"Off",1=>"On");
     const Customer = 0;
     const Reseller = 1;
+    const Vendor = 3;
 
-    public static $AppliedTo = array(self::Customer=>"Customer",self::Reseller=>"Reseller");
+
+    public static $AppliedTo = array(self::Customer=>"Customer",self::Reseller=>"Reseller", self::Vendor=>"Vendor");
     public static $ALLAppliedTo = array(''=>'Select',self::Customer=>"Customer",self::Reseller=>"Reseller");
 
 
