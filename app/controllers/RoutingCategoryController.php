@@ -161,6 +161,8 @@ class RoutingCategoryController extends \BaseController {
             }
 
         }
+        
+        
         function update_fields_sorting(){
             
 //        $postdata    =  Input::all();
