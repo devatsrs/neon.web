@@ -170,6 +170,16 @@
     </li>
     @endif
     @endif
+	
+	<!-- Here below line we need to add the rules OR permission setting for this menu - Ahtsham -->
+    <li class="two-links root-level has-sub"> <a href="#"> <i class="glyphicon glyphicon-info-sign"></i> <span>&nbsp;Routing</span> </a> 
+        <ul>
+              <li> <a href="{{URL::to('/routingcategory')}}">  <span>Routing Category</span> </a> </li>
+              
+              <li> <a href="{{URL::to('/routingprofiles')}}">  <span>Routing Profiles</span> </a> </li>
+        </ul>
+    </li>
+	
     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type'] == Company::LICENCE_BILLING || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
     @if(User::checkCategoryPermission('Invoice','View')  || User::checkCategoryPermission('BillingSubscription','View') ||
     User::checkCategoryPermission('Payments','View') || User::checkCategoryPermission('AccountStatement','All') ||
@@ -303,14 +313,6 @@
        <li> <a href="{{URL::to('/integration')}}"><i class="fa fa-codepen"></i>   <span>Integration</span> </a> </li>
     @endif
 	
-	<!-- Here below line we need to add the rules OR permission setting for this menu - Ahtsham -->
-    <li class="two-links root-level has-sub"> <a href="#"> <i class="glyphicon glyphicon-info-sign"></i> <span>&nbsp;Routing</span> </a> 
-        <ul>
-              <li> <a href="{{URL::to('/routingcategory')}}">  <span>Routing Category</span> </a> </li>
-              
-              <li> <a href="{{URL::to('/routingprofiles')}}">  <span>Routing Profiles</span> </a> </li>
-        </ul>
-    </li>
 	
     @if(User::checkCategoryPermission('AccountChecklist','View') ||
     User::checkCategoryPermission('CronJob','View') || User::checkCategoryPermission('Retention','View') ||

@@ -24,7 +24,7 @@
         Add New
     </a>
     
-    <a data-id="" href="routingprofilescategory" title="Assign" class="btn-success btn btn-danger btn-sm">Assign</a>
+    <a data-id="" href="assignrouting" title="Assign" class="btn-success btn btn-danger btn-sm">Assign</a>
 </p>
 <table class="table table-bordered datatable" id="table-4">
     <thead>
