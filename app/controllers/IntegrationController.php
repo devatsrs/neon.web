@@ -26,8 +26,9 @@ class IntegrationController extends \BaseController
 			$categories 			= 	Integration::where(["ParentID"=>0])->orderBy('Title', 'asc')->get();
 		}
 		$TaxLists =  TaxRate::where(["CompanyId" => $companyID, "Status" => 1])->get();
+		$Products =  Product::getAllProductName($companyID);
 		//$companyID = 1;
-		return View::make('integration.index', compact('categories',"companyID","GatewayConfiguration","Gateway","TaxLists"));
+		return View::make('integration.index', compact('categories',"companyID","GatewayConfiguration","Gateway","TaxLists","Products"));
     }
 	
 	function Update(){
