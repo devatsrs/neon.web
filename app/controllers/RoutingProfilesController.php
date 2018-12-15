@@ -4,7 +4,7 @@ class RoutingProfilesController extends \BaseController {
 
     public function ajax_datagrid() {
 
-        $RoutingProfiles = RoutingProfiles::select('Name','Description', 'RoutingProfileID', 'RoutingPolicy');
+        $RoutingProfiles = RoutingProfiles::select('Name','Description','Status', 'RoutingProfileID');
         return Datatables::of($RoutingProfiles)->make();
     }
 
@@ -46,8 +46,8 @@ class RoutingProfilesController extends \BaseController {
             unset($data['RoutingProfileID']);
             $rules = array(
                 'Name' => 'required',
-                'Description' => 'required',
                 'RoutingPolicy' => 'required',
+                'RoutingCategory' => 'required',
             );
             $validator = Validator::make($data, $rules);
             if ($validator->fails()) {
