@@ -17,10 +17,27 @@ class ServicesTemplateController extends BaseController {
        $companyID = User::get_companyID();
       // $data['ServiceStatus'] = $data['ServiceStatus']== 'true'?1:0;
 
+        $iSortCol_0 = isset($data['iSortCol_0']) ? $data['iSortCol_0']:1;
+        $sSortDir_0 = '';
+        if (isset($data['sSortDir_0'])) {
+            $sSortDir_0 = $data['sSortDir_0'];
+        }else {
+            $sSortDir_0 = "ASC";
+        }
+
+        Log::info('$sSortDir_0..' . $sSortDir_0);
+        if ($iSortCol_0 == 1 || $iSortCol_0 == 0) {
+            $iSortCol_0 = "tblServiceTemplate.Name";
+        } else if ($iSortCol_0 == 2) {
+            $iSortCol_0 = "tblService.ServiceName";
+        }else if ($iSortCol_0 == 3) {
+            $iSortCol_0 = "tblCurrency.Code";
+        }
         $servicesTemplate = ServiceTemplate::
         Join('tblService','tblService.ServiceID','=','tblServiceTemplate.ServiceId')
             ->Join('tblCurrency','tblServiceTemplate.CurrencyId','=','tblCurrency.CurrencyId')
-            ->select(['tblService.ServiceId','tblServiceTemplate.Name','tblService.ServiceName','tblCurrency.Code','tblServiceTemplate.OutboundRateTableId','tblServiceTemplate.ServiceTemplateId','tblServiceTemplate.CurrencyId','tblServiceTemplate.InboundDiscountPlanId','tblServiceTemplate.OutboundDiscountPlanId']);
+            ->select(['tblService.ServiceId','tblServiceTemplate.Name','tblService.ServiceName','tblCurrency.Code','tblServiceTemplate.OutboundRateTableId','tblServiceTemplate.ServiceTemplateId','tblServiceTemplate.CurrencyId','tblServiceTemplate.InboundDiscountPlanId','tblServiceTemplate.OutboundDiscountPlanId'])
+            ->orderBy($iSortCol_0, $sSortDir_0);
 
         Log::info('$servicesTemplate AJAX.$data[\'ServiceId\']' . $data['ServiceId']);
         Log::info('$servicesTemplate AJAX.$data[\'ServiceName\']' . $data['ServiceName']);
@@ -107,7 +124,7 @@ class ServicesTemplateController extends BaseController {
             $categoryTariff->where('tblRateTable.Type','=', '1');
             $categoryTariff->where('tblRateTable.AppliedTo','!=',2 );
         }
-        if(isset($data['selected_didCategory'])){
+        if(isset($data['selected_didCategory']) && $data['selected_didCategory'] != ''){
             $categoryTariff->where('tblRateTable.DIDCategoryID','=', $data['selected_didCategory']);
             Log::info('data[selected_didCategory].' . $data['selected_didCategory']);
         }
@@ -137,7 +154,7 @@ class ServicesTemplateController extends BaseController {
                 Log::info('$billing subscription count.' . count($billingsubsforsrvtemplate));
             }
 
-            $selectedDIDCategoryTariffQuery = 'select rate.RateTableId as RateTableID,rate.RateTableName,rate.DIDCategoryID,(select didCat.CategoryName from tblDIDCategory didCat where didCat.DIDCategoryID = rate.DIDCategoryID) as CategoryName from tblRateTable rate where rate.RateTableId in (select tariff.RateTableId from tblServiceTemapleInboundTariff tariff where tariff.ServiceTemplateID = '.$data['editServiceTemplateID'] .')';
+            $selectedDIDCategoryTariffQuery = 'select tariff.RateTableId as RateTableID,tariff.DIDCategoryId as DIDCategoryID,(select didCat.CategoryName from tblDIDCategory didCat where didCat.DIDCategoryID = tariff.DIDCategoryId) as CategoryName,(select rate.RateTableName from tblRateTable rate where rate.RateTableId = tariff.RateTableId) as RateTableName from tblServiceTemapleInboundTariff tariff where tariff.ServiceTemplateID ='.$data['editServiceTemplateID'];
             Log::info('$selectedDIDCategoryTariffQuery query.' . $selectedDIDCategoryTariffQuery);
             $selecteddidcategorytariflist = DB::select($selectedDIDCategoryTariffQuery);
             Log::info('$selecteddidcategorytariflist count.' . count($selecteddidcategorytariflist));
@@ -206,7 +223,7 @@ class ServicesTemplateController extends BaseController {
                   //  ServiceTemplate::$rules['SubscriptionID'] = 'required';
                    // ServiceTemplate::$rules['CurrencyId'] = 'required';
 
-
+                    ServiceTemplate::$rules['Name'] = 'required|unique:tblServiceTemplate';
                     $validator = Validator::make($data, ServiceTemplate::$rules);
 
                     if ($validator->fails()) {
@@ -220,7 +237,9 @@ class ServicesTemplateController extends BaseController {
                     if ($InboundDiscountPlanId != '') {
                         $ServiceTemplateData['InboundDiscountPlanId'] = $InboundDiscountPlanId;
                     }
-                    $ServiceTemplateData['OutboundRateTableId'] = $data['OutboundRateTableId'];
+                    if (isset($data['OutboundRateTableId']) && $data['OutboundRateTableId'] != '') {
+                        $ServiceTemplateData['OutboundRateTableId'] = $data['OutboundRateTableId'];
+                    }
 
                     $ServiceTemplateData['CurrencyId'] = $data['CurrencyId'];
 
@@ -242,7 +261,9 @@ class ServicesTemplateController extends BaseController {
                                 $DIDRateTableList = explode("-", $CategoryTariffValue);
                                 //Log::info('$CategoryTariffValue1.' . $DIDRateTableList);
                                 Log::info('$CategoryTariffValue1.' . count($DIDRateTableList));
-                                $ServiceTemapleInboundTariff['DIDCategoryId'] = $DIDRateTableList[0];
+                                if ($DIDRateTableList[0] != 0) {
+                                    $ServiceTemapleInboundTariff['DIDCategoryId'] = $DIDRateTableList[0];
+                                }
                                 $ServiceTemapleInboundTariff['RateTableId'] = $DIDRateTableList[1];
                                 ServiceTemapleInboundTariff::create($ServiceTemapleInboundTariff);
                             }catch (Exception $ex){
@@ -261,8 +282,8 @@ class ServicesTemplateController extends BaseController {
      //  return  Response::json(array("status" => "failed", "message" => "Problem Creating Service."));
     }
 
-    public function update($id) {
-        Log::info('update ServiceTemplateID.' . $id);
+    public function update($ServiceTemplateId) {
+        Log::info('update ServiceTemplateID.' . $ServiceTemplateId);
         $data = Input::all();
         $subsriptionList = isset($data['selectedSubscription'])?$data['selectedSubscription']:'';
         $CategoryTariffList = isset($data['selectedcategotyTariff'])?$data['selectedcategotyTariff']:'';
@@ -293,7 +314,7 @@ class ServicesTemplateController extends BaseController {
 
 
 
-
+            ServiceTemplate::$updateRules['Name'] = 'required|unique:tblServiceTemplate,Name,'.$ServiceTemplateId.',ServiceTemplateId';
             $validator = Validator::make($data, ServiceTemplate::$updateRules);
 
             if ($validator->fails()) {
@@ -307,17 +328,20 @@ class ServicesTemplateController extends BaseController {
             if ($InboundDiscountPlanId != '') {
                 $ServiceTemplateData['InboundDiscountPlanId'] = $InboundDiscountPlanId;
             }
-            $ServiceTemplateData['OutboundRateTableId'] = $data['OutboundRateTableId'];
+
+            if (isset($data['OutboundRateTableId']) && $data['OutboundRateTableId'] != '') {
+                $ServiceTemplateData['OutboundRateTableId'] = $data['OutboundRateTableId'];
+            }
 
 
 
             $updDelStatus = false;
-            $result = ServiceTemapleSubscription::where(array('ServiceTemplateID'=>$id))->delete();
-            $result = ServiceTemapleInboundTariff::where(array('ServiceTemplateID' => $id))->delete();
+            $result = ServiceTemapleSubscription::where(array('ServiceTemplateID'=>$ServiceTemplateId))->delete();
+            $result = ServiceTemapleInboundTariff::where(array('ServiceTemplateID' => $ServiceTemplateId))->delete();
             $updDelStatus = true;
 
 
-            if( $updDelStatus && $ServiceTemplate = ServiceTemplate::find($id)){
+            if( $updDelStatus && $ServiceTemplate = ServiceTemplate::find($ServiceTemplateId)){
 
                 $ServiceTemapleSubscription['ServiceTemplateID'] = $ServiceTemplate->ServiceTemplateId;
                 Log::info('ServiceTemplateID.' . $ServiceTemplate->ServiceTemplateId);
@@ -334,11 +358,13 @@ class ServicesTemplateController extends BaseController {
                         $DIDRateTableList = explode("-", $CategoryTariffValue);
                         //Log::info('$CategoryTariffValue1.' . $DIDRateTableList);
                         Log::info('$CategoryTariffValue1.' . count($DIDRateTableList));
-                        $ServiceTemapleInboundTariff['DIDCategoryId'] = $DIDRateTableList[0];
+                        if ($DIDRateTableList[0] != 0) {
+                            $ServiceTemapleInboundTariff['DIDCategoryId'] = $DIDRateTableList[0];
+                        }
                         $ServiceTemapleInboundTariff['RateTableId'] = $DIDRateTableList[1];
                         ServiceTemapleInboundTariff::create($ServiceTemapleInboundTariff);
                     }catch(Exception $ex){
-
+                        Log::info('Error while inserting..' . $ex->getMessage());
                     }
                 }
                 if($ServiceTemplate->update($ServiceTemplateData)) {
@@ -412,15 +438,34 @@ class ServicesTemplateController extends BaseController {
             $data = Input::all();
             //$data['ServiceStatus']=$data['ServiceStatus']=='true'?1:0;
 
-        $exportSelectedTemplate = "select tempalte.ServiceTemplateId,".
+       /* $exportSelectedTemplate = "select tempalte.ServiceTemplateId,".
                                 "(select service1.ServiceName from tblService service1 where service1.ServiceID = tempalte.ServiceId) as serviceName,".
                                 "(select accountPlan.Name from tblDiscountPlan accountPlan where accountPlan.DiscountPlanID = tempalte.InboundDiscountPlanId) as InboundDiscountPlanId,".
                                 "(select accountPlan.Name from tblDiscountPlan accountPlan where accountPlan.DiscountPlanID = tempalte.OutboundDiscountPlanId) as OutboundDiscountPlanId,".
                                 "(select GROUP_CONCAT(billSubscription.Name SEPARATOR ', ' ) as serviceSubscription from speakintelligentBilling.tblBillingSubscription billSubscription where billSubscription.SubscriptionID in (select billSubs.SubscriptionId from tblServiceTemapleSubscription billSubs where billSubs.ServiceTemplateID = tempalte.ServiceTemplateId)) as subscriptionList,".
                                 "(select GROUP_CONCAT(rateTable.RateTableName SEPARATOR ', ' ) as categoryTariff from tblRateTable rateTable where rateTable.RateTableId in (select categoryTariff.RateTableId from tblServiceTemapleInboundTariff categoryTariff where categoryTariff.ServiceTemplateID = tempalte.ServiceTemplateId)) as categoryTariff ".
                                 "from tblServiceTemplate tempalte";
-        Log::info('$exportSelectedTemplate query.' . $exportSelectedTemplate);
-        $exportSelectedTemplate = DB::select($exportSelectedTemplate);
+       DB::select($exportSelectedTemplate)
+       */
+        $exportSelectedTemplate = ServiceTemplate::
+        Join('tblService','tblService.ServiceID','=','tblServiceTemplate.ServiceId')
+            ->Join('tblCurrency','tblServiceTemplate.CurrencyId','=','tblCurrency.CurrencyId')
+            ->select(['tblServiceTemplate.Name','tblService.ServiceName','tblCurrency.Code as Currency'])
+            ->orderBy("tblServiceTemplate.Name", "ASC");
+
+        if($data['ServiceName'] != ''){
+            Log::info('$servicesTemplate AJAX.$data[\'ServiceName\']' . 'set the value');
+            $exportSelectedTemplate->where('tblServiceTemplate.Name','like','%'.$data['ServiceName'].'%');
+        }
+        if($data['FilterCurrencyId'] != ''){
+            $exportSelectedTemplate->where(["tblServiceTemplate.CurrencyId" => $data['FilterCurrencyId']]);
+        }
+        if($data['ServiceId'] != ''){
+            $exportSelectedTemplate->where(["tblServiceTemplate.ServiceId"=>$data['ServiceId']]);
+        }
+
+        Log::info('$exportSelectedTemplate query.' . $exportSelectedTemplate->toSql());
+        $exportSelectedTemplate = $exportSelectedTemplate->get();
         Log::info('$exportSelectedTemplate count.' . count($exportSelectedTemplate));
 
 

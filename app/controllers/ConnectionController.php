@@ -8,9 +8,9 @@ class ConnectionController extends \BaseController {
     {
         $companyID = User::get_companyID();
         $trunks = VendorTrunk::getTrunkDropdownIDList($id);
-        if(count($trunks) == 0){
+        /*if(count($trunks) == 0){
             return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
-        }
+        }*/
         $Type=[''=>'Select']+VendorConnection::$Type_array;
         $DIDCategories=DIDCategory::getCategoryDropdownIDList($companyID);
         $CurrencyID=Account::getCurrencyIDByAccount($id);
@@ -18,7 +18,7 @@ class ConnectionController extends \BaseController {
         $TariffDID=RateTable::getDIDTariffDropDownList($companyID,VendorConnection::Type_DID,$CurrencyID);
         $TariffVoiceCall=RateTable::getDIDTariffDropDownList($companyID,VendorConnection::Type_VoiceCall,$CurrencyID);
 
-        return View::make('vendorrates.connection.index', compact('id','trunks','Type','DIDCategories','TariffDID','TariffVoiceCall'));
+        return View::make('vendorrates.connection', compact('id','trunks','Type','DIDCategories','TariffDID','TariffVoiceCall'));
 
     }
 
@@ -129,7 +129,7 @@ class ConnectionController extends \BaseController {
             }
 
             //check Duplicate
-            $checkduplicate=VendorConnection::where(['ConnectionType'=>$data['ConnectionType'],'Name'=>$data['Name']])->get()->count();
+            $checkduplicate=VendorConnection::where(['ConnectionType'=>$data['ConnectionType'],'Name'=>$data['Name'],'AccountId'=>$id])->get()->count();
             if($checkduplicate > 0){
                 return Response::json(array("status" => "failed", "message" => "Type with this Name Already Exists."));
             }

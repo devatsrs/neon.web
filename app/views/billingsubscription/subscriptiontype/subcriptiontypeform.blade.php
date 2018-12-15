@@ -6,7 +6,7 @@
             e.preventDefault();
             var modal = $(this).parents('.modal');
             var composit = modal.hasClass('composite')?1:0;
-            var datatype = 'select[data-type="zx"]';
+            var datatype = 'select[data-type="item"]';
             var DynamicFieldsID = $("#add-edit-dynamicfield-form [name='DynamicFieldsID']").val();
             var ProductClone = $("#add-edit-dynamicfield-form [name='ProductClone']").val();
             if( typeof DynamicFieldsID != 'undefined' && DynamicFieldsID != ''){
@@ -61,7 +61,7 @@
             var domtype=$(this).val();
             var DynamicFieldsID = $("#add-edit-dynamicfield-form [name='DynamicFieldsID']").val();
             if(typeof(domtype)!='undefined' && domtype!='' && DynamicFieldsID==''){
-                if(domtype=='numeric' || domtype=='numericPerCall' || domtype=='numericePerMin' ){
+                if(domtype=='numeric' || domtype=='string' || domtype=='numericPerCall' || domtype=='numericePerMin' ){
                     var minmax='<div class="form-group"><label for="field-5" class="control-label">Default Value </label>{{ Form::text("DefaultValue", "", array("class"=>"form-control"))  }}</div><div class="form-group"><label for="field-5" class="control-label">Min </label>{{ Form::text("Minimum", "", array("class"=>"form-control"))  }}</div><div class="form-group"><label for="field-5" class="control-label">Max </label>{{ Form::text("Maximum", "", array("class"=>"form-control"))  }}</div>';
                     $("#minmaxdiv").html(minmax);
                 }else if(domtype=='select'){

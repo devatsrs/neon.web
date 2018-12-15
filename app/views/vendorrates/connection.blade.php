@@ -22,11 +22,13 @@
 @include('includes.success')
 
 <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
-    <li class="active">
-        <a href="{{ URL::to('/vendor_rates/connection/'.$id) }}" >
-            <span class="hidden-xs">Connection</span>
-        </a>
-    </li>
+    @if(User::checkCategoryPermission('VendorRates','Connection'))
+        <li class="active">
+            <a href="{{ URL::to('/vendor_rates/connection/'.$id) }}" >
+                <span class="hidden-xs">Connection</span>
+            </a>
+        </li>
+    @endif
     {{--<li>
         <a href="{{ URL::to('vendor_rates/'.$id) }}" >
             <span class="hidden-xs">Vendor Rate</span>
@@ -227,8 +229,6 @@
             replaceCheckboxes();
         });
 
-
-
         //Bulk Form and Edit Single Form Submit
         $("#edit-vendor-rate-form").submit(function() {
             var formData = new FormData($(this)[0]);
@@ -335,69 +335,83 @@
         //DID Change Category - Load Tariff
         $("select[name='did[DIDCategoryID]']").change(function(){
             var categoryID=$(this).val();
-            $("#DIDTariffLoading").removeClass("hidden");
-                $.ajax({
-                    url: baseurl + "/vendor_rates/connection/{{$id}}/get_tariff_by_category_trunk",
-                    data: 'categoryID='+categoryID,
-                    type: 'POST',
-                    success: function (response) {
-                       console.log("5555");
-
-                        $("#DIDTariffLoading").addClass("hidden");
-                        var VendorConnectionID = $("#edit-vendor-rate-form [name='VendorConnectionID']").val();
-                        if(typeof VendorConnectionID == 'undefined' || VendorConnectionID == ''){
-                            $("select[name='did[Tariff]']").select2("val", "");
-                        }
-
-                        if($.trim(response)){
-
-                            $("select[name='did[Tariff]']").html(response);
-
-                            if(typeof VendorConnectionID != 'undefined' && VendorConnectionID != ''){
-                                $("select[name='did[Tariff]']").val(categoryID).trigger('change');
-                            }
-
-
-                        }
-                    },
-                    cache: false
-
-                });
+            loadTariffByCategory(categoryID);
         });
+
 
         //VoiceCall Change Trunk - Load Tariff
         $("select[name='voice[TrunkID]']").change(function(){
             var TrunkID=$(this).val();
+            loadTariffByTrunk(TrunkID);
 
-            $("#VoiceTariffLoading").removeClass("hidden");
-            $.ajax({
-                url: baseurl + "/vendor_rates/connection/{{$id}}/get_tariff_by_category_trunk",
-                data: 'TrunkID='+TrunkID,
-                type: 'POST',
-                success: function (response) {
-                    console.log("5555");
-
-                    $("#VoiceTariffLoading").addClass("hidden");
-                    var VendorConnectionID = $("#edit-vendor-rate-form [name='VendorConnectionID']").val();
-                    if(typeof VendorConnectionID == 'undefined' || VendorConnectionID == ''){
-                        $("select[name='voice[Tariff]']").select2("val", "");
-                    }
-
-                    if($.trim(response)){
-
-                        $("select[name='voice[Tariff]']").html(response);
-                        if(typeof VendorConnectionID != 'undefined' && VendorConnectionID != ''){
-                            $("select[name='voice[Tariff]']").val(TrunkID).trigger('change');
-                        }
-                    }
-                },
-                cache: false
-
-            });
         });
 
 
     });
+
+    function loadTariffByCategory(categoryID,arg1){
+        //var categoryID=$(this).val();
+        $("#DIDTariffLoading").removeClass("hidden");
+        $.ajax({
+            url: baseurl + "/vendor_rates/connection/{{$id}}/get_tariff_by_category_trunk",
+            data: 'categoryID='+categoryID,
+            type: 'POST',
+            success: function (response) {
+                //console.log("5555");
+
+                $("#DIDTariffLoading").addClass("hidden");
+                var VendorConnectionID = $("#edit-vendor-rate-form [name='VendorConnectionID']").val();
+                if(typeof VendorConnectionID == 'undefined' || VendorConnectionID == ''){
+                    $("select[name='did[Tariff]']").select2("val", "");
+                }
+
+                if($.trim(response)){
+
+                    $("select[name='did[Tariff]']").html(response);
+
+                    if(typeof VendorConnectionID != 'undefined' && VendorConnectionID != ''){
+                        console.log("func "+arg1);
+                        $("select[name='did[Tariff]']").select2("val",arg1);
+                    }
+
+                }
+            },
+            cache: false
+
+        });
+    }
+
+    function loadTariffByTrunk(TrunkID,arg1){
+        //var categoryID=$(this).val();
+        $("#VoiceTariffLoading").removeClass("hidden");
+        $.ajax({
+            url: baseurl + "/vendor_rates/connection/{{$id}}/get_tariff_by_category_trunk",
+            data: 'TrunkID='+TrunkID,
+            type: 'POST',
+            success: function (response) {
+                console.log("5555");
+
+                $("#VoiceTariffLoading").addClass("hidden");
+                var VendorConnectionID = $("#edit-vendor-rate-form [name='VendorConnectionID']").val();
+                if(typeof VendorConnectionID == 'undefined' || VendorConnectionID == ''){
+                    $("select[name='voice[Tariff]']").select2("val", "");
+                }
+
+                if($.trim(response)){
+
+                    $("select[name='voice[Tariff]']").html(response);
+
+                    if(typeof VendorConnectionID != 'undefined' && VendorConnectionID != ''){
+                        console.log("func "+arg1);
+                        $("select[name='voice[Tariff]']").select2("val",arg1);
+                    }
+
+                }
+            },
+            cache: false
+
+        });
+    }
 
     function getArchiveVendorRates($clickedButton,Codes) {
         //var Codes = new Array();
@@ -602,10 +616,14 @@
                 $(".FilterConnectionType").change(function() {
                    var Type=$(this).val();
                    if(Type=='DID'){
+                       $(".FilterCategory").css('display','block');
                        $(".FilterVoiceCallDiv").css('display','none');
+                       $("select[name='TrunkID']").select2('val','');
+                       $("input[name='IP']").val('');
                    }else if(Type=='VoiceCall'){
                        $(".FilterVoiceCallDiv").css('display','block');
                        $(".FilterCategory").css('display','none');
+                       $("select[name='DIDCategoryID']").select2('val','');
                    }else{
                        $(".FilterVoiceCallDiv").css('display','block');
                        $(".FilterCategory").css('display','block');
@@ -634,10 +652,15 @@
                                     $('#edit-vendor-rate-form [name="did[Active]"]').prop('checked',false);
                                 }
                             }else if(list_fields[i] == 'DIDCategoryID'){
-                                $("#edit-vendor-rate-form [name='did["+list_fields[i]+"]']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
+                                $("#edit-vendor-rate-form [name='did["+list_fields[i]+"]']").select2("val",cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                                var DIDCategoryID = $("#edit-vendor-rate-form [name='did[DIDCategoryID]']").val();
+                                var TarrifID = cur_obj.find("input[name='Tariff']").val();
+
+                                loadTariffByCategory(DIDCategoryID,TarrifID);
                                 $("#edit-vendor-rate-form [name='did["+list_fields[i]+"]']").attr("disabled",true);
+
                             }else if(list_fields[i] == 'Tariff'){
-                                    $("#edit-vendor-rate-form [name='did[" + list_fields[i] + "]']").val(cur_obj.find("input[name='" + list_fields[i] + "']").val()).trigger("change");
+                                $("#edit-vendor-rate-form [name='did[" + list_fields[i] + "]']").val(cur_obj.find("input[name='" + list_fields[i] + "']").val()).trigger("change");
 
                             }
 
@@ -652,10 +675,15 @@
                                     $('#edit-vendor-rate-form [name="voice['+list_fields[i]+']"]').prop('checked',false);
                                 }
                             }else if(list_fields[i] == 'TrunkID'){
-                                $("#edit-vendor-rate-form [name='voice["+list_fields[i]+"]']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
+                                $("#edit-vendor-rate-form [name='voice["+list_fields[i]+"]']").select2("val",cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                                var TrunkID = $("#edit-vendor-rate-form [name='voice[TrunkID]']").val();
+                                var TarrifID = cur_obj.find("input[name='Tariff']").val();
+
+                                loadTariffByTrunk(TrunkID,TarrifID);
+
                                 $("#edit-vendor-rate-form [name='voice["+list_fields[i]+"]']").attr("disabled",true);
                             }else if(list_fields[i] == 'Tariff'){
-                                $("#edit-vendor-rate-form [name='voice["+list_fields[i]+"]']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
+                                $("#edit-vendor-rate-form [name='voice["+list_fields[i]+"]']").select2("val",cur_obj.find("input[name='"+list_fields[i]+"']").val());
                             }else if(list_fields[i] == 'Password'){
                                     //remain blank
                             }else{
