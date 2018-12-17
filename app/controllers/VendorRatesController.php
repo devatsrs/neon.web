@@ -64,9 +64,9 @@ class VendorRatesController extends \BaseController
         $Account    = Account::find($id);
         $trunks     = VendorTrunk::getTrunkDropdownIDList($id);
         $trunk_keys = getDefaultTrunk($trunks);
-        if(count($trunks) == 0){
+        /*if(count($trunks) == 0){
             return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
-        }
+        }*/
         $CurrencySymbol = Currency::getCurrencySymbol($Account->CurrencyId);
         $countries      = $this->countries;
         $Timezones      = Timezones::getTimezonesIDList();
@@ -249,9 +249,9 @@ class VendorRatesController extends \BaseController
     public function history($id) {
             $Account = Account::find($id);
             $trunks = VendorTrunk::getTrunkDropdownIDList($id);
-            if(count($trunks) == 0){
+            /*if(count($trunks) == 0){
                 return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
-            }
+            }*/
             return View::make('vendorrates.history', compact('id','Account'));
     }
 
