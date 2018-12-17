@@ -4,7 +4,7 @@ class RoutingProfilesController extends \BaseController {
 
     public function ajax_datagrid() {
 
-        $RoutingProfiles = RoutingProfiles::select('Name','Description', 'RoutingProfileID', 'RoutingPolicy');
+        $RoutingProfiles = RoutingProfiles::select('Name','Description','Status', 'RoutingProfileID');
         return Datatables::of($RoutingProfiles)->make();
     }
 
@@ -46,14 +46,18 @@ class RoutingProfilesController extends \BaseController {
             unset($data['RoutingProfileID']);
             $rules = array(
                 'Name' => 'required',
-                'Description' => 'required',
                 'RoutingPolicy' => 'required',
+                'RoutingCategory' => 'required',
             );
             $validator = Validator::make($data, $rules);
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
-          
+            if(isset($data['Status'])){
+                $data['Status']=1;
+            }else{
+                $data['Status']=0;
+            }
             if ($RoutingProfiles = RoutingProfiles::create($data)) {
                 RoutingProfiles::clearCache();
                 $orderingCnt=1;
@@ -182,15 +186,16 @@ class RoutingProfilesController extends \BaseController {
             }
 	}
         public function exports($type){
+            
             $CompanyID = User::get_companyID();
             $RoutingProfiles = RoutingProfiles::where(["CompanyID" => $CompanyID])->get(['Name','Description']);
             $RoutingProfiles = json_decode(json_encode($RoutingProfiles),true);
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/RoutingCategory.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/RoutingProfile.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($RoutingProfiles);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/RoutingCategory.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/RoutingProfile.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($RoutingProfiles);
             }

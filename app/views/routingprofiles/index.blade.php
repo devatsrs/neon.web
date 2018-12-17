@@ -24,13 +24,14 @@
         Add New
     </a>
     
-    <a data-id="" href="routingprofilescategory" title="Assign" class="btn-success btn btn-danger btn-sm">Assign</a>
+    <a data-id="" href="assignrouting" title="Assign" class="btn-success btn btn-danger btn-sm">Assign</a>
 </p>
 <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
         <th width="30%">Name</th>
         <th width="25%">Description</th>
+        <th width="25%">Status</th>
         <th width="25%">Action</th>
     </tr>
     </thead>
@@ -60,6 +61,7 @@ var postdata;
             "aoColumns":
             [
                 {  "bSortable": true },  //0  Name', '', '', '
+                {  "bSortable": true },  //0  Descs', '', '', '
                 {  "bSortable": true },  //0  Descs', '', '', '
                 {                       //3  ID
                    "bSortable": true,

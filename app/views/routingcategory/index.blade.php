@@ -7,10 +7,10 @@
         <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
     </li>
     <li class="active">
-        <strong>Routing Profiles</strong>
+        <strong>Routing Category</strong>
     </li>
 </ol>
-<h3>Routing category</h3>
+<h3>Routing Category</h3>
 
 @include('includes.errors')
 @include('includes.success')

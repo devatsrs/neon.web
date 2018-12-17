@@ -404,13 +404,12 @@ class BillingSubscriptionController extends \BaseController {
     {
         $data = Input::all();
         $CompanyID = User::get_companyID();
-
         $data['iDisplayStart'] +=1;
-
         $columns = ['DynamicFieldsID','FieldName','FieldDomType','created_at','Status','Active'];
         $sort_column = $columns[$data['iSortCol_0']];
 
         $query = "call prc_getDynamicFields (".$CompanyID.", '".$data['FieldName']."','".$data['FieldDomType']."','".$data['Active']."','subscription',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+
 
            if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv')->select($query.',1)');

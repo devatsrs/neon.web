@@ -1,4 +1,5 @@
 @if($selecteddata == "service")
+    <option value="">Select</option>
     @foreach($currenciesservices as $currenciesservice)
         <option value="{{$currenciesservice["ServiceId"]}}">{{$currenciesservice["ServiceName"]}}</option>
     @endforeach
@@ -16,6 +17,7 @@
     @endforeach
 @endif
 @if($selecteddata == "outboundTariff")
+    <option value="">Select</option>
     @foreach($outboundtarifflist as $outboundtariffsingle)
         <option value="{{$outboundtariffsingle["RateTableId"]}}">{{$outboundtariffsingle["RateTableName"]}}</option>
     @endforeach
@@ -48,7 +50,12 @@
     <?php $index1 = 0; $ajaxEditSelectedTemplateDIDTariff = ''?>
     @foreach($selecteddidcategorytariflist as $categoryTariffList)
         <?php
-            $CategoryTariffValue = $categoryTariffList->DIDCategoryID .'-'. $categoryTariffList->RateTableID ;
+            if ($categoryTariffList->DIDCategoryID == null || $categoryTariffList->DIDCategoryID == ''){
+                $CategoryTariffValue = "0" .'-'. $categoryTariffList->RateTableID ;
+            }else {
+                $CategoryTariffValue = $categoryTariffList->DIDCategoryID .'-'. $categoryTariffList->RateTableID ;
+            }
+
             $ajaxEditSelectedTemplateDIDTariff = $ajaxEditSelectedTemplateDIDTariff . $CategoryTariffValue . ","
 
         ?>
