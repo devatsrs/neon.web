@@ -4,24 +4,31 @@
         var productsubscription = $("#add-edit-product-subscription [name='productsubscription']").val();
         $('#add-edit-dynamicfield-form').submit(function(e){
             e.preventDefault();
+
             var modal = $(this).parents('.modal');
             var composit = modal.hasClass('composite')?1:0;
-            var datatype = 'select[data-type="item"]';
+            var datatype = 'select[data-type="subscription"]';
             var DynamicFieldsID = $("#add-edit-dynamicfield-form [name='DynamicFieldsID']").val();
             var ProductClone = $("#add-edit-dynamicfield-form [name='ProductClone']").val();
             if( typeof DynamicFieldsID != 'undefined' && DynamicFieldsID != ''){
                 update_new_url = baseurl + '/billing_subscription/dynamicfields/'+DynamicFieldsID+'/update';
             }else{
-                update_new_url = baseurl + '/billing_subscription/dynamicfields/create';
+
+               update_new_url = baseurl + '/billing_subscription/dynamicfields/create';
             }
 
-            showAjaxScript(update_new_url, new FormData(($('#add-edit-dynamicfield-form')[0])), function(response){
+            var data = new FormData(($('#add-edit-dynamicfield-form')[0]));
+            data.append ('FieldDomType', $("#add-edit-dynamicfield-form [name='FieldDomType']").val());
+
+            showAjaxScript(update_new_url, data, function(response){
                 $(".btn").button('reset');
+
                 if (response.status == 'success') {
                     modal.modal('hide');
                     toastr.success(response.message, "Success", toastr_opts);
                     if( typeof data_table !=  'undefined'){
                         data_table.fnFilter('', 0);
+
                     }else {
                         if (composit==1) {
                             datatype = '.optgroup_'+txtItem;
