@@ -104,7 +104,7 @@
                 <thead>
                     <tr>
                         <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
-                        <th width="15%">Field Name</th>
+                        <th width="15%">Field  Name</th>
                         <th width="20%">DOM Type</th>
                         <th width="15%">created_at</th>
                         <th width="15%">Status</th>
@@ -377,74 +377,73 @@
                     $('table tbody').on('click', '.edit-subscription', function (ev) {
                         ev.preventDefault();
                         ev.stopPropagation();
-                        $('#add-edit-itemtype-form').trigger("reset");
+                        $('#add-edit-dynamicfield-form').trigger("reset");
                         var cur_obj = $(this).prev("div.hiddenRowData");
-                        for(var i = 0 ; i< list_fields.length; i++){
-                            if(list_fields[i] == 'DynamicFieldsID'){
-                                var DynamicFieldsID=cur_obj.find("input[name='"+list_fields[i]+"']").val();
-                                if(DynamicFieldsID=='' || typeof (DynamicFieldsID)=='undefined'){
-                                    DynamicFieldsID=0;
+                        for(var i = 0 ; i< list_fields.length; i++) {
+                            if (list_fields[i] == 'DynamicFieldsID') {
+                                var DynamicFieldsID = cur_obj.find("input[name='" + list_fields[i] + "']").val();
+                                if (DynamicFieldsID == '' || typeof (DynamicFieldsID) == 'undefined') {
+                                    DynamicFieldsID = 0;
                                 }
-                                $("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").val(DynamicFieldsID).trigger("change");
-                                var valitemid=$("input[name='"+list_fields[i]+"']").val();
-                                if(DynamicFieldsID > 0){
+                                $("#add-edit-dynamicfield-form [name='" + list_fields[i] + "']").val(DynamicFieldsID).trigger("change");
+                                var valitemid = $("input[name='" + list_fields[i] + "']").val();
+                                if (DynamicFieldsID > 0) {
 
-                                    $("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").attr("disabled",true);
-                                    var h_ItemTypeID='<input type="hidden" name="ItemTypeID" value="'+valitemid+'" />';
+                                    $("#add-edit-dynamicfield-form [name='" + list_fields[i] + "']").attr("disabled", true);
+                                    var h_ItemTypeID = '<input type="hidden" name="ItemTypeID" value="' + valitemid + '" />';
                                     $("#add-edit-dynamicfield-form").append(h_ItemTypeID);
                                 }
 
 
+                                if (list_fields[i] == 'FieldDomType') {
+                                    var domtype = $(this).closest('td').find("input[name='FieldDomType']").val();
+
+                                    $("#add-edit-dynamicfield-form [name='" + list_fields[i] + "']").val(cur_obj.find("input[name='" + list_fields[i] + "']").val()).trigger("change");
+                                    var valdomtype = $("input[name='" + list_fields[i] + "']").val();
+
+                                    if (domtype == 'numeric' || domtype == 'string' || domtype == 'numericPerCall' || domtype == 'numericePerMin') {
+                                        var minmax = '<div class="form-group"><label for="field-5" class="control-label">Default Value </label>{{ Form::text("DefaultValue", "", array("class"=>"form-control"))  }}</div><div class="form-group"><label for="field-5" class="control-label">Min </label>{{ Form::text("Minimum", "", array("class"=>"form-control"))  }}</div><div class="form-group"><label for="field-5" class="control-label">Max </label>{{ Form::text("Maximum", "", array("class"=>"form-control"))  }}</div>';
+                                        $("#minmaxdiv").html(minmax);
+                                    } else if (domtype == 'select') {
+                                        var selectVal = '<div class="form-group"><label for="field-5" class="control-label">Select Value (separated by comma) </label>{{ Form::text("SelectVal", "", array("class"=>"form-control"))  }}</div>';
+                                        $("#minmaxdiv").html(selectVal);
+                                    } else {
+                                        $("#minmaxdiv").html('');
+                                    }
+
+                                    $("#add-edit-dynamicfield-form [name='" + list_fields[i] + "']").attr("disabled", true);
+
+                                    var h_FieldDomType = '<input type="hidden" name="FieldDomType" value="' + valdomtype + '" />';
+                                    $("#add-edit-dynamicfield-form").append(h_FieldDomType);
+                                }
+                                if (list_fields[i] == 'Status') {
+                                    if (cur_obj.find("input[name='" + list_fields[i] + "']").val() == 1) {
+                                        $('#add-edit-dynamicfield-form [name="Active"]').prop('checked', true)
+                                    } else {
+                                        $('#add-edit-dynamicfield-form [name="Active"]').prop('checked', false)
+                                    }
+                                } else {
+                                    if (list_fields[i] == 'Minimum' && (cur_obj.find("input[name='FieldDomType']").val() == 'string' || cur_obj.find("input[name='FieldDomType']").val() == 'numeric')) {
+                                        var min = cur_obj.find("input[name='" + list_fields[i] + "']").val();
+                                        var minmax = '<div class="form-group"><label for="field-5" class="control-label">Default Value </label>{{ Form::text("DefaultValue", "", array("class"=>"form-control"))  }}</div><div class="form-group"><label for="field-5" class="control-label">Min </label>{{ Form::text("Minimum", "", array("class"=>"form-control"))  }}</div><div class="form-group"><label for="field-5" class="control-label">Max </label>{{ Form::text("Maximum", "", array("class"=>"form-control"))  }}</div>';
+                                        $("#minmaxdiv").html(minmax);
+                                    }
+                                    if (list_fields[i] == 'SelectVal' && (cur_obj.find("input[name='FieldDomType']").val() == 'select')) {
+                                        var SelectVal = cur_obj.find("input[name='" + list_fields[i] + "']").val();
+                                        var SelectValDiv = '<div class="form-group"><label for="field-5" class="control-label">Select Value (separated by comma) </label>{{ Form::text("SelectVal", "", array("class"=>"form-control"))  }}</div>';
+                                        $("#minmaxdiv").html(SelectValDiv);
+                                        //$("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").attr("disabled",true);
+
+                                    }
+                                    $("#add-edit-dynamicfield-form [name='" + list_fields[i] + "']").val(cur_obj.find("input[name='" + list_fields[i] + "']").val());
+
+                                }
                             }
-                            if(list_fields[i] == 'FieldDomType'){
-                               var domtype =$(this).closest('td').find("input[name='FieldDomType']").val();
 
-                                $("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
-                                var valdomtype=$("input[name='"+list_fields[i]+"']").val();
-
-                                if(domtype=='numeric' || domtype=='string' || domtype=='numericPerCall' || domtype=='numericePerMin' ){
-                                    var minmax='<div class="form-group"><label for="field-5" class="control-label">Default Value </label>{{ Form::text("DefaultValue", "", array("class"=>"form-control"))  }}</div><div class="form-group"><label for="field-5" class="control-label">Min </label>{{ Form::text("Minimum", "", array("class"=>"form-control"))  }}</div><div class="form-group"><label for="field-5" class="control-label">Max </label>{{ Form::text("Maximum", "", array("class"=>"form-control"))  }}</div>';
-                                    $("#minmaxdiv").html(minmax);
-                                }else if(domtype=='select'){
-                                    var selectVal='<div class="form-group"><label for="field-5" class="control-label">Select Value (separated by comma) </label>{{ Form::text("SelectVal", "", array("class"=>"form-control"))  }}</div>';
-                                    $("#minmaxdiv").html(selectVal);
-                                }else{
-                                    $("#minmaxdiv").html('');
-                                }
-
-                                $("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").attr("disabled",true);
-
-                                var h_FieldDomType='<input type="hidden" name="FieldDomType" value="'+valdomtype+'" />';
-                                $("#add-edit-dynamicfield-form").append(h_FieldDomType);
-                            }
-                            if(list_fields[i] == 'Status'){
-                                if(cur_obj.find("input[name='"+list_fields[i]+"']").val() == 1){
-                                    $('#add-edit-dynamicfield-form [name="Active"]').prop('checked',true)
-                                }else{
-                                    $('#add-edit-dynamicfield-form [name="Active"]').prop('checked',false)
-                                }
-                            }else{
-                                if(list_fields[i] == 'Minimum' && (cur_obj.find("input[name='FieldDomType']").val() == 'string' || cur_obj.find("input[name='FieldDomType']").val() == 'numeric')){
-                                    var min=cur_obj.find("input[name='"+list_fields[i]+"']").val();
-                                    var minmax='<div class="form-group"><label for="field-5" class="control-label">Default Value </label>{{ Form::text("DefaultValue", "", array("class"=>"form-control"))  }}</div><div class="form-group"><label for="field-5" class="control-label">Min </label>{{ Form::text("Minimum", "", array("class"=>"form-control"))  }}</div><div class="form-group"><label for="field-5" class="control-label">Max </label>{{ Form::text("Maximum", "", array("class"=>"form-control"))  }}</div>';
-                                    $("#minmaxdiv").html(minmax);
-                                }
-                                if(list_fields[i] == 'SelectVal' && (cur_obj.find("input[name='FieldDomType']").val() == 'select')){
-                                    var SelectVal=cur_obj.find("input[name='"+list_fields[i]+"']").val();
-                                    var SelectValDiv='<div class="form-group"><label for="field-5" class="control-label">Select Value (separated by comma) </label>{{ Form::text("SelectVal", "", array("class"=>"form-control"))  }}</div>';
-                                    $("#minmaxdiv").html(SelectValDiv);
-                                    //$("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").attr("disabled",true);
-
-                                }
-                                $("#add-edit-dynamicfield-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
-
-                            }
+                            $("#add-edit-modal-itemtype [name='ProductClone']").val(0);
+                            $('#add-edit-modal-itemtype h4').html('Edit subscription');
+                            $('#add-edit-modal-itemtype').modal('show');
                         }
-
-                        $("#add-edit-modal-itemtype [name='ProductClone']").val(0);
-                        $('#add-edit-modal-itemtype h4').html('Edit Dynamic Field');
-                        $('#add-edit-modal-itemtype').modal('show');
-
                     });
                     $('table tbody').on('click', '.clone-product', function (ev) {
                         ev.preventDefault();
