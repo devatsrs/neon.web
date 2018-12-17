@@ -182,9 +182,9 @@ class VendorRatesController extends \BaseController
         $Vendors = Account::getOnlyVendorIDList();
         unset($Vendors[$id]);
         $trunks  = VendorTrunk::getTrunkDropdownIDList($id);
-        if(count($trunks) == 0){
+        /*if(count($trunks) == 0){
             return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
-        }
+        }*/
         $rate_sheet_formates = $this->rate_sheet_formates;
         $downloadtype        = [''=>'Select','xlsx'=>'EXCEL','csv'=>'CSV'];
         $Timezones           = Timezones::getTimezonesIDList();
