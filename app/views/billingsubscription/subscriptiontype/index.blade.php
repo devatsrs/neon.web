@@ -441,7 +441,7 @@
                             }
 
                             $("#add-edit-modal-itemtype [name='ProductClone']").val(0);
-                            $('#add-edit-modal-itemtype h4').html('Edit subscription');
+                            $('#add-edit-modal-itemtype h4').html('Edit dynamic field');
                             $('#add-edit-modal-itemtype').modal('show');
                         }
                     });
