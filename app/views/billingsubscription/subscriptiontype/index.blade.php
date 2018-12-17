@@ -104,7 +104,7 @@
                 <thead>
                     <tr>
                         <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
-                        <th width="15%">Filed Name</th>
+                        <th width="15%">Field Name</th>
                         <th width="20%">DOM Type</th>
                         <th width="15%">created_at</th>
                         <th width="15%">Status</th>
@@ -442,7 +442,7 @@
                         }
 
                         $("#add-edit-modal-itemtype [name='ProductClone']").val(0);
-                        $('#add-edit-modal-itemtype h4').html('Edit subscription');
+                        $('#add-edit-modal-itemtype h4').html('Edit Dynamic Field');
                         $('#add-edit-modal-itemtype').modal('show');
 
                     });
