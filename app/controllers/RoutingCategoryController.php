@@ -3,8 +3,12 @@
 class RoutingCategoryController extends \BaseController {
 
     public function ajax_datagrid() {
-
+        $data = Input::all();
         $RoutingCategory = RoutingCategory::select('Name','Description', 'RoutingCategoryID');
+        if(!empty($data['Name'])){
+           $RoutingCategory->where(["tblRoutingCategory.Name" => $data['Name']]);
+        }
+        
         return Datatables::of($RoutingCategory)->make();
     }
 

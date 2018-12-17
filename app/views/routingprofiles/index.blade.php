@@ -1,5 +1,32 @@
 @extends('layout.main')
 
+@section('filter')
+    
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <div id="table_filter" method="get" action="#" >
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Name</label>
+                    <input type="text" name="Name" class="form-control" value="" />
+                </div>
+               
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left" id="filter_submit">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+@stop
+
+
 @section('content')
 
 <ol class="breadcrumb bc-3">
@@ -20,7 +47,7 @@
 <p style="text-align: right;">
     <!-- We need to add permission - AHTSHAM -->
     <a href="#" data-action="showAddModal" data-type="routingcategory" data-modal="add-new-modal-routingcategory" id="addnewroutpro" class="btn btn-primary addnewroutpro" >
-        <i class="entypo-plus"></i>
+        <i class="entypo-plus addnewroutpro"></i>
         Add New
     </a>
     
@@ -48,7 +75,21 @@ var postdata;
     jQuery(document).ready(function ($) {
         public_vars.$body = $("body");
         //show_loading_bar(40);
+        
+        $('#filter-button-toggle').show();
+        
+        var $search = {};
+        var add_url = baseurl + "/routingprofiles/store";
+        var edit_url = baseurl + "/routingprofiles/update/{id}";
+        var view_url = baseurl + "/routingprofiles/show/{id}";
+        var delete_url = baseurl + "/routingprofiles/delete/{id}";
+        var datagrid_url = baseurl + "/routingprofiles/ajax_datagrid";
+        
+         $("#filter_submit").click(function(e) {
+            e.preventDefault();
 
+            $search.Name = $("#table_filter").find('[name="Name"]').val();
+            
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
             "bProcessing":true,
@@ -58,11 +99,35 @@ var postdata;
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[0, 'asc']],
+            "fnServerParams": function (aoData) {
+                        aoData.push(
+                                {"name": "Name", "value": $search.Name},
+
+                        );
+                        data_table_extra_params.length = 0;
+                        data_table_extra_params.push(
+                                {"name": "Name", "value": $search.Name},
+                                {"name": "Export", "value": 1}
+                        );
+
+                    },
             "aoColumns":
             [
                 {  "bSortable": true },  //0  Name', '', '', '
                 {  "bSortable": true },  //0  Descs', '', '', '
-                {  "bSortable": true },  //0  Descs', '', '', '
+                {  "bSortable": true,
+                    mRender: function ( id, type, full ) {
+                         var action , edit_ , show_ , delete_;
+                         console.log(id);
+                         if(id==1){
+                           action='<i class="entypo-check" style="font-size:22px;color:green"></i>';  
+                         }else{
+                             action='<i class="entypo-cancel" style="font-size:22px;color:red"></i>';
+                         }
+                         
+                       return action; 
+                    } 
+                },  //0  Descs', '', '', '
                 {                       //3  ID
                    "bSortable": true,
                     mRender: function ( id, type, full ) {
@@ -70,7 +135,7 @@ var postdata;
                         action = '<div class = "hiddenRowData" >';
                         action += '<input type = "hidden"  name = "Name" value = "' + (full[0] != null ? full[0] : '') + '" / >';
                         action += '<input type = "hidden"  name = "Description" value = "' + (full[1] != null ? full[1] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "RoutingPolicy" value = "' + (full[3] != null ? full[3] : '') + '" / ></div>';
+                        action += '<input type = "hidden"  name = "RoutingPolicy" value = "' + (full[4] != null ? full[4] : '') + '" / ></div>';
                         
                         action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" title="Edit" class="edit-category btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                         action += ' <a data-id="'+ id +'" title="Delete" class="delete-category btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
@@ -126,20 +191,29 @@ var postdata;
            }
 
         });
+ });
 
+$('#filter_submit').trigger('click');
 
         // Replace Checboxes
         $(".pagination a").click(function (ev) {
             replaceCheckboxes();
         });
-
-        $('table tbody').on('click','#addnewroutpro',function(ev){
-            console.log('---pp');
-            $("#RoutingCategory option:selected").prop("selected", false);
-            $("#RoutingCategory option:selected").removeAttr("selected");
-            var rcategory = $('#RoutingCategory').bootstrapDualListbox();   
-            rcategory.bootstrapDualListbox('refresh');
-        })
+ $('#addnewroutpro').click(function () {  
+     
+    $('#add-new-modal-routingcategory h3').html('Add Routing Profile');
+    $("#RoutingCategory option:selected").prop("selected", false);
+    $("#RoutingCategory option:selected").removeAttr("selected");
+    var rcategory = $('#RoutingCategory').bootstrapDualListbox();   
+    rcategory.bootstrapDualListbox('refresh');
+ })
+$('table tbody').on('click','.addnewroutpro',function(ev){
+    console.log('---pp');
+    $("#RoutingCategory option:selected").prop("selected", false);
+    $("#RoutingCategory option:selected").removeAttr("selected");
+    var rcategory = $('#RoutingCategory').bootstrapDualListbox();   
+    rcategory.bootstrapDualListbox('refresh');
+})
     $('table tbody').on('click','.edit-category',function(ev){
         ev.preventDefault();
         ev.stopPropagation();
@@ -161,9 +235,13 @@ var postdata;
                         
         Name = $(this).prev("div.hiddenRowData").find("input[name='Name']").val();
         Description = $(this).prev("div.hiddenRowData").find("input[name='Description']").val();
+        
         RoutingPolicy = $(this).prev("div.hiddenRowData").find("input[name='RoutingPolicy']").val();
         console.log(RoutingPolicy);
         $("#RoutingPolicy").val(RoutingPolicy);
+        $("#RoutingPolicy").val(RoutingPolicy).trigger("chosen:updated");
+        
+        $("#add-new-routingcategory-form [id='RoutingPolicy']").select2().select2('val', RoutingPolicy);
         
         $("#add-new-routingcategory-form [name='Name']").val(Name);
         $("#add-new-routingcategory-form [name='Description']").val(Description);

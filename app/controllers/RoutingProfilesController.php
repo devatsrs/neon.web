@@ -3,8 +3,12 @@
 class RoutingProfilesController extends \BaseController {
 
     public function ajax_datagrid() {
-
-        $RoutingProfiles = RoutingProfiles::select('Name','Description','Status', 'RoutingProfileID');
+         $data = Input::all();
+        $RoutingProfiles = RoutingProfiles::select('Name','Description','Status', 'RoutingProfileID', 'RoutingPolicy');
+        if(!empty($data['Name'])){
+           $RoutingProfiles->where(["tblRoutingProfile.Name" => $data['Name']]);
+        }
+        
         return Datatables::of($RoutingProfiles)->make();
     }
 
