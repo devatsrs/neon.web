@@ -199,6 +199,9 @@ jQuery(document).ready(function($) {
     var ArchiveRates;
     //var data_table;
 
+    var redirectURL=baseurl+"/vendor_rates/connection/{{$id}}";
+    window.location.href=redirectURL;
+
     $("#vendor-rate-search").submit(function(e) {
         return rateDataTable();
     });

@@ -12,6 +12,16 @@ class DidCategory extends \Eloquent{
     protected $table = 'tblDIDCategory';
     protected $primaryKey = "DIDCategoryID";
 
+
+        public static function getDIDCategory(){
+
+                $compantID = User::get_companyID();
+                $where = ['CompanyID'=>$compantID];
+                $DidCategoryTables = DIDCategory::select(['CategoryName','DIDCategoryID'])->where($where)->get();
+                return $DidCategoryTables;
+
+        }
+
     public static function getCategoryDropdownIDList($CompanyID=0)
     {
         $CompanyID = $CompanyID>0?$CompanyID : User::get_companyID();

@@ -140,6 +140,10 @@
  
 <script type="text/javascript">
 jQuery(document).ready(function ($) {
+
+    var redirectURL=baseurl+"/vendor_rates/connection/{{$id}}";
+    window.location.href=redirectURL;
+
 $(".dataTables_wrapper select").select2({
     minimumResultsForSearch: -1
 });

@@ -8,9 +8,9 @@ class ConnectionController extends \BaseController {
     {
         $companyID = User::get_companyID();
         $trunks = VendorTrunk::getTrunkDropdownIDList($id);
-        if(count($trunks) == 0){
+        /*if(count($trunks) == 0){
             return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
-        }
+        }*/
         $Type=[''=>'Select']+VendorConnection::$Type_array;
         $DIDCategories=DIDCategory::getCategoryDropdownIDList($companyID);
         $CurrencyID=Account::getCurrencyIDByAccount($id);
@@ -18,7 +18,7 @@ class ConnectionController extends \BaseController {
         $TariffDID=RateTable::getDIDTariffDropDownList($companyID,VendorConnection::Type_DID,$CurrencyID);
         $TariffVoiceCall=RateTable::getDIDTariffDropDownList($companyID,VendorConnection::Type_VoiceCall,$CurrencyID);
 
-        return View::make('vendorrates.connection.index', compact('id','trunks','Type','DIDCategories','TariffDID','TariffVoiceCall'));
+        return View::make('vendorrates.connection', compact('id','trunks','Type','DIDCategories','TariffDID','TariffVoiceCall'));
 
     }
 
@@ -31,13 +31,14 @@ class ConnectionController extends \BaseController {
         $data['IP'] = !empty($data['IP'])?$data['IP']:'';
         $data['ConnectionType'] = !empty($data['ConnectionType'])?$data['ConnectionType']:'';
         $data['Name'] = !empty($data['Name'])?$data['Name']:'';
+        $data['DIDCategoryID'] = !empty($data['DIDCategoryID'])?$data['DIDCategoryID']:0;
 
-        $columns = array('VendorConnectionID','Name','ConnectionType','IP','Active','created_at','DIDCategoryID','Tariff','TrunkID','CLIRule','CLDRule','CallPrefix','Port','Username');
+        $columns = array('VendorConnectionID','Name','ConnectionType','IP','Active','TrunkName','CategoryName','created_at','DIDCategoryID','Tariff','TrunkID','CLIRule','CLDRule','CallPrefix','Port','Username','PrefixCDR','SipHeader','AuthenticationMode');
 
         $sort_column = $columns[$data['iSortCol_0']];
         $companyID = User::get_companyID();
 
-        $query = "call prc_getVendorConnection (" . $companyID . "," . $id . "," . $data['TrunkID'] . ",'" . $data['IP'] . "','" . $data['ConnectionType'] . "','" . $data['Name'] . "'," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "'";
+        $query = "call prc_getVendorConnection (" . $companyID . "," . $id . "," . $data['TrunkID'] . ",'" . $data['IP'] . "','" . $data['ConnectionType'] . "',".$data['DIDCategoryID'].",'" . $data['Name'] . "'," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv')->select($query.',1)');
@@ -97,7 +98,6 @@ class ConnectionController extends \BaseController {
                     'Name' => 'required',
                     'CompanyID' => 'required',
                     'TrunkID' => 'required',
-                    'Tariff' => 'required',
 
                 );
             }else{
@@ -129,7 +129,7 @@ class ConnectionController extends \BaseController {
             }
 
             //check Duplicate
-            $checkduplicate=VendorConnection::where(['ConnectionType'=>$data['ConnectionType'],'Name'=>$data['Name']])->get()->count();
+            $checkduplicate=VendorConnection::where(['ConnectionType'=>$data['ConnectionType'],'Name'=>$data['Name'],'AccountId'=>$id])->get()->count();
             if($checkduplicate > 0){
                 return Response::json(array("status" => "failed", "message" => "Type with this Name Already Exists."));
             }
@@ -190,7 +190,6 @@ class ConnectionController extends \BaseController {
                 $rules = array(
                     'Name' => 'required',
                     'CompanyID' => 'required',
-                    'DIDCategoryID' => 'required',
                     'Tariff' => 'required',
 
                 );
@@ -199,8 +198,6 @@ class ConnectionController extends \BaseController {
                 $rules = array(
                     'Name' => 'required',
                     'CompanyID' => 'required',
-                    'TrunkID' => 'required',
-                    'Tariff' => 'required',
 
                 );
             }
@@ -362,6 +359,43 @@ class ConnectionController extends \BaseController {
             }
         }
 
+    }
+
+    public function get_tariff_by_category_trunk($AccountID){
+        $Result=array();
+        $options='';
+        if($AccountID >0){
+
+            $data = Input::all();
+            $CompanyID = User::get_companyID();
+            $CurrencyID=Account::getCurrencyIDByAccount($AccountID);
+
+           if(isset($data['categoryID'])){
+               //Type DID
+
+               if($data['categoryID'] > 0){
+                   $Result = RateTable::where(array('CompanyID'=>$CompanyID,'Type'=>RateTable::TYPE_DID,'AppliedTo'=>RateTable::APPLIED_TO_VENDOR,'CurrencyID'=>$CurrencyID,'DIDCategoryID'=>$data['categoryID']))->lists('RateTableName', 'RateTableId');
+               }else{
+                   $Result = RateTable::where(array('CompanyID'=>$CompanyID,'Type'=>RateTable::TYPE_DID,'AppliedTo'=>RateTable::APPLIED_TO_VENDOR,'CurrencyID'=>$CurrencyID))->lists('RateTableName', 'RateTableId');
+               }
+
+           }else if(isset($data['TrunkID'])){
+               //Type VoiceCall
+               if($data['TrunkID'] > 0){
+                   $Result = RateTable::where(array('CompanyID'=>$CompanyID,'Type'=>RateTable::TYPE_VOICECALL,'AppliedTo'=>RateTable::APPLIED_TO_VENDOR,'CurrencyID'=>$CurrencyID,'TrunkID'=>$data['TrunkID']))->lists('RateTableName', 'RateTableId');
+               }else{
+                   $Result = RateTable::where(array('CompanyID'=>$CompanyID,'Type'=>RateTable::TYPE_VOICECALL,'AppliedTo'=>RateTable::APPLIED_TO_VENDOR,'CurrencyID'=>$CurrencyID))->lists('RateTableName', 'RateTableId');
+               }
+           }
+
+        }
+        //print_r($Result);
+        $options.="<option value=''>Select</option>";
+        foreach($Result as $key =>$val){
+            $options.="<option value='".$key."'>".$val."</option>";
+        }
+
+        return $options;
     }
 
 }

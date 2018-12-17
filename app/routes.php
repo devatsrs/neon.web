@@ -522,6 +522,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/vendor_rates/connection/{id}/delete', 'ConnectionController@delete');
 	Route::any('/vendor_rates/connection/{id}/statusupdate/{status}', 'ConnectionController@updatestatus');
 	Route::any('/vendor_rates/connection/bulk_update_connection/{id}', 'ConnectionController@bulk_update_connection');
+	Route::any('/vendor_rates/connection/{id}/get_tariff_by_category_trunk', 'ConnectionController@get_tariff_by_category_trunk');
+
 
 	Route::resource('vendor_rates', 'VendorRatesController');
 	Route::controller('vendor_rates', 'VendorRatesController');
@@ -735,9 +737,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rate_tables/{id}/view', 'RateTablesController@view');
     Route::any('/rate_tables/{id}/add_newrate', 'RateTablesController@add_newrate');
 	Route::any('/rate_tables/{id}/clear_rate', 'RateTablesController@clear_rate');
-	Route::any('/rate_tables/{id}/clear_did_rate', 'RateTablesController@clear_did_rate');
 	Route::any('/rate_tables/{id}/update_rate_table_rate', 'RateTablesController@update_rate_table_rate');
-	Route::any('/rate_tables/{id}/update_rate_table_did_rate', 'RateTablesController@update_rate_table_did_rate');
 	//Route::any('/rate_tables/{id}/bulk_update_rate_table_rate', 'RateTablesController@bulk_update_rate_table_rate');
 	Route::any('/rate_tables/{id}/bulk_clear_rate_table_rate', 'RateTablesController@bulk_clear_rate_table_rate');
 	Route::any('/rate_tables/{id}/change_status/{status}', 'RateTablesController@change_status')->where('status', '(.[09]*)+');
@@ -930,6 +930,30 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/billing_subscription/{id}/delete', 'BillingSubscriptionController@delete');	
 	Route::any('/billing_subscription/{id}/getSubscriptionData_ajax', 'BillingSubscriptionController@getSubscriptionData_ajax');
     Route::any('/billing_subscription/{id}/get/{FieldName}', 'BillingSubscriptionController@get')->where('FieldName', '(.[azAZ]*)+');
+
+
+	Route::any('/billing_subscription/ajax_datagrid/{type}', 'BillingSubscriptionController@ajax_datagrid');
+	Route::any('/billing_subscription/update/{id}', 'BillingSubscriptionController@update');
+	Route::any('/billing_subscription', 'BillingSubscriptionController@index');
+	Route::any('/billing_subscription/subscription_types', 'BillingSubscriptionController@viewSubscriptionDynamicFields');
+	Route::any('/billing_subscription/subcriptiontypes/getFields/{type}', 'BillingSubscriptionController@ajax_GetSubscriptions');
+
+	Route::any('/billing_subscription/ajax_datagrid/{type}', 'BillingSubscriptionController@ajax_datagrid');
+	Route::any('/billing_subscription/update/{id}', 'BillingSubscriptionController@update');
+	Route::any('/billing_subscription', 'BillingSubscriptionController@index');
+	Route::any('/billing_subscription/subscription_types', 'BillingSubscriptionController@viewSubscriptionDynamicFields');
+	Route::any('/billing_subscription/subcriptiontypes/getFields/{type}', 'BillingSubscriptionController@ajax_GetSubscriptions');
+	Route::any('/billing_subscription/create', 'BillingSubscriptionController@create');
+	Route::any('/billing_subscription/update/{id}', 'BillingSubscriptionController@update');
+	Route::any('/billing_subscription/{id}/delete', 'BillingSubscriptionController@delete');
+	Route::any('/billing_subscription/{id}/getSubscriptionData_ajax', 'BillingSubscriptionController@getSubscriptionData_ajax');
+	Route::any('/billing_subscription/{id}/get/{FieldName}', 'BillingSubscriptionController@get')->where('FieldName', '(.[azAZ]*)+');
+	Route::any('/billing_subscription/dynamicfields/create', 'BillingSubscriptionController@addDynamicFields');
+	Route::any('/billing_subscription/dynamicfields/{id}/update','BillingSubscriptionController@updateDynamicField');
+	Route::any('/billing_subscription/dynamicField/{id}/delete', 'BillingSubscriptionController@deleteDynamicFields');
+	Route::any('/billing_subscription/dynamicField/update_bulk_itemtypes_status', 'BillingSubscriptionController@UpdateBulkItemTypeStatus');
+	Route::any('/billing_subscription/dynamicField/typesAccess/{data}', 'BillingSubscriptionController@getSubscritionsType');
+	Route::any('/billing_subscription/dynamicField/fieldAccess', 'BillingSubscriptionController@getSubscritionsField');
 
 	//InvoiceTemplate
 	Route::any('/invoice_template/ajax_datagrid/{type}', 'InvoiceTemplatesController@ajax_datagrid');
@@ -1448,6 +1472,16 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/clitable/update','AccountsController@clitable_update');
 
 	// services
+	Route::any('servicesTemplate', 'ServicesTemplateController@index');
+	Route::any('servicesTemplate/ajax_datagrid', 'ServicesTemplateController@ajax_datagrid');
+	Route::any('servicesTemplate/store', 'ServicesTemplateController@store');
+	Route::any('servicesTemplate/update/{id}', 'ServicesTemplateController@update');
+	Route::any('servicesTemplate/delete/{id}', 'ServicesTemplateController@delete');
+	Route::any('servicesTemplate/exports/{type}', 'ServicesTemplateController@exports');
+	Route::any('servicesTemplate/selectDataOnCurrency', 'ServicesTemplateController@selectDataOnCurrency');
+
+
+	// services
 	Route::any('services', 'ServicesController@index');
 	Route::any('services/ajax_datagrid', 'ServicesController@ajax_datagrid');
 	Route::any('services/store', 'ServicesController@store');
@@ -1525,7 +1559,26 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/timezones/update/{id}','TimezonesController@update');
 	Route::any('/timezones/{id}/delete/{type}','TimezonesController@delete');
 	Route::controller('timezones', 'TimezonesController');
-
+        
+        //routing category
+	Route::any('/routingcategory/ajax_datagrid', 'RoutingCategoryController@ajax_datagrid');
+	Route::any('/routingcategory', 'RoutingCategoryController@index');
+	Route::any('/routingcategory/create', 'RoutingCategoryController@create');
+	Route::any('/routingcategory/update/{id}', 'RoutingCategoryController@update');
+	Route::any('/routingcategory/{id}/delete', 'RoutingCategoryController@delete');
+        Route::any('/routingcategory/update_fields_sorting', 'RoutingCategoryController@update_fields_sorting');
+        Route::any('/routingcategory/exports/{type}', 'RoutingCategoryController@exports');
+        
+        //routing Profiles
+	Route::any('/routingprofiles/ajax_datagrid', 'RoutingProfilesController@ajax_datagrid');
+	Route::any('/routingprofiles', 'RoutingProfilesController@index');
+        Route::any('/assignrouting', 'AssignRoutingController@index');
+        Route::any('/assignrouting/ajax_datagrid/{type}', 'AssignRoutingController@ajax_datagrid');
+	Route::any('/routingprofiles/create', 'RoutingProfilesController@create');
+        Route::any('/routingprofiles/ajaxcall/{id}', 'RoutingProfilesController@ajaxcall');
+	Route::any('/routingprofiles/update/{id}', 'RoutingProfilesController@update');
+	Route::any('/routingprofiles/{id}/delete', 'RoutingProfilesController@delete');
+        Route::any('/routingprofiles/exports/{type}', 'RoutingProfilesController@exports');
 });
 
 Route::group(array('before' => 'global_admin'), function () {

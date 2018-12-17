@@ -13,8 +13,10 @@ class BillingSubscription extends \Eloquent {
 	public static $Advance = array(''=>'All',0=>"Off",1=>"On");
     const Customer = 0;
     const Reseller = 1;
+    const Vendor = 3;
 
-    public static $AppliedTo = array(self::Customer=>"Customer",self::Reseller=>"Reseller");
+
+    public static $AppliedTo = array(self::Customer=>"Customer",self::Reseller=>"Reseller", self::Vendor=>"Vendor");
     public static $ALLAppliedTo = array(''=>'Select',self::Customer=>"Customer",self::Reseller=>"Reseller");
 
 
@@ -79,6 +81,17 @@ class BillingSubscription extends \Eloquent {
 
         Cache::flush("subscription_dropdown1_cache");
 
+    }
+
+    public static function getSubscriptionsListDropList(){
+        $CompanyID = User::get_companyID();
+        $BillingSubscription = BillingSubscription::select(['Name','SubscriptionID'])->get();
+        $BillingSubscriptionArr = json_decode(json_encode($BillingSubscription),true);
+       // $BillingSubscription = BillingSubscription::where(["CompanyID"=>$CompanyID])->lists('Name','SubscriptionID');
+      //  $BillingSubscription = array('' => "Select") + $BillingSubscription;
+       // print_r($BillingSubscription);
+       // exit;
+        return $BillingSubscriptionArr;
     }
 
 }

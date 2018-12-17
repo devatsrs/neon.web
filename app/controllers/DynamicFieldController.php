@@ -78,6 +78,7 @@ class DynamicFieldController extends \BaseController {
         unset($data['ProductClone']);
         unset($data['Active']);
 
+
         $rules = array(
             'CompanyID' => 'required',
             'ItemTypeID' => 'required',
