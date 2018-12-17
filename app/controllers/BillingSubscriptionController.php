@@ -512,7 +512,7 @@ class BillingSubscriptionController extends \BaseController {
         }
     }
 
-    public function updateDynamicField($id){
+        public function updateDynamicField($id){
 
         if( $id > 0 ) {
             $data = Input::all();
