@@ -553,7 +553,7 @@ class RateTablesController extends \BaseController {
 
             if($rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR) {
                 $RateTableRate['RoutingCategoryID']     = $data['RoutingCategoryID'];
-                $RateTableRate['Preference']            = $data['Preference'];
+                $RateTableRate['Preference']            = $data['Preference'] != '' ? $data['Preference'] : NULL;
                 $RateTableRate['Blocked']               = !empty($data['Blocked']) ? $data['Blocked'] : 0;
             }
 
