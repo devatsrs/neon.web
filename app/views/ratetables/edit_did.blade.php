@@ -9,20 +9,20 @@
                 Filter
             </h2>
             <form role="form" id="rate-table-search" action="javascript:void(0);"  method="post" class="form-horizontal form-groups-bordered validate" novalidate>
-                <div class="form-group">
+                <div class="form-group" style="display: none;">
                     <label class="control-label">Origination Code</label>
                     <input type="text" name="OriginationCode" class="form-control" placeholder="" />
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="display: none;">
                     <label class="control-label">Origination Description</label>
                     <input type="text" name="OriginationDescription" class="form-control" placeholder="" />
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="control-label">Destination Code</label>
+                    <label for="field-1" class="control-label">Code</label>
                     <input type="text" name="Code" class="form-control" id="field-1" placeholder="" />
                 </div>
                 <div class="form-group">
-                    <label class="control-label">Destination Description</label>
+                    <label class="control-label">Description</label>
                     <input type="text" name="Description" class="form-control" id="field-1" placeholder="" />
                     <input type="hidden" name="TrunkID" value="{{$trunkID}}" >
                 </div>
@@ -143,10 +143,10 @@
                     <input type="checkbox" id="selectall" name="checkbox[]" />
                 </div>
             </th>
-            <th width="4%">Orig. Code</th>
-            <th width="10%">Orig. Description</th>
-            <th width="4%" id="Code-Header">Dest. Code</th>
-            <th width="10%">Dest. Description</th>
+            <th width="4%" style="display: none;">Orig. Code</th>
+            <th width="10%" style="display: none;">Orig. Description</th>
+            <th width="4%" id="Code-Header">Code</th>
+            <th width="10%">Description</th>
             <th width="3%">One-Off Cost ({{$code}})</th>
             <th width="3%">Monthly cost ({{$code}})</th>
             <th width="5%">Cost Per Call ({{$code}})</th>
@@ -500,6 +500,9 @@
             "bProcessing": true,
             "bServerSide": true,
             "scrollX": true,
+            "initComplete": function(settings, json) { // to hide extra row which is displaying due to scrollX
+                $('.dataTables_scrollBody thead tr').css({visibility:'collapse'});
+            },
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "sAjaxSource": baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid",
             "fnServerParams": function(aoData) {
@@ -518,8 +521,8 @@
                                 return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
                             }
                         }, //0Checkbox
-                        {}, //1 Origination Code
-                        {}, //2 Origination description
+                        {"bVisible" : false}, //1 Origination Code
+                        {"bVisible" : false}, //2 Origination description
                         {
                             mRender: function(id, type, full) {
                                 if(view==1) {
@@ -601,7 +604,7 @@
             },
             "fnDrawCallback": function() {
                 if(view==1){
-                    $('#Code-Header').html('Dest. Code');
+                    $('#Code-Header').html('Code');
                 }else{
                     $('#Code-Header').html('');
                 }
@@ -780,9 +783,11 @@
                     var Code = hiddenRowData.find('input[name="Code"]').val();
                     var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
                     if(view == 1) {
-                        table.append("<thead><tr><th>Orig. Code</th><th>Orig. Description</th><th>Dest. Code</th><th>Dest. Description</th><th>OneOffCost</th><th>MonthlyCost</th><th>CostPerCall</th><th>CostPerMinute</th><th>SurchargePerCall</th><th>SurchargePerMinute</th><th>OutpaymentPerCall</th><th>OutpaymentPerMinute</th><th>Surcharges</th><th>Chargeback</th><th>CollectionCostAmount</th><th>CollectionCostPercentage</th><th>RegistrationCostPerNumber</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                        //table.append("<thead><tr><th>Orig. Code</th><th>Orig. Description</th><th>Dest. Code</th><th>Dest. Description</th><th>One-Off Cost ({{$code}})</th><th>Monthly Cost ({{$code}})</th><th>Cost Per Call ({{$code}})</th><th>Cost Per Minute ({{$code}})</th><th>Surcharge Per Call ({{$code}})</th><th>Surcharge Per Minute ({{$code}})</th><th>Outpayment Per Call ({{$code}})</th><th>Outpayment Per Minute ({{$code}})</th><th>Surcharges ({{$code}})</th><th>Chargeback ({{$code}})</th><th>Collection Cost ({{$code}})</th><th>Collection Cost (%)</th><th>Registration Cost ({{$code}})</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                        table.append("<thead><tr><th>Code</th><th>Description</th><th>One-Off Cost ({{$code}})</th><th>Monthly Cost ({{$code}})</th><th>Cost Per Call ({{$code}})</th><th>Cost Per Minute ({{$code}})</th><th>Surcharge Per Call ({{$code}})</th><th>Surcharge Per Minute ({{$code}})</th><th>Outpayment Per Call ({{$code}})</th><th>Outpayment Per Minute ({{$code}})</th><th>Surcharges ({{$code}})</th><th>Chargeback ({{$code}})</th><th>Collection Cost ({{$code}})</th><th>Collection Cost (%)</th><th>Registration Cost ({{$code}})</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
                     } else {
-                        table.append("<thead><tr><th>Orig. Code</th><th>Orig. Description</th><th>Dest. Description</th><th>OneOffCost</th><th>MonthlyCost</th><th>CostPerCall</th><th>CostPerMinute</th><th>SurchargePerCall</th><th>SurchargePerMinute</th><th>OutpaymentPerCall</th><th>OutpaymentPerMinute</th><th>Surcharges</th><th>Chargeback</th><th>CollectionCostAmount</th><th>CollectionCostPercentage</th><th>RegistrationCostPerNumber</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                        //table.append("<thead><tr><th>Orig. Code</th><th>Orig. Description</th><th>Dest. Description</th><th>One-Off Cost ({{$code}})</th><th>Monthly Cost ({{$code}})</th><th>Cost Per Call ({{$code}})</th><th>Cost Per Minute ({{$code}})</th><th>Surcharge Per Call ({{$code}})</th><th>Surcharge Per Minute ({{$code}})</th><th>Outpayment Per Call ({{$code}})</th><th>Outpayment Per Minute ({{$code}})</th><th>Surcharges ({{$code}})</th><th>Chargeback ({{$code}})</th><th>Collection Cost ({{$code}})</th><th>Collection Cost (%)</th><th>Registration Cost ({{$code}})</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                        table.append("<thead><tr><th>Description</th><th>One-Off Cost ({{$code}})</th><th>Monthly Cost ({{$code}})</th><th>Cost Per Call ({{$code}})</th><th>Cost Per Minute ({{$code}})</th><th>Surcharge Per Call ({{$code}})</th><th>Surcharge Per Minute ({{$code}})</th><th>Outpayment Per Call ({{$code}})</th><th>Outpayment Per Minute ({{$code}})</th><th>Surcharges ({{$code}})</th><th>Chargeback ({{$code}})</th><th>Collection Cost ({{$code}})</th><th>Collection Cost (%)</th><th>Registration Cost ({{$code}})</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
                     }
                     var tbody = $("<tbody></tbody>");
 
@@ -792,8 +797,8 @@
                             data['OriginationDescription'] = data['OriginationDescription'] != null ? data['OriginationDescription'] : '';
                             var html = "";
                             html += "<tr class='no-selection'>";
-                            html += "<td>" + data['OriginationCode'] + "</td>";
-                            html += "<td>" + data['OriginationDescription'] + "</td>";
+                            //html += "<td>" + data['OriginationCode'] + "</td>";
+                            //html += "<td>" + data['OriginationDescription'] + "</td>";
                             if(view == 1) {
                                 html += "<td>" + data['Code'] + "</td>";
                             }
