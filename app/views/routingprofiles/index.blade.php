@@ -14,7 +14,11 @@
                     <label for="field-1" class="control-label">Name</label>
                     <input type="text" name="Name" class="form-control" value="" />
                 </div>
-               
+               <div class="form-group">
+                    <label class="control-label">Status</label>
+                    <?php $nameprefix_array = array("" => "","1" => "Active", "0" => "De-Active"); ?>
+                    {{Form::select('Status', $nameprefix_array, '',array("id"=>"Status","class"=>"form-control"))}}
+                </div>
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left" id="filter_submit">
                         <i class="entypo-search"></i>
@@ -50,16 +54,19 @@
         <i class="entypo-plus addnewroutpro"></i>
         Add New
     </a>
-    
-    <a data-id="" href="assignrouting" title="Assign" class="btn-success btn btn-danger btn-sm">Assign</a>
+    <a href="assignrouting"  style="background:#00a651;border-color:#00a651" id="addnewroutpro" class="btn btn-primary " >
+        <i class="entypo-plus addnewroutpro"></i>
+        Assign
+    </a>
 </p>
 <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
-        <th width="30%">Name</th>
+        <th width="25%">Name</th>
         <th width="25%">Description</th>
-        <th width="25%">Status</th>
-        <th width="25%">Action</th>
+        <th width="5%">Status</th>
+        <th width="25%">Routing Category</th>
+        <th width="30%">Action</th>
     </tr>
     </thead>
     <tbody>
@@ -89,6 +96,7 @@ var postdata;
             e.preventDefault();
 
             $search.Name = $("#table_filter").find('[name="Name"]').val();
+            $search.Status = $("#table_filter").find('[name="Status"]').val();
             
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
@@ -102,11 +110,12 @@ var postdata;
             "fnServerParams": function (aoData) {
                         aoData.push(
                                 {"name": "Name", "value": $search.Name},
-
+                                {"name": "Status", "value": $search.Status},
                         );
                         data_table_extra_params.length = 0;
                         data_table_extra_params.push(
                                 {"name": "Name", "value": $search.Name},
+                                {"name": "Status", "value": $search.Status},
                                 {"name": "Export", "value": 1}
                         );
 
@@ -127,7 +136,14 @@ var postdata;
                          
                        return action; 
                     } 
-                },  //0  Descs', '', '', '
+                },  //0  Status', '', '', '
+                {  "bSortable": true,
+                    mRender: function ( id, type, full ) {
+                         var action , edit_ , show_ , delete_;
+                         
+                       return full[5]; 
+                    } 
+                },  //0  Status', '', '', '
                 {                       //3  ID
                    "bSortable": true,
                     mRender: function ( id, type, full ) {
@@ -137,8 +153,8 @@ var postdata;
                         action += '<input type = "hidden"  name = "Description" value = "' + (full[1] != null ? full[1] : '') + '" / >';
                         action += '<input type = "hidden"  name = "RoutingPolicy" value = "' + (full[4] != null ? full[4] : '') + '" / ></div>';
                         
-                        action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" title="Edit" class="edit-category btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
-                        action += ' <a data-id="'+ id +'" title="Delete" class="delete-category btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
+                        action += ' <a data-name = "'+full[0]+'" data-id="'+ full[3] +'" title="Edit" class="edit-category btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
+                        action += ' <a data-id="'+ full[3] +'" title="Delete" class="delete-category btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                         
                        action += ' <a data-id="" href="lcr" title="test routing" class="btn-success btn btn-danger btn-sm">Test</a>';
                         
@@ -217,6 +233,7 @@ $('table tbody').on('click','.addnewroutpro',function(ev){
     $('table tbody').on('click','.edit-category',function(ev){
         ev.preventDefault();
         ev.stopPropagation();
+        console.log('---pppp::'+$(this).attr('data-id'));
         $('#add-new-routingcategory-form').trigger("reset");
         $.post(baseurl + "/routingprofiles/ajaxcall/"+$(this).attr('data-id'), '', function(response) {
             SaveCat = $.parseJSON(response);
