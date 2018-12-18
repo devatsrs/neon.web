@@ -4,11 +4,22 @@ class RoutingProfilesController extends \BaseController {
 
     public function ajax_datagrid() {
          $data = Input::all();
-        $RoutingProfiles = RoutingProfiles::select('Name','Description','Status', 'RoutingProfileID', 'RoutingPolicy');
-        if(!empty($data['Name'])){
-           $RoutingProfiles->where(["tblRoutingProfile.Name" => $data['Name']]);
-        }
+        //$RoutingProfiles = RoutingProfiles::select('Name','Description','Status', 'RoutingProfileID', 'RoutingPolicy');
+        $companyID = User::get_companyID();
         
+//        $exportSelectedTemplate = "select tblRoutingProfile.Name,tblRoutingProfile.Description,tblRoutingProfile.Status,tblRoutingProfile.RoutingProfileID,tblRoutingProfile.RoutingPolicy,".
+//                                "(select GROUP_CONCAT(tblRoutingCategory.Name SEPARATOR ', ' ) as Routescategory from tblRoutingCategory where tblRoutingCategory.RoutingCategoryID in (select tblRoutingProfileCategory.RoutingCategoryID from tblRoutingProfileCategory where tblRoutingProfileCategory.RoutingProfileID = tblRoutingProfile.RoutingProfileID)) as Routingcategory ".
+//                                "from tblRoutingProfile ";
+//        $exportSelectedTemplate =DB::select($exportSelectedTemplate);
+//     
+//               $exportSelectedTemplate = $exportSelectedTemplate->get();
+//               print_r($exportSelectedTemplate);die();
+//               $excel_data = json_decode(json_encode($excel_data),true);
+               
+               $RoutingProfiles = RoutingProfiles::Join('tblRoutingProfileCategory','tblRoutingProfileCategory.RoutingProfileID','=','tblRoutingProfile.RoutingProfileID')
+                    ->select(['tblRoutingProfile.Name','tblRoutingProfile.Description','tblRoutingProfile.Status','tblRoutingProfile.RoutingProfileID','tblRoutingProfile.RoutingPolicy',DB::raw("(select GROUP_CONCAT(tblRoutingCategory.Name SEPARATOR ', ' ) as Routescategory from tblRoutingCategory where tblRoutingCategory.RoutingCategoryID in (select tblRoutingProfileCategory.RoutingCategoryID from tblRoutingProfileCategory where tblRoutingProfileCategory.RoutingProfileID = tblRoutingProfile.RoutingProfileID)) as Routingcategory")])
+                    ->where(["tblRoutingProfile.CompanyID" => $companyID])->groupBy("tblRoutingProfile.RoutingProfileID");
+               
         return Datatables::of($RoutingProfiles)->make();
     }
 
@@ -122,8 +133,8 @@ class RoutingProfilesController extends \BaseController {
                 $data["UpdatedBy"] = User::get_user_full_name();
                 $rules = array(
                     'Name' => 'required',
-                    'Description' => 'required',
                     'RoutingPolicy' => 'required',
+                    'RoutingCategory' => 'required',
                 );
                 $validator = Validator::make($data, $rules);
 
@@ -177,6 +188,8 @@ class RoutingProfilesController extends \BaseController {
                         $result = RoutingProfiles::find($id)->delete();
                         RoutingProfiles::clearCache();
                         if ($result) {
+                            $results = RoutingProfileCategory::where(array('RoutingProfileID'=>$id))->delete();;
+                            RoutingProfileCategory::clearCache();
                             return Response::json(array("status" => "success", "message" => "Routing Profiles Successfully Deleted"));
                         } else {
                             return Response::json(array("status" => "failed", "message" => "Problem Deleting Routing Profiles."));
