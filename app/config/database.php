@@ -53,10 +53,10 @@ return array(
 
 		'mysql' => array(
 			'driver'    => 'mysql',
-			'host'     => "188.227.186.98",
-			'database' => "speakintelligentRM",
-			'username' => "neon-user",
-			'password' => substr("12345aJcH!^VUnI#2WsYZQ45a",5),
+			'host'     => getenv('DB_HOST'),
+			'database' => getenv('DB_DATABASE'),
+			'username' => getenv('DB_USERNAME'),
+			'password' => substr(getenv('DB_PASSWORD'),5),
 			'charset'   => 'utf8',
 			'collation' => 'utf8_unicode_ci',
 			'prefix'    => '',
@@ -77,10 +77,10 @@ return array(
 		/** Primary RM Database **/
 		'sqlsrv' => [
 			'driver'   => 'mysql',
-			'host'     => "188.227.186.98",
-			'database' => "speakintelligentRM",
-			'username' => "neon-user",
-			'password' => substr("12345aJcH!^VUnI#2WsYZQ45a",5),
+			'host'     => getenv('DB_HOST'),
+			'database' => getenv('DB_DATABASE'),
+			'username' => getenv('DB_USERNAME'),
+			'password' => substr(getenv('DB_PASSWORD'),5),
 			'charset'   => 'utf8',
 			'collation' => 'utf8_unicode_ci',
 			'prefix'   => '',
@@ -88,10 +88,10 @@ return array(
 		/** Billing Database **/
 		'sqlsrv2' => [
 			'driver'   => 'mysql',
-			'host'     => "188.227.186.98",
-			'database' => "speakintelligentBilling",
-			'username' => "neon-user",
-			'password' => substr("12345aJcH!^VUnI#2WsYZQ45a",5),
+			'host'     => getenv('DB_HOST2'),
+			'database' => getenv('DB_DATABASE2'),
+			'username' => getenv('DB_USERNAME2'),
+			'password' => substr(getenv('DB_PASSWORD2'),5),
 			'charset'   => 'utf8',
 			'collation' => 'utf8_unicode_ci',
 			'prefix'   => '',
@@ -99,10 +99,10 @@ return array(
 		/** CDR Database **/
 		'sqlsrvcdr' => [
 			'driver'   => 'mysql',
-			'host'     => "188.227.186.98",
-			'database' => "speakintelligentCDR",
-			'username' => "neon-user",
-			'password' => substr("12345aJcH!^VUnI#2WsYZQ45a",5),
+			'host'     => getenv('DB_HOSTCDR'),
+			'database' => getenv('DB_DATABASECDR'),
+			'username' => getenv('DB_USERNAMECDR'),
+			'password' => substr(getenv('DB_PASSWORDCDR'),5),
 			'charset'   => 'utf8',
 			'collation' => 'utf8_unicode_ci',
 			'prefix'   => '',
@@ -110,10 +110,10 @@ return array(
 		/** OLD RM Server Database **/
 		'sqlsrv3' => [
 			'driver'   => 'mysql',
-			'host'     => "188.227.186.98",
-			'database' => "speakintelligentReport",
-			'username' => "neon-user",
-			'password' => substr("12345aJcH!^VUnI#2WsYZQ45a",5),
+			'host'     => getenv('DB_HOST3'),
+			'database' => getenv('DB_DATABASE3'),
+			'username' => getenv('DB_USERNAME3'),
+			'password' => substr(getenv('DB_PASSWORD3'),5),
 			'charset'   => 'utf8',
 			'collation' => 'utf8_unicode_ci',
 			'prefix'   => '',
@@ -133,7 +133,7 @@ return array(
 		/** Neon Report Database **/
 		'neon_report' => [
 			'driver'    => 'mysql',
-			'host'      => "188.227.186.98",
+			'host'      => getenv('DB_HOSTREPORT'),
 			'database'  => getenv('DB_DATABASEREPORT'),
 			'username'  => getenv('DB_USERNAMEREPORT'),
 			'password'  => substr(getenv('DB_PASSWORDREPORT'),5),
@@ -142,13 +142,13 @@ return array(
 			'prefix'    => '',
 			'strict'    => false,
 		],
-                /** Neon Routing Database **/
+		/** Neon Routing Database **/
 		'sqlsrvrouting' => [
 			'driver'    => 'mysql',
 			'host'      => "localhost",
-			'database'  => getenv('DB_DATABASERouting'),
-			'username'  => getenv('DB_USERNAMERouting'),
-			'password'  => substr(getenv('DB_PASSWORDRouting'),5),
+			'database'  => getenv('DB_DATABASEROUTING'),
+			'username'  => getenv('DB_USERNAMEROUTING'),
+			'password'  => substr(getenv('DB_PASSWORDROUTING'),5),
 			'charset'   => 'utf8',
 			'collation' => 'utf8_unicode_ci',
 			'prefix'    => '',
