@@ -377,22 +377,27 @@
                     $('table tbody').on('click', '.edit-subscription', function (ev) {
                         ev.preventDefault();
                         ev.stopPropagation();
+
+
                         $('#add-edit-dynamicfield-form').trigger("reset");
                         var cur_obj = $(this).prev("div.hiddenRowData");
+
                         for(var i = 0 ; i< list_fields.length; i++) {
                             if (list_fields[i] == 'DynamicFieldsID') {
+
                                 var DynamicFieldsID = cur_obj.find("input[name='" + list_fields[i] + "']").val();
                                 if (DynamicFieldsID == '' || typeof (DynamicFieldsID) == 'undefined') {
                                     DynamicFieldsID = 0;
                                 }
+
                                 $("#add-edit-dynamicfield-form [name='" + list_fields[i] + "']").val(DynamicFieldsID).trigger("change");
                                 var valitemid = $("input[name='" + list_fields[i] + "']").val();
                                 if (DynamicFieldsID > 0) {
-
                                     $("#add-edit-dynamicfield-form [name='" + list_fields[i] + "']").attr("disabled", true);
                                     var h_ItemTypeID = '<input type="hidden" name="ItemTypeID" value="' + valitemid + '" />';
                                     $("#add-edit-dynamicfield-form").append(h_ItemTypeID);
                                 }
+                            }
 
 
                                 if (list_fields[i] == 'FieldDomType') {
@@ -400,6 +405,7 @@
 
                                     $("#add-edit-dynamicfield-form [name='" + list_fields[i] + "']").val(cur_obj.find("input[name='" + list_fields[i] + "']").val()).trigger("change");
                                     var valdomtype = $("input[name='" + list_fields[i] + "']").val();
+
 
                                     if (domtype == 'numeric' || domtype == 'string' || domtype == 'numericPerCall' || domtype == 'numericePerMin') {
                                         var minmax = '<div class="form-group"><label for="field-5" class="control-label">Default Value </label>{{ Form::text("DefaultValue", "", array("class"=>"form-control"))  }}</div><div class="form-group"><label for="field-5" class="control-label">Min </label>{{ Form::text("Minimum", "", array("class"=>"form-control"))  }}</div><div class="form-group"><label for="field-5" class="control-label">Max </label>{{ Form::text("Maximum", "", array("class"=>"form-control"))  }}</div>';
@@ -411,9 +417,8 @@
                                         $("#minmaxdiv").html('');
                                     }
 
-                                    $("#add-edit-dynamicfield-form [name='" + list_fields[i] + "']").attr("disabled", true);
 
-                                    var h_FieldDomType = '<input type="hidden" name="FieldDomType" value="' + valdomtype + '" />';
+                                    var h_FieldDomType = '<input type="hidden" name="FieldDomType" value="' + domtype + '" />';
                                     $("#add-edit-dynamicfield-form").append(h_FieldDomType);
                                 }
                                 if (list_fields[i] == 'Status') {
@@ -438,7 +443,6 @@
                                     $("#add-edit-dynamicfield-form [name='" + list_fields[i] + "']").val(cur_obj.find("input[name='" + list_fields[i] + "']").val());
 
                                 }
-                            }
 
                             $("#add-edit-modal-itemtype [name='ProductClone']").val(0);
                             $('#add-edit-modal-itemtype h4').html('Edit dynamic field');

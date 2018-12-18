@@ -53,7 +53,7 @@
     </a>
 </li>--}}
 @endif
-@if(User::checkCategoryPermission('VendorRates','Blocking'))
+{{--@if(User::checkCategoryPermission('VendorRates','Blocking'))
 <li >
     <a href="{{ URL::to('vendor_blocking/'.$id) }}" >
         <span class="hidden-xs">Blocking</span>
@@ -66,7 +66,7 @@
         <span class="hidden-xs">Preference</span>
     </a>
 </li>
-@endif
+@endif--}}
 @if(User::checkCategoryPermission('VendorRates','History'))
 <li>
     <a href="{{ URL::to('/vendor_rates/'.$id.'/history') }}" >

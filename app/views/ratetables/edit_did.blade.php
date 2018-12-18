@@ -660,12 +660,12 @@
                         $("#edit-rate-table-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                     }
 
-                    var OriginationRateID = cur_obj.find("input[name=OriginationRateID]").val();
+                    /*var OriginationRateID = cur_obj.find("input[name=OriginationRateID]").val();
                     if(OriginationRateID == null || OriginationRateID == '') {
                         $('#box-edit-OriginationRateID').show();
                     } else {
                         $('#box-edit-OriginationRateID').hide();
-                    }
+                    }*/
                     var TimezonesID = $searchFilter.Timezones;
                     $("#edit-rate-table-form").find("input[name='TimezonesID']").val(TimezonesID);
                     jQuery('#modal-rate-table').modal('show', {backdrop: 'static'});
@@ -853,7 +853,7 @@
                 </div>
 
                 <div class="modal-body">
-                    <div class="row" id="box-edit-OriginationRateID">
+                    <div class="row" id="box-edit-OriginationRateID" style="display: none;">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label">Origination Code</label>
@@ -1009,7 +1009,7 @@
 
                 <div class="modal-body">
 
-                    <div class="row">
+                    <div class="row" style="display: none;">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <input type="checkbox" name="updateOriginationRateID" class="" />
@@ -1156,7 +1156,7 @@
 
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-6" style="display: none;">
                             <div class="form-group">
                                 <label class="control-label">Origination Code</label>
                                 {{--{{ Form::select('RateID', array(), '', array("class"=>"select2 rateid_list")) }}--}}
@@ -1170,7 +1170,7 @@
                                 <input type="hidden" class="rateid_list" name="RateID" />
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6" style="clear: both;">
                             <div class="form-group">
                                 <label class="control-label">Effective Date</label>
                                 <input type="text" name="EffectiveDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />

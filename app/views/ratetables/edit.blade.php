@@ -534,6 +534,9 @@
             "bProcessing": true,
             "bServerSide": true,
             "scrollX": true,
+            "initComplete": function(settings, json) { // to hide extra row which is displaying due to scrollX
+                $('.dataTables_scrollBody thead tr').css({visibility:'collapse'});
+            },
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "sAjaxSource": baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid",
             "fnServerParams": function(aoData) {
