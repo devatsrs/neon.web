@@ -134,7 +134,7 @@
                         <label for="field-5" class="col-sm-1 control-label">Status</label>
 
                         <div class="col-sm-3">
-                            {{ Form::select('Active', [''=>'Both','1'=>'Active','0'=>'Deactive'], 1, array("class"=>"select2")) }}
+                            {{ Form::select('FilterActive', [''=>'Both','1'=>'Active','0'=>'Deactive'], 1, array("class"=>"select2")) }}
                         </div>
                     </div>
 
@@ -499,7 +499,7 @@
         $searchFilter.ConnectionType = ConnectionType = $("#vendor-rate-search select[name='ConnectionType']").val();
         $searchFilter.Name = Name = $("#vendor-rate-search input[name='Name']").val();
         $searchFilter.DIDCategoryID = DIDCategoryID = $("#vendor-rate-search select[name='DIDCategoryID']").val();
-        $searchFilter.Active = Active = $("#vendor-rate-search select[name='Active']").val();
+        $searchFilter.FilterActive = FilterActive = $("#vendor-rate-search select[name='FilterActive']").val();
 
         /* if(ConnectionType == '' || typeof ConnectionType  == 'undefined'){
              toastr.error("Please Select Type", "Error", toastr_opts);
@@ -513,9 +513,9 @@
             "bServerSide": true,
             "sAjaxSource": baseurl + "/vendor_rates/connection/{{$id}}/search_ajax_datagrid/type",
             "fnServerParams": function(aoData) {
-                aoData.push({"name": "TrunkID", "value": TrunkID}, {"name": "IP", "value": IP}, {"name": "ConnectionType", "value": ConnectionType},{"name": "Name", "value": Name},{"name": "DIDCategoryID", "value": DIDCategoryID},{"name": "Active", "value": Active});
+                aoData.push({"name": "TrunkID", "value": TrunkID}, {"name": "IP", "value": IP}, {"name": "ConnectionType", "value": ConnectionType},{"name": "Name", "value": Name},{"name": "DIDCategoryID", "value": DIDCategoryID},{"name": "FilterActive", "value": FilterActive});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name": "TrunkID", "value": TrunkID}, {"name": "IP", "value": IP}, {"name": "ConnectionType", "value": ConnectionType},{"name": "Name", "value": Name},{"name": "DIDCategoryID", "value": DIDCategoryID},{"name": "Active", "value": Active},{ "name": "Export", "value": 1});
+                data_table_extra_params.push({"name": "TrunkID", "value": TrunkID}, {"name": "IP", "value": IP}, {"name": "ConnectionType", "value": ConnectionType},{"name": "Name", "value": Name},{"name": "DIDCategoryID", "value": DIDCategoryID},{"name": "FilterActive", "value": FilterActive},{ "name": "Export", "value": 1});
             },
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
@@ -809,6 +809,8 @@
                 //ChangeMultipleStatus
                 $("#changeStatus").unbind().click(function(ev) {
                     $('#bulk-edit-connection-form').trigger("reset");
+                    $("#bulk-edit-connection-form input[name='Active']").removeAttr('checked');
+                    $("#bulk-edit-connection-form input[name='Active']").prop('checked',true);
                     var criteria='';
                     if($('#selectallbutton').is(':checked')){
                         //if($('#selectallbutton').find('i').hasClass('entypo-cancel')){
@@ -829,7 +831,7 @@
                         }
                         RateIDs[i++] = RateID;
                     });
-                    $('#modal-BulkConnection .modal-header h4').text('Bulk Edit Vendor Connection')
+                    $('#modal-BulkConnection .modal-header h4').text('Bulk Edit Vendor Connection');
                     $('#bulk-update-params-show').hide();
                     var cur_obj = $(this).prev("div.hiddenRowData");
                     for(var i = 0 ; i< list_fields.length; i++){

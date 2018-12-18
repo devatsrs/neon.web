@@ -32,9 +32,13 @@ class ConnectionController extends \BaseController {
         $data['ConnectionType'] = !empty($data['ConnectionType'])?$data['ConnectionType']:'';
         $data['Name'] = !empty($data['Name'])?$data['Name']:'';
         $data['DIDCategoryID'] = !empty($data['DIDCategoryID'])?$data['DIDCategoryID']:0;
+        $data['Active']=$data['FilterActive'];
+        unset($data['FilterActive']);
+
         if($data['Active']==''){
             $data['Active']=-1;
         }
+
 
         $columns = array('VendorConnectionID','Name','ConnectionType','IP','Active','TrunkName','CategoryName','created_at','DIDCategoryID','Tariff','TrunkID','CLIRule','CLDRule','CallPrefix','Port','Username','PrefixCDR','SipHeader','AuthenticationMode');
 
