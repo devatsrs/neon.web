@@ -17,9 +17,16 @@ class RoutingProfilesController extends \BaseController {
 //               $excel_data = json_decode(json_encode($excel_data),true);
                
                $RoutingProfiles = RoutingProfiles::Join('tblRoutingProfileCategory','tblRoutingProfileCategory.RoutingProfileID','=','tblRoutingProfile.RoutingProfileID')
-                    ->select(['tblRoutingProfile.Name','tblRoutingProfile.Description','tblRoutingProfile.Status','tblRoutingProfile.RoutingProfileID','tblRoutingProfile.RoutingPolicy',DB::raw("(select GROUP_CONCAT(tblRoutingCategory.Name SEPARATOR ', ' ) as Routescategory from tblRoutingCategory where tblRoutingCategory.RoutingCategoryID in (select tblRoutingProfileCategory.RoutingCategoryID from tblRoutingProfileCategory where tblRoutingProfileCategory.RoutingProfileID = tblRoutingProfile.RoutingProfileID)) as Routingcategory")])
+                    ->select(['tblRoutingProfile.Name','tblRoutingProfile.Description','tblRoutingProfile.Status','tblRoutingProfile.RoutingProfileID','tblRoutingProfile.RoutingProfileID',DB::raw("(select GROUP_CONCAT(tblRoutingCategory.Name SEPARATOR ', ' ) as Routescategory from tblRoutingCategory where tblRoutingCategory.RoutingCategoryID in (select tblRoutingProfileCategory.RoutingCategoryID from tblRoutingProfileCategory where tblRoutingProfileCategory.RoutingProfileID = tblRoutingProfile.RoutingProfileID)) as Routingcategory")])
                     ->where(["tblRoutingProfile.CompanyID" => $companyID])->groupBy("tblRoutingProfile.RoutingProfileID");
                
+               if(!empty($data['Name'])){
+           $RoutingProfiles->where(["tblRoutingProfile.Name" => $data['Name']]);
+        }
+        if(!empty($data['Status']) || ($data['Status']=='0')){
+           $RoutingProfiles->where(["tblRoutingProfile.Status" => $data['Status']]);
+        }
+        
         return Datatables::of($RoutingProfiles)->make();
     }
 
