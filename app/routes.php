@@ -955,6 +955,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/billing_subscription/dynamicField/typesAccess/{data}', 'BillingSubscriptionController@getSubscritionsType');
 	Route::any('/billing_subscription/dynamicField/fieldAccess', 'BillingSubscriptionController@getSubscritionsField');
 
+
+
+
 	//InvoiceTemplate
 	Route::any('/invoice_template/ajax_datagrid/{type}', 'InvoiceTemplatesController@ajax_datagrid');
 	Route::any('/invoice_template', 'InvoiceTemplatesController@index');
@@ -1480,6 +1483,15 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('servicesTemplate/exports/{type}', 'ServicesTemplateController@exports');
 	Route::any('servicesTemplate/selectDataOnCurrency', 'ServicesTemplateController@selectDataOnCurrency');
 
+	//Service Template Fields
+	Route::any('/servicetempaltes/servicetemplatetype', 'ServicesTemplateController@viewSubscriptionDynamicFields');
+	Route::any('/servicetempaltes/servicetemplatetype/getFields/{type}', 'ServicesTemplateController@ajax_GetServiceTemplateType');
+	Route::any('/servicetempaltes/servicetemplatetype/dynamicfields/create', 'ServicesTemplateController@addDynamicFields');
+	Route::any('/servicetempaltes/servicetemplatetype/dynamicfields/{id}/update','ServicesTemplateController@updateDynamicField');
+	Route::any('/servicetempaltes/servicetemplatetype/dynamicfields/{id}/delete', 'ServicesTemplateController@deleteDynamicFields');
+	Route::any('/servicetempaltes/servicetemplatetype/dynamicField/update_bulk_itemtypes_status', 'ServicesTemplateController@UpdateBulkItemTypeStatus');
+	Route::any('/servicetempaltes/servicetemplatetype/dynamicField/typesAccess/{data}', 'ServicesTemplateController@getSubscritionsType');
+	Route::any('/servicetempaltes/servicetemplatetype/dynamicField/fieldAccess', 'ServicesTemplateController@getSubscritionsField');
 
 	// services
 	Route::any('services', 'ServicesController@index');
