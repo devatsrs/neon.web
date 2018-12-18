@@ -794,6 +794,14 @@
                             });
 
                         }, 500);
+                    }else{
+                        console.log("Cancel");
+                        if($currentchecked){
+                            $($this).prop('checked',false);
+                        }else{
+                            $($this).prop('checked',true);
+                        }
+
                     }
 
                 });
