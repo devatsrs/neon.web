@@ -54,8 +54,10 @@
         <i class="entypo-plus addnewroutpro"></i>
         Add New
     </a>
-    
-    <a data-id="" href="assignrouting" title="Assign" class="btn-success btn btn-danger btn-sm">Assign</a>
+    <a href="assignrouting"  style="background:#00a651;border-color:#00a651" id="addnewroutpro" class="btn btn-primary " >
+        <i class="entypo-plus addnewroutpro"></i>
+        Assign
+    </a>
 </p>
 <table class="table table-bordered datatable" id="table-4">
     <thead>
@@ -138,8 +140,6 @@ var postdata;
                 {  "bSortable": true,
                     mRender: function ( id, type, full ) {
                          var action , edit_ , show_ , delete_;
-                         console.log("cat list"+id);
-                         
                          
                        return full[5]; 
                     } 
@@ -154,7 +154,7 @@ var postdata;
                         action += '<input type = "hidden"  name = "RoutingPolicy" value = "' + (full[4] != null ? full[4] : '') + '" / ></div>';
                         
                         action += ' <a data-name = "'+full[0]+'" data-id="'+ full[3] +'" title="Edit" class="edit-category btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
-                        action += ' <a data-id="'+ id +'" title="Delete" class="delete-category btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
+                        action += ' <a data-id="'+ full[3] +'" title="Delete" class="delete-category btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                         
                        action += ' <a data-id="" href="lcr" title="test routing" class="btn-success btn btn-danger btn-sm">Test</a>';
                         
