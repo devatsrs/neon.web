@@ -1,5 +1,36 @@
 @extends('layout.main')
 
+@section('filter')
+    
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <div id="table_filter" method="get" action="#" >
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Name</label>
+                    <input type="text" name="Name" class="form-control" value="" />
+                </div>
+               <div class="form-group">
+                    <label class="control-label">Status</label>
+                    <?php $nameprefix_array = array("" => "","1" => "Active", "0" => "De-Active"); ?>
+                    {{Form::select('Status', $nameprefix_array, '',array("id"=>"Status","class"=>"form-control"))}}
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left" id="filter_submit">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+@stop
+
+
 @section('content')
 
 <ol class="breadcrumb bc-3">
@@ -20,19 +51,22 @@
 <p style="text-align: right;">
     <!-- We need to add permission - AHTSHAM -->
     <a href="#" data-action="showAddModal" data-type="routingcategory" data-modal="add-new-modal-routingcategory" id="addnewroutpro" class="btn btn-primary addnewroutpro" >
-        <i class="entypo-plus"></i>
+        <i class="entypo-plus addnewroutpro"></i>
         Add New
     </a>
-    
-    <a data-id="" href="assignrouting" title="Assign" class="btn-success btn btn-danger btn-sm">Assign</a>
+    <a href="assignrouting"  style="background:#00a651;border-color:#00a651" id="addnewroutpro" class="btn btn-primary " >
+        <i class="entypo-plus addnewroutpro"></i>
+        Assign
+    </a>
 </p>
 <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
-        <th width="30%">Name</th>
+        <th width="25%">Name</th>
         <th width="25%">Description</th>
-        <th width="25%">Status</th>
-        <th width="25%">Action</th>
+        <th width="5%">Status</th>
+        <th width="25%">Routing Category</th>
+        <th width="30%">Action</th>
     </tr>
     </thead>
     <tbody>
@@ -48,7 +82,22 @@ var postdata;
     jQuery(document).ready(function ($) {
         public_vars.$body = $("body");
         //show_loading_bar(40);
+        
+        $('#filter-button-toggle').show();
+        
+        var $search = {};
+        var add_url = baseurl + "/routingprofiles/store";
+        var edit_url = baseurl + "/routingprofiles/update/{id}";
+        var view_url = baseurl + "/routingprofiles/show/{id}";
+        var delete_url = baseurl + "/routingprofiles/delete/{id}";
+        var datagrid_url = baseurl + "/routingprofiles/ajax_datagrid";
+        
+         $("#filter_submit").click(function(e) {
+            e.preventDefault();
 
+            $search.Name = $("#table_filter").find('[name="Name"]').val();
+            $search.Status = $("#table_filter").find('[name="Status"]').val();
+            
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
             "bProcessing":true,
@@ -58,11 +107,43 @@ var postdata;
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[0, 'asc']],
+            "fnServerParams": function (aoData) {
+                        aoData.push(
+                                {"name": "Name", "value": $search.Name},
+                                {"name": "Status", "value": $search.Status},
+                        );
+                        data_table_extra_params.length = 0;
+                        data_table_extra_params.push(
+                                {"name": "Name", "value": $search.Name},
+                                {"name": "Status", "value": $search.Status},
+                                {"name": "Export", "value": 1}
+                        );
+
+                    },
             "aoColumns":
             [
                 {  "bSortable": true },  //0  Name', '', '', '
                 {  "bSortable": true },  //0  Descs', '', '', '
-                {  "bSortable": true },  //0  Descs', '', '', '
+                {  "bSortable": true,
+                    mRender: function ( id, type, full ) {
+                         var action , edit_ , show_ , delete_;
+                         console.log(id);
+                         if(id==1){
+                           action='<i class="entypo-check" style="font-size:22px;color:green"></i>';  
+                         }else{
+                             action='<i class="entypo-cancel" style="font-size:22px;color:red"></i>';
+                         }
+                         
+                       return action; 
+                    } 
+                },  //0  Status', '', '', '
+                {  "bSortable": true,
+                    mRender: function ( id, type, full ) {
+                         var action , edit_ , show_ , delete_;
+                         
+                       return full[5]; 
+                    } 
+                },  //0  Status', '', '', '
                 {                       //3  ID
                    "bSortable": true,
                     mRender: function ( id, type, full ) {
@@ -70,10 +151,10 @@ var postdata;
                         action = '<div class = "hiddenRowData" >';
                         action += '<input type = "hidden"  name = "Name" value = "' + (full[0] != null ? full[0] : '') + '" / >';
                         action += '<input type = "hidden"  name = "Description" value = "' + (full[1] != null ? full[1] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "RoutingPolicy" value = "' + (full[3] != null ? full[3] : '') + '" / ></div>';
+                        action += '<input type = "hidden"  name = "RoutingPolicy" value = "' + (full[4] != null ? full[4] : '') + '" / ></div>';
                         
-                        action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" title="Edit" class="edit-category btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
-                        action += ' <a data-id="'+ id +'" title="Delete" class="delete-category btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
+                        action += ' <a data-name = "'+full[0]+'" data-id="'+ full[3] +'" title="Edit" class="edit-category btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
+                        action += ' <a data-id="'+ full[3] +'" title="Delete" class="delete-category btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                         
                        action += ' <a data-id="" href="lcr" title="test routing" class="btn-success btn btn-danger btn-sm">Test</a>';
                         
@@ -126,23 +207,33 @@ var postdata;
            }
 
         });
+ });
 
+$('#filter_submit').trigger('click');
 
         // Replace Checboxes
         $(".pagination a").click(function (ev) {
             replaceCheckboxes();
         });
-
-        $('table tbody').on('click','#addnewroutpro',function(ev){
-            console.log('---pp');
-            $("#RoutingCategory option:selected").prop("selected", false);
-            $("#RoutingCategory option:selected").removeAttr("selected");
-            var rcategory = $('#RoutingCategory').bootstrapDualListbox();   
-            rcategory.bootstrapDualListbox('refresh');
-        })
+ $('#addnewroutpro').click(function () {  
+     
+    $('#add-new-modal-routingcategory h3').html('Add Routing Profile');
+    $("#RoutingCategory option:selected").prop("selected", false);
+    $("#RoutingCategory option:selected").removeAttr("selected");
+    var rcategory = $('#RoutingCategory').bootstrapDualListbox();   
+    rcategory.bootstrapDualListbox('refresh');
+ })
+$('table tbody').on('click','.addnewroutpro',function(ev){
+    console.log('---pp');
+    $("#RoutingCategory option:selected").prop("selected", false);
+    $("#RoutingCategory option:selected").removeAttr("selected");
+    var rcategory = $('#RoutingCategory').bootstrapDualListbox();   
+    rcategory.bootstrapDualListbox('refresh');
+})
     $('table tbody').on('click','.edit-category',function(ev){
         ev.preventDefault();
         ev.stopPropagation();
+        console.log('---pppp::'+$(this).attr('data-id'));
         $('#add-new-routingcategory-form').trigger("reset");
         $.post(baseurl + "/routingprofiles/ajaxcall/"+$(this).attr('data-id'), '', function(response) {
             SaveCat = $.parseJSON(response);
@@ -161,9 +252,13 @@ var postdata;
                         
         Name = $(this).prev("div.hiddenRowData").find("input[name='Name']").val();
         Description = $(this).prev("div.hiddenRowData").find("input[name='Description']").val();
+        
         RoutingPolicy = $(this).prev("div.hiddenRowData").find("input[name='RoutingPolicy']").val();
         console.log(RoutingPolicy);
         $("#RoutingPolicy").val(RoutingPolicy);
+        $("#RoutingPolicy").val(RoutingPolicy).trigger("chosen:updated");
+        
+        $("#add-new-routingcategory-form [id='RoutingPolicy']").select2().select2('val', RoutingPolicy);
         
         $("#add-new-routingcategory-form [name='Name']").val(Name);
         $("#add-new-routingcategory-form [name='Description']").val(Description);

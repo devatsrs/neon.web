@@ -455,7 +455,6 @@ class BillingSubscriptionController extends \BaseController {
         unset($data['ProductClone']);
         unset($data['Active']);
 
-
         $rules = array(
             'CompanyID' => 'required',
             'FieldDomType' => 'required',
@@ -473,7 +472,7 @@ class BillingSubscriptionController extends \BaseController {
         }
 
         //Check FieldName duplicate
-        $cnt_duplidate = DynamicFields::where('FieldName',$data['FieldName'])->get()->count();
+        $cnt_duplidate = DynamicFields::where('FieldName',$data['FieldName'])->where('Type', 'subscription')->get()->count();
         if($cnt_duplidate > 0){
             return Response::json(array("status" => "failed", "message" => "Dynamic Field With This Name Already Exists."));
         }
@@ -497,26 +496,27 @@ class BillingSubscriptionController extends \BaseController {
                     $DynamicField =DynamicFields::where('DynamicFieldsID',$id)->delete();
 
                     if ($DynamicField) {
-                        return Response::json(array("status" => "success", "message" => "Item Type Successfully Deleted"));
+                        return Response::json(array("status" => "success", "message" => "Subscription Successfully Deleted"));
                     } else {
-                        return Response::json(array("status" => "failed", "message" => "Problem Deleting Item Type."));
+                        return Response::json(array("status" => "failed", "message" => "Problem Deleting Subscription."));
                     }
                 } catch (Exception $ex) {
-                    return Response::json(array("status" => "failed", "message" => "Item Type is in Use, You cant delete this Item Type."));
+                    return Response::json(array("status" => "failed", "message" => "Subscription is in Use, You cant delete this Item Type."));
                 }
 
             }else{
-                return Response::json(array("status" => "failed", "message" => "Item Type is in Use, You cant delete this Item Type."));
+                return Response::json(array("status" => "failed", "message" => "Subscription is in Use, You cant delete this Item Type."));
             }
         }else{
-            return Response::json(array("status" => "failed", "message" => "Item Type is in Use, You cant delete this Item Type."));
+            return Response::json(array("status" => "failed", "message" => "Subscription is in Use, You cant delete this Item Type."));
         }
     }
 
-    public function updateDynamicField($id){
+        public function updateDynamicField($id){
 
         if( $id > 0 ) {
             $data = Input::all();
+
             $slug= str_replace(' ', '', $data['FieldName']);
             $data ["FieldSlug"] = "Product".$slug;
             $dynamicfield = DynamicFields::findOrFail($id);

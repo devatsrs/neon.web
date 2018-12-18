@@ -7,7 +7,7 @@ class ConnectionController extends \BaseController {
     public function index($id)
     {
         $companyID = User::get_companyID();
-        $trunks = VendorTrunk::getTrunkDropdownIDList($id);
+        $trunks = Trunk::getTrunkDropdownList($companyID);
         /*if(count($trunks) == 0){
             return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
         }*/
@@ -32,13 +32,20 @@ class ConnectionController extends \BaseController {
         $data['ConnectionType'] = !empty($data['ConnectionType'])?$data['ConnectionType']:'';
         $data['Name'] = !empty($data['Name'])?$data['Name']:'';
         $data['DIDCategoryID'] = !empty($data['DIDCategoryID'])?$data['DIDCategoryID']:0;
+        $data['Active']=$data['FilterActive'];
+        unset($data['FilterActive']);
+
+        if($data['Active']==''){
+            $data['Active']=-1;
+        }
+
 
         $columns = array('VendorConnectionID','Name','ConnectionType','IP','Active','TrunkName','CategoryName','created_at','DIDCategoryID','Tariff','TrunkID','CLIRule','CLDRule','CallPrefix','Port','Username','PrefixCDR','SipHeader','AuthenticationMode');
 
         $sort_column = $columns[$data['iSortCol_0']];
         $companyID = User::get_companyID();
 
-        $query = "call prc_getVendorConnection (" . $companyID . "," . $id . "," . $data['TrunkID'] . ",'" . $data['IP'] . "','" . $data['ConnectionType'] . "',".$data['DIDCategoryID'].",'" . $data['Name'] . "'," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "'";
+        $query = "call prc_getVendorConnection (" . $companyID . "," . $id . "," . $data['TrunkID'] . ",'" . $data['IP'] . "','" . $data['ConnectionType'] . "',".$data['DIDCategoryID'].",'" . $data['Name'] . "',".$data['Active']."," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv')->select($query.',1)');
@@ -79,7 +86,6 @@ class ConnectionController extends \BaseController {
 
             unset($data['VendorConnectionID']);
 
-
             $rules=array();
             if($Input['ConnectionType']==VendorConnection::Type_DID){
                 $data=$Input['did'];
@@ -87,7 +93,6 @@ class ConnectionController extends \BaseController {
                     'ConnectionType' => 'required',
                     'Name' => 'required',
                     'CompanyID' => 'required',
-                    'DIDCategoryID' => 'required',
                     'Tariff' => 'required',
 
                 );
