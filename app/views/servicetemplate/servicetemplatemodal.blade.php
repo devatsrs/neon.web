@@ -261,12 +261,15 @@
             //alert(data);
             document.getElementById("ServiceId").innerHTML = "" + data;
            // var ServiceId = $("div.hiddenRowData").find("input[name='ServiceId']").val();
-            //alert("ServiceId" + ServiceId);
+           // alert("ServiceId" + ServiceId);
             if (ServiceId != '') {
                 $("#add-new-service-form [name='ServiceId']").select2().select2('val', ServiceId);
             }else {
                 $("#add-new-service-form [name='ServiceId']").select2().select2('val', '');
             }
+           // console.log(document.getElementById("TemplateDataTabServiceId").innerHTML);
+           // alert(document.getElementById("TemplateDataTabServiceId").innerHTML);
+
             // $("#serviceBasedOnCurreny").html(data);
         }, 'html');
         //if (selectData) {
@@ -373,6 +376,7 @@
 
 
 
+
     function ShowSubscriptionTemplate(showTabId) {
         //style="visibility: visible" style="visibility: hidden"
       //  alert("Called");
@@ -388,11 +392,17 @@
                 return false;
             }
         }
-        if (showTabId == "SubscriptionTab") {
+         if (showTabId == "SubscriptionTab") {
             document.getElementById("tab1").setAttribute("class", "active");
             document.getElementById("tab2").setAttribute("class", "");
+
             DidCategoryTariffID = document.getElementById('DidCategoryTariffID').innerHTML;
             DidCategoryIndexValue = document.getElementById("DidCategoryID").selectedIndex;
+            saveTemplateDataCurrenyID = $("#serviceTemplateCurreny").val();
+            saveTemplateDataServiceIds = $("#ServiceId").val();
+            saveTemplateDataOutboundDiscountPlanId = $("#OutboundDiscountPlanId").val();
+            saveTemplateDataInboundDiscountPlanId = $("#InboundDiscountPlanId").val();
+            saveTemplateDataOutboundRateTableId = $("#OutboundRateTableId").val();
            // alert("DidCategoryIndexValue :" + DidCategoryIndexValue);
 //            if ($("#DidCategoryID option:selected") != null) {
 //                DidCategoryIndexValue = $("#DidCategoryID option:selected");
@@ -400,6 +410,9 @@
 //            }
             categoryTariffIDListBody = document.getElementById('categoryTariffIDListBody').innerHTML;
             saveSelectedCategoryTariff = document.getElementById("selectedcategotyTariff").value;
+            //saveTemplateDataServiceIds = document.getElementById("TemplateDataTabServiceId").innerHTML;
+            saveAjaxDynamicFieldHtml = document.getElementById('ajax_dynamicfield_html').innerHTML;
+            //alert(saveAjaxDynamicFieldHtml);
             document.getElementById('templateSubscriptionList').innerHTML = templateSubscriptionList;
             document.getElementById("SubscriptionIDListBody").innerHTML = SubscriptionIDListBody;
             document.getElementById("selectedSubscription").value = saveSelectedSubscription;
@@ -425,6 +438,14 @@
             document.getElementById("tab2").setAttribute("class", "active");
             document.getElementById("tab1").setAttribute("class", "");
 
+
+            saveTemplateDataCurrenyID = $("#serviceTemplateCurreny").val();
+            saveTemplateDataServiceIds = $("#ServiceId").val();
+            saveTemplateDataOutboundDiscountPlanId = $("#OutboundDiscountPlanId").val();
+            saveTemplateDataInboundDiscountPlanId = $("#InboundDiscountPlanId").val();
+            saveTemplateDataOutboundRateTableId = $("#OutboundRateTableId").val();
+
+
             //alert(DidCategoryIndexValue);DidCategoryIndexValue
           //  alert("InboundTariffTab :" + DidCategoryIndexValue);
             if (DidCategoryIndexValue != -1) {
@@ -436,6 +457,7 @@
 
             }
             saveSelectedSubscription = document.getElementById("selectedSubscription").value;
+            saveAjaxDynamicFieldHtml = document.getElementById('ajax_dynamicfield_html').innerHTML;
             document.getElementById('DidCategoryTariffID').innerHTML = DidCategoryTariffID;
             document.getElementById('categoryTariffIDListBody').innerHTML = categoryTariffIDListBody;
             document.getElementById("selectedcategotyTariff").value = saveSelectedCategoryTariff;
@@ -459,7 +481,7 @@
         }
     }
     $(document).ready(function(){
-       document.getElementById("ActiveTabContent").innerHTML = document.getElementById("ContentSubscriptionTab").innerHTML;
+        document.getElementById("ActiveTabContent").innerHTML = document.getElementById("ContentSubscriptionTab").innerHTML;
     });
 
 
@@ -602,6 +624,7 @@
     var rowSubscriptionHtmlIndex = 0;
     var SubscriptionIDListBody = '';
     var categoryTariffIDListBody = '';
+    var saveAjaxDynamicFieldHtml = '';
     var saveSelectedSubscription = '';
     var saveSelectedCategoryTariff = '';
     var saveDidCategoryTariffID = '';
@@ -610,6 +633,11 @@
     var DidCategoryIndexValue = -1;
     var loadSelectedTemplateSubscription = false;
     var loadSelectedCategoryTariff = false;
+    var saveTemplateDataServiceIds = '';
+    var saveTemplateDataCurrenyID = '';
+    var saveTemplateDataOutboundDiscountPlanId = '';
+    var saveTemplateDataInboundDiscountPlanId = '';
+    var saveTemplateDataOutboundRateTableId = '';
 </script>
 
 @section('footer_ext')
@@ -623,58 +651,73 @@
                         <h5 class="modal-title" id="ServiceTemplateModelTitle">Add New Service Template</h5>
                     </div>
                     <div class="modal-body">
-                        <div class="row">
 
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Name</label>
-                                    <input type="text" name="Name" class="form-control" id="field-5" placeholder="">
-									<input type="hidden" name="ServiceID" >
-                                </div>
-                            </div>
-                            <div class="col-md-12" >
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Currency</label>
-                                    {{ Form::select('CurrencyId',Currency::getCurrencyDropdownIDList(),'', array("id" => "serviceTemplateCurreny", "class"=>"form-control")) }}
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Service</label>
-                                        <select  id="ServiceId" name="ServiceId" class="select2">
-                                        </select>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Outbound Discount Plan</label>
-                                    <select id="OutboundDiscountPlanId" name="OutboundDiscountPlanId" class="select2">
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Inbound Discount Plan</label>
-                                    <select id="InboundDiscountPlanId" name="InboundDiscountPlanId" class="select2">
-                                    </select>
+                        <div id="TemplateDataTab">
 
+                            <div id="ContentTemplateDataTab" class="modal-body">
+                                <div class="row">
+
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <table width="100%">
+                                                <tr>
+                                                    <td width="15%"><label for="field-5" class="control-label">Name</label></td>
+                                                    <td width="30%"><input type="text" name="Name" class="form-control" id="field-5" placeholder=""></td>
+                                                    <td width="5%">&nbsp;</td>
+                                                    <td width="15%"><label for="field-5" class="control-label">Currency</label></td>
+                                                    <td width="35%">
+                                                        {{ Form::select('CurrencyId',Currency::getCurrencyDropdownIDList(),'', array("id" => "serviceTemplateCurreny", "class"=>"form-control")) }}
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <input type="hidden" name="ServiceID" >
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12" >
+                                        <div class="form-group">
+                                            <table width="100%">
+                                                <tr>
+                                                    <td width="15%"><label for="field-5" class="control-label">Service</label></td>
+                                                    <td width="30%"><select  id="ServiceId" name="ServiceId" class="form-control"></select></td>
+                                                    <td width="5%">&nbsp;</td>
+                                                    <td width="15%"><label for="field-5" class="control-label">Outbound Traiff</label></td>
+                                                    <td width="35%">
+                                                        <select id="OutboundRateTableId" name="OutboundRateTableId" class="form-control">
+                                                        </select>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <table width="100%">
+                                                <tr>
+                                                    <td width="15%"><label for="field-5" class="control-label">Outbound Discount Plan</label></td>
+                                                    <td width="30"><select id="OutboundDiscountPlanId" name="OutboundDiscountPlanId" ></select></td>
+                                                    <td width="5%">&nbsp;</td>
+                                                    <td width="15%"><label for="field-5" class="control-label">Inbound Discount Plan</label></td>
+                                                    <td width="35%">
+                                                        <select id="InboundDiscountPlanId" name="InboundDiscountPlanId" >
+                                                        </select>
+                                                    </td>
+                                                </tr>
+                                            </table>
+
+
+                                        </div>
+                                    </div>
+                                        <br/>
+                                    <div id="ajax_dynamicfield_html" class="margin-top"></div>
                                 </div>
                             </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Outbound Traiff</label>
-                                    <select id="OutboundRateTableId" name="OutboundRateTableId" class="form-control">
-                                    </select>
-
-                                </div>
-                            </div>
-
-
                         </div>
+
                         <div>
 
                             <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
-                                <li id="tab1" class="active">
+
+                                <li id="tab1">
                                     <a  href="javascript:void(0);" onclick="ShowSubscriptionTemplate('SubscriptionTab');" >
                                         Subscription
                                     </a>
@@ -684,7 +727,9 @@
                                         Inbound Tariff
                                     </a>
                                 </li>
+
                             </ul>
+                            <br/>
                         </div>
 
 

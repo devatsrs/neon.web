@@ -47,12 +47,18 @@
 </ol>
 <h3>Service Template</h3>
 <p class="text-right">
-@if(User::checkCategoryPermission('Service','Add'))
+@if(User::checkCategoryPermission('SubscriptionTemplate','Add'))
     <a href="#" data-action="showAddServiceTemplateModal" data-type="service" data-modal="add-new-modal-service" class="btn btn-primary">
         <i class="entypo-plus"></i>
         Add New
     </a>
 @endif
+    @if(User::checkCategoryPermission('SubscriptionTemplate','Add'))
+        <a href="{{  URL::to('servicetempaltes/servicetemplatetype') }}" class="btn btn-primary pull-right" style="margin-right:2px;">
+            <i class="glyphicon glyphicon-th"></i>
+            Dynamic Fields
+        </a>
+    @endif
 </p>
 
 <table class="table table-bordered datatable" id="table-4">
@@ -79,9 +85,12 @@
         document.getElementById("selectedSubscription").value="";
         document.getElementById("selectedcategotyTariff").value="";
         document.getElementById("DidCategoryTariffID").innerHTML = "";
+
+
         document.getElementById("tab1").setAttribute("class", "active");
         document.getElementById("tab2").setAttribute("class", "");
-       // document.getElementById("ContentSubscriptionTab").innerHTML = "";
+
+        // document.getElementById("ContentSubscriptionTab").innerHTML = "";
        // document.getElementById("ContentInboundTariffTab").innerHTML= "";
 
         saveSelectedCategoryTariff="";
@@ -98,6 +107,7 @@
     $(document).on('click','[data-action="showAddServiceTemplateModal"]' ,function(e) {
         //alert("Called");
         resetFormFields();
+        document.getElementById('ajax_dynamicfield_html').innerHTML= "";
         e.preventDefault();
         var self = $(this);
         var modal = $('#'+self.attr('data-modal'));
@@ -111,6 +121,22 @@
         modal.modal('show');
        // modal.find('h4').html("Add New"+getTitle(self.attr('data-type')));
         $('#add-new-modal-service h5').html('Add Service Template');
+        $.ajax({
+            type: "POST",
+            url: "servicetempaltes/servicetemplatetype/dynamicField/fieldAccess",
+            cache: false,
+            success: function(response){
+                console.info(response);
+                $('#ajax_dynamicfield_html').html(response);
+                //perform operation
+            },
+            error: function(error) {
+                alert(error);
+                $('#ajax_dynamicfield_html').html('');
+                $(".btn").button('reset');
+                ShowToastr("error", error);
+            }
+        });
     });
 
     var $searchFilter = {};
@@ -162,10 +188,10 @@
                         action += '<input type = "hidden"  name = "InboundDiscountPlanID" value = "' + (full[7] != null ? full[7] : '') + '" / >';
                         action += '<input type = "hidden"  name = "OutboundTariffId" value = "' + (full[4] != null ? full[4] : '') + '" / >';
                         action += '<input type = "hidden"  name = "Status" value = "" / ></div>';
-                        <?php if(User::checkCategoryPermission('Service','Edit')){ ?>
+                        <?php if(User::checkCategoryPermission('SubscriptionTemplate','Edit')){ ?>
                                 action += ' <a data-name = "'+full[1]+'" data-id="'+ full[5] +'" title="Edit" class="edit-service btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                         <?php } ?>
-                        <?php if(User::checkCategoryPermission('Service','Delete')){ ?>
+                        <?php if(User::checkCategoryPermission('SubscriptionTemplate','Delete')){ ?>
                                 action += ' <a data-id="'+ full[5] +'" title="Delete" class="delete-service btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                         <?php } ?>
                         return action;
@@ -296,8 +322,27 @@
             $("#add-new-service-form [name='CompanyGatewayID']").select2().select2('val',CompanyGatewayID);
             $("#add-new-service-form [name='ServiceID']").val($(this).attr('data-id'));
             $('#add-new-modal-service  Service Template');
+            document.getElementById('ajax_dynamicfield_html').innerHTML= "";
             $('#add-new-modal-service h5').html('Edit Service Template');
             document.getElementById("ActiveTabContent").innerHTML = document.getElementById("ContentSubscriptionTab").innerHTML;
+
+
+            $.ajax({
+                type: "GET",
+                url: "servicetempaltes/servicetemplatetype/dynamicField/typesAccess/"+id,
+                cache: false,
+                success: function(response){
+                    console.info(response);
+                    $('#ajax_dynamicfield_html').html(response);
+                    //perform operation
+                },
+                error: function(error) {
+                    alert(error);
+                    $('#ajax_dynamicfield_html').html('');
+                    $(".btn").button('reset');
+                    ShowToastr("error", error);
+                }
+            });
             $('#add-new-modal-service').modal('show');
 
 
