@@ -1,5 +1,31 @@
 @extends('layout.main')
 
+ @section('filter')
+    
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <div id="table_filter" method="get" action="#" >
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Name</label>
+                    <input type="text" name="Name" class="form-control" value="" />
+                </div>
+               
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left" id="filter_submit">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+@stop
+
 @section('content')
 
 <ol class="breadcrumb bc-3">
@@ -49,82 +75,112 @@ var postdata;
     jQuery(document).ready(function ($) {
         public_vars.$body = $("body");
         //show_loading_bar(40);
+        $('#filter-button-toggle').show();
+        
+        var list_fields  = ["Name","CodeDeckName","CreatedBy","created_at","DestinationGroupSetID","CodedeckID","CompanyID"];
+            //public_vars.$body = $("body");
+        var $search = {};
+        var add_url = baseurl + "/routingcategory/store";
+        var edit_url = baseurl + "/routingcategory/update/{id}";
+        var view_url = baseurl + "/routingcategory/show/{id}";
+        var delete_url = baseurl + "/routingcategory/delete/{id}";
+        var datagrid_url = baseurl + "/routingcategory/ajax_datagrid";
+        
+        $("#filter_submit").click(function(e) {
+            e.preventDefault();
 
-        data_table = $("#table-4").dataTable({
-            "fnCreatedRow": function( nRow, aData, iDataIndex ) {
-                $(nRow).attr('data-id', aData[2]);
-            },
-            "bDestroy": true,
-            "bProcessing":true,
-            "bServerSide":true,
-            "sAjaxSource": baseurl + "/routingcategory/ajax_datagrid",
-            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
-            "sPaginationType": "bootstrap",
-            "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-            "aaSorting": [[0, 'asc']],
-            "aoColumns":
-            [
-                {  "bSortable": true },  //0  Name', '', '', '
-                {  "bSortable": true },  //0  Descs', '', '', '
-                {                       //3  ID
-                   "bSortable": true,
-                    mRender: function ( id, type, full ) {
-                        var action , edit_ , show_ , delete_;
-                        action = '<div class = "hiddenRowData" >';
-                        action += '<input type = "hidden"  name = "Name" value = "' + (full[0] != null ? full[0] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "Description" value = "' + (full[1] != null ? full[1] : '') + '" / ></div>';
-                        action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" title="Edit" class="edit-category btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
-                        action += ' <a data-id="'+ id +'" title="Delete" class="delete-category btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
-                       
-                        return action;
-                      }
-                  },
-            ],
-            "oTableTools": {
-                "aButtons": [
-                    {
-                        "sExtends": "download",
-                        "sButtonText": "EXCEL",
-                        "sUrl": baseurl + "/routingcategory/exports/xlsx",
-                        sButtonClass: "save-collection btn-sm"
+            $search.Name = $("#table_filter").find('[name="Name"]').val();
+            
+            data_table = $("#table-4").dataTable({
+                "fnCreatedRow": function( nRow, aData, iDataIndex ) {
+                    $(nRow).attr('data-id', aData[2]);
+                },
+                "bDestroy": true,
+                "bProcessing":true,
+                "bServerSide":true,
+                "sAjaxSource": baseurl + "/routingcategory/ajax_datagrid",
+                "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
+                "sPaginationType": "bootstrap",
+                "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                "aaSorting": [[0, 'asc']],
+                "fnServerParams": function (aoData) {
+                        aoData.push(
+                                {"name": "Name", "value": $search.Name},
+
+                        );
+                        data_table_extra_params.length = 0;
+                        data_table_extra_params.push(
+                                {"name": "Name", "value": $search.Name},
+                                {"name": "Export", "value": 1}
+                        );
+
                     },
-                    {
-                        "sExtends": "download",
-                        "sButtonText": "CSV",
-                        "sUrl": baseurl + "/routingcategory/exports/csv",
-                        sButtonClass: "save-collection btn-sm"
-                    }
-                ]
-            },
-           "fnDrawCallback": function() {
-                initSortable();
-                   //After Delete done
-                   FnDeleteCurrencySuccess = function(response){
-                        console.log(response);
-                       if (response.status == 'success') {
-                           $("#Note"+response.NoteID).parent().parent().fadeOut('fast');
-                           ShowToastr("success",response.message);
-                           data_table.fnFilter('', 0);
-                       }else{
-                           ShowToastr("error",response.message);
-                       }
-                   }
-                   //onDelete Click
-                   FnDeleteCurrency = function(e){
-                       result = confirm("Are you Sure?");
-                       if(result){
-                           var id  = $(this).attr("data-id");
-                           showAjaxScript( baseurl + "/routingcategory/"+id+"/delete" ,"",FnDeleteCurrencySuccess );
-                       }
-                       return false;
-                   }
-                   $(".delete-category").click(FnDeleteCurrency); // Delete Note
-                   $(".dataTables_wrapper select").select2({
-                       minimumResultsForSearch: -1
-                   });
-           }
+                "aoColumns":
+                [
+                    {  "bSortable": true },  //0  Name', '', '', '
+                    {  "bSortable": true },  //0  Descs', '', '', '
+                    {                       //3  ID
+                       "bSortable": true,
+                        mRender: function ( id, type, full ) {
+                            var action , edit_ , show_ , delete_;
+                            action = '<div class = "hiddenRowData" >';
+                            action += '<input type = "hidden"  name = "Name" value = "' + (full[0] != null ? full[0] : '') + '" / >';
+                            action += '<input type = "hidden"  name = "Description" value = "' + (full[1] != null ? full[1] : '') + '" / ></div>';
+                            action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" title="Edit" class="edit-category btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
+                            action += ' <a data-id="'+ id +'" title="Delete" class="delete-category btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
 
+                            return action;
+                          }
+                      },
+                ],
+                "oTableTools": {
+                    "aButtons": [
+                        {
+                            "sExtends": "download",
+                            "sButtonText": "EXCEL",
+                            "sUrl": baseurl + "/routingcategory/exports/xlsx",
+                            sButtonClass: "save-collection btn-sm"
+                        },
+                        {
+                            "sExtends": "download",
+                            "sButtonText": "CSV",
+                            "sUrl": baseurl + "/routingcategory/exports/csv",
+                            sButtonClass: "save-collection btn-sm"
+                        }
+                    ]
+                },
+               "fnDrawCallback": function() {
+                    initSortable();
+                       //After Delete done
+                       FnDeleteCurrencySuccess = function(response){
+                            console.log(response);
+                           if (response.status == 'success') {
+                               $("#Note"+response.NoteID).parent().parent().fadeOut('fast');
+                               ShowToastr("success",response.message);
+                               data_table.fnFilter('', 0);
+                           }else{
+                               ShowToastr("error",response.message);
+                           }
+                       }
+                       //onDelete Click
+                       FnDeleteCurrency = function(e){
+                           result = confirm("Are you Sure?");
+                           if(result){
+                               var id  = $(this).attr("data-id");
+                               showAjaxScript( baseurl + "/routingcategory/"+id+"/delete" ,"",FnDeleteCurrencySuccess );
+                           }
+                           return false;
+                       }
+                       $(".delete-category").click(FnDeleteCurrency); // Delete Note
+                       $(".dataTables_wrapper select").select2({
+                           minimumResultsForSearch: -1
+                       });
+               }
+
+            });
         });
+            
+        $('#filter_submit').trigger('click');
 
         ///data_table.rowReordering();
 
