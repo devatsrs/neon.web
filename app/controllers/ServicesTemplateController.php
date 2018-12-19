@@ -896,19 +896,19 @@ class ServicesTemplateController extends BaseController {
                     $DynamicField =DynamicFields::where('DynamicFieldsID',$id)->delete();
 
                     if ($DynamicField) {
-                        return Response::json(array("status" => "success", "message" => "Subscription Template Type Successfully Deleted"));
+                        return Response::json(array("status" => "success", "message" => "Dynamic Field Successfully Deleted"));
                     } else {
-                        return Response::json(array("status" => "failed", "message" => "Problem Deleting Subscription Template Type."));
+                        return Response::json(array("status" => "failed", "message" => "Problem Deleting Dynamic Field."));
                     }
                 } catch (Exception $ex) {
-                    return Response::json(array("status" => "failed", "message" => "Subscription Template Type is in Use, You cant delete this Subscription Template Type."));
+                    return Response::json(array("status" => "failed", "message" => "Dynamic Field is in Use, You cant delete this Dynamic Field."));
                 }
 
             }else{
-                return Response::json(array("status" => "failed", "message" => "Subscription Template Type is in Use, You cant delete this Subscription Template Type."));
+                return Response::json(array("status" => "failed", "message" => "Dynamic Field is in Use, You cant delete this Dynamic Field."));
             }
         }else{
-            return Response::json(array("status" => "failed", "message" => "Subscription Template Type is in Use, You cant delete this Subscription Template Type."));
+            return Response::json(array("status" => "failed", "message" => "Dynamic Field is in Use, You cant delete this Dynamic Field."));
         }
     }
 

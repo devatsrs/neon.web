@@ -15,7 +15,10 @@
                 update_new_url = baseurl + '/servicetempaltes/servicetemplatetype/dynamicfields/create';
             }
 
-            showAjaxScript(update_new_url, new FormData(($('#add-edit-dynamicfield-form')[0])), function(response){
+            var data = new FormData(($('#add-edit-dynamicfield-form')[0]));
+            data.append ('FieldDomType', $("#add-edit-dynamicfield-form [name='FieldDomType']").val());
+
+            showAjaxScript(update_new_url, data, function(response){
                 $(".btn").button('reset');
                 if (response.status == 'success') {
                     modal.modal('hide');

@@ -37,8 +37,9 @@
                 ?>
 
                         <?php
-                        if($cnt==0 || $cnt%2==0){
+                        if($cnt==0){
                         ?>
+                        <br/>
                     <div class="col-md-12">
                         <div class="form-group">
                     <table width="100%">
@@ -141,7 +142,7 @@
                         ?>
                     @endif
                                 <?php
-                                if($cnt!=0 && $cnt%2==0){
+                                if($cnt==1){
                                 ?>
                         </tr>
                     </table>
@@ -150,11 +151,11 @@
                         <?php
                         }
                         ?>
-                <?php $cnt++; ?>
+                <?php ++$cnt;if($cnt==2){$cnt= 0;} ?>
                 @endif
                 @endforeach
     <?php
-    if($cnt%2!=0){
+    if($cnt==1){
     ?>
     <td width="15%">&nbsp;</td>
     <td width="35%">&nbsp;</td>
