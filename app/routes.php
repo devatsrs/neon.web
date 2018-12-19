@@ -1574,13 +1574,16 @@ Route::group(array('before' => 'auth'), function () {
         //routing Profiles
 	Route::any('/routingprofiles/ajax_datagrid', 'RoutingProfilesController@ajax_datagrid');
 	Route::any('/routingprofiles', 'RoutingProfilesController@index');
-        Route::any('/assignrouting', 'AssignRoutingController@index');
-        Route::any('/assignrouting/ajax_datagrid/{type}', 'AssignRoutingController@ajax_datagrid');
 	Route::any('/routingprofiles/create', 'RoutingProfilesController@create');
         Route::any('/routingprofiles/ajaxcall/{id}', 'RoutingProfilesController@ajaxcall');
 	Route::any('/routingprofiles/update/{id}', 'RoutingProfilesController@update');
 	Route::any('/routingprofiles/{id}/delete', 'RoutingProfilesController@delete');
         Route::any('/routingprofiles/exports/{type}', 'RoutingProfilesController@exports');
+        //assign routing Profiles
+        Route::any('/assignrouting', 'AssignRoutingController@index');
+        Route::any('/assignrouting/ajax_datagrid/{type}', 'AssignRoutingController@ajax_datagrid');
+        Route::any('/assignrouting/store', 'AssignRoutingController@store');
+        
 });
 
 Route::group(array('before' => 'global_admin'), function () {

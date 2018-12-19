@@ -1,7 +1,7 @@
 <?php
 class RoutingProfileToCustomer extends \Eloquent {
     protected $guarded = array("RoutingProfileToCustomerID");
-    protected $table = "RoutingProfileToCustomer";
+    protected $table = "tblRoutingProfileToCustomer";
     protected $primaryKey = "RoutingProfileToCustomerID";
     protected $connection = 'sqlsrvrouting';
     protected $fillable = array(
