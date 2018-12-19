@@ -14,7 +14,7 @@ class AssignRoutingController extends \BaseController {
         $CompanyID = User::get_companyID();
         $services = !empty($data["services"]) ? $data["services"] : 0;
         $data['iDisplayStart'] +=1;
-        $columns = array('AccountID','AccountName','InRateTableName','OutRateTableName','ServiceName','ServiceID');
+        $columns = array('AccountID','AccountName','Name','Trunk','ServiceName','ServiceID');
         $sort_column = $columns[$data['iSortCol_0']];
         $query = "call prc_getAssignRoutingProfileByAccount (".$CompanyID.",'".$data["level"]."',".$TrunkID.",'".$SourceCustomers."',".$services.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."' ";
 
@@ -118,7 +118,117 @@ class AssignRoutingController extends \BaseController {
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Routing Profile."));
             }
 	}
+        
+        /**
+     * Store a newly created resource in storage.
+     * POST /tblRoutingProfileToCustomer
+     *
+     * @return Response
+     */
+    public function store() {
 
+        $data = Input::all();
+        if(!empty( $data["AccountServiceId"]) ){
+            $data["ServiceID"]=$data["AccountServiceId"];
+        }
+        
+        $dataArray=array();
+        if(!empty($data["selected_customer"])) {
+
+            $chk_SourceCustomers = empty($data['chk_SourceCustomers']) ? '' : $data['chk_SourceCustomers'];
+            if ($chk_SourceCustomers == 'null') {
+                $chk_SourceCustomers = '';
+            }
+            $makearray= explode(',', $data["selected_customer"]);
+            foreach($makearray  as $key => $val){
+                $customid= explode("_", $val);
+                if ($data["selected_level"] == 'T') {
+                    
+                    //Delete Old Data
+                    RoutingProfileToCustomer::where(array('TrunkID' => $customid['1'], 'AccountID' => $customid['0']))->delete();
+                    
+                    $dataArray['TrunkID']=$customid['1'];
+                    $dataArray['AccountID']=$customid['0'];
+                }else if ($data["selected_level"] == 'S') {
+                    //Delete Old Data
+                    RoutingProfileToCustomer::where(array('ServiceID' => $customid['1'], 'AccountID' => $customid['0']))->delete();
+                    
+                    $dataArray['ServiceID']=$customid['1'];
+                    $dataArray['AccountID']=$customid['0'];
+                }else if ($data["selected_level"] == 'A') {
+                    //Delete Old Data
+                    RoutingProfileToCustomer::where(array('AccountID' => $customid['0']))->delete();
+                    $dataArray['AccountID']=$customid['0'];
+                }
+                
+                $dataArray['RoutingProfileID']=$data['RoutingProfile'];
+                RoutingProfileToCustomer::create($dataArray);
+            }   
+//            $chk_Trunkid = empty($data['chk_Trunkid']) ? 0 : $data['chk_Trunkid'];
+//            $chk_services = empty($data['chk_services']) ? 0 : $data['chk_services'];
+            /* for select all pages parameter start */
+
+            if ($data["selected_level"] == 'T') {
+
+//                if($data["chk_allpageschecked"]=="Y"){
+//                    $selected_customer = "";
+//                    $queryAllAcc = " 'Y',".$chk_Trunkid.",".$data["chk_Currency"].",".$chk_RateTableId.",'".$chk_SourceCustomers."' " ;
+//                }else{
+//                    $selected_customer = $data["selected_customer"];
+//                    $queryAllAcc = " 'N',0,0,0,'' " ;
+//                }
+                  
+                
+                try{
+                    return json_encode(["status" => "success", "message" => "Routing Profile Apply successfully"]);
+                }catch ( Exception $ex ){
+                    $message =  "Oops Somethings Wrong !";
+                    return json_encode(["status" => "fail", "message" => $message]);
+                }
+
+            } else {
+
+//                if($data["chk_allpageschecked"]=="Y"){
+//                    $selected_customer = "";
+//                    $queryAllAcc = " 'Y',".$chk_services.",".$data["chk_Currency"].",".$chk_RateTableId.",'".$chk_SourceCustomers."' " ;
+//                }else{
+//                    $selected_customer = $data["selected_customer"];
+//                    $queryAllAcc = " 'N',0,0,0,'' " ;
+//                }
+//
+//                $inboundcheck = isset($data["inboundcheck"]) ? $data["inboundcheck"] : 'off';
+//                $outboundcheck = isset($data["outboundcheck"]) ? $data["outboundcheck"] : 'off';
+//
+//
+//                /*if(!empty($data["InboundRateTable"]) || !empty($data["InboundRateTable"]) ){*/
+//
+//                    $InboundRateTable = (!empty($data["InboundRateTable"]) && $data["InboundRateTable"] > 0 ) ? $data["InboundRateTable"] : 0;
+//                    $OutboundRateTable = (!empty($data["OutboundRateTable"]) && $data["OutboundRateTable"] > 0 ) ? $data["OutboundRateTable"] : 0;
+//                    $query = "call prc_applyRateTableTomultipleAccByService (".$companyID.",'".$selected_customer."','".$InboundRateTable."','".$OutboundRateTable."','".$creaedBy."','".$inboundcheck."','".$outboundcheck."',$queryAllAcc)";
+//                    DataTableSql::of($query)->make();
+//                    log::info($query);
+                    try{
+                        return json_encode(["status" => "success", "message" => "Routing Profile Apply successfully"]);
+                    }catch ( Exception $ex ){
+                        $message =  "Oops Somethings Wrong !";
+                        return json_encode(["status" => "fail", "message" => $message]);
+                    }
+
+                /*}else{
+
+                    return Response::json(array("status" => "fail", "message" => "Select Inbound Or Outbound Ratetable"));
+                }*/
+
+            }
+
+        }else{
+
+            return Response::json(array("status" => "failed", "message" => "Select Customers"));
+
+        }
+
+    }
+    
 	/**
 	 * Display the specified resource.
 	 * GET /Routing Category/{id}
