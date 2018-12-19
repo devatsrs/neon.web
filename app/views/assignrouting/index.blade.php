@@ -98,7 +98,6 @@
                                 <th>Account Name</th>
                                 <th>Routing Profile</th>
                                 <th>Trunk</th>
-                                <th>Status</th>
                                 <th>Action</th>
                             </tr>
                             </thead>
@@ -121,9 +120,12 @@
                     </div>
                     <div class="modal-body">
                         <input type="hidden" name="selected_customer">
+                        <input type="hidden" name="selected_trunk">
+                        <input type="hidden" name="selected_service">
+                        
                         <input type="hidden" name="selected_level">
                         <div class="allpage"><input type="hidden" name="chk_allpageschecked" value="N" ></div>
-                        <div class="row T">
+                        <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group ">
                                     <label for="field-5" class="control-label">Routing Profile</label>
@@ -192,14 +194,6 @@
                         {
                             mRender: function(id, type, full) {
                                 var action;
-                                var status = full[6] == 1 ? '<span class="btn btn-xs btn-success">Active</span>' : '<span class="btn btn-xs btn-danger">Inactive</span>';
-                                action = status;
-                                return action;
-                            }
-                        },
-                        {
-                            mRender: function(id, type, full) {
-                                var action;
                                 var account_trunk = full[0]+'_'+full[5];
                                 action = '<a title="Edit" data-id="'+  account_trunk +'" data-rateTableName="'+full[4]+'" data-TrunkID="'+full[5]+'"  class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
                                 return action;
@@ -222,7 +216,6 @@
                                 return '<div class="checkbox "><input type="checkbox" name="customer[]" value="' + account_service + '" class="rowcheckbox" ></div>';
                             }
                         },
-                        {"bSortable": true},
                         {"bSortable": true},
                         {"bSortable": true},
                         {"bSortable": true},
@@ -450,6 +443,9 @@
                 $("#modal-add-new-rate-table [name='OutboundRateTable']").select2('val', '');
                 $("#modal-add-new-rate-table [name='ServiceID']").select2('val', '');
 
+                $("input[name='selected_trunk']").val($("#ratetable_filter [name='TrunkID']").val());
+                $("input[name='selected_service']").val($('#ratetable_filter [name="services"]').val());
+                
                 /*$('#ServiceID').select2('enable');
                 $("#modal-add-new-rate-table [name='AccountServiceId']").val('');*/
                 $('#modal-add-new-rate-table').modal('show', {backdrop: 'static'});
@@ -469,7 +465,7 @@
 
             $("#add-new-form").submit(function(ev){
                 ev.preventDefault();
-                update_new_url = baseurl + '/rate_tables/apply_rate_table/store';
+                update_new_url = baseurl + '/assignrouting/store';
                 submit_ajax(update_new_url,$("#add-new-form").serialize());
             });
 
