@@ -872,7 +872,7 @@ class ServicesTemplateController extends BaseController {
         }
 
         //Check FieldName duplicate
-        $cnt_duplidate = DynamicFields::where('FieldName',$data['FieldName'])->get()->count();
+        $cnt_duplidate = DynamicFields::where('FieldName',$data['FieldName'])->where('Type',ServiceTemplateTypes::DYNAMIC_TYPE)->get()->count();
         if($cnt_duplidate > 0){
             return Response::json(array("status" => "failed", "message" => "Dynamic Field With This Name Already Exists."));
         }
@@ -946,7 +946,7 @@ class ServicesTemplateController extends BaseController {
             }
 
             //Check FieldName duplicate
-            $cnt_duplidate = DynamicFields::where('FieldName',$data['FieldName'])->where('DynamicFieldsID','!=',$dynamicfield->DynamicFieldsID)->get()->count();
+            $cnt_duplidate = DynamicFields::where('FieldName',$data['FieldName'])->where('Type',ServiceTemplateTypes::DYNAMIC_TYPE)->where('DynamicFieldsID','!=',$dynamicfield->DynamicFieldsID)->get()->count();
             if($cnt_duplidate > 0){
                 return Response::json(array("status" => "failed", "message" => "Dynamic Field With This Name Already Exists."));
             }
@@ -1015,8 +1015,10 @@ class ServicesTemplateController extends BaseController {
     public function getSubscritionsField(){
         $Type =  ServiceTemplateTypes::DYNAMIC_TYPE;
         $CompanyID = User::get_companyID();
-        $DynamicFields['fields'] = DynamicFields::where('Type',$Type)->where('CompanyID',$CompanyID)->where('Status','1')->orderByRaw('case FieldOrder when 0 then 2 else 1 end, FieldOrder')->get();
-
+        $DynamicFieldsSql = DynamicFields::where('Type',$Type)->where('CompanyID',$CompanyID)->where('Status','1')->orderByRaw('case FieldOrder when 0 then 2 else 1 end, FieldOrder');
+        Log::info('getSubscritionsDynamicField $DynamicFieldsSql.' . $DynamicFieldsSql->toSql());
+        $DynamicFields['fields'] = $DynamicFieldsSql->get();
+        Log::info('getSubscritionsDynamicField.' . count($DynamicFields) );
         $DynamicFields['totalfields'] = count($DynamicFields['fields']);
         Log::info('getSubscritionsDynamicField.' . count($DynamicFields) );
         if(count($DynamicFields) > 0 ){
