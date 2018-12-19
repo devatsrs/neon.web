@@ -208,4 +208,60 @@ class PaymentGateway extends \Eloquent {
         }
         return PaymentGateway::$paymentgateway_name[$PaymentGatewayID];
     }
+
+
+    public static function addTransactionStripeAPI($CustomerProfileID,$amount,$account)
+    {
+        $CurrencyCode = Currency::getCurrency($account->CurrencyId);
+        $stripedata = array();
+        $stripedata['currency'] = strtolower($CurrencyCode);
+        $stripedata['amount'] = $amount;
+        $stripedata['description'] = 'Fund Deposit Payment by API';
+        $stripedata['customerid'] = $CustomerProfileID;
+
+        $transactionResponse = array();
+
+        $stripepayment = new StripeBilling();
+        $transaction = $stripepayment->createchargebycustomer($stripedata);
+
+        $Notes = '';
+        if(!empty($transaction['response_code']) && $transaction['response_code'] == 1) {
+            $Notes = 'Stripe transaction_id ' . $transaction['id'];
+            $Status = TransactionLog::SUCCESS;
+        }else{
+            $Status = TransactionLog::FAILED;
+            $Notes = empty($transaction['error']) ? '' : $transaction['error'];
+            //AccountPaymentProfile::setProfileBlock($AccountPaymentProfileID);
+        }
+        $transactionResponse['transaction_notes'] =$Notes;
+        if(!empty($transaction['response_code'])) {
+            $transactionResponse['response_code'] = $transaction['response_code'];
+        }
+        $transactionResponse['transaction_payment_method'] = 'CREDIT CARD';
+        $transactionResponse['failed_reason'] = $Notes;
+        if(!empty($transaction['id'])) {
+            $transactionResponse['transaction_id'] = $transaction['id'];
+        }
+        $transactiondata = array();
+        $transactiondata['CompanyID'] = $account->CompanyId;
+        $transactiondata['AccountID'] = $account->AccountID;
+        if(!empty($transaction['id'])) {
+            $transactiondata['Transaction'] = $transaction['id'];
+        }
+        $transactiondata['Notes'] = $Notes;
+        if(!empty($transaction['amount'])) {
+            $transactiondata['Amount'] = floatval($transaction['amount']);
+        }
+        $transactiondata['Status'] = $Status;
+        $transactiondata['created_at'] = date('Y-m-d H:i:s');
+        $transactiondata['updated_at'] = date('Y-m-d H:i:s');
+        $transactiondata['CreatedBy'] = "API";
+        $transactiondata['ModifyBy'] = "API";
+        $transactiondata['Response'] = json_encode($transaction);
+        TransactionLog::insert($transactiondata);
+        return $transactionResponse;
+
+    }
+
+
 }
