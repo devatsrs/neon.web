@@ -224,7 +224,6 @@ $('#filter_submit').trigger('click');
     rcategory.bootstrapDualListbox('refresh');
  })
 $('table tbody').on('click','.addnewroutpro',function(ev){
-    console.log('---pp');
     $("#RoutingCategory option:selected").prop("selected", false);
     $("#RoutingCategory option:selected").removeAttr("selected");
     var rcategory = $('#RoutingCategory').bootstrapDualListbox();   
@@ -233,7 +232,6 @@ $('table tbody').on('click','.addnewroutpro',function(ev){
     $('table tbody').on('click','.edit-category',function(ev){
         ev.preventDefault();
         ev.stopPropagation();
-        console.log('---pppp::'+$(this).attr('data-id'));
         $('#add-new-routingcategory-form').trigger("reset");
         $.post(baseurl + "/routingprofiles/ajaxcall/"+$(this).attr('data-id'), '', function(response) {
             SaveCat = $.parseJSON(response);

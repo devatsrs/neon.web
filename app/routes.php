@@ -1596,6 +1596,9 @@ Route::group(array('before' => 'auth'), function () {
         Route::any('/assignrouting/ajax_datagrid/{type}', 'AssignRoutingController@ajax_datagrid');
         Route::any('/assignrouting/store', 'AssignRoutingController@store');
         
+        Route::any('/assignrouting/exports/{type}', 'AssignRoutingController@exports');
+        
+        
 });
 
 Route::group(array('before' => 'global_admin'), function () {
