@@ -809,8 +809,8 @@
                 //ChangeMultipleStatus
                 $("#changeStatus").unbind().click(function(ev) {
                     $('#bulk-edit-connection-form').trigger("reset");
-                    $("#bulk-edit-connection-form input[name='Active']").removeAttr('checked');
-                    $("#bulk-edit-connection-form input[name='Active']").prop('checked',true);
+                    $("#bulk-edit-connection-form").find(".statusActive").prop('checked',true);
+                    $(".statusActive").closest('.switch-animate').removeClass('switch-off');
                     var criteria='';
                     if($('#selectallbutton').is(':checked')){
                         //if($('#selectallbutton').find('i').hasClass('entypo-cancel')){
@@ -1262,7 +1262,7 @@
                                 <label for="field-5" class="control-label">Status</label>
 
                                 <p class="make-switch switch-small">
-                                    <input id="Active" name="Active" type="checkbox" value="1" checked>
+                                    <input id="Active" class="statusActive" name="Active" type="checkbox" value="1" checked>
                                 </p>
 
                             </div>
