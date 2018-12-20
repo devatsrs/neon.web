@@ -210,9 +210,8 @@ class PaymentGateway extends \Eloquent {
     }
 
 
-    public static function addTransactionStripeAPI($CustomerProfileID,$amount,$account)
+    public static function addTransactionStripeAPI($CustomerProfileID,$amount,$account,$CurrencyCode)
     {
-        $CurrencyCode = Currency::getCurrency($account->CurrencyId);
         $stripedata = array();
         $stripedata['currency'] = strtolower($CurrencyCode);
         $stripedata['amount'] = $amount;
@@ -222,6 +221,7 @@ class PaymentGateway extends \Eloquent {
         $transactionResponse = array();
 
         $stripepayment = new StripeBilling();
+
         $transaction = $stripepayment->createchargebycustomer($stripedata);
 
         $Notes = '';

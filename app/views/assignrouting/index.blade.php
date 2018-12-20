@@ -329,6 +329,7 @@
                         ]
                     },
                     "fnDrawCallback": function() {
+                    console.log(tableid);
                         var table_select_all = tableid+'_selectall';
                         $('#'+tableid +' tbody tr').each(function (i, el) {
                             if (checked != '') {
@@ -347,14 +348,7 @@
                             }
                         });
 
-                       /*
-
-
-                        default_row_selected(tableid,'selectall','selectallbutton');
-                        select_all_top('selectallbutton',tableid,'selectall');
-                        selected_all('selectall_trunk',tableid);
-                        selected_all('selectall_service',tableid);
-                        table_row_select(tableid,'selectallbutton');*/
+                      
 
                         $('.selectallbutton').click(function (ev) {
                             if ($(this).is(':checked')) {
