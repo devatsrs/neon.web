@@ -451,6 +451,12 @@ Route::group(array('before' => 'auth'), function () {
 	Route::resource('customers_rates', 'CustomersRatesController');
 	Route::controller('customers_rates', 'CustomersRatesController');
 
+	//sippy vendor rate pushing - destination set mapping
+	Route::any('/sippy_rate_push/{id}/destinationsetmapping', 'SippyRatePushController@index');
+	Route::any('/sippy_rate_push/{id}/getdestinationsetlist', 'SippyRatePushController@getDestinationSetList');
+	/*Route::resource('sippy_rate_push', 'SippyRatePushController');
+	Route::controller('sippy_rate_push', 'SippyRatePushController');*/
+
 	//VendoerBlocking
 	Route::any('/vendor_blocking/{id}', array('as' => 'vendor_blocking', 'uses' => 'VendorBlockingsController@index'));
 	Route::any('/vendor_blocking/blockby_code/{id}',  'VendorBlockingsController@blockby_code');
