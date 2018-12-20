@@ -7,7 +7,7 @@ class ConnectionController extends \BaseController {
     public function index($id)
     {
         $companyID = User::get_companyID();
-        $trunks = Trunk::getTrunkDropdownList($companyID);
+        $trunks = Trunk::getTrunkDropdownIDList($companyID);
         /*if(count($trunks) == 0){
             return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
         }*/

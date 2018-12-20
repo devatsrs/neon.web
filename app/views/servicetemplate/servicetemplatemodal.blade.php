@@ -711,7 +711,7 @@
 
                                         </div>
                                     </div>
-                                        <br/>
+
                                     <div id="ajax_dynamicfield_html" class="margin-top"></div>
                                 </div>
                             </div>
