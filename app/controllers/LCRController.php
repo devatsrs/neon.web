@@ -308,9 +308,27 @@ class LCRController extends \BaseController {
     public function editPreference(){
         $data = Input::all();
         $preference =  !empty($data['preference']) ? $data['preference'] : 5;
-        RateTableRate::where(["RateTableRateID"=>$data["RateTableRateID"]])->update(["Preference"=>$preference]);
-        $message =  "Preference Update Successfully";
-        return json_encode(["status" => "success", "message" => $message,"preference"=>$preference]);
+        $Timezones =  $data['Timezones'];
+        $description = $data["Description"];
+        $OriginationDescription = $data["OriginationDescription"];
+
+        $username = User::get_user_full_name();
+
+        $query = "call prc_editpreference ('".$data["GroupBy"]."',".$preference.",".$data["RateTableRateID"].",".$Timezones.",'".$OriginationDescription."','".$description."','".$username."')";
+        \Illuminate\Support\Facades\Log::info($query);
+        DB::select($query);
+
+        try{
+
+            $message =  "Preference Update Successfully";
+            return json_encode(["status" => "success", "message" => $message,"preference"=>$preference]);
+
+        }catch ( Exception $ex ){
+
+            $message =  "Oops Somethings Wrong !";
+            return json_encode(["status" => "fail", "message" => $message,"preference"=>$preference]);
+
+        }
 
 
      }
