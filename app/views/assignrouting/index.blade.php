@@ -447,7 +447,19 @@
                 });
             });
 
-
+            // Select all by table-trunk
+            $("#table-account_selectall").click(function (ev) {
+                var is_checked = $(this).is(':checked');
+                $('#table-account tbody tr').each(function (i, el) {
+                    if (is_checked) {
+                        $(this).find('.rowcheckbox').prop("checked", true);
+                        $(this).addClass('selected');
+                    } else {
+                        $(this).find('.rowcheckbox').prop("checked", false);
+                        $(this).removeClass('selected');
+                    }
+                });
+            });
 
 
             $('table tbody').on('click','.edit-ratetable',function(ev){
