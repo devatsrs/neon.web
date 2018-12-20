@@ -49,7 +49,7 @@ class AssignRoutingController extends \BaseController {
 
 	public function index()
 	{
-            $all_customers = Account::getAccountIDList(['IsCustomer'=>1]);
+            $all_customers = Account::getAccountIDList();
             $companyID = User::get_companyID();
             $trunks = Trunk::getTrunkDropdownIDList();
             $routingprofile = RoutingProfiles::getRoutingProfile();
@@ -342,11 +342,11 @@ class AssignRoutingController extends \BaseController {
             $RoutingProfiles = RoutingProfiles::where(["CompanyID" => $CompanyID])->get(['Name','Description']);
             $RoutingProfiles = json_decode(json_encode($RoutingProfiles),true);
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/RoutingCategory.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/AssignRouting.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($RoutingProfiles);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/RoutingCategory.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/AssignRouting.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($RoutingProfiles);
             }
