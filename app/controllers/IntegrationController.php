@@ -26,8 +26,9 @@ class IntegrationController extends \BaseController
 			$categories 			= 	Integration::where(["ParentID"=>0])->orderBy('Title', 'asc')->get();
 		}
 		$TaxLists =  TaxRate::where(["CompanyId" => $companyID, "Status" => 1])->get();
+		$Products =  Product::getAllProductName($companyID);
 		//$companyID = 1;
-		return View::make('integration.index', compact('categories',"companyID","GatewayConfiguration","Gateway","TaxLists"));
+		return View::make('integration.index', compact('categories',"companyID","GatewayConfiguration","Gateway","TaxLists","Products"));
     }
 	
 	function Update(){
@@ -456,6 +457,26 @@ class IntegrationController extends \BaseController
 					IntegrationConfiguration::create($SaveData);
 				}
 				return Response::json(array("status" => "success", "message" => "MerchantWarrior Settings Successfully Updated"));
+			}
+
+			if($data['secondcategory']=='FastPay')
+			{
+
+				$data['Status'] 		= 	isset($data['Status'])?1:0;
+
+				$FastPayDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+
+				if(count($FastPayDbData)>0)
+				{
+					$SaveData = array("updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$FastPayDbData->IntegrationConfigurationID))->update($SaveData);
+				}
+				else
+				{
+					$SaveData = array("IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::create($SaveData);
+				}
+				return Response::json(array("status" => "success", "message" => "FastPay Settings Successfully Updated"));
 			}
 
 			if($data['secondcategory']=='PeleCard')

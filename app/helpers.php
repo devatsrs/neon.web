@@ -1721,6 +1721,9 @@ function is_Xero($CompanyID){
 function is_merchantwarrior($CompanyID){
     return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$MerchantWarriorSlug,$CompanyID);
 }
+function is_FastPay($CompanyID){
+    return	SiteIntegration::CheckIntegrationConfigurationFastPay(false,SiteIntegration::$FastPaySlug,$CompanyID);
+}
 function change_timezone($billing_timezone,$timezone,$date){
     if(!empty($timezone) && !empty($billing_timezone)) {
         date_default_timezone_set($billing_timezone);

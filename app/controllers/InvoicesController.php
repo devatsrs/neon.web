@@ -2282,6 +2282,146 @@ class InvoicesController extends \BaseController {
 
     }
 
+    public function invoice_fastpayexport(){
+        $data = Input::all();
+
+        $userID = 0;
+        if(User::is('AccountManager')) {
+            $userID = User::get_userID();
+        }
+        $companyID = User::get_companyID();
+        if(!empty($data['InvoiceIDs'])){
+            $invoiceidarray = explode(",",$data['InvoiceIDs']);
+
+            $AccountInvoices = Invoice::select(DB::raw("GROUP_CONCAT(FullInvoiceNumber) as FullInvoiceNumber"),'AccountID',DB::raw("SUM(GrandTotal) as Amount"))
+                ->whereIn('tblInvoice.InvoiceID', $invoiceidarray)
+                ->groupBy('AccountID')
+                ->get()->toArray();
+
+            //map amount to accountid from array
+            $result = array_map(function($v){
+                return [$v['AccountID'] => $v['Amount']];
+            }, $AccountInvoices);
+            //convert amount multidimensional array to single array dynamically with id
+            $amountarray = array();
+            foreach($result as $array) {
+                foreach($array as $k=>$v) {
+                    $amountarray[$k] = $v;
+                }
+            }
+
+            //map invoicenumber to accountid from array
+            $result2 = array_map(function($v){
+                return [$v['AccountID'] => $v['FullInvoiceNumber']];
+            }, $AccountInvoices);
+            //convert invoicenumber multidimensional array to single array dynamically with id
+            $invnum_array = array();
+            foreach($result2 as $array) {
+                foreach($array as $k=>$v) {
+                    $invnum_array[$k] = $v;
+                }
+            }
+
+            //convert multidimensional array to single array
+            $AccountIdList = array_column($AccountInvoices, 'AccountID');
+
+            $AccountPaymentProfile = AccountPaymentProfile::where(array('CompanyID' => $companyID))
+                ->where('PaymentGatewayID',PaymentGateway::FastPay)
+                ->where('isDefault',1)
+                ->whereIn('AccountID', $AccountIdList)
+                ->select('*')
+                ->get()->toArray();
+
+            //make accountid's array to check accountid is available in accountpaymentprofile table or not
+            $AccountPaymentProfileIdArray = array_column($AccountPaymentProfile, 'AccountID');
+
+            $Account = Account::where(array('CompanyID' => $companyID))
+                ->whereIn('AccountID', $AccountIdList)
+                ->select('*')
+                ->get()->toArray();
+
+            //map invoicenumber to accountid from array
+            $result3 = array_map(function($v){
+                return [$v['AccountID'] => $v];
+            }, $Account);
+            //convert accountdetails multidimensional array to single array dynamically with id
+            $AccountDetails = array();
+            foreach($result3 as $array) {
+                foreach($array as $k=>$v) {
+                    $AccountDetails[$k] = $v;
+                }
+            }
+
+            $excel_data = array();
+            $i=0;
+            foreach($AccountIdList as $list)
+            {
+                if(in_array($list,$AccountPaymentProfileIdArray)){
+
+                    foreach($AccountPaymentProfile as $adata)
+                    {
+                        if($adata['AccountID'] == $list) {
+                            $options = json_decode($adata['Options']);
+                            $excel_data[$i]['DD REFERENCE']         = $options->dd_reference;
+                            $excel_data[$i]['Sort Code']            = $options->sortcode;
+                            $excel_data[$i]['Account No']           = $options->account_number;
+                            $excel_data[$i]['Account Name']         = $AccountDetails[$list]['AccountName'];
+                            $excel_data[$i]['Amount']               = $amountarray[$list];
+                            $excel_data[$i]['BACS Code']            = '01';
+                            $excel_data[$i]['Invoice No (Optional)']= $invnum_array[$list];
+                            $excel_data[$i]['Title']                = $AccountDetails[$list]['Title'];
+                            $excel_data[$i]['Initial']              = '';
+                            $excel_data[$i]['Forename']             = $AccountDetails[$list]['FirstName'];
+                            $excel_data[$i]['Surname']              = $AccountDetails[$list]['LastName'];
+                            $excel_data[$i]['Salutation 1']         = '';
+                            $excel_data[$i]['Salutation 2']         = '';
+                            $excel_data[$i]['Address 1']            = $AccountDetails[$list]['Address1'];
+                            $excel_data[$i]['Address 2']            = $AccountDetails[$list]['Address2'];
+                            $excel_data[$i]['Area']                 = '';
+                            $excel_data[$i]['Town']                 = $AccountDetails[$list]['City'];
+                            $excel_data[$i]['Postcode']             = $AccountDetails[$list]['PostCode'];;
+                            $excel_data[$i]['Phone']                = $AccountDetails[$list]['Phone'];;
+                            $excel_data[$i]['Mobile']               = $AccountDetails[$list]['Mobile'];;
+                            $excel_data[$i]['Email']                = $AccountDetails[$list]['Email'];;
+                            $excel_data[$i]['Notes (Optional)']     = '';
+                            $i++;
+
+                        }
+                    }
+                }
+                else{
+                        $excel_data[$i]['DD REFERENCE']         = '';
+                        $excel_data[$i]['Sort Code']            = '';
+                        $excel_data[$i]['Account No']           = '';
+                        $excel_data[$i]['Account Name']         = $AccountDetails[$list]['AccountName'];
+                        $excel_data[$i]['Amount']               = $amountarray[$list];
+                        $excel_data[$i]['BACS Code']            = '';
+                        $excel_data[$i]['Invoice No (Optional)']= $invnum_array[$list];
+                        $excel_data[$i]['Title']                = $AccountDetails[$list]['Title'];
+                        $excel_data[$i]['Initial']              = '';
+                        $excel_data[$i]['Forename']             = $AccountDetails[$list]['FirstName'];
+                        $excel_data[$i]['Surname']              = $AccountDetails[$list]['LastName'];
+                        $excel_data[$i]['Salutation 1']         = '';
+                        $excel_data[$i]['Salutation 2']         = '';
+                        $excel_data[$i]['Address 1']            = $AccountDetails[$list]['Address1'];
+                        $excel_data[$i]['Address 2']            = $AccountDetails[$list]['Address2'];
+                        $excel_data[$i]['Area']                 = '';
+                        $excel_data[$i]['Town']                 = $AccountDetails[$list]['City'];
+                        $excel_data[$i]['Postcode']             = $AccountDetails[$list]['PostCode'];;
+                        $excel_data[$i]['Phone']                = $AccountDetails[$list]['Phone'];;
+                        $excel_data[$i]['Mobile']               = $AccountDetails[$list]['Mobile'];;
+                        $excel_data[$i]['Email']                = $AccountDetails[$list]['Email'];;
+                        $excel_data[$i]['Notes (Optional)']     = '';
+                        $i++;
+                }
+            }
+
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/FastPayExport.csv';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_csv($excel_data);
+        }
+    }
+
     public function getInvoiceDetail(){
         $data = Input::all();
         $result = array();
