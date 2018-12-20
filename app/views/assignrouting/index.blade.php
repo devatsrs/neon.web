@@ -28,7 +28,7 @@
                     {{ Form::select('TrunkID', $trunks, '', array("class"=>"select2","data-type"=>"trunk")) }}
                 </div>
                 
-                <div class="form-group">
+                <div class="form-group A">
                     <label for="field-1" class="control-label">Account</label>
                     {{Form::select('SourceCustomers[]', $all_customers, array() ,array("class"=>"form-control select2",'multiple','id'=>"Customerlist"))}}
                 </div>
@@ -98,6 +98,20 @@
                                 <th>Account Name</th>
                                 <th>Routing Profile</th>
                                 <th>Trunk</th>
+                                <th>Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                        
+                        {{-- Account Level--}}
+                        <table class="table table-bordered datatable hidden" id="table-account" >
+                            <thead>
+                            <tr>
+                                <th><input type="checkbox" class="table-account_selectall" id="table-account_selectall" name="account_selectall[]" /></th>
+                                <th>Account Name</th>
+                                <th>Routing Profile</th>
                                 <th>Action</th>
                             </tr>
                             </thead>
@@ -177,14 +191,16 @@
                 if($searchFilter.level =='T'){
                     var checknoxid = 'trunk_selectcheckbox';
                     var tableid = 'table-trunk';
-                    $("#table-service").addClass('hidden');
+                    $("#table-service").addClass('hidden');$("#table-account").addClass('hidden');
                     $("#table-trunk").removeClass('hidden');
+                    
                     $("#table-trunk_wrapper").removeClass('hidden');
                     $("#table-service_wrapper").addClass('hidden');
+                    $("#table-account_wrapper").addClass('hidden');
                     aoColumns = [
                         {"bSortable": false, //RateID
                             mRender: function(id, type, full) {
-                                var account_trunk = full[0]+'_'+full[5];
+                                var account_trunk = full[0]+'_'+full[4];
                                 return '<div class="checkbox "><input type="checkbox" name="customer[]" value="' + account_trunk + '" class="rowcheckbox" ></div>';
                             }
                         },
@@ -194,20 +210,24 @@
                         {
                             mRender: function(id, type, full) {
                                 var action;
-                                var account_trunk = full[0]+'_'+full[5];
-                                action = '<a title="Edit" data-id="'+  account_trunk +'" data-rateTableName="'+full[4]+'" data-TrunkID="'+full[5]+'"  class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
+                                var account_trunk = full[0]+'_'+full[4];
+                                action = '<a title="Edit" data-id="'+  account_trunk +'" data-RoutingProfileID="'+full[5]+'" data-rateTableName="'+full[4]+'" data-TrunkID="'+full[5]+'"  class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
                                 return action;
                             }
                         },
                     ]
-
-                }else{
-                    var checknoxid = 'service_selectcheckbox';
-                    var tableid = 'table-service';
-                    $("#table-service").removeClass('hidden');
+                }else if($searchFilter.level =='A'){
+                
+                    var checknoxid = 'account_selectcheckbox';
+                    var tableid = 'table-account';
+                    
+                    $("#table-account").removeClass('hidden');
+                    $("#table-service").addClass('hidden');
                     $("#table-trunk").addClass('hidden');
+                    
+                    $("#table-account_wrapper").removeClass('hidden');
                     $("#table-trunk_wrapper").addClass('hidden');
-                    $("#table-service_wrapper").removeClass('hidden');
+                    $("#table-service_wrapper").addClass('hidden');
 
                     aoColumns = [
                         {"bSortable": false,
@@ -218,19 +238,46 @@
                         },
                         {"bSortable": true},
                         {"bSortable": true},
-                        {"bSortable": true},
                         {
                             mRender: function(id, type, full) {
                                 var action;
                                 var account_service = full[0]+'_'+full[5];
-                                action = '<a title="Edit" data-id="'+ account_service +'" data-OutboundRatetable="'+full[8]+'" data-inboundRatetable="'+full[7]+'" data-serviceId="'+full[5]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
+                                action = '<a title="Edit" data-id="'+ account_service +'" data-RoutingProfileID="'+full[3]+'" data-OutboundRatetable="'+full[8]+'" data-inboundRatetable="'+full[7]+'" data-serviceId="'+full[5]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
+                                return action;
+                            }
+                        },
+                    ]
+                }else{
+                    var checknoxid = 'service_selectcheckbox';
+                    var tableid = 'table-service';
+                    $("#table-service").removeClass('hidden');
+                    $("#table-trunk").addClass('hidden');
+                    $("#table-account").addClass('hidden');
+                    
+                    $("#table-trunk_wrapper").addClass('hidden');$("#table-account_wrapper").addClass('hidden');
+                    $("#table-service_wrapper").removeClass('hidden');
+
+                    aoColumns = [
+                        {"bSortable": false,
+                            mRender: function(id, type, full) {
+                                var account_service = full[0]+'_'+full[4];
+                                return '<div class="checkbox "><input type="checkbox" name="customer[]" value="' + account_service + '" class="rowcheckbox" ></div>';
+                            }
+                        },
+                        {"bSortable": true},
+                        {"bSortable": true},
+                        {"bSortable": true},
+                        {
+                            mRender: function(id, type, full) {
+                                var action;
+                                var account_service = full[0]+'_'+full[4];
+                                action = '<a title="Edit" data-id="'+ account_service +'" data-OutboundRatetable="'+full[8]+'" data-inboundRatetable="'+full[7]+'" data-serviceId="'+full[5]+'" data-RoutingProfileID="'+full[5]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
                                 return action;
                             }
                         },
                     ]
                 }
 
-                console.log('---pddd');
 
                 data_table = $("#"+tableid).dataTable({
                     "bDestroy": true,
@@ -270,13 +317,13 @@
                             {
                                 "sExtends": "download",
                                 "sButtonText": "EXCEL",
-                                "sUrl": baseurl + "/rate_tables/apply_rate_table/ajax_datagrid/xlsx",
+                                "sUrl": baseurl + "/assignrouting/exports/xlsx",
                                 sButtonClass: "save-collection btn-sm"
                             },
                             {
                                 "sExtends": "download",
                                 "sButtonText": "CSV",
-                                "sUrl": baseurl + "/rate_tables/apply_rate_table/ajax_datagrid/csv",
+                                "sUrl": baseurl + "/assignrouting/exports/csv",
                                 sButtonClass: "save-collection btn-sm"
                             }
                         ]
@@ -404,12 +451,15 @@
 
 
             $('table tbody').on('click','.edit-ratetable',function(ev){
-
+console.log($(this).attr('data-RoutingProfileID'));
                 $("#add-new-form").trigger("reset");
                 ev.preventDefault();
                 ev.stopPropagation();
                 $('#modal-add-new-rate-table').trigger("reset");
 
+                //Select the selected routing profile
+                $("#add-new-form [id='RoutingProfile']").select2().select2('val', $(this).attr('data-RoutingProfileID'));
+                //----------
                 /*$('#ServiceID').select2('disable');
                 $("#modal-add-new-rate-table [name='AccountServiceId']").val($(this).attr('data-serviceId'));*/
 
@@ -436,7 +486,7 @@
             });
 
             $("#add-new-rate-table").click(function(ev) {
-
+console.log('---ppppp');
                 ev.preventDefault();
 
                 $("#modal-add-new-rate-table [name='InboundRateTable']").select2('val', '');
@@ -473,10 +523,15 @@
 
 
                 var levellbl = $("#ratetable_filter select[name='level']").val();
-                var levelhidden =  levellbl=='T'?'S':'T';
-                $('.'+levellbl).removeClass('hidden');
-                $('.'+levelhidden).addClass('hidden');
-
+                if(levellbl=='A'){
+                    $('.'+levellbl).removeClass('hidden');
+                    $('.T').addClass('hidden');
+                    $('.S').addClass('hidden');
+                }else{
+                    var levelhidden =  levellbl=='T'?'S':'T';
+                    $('.'+levellbl).removeClass('hidden');
+                    $('.'+levelhidden).addClass('hidden');
+                }
                 if(  $('.table-trunk_selectall').prop("checked") == false || $('.table-service_selectall').prop("checked") == false );
                 {
                     $(".rowcheckbox").prop('checked', false);
