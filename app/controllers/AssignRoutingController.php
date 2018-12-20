@@ -57,9 +57,7 @@ class AssignRoutingController extends \BaseController {
             $codedecks = array(""=>"Select Codedeck")+$codedecks;
             $rate_tables = RateTable::getRateTables();
             $allservice = Service::getDropdownIDList($companyID);
-            $currencies = Currency::getCurrencyDropdownIDList();
-            $CurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");
-            return View::make('assignrouting.index', compact('all_customers','trunks','codedecks','currencies','CurrencyID','rate_tables','allservice','routingprofile'));
+            return View::make('assignrouting.index', compact('all_customers','trunks','codedecks','rate_tables','allservice','routingprofile'));
         }
         
         public function routingprofilescategory()

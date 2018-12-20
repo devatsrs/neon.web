@@ -539,56 +539,10 @@ console.log('---ppppp');
 
             });
 
-            $(".currency").change(function(){
-                var currencyID = $(this).val();
-                if(currencyID > 0) {
-                    $("#Customerlist").select2("val", "");
-                    getRateTableAndAccountByCurrency(currencyID);
-                }
-            });
-            getRateTableAndAccountByCurrency('{{$CurrencyID}}');
+
 
         });
 
-        function getRateTableAndAccountByCurrency(currencyID){
-            $.ajax({
-                url: baseurl + "/rate_tables/apply_rate_table/ajax_getRateTableAndAccountByCurrency",
-                dataType: 'json',
-                type: 'post',
-                data: {id: currencyID},
-                success: function (response) {
-                    var ratetable = response.ratetablelist;
-                    var key = "";
-                    delete ratetable[key];
-                    $('#RateTableId').html();
-                    var $select = $('#RateTableId');
-                    var $RateTable_Id = $('#RateTable_Id');
-                    var $InboundRateTable = $('#InboundRateTable');
-                    var $OutboundRateTable = $('#OutboundRateTable');
-                    var select = '<option value="">Select</option>';
-                    $.each(ratetable, function (key, value) {
-                        select += '<option value=' + key + '>' + value + '</option>';
-                    });
-                    $select.html(select);
-                    $RateTable_Id.html(select);
-                    $InboundRateTable.html(select);
-                    $OutboundRateTable.html(select);
-
-
-                    /* Accountlist as per Currency selected */
-                    var accountlist = response.accountlist;
-                    delete accountlist[key];
-                    $('#RateTableId').html();
-                    var $select = $('#Customerlist');
-                    var select = '<option value="">Select</option>';
-                    $.each(accountlist, function (key, value) {
-                        select += '<option value=' + key + '>' + value + '</option>';
-                    });
-                    $select.html(select);
-
-                }
-            });
-        }
 
     </script>
 @stop
