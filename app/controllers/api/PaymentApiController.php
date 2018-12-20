@@ -145,37 +145,42 @@ class PaymentApiController extends ApiController {
 				$CustomerProfile = AccountPaymentProfile::getActiveProfile($AccountID, $PaymentGatewayID);
 
 				if (!empty($CustomerProfile)) {
-					try {
-						$transactionResponse = PaymentGateway::addTransactionStripeAPI($CustomerProfile->AccountPaymentProfileID, $data['Amount'], $Account);
-						if (isset($transactionResponse['response_code']) && $transactionResponse['response_code'] == 1) {
+					$CurrencyCode = Currency::getCurrency($Account->CurrencyId);
+					if(!empty($CurrencyCode)) {
+						try {
+							$transactionResponse = PaymentGateway::addTransactionStripeAPI($CustomerProfile->AccountPaymentProfileID, $data['Amount'], $Account, $CurrencyCode);
+							if (isset($transactionResponse['response_code']) && $transactionResponse['response_code'] == 1) {
 
-							$transactiondata = array();
-							$transactiondata['CompanyID'] = $Account->CompanyId;
-							$transactiondata['AccountID'] = $Account->AccountID;
-							$transactiondata['TransactionID'] = $transactionResponse['transaction_id'];
-							$transactiondata['Notes'] = $transactionResponse['transaction_notes'];
-							$transactiondata['Amount'] = floatval($data['Amount']);
-							$transactiondata['Status'] = "Approved";
-							$transactiondata['PaymentDate'] = date('Y-m-d H:i:s');
-							$transactiondata['created_at'] = date('Y-m-d H:i:s');
-							$transactiondata['updated_at'] = date('Y-m-d H:i:s');
-							$transactiondata['CreatedBy'] = 'API';
-							$transactiondata['ModifyBy'] = 'API';
+								$transactiondata = array();
+								$transactiondata['CompanyID'] = $Account->CompanyId;
+								$transactiondata['AccountID'] = $Account->AccountID;
+								$transactiondata['TransactionID'] = $transactionResponse['transaction_id'];
+								$transactiondata['Notes'] = $transactionResponse['transaction_notes'];
+								$transactiondata['Amount'] = floatval($data['Amount']);
+								$transactiondata['Status'] = "Approved";
+								$transactiondata['PaymentDate'] = date('Y-m-d H:i:s');
+								$transactiondata['created_at'] = date('Y-m-d H:i:s');
+								$transactiondata['updated_at'] = date('Y-m-d H:i:s');
+								$transactiondata['CreatedBy'] = 'API';
+								$transactiondata['ModifyBy'] = 'API';
 
-							$Payment=Payment::insert($transactiondata);
-							$Result=array();
-							$Result['PaymentID']=$Payment->PaymentID;
-							$Result['TransactionResponse']=$transactionResponse;
+								$Payment = Payment::insert($transactiondata);
+								$Result = array();
+								$Result['PaymentID'] = $Payment->PaymentID;
+								$Result['TransactionResponse'] = $transactionResponse;
 
-							return Response::json(array("status" => "success", "data" => $Result));
+								return Response::json(array("status" => "success", "data" => $Result));
 
-						}else{
-							$errors[] = 'Transaction Failed :' . $Account->AccountName. ' Reason : ' . $transactionResponse['failed_reason'];
+							} else {
+								$errors[] = 'Transaction Failed :' . $Account->AccountName . ' Reason : ' . $transactionResponse['failed_reason'];
+							}
+						} catch (Exception $ev) {
+							Log::error($ev);
+							$errors[] = 'Transaction Failed :' . $Account->AccountName . ' Reason : ' . $ev->getMessage();
+
 						}
-					}catch(Exception $ev){
-						Log::error($ev);
-						$errors[] = 'Transaction Failed :' . $Account->AccountName . ' Reason : ' . $ev->getMessage();
-
+					}else{
+						$errors[]= "Currency Code Not Set.";
 					}
 				}else{
 					$errors[]= "Account Profile Not Set.";
