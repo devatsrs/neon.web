@@ -49,7 +49,7 @@ class AssignRoutingController extends \BaseController {
 
 	public function index()
 	{
-            $all_customers = Account::getAccountIDList();
+            $all_customers = Account::getAccountIDList(['IsCustomer'=>1,'IsReseller'=>1]);
             $companyID = User::get_companyID();
             $trunks = Trunk::getTrunkDropdownIDList();
             $routingprofile = RoutingProfiles::getRoutingProfile();
@@ -57,6 +57,8 @@ class AssignRoutingController extends \BaseController {
             $codedecks = array(""=>"Select Codedeck")+$codedecks;
             $rate_tables = RateTable::getRateTables();
             $allservice = Service::getDropdownIDList($companyID);
+           // array_push($routingprofile, "Blank");
+             
             return View::make('assignrouting.index', compact('all_customers','trunks','codedecks','rate_tables','allservice','routingprofile'));
         }
         
