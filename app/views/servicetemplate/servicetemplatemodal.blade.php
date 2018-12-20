@@ -585,30 +585,34 @@
         var addOptionID = optionID + ",";
         var colValue = optionText;
         var selectedSubscription = document.getElementById("selectedSubscription").value;
-       // alert("selectedSubscription in add:" + selectedSubscription);
-        if (selectedSubscription.indexOf(addOptionID) == -1) {
-            var rowSubscriptionHtml =
-                    '<tr class="draggable" + ' +
-                    'id="' + idNameRow + '\" ' +
-                    'name="' + idNameRow + '\" ' +
-                    '>' +
-                    '<td>' + optionText + '</td>' +
-                    '<td>' +
-                     '<a title="Delete" onClick="RemoveSubscriptionRowInTable(' + "'" + idNameRow + "'" + ');" class="delete-service1 btn btn-danger btn-sm"><i class="entypo-trash"></i></a>'+
-                    '</td>' +
-                    '</tr>';
-            ;
+        if (typeof optionID != 'undefined' && optionID != '') {
+            // alert("selectedSubscription in add:" + selectedSubscription);
+            if (selectedSubscription.indexOf(addOptionID) == -1) {
+                var rowSubscriptionHtml =
+                        '<tr class="draggable" + ' +
+                        'id="' + idNameRow + '\" ' +
+                        'name="' + idNameRow + '\" ' +
+                        '>' +
+                        '<td>' + optionText + '</td>' +
+                        '<td>' +
+                        '<a title="Delete" onClick="RemoveSubscriptionRowInTable(' + "'" + idNameRow + "'" + ');" class="delete-service1 btn btn-danger btn-sm"><i class="entypo-trash"></i></a>' +
+                        '</td>' +
+                        '</tr>';
+                ;
 
-            selectedSubscription = selectedSubscription + optionID + ",";
-            document.getElementById("selectedSubscription").value = selectedSubscription;
+                selectedSubscription = selectedSubscription + optionID + ",";
+                document.getElementById("selectedSubscription").value = selectedSubscription;
 
-          //  alert("selectedSubscription :" + selectedSubscription);
-            //  alert(rowSubscriptionHtml);
-            rowSubscriptionHtmlIndex = rowSubscriptionHtmlIndex + 1;
-            document.getElementById("SubscriptionIDListBody").innerHTML = document.getElementById("SubscriptionIDListBody").innerHTML + rowSubscriptionHtml;
-            // SubscriptionIDListBody = document.getElementById("SubscriptionIDListBody").innerHTML;
+                //  alert("selectedSubscription :" + selectedSubscription);
+                //  alert(rowSubscriptionHtml);
+                rowSubscriptionHtmlIndex = rowSubscriptionHtmlIndex + 1;
+                document.getElementById("SubscriptionIDListBody").innerHTML = document.getElementById("SubscriptionIDListBody").innerHTML + rowSubscriptionHtml;
+                // SubscriptionIDListBody = document.getElementById("SubscriptionIDListBody").innerHTML;
+            } else {
+                alert("Selected Subscription is already added");
+            }
         }else {
-            alert("Selected Subscription is already added");
+            alert("Please select the subscription");
         }
     }
     function AddSubscriptionInTable() {

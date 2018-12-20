@@ -35,29 +35,44 @@
                 <?php
                 }
                 ?>
+
+                        <?php
+                        if($cnt==0 || $cnt%2==0){
+                        ?>
                     <div class="col-md-12">
                         <div class="form-group">
                     <table width="100%">
                         <tr>
-                            <td width="25%"><label for="field-5" class="control-label">{{ $field->FieldName }}</label></td>
+                            <?php
+                            }
+                            ?>
+                            <td width="15%"><label for="field-5" class="control-label">{{ $field->FieldName }}</label></td>
 
 
 
 
                     @if($field->FieldDomType == 'string' || $field->FieldDomType == 'numeric')
-                                <td width="75%">
+
+                                <td width={{$cnt==0 || $cnt%2==0 ? "30%" : "35%"}}>
                                     {{Form::text('DynamicFields['.$field->DynamicFieldsID.']', $DynamicFieldValue,array("class"=>"form-control"))}}
                                 </td>
+                                    <?php
+                                    if($cnt==0 || $cnt%2!=0){
+                                    ?>
+                                    <td width="5%">&nbsp;</td>
+                                    <?php
+                                    }
+                                    ?>
                     @elseif($field->FieldDomType == 'numericPerCall')
-                                <td width="75%">
+                                <td width="30%">
                                     {{Form::text('DynamicFields['.$field->DynamicFieldsID.']', $DynamicFieldValue,array("class"=>"form-control"))}}
                                 </td>
                     @elseif($field->FieldDomType == 'numericePerMin')
-                                <td width="75%">
+                                <td width="30%">
                                     {{Form::text('DynamicFields['.$field->DynamicFieldsID.']', $DynamicFieldValue,array("class"=>"form-control"))}}
                                 </td>
                     @elseif($field->FieldDomType == 'textarea')
-                                <td width="75%">
+                                <td width="30%">
                                     {{ Form::textarea('DynamicFields['.$field->DynamicFieldsID.']', $DynamicFieldValue,array('rows' => 2, "class"=>"form-control")) }}
                                 </td>
                     @elseif($field->FieldDomType == 'select')
@@ -69,7 +84,7 @@
                         }
                         $result=[''=>'Select']+$result;
                         ?>
-                            <td width="75%">
+                            <td width="30%">
                                 {{Form::select('DynamicFields['.$field->DynamicFieldsID.']',$result,$DynamicFieldValue,array("class"=>"form-control"))}}
                             </td>
 
@@ -81,14 +96,14 @@
                             $fileUrl=$field->DynamicFieldsID."/dynamicfields/";
                             $url="products/dynamicfield/".$DynamicFieldsValueID."/download";
                             ?>
-                                <td width="75%">
+                                <td width="30%">
                                     <input name="DynamicFields[<?php echo $field->DynamicFieldsID; ?>]" type="file" accept=".png" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;Browse" />
 
                             <a href="{{URL::to($url)}}" class="btn btn-success btn-sm btn-icon icon-left"><i class="entypo-down"></i>Download</a>
                                 </td>
                         @endif
                     @elseif($field->FieldDomType == 'datetime')
-                                <td width="75%">
+                                <td width="30%">
                         <div class='input-group date' id='datetimepicker1'>
                             <input type='text' class="form-control datetimepicker" value="{{ $DynamicFieldValue  }}" name="DynamicFields[<?php echo $field->DynamicFieldsID; ?>]"/>
                                 <span class="input-group-addon">
@@ -97,7 +112,7 @@
                         </div>
                                 </td>
                     @elseif($field->FieldDomType == 'boolean')
-                                <td width="75%">
+                                <td width="30%">
                         <p class="make-switch switch-small">
                             <input id="DynamicFields[<?php echo $field->DynamicFieldsID; ?>]" name="hDynamicFields[<?php echo $field->DynamicFieldsID; ?>]" class="boolean_field" type="checkbox" value="1" checked >
                             <input type="hidden" name="DynamicFields[<?php echo $field->DynamicFieldsID; ?>]" id="hDynamicFields[<?php echo $field->DynamicFieldsID; ?>]" value="<?php echo $DynamicFieldValue; ?>">
@@ -125,13 +140,30 @@
                         }
                         ?>
                     @endif
+                                <?php
+                                if($cnt!=0 && $cnt%2==0){
+                                ?>
                         </tr>
                     </table>
                     </div>
                     </div>
+                        <?php
+                        }
+                        ?>
                 <?php $cnt++; ?>
                 @endif
                 @endforeach
+    <?php
+    if($cnt%2!=0){
+    ?>
+    <td width="15%">&nbsp;</td>
+    <td width="35%">&nbsp;</td>
+    </table>
+    </div>
+    </div>
+    <?php
+    }
+    ?>
                 @endif
 
                 <script type="text/javascript" src="<?php echo URL::to('/'); ?>/assets/js/bootstrap-datetimepicker.js" ></script>
