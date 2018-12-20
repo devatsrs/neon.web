@@ -1741,6 +1741,6 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('products/getProductsByType', 'ProductApiController@getListByType');
 	Route::post('products/ProductUpdateStock', 'ProductApiController@UpdateStockCalculation');
 	Route::post('getAccountbilling/{AccountID}', 'AccountBillingApiController@getAccountBilling');
-	Route::post('serviceTemplate/addServiceTemplate', 'ServicesTemplateApiController@storeServiceTempalteData');
+	Route::post('account/add_servicetemaplate', 'ServicesTemplateApiController@storeServiceTempalteData');
 
 });
