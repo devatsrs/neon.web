@@ -18,25 +18,6 @@ class AssignRoutingController extends \BaseController {
         $sort_column = $columns[$data['iSortCol_0']];
         $query = "call prc_getAssignRoutingProfileByAccount (".$CompanyID.",'".$data["level"]."',".$TrunkID.",'".$SourceCustomers."',".$services.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."' ";
 
-        if(isset($data['Export']) && $data['Export'] == 1) {
-            $excel_data  = DB::select($query.',1)');
-            $excel_data = json_decode(json_encode($excel_data),true);
-            foreach($excel_data as $rowno => $rows){
-                foreach($rows as $colno => $colval){
-                    $excel_data[$rowno][$colno] = str_replace( "<br>" , "\n" ,$colval );
-                }
-            }
-
-            if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/ApplyAssignRouting.csv';
-                $NeonExcel = new NeonExcelIO($file_path);
-                $NeonExcel->download_csv($excel_data);
-            }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/ApplyAssignRouting.xls';
-                $NeonExcel = new NeonExcelIO($file_path);
-                $NeonExcel->download_excel($excel_data);
-            }
-        }
         $query .=',0)';
         
         Log::info('query:.' . $query);
@@ -49,7 +30,7 @@ class AssignRoutingController extends \BaseController {
 
 	public function index()
 	{
-            $all_customers = Account::getAccountIDList(['IsCustomer'=>1]);
+            $all_customers = Account::getAccountIDList(['IsCustomer'=>1,'IsReseller'=>1]);
             $companyID = User::get_companyID();
             $trunks = Trunk::getTrunkDropdownIDList();
             $routingprofile = RoutingProfiles::getRoutingProfile();
@@ -57,9 +38,10 @@ class AssignRoutingController extends \BaseController {
             $codedecks = array(""=>"Select Codedeck")+$codedecks;
             $rate_tables = RateTable::getRateTables();
             $allservice = Service::getDropdownIDList($companyID);
-            $currencies = Currency::getCurrencyDropdownIDList();
-            $CurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");
-            return View::make('assignrouting.index', compact('all_customers','trunks','codedecks','currencies','CurrencyID','rate_tables','allservice','routingprofile'));
+            //For Set the Empty data
+            $routingprofile['Blank']='Blank';
+            
+            return View::make('assignrouting.index', compact('all_customers','trunks','codedecks','rate_tables','allservice','routingprofile'));
         }
         
         public function routingprofilescategory()
@@ -160,8 +142,9 @@ class AssignRoutingController extends \BaseController {
                     RoutingProfileToCustomer::where(array('AccountID' => $customid['0']))->delete();
                     $dataArray['AccountID']=$customid['0'];
                 }
-                
+                if($data['RoutingProfile']=='Blank'){$dataArray['RoutingProfileID']=null;}else{
                 $dataArray['RoutingProfileID']=$data['RoutingProfile'];
+                }
                 RoutingProfileToCustomer::create($dataArray);
             }   
 //            $chk_Trunkid = empty($data['chk_Trunkid']) ? 0 : $data['chk_Trunkid'];
@@ -342,11 +325,11 @@ class AssignRoutingController extends \BaseController {
             $RoutingProfiles = RoutingProfiles::where(["CompanyID" => $CompanyID])->get(['Name','Description']);
             $RoutingProfiles = json_decode(json_encode($RoutingProfiles),true);
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/RoutingCategory.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/AssignRouting.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($RoutingProfiles);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/RoutingCategory.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/AssignRouting.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($RoutingProfiles);
             }

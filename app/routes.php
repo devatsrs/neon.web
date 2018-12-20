@@ -1743,4 +1743,15 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('getAccountbilling/{AccountID}', 'AccountBillingApiController@getAccountBilling');
 	Route::post('account/add_servicetemaplate', 'ServicesTemplateApiController@storeServiceTempalteData');
 
+	Route::post('checkBalance/', 'AccountsApiController@checkBalance');
+	Route::post('getPayments/', 'PaymentApiController@getPaymentHistory');
+	Route::post('getAutoDepositSettings/', 'AccountBillingApiController@getAutoDepositSettings');
+	Route::post('setAutoDepositSettings/', 'AccountBillingApiController@setAutoDepositSettings');
+	Route::post('getAutoOutPaymentSettings/', 'AccountBillingApiController@getAutoOutPaymentSettings');
+	Route::post('setAutoOutPaymentSettings/', 'AccountBillingApiController@setAutoOutPaymentSettings');
+	Route::post('setLowBalanceNotification/', 'BillingClassApiController@setLowBalanceNotification');
+	Route::post('getLowBalanceNotification/', 'BillingClassApiController@getLowBalanceNotification');
+	Route::post('requestFund/', 'PaymentApiController@requestFund');
+	Route::post('depositFund/', 'PaymentApiController@depositFund');
+
 });
