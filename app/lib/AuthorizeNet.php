@@ -595,7 +595,8 @@ class AuthorizeNet {
     public function paymentWithApiProfile($data){
         $data['InvoiceNumber']=0;
         $data['CreatedBy']="API";
-        return $this->paymentWithProfile($data);
+        $response['Response']=$this->paymentWithProfile($data);
+        return $response;
 
     }
 
