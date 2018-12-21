@@ -95,7 +95,6 @@ class RoutingCategoryController extends \BaseController {
                 $data["UpdatedBy"] = User::get_user_full_name();
                 $rules = array(
                     'Name' => 'required',
-                    'Description' => 'required',
                 );
                 $validator = Validator::make($data, $rules);
 

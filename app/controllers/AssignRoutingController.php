@@ -14,29 +14,10 @@ class AssignRoutingController extends \BaseController {
         $CompanyID = User::get_companyID();
         $services = !empty($data["services"]) ? $data["services"] : 0;
         $data['iDisplayStart'] +=1;
-        $columns = array('AccountID','AccountName','InRateTableName','OutRateTableName','ServiceName','ServiceID');
+        $columns = array('AccountID','AccountName','Name','Trunk','ServiceName','ServiceID');
         $sort_column = $columns[$data['iSortCol_0']];
         $query = "call prc_getAssignRoutingProfileByAccount (".$CompanyID.",'".$data["level"]."',".$TrunkID.",'".$SourceCustomers."',".$services.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."' ";
 
-        if(isset($data['Export']) && $data['Export'] == 1) {
-            $excel_data  = DB::select($query.',1)');
-            $excel_data = json_decode(json_encode($excel_data),true);
-            foreach($excel_data as $rowno => $rows){
-                foreach($rows as $colno => $colval){
-                    $excel_data[$rowno][$colno] = str_replace( "<br>" , "\n" ,$colval );
-                }
-            }
-
-            if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/ApplyAssignRouting.csv';
-                $NeonExcel = new NeonExcelIO($file_path);
-                $NeonExcel->download_csv($excel_data);
-            }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/ApplyAssignRouting.xls';
-                $NeonExcel = new NeonExcelIO($file_path);
-                $NeonExcel->download_excel($excel_data);
-            }
-        }
         $query .=',0)';
         
         Log::info('query:.' . $query);
@@ -49,7 +30,7 @@ class AssignRoutingController extends \BaseController {
 
 	public function index()
 	{
-            $all_customers = Account::getAccountIDList(['IsCustomer'=>1]);
+            $all_customers = Account::getAccountIDList(['IsCustomer'=>1,'IsReseller'=>1]);
             $companyID = User::get_companyID();
             $trunks = Trunk::getTrunkDropdownIDList();
             $routingprofile = RoutingProfiles::getRoutingProfile();
@@ -57,9 +38,10 @@ class AssignRoutingController extends \BaseController {
             $codedecks = array(""=>"Select Codedeck")+$codedecks;
             $rate_tables = RateTable::getRateTables();
             $allservice = Service::getDropdownIDList($companyID);
-            $currencies = Currency::getCurrencyDropdownIDList();
-            $CurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");
-            return View::make('assignrouting.index', compact('all_customers','trunks','codedecks','currencies','CurrencyID','rate_tables','allservice','routingprofile'));
+            //For Set the Empty data
+            $routingprofile['Blank']='Blank';
+            
+            return View::make('assignrouting.index', compact('all_customers','trunks','codedecks','rate_tables','allservice','routingprofile'));
         }
         
         public function routingprofilescategory()
@@ -118,7 +100,118 @@ class AssignRoutingController extends \BaseController {
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Routing Profile."));
             }
 	}
+        
+        /**
+     * Store a newly created resource in storage.
+     * POST /tblRoutingProfileToCustomer
+     *
+     * @return Response
+     */
+    public function store() {
 
+        $data = Input::all();
+        if(!empty( $data["AccountServiceId"]) ){
+            $data["ServiceID"]=$data["AccountServiceId"];
+        }
+        
+        $dataArray=array();
+        if(!empty($data["selected_customer"])) {
+
+            $chk_SourceCustomers = empty($data['chk_SourceCustomers']) ? '' : $data['chk_SourceCustomers'];
+            if ($chk_SourceCustomers == 'null') {
+                $chk_SourceCustomers = '';
+            }
+            $makearray= explode(',', $data["selected_customer"]);
+            foreach($makearray  as $key => $val){
+                $customid= explode("_", $val);
+                if ($data["selected_level"] == 'T') {
+                    
+                    //Delete Old Data
+                    RoutingProfileToCustomer::where(array('TrunkID' => $customid['1'], 'AccountID' => $customid['0']))->delete();
+                    
+                    $dataArray['TrunkID']=$customid['1'];
+                    $dataArray['AccountID']=$customid['0'];
+                }else if ($data["selected_level"] == 'S') {
+                    //Delete Old Data
+                    RoutingProfileToCustomer::where(array('ServiceID' => $customid['1'], 'AccountID' => $customid['0']))->delete();
+                    
+                    $dataArray['ServiceID']=$customid['1'];
+                    $dataArray['AccountID']=$customid['0'];
+                }else if ($data["selected_level"] == 'A') {
+                    //Delete Old Data
+                    RoutingProfileToCustomer::where(array('AccountID' => $customid['0']))->delete();
+                    $dataArray['AccountID']=$customid['0'];
+                }
+                if($data['RoutingProfile']=='Blank'){$dataArray['RoutingProfileID']=null;}else{
+                $dataArray['RoutingProfileID']=$data['RoutingProfile'];
+                }
+                RoutingProfileToCustomer::create($dataArray);
+            }   
+//            $chk_Trunkid = empty($data['chk_Trunkid']) ? 0 : $data['chk_Trunkid'];
+//            $chk_services = empty($data['chk_services']) ? 0 : $data['chk_services'];
+            /* for select all pages parameter start */
+
+            if ($data["selected_level"] == 'T') {
+
+//                if($data["chk_allpageschecked"]=="Y"){
+//                    $selected_customer = "";
+//                    $queryAllAcc = " 'Y',".$chk_Trunkid.",".$data["chk_Currency"].",".$chk_RateTableId.",'".$chk_SourceCustomers."' " ;
+//                }else{
+//                    $selected_customer = $data["selected_customer"];
+//                    $queryAllAcc = " 'N',0,0,0,'' " ;
+//                }
+                  
+                
+                try{
+                    return json_encode(["status" => "success", "message" => "Routing Profile Apply successfully"]);
+                }catch ( Exception $ex ){
+                    $message =  "Oops Somethings Wrong !";
+                    return json_encode(["status" => "fail", "message" => $message]);
+                }
+
+            } else {
+
+//                if($data["chk_allpageschecked"]=="Y"){
+//                    $selected_customer = "";
+//                    $queryAllAcc = " 'Y',".$chk_services.",".$data["chk_Currency"].",".$chk_RateTableId.",'".$chk_SourceCustomers."' " ;
+//                }else{
+//                    $selected_customer = $data["selected_customer"];
+//                    $queryAllAcc = " 'N',0,0,0,'' " ;
+//                }
+//
+//                $inboundcheck = isset($data["inboundcheck"]) ? $data["inboundcheck"] : 'off';
+//                $outboundcheck = isset($data["outboundcheck"]) ? $data["outboundcheck"] : 'off';
+//
+//
+//                /*if(!empty($data["InboundRateTable"]) || !empty($data["InboundRateTable"]) ){*/
+//
+//                    $InboundRateTable = (!empty($data["InboundRateTable"]) && $data["InboundRateTable"] > 0 ) ? $data["InboundRateTable"] : 0;
+//                    $OutboundRateTable = (!empty($data["OutboundRateTable"]) && $data["OutboundRateTable"] > 0 ) ? $data["OutboundRateTable"] : 0;
+//                    $query = "call prc_applyRateTableTomultipleAccByService (".$companyID.",'".$selected_customer."','".$InboundRateTable."','".$OutboundRateTable."','".$creaedBy."','".$inboundcheck."','".$outboundcheck."',$queryAllAcc)";
+//                    DataTableSql::of($query)->make();
+//                    log::info($query);
+                    try{
+                        return json_encode(["status" => "success", "message" => "Routing Profile Apply successfully"]);
+                    }catch ( Exception $ex ){
+                        $message =  "Oops Somethings Wrong !";
+                        return json_encode(["status" => "fail", "message" => $message]);
+                    }
+
+                /*}else{
+
+                    return Response::json(array("status" => "fail", "message" => "Select Inbound Or Outbound Ratetable"));
+                }*/
+
+            }
+
+        }else{
+
+            return Response::json(array("status" => "failed", "message" => "Select Customers"));
+
+        }
+
+    }
+    
 	/**
 	 * Display the specified resource.
 	 * GET /Routing Category/{id}
@@ -232,11 +325,11 @@ class AssignRoutingController extends \BaseController {
             $RoutingProfiles = RoutingProfiles::where(["CompanyID" => $CompanyID])->get(['Name','Description']);
             $RoutingProfiles = json_decode(json_encode($RoutingProfiles),true);
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/RoutingCategory.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/AssignRouting.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($RoutingProfiles);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/RoutingCategory.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/AssignRouting.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($RoutingProfiles);
             }

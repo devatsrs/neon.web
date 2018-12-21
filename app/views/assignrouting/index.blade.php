@@ -28,7 +28,7 @@
                     {{ Form::select('TrunkID', $trunks, '', array("class"=>"select2","data-type"=>"trunk")) }}
                 </div>
                 
-                <div class="form-group">
+                <div class="form-group A">
                     <label for="field-1" class="control-label">Account</label>
                     {{Form::select('SourceCustomers[]', $all_customers, array() ,array("class"=>"form-control select2",'multiple','id'=>"Customerlist"))}}
                 </div>
@@ -98,7 +98,20 @@
                                 <th>Account Name</th>
                                 <th>Routing Profile</th>
                                 <th>Trunk</th>
-                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                        
+                        {{-- Account Level--}}
+                        <table class="table table-bordered datatable hidden" id="table-account" >
+                            <thead>
+                            <tr>
+                                <th><input type="checkbox" class="table-account_selectall" id="table-account_selectall" name="account_selectall[]" /></th>
+                                <th>Account Name</th>
+                                <th>Routing Profile</th>
                                 <th>Action</th>
                             </tr>
                             </thead>
@@ -121,9 +134,12 @@
                     </div>
                     <div class="modal-body">
                         <input type="hidden" name="selected_customer">
+                        <input type="hidden" name="selected_trunk">
+                        <input type="hidden" name="selected_service">
+                        
                         <input type="hidden" name="selected_level">
                         <div class="allpage"><input type="hidden" name="chk_allpageschecked" value="N" ></div>
-                        <div class="row T">
+                        <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group ">
                                     <label for="field-5" class="control-label">Routing Profile</label>
@@ -175,14 +191,16 @@
                 if($searchFilter.level =='T'){
                     var checknoxid = 'trunk_selectcheckbox';
                     var tableid = 'table-trunk';
-                    $("#table-service").addClass('hidden');
+                    $("#table-service").addClass('hidden');$("#table-account").addClass('hidden');
                     $("#table-trunk").removeClass('hidden');
+                    
                     $("#table-trunk_wrapper").removeClass('hidden');
                     $("#table-service_wrapper").addClass('hidden');
+                    $("#table-account_wrapper").addClass('hidden');
                     aoColumns = [
                         {"bSortable": false, //RateID
                             mRender: function(id, type, full) {
-                                var account_trunk = full[0]+'_'+full[5];
+                                var account_trunk = full[0]+'_'+full[4];
                                 return '<div class="checkbox "><input type="checkbox" name="customer[]" value="' + account_trunk + '" class="rowcheckbox" ></div>';
                             }
                         },
@@ -192,28 +210,24 @@
                         {
                             mRender: function(id, type, full) {
                                 var action;
-                                var status = full[6] == 1 ? '<span class="btn btn-xs btn-success">Active</span>' : '<span class="btn btn-xs btn-danger">Inactive</span>';
-                                action = status;
-                                return action;
-                            }
-                        },
-                        {
-                            mRender: function(id, type, full) {
-                                var action;
-                                var account_trunk = full[0]+'_'+full[5];
-                                action = '<a title="Edit" data-id="'+  account_trunk +'" data-rateTableName="'+full[4]+'" data-TrunkID="'+full[5]+'"  class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
+                                var account_trunk = full[0]+'_'+full[4];
+                                action = '<a title="Edit" data-id="'+  account_trunk +'" data-RoutingProfileID="'+full[5]+'" data-rateTableName="'+full[4]+'" data-TrunkID="'+full[5]+'"  class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
                                 return action;
                             }
                         },
                     ]
-
-                }else{
-                    var checknoxid = 'service_selectcheckbox';
-                    var tableid = 'table-service';
-                    $("#table-service").removeClass('hidden');
+                }else if($searchFilter.level =='A'){
+                
+                    var checknoxid = 'account_selectcheckbox';
+                    var tableid = 'table-account';
+                    
+                    $("#table-account").removeClass('hidden');
+                    $("#table-service").addClass('hidden');
                     $("#table-trunk").addClass('hidden');
+                    
+                    $("#table-account_wrapper").removeClass('hidden');
                     $("#table-trunk_wrapper").addClass('hidden');
-                    $("#table-service_wrapper").removeClass('hidden');
+                    $("#table-service_wrapper").addClass('hidden');
 
                     aoColumns = [
                         {"bSortable": false,
@@ -224,20 +238,46 @@
                         },
                         {"bSortable": true},
                         {"bSortable": true},
+                        {
+                            mRender: function(id, type, full) {
+                                var action;
+                                var account_service = full[0]+'_'+full[5];
+                                action = '<a title="Edit" data-id="'+ account_service +'" data-RoutingProfileID="'+full[3]+'" data-OutboundRatetable="'+full[8]+'" data-inboundRatetable="'+full[7]+'" data-serviceId="'+full[5]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
+                                return action;
+                            }
+                        },
+                    ]
+                }else{
+                    var checknoxid = 'service_selectcheckbox';
+                    var tableid = 'table-service';
+                    $("#table-service").removeClass('hidden');
+                    $("#table-trunk").addClass('hidden');
+                    $("#table-account").addClass('hidden');
+                    
+                    $("#table-trunk_wrapper").addClass('hidden');$("#table-account_wrapper").addClass('hidden');
+                    $("#table-service_wrapper").removeClass('hidden');
+
+                    aoColumns = [
+                        {"bSortable": false,
+                            mRender: function(id, type, full) {
+                                var account_service = full[0]+'_'+full[4];
+                                return '<div class="checkbox "><input type="checkbox" name="customer[]" value="' + account_service + '" class="rowcheckbox" ></div>';
+                            }
+                        },
+                        {"bSortable": true},
                         {"bSortable": true},
                         {"bSortable": true},
                         {
                             mRender: function(id, type, full) {
                                 var action;
-                                var account_service = full[0]+'_'+full[5];
-                                action = '<a title="Edit" data-id="'+ account_service +'" data-OutboundRatetable="'+full[8]+'" data-inboundRatetable="'+full[7]+'" data-serviceId="'+full[5]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
+                                var account_service = full[0]+'_'+full[4];
+                                action = '<a title="Edit" data-id="'+ account_service +'" data-OutboundRatetable="'+full[8]+'" data-inboundRatetable="'+full[7]+'" data-serviceId="'+full[5]+'" data-RoutingProfileID="'+full[5]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
                                 return action;
                             }
                         },
                     ]
                 }
 
-                console.log('---pddd');
 
                 data_table = $("#"+tableid).dataTable({
                     "bDestroy": true,
@@ -277,18 +317,19 @@
                             {
                                 "sExtends": "download",
                                 "sButtonText": "EXCEL",
-                                "sUrl": baseurl + "/rate_tables/apply_rate_table/ajax_datagrid/xlsx",
+                                "sUrl": baseurl + "/assignrouting/exports/xlsx",
                                 sButtonClass: "save-collection btn-sm"
                             },
                             {
                                 "sExtends": "download",
                                 "sButtonText": "CSV",
-                                "sUrl": baseurl + "/rate_tables/apply_rate_table/ajax_datagrid/csv",
+                                "sUrl": baseurl + "/assignrouting/exports/csv",
                                 sButtonClass: "save-collection btn-sm"
                             }
                         ]
                     },
                     "fnDrawCallback": function() {
+                    console.log(tableid);
                         var table_select_all = tableid+'_selectall';
                         $('#'+tableid +' tbody tr').each(function (i, el) {
                             if (checked != '') {
@@ -307,14 +348,7 @@
                             }
                         });
 
-                       /*
-
-
-                        default_row_selected(tableid,'selectall','selectallbutton');
-                        select_all_top('selectallbutton',tableid,'selectall');
-                        selected_all('selectall_trunk',tableid);
-                        selected_all('selectall_service',tableid);
-                        table_row_select(tableid,'selectallbutton');*/
+                      
 
                         $('.selectallbutton').click(function (ev) {
                             if ($(this).is(':checked')) {
@@ -407,16 +441,31 @@
                 });
             });
 
-
+            // Select all by table-trunk
+            $("#table-account_selectall").click(function (ev) {
+                var is_checked = $(this).is(':checked');
+                $('#table-account tbody tr').each(function (i, el) {
+                    if (is_checked) {
+                        $(this).find('.rowcheckbox').prop("checked", true);
+                        $(this).addClass('selected');
+                    } else {
+                        $(this).find('.rowcheckbox').prop("checked", false);
+                        $(this).removeClass('selected');
+                    }
+                });
+            });
 
 
             $('table tbody').on('click','.edit-ratetable',function(ev){
-
+console.log($(this).attr('data-RoutingProfileID'));
                 $("#add-new-form").trigger("reset");
                 ev.preventDefault();
                 ev.stopPropagation();
                 $('#modal-add-new-rate-table').trigger("reset");
 
+                //Select the selected routing profile
+                $("#add-new-form [id='RoutingProfile']").select2().select2('val', $(this).attr('data-RoutingProfileID'));
+                //----------
                 /*$('#ServiceID').select2('disable');
                 $("#modal-add-new-rate-table [name='AccountServiceId']").val($(this).attr('data-serviceId'));*/
 
@@ -443,13 +492,16 @@
             });
 
             $("#add-new-rate-table").click(function(ev) {
-
+console.log('---ppppp');
                 ev.preventDefault();
 
                 $("#modal-add-new-rate-table [name='InboundRateTable']").select2('val', '');
                 $("#modal-add-new-rate-table [name='OutboundRateTable']").select2('val', '');
                 $("#modal-add-new-rate-table [name='ServiceID']").select2('val', '');
 
+                $("input[name='selected_trunk']").val($("#ratetable_filter [name='TrunkID']").val());
+                $("input[name='selected_service']").val($('#ratetable_filter [name="services"]').val());
+                
                 /*$('#ServiceID').select2('enable');
                 $("#modal-add-new-rate-table [name='AccountServiceId']").val('');*/
                 $('#modal-add-new-rate-table').modal('show', {backdrop: 'static'});
@@ -469,7 +521,7 @@
 
             $("#add-new-form").submit(function(ev){
                 ev.preventDefault();
-                update_new_url = baseurl + '/rate_tables/apply_rate_table/store';
+                update_new_url = baseurl + '/assignrouting/store';
                 submit_ajax(update_new_url,$("#add-new-form").serialize());
             });
 
@@ -477,10 +529,15 @@
 
 
                 var levellbl = $("#ratetable_filter select[name='level']").val();
-                var levelhidden =  levellbl=='T'?'S':'T';
-                $('.'+levellbl).removeClass('hidden');
-                $('.'+levelhidden).addClass('hidden');
-
+                if(levellbl=='A'){
+                    $('.'+levellbl).removeClass('hidden');
+                    $('.T').addClass('hidden');
+                    $('.S').addClass('hidden');
+                }else{
+                    var levelhidden =  levellbl=='T'?'S':'T';
+                    $('.'+levellbl).removeClass('hidden');
+                    $('.'+levelhidden).addClass('hidden');
+                }
                 if(  $('.table-trunk_selectall').prop("checked") == false || $('.table-service_selectall').prop("checked") == false );
                 {
                     $(".rowcheckbox").prop('checked', false);
@@ -488,56 +545,10 @@
 
             });
 
-            $(".currency").change(function(){
-                var currencyID = $(this).val();
-                if(currencyID > 0) {
-                    $("#Customerlist").select2("val", "");
-                    getRateTableAndAccountByCurrency(currencyID);
-                }
-            });
-            getRateTableAndAccountByCurrency('{{$CurrencyID}}');
+
 
         });
 
-        function getRateTableAndAccountByCurrency(currencyID){
-            $.ajax({
-                url: baseurl + "/rate_tables/apply_rate_table/ajax_getRateTableAndAccountByCurrency",
-                dataType: 'json',
-                type: 'post',
-                data: {id: currencyID},
-                success: function (response) {
-                    var ratetable = response.ratetablelist;
-                    var key = "";
-                    delete ratetable[key];
-                    $('#RateTableId').html();
-                    var $select = $('#RateTableId');
-                    var $RateTable_Id = $('#RateTable_Id');
-                    var $InboundRateTable = $('#InboundRateTable');
-                    var $OutboundRateTable = $('#OutboundRateTable');
-                    var select = '<option value="">Select</option>';
-                    $.each(ratetable, function (key, value) {
-                        select += '<option value=' + key + '>' + value + '</option>';
-                    });
-                    $select.html(select);
-                    $RateTable_Id.html(select);
-                    $InboundRateTable.html(select);
-                    $OutboundRateTable.html(select);
-
-
-                    /* Accountlist as per Currency selected */
-                    var accountlist = response.accountlist;
-                    delete accountlist[key];
-                    $('#RateTableId').html();
-                    var $select = $('#Customerlist');
-                    var select = '<option value="">Select</option>';
-                    $.each(accountlist, function (key, value) {
-                        select += '<option value=' + key + '>' + value + '</option>';
-                    });
-                    $select.html(select);
-
-                }
-            });
-        }
 
     </script>
 @stop
