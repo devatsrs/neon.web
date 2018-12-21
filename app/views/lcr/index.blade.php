@@ -366,9 +366,9 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
 
                                         if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '"  data-ratetablerateid="'+RateTableRateID+'"   id="'+Blocked+'" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
+                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-preference="'+Preference+'"   data-ratetablerateid="'+RateTableRateID+'"   id="'+Blocked+'" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
                                                     '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '"id="'+Blocked+'">' +
+                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="'+RowCode+'"  data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"' + '"id="'+Blocked+'">' +
                                                     '<i class="fa fa-pencil"></i></a>' + hr;
                                         }
                                     }
@@ -404,9 +404,9 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
 
                                         if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-ratetablerateid="'+RateTableRateID+'"    id="'+Blocked+'" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
+                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"    id="'+Blocked+'" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
                                                     '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '"id="'+Blocked+'">' +
+                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="'+RowCode+'"  data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"' + '"id="'+Blocked+'">' +
                                                     '<i class="fa fa-pencil"></i></a>' + hr;
                                         }
                                     }
@@ -441,9 +441,9 @@
                                         var len = array.length-1;
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
                                         if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-ratetablerateid="'+RateTableRateID+'"  id="'+Blocked+'" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
+                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"  id="'+Blocked+'" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
                                                     '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '"id="'+Blocked+'">' +
+                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="'+RowCode+'"  data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"' + '"id="'+Blocked+'">' +
                                                     '<i class="fa fa-pencil"></i></a>' + hr;
                                         }
                                     }
@@ -479,9 +479,9 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
 
                                         if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-ratetablerateid="'+RateTableRateID+'"  id="'+Blocked+'" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
+                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"  id="'+Blocked+'" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
                                                     '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '"id="'+Blocked+'">' +
+                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="'+RowCode+'"  data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"' + '"id="'+Blocked+'">' +
                                                     '<i class="fa fa-pencil"></i></a>' + hr;
                                         }
                                     }
@@ -538,9 +538,9 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
 
                                         if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-ratetablerateid="'+RateTableRateID+'"  id="'+Blocked+'" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
+                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"  id="'+Blocked+'" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
                                                     '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '"id="'+Blocked+'">' +
+                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="'+RowCode+'"  data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"' + '"id="'+Blocked+'">' +
                                                     '<i class="fa fa-pencil"></i></a>' + hr;
                                         }
                                     }
@@ -576,9 +576,9 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
 
                                         if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-ratetablerateid="'+RateTableRateID+'"  id="'+Blocked+'" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
+                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"  id="'+Blocked+'" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
                                                     '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '"id="'+Blocked+'">' +
+                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="'+RowCode+'"  data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"' + '"id="'+Blocked+'">' +
                                                     '<i class="fa fa-pencil"></i></a>' + hr;
                                         }
                                     }
@@ -614,9 +614,9 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
 
                                         if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-ratetablerateid="'+RateTableRateID+'"  id="'+Blocked+'" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
+                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"  id="'+Blocked+'" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
                                                     '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '"id="'+Blocked+'">' +
+                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="'+RowCode+'"  data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"' + '"id="'+Blocked+'">' +
                                                     '<i class="fa fa-pencil"></i></a>' + hr;
                                         }
                                     }
@@ -652,9 +652,9 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
 
                                         if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-ratetablerateid="'+RateTableRateID+'"  id="'+Blocked+'" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
+                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"  id="'+Blocked+'" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
                                                     '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '"id="'+Blocked+'">' +
+                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="'+RowCode+'"  data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"' + '"id="'+Blocked+'">' +
                                                     '<i class="fa fa-pencil"></i></a>' + hr;
                                         }
                                     }
@@ -690,9 +690,9 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
 
                                         if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-ratetablerateid="'+RateTableRateID+'"  id="'+Blocked+'" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
+                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"  id="'+Blocked+'" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
                                                     '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '"id="'+Blocked+'">' +
+                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="'+RowCode+'"  data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"' + '"id="'+Blocked+'">' +
                                                     '<i class="fa fa-pencil"></i></a>' + hr;
                                         }
                                     }
@@ -728,9 +728,9 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
 
                                         if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-ratetablerateid="'+RateTableRateID+'"  id="'+Blocked+'" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
+                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"  id="'+Blocked+'" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
                                                     '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '"id="'+Blocked+'">' +
+                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="'+RowCode+'"  data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"' + '"id="'+Blocked+'">' +
                                                     '<i class="fa fa-pencil"></i></a>' + hr;
                                         }
                                     }
@@ -766,9 +766,9 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
 
                                         if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-ratetablerateid="'+RateTableRateID+'"  id="'+Blocked+'" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
+                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"  id="'+Blocked+'" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
                                                     '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '"id="'+Blocked+'">' +
+                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="'+RowCode+'"  data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"' + '"id="'+Blocked+'">' +
                                                     '<i class="fa fa-pencil"></i></a>' + hr;
                                         }
                                     }
@@ -804,9 +804,9 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
 
                                         if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-ratetablerateid="'+RateTableRateID+'"  id="'+Blocked+'" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
+                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"  id="'+Blocked+'" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
                                                     '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '"id="'+Blocked+'">' +
+                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="'+RowCode+'"  data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"' + '"id="'+Blocked+'">' +
                                                     '<i class="fa fa-pencil"></i></a>' + hr;
                                         }
                                     }
@@ -842,9 +842,9 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
 
                                         if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-ratetablerateid="'+RateTableRateID+'"  id="'+Blocked+'" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
+                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"  id="'+Blocked+'" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
                                                     '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '"id="'+Blocked+'">' +
+                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="'+RowCode+'"  data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"' + '"id="'+Blocked+'">' +
                                                     '<i class="fa fa-pencil"></i></a>' + hr;
                                         }
                                     }
@@ -880,9 +880,9 @@
                                         var hr = len != i ? '<hr class="hrpadding">' : '';
 
                                         if(!merge_timezones) {
-                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-ratetablerateid="'+RateTableRateID+'"  id="'+Blocked+'" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
+                                            action += '<a style="margin-left:3px" href="javascript:;" title=' + blocktitle + ' data-id="' + accountId + '" data-rowcode="' + RowCode + '" data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"  id="'+Blocked+'" class="blockingbycode btn btn-' + blockclass + ' btn-xs pull-right">' +
                                                     '<i class="fa ' + blockfa + '"></i></a>' +
-                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="' + RowCode + '"id="'+Blocked+'">' +
+                                                    '<a class="openPopup btn btn-grey btn-xs pull-right" title="Edit Preference" data-toggle="modal" data-id="' + accountId + '" data-rowcode="'+RowCode+'"  data-preference="'+Preference+'"  data-ratetablerateid="'+RateTableRateID+'"' + '"id="'+Blocked+'">' +
                                                     '<i class="fa fa-pencil"></i></a>' + hr;
                                         }
                                     }
@@ -1075,27 +1075,30 @@
             }
 
             $('#table-4 tbody').on('click','.blockingbycode',function(){
-                var descriptioname = $(this).parent().siblings(":first").text();
-                Trunk = $("#lcr-search-form select[name='Trunk']").val();
-                Timezones = $("#lcr-search-form select[name='Timezones']").val();
-                CodeDeck = $("#lcr-search-form select[name='CodeDeckId']").val();
-                GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
+
                 var thisclass = $(this);
-                var thisid = thisclass.attr("id");
-                var thisaccid = thisclass.attr("data-id");
+
+                var descriptioname = $(this).parent().siblings(":first").text();
+                var Timezones = $("#lcr-search-form select[name='Timezones']").val();
+                var GroupBy = $("#lcr-search-form select[name='GroupBy']").val();
+                var Blocked = thisclass.attr("id");
                 var RateTableRateID = thisclass.attr("data-ratetablerateid");
-                var rowcode = thisclass.attr("data-rowcode");
-                var countryBlockingID = thisclass.attr("data-countryBlockingID");
-                if(typeof countryBlockingID  == 'undefined' || countryBlockingID == '' ) {
-                    var countryBlockingID = 'codewiseBlocking';
-                }
+
+                descriptioname = descriptioname.split("=>");
+                var OriginationDescription = $.trim(descriptioname[0]).replace("*", "");
+                var Description = $.trim(descriptioname[1]).replace("*", "");
+
                 $.ajax({
                     type: "POST",
                     url: baseurl + '/vendor_blocking_lrc/blockunblockcode',
                     dataType: 'json',
                     data: {
-                        Blocked: thisid,
+                        Blocked: Blocked,
                         RateTableRateID: RateTableRateID,
+                        Description: Description,
+                        OriginationDescription: OriginationDescription,
+                        GroupBy: GroupBy,
+                        Timezones: Timezones,
                     },
                     success: function(data){
                         ShowToastr("success",data.message);

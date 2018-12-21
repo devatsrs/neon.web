@@ -82,16 +82,28 @@ class VendorBlockingsController extends \BaseController {
     {
 
         $data = Input::all();
-
+        $Timezones =  $data['Timezones'];
+        $description = $data["Description"];
+        $OriginationDescription = $data["OriginationDescription"];
+        $RateTableRateID = $data["RateTableRateID"];
         $Blocked =  $data['Blocked']==0 ? 1 : 0;
 
         $username = User::get_user_full_name();
+        $CompanyID = User::get_companyID();
 
-        RateTableRate::where(["RateTableRateID"=>$data["RateTableRateID"]])->update(["Blocked"=>$Blocked,"ModifiedBy"=>$username]);
+        $query = "call prc_lcrBlockUnblock (".$CompanyID.",'".$data["GroupBy"]."',".$RateTableRateID.",".$Timezones.",'".$OriginationDescription."','".$description."',".$Blocked.",'".$username."')";
+        DB::select($query);
+        \Illuminate\Support\Facades\Log::info($query);
 
-        $message =  "Block Status Update Successfully";
+        $msgVendor = $Blocked = 1 ? 'Unblocked' : 'Blocked';
+        try{
+            $message =  "Vendor ".$msgVendor." Successfully";
+            return json_encode(["status" => "success", "message" => $message]);
+        }catch ( Exception $ex ){
+            $message =  "Oops Somethings Wrong !";
+            return json_encode(["status" => "fail", "message" => $message]);
+        }
 
-        return json_encode(["status" => "success", "message" => $message,"Blocked"=>$Blocked]);
 
 
     }
