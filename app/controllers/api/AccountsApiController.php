@@ -253,7 +253,7 @@ class AccountsApiController extends ApiController {
 				//$BillingClass = BillingClass::find($BillingSetting['billing_class']);
 				Log::info('createAccount done $BillingClass.' . $BillingClass->Name);
 
-				$dataAccountBilling['BillingClassID'] = $BillingSetting['billing_class'];
+				$dataAccountBilling['BillingClassID'] = $BillingClass->BillingClassID;
 				$dataAccountBilling['BillingTimezone'] = $BillingClass->BillingTimezone;
 				$dataAccountBilling['SendInvoiceSetting'] = empty($BillingClass->SendInvoiceSetting) ? 'after_admin_review' : $BillingClass->SendInvoiceSetting;
 				$dataAccountBilling['AutoPaymentSetting'] = empty($BillingClass->AutoPaymentSetting) ? 'never' : $BillingClass->AutoPaymentSetting;
