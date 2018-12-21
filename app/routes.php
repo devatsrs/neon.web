@@ -765,6 +765,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rate_upload/checkUpload', 'RateUploadController@checkUpload');
 	Route::any('/rate_upload/getTrunk/{type}', 'RateUploadController@getTrunk');
 	Route::any('/rate_upload/getUploadTemplates/{type}', 'RateUploadController@getUploadTemplates');
+	Route::any('/rate_upload/{id}/getRateTableDetails', 'RateUploadController@getRateTableDetails');
 	Route::any('/rate_upload/{id}/{type}', 'RateUploadController@index');
 	Route::resource('rate_upload', 'RateUploadController');
 	Route::controller('rate_upload', 'RateUploadController');
