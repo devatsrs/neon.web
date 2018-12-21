@@ -220,7 +220,7 @@ class AccountsApiController extends ApiController {
 				$data['password'] = Crypt::encrypt($data['CustomerPanelPassword']);
 			}
 			Log::info('createAccount1 $data[\'LanguageID\'].' . $data['LanguageID']);
-			//
+			//$account = Account::create($data)
 			if ($account = Account::create($data)) {
 
 
@@ -264,7 +264,7 @@ class AccountsApiController extends ApiController {
 				// set as first invoice generate
 				$BillingCycleType = $BillingSetting['billing_cycle'];
 				$BillingCycleValue = $BillingSetting['billing_cycle_options'];
-				if (isset($BillingSetting['billing_start_date'])) {
+				if (isset($BillingSetting['billing_start_date']) && $BillingSetting['billing_start_date'] != '') {
 					$BillingStartDate = $BillingSetting['billing_start_date'];
 				}else {
 					$BillingStartDate = date('Y-m-d');
@@ -272,7 +272,7 @@ class AccountsApiController extends ApiController {
 
 				/**
 				 *  if not first invoice generation*/
-				Log::info($BillingCycleType.' '.$BillingCycleValue.' '.$BillingStartDate);
+				Log::info('Billing Date ' .$BillingCycleType.' '.$BillingCycleValue.' '.$BillingStartDate);
 				$NextBillingDate = next_billing_date($BillingCycleType, $BillingCycleValue, strtotime($BillingStartDate));
 				$NextChargedDate = date('Y-m-d', strtotime('-1 day', strtotime($NextBillingDate)));
 
