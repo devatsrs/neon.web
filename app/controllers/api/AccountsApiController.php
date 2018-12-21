@@ -170,6 +170,8 @@ class AccountsApiController extends ApiController {
 			$BillingSetting['billing_cycle']= $accountData['BillingCycleType'];
 			$BillingSetting['billing_cycle_options']= $accountData['BillingCycleValue'];
 			$BillingSetting['billing_start_date']= $accountData['BillingStartDate'];
+			$BillingSetting['NextInvoiceDate']= $accountData['NextInvoiceDate'];
+
 
 			$validator = Validator::make($BillingSetting, AccountBilling::$rulesAPI);
 
@@ -270,6 +272,8 @@ class AccountsApiController extends ApiController {
 					$BillingStartDate = date('Y-m-d');
 				}
 
+
+
 				/**
 				 *  if not first invoice generation*/
 				Log::info('Billing Date ' .$BillingCycleType.' '.$BillingCycleValue.' '.$BillingStartDate);
@@ -279,6 +283,10 @@ class AccountsApiController extends ApiController {
 				$dataAccountBilling['BillingStartDate'] = $BillingStartDate;
 				$dataAccountBilling['LastInvoiceDate'] = $BillingStartDate;
 				$dataAccountBilling['LastChargeDate'] = $BillingStartDate;
+				if (isset($BillingSetting['NextInvoiceDate']) && $BillingSetting['NextInvoiceDate'] != '') {
+					$NextBillingDate = $BillingSetting['NextInvoiceDate'];
+				}
+
 				$dataAccountBilling['NextInvoiceDate'] = $NextBillingDate;
 				$dataAccountBilling['NextChargeDate'] = $NextChargedDate;
 				/**
