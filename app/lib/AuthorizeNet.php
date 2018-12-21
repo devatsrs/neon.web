@@ -592,4 +592,26 @@ class AuthorizeNet {
         return $Response;
     }
 
+    public function paymentWithApiProfile($data){
+        $data['InvoiceNumber']=0;
+        $data['CreatedBy']="API";
+        $response['Response']=$this->paymentWithProfile($data);
+        return $response;
+
+    }
+
+    public function paymentValidateWithProfile($data){
+        $Response = array();
+        $Response['status']='success';
+        $account = Account::find($data['AccountID']);
+        $CurrencyCode = Currency::getCurrency($account->CurrencyId);
+        if(empty($CurrencyCode)){
+            $Response['status']='failed';
+            $Response['message']=cus_lang("PAYMENT_MSG_NO_ACCOUNT_CURRENCY_AVAILABLE");
+        }
+        return $Response;
+    }
+
+
+
 }

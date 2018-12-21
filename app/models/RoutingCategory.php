@@ -11,18 +11,17 @@ class RoutingCategory extends \Eloquent {
     public static $rules = array(
         'Name'=>'required',
     );
+
     static public function checkForeignKeyById($id) {
         /*
          * Tables To Check Foreign Key before Delete.
          * */
-
         $hasInAccount = RoutingProfileCategory::where("RoutingCategoryID",$id)->count();
         if( intval($hasInAccount) > 0 ){
             return true;
         }else{
             return false;
         }
-
     }
 	
     static public function checkCategoryName($Name) {
@@ -35,8 +34,8 @@ class RoutingCategory extends \Eloquent {
         }else{
             return true;
         }
-
     }
+
     static public function checkCategoryNameAndID($Name,$id) {
         /*
          * Tables To Check Foreign Key before Delete.
@@ -47,11 +46,16 @@ class RoutingCategory extends \Eloquent {
         }else{
             return true;
         }
-
     }
-    
-    public static function getCategoryDropdownIDList($CompanyID){
-        $result = self::where(["CompanyID"=>$CompanyID])->select(array('Name', 'RoutingCategoryID'))->orderBy('Name')->lists('Name', 'RoutingCategoryID');
+
+    public static function getCategoryDropdownIDList($CompanyID=0,$reverse=0){
+        $CompanyID = $CompanyID > 0 ? $CompanyID : User::get_companyID();
+        $result = self::where(["CompanyID"=>$CompanyID])->select(array('Name', 'RoutingCategoryID'))->orderBy('Name');
+        if($reverse == 1) {
+            $result = $result->lists('RoutingCategoryID', 'Name');
+        } else {
+            $result = $result->lists('Name', 'RoutingCategoryID');
+        }
         $row = array(""=> "Select");
         if(!empty($result)){
             $row = array(""=> "Select")+$result;
