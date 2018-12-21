@@ -136,10 +136,6 @@ class PaymentApiController extends ApiController {
 			return json_validator_response($validator);
 		}
 
-		$InvoiceGeneration=self::GenerateInvoice($AccountID,$data['Amount']);
-		print_r($InvoiceGeneration);
-		exit;
-
 		$Account=Account::where('AccountID',$AccountID)->first();
 		if(!empty($Account)){
 			$PaymentData=array();
@@ -163,12 +159,15 @@ class PaymentApiController extends ApiController {
 						//Payment Success
 
 						self::PaymentLog($Account,$PaymentResponse,$data);
+						$InvoiceGenerate=self::GenerateInvoice($PaymentData['AccountID'],$PaymentData['outstanginamount']);
 
+						return Response::json(["status"=>"failed","PaymentResponse"=>$PaymentResponse['Response'],"InvoiceResponse"=>$InvoiceGenerate]);
 
+					}else{
+						//Failed Payment
+						return Response::json(["status"=>"failed", "Messsage"=>"Payment Failed.","PaymentResponse"=>$PaymentResponse]);
 					}
-
-					//if($PaymentResponse['Response'])
-
+					
 				}else{
 					$errors[] = 'Payment Profile Not set:' . $Account->AccountName;
 				}
@@ -374,7 +373,7 @@ class PaymentApiController extends ApiController {
 
 					DB::connection('sqlsrv2')->commit();
 					$SuccessMsg="Invoice Successfully Created.";
-					$reseponse = array("status" => "success", "message" => $SuccessMsg,'LastID'=>$Invoice->InvoiceID);
+					$reseponse = array("status" => "success", "message" => $SuccessMsg,'LastInvoiceID'=>$Invoice->InvoiceID);
 					return $reseponse;
 				}else{
 					$error['message']="Empty InvoiceID Found.";
