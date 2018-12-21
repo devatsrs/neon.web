@@ -593,43 +593,9 @@ class AuthorizeNet {
     }
 
     public function paymentWithApiProfile($data){
-
-        $account = Account::find($data['AccountID']);
-        $AccountPaymentProfileID = $data['AccountPaymentProfileID'];
-        $CustomerProfile = AccountPaymentProfile::find($AccountPaymentProfileID);
-        $StripeObj = json_decode($CustomerProfile->Options);
-
-        $transaction = $this->addAuthorizeNetTransactionApi($data['outstanginamount'],$StripeObj);
-        $Notes = '';
-        if($transaction->response_code == 1) {
-            $Notes = 'AuthorizeNet transaction_id ' . $transaction->transaction_id;
-            $Status = TransactionLog::SUCCESS;
-        }else{
-            $Status = TransactionLog::FAILED;
-            $Notes = isset($transaction->real_response->xml->messages->message->text) && $transaction->real_response->xml->messages->message->text != '' ? $transaction->real_response->xml->messages->message->text : $transaction->error_message ;
-            AccountPaymentProfile::setProfileBlock($AccountPaymentProfileID);
-        }
-        $transactionResponse['transaction_notes'] =$Notes;
-        $transactionResponse['response_code'] = $transaction->response_code;
-        $transactionResponse['PaymentMethod'] = 'CREDIT CARD';
-        $transactionResponse['failed_reason'] =$transaction->response_reason_text!='' ? $transaction->response_reason_text : $Notes;
-        $transactionResponse['transaction_id'] = $transaction->transaction_id;
-        $transactionResponse['Response'] = $transaction;
-
-        $transactiondata = array();
-        $transactiondata['CompanyID'] = $account->CompanyId;
-        $transactiondata['AccountID'] = $account->AccountID;
-        $transactiondata['Transaction'] = $transaction->transaction_id;
-        $transactiondata['Notes'] = $Notes;
-        $transactiondata['Amount'] = floatval($transaction->amount);
-        $transactiondata['Status'] = $Status;
-        $transactiondata['created_at'] = date('Y-m-d H:i:s');
-        $transactiondata['updated_at'] = date('Y-m-d H:i:s');
-        $transactiondata['CreatedBy'] = "API";
-        $transactiondata['ModifyBy'] = "API";
-        $transactiondata['Response'] = json_encode($transaction);
-        TransactionLog::insert($transactiondata);
-        return $transactionResponse;
+        $data['InvoiceNumber']=0;
+        $data['CreatedBy']="API";
+        return $this->paymentWithProfile($data);
 
     }
 
@@ -645,20 +611,6 @@ class AuthorizeNet {
         return $Response;
     }
 
-    public function addAuthorizeNetTransactionApi($amount, $options)
-    {
-        $transaction = new \AuthorizeNetTransaction();
-        $request = new \AuthorizeNetCIM();
-        $transaction->amount = $amount;
-        $transaction->customerProfileId = $options->ProfileID;
 
-        $transaction->customerPaymentProfileId = $options->PaymentProfileID;
-
-        $response = $request->createCustomerProfileTransaction("AuthCapture", $transaction);
-        $transactionResponse = $response->getTransactionResponse();
-        $transactionResponse->real_response = $response;
-
-        return $transactionResponse;
-    }
 
 }
