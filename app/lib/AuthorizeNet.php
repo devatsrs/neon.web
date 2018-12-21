@@ -592,4 +592,57 @@ class AuthorizeNet {
         return $Response;
     }
 
+    public function paymentWithApiProfile($data){
+
+        $account = Account::find($data['AccountID']);
+        $AccountPaymentProfileID = $data['AccountPaymentProfileID'];
+        $CustomerProfile = AccountPaymentProfile::find($AccountPaymentProfileID);
+        $StripeObj = json_decode($CustomerProfile->Options);
+
+        $transaction = $this->addAuthorizeNetTransaction($data['outstanginamount'],$StripeObj);
+        $Notes = '';
+        if($transaction->response_code == 1) {
+            $Notes = 'AuthorizeNet transaction_id ' . $transaction->transaction_id;
+            $Status = TransactionLog::SUCCESS;
+        }else{
+            $Status = TransactionLog::FAILED;
+            $Notes = isset($transaction->real_response->xml->messages->message->text) && $transaction->real_response->xml->messages->message->text != '' ? $transaction->real_response->xml->messages->message->text : $transaction->error_message ;
+            AccountPaymentProfile::setProfileBlock($AccountPaymentProfileID);
+        }
+        $transactionResponse['transaction_notes'] =$Notes;
+        $transactionResponse['response_code'] = $transaction->response_code;
+        $transactionResponse['PaymentMethod'] = 'CREDIT CARD';
+        $transactionResponse['failed_reason'] =$transaction->response_reason_text!='' ? $transaction->response_reason_text : $Notes;
+        $transactionResponse['transaction_id'] = $transaction->transaction_id;
+        $transactionResponse['Response'] = $transaction;
+
+        $transactiondata = array();
+        $transactiondata['CompanyID'] = $account->CompanyId;
+        $transactiondata['AccountID'] = $account->AccountID;
+        $transactiondata['Transaction'] = $transaction->transaction_id;
+        $transactiondata['Notes'] = $Notes;
+        $transactiondata['Amount'] = floatval($transaction->amount);
+        $transactiondata['Status'] = $Status;
+        $transactiondata['created_at'] = date('Y-m-d H:i:s');
+        $transactiondata['updated_at'] = date('Y-m-d H:i:s');
+        $transactiondata['CreatedBy'] = "API";
+        $transactiondata['ModifyBy'] = "API";
+        $transactiondata['Response'] = json_encode($transaction);
+        TransactionLog::insert($transactiondata);
+        return $transactionResponse;
+
+    }
+
+    public function paymentValidateWithProfile($data){
+        $Response = array();
+        $Response['status']='success';
+        $account = Account::find($data['AccountID']);
+        $CurrencyCode = Currency::getCurrency($account->CurrencyId);
+        if(empty($CurrencyCode)){
+            $Response['status']='failed';
+            $Response['message']=cus_lang("PAYMENT_MSG_NO_ACCOUNT_CURRENCY_AVAILABLE");
+        }
+        return $Response;
+    }
+
 }

@@ -171,11 +171,12 @@ class PaymentApiController extends ApiController {
 
 					if(!empty($PaymentResponse['Response']['response_code']) && $PaymentResponse['Response']['response_code']==1){
 						//Payment Success
-
+						Log::info("==== Payment success Log ====");
+						Log::info(print_r($PaymentResponse,true));
 						self::PaymentLog($Account,$PaymentResponse,$data);
 						$InvoiceGenerate=self::GenerateInvoice($PaymentData['AccountID'],$PaymentData['outstanginamount'],$BillingClassID);
 
-						return Response::json(["status"=>"success","PaymentResponse"=>$PaymentResponse['Response'],"InvoiceResponse"=>$InvoiceGenerate]);
+						return Response::json(["status"=>"success","PaymentResponse"=>$PaymentResponse,"InvoiceResponse"=>$InvoiceGenerate]);
 
 					}else{
 						//Failed Payment
@@ -203,12 +204,12 @@ class PaymentApiController extends ApiController {
 	}
 
 	public static function PaymentLog($Account,$PaymentResponse,$data){
-		if(!empty($PaymentData)){
+		if(!empty($PaymentResponse)){
 			$PaymentInsertData=array();
-			$PaymentInsertData['CompanyID'] = $Account->CompanyID;
+			$PaymentInsertData['CompanyID'] = $Account->CompanyId;
 			$PaymentInsertData['AccountID'] = $Account->AccountID;
 			$PaymentInsertData['PaymentDate'] = date('Y-m-d');
-			$PaymentInsertData['PaymentMethod'] = $PaymentResponse['transaction_payment_method'];
+			$PaymentInsertData['PaymentMethod'] = $PaymentResponse['PaymentMethod'];
 			$PaymentInsertData['CurrencyID'] = $Account->CurrencyId;
 			$PaymentInsertData['PaymentType'] = 'Payment In';
 			$PaymentInsertData['Notes'] = $PaymentResponse['transaction_notes'];
@@ -218,7 +219,7 @@ class PaymentApiController extends ApiController {
 			$PaymentInsertData['updated_at'] = date('Y-m-d H:i:s');
 			$PaymentInsertData['CreatedBy'] = 'API';
 			$PaymentInsertData['ModifyBy'] = 'API';
-			Payment::insert($PaymentData);
+			Payment::insert($PaymentInsertData);
 		}
 	}
 
