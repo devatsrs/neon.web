@@ -180,4 +180,15 @@ class PaymentIntegration {
 		$transactionResponse =  $this->request->paymentWithApiCreditCard($data);
 		return $transactionResponse;
 	}
+
+	public function paymentWithApiProfile($data){
+		$response = $this->paymentValidateWithProfile($data);
+		if($response['status']=='failed'){
+			return $response;
+		}
+		$transactionResponse = $this->request->paymentWithApiProfile($data);
+
+		return $transactionResponse;
+	}
+
 }
