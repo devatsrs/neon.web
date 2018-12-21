@@ -599,7 +599,7 @@ class AuthorizeNet {
         $CustomerProfile = AccountPaymentProfile::find($AccountPaymentProfileID);
         $StripeObj = json_decode($CustomerProfile->Options);
 
-        $transaction = $this->addAuthorizeNetTransaction($data['outstanginamount'],$StripeObj);
+        $transaction = $this->addAuthorizeNetTransactionApi($data['outstanginamount'],$StripeObj);
         $Notes = '';
         if($transaction->response_code == 1) {
             $Notes = 'AuthorizeNet transaction_id ' . $transaction->transaction_id;
@@ -643,6 +643,22 @@ class AuthorizeNet {
             $Response['message']=cus_lang("PAYMENT_MSG_NO_ACCOUNT_CURRENCY_AVAILABLE");
         }
         return $Response;
+    }
+
+    public function addAuthorizeNetTransactionApi($amount, $options)
+    {
+        $transaction = new \AuthorizeNetTransaction();
+        $request = new \AuthorizeNetCIM();
+        $transaction->amount = $amount;
+        $transaction->customerProfileId = $options->ProfileID;
+
+        $transaction->customerPaymentProfileId = $options->PaymentProfileID;
+
+        $response = $request->createCustomerProfileTransaction("AuthCapture", $transaction);
+        $transactionResponse = $response->getTransactionResponse();
+        $transactionResponse->real_response = $response;
+
+        return $transactionResponse;
     }
 
 }
