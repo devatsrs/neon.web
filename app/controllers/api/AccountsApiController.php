@@ -181,33 +181,45 @@ class AccountsApiController extends ApiController {
 			$BillingSetting['billing_cycle_options']= $accountData['BillingCycleValue'];
 			$BillingSetting['billing_start_date']= $accountData['BillingStartDate'];
 			$BillingSetting['NextInvoiceDate']= $accountData['NextInvoiceDate'];
+
+			if (!empty($BillingSetting['billing_type']) ||
+				!empty($BillingSetting['billing_class']) ||
+				!empty($BillingSetting['billing_cycle']) ||!empty($BillingSetting['NextInvoiceDate']) ||
+				!empty($BillingSetting['billing_start_date'])
+			) {
+				$data['Billing'] = 1;
+			}
+
+			Log::info('$data[\'Billing\'].' . $data['Billing']);
 			//Log::info('strtotime($BillingSetting[\'billing_start_date\']).' . strtotime($BillingSetting['billing_start_date']));
 			//Log::info('strtotime($BillingSetting[\'NextInvoiceDate\']).' . strtotime($BillingSetting['NextInvoiceDate']));
-			if (isset($BillingSetting['NextInvoiceDate']) && $BillingSetting['NextInvoiceDate'] != '' &&
-				isset($BillingSetting['billing_start_date']) && $BillingSetting['billing_start_date'] != '' && strtotime($BillingSetting['NextInvoiceDate']) < strtotime($BillingSetting['billing_start_date'])) {
-				return Response::json(["status" => "failed", "message" => "NextInvoiceDate Should be greater than BillingStartDate"]);
-			}
-
-
-			$validator = Validator::make($BillingSetting, AccountBilling::$rulesAPI);
-
-
-			if ($validator->fails()) {
-				$errors = "";
-				foreach ($validator->messages()->all() as $error) {
-					$errors .= $error . "<br>";
+			if ($data['Billing'] == 1) {
+				if (isset($BillingSetting['NextInvoiceDate']) && $BillingSetting['NextInvoiceDate'] != '' &&
+					isset($BillingSetting['billing_start_date']) && $BillingSetting['billing_start_date'] != '' && strtotime($BillingSetting['NextInvoiceDate']) < strtotime($BillingSetting['billing_start_date'])
+				) {
+					return Response::json(["status" => "failed", "message" => "NextInvoiceDate Should be greater than BillingStartDate"]);
 				}
-				return Response::json(["status" => "failed", "message" => $errors]);
-			}
 
-			if ($BillingSetting['billing_type'] == "Prepaid") {
-				$BillingSetting['billing_type'] = "1";
-			} else if ($BillingSetting['billing_type'] == "Postpaid") {
-				$BillingSetting['billing_type'] = "2";
-			}else {
-				return Response::json(["status" => "failed", "message" => "Please select the valid billing type"]);
-			}
 
+				$validator = Validator::make($BillingSetting, AccountBilling::$rulesAPI);
+
+
+				if ($validator->fails()) {
+					$errors = "";
+					foreach ($validator->messages()->all() as $error) {
+						$errors .= $error . "<br>";
+					}
+					return Response::json(["status" => "failed", "message" => $errors]);
+				}
+
+				if ($BillingSetting['billing_type'] == "Prepaid") {
+					$BillingSetting['billing_type'] = "1";
+				} else if ($BillingSetting['billing_type'] == "Postpaid") {
+					$BillingSetting['billing_type'] = "2";
+				} else {
+					return Response::json(["status" => "failed", "message" => "Please select the valid billing type"]);
+				}
+			}
 			$CurrenctCodeSql = Currency::where('Code',$data['CurrencyId']);
 			Log::info('createAccount $CurrenctCodeSql.' . $CurrenctCodeSql->toSql());
 			$CurrenctCodeResult = $CurrenctCodeSql->first();
@@ -256,70 +268,70 @@ class AccountsApiController extends ApiController {
 
 				Log::info('createAccount done $data[\'LanguageID\'].' . $data['LanguageID']);
 
+				if ($data['Billing'] == 1) {
+
+					$dataAccountBilling['BillingType'] = $BillingSetting['billing_type'];
+					//get from billing class id
+
+					Log::info('createAccount $BillingSetting[\'billing_class\'].' . $BillingSetting['billing_class']);
+					$BillingClassSql = BillingClass::where('Name', $BillingSetting['billing_class']);
+					Log::info('createAccount $LanguageCodeSql.' . $BillingClassSql->toSql());
+					$BillingClass = $BillingClassSql->first();
+					if (!isset($BillingClass)) {
+						return Response::json(["status" => "failed", "message" => "Please select the valid billing class"]);
+					}
+					//$BillingClass = BillingClass::find($BillingSetting['billing_class']);
+					Log::info('createAccount done $BillingClass.' . $BillingClass->Name);
+
+					$dataAccountBilling['BillingClassID'] = $BillingClass->BillingClassID;
+					$dataAccountBilling['BillingTimezone'] = $BillingClass->BillingTimezone;
+					$dataAccountBilling['SendInvoiceSetting'] = empty($BillingClass->SendInvoiceSetting) ? 'after_admin_review' : $BillingClass->SendInvoiceSetting;
+					$dataAccountBilling['AutoPaymentSetting'] = empty($BillingClass->AutoPaymentSetting) ? 'never' : $BillingClass->AutoPaymentSetting;
+					$dataAccountBilling['AutoPayMethod'] = empty($BillingClass->AutoPayMethod) ? 0 : $BillingClass->AutoPayMethod;
+					//get from billing class id over
+					$dataAccountBilling['BillingCycleType'] = $BillingSetting['billing_cycle'];
+					$dataAccountBilling['BillingCycleValue'] = empty($BillingSetting['billing_cycle_options']) ? '' : $BillingSetting['billing_cycle_options'];
+					// set as first invoice generate
+					$BillingCycleType = $BillingSetting['billing_cycle'];
+					$BillingCycleValue = $BillingSetting['billing_cycle_options'];
+					if (isset($BillingSetting['billing_start_date']) && $BillingSetting['billing_start_date'] != '') {
+						$BillingStartDate = $BillingSetting['billing_start_date'];
+					} else {
+						$BillingStartDate = date('Y-m-d');
+					}
 
 
-				$dataAccountBilling['BillingType'] = $BillingSetting['billing_type'];
-				//get from billing class id
+					///**
+					//*  if not first invoice generation
+					Log::info('Billing Date ' . $BillingCycleType . ' ' . $BillingCycleValue . ' ' . $BillingStartDate);
+					$NextBillingDate = next_billing_date($BillingCycleType, $BillingCycleValue, strtotime($BillingStartDate));
+					$NextChargedDate = date('Y-m-d', strtotime('-1 day', strtotime($NextBillingDate)));
 
-				Log::info('createAccount $BillingSetting[\'billing_class\'].' . $BillingSetting['billing_class']);
-				$BillingClassSql = BillingClass::where('Name',$BillingSetting['billing_class']);
-				Log::info('createAccount $LanguageCodeSql.' . $BillingClassSql->toSql());
-				$BillingClass = $BillingClassSql->first();
-				if (!isset($BillingClass)) {
-					return Response::json(["status"=>"failed", "message"=>"Please select the valid billing class"]);
+					$dataAccountBilling['BillingStartDate'] = $BillingStartDate;
+					$dataAccountBilling['LastInvoiceDate'] = $BillingStartDate;
+					$dataAccountBilling['LastChargeDate'] = $BillingStartDate;
+					if (isset($BillingSetting['NextInvoiceDate']) && $BillingSetting['NextInvoiceDate'] != '') {
+						$NextBillingDate = $BillingSetting['NextInvoiceDate'];
+					}
+
+					$dataAccountBilling['NextInvoiceDate'] = $NextBillingDate;
+					$dataAccountBilling['NextChargeDate'] = $NextChargedDate;
+
+					//if not first invoice generation
+
+					//$dataAccountBilling['BillingStartDate'] = $BillingStartDate;
+					//$dataAccountBilling['LastInvoiceDate']  = $BillingStartDate;
+					//$dataAccountBilling['LastChargeDate']   = $BillingStartDate;
+					//$dataAccountBilling['NextInvoiceDate']  = $BillingStartDate;
+					//$dataAccountBilling['NextChargeDate']   = $BillingStartDate;
+					//
+					Log::info(print_r($dataAccountBilling, true));
+
+					AccountBilling::insertUpdateBilling($account->AccountID, $dataAccountBilling, 0);
+					AccountBilling::storeFirstTimeInvoicePeriod($account->AccountID, 0);
+
 				}
-				//$BillingClass = BillingClass::find($BillingSetting['billing_class']);
-				Log::info('createAccount done $BillingClass.' . $BillingClass->Name);
-
-				$dataAccountBilling['BillingClassID'] = $BillingClass->BillingClassID;
-				$dataAccountBilling['BillingTimezone'] = $BillingClass->BillingTimezone;
-				$dataAccountBilling['SendInvoiceSetting'] = empty($BillingClass->SendInvoiceSetting) ? 'after_admin_review' : $BillingClass->SendInvoiceSetting;
-				$dataAccountBilling['AutoPaymentSetting'] = empty($BillingClass->AutoPaymentSetting) ? 'never' : $BillingClass->AutoPaymentSetting;
-				$dataAccountBilling['AutoPayMethod'] = empty($BillingClass->AutoPayMethod) ? 0 : $BillingClass->AutoPayMethod;
-				//get from billing class id over
-				$dataAccountBilling['BillingCycleType'] = $BillingSetting['billing_cycle'];
-				$dataAccountBilling['BillingCycleValue'] = empty($BillingSetting['billing_cycle_options']) ? '' : $BillingSetting['billing_cycle_options'];
-				// set as first invoice generate
-				$BillingCycleType = $BillingSetting['billing_cycle'];
-				$BillingCycleValue = $BillingSetting['billing_cycle_options'];
-				if (isset($BillingSetting['billing_start_date']) && $BillingSetting['billing_start_date'] != '') {
-					$BillingStartDate = $BillingSetting['billing_start_date'];
-				}else {
-					$BillingStartDate = date('Y-m-d');
-				}
-
-
-
-				///**
-				 //*  if not first invoice generation
-				Log::info('Billing Date ' .$BillingCycleType.' '.$BillingCycleValue.' '.$BillingStartDate);
-				$NextBillingDate = next_billing_date($BillingCycleType, $BillingCycleValue, strtotime($BillingStartDate));
-				$NextChargedDate = date('Y-m-d', strtotime('-1 day', strtotime($NextBillingDate)));
-
-				$dataAccountBilling['BillingStartDate'] = $BillingStartDate;
-				$dataAccountBilling['LastInvoiceDate'] = $BillingStartDate;
-				$dataAccountBilling['LastChargeDate'] = $BillingStartDate;
-				if (isset($BillingSetting['NextInvoiceDate']) && $BillingSetting['NextInvoiceDate'] != '') {
-					$NextBillingDate = $BillingSetting['NextInvoiceDate'];
-				}
-
-				$dataAccountBilling['NextInvoiceDate'] = $NextBillingDate;
-				$dataAccountBilling['NextChargeDate'] = $NextChargedDate;
-
-				 //if not first invoice generation
-
-				//$dataAccountBilling['BillingStartDate'] = $BillingStartDate;
-				//$dataAccountBilling['LastInvoiceDate']  = $BillingStartDate;
-				//$dataAccountBilling['LastChargeDate']   = $BillingStartDate;
-				//$dataAccountBilling['NextInvoiceDate']  = $BillingStartDate;
-				//$dataAccountBilling['NextChargeDate']   = $BillingStartDate;
-				 //
-				Log::info(print_r($dataAccountBilling,true));
-
-				AccountBilling::insertUpdateBilling($account->AccountID, $dataAccountBilling,0);
-				AccountBilling::storeFirstTimeInvoicePeriod($account->AccountID, 0);
 				CompanySetting::setKeyVal('LastAccountNo', $account->Number);
-
 				return Response::json(array("status" => "success", "message" => "Account Successfully Created", 'Account ID' => $account->AccountID, 'redirect' => URL::to('/accounts/' . $account->AccountID . '/edit')));
 			} else {
 				return Response::json(array("status" => "failed", "message" => "Problem Creating Account."));
