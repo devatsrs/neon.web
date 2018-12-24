@@ -173,15 +173,11 @@ class PaymentApiController extends ApiController {
 						//Payment Success
 						Log::info("==== Payment success Log ====");
 						Log::info(print_r($PaymentResponse,true));
-						$InsertPaymentData=array();
-						if($PaymentMethod=='AuthorizeNet'){
-							$InsertPayment=array();
-							$InsertPayment['PaymentMethod']=$PaymentResponse['Response']['PaymentMethod'];
-							$InsertPayment['transaction_notes']=$PaymentResponse['Response']['transaction_notes'];
-							self::PaymentLog($Account,$InsertPayment,$data);
-						}else{
-							self::PaymentLog($Account,$PaymentResponse,$data);
-						}
+
+						$InsertPayment=array();
+						$InsertPayment['PaymentMethod']=$PaymentResponse['PaymentMethod'];
+						$InsertPayment['transaction_notes']=$PaymentResponse['transaction_notes'];
+						self::PaymentLog($Account,$InsertPayment,$data);
 
 						$InvoiceGenerate=self::GenerateInvoice($PaymentData['AccountID'],$PaymentData['outstanginamount'],$BillingClassID);
 
