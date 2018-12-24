@@ -111,8 +111,9 @@ class BillingClassApiController extends ApiController {
 		$BillingClassID=AccountBilling::getBillingClassID($AccountID);
 		if($BillingClassID > 0){
 			$BillingClass=BillingClass::find($BillingClassID);
+
 			//$BillingClass=AccountBilling::join('tblBillingClass','tblAccountBilling.BillingClassID','=','tblBillingClass.BillingClassID')->where(['tblAccountBilling.AccountID'=>$AccountID])->select('tblBillingClass.*')->first();
-			return Response::json(["status"=>"success", "data"=>json_decode($BillingClass->LowBalanceReminderSettings,true)]);
+			return Response::json(["status"=>"success", "data"=>json_decode(json_encode($BillingClass->LowBalanceReminderSettings),true)]);
 
 		}else{
 			return Response::json(["status"=>"failed", "data"=>"BillingClass Not Found"]);
