@@ -43,21 +43,25 @@ class BillingClassApiController extends ApiController {
 		try {
 			if (!empty($data['BillingClassID'])) {
 				//Update
-				$BillingClass = BillingClass::findOrFail($data['BillingClassID']);
+				$BillingClass = BillingClass::find($data['BillingClassID']);
 
-				$LowBalanceReminderSettings = json_decode($BillingClass->LowBalanceReminderSettings);
-				if (isset($LowBalanceReminderSettings->LastRunTime)) {
-					$PostData['LowBalanceReminderSettings']['LastRunTime'] = $LowBalanceReminderSettings->LastRunTime;
+				if(!empty($BillingClass)){
+					$LowBalanceReminderSettings = json_decode($BillingClass->LowBalanceReminderSettings);
+					if (isset($LowBalanceReminderSettings->LastRunTime)) {
+						$PostData['LowBalanceReminderSettings']['LastRunTime'] = $LowBalanceReminderSettings->LastRunTime;
+					}
+					if (isset($LowBalanceReminderSettings->NextRunTime)) {
+						$PostData['LowBalanceReminderSettings']['NextRunTime'] = $LowBalanceReminderSettings->NextRunTime;
+					}
+
+					$PostData['LowBalanceReminderSettings'] = json_encode($PostData['LowBalanceReminderSettings']);
+					$PostData['UpdatedBy'] = 'API';
+
+					$BillingClass->update($PostData);
+					return Response::json(["status"=>"success", "Message"=>"Updated Successfully."]);
+				}else{
+					return Response::json(["status"=>"failed", "Message"=>"Billing Class Not Found."]);
 				}
-				if (isset($LowBalanceReminderSettings->NextRunTime)) {
-					$PostData['LowBalanceReminderSettings']['NextRunTime'] = $LowBalanceReminderSettings->NextRunTime;
-				}
-
-				$PostData['LowBalanceReminderSettings'] = json_encode($PostData['LowBalanceReminderSettings']);
-				$PostData['UpdatedBy'] = 'API';
-
-				$BillingClass->update($PostData);
-				return Response::json(["status"=>"success", "Message"=>"Updated Successfully."]);
 
 			} else {
 				// Create
@@ -84,7 +88,7 @@ class BillingClassApiController extends ApiController {
 			}
 		}catch (\Exception $e) {
 			Log::info($e);
-			return Response::json(["status"=>"failed", "Something Went Wrong. Exception Generated."]);
+			return Response::json(["status"=>"failed", "Message"=>"Something Went Wrong. Exception Generated."]);
 		}
 
 	}

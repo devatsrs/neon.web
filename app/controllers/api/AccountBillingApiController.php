@@ -36,6 +36,21 @@ class AccountBillingApiController extends ApiController {
 			return Response::json(["status"=>"failed", "data"=>"CustomerID or AccountNo Field is Required."]);
 		}
 
+		$AccountPaymentAutomation=AccountPaymentAutomation::where('AccountID',$AccountID);
+		$CountAccountPaymentAutomation=$AccountPaymentAutomation->count();
+		if($CountAccountPaymentAutomation > 0){
+			//update
+			$AccountPaymentAutomationObj=$AccountPaymentAutomation->first();
+			return $this->updateAutoDepositSetting($data,$AccountPaymentAutomationObj);
+
+		}else{
+			//return Response::json(array("status" => "failed", "message" => "Account Not Found."));
+			//Create Record
+			return $this->createAutoDepositSetting($data,$AccountID);
+		}
+	}
+
+	public function updateAutoDepositSetting($data,$AccountPaymentAutomationObj){
 		$rules = array(
 			'AutoTopup' => 'required',
 			'MinThreshold' => 'required',
@@ -55,18 +70,41 @@ class AccountBillingApiController extends ApiController {
 		unset($data['AccountNo']);
 		$data['updated_at']=date('Y-m-d H:i:s');
 
-		$AccountBilling=AccountPaymentAutomation::where('AccountID',$AccountID);
-		if(!empty($AccountBilling)){
-			if ($AccountBilling->update($data)) {
-				return Response::json(array("status" => "success", "message" => "Auto Deposit Settings Updated Successfully."));
-			} else {
-				return Response::json(array("status" => "failed", "message" => "Problem Updating Auto Deposit Settings."));
-			}
-		}else{
-			return Response::json(array("status" => "failed", "message" => "Account Not Found."));
+		if ($AccountPaymentAutomationObj->update($data)) {
+			return Response::json(array("status" => "success", "message" => "Auto Deposit Settings Updated Successfully."));
+		} else {
+			return Response::json(array("status" => "failed", "message" => "Problem Updating Auto Deposit Settings."));
 		}
 
-		//return Response::json(["status"=>"success", "data"=>$Result]);
+	}
+
+	public function createAutoDepositSetting($data,$AccountID){
+		$rules = array(
+			'AutoTopup' => 'required',
+			'MinThreshold' => 'required',
+			'TopupAmount' => 'required',
+		);
+
+		$verifier = App::make('validation.presence');
+		$verifier->setConnection('sqlsrv');
+
+		$validator = Validator::make($data, $rules);
+		$validator->setPresenceVerifier($verifier);
+
+		if ($validator->fails()) {
+			return json_validator_response($validator);
+		}
+		$data['AccountID']=$AccountID;
+		unset($data['CustomerID']);
+		unset($data['AccountNo']);
+
+		$data['created_at']=date('Y-m-d H:i:s');
+		if (AccountPaymentAutomation::create($data)) {
+			return Response::json(array("status" => "success", "message" => "Auto Deposit Settings created Successfully."));
+		} else {
+			return Response::json(array("status" => "failed", "message" => "Problem Creating Auto Deposit Settings."));
+		}
+
 	}
 
 	public function getAutoOutPaymentSettings(){
@@ -96,6 +134,23 @@ class AccountBillingApiController extends ApiController {
 			return Response::json(["status"=>"failed", "data"=>"CustomerID or AccountNo Field is Required."]);
 		}
 
+		$AccountPaymentAutomation=AccountPaymentAutomation::where('AccountID',$AccountID);
+		$CountAccountPaymentAutomation=$AccountPaymentAutomation->count();
+		if($CountAccountPaymentAutomation > 0){
+			//update
+			$AccountPaymentAutomationObj=$AccountPaymentAutomation->first();
+			return $this->updateAutoOutPaymentSetting($data,$AccountPaymentAutomationObj);
+
+		}else{
+			//return Response::json(array("status" => "failed", "message" => "Account Not Found."));
+			//Create Record
+			return $this->createAutoOutPaymentSetting($data,$AccountID);
+		}
+
+	}
+
+	public function updateAutoOutPaymentSetting($data,$AccountPaymentAutomation){
+
 		$rules = array(
 			'AutoOutpayment' => 'required',
 			'OutPaymentThreshold' => 'required',
@@ -115,19 +170,43 @@ class AccountBillingApiController extends ApiController {
 		unset($data['AccountNo']);
 
 		$data['updated_at']=date('Y-m-d H:i:s');
-
-		$AccountBilling=AccountPaymentAutomation::where('AccountID',$AccountID);
-		if(!empty($AccountBilling)){
-			//print_r($data);die;
-			if ($AccountBilling->update($data)) {
-				return Response::json(array("status" => "success", "message" => "Auto Out Deposit Settings Updated Successfully."));
-			} else {
-				return Response::json(array("status" => "failed", "message" => "Problem Updating Auto Out Deposit Settings."));
-			}
-		}else{
-			return Response::json(array("status" => "failed", "message" => "Account Not Found."));
+		if ($AccountPaymentAutomation->update($data)) {
+			return Response::json(array("status" => "success", "message" => "Auto Out Deposit Settings Updated Successfully."));
+		} else {
+			return Response::json(array("status" => "failed", "message" => "Problem Updating Auto Out Deposit Settings."));
 		}
 
 	}
+
+	public function createAutoOutPaymentSetting($data,$AccountID){
+
+		$rules = array(
+			'AutoOutpayment' => 'required',
+			'OutPaymentThreshold' => 'required',
+			'OutPaymentAmount' => 'required',
+		);
+
+		$verifier = App::make('validation.presence');
+		$verifier->setConnection('sqlsrv');
+
+		$validator = Validator::make($data, $rules);
+		$validator->setPresenceVerifier($verifier);
+
+		if ($validator->fails()) {
+			return json_validator_response($validator);
+		}
+		$data['AccountID']=$AccountID;
+		unset($data['CustomerID']);
+		unset($data['AccountNo']);
+
+		$data['created_at']=date('Y-m-d H:i:s');
+		if (AccountPaymentAutomation::create($data)) {
+			return Response::json(array("status" => "success", "message" => "Auto Out Deposit Settings created Successfully."));
+		} else {
+			return Response::json(array("status" => "failed", "message" => "Problem Creating Auto Out Deposit Settings."));
+		}
+
+	}
+
 
 }
