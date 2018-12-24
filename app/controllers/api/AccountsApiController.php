@@ -84,7 +84,7 @@ class AccountsApiController extends ApiController {
 				}
 			}
 
-			Log::info('$data[\'Owner\'].' . $data['Owner']);
+
 			if (isset($accountData['Currency'])) {
 				$data['CurrencyId'] = $accountData['Currency'];
 			}
@@ -106,10 +106,9 @@ class AccountsApiController extends ApiController {
 			$data['IsReseller'] = $accountData['IsReseller'];
 			$data['Currency'] = $accountData['Currency'];
 			$data['Country'] = $accountData['Country'];
-			$data['CustomerPanelPassword'] = $accountData['CustomerPanelPassword'];
+			$data['password'] = isset($data['CustomerPanelPassword']) ? Crypt::encrypt($data['CustomerPanelPassword']) :'';
 			$data['VatNumber'] = $accountData['VatNumber'];
 			$data['Language']= $accountData['Language'];
-
 
 			$data['CompanyID'] = $companyID;
 			$data['AccountType'] = 1;
@@ -169,6 +168,20 @@ class AccountsApiController extends ApiController {
 				return Response::json(["status" => "failed", "message" => $errors]);
 			}
 
+			$data['CurrencyId'] = Currency::where('Code',$data['CurrencyId'])->pluck('CurrencyId');
+			if (!isset($data['CurrencyId'])) {
+				return Response::json(["status"=>"failed", "message"=>"Please provide the valid currency"]);
+			}
+			$data['Country'] = Country::where(['Country' => $data['Country']])->pluck('Country');
+			if (!isset($data['Country'])) {
+				return Response::json(["status"=>"failed", "message"=>"Please provide the valid country"]);
+			}
+			
+			$data['LanguageID'] = Language::where('Language',$data['Language'])->pluck('LanguageID');
+			if (!isset($data['LanguageID'])) {
+				return Response::json(["status"=>"failed", "message"=>"Please provide the valid Language"]);
+			}
+
 			AccountBilling::$rulesAPI['billing_type'] = 'required';
 			AccountBilling::$rulesAPI['billing_class'] = 'required';
 			AccountBilling::$rulesAPI['billing_cycle'] = 'required';
@@ -190,20 +203,13 @@ class AccountsApiController extends ApiController {
 				$data['Billing'] = 1;
 			}
 
-			Log::info('$data[\'Billing\'].' . $data['Billing']);
-			//Log::info('strtotime($BillingSetting[\'billing_start_date\']).' . strtotime($BillingSetting['billing_start_date']));
-			//Log::info('strtotime($BillingSetting[\'NextInvoiceDate\']).' . strtotime($BillingSetting['NextInvoiceDate']));
 			if ($data['Billing'] == 1) {
 				if (isset($BillingSetting['NextInvoiceDate']) && $BillingSetting['NextInvoiceDate'] != '' &&
 					isset($BillingSetting['billing_start_date']) && $BillingSetting['billing_start_date'] != '' && strtotime($BillingSetting['NextInvoiceDate']) < strtotime($BillingSetting['billing_start_date'])
 				) {
 					return Response::json(["status" => "failed", "message" => "NextInvoiceDate Should be greater than BillingStartDate"]);
 				}
-
-
 				$validator = Validator::make($BillingSetting, AccountBilling::$rulesAPI);
-
-
 				if ($validator->fails()) {
 					$errors = "";
 					foreach ($validator->messages()->all() as $error) {
@@ -220,68 +226,22 @@ class AccountsApiController extends ApiController {
 					return Response::json(["status" => "failed", "message" => "Please select the valid billing type"]);
 				}
 			}
-			$CurrenctCodeSql = Currency::where('Code',$data['CurrencyId']);
-			Log::info('createAccount $CurrenctCodeSql.' . $CurrenctCodeSql->toSql());
-			$CurrenctCodeResult = $CurrenctCodeSql->first();
-			if (!isset($CurrenctCodeResult)) {
-				return Response::json(["status"=>"failed", "message"=>"Please provide the valid currency"]);
-			}
 
-			$data['CurrencyId'] = $CurrenctCodeResult->CurrencyId;
-
-			if(!empty($data['Country'])) {
-				$Country = Country::where(['Country' => $data['Country']])->pluck('Country');
-			}else{
-				$Country='';
-				return Response::json(["status"=>"failed", "message"=>"Please provide the valid country"]);
-			}
-			$dataAccount['Country']  = $Country; // change iso3 to title
-
-			$LanguageCodeSql = Language::where('Language',$data['Language']);
-			Log::info('createAccount $LanguageCodeSql.' . $LanguageCodeSql->toSql());
-			$LanguageCodeResult = $LanguageCodeSql->first();
-			if (!isset($LanguageCodeResult)) {
-				return Response::json(["status"=>"failed", "message"=>"Please provide the valid Language"]);
-			}
-
-			$data['LanguageID'] = $LanguageCodeResult->LanguageID;
-			Log::info('createAccount $data[\'LanguageID\'].' . $data['LanguageID']);
-			if (isset($data['CustomerPanelPassword'])) {
-				$data['password'] = Crypt::encrypt($data['CustomerPanelPassword']);
-			}
-			Log::info('createAccount1 $data[\'LanguageID\'].' . $data['LanguageID']);
-			//$account = Account::create($data)
 			if ($account = Account::create($data)) {
-
-
 				if (trim(Input::get('Number')) == '') {
 					CompanySetting::setKeyVal('LastAccountNo', $account->Number);
 				}
-
 				$AccountDetails=array();
-				//$AccountDetails['ResellerOwner'] = $ResellerOwner;
 				$AccountDetails['AccountID'] = $account->AccountID;
 				AccountDetails::create($AccountDetails);
-
-
 				$account->update($data);
-
-				Log::info('createAccount done $data[\'LanguageID\'].' . $data['LanguageID']);
-
 				if ($data['Billing'] == 1) {
-
 					$dataAccountBilling['BillingType'] = $BillingSetting['billing_type'];
-					//get from billing class id
-
-					Log::info('createAccount $BillingSetting[\'billing_class\'].' . $BillingSetting['billing_class']);
 					$BillingClassSql = BillingClass::where('Name', $BillingSetting['billing_class']);
-					Log::info('createAccount $LanguageCodeSql.' . $BillingClassSql->toSql());
 					$BillingClass = $BillingClassSql->first();
 					if (!isset($BillingClass)) {
 						return Response::json(["status" => "failed", "message" => "Please select the valid billing class"]);
 					}
-					//$BillingClass = BillingClass::find($BillingSetting['billing_class']);
-					Log::info('createAccount done $BillingClass.' . $BillingClass->Name);
 
 					$dataAccountBilling['BillingClassID'] = $BillingClass->BillingClassID;
 					$dataAccountBilling['BillingTimezone'] = $BillingClass->BillingTimezone;
