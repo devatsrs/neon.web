@@ -68,9 +68,15 @@ class AccountsApiController extends ApiController {
 				$ResellerOwner = empty($accountData['ResellerOwner']) ? 0 : $accountData['ResellerOwner'];
 				if($ResellerOwner>0){
 					$Reseller = Reseller::getResellerDetails($ResellerOwner);
+					if (!isset($Reseller)) {
+						return Response::json(array("status" => "failed", "message" => "Reseller Account not found."));
+					}
 					$ResellerCompanyID = $Reseller->ChildCompanyID;
 					Log::info('createAccount $ResellerOwner.' . $ResellerCompanyID);
 					$ResellerUser =User::where('CompanyID',$ResellerCompanyID)->first();
+					if (!isset($ResellerUser)) {
+						return Response::json(array("status" => "failed", "message" => "Reseller Account not found."));
+					}
 					$ResellerUserID = $ResellerUser->UserID;
 					Log::info('createAccount $ResellerUserID.' . $ResellerUserID);
 					$companyID=$ResellerCompanyID;
