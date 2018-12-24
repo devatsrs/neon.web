@@ -29,24 +29,19 @@ class PaymentApiController extends ApiController {
 			return Response::json(["status"=>"failed", "data"=>"CustomerID Required"]);
 		}
 
+		$data['StartDate'] 	 = 		$data['StartDate']!=''?$data['StartDate']:'0000-00-00';
+		$data['EndDate'] 	 = 		$data['EndDate']!=''?$data['EndDate']:'0000-00-00';
+
 		if(!empty($AccountID) && !empty($CompanyID)){
-			if(!empty($data['StartDate']) && !empty($data['EndDate'])){
-				$Result=Payment::where(['CompanyID'=>$CompanyID,'AccountID'=>$AccountID])
-					->whereBetween('PaymentDate',[$data['StartDate'],$data['EndDate']])
-					->get();
-			}else if(!empty($data['StartDate'])){
-				$Result=Payment::where(['CompanyID'=>$CompanyID,'AccountID'=>$AccountID])
-					->whereDate('PaymentDate','>=',$data['StartDate'])
-					->get();
-			}else{
-				$Result=Payment::where(['CompanyID'=>$CompanyID,'AccountID'=>$AccountID])
-					->get();
-			}
-			return Response::json(["status"=>"success", "data"=>$Result]);
+
+			$query="CALL prc_getTransactionHistory(".$CompanyID.",".$AccountID.",'".$data['StartDate']."','".$data['EndDate']."')";
+			//echo $query;die;
+			$Result  = DB::connection('sqlsrv2')->select($query);
+			$Response=json_decode(json_encode($Result),true);
+			return Response::json(["status"=>"success", "data"=>$Response]);
 		}else{
 			return Response::json(["status"=>"failed", "data"=>"Account Not Found"]);
 		}
-
 
 	}
 
@@ -168,6 +163,10 @@ class PaymentApiController extends ApiController {
 					$PaymentData['PaymentGateway']=$PaymentMethod;
 
 					$PaymentResponse = $PaymentIntegration->paymentWithApiProfile($PaymentData);
+					$ReturnData=array();
+					$ReturnData['PaymentMethod']=$PaymentResponse['PaymentMethod'];
+					$ReturnData['transaction_notes']=$PaymentResponse['transaction_notes'];
+					$ReturnData['transaction_id']=$PaymentResponse['transaction_id'];
 
 					if(!empty($PaymentResponse['response_code']) && $PaymentResponse['response_code']==1){
 						//Payment Success
@@ -177,15 +176,16 @@ class PaymentApiController extends ApiController {
 						$InsertPayment=array();
 						$InsertPayment['PaymentMethod']=$PaymentResponse['PaymentMethod'];
 						$InsertPayment['transaction_notes']=$PaymentResponse['transaction_notes'];
+
 						self::PaymentLog($Account,$InsertPayment,$data);
 
 						$InvoiceGenerate=self::GenerateInvoice($PaymentData['AccountID'],$PaymentData['outstanginamount'],$BillingClassID);
 
-						return Response::json(["status"=>"success","PaymentResponse"=>$PaymentResponse,"InvoiceResponse"=>$InvoiceGenerate]);
+						return Response::json(["status"=>"success","PaymentResponse"=>$ReturnData,"InvoiceResponse"=>$InvoiceGenerate]);
 
 					}else{
 						//Failed Payment
-						return Response::json(["status"=>"failed", "message"=>"Payment Failed.","PaymentResponse"=>$PaymentResponse]);
+						return Response::json(["status"=>"failed", "message"=>"Payment Failed.","PaymentResponse"=>$ReturnData]);
 					}
 					
 				}else{
