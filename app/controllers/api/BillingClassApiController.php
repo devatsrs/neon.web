@@ -45,20 +45,24 @@ class BillingClassApiController extends ApiController {
 				//Update
 				$BillingClass = BillingClass::findOrFail($data['BillingClassID']);
 
-				$LowBalanceReminderSettings = json_decode($BillingClass->LowBalanceReminderSettings);
-				if (isset($LowBalanceReminderSettings->LastRunTime)) {
-					$PostData['LowBalanceReminderSettings']['LastRunTime'] = $LowBalanceReminderSettings->LastRunTime;
+				if(!empty($BillingClass)){
+					$LowBalanceReminderSettings = json_decode($BillingClass->LowBalanceReminderSettings);
+					if (isset($LowBalanceReminderSettings->LastRunTime)) {
+						$PostData['LowBalanceReminderSettings']['LastRunTime'] = $LowBalanceReminderSettings->LastRunTime;
+					}
+					if (isset($LowBalanceReminderSettings->NextRunTime)) {
+						$PostData['LowBalanceReminderSettings']['NextRunTime'] = $LowBalanceReminderSettings->NextRunTime;
+					}
+
+					$PostData['LowBalanceReminderSettings'] = json_encode($PostData['LowBalanceReminderSettings']);
+					$PostData['UpdatedBy'] = 'API';
+
+					$BillingClass->update($PostData);
+					return Response::json(["status"=>"success", "Message"=>"Updated Successfully."]);
+				}else{
+					return Response::json(["status"=>"failed", "Message"=>"Billing Class Not Found."]);
 				}
-				if (isset($LowBalanceReminderSettings->NextRunTime)) {
-					$PostData['LowBalanceReminderSettings']['NextRunTime'] = $LowBalanceReminderSettings->NextRunTime;
-				}
-
-				$PostData['LowBalanceReminderSettings'] = json_encode($PostData['LowBalanceReminderSettings']);
-				$PostData['UpdatedBy'] = 'API';
-
-				$BillingClass->update($PostData);
-				return Response::json(["status"=>"success", "Message"=>"Updated Successfully."]);
-
+				
 			} else {
 				// Create
 				$rules = array(
