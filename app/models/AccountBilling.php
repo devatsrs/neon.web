@@ -9,6 +9,11 @@ class AccountBilling extends \Eloquent {
 
     public $timestamps = false; // no created_at and updated_at
 
+    public static $rulesAPI = array(
+
+
+    );
+
     static  $defaultAccountAuditFields = [
         'BillingType'=>'BillingType',
         'BillingTimezone'=>'BillingTimezone',
