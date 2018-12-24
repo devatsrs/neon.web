@@ -466,7 +466,12 @@ class StripeACH {
 		$stripedata = array();
 		$stripedata['currency'] = strtolower($CurrencyCode);
 		$stripedata['amount'] = $data['outstanginamount'];
-		$stripedata['description'] = $data['InvoiceNumber'].' (Invoice) Payment';
+		if(isset($data['description']) && $data['description']!=''){
+			$stripedata['description']=$data['description'];
+		}else{
+			$stripedata['description'] = $data['InvoiceNumber'].' (Invoice) Payment';
+		}
+
 		$stripedata['customerid'] = $StripeObj->CustomerProfileID;
 
 		$transactionResponse = array();
@@ -517,4 +522,11 @@ class StripeACH {
 	public function paymentValidateWithBankDetail($data){
 
 	}
+
+	public function paymentWithApiProfile($data){
+		$data['description']="Deposit Fund By API";
+		$Response=$this->paymentWithProfile($data);
+		return $Response;
+	}
+
 }
