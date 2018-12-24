@@ -62,7 +62,7 @@ class BillingClassApiController extends ApiController {
 				}else{
 					return Response::json(["status"=>"failed", "Message"=>"Billing Class Not Found."]);
 				}
-				
+
 			} else {
 				// Create
 				$rules = array(
@@ -88,7 +88,7 @@ class BillingClassApiController extends ApiController {
 			}
 		}catch (\Exception $e) {
 			Log::info($e);
-			return Response::json(["status"=>"failed", "Something Went Wrong. Exception Generated."]);
+			return Response::json(["status"=>"failed", "Message"=>"Something Went Wrong. Exception Generated."]);
 		}
 
 	}
