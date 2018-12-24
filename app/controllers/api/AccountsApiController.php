@@ -60,10 +60,12 @@ class AccountsApiController extends ApiController {
 			$accountData = Input::all();
 			$ServiceID = 0;
 			$companyID = User::get_companyID();
+			$ResellerData = [];
 			//$data['Owner'] = $post_vars->Owner;
 			if (isset($accountData['OwnerID']) && $accountData['OwnerID'] != '') {
 				$data['Owner'] = $accountData['OwnerID'];
-			}else {
+			}
+			/*else {
 
 				$ResellerOwner = empty($accountData['ResellerOwner']) ? 0 : $accountData['ResellerOwner'];
 				if($ResellerOwner>0){
@@ -82,7 +84,7 @@ class AccountsApiController extends ApiController {
 					$companyID=$ResellerCompanyID;
 					$data['Owner'] = $ResellerUserID;
 				}
-			}
+			}*/
 
 
 			if (isset($accountData['Currency'])) {
@@ -168,6 +170,50 @@ class AccountsApiController extends ApiController {
 				return Response::json(["status" => "failed", "message" => $errors]);
 			}
 
+			if($data['IsReseller']==1){
+				Log::info("Read the reseller fields1");
+				Reseller::$rules['Email'] = 'required|email';
+				Reseller::$rules['Password'] ='required|min:3';
+
+				Log::info("Read the reseller fields2");
+				$CompanyID = User::get_companyID();
+				$ResellerData['CompanyID'] = $CompanyID;
+				$CurrentTime = date('Y-m-d H:i:s');
+				$CreatedBy = User::get_user_full_name();
+				if(empty($CreatedBy)){
+					$CreatedBy = 'system';
+				}
+				Log::info("Read the reseller fields2");
+				$ResellerData['AccountID'] = $data['Number'];
+				Reseller::$rules['AccountID'] = 'required|unique:tblReseller,AccountID';
+				Reseller::$rules['Email'] = 'required|email';
+				Reseller::$rules['Password'] ='required|min:3';
+				Log::info("Read the reseller fields");
+				$ResellerData['Email'] = isset($accountData['ReSellerEmail']) ? $accountData['ReSellerEmail'] : '';
+				$ResellerData['Password'] = isset($accountData['ReSellerPassword']) ? $accountData['ReSellerPassword'] : '';
+				$ResellerData['AllowWhiteLabel'] = isset($accountData['ReSellerAllowWhiteLabel']) ? 1 : 0;
+				$ResellerData['DomainUrl'] = $accountData['ReSellerDomainUrl'];
+				Reseller::$messages['Email.required'] = 'The Reseller Email is Required.';
+				Reseller::$messages['Password.required'] = 'The Reseller Password is Required.';
+				$validator = Validator::make($ResellerData, Reseller::$rules, Reseller::$messages);
+				if ($validator->fails()) {
+					$errors = "";
+					foreach ($validator->messages()->all() as $error) {
+						$errors .= $error . "<br>";
+					}
+					return Response::json(["status" => "failed", "message" => $errors]);
+				}
+
+				if(!empty($ResellerData['AllowWhiteLabel'])){
+					if(empty($ResellerData['DomainUrl'])){
+						$ResellerData['DomainUrl'] = CompanyConfiguration::where(['CompanyID'=>$CompanyID,'Key'=>'WEB_URL'])->pluck('Value');
+					}
+					if(!Reseller::IsAllowDomainUrl($ResellerData['DomainUrl'],'')){
+						return  Response::json(array("status" => "failed", "message" => "please setup different domain for your reseller."));
+					}
+				}
+
+			}
 			$data['CurrencyId'] = Currency::where('Code',$data['CurrencyId'])->pluck('CurrencyId');
 			if (!isset($data['CurrencyId'])) {
 				return Response::json(["status"=>"failed", "message"=>"Please provide the valid currency"]);
@@ -176,7 +222,7 @@ class AccountsApiController extends ApiController {
 			if (!isset($data['Country'])) {
 				return Response::json(["status"=>"failed", "message"=>"Please provide the valid country"]);
 			}
-			
+
 			$data['LanguageID'] = Language::where('Language',$data['Language'])->pluck('LanguageID');
 			if (!isset($data['LanguageID'])) {
 				return Response::json(["status"=>"failed", "message"=>"Please provide the valid Language"]);
@@ -290,6 +336,115 @@ class AccountsApiController extends ApiController {
 					AccountBilling::insertUpdateBilling($account->AccountID, $dataAccountBilling, 0);
 					AccountBilling::storeFirstTimeInvoicePeriod($account->AccountID, 0);
 
+				}
+				if($data['IsReseller']==1) {
+
+					$items = '';//;empty($data['reseller-item']) ? '' : array_filter($data['reseller-item']);
+					$subscriptions = '';//empty($data['reseller-subscription']) ? '' : array_filter($data['reseller-subscription']);
+					//$trunks = empty($data['reseller-trunk']) ? '' : array_filter($data['reseller-trunk']);
+					$trunks = '';
+					$is_product = 0;
+					$is_subscription = 0;
+					$is_trunk = 0;
+					$productids = '';
+					$subscriptionids = '';
+					$trunkids = '';
+					if (!empty($items)) {
+						$is_product = 1;
+						$productids = implode(',', $items);
+					}
+					if (!empty($subscriptions)) {
+						$is_subscription = 1;
+						$subscriptionids = implode(',', $subscriptions);
+					}
+					if (!empty($trunks)) {
+						$is_trunk = 1;
+						$trunkids = implode(',', $trunks);
+					}
+
+					if (!empty($ResellerData)) {
+						$CompanyID = User::get_companyID();
+						$data['CompanyID'] = $CompanyID;
+						$CurrentTime = date('Y-m-d H:i:s');
+						$CreatedBy = User::get_user_full_name();
+						if (empty($CreatedBy)) {
+							$CreatedBy = 'system';
+						}
+						//$data['Status'] = isset($data['Status']) ? 1 : 0;
+
+
+						//$accountData['ReSellerEmail'] $accountData['ReSellerPassword']
+						//$data['Password'] = Hash::make($data['Password']);
+						$ResellerData['Password'] = Crypt::encrypt($accountData['ReSellerPassword']);
+
+						$Account = $account;
+						$ResellerData['AllowWhiteLabel'] = isset($accountData['ReSellerAllowWhiteLabel']) ? 1 : 0;
+						$ResellerData['DomainUrl'] = $accountData['ReSellerDomainUrl'];
+						$AccountID = $account->AccountID;
+						$Email = $accountData['ReSellerEmail'];
+						$Password = $ResellerData['Password'];
+						$AllowWhiteLabel = $ResellerData['AllowWhiteLabel'];
+						$AccountName = $Account->AccountName;
+						if (!empty($Account->FirstName) && !empty($Account->LastName)) {
+							$FirstName = empty($Account->FirstName) ? '' : $Account->FirstName;
+							$LastName = empty($Account->LastName) ? '' : $Account->LastName;
+						} else {
+							$FirstName = $AccountName;
+							$LastName = 'Reseller';
+						}
+
+
+						try {
+
+							$CompanyData = array();
+							$CompanyData['CompanyName'] = $AccountName;
+							$CompanyData['CustomerAccountPrefix'] = '22221';
+							$CompanyData['FirstName'] = $FirstName;
+							$CompanyData['LastName'] = $LastName;
+							$CompanyData['Email'] = $ResellerData['Email'];
+							$CompanyData['Status'] = '1';
+							$CompanyData['TimeZone'] = 'Etc/GMT';
+							$CompanyData['created_at'] = $CurrentTime;
+							$CompanyData['created_by'] = $CreatedBy;
+
+							DB::beginTransaction();
+
+							if ($ChildCompany = Company::create($CompanyData)) {
+								$ChildCompanyID = $ChildCompany->CompanyID;
+
+								log::info('Child Company ID ' . $ChildCompanyID);
+
+								$JobStatusMessage = DB::select("CALL  prc_insertResellerData ($CompanyID,$ChildCompanyID,'" . $AccountName . "','" . $FirstName . "','" . $LastName . "',$AccountID,'" . $Email . "','" . $Password . "',$is_product,'" . $productids . "',$is_subscription,'" . $subscriptionids . "',$is_trunk,'" . $trunkids . "',$AllowWhiteLabel)");
+								Log::info("CALL  prc_insertResellerData ($CompanyID,$ChildCompanyID,'" . $AccountName . "','" . $FirstName . "','" . $LastName . "',$AccountID,'" . $Email . "','" . $Password . "',$is_product,'" . $productids . "',$is_subscription,'" . $subscriptionids . "',$is_trunk,'" . $trunkids . "')");
+								Log::info($JobStatusMessage);
+
+								if (count($JobStatusMessage)) {
+									throw  new \Exception($JobStatusMessage[0]->Message);
+								} else {
+									if (!empty($data['DomainUrl'])) {
+										$DomainUrl = rtrim($data['DomainUrl'], "/");
+										CompanyConfiguration::where(['Key' => 'WEB_URL', 'CompanyID' => $ChildCompany->CompanyID])->update(['Value' => $DomainUrl]);
+									} else {
+										$ResellerDomain = CompanyConfiguration::where(['CompanyID' => $CompanyID, 'Key' => 'WEB_URL'])->pluck('Value');
+										CompanyConfiguration::where(['Key' => 'WEB_URL', 'CompanyID' => $ChildCompany->CompanyID])->update(['Value' => $ResellerDomain]);
+									}
+									CompanyGateway::createDefaultCronJobs($ChildCompanyID);
+									DB::commit();
+								}
+
+							} else {
+								return Response::json(array("status" => "failed", "message" => "Problem Creating Account."));
+							}
+						} catch (Exception $e) {
+							try {
+								DB::rollback();
+							} catch (\Exception $err) {
+								Log::error($err);
+							}
+							Log::error($e);
+							return Response::json(array("status" => "failed", "message" => "Problem Creating Account."));
+						}
+					}
 				}
 				CompanySetting::setKeyVal('LastAccountNo', $account->Number);
 				return Response::json(array("status" => "success", "message" => "Account Successfully Created", 'Account ID' => $account->AccountID, 'redirect' => URL::to('/accounts/' . $account->AccountID . '/edit')));
