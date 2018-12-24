@@ -43,7 +43,7 @@ class BillingClassApiController extends ApiController {
 		try {
 			if (!empty($data['BillingClassID'])) {
 				//Update
-				$BillingClass = BillingClass::findOrFail($data['BillingClassID']);
+				$BillingClass = BillingClass::find($data['BillingClassID']);
 
 				if(!empty($BillingClass)){
 					$LowBalanceReminderSettings = json_decode($BillingClass->LowBalanceReminderSettings);
