@@ -61,20 +61,24 @@ class AccountsApiController extends ApiController {
 			$ServiceID = 0;
 			$companyID = User::get_companyID();
 			//$data['Owner'] = $post_vars->Owner;
-			if (isset($accountData['OwnerID'])) {
+			if (isset($accountData['OwnerID']) && $accountData['OwnerID'] != '') {
 				$data['Owner'] = $accountData['OwnerID'];
 			}else {
 
-				$ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
+				$ResellerOwner = empty($accountData['ResellerOwner']) ? 0 : $accountData['ResellerOwner'];
 				if($ResellerOwner>0){
 					$Reseller = Reseller::getResellerDetails($ResellerOwner);
 					$ResellerCompanyID = $Reseller->ChildCompanyID;
+					Log::info('createAccount $ResellerOwner.' . $ResellerCompanyID);
 					$ResellerUser =User::where('CompanyID',$ResellerCompanyID)->first();
 					$ResellerUserID = $ResellerUser->UserID;
+					Log::info('createAccount $ResellerUserID.' . $ResellerUserID);
 					$companyID=$ResellerCompanyID;
 					$data['Owner'] = $ResellerUserID;
 				}
 			}
+
+			Log::info('$data[\'Owner\'].' . $data['Owner']);
 			if (isset($accountData['Currency'])) {
 				$data['CurrencyId'] = $accountData['Currency'];
 			}
@@ -171,6 +175,12 @@ class AccountsApiController extends ApiController {
 			$BillingSetting['billing_cycle_options']= $accountData['BillingCycleValue'];
 			$BillingSetting['billing_start_date']= $accountData['BillingStartDate'];
 			$BillingSetting['NextInvoiceDate']= $accountData['NextInvoiceDate'];
+			//Log::info('strtotime($BillingSetting[\'billing_start_date\']).' . strtotime($BillingSetting['billing_start_date']));
+			//Log::info('strtotime($BillingSetting[\'NextInvoiceDate\']).' . strtotime($BillingSetting['NextInvoiceDate']));
+			if (isset($BillingSetting['NextInvoiceDate']) && $BillingSetting['NextInvoiceDate'] != '' &&
+				isset($BillingSetting['billing_start_date']) && $BillingSetting['billing_start_date'] != '' && strtotime($BillingSetting['NextInvoiceDate']) < strtotime($BillingSetting['billing_start_date'])) {
+				return Response::json(["status" => "failed", "message" => "NextInvoiceDate Should be greater than BillingStartDate"]);
+			}
 
 
 			$validator = Validator::make($BillingSetting, AccountBilling::$rulesAPI);
@@ -274,8 +284,8 @@ class AccountsApiController extends ApiController {
 
 
 
-				/**
-				 *  if not first invoice generation*/
+				///**
+				 //*  if not first invoice generation
 				Log::info('Billing Date ' .$BillingCycleType.' '.$BillingCycleValue.' '.$BillingStartDate);
 				$NextBillingDate = next_billing_date($BillingCycleType, $BillingCycleValue, strtotime($BillingStartDate));
 				$NextChargedDate = date('Y-m-d', strtotime('-1 day', strtotime($NextBillingDate)));
@@ -289,15 +299,15 @@ class AccountsApiController extends ApiController {
 
 				$dataAccountBilling['NextInvoiceDate'] = $NextBillingDate;
 				$dataAccountBilling['NextChargeDate'] = $NextChargedDate;
-				/**
-				 *  if not first invoice generation
 
-				$dataAccountBilling['BillingStartDate'] = $BillingStartDate;
-				$dataAccountBilling['LastInvoiceDate']  = $BillingStartDate;
-				$dataAccountBilling['LastChargeDate']   = $BillingStartDate;
-				$dataAccountBilling['NextInvoiceDate']  = $BillingStartDate;
-				$dataAccountBilling['NextChargeDate']   = $BillingStartDate;
-				 */
+				 //if not first invoice generation
+
+				//$dataAccountBilling['BillingStartDate'] = $BillingStartDate;
+				//$dataAccountBilling['LastInvoiceDate']  = $BillingStartDate;
+				//$dataAccountBilling['LastChargeDate']   = $BillingStartDate;
+				//$dataAccountBilling['NextInvoiceDate']  = $BillingStartDate;
+				//$dataAccountBilling['NextChargeDate']   = $BillingStartDate;
+				 //
 				Log::info(print_r($dataAccountBilling,true));
 
 				AccountBilling::insertUpdateBilling($account->AccountID, $dataAccountBilling,0);
