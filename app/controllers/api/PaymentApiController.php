@@ -169,7 +169,7 @@ class PaymentApiController extends ApiController {
 
 					$PaymentResponse = $PaymentIntegration->paymentWithApiProfile($PaymentData);
 
-					if(!empty($PaymentResponse['Response']['response_code']) && $PaymentResponse['Response']['response_code']==1){
+					if(!empty($PaymentResponse['response_code']) && $PaymentResponse['response_code']==1){
 						//Payment Success
 						Log::info("==== Payment success Log ====");
 						Log::info(print_r($PaymentResponse,true));
