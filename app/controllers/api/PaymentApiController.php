@@ -29,8 +29,11 @@ class PaymentApiController extends ApiController {
 			return Response::json(["status"=>"failed", "data"=>"CustomerID Required"]);
 		}
 
+		$data['StartDate'] 	 = 		$data['StartDate']!=''?$data['StartDate']:'0000:00:00';
+		$data['EndDate'] 	 = 		$data['EndDate']!=''?$data['EndDate']:'0000:00:00';
+
 		if(!empty($AccountID) && !empty($CompanyID)){
-			if(!empty($data['StartDate']) && !empty($data['EndDate'])){
+			/*if(!empty($data['StartDate']) && !empty($data['EndDate'])){
 				$Result=Payment::where(['CompanyID'=>$CompanyID,'AccountID'=>$AccountID])
 					->whereBetween('PaymentDate',[$data['StartDate'],$data['EndDate']])
 					->get();
@@ -42,7 +45,13 @@ class PaymentApiController extends ApiController {
 				$Result=Payment::where(['CompanyID'=>$CompanyID,'AccountID'=>$AccountID])
 					->get();
 			}
-			return Response::json(["status"=>"success", "data"=>$Result]);
+			return Response::json(["status"=>"success", "data"=>$Result]);*/
+
+			$query="CALL prc_getTransactionHistory(".$CompanyID.",".$AccountID.",'".$data['StartDate']."','".$data['EndDate']."')";
+			//echo $query;die;
+			$Result  = DB::connection('sqlsrv2')->select($query);
+			$Response=json_decode(json_encode($Result),true);
+			return Response::json(["status"=>"success", "data"=>$Response]);
 		}else{
 			return Response::json(["status"=>"failed", "data"=>"Account Not Found"]);
 		}
