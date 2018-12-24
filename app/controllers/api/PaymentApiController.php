@@ -29,8 +29,8 @@ class PaymentApiController extends ApiController {
 			return Response::json(["status"=>"failed", "data"=>"CustomerID Required"]);
 		}
 
-		$data['StartDate'] 	 = 		$data['StartDate']!=''?$data['StartDate']:'0000:00:00';
-		$data['EndDate'] 	 = 		$data['EndDate']!=''?$data['EndDate']:'0000:00:00';
+		$data['StartDate'] 	 = 		$data['StartDate']!=''?$data['StartDate']:'0000-00-00';
+		$data['EndDate'] 	 = 		$data['EndDate']!=''?$data['EndDate']:'0000-00-00';
 
 		if(!empty($AccountID) && !empty($CompanyID)){
 			/*if(!empty($data['StartDate']) && !empty($data['EndDate'])){
