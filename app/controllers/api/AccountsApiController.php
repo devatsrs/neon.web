@@ -15,6 +15,15 @@ class AccountsApiController extends ApiController {
 		return Response::json(["status"=>"success", "data"=>"Account Not Found"]);
 	}
 
+	/**
+	 * checkBalance():
+	 * @Param mixed
+	 * CustomerID/AccountNo
+	 * @Response
+	 * has_balance - 0/1
+	 * amount
+	 */
+
 	public function checkBalance(){
 		$data=Input::all();
 		$Result=array();

@@ -9,6 +9,12 @@ class AccountBillingApiController extends ApiController {
 		return Response::json(["status"=>"success", "data"=>$AccountBilling]);
 	}
 
+	/**
+	 * @Param mixed
+	 * CustomerID/AccountNo
+	 * @Response
+	 * 	AutoTopup,MinThreshold,TopupAmount
+	 */
 	public function getAutoDepositSettings(){
 		$data=Input::all();
 		$AccountID=0;
@@ -18,13 +24,18 @@ class AccountBillingApiController extends ApiController {
 		}else if(!empty($data['AccountNo'])) {
 			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
 		} else{
-			return Response::json(["status"=>"failed", "data"=>"CustomerID or AccountNo Field is Required."]);
+			return Response::json(["status"=>"failed", "message"=>"CustomerID or AccountNo Field is Required."]);
 		}
 		$Result=AccountPaymentAutomation::where('AccountID',$AccountID)->get(['AutoTopup','MinThreshold','TopupAmount']);
 
 		return Response::json(["status"=>"success", "data"=>$Result]);
 	}
 
+	/**
+	 * @Param mixed
+	 * CustomerID/AccountNo
+	 * AutoTopup,MinThreshold,TopupAmount
+	 */
 	public function setAutoDepositSettings(){
 		$data=Input::all();
 		$AccountID=0;
@@ -107,6 +118,12 @@ class AccountBillingApiController extends ApiController {
 
 	}
 
+	/**
+	 * @Param mixed
+	 * CustomerID/AccountNo
+	 * @Response
+	 * AutoOutpayment,OutPaymentThreshold,OutPaymentAmount
+	 */
 	public function getAutoOutPaymentSettings(){
 		$data=Input::all();
 		$AccountID=0;
@@ -123,6 +140,11 @@ class AccountBillingApiController extends ApiController {
 		return Response::json(["status"=>"success", "data"=>$Result]);
 	}
 
+	/**
+	 * @Param mixed
+	 * CustomerID/AccountNo
+	 *AutoOutpayment,OutPaymentThreshold,OutPaymentAmount
+	 */
 	public function setAutoOutPaymentSettings(){
 		$data=Input::all();
 		$AccountID=0;

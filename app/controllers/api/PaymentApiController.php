@@ -8,6 +8,14 @@ class PaymentApiController extends ApiController {
 		return Response::json(["status"=>"success", "data"=>Payment::paymentList()]);
 	}
 
+	/**
+	 * @Param mixed
+	 * CustomerID/AccountNo
+	 * StartDate,EndDate
+	 * @Response
+	 * 		It will give PaymentHistory.
+	 */
+
 	public function getPaymentHistory(){
 		$data=Input::all();
 		$Result=[];
@@ -23,27 +31,40 @@ class PaymentApiController extends ApiController {
 				$CompanyID = $Account->CompanyId;
 				$AccountID = $Account->AccountID;
 			}else{
-				return Response::json(["status"=>"failed", "data"=>"Account Not Found"]);
+				return Response::json(["status"=>"failed", "message"=>"Account Not Found."]);
 			}
 		}else{
-			return Response::json(["status"=>"failed", "data"=>"CustomerID Required"]);
+			return Response::json(["status"=>"failed", "message"=>"CustomerID Required"]);
 		}
 
-		$data['StartDate'] 	 = 		$data['StartDate']!=''?$data['StartDate']:'0000-00-00';
-		$data['EndDate'] 	 = 		$data['EndDate']!=''?$data['EndDate']:'0000-00-00';
+		$data['StartDate'] 	 = 		!empty($data['StartDate'])?$data['StartDate']:'0000-00-00';
+		$data['EndDate'] 	 = 		!empty($data['EndDate'])?$data['EndDate']:'0000-00-00';
 
 		if(!empty($AccountID) && !empty($CompanyID)){
-
-			$query="CALL prc_getTransactionHistory(".$CompanyID.",".$AccountID.",'".$data['StartDate']."','".$data['EndDate']."')";
-			//echo $query;die;
-			$Result  = DB::connection('sqlsrv2')->select($query);
-			$Response=json_decode(json_encode($Result),true);
-			return Response::json(["status"=>"success", "data"=>$Response]);
+			try {
+				$query = "CALL prc_getTransactionHistory(" . $CompanyID . "," . $AccountID . ",'" . $data['StartDate'] . "','" . $data['EndDate'] . "')";
+				//echo $query;die;
+				$Result = DB::connection('sqlsrv2')->select($query);
+				$Response = json_decode(json_encode($Result), true);
+				return Response::json(["status" => "success", "data" => $Response]);
+			}catch(Exception $e){
+				Log::info($e);
+				$reseponse = array("status" => "failed", "message" => "Something Went Wrong.");
+				return $reseponse;
+			}
 		}else{
-			return Response::json(["status"=>"failed", "data"=>"Account Not Found"]);
+			return Response::json(["status"=>"failed", "message"=>"Account Not Found","data"=>[]]);
 		}
 
 	}
+
+	/**
+	 * @Param mixed
+	 * CustomerID/AccountNo
+	 * Amount
+	 * @Response
+	 * RequestFundID
+	 */
 
 	public function requestFund(){
 		$data=Input::all();
@@ -74,16 +95,16 @@ class PaymentApiController extends ApiController {
 				$CompanyID = $Account->CompanyId;
 				$AccountID = $Account->AccountID;
 			}else{
-				return Response::json(["status"=>"failed", "data"=>"Account Not Found"]);
+				return Response::json(["status"=>"failed", "message"=>"Account Not Found"]);
 			}
 		}else{
-			return Response::json(["status"=>"failed", "data"=>"CustomerID Required"]);
+			return Response::json(["status"=>"failed", "message"=>"CustomerID Required"]);
 		}
 
 		if(!empty($AccountID) && !empty($CompanyID)){
 			$data['CompanyId']=$CompanyID;
 			$data['Status']='Pending Approval';
-			$data['PaymentType']='Payment Out';
+			$data['PaymentType']=Payment::$action['Payment Out'];
 			$data['PaymentDate']=date('Y-m-d 00:00:00');
 			$data['created_at']=date("Y-m-d H:i:s");
 			$data['CreatedBy']='API';
@@ -99,11 +120,18 @@ class PaymentApiController extends ApiController {
 			}
 
 		}else{
-			return Response::json(["status"=>"failed", "data"=>"Account Not Found"]);
+			return Response::json(["status"=>"failed", "message"=>"Account Not Found"]);
 		}
 
-
 	}
+
+	/**
+	 * @Param mixed
+	 * CustomerID/AccountNo
+	 * Amount, BillingClassID (optional)
+	 *@Response
+	 * PaymentResponse,InvoiceGeneration Response
+	 */
 
 	public function depositFund(){
 		$data=Input::all();
@@ -402,7 +430,6 @@ class PaymentApiController extends ApiController {
 
 		}catch (Exception $e){
 			Log::info($e);
-			print_r( $e->getMessage());
 			DB::connection('sqlsrv2')->rollback();
 			$reseponse = array("status" => "failed", "message" => "Problem Creating Invoice. \n" . $e->getMessage());
 			return $reseponse;

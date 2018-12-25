@@ -24,6 +24,13 @@ class BillingClassApiController extends ApiController {
 		return Response::json(["status"=>"success", "data"=>$AccountTaxRate]);
 	}
 
+	/**
+	 * setLowBalanceNotification():
+	 * @Param mixed
+	 *BillingClassID,Status,Email,Period,Interval,StartTime,EmailTemplateID,Day,SendAccountOwner,CompanyID
+	 * @Response
+	 * Update or Create Success
+	 */
 	public function setLowBalanceNotification(){
 		$data=Input::all();
 		$PostData=array();
@@ -58,9 +65,9 @@ class BillingClassApiController extends ApiController {
 					$PostData['UpdatedBy'] = 'API';
 
 					$BillingClass->update($PostData);
-					return Response::json(["status"=>"success", "Message"=>"Updated Successfully."]);
+					return Response::json(["status"=>"success", "message"=>"Updated Successfully."]);
 				}else{
-					return Response::json(["status"=>"failed", "Message"=>"Billing Class Not Found."]);
+					return Response::json(["status"=>"failed", "message"=>"Billing Class Not Found."]);
 				}
 
 			} else {
@@ -84,15 +91,21 @@ class BillingClassApiController extends ApiController {
 				$PostData['CreatedBy'] = 'API';
 
 				$BillingClass = BillingClass::create($PostData);
-				return Response::json(["status"=>"success", "Message"=>"Inserted Successfully."]);
+				return Response::json(["status"=>"success", "message"=>"Inserted Successfully."]);
 			}
 		}catch (\Exception $e) {
 			Log::info($e);
-			return Response::json(["status"=>"failed", "Message"=>"Something Went Wrong. Exception Generated."]);
+			return Response::json(["status"=>"failed", "message"=>"Something Went Wrong. Exception Generated."]);
 		}
 
 	}
 
+	/**
+	 * @Param mixed
+	 * CustomerID/AccountNo
+	 * @Response
+	 * Return LowBalance Setting
+	 */
 
 	public function getLowBalanceNotification(){
 		$data=Input::all();
