@@ -35,6 +35,11 @@
             display:inline;
         }
     </style>
+    <script type="text/javascript">
+        var invoice_id = '{{$Invoice->InvoiceID}}';
+        var decimal_places = '{{$RoundChargesAmount}}';
+
+    </script>
     <form class="form-horizontal form-groups-bordered" method="post" id="invoice-from" role="form">
         <div class="pull-right"> @if(User::checkCategoryPermission('Invoice','Send')) <a href="Javascript:;" class="send-invoice btn btn-sm btn-success btn-icon icon-left hidden-print"> Send <i class="entypo-mail"></i> </a> @endif
             &nbsp; <a target="_blank" href="{{URL::to('/invoice/'.$Invoice->InvoiceID.'/invoice_preview')}}" class="btn btn-sm btn-danger btn-icon icon-left hidden-print"> Print Invoice <i class="entypo-doc-text"></i> </a> &nbsp;
