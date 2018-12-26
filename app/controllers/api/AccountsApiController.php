@@ -71,9 +71,7 @@ class AccountsApiController extends ApiController {
 			$companyID = User::get_companyID();
 			$ResellerData = [];
 			//$data['Owner'] = $post_vars->Owner;
-			if (isset($accountData['OwnerID']) && $accountData['OwnerID'] != '') {
-				$data['Owner'] = $accountData['OwnerID'];
-			}
+
 			/*else {
 
 				$ResellerOwner = empty($accountData['ResellerOwner']) ? 0 : $accountData['ResellerOwner'];
@@ -96,13 +94,10 @@ class AccountsApiController extends ApiController {
 			}*/
 
 
-			if (isset($accountData['Currency'])) {
-				$data['CurrencyId'] = $accountData['Currency'];
-			}
+
 
 
 			$data['Number'] = $accountData['Number'];
-			$data['AccountName'] = $accountData['AccountName'];
 			$data['FirstName'] = $accountData['FirstName'];
 			$data['LastName'] = $accountData['LastName'];
 			$data['Phone'] = $accountData['Phone'];
@@ -111,25 +106,22 @@ class AccountsApiController extends ApiController {
 			$data['City'] = $accountData['City'];
 			$data['Email'] = $accountData['Email'];
 			$data['BillingEmail'] = $accountData['BillingEmail'];
-			$data['OwnerID'] = $accountData['OwnerID'];
-			$data['IsVendor'] = $accountData['IsVendor'];
-			$data['IsCustomer'] = $accountData['IsCustomer'];
-			$data['IsReseller'] = $accountData['IsReseller'];
-			$data['Currency'] = $accountData['Currency'];
+			$data['Owner'] = $accountData['OwnerID'];
+			$data['CurrencyId'] = $accountData['Currency'];
 			$data['Country'] = $accountData['Country'];
-			$data['password'] = isset($data['CustomerPanelPassword']) ? Crypt::encrypt($data['CustomerPanelPassword']) :'';
+			$data['password'] = isset($accountData['CustomerPanelPassword']) ? Crypt::encrypt($accountData['CustomerPanelPassword']) :'';
 			$data['VatNumber'] = $accountData['VatNumber'];
 			$data['Language']= $accountData['Language'];
 
 			$data['CompanyID'] = $companyID;
 			$data['AccountType'] = 1;
-			$data['IsVendor'] = isset($data['IsVendor']) ? 1 : 0;
-			$data['IsCustomer'] = isset($data['IsCustomer']) ? 1 : 0;
-			$data['IsReseller'] = isset($data['IsReseller']) ? 1 : 0;
+			$data['IsVendor'] = isset($accountData['IsVendor']) ? 1 : 0;
+			$data['IsCustomer'] = isset($accountData['IsCustomer']) ? 1 : 0;
+			$data['IsReseller'] = isset($accountData['IsReseller']) ? 1 : 0;
 			$data['Billing'] = isset($data['Billing']) ? 1 : 0;
 			$data['created_by'] = User::get_user_full_name();
 			$data['AccountType'] = 1;
-			$data['AccountName'] = trim($data['AccountName']);
+			$data['AccountName'] = isset($accountData['AccountName']) ? trim($accountData['AccountName']) : '';
 
 
 
