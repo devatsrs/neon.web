@@ -122,7 +122,7 @@ class AccountsApiController extends ApiController {
 			$ServiceTemaplateReference = DynamicFieldsValue::where(["DynamicFieldsID"=>$DynamicField,"FieldValue"=>$ServiceTemaplateData["Value"]])->pluck('ParentID');
 			$ServiceTemaplateReference = ServiceTemplate::find($ServiceTemaplateReference);
 			Log::info('ServiceTemplateId' . $ServiceTemaplateReference->ServiceTemplateId);
-			Log::info('OutboundRateTableId for add account product' . $ServiceTemaplateReference->OutboundRateTableId);
+			
 
 			if (!empty($data['InboundTariffCategory'])) {
 				$InboundRateTableReference = ServiceTemapleInboundTariff::where(["ServiceTemplateID"=>$ServiceTemaplateReference->ServiceTemplateId,"DIDCategoryId"=>$data['InboundTariffCategory']])->count();
@@ -224,7 +224,7 @@ class AccountsApiController extends ApiController {
 			if (!empty($ServiceTemaplateReference->OutboundRateTableId)) {
 				$cliRateTableID = $ServiceTemaplateReference->OutboundRateTableId;
 			}
-			Log::info('OutboundRateTableId for add account product' . $cliRateTableID);
+
 
 				$rate_tables['CLI'] = $data['NumberPurchased'];
 				$rate_tables['RateTableID'] = $cliRateTableID;
@@ -235,7 +235,7 @@ class AccountsApiController extends ApiController {
 				}
 				CLIRateTable::insert($rate_tables);
 				$message = "Account Service Successfully Added";
-			
+
 
 
 
