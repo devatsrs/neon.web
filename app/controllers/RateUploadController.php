@@ -862,9 +862,9 @@ class RateUploadController extends \BaseController {
                                 // if origination code is not mapped, only destination mapped
                                 if (empty($Join1O) || empty($Join2O)) {
                                     $results[$i] = $ratesheet[$key];
-                                    $results[$i][$attrselection2->CountryCode]  = $dialcodessheet[$code_key][$attrselection2->CountryCode];
+                                    $results[$i][$attrselection2->CountryCode]  = !empty($dialcodessheet[$code_key][$attrselection2->CountryCode]) ? $dialcodessheet[$code_key][$attrselection2->CountryCode] : '';
                                     $results[$i][$attrselection2->Code]         = $dialcodessheet[$code_key][$attrselection2->Code];
-                                    $results[$i][$attrselection2->Description]  = $dialcodessheet[$code_key][$attrselection2->Description];
+                                    $results[$i][$attrselection2->Description]  = !empty($dialcodessheet[$code_key][$attrselection2->Description]) ? $dialcodessheet[$code_key][$attrselection2->Description] : '';
 
                                     $results[$i][$OCountryCode] = NULL;
                                     $results[$i][$OCode]        = NULL;
@@ -882,9 +882,9 @@ class RateUploadController extends \BaseController {
                                         foreach ($code_keys_o as $index_o => $code_key_o) {
                                             if (isset($dialcodessheet[$code_key_o])) {
                                                 $results[$i] = $ratesheet[$key];
-                                                $results[$i][$attrselection2->CountryCode]  = $dialcodessheet[$code_key][$attrselection2->CountryCode];
+                                                $results[$i][$attrselection2->CountryCode]  = !empty($dialcodessheet[$code_key][$attrselection2->CountryCode]) ? $dialcodessheet[$code_key][$attrselection2->CountryCode] : '';
                                                 $results[$i][$attrselection2->Code]         = $dialcodessheet[$code_key][$attrselection2->Code];
-                                                $results[$i][$attrselection2->Description]  = $dialcodessheet[$code_key][$attrselection2->Description];
+                                                $results[$i][$attrselection2->Description]  = !empty($dialcodessheet[$code_key][$attrselection2->Description]) ? $dialcodessheet[$code_key][$attrselection2->Description] : '';
 
                                                 $results[$i][$OCountryCode] = $dialcodessheet[$code_key_o][$attrselection2->OriginationCountryCode];
                                                 $results[$i][$OCode]        = $dialcodessheet[$code_key_o][$attrselection2->OriginationCode];
