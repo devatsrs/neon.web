@@ -222,20 +222,25 @@ class AccountsApiController extends ApiController {
 
 
 
-					$rate_tables['CLI'] = $data['NumberPurchased'];
-					$rate_tables['RateTableID'] = $ServiceTemaplateReference->OutboundRateTableId;
-					$rate_tables['AccountID'] = $Account->AccountID;
-					$rate_tables['CompanyID'] = $CompanyID;
-					if(!empty($ServiceTemaplateReference->ServiceId)) {
-						$rate_tables['ServiceID'] = $ServiceTemaplateReference->ServiceId;
-					}
-					CLIRateTable::insert($rate_tables);
+			if (!empty($ServiceTemaplateReference->OutboundRateTableId)) {
+				$rate_tables['CLI'] = $data['NumberPurchased'];
+				$rate_tables['RateTableID'] = $ServiceTemaplateReference->OutboundRateTableId;
+				$rate_tables['AccountID'] = $Account->AccountID;
+				$rate_tables['CompanyID'] = $CompanyID;
+				if (!empty($ServiceTemaplateReference->ServiceId)) {
+					$rate_tables['ServiceID'] = $ServiceTemaplateReference->ServiceId;
+				}
+				CLIRateTable::insert($rate_tables);
+				$message = "Account Service Successfully Added";
+			} else {
+				$message = "Account Service Successfully Added, but with out CLI as RateTableID is not defined against the product";
+			}
 
 
 
 
 
-			return Response::json(array("status" => "success", "message" => "Account Service Successfully Added"));
+			return Response::json(array("status" => "success", "message" => $message));
 
 
 		} catch (Exception $ex) {
