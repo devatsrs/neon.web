@@ -14,6 +14,14 @@
                     <input class="form-control" name="Search" id="Search"  type="text" >
                 </div>--}}
                 <div class="form-group">
+                    <label class="control-label" for="field-1">Applied To</label>
+                    <?php
+                        $AppliedTo = RateTable::$AppliedTo;
+                        unset($AppliedTo[RateTable::APPLIED_TO_VENDOR])
+                    ?>
+                    {{ Form::select('AppliedTo', $AppliedTo, RateTable::APPLIED_TO_CUSTOMER, array("class"=>"select2")) }}
+                </div>
+                <div class="form-group">
                     <label class="control-label" for="field-1">Apply To</label>
                     {{ Form::select('level', ["T"=>"Trunk","S"=>"Service"], 'T', array("class"=>"select2 level","data-type"=>"level")) }}
                 </div>
@@ -133,6 +141,7 @@
             $("#ratetable_filter").submit(function(e) {
 
                 var $searchFilter = {};
+                $searchFilter.AppliedTo = $("#ratetable_filter [name='AppliedTo']").val();
                 $searchFilter.TrunkID = $("#ratetable_filter [name='TrunkID']").val();
                 $searchFilter.RateTableId = $("#ratetable_filter [name='RateTableId']").val();
                 $searchFilter.SourceCustomers = $("#ratetable_filter select[name='SourceCustomers[]']").val();
@@ -227,6 +236,7 @@
                     "aaSorting": [[1, "asc"]],
                     "fnServerParams": function(aoData) {
                         aoData.push(
+                                {"name":"AppliedTo","value":$searchFilter.AppliedTo},
                                 {"name":"TrunkID","value":$searchFilter.TrunkID},
                                 {"name":"Currency","value":$searchFilter.Currency},
                                 {"name":"RateTableId","value":$searchFilter.RateTableId},
@@ -236,6 +246,7 @@
                                 {"name":"Search","value":$searchFilter.Search});
                         data_table_extra_params.length = 0;
                         data_table_extra_params.push(
+                                {"name":"AppliedTo","value":$searchFilter.AppliedTo},
                                 {"name":"TrunkID","value":$searchFilter.TrunkID},
                                 {"name":"Currency","value":$searchFilter.Currency},
                                 {"name":"RateTableId","value":$searchFilter.RateTableId},
@@ -282,6 +293,8 @@
 
                             }
                         });
+
+                        $(".currency").trigger('change');
 
                        /*
 
@@ -466,21 +479,23 @@
 
             $(".currency").change(function(){
                 var currencyID = $(this).val();
+                var AppliedTo = $('#ratetable_filter select[name=AppliedTo]').val();
                 if(currencyID > 0) {
                     $("#Customerlist").select2("val", "");
-                    getRateTableAndAccountByCurrency(currencyID);
+                    getRateTableAndAccountByCurrency(currencyID,AppliedTo);
                 }
             });
-            getRateTableAndAccountByCurrency('{{$CurrencyID}}');
+            var AppliedTo = $('#ratetable_filter select[name=AppliedTo]').val();
+            getRateTableAndAccountByCurrency('{{$CurrencyID}}',AppliedTo);
 
         });
 
-        function getRateTableAndAccountByCurrency(currencyID){
+        function getRateTableAndAccountByCurrency(currencyID,AppliedTo){
             $.ajax({
                 url: baseurl + "/rate_tables/apply_rate_table/ajax_getRateTableAndAccountByCurrency",
                 dataType: 'json',
                 type: 'post',
-                data: {id: currencyID},
+                data: {id: currencyID, AppliedTo: AppliedTo},
                 success: function (response) {
                     var ratetable = response.ratetablelist;
                     var key = "";

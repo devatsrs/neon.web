@@ -5,22 +5,29 @@
     @endforeach
 @endif
 @if($selecteddata == "outboundPlan")
+
     <option value="">Select</option>
     @foreach($outbounddiscountplan as $outbounddiscountsingleplan)
         <option value="{{$outbounddiscountsingleplan["DiscountPlanID"]}}">{{$outbounddiscountsingleplan["Name"]}}</option>
     @endforeach
+
 @endif
 @if($selecteddata == "inboundPlan")
+
+
     <option value="">Select</option>
     @foreach($inbounddiscountplan as $inbounddiscountsingleplan)
         <option value="{{$inbounddiscountsingleplan["DiscountPlanID"]}}">{{$inbounddiscountsingleplan["Name"]}}</option>
     @endforeach
+
 @endif
 @if($selecteddata == "outboundTariff")
+
     <option value="">Select</option>
     @foreach($outboundtarifflist as $outboundtariffsingle)
         <option value="{{$outboundtariffsingle["RateTableId"]}}">{{$outboundtariffsingle["RateTableName"]}}</option>
     @endforeach
+
 @endif
 @if($selecteddata == "DidCategoryID")
     @foreach($categorytarifflist as $categorytariffsingle)

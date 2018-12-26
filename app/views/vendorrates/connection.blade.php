@@ -115,23 +115,29 @@
 
                     </div>
 
-                    <div class="form-group FilterVoiceCallDiv">
-
-                        <div class="FilterIP">
-                            <label for="field-1" class="col-sm-1 control-label">IP</label>
-                            <div class="col-sm-3">
-                                <input type="text" name="IP" class="form-control" id="filter-1" placeholder="" value="{{Input::get('IP')}}" />
+                    <div class="form-group">
+                        <div class="FilterVoiceCallDiv">
+                            <div class="FilterIP">
+                                <label for="field-1" class="col-sm-1 control-label">IP</label>
+                                <div class="col-sm-3">
+                                    <input type="text" name="IP" class="form-control" id="filter-1" placeholder="" value="{{Input::get('IP')}}" />
+                                </div>
+                            </div>
+                            <div class="FilterTrunk">
+                                <label for="field-1" class="col-sm-1 control-label">Trunk</label>
+                                <div class="col-sm-3">
+                                    {{ Form::select('TrunkID', $trunks, '', array("class"=>"select2")) }}
+                                </div>
                             </div>
                         </div>
-                        <div class="FilterTrunk">
-                            <label for="field-1" class="col-sm-1 control-label">Trunk</label>
-                            <div class="col-sm-3">
-                                {{ Form::select('TrunkID', $trunks, '', array("class"=>"select2")) }}
-                            </div>
+
+                        <label for="field-5" class="col-sm-1 control-label">Status</label>
+
+                        <div class="col-sm-3">
+                            {{ Form::select('FilterActive', [''=>'Both','1'=>'Active','0'=>'Deactive'], 1, array("class"=>"select2")) }}
                         </div>
-
-
                     </div>
+
 
 
                     <p style="text-align: right;">
@@ -200,8 +206,8 @@
 <script type="text/javascript">
     var $searchFilter = {};
     var checked='';
-    var list_fields  = ['VendorConnectionID','Name','ConnectionType','IP','Active','TrunkName','CategoryName','created_at','DIDCategoryID','Tariff','TrunkID','CLIRule','CLDRule','CallPrefix','Port','Username','PrefixCDR','SipHeader','AuthenticationMode'];
-    var TrunkID, IP, ConnectionType,Name,DIDCategoryID,update_new_url;
+    var list_fields  = ['VendorConnectionID','Name','ConnectionType','IP','Active','TrunkName','CategoryName','created_at','DIDCategoryID','RateTableID','TrunkID','CLIRule','CLDRule','CallPrefix','Port','Username','PrefixCDR','SipHeader','AuthenticationMode'];
+    var TrunkID, IP, ConnectionType,Name,DIDCategoryID,Active,update_new_url;
 
     jQuery(document).ready(function($) {
         var ArchiveRates;
@@ -362,16 +368,16 @@
                 $("#DIDTariffLoading").addClass("hidden");
                 var VendorConnectionID = $("#edit-vendor-rate-form [name='VendorConnectionID']").val();
                 if(typeof VendorConnectionID == 'undefined' || VendorConnectionID == ''){
-                    $("select[name='did[Tariff]']").select2("val", "");
+                    $("select[name='did[RateTableID]']").select2("val", "");
                 }
 
                 if($.trim(response)){
 
-                    $("select[name='did[Tariff]']").html(response);
+                    $("select[name='did[RateTableID]']").html(response);
 
                     if(typeof VendorConnectionID != 'undefined' && VendorConnectionID != ''){
                         console.log("func "+arg1);
-                        $("select[name='did[Tariff]']").select2("val",arg1);
+                        $("select[name='did[RateTableID]']").select2("val",arg1);
                     }
 
                 }
@@ -394,16 +400,16 @@
                 $("#VoiceTariffLoading").addClass("hidden");
                 var VendorConnectionID = $("#edit-vendor-rate-form [name='VendorConnectionID']").val();
                 if(typeof VendorConnectionID == 'undefined' || VendorConnectionID == ''){
-                    $("select[name='voice[Tariff]']").select2("val", "");
+                    $("select[name='voice[RateTableID]']").select2("val", "");
                 }
 
                 if($.trim(response)){
 
-                    $("select[name='voice[Tariff]']").html(response);
+                    $("select[name='voice[RateTableID]']").html(response);
 
                     if(typeof VendorConnectionID != 'undefined' && VendorConnectionID != ''){
                         console.log("func "+arg1);
-                        $("select[name='voice[Tariff]']").select2("val",arg1);
+                        $("select[name='voice[RateTableID]']").select2("val",arg1);
                     }
 
                 }
@@ -493,6 +499,7 @@
         $searchFilter.ConnectionType = ConnectionType = $("#vendor-rate-search select[name='ConnectionType']").val();
         $searchFilter.Name = Name = $("#vendor-rate-search input[name='Name']").val();
         $searchFilter.DIDCategoryID = DIDCategoryID = $("#vendor-rate-search select[name='DIDCategoryID']").val();
+        $searchFilter.FilterActive = FilterActive = $("#vendor-rate-search select[name='FilterActive']").val();
 
         /* if(ConnectionType == '' || typeof ConnectionType  == 'undefined'){
              toastr.error("Please Select Type", "Error", toastr_opts);
@@ -506,9 +513,9 @@
             "bServerSide": true,
             "sAjaxSource": baseurl + "/vendor_rates/connection/{{$id}}/search_ajax_datagrid/type",
             "fnServerParams": function(aoData) {
-                aoData.push({"name": "TrunkID", "value": TrunkID}, {"name": "IP", "value": IP}, {"name": "ConnectionType", "value": ConnectionType},{"name": "Name", "value": Name},{"name": "DIDCategoryID", "value": DIDCategoryID});
+                aoData.push({"name": "TrunkID", "value": TrunkID}, {"name": "IP", "value": IP}, {"name": "ConnectionType", "value": ConnectionType},{"name": "Name", "value": Name},{"name": "DIDCategoryID", "value": DIDCategoryID},{"name": "FilterActive", "value": FilterActive});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name": "TrunkID", "value": TrunkID}, {"name": "IP", "value": IP}, {"name": "ConnectionType", "value": ConnectionType},{"name": "Name", "value": Name},{"name": "DIDCategoryID", "value": DIDCategoryID},{ "name": "Export", "value": 1});
+                data_table_extra_params.push({"name": "TrunkID", "value": TrunkID}, {"name": "IP", "value": IP}, {"name": "ConnectionType", "value": ConnectionType},{"name": "Name", "value": Name},{"name": "DIDCategoryID", "value": DIDCategoryID},{"name": "FilterActive", "value": FilterActive},{ "name": "Export", "value": 1});
             },
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
@@ -652,14 +659,18 @@
                                     $('#edit-vendor-rate-form [name="did[Active]"]').prop('checked',false);
                                 }
                             }else if(list_fields[i] == 'DIDCategoryID'){
-                                $("#edit-vendor-rate-form [name='did["+list_fields[i]+"]']").select2("val",cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                                $("#edit-vendor-rate-form [name='did[" + list_fields[i] + "]']").removeAttr('disabled');
+                                var DIDCategoryID_ = cur_obj.find("input[name='"+list_fields[i]+"']").val();
+                                $("#edit-vendor-rate-form [name='did["+list_fields[i]+"]']").select2("val",DIDCategoryID_);
                                 var DIDCategoryID = $("#edit-vendor-rate-form [name='did[DIDCategoryID]']").val();
-                                var TarrifID = cur_obj.find("input[name='Tariff']").val();
+                                var TarrifID = cur_obj.find("input[name='RateTableID']").val();
 
                                 loadTariffByCategory(DIDCategoryID,TarrifID);
-                                $("#edit-vendor-rate-form [name='did["+list_fields[i]+"]']").attr("disabled",true);
+                                if(typeof(DIDCategoryID_)!='undefined' && DIDCategoryID_!=0) {
+                                    $("#edit-vendor-rate-form [name='did[" + list_fields[i] + "]']").attr("disabled", true);
+                                }
 
-                            }else if(list_fields[i] == 'Tariff'){
+                            }else if(list_fields[i] == 'RateTableID'){
                                 $("#edit-vendor-rate-form [name='did[" + list_fields[i] + "]']").val(cur_obj.find("input[name='" + list_fields[i] + "']").val()).trigger("change");
 
                             }
@@ -677,12 +688,12 @@
                             }else if(list_fields[i] == 'TrunkID'){
                                 $("#edit-vendor-rate-form [name='voice["+list_fields[i]+"]']").select2("val",cur_obj.find("input[name='"+list_fields[i]+"']").val());
                                 var TrunkID = $("#edit-vendor-rate-form [name='voice[TrunkID]']").val();
-                                var TarrifID = cur_obj.find("input[name='Tariff']").val();
+                                var TarrifID = cur_obj.find("input[name='RateTableID']").val();
 
                                 loadTariffByTrunk(TrunkID,TarrifID);
 
                                 $("#edit-vendor-rate-form [name='voice["+list_fields[i]+"]']").attr("disabled",true);
-                            }else if(list_fields[i] == 'Tariff'){
+                            }else if(list_fields[i] == 'RateTableID'){
                                 $("#edit-vendor-rate-form [name='voice["+list_fields[i]+"]']").select2("val",cur_obj.find("input[name='"+list_fields[i]+"']").val());
                             }else if(list_fields[i] == 'Password'){
                                     //remain blank
@@ -783,6 +794,14 @@
                             });
 
                         }, 500);
+                    }else{
+                        console.log("Cancel");
+                        if($currentchecked){
+                            $($this).prop('checked',false);
+                        }else{
+                            $($this).prop('checked',true);
+                        }
+
                     }
 
                 });
@@ -790,6 +809,8 @@
                 //ChangeMultipleStatus
                 $("#changeStatus").unbind().click(function(ev) {
                     $('#bulk-edit-connection-form').trigger("reset");
+                    $("#bulk-edit-connection-form").find(".statusActive").prop('checked',true);
+                    $(".statusActive").closest('.switch-animate').removeClass('switch-off');
                     var criteria='';
                     if($('#selectallbutton').is(':checked')){
                         //if($('#selectallbutton').find('i').hasClass('entypo-cancel')){
@@ -810,7 +831,7 @@
                         }
                         RateIDs[i++] = RateID;
                     });
-                    $('#modal-BulkConnection .modal-header h4').text('Bulk Edit Vendor Connection')
+                    $('#modal-BulkConnection .modal-header h4').text('Bulk Edit Vendor Connection');
                     $('#bulk-update-params-show').hide();
                     var cur_obj = $(this).prev("div.hiddenRowData");
                     for(var i = 0 ; i< list_fields.length; i++){
@@ -1045,14 +1066,14 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Category*</label>
+                                    <label for="field-5" class="control-label">Category</label>
                                     {{ Form::select('did[DIDCategoryID]', $DIDCategories, '', array("class"=>"select2")) }}
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Tariff*</label>
-                                    {{ Form::select('did[Tariff]', $TariffDID, '', array("class"=>"select2")) }}
+                                    {{ Form::select('did[RateTableID]', $TariffDID, '', array("class"=>"select2")) }}
                                     <span id="DIDTariffLoading" class="hidden">Loading ...</span>
                                 </div>
                             </div>
@@ -1169,7 +1190,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Tariff</label>
-                                    {{ Form::select('voice[Tariff]', $TariffVoiceCall, '', array("class"=>"select2")) }}
+                                    {{ Form::select('voice[RateTableID]', $TariffVoiceCall, '', array("class"=>"select2")) }}
                                     <span id="VoiceTariffLoading" class="hidden">Loading ...</span>
 
                                 </div>
@@ -1241,7 +1262,7 @@
                                 <label for="field-5" class="control-label">Status</label>
 
                                 <p class="make-switch switch-small">
-                                    <input id="Active" name="Active" type="checkbox" value="1" checked>
+                                    <input id="Active" class="statusActive" name="Active" type="checkbox" value="1" checked>
                                 </p>
 
                             </div>

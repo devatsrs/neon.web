@@ -23,4 +23,117 @@ class BillingClassApiController extends ApiController {
 		}
 		return Response::json(["status"=>"success", "data"=>$AccountTaxRate]);
 	}
+
+	/**
+	 * setLowBalanceNotification():
+	 * @Param mixed
+	 *BillingClassID,Status,Email,Period,Interval,StartTime,EmailTemplateID,Day,SendAccountOwner,CompanyID
+	 * @Response
+	 * Update or Create Success
+	 */
+	public function setLowBalanceNotification(){
+		$data=Input::all();
+		$PostData=array();
+
+		$PostData['LowBalanceReminderStatus']=isset($data['Status'])?$data['Status']:0;
+		$PostData['LowBalanceReminderSettings']['ReminderEmail']=isset($data['Email'])?$data['Email']:'';
+		$PostData['LowBalanceReminderSettings']['Time']=isset($data['Period'])?$data['Period']:'';
+		$PostData['LowBalanceReminderSettings']['Interval']=isset($data['Interval'])?$data['Interval']:'';
+		$PostData['LowBalanceReminderSettings']['StartTime']=isset($data['StartTime'])?$data['StartTime']:'';
+		$PostData['LowBalanceReminderSettings']['TemplateID']=isset($data['EmailTemplateID'])?$data['EmailTemplateID']:'';
+
+		if(!empty($data['SendAccountOwner'])){
+			$PostData['LowBalanceReminderSettings']['AccountManager']=$data['SendAccountOwner'];
+		}
+		$PostData['LowBalanceReminderSettings']['Day']=isset($data['Day'])?$data['Day']:["Mon"];
+
+		try {
+			if (!empty($data['BillingClassID'])) {
+				//Update
+				$BillingClass = BillingClass::find($data['BillingClassID']);
+
+				if(!empty($BillingClass)){
+					$LowBalanceReminderSettings = json_decode($BillingClass->LowBalanceReminderSettings);
+					if (isset($LowBalanceReminderSettings->LastRunTime)) {
+						$PostData['LowBalanceReminderSettings']['LastRunTime'] = $LowBalanceReminderSettings->LastRunTime;
+					}
+					if (isset($LowBalanceReminderSettings->NextRunTime)) {
+						$PostData['LowBalanceReminderSettings']['NextRunTime'] = $LowBalanceReminderSettings->NextRunTime;
+					}
+
+					$PostData['LowBalanceReminderSettings'] = json_encode($PostData['LowBalanceReminderSettings']);
+					$PostData['UpdatedBy'] = 'API';
+
+					$BillingClass->update($PostData);
+					return Response::json(["status"=>"success", "message"=>"Updated Successfully."]);
+				}else{
+					return Response::json(["status"=>"failed", "message"=>"Billing Class Not Found."]);
+				}
+
+			} else {
+				// Create
+				$rules = array(
+					'CompanyID' => 'required',
+				);
+
+				$verifier = App::make('validation.presence');
+				$verifier->setConnection('sqlsrv');
+
+				$validator = Validator::make($data, $rules);
+				$validator->setPresenceVerifier($verifier);
+
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+
+				$PostData['CompanyID'] = $data['CompanyID'];
+				$PostData['LowBalanceReminderSettings'] = json_encode($PostData['LowBalanceReminderSettings']);
+				$PostData['CreatedBy'] = 'API';
+
+				$BillingClass = BillingClass::create($PostData);
+				return Response::json(["status"=>"success", "message"=>"Inserted Successfully."]);
+			}
+		}catch (\Exception $e) {
+			Log::info($e);
+			return Response::json(["status"=>"failed", "message"=>"Something Went Wrong. Exception Generated."]);
+		}
+
+	}
+
+	/**
+	 * @Param mixed
+	 * CustomerID/AccountNo
+	 * @Response
+	 * Return LowBalance Setting
+	 */
+
+	public function getLowBalanceNotification(){
+		$data=Input::all();
+		$AccountID=0;
+		if(!empty($data['CustomerID'])) {
+			$AccountID = $data['CustomerID'];
+		}else if(!empty($data['AccountNo'])){
+			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
+		}
+
+		if(empty($AccountID)){
+
+			return Response::json(["status"=>"failed", "data"=>"CustomerID or AccountNo is Required"]);
+		}
+
+		$BillingClassID=AccountBilling::getBillingClassID($AccountID);
+		if($BillingClassID > 0){
+			$BillingClass=BillingClass::find($BillingClassID);
+
+			//$BillingClass=AccountBilling::join('tblBillingClass','tblAccountBilling.BillingClassID','=','tblBillingClass.BillingClassID')->where(['tblAccountBilling.AccountID'=>$AccountID])->select('tblBillingClass.*')->first();
+			return Response::json(["status"=>"success", "data"=>json_decode(json_encode($BillingClass->LowBalanceReminderSettings),true)]);
+
+		}else{
+			return Response::json(["status"=>"failed", "data"=>"BillingClass Not Found"]);
+		}
+
+
+	}
+
+
 }

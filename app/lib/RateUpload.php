@@ -12,7 +12,7 @@ class RateUpload {
     const ratetable     = 'ratetable';
     const customer      = 'customer';
     public static $uploadtypes   = array(
-        RateUpload::vendor      => 'Vendor',
+        //RateUpload::vendor      => 'Vendor',
         RateUpload::ratetable   => 'Rate Table',
         //$this->customer     => 'Customer Rate'
     );

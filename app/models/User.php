@@ -193,12 +193,34 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
     }
 
     public static function get_user_full_name(){
-        $customer=Session::get('customer');
-        //$reseller=Session::get('reseller');
-        if($customer==1){
-            return Customer::get_user_full_name();
+        try {
+            $customer = Session::get('customer');
+            //$reseller=Session::get('reseller');
+            if ($customer == 1) {
+                return Customer::get_user_full_name();
+            }
+            return Auth::user()->FirstName . ' ' . Auth::user()->LastName;
+        }catch (Exception $ex) {
+            $Request = [];
+            if (isset($_SERVER["PHP_AUTH_USER"]) && isset($_SERVER["PHP_AUTH_PW"])) {
+                $Request["EmailAddress"] = $_SERVER["PHP_AUTH_USER"];
+                $Request["password"] = $_SERVER["PHP_AUTH_PW"];
+            }
+
+            $rules = array(
+                'EmailAddress' => 'required',
+                'password' => 'required',
+            );
+            $validator = Validator::make($Request, $rules);
+
+            if ($validator->fails()) {
+                return Response::json(["status" => "failed", "message" => "Not authorized. Please Login"]);
+            }
+
+            $validate = NeonAPI::RegisterApiLogin($Request);
+            $CreatedBy = $validate['FirstName'] . ' '.$validate['LastName'];
+            return $CreatedBy;
         }
-        return Auth::user()->FirstName.' '. Auth::user()->LastName;
 
     }
 
@@ -433,6 +455,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         $CompanyID = User::get_companyID();
         $Userid = User::get_userID();
         $query = "call prc_GetAllResourceCategoryByUser (".$CompanyID.",'".$Userid."')";
+        Log::info('setUserPermission query.' . $query );
         $excel_data  = DB::select($query);
         $resourcescat = json_decode(json_encode($excel_data),true);
         $usrcategoryname = [];

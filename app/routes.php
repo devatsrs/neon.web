@@ -737,7 +737,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rate_tables/{id}/view', 'RateTablesController@view');
     Route::any('/rate_tables/{id}/add_newrate', 'RateTablesController@add_newrate');
 	Route::any('/rate_tables/{id}/clear_rate', 'RateTablesController@clear_rate');
+	Route::any('/rate_tables/{id}/clear_did_rate', 'RateTablesController@clear_did_rate');
 	Route::any('/rate_tables/{id}/update_rate_table_rate', 'RateTablesController@update_rate_table_rate');
+	Route::any('/rate_tables/{id}/update_rate_table_did_rate', 'RateTablesController@update_rate_table_did_rate');
 	//Route::any('/rate_tables/{id}/bulk_update_rate_table_rate', 'RateTablesController@bulk_update_rate_table_rate');
 	Route::any('/rate_tables/{id}/bulk_clear_rate_table_rate', 'RateTablesController@bulk_clear_rate_table_rate');
 	Route::any('/rate_tables/{id}/change_status/{status}', 'RateTablesController@change_status')->where('status', '(.[09]*)+');
@@ -763,6 +765,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rate_upload/checkUpload', 'RateUploadController@checkUpload');
 	Route::any('/rate_upload/getTrunk/{type}', 'RateUploadController@getTrunk');
 	Route::any('/rate_upload/getUploadTemplates/{type}', 'RateUploadController@getUploadTemplates');
+	Route::any('/rate_upload/{id}/getRateTableDetails', 'RateUploadController@getRateTableDetails');
 	Route::any('/rate_upload/{id}/{type}', 'RateUploadController@index');
 	Route::resource('rate_upload', 'RateUploadController');
 	Route::controller('rate_upload', 'RateUploadController');
@@ -954,6 +957,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/billing_subscription/dynamicField/update_bulk_itemtypes_status', 'BillingSubscriptionController@UpdateBulkItemTypeStatus');
 	Route::any('/billing_subscription/dynamicField/typesAccess/{data}', 'BillingSubscriptionController@getSubscritionsType');
 	Route::any('/billing_subscription/dynamicField/fieldAccess', 'BillingSubscriptionController@getSubscritionsField');
+
+
+
 
 	//InvoiceTemplate
 	Route::any('/invoice_template/ajax_datagrid/{type}', 'InvoiceTemplatesController@ajax_datagrid');
@@ -1480,6 +1486,15 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('servicesTemplate/exports/{type}', 'ServicesTemplateController@exports');
 	Route::any('servicesTemplate/selectDataOnCurrency', 'ServicesTemplateController@selectDataOnCurrency');
 
+	//Service Template Fields
+	Route::any('/servicetempaltes/servicetemplatetype', 'ServicesTemplateController@viewSubscriptionDynamicFields');
+	Route::any('/servicetempaltes/servicetemplatetype/getFields/{type}', 'ServicesTemplateController@ajax_GetServiceTemplateType');
+	Route::any('/servicetempaltes/servicetemplatetype/dynamicfields/create', 'ServicesTemplateController@addDynamicFields');
+	Route::any('/servicetempaltes/servicetemplatetype/dynamicfields/{id}/update','ServicesTemplateController@updateDynamicField');
+	Route::any('/servicetempaltes/servicetemplatetype/dynamicfields/{id}/delete', 'ServicesTemplateController@deleteDynamicFields');
+	Route::any('/servicetempaltes/servicetemplatetype/dynamicField/update_bulk_itemtypes_status', 'ServicesTemplateController@UpdateBulkItemTypeStatus');
+	Route::any('/servicetempaltes/servicetemplatetype/dynamicField/typesAccess/{data}', 'ServicesTemplateController@getSubscritionsType');
+	Route::any('/servicetempaltes/servicetemplatetype/dynamicField/fieldAccess', 'ServicesTemplateController@getSubscritionsField');
 
 	// services
 	Route::any('services', 'ServicesController@index');
@@ -1572,13 +1587,19 @@ Route::group(array('before' => 'auth'), function () {
         //routing Profiles
 	Route::any('/routingprofiles/ajax_datagrid', 'RoutingProfilesController@ajax_datagrid');
 	Route::any('/routingprofiles', 'RoutingProfilesController@index');
-        Route::any('/assignrouting', 'AssignRoutingController@index');
-        Route::any('/assignrouting/ajax_datagrid/{type}', 'AssignRoutingController@ajax_datagrid');
 	Route::any('/routingprofiles/create', 'RoutingProfilesController@create');
         Route::any('/routingprofiles/ajaxcall/{id}', 'RoutingProfilesController@ajaxcall');
 	Route::any('/routingprofiles/update/{id}', 'RoutingProfilesController@update');
 	Route::any('/routingprofiles/{id}/delete', 'RoutingProfilesController@delete');
         Route::any('/routingprofiles/exports/{type}', 'RoutingProfilesController@exports');
+        //assign routing Profiles
+        Route::any('/assignrouting', 'AssignRoutingController@index');
+        Route::any('/assignrouting/ajax_datagrid/{type}', 'AssignRoutingController@ajax_datagrid');
+        Route::any('/assignrouting/store', 'AssignRoutingController@store');
+        
+        Route::any('/assignrouting/exports/{type}', 'AssignRoutingController@exports');
+        
+        
 });
 
 Route::group(array('before' => 'global_admin'), function () {
@@ -1721,4 +1742,20 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('products/getProductsByType', 'ProductApiController@getListByType');
 	Route::post('products/ProductUpdateStock', 'ProductApiController@UpdateStockCalculation');
 	Route::post('getAccountbilling/{AccountID}', 'AccountBillingApiController@getAccountBilling');
+	Route::post('account/add_servicetemaplate', 'ServicesTemplateApiController@storeServiceTempalteData');
+	
+
+	Route::post('checkBalance/', 'AccountsApiController@checkBalance');
+	Route::post('getPayments/', 'PaymentApiController@getPaymentHistory');
+	Route::post('getAutoDepositSettings/', 'AccountBillingApiController@getAutoDepositSettings');
+	Route::post('setAutoDepositSettings/', 'AccountBillingApiController@setAutoDepositSettings');
+	Route::post('getAutoOutPaymentSettings/', 'AccountBillingApiController@getAutoOutPaymentSettings');
+	Route::post('setAutoOutPaymentSettings/', 'AccountBillingApiController@setAutoOutPaymentSettings');
+	Route::post('setLowBalanceNotification/', 'BillingClassApiController@setLowBalanceNotification');
+	Route::post('getLowBalanceNotification/', 'BillingClassApiController@getLowBalanceNotification');
+	Route::post('requestFund/', 'PaymentApiController@requestFund');
+	Route::post('depositFund/', 'PaymentApiController@depositFund');
+	Route::post('account/create', 'AccountsApiController@createAccount');
+	Route::post('account/add_service', 'AccountsApiController@createAccountService');
+
 });
