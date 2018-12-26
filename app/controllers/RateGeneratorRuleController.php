@@ -89,13 +89,15 @@ class RateGeneratorRuleController extends \BaseController {
             $data ['CreatedBy'] = User::get_user_full_name();
             $data ['RateGeneratorId'] = $id;
 
+
             $rules = array(
 
                 'OriginationCode' => 'required_without_all:OriginationDescription|unique:tblRateRule,OriginationCode,NULL,RateGeneratorId,RateGeneratorId,'.$data['RateGeneratorId'],
                 'OriginationDescription' => 'required_without_all:OriginationCode|unique:tblRateRule,OriginationDescription,NULL,RateGeneratorId,RateGeneratorId,'.$data['RateGeneratorId'],
                 'DestinationCode' => 'required_without_all:DestinationDescription|unique:tblRateRule,DestinationCode,NULL ,RateGeneratorId,RateGeneratorId,'.$data['RateGeneratorId'],
                 'DestinationDescription' => 'required_without_all:DestinationCode|unique:tblRateRule,DestinationDescription,NULL,RateGeneratorId,RateGeneratorId,'.$data['RateGeneratorId'],
-                'ModifiedBy' => 'required'
+                'RateGeneratorId' => 'required',
+                'CreatedBy' => 'required'
             );
 
             $validator = Validator::make($data, $rules);
