@@ -221,7 +221,7 @@ class AccountsApiController extends ApiController {
 
 
 
-
+			Log::info('OutboundRateTableId for add account product' . $ServiceTemaplateReference->OutboundRateTableId);
 			if (!empty($ServiceTemaplateReference->OutboundRateTableId)) {
 				$rate_tables['CLI'] = $data['NumberPurchased'];
 				$rate_tables['RateTableID'] = $ServiceTemaplateReference->OutboundRateTableId;
