@@ -40,7 +40,7 @@ class ConnectionController extends \BaseController {
         }
 
 
-        $columns = array('VendorConnectionID','Name','ConnectionType','IP','Active','TrunkName','CategoryName','created_at','DIDCategoryID','Tariff','TrunkID','CLIRule','CLDRule','CallPrefix','Port','Username','PrefixCDR','SipHeader','AuthenticationMode');
+        $columns = array('VendorConnectionID','Name','ConnectionType','IP','Active','TrunkName','CategoryName','created_at','DIDCategoryID','RateTableID','TrunkID','CLIRule','CLDRule','CallPrefix','Port','Username','PrefixCDR','SipHeader','AuthenticationMode');
 
         $sort_column = $columns[$data['iSortCol_0']];
         $companyID = User::get_companyID();
@@ -93,7 +93,7 @@ class ConnectionController extends \BaseController {
                     'ConnectionType' => 'required',
                     'Name' => 'required',
                     'CompanyID' => 'required',
-                    'Tariff' => 'required',
+                    'RateTableID' => 'required',
 
                 );
             }else if($Input['ConnectionType']==VendorConnection::Type_VoiceCall){
@@ -127,7 +127,7 @@ class ConnectionController extends \BaseController {
                 $data['Password'] = Crypt::encrypt($data['Password']);
             }
 
-            $validator = Validator::make($data, $rules);
+            $validator = Validator::make($data, $rules,['RateTableID.required'=>"Tariff is required."]);
 
             if ($validator->fails()) {
                 return json_validator_response($validator);
@@ -195,7 +195,7 @@ class ConnectionController extends \BaseController {
                 $rules = array(
                     'Name' => 'required',
                     'CompanyID' => 'required',
-                    'Tariff' => 'required',
+                    'RateTableID' => 'required',
 
                 );
             }else if($VendorConnection->ConnectionType==VendorConnection::Type_VoiceCall){
@@ -220,9 +220,8 @@ class ConnectionController extends \BaseController {
             }else{
                 unset($data['Password']);
             }
-
-
-            $validator = Validator::make($data, $rules);
+            
+            $validator = Validator::make($data, $rules,['RateTableID.required'=>"Tariff is required."]);
 
             if ($validator->fails()) {
                 return json_validator_response($validator);

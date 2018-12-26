@@ -206,7 +206,7 @@
 <script type="text/javascript">
     var $searchFilter = {};
     var checked='';
-    var list_fields  = ['VendorConnectionID','Name','ConnectionType','IP','Active','TrunkName','CategoryName','created_at','DIDCategoryID','Tariff','TrunkID','CLIRule','CLDRule','CallPrefix','Port','Username','PrefixCDR','SipHeader','AuthenticationMode'];
+    var list_fields  = ['VendorConnectionID','Name','ConnectionType','IP','Active','TrunkName','CategoryName','created_at','DIDCategoryID','RateTableID','TrunkID','CLIRule','CLDRule','CallPrefix','Port','Username','PrefixCDR','SipHeader','AuthenticationMode'];
     var TrunkID, IP, ConnectionType,Name,DIDCategoryID,Active,update_new_url;
 
     jQuery(document).ready(function($) {
@@ -368,16 +368,16 @@
                 $("#DIDTariffLoading").addClass("hidden");
                 var VendorConnectionID = $("#edit-vendor-rate-form [name='VendorConnectionID']").val();
                 if(typeof VendorConnectionID == 'undefined' || VendorConnectionID == ''){
-                    $("select[name='did[Tariff]']").select2("val", "");
+                    $("select[name='did[RateTableID]']").select2("val", "");
                 }
 
                 if($.trim(response)){
 
-                    $("select[name='did[Tariff]']").html(response);
+                    $("select[name='did[RateTableID]']").html(response);
 
                     if(typeof VendorConnectionID != 'undefined' && VendorConnectionID != ''){
                         console.log("func "+arg1);
-                        $("select[name='did[Tariff]']").select2("val",arg1);
+                        $("select[name='did[RateTableID]']").select2("val",arg1);
                     }
 
                 }
@@ -400,16 +400,16 @@
                 $("#VoiceTariffLoading").addClass("hidden");
                 var VendorConnectionID = $("#edit-vendor-rate-form [name='VendorConnectionID']").val();
                 if(typeof VendorConnectionID == 'undefined' || VendorConnectionID == ''){
-                    $("select[name='voice[Tariff]']").select2("val", "");
+                    $("select[name='voice[RateTableID]']").select2("val", "");
                 }
 
                 if($.trim(response)){
 
-                    $("select[name='voice[Tariff]']").html(response);
+                    $("select[name='voice[RateTableID]']").html(response);
 
                     if(typeof VendorConnectionID != 'undefined' && VendorConnectionID != ''){
                         console.log("func "+arg1);
-                        $("select[name='voice[Tariff]']").select2("val",arg1);
+                        $("select[name='voice[RateTableID]']").select2("val",arg1);
                     }
 
                 }
@@ -663,14 +663,14 @@
                                 var DIDCategoryID_ = cur_obj.find("input[name='"+list_fields[i]+"']").val();
                                 $("#edit-vendor-rate-form [name='did["+list_fields[i]+"]']").select2("val",DIDCategoryID_);
                                 var DIDCategoryID = $("#edit-vendor-rate-form [name='did[DIDCategoryID]']").val();
-                                var TarrifID = cur_obj.find("input[name='Tariff']").val();
+                                var TarrifID = cur_obj.find("input[name='RateTableID']").val();
 
                                 loadTariffByCategory(DIDCategoryID,TarrifID);
                                 if(typeof(DIDCategoryID_)!='undefined' && DIDCategoryID_!=0) {
                                     $("#edit-vendor-rate-form [name='did[" + list_fields[i] + "]']").attr("disabled", true);
                                 }
 
-                            }else if(list_fields[i] == 'Tariff'){
+                            }else if(list_fields[i] == 'RateTableID'){
                                 $("#edit-vendor-rate-form [name='did[" + list_fields[i] + "]']").val(cur_obj.find("input[name='" + list_fields[i] + "']").val()).trigger("change");
 
                             }
@@ -688,12 +688,12 @@
                             }else if(list_fields[i] == 'TrunkID'){
                                 $("#edit-vendor-rate-form [name='voice["+list_fields[i]+"]']").select2("val",cur_obj.find("input[name='"+list_fields[i]+"']").val());
                                 var TrunkID = $("#edit-vendor-rate-form [name='voice[TrunkID]']").val();
-                                var TarrifID = cur_obj.find("input[name='Tariff']").val();
+                                var TarrifID = cur_obj.find("input[name='RateTableID']").val();
 
                                 loadTariffByTrunk(TrunkID,TarrifID);
 
                                 $("#edit-vendor-rate-form [name='voice["+list_fields[i]+"]']").attr("disabled",true);
-                            }else if(list_fields[i] == 'Tariff'){
+                            }else if(list_fields[i] == 'RateTableID'){
                                 $("#edit-vendor-rate-form [name='voice["+list_fields[i]+"]']").select2("val",cur_obj.find("input[name='"+list_fields[i]+"']").val());
                             }else if(list_fields[i] == 'Password'){
                                     //remain blank
@@ -1073,7 +1073,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Tariff*</label>
-                                    {{ Form::select('did[Tariff]', $TariffDID, '', array("class"=>"select2")) }}
+                                    {{ Form::select('did[RateTableID]', $TariffDID, '', array("class"=>"select2")) }}
                                     <span id="DIDTariffLoading" class="hidden">Loading ...</span>
                                 </div>
                             </div>
@@ -1190,7 +1190,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Tariff</label>
-                                    {{ Form::select('voice[Tariff]', $TariffVoiceCall, '', array("class"=>"select2")) }}
+                                    {{ Form::select('voice[RateTableID]', $TariffVoiceCall, '', array("class"=>"select2")) }}
                                     <span id="VoiceTariffLoading" class="hidden">Loading ...</span>
 
                                 </div>
