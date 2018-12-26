@@ -166,22 +166,22 @@
             <th width="10%">Orig. Description</th>
             <th width="4%" id="Code-Header">Dest. Code</th>
             <th width="10%">Dest. Description</th>
-            <th width="3%">Interval 1</th>
-            <th width="3%">Interval N</th>
+            <th width="3%">Interval 1/N</th>
+            <th width="3%" style="display: none;">Interval N</th>
             <th width="5%">Connection Fee</th>
             <th width="5%">Previous Rate ({{$code}})</th>
             <th width="5%">Rate1 ({{$code}})</th>
             <th width="5%">RateN ({{$code}})</th>
             <th width="8%">Effective Date</th>
             <th width="9%" style="display: none;">End Date</th>
-            <th width="8%">Modified Date</th>
-            <th width="10%">Modified By</th>
+            <th width="8%">Modified Date/By</th>
+            <th width="10%" style="display: none;">Modified By</th>
             @if($rateTable->Type == RateTable::TYPE_VOICECALL && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
-            <th width="10%">Routing Category</th>
-            <th width="4%">Preference</th>
-            <th width="4%">Blocked</th>
+            <th width="5%">Routing Category</th>
+            <th width="4%">Pref.</th>
+            <th width="4%" style="display: none;">Blocked</th>
             @endif
-            <th width="20%" > Action</th>
+            <th width="10%" id="actionheader"> Action</th>
         </tr>
         </thead>
         <tbody>
@@ -209,6 +209,14 @@
         } else {
             view = 1;
             $('#rate-table-search #GroupBy').val('GroupByCode');
+        }
+        var ratetablepageview = getCookie('ratetablepageview');
+        if(ratetablepageview=='AdvanceView'){
+            $('#btn-basic-view').removeClass('active');
+            $('#btn-advance-view').addClass('active');
+        } else {
+            $('#btn-advance-view').removeClass('active');
+            $('#btn-basic-view').addClass('active');
         }
 
         $("#rate-table-search").submit(function(e) {
@@ -498,6 +506,21 @@
                 $('#'+formid+' .RateN').val(val);
             }
         });
+        $(document).on('click','.view-switcher', function() {
+            var id = $(this).attr('id');
+            if(!$(this).hasClass('active')) {
+                if (id == 'btn-basic-view') {
+                    setCookie('ratetablepageview','BasicView','30');
+                    $('#btn-advance-view').removeClass('active');
+                    $('#btn-basic-view').addClass('active');
+                } else {
+                    setCookie('ratetablepageview','AdvanceView','30');
+                    $('#btn-basic-view').removeClass('active');
+                    $('#btn-advance-view').addClass('active');
+                }
+                rateDataTable();
+            }
+        });
     });
 
     function rateDataTable() {
@@ -508,6 +531,13 @@
         }else{
             setCookie('ratetableview','GroupByCode','30');
             view = 1;
+        }
+        var bVisible = false;
+        ratetablepageview = getCookie('ratetablepageview');
+        if(ratetablepageview == 'AdvanceView') {
+            bVisible = true;
+        } else {
+            bVisible = false;
         }
 
         $searchFilter.OriginationCode = $("#rate-table-search input[name='OriginationCode']").val();
@@ -528,6 +558,7 @@
         $searchFilter.Preference = Preference = null;
         $searchFilter.Blocked = Blocked = null;
         @endif
+        $searchFilter.ratetablepageview = ratetablepageview;
 
         data_table = $("#table-4").DataTable({
             "bDestroy": true, // Destroy when resubmit form
@@ -540,9 +571,9 @@
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "sAjaxSource": baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid",
             "fnServerParams": function(aoData) {
-                aoData.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones},{"name": "RoutingCategoryID", "value": RoutingCategoryID},{"name": "Preference", "value": Preference},{"name": "Blocked", "value": Blocked});
+                aoData.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones},{"name": "RoutingCategoryID", "value": RoutingCategoryID},{"name": "Preference", "value": Preference},{"name": "Blocked", "value": Blocked},{"name": "ratetablepageview", "value": ratetablepageview});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones},{"name": "RoutingCategoryID", "value": RoutingCategoryID},{"name": "Preference", "value": Preference},{"name": "Blocked", "value": Blocked});
+                data_table_extra_params.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones},{"name": "RoutingCategoryID", "value": RoutingCategoryID},{"name": "Preference", "value": Preference},{"name": "Blocked", "value": Blocked},{"name": "ratetablepageview", "value": ratetablepageview});
             },
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
@@ -570,10 +601,18 @@
                             "defaultContent": ''
                         }, //3 Destination Code
                         {}, //4 Destination description
-                        {}, //5 interval 1
-                        {}, //6 interval n
+                        {
+                            mRender: function(id, type, full) {
+                                return full[5] + '/' + full[6]; // interval1/intervalN
+                            }
+                        }, //5 interval 1
+                        {
+                            "bVisible" : false
+                        }, //6 interval n
                         {}, //7 ConnectionFee
-                        {}, //8 PreviousRate
+                        {
+                            "bVisible" : bVisible
+                        }, //8 PreviousRate
                         {
                             mRender: function(id, type, full) {
                                 if(full[9] > full[8])
@@ -589,8 +628,20 @@
                         {
                             "bVisible" : false
                         }, //12 End Date
-                        {}, //13 ModifiedDate
-                        {}, //14 ModifiedBy
+                        {
+                            "bVisible" : bVisible,
+                            mRender: function(id, type, full) {
+                                full[13] = full[13] != null ? full[13] : '';
+                                full[14] = full[14] != null ? full[14] : '';
+                                if(full[13] != '' && full[14] != '')
+                                    return full[13] + '<br/>' + full[14]; // modified date/modified by
+                                else
+                                    return '';
+                            }
+                        }, //13 ModifiedDate
+                        {
+                            "bVisible" : false
+                        }, //14 ModifiedBy
                         @if($rateTable->Type == RateTable::TYPE_VOICECALL && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                         {
                             mRender: function(id, type, full) {
@@ -603,40 +654,58 @@
                             }
                         }, //20 Preference
                         {
-                            className: 'text-center',
+                            "bVisible" : false
+                            /*className: 'text-center',
                             mRender: function(id, type, full) {
                                 if(full[21] == 0)
                                     return '<i class="fa fa-unlock" style="color: green; font-size: 20px;"></i>';
                                 else if(full[21] == 1)
                                     return '<i class="fa fa-lock" style="color: red; font-size: 20px;"></i>';
-                            }
+                            }*/
                         }, //21 Blocked
                         @endif
                         {
+                            //"bVisible" : bVisible,
                             mRender: function(id, type, full) {
                                 var action, edit_, delete_;
-                                clerRate_ = "{{ URL::to('/rate_tables/{id}/clear_rate')}}";
+                                if(bVisible == true) {
+                                    $('#actionheader').attr('width','10%');
+                                    clerRate_ = "{{ URL::to('/rate_tables/{id}/clear_rate')}}";
 
-                                clerRate_ = clerRate_.replace('{id}', full[15]);
-                                action = '<div class = "hiddenRowData" >';
-                                for(var i = 0 ; i< list_fields.length; i++){
-                                    action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (full[i] != null?full[i]:'')+ '" / >';
-                                }
-                                action += '</div>';
-                                <?php if(User::checkCategoryPermission('RateTables','Edit')) { ?>
-                                    if(DiscontinuedRates == 0) {
+                                    clerRate_ = clerRate_.replace('{id}', full[15]);
+                                    action = '<div class = "hiddenRowData" >';
+                                    for (var i = 0; i < list_fields.length; i++) {
+                                        action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (full[i] != null ? full[i] : '') + '" / >';
+                                    }
+                                    action += '</div>';
+                                    if (full[21] == 0) {
+                                        action += ' <a href="Javascript:;"  title="Edit" class="btn btn-default btn-xs"><i class="entypo-lock-open" style="color: green; "></i>&nbsp;</a>';
+                                    } else if (full[21] == 1) {
+                                        action += ' <a href="Javascript:;"  title="Edit" class="btn btn-default btn-xs"><i class="entypo-lock" style="color: red; "></i>&nbsp;</a>';
+                                    }
+
+                                    <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
+                                    if (DiscontinuedRates == 0) {
                                         action += ' <a href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</a>';
                                     }
-                                <?php } ?>
+                                    <?php } ?>
 
-                                action += ' <a href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</a>';
+                                    action += ' <a href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</a>';
 
-                                if (full[15] != null && full[15] != 0) {
-                                    <?php if(User::checkCategoryPermission('RateTables','Delete')) { ?>
-                                        if(DiscontinuedRates == 0) {
+                                    if (full[15] != null && full[15] != 0) {
+                                        <?php if(User::checkCategoryPermission('RateTables', 'Delete')) { ?>
+                                        if (DiscontinuedRates == 0) {
                                             action += ' <button title="Delete" href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-xs" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
                                         }
-                                    <?php } ?>
+                                        <?php } ?>
+                                    }
+                                } else {
+                                    $('#actionheader').attr('width','5%');
+                                    if (full[21] == 0) {
+                                        action = ' <a href="Javascript:;"  title="Edit" class="btn btn-default btn-xs"><i class="entypo-lock-open" style="color: green; "></i>&nbsp;</a>';
+                                    } else if (full[21] == 1) {
+                                        action = ' <a href="Javascript:;"  title="Edit" class="btn btn-default btn-xs"><i class="entypo-lock" style="color: red; "></i>&nbsp;</a>';
+                                    }
                                 }
                                 return action;
                             }
@@ -665,6 +734,20 @@
                 }else{
                     $('#Code-Header').html('');
                 }
+
+                $(".dropdown").removeClass("hidden");
+                var toggle = '<header>';
+                toggle += '<span class="list-style-buttons">';
+                if(ratetablepageview=='AdvanceView'){
+                    toggle += '<a href="javascript:void(0)" title="Basic View" class="btn btn-primary view-switcher" id="btn-basic-view"><i class="fa fa-list-alt"></i></a>';
+                    toggle += '<a href="javascript:void(0)" title="Advance View" class="btn btn-primary view-switcher active" id="btn-advance-view"><i class="fa fa-list"></i></a>';
+                }else{
+                    toggle += '<a href="javascript:void(0)" title="Basic View" class="btn btn-primary view-switcher active" id="btn-basic-view"><i class="fa fa-list-alt"></i></a>';
+                    toggle += '<a href="javascript:void(0)" title="Advance View" class="btn btn-primary view-switcher" id="btn-advance-view"><i class="fa fa-list"></i></a>';
+                }
+                toggle +='</span>';
+                toggle += '</header>';
+                $('.change-view').html(toggle);
 
                 $(".btn.clear").click(function(e) {
 
@@ -714,7 +797,7 @@
                 $(".edit-rate-table.btn").off('click');
                 $(".edit-rate-table.btn").click(function(ev) {
                     ev.stopPropagation();
-                    var cur_obj = $(this).prev("div.hiddenRowData");
+                    var cur_obj = $(this).prevAll("div.hiddenRowData");
                     for(var i = 0 ; i< list_fields.length; i++){
                         $("#edit-rate-table-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                     }

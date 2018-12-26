@@ -37,14 +37,14 @@ class RateTablesController extends \BaseController {
 
         $data = Input::all();
         $data['iDisplayStart'] +=1;
-        $data['Country']        = $data['Country'] != '' && $data['Country'] != 'All' ? $data['Country'] : 'null';
-        $data['Code']           = $data['Code'] != '' ? "'".$data['Code']."'" : 'null';
-        $data['Description']    = $data['Description'] != '' ? "'".$data['Description']."'" : 'null';
-        $data['OriginationCode']            = $data['OriginationCode'] != '' ? "'".$data['OriginationCode']."'" : 'null';
-        $data['OriginationDescription']     = $data['OriginationDescription'] != '' ? "'".$data['OriginationDescription']."'" : 'null';
-        $data['RoutingCategoryID']          = !empty($data['RoutingCategoryID']) ? "'".$data['RoutingCategoryID']."'" : 'null';
-        $data['Preference']                 = !empty($data['Preference']) ? "'".$data['Preference']."'" : 'null';
-        $data['Blocked']                    = isset($data['Blocked']) && $data['Blocked'] != '' ? "'".$data['Blocked']."'" : 'null';
+        $data['Country']                = $data['Country'] != '' && $data['Country'] != 'All' ? $data['Country'] : 'null';
+        $data['Code']                   = $data['Code'] != '' ? "'".$data['Code']."'" : 'null';
+        $data['Description']            = $data['Description'] != '' ? "'".$data['Description']."'" : 'null';
+        $data['OriginationCode']        = $data['OriginationCode'] != '' ? "'".$data['OriginationCode']."'" : 'null';
+        $data['OriginationDescription'] = $data['OriginationDescription'] != '' ? "'".$data['OriginationDescription']."'" : 'null';
+        $data['RoutingCategoryID']      = !empty($data['RoutingCategoryID']) ? "'".$data['RoutingCategoryID']."'" : 'null';
+        $data['Preference']             = !empty($data['Preference']) ? "'".$data['Preference']."'" : 'null';
+        $data['Blocked']                = isset($data['Blocked']) && $data['Blocked'] != '' ? "'".$data['Blocked']."'" : 'null';
 
         $view = isset($data['view']) && $data['view'] == 2 ? $data['view'] : 1;
 
@@ -479,16 +479,30 @@ class RateTablesController extends \BaseController {
         $RateTableName = RateTable::find($id)->RateTableName;
 
         $view = isset($data['view']) && $data['view'] == 2 ? $data['view'] : 1;
-        $data['Country']        = $data['Country'] != '' && $data['Country'] != 'All'?$data['Country']:'null';
-        $data['Code']           = $data['Code'] != ''?"'".$data['Code']."'":'null';
-        $data['Description']    = $data['Description'] != ''?"'".$data['Description']."'":'null';
-        $data['OriginationCode']           = $data['OriginationCode'] != ''?"'".$data['OriginationCode']."'":'null';
-        $data['OriginationDescription']    = $data['OriginationDescription'] != ''?"'".$data['OriginationDescription']."'":'null';
+        $data['Country']                = $data['Country'] != '' && $data['Country'] != 'All'?$data['Country']:'null';
+        $data['Code']                   = $data['Code'] != ''?"'".$data['Code']."'":'null';
+        $data['Description']            = $data['Description'] != ''?"'".$data['Description']."'":'null';
+        $data['OriginationCode']        = $data['OriginationCode'] != ''?"'".$data['OriginationCode']."'":'null';
+        $data['OriginationDescription'] = $data['OriginationDescription'] != ''?"'".$data['OriginationDescription']."'":'null';
+        $data['RoutingCategoryID']      = !empty($data['RoutingCategoryID']) ? "'".$data['RoutingCategoryID']."'" : 'null';
+        $data['Preference']             = !empty($data['Preference']) ? "'".$data['Preference']."'" : 'null';
+        $data['Blocked']                = isset($data['Blocked']) && $data['Blocked'] != '' ? "'".$data['Blocked']."'" : 'null';
+        $data['ratetablepageview']      = !empty($data['ratetablepageview']) && $data['ratetablepageview']=='AdvanceView' ? 1 : 0;
+        $data['isExport']               = '1'.$data['ratetablepageview'];
 
-        if(!empty($data['DiscontinuedRates'])) {
-            $query = " call prc_getDiscontinuedRateTableRateGrid (".$companyID.",".$id.",".$data['Timezones'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",".$view.",null,null,null,null,1)";
+        $rateTable = RateTable::find($id);
+        if($rateTable->Type == RateTable::TYPE_VOICECALL) {
+            if(!empty($data['DiscontinuedRates'])) {
+                $query = " call prc_getDiscontinuedRateTableRateGrid (".$companyID.",".$id.",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['RoutingCategoryID'].",".$data['Preference'].",".$data['Blocked'].",".$view.",null,null,null,null,".$data['isExport'].")";
+            } else {
+                $query = " call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$data['RoutingCategoryID'].",".$data['Preference'].",".$data['Blocked'].",".$view.",null,null,null,null,".$data['isExport'].")";
+            }
         } else {
-            $query = " call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$view.",null,null,null,null,1)";
+            if(!empty($data['DiscontinuedRates'])) {
+                $query = "call prc_getDiscontinuedRateTableDIDRateGrid (" . $companyID . "," . $id . ",".$data['Timezones']."," . $data['Country'] . ",".$data['OriginationCode'].",".$data['OriginationDescription']."," . $data['Code'] . "," . $data['Description'] . ",".$view.",null,null,null,null,1)";
+            } else {
+                $query = "call prc_GetRateTableDIDRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$view.",null,null,null,null,1)";
+            }
         }
 
         DB::setFetchMode( PDO::FETCH_ASSOC );
