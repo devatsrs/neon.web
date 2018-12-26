@@ -54,18 +54,28 @@
 
             $(".saveall.btn").click(function(e){
 
+                var OriginationCode         = $("#rategenerator-code-from input[name='OriginationCode']").val();
+                var OriginationDescription  = $("#rategenerator-code-from input[name='OriginationDescription']").val();
+                var DestinationCode         = $("#rategenerator-code-from input[name='DestinationCode']").val();
+                var DestinationDescription  = $("#rategenerator-code-from input[name='DestinationDescription']").val();
 
-
-                var Code = $("#rategenerator-code-from input[name='Code']").val();
-                var Description = $("#rategenerator-code-from input[name='Description']").val();
-
-                if((typeof Code  == 'undefined' || Code.trim() == '' ) && (typeof Description  == 'undefined' || Description.trim() == '' )){
+                if((typeof OriginationCode  == 'undefined' || OriginationCode.trim() == '' ) && (typeof OriginationDescription  == 'undefined' || OriginationDescription.trim() == '' )){
 
                     setTimeout(function(){$('.btn').button('reset');},10);
-                    toastr.error("Please Enter a Code Or Description", "Error", toastr_opts);
+                    toastr.error("Please Enter a Origination Code Or Origination Description", "Error", toastr_opts);
                     return false;
 
                 }
+
+                if((typeof DestinationCode  == 'undefined' || DestinationCode.trim() == '' ) && (typeof DestinationDescription  == 'undefined' || DestinationDescription.trim() == '' )){
+
+                    setTimeout(function(){$('.btn').button('reset');},10);
+                    toastr.error("Please Enter a Destination Code Or Destination Description", "Error", toastr_opts);
+                    return false;
+
+                }
+
+
                 if($("#rategenerator-source-from input[name='AccountIds[]']:checked").length == 0 ) {
 
                     setTimeout(function(){$('.btn').button('reset');},10);
@@ -75,7 +85,10 @@
 
 
                 var _url = $('#rategenerator-code-from').attr("action");
+
+
                 var formData = $('#rategenerator-code-from').serialize();
+
 
                 $.post( _url, formData, function( response ) {
 
@@ -83,6 +96,8 @@
                     if ( response.status =='success' ) {
                         toastr.success(response.message, "Success", toastr_opts);
                     } else {
+
+
                         toastr.error(response.message, "Error", toastr_opts);
                         return false;
                     }
@@ -98,6 +113,7 @@
                             toastr.success(response.message, "Success", toastr_opts);
                         } else {
                             toastr.error(response.message, "Error", toastr_opts);
+
                             return false;
                         }
 
