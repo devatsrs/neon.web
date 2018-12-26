@@ -9,7 +9,7 @@ class ServiceTemplate extends \Eloquent
     protected $primaryKey = "ServiceTemplateId";
 
     public static $rules = array(
-      //  'ServiceId' =>  'required',
+        'ServiceId' =>  'required',
         'Name' => 'required',
         'CurrencyId' => 'required',
        // 'selectedSubscription' => 'required',
@@ -17,7 +17,7 @@ class ServiceTemplate extends \Eloquent
     );
 
     public static $updateRules = array(
-      //  'ServiceId' =>  'required',
+        'ServiceId' =>  'required',
         'Name' => 'required',
        // 'selectedSubscription' => 'required',
        // 'selectedcategotyTariff' => 'required',

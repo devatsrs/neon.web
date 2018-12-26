@@ -65,7 +65,12 @@ class AccountsApiController extends ApiController {
 	public function createAccountService()
 	{
 		Log::info('createAccountService:Add Product Service.');
+		$message = '';
 		$accountData = Input::all();
+		$CompanyID = User::get_companyID();
+		$CreatedBy = User::get_user_full_name();
+		$date = date('Y-m-d H:i:s');
+		$InboundRateTableReference = '';
 		try {
 			$data['Number'] = $accountData['Number'];
 			$data['ServiceTemaplate'] = $accountData['ServiceTemaplate'];
@@ -92,11 +97,153 @@ class AccountsApiController extends ApiController {
 				return Response::json(["status" => "failed", "message" => $errors]);
 			}
 
-			//$Account = Account::find($data['Number']);
+			$Account = Account::find($data['Number']);
+			if (!$Account) {
+				return Response::json(["status" => "failed", "message" => "Please enter the valid account number"]);
+			}
+			$ServiceTemaplateData = json_decode($data['ServiceTemaplate'],true);
+
+			$DynamicField = DynamicFields::where(["FieldName"=>$ServiceTemaplateData["Name"],"Type"=>ServiceTemplateTypes::DYNAMIC_TYPE])->pluck('DynamicFieldsID');
+			if (empty($DynamicField)) {
+				return Response::json(["status" => "failed", "message" => "Please provide the valid dynamic field"]);
+			}
+
+			$ServiceTemaplateReference = DynamicFieldsValue::where(["DynamicFieldsID"=>$DynamicField,"FieldValue"=>$ServiceTemaplateData["Value"]])->count();
+			if ($ServiceTemaplateReference > 1) {
+				return Response::json(["status" => "failed", "message" => "More then one service template, please provide the unique product reference"]);
+			}
+			if(CLIRateTable::where(array('CompanyID'=>$CompanyID, 'CLI'=>$data['NumberPurchased']))->count()){
+				$AccountID = CLIRateTable::where(array('CompanyID'=>$CompanyID,'CLI'=>$data['NumberPurchased']))->pluck('AccountID');
+				$message .= $data['NumberPurchased'].' already exist against '.Account::getCompanyNameByID($AccountID).'.<br>';
+				$message = 'Following CLI already exists.<br>'.$message;
+				return Response::json(array("status" => "error", "message" => $message));
+			}
+
+			$ServiceTemaplateReference = DynamicFieldsValue::where(["DynamicFieldsID"=>$DynamicField,"FieldValue"=>$ServiceTemaplateData["Value"]])->pluck('ParentID');
+			$ServiceTemaplateReference = ServiceTemplate::find($ServiceTemaplateReference);
+			Log::info('ServiceTemplateId' . $ServiceTemaplateReference->ServiceTemplateId);
+
+			if (!empty($data['InboundTariffCategory'])) {
+				$InboundRateTableReference = ServiceTemapleInboundTariff::where(["ServiceTemplateID"=>$ServiceTemaplateReference->ServiceTemplateId,"DIDCategoryId"=>$data['InboundTariffCategory']])->count();
+				if ($InboundRateTableReference > 1) {
+					return Response::json(["status" => "failed", "message" => "More then one Inbound Tariff found against the Category"]);
+				}
+				$InboundRateTableReference = ServiceTemapleInboundTariff::where(["ServiceTemplateID"=>$ServiceTemaplateReference->ServiceTemplateId,"DIDCategoryId"=>$data['InboundTariffCategory']])->pluck('RateTableId');
+			}else {
+				$InboundRateTableReference = ServiceTemapleInboundTariff::where("ServiceTemplateID",'=',$ServiceTemaplateReference->ServiceTemplateId)->WhereNull('DIDCategoryId')->count();
+				if ($InboundRateTableReference > 1) {
+					return Response::json(["status" => "failed", "message" => "More then one Inbound Tariff found against the Category"]);
+				}
+				$InboundRateTableReference = ServiceTemapleInboundTariff::where("ServiceTemplateID",'=',$ServiceTemaplateReference->ServiceTemplateId)->WhereNull('DIDCategoryId')->pluck('RateTableId');
+			}
+
+
+
+			if (!empty($ServiceTemaplateReference->ServiceId)) {
+				if (AccountService::where(array('AccountID' => $Account->AccountID, 'CompanyID' => $CompanyID, 'ServiceID' => $ServiceTemaplateReference->ServiceId))->count()) {
+					AccountService::where(array('AccountID' => $Account->AccountID, 'CompanyID' => $CompanyID, 'ServiceID' => $ServiceTemaplateReference->ServiceId))
+						->update(array('ServiceID' => $ServiceTemaplateReference->ServiceId, 'updated_at' => $date));
+				} else {
+					$servicedata['ServiceID'] = $ServiceTemaplateReference->ServiceId;
+					$servicedata['AccountID'] = $Account->AccountID;
+					$servicedata['CompanyID'] = $CompanyID;
+					AccountService::insert($servicedata);
+				}
+
+			}
+
+			$inbounddata = array();
+			if (!empty($InboundRateTableReference)) {
+				$inbounddata['CompanyID'] = $CompanyID;
+				$inbounddata['AccountID'] = $Account->AccountID;
+				$inbounddata['ServiceID'] = $ServiceTemaplateReference->ServiceId;
+				$inbounddata['RateTableID'] = $InboundRateTableReference;
+				$inbounddata['Type'] = AccountTariff::INBOUND;
+			}
+
+			$outbounddata = array();
+			if (!empty($ServiceTemaplateReference->OutboundRateTableId)) {
+				$outbounddata['CompanyID'] = $CompanyID;
+				$outbounddata['AccountID'] = $Account->AccountID;
+				$outbounddata['ServiceID'] = $ServiceTemaplateReference->ServiceId;
+				$outbounddata['RateTableID'] = $ServiceTemaplateReference->OutboundRateTableId;
+				$outbounddata['Type'] = AccountTariff::OUTBOUND;
+			}
+
+			if(!empty($InboundRateTableReference)){
+				$count = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $Account->AccountID, 'ServiceID' => $inbounddata['ServiceID'], 'Type' => AccountTariff::INBOUND))->count();
+				if(!empty($count) && $count>0){
+					AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $Account->AccountID, 'ServiceID' => $inbounddata['ServiceID'], 'Type' => AccountTariff::INBOUND))
+						->update(array('RateTableID' => $InboundRateTableReference, 'updated_at' => $date));
+				}else{
+					$inbounddata['created_at'] = $date;
+					AccountTariff::create($inbounddata);
+				}
+			}
+
+			if(!empty($ServiceTemaplateReference->OutboundRateTableId)){
+				$count = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $Account->AccountID, 'ServiceID' => $outbounddata['ServiceID'], 'Type' => AccountTariff::OUTBOUND))->count();
+				if(!empty($count) && $count>0){
+					AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $Account->AccountID, 'ServiceID' => $outbounddata['ServiceID'], 'Type' => AccountTariff::OUTBOUND))
+						->update(array('RateTableID' => $ServiceTemaplateReference->OutboundRateTableId, 'updated_at' => $date));
+				}else{
+					$outbounddata['created_at'] = $date;
+					AccountTariff::create($outbounddata);
+				}
+			}
+
+
+
+			$AccountAuthenticate = array();
+			$AccountAuthenticate['CustomerAuthRule'] = 'CLI';
+			$AccountAuthenticate['CustomerAuthValue'] = '';
+
+			if(!empty($data['ServiceID'])){
+
+				if(AccountAuthenticate::where(array('AccountID'=>$Account->AccountID,'ServiceID'=>$ServiceTemaplateReference->ServiceId))->count()){
+					AccountAuthenticate::where(array('AccountID'=>$Account->AccountID,'ServiceID'=>$ServiceTemaplateReference->ServiceId))->update($AccountAuthenticate);
+				}else{
+					$AccountAuthenticate['AccountID'] = $Account->AccountID;
+					$AccountAuthenticate['CompanyID'] = $CompanyID;
+					$AccountAuthenticate['ServiceID'] = $ServiceTemaplateReference->ServiceId;
+					AccountAuthenticate::insert($AccountAuthenticate);
+				}
+
+			}else{
+				if(AccountAuthenticate::where(array('AccountID'=>$Account->AccountID,'ServiceID'=>0))->count()){
+					AccountAuthenticate::where(array('AccountID'=>$Account->AccountID,'ServiceID'=>0))->update($AccountAuthenticate);
+				}else{
+					$AccountAuthenticate['AccountID'] = $Account->AccountID;
+					$AccountAuthenticate['CompanyID'] = $CompanyID;
+					AccountAuthenticate::insert($AccountAuthenticate);
+				}
+			}
+
+
+
+
+					$rate_tables['CLI'] = $data['NumberPurchased'];
+					$rate_tables['RateTableID'] = $ServiceTemaplateReference->OutboundRateTableId;
+					$rate_tables['AccountID'] = $Account->AccountID;
+					$rate_tables['CompanyID'] = $CompanyID;
+					if(!empty($ServiceTemaplateReference->ServiceId)) {
+						$rate_tables['ServiceID'] = $ServiceTemaplateReference->ServiceId;
+					}
+					CLIRateTable::insert($rate_tables);
+
+
+
+
+
+			return Response::json(array("status" => "success", "message" => "Account Service Successfully Added"));
+
+
 		} catch (Exception $ex) {
 			return Response::json(["status" => "failed", "message" => $ex->getMessage()]);
 		}
 	}
+
+
 
 	public function createAccount() {
 		Log::info('createAccount:Create new Account.');
@@ -213,7 +360,7 @@ class AccountsApiController extends ApiController {
 				if($ResellerCount>0){
 					return Response::json(["status" => "failed", "message" => "Reseller user can not create reseller"]);
 				}
-				
+
 				Log::info("Read the reseller fields1");
 				Reseller::$rules['Email'] = 'required|email';
 				Reseller::$rules['Password'] ='required|min:3';

@@ -1743,6 +1743,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('products/ProductUpdateStock', 'ProductApiController@UpdateStockCalculation');
 	Route::post('getAccountbilling/{AccountID}', 'AccountBillingApiController@getAccountBilling');
 	Route::post('account/add_servicetemaplate', 'ServicesTemplateApiController@storeServiceTempalteData');
+	
 
 	Route::post('checkBalance/', 'AccountsApiController@checkBalance');
 	Route::post('getPayments/', 'PaymentApiController@getPaymentHistory');
@@ -1755,5 +1756,6 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('requestFund/', 'PaymentApiController@requestFund');
 	Route::post('depositFund/', 'PaymentApiController@depositFund');
 	Route::post('account/create', 'AccountsApiController@createAccount');
+	Route::post('account/add_service', 'AccountsApiController@createAccountService');
 
 });
