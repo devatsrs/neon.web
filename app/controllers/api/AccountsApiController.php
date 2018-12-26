@@ -122,6 +122,7 @@ class AccountsApiController extends ApiController {
 			$ServiceTemaplateReference = DynamicFieldsValue::where(["DynamicFieldsID"=>$DynamicField,"FieldValue"=>$ServiceTemaplateData["Value"]])->pluck('ParentID');
 			$ServiceTemaplateReference = ServiceTemplate::find($ServiceTemaplateReference);
 			Log::info('ServiceTemplateId' . $ServiceTemaplateReference->ServiceTemplateId);
+			Log::info('OutboundRateTableId for add account product' . $ServiceTemaplateReference->OutboundRateTableId);
 
 			if (!empty($data['InboundTariffCategory'])) {
 				$InboundRateTableReference = ServiceTemapleInboundTariff::where(["ServiceTemplateID"=>$ServiceTemaplateReference->ServiceTemplateId,"DIDCategoryId"=>$data['InboundTariffCategory']])->count();
