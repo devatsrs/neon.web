@@ -68,7 +68,8 @@ class AccountsApiController extends ApiController {
 		try {
 			$accountData = Input::all();
 			$ServiceID = 0;
-			$companyID = User::get_companyID();
+			$CompanyID = User::get_companyID();
+			$CreatedBy = User::get_user_full_name();
 			$ResellerData = [];
 			//$data['Owner'] = $post_vars->Owner;
 
@@ -113,13 +114,13 @@ class AccountsApiController extends ApiController {
 			$data['VatNumber'] = $accountData['VatNumber'];
 			$data['Language']= $accountData['Language'];
 
-			$data['CompanyID'] = $companyID;
+			$data['CompanyID'] = $CompanyID;
 			$data['AccountType'] = 1;
 			$data['IsVendor'] = isset($accountData['IsVendor']) ? 1 : 0;
 			$data['IsCustomer'] = isset($accountData['IsCustomer']) ? 1 : 0;
 			$data['IsReseller'] = isset($accountData['IsReseller']) ? 1 : 0;
 			$data['Billing'] = isset($data['Billing']) ? 1 : 0;
-			$data['created_by'] = User::get_user_full_name();
+			$data['created_by'] = $CreatedBy;
 			$data['AccountType'] = 1;
 			$data['AccountName'] = isset($accountData['AccountName']) ? trim($accountData['AccountName']) : '';
 
@@ -177,21 +178,18 @@ class AccountsApiController extends ApiController {
 				Reseller::$rules['Password'] ='required|min:3';
 
 				Log::info("Read the reseller fields2");
-				$CompanyID = User::get_companyID();
 				$ResellerData['CompanyID'] = $CompanyID;
 				$CurrentTime = date('Y-m-d H:i:s');
-				$CreatedBy = User::get_user_full_name();
+
 				if(empty($CreatedBy)){
 					$CreatedBy = 'system';
 				}
-				Log::info("Read the reseller fields2");
 				$ResellerData['AccountID'] = $data['Number'];
 				Reseller::$rules['AccountID'] = 'required|unique:tblReseller,AccountID';
 				Reseller::$rules['Email'] = 'required|email';
 				Reseller::$rules['Password'] ='required|min:3';
-				Log::info("Read the reseller fields");
-				$ResellerData['Email'] = isset($accountData['ReSellerEmail']) ? $accountData['ReSellerEmail'] : '';
-				$ResellerData['Password'] = isset($accountData['ReSellerPassword']) ? $accountData['ReSellerPassword'] : '';
+				$ResellerData['Email'] = isset($accountData['Email']) ? $accountData['Email'] : '';
+				$ResellerData['Password'] = isset($accountData['Password']) ? $accountData['Password'] : '';
 				$ResellerData['AllowWhiteLabel'] = isset($accountData['ReSellerAllowWhiteLabel']) ? 1 : 0;
 				$ResellerData['DomainUrl'] = $accountData['ReSellerDomainUrl'];
 				Reseller::$messages['Email.required'] = 'The Reseller Email is Required.';
@@ -364,10 +362,9 @@ class AccountsApiController extends ApiController {
 					}
 
 					if (!empty($ResellerData)) {
-						$CompanyID = User::get_companyID();
+						//$CompanyID = User::get_companyID();
 						$data['CompanyID'] = $CompanyID;
 						$CurrentTime = date('Y-m-d H:i:s');
-						$CreatedBy = User::get_user_full_name();
 						if (empty($CreatedBy)) {
 							$CreatedBy = 'system';
 						}
@@ -376,13 +373,13 @@ class AccountsApiController extends ApiController {
 
 						//$accountData['ReSellerEmail'] $accountData['ReSellerPassword']
 						//$data['Password'] = Hash::make($data['Password']);
-						$ResellerData['Password'] = Crypt::encrypt($accountData['ReSellerPassword']);
+						$ResellerData['Password'] = Crypt::encrypt($accountData['Password']);
 
 						$Account = $account;
 						$ResellerData['AllowWhiteLabel'] = isset($accountData['ReSellerAllowWhiteLabel']) ? 1 : 0;
 						$ResellerData['DomainUrl'] = $accountData['ReSellerDomainUrl'];
 						$AccountID = $account->AccountID;
-						$Email = $accountData['ReSellerEmail'];
+						$Email = $ResellerData['Email'];
 						$Password = $ResellerData['Password'];
 						$AllowWhiteLabel = $ResellerData['AllowWhiteLabel'];
 						$AccountName = $Account->AccountName;
