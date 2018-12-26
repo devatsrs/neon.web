@@ -12,7 +12,6 @@ class ServiceTemplate extends \Eloquent
         'ServiceId' =>  'required',
         'Name' => 'required',
         'CurrencyId' => 'required',
-        'OutboundRateTableId' => 'required',
 
        // 'selectedSubscription' => 'required',
        // 'selectedcategotyTariff' => 'required',
@@ -21,7 +20,7 @@ class ServiceTemplate extends \Eloquent
     public static $updateRules = array(
         'ServiceId' =>  'required',
         'Name' => 'required',
-        'OutboundRateTableId' => 'required',
+        'CurrencyId' => 'required',
        // 'selectedSubscription' => 'required',
        // 'selectedcategotyTariff' => 'required',
     );
