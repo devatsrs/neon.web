@@ -88,11 +88,13 @@ class RateGeneratorRuleController extends \BaseController {
            // print_R($data);exit;
             $data ['CreatedBy'] = User::get_user_full_name();
             $data ['RateGeneratorId'] = $id;
+
             $rules = array(
-                'OriginationCode' => 'required_without_all:OriginationDescription|unique:tblRateRule,OriginationCode,' . $RateRuleID . ',RateGeneratorId,RateGeneratorId,'.$id,
-                'OriginationDescription' => 'required_without_all:OriginationCode|unique:tblRateRule,OriginationDescription,' . $RateRuleID . ',RateGeneratorId,RateGeneratorId,'.$id,
-                'DestinationCode' => 'required_without_all:DestinationDescription|unique:tblRateRule,DestinationCode,' . $RateRuleID . ',RateGeneratorId,RateGeneratorId,'.$id,
-                'DestinationDescription' => 'required_without_all:DestinationCode|unique:tblRateRule,DestinationDescription,' . $RateRuleID . ',RateGeneratorId,RateGeneratorId,'.$id,
+
+                'OriginationCode' => 'required_without_all:OriginationDescription|unique:tblRateRule,OriginationCode,NULL,RateGeneratorId,RateGeneratorId,'.$data['RateGeneratorId'],
+                'OriginationDescription' => 'required_without_all:OriginationCode|unique:tblRateRule,OriginationDescription,NULL,RateGeneratorId,RateGeneratorId,'.$data['RateGeneratorId'],
+                'DestinationCode' => 'required_without_all:DestinationDescription|unique:tblRateRule,DestinationCode,NULL ,RateGeneratorId,RateGeneratorId,'.$data['RateGeneratorId'],
+                'DestinationDescription' => 'required_without_all:DestinationCode|unique:tblRateRule,DestinationDescription,NULL,RateGeneratorId,RateGeneratorId,'.$data['RateGeneratorId'],
                 'ModifiedBy' => 'required'
             );
 
