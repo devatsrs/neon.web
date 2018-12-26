@@ -9,6 +9,11 @@ class AccountBilling extends \Eloquent {
 
     public $timestamps = false; // no created_at and updated_at
 
+    public static $rulesAPI = array(
+
+
+    );
+
     static  $defaultAccountAuditFields = [
         'BillingType'=>'BillingType',
         'BillingTimezone'=>'BillingTimezone',
@@ -339,7 +344,7 @@ class AccountBilling extends \Eloquent {
     }
 
     public static function getBillingClassID($AccountID){
-        return AccountBilling::where('AccountID',$AccountID)->pluck('BillingClassID');
+        return AccountBilling::where(['AccountID'=>$AccountID,'ServiceID'=>0])->pluck('BillingClassID');
     }
     public static function getPaymentDueInDays($AccountID){
         $BillingClassID = self::getBillingClassID($AccountID);

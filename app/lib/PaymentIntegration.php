@@ -181,8 +181,17 @@ class PaymentIntegration {
 		return $transactionResponse;
 	}
 
+	public function paymentValidateWithApiProfile($data){
+		$response = array();
+		if($data['PaymentGateway']=='Stripe' || $data['PaymentGateway']=='StripeACH' || $data['PaymentGateway']=='AuthorizeNet'){
+			return $this->request->paymentValidateWithProfile($data);
+		}
+		$response['status'] = 'success';
+		return $response;
+	}
+
 	public function paymentWithApiProfile($data){
-		$response = $this->paymentValidateWithProfile($data);
+		$response = $this->paymentValidateWithApiProfile($data);
 		if($response['status']=='failed'){
 			return $response;
 		}
