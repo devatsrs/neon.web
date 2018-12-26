@@ -20,7 +20,7 @@ class ServiceTemplate extends \Eloquent
     public static $updateRules = array(
         'ServiceId' =>  'required',
         'Name' => 'required',
-        'CurrencyId' => 'required',
+        
        // 'selectedSubscription' => 'required',
        // 'selectedcategotyTariff' => 'required',
     );
