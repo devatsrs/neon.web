@@ -48,35 +48,37 @@
                 <div class="panel-body">
 
                     <div class="form-group">
+
+
+                        <label for="field-1" class="col-sm-2 control-label">Select Type</label>
+                        <div class="col-sm-4">
+                            {{Form::select('SelectType',RateGenerator::$SelectType,'',array("class"=>"form-control select2 small"))}}
+
+                        </div>
+
                         <label for="field-1" class="col-sm-2 control-label">Name</label>
                         <div class="col-sm-4">
                             <input type="text" class="form-control" name="RateGeneratorName" data-validate="required" data-message-required="." id="field-1" placeholder="" value="{{Input::old('RateGeneratorName')}}" />
                         </div>
-
-                        <label class="col-sm-2 control-label">Rate Position</label>
-                        <div class="col-sm-4">
-                            <input type="text" class="form-control" name="RatePosition" data-validate="required" data-message-required="." id="field-1" placeholder="" value="{{Input::old('RatePosition')}}" />
-
-                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Use Average</label>
-                        <div class="col-sm-4">
-                            <div class="make-switch switch-small">
-                                {{Form::checkbox('UseAverage', 1,  FALSE );}}
+                    <div class="form-group" id="rate-ostion-trunk-div">
+                          <label class="col-sm-2 control-label">Rate Position</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" name="RatePosition" data-validate="required" data-message-required="." id="field-1" placeholder="" value="{{Input::old('RatePosition')}}" />
                             </div>
-                        </div>
-                        <label for="field-1" class="col-sm-2 control-label">Trunk</label>
-                        <div class="col-sm-4">
-                            {{Form::SelectControl('trunk')}}
+                            <label for="field-1" class="col-sm-2 control-label">Trunk</label>
+                            <div class="col-sm-4">
+                                 {{Form::SelectControl('trunk')}}
                            <!-- { Form::select('TrunkID', $trunks, $trunk_keys, array("class"=>"select2")) }}-->
-                        </div>
+                            </div>
                     </div>
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">CodeDeck</label>
-                        <div class="col-sm-4">
-                                {{ Form::select('codedeckid', $codedecklist, Input::get('codedeckid') , array("class"=>"select2")) }}
+                    <div class="form-group" id="group-preference-div">
+
+                        <label for="field-1" class="col-sm-2 control-label" id="group-by-lbl">Group By</label>
+                        <div class="col-sm-4" id="group-by-select-div">
+                            {{ Form::select('GroupBy', array('Code'=>'Code','Desc'=>'Description'), 'Code' , array("class"=>"select2")) }}
                         </div>
+
                         <label for="field-1" class="col-sm-2 control-label">Use Preference</label>
                             <div class="col-sm-4">
                                 <div class="make-switch switch-small">
@@ -99,10 +101,11 @@
                     {{--<input type="hidden" name="GroupBy" value="Code">--}}
 
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Group By</label>
+                        <label for="field-1" class="col-sm-2 control-label">CodeDeck</label>
                         <div class="col-sm-4">
-                            {{ Form::select('GroupBy', array('Code'=>'Code','Desc'=>'Description'), 'Code' , array("class"=>"select2")) }}
+                            {{ Form::select('codedeckid', $codedecklist, Input::get('codedeckid') , array("class"=>"select2")) }}
                         </div>
+
                         <label for="field-1" class="col-sm-2 control-label">Timezones</label>
                         <div class="col-sm-4">
                             {{ Form::select('Timezones[]', $Timezones, [1] , array("class"=>"select2 multiselect", "multiple"=>"multiple")) }}
@@ -124,6 +127,15 @@
                         <label class="col-sm-2 control-label IsMerge">Merge Into</label>
                         <div class="col-sm-4 IsMerge">
                             {{ Form::select('MergeInto', $Timezones, null , array("class"=>"select2")) }}
+                        </div>
+
+                        <div id="rate-aveg-div">
+                            <label for="field-1" class="col-sm-2 control-label" id="use-average-lbl">Use Average</label>
+                            <div class="col-sm-4 use-average-div">
+                            <div class="make-switch switch-small">
+                                {{Form::checkbox('UseAverage', 1,  FALSE );}}
+                             </div>
+                             </div>
                         </div>
                     </div>
                 </div>
@@ -156,6 +168,26 @@
                 $('.IsMerge').hide();
             }
         });
+
+
+        $("#rategenerator-from [name='SelectType']").on('change', function() {
+
+            var TypeValue = $(this).val();
+            if(TypeValue == 2){
+                $("#rate-ostion-trunk-div").hide();
+                $("#rate-aveg-div").hide();
+                $("#group-preference-div").hide();
+
+            }else if(TypeValue == 1){
+                $("#rate-ostion-trunk-div").show();
+                $("#rate-aveg-div").show();
+                $("#group-preference-div").show();
+
+            }
+
+        });
+
+
     });
 </script>
 @include('currencies.currencymodal')

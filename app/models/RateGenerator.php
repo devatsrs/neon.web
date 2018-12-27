@@ -9,8 +9,33 @@ class RateGenerator extends \Eloquent {
 
     const LOWEST_PRICE  = 0;
     const HIGHEST_PRICE = 1;
+    public static $SelectType = array(self::VoiceCall=>"Voice Call",self::DID=>"DID");
 
-	public function raterule()
+    const VoiceCall = 1;
+    const DID = 2;
+    public static $Component = array(
+                                        "One-Off cost"=>"One-Off cost",
+                                        "Monthly cost"=>"Monthly cost",
+                                        "Cost per call"=>"Cost per call",
+                                        "Cost per minute"=>"Cost per minute",
+                                        "Surcharge per call"=>"Surcharge per call",
+                                        "Surcharge per minute"=>"Surcharge per minute",
+                                        "Out payment per minute"=>"Out payment per minute",
+                                        "Surcharges"=>"Surcharges",
+                                        "Charge back"=>"Charge back",
+                                        "Collection cost - amount"=>"Collection cost - amount",
+                                        "Collection cost - percentage"=>"Collection cost - percentage",
+                                        "Registration cost - per number"=>"Registration cost - per number",
+                                        "One-Off cost - Per country"=>"One-Off cost - Per country",
+                                        "Monthly cost - Per country"=>"Monthly cost - Per country",
+
+                                    );
+
+
+    public static $Action = array("sum"=>"Sum", "max" => "Max");
+
+
+    public function raterule()
     {
         return $this->hasMany('RateRule');
     }

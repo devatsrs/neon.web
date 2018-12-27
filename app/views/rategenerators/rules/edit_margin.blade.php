@@ -45,6 +45,19 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-sm-3">
+                    <h5 align="center"><b>If calculated rate is less then</b></h5>
+                </div>
+                <div class="col-sm-3">
+                    <textarea name="LessThenRate" class="form-control" id="field-6" placeholder=""></textarea>
+                </div>
+                <div class="col-sm-3">
+                    <h5 align="center"><b>Charge rate to </b></h5>
+                </div>
+                <div class="col-sm-3">
+                    <textarea name="ChargeRate" class="form-control" id="field-6" placeholder=""></textarea>
+                </div>
+
         </form>
 
 
