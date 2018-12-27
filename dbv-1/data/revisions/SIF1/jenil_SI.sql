@@ -18,7 +18,7 @@ AUTO_INCREMENT=7
 DROP TABLE IF EXISTS `tblRateType`;
 CREATE TABLE IF NOT EXISTS `tblRateType` (
   `RateTypeID` int(11) NOT NULL AUTO_INCREMENT,
-  `CompanyId` int(11) NOT NULL DEFAULT '0',
+  `CompanyID` int(11) NOT NULL DEFAULT '0',
   `Slug` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `Title` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `Description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -32,9 +32,10 @@ CREATE TABLE IF NOT EXISTS `tblRateType` (
 
 -- Dumping data for table speakintelligentRM.tblRateType: ~2 rows (approximately)
 /*!40000 ALTER TABLE `tblRateType` DISABLE KEYS */;
-INSERT INTO `tblRateType` (`RateTypeID`, `CompanyId`, `Slug`, `Title`, `Description`, `Active`, `created_at`, `updated_at`, `created_by`, `updated_by`) VALUES
-	(1, 1, 'did', 'DID', NULL, 1, '2018-12-27 15:14:39', '2018-12-27 15:14:44', 'jenil', NULL),
-	(2, 1, 'voicecall', 'Voice Call', NULL, 1, '2018-12-27 15:14:39', '2018-12-27 15:14:44', 'jenil', NULL);
+INSERT INTO `tblRateType` (`RateTypeID`, `CompanyID`, `Slug`, `Title`, `Description`, `Active`, `created_at`, `updated_at`, `created_by`, `updated_by`) VALUES
+	(1, 1, 'voicecall', 'Voice Call', NULL, 1, '2018-12-27 15:14:39', '2018-12-27 15:14:44', 'jenil', NULL),
+	(2, 1, 'did', 'DID', NULL, 1, '2018-12-27 15:14:39', '2018-12-27 15:14:44', 'jenil', NULL);
+
 
 
 
@@ -149,6 +150,8 @@ CREATE TABLE IF NOT EXISTS `tblVendorConnection` (
 
 
 
+
+-- Dumping structure for procedure speakintelligentRM.prc_getVendorConnection
 DROP PROCEDURE IF EXISTS `prc_getVendorConnection`;
 DELIMITER //
 CREATE PROCEDURE `prc_getVendorConnection`(
@@ -156,7 +159,7 @@ CREATE PROCEDURE `prc_getVendorConnection`(
 	IN `p_AccountID` INT,
 	IN `p_TrunkID` INT,
 	IN `p_IP` VARCHAR(255),
-	IN `p_ConnectionType` VARCHAR(100),
+	IN `p_ConnectionType` INT,
 	IN `p_DIDCategoryID` INT,
 	IN `p_Name` VARCHAR(255),
 	IN `p_Active` INT,
@@ -180,14 +183,14 @@ BEGIN
  		SELECT
 			vc.VendorConnectionID,
 			vc.Name,
-			vc.ConnectionType,
+			rt.Title as RateTypeTitle,
 			vc.IP,
 			vc.Active,
 			t.Trunk as TrunkName,
 			c.CategoryName as CategoryName,
 			vc.created_at,
 			vc.DIDCategoryID,
-			vc.Tariff,
+			vc.RateTableID,
 			vc.TrunkID,
 			vc.CLIRule,
 			vc.CLDRule,
@@ -196,19 +199,23 @@ BEGIN
 			vc.Username,
 			vc.PrefixCDR,
 			vc.SipHeader,
-			vc.AuthenticationMode
+			vc.AuthenticationMode,
+			vc.RateTypeID
+			
 		FROM
 			tblVendorConnection vc
 		LEFT JOIN tblDIDCategory c
 			ON c.DIDCategoryID=vc.DIDCategoryID
 		LEFT JOIN tblTrunk t
-			ON t.TrunkID=vc.TrunkID 	
+			ON t.TrunkID=vc.TrunkID 
+		LEFT JOIN tblRateType rt
+			ON rt.RateTypeID=vc.RateTypeID		
 		WHERE vc.CompanyID = p_CompanyID
 		AND vc.AccountId=p_AccountID
 		AND(p_TrunkID = 0 OR vc.TrunkID = p_TrunkID)
 		AND(p_IP = '' OR vc.IP like Concat(p_IP,'%'))
 		AND(p_Name = '' OR vc.Name like Concat(p_Name,'%'))
-		AND(p_ConnectionType = '' OR vc.ConnectionType like p_ConnectionType)
+		AND(p_ConnectionType = -1 OR vc.RateTypeID = p_ConnectionType)
 		AND(p_DIDCategoryID = 0 OR vc.DIDCategoryID = p_DIDCategoryID)
 		AND(p_Active=-1 OR vc.Active = p_Active)
 		ORDER BY
@@ -225,10 +232,10 @@ BEGIN
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_atASC') THEN vc.created_at
 			END ASC,
 			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionTypeDESC') THEN vc.ConnectionType
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionTypeDESC') THEN vc.RateTypeID
 			END DESC,
 			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionTypeASC') THEN vc.ConnectionType
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ConnectionTypeASC') THEN vc.RateTypeID
 			END ASC,
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IPDESC') THEN vc.IP
@@ -254,15 +261,17 @@ BEGIN
 		LEFT JOIN tblDIDCategory c
 			ON c.DIDCategoryID=vc.DIDCategoryID
 		LEFT JOIN tblTrunk t
-			ON t.TrunkID=vc.TrunkID 	
-		where vc.CompanyID = p_CompanyID
+			ON t.TrunkID=vc.TrunkID 
+		LEFT JOIN tblRateType rt
+			ON rt.RateTypeID=vc.RateTypeID		
+		WHERE vc.CompanyID = p_CompanyID
 		AND vc.AccountId=p_AccountID
 		AND(p_TrunkID = 0 OR vc.TrunkID = p_TrunkID)
 		AND(p_IP = '' OR vc.IP like Concat(p_IP,'%'))
 		AND(p_Name = '' OR vc.Name like Concat(p_Name,'%'))
-		AND(p_ConnectionType = '' OR vc.ConnectionType like p_ConnectionType)
+		AND(p_ConnectionType = -1 OR vc.RateTypeID = p_ConnectionType)
 		AND(p_DIDCategoryID = 0 OR vc.DIDCategoryID = p_DIDCategoryID)
-		AND(p_Active='' OR vc.Active = p_Active);
+		AND(p_Active=-1 OR vc.Active = p_Active);
 
 	END IF;
 
@@ -271,7 +280,7 @@ BEGIN
 		SELECT
 			vc.VendorConnectionID,
 			vc.Name,
-			vc.ConnectionType,
+			rt.Title as RateTypeTitle,
 			vc.IP,
 			vc.Active,
 			t.Trunk as TrunkName,
@@ -283,20 +292,24 @@ BEGIN
 		LEFT JOIN tblDIDCategory c
 			ON c.DIDCategoryID=vc.DIDCategoryID
 		LEFT JOIN tblTrunk t
-			ON t.TrunkID=vc.TrunkID 	
-		where vc.CompanyID = p_CompanyID
+			ON t.TrunkID=vc.TrunkID 
+		LEFT JOIN tblRateType rt
+			ON rt.RateTypeID=vc.RateTypeID		
+		WHERE vc.CompanyID = p_CompanyID
 		AND vc.AccountId=p_AccountID
 		AND(p_TrunkID = 0 OR vc.TrunkID = p_TrunkID)
 		AND(p_IP = '' OR vc.IP like Concat(p_IP,'%'))
 		AND(p_Name = '' OR vc.Name like Concat(p_Name,'%'))
-		AND(p_ConnectionType = '' OR vc.ConnectionType like p_ConnectionType)
+		AND(p_ConnectionType = -1 OR vc.RateTypeID = p_ConnectionType)
 		AND(p_DIDCategoryID = 0 OR vc.DIDCategoryID = p_DIDCategoryID)
-		AND(p_Active='' OR vc.Active = p_Active);
+		AND(p_Active=-1 OR vc.Active = p_Active);
 	END IF;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END//
 DELIMITER ;
+
+
 
 
 
