@@ -258,7 +258,10 @@ class CreditNotesController extends \BaseController {
 
                         //check specific invoice grand total is greter then creditnotes
                         $InvoiceAmount = Invoice::find($data['invoice_id'][$i])->GrandTotal;
-                        $TotalPayAmount = DB::connection('sqlsrv2')->table('tblPayment')->where('InvoiceID', $data['invoice_id'][$i])->sum('Amount');
+                        $TotalPayAmount = DB::connection('sqlsrv2')->table('tblPayment')
+                            ->where('InvoiceID', $data['invoice_id'][$i])
+                            ->where('Recall', 0)
+                            ->sum('Amount');
                         $totalpaidamount = $TotalPayAmount + $data['payment'][$i];
                         if($InvoiceAmount >= $totalpaidamount)
                         {
