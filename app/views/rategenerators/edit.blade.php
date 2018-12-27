@@ -68,39 +68,37 @@
                 <div class="panel-body">
 
                     <div class="form-group">
+
+                        <label for="field-1" class="col-sm-2 control-label">Type</label>
+                        <div class="col-sm-4">
+                            {{Form::select('SelectType',RateGenerator::$SelectType,$rategenerators->SelectType,array("class"=>"form-control select2 small"))}}
+
+                        </div>
                         <label for="field-1" class="col-sm-2 control-label">Name</label>
                         <div class="col-sm-4">
                             <input type="text" class="form-control" name="RateGeneratorName" data-validate="required" data-message-required="." id="field-1" placeholder="" value="{{$rategenerators->RateGeneratorName}}" />
                         </div>
 
-                        <label class="col-sm-2 control-label">Rate Position</label>
-                        <div class="col-sm-4">
-                            <input type="text" class="form-control" name="RatePosition" data-validate="required" data-message-required="." id="field-1" placeholder="" value="{{$rategenerators->RatePosition}}" />
-
-                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Use Average</label>
+                    <div class="form-group" id="rate-ostion-trunk-div">
+
+                        <label for="field-1" class="col-sm-2 control-label">Policy</label>
                         <div class="col-sm-4">
-                            <div class="make-switch switch-small">
-                                {{Form::checkbox('UseAverage', 1,  $rategenerators->UseAverage );}}
-                            </div>
+                            {{ Form::select('Policy', LCR::$policy, $rategenerators->Policy , array("class"=>"select2")) }}
                         </div>
+
                         <label for="field-1" class="col-sm-2 control-label">Trunk</label>
                         <div class="col-sm-4">
                             {{ Form::select('TrunkID', $trunks, $rategenerators->TrunkID , array("class"=>"select2")) }}
                         </div>
-
-
                     </div>
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">CodeDeck</label>
+                    <div class="form-group" id="group-preference-div">
+
+                        <label for="field-1" class="col-sm-2 control-label">Group By</label>
                         <div class="col-sm-4">
-                                {{ Form::select('codedeckid', $codedecklist,  $rategenerators->CodeDeckId, array_merge( array("class"=>"select2"),$array_op)) }}
-                            @if(isset($array_op['disabled']) && $array_op['disabled'] == 'disabled')
-                                <input type="hidden" name="codedeckid" readonly  value="{{$rategenerators->CodeDeckId}}">
-                            @endif
+                            {{ Form::select('GroupBy', array('Code'=>'Code','Desc'=>'Description'), $rategenerators->GroupBy , array("class"=>"select2")) }}
                         </div>
+
                         <label for="field-1" class="col-sm-2 control-label">Use Preference</label>
                         <div class="col-sm-4">
                             <div class="make-switch switch-small">
@@ -122,18 +120,30 @@
                                 <input type="hidden" name="CurrencyID" readonly  value="{{$rategenerators->CurrencyID}}">
                             @endif
                         </div>
-                        <label for="field-1" class="col-sm-2 control-label">Policy</label>
-                        <div class="col-sm-4">
-                            {{ Form::select('Policy', LCR::$policy, $rategenerators->Policy , array("class"=>"select2")) }}
+
+                        <label class="col-sm-2 control-label">Rate Position</label>
+                        <div class="col-sm-1">
+                            <input type="text" class="form-control" name="RatePosition" data-validate="required" data-message-required="." id="field-1" placeholder="" value="{{$rategenerators->RatePosition}}" />
                         </div>
+                        <div id="percentageRate">
+                            <label class="col-sm-1 control-label">Percentage </label>
+                            <div class="col-sm-2">
+                                <textarea class="form-control" rows="1" id="percentageRate" name="percentageRate"></textarea>
+                            </div>
+                        </div>
+
                     </div>
                     {{--<input type="hidden" name="GroupBy" value="Code">--}}
 
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Group By</label>
+                        <label for="field-1" class="col-sm-2 control-label">CodeDeck</label>
                         <div class="col-sm-4">
-                            {{ Form::select('GroupBy', array('Code'=>'Code','Desc'=>'Description'), $rategenerators->GroupBy , array("class"=>"select2")) }}
+                            {{ Form::select('codedeckid', $codedecklist,  $rategenerators->CodeDeckId, array_merge( array("class"=>"select2"),$array_op)) }}
+                            @if(isset($array_op['disabled']) && $array_op['disabled'] == 'disabled')
+                                <input type="hidden" name="codedeckid" readonly  value="{{$rategenerators->CodeDeckId}}">
+                            @endif
                         </div>
+
                         <label for="field-1" class="col-sm-2 control-label">Timezones</label>
                         <div class="col-sm-4">
                             {{ Form::select('Timezones[]', $Timezones, explode(',',$rategenerators->Timezones) , array("class"=>"select2 multiselect", "multiple"=>"multiple")) }}
@@ -156,13 +166,94 @@
                         <div class="col-sm-4 IsMerge">
                             {{ Form::select('MergeInto', $Timezones, $rategenerators->MergeInto , array("class"=>"select2")) }}
                         </div>
+                        <div id="rate-aveg-div">
+                             <label for="field-1" class="col-sm-2 control-label">Use Average</label>
+                             <div class="col-sm-4">
+                                 <div class="make-switch switch-small">
+                                     {{Form::checkbox('UseAverage', 1,  $rategenerators->UseAverage );}}
+                                 </div>
+                             </div>
+
+                            <label for="field-1" class="col-sm-2 control-label">Components</label>
+                            <div class="col-sm-4">
+                                {{ Form::select('AllComponent', RateGenerator::$Component, null , array("class"=>"select2" ,'multiple', "id"=>"AllComponent" )) }}
+                            </div>
+
+                        </div>
                     </div>
 
+                    <div class="form-group" id="DIDCategoryDiv">
+                        <label for="field-1" class="col-sm-2 control-label">Category</label>
+                        <div class="col-sm-4">
+                            {{ Form::select('Category', $Categories, $Categories , array("class"=>"select2")) }}
+                        </div>
+                    </div>
                 </div>
             </div>
 
-        </form>
 
+        <div class="panel panel-primary" data-collapsed="0" id="Merge-components">
+            <div class="panel-heading">
+                <div class="panel-title">
+                    Merge components
+                </div>
+
+                <div class="panel-options">
+                    <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                </div>
+             </div>
+
+            <div class="panel-body">
+
+                <div class="col-md-12">
+                    <br/>
+                    <input type="hidden" id="getIDs" name="getIDs" value="1,"/>
+
+                    <table id="servicetableSubBox" class="table table-bordered datatable">
+                        <thead>
+                            <tr>
+                                <th width="35%">Component</th>
+                                <th width="20%">Action</th>
+                                <th width="35%">Merge To</th>
+                                <th width="10%">Add</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody">
+                            <tr id="selectedRow-1">
+                                <td id="testValues">
+                                   {{ Form::select('Component-1[]', array(), null , array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-1")) }}
+
+                                </td>
+                                <td>
+                                    {{ Form::select('Action-1[]', RateGenerator::$Action, null , array("class"=>"select2")) }}
+
+                                </td>
+                                <td>
+                                    {{ Form::select('MergeTo-1[]', array(),  null , array("class"=>"select2" ,'multiple', "id"=>"MergeTo-1")) }}
+
+                                </td>
+                                <td>
+                                    <button type="button" onclick="createCloneRow()" id="Service-update" class="btn btn-primary btn-sm add-clone-row-btn" data-loading-text="Loading...">
+                                        <i></i>
+                                        +
+                                    </button>
+                                    <a onclick="deleteRow(this.id)" id="0" class="btn delete btn-danger btn-sm" data-loading-text="Loading...">
+                                        <i></i>
+                                       -
+
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+
+
+
+            </div>
+        </div>
+</form>
         <div class="panel panel-primary" data-collapsed="0">
             <div class="panel-heading">
                 <div class="panel-title">
@@ -173,20 +264,17 @@
                     <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                 </div>
             </div>
-
-
-
             <div class="panel-body">
 
-                            <div class="pull-right">
+                <div class="pull-right">
 
-                                <a  href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/rule/add" class="btn addnew btn-primary btn-sm btn-icon icon-left" >
-                                    <i class="entypo-floppy"></i>
-                                    Add New
-                                </a>
-                                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Rules will be applied in the order they are setup. Keep * at the top." data-original-title="Add New Rule">?</span>
-                                <br><br>
-                            </div>
+                    <a  href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/rule/add" class="btn addnew btn-primary btn-sm btn-icon icon-left" >
+                        <i class="entypo-floppy"></i>
+                        Add New
+                    </a>
+                    <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Rules will be applied in the order they are setup. Keep * at the top." data-original-title="Add New Rule">?</span>
+                    <br><br>
+                </div>
 
                     @if(count($rategenerator_rules))
                     <form id="RateRulesDataFrom" method="POST" />
@@ -194,7 +282,8 @@
                             <table class="table table-bordered datatable" id="table-4">
                                 <thead>
                                     <tr>
-                                        <th>Rate Filter</th>
+                                        <th>Rate Filter Origination</th>
+                                        <th>Rate Filter Destination</th>
                                         <th>Sources</th>
                                         <th>Margins</th>
                                         <th>Action</th>
@@ -204,8 +293,12 @@
                                 @foreach($rategenerator_rules as $rategenerator_rule)
                                     <tr class="odd gradeX" data-id="{{$rategenerator_rule->RateRuleId}}">
                                         <td>
-                                            {{$rategenerator_rule->Code}}@if(!empty($rategenerator_rule->Code)) <br/> @endif
-                                            {{$rategenerator_rule->Description}}
+                                            {{$rategenerator_rule->OriginationCode}}@if(!empty($rategenerator_rule->OriginationCode)) <br/> @endif
+                                            {{$rategenerator_rule->OriginationDescription}}
+                                        </td>
+                                        <td>
+                                            {{$rategenerator_rule->DestinationCode}}@if(!empty($rategenerator_rule->DestinationCode)) <br/> @endif
+                                            {{$rategenerator_rule->DestinationDescription}}
                                         </td>
                                         <td>
                                             @if(count($rategenerator_rule['RateRuleSource']))
@@ -236,7 +329,7 @@
                                                 <i class="fa fa-clone"></i>
                                             </a>
 
-                                            <a href="{{URL::to('/rategenerators/'.$id. '/rule/' . $rategenerator_rule->RateRuleId .'/delete' )}}" class="btn delete btn-danger btn-sm" data-redirect="{{Request::url()}}">
+                                            <a href="{{URL::to('/rategenerators/'.$id. '/rule/' . $rategenerator_rule->RateRuleId .'/delete' )}}" class="btn delete btn-danger btn-sm" data = "0" data-redirect="{{Request::url()}}">
                                                 <i class="entypo-trash"></i>
                                             </a>
                                         </td>
@@ -265,11 +358,67 @@
     }
 </style>
 <script type="text/javascript">
-    jQuery(document).ready(function($) {
+    jQuery(document).ready(function() {
         /*$(".btn.addnew").click(function(ev) {
             jQuery('#modal-rate-generator-rule').modal('show', {backdrop: 'static'});
         });*/
        // $( "#sortable" ).sortable();
+
+        var selectAllComponents;
+
+        $( "#AllComponent" ).on('change', function() {
+           selectAllComponents = $("#rategenerator-from [name='AllComponent']").val();
+            selectAllComponents = String(selectAllComponents);
+            var ComponentsArray = selectAllComponents.split(',');
+
+            $('#Component-1 option').each(function() {
+                    $(this).remove();
+            });
+
+            $('#MergeTo-1 option').each(function() {
+                $(this).remove();
+            });
+
+            var i;
+                for (i = 0; i < ComponentsArray.length; ++i) {
+                    var data = {
+                        id: ComponentsArray[i],
+                        text: ComponentsArray[i]
+                    };
+
+                    if( typeof data.id != 'undefined' && data.id  != 'null'){
+
+                        var newOption = new Option(data.text, data.id, false, false);
+                        var newOption2 = new Option(data.text, data.id, false, false);
+
+                        $('#Component-1').append(newOption).trigger('change');
+                        $('#MergeTo-1').append(newOption2).trigger('change');
+                    }
+                }
+
+        });
+
+
+
+        var TypeValue = $("#rategenerator-from [name='SelectType']").val();
+
+        if(TypeValue == 2){
+            $("#rate-ostion-trunk-div").hide();
+            $("#rate-aveg-div").hide();
+            $("#group-preference-div").hide();
+            $("#Merge-components").hide();
+            $("#DIDCategoryDiv").show();
+            $("#percentageRate").hide();
+
+        }else if(TypeValue == 1){
+            $("#rate-ostion-trunk-div").show();
+            $("#rate-aveg-div").show();
+            $("#group-preference-div").show();
+            $("#Merge-components").show();
+            $("#DIDCategoryDiv").hide();
+            $("#percentageRate").show();
+        }
+
         function initSortable(){
             // Code using $ as usual goes here.
             $('#sortable').sortable({
@@ -313,6 +462,7 @@
                 dataType: 'json',
                 success: function (response) {
                     if(response.status =='success'){
+
                         toastr.success(response.message, "Success", toastr_opts);
                     }else{
                         toastr.error(response.message, "Error", toastr_opts);
@@ -640,7 +790,93 @@
                 $('.IsMerge').hide();
             }
         });
+
+
+        $("#rategenerator-from [name='SelectType']").on('change', function() {
+
+            var TypeValue = $(this).val();
+
+            if(TypeValue == 2){
+                $("#rate-ostion-trunk-div").hide();
+                $("#rate-aveg-div").hide();
+                $("#group-preference-div").hide();
+                $("#Merge-components").hide();
+                $("#DIDCategoryDiv").show();
+                $("#percentageRate").hide();
+
+            }else if(TypeValue == 1){
+                $("#rate-ostion-trunk-div").show();
+                $("#rate-aveg-div").show();
+                $("#group-preference-div").show();
+                $("#Merge-components").show();
+                $("#DIDCategoryDiv").hide();
+                $("#percentageRate").show();
+            }
+
+        });
+
+
     });
+
+
+    function getNumber($item){
+        var txt = $item;
+        var numb = txt.match(/\d/g);
+        numb = numb.join("");
+        numb++;
+        return numb;
+    }
+    function createCloneRow()
+    {
+
+
+            var $item = $('#servicetableSubBox tr:last').attr('id');
+            var numb = getNumber($item);
+
+            var Component      =  $(this).closest('tr').children('td:eq(0)').children('select').attr('name');
+            var action         =  $(this).closest('tr').children('td:eq(1)').children('select').attr('name');
+            var merge          =  $(this).closest('tr').children('td:eq(2)').children('select').attr('name');
+            var ServiceUpdate  =  $(this).closest('tr').children('td:eq(3)').children('button').attr('id');
+
+            $("#"+$item).clone().appendTo("#tbody");
+
+            $('#servicetableSubBox tr:last').attr('id', 'selectedRow-'+numb);
+            $('#servicetableSubBox tr:last').children('td:eq(0)').children('select').attr('name', 'Component-'+numb+'[]').select2().select2('val', '');
+            $('#servicetableSubBox tr:last').children('td:eq(1)').children('select').attr('name', 'Action-'+numb+'[]').select2().select2('val', '');
+            $('#servicetableSubBox tr:last').children('td:eq(2)').children('select').attr('name', 'MergeTo-'+numb+'[]').select2().select2('val', '');
+
+                if($('#getIDs').val() == '' ){
+                    $('#getIDs').val(numb+',');
+                }else{
+                    var getIDString =  $('#getIDs').val();
+                    getIDString = getIDString + numb + ',';
+                    $('#getIDs').val(getIDString);
+                }
+
+        $('#servicetableSubBox tr:last').closest('tr').children('td:eq(3)').children('a').attr('id',numb);
+        $('#servicetableSubBox tr:last').children('td:eq(0)').find('div:first').remove();
+        $('#servicetableSubBox tr:last').children('td:eq(1)').find('div:first').remove();
+        $('#servicetableSubBox tr:last').children('td:eq(2)').find('div:first').remove();
+
+    }
+
+    function deleteRow(id)
+    {
+        var  selectedSubscription = $('#getIDs').val();
+        var removeValue = id + ",";
+        var removalueIndex = selectedSubscription.indexOf(removeValue);
+        var firstValue = selectedSubscription.substr(0, removalueIndex);
+        var lastValue = selectedSubscription.substr(removalueIndex + removeValue.length, selectedSubscription.length);
+        var selectedSubscription = firstValue + lastValue;
+
+
+        $('#getIDs').val(selectedSubscription);
+
+        $("#"+id).closest("tr").remove();
+    }
+
+
+
 </script>
 @include('includes.ajax_submit_script', array('formID'=>'rategenerator-from' , 'url' => ('rategenerators/'.$rategenerators->RateGeneratorId.'/update')))
 

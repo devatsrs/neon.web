@@ -696,7 +696,7 @@ Route::group(array('before' => 'auth'), function () {
 	//Route::any('/rategenerators/rules/{id}/edit/{ruleID}', 'RateGeneratorsController@edit_rule')->where('ruleID', '(.[09]*)+');
 	//Route::any('/rategenerators/rules/{id}/edit_source/{rule_id}', 'RateGeneratorsController@edit_rule_source')->where('rule_id', '(.[09]*)+');
 	Route::any('/rategenerators/{id}/change_status/{status}', 'RateGeneratorsController@change_status')->where('status', '(.[09]*)+');
-	Route::any('/rategenerators/exports/{type}', 'RateGeneratorsController@exports');
+	Route::any('/rategenerators/exports/{type}', 'RateGeneratorasController@exports');
 	Route::any('/rategenerators/ajax_load_rate_table_dropdown', 'RateGeneratorsController@ajax_load_rate_table_dropdown');
     Route::any('/rategenerators/{id}/ajax_existing_rategenerator_cronjob', 'RateGeneratorsController@ajax_existing_rategenerator_cronjob');
     Route::any('/rategenerators/{id}/deletecronjob', 'RateGeneratorsController@deleteCronJob');
@@ -716,7 +716,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rategenerators/rules/{id}/update_margin/{rule_id}', 'RateGeneratorRuleController@update_rule_margin')->where('rule_id', '(.[09]*)+');
 	Route::any('/rategenerators/rules/{id}/add_margin/{rule_id}', 'RateGeneratorRuleController@add_rule_margin')->where('rule_id', '(.[09]*)+');
 	Route::any('/rategenerators/rules/{rule_id}/delete_margin/{id}', 'RateGeneratorRuleController@delete_rule_margin')->where('rule_id', '(.[09]*)+');
-
+	Route::any('getComponentsTable','RateGeneratorsController@ComponentTable');
 	Route::resource('rategenerators', 'RateGeneratorsController');
 	Route::controller('rategenerators', 'RateGeneratorsController');
 
@@ -1744,6 +1744,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('getAccountbilling/{AccountID}', 'AccountBillingApiController@getAccountBilling');
 	Route::post('account/add_servicetemaplate', 'ServicesTemplateApiController@storeServiceTempalteData');
 
+
 	Route::post('checkBalance/', 'AccountsApiController@checkBalance');
 	Route::post('getPayments/', 'PaymentApiController@getPaymentHistory');
 	Route::post('getAutoDepositSettings/', 'AccountBillingApiController@getAutoDepositSettings');
@@ -1754,6 +1755,11 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('getLowBalanceNotification/', 'BillingClassApiController@getLowBalanceNotification');
 	Route::post('requestFund/', 'PaymentApiController@requestFund');
 	Route::post('depositFund/', 'PaymentApiController@depositFund');
+	Route::post('startCall', 'ActiveCallApiController@startCall');
+	Route::post('endCall', 'ActiveCallApiController@endCall');
+	Route::post('startRecording', 'ActiveCallApiController@startRecording');
+
 	Route::post('account/create', 'AccountsApiController@createAccount');
+	Route::post('account/add_service', 'AccountsApiController@createAccountService');
 
 });
