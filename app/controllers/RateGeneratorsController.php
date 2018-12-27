@@ -9,10 +9,8 @@ class RateGeneratorsController extends \BaseController {
         if($data['Active']!=''){
             $where['tblRateGenerator.Status'] = $data['Active'];
         }
-		
-		
-		
-        $RateGenerators = RateGenerator::
+
+		$RateGenerators = RateGenerator::
         join("tblTrunk","tblTrunk.TrunkID","=","tblRateGenerator.TrunkID")
         ->leftjoin("tblCurrency","tblCurrency.CurrencyId","=","tblRateGenerator.CurrencyId")
         ->where($where)->select(array(
@@ -53,24 +51,41 @@ class RateGeneratorsController extends \BaseController {
 
     public function store() {
         $data = Input::all();
-
         $companyID = User::get_companyID();
+
         $data ['CompanyID'] = $companyID;
         $data ['UseAverage'] = isset($data ['UseAverage']) ? 1 : 0;
         $data ['UsePreference'] = isset($data ['UsePreference']) ? 1 : 0;
         $data ['Timezones'] = isset($data ['Timezones']) ? implode(',', $data['Timezones']) : '';
-        $rules = array(
-            'CompanyID' => 'required',
-            'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,NULL,CompanyID,CompanyID,'.$data['CompanyID'],
-            'TrunkID' => 'required',
-            'Timezones' => 'required',
-            'RatePosition' => 'required|numeric',
-            'UseAverage' => 'required',
-            'codedeckid' => 'required',
-            'CurrencyID' => 'required',
-            'Policy' => 'required',
-            'GroupBy' => 'required',
-        );
+        $SelectType = $data['SelectType'];
+
+        if($SelectType == 1) // for Voice call Type selected
+        {
+            $rules = array(
+                'CompanyID' => 'required',
+                'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,NULL,CompanyID,CompanyID,'.$data['CompanyID'],
+                'TrunkID' => 'required',
+                'Timezones' => 'required',
+                'RatePosition' => 'required|numeric',
+                'UseAverage' => 'required',
+                'codedeckid' => 'required',
+                'CurrencyID' => 'required',
+                'Policy' => 'required',
+                'GroupBy' => 'required',
+            );
+
+        }elseif($SelectType == 2){ // for DID Type selected
+
+            $rules = array(
+                'CompanyID' => 'required',
+                'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,NULL,CompanyID,CompanyID,'.$data['CompanyID'],
+                'Timezones' => 'required',
+                'codedeckid' => 'required',
+                'CurrencyID' => 'required',
+                'Policy' => 'required',
+            );
+        }
+
 
         $message = array(
             'Timezones.required' => 'Please select at least 1 Timezone'
@@ -113,10 +128,13 @@ class RateGeneratorsController extends \BaseController {
             if ($id) {
                 $trunks = Trunk::getTrunkDropdownIDList();
                 $companyID = User::get_companyID();
+                $Categories = DidCategory::getCategoryDropdownIDList();
+
                 $rategenerators = RateGenerator::where([
                     "RateGeneratorId" => $id,
                     "CompanyID" => $companyID
                 ])->first();
+
                 $rategenerator_rules = RateRule::with('RateRuleMargin', 'RateRuleSource')->where([
                     "RateGeneratorId" => $id
                 ]) ->orderBy("Order", "asc")->get();
@@ -130,7 +148,7 @@ class RateGeneratorsController extends \BaseController {
                 $Timezones = Timezones::getTimezonesIDList();
 
                 // Debugbar::info($rategenerator_rules);
-                return View::make('rategenerators.edit', compact('id', 'rategenerators','rategenerator', 'rategenerator_rules','codedecklist', 'trunks','array_op','currencylist','Timezones'));
+                return View::make('rategenerators.edit', compact('id', 'rategenerators', 'Categories' ,'rategenerator', 'rategenerator_rules','codedecklist', 'trunks','array_op','currencylist','Timezones'));
             }
     }
 
@@ -142,7 +160,9 @@ class RateGeneratorsController extends \BaseController {
      * @return Response
      */
     public function update($id) {
+
         $data = Input::all();
+        $RateGeneratorID = $id;
         $RateGenerator = RateGenerator::find($id);
 
         $companyID = User::get_companyID();
@@ -150,18 +170,38 @@ class RateGeneratorsController extends \BaseController {
         $data ['UseAverage'] = isset($data ['UseAverage']) ? 1 : 0;
         $data ['UsePreference'] = isset($data ['UsePreference']) ? 1 : 0;
         $data ['Timezones'] = isset($data ['Timezones']) ? implode(',', $data['Timezones']) : '';
-        $rules = array(
-            'CompanyID' => 'required',
-            'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,'.$RateGenerator->RateGeneratorId.',RateGeneratorID,CompanyID,'.$data['CompanyID'],
-            'TrunkID' => 'required',
-            'Timezones' => 'required',
-            'RatePosition' => 'required|numeric',
-            'UseAverage' => 'required',
-            'codedeckid' => 'required',
-            'CurrencyID' => 'required',
-            'Policy' => 'required',
-        );
-        
+        $data ['DIDCategoryID']= isset($data['Category']) ? $data['Category'] : '';
+        $data['VendorPositionPercentage'] = $data['percentageRate'];
+        $SelectType = $data['SelectType'];
+        if($SelectType == 1) {
+            $rules = array(
+                'CompanyID' => 'required',
+                'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,' . $RateGenerator->RateGeneratorId . ',RateGeneratorID,CompanyID,' . $data['CompanyID'],
+                'TrunkID' => 'required',
+                'Timezones' => 'required',
+                'RatePosition' => 'required|numeric',
+                'UseAverage' => 'required',
+                'codedeckid' => 'required',
+                'CurrencyID' => 'required',
+                'Policy' => 'required',
+                'Component-1' => 'required',
+                'Action-1' => 'required',
+                'MergeTo-1' => 'required',
+                'percentageRate' => 'required',
+
+            );
+        }elseif($SelectType == 2) {
+            $rules = array(
+                'CompanyID' => 'required',
+                'RateGeneratorName' => 'required|unique:tblRateGenerator,RateGeneratorName,' . $RateGenerator->RateGeneratorId . ',RateGeneratorID,CompanyID,' . $data['CompanyID'],
+                'Timezones' => 'required',
+                'codedeckid' => 'required',
+                'CurrencyID' => 'required',
+                'Policy' => 'required',
+                'Category'=> 'required',
+
+            );
+        }
         $message = array(
             'Timezones.required' => 'Please select at least 1 Timezone'
         );
@@ -179,11 +219,71 @@ class RateGeneratorsController extends \BaseController {
             return json_validator_response($validator);
         }
         $data ['ModifiedBy'] = User::get_user_full_name();
+
+        if($SelectType == 1) { // Select Type for Voice Call
+
+
+            $getNumberString = $data['getIDs'];
+            $numberArray = explode(",", $getNumberString);
+            $GetComponent = array();
+            $GetAction = array();
+            $GetMergeTo = array();
+            $addComponents = array();
+
+            $i = 0;
+            for ($i; $i < sizeof($numberArray) - 1; $i++) {
+
+                $componts = 'Component-' . $numberArray[$i];
+                $action = 'Action-' . $numberArray[$i];
+                $mergeTo = 'MergeTo-' . $numberArray[$i];
+
+
+                $GetComponent = $data[$componts];
+                $GetAction = $data[$action];
+                $GetMergeTo = $data[$mergeTo];
+
+
+                $addComponents['RatePositionID'] = $data['RatePosition'];
+                $addComponents['TrunkID'] = $data['TrunkID'];
+                $addComponents['CurrencyID'] = $data['CurrencyID'];
+                $addComponents['RateGeneratorID'] = $RateGeneratorID;
+
+                $addComponents['Component'] = implode(',', $GetComponent);
+                $addComponents['Action'] = implode(',', $GetAction);
+                $addComponents['MergeTo'] = implode(',', $GetMergeTo);
+
+                $CostComponentSaved = 0;
+
+                if (RateGeneratorComponent::create($addComponents)) {
+
+                    $CostComponentSaved = 1;
+                }
+
+                unset($data['Component-' . $numberArray[$i]]);
+                unset($data['Action-' . $numberArray[$i]]);
+                unset($data['MergeTo-' . $numberArray[$i]]);
+            }
+
+
+        }else{
+
+                unset($data['Component-1']);
+                unset($data['Action-1']);
+                unset($data['MergeTo-1']);
+                unset($data['Category']);
+
+        }
+        unset($data['getIDs']);
+        unset($data['Category']);
+        unset($data['percentageRate']);
+        unset($data['AllComponent']);
+
         if ($RateGenerator->update($data)) {
-            return Response::json(array(
-                        "status" => "success",
-                        "message" => "RateGenerator Successfully Updated"
-                    ));
+
+               return Response::json(array(
+                    "status" => "success",
+                    "message" => "RateGenerator and RateGenerator Cost component Successfully Updated "
+                ));
         } else {
             return Response::json(array(
                         "status" => "failed",
@@ -401,4 +501,8 @@ class RateGeneratorsController extends \BaseController {
         }
     }
 
+
+    function ComponentTable(){
+        return View::make('rategenerators.ajax.index');
+    }
 }

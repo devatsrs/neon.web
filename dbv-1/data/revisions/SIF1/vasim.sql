@@ -16,13 +16,13 @@ ALTER TABLE `tblRateTable`
 	ADD COLUMN `AppliedTo` INT NOT NULL DEFAULT '1' AFTER `MinimumCallCharge`;
 
 ALTER TABLE `tblRateTableRate`
-	ADD COLUMN `OriginationRateID` INT(11) NOT NULL AFTER `RateTableRateID`,
+	ADD COLUMN `OriginationRateID` INT(11) NULL DEFAULT NULL AFTER `RateTableRateID`,
 	ADD COLUMN `RoutingCategoryID` INT(11) NULL DEFAULT NULL AFTER `ConnectionFee`,
 	ADD COLUMN `Preference` INT(11) NULL DEFAULT NULL AFTER `RoutingCategoryID`,
 	ADD COLUMN `Blocked` TINYINT NOT NULL DEFAULT '0' AFTER `Preference`;
 
 ALTER TABLE `tblRateTableRateArchive`
-	ADD COLUMN `OriginationRateID` INT(11) NOT NULL AFTER `TimezonesID`,
+	ADD COLUMN `OriginationRateID` INT(11) NULL DEFAULT NULL AFTER `TimezonesID`,
 	ADD COLUMN `RoutingCategoryID` INT(11) NULL DEFAULT NULL AFTER `ConnectionFee`,
 	ADD COLUMN `Preference` INT(11) NULL DEFAULT NULL AFTER `RoutingCategoryID`,
 	ADD COLUMN `Blocked` TINYINT NOT NULL DEFAULT '0' AFTER `Preference`;
@@ -33,7 +33,7 @@ ALTER TABLE `tblRateTableRate`
 
 CREATE TABLE IF NOT EXISTS `tblRateTableDIDRate` (
   `RateTableDIDRateID` bigint(20) NOT NULL AUTO_INCREMENT,
-  `OriginationRateID` bigint(20) NOT NULL,
+  `OriginationRateID` bigint(20) NULL DEFAULT NULL,
   `RateID` int(11) NOT NULL,
   `RateTableId` bigint(20) NOT NULL,
   `TimezonesID` bigint(20) NOT NULL DEFAULT '1',
@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS `tblRateTableDIDRate` (
 CREATE TABLE IF NOT EXISTS `tblRateTableDIDRateArchive` (
   `RateTableDIDRateArchiveID` bigint(20) NOT NULL AUTO_INCREMENT,
   `RateTableDIDRateID` bigint(20) NOT NULL,
-  `OriginationRateID` bigint(20) NOT NULL,
+  `OriginationRateID` bigint(20) NULL DEFAULT NULL,
   `RateID` int(11) NOT NULL,
   `RateTableId` bigint(20) NOT NULL,
   `TimezonesID` bigint(20) NOT NULL DEFAULT '1',
@@ -137,7 +137,7 @@ BEGIN
 	INNER JOIN tblRateTableRate rtr2
 		ON rtr2.RateTableId = rtr.RateTableId
 		AND rtr2.RateID = rtr.RateID
-		AND rtr2.OriginationRateID = rtr.OriginationRateID
+		AND ((rtr2.OriginationRateID IS NULL AND rtr.OriginationRateID IS NULL) OR (rtr2.OriginationRateID = rtr.OriginationRateID))
 	SET
 		rtr.EndDate=NOW()
 	WHERE
@@ -1325,16 +1325,16 @@ BEGIN
 		(p_Blocked IS NULL OR vra.Blocked = p_Blocked) AND
 		vr.RateTableRateID is NULL;
 
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTableRate2_ as (select * from tmp_RateTableRate_);
+	DELETE
+		n1
+	FROM
+		tmp_RateTableRate_ n1, tmp_RateTableRate2_ n2
+	WHERE
+		n1.Code = n2.Code AND (n1.OriginationCode = n2.OriginationCode OR (n1.OriginationCode IS NULL AND n2.OriginationCode IS NULL)) AND n1.RateTableRateID < n2.RateTableRateID;
+
 	IF p_isExport = 0
 	THEN
-		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTableRate2_ as (select * from tmp_RateTableRate_);
-		DELETE
-			n1
-		FROM
-			tmp_RateTableRate_ n1, tmp_RateTableRate2_ n2
-		WHERE
-			n1.Code = n2.Code AND (n1.OriginationCode = n2.OriginationCode OR (n1.OriginationCode IS NULL AND n2.OriginationCode IS NULL)) AND n1.RateTableRateID < n2.RateTableRateID;
-
 		IF p_view = 1
 		THEN
 			SELECT
@@ -1582,24 +1582,45 @@ BEGIN
 
 	END IF;
 
-	IF p_isExport = 1
-	THEN
-		SELECT
-			OriginationCode,
-			OriginationDescription,
-			Code AS DestinationCode,
-			Description AS DestinationDescription,
-			Rate,
-			RateN,
-			EffectiveDate,
-			EndDate,
-			updated_at AS `Modified Date`,
-			updated_by AS `Modified By`,
-			RoutingCategoryName,
+	-- basic view
+   IF p_isExport = 10
+   THEN
+      SELECT
+         OriginationCode,
+         OriginationDescription,
+         Code AS DestinationCode,
+         Description AS DestinationDescription,
+         CONCAT(Interval1,'/',IntervalN) AS `Interval1/N`,
+         ConnectionFee,
+         Rate,
+         RateN,
+         EffectiveDate,
+         RoutingCategoryName,
          Preference,
          Blocked
-		FROM tmp_RateTableRate_;
-	END IF;
+      FROM   tmp_RateTableRate_;
+   END IF;
+
+ 	-- advance view
+ 	IF p_isExport = 11
+ 	THEN
+      SELECT
+         OriginationCode,
+         OriginationDescription,
+         Code AS DestinationCode,
+         Description AS DestinationDescription,
+         CONCAT(Interval1,'/',IntervalN) AS `Interval1/N`,
+         ConnectionFee,
+         PreviousRate,
+         Rate,
+         RateN,
+         EffectiveDate,
+         CONCAT(updated_at,'\n',updated_by) AS `Modified Date/By`,
+         RoutingCategoryName,
+         Preference,
+         Blocked
+      FROM   tmp_RateTableRate_;
+   END IF;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END//
@@ -2586,30 +2607,44 @@ BEGIN
 
     END IF;
 
-    IF p_isExport = 1
+	 -- basic view
+    IF p_isExport = 10
     THEN
-
         SELECT
             OriginationCode,
             OriginationDescription,
             Code AS DestinationCode,
             Description AS DestinationDescription,
-            Interval1,
-            IntervalN,
+            CONCAT(Interval1,'/',IntervalN) AS `Interval1/N`,
+            ConnectionFee,
+            Rate,
+            RateN,
+            EffectiveDate,
+            RoutingCategoryName,
+            Preference,
+            Blocked
+        FROM   tmp_RateTableRate_;
+    END IF;
+
+	 -- advance view
+    IF p_isExport = 11
+    THEN
+        SELECT
+            OriginationCode,
+            OriginationDescription,
+            Code AS DestinationCode,
+            Description AS DestinationDescription,
+            CONCAT(Interval1,'/',IntervalN) AS `Interval1/N`,
             ConnectionFee,
             PreviousRate,
             Rate,
             RateN,
             EffectiveDate,
-            updated_at,
-            ModifiedBy,
+            CONCAT(updated_at,'\n',ModifiedBy) AS `Modified Date/By`,
             RoutingCategoryName,
             Preference,
             Blocked
-
         FROM   tmp_RateTableRate_;
-
-
     END IF;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
@@ -4441,6 +4476,7 @@ ThisSP:BEGIN
 					AND tblRate.CompanyID = p_companyId
 					AND tblRate.CodeDeckId = tblTempRateTableRate.CodeDeckId
 				WHERE tblRate.RateID IS NULL
+				  AND tblTempRateTableRate.OriginationCode IS NOT NULL AND tblTempRateTableRate.OriginationCode != ''
 					AND tblTempRateTableRate.`Change` NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')
 			) vc;
 

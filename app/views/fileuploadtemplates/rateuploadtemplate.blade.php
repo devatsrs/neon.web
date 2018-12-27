@@ -47,7 +47,7 @@
             </div>
         </div>
         <div class="form-group">
-            <label for="field-1" class="col-sm-2 control-label">Origination Description*</label>
+            <label for="field-1" class="col-sm-2 control-label">Origination Description</label>
             <div class="col-sm-4">
                 {{Form::select('selection[OriginationDescription]', $columns,(isset($attrselection->OriginationDescription)?$attrselection->OriginationDescription:''),array("class"=>"select2 small"))}}
             </div>
@@ -212,14 +212,14 @@
             <div class="col-sm-2">
                 {{Form::select('selection2[OriginationCode]', $columns,(isset($attrselection2->OriginationCode)?$attrselection2->OriginationCode:''),array("class"=>"select2 small"))}}
             </div>
-            <div class="col-sm-2 popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Use this to split codes in one line" data-original-title="Origination Code Separator">
+            <div class="col-sm-2 popover-primary box_code" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Use this to split codes in one line" data-original-title="Origination Code Separator">
                 {{Form::select('selection2[OriginationDialCodeSeparator]',Company::$dialcode_separator ,(isset($attrselection2->OriginationDialCodeSeparator)?$attrselection2->OriginationDialCodeSeparator:''),array("class"=>"select2 small dialcodeseperator"))}}
             </div>
             <label class="col-sm-2 control-label">Destination Code* </label>
             <div class="col-sm-2">
                 {{Form::select('selection2[Code]', $columns,(isset($attrselection2->Code)?$attrselection2->Code:''),array("class"=>"select2 small"))}}
             </div>
-            <div class="col-sm-2 popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Use this to split codes in one line" data-original-title="Destination Code Separator">
+            <div class="col-sm-2 popover-primary box_code" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Use this to split codes in one line" data-original-title="Destination Code Separator">
                 {{Form::select('selection2[DialCodeSeparator]',Company::$dialcode_separator ,(isset($attrselection2->DialCodeSeparator)?$attrselection2->DialCodeSeparator:''),array("class"=>"select2 small dialcodeseperator"))}}
             </div>
         </div>

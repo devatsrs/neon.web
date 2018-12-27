@@ -16,7 +16,7 @@ class RateTablesMultiAccController extends \BaseController {
         $data['iDisplayStart'] +=1;
         $columns = array('AccountID','AccountName','InRateTableName','OutRateTableName','ServiceName','ServiceID');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_getRateTableByAccount (".$CompanyID.",'".$data["level"]."',".$TrunkID.",".$data["Currency"].",".$ratetableeid.",'".$SourceCustomers."',".$services.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."' ";
+        $query = "call prc_getRateTableByAccount (".$CompanyID.",".$data['AppliedTo'].",'".$data["level"]."',".$TrunkID.",".$data["Currency"].",".$ratetableeid.",'".$SourceCustomers."',".$services.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."' ";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
@@ -157,7 +157,7 @@ class RateTablesMultiAccController extends \BaseController {
 
     public static function getRateTableAndAccountByCurrency(){
         $data = Input::all();
-        $ratetable = RateTable::getRateTableList(["CurrencyID"=>$data["id"]]);
+        $ratetable = RateTable::getRateTableList(["CurrencyID"=>$data["id"],"AppliedTo"=>$data["AppliedTo"]]);
         $data["ratetablelist"] =  $ratetable;
 
         $accounts = Account::getAccountList(["CurrencyID"=>$data["id"]]);
