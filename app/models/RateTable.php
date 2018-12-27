@@ -99,10 +99,12 @@ class RateTable extends \Eloquent
 
     public static function getDIDTariffDropDownList($CompanyID,$Type,$CurrencyID){
         $row=array();
+        $DIDType=RateType::getRateTypeIDBySlug('did');
+        $VoiceCallType=RateType::getRateTypeIDBySlug('voicecall');
 
-        if($Type==VendorConnection::Type_DID){
+        if($Type==$DIDType){
             $row = RateTable::where(array('CompanyID'=>$CompanyID,'Type'=>RateTable::TYPE_DID,'AppliedTo'=>RateTable::APPLIED_TO_VENDOR,'CurrencyID'=>$CurrencyID))->lists('RateTableName', 'RateTableId');
-        }else if($Type==VendorConnection::Type_VoiceCall){
+        }else if($Type==$VoiceCallType){
             $row = RateTable::where(array('CompanyID'=>$CompanyID,'Type'=>RateTable::TYPE_VOICECALL,'AppliedTo'=>RateTable::APPLIED_TO_VENDOR,'CurrencyID'=>$CurrencyID))->lists('RateTableName', 'RateTableId');
         }
 
