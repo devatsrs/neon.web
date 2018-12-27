@@ -769,6 +769,10 @@
                                 <label for="minimal-radio-6-11">Stripe ACH</label>
                             </li>
                             <li>
+                                <input type="radio" class="icheck-11" id="minimal-radio-13-11" name="PaymentMethod" value="FastPay" @if( $account->PaymentMethod == 'FastPay' ) checked="" @endif />
+                                <label for="minimal-radio-13-11">Fast Pay</label>
+                            </li>
+                            <li>
                                 <input type="radio" class="icheck-11" id="minimal-radio-11-11" name="PaymentMethod" value="MerchantWarrior" @if( $account->PaymentMethod == 'MerchantWarrior' ) checked="" @endif />
                                 <label for="minimal-radio-11-11">MerchantWarrior</label>
                             </li>

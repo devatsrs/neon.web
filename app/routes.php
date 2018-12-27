@@ -965,6 +965,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/cdr_template/check_upload', 'CDRTemplateController@check_upload');
 	Route::any('/cdr_template/ajaxfilegrid', 'CDRTemplateController@ajaxfilegrid');
 	Route::any('/cdr_template/storeTemplate', 'CDRTemplateController@storeTemplate');
+	Route::any('/cdr_template/edittemplate/{id}', 'CDRTemplateController@editTemplate');
+	Route::any('/cdr_template/updateTemplate', 'CDRTemplateController@updateTemplate');
 
 	/////////////////
 	//Estimates
@@ -1103,6 +1105,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/generate_manual_invoice', 'InvoicesController@generate_manual_invoice');
 	Route::any('/invoice/invoice_sagepayexport', 'InvoicesController@invoice_sagepayexport');
 	Route::any('/invoice/invoice_xeropost', 'InvoicesController@invoice_xeropost');
+	Route::any('/invoice/invoice_fastpayexport', 'InvoicesController@invoice_fastpayexport');
 	//Themes
 	Route::any('/themes', 'ThemesController@index');
 	Route::any('/themes/create', 'ThemesController@create');

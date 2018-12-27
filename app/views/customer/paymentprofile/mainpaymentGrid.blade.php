@@ -11,6 +11,11 @@
 		@include('customer.paymentprofile.bankpaymentGrid')
 	@endif
 @endif
+@if( $account->PaymentMethod == 'FastPay')
+	@if(is_FastPay($account->CompanyId))
+		@include('customer.paymentprofile.bankpaymentGridFastPay')
+	@endif
+@endif
 @if( $account->PaymentMethod == 'SagePayDirectDebit')
 	@if(is_SagePayDirectDebit($account->CompanyId))
 		@include('customer.paymentprofile.sagepaydirectdebitGrid')

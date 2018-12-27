@@ -1,4 +1,3 @@
-<div id="table-4_processing" class="dataTables_processing hidden">Processing...</div>
 <table id="table-4" class="table table-bordered datatable dataTable">
   <!-- mail table header -->
   <thead>
