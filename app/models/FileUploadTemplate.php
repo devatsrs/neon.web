@@ -92,6 +92,7 @@ class FileUploadTemplate extends \Eloquent {
                 $option['Settings']['checkbox_add_new_codes_to_code_decks'] = $data['checkbox_add_new_codes_to_code_decks'];
                 $option['Settings']['checkbox_review_rates'] = $data['checkbox_review_rates'];
                 $option['Settings']['radio_list_option'] = $data['radio_list_option'];
+                $option['occupied_fields'] = $data['occupied_fields'];
                 if($data['RateUploadType'] == RateUpload::vendor || $data['RateUploadType'] == RateUpload::customer) {
                     $option['Trunk'] = $data['Trunk'];
                 } else if($data['RateUploadType'] == RateUpload::ratetable) {
@@ -179,6 +180,7 @@ class FileUploadTemplate extends \Eloquent {
                     $option['Settings']['checkbox_add_new_codes_to_code_decks'] = $data['checkbox_add_new_codes_to_code_decks'];
                     $option['Settings']['checkbox_review_rates'] = $data['checkbox_review_rates'];
                     $option['Settings']['radio_list_option'] = $data['radio_list_option'];
+                    $option['occupied_fields'] = $data['occupied_fields'];
 
                     if($data['RateUploadType'] == RateUpload::vendor || $data['RateUploadType'] == RateUpload::customer) {
                         $option['Trunk'] = $data['Trunk'];
