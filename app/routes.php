@@ -1755,6 +1755,10 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('getLowBalanceNotification/', 'BillingClassApiController@getLowBalanceNotification');
 	Route::post('requestFund/', 'PaymentApiController@requestFund');
 	Route::post('depositFund/', 'PaymentApiController@depositFund');
+	Route::post('startCall', 'ActiveCallApiController@startCall');
+	Route::post('endCall', 'ActiveCallApiController@endCall');
+	Route::post('startRecording', 'ActiveCallApiController@startRecording');
+
 	Route::post('account/create', 'AccountsApiController@createAccount');
 	Route::post('account/add_service', 'AccountsApiController@createAccountService');
 

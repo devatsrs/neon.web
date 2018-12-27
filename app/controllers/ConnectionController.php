@@ -11,14 +11,18 @@ class ConnectionController extends \BaseController {
         /*if(count($trunks) == 0){
             return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
         }*/
-        $Type=[''=>'Select']+VendorConnection::$Type_array;
+        //$Type=[''=>'Select']+VendorConnection::$Type_array;
+        $Type=[''=>'Select']+RateType::getRateTypeDropDownList($companyID);
         $DIDCategories=DIDCategory::getCategoryDropdownIDList($companyID);
         $CurrencyID=Account::getCurrencyIDByAccount($id);
 
-        $TariffDID=RateTable::getDIDTariffDropDownList($companyID,VendorConnection::Type_DID,$CurrencyID);
-        $TariffVoiceCall=RateTable::getDIDTariffDropDownList($companyID,VendorConnection::Type_VoiceCall,$CurrencyID);
+        $DIDType=RateType::getRateTypeIDBySlug('did');
+        $VoiceCallType=RateType::getRateTypeIDBySlug('voicecall');
 
-        return View::make('vendorrates.connection', compact('id','trunks','Type','DIDCategories','TariffDID','TariffVoiceCall'));
+        $TariffDID=RateTable::getDIDTariffDropDownList($companyID,$DIDType,$CurrencyID);
+        $TariffVoiceCall=RateTable::getDIDTariffDropDownList($companyID,$VoiceCallType,$CurrencyID);
+
+        return View::make('vendorrates.connection', compact('id','trunks','Type','DIDCategories','TariffDID','TariffVoiceCall','companyID','DIDType','VoiceCallType'));
 
     }
 
@@ -29,7 +33,7 @@ class ConnectionController extends \BaseController {
         $data['iDisplayStart'] +=1;
         $data['TrunkID']=!empty($data['TrunkID'])?$data['TrunkID']:0;
         $data['IP'] = !empty($data['IP'])?$data['IP']:'';
-        $data['ConnectionType'] = !empty($data['ConnectionType'])?$data['ConnectionType']:'';
+        $data['RateTypeID'] = !empty($data['RateTypeID'])?$data['RateTypeID']:-1;
         $data['Name'] = !empty($data['Name'])?$data['Name']:'';
         $data['DIDCategoryID'] = !empty($data['DIDCategoryID'])?$data['DIDCategoryID']:0;
         $data['Active']=$data['FilterActive'];
@@ -40,12 +44,12 @@ class ConnectionController extends \BaseController {
         }
 
 
-        $columns = array('VendorConnectionID','Name','ConnectionType','IP','Active','TrunkName','CategoryName','created_at','DIDCategoryID','RateTableID','TrunkID','CLIRule','CLDRule','CallPrefix','Port','Username','PrefixCDR','SipHeader','AuthenticationMode');
+        $columns = array('VendorConnectionID','Name','RateTypeTitle','IP','Active','TrunkName','CategoryName','created_at','DIDCategoryID','RateTableID','TrunkID','CLIRule','CLDRule','CallPrefix','Port','Username','PrefixCDR','SipHeader','AuthenticationMode','RateTypeID');
 
         $sort_column = $columns[$data['iSortCol_0']];
         $companyID = User::get_companyID();
 
-        $query = "call prc_getVendorConnection (" . $companyID . "," . $id . "," . $data['TrunkID'] . ",'" . $data['IP'] . "','" . $data['ConnectionType'] . "',".$data['DIDCategoryID'].",'" . $data['Name'] . "',".$data['Active']."," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "'";
+        $query = "call prc_getVendorConnection (" . $companyID . "," . $id . "," . $data['TrunkID'] . ",'" . $data['IP'] . "'," . $data['RateTypeID'] . ",".$data['DIDCategoryID'].",'" . $data['Name'] . "',".$data['Active']."," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv')->select($query.',1)');
@@ -86,20 +90,23 @@ class ConnectionController extends \BaseController {
 
             unset($data['VendorConnectionID']);
 
+            $DIDType=RateType::getRateTypeIDBySlug('did');
+            $VoiceCallType=RateType::getRateTypeIDBySlug('voicecall');
+
             $rules=array();
-            if($Input['ConnectionType']==VendorConnection::Type_DID){
+            if($Input['RateTypeID']==$DIDType){
                 $data=$Input['did'];
                 $rules = array(
-                    'ConnectionType' => 'required',
+                    'RateTypeID' => 'required',
                     'Name' => 'required',
                     'CompanyID' => 'required',
                     'RateTableID' => 'required',
 
                 );
-            }else if($Input['ConnectionType']==VendorConnection::Type_VoiceCall){
+            }else if($Input['RateTypeID']==$VoiceCallType){
                 $data=$Input['voice'];
                 $rules = array(
-                    'ConnectionType' => 'required',
+                    'RateTypeID' => 'required',
                     'Name' => 'required',
                     'CompanyID' => 'required',
                     'TrunkID' => 'required',
@@ -108,7 +115,7 @@ class ConnectionController extends \BaseController {
             }else{
                 $data=$Input['voice'];
                 $rules = array(
-                    'ConnectionType' => 'required',
+                    'RateTypeID' => 'required',
                     'Name' => 'required',
                     'CompanyID' => 'required',
 
@@ -119,7 +126,7 @@ class ConnectionController extends \BaseController {
             $data["created_by"] = User::get_user_full_name();
             $data['Active'] = isset($data['Active']) ? 1 : 0;
             $data['PrefixCDR'] = isset($data['PrefixCDR']) ? 1 : 0;
-            $data['ConnectionType'] =$Input['ConnectionType'];
+            $data['RateTypeID'] =$Input['RateTypeID'];
             $data['Name'] =$Input['Name'];
             $data['AccountId']=$id;
 
@@ -127,14 +134,14 @@ class ConnectionController extends \BaseController {
                 $data['Password'] = Crypt::encrypt($data['Password']);
             }
 
-            $validator = Validator::make($data, $rules,['RateTableID.required'=>"Tariff is required."]);
+            $validator = Validator::make($data, $rules,['RateTableID.required'=>"Tariff is required.","RateTypeID.required"=>"Type is required."]);
 
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
 
             //check Duplicate
-            $checkduplicate=VendorConnection::where(['ConnectionType'=>$data['ConnectionType'],'Name'=>$data['Name'],'AccountId'=>$id])->get()->count();
+            $checkduplicate=VendorConnection::where(['RateTypeID'=>$data['RateTypeID'],'Name'=>$data['Name'],'AccountId'=>$id])->get()->count();
             if($checkduplicate > 0){
                 return Response::json(array("status" => "failed", "message" => "Type with this Name Already Exists."));
             }
@@ -189,8 +196,11 @@ class ConnectionController extends \BaseController {
             $VendorConnection=VendorConnection::findOrFail($conID);
             unset($data['VendorConnectionID']);
 
+            $DIDType=RateType::getRateTypeIDBySlug('did');
+            $VoiceCallType=RateType::getRateTypeIDBySlug('voicecall');
+
             $rules=array();
-            if($VendorConnection->ConnectionType==VendorConnection::Type_DID){
+            if($VendorConnection->RateTypeID==$DIDType){
                 $data=$Input['did'];
                 $rules = array(
                     'Name' => 'required',
@@ -198,7 +208,7 @@ class ConnectionController extends \BaseController {
                     'RateTableID' => 'required',
 
                 );
-            }else if($VendorConnection->ConnectionType==VendorConnection::Type_VoiceCall){
+            }else if($VendorConnection->RateTypeID==$VoiceCallType){
                 $data=$Input['voice'];
                 $rules = array(
                     'Name' => 'required',
@@ -221,7 +231,7 @@ class ConnectionController extends \BaseController {
                 unset($data['Password']);
             }
             
-            $validator = Validator::make($data, $rules,['RateTableID.required'=>"Tariff is required."]);
+            $validator = Validator::make($data, $rules,['RateTableID.required'=>"Tariff is required.","RateTypeID.required"=>"Type is required."]);
 
             if ($validator->fails()) {
                 return json_validator_response($validator);
@@ -304,11 +314,11 @@ class ConnectionController extends \BaseController {
         if($data['Action'] == 'bulk'){
             $data['TrunkID']=!empty($data['TrunkID'])?$data['TrunkID']:0;
             $data['IP'] = !empty($data['IP'])?$data['IP']:'';
-            $data['ConnectionType'] = !empty($data['ConnectionType'])?$data['ConnectionType']:'';
+            $data['RateTypeID'] = !empty($data['RateTypeID'])?$data['RateTypeID']:'';
             $data['Name'] = !empty($data['Name'])?$data['Name']:'';
 
             try{
-                $query = "call prc_VendorConnectionUpdateBySelectedConnectionId (".$company_id.",".$id.",'',".$data['Active'].",".$data['TrunkID'].",'".$data['IP']."','".$data['ConnectionType']."','".$data['Name']."','".$username."',1,".$is_delete.")";
+                $query = "call prc_VendorConnectionUpdateBySelectedConnectionId (".$company_id.",".$id.",'',".$data['Active'].",".$data['TrunkID'].",'".$data['IP']."',".$data['RateTypeID'].",'".$data['Name']."','".$username."',1,".$is_delete.")";
                 //echo "==".$query;die;
                 Log::info($query);
                 DB::statement($query);
