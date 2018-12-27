@@ -122,7 +122,7 @@ class AccountsApiController extends ApiController {
 			$ServiceTemaplateReference = DynamicFieldsValue::where(["DynamicFieldsID"=>$DynamicField,"FieldValue"=>$ServiceTemaplateData["Value"]])->pluck('ParentID');
 			$ServiceTemaplateReference = ServiceTemplate::find($ServiceTemaplateReference);
 			Log::info('ServiceTemplateId' . $ServiceTemaplateReference->ServiceTemplateId);
-			
+
 
 			if (!empty($data['InboundTariffCategory'])) {
 				$InboundRateTableReference = ServiceTemapleInboundTariff::where(["ServiceTemplateID"=>$ServiceTemaplateReference->ServiceTemplateId,"DIDCategoryId"=>$data['InboundTariffCategory']])->count();
@@ -382,8 +382,8 @@ class AccountsApiController extends ApiController {
 				Reseller::$rules['AccountID'] = 'required|unique:tblReseller,AccountID';
 				Reseller::$rules['Email'] = 'required|email';
 				Reseller::$rules['Password'] ='required|min:3';
-				$ResellerData['Email'] = isset($accountData['Email']) ? $accountData['Email'] : '';
-				$ResellerData['Password'] = isset($accountData['Password']) ? $accountData['Password'] : '';
+				$ResellerData['Email'] = isset($accountData['ReSellerEmail']) ? $accountData['ReSellerEmail'] : '';
+				$ResellerData['Password'] = isset($accountData['ReSellerPassword']) ? $accountData['ReSellerPassword'] : '';
 				$ResellerData['AllowWhiteLabel'] = isset($accountData['ReSellerAllowWhiteLabel']) ? 1 : 0;
 				$ResellerData['DomainUrl'] = $accountData['ReSellerDomainUrl'];
 				Reseller::$messages['Email.required'] = 'The Reseller Email is Required.';
@@ -567,7 +567,7 @@ class AccountsApiController extends ApiController {
 
 						//$accountData['ReSellerEmail'] $accountData['ReSellerPassword']
 						//$data['Password'] = Hash::make($data['Password']);
-						$ResellerData['Password'] = Crypt::encrypt($accountData['Password']);
+						$ResellerData['Password'] = Crypt::encrypt($accountData['ReSellerPassword']);
 
 						$Account = $account;
 						$ResellerData['AllowWhiteLabel'] = isset($accountData['ReSellerAllowWhiteLabel']) ? 1 : 0;
