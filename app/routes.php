@@ -1746,7 +1746,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 
 
 	Route::post('checkBalance/', 'AccountsApiController@checkBalance');
-	Route::post('getPayments/', 'PaymentApiController@getPaymentHistory');
+	Route::post('getTransactions/', 'PaymentApiController@getPaymentHistory');
 	Route::post('getAutoDepositSettings/', 'AccountBillingApiController@getAutoDepositSettings');
 	Route::post('setAutoDepositSettings/', 'AccountBillingApiController@setAutoDepositSettings');
 	Route::post('getAutoOutPaymentSettings/', 'AccountBillingApiController@getAutoOutPaymentSettings');
