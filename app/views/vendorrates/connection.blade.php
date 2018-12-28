@@ -98,7 +98,7 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-1 control-label">Type</label>
                         <div class="col-sm-3">
-                            {{ Form::select('RateTypeID',[''=>'All']+RateType::getRateTypeDropDownList($companyID), '', array("class"=>"select2 FilterConnectionType")) }}
+                            {{ Form::select('RateTypeID',[''=>'All']+RateType::getRateTypeDropDownList(), '', array("class"=>"select2 FilterConnectionType")) }}
                         </div>
 
                         <label for="field-1" class="col-sm-1 control-label">Name</label>

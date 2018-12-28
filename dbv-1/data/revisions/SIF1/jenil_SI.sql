@@ -15,10 +15,10 @@ AUTO_INCREMENT=7
 ;
 
 
+
 DROP TABLE IF EXISTS `tblRateType`;
 CREATE TABLE IF NOT EXISTS `tblRateType` (
   `RateTypeID` int(11) NOT NULL AUTO_INCREMENT,
-  `CompanyID` int(11) NOT NULL DEFAULT '0',
   `Slug` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `Title` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `Description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -32,10 +32,9 @@ CREATE TABLE IF NOT EXISTS `tblRateType` (
 
 -- Dumping data for table speakintelligentRM.tblRateType: ~2 rows (approximately)
 /*!40000 ALTER TABLE `tblRateType` DISABLE KEYS */;
-INSERT INTO `tblRateType` (`RateTypeID`, `CompanyID`, `Slug`, `Title`, `Description`, `Active`, `created_at`, `updated_at`, `created_by`, `updated_by`) VALUES
-	(1, 1, 'voicecall', 'Voice Call', NULL, 1, '2018-12-27 15:14:39', '2018-12-27 15:14:44', 'jenil', NULL),
-	(2, 1, 'did', 'DID', NULL, 1, '2018-12-27 15:14:39', '2018-12-27 15:14:44', 'jenil', NULL);
-
+INSERT INTO `tblRateType` (`RateTypeID`, `Slug`, `Title`, `Description`, `Active`, `created_at`, `updated_at`, `created_by`, `updated_by`) VALUES
+	(1, 'voicecall', 'Voice Call', NULL, 1, '2018-12-27 15:14:39', '2018-12-27 15:14:44', 'jenil', NULL),
+	(2, 'did', 'DID', NULL, 1, '2018-12-27 15:14:39', '2018-12-27 15:14:44', 'jenil', NULL);
 
 
 
