@@ -142,7 +142,10 @@ class PaymentApiController extends ApiController {
 		if(!empty($data['AccountID'])) {
 			$AccountID = $data['AccountID'];
 		}else if(!empty($data['AccountNo'])){
-			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
+			$Account = Account::where(["Number" => $data['AccountNo']])->first();
+			if(!empty($Account)){
+				$AccountID=$Account->AccountID;
+			}
 		}else{
 			return Response::json(["status"=>"failed", "message"=>"AccountID OR AccountNo Required"]);
 		}
