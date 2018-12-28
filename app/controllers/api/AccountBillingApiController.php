@@ -118,7 +118,6 @@ class AccountBillingApiController extends ApiController {
 			return json_validator_response($validator);
 		}
 		$data['AccountID']=$AccountID;
-		unset($data['AccountID']);
 		unset($data['AccountNo']);
 
 		$data['created_at']=date('Y-m-d H:i:s');
