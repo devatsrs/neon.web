@@ -679,9 +679,9 @@
                                     }
                                     action += '</div>';
                                     if (full[21] == 0) {
-                                        action += ' <a href="Javascript:;"  title="Edit" class="btn btn-default btn-xs"><i class="entypo-lock-open" style="color: green; "></i>&nbsp;</a>';
+                                        action += ' <a href="Javascript:;"  title="Unblocked" class="btn btn-default btn-xs"><i class="entypo-lock-open" style="color: green; "></i>&nbsp;</a>';
                                     } else if (full[21] == 1) {
-                                        action += ' <a href="Javascript:;"  title="Edit" class="btn btn-default btn-xs"><i class="entypo-lock" style="color: red; "></i>&nbsp;</a>';
+                                        action += ' <a href="Javascript:;"  title="Blocked" class="btn btn-default btn-xs"><i class="entypo-lock" style="color: red; "></i>&nbsp;</a>';
                                     }
 
                                     <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
@@ -702,9 +702,9 @@
                                 } else {
                                     $('#actionheader').attr('width','5%');
                                     if (full[21] == 0) {
-                                        action = ' <a href="Javascript:;"  title="Edit" class="btn btn-default btn-xs"><i class="entypo-lock-open" style="color: green; "></i>&nbsp;</a>';
+                                        action = ' <a href="Javascript:;"  title="Unblocked" class="btn btn-default btn-xs"><i class="entypo-lock-open" style="color: green; "></i>&nbsp;</a>';
                                     } else if (full[21] == 1) {
-                                        action = ' <a href="Javascript:;"  title="Edit" class="btn btn-default btn-xs"><i class="entypo-lock" style="color: red; "></i>&nbsp;</a>';
+                                        action = ' <a href="Javascript:;"  title="Blocked" class="btn btn-default btn-xs"><i class="entypo-lock" style="color: red; "></i>&nbsp;</a>';
                                     }
                                 }
                                 return action;

@@ -18,7 +18,7 @@ class AccountsApiController extends ApiController {
 	/**
 	 * checkBalance():
 	 * @Param mixed
-	 * CustomerID/AccountNo
+	 * AccountID/AccountNo
 	 * @Response
 	 * has_balance - 0/1
 	 * amount
@@ -28,11 +28,11 @@ class AccountsApiController extends ApiController {
 		$data=Input::all();
 		$Result=array();
 		$AccountBalance=0;
-		if(!empty($data['CustomerID'])) {
-			$CompanyID = Account::where(["AccountID" => $data['CustomerID']])->pluck('CompanyId');
+		if(!empty($data['AccountID'])) {
+			$CompanyID = Account::where(["AccountID" => $data['AccountID']])->pluck('CompanyId');
 
 			if(intval($CompanyID) > 0){
-				$AccountBalance = AccountBalance::getNewAccountExposure($CompanyID, $data['CustomerID']);
+				$AccountBalance = AccountBalance::getNewAccountExposure($CompanyID, $data['AccountID']);
 			}else{
 				return Response::json(["status"=>"failed", "data"=>"Account Not Found"]);
 			}
