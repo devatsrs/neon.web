@@ -55,17 +55,21 @@ class AccountBillingApiController extends ApiController {
 			return Response::json(["status"=>"failed", "data"=>"AccountID or AccountNo Field is Required."]);
 		}
 
-		$AccountPaymentAutomation=AccountPaymentAutomation::where('AccountID',$AccountID);
-		$CountAccountPaymentAutomation=$AccountPaymentAutomation->count();
-		if($CountAccountPaymentAutomation > 0){
-			//update
-			$AccountPaymentAutomationObj=$AccountPaymentAutomation->first();
-			return $this->updateAutoDepositSetting($data,$AccountPaymentAutomationObj);
+		if(!empty($AccountID)) {
+			$AccountPaymentAutomation = AccountPaymentAutomation::where('AccountID', $AccountID);
+			$CountAccountPaymentAutomation = $AccountPaymentAutomation->count();
+			if ($CountAccountPaymentAutomation > 0) {
+				//update
+				$AccountPaymentAutomationObj = $AccountPaymentAutomation->first();
+				return $this->updateAutoDepositSetting($data, $AccountPaymentAutomationObj);
 
+			} else {
+				//return Response::json(array("status" => "failed", "message" => "Account Not Found."));
+				//Create Record
+				return $this->createAutoDepositSetting($data, $AccountID);
+			}
 		}else{
-			//return Response::json(array("status" => "failed", "message" => "Account Not Found."));
-			//Create Record
-			return $this->createAutoDepositSetting($data,$AccountID);
+			return Response::json(["status"=>"failed", "data"=>"Account Not Found."]);
 		}
 	}
 
@@ -174,17 +178,21 @@ class AccountBillingApiController extends ApiController {
 			return Response::json(["status"=>"failed", "data"=>"AccountID or AccountNo Field is Required."]);
 		}
 
-		$AccountPaymentAutomation=AccountPaymentAutomation::where('AccountID',$AccountID);
-		$CountAccountPaymentAutomation=$AccountPaymentAutomation->count();
-		if($CountAccountPaymentAutomation > 0){
-			//update
-			$AccountPaymentAutomationObj=$AccountPaymentAutomation->first();
-			return $this->updateAutoOutPaymentSetting($data,$AccountPaymentAutomationObj);
+		if(!empty($AccountID)) {
+			$AccountPaymentAutomation = AccountPaymentAutomation::where('AccountID', $AccountID);
+			$CountAccountPaymentAutomation = $AccountPaymentAutomation->count();
+			if ($CountAccountPaymentAutomation > 0) {
+				//update
+				$AccountPaymentAutomationObj = $AccountPaymentAutomation->first();
+				return $this->updateAutoOutPaymentSetting($data, $AccountPaymentAutomationObj);
 
+			} else {
+				//return Response::json(array("status" => "failed", "message" => "Account Not Found."));
+				//Create Record
+				return $this->createAutoOutPaymentSetting($data, $AccountID);
+			}
 		}else{
-			//return Response::json(array("status" => "failed", "message" => "Account Not Found."));
-			//Create Record
-			return $this->createAutoOutPaymentSetting($data,$AccountID);
+			return Response::json(["status"=>"failed", "data"=>"Account Not Found."]);
 		}
 
 	}
