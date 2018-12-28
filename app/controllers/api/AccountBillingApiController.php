@@ -11,20 +11,20 @@ class AccountBillingApiController extends ApiController {
 
 	/**
 	 * @Param mixed
-	 * CustomerID/AccountNo
+	 * AccountID/AccountNo
 	 * @Response
 	 * 	AutoTopup,MinThreshold,TopupAmount
 	 */
 	public function getAutoDepositSettings(){
 		$data=Input::all();
 		$AccountID=0;
-		if(!empty($data['CustomerID'])){
-			$AccountID=$data['CustomerID'];
+		if(!empty($data['AccountID'])){
+			$AccountID=$data['AccountID'];
 
 		}else if(!empty($data['AccountNo'])) {
 			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
 		} else{
-			return Response::json(["status"=>"failed", "message"=>"CustomerID or AccountNo Field is Required."]);
+			return Response::json(["status"=>"failed", "message"=>"AccountID or AccountNo Field is Required."]);
 		}
 		$Result=AccountPaymentAutomation::where('AccountID',$AccountID)->get(['AutoTopup','MinThreshold','TopupAmount']);
 
@@ -33,18 +33,18 @@ class AccountBillingApiController extends ApiController {
 
 	/**
 	 * @Param mixed
-	 * CustomerID/AccountNo
+	 * AccountID/AccountNo
 	 * AutoTopup,MinThreshold,TopupAmount
 	 */
 	public function setAutoDepositSettings(){
 		$data=Input::all();
 		$AccountID=0;
-		if(!empty($data['CustomerID'])){
-			$AccountID=$data['CustomerID'];
+		if(!empty($data['AccountID'])){
+			$AccountID=$data['AccountID'];
 		}else if(!empty($data['AccountNo'])){
 			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
 		}else{
-			return Response::json(["status"=>"failed", "data"=>"CustomerID or AccountNo Field is Required."]);
+			return Response::json(["status"=>"failed", "data"=>"AccountID or AccountNo Field is Required."]);
 		}
 
 		$AccountPaymentAutomation=AccountPaymentAutomation::where('AccountID',$AccountID);
@@ -77,7 +77,7 @@ class AccountBillingApiController extends ApiController {
 		if ($validator->fails()) {
 			return json_validator_response($validator);
 		}
-		unset($data['CustomerID']);
+		unset($data['AccountID']);
 		unset($data['AccountNo']);
 		$data['updated_at']=date('Y-m-d H:i:s');
 
@@ -106,7 +106,7 @@ class AccountBillingApiController extends ApiController {
 			return json_validator_response($validator);
 		}
 		$data['AccountID']=$AccountID;
-		unset($data['CustomerID']);
+		unset($data['AccountID']);
 		unset($data['AccountNo']);
 
 		$data['created_at']=date('Y-m-d H:i:s');
@@ -120,20 +120,20 @@ class AccountBillingApiController extends ApiController {
 
 	/**
 	 * @Param mixed
-	 * CustomerID/AccountNo
+	 * AccountID/AccountNo
 	 * @Response
 	 * AutoOutpayment,OutPaymentThreshold,OutPaymentAmount
 	 */
 	public function getAutoOutPaymentSettings(){
 		$data=Input::all();
 		$AccountID=0;
-		if(!empty($data['CustomerID'])){
-			$AccountID=$data['CustomerID'];
+		if(!empty($data['AccountID'])){
+			$AccountID=$data['AccountID'];
 
 		}else if(!empty($data['AccountNo'])) {
 			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
 		} else{
-			return Response::json(["status"=>"failed", "data"=>"CustomerID or AccountNo Field is Required."]);
+			return Response::json(["status"=>"failed", "data"=>"AccountID or AccountNo Field is Required."]);
 		}
 		$Result=AccountPaymentAutomation::where('AccountID',$AccountID)->get(['AutoOutpayment','OutPaymentThreshold','OutPaymentAmount']);
 
@@ -142,18 +142,18 @@ class AccountBillingApiController extends ApiController {
 
 	/**
 	 * @Param mixed
-	 * CustomerID/AccountNo
+	 * AccountID/AccountNo
 	 *AutoOutpayment,OutPaymentThreshold,OutPaymentAmount
 	 */
 	public function setAutoOutPaymentSettings(){
 		$data=Input::all();
 		$AccountID=0;
-		if(!empty($data['CustomerID'])){
-			$AccountID=$data['CustomerID'];
+		if(!empty($data['AccountID'])){
+			$AccountID=$data['AccountID'];
 		}else if(!empty($data['AccountNo'])){
 			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
 		}else{
-			return Response::json(["status"=>"failed", "data"=>"CustomerID or AccountNo Field is Required."]);
+			return Response::json(["status"=>"failed", "data"=>"AccountID or AccountNo Field is Required."]);
 		}
 
 		$AccountPaymentAutomation=AccountPaymentAutomation::where('AccountID',$AccountID);
@@ -188,7 +188,7 @@ class AccountBillingApiController extends ApiController {
 		if ($validator->fails()) {
 			return json_validator_response($validator);
 		}
-		unset($data['CustomerID']);
+		unset($data['AccountID']);
 		unset($data['AccountNo']);
 
 		$data['updated_at']=date('Y-m-d H:i:s');
@@ -218,7 +218,7 @@ class AccountBillingApiController extends ApiController {
 			return json_validator_response($validator);
 		}
 		$data['AccountID']=$AccountID;
-		unset($data['CustomerID']);
+		unset($data['AccountID']);
 		unset($data['AccountNo']);
 
 		$data['created_at']=date('Y-m-d H:i:s');

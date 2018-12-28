@@ -102,7 +102,7 @@ class BillingClassApiController extends ApiController {
 
 	/**
 	 * @Param mixed
-	 * CustomerID/AccountNo
+	 * AccountID/AccountNo
 	 * @Response
 	 * Return LowBalance Setting
 	 */
@@ -110,15 +110,15 @@ class BillingClassApiController extends ApiController {
 	public function getLowBalanceNotification(){
 		$data=Input::all();
 		$AccountID=0;
-		if(!empty($data['CustomerID'])) {
-			$AccountID = $data['CustomerID'];
+		if(!empty($data['AccountID'])) {
+			$AccountID = $data['AccountID'];
 		}else if(!empty($data['AccountNo'])){
 			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
 		}
 
 		if(empty($AccountID)){
 
-			return Response::json(["status"=>"failed", "data"=>"CustomerID or AccountNo is Required"]);
+			return Response::json(["status"=>"failed", "data"=>"AccountID or AccountNo is Required"]);
 		}
 
 		$BillingClassID=AccountBilling::getBillingClassID($AccountID);

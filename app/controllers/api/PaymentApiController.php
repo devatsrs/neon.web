@@ -10,7 +10,7 @@ class PaymentApiController extends ApiController {
 
 	/**
 	 * @Param mixed
-	 * CustomerID/AccountNo
+	 * AccountID/AccountNo
 	 * StartDate,EndDate
 	 * @Response
 	 * 		It will give PaymentHistory.
@@ -21,9 +21,9 @@ class PaymentApiController extends ApiController {
 		$Result=[];
 		$CompanyID=0;
 		$AccountID=0;
-		if(!empty($data['CustomerID'])) {
-			$CompanyID = Account::where(["AccountID" => $data['CustomerID']])->pluck('CompanyId');
-			$AccountID = $data['CustomerID'];
+		if(!empty($data['AccountID'])) {
+			$CompanyID = Account::where(["AccountID" => $data['AccountID']])->pluck('CompanyId');
+			$AccountID = $data['AccountID'];
 		}else if(!empty($data['AccountNo'])){
 			$Account = Account::where(["Number" => $data['AccountNo']])->select('CompanyId','AccountID')->first();
 
@@ -34,7 +34,7 @@ class PaymentApiController extends ApiController {
 				return Response::json(["status"=>"failed", "message"=>"Account Not Found."]);
 			}
 		}else{
-			return Response::json(["status"=>"failed", "message"=>"CustomerID Required"]);
+			return Response::json(["status"=>"failed", "message"=>"AccountID Required"]);
 		}
 
 		$data['StartDate'] 	 = 		!empty($data['StartDate'])?$data['StartDate']:'0000-00-00';
@@ -60,7 +60,7 @@ class PaymentApiController extends ApiController {
 
 	/**
 	 * @Param mixed
-	 * CustomerID/AccountNo
+	 * AccountID/AccountNo
 	 * Amount
 	 * @Response
 	 * RequestFundID
@@ -85,9 +85,9 @@ class PaymentApiController extends ApiController {
 
 		$CompanyID=0;
 		$AccountID=0;
-		if(!empty($data['CustomerID'])) {
-			$CompanyID = Account::where(["AccountID" => $data['CustomerID']])->pluck('CompanyId');
-			$AccountID = $data['CustomerID'];
+		if(!empty($data['AccountID'])) {
+			$CompanyID = Account::where(["AccountID" => $data['AccountID']])->pluck('CompanyId');
+			$AccountID = $data['AccountID'];
 		}else if(!empty($data['AccountNo'])){
 			$Account = Account::where(["Number" => $data['AccountNo']])->select('CompanyId','AccountID')->first();
 
@@ -98,7 +98,7 @@ class PaymentApiController extends ApiController {
 				return Response::json(["status"=>"failed", "message"=>"Account Not Found"]);
 			}
 		}else{
-			return Response::json(["status"=>"failed", "message"=>"CustomerID Required"]);
+			return Response::json(["status"=>"failed", "message"=>"AccountID Required"]);
 		}
 
 		if(!empty($AccountID) && !empty($CompanyID)){
@@ -110,7 +110,7 @@ class PaymentApiController extends ApiController {
 			$data['CreatedBy']='API';
 			$data['AccountID']=$AccountID;
 			$data['IsOutPayment']=1;
-			unset($data['CustomerID']);
+			unset($data['AccountID']);
 			unset($data['AccountNo']);
 
 			if ($Payment = Payment::create($data)) {
@@ -127,7 +127,7 @@ class PaymentApiController extends ApiController {
 
 	/**
 	 * @Param mixed
-	 * CustomerID/AccountNo
+	 * AccountID/AccountNo
 	 * Amount, BillingClassID (optional)
 	 *@Response
 	 * PaymentResponse,InvoiceGeneration Response
@@ -139,12 +139,12 @@ class PaymentApiController extends ApiController {
 		$BillingClassID=0;
 		$errors=[];
 
-		if(!empty($data['CustomerID'])) {
-			$AccountID = $data['CustomerID'];
+		if(!empty($data['AccountID'])) {
+			$AccountID = $data['AccountID'];
 		}else if(!empty($data['AccountNo'])){
 			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
 		}else{
-			return Response::json(["status"=>"failed", "message"=>"CustomerID OR AccountNo Required"]);
+			return Response::json(["status"=>"failed", "message"=>"AccountID OR AccountNo Required"]);
 		}
 
 		$rules = array(
@@ -173,6 +173,9 @@ class PaymentApiController extends ApiController {
 				}
 			}else{
 				$BillingClassID=AccountBilling::getBillingClassID($AccountID);
+				if(empty($BillingClassID)){
+					return Response::json(["status"=>"failed", "message"=>"BillingClassID Not set on this Account."]);
+				}
 			}
 
 			$PaymentData=array();
