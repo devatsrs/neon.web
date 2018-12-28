@@ -1742,24 +1742,21 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('products/getProductsByType', 'ProductApiController@getListByType');
 	Route::post('products/ProductUpdateStock', 'ProductApiController@UpdateStockCalculation');
 	Route::post('getAccountbilling/{AccountID}', 'AccountBillingApiController@getAccountBilling');
-	Route::post('serviceTemplate/create_servicetemplate', 'ServicesTemplateApiController@storeServiceTempalteData');
+	Route::post('serviceTemplate/createServiceTemplate', 'ServicesTemplateApiController@storeServiceTempalteData');
 
-	Route::post('account/checkBalance/', 'AccountsApiController@checkBalance');
-	Route::post('account/getTransactions/', 'PaymentApiController@getPaymentHistory');
+
+	Route::post('checkBalance/', 'AccountsApiController@checkBalance');
+	Route::post('getPayments/', 'PaymentApiController@getPaymentHistory');
 	Route::post('getAutoDepositSettings/', 'AccountBillingApiController@getAutoDepositSettings');
 	Route::post('setAutoDepositSettings/', 'AccountBillingApiController@setAutoDepositSettings');
 	Route::post('getAutoOutPaymentSettings/', 'AccountBillingApiController@getAutoOutPaymentSettings');
 	Route::post('setAutoOutPaymentSettings/', 'AccountBillingApiController@setAutoOutPaymentSettings');
 	Route::post('setLowBalanceNotification/', 'BillingClassApiController@setLowBalanceNotification');
 	Route::post('getLowBalanceNotification/', 'BillingClassApiController@getLowBalanceNotification');
-	Route::post('account/requestFund/', 'PaymentApiController@requestFund');
-	Route::post('account/depositFund/', 'PaymentApiController@depositFund');
-	Route::post('account/create_account', 'AccountsApiController@createAccount');
-	Route::post('account/create_service', 'AccountsApiController@createAccountService');
-
-	Route::post('startCall', 'ActiveCallApiController@startCall');
-	Route::post('endCall', 'ActiveCallApiController@endCall');
-	Route::post('startRecording', 'ActiveCallApiController@startRecording');
-	Route::post('balanceAlert', 'AccountsApiController@balanceAlert');
+	Route::post('requestFund/', 'PaymentApiController@requestFund');
+	Route::post('depositFund/', 'PaymentApiController@depositFund');
+	Route::post('account/createAccount', 'AccountsApiController@createAccount');
+	Route::post('account/createService', 'AccountsApiController@createAccountService');
+	Route::post('routing/list', 'RoutingApiController@routingList');
 
 });
