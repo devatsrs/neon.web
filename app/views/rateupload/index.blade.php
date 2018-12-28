@@ -1,5 +1,9 @@
 @extends('layout.main')
 @section('content')
+
+    <link rel="stylesheet" type="text/css" href="<?php echo URL::to('/').'/assets/Bootstrap-Dual-Listbox/bootstrap-duallistbox.css'; ?>">
+    <script src="<?php echo URL::to('/').'/assets/Bootstrap-Dual-Listbox/jquery.bootstrap-duallistbox.min.js'; ?>" ></script>
+
     <ol class="breadcrumb bc-3">
         <li>
             <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
@@ -250,6 +254,10 @@
                                 </div>
 
                                 <div class="panel-options">
+                                    <button type="button" class="btn btn-primary btn-sm btn-icon icon-left" id="btn-manage-columns">
+                                        <i class="entypo-pencil"></i>
+                                        Manage Columns
+                                    </button>
                                     <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                                 </div>
                             </div>
@@ -328,8 +336,34 @@
         }
     </style>
     <script type="text/javascript">
+        var all_selectable_fields   = ['EndDate','Action','ActionDelete','DialString','DialStringPrefix','FromCurrency','OriginationCountryCode','OriginationCode','OriginationDescription','CountryCode'];
+        var all_available_fields    = ['EndDate','Action','ActionDelete','DialString','DialStringPrefix','FromCurrency','OriginationCountryCode','OriginationCode','OriginationDescription','CountryCode'];
+        var all_occupied_fields     = [];
+        var relational_columns      = {
+            EndDate                 : ['EndDate'],
+            Action                  : ['Action','ActionDelete'],
+            ActionDelete            : ['Action','ActionDelete'],
+            DialString              : ['DialString','DialStringPrefix'],
+            DialStringPrefix        : ['DialString','DialStringPrefix'],
+            FromCurrency            : ['FromCurrency'],
+            OriginationCountryCode  : ['OriginationCountryCode','OriginationCode','OriginationDescription'],
+            OriginationCode         : ['OriginationCountryCode','OriginationCode','OriginationDescription'],
+            OriginationDescription  : ['OriginationCountryCode','OriginationCode','OriginationDescription'],
+            CountryCode             : ['CountryCode']
+        };
+        var columnsMultiSelect;
+        var fileData;
+
         jQuery(document).ready(function ($) {
             getUploadTemplates('{{$RateUploadType}}'); //get templates by type for ex. vendor,customer,ratetable rate upload template
+
+            var columnsMultiSelect = $('#columnsMultiSelect').bootstrapDualListbox({
+                nonselectedlistlabel: 'Non-selected',
+                selectedlistlabel: 'Selected',
+                filterPlaceHolder: 'Search',
+                moveonselect: false,
+                preserveselectiononmove: 'moved',
+            });
 
             $("input[name='RateUploadType']").on('change', function(){
                 var Type = $("input[name=RateUploadType]:checked").val();
@@ -630,7 +664,7 @@
                             }
 
                             // if dialcode sheet selected then hide some columns
-                            if(importdialcodessheet != '') {
+                            if(importdialcodessheet != '' && importdialcodessheet != null) {
                                 $('#add-template-form select[name="selection[CountryCode]"]').select2("val","");
                                 $('#add-template-form select[name="selection[OriginationCountryCode]"]').select2("val","");
                                 $('#add-template-form select[name="selection[Code]"]').select2("val","");
@@ -1041,9 +1075,69 @@
                     getDeleteRates($ProcessID, $searchFilter);
                 }
             });
+
+            $('#btn-manage-columns').on('click', function() {
+                //columnsMultiSelect.bootstrapDualListbox('destroy');
+                $('#columnsMultiSelect').html('');
+                columnsMultiSelect.bootstrapDualListbox('refresh', true);
+
+                $.each( all_available_fields, function( key, value ) {
+                    columnsMultiSelect.append("<option value="+value+">"+value+"</option>");
+                });
+                $.each( all_occupied_fields, function( key, value ) {
+                    columnsMultiSelect.append("<option value="+value+" selected>"+value+"</option>");
+                });
+                columnsMultiSelect.bootstrapDualListbox('refresh', true);
+                $('#modal-manage-columns').modal('show');
+            });
+            $('#btn-change-selected-columns').on('click', function(){
+                var add_fields      = $('#columnsMultiSelect').val();
+                var remove_fields   = $(all_selectable_fields).not(add_fields).get();
+                add_fields = add_fields == '' || add_fields == null ? [] : add_fields;
+                remove_fields = remove_fields == '' || remove_fields == null ? [] : remove_fields;
+                add_fields.sort();
+                // check and add if related field in add_fields
+                // like if Action column added then add ActionDelete too
+                $.each(add_fields, function(key, value) {
+                    $.each(relational_columns[value], function(key_rel, value_rel) {
+                        if($.inArray(value_rel, add_fields) == -1) {
+                            add_fields.push(value_rel);
+                        }
+                    });
+                });
+                // check and add if related field in remove_fields
+                // like if Action column added then add ActionDelete too
+                $.each(remove_fields, function(key, value) {
+                    $.each(relational_columns[value], function(key_rel, value_rel) {
+                        if($.inArray(value_rel, remove_fields) == -1) {
+                            remove_fields.push(value_rel);
+                        }
+                    });
+                });
+                // remove all fields from remove_fields which are in add_fields
+                remove_fields = remove_fields.filter( function( el ) {
+                    return add_fields.indexOf( el ) < 0;
+                });
+                // remove fields from html
+                $.each(remove_fields, function(key, value) {
+                    if($.inArray(value, all_occupied_fields) != -1) {
+                        removeFieldFromMapping(value);
+                    }
+                });
+                // remove dynamic empty divs
+                fixDynamicColumnsView();
+                // add fields to html
+                $.each(add_fields, function(key, value) {
+                    if($.inArray(value, all_available_fields) != -1) {
+                        addFieldToMapping(value);
+                    }
+                });
+                $('#modal-manage-columns').modal('hide');
+            });
         });
 
         function createGrid(data){
+            fileData = data;
             var tr = $('#table-4 thead tr');
             var body = $('#table-4 tbody');
             tr.empty();
@@ -1107,6 +1201,15 @@
                                     }
                                 }
                             }
+                            if(option_value.occupied_fields != undefined && option_value.occupied_fields != '') {
+                                var occupied_fields = option_value.occupied_fields.split(',');
+                                if ($.inArray(key, all_selectable_fields) != -1 && $.inArray(key, occupied_fields) != -1) {
+                                    addFieldToMapping(key);
+                                    // reinitialize dynamic select2
+                                    reinitializeDynamicSelect(key, value);
+                                }
+                            }
+
                         });
                     }
                 });
@@ -1805,6 +1908,76 @@
                 }
             });
         }
+
+        function addFieldToMapping($FieldName) {
+            if($.inArray($FieldName,all_selectable_fields) != -1) {
+                if($.inArray($FieldName,all_available_fields) != -1) {
+                    var html = $('#controls-selection').find('.control-'+$FieldName).html();
+                    if(html != '' || html != undefined) {
+                        $("#add-template-form .managable select[name='selection["+$FieldName+"]']").select2('destroy');
+                        var html_div = '<div class="form-group managable solo">';
+                        html_div += html;
+                        html_div += '</div>';
+                        if($('#tab1').find('.solo').html() != undefined) {
+                            $('#tab1').find('.solo').last().append(html);
+                            $('#tab1').find('.solo').removeClass('solo').addClass('duo');
+                        } else {
+                            $('#tab1').find('.duo').last().after(html_div);
+                        }
+                        $('#controls-selection').find('.control-'+$FieldName).html('');
+
+                        all_available_fields.splice( all_available_fields.indexOf($FieldName), 1 );
+                        all_occupied_fields.push($FieldName);
+                        $('#occupied_fields').val(all_occupied_fields);
+                        reinitializeDynamicSelect($FieldName);
+                    }
+                }
+            }
+            return false;
+        }
+
+        function removeFieldFromMapping($FieldName) {
+            if($.inArray($FieldName,all_selectable_fields) != -1) {
+                if($.inArray($FieldName,all_occupied_fields) != -1) {
+                    var html = $('#tab1').find('.control-'+$FieldName+'-controls').html();
+                    if(html != '' || html != undefined) {
+                        $("#add-template-form .managable select[name='selection["+$FieldName+"]']").select2('destroy');
+                        $('#tab1').find('.control-'+$FieldName+'-controls').appendTo($('.control-'+$FieldName));
+                        all_occupied_fields.splice( all_occupied_fields.indexOf($FieldName), 1 );
+                        all_available_fields.push($FieldName);
+                        $('#occupied_fields').val(all_occupied_fields);
+                        reinitializeDynamicSelect($FieldName);
+                    }
+                }
+            }
+            return false;
+        }
+
+        function fixDynamicColumnsView() {
+            $('.managable').each(function() {
+                if($(this).find('label').length == 1 ) {
+                    $(this).removeClass('duo').addClass('solo');
+                } else if($(this).find('label').length == 0 ) {
+                    $(this).remove();
+                }
+            });
+        }
+
+        function reinitializeDynamicSelect(name,value) {
+            $("#add-template-form .managable select[name='selection["+name+"]']").select2('destroy');
+            $("#add-template-form .managable select[name='selection["+name+"]']").select2();
+            if(name !='DateFormat' && name !='DialString' && name != 'DialCodeSeparator' && name != 'OriginationDialCodeSeparator' && name != 'FromCurrency'){
+                var self = $("#add-template-form .managable select[name='selection["+name+"]']");
+                rebuildSelect2(self,fileData.columns,'Skip loading');
+                if(value) {
+                    $("#add-template-form .managable select[name='selection["+name+"]']").val(value).trigger("change");
+                }
+            }
+            if(name=='OriginationCode') {
+                $("#add-template-form .managable select[name='selection[OriginationDialCodeSeparator]']").select2('destroy');
+                $("#add-template-form .managable select[name='selection[OriginationDialCodeSeparator]']").select2();
+            }
+        }
     </script>
 @stop
 @section('footer_ext')
@@ -2335,6 +2508,34 @@
                         <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modal-manage-columns">
+        <div class="modal-dialog modal-sm" style="width: 50%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Manage Columns</h4>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                {{Form::select('columnsMultiSelect[]',[],[],array("id"=>"columnsMultiSelect","class"=>"","multiple"=>"multiple"))}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" id="btn-change-selected-columns"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <i class="entypo-floppy"></i>
+                        Save
+                    </button>
+                    <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+                </div>
             </div>
         </div>
     </div>

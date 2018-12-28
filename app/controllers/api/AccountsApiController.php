@@ -75,7 +75,7 @@ class AccountsApiController extends ApiController {
 			$data['Number'] = $accountData['Number'];
 			$data['ServiceTemaplate'] = $accountData['ServiceTemaplate'];
 			$data['NumberPurchased'] = $accountData['NumberPurchased'];
-			$data['InboundTariffCategory'] = isset($accountData['InboundTariffCategory']) ? $accountData['InboundTariffCategory'] :'';
+			$data['InboundTariffCategory'] = isset($accountData['InboundTariffCategoryId']) ? $accountData['InboundTariffCategoryId'] :'';
 			$data['ServiceDate'] = isset($accountData['ServiceDate'])? strtotime($accountData['ServiceDate']) : '';
 			Log::info('createAccountService:Data.' . json_encode($data));
 			Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,AccountType,1';
