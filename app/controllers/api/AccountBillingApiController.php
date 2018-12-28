@@ -54,8 +54,8 @@ class AccountBillingApiController extends ApiController {
 		}else{
 			return Response::json(["status"=>"failed", "data"=>"AccountID or AccountNo Field is Required."]);
 		}
-
-		if(!empty($AccountID)) {
+		$AccountCount=Account::where('AccountID',$AccountID)->count();
+		if($AccountCount > 0) {
 			$AccountPaymentAutomation = AccountPaymentAutomation::where('AccountID', $AccountID);
 			$CountAccountPaymentAutomation = $AccountPaymentAutomation->count();
 			if ($CountAccountPaymentAutomation > 0) {
@@ -177,8 +177,8 @@ class AccountBillingApiController extends ApiController {
 		}else{
 			return Response::json(["status"=>"failed", "data"=>"AccountID or AccountNo Field is Required."]);
 		}
-
-		if(!empty($AccountID)) {
+		$AccountCount=Account::where('AccountID',$AccountID)->count();
+		if($AccountCount > 0) {
 			$AccountPaymentAutomation = AccountPaymentAutomation::where('AccountID', $AccountID);
 			$CountAccountPaymentAutomation = $AccountPaymentAutomation->count();
 			if ($CountAccountPaymentAutomation > 0) {
