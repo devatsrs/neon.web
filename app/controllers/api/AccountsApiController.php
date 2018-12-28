@@ -62,6 +62,7 @@ class AccountsApiController extends ApiController {
 
 		return Response::json(["status"=>"success", "data"=>$Result]);
 	}
+
 	public function createAccountService()
 	{
 		Log::info('createAccountService:Add Product Service.');
