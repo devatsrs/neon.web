@@ -51,6 +51,17 @@
                     </select>
                 </div>
 
+                @if($RateApprovalProcess == 1)
+                    <div class="form-group">
+                        <label class="control-label">Approved Status</label>
+                        <select name="ApprovedStatus" class="select2" data-allow-clear="true" data-placeholder="Select Status">
+                            <option value="" selected="selected">All</option>
+                            <option value="1">Approved</option>
+                            <option value="0">Awaiting Approval</option>
+                        </select>
+                    </div>
+                @endif
+
                 <div class="form-group">
                     <label for="field-1" class="control-label">Group By</label>
                     <select class="select2" name="GroupBy" id="GroupBy">
@@ -86,26 +97,23 @@
 
 <div class="row" style="margin-bottom: 10px;">
     <div  class="col-md-12">
-        <div class="float-right" >
-            <a href="{{URL::to('/rate_tables')}}"  class="btn btn-primary btn-sm btn-icon icon-left" >
-                <i class="entypo-floppy"></i>
-                Back
-            </a>
-        </div>
+        <div class="input-group-btn pull-right hidden dropdown" style="width:70px;">
+            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
+            <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
+                @if($isBandTable)
+                    @if(User::checkCategoryPermission('RateTables','Add') )
+                        <li><a href="javascript:void(0)" id="add-new-rate"><i class="entypo-plus"></i><span>Add New</span></a></li>
+                    @endif
+                @endif
+                @if(User::checkCategoryPermission('RateTables','Edit') )
+                    <li><a href="javascript:void(0)" id="change-bulk-rate"><i class="entypo-pencil"></i><span>Change Selected</span></a></li>
+                @endif
+                @if(User::checkCategoryPermission('RateTables','Delete') )
+                    <li><a href="javascript:void(0)" id="clear-bulk-rate"><i class="entypo-trash"></i><span>Delete Selected</span></a></li>
+                @endif
+            </ul>
+        </div><!-- /btn-group -->
 
-        @if(User::checkCategoryPermission('RateTables','Delete') )
-            <button id="clear-bulk-rate" class="btn btn-danger btn-sm btn-icon icon-left pull-right" data-loading-text="Loading..."> <i class="entypo-trash"></i> Delete Selected </button>
-        @endif
-        @if(User::checkCategoryPermission('RateTables','Edit') )
-            <a  id="change-bulk-rate" class="btn btn-primary btn-sm btn-icon icon-left pull-right" href="javascript:;"> <i class="entypo-floppy"></i>
-                Change Selected
-            </a>
-        @endif
-        @if($isBandTable)
-            @if(User::checkCategoryPermission('RateTables','Add') )
-                <button id="add-new-rate" class="btn btn-primary btn-sm btn-icon icon-left pull-right" data-loading-text="Loading..."> <i class="entypo-plus"></i> Add New</button>
-            @endif
-        @endif
         {{--@if(User::checkCategoryPermission('VendorRates','History'))--}}
         <button class="btn btn-primary btn-sm btn-icon icon-left pull-right" onclick="location.href='{{ URL::to('/rate_upload/'.$id.'/'.RateUpload::ratetable) }}'">
             <i class="fa fa-upload"></i>
@@ -143,7 +151,7 @@
                     <input type="checkbox" id="selectall" name="checkbox[]" />
                 </div>
             </th>
-            <th width="4%" style="display: none;">Orig. Code</th>
+            <th width="4%" id="OCode-Header" style="display: none;">Orig. Code</th>
             <th width="10%" style="display: none;">Orig. Description</th>
             <th width="4%" id="Code-Header">Code</th>
             <th width="10%">Description</th>
@@ -162,8 +170,10 @@
             <th width="5%">Registration Cost ({{$code}})</th>
             <th width="8%">Effective Date</th>
             <th width="9%" style="display: none;">End Date</th>
-            <th width="8%">Modified Date</th>
-            <th width="10%">Modified By</th>
+            <th width="8%">Modified By/Date</th>
+            @if($RateApprovalProcess == 1)
+            <th width="8%">Approved By/Date</th>
+            @endif
             <th width="20%" > Action</th>
         </tr>
         </thead>
@@ -179,7 +189,7 @@
         var $searchFilter = {};
         var checked='';
         var codedeckid = '{{$id}}';
-        var list_fields  = ['ID','OriginationCode','OriginationDescription','Code','Description','OneOffCost','MonthlyCost','CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableDIDRateID','OriginationRateID','RateID'];
+        var list_fields  = ['ID','OriginationCode','OriginationDescription','Code','Description','OneOffCost','MonthlyCost','CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableDIDRateID','OriginationRateID','RateID','ApprovedStatus','ApprovedBy','ApprovedDate'];
         jQuery(document).ready(function($) {
 
         $('#filter-button-toggle').show();
@@ -193,8 +203,17 @@
             view = 1;
             $('#rate-table-search #GroupBy').val('GroupByCode');
         }
+        var ratetablepageview = getCookie('ratetablepageview');
+        if(ratetablepageview=='AdvanceView'){
+            $('#btn-basic-view').removeClass('active');
+            $('#btn-advance-view').addClass('active');
+        } else {
+            $('#btn-advance-view').removeClass('active');
+            $('#btn-basic-view').addClass('active');
+        }
 
-        $("#rate-table-search").submit(function(e) {
+
+            $("#rate-table-search").submit(function(e) {
             /*if(view == 2)
                 return rateDataTable2(view);
             else
@@ -437,12 +456,16 @@
             } else {
                 $(this).find('i').toggleClass('entypo-plus-squared entypo-minus-squared');
                 var hiddenRowData = tr.find('.hiddenRowData');
+                var OriginationCode = hiddenRowData.find('input[name="OriginationCode"]').val();
                 var Code = hiddenRowData.find('input[name="Code"]').val();
+                var OriginationCode = OriginationCode.split(',');
                 var Code = Code.split(',');
                 var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
+                //table.append("<thead><tr><th style='width:10%'>Origination Code</th><th>Code</th></tr></thead>");
                 table.append("<thead><tr><th>Code</th></tr></thead>");
                 var tbody = $("<tbody></tbody>");
                 for (var i = 0; i < Code.length; i++) {
+                    //table.append("<tr class='no-selection'><td>" + OriginationCode[i] + "</td><td>" + Code[i] + "</td></tr>");
                     table.append("<tr class='no-selection'><td>" + Code[i] + "</td></tr>");
                 }
                 table.append(tbody);
@@ -473,6 +496,21 @@
                 return false;
             }
         });
+        $(document).on('click','.view-switcher', function() {
+            var id = $(this).attr('id');
+            if(!$(this).hasClass('active')) {
+                if (id == 'btn-basic-view') {
+                    setCookie('ratetablepageview','BasicView','30');
+                    $('#btn-advance-view').removeClass('active');
+                    $('#btn-basic-view').addClass('active');
+                } else {
+                    setCookie('ratetablepageview','AdvanceView','30');
+                    $('#btn-basic-view').removeClass('active');
+                    $('#btn-advance-view').addClass('active');
+                }
+                rateDataTable();
+            }
+        });
     });
 
     function rateDataTable() {
@@ -484,6 +522,13 @@
             setCookie('ratetableview','GroupByCode','30');
             view = 1;
         }
+        var bVisible = false;
+        ratetablepageview = getCookie('ratetablepageview');
+        if(ratetablepageview == 'AdvanceView') {
+            bVisible = true;
+        } else {
+            bVisible = false;
+        }
 
         $searchFilter.OriginationCode = $("#rate-table-search input[name='OriginationCode']").val();
         $searchFilter.OriginationDescription = $("#rate-table-search input[name='OriginationDescription']").val();
@@ -494,6 +539,8 @@
         $searchFilter.Effective = Effective = $("#rate-table-search [name='Effective']").val();
         $searchFilter.DiscontinuedRates = DiscontinuedRates = $("#rate-table-search input[name='DiscontinuedRates']").is(':checked') ? 1 : 0;
         $searchFilter.Timezones = Timezones = $("#rate-table-search select[name='Timezones']").val();
+        $searchFilter.ApprovedStatus = ApprovedStatus = $("#rate-table-search select[name='ApprovedStatus']").val();
+        $searchFilter.ratetablepageview = ratetablepageview;
 
         data_table = $("#table-4").DataTable({
             "bDestroy": true, // Destroy when resubmit form
@@ -506,9 +553,9 @@
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "sAjaxSource": baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid",
             "fnServerParams": function(aoData) {
-                aoData.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones});
+                aoData.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones});
+                data_table_extra_params.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview});
             },
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
@@ -553,33 +600,76 @@
                         {
                             "bVisible" : false
                         }, //19 End Date
-                        {}, //20 ModifiedDate
-                        {}, //21 ModifiedBy
+                        {
+                            "bVisible" : bVisible,
+                            mRender: function(id, type, full) {
+                                full[20] = full[20] != null ? full[20] : '';
+                                full[21] = full[21] != null ? full[21] : '';
+                                if(full[20] != '' && full[14] != '')
+                                    return full[21] + '<br/>' + full[20]; // modified by/modified date
+                                else
+                                    return '';
+                            }
+                        }, //20/21 ModifiedDate
+                        @if($RateApprovalProcess == 1)
+                        {
+                            "bVisible" : bVisible,
+                            mRender: function(id, type, full) {
+                                full[26] = full[26] != null ? full[26] : '';
+                                full[27] = full[27] != null ? full[27] : '';
+                                if(full[26] != '' && full[27] != '')
+                                    return full[26] + '<br/>' + full[27]; // modified by/modified date
+                                else
+                                    return '';
+                            }
+                        }, //23/24 Approved By/Approved Date
+                        @endif
                         {
                             mRender: function(id, type, full) {
+                                $('#actionheader').attr('width','10%');
                                 var action, edit_, delete_;
-                                clerRate_ = "{{ URL::to('/rate_tables/{id}/clear_rate')}}";
-
-                                clerRate_ = clerRate_.replace('{id}', id);
                                 action = '<div class = "hiddenRowData" >';
-                                for(var i = 0 ; i< list_fields.length; i++){
-                                    action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (full[i] != null?full[i]:'')+ '" / >';
+                                for (var i = 0; i < list_fields.length; i++) {
+                                    action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (full[i] != null ? full[i] : '') + '" / >';
                                 }
                                 action += '</div>';
-                                <?php if(User::checkCategoryPermission('RateTables','Edit')) { ?>
-                                    if(DiscontinuedRates == 0) {
+
+                                if(bVisible == true) {
+                                    clerRate_ = "{{ URL::to('/rate_tables/{id}/clear_rate')}}";
+                                    clerRate_ = clerRate_.replace('{id}', id);
+                                    @if($RateApprovalProcess == 1)
+                                    if (full[25] == 1) {
+                                        action += ' <a href="Javascript:;"  title="Approved" class="btn btn-default btn-xs"><i class="entypo-check" style="color: green; "></i>&nbsp;</a>';
+                                    } else if (full[25] == 0) {
+                                        action += ' <a href="Javascript:;"  title="Awaiting Approval" class="btn btn-default btn-xs"><i class="entypo-cancel" style="color: red; "></i>&nbsp;</a>';
+                                    }
+                                    @endif
+
+                                    <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
+                                    if (DiscontinuedRates == 0) {
                                         action += ' <a href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</a>';
                                     }
-                                <?php } ?>
+                                    <?php } ?>
 
-                                action += ' <a href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</a>';
+                                            action += ' <a href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</a>';
 
-                                if (id != null && id != 0) {
-                                    <?php if(User::checkCategoryPermission('RateTables','Delete')) { ?>
-                                        if(DiscontinuedRates == 0) {
+                                    if (id != null && id != 0) {
+                                        <?php if(User::checkCategoryPermission('RateTables', 'Delete')) { ?>
+                                        if (DiscontinuedRates == 0) {
                                             action += ' <button title="Delete" href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-xs" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
                                         }
-                                    <?php } ?>
+                                        <?php } ?>
+                                    }
+                                } else {
+                                    $('#actionheader').attr('width','5%');
+
+                                    @if($RateApprovalProcess == 1)
+                                    if (full[25] == 1) {
+                                        action += ' <a href="Javascript:;"  title="Approved" class="btn btn-default btn-xs"><i class="entypo-check" style="color: green; "></i>&nbsp;</a>';
+                                    } else if (full[25] == 0) {
+                                        action += ' <a href="Javascript:;"  title="Awaiting Approval" class="btn btn-default btn-xs"><i class="entypo-cancel" style="color: red; "></i>&nbsp;</a>';
+                                    }
+                                    @endif
                                 }
                                 return action;
                             }
@@ -604,10 +694,26 @@
             },
             "fnDrawCallback": function() {
                 if(view==1){
-                    $('#Code-Header').html('Code');
+                    $('#OCode-Header').html('Orig. Code');
+                    $('#Code-Header').html('Dest. Code');
                 }else{
+                    $('#OCode-Header').html('');
                     $('#Code-Header').html('');
                 }
+
+                $(".dropdown").removeClass("hidden");
+                var toggle = '<header>';
+                toggle += '<span class="list-style-buttons">';
+                if(ratetablepageview=='AdvanceView'){
+                    toggle += '<a href="javascript:void(0)" title="Basic View" class="btn btn-primary view-switcher" id="btn-basic-view"><i class="fa fa-list-alt"></i></a>';
+                    toggle += '<a href="javascript:void(0)" title="Advance View" class="btn btn-primary view-switcher active" id="btn-advance-view"><i class="fa fa-list"></i></a>';
+                }else{
+                    toggle += '<a href="javascript:void(0)" title="Basic View" class="btn btn-primary view-switcher active" id="btn-basic-view"><i class="fa fa-list-alt"></i></a>';
+                    toggle += '<a href="javascript:void(0)" title="Advance View" class="btn btn-primary view-switcher" id="btn-advance-view"><i class="fa fa-list"></i></a>';
+                }
+                toggle +='</span>';
+                toggle += '</header>';
+                $('.change-view').html(toggle);
 
                 $(".btn.clear").click(function(e) {
 

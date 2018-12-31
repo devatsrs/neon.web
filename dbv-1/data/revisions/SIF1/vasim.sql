@@ -19,13 +19,19 @@ ALTER TABLE `tblRateTableRate`
 	ADD COLUMN `OriginationRateID` INT(11) NULL DEFAULT NULL AFTER `RateTableRateID`,
 	ADD COLUMN `RoutingCategoryID` INT(11) NULL DEFAULT NULL AFTER `ConnectionFee`,
 	ADD COLUMN `Preference` INT(11) NULL DEFAULT NULL AFTER `RoutingCategoryID`,
-	ADD COLUMN `Blocked` TINYINT NOT NULL DEFAULT '0' AFTER `Preference`;
+	ADD COLUMN `Blocked` TINYINT NOT NULL DEFAULT '0' AFTER `Preference`,
+	ADD COLUMN `ApprovedStatus` TINYINT(4) NOT NULL DEFAULT '1' AFTER `Blocked`,
+	ADD COLUMN `ApprovedBy` VARCHAR(50) NULL DEFAULT NULL AFTER `ApprovedStatus`,
+	ADD COLUMN `ApprovedDate` DATE NULL DEFAULT NULL AFTER `ApprovedBy`;
 
 ALTER TABLE `tblRateTableRateArchive`
 	ADD COLUMN `OriginationRateID` INT(11) NULL DEFAULT NULL AFTER `TimezonesID`,
 	ADD COLUMN `RoutingCategoryID` INT(11) NULL DEFAULT NULL AFTER `ConnectionFee`,
 	ADD COLUMN `Preference` INT(11) NULL DEFAULT NULL AFTER `RoutingCategoryID`,
-	ADD COLUMN `Blocked` TINYINT NOT NULL DEFAULT '0' AFTER `Preference`;
+	ADD COLUMN `Blocked` TINYINT NOT NULL DEFAULT '0' AFTER `Preference`
+	ADD COLUMN `ApprovedStatus` TINYINT(4) NOT NULL DEFAULT '1' AFTER `Blocked`,
+	ADD COLUMN `ApprovedBy` VARCHAR(50) NULL DEFAULT NULL AFTER `ApprovedStatus`,
+	ADD COLUMN `ApprovedDate` DATE NULL DEFAULT NULL AFTER `ApprovedBy`;
 
 ALTER TABLE `tblRateTableRate`
 	DROP INDEX `IX_Unique_RateID_RateTableId_TimezonesID_EffectiveDate`,
@@ -56,6 +62,9 @@ CREATE TABLE IF NOT EXISTS `tblRateTableDIDRate` (
   `updated_at` timestamp NULL DEFAULT NULL,
   `CreatedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `ModifiedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`ApprovedStatus` TINYINT(4) NOT NULL DEFAULT '1',
+	`ApprovedBy` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`ApprovedDate` DATE NULL DEFAULT NULL,
   PRIMARY KEY (`RateTableDIDRateID`),
   UNIQUE KEY `IX_Unique_RateID_ORateID_RateTableId_TimezonesID_EffectiveDate` (`RateID`,`OriginationRateID`,`RateTableId`,`TimezonesID`,`EffectiveDate`),
   KEY `RateTableIDEffectiveDate` (`RateTableId`,`EffectiveDate`,`RateID`),
@@ -91,6 +100,9 @@ CREATE TABLE IF NOT EXISTS `tblRateTableDIDRateArchive` (
   `updated_at` timestamp NULL DEFAULT NULL,
   `CreatedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `ModifiedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+	`ApprovedStatus` TINYINT(4) NOT NULL DEFAULT '1',
+	`ApprovedBy` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`ApprovedDate` DATE NULL DEFAULT NULL,
   `Notes` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`RateTableDIDRateArchiveID`),
   KEY `RateTableIDEffectiveDate` (`RateTableId`,`EffectiveDate`,`RateID`),
@@ -167,6 +179,9 @@ BEGIN
 		`RoutingCategoryID`,
 		`Preference`,
 		`Blocked`,
+		`ApprovedStatus`,
+		`ApprovedBy`,
+		`ApprovedDate`,
 		concat('Ends Today rates @ ' , now() ) as `Notes`
 	FROM tblRateTableRate
 	WHERE FIND_IN_SET(RateTableId,p_RateTableIds) != 0 AND (p_TimezonesIDs IS NULL OR FIND_IN_SET(TimezonesID,p_TimezonesIDs) != 0) AND EndDate <= NOW();
@@ -747,6 +762,7 @@ CREATE PROCEDURE `prc_getDiscontinuedRateTableDIDRateGrid`(
 	IN `p_origination_description` VARCHAR(200),
 	IN `p_Code` VARCHAR(50),
 	IN `p_Description` VARCHAR(200),
+	IN `p_ApprovedStatus` TINYINT,
 	IN `p_View` INT,
 	IN `p_PageNumber` INT,
 	IN `p_RowspPage` INT,
@@ -786,6 +802,9 @@ BEGIN
 		updated_by VARCHAR(50),
 		OriginationRateID INT,
 		RateID INT,
+     	ApprovedStatus TINYINT,
+     	ApprovedBy VARCHAR(50),
+     	ApprovedDate DATE,
 		INDEX tmp_RateTableDIDRate_RateID (`Code`)
 	);
 
@@ -814,7 +833,10 @@ BEGIN
 		vra.created_at AS updated_at,
 		vra.CreatedBy AS updated_by,
 		vra.OriginationRateID,
-		vra.RateID
+		vra.RateID,
+      vra.ApprovedStatus,
+      vra.ApprovedBy,
+      vra.ApprovedDate
 	FROM
 		tblRateTableDIDRateArchive vra
 	JOIN
@@ -832,6 +854,7 @@ BEGIN
 		(p_origination_description is null OR OriginationRate.Description LIKE REPLACE(p_origination_description, '*', '%')) AND
 		(p_code IS NULL OR r.Code LIKE REPLACE(p_code, '*', '%')) AND
 		(p_description IS NULL OR r.Description LIKE REPLACE(p_description, '*', '%')) AND
+		(p_ApprovedStatus IS NULL OR vra.ApprovedStatus = p_ApprovedStatus) AND
 		vr.RateTableDIDRateID is NULL;
 
 	IF p_isExport = 0
@@ -871,7 +894,10 @@ BEGIN
 				updated_by,
         		RateTableDIDRateID,
 				OriginationRateID,
-				RateID
+				RateID,
+		      ApprovedStatus,
+		      ApprovedBy,
+		      ApprovedDate
 			FROM
 				tmp_RateTableDIDRate_
 			ORDER BY
@@ -1020,9 +1046,9 @@ BEGIN
 
 			SELECT
 				GROUP_CONCAT(RateTableDIDRateID) AS ID,
-				MAX(OriginationCode) AS OriginationCode,
+				GROUP_CONCAT(OriginationCode) AS OriginationCode,
 				OriginationDescription,
-				GROUP_CONCAT(Code),
+				GROUP_CONCAT(Code) AS Code,
 				Description,
 				MAX(OneOffCost),
 				MAX(MonthlyCost),
@@ -1043,11 +1069,14 @@ BEGIN
 				MAX(updated_by),
 				GROUP_CONCAT(RateTableDIDRateID) AS RateTableDIDRateID,
 				GROUP_CONCAT(OriginationRateID) AS OriginationRateID,
-				GROUP_CONCAT(RateID) AS RateID
+				GROUP_CONCAT(RateID) AS RateID,
+				ApprovedStatus,
+				MAX(ApprovedBy) AS ApprovedBy,
+				MAX(ApprovedDate) AS ApprovedDate
 			FROM
 				tmp_RateTableDIDRate_
 			GROUP BY
-				Description, OriginationDescription, EffectiveDate, EndDate
+				Description, OriginationDescription, EffectiveDate, EndDate, ApprovedStatus
 			ORDER BY
        		 CASE
                  WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeDESC') THEN MAX(OriginationCode)
@@ -1186,14 +1215,15 @@ BEGIN
 				SELECT
 	            Description
 	        	FROM tmp_RateTableDIDRate_
-					GROUP BY Description, EffectiveDate, EndDate
+					GROUP BY Description, OriginationDescription, EffectiveDate, EndDate, ApprovedStatus
 			) totalcount;
 
 		END IF;
 
 	END IF;
 
-	IF p_isExport = 1
+	-- basic view
+	IF p_isExport = 10
 	THEN
 		SELECT
 			OriginationCode,
@@ -1213,8 +1243,34 @@ BEGIN
 			CollectionCostAmount,
 			CollectionCostPercentage,
 			RegistrationCostPerNumber,
-			updated_at AS `Modified Date`,
-			updated_by AS `Modified By`
+         ApprovedStatus
+		FROM tmp_RateTableDIDRate_;
+	END IF;
+
+	-- advance view
+	IF p_isExport = 10
+	THEN
+		SELECT
+			OriginationCode,
+			OriginationDescription,
+			Code AS DestinationCode,
+			Description AS DestinationDescription,
+			OneOffCost,
+			MonthlyCost,
+			CostPerCall,
+			CostPerMinute,
+			SurchargePerCall,
+			SurchargePerMinute,
+			OutpaymentPerCall,
+			OutpaymentPerMinute,
+			Surcharges,
+			Chargeback,
+			CollectionCostAmount,
+			CollectionCostPercentage,
+			RegistrationCostPerNumber,
+         CONCAT(updated_at,'\n',updated_by) AS `Modified Date/By`,
+         CONCAT(ApprovedBy,'\n',ApprovedDate) AS `Approved By/Date`,
+         ApprovedStatus
 		FROM tmp_RateTableDIDRate_;
 	END IF;
 
@@ -1239,6 +1295,7 @@ CREATE PROCEDURE `prc_getDiscontinuedRateTableRateGrid`(
 	IN `p_RoutingCategoryID` INT,
 	IN `p_Preference` TEXT,
 	IN `p_Blocked` TINYINT,
+	IN `p_ApprovedStatus` TINYINT,
 	IN `p_View` INT,
 	IN `p_PageNumber` INT,
 	IN `p_RowspPage` INT,
@@ -1275,6 +1332,9 @@ BEGIN
      	RoutingCategoryName VARCHAR(50),
      	Preference INT,
      	Blocked TINYINT,
+     	ApprovedStatus TINYINT,
+     	ApprovedBy VARCHAR(50),
+     	ApprovedDate DATE,
 		INDEX tmp_RateTableRate_RateID (`Code`)
 	);
 
@@ -1300,7 +1360,10 @@ BEGIN
      	vra.RoutingCategoryID,
      	RC.Name AS RoutingCategoryName,
       vra.Preference,
-      vra.Blocked
+      vra.Blocked,
+      vra.ApprovedStatus,
+      vra.ApprovedBy,
+      vra.ApprovedDate
 	FROM
 		tblRateTableRateArchive vra
 	JOIN
@@ -1323,6 +1386,7 @@ BEGIN
 		(p_RoutingCategoryID IS NULL OR RC.RoutingCategoryID = p_RoutingCategoryID ) AND
 		(p_Preference IS NULL OR vra.Preference = p_Preference) AND
 		(p_Blocked IS NULL OR vra.Blocked = p_Blocked) AND
+		(p_ApprovedStatus IS NULL OR vra.ApprovedStatus = p_ApprovedStatus) AND
 		vr.RateTableRateID is NULL;
 
 	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateTableRate2_ as (select * from tmp_RateTableRate_);
@@ -1359,7 +1423,10 @@ BEGIN
 				RoutingCategoryID,
 				RoutingCategoryName,
 				Preference,
-				Blocked
+				Blocked,
+		      ApprovedStatus,
+		      ApprovedBy,
+		      ApprovedDate
 			FROM
 				tmp_RateTableRate_
 			ORDER BY
@@ -1460,9 +1527,9 @@ BEGIN
 
 			SELECT
 				group_concat(RateTableRateID) AS ID,
-				MAX(OriginationCode) AS OriginationCode,
+				group_concat(OriginationCode) AS OriginationCode,
 				OriginationDescription,
-				group_concat(Code),
+				group_concat(Code) AS Code,
 				Description,
 				ConnectionFee,
 				Interval1,
@@ -1480,11 +1547,14 @@ BEGIN
 				MAX(RoutingCategoryID) AS RoutingCategoryID,
 				MAX(RoutingCategoryName) AS RoutingCategoryName,
 				MAX(Preference) AS Preference,
-				MAX(Blocked) AS Blocked
+				MAX(Blocked) AS Blocked,
+				ApprovedStatus,
+				MAX(ApprovedBy) AS ApprovedBy,
+				MAX(ApprovedDate) AS ApprovedDate
 			FROM
 				tmp_RateTableRate_
 			GROUP BY
-				Description, OriginationDescription, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate, EndDate
+				Description, OriginationDescription, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate, EndDate, ApprovedStatus
 			ORDER BY
           	CASE
               	WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeDESC') THEN ANY_VALUE(OriginationCode)
@@ -1575,7 +1645,7 @@ BEGIN
 				SELECT
 	            Description
 	        	FROM tmp_RateTableRate_
-					GROUP BY Description, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate, EndDate
+					GROUP BY Description, OriginationDescription, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate, EndDate, ApprovedStatus
 			) totalcount;
 
 		END IF;
@@ -1597,7 +1667,8 @@ BEGIN
          EffectiveDate,
          RoutingCategoryName,
          Preference,
-         Blocked
+         Blocked,
+         ApprovedStatus
       FROM   tmp_RateTableRate_;
    END IF;
 
@@ -1618,7 +1689,9 @@ BEGIN
          CONCAT(updated_at,'\n',updated_by) AS `Modified Date/By`,
          RoutingCategoryName,
          Preference,
-         Blocked
+         CONCAT(ApprovedBy,'\n',ApprovedDate) AS `Approved By/Date`,
+         Blocked,
+         ApprovedStatus
       FROM   tmp_RateTableRate_;
    END IF;
 
@@ -1642,6 +1715,7 @@ CREATE PROCEDURE `prc_GetRateTableDIDRate`(
 	IN `p_code` VARCHAR(50),
 	IN `p_description` VARCHAR(50),
 	IN `p_effective` VARCHAR(50),
+	IN `p_ApprovedStatus` TINYINT,
 	IN `p_view` INT,
 	IN `p_PageNumber` INT,
 	IN `p_RowspPage` INT,
@@ -1683,6 +1757,9 @@ BEGIN
         RateTableDIDRateID INT,
         OriginationRateID INT,
         RateID INT,
+        ApprovedStatus TINYINT,
+        ApprovedBy VARCHAR(50),
+        ApprovedDate DATE,
         INDEX tmp_RateTableDIDRate_RateID (`RateID`)
     );
 
@@ -1713,7 +1790,10 @@ BEGIN
         tblRateTableDIDRate.ModifiedBy,
         RateTableDIDRateID,
         OriginationRate.RateID AS OriginationRateID,
-        tblRate.RateID
+        tblRate.RateID,
+        tblRateTableDIDRate.ApprovedStatus,
+        tblRateTableDIDRate.ApprovedBy,
+        tblRateTableDIDRate.ApprovedDate
     FROM tblRate
     LEFT JOIN tblRateTableDIDRate
         ON tblRateTableDIDRate.RateID = tblRate.RateID
@@ -1728,6 +1808,7 @@ BEGIN
 		AND (p_origination_description is null OR OriginationRate.Description LIKE REPLACE(p_origination_description, '*', '%'))
 		AND (p_code is null OR tblRate.Code LIKE REPLACE(p_code, '*', '%'))
 		AND (p_description is null OR tblRate.Description LIKE REPLACE(p_description, '*', '%'))
+		AND (p_ApprovedStatus IS NULL OR tblRateTableDIDRate.ApprovedStatus = p_ApprovedStatus)
 		AND TrunkID = p_trunkID
 		AND tblRateTableDIDRate.TimezonesID = p_TimezonesID
 		AND (
@@ -1889,8 +1970,8 @@ BEGIN
         	FROM tmp_RateTableDIDRate_;
 
 		ELSE
-			SELECT group_concat(ID) AS ID,MAX(OriginationCode),OriginationDescription,group_concat(Code) AS Code,Description,MAX(OneOffCost),MAX(MonthlyCost),MAX(CostPerCall),MAX(CostPerMinute),MAX(SurchargePerCall),MAX(SurchargePerMinute),MAX(OutpaymentPerCall),MAX(OutpaymentPerMinute),MAX(Surcharges),MAX(Chargeback),MAX(CollectionCostAmount),MAX(CollectionCostPercentage),MAX(RegistrationCostPerNumber),MAX(EffectiveDate),MAX(EndDate),MAX(updated_at) AS updated_at,MAX(ModifiedBy) AS ModifiedBy,group_concat(ID) AS RateTableDIDRateID,group_concat(RateID) AS RateID FROM tmp_RateTableDIDRate_
-					GROUP BY Description, OriginationDescription, EffectiveDate
+			SELECT group_concat(ID) AS ID,group_concat(OriginationCode) AS OriginationCode,OriginationDescription,group_concat(Code) AS Code,Description,MAX(OneOffCost),MAX(MonthlyCost),MAX(CostPerCall),MAX(CostPerMinute),MAX(SurchargePerCall),MAX(SurchargePerMinute),MAX(OutpaymentPerCall),MAX(OutpaymentPerMinute),MAX(Surcharges),MAX(Chargeback),MAX(CollectionCostAmount),MAX(CollectionCostPercentage),MAX(RegistrationCostPerNumber),MAX(EffectiveDate),MAX(EndDate),MAX(updated_at) AS updated_at,MAX(ModifiedBy) AS ModifiedBy,group_concat(ID) AS RateTableDIDRateID,group_concat(OriginationRateID) AS OriginationRateID, group_concat(RateID) AS RateID, ApprovedStatus, MAX(ApprovedBy) AS ApprovedBy, MAX(ApprovedDate) AS ApprovedDate FROM tmp_RateTableDIDRate_
+					GROUP BY Description, OriginationDescription, EffectiveDate, ApprovedStatus
 					ORDER BY
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeDESC') THEN MAX(OriginationCode)
@@ -2025,7 +2106,7 @@ BEGIN
 				SELECT
 	            Description
 	        	FROM tmp_RateTableDIDRate_
-					GROUP BY Description, OriginationDescription, EffectiveDate
+					GROUP BY Description, OriginationDescription, EffectiveDate, ApprovedStatus
 			) totalcount;
 
 
@@ -2033,9 +2114,9 @@ BEGIN
 
     END IF;
 
-    IF p_isExport = 1
+	 -- basic view
+    IF p_isExport = 10
     THEN
-
         SELECT
             OriginationCode,
             OriginationDescription,
@@ -2055,12 +2136,38 @@ BEGIN
 				CollectionCostPercentage,
 				RegistrationCostPerNumber,
             EffectiveDate,
-            updated_at,
-            ModifiedBy
+            ApprovedStatus
         FROM
 		  		tmp_RateTableDIDRate_;
+    END IF;
 
-
+	 -- advance view
+    IF p_isExport = 11
+    THEN
+        SELECT
+            OriginationCode,
+            OriginationDescription,
+            Code AS DestinationCode,
+            Description AS DestinationDescription,
+            OneOffCost,
+				MonthlyCost,
+				CostPerCall,
+				CostPerMinute,
+				SurchargePerCall,
+				SurchargePerMinute,
+				OutpaymentPerCall,
+				OutpaymentPerMinute,
+				Surcharges,
+				Chargeback,
+				CollectionCostAmount,
+				CollectionCostPercentage,
+				RegistrationCostPerNumber,
+            EffectiveDate,
+            CONCAT(ModifiedBy,'\n',updated_at) AS `Modified By/Date`,
+            CONCAT(ApprovedBy,'\n',ApprovedDate) AS `Approved By/Date`,
+            ApprovedStatus
+        FROM
+		  		tmp_RateTableDIDRate_;
     END IF;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
@@ -2288,6 +2395,7 @@ CREATE PROCEDURE `prc_GetRateTableRate`(
 	IN `p_RoutingCategoryID` INT,
 	IN `p_Preference` TEXT,
 	IN `p_Blocked` TINYINT,
+	IN `p_ApprovedStatus` TINYINT,
 	IN `p_view` INT,
 	IN `p_PageNumber` INT,
 	IN `p_RowspPage` INT,
@@ -2326,6 +2434,9 @@ BEGIN
         RoutingCategoryName VARCHAR(50),
         Preference INT,
         Blocked TINYINT,
+        ApprovedStatus TINYINT,
+        ApprovedBy VARCHAR(50),
+        ApprovedDate DATE,
         INDEX tmp_RateTableRate_RateID (`RateID`)
     );
 
@@ -2354,7 +2465,10 @@ BEGIN
         tblRateTableRate.RoutingCategoryID,
         RC.Name AS RoutingCategoryName,
         tblRateTableRate.Preference,
-        tblRateTableRate.Blocked
+        tblRateTableRate.Blocked,
+        tblRateTableRate.ApprovedStatus,
+        tblRateTableRate.ApprovedBy,
+        tblRateTableRate.ApprovedDate
     FROM tblRate
     LEFT JOIN tblRateTableRate
         ON tblRateTableRate.RateID = tblRate.RateID
@@ -2374,6 +2488,7 @@ BEGIN
 		AND (p_RoutingCategoryID IS NULL OR RC.RoutingCategoryID = p_RoutingCategoryID)
 		AND (p_Preference IS NULL OR tblRateTableRate.Preference = p_Preference)
 		AND (p_Blocked IS NULL OR tblRateTableRate.Blocked = p_Blocked)
+		AND (p_ApprovedStatus IS NULL OR tblRateTableRate.ApprovedStatus = p_ApprovedStatus)
 		AND TrunkID = p_trunkID
 		AND tblRateTableRate.TimezonesID = p_TimezonesID
 		AND (
@@ -2505,8 +2620,8 @@ BEGIN
         	FROM tmp_RateTableRate_;
 
 		ELSE
-			SELECT group_concat(ID) AS ID,MAX(OriginationCode),OriginationDescription,group_concat(Code) AS Code,MAX(Description),MAX(Interval1),MAX(Intervaln),MAX(ConnectionFee),MAX(PreviousRate),MAX(Rate),MAX(RateN),MAX(EffectiveDate),MAX(EndDate),MAX(updated_at) AS updated_at,MAX(ModifiedBy) AS ModifiedBy,group_concat(ID) AS RateTableRateID,group_concat(OriginationRateID) AS OriginationRateID,group_concat(RateID) AS RateID, MAX(RoutingCategoryID) AS RoutingCategoryID, MAX(RoutingCategoryName) AS RoutingCategoryName, MAX(Preference) AS Preference, MAX(Blocked) AS Blocked FROM tmp_RateTableRate_
-					GROUP BY Description, OriginationDescription, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate
+			SELECT group_concat(ID) AS ID,group_concat(OriginationCode) AS OriginationCode,OriginationDescription,group_concat(Code) AS Code,MAX(Description),MAX(Interval1),MAX(Intervaln),MAX(ConnectionFee),MAX(PreviousRate),MAX(Rate),MAX(RateN),MAX(EffectiveDate),MAX(EndDate),MAX(updated_at) AS updated_at,MAX(ModifiedBy) AS ModifiedBy,group_concat(ID) AS RateTableRateID,group_concat(OriginationRateID) AS OriginationRateID,group_concat(RateID) AS RateID, MAX(RoutingCategoryID) AS RoutingCategoryID, MAX(RoutingCategoryName) AS RoutingCategoryName, MAX(Preference) AS Preference, MAX(Blocked) AS Blocked, ApprovedStatus, MAX(ApprovedBy) AS ApprovedBy, MAX(ApprovedDate) AS ApprovedDate FROM tmp_RateTableRate_
+					GROUP BY Description, OriginationDescription, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate, ApprovedStatus
 					ORDER BY
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeDESC') THEN ANY_VALUE(OriginationCode)
@@ -2599,7 +2714,7 @@ BEGIN
 				SELECT
 	            Description
 	        	FROM tmp_RateTableRate_
-					GROUP BY Description, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate
+					GROUP BY Description, OriginationDescription, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate, ApprovedStatus
 			) totalcount;
 
 
@@ -2622,7 +2737,8 @@ BEGIN
             EffectiveDate,
             RoutingCategoryName,
             Preference,
-            Blocked
+            Blocked,
+            ApprovedStatus
         FROM   tmp_RateTableRate_;
     END IF;
 
@@ -2640,10 +2756,12 @@ BEGIN
             Rate,
             RateN,
             EffectiveDate,
-            CONCAT(updated_at,'\n',ModifiedBy) AS `Modified Date/By`,
+            CONCAT(ModifiedBy,'\n',updated_at) AS `Modified By/Date`,
             RoutingCategoryName,
             Preference,
-            Blocked
+            CONCAT(ApprovedBy,'\n',ApprovedDate) AS `Approved By/Date`,
+            Blocked,
+            ApprovedStatus
         FROM   tmp_RateTableRate_;
     END IF;
 
