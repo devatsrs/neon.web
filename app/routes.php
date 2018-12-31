@@ -1742,11 +1742,11 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('products/getProductsByType', 'ProductApiController@getListByType');
 	Route::post('products/ProductUpdateStock', 'ProductApiController@UpdateStockCalculation');
 	Route::post('getAccountbilling/{AccountID}', 'AccountBillingApiController@getAccountBilling');
-	Route::post('serviceTemplate/create_servicetemplate', 'ServicesTemplateApiController@storeServiceTempalteData');
+	Route::post('serviceTemplate/createServiceTemplate', 'ServicesTemplateApiController@storeServiceTempalteData');
 
 
 	Route::post('checkBalance/', 'AccountsApiController@checkBalance');
-	Route::post('getTransactions/', 'PaymentApiController@getPaymentHistory');
+	Route::post('getPayments/', 'PaymentApiController@getPaymentHistory');
 	Route::post('getAutoDepositSettings/', 'AccountBillingApiController@getAutoDepositSettings');
 	Route::post('setAutoDepositSettings/', 'AccountBillingApiController@setAutoDepositSettings');
 	Route::post('getAutoOutPaymentSettings/', 'AccountBillingApiController@getAutoOutPaymentSettings');
@@ -1755,7 +1755,8 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('getLowBalanceNotification/', 'BillingClassApiController@getLowBalanceNotification');
 	Route::post('requestFund/', 'PaymentApiController@requestFund');
 	Route::post('depositFund/', 'PaymentApiController@depositFund');
-	Route::post('account/create_account', 'AccountsApiController@createAccount');
-	Route::post('account/create_service', 'AccountsApiController@createAccountService');
+	Route::post('account/createAccount', 'AccountsApiController@createAccount');
+	Route::post('account/createService', 'AccountsApiController@createAccountService');
+	Route::post('routing/list', 'RoutingApiController@routingList');
 
 });

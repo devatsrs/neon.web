@@ -125,6 +125,7 @@ class RateGeneratorsController extends \BaseController {
      * @return Response
      */
     public function edit($id) {
+
             if ($id) {
                 $trunks = Trunk::getTrunkDropdownIDList();
                 $companyID = User::get_companyID();
@@ -138,6 +139,9 @@ class RateGeneratorsController extends \BaseController {
                 $rategenerator_rules = RateRule::with('RateRuleMargin', 'RateRuleSource')->where([
                     "RateGeneratorId" => $id
                 ]) ->orderBy("Order", "asc")->get();
+
+                $rategeneratorComponents = RateGeneratorComponent::where('RateGeneratorID',$id )->get();
+
                 $array_op= array();
                 $codedecklist = BaseCodeDeck::getCodedeckIDList();
                 $currencylist = Currency::getCurrencyDropdownIDList();
@@ -148,7 +152,7 @@ class RateGeneratorsController extends \BaseController {
                 $Timezones = Timezones::getTimezonesIDList();
 
                 // Debugbar::info($rategenerator_rules);
-                return View::make('rategenerators.edit', compact('id', 'rategenerators', 'Categories' ,'rategenerator', 'rategenerator_rules','codedecklist', 'trunks','array_op','currencylist','Timezones'));
+                return View::make('rategenerators.edit', compact('id', 'rategenerators', 'Categories', 'rategeneratorComponents' ,'rategenerator', 'rategenerator_rules','codedecklist', 'trunks','array_op','currencylist','Timezones'));
             }
     }
 
@@ -172,6 +176,30 @@ class RateGeneratorsController extends \BaseController {
         $data ['Timezones'] = isset($data ['Timezones']) ? implode(',', $data['Timezones']) : '';
         $data ['DIDCategoryID']= isset($data['Category']) ? $data['Category'] : '';
         $data['VendorPositionPercentage'] = $data['percentageRate'];
+
+        echo '<pre>';
+        print_r($data);
+        echo '</pre>';
+
+
+//        if(isset($data['Component-0']))
+//        {
+//
+//            $data['Component-1'] = $data['Component-0'];
+//            unset($data['Component-0']);
+//        }
+//        if(isset($data['Action-0']))
+//        {
+//            $data['Action-1'] = $data['Action-0'];
+//            unset($data['Action-0']);
+//        }
+//        if(isset($data['MergeTo-0']))
+//        {
+//            $data['MergeTo-1'] = $data['MergeTo-0'];
+//            unset($data['MergeTo-0']);
+//
+//        }
+
         $SelectType = $data['SelectType'];
         if($SelectType == 1) {
             $rules = array(
@@ -226,13 +254,11 @@ class RateGeneratorsController extends \BaseController {
             $getNumberString = $data['getIDs'];
             $numberArray = explode(",", $getNumberString);
             $GetComponent = array();
-            $GetAction = array();
-            $GetMergeTo = array();
             $addComponents = array();
-
             $i = 0;
+            echo 'sizeof($numberArray)' . sizeof($numberArray);
             for ($i; $i < sizeof($numberArray) - 1; $i++) {
-
+                echo $numberArray[$i]."Value";
                 $componts = 'Component-' . $numberArray[$i];
                 $action = 'Action-' . $numberArray[$i];
                 $mergeTo = 'MergeTo-' . $numberArray[$i];
@@ -248,15 +274,16 @@ class RateGeneratorsController extends \BaseController {
                 $addComponents['CurrencyID'] = $data['CurrencyID'];
                 $addComponents['RateGeneratorID'] = $RateGeneratorID;
 
+
                 $addComponents['Component'] = implode(',', $GetComponent);
-                $addComponents['Action'] = implode(',', $GetAction);
-                $addComponents['MergeTo'] = implode(',', $GetMergeTo);
+                $addComponents['Action'] = $GetAction;
+                $addComponents['MergeTo'] = $GetMergeTo;
 
                 $CostComponentSaved = 0;
 
                 if (RateGeneratorComponent::create($addComponents)) {
-
                     $CostComponentSaved = 1;
+
                 }
 
                 unset($data['Component-' . $numberArray[$i]]);
@@ -267,16 +294,21 @@ class RateGeneratorsController extends \BaseController {
 
         }else{
 
-                unset($data['Component-1']);
-                unset($data['Action-1']);
-                unset($data['MergeTo-1']);
-                unset($data['Category']);
+//                unset($data['Component-1']);
+//                unset($data['Action-1']);
+//                unset($data['MergeTo-1']);
+//                unset($data['Category']);
 
         }
         unset($data['getIDs']);
         unset($data['Category']);
         unset($data['percentageRate']);
+
+        $data['SelectedComponents'] = implode(",",$data['AllComponent']);
+
         unset($data['AllComponent']);
+
+
 
         if ($RateGenerator->update($data)) {
 

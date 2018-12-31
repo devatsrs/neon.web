@@ -9,10 +9,10 @@ class RateType extends \Eloquent {
     public  $primaryKey = "RateTypeID"; //Used in BasedController
 
 
-    public static function getRateTypeDropDownList($CompanyID){
+    public static function getRateTypeDropDownList(){
         $row=array();
 
-        $row = RateType::where(array('CompanyID'=>$CompanyID,'Active'=>1))->orderby('RateTypeID','desc')->lists('Title', 'RateTypeID');
+        $row = RateType::where('Active',1)->orderby('RateTypeID','desc')->lists('Title', 'RateTypeID');
 
         return $row;
 
