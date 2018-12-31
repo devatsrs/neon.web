@@ -442,7 +442,6 @@ CREATE TABLE IF NOT EXISTS `tblAccountPaymentAutomation` (
 ALTER TABLE `tblPayment`
 	ADD COLUMN `IsOutPayment` TINYINT(1) NULL DEFAULT '0' AFTER `UsageEndDate`;
 	
-/* Above done on staging */
 
 DROP PROCEDURE IF EXISTS `prc_getTransactionHistory`;
 DELIMITER //
@@ -485,6 +484,7 @@ BEGIN
 END//
 DELIMITER ;
 
+/* Above done on staging */
 
  /* Balance Flow APIs - Stage 2 - SI1-63 */
 
@@ -588,4 +588,10 @@ ALTER TABLE tblVendorCDRFailed
   ADD COLUMN `CollectionAmount` decimal(18,6) DEFAULT NULL,
   ADD COLUMN `CollectionPercent` decimal(18,6) DEFAULT NULL;  
   
+  
+
+INSERT INTO `tblcronjobcommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, NULL, 'ActiveCall Balance Alert', 'activecallbalancealert', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Api URL","type":"text","value":"","name":"APIURL"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2018-12-29 14:07:52', 'RateManagementSystem');
+
+
+INSERT INTO `tblcronjob` (`CompanyID`, `CronJobCommandID`, `Settings`, `Status`, `LastRunTime`, `NextRunTime`, `created_at`, `created_by`, `updated_at`, `updated_by`, `Active`, `JobTitle`, `DownloadActive`, `PID`, `EmailSendTime`, `CdrBehindEmailSendTime`, `CdrBehindDuration`, `ProcessID`, `MysqlPID`) VALUES (1, 536, '{"ThresholdTime":"120","APIURL":"http:\\/\\/172.16.33.70\\/api\\/v1.0\\/neon\\/balanceAlert","SuccessEmail":"","ErrorEmail":"","JobTime":"MONTHLY","JobInterval":"1","JobDay":["DAILY"],"JobStartTime":"2:00:00 AM"}', 1, '2018-12-29 11:02:00', '2019-01-29 02:00:00', '2018-12-31 00:00:00', 'Sumera Khan', '2018-12-31 06:22:06', NULL, 0, 'ActiveCall Balance Alert', 0, '', NULL, NULL, NULL, NULL, NULL);
   
