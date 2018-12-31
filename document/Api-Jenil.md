@@ -288,33 +288,32 @@ Perams:
 
 Request:
 
-        BillingClassID : 1
-        Status :5
-        Email : 180
-        Period
-        Interval
-        StartTime
-        EmailTemplateID
-        Day
-        SendAccountOwner
-        CompanyID
+       AccountID /AccountNo
+       Status
+       Email
+       Period
+       Interval
+       StartTime
+       EmailTemplateID
+       Day
+       SendCopyToAccountOwner
+       BalanceThreshold
 
 Return
 
     Example:
         Request:
 
-        Type: "LowBalanceReminder"
-        BillingClassID : 18
+        AccountID: 6728
         Status :1
-        Email : test1@gmail.com
+        Email : test123@gmail.com
         Period : DAILY
         Interval : 2
         StartTime : 9:00:00 AM
         EmailTemplateID : 2
         Day : ["SUN","MON","TUE","WED","THU","FRI","SAT"]
-        SendAccountOwner : 1
-        CompanyID : 1
+        SendCopyToAccountOwner : 1
+        BalanceThreshold : 10
 
         Response:
 
