@@ -151,7 +151,8 @@ class RateGeneratorsController extends \BaseController {
                     $rategenerator = RateGenerator::find($id);
                 $Timezones = Timezones::getTimezonesIDList();
 
-                $AllTypes =  RateType::getAllTypes();
+               // $AllTypes =  RateType::getAllTypes();
+                $AllTypes = array();
 
                 // Debugbar::info($rategenerator_rules);
                 return View::make('rategenerators.edit', compact('id', 'rategenerators', 'AllTypes' ,'Categories' ,'rategenerator', 'rategenerator_rules','codedecklist', 'trunks','array_op','currencylist','Timezones'));
