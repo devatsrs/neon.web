@@ -22,6 +22,7 @@ class DidCategory extends \Eloquent{
 
         }
 
+
     public static function getCategoryDropdownIDList($CompanyID=0)
     {
         $CompanyID = $CompanyID>0?$CompanyID : User::get_companyID();

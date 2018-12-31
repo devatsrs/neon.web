@@ -139,8 +139,8 @@ class RateGeneratorsController extends \BaseController {
                 $rategenerator_rules = RateRule::with('RateRuleMargin', 'RateRuleSource')->where([
                     "RateGeneratorId" => $id
                 ]) ->orderBy("Order", "asc")->get();
-
-                $rategeneratorComponents = RateGeneratorComponent::where('RateGeneratorID',$id )->get();
+                RateGeneratorComponent::where('RateGeneratorID',$id)->delete();
+//                $rategeneratorComponents = RateGeneratorComponent::where('RateGeneratorID',$id )->get();
 
                 $array_op= array();
                 $codedecklist = BaseCodeDeck::getCodedeckIDList();
@@ -151,8 +151,10 @@ class RateGeneratorsController extends \BaseController {
                     $rategenerator = RateGenerator::find($id);
                 $Timezones = Timezones::getTimezonesIDList();
 
+                $AllTypes =  RateType::getAllTypes();
+
                 // Debugbar::info($rategenerator_rules);
-                return View::make('rategenerators.edit', compact('id', 'rategenerators', 'Categories', 'rategeneratorComponents' ,'rategenerator', 'rategenerator_rules','codedecklist', 'trunks','array_op','currencylist','Timezones'));
+                return View::make('rategenerators.edit', compact('id', 'rategenerators', 'AllTypes' ,'Categories' ,'rategenerator', 'rategenerator_rules','codedecklist', 'trunks','array_op','currencylist','Timezones'));
             }
     }
 
@@ -176,11 +178,7 @@ class RateGeneratorsController extends \BaseController {
         $data ['Timezones'] = isset($data ['Timezones']) ? implode(',', $data['Timezones']) : '';
         $data ['DIDCategoryID']= isset($data['Category']) ? $data['Category'] : '';
         $data['VendorPositionPercentage'] = $data['percentageRate'];
-
-        echo '<pre>';
-        print_r($data);
-        echo '</pre>';
-
+        unset($data['SelectType']);
 
 //        if(isset($data['Component-0']))
 //        {
@@ -199,8 +197,16 @@ class RateGeneratorsController extends \BaseController {
 //            unset($data['MergeTo-0']);
 //
 //        }
+        //$SelectType = RateGenerator::where('RateGeneratorId',$id)->value('SelectType');
 
-        $SelectType = $data['SelectType'];
+        $SelectTypes = RateGenerator::select([
+            "SelectType"
+        ])->where(['RateGeneratorId' => $id ])->get();
+
+        foreach($SelectTypes as $Type){
+            $SelectType = $Type->SelectType;
+        }
+
         if($SelectType == 1) {
             $rules = array(
                 'CompanyID' => 'required',
@@ -212,9 +218,6 @@ class RateGeneratorsController extends \BaseController {
                 'codedeckid' => 'required',
                 'CurrencyID' => 'required',
                 'Policy' => 'required',
-                'Component-1' => 'required',
-                'Action-1' => 'required',
-                'MergeTo-1' => 'required',
                 'percentageRate' => 'required',
 
             );
@@ -226,7 +229,11 @@ class RateGeneratorsController extends \BaseController {
                 'codedeckid' => 'required',
                 'CurrencyID' => 'required',
                 'Policy' => 'required',
+                'percentageRate' => 'required',
                 'Category'=> 'required',
+                'Component-1' => 'required',
+                'Action-1' => 'required',
+                'MergeTo-1' => 'required',
 
             );
         }
@@ -248,21 +255,31 @@ class RateGeneratorsController extends \BaseController {
         }
         $data ['ModifiedBy'] = User::get_user_full_name();
 
-        if($SelectType == 1) { // Select Type for Voice Call
-
+        if($SelectType == 2) { // Select Type for Voice Call
 
             $getNumberString = $data['getIDs'];
             $numberArray = explode(",", $getNumberString);
             $GetComponent = array();
             $addComponents = array();
             $i = 0;
-            echo 'sizeof($numberArray)' . sizeof($numberArray);
+
             for ($i; $i < sizeof($numberArray) - 1; $i++) {
-                echo $numberArray[$i]."Value";
                 $componts = 'Component-' . $numberArray[$i];
                 $action = 'Action-' . $numberArray[$i];
                 $mergeTo = 'MergeTo-' . $numberArray[$i];
 
+
+                $rules = array(
+                    $componts => 'required',
+                    $action   => 'required',
+                    $mergeTo => 'required',
+
+
+                );
+                $validator = Validator::make($data, $rules, $message);
+                if ($validator->fails()) {
+                    return json_validator_response($validator);
+                }
 
                 $GetComponent = $data[$componts];
                 $GetAction = $data[$action];
@@ -291,30 +308,24 @@ class RateGeneratorsController extends \BaseController {
                 unset($data['MergeTo-' . $numberArray[$i]]);
             }
 
-
+            unset($data['getIDs']);
+            unset($data['Category']);
+            $data['SelectedComponents'] = implode(",",$data['AllComponent']);
         }else{
-
-//                unset($data['Component-1']);
-//                unset($data['Action-1']);
-//                unset($data['MergeTo-1']);
-//                unset($data['Category']);
+                unset($data['getIDs']);
+                unset($data['Component-1']);
+                unset($data['Action-1']);
+                unset($data['MergeTo-1']);
+                unset($data['Category']);
 
         }
-        unset($data['getIDs']);
-        unset($data['Category']);
-        unset($data['percentageRate']);
-
-        $data['SelectedComponents'] = implode(",",$data['AllComponent']);
-
         unset($data['AllComponent']);
-
-
 
         if ($RateGenerator->update($data)) {
 
                return Response::json(array(
                     "status" => "success",
-                    "message" => "RateGenerator and RateGenerator Cost component Successfully Updated "
+                    "message" => "RateGenerator and RateGenerator Cost component Successfully Updated"
                 ));
         } else {
             return Response::json(array(
@@ -516,7 +527,6 @@ class RateGeneratorsController extends \BaseController {
         $postdata    =  Input::all();
         if(isset($postdata['main_fields_sort']) && !empty($postdata['main_fields_sort']))
         {
-           // print_R($postdata);exit;
             try
             {
                 DB::beginTransaction();
