@@ -9,7 +9,7 @@ class CreditNotesTaxRate extends \Eloquent {
     protected  $primaryKey = "CreditNotesTaxRateID";
 
     public static function getCreditNotesTaxRateByProductDetail($CreditNotesID){
-        $CreditNotesDetail=CreditNotesDetail::where('CreditNotesID',$CreditNotesID)->select('CreditNotesDetailID','TaxRateID','TaxRateID2','Price')->get();
+        $CreditNotesDetail=CreditNotesDetail::where('CreditNotesID',$CreditNotesID)->select('CreditNotesDetailID','TaxRateID','TaxRateID2','Price','LineTotal')->get();
         $Result = array();
         foreach($CreditNotesDetail as $data) {
             if (!empty($data->TaxRateID)) {
@@ -19,7 +19,7 @@ class CreditNotesTaxRate extends \Eloquent {
                 $TaxRate['Title'] = TaxRate::getTaxName($data->TaxRateID);
                 $TaxRate['created_at'] = date("Y-m-d H:i:s");
                 $TaxRate['CreditNotesID'] = $CreditNotesID;
-                $TaxRate['TaxAmount'] = TaxRate::calculateProductTaxAmount($data->TaxRateID, $data->Price);
+                $TaxRate['TaxAmount'] = TaxRate::calculateProductTaxAmount($data->TaxRateID, $data->LineTotal);
                 $Result[] = $TaxRate;
             }
             if (!empty($data->TaxRateID2)) {
@@ -29,7 +29,7 @@ class CreditNotesTaxRate extends \Eloquent {
                 $TaxRate['Title'] = TaxRate::getTaxName($data->TaxRateID2);
                 $TaxRate['created_at'] = date("Y-m-d H:i:s");
                 $TaxRate['CreditNotesID'] = $CreditNotesID;
-                $TaxRate['TaxAmount'] = TaxRate::calculateProductTaxAmount($data->TaxRateID2, $data->Price);
+                $TaxRate['TaxAmount'] = TaxRate::calculateProductTaxAmount($data->TaxRateID2, $data->LineTotal);
                 $Result[] = $TaxRate;
             }
         }
