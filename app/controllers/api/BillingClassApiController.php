@@ -29,30 +29,49 @@ class BillingClassApiController extends ApiController {
 	 * @Param mixed
 	 *BillingClassID,Status,Email,Period,Interval,StartTime,EmailTemplateID,Day,SendAccountOwner,CompanyID
 	 * @Response
-	 * Update or Create Success
+	 * Update Success
 	 */
 	public function setLowBalanceNotification(){
 		$data=Input::all();
 		$PostData=array();
+		$AccountID=0;
+		$CompanyID=0;
 
-		$PostData['LowBalanceReminderStatus']=isset($data['Status'])?$data['Status']:0;
-		$PostData['LowBalanceReminderSettings']['ReminderEmail']=isset($data['Email'])?$data['Email']:'';
-		$PostData['LowBalanceReminderSettings']['Time']=isset($data['Period'])?$data['Period']:'';
-		$PostData['LowBalanceReminderSettings']['Interval']=isset($data['Interval'])?$data['Interval']:'';
-		$PostData['LowBalanceReminderSettings']['StartTime']=isset($data['StartTime'])?$data['StartTime']:'';
-		$PostData['LowBalanceReminderSettings']['TemplateID']=isset($data['EmailTemplateID'])?$data['EmailTemplateID']:'';
+		if(!empty($data['AccountID'])) {
+			$AccountID = $data['AccountID'];
+			$Account = Account::where(["AccountID" => $data['AccountID']])->select('AccountID','CompanyId')->first();
 
-		if(!empty($data['SendAccountOwner'])){
-			$PostData['LowBalanceReminderSettings']['AccountManager']=$data['SendAccountOwner'];
+			if(!empty($Account)){
+				$AccountID=$Account->AccountID;
+				$CompanyID=$Account->CompanyId;
+			}
+		}else if(!empty($data['AccountNo'])){
+			$Account = Account::where(["Number" => $data['AccountNo']])->select('AccountID','CompanyId')->first();
+			if(!empty($Account)){
+				$AccountID=$Account->AccountID;
+				$CompanyID=$Account->CompanyId;
+			}
+		}else{
+			return Response::json(["status"=>"failed", "message"=>"AccountID OR AccountNo Required"]);
 		}
-		$PostData['LowBalanceReminderSettings']['Day']=isset($data['Day'])?$data['Day']:["Mon"];
 
-		try {
-			if (!empty($data['BillingClassID'])) {
-				//Update
-				$BillingClass = BillingClass::find($data['BillingClassID']);
+		if(!empty($AccountID) && !empty($CompanyID)){
+			try {
+				$PostData['LowBalanceReminderStatus'] = isset($data['Status']) ? $data['Status'] : 0;
+				$PostData['LowBalanceReminderSettings']['ReminderEmail'] = isset($data['Email']) ? $data['Email'] : '';
+				$PostData['LowBalanceReminderSettings']['Time'] = isset($data['Period']) ? $data['Period'] : '';
+				$PostData['LowBalanceReminderSettings']['Interval'] = isset($data['Interval']) ? $data['Interval'] : '';
+				$PostData['LowBalanceReminderSettings']['StartTime'] = isset($data['StartTime']) ? $data['StartTime'] : '';
+				$PostData['LowBalanceReminderSettings']['TemplateID'] = isset($data['EmailTemplateID']) ? $data['EmailTemplateID'] : '';
 
-				if(!empty($BillingClass)){
+				if (!empty($data['SendCopyToAccountOwner'])) {
+					$PostData['LowBalanceReminderSettings']['AccountManager'] = $data['SendCopyToAccountOwner'];
+				}
+				$PostData['LowBalanceReminderSettings']['Day'] = isset($data['Day']) ? $data['Day'] : ["Mon"];
+
+				$BillingClassID=AccountBilling::getBillingClassID($AccountID);
+				$BillingClass = BillingClass::find($BillingClassID);
+				if (!empty($BillingClass)) {
 					$LowBalanceReminderSettings = json_decode($BillingClass->LowBalanceReminderSettings);
 					if (isset($LowBalanceReminderSettings->LastRunTime)) {
 						$PostData['LowBalanceReminderSettings']['LastRunTime'] = $LowBalanceReminderSettings->LastRunTime;
@@ -65,37 +84,21 @@ class BillingClassApiController extends ApiController {
 					$PostData['UpdatedBy'] = 'API';
 
 					$BillingClass->update($PostData);
+					if(!empty($data['BalanceThreshold'])){
+						$AccountBalance = AccountBalance::where('AccountID', $AccountID)->update(['BalanceThreshold'=>$data['BalanceThreshold']]);
+					}
 					return Response::json(["status"=>"success", "message"=>"Updated Successfully."]);
 				}else{
-					return Response::json(["status"=>"failed", "message"=>"Billing Class Not Found."]);
+					return Response::json(["status"=>"failed", "message"=>"Billing Class Not Set For This Account."]);
 				}
 
-			} else {
-				// Create
-				$rules = array(
-					'CompanyID' => 'required',
-				);
-
-				$verifier = App::make('validation.presence');
-				$verifier->setConnection('sqlsrv');
-
-				$validator = Validator::make($data, $rules);
-				$validator->setPresenceVerifier($verifier);
-
-				if ($validator->fails()) {
-					return json_validator_response($validator);
-				}
-
-				$PostData['CompanyID'] = $data['CompanyID'];
-				$PostData['LowBalanceReminderSettings'] = json_encode($PostData['LowBalanceReminderSettings']);
-				$PostData['CreatedBy'] = 'API';
-
-				$BillingClass = BillingClass::create($PostData);
-				return Response::json(["status"=>"success", "message"=>"Inserted Successfully."]);
+			}catch (\Exception $e) {
+				Log::info($e);
+				return Response::json(["status"=>"failed", "message"=>"Something Went Wrong. Exception Generated."]);
 			}
-		}catch (\Exception $e) {
-			Log::info($e);
-			return Response::json(["status"=>"failed", "message"=>"Something Went Wrong. Exception Generated."]);
+
+		}else{
+			return Response::json(["status"=>"failed", "message"=>"Account or Company Not Found."]);
 		}
 
 	}

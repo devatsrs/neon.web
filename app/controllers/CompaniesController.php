@@ -36,6 +36,7 @@ class CompaniesController extends \BaseController {
 
         $UseInBilling = CompanySetting::getKeyVal('UseInBilling');
         $invoicePdfSend = CompanySetting::getKeyVal('invoicePdfSend');
+        $RateApprovalProcess = CompanySetting::getKeyVal('RateApprovalProcess');
         $AccountVerification = CompanySetting::getKeyVal('AccountVerification');
         $DefaultDashboard = CompanySetting::getKeyVal('DefaultDashboard') == 'Invalid Key' ? '' : CompanySetting::getKeyVal('DefaultDashboard');
         //$PincodeWidget = CompanySetting::getKeyVal('PincodeWidget') == 'Invalid Key' ? '' : CompanySetting::getKeyVal('PincodeWidget');
@@ -65,7 +66,7 @@ class CompaniesController extends \BaseController {
             $DigitalSignature=json_decode($DigitalSignature, true);
         }
 
-        return View::make('companies.edit')->with(compact('company', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile','AccountVerification','SSH','COMPANY_SSH_VISIBLE', 'DigitalSignature', 'UseDigitalSignature', 'invoicePdfSend'));
+        return View::make('companies.edit')->with(compact('company', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile','AccountVerification','SSH','COMPANY_SSH_VISIBLE', 'DigitalSignature', 'UseDigitalSignature', 'invoicePdfSend', 'RateApprovalProcess'));
 
     }
 
@@ -83,6 +84,7 @@ class CompaniesController extends \BaseController {
         $company = Company::find($companyID);
         $data['UseInBilling'] = isset($data['UseInBilling']) ? 1 : 0;
         $data['invoicePdfSend'] = isset($data['invoicePdfSend']) ? 1 : 0;
+        $data['RateApprovalProcess'] = isset($data['RateApprovalProcess']) ? 1 : 0;
         $data['AccountVerification'] = isset($data['AccountVerification']) ? CompanySetting::ACCOUT_VARIFICATION_ON : CompanySetting::ACCOUT_VARIFICATION_OFF;
         //$data['PincodeWidget'] = isset($data['PincodeWidget']) ? 1 : 0;
         $data['updated_by'] = User::get_user_full_name();
@@ -163,6 +165,8 @@ class CompaniesController extends \BaseController {
         unset($data['UseInBilling']);
         CompanySetting::setKeyVal('invoicePdfSend',$data['invoicePdfSend']);
         unset($data['invoicePdfSend']);
+        CompanySetting::setKeyVal('RateApprovalProcess',$data['RateApprovalProcess']);
+        unset($data['RateApprovalProcess']);
         CompanySetting::setKeyVal('AccountVerification',$data['AccountVerification']);
         unset($data['AccountVerification']);
 
