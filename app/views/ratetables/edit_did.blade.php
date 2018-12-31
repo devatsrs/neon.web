@@ -112,7 +112,9 @@
                     <li><a href="javascript:void(0)" id="clear-bulk-rate"><i class="entypo-trash"></i><span>Delete Selected</span></a></li>
                 @endif
                 @if(User::checkCategoryPermission('RateTables','ApprovalProcess') )
-                    <li><a href="javascript:void(0)" id="approve-bulk-rate"><i class="entypo-check"></i><span>Approve Selected</span></a></li>
+                    @if($RateApprovalProcess == 1)
+                        <li><a href="javascript:void(0)" id="approve-bulk-rate"><i class="entypo-check"></i><span>Approve Selected</span></a></li>
+                    @endif
                 @endif
             </ul>
         </div><!-- /btn-group -->
