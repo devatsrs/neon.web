@@ -286,6 +286,12 @@
                                             <input id="invoicePdfSend" name="invoicePdfSend" type="checkbox" value="1" @if($invoicePdfSend == 1) checked="checked" @endif>
                                         </p>
                                     </div>
+                                    <label class="col-sm-2 control-label">Rate Approval Process</label>
+                                    <div class="col-sm-4">
+                                        <p class="make-switch switch-small">
+                                            <input id="RateApprovalProcess" name="RateApprovalProcess" type="checkbox" value="1" @if($RateApprovalProcess == 1) checked="checked" @endif>
+                                        </p>
+                                    </div>
                                 </div>
                                 {{--<div class="form-group">
                                     <label for="field-1" class="col-sm-2 control-label">RateSheet excel Note</label>
