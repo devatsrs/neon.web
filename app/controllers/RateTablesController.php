@@ -48,9 +48,10 @@ class RateTablesController extends \BaseController {
         $data['ApprovedStatus']         = isset($data['ApprovedStatus']) && $data['ApprovedStatus'] != '' ? "'".$data['ApprovedStatus']."'" : 'null';
 
         $view = isset($data['view']) && $data['view'] == 2 ? $data['view'] : 1;
+        $TypeVoiceCall = RateType::getRateTypeIDBySlug('voicecall');
 
         $rateTable = RateTable::find($id);
-        if($rateTable->Type == RateTable::TYPE_VOICECALL) {
+        if($rateTable->Type == $TypeVoiceCall) {
             $columns = array('RateTableRateID','OriginationCode','OriginationDescription','Code','Description','Interval1','IntervalN','ConnectionFee','PreviousRate','Rate','RateN','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableRateID','OriginationRateID','RateID','RoutingCategoryID','RoutingCategoryName','Preference','Blocked','ApprovedStatus','ApprovedBy','ApprovedDate');
             $sort_column = $columns[$data['iSortCol_0']];
 
@@ -109,7 +110,8 @@ class RateTablesController extends \BaseController {
             $RateGenerators = array(""=>"Select rate generator")+$RateGenerators;
             $currencylist = Currency::getCurrencyDropdownIDList();
             $DIDCategory = DIDCategory::getCategoryDropdownIDList($companyID);
-            return View::make('ratetables.index', compact('trunks','RateGenerators','codedecks','trunk_keys','currencylist','DIDCategory'));
+            $RateTypes   = RateType::getRateTypeDropDownList();
+            return View::make('ratetables.index', compact('trunks','RateGenerators','codedecks','trunk_keys','currencylist','DIDCategory','RateTypes'));
     }
 
 
@@ -185,11 +187,13 @@ class RateTablesController extends \BaseController {
         $Timezones = Timezones::getTimezonesIDList();
         $RoutingCategories = RoutingCategory::getCategoryDropdownIDList($CompanyID);
         $RateApprovalProcess = CompanySetting::getKeyVal('RateApprovalProcess');
+        $TypeVoiceCall = RateType::getRateTypeIDBySlug('voicecall');
+        $TypeDID = RateType::getRateTypeIDBySlug('did');
 
-        if($rateTable->Type == RateTable::TYPE_VOICECALL) {
-            return View::make('ratetables.edit', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RoutingCategories','RateApprovalProcess'));
+        if($rateTable->Type == $TypeVoiceCall) {
+            return View::make('ratetables.edit', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RoutingCategories','RateApprovalProcess','TypeVoiceCall','TypeDID'));
         } else {
-            return View::make('ratetables.edit_did', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RateApprovalProcess'));
+            return View::make('ratetables.edit_did', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RateApprovalProcess','TypeVoiceCall','TypeDID'));
         }
     }
 
@@ -601,7 +605,9 @@ class RateTablesController extends \BaseController {
         $data['isExport']               = '1'.$data['ratetablepageview'];
 
         $rateTable = RateTable::find($id);
-        if($rateTable->Type == RateTable::TYPE_VOICECALL) {
+        $TypeVoiceCall = RateType::getRateTypeIDBySlug('voicecall');
+
+        if($rateTable->Type == $TypeVoiceCall) {
             if(!empty($data['DiscontinuedRates'])) {
                 $query = " call prc_getDiscontinuedRateTableRateGrid (".$companyID.",".$id.",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['RoutingCategoryID'].",".$data['Preference'].",".$data['Blocked'].",".$data['ApprovedStatus'].",".$view.",null,null,null,null,".$data['isExport'].")";
             } else {
@@ -641,7 +647,8 @@ class RateTablesController extends \BaseController {
         $rateTable = RateTable::find($id);
 
         $data['RateTableId'] = $id;
-        if($rateTable->Type == RateTable::TYPE_VOICECALL) {
+        $TypeVoiceCall = RateType::getRateTypeIDBySlug('voicecall');
+        if($rateTable->Type == $TypeVoiceCall) {
             $rules = RateTableRate::$rules;
             $col_id = 'RateTableRateId';
             $table = 'tblRateTableRate';
@@ -667,8 +674,9 @@ class RateTablesController extends \BaseController {
         $RateTableRate['EffectiveDate']     = $data['EffectiveDate'];
         $RateTableRate['EndDate']           = !empty($data['EndDate']) ? $data['EndDate'] : null;
         $RateTableRate['TimezonesID']       = $data['TimezonesID'];
+        $TypeVoiceCall = RateType::getRateTypeIDBySlug('voicecall');
 
-        if($rateTable->Type == RateTable::TYPE_VOICECALL) {
+        if($rateTable->Type == $TypeVoiceCall) {
             $RateTableRate['Rate']              = $data['Rate'];
             $RateTableRate['RateN']             = !empty($data['RateN']) ? $data['RateN'] : $data['Rate'];
             $RateTableRate['Interval1']         = $data['Interval1'];
@@ -927,7 +935,8 @@ class RateTablesController extends \BaseController {
             $TimezonesID        = $data['TimezonesID'];
 
             $rateTable = RateTable::find($RateTableID);
-            if($rateTable->Type == RateTable::TYPE_VOICECALL) {
+            $TypeVoiceCall = RateType::getRateTypeIDBySlug('voicecall');
+            if($rateTable->Type == $TypeVoiceCall) {
                 $query = 'call prc_GetRateTableRatesArchiveGrid (' . $companyID . ',' . $RateTableID . ',' . $TimezonesID . ',"' . $RateID . '","' . $OriginationRateID . '",' . $view . ')';
             } else {
                 $query = 'call prc_GetRateTableDIDRatesArchiveGrid (' . $companyID . ',' . $RateTableID . ',' . $TimezonesID . ',"' . $RateID . '","' . $OriginationRateID . '",' . $view . ')';

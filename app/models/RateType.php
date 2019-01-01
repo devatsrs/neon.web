@@ -11,16 +11,12 @@ class RateType extends \Eloquent {
 
     public static function getRateTypeDropDownList(){
         $row=array();
-
         $row = RateType::where('Active',1)->orderby('RateTypeID','desc')->lists('Title', 'RateTypeID');
-
         return $row;
-
     }
 
     public static function getRateTypeIDBySlug($Slug){
         return RateType::where(['Slug'=>$Slug,'Active'=>1])->pluck('RateTypeID');
     }
-
 
 }
