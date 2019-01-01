@@ -2530,7 +2530,7 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" id="btn-change-selected-columns"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                    <button type="button" id="btn-change-selected-columns"  class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i>
                         Save
                     </button>
