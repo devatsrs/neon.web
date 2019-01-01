@@ -128,7 +128,7 @@
                         <div id="percentageRate">
                             <label class="col-sm-1 control-label">Percentage </label>
                             <div class="col-sm-2">
-                                <input type="text" class="form-control" rows="1" id="percentageRate" name="percentageRate" value="{{$rategenerators->percentageRate}}"/>
+                                <input type="text" class="form-control popover-primary" rows="1" id="percentageRate" name="percentageRate" value="{{$rategenerators->percentageRate}}" data-trigger="hover" data-toggle="popover" data-placement="top" data-content="Use vendor position mention in Rate Position unless vendor selected position is more then N% more costly than the previous vendor" data-original-title="Percentage" />
                             </div>
                         </div>
 
@@ -1043,7 +1043,7 @@
 
         }else{
 
-            toastr.error("you can delete at least one row", "Error", toastr_opts);
+            toastr.error("you cannot delete at least one row", "Error", toastr_opts);
         }
     }
 

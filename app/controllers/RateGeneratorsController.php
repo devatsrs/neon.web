@@ -218,7 +218,6 @@ class RateGeneratorsController extends \BaseController {
                 'codedeckid' => 'required',
                 'CurrencyID' => 'required',
                 'Policy' => 'required',
-                'percentageRate' => 'required',
 
             );
         }elseif($SelectType == 2) {
@@ -229,7 +228,6 @@ class RateGeneratorsController extends \BaseController {
                 'codedeckid' => 'required',
                 'CurrencyID' => 'required',
                 'Policy' => 'required',
-                'percentageRate' => 'required',
                 'Category'=> 'required',
                 'Component-1' => 'required',
                 'Action-1' => 'required',
