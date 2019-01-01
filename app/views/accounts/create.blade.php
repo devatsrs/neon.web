@@ -236,6 +236,32 @@
                     </div>
                 </div>
             </div>
+             
+                 <div class="panel panel-primary" data-collapsed="0">
+            <div class="panel-heading">
+                <div class="panel-title">
+                    Routing
+                </div>
+
+                <div class="panel-options">
+                    <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                </div>
+            </div>
+
+            <div class="panel-body">
+                <div class="form-group">
+                    <label class="col-md-2 control-label">Routing Profile</label>
+                    <div class="col-md-4">
+                        {{Form::select('routingprofile', [null=>'Please Select'] + $routingprofile, (isset($RoutingProfileToCustomer->RoutingProfileID)?$RoutingProfileToCustomer->RoutingProfileID:'' ) ,array("class"=>"select2 small form-control1"));}}
+                    </div>
+                    
+
+                </div>
+                
+                
+            </div>
+        </div>
+                 
             <div class="panel panel-primary" data-collapsed="0">
                             <div class="panel-heading">
                                 <div class="panel-title">

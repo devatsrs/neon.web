@@ -10,12 +10,12 @@ class RateTable extends \Eloquent
     protected static $rate_table_cache = array();
     public static $enable_cache = false;
 
-    const TYPE_VOICECALL = 1;
-    const TYPE_DID = 2;
+    //const TYPE_VOICECALL = 1;
+    //const TYPE_DID = 2;
     const APPLIED_TO_CUSTOMER = 1;
     const APPLIED_TO_VENDOR = 2;
     const APPLIED_TO_RESELLER = 3;
-    public static $types = array( self::TYPE_VOICECALL => 'Voice Call',self::TYPE_DID=>'DID');
+    //public static $types = array( self::TYPE_VOICECALL => 'Voice Call',self::TYPE_DID=>'DID');
     public static $AppliedTo = array( self::APPLIED_TO_CUSTOMER => 'Customer',self::APPLIED_TO_VENDOR=>'Vendor',self::APPLIED_TO_RESELLER=>'Reseller');
 
     /*
