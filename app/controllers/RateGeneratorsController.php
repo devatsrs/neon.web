@@ -46,7 +46,9 @@ class RateGeneratorsController extends \BaseController {
             $codedecklist = BaseCodeDeck::getCodedeckIDList();
             $currencylist = Currency::getCurrencyDropdownIDList();
             $Timezones = Timezones::getTimezonesIDList();
-            return View::make('rategenerators.create', compact('trunks','codedecklist','currencylist','trunk_keys','Timezones'));
+            $AllTypes =  RateType::getRateTypeDropDownList();
+
+        return View::make('rategenerators.create', compact('trunks','AllTypes','codedecklist','currencylist','trunk_keys','Timezones'));
     }
 
     public function store() {
@@ -218,7 +220,6 @@ class RateGeneratorsController extends \BaseController {
                 'codedeckid' => 'required',
                 'CurrencyID' => 'required',
                 'Policy' => 'required',
-                'percentageRate' => 'required',
 
             );
         }elseif($SelectType == 2) {
@@ -229,7 +230,6 @@ class RateGeneratorsController extends \BaseController {
                 'codedeckid' => 'required',
                 'CurrencyID' => 'required',
                 'Policy' => 'required',
-                'percentageRate' => 'required',
                 'Category'=> 'required',
                 'Component-1' => 'required',
                 'Action-1' => 'required',

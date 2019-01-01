@@ -31,7 +31,7 @@
     <div class="row">
         <div class="col-md-12">
             <ul class="nav nav-tabs bordered" >
-                <li class="active"><a data-toggle="tab" href="#tab-code_description">Destination</a></li>
+                <li class="active"><a data-toggle="tab" href="#tab-code_description">Call Codes</a></li>
                 <li><a data-toggle="tab" href="#tab-source">Sources</a></li>
                 <li><a data-toggle="tab" href="#tab-margin">Margin</a></li>
             </ul>
