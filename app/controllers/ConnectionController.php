@@ -48,7 +48,8 @@ class ConnectionController extends \BaseController {
         $columns = array('VendorConnectionID','Name','RateTypeTitle','IP','Active','TrunkName','CategoryName','created_at','DIDCategoryID','RateTableID','TrunkID','CLIRule','CLDRule','CallPrefix','Port','Username','PrefixCDR','SipHeader','AuthenticationMode','RateTypeID');
 
         $sort_column = $columns[$data['iSortCol_0']];
-        $companyID = User::get_companyID();
+        //$companyID = User::get_companyID();
+        $companyID = Account::where('AccountID',$id)->pluck('CompanyId');
 
         $query = "call prc_getVendorConnection (" . $companyID . "," . $id . "," . $data['TrunkID'] . ",'" . $data['IP'] . "'," . $data['RateTypeID'] . ",".$data['DIDCategoryID'].",'" . $data['Name'] . "',".$data['Active']."," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "'";
 
@@ -184,6 +185,7 @@ class ConnectionController extends \BaseController {
             unset($data['VendorConnectionID']);
 
             $DIDType=RateType::getRateTypeIDBySlug('did');
+            $VoiceCallType=RateType::getRateTypeIDBySlug('voicecall');
 
             $rules = array(
                 'Name' => 'required',
@@ -193,6 +195,8 @@ class ConnectionController extends \BaseController {
             if($VendorConnection->RateTypeID==$DIDType){
                 $data=$Input['did'];
                 $rules['RateTableID']='required';
+            }else if($VendorConnection->RateTypeID==$VoiceCallType){
+                $data=$Input['voice'];
             }
 
             $data['CompanyID'] = $companyID;
