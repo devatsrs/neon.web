@@ -14,7 +14,7 @@ class RateUploadController extends \BaseController {
         }
 
         if($RateUploadType == '') { //default upload type
-            $RateUploadType = RateUpload::vendor;
+            $RateUploadType = RateUpload::ratetable;
         }
 
         $Vendors            = Account::getOnlyVendorIDList();

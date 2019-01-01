@@ -53,7 +53,7 @@
 
                 @if($RateApprovalProcess == 1)
                     <div class="form-group">
-                        <label class="control-label">Approved Status</label>
+                        <label class="control-label">Status</label>
                         <select name="ApprovedStatus" class="select2" data-allow-clear="true" data-placeholder="Select Status">
                             <option value="" selected="selected">All</option>
                             <option value="1">Approved</option>
@@ -111,13 +111,17 @@
                 @if(User::checkCategoryPermission('RateTables','Delete') )
                     <li><a href="javascript:void(0)" id="clear-bulk-rate"><i class="entypo-trash"></i><span>Delete Selected</span></a></li>
                 @endif
+                @if(User::checkCategoryPermission('RateTables','ApprovalProcess') )
+                    @if($RateApprovalProcess == 1)
+                        <li><a href="javascript:void(0)" id="approve-bulk-rate"><i class="entypo-check"></i><span>Approve Selected</span></a></li>
+                    @endif
+                @endif
             </ul>
         </div><!-- /btn-group -->
 
         {{--@if(User::checkCategoryPermission('VendorRates','History'))--}}
-        <button class="btn btn-primary btn-sm btn-icon icon-left pull-right" onclick="location.href='{{ URL::to('/rate_upload/'.$id.'/'.RateUpload::ratetable) }}'">
-            <i class="fa fa-upload"></i>
-            Upload Rates
+        <button class="btn btn-primary pull-right" onclick="location.href='{{ URL::to('/rate_upload/'.$id.'/'.RateUpload::ratetable) }}'">
+            <i class="fa fa-upload"></i> Upload Rates
         </button>
         {{--@endif--}}
     </div>
@@ -382,6 +386,59 @@
             return false;
         });
 
+        //Bulk Approve Button
+        $(document).off('click.approve-bulk-rate','#approve-bulk-rate');
+        $(document).on('click.approve-bulk-rate','#approve-bulk-rate',function(ev) {
+            var $this = $(this);
+            if(!$this.hasClass('processing')) {
+                var RateTableRateIDs = [];
+                var TimezonesID = $searchFilter.Timezones;
+                var i = 0;
+                $('#table-4 tr .rowcheckbox:checked').each(function (i, el) {
+                    RateTableRateID = $(this).val();
+                    RateTableRateIDs[i] = RateTableRateID;
+                    i++;
+                });
+
+                var formdata = new FormData();
+                formdata.append('TimezonesID', TimezonesID);
+                var criteria = '';
+                if ($('#selectallbutton').is(':checked')) {
+                    criteria = JSON.stringify($searchFilter);
+                    formdata.append('RateTableRateID', '');
+                    formdata.append('criteria', criteria);
+                } else {
+                    formdata.append('RateTableRateID', RateTableRateIDs.join(","));
+                    formdata.append('criteria', '');
+                }
+
+                if (RateTableRateIDs.length) {
+                    $this.text('Processing...').addClass('processing');
+                    $.ajax({
+                        url: baseurl + '/rate_tables/{{$id}}/approve_rate_table_did_rate', //Server script to process data
+                        type: 'POST',
+                        dataType: 'json',
+                        success: function(response) {
+                            $this.html('<i class="entypo-check"></i><span>Approve Selected</span>').removeClass('processing');
+                            if (response.status == 'success') {
+                                toastr.success(response.message, "Success", toastr_opts);
+                                rateDataTable();
+                            } else {
+                                toastr.error(response.message, "Error", toastr_opts);
+                            }
+                        },
+                        // Form data
+                        data: formdata,
+                        //Options to tell jQuery not to process data or worry about content-type.
+                        cache: false,
+                        contentType: false,
+                        processData: false
+                    });
+                }
+            }
+            return false;
+        });
+
         // Replace Checboxes
         $(".pagination a").click(function(ev) {
             replaceCheckboxes();
@@ -639,19 +696,19 @@
                                     clerRate_ = clerRate_.replace('{id}', id);
                                     @if($RateApprovalProcess == 1)
                                     if (full[25] == 1) {
-                                        action += ' <a href="Javascript:;"  title="Approved" class="btn btn-default btn-xs"><i class="entypo-check" style="color: green; "></i>&nbsp;</a>';
+                                        action += ' <button href="Javascript:;"  title="Approved" class="btn btn-default btn-xs"><i class="entypo-check" style="color: green; "></i>&nbsp;</button>';
                                     } else if (full[25] == 0) {
-                                        action += ' <a href="Javascript:;"  title="Awaiting Approval" class="btn btn-default btn-xs"><i class="entypo-cancel" style="color: red; "></i>&nbsp;</a>';
+                                        action += ' <button href="Javascript:;"  title="Awaiting Approval" class="btn btn-default btn-xs"><i class="entypo-cancel" style="color: red; "></i>&nbsp;</button>';
                                     }
                                     @endif
 
                                     <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
                                     if (DiscontinuedRates == 0) {
-                                        action += ' <a href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</a>';
+                                        action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
                                     }
                                     <?php } ?>
 
-                                            action += ' <a href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</a>';
+                                            action += ' <button href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</button>';
 
                                     if (id != null && id != 0) {
                                         <?php if(User::checkCategoryPermission('RateTables', 'Delete')) { ?>
@@ -665,9 +722,9 @@
 
                                     @if($RateApprovalProcess == 1)
                                     if (full[25] == 1) {
-                                        action += ' <a href="Javascript:;"  title="Approved" class="btn btn-default btn-xs"><i class="entypo-check" style="color: green; "></i>&nbsp;</a>';
+                                        action += ' <button href="Javascript:;"  title="Approved" class="btn btn-default btn-xs"><i class="entypo-check" style="color: green; "></i>&nbsp;</button>';
                                     } else if (full[25] == 0) {
-                                        action += ' <a href="Javascript:;"  title="Awaiting Approval" class="btn btn-default btn-xs"><i class="entypo-cancel" style="color: red; "></i>&nbsp;</a>';
+                                        action += ' <button href="Javascript:;"  title="Awaiting Approval" class="btn btn-default btn-xs"><i class="entypo-cancel" style="color: red; "></i>&nbsp;</button>';
                                     }
                                     @endif
                                 }
@@ -761,7 +818,7 @@
                 $(".edit-rate-table.btn").off('click');
                 $(".edit-rate-table.btn").click(function(ev) {
                     ev.stopPropagation();
-                    var cur_obj = $(this).prev("div.hiddenRowData");
+                    var cur_obj = $(this).prevAll("div.hiddenRowData");
                     for(var i = 0 ; i< list_fields.length; i++){
                         $("#edit-rate-table-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                     }
