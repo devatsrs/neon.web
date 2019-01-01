@@ -47,15 +47,20 @@
         $("body").on('click', '.filter-close', function(ev)
         {
             ev.preventDefault();
-
+			$('.page-container').removeClass('hidden-body');
             hideFilter();
-        });
+        });				
 
         $("body").on('click', '.filter-open', function(ev)
         {
             ev.preventDefault();
 
             showFilter();
+        });
+		
+		$("body").on('click', '#filter-button-toggle', function(ev)
+        {
+             $('.page-container').addClass('hidden-body');
         });
         $(".top_filter").click(function(ev)
         {
