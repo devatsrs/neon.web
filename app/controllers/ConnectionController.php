@@ -6,12 +6,13 @@ class ConnectionController extends \BaseController {
 
     public function index($id)
     {
-        $companyID = User::get_companyID();
+        //$companyID = User::get_companyID();
+        $companyID = Account::where('AccountID',$id)->pluck('CompanyId');
         $trunks = Trunk::getTrunkDropdownIDList($companyID);
         /*if(count($trunks) == 0){
             return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
         }*/
-        //$Type=[''=>'Select']+VendorConnection::$Type_array;
+
         $Type=[''=>'Select']+RateType::getRateTypeDropDownList();
         $DIDCategories=DIDCategory::getCategoryDropdownIDList($companyID);
         $CurrencyID=Account::getCurrencyIDByAccount($id);
@@ -358,26 +359,27 @@ class ConnectionController extends \BaseController {
         if($AccountID >0){
 
             $data = Input::all();
-            $CompanyID = User::get_companyID();
-            $CurrencyID=Account::getCurrencyIDByAccount($AccountID);
+            //$CompanyID = User::get_companyID();
+            $CompanyID = Account::where('AccountID',$AccountID)->pluck('CompanyId');
+            $CurrencyID = Account::getCurrencyIDByAccount($AccountID);
 
-           if(isset($data['categoryID'])){
-               //Type DID
+            $DIDType=RateType::getRateTypeIDBySlug('did');
+            $VoiceCallType=RateType::getRateTypeIDBySlug('voicecall');
 
-               if($data['categoryID'] > 0){
-                   $Result = RateTable::where(array('CompanyID'=>$CompanyID,'Type'=>RateTable::TYPE_DID,'AppliedTo'=>RateTable::APPLIED_TO_VENDOR,'CurrencyID'=>$CurrencyID,'DIDCategoryID'=>$data['categoryID']))->lists('RateTableName', 'RateTableId');
-               }else{
-                   $Result = RateTable::where(array('CompanyID'=>$CompanyID,'Type'=>RateTable::TYPE_DID,'AppliedTo'=>RateTable::APPLIED_TO_VENDOR,'CurrencyID'=>$CurrencyID))->lists('RateTableName', 'RateTableId');
-               }
+            $Result = RateTable::where(array('CompanyId'=>$CompanyID,'AppliedTo'=>RateTable::APPLIED_TO_VENDOR,'CurrencyID'=>$CurrencyID));
+            if(isset($data['categoryID'])){
+                $Result->where('Type',$DIDType);
+                if($data['categoryID'] > 0){
+                    $Result->where('DIDCategoryID',$data['categoryID']);
+                }
 
-           }else if(isset($data['TrunkID'])){
-               //Type VoiceCall
-               if($data['TrunkID'] > 0){
-                   $Result = RateTable::where(array('CompanyID'=>$CompanyID,'Type'=>RateTable::TYPE_VOICECALL,'AppliedTo'=>RateTable::APPLIED_TO_VENDOR,'CurrencyID'=>$CurrencyID,'TrunkID'=>$data['TrunkID']))->lists('RateTableName', 'RateTableId');
-               }else{
-                   $Result = RateTable::where(array('CompanyID'=>$CompanyID,'Type'=>RateTable::TYPE_VOICECALL,'AppliedTo'=>RateTable::APPLIED_TO_VENDOR,'CurrencyID'=>$CurrencyID))->lists('RateTableName', 'RateTableId');
-               }
-           }
+            }else if(isset($data['TrunkID'])){
+                $Result->where('Type',$VoiceCallType);
+                if($data['TrunkID'] > 0){
+                    $Result->where('TrunkID',$data['TrunkID']);
+                }
+            }
+            $Result=$Result->lists('RateTableName', 'RateTableId');
 
         }
         //print_r($Result);
