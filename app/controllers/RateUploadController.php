@@ -26,8 +26,9 @@ class RateUploadController extends \BaseController {
         $Timezones          = Timezones::getTimezonesIDList(1);//no default timezones, only user defined timezones
         $AllTimezones       = Timezones::getTimezonesIDList();//all timezones
         $RoutingCategory    = RoutingCategory::getCategoryDropdownIDList();//all timezones
+        $TypeVoiceCall      = RateType::getRateTypeIDBySlug('voicecall');
 
-        return View::make('rateupload.index', compact('Vendors','Customers','Ratetables','VendorID','CustomerID','RatetableID','dialstring','currencies','uploadtypes','RateUploadType','id','Timezones','AllTimezones','RoutingCategory'));
+        return View::make('rateupload.index', compact('Vendors','Customers','Ratetables','VendorID','CustomerID','RatetableID','dialstring','currencies','uploadtypes','RateUploadType','id','Timezones','AllTimezones','RoutingCategory','TypeVoiceCall'));
     }
 
     public function getUploadTemplates($RateUploadType) {

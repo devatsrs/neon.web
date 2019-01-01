@@ -436,7 +436,7 @@
                         if (response.status == 'success') {
                             var RateTable = response.RateTable;
 
-                            if(RateTable['Type'] == '{{RateTable::TYPE_VOICECALL}}' && RateTable['AppliedTo'] == '{{RateTable::APPLIED_TO_VENDOR}}') {
+                            if(RateTable['Type'] == '{{$TypeVoiceCall}}' && RateTable['AppliedTo'] == '{{RateTable::APPLIED_TO_VENDOR}}') {
                                 $('.vendor_selection_box').show();
                             } else {
                                 $('.vendor_selection_box').hide();
