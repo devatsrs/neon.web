@@ -93,33 +93,19 @@ class ConnectionController extends \BaseController {
             $DIDType=RateType::getRateTypeIDBySlug('did');
             $VoiceCallType=RateType::getRateTypeIDBySlug('voicecall');
 
-            $rules=array();
+            $rules = array(
+                'RateTypeID' => 'required',
+                'Name' => 'required',
+                'CompanyID' => 'required',
+            );
+
             if($Input['RateTypeID']==$DIDType){
                 $data=$Input['did'];
-                $rules = array(
-                    'RateTypeID' => 'required',
-                    'Name' => 'required',
-                    'CompanyID' => 'required',
-                    'RateTableID' => 'required',
+                $rules['RateTableID']='required';
 
-                );
             }else if($Input['RateTypeID']==$VoiceCallType){
                 $data=$Input['voice'];
-                $rules = array(
-                    'RateTypeID' => 'required',
-                    'Name' => 'required',
-                    'CompanyID' => 'required',
-                    'TrunkID' => 'required',
-
-                );
-            }else{
-                $data=$Input['voice'];
-                $rules = array(
-                    'RateTypeID' => 'required',
-                    'Name' => 'required',
-                    'CompanyID' => 'required',
-
-                );
+                $rules['TrunkID']='required';
             }
 
             $data['CompanyID'] = $companyID;
@@ -197,24 +183,15 @@ class ConnectionController extends \BaseController {
             unset($data['VendorConnectionID']);
 
             $DIDType=RateType::getRateTypeIDBySlug('did');
-            $VoiceCallType=RateType::getRateTypeIDBySlug('voicecall');
 
-            $rules=array();
+            $rules = array(
+                'Name' => 'required',
+                'CompanyID' => 'required',
+
+            );
             if($VendorConnection->RateTypeID==$DIDType){
                 $data=$Input['did'];
-                $rules = array(
-                    'Name' => 'required',
-                    'CompanyID' => 'required',
-                    'RateTableID' => 'required',
-
-                );
-            }else if($VendorConnection->RateTypeID==$VoiceCallType){
-                $data=$Input['voice'];
-                $rules = array(
-                    'Name' => 'required',
-                    'CompanyID' => 'required',
-
-                );
+                $rules['RateTableID']='required';
             }
 
             $data['CompanyID'] = $companyID;
