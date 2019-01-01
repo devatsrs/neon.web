@@ -19,8 +19,8 @@ class ConnectionController extends \BaseController {
         $DIDType=RateType::getRateTypeIDBySlug('did');
         $VoiceCallType=RateType::getRateTypeIDBySlug('voicecall');
 
-        $TariffDID=RateTable::getDIDTariffDropDownList($companyID,$DIDType,$CurrencyID);
-        $TariffVoiceCall=RateTable::getDIDTariffDropDownList($companyID,$VoiceCallType,$CurrencyID);
+        $TariffDID=RateTable::getDIDTariffDropDownList($companyID,$DIDType,$CurrencyID,RateTable::APPLIED_TO_VENDOR);
+        $TariffVoiceCall=RateTable::getDIDTariffDropDownList($companyID,$VoiceCallType,$CurrencyID,RateTable::APPLIED_TO_VENDOR);
 
         return View::make('vendorrates.connection', compact('id','trunks','Type','DIDCategories','TariffDID','TariffVoiceCall','companyID','DIDType','VoiceCallType'));
 

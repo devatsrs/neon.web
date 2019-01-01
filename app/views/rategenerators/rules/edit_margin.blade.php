@@ -9,7 +9,9 @@
     <div class="panel-body">
 
         <form id="add-margin-form" method="post" action="{{URL::to('rategenerators/rules/'.$id.'/add_margin/'.$RateRuleID)}}">
-                <div class="row">
+            <input type="hidden" name="RateGeneratorId" id = "RateGeneratorId" value="{{ $id }}" />
+
+            <div class="row">
                     <div class="col-md-2">
                         <div class="form-group">
                             <label for="field-4" class="control-label">Min Rate</label>
@@ -45,17 +47,17 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-2">
                     <h5 align="center"><b>If calculated rate is less then</b></h5>
                 </div>
-                <div class="col-sm-3">
-                    <textarea name="LessThenRate" class="form-control" id="field-6" placeholder=""></textarea>
+                <div class="col-sm-2">
+                    <input type="text" name="LessThenRate" class="form-control" id="field-6" placeholder=""/>
                 </div>
-                <div class="col-sm-3">
-                    <h5 align="center"><b>Charge rate to </b></h5>
+                <div class="col-sm-2">
+                    <h5 align="center"><b>Change rate to </b></h5>
                 </div>
-                <div class="col-sm-3">
-                    <textarea name="ChargeRate" class="form-control" id="field-6" placeholder=""></textarea>
+                <div class="col-sm-2">
+                    <input type="text" name="ChargeRate" class="form-control" id="field-6" placeholder="" />
                 </div>
 
         </form>
@@ -95,12 +97,17 @@
             AddMargin = $(this).prev("div.hiddenRowData").find("input[name='AddMargin']").val();
             FixedValue = $(this).prev("div.hiddenRowData").find("input[name='FixedValue']").val();
             RateRuleMarginId = $(this).prev("div.hiddenRowData").find("input[name='RateRuleMarginId']").val();
+            LessThenRate = $(this).prev("div.hiddenRowData").find("input[name='LessThenRate']").val();
+            ChargeRate = $(this).prev("div.hiddenRowData").find("input[name='ChargeRate']").val();
 
             $("#edit-margin-form").find("input[name='MinRate']").val(MinRate);
             $("#edit-margin-form").find("input[name='MaxRate']").val(MaxRate);
             $("#edit-margin-form").find("input[name='AddMargin']").val(AddMargin);
             $("#edit-margin-form").find("input[name='RateRuleMarginId']").val(RateRuleMarginId);
             $("#edit-margin-form").find("input[name='FixedValue']").val(FixedValue);
+            $("#edit-margin-form").find("input[name='LessThenRate']").val(LessThenRate);
+            $("#edit-margin-form").find("input[name='ChargeRate']").val(ChargeRate);
+
 
             jQuery('#modal-RateGenerator').modal('show', {backdrop: 'static'});
         });
@@ -129,26 +136,22 @@
 
                         <div class="row">
                             <div class="col-md-6">
-
                                 <div class="form-group">
                                     <label for="field-4" class="control-label">Min Rate</label>
                                     <input type="text" name="MinRate" class="form-control" id="field-5" placeholder="">
                                 </div>
-
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Max Rate</label>
                                     <input type="text" name="MaxRate" class="form-control" id="field-5" placeholder="">
                                 </div>
-
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Add Margin <span class="label label-info popover-primary" data-original-title="Add Margin" data-content="If you want to add percentage value enter i.e. 10p for 10% percentage value" data-placement="bottom" data-trigger="hover" data-toggle="popover">?</span></label>
                                     <input type="text" name="AddMargin" class="form-control" id="field-5" placeholder="">
                                 </div>
-
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -156,7 +159,6 @@
                                     <span class="label label-info popover-primary" data-original-title="Fixed Value" data-content="if the rate is between min and max then rate will be changed to the value specified." data-placement="bottom" data-trigger="hover" data-toggle="popover">?</span>
                                     <input type="text" name="FixedValue" class="form-control" id="field-5" placeholder="">
                                 </div>
-
                             </div>
 
                         </div>
@@ -184,7 +186,7 @@
 
         jQuery(document).ready(function ($) {
 
-            var list_fields  = ['MinRate', 'MaxRate', 'AddMargin', 'FixedValue', 'RateRuleMarginId'];
+            var list_fields  = ['MinRate', 'MaxRate', 'AddMargin', 'FixedValue', 'RateRuleMarginId', 'LessThenRate', 'ChargeRate'];
 
             data_table = $("#table-rate-generator-margin").dataTable({
 
@@ -247,6 +249,7 @@
 
             });
             $("#edit-margin-form").submit(function(e){
+
                 e.preventDefault();
                 var _url = $(this).attr("action");
                 var formData = new FormData($('#edit-margin-form')[0]);

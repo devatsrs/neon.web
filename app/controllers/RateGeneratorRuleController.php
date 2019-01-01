@@ -5,7 +5,6 @@ class RateGeneratorRuleController extends \BaseController {
 
     public function add($id) {
 
-
         if ($id > 0) {
 
             $rategenerator_rules = RateRule::with('RateRuleMargin', 'RateRuleSource')->where([
@@ -24,15 +23,13 @@ class RateGeneratorRuleController extends \BaseController {
     }
     public function edit($id, $RateRuleID) {
         if ($id > 0 && $RateRuleID > 0) {
-
             //Code
             $companyID = User::get_companyID();
-
-            $rategenerator_rule = RateRule::where(["RateRuleId" => $RateRuleID])->get(["OriginationCode","OriginationDescription","DestinationCode","DestinationDescription"])->first()->toArray();
-            $OriginationCode        = $rategenerator_rule["OriginationCode"];
-            $OriginationDescription = $rategenerator_rule["OriginationDescription"];
-            $DestinationCode        = $rategenerator_rule["OriginationCode"];
-            $DestinationDescription = $rategenerator_rule["OriginationDescription"];
+            $rategenerator_rule = RateRule::where(["RateRuleId" => $RateRuleID])->get(["Code","Description","DestinationCode","DestinationDescription"])->first()->toArray();
+            $OriginationCode        = $rategenerator_rule["Code"];
+            $OriginationDescription = $rategenerator_rule["Description"];
+            $DestinationCode        = $rategenerator_rule["DestinationCode"];
+            $DestinationDescription = $rategenerator_rule["DestinationDescription"];
 
             //source
             $rategenerator_sources = RateRuleSource::where(["RateRuleID" => $RateRuleID])->lists('AccountID', 'AccountId');
@@ -44,14 +41,12 @@ class RateGeneratorRuleController extends \BaseController {
                 "IsVendor"
             ])->where(["Status" => 1, "IsVendor" => 1, "AccountType" => 1, "CompanyID" => $companyID /*'CodeDeckId'=>$rategenerator->CodeDeckId*/])->get();
 
-
-
             //margin
             $rategenerator_margins = RateRuleMargin::where([
                 "RateRuleID" => $RateRuleID
             ])->get();
 
-            return View::make('rategenerators.rules.edit', compact('id', 'RateRuleID', 'OriginationCode', 'OriginationDescription', 'DestinationCode', 'DestinationDescription' ,'Description', 'rategenerator_sources', 'vendors', 'rategenerator' ,    'rategenerator_margins'));
+            return View::make('rategenerators.rules.edit', compact('id', 'RateRuleID', 'OriginationCode', 'OriginationDescription', 'DestinationCode', 'DestinationDescription' ,'Description', 'rategenerator_sources', 'vendors', 'rategenerator' ,  'rategenerator_margins'));
         }
     }
 
@@ -65,12 +60,24 @@ class RateGeneratorRuleController extends \BaseController {
             $rategenerator_margins = RateRuleMargin::where([
                 "RateRuleID" => $RateRuleID
             ])->select(array(
-                'MinRate',
-                'MaxRate',
-                'AddMargin',
-                'FixedValue',
-                'RateRuleMarginId',
+                'tblRateRuleMargin.MinRate',
+                'tblRateRuleMargin.MaxRate',
+                'tblRateRuleMargin.AddMargin',
+                'tblRateRuleMargin.FixedValue',
+                'tblRateRuleMargin.RateRuleMarginId',
             ))->orderBy('MinRate', 'ASC');
+
+
+
+
+//            $rategenerator_margins = RateRuleMargin::leftJoin('tblRateGenerator', function($join) {
+//                $join->on('tblRateGenerator.RateGeneratorId','=','tblRateRuleMargin.RateGeneratorId');
+//            })
+//    ->where("tblRateRuleMargin.RateRuleID", $RateRuleID)
+//    ->select([
+//        'tblRateRuleMargin.MinRate','tblRateRuleMargin.MaxRate','tblRateRuleMargin.AddMargin', 'tblRateRuleMargin.FixedValue', 'tblRateRuleMargin.RateRuleMarginId', 'tblRateGenerator.LessThenRate', 'tblRateGenerator.ChargeRate'
+//    ]);
+
             return Datatables::of($rategenerator_margins)->make();
         }
 
@@ -79,21 +86,19 @@ class RateGeneratorRuleController extends \BaseController {
 
     // CreateCode
     public function store_code($id) {
+
         if ($id > 0) {
             $last_max_order =  RateRule::where(["RateGeneratorId" => $id])->max('Order');
-
             $data = Input::all();
-
             $data['Order'] = $last_max_order+1;
            // print_R($data);exit;
             $data ['CreatedBy'] = User::get_user_full_name();
             $data ['RateGeneratorId'] = $id;
 
-
             $rules = array(
 
-                'OriginationCode' => 'required_without_all:OriginationDescription|unique:tblRateRule,OriginationCode,NULL,RateGeneratorId,RateGeneratorId,'.$data['RateGeneratorId'],
-                'OriginationDescription' => 'required_without_all:OriginationCode|unique:tblRateRule,OriginationDescription,NULL,RateGeneratorId,RateGeneratorId,'.$data['RateGeneratorId'],
+                'Code' => 'required_without_all:OriginationDescription|unique:tblRateRule,OriginationCode,NULL,RateGeneratorId,RateGeneratorId,'.$data['RateGeneratorId'],
+                'Description' => 'required_without_all:OriginationCode|unique:tblRateRule,OriginationDescription,NULL,RateGeneratorId,RateGeneratorId,'.$data['RateGeneratorId'],
                 'DestinationCode' => 'required_without_all:DestinationDescription|unique:tblRateRule,DestinationCode,NULL ,RateGeneratorId,RateGeneratorId,'.$data['RateGeneratorId'],
                 'DestinationDescription' => 'required_without_all:DestinationCode|unique:tblRateRule,DestinationDescription,NULL,RateGeneratorId,RateGeneratorId,'.$data['RateGeneratorId'],
                 'RateGeneratorId' => 'required',
@@ -117,19 +122,16 @@ class RateGeneratorRuleController extends \BaseController {
     // Update Code
     public function update_rule($id, $RateRuleID) {
 
-        if ($id > 0 && $RateRuleID > 0) {
-            // $companyID = User::get_companyID();
+            if ($id > 0 && $RateRuleID > 0) {
+                $data = Input::all();
+//             $companyID = User::get_companyID();
             $rategenerator_rules = RateRule::find($RateRuleID); // RateRule::where([ "RateRuleID" => $RateRuleID])->get();
-
-            $data = Input::all();
-
 
             $data ['ModifiedBy'] = User::get_user_full_name();
 
                     $rules = array(
-
-                        'OriginationCode' => 'required_without_all:OriginationDescription|unique:tblRateRule,OriginationCode,' . $RateRuleID . ',RateGeneratorId,RateGeneratorId,'.$id,
-                        'OriginationDescription' => 'required_without_all:OriginationCode|unique:tblRateRule,OriginationDescription,' . $RateRuleID . ',RateGeneratorId,RateGeneratorId,'.$id,
+                        'Code' => 'required_without_all:Description|unique:tblRateRule,Code,' . $RateRuleID . ',RateGeneratorId,RateGeneratorId,'.$id,
+                        'Description' => 'required_without_all:Code|unique:tblRateRule,Description,' . $RateRuleID . ',RateGeneratorId,RateGeneratorId,'.$id,
                         'DestinationCode' => 'required_without_all:DestinationDescription|unique:tblRateRule,DestinationCode,' . $RateRuleID . ',RateGeneratorId,RateGeneratorId,'.$id,
                         'DestinationDescription' => 'required_without_all:DestinationCode|unique:tblRateRule,DestinationDescription,' . $RateRuleID . ',RateGeneratorId,RateGeneratorId,'.$id,
                         'ModifiedBy' => 'required'
@@ -220,6 +222,9 @@ class RateGeneratorRuleController extends \BaseController {
 
     // Update Margin
     public function update_rule_margin($id, $RateRuleId) {
+        $data = Input::all();
+
+
         if ($id > 0 && $RateRuleId > 0) {
             $data = Input::all();
 
@@ -236,6 +241,8 @@ class RateGeneratorRuleController extends \BaseController {
                 'MaxRate' => 'numeric|unique:tblRateRuleMargin,MaxRate,'.$RateRuleMarginId.',RateRuleMarginId,RateRuleId,'.$RateRuleId,
                 'AddMargin' => 'required_without:FixedValue',
                 'FixedValue' => 'required_without:AddMargin',
+                'LessThenRate'=> 'required',
+                'ChargeRate' => 'required',
                 'RateRuleId' => 'required',
                 'RateRuleMarginId' => 'required',
                 'ModifiedBy' => 'required'
@@ -306,6 +313,7 @@ class RateGeneratorRuleController extends \BaseController {
             $data ['MinRate'] = doubleval($data ['MinRate']);
             $data ['MaxRate'] = doubleval($data ['MaxRate']);
             $data ['FixedValue'] = doubleval($data ['FixedValue']);
+            $RateGeneratorID  = $data['RateGeneratorId'];
             $rules = array(
                 'MinRate' => 'numeric|unique:tblRateRuleMargin,MinRate,NULL,RateRuleMarginId,RateRuleId,'.$RateRuleId,
                 'MaxRate' => 'numeric|unique:tblRateRuleMargin,MaxRate,NULL,RateRuleMarginId,RateRuleId,'.$RateRuleId,
@@ -357,8 +365,21 @@ class RateGeneratorRuleController extends \BaseController {
                 ));
             }
 
-            if (RateRuleMargin::insert($data)) {
+            if($RateGeneratorID > 0)
+            {
+                RateGenerator::where('RateGeneratorId', $RateGeneratorID)->update( array('LessThenRate'=>$data['LessThenRate'], 'ChargeRate'=>$data['ChargeRate']) );
+                unset($data['LessThenRate']);
+                unset($data['ChargeRate']);
+            }else{
                 return Response::json(array(
+                    "status" => "failed",
+                    "message" => "Problem Inserting RateGenerator."
+                ));
+            }
+
+            if (RateRuleMargin::insert($data)) {
+
+                  return Response::json(array(
                     "status" => "success",
                     "message" => "RateGenerator Rule Margin Successfully Inserted"
                 ));
