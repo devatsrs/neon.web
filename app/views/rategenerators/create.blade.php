@@ -50,9 +50,9 @@
                     <div class="form-group">
 
 
-                        <label for="field-1" class="col-sm-2 control-label">Select Type</label>
+                        <label for="field-1" class="col-sm-2 control-label">Type</label>
                         <div class="col-sm-4">
-                            {{Form::select('SelectType',RateGenerator::$SelectType,'',array("class"=>"form-control select2 small"))}}
+                            {{Form::select('SelectType',$AllTypes,'',array("class"=>"form-control select2 small"))}}
 
                         </div>
 
@@ -62,10 +62,19 @@
                         </div>
                     </div>
                     <div class="form-group" id="rate-ostion-trunk-div">
-                          <label class="col-sm-2 control-label">Rate Position</label>
-                            <div class="col-sm-4">
-                                <input type="text" class="form-control" name="RatePosition" data-validate="required" data-message-required="." id="field-1" placeholder="" value="{{Input::old('RatePosition')}}" />
+
+
+                        <label class="col-sm-2 control-label">Rate Position</label>
+                        <div class="col-sm-1">
+                            <input type="text" class="form-control" name="RatePosition" data-validate="required" data-message-required="." id="field-1" placeholder="" value="" />
+                        </div>
+                        <div id="percentageRate">
+                            <label class="col-sm-1 control-label">Percentage </label>
+                            <div class="col-sm-2">
+                                <input type="text" class="form-control popover-primary" rows="1" id="percentageRate" name="percentageRate" value="" data-trigger="hover" data-toggle="popover" data-placement="top" data-content="Use vendor position mention in Rate Position unless vendor selected position is more then N% more costly than the previous vendor" data-original-title="Percentage" />
                             </div>
+                        </div>
+
                             <label for="field-1" class="col-sm-2 control-label">Trunk</label>
                             <div class="col-sm-4">
                                  {{Form::SelectControl('trunk')}}

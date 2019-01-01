@@ -46,7 +46,9 @@ class RateGeneratorsController extends \BaseController {
             $codedecklist = BaseCodeDeck::getCodedeckIDList();
             $currencylist = Currency::getCurrencyDropdownIDList();
             $Timezones = Timezones::getTimezonesIDList();
-            return View::make('rategenerators.create', compact('trunks','codedecklist','currencylist','trunk_keys','Timezones'));
+            $AllTypes =  RateType::getRateTypeDropDownList();
+
+        return View::make('rategenerators.create', compact('trunks','AllTypes','codedecklist','currencylist','trunk_keys','Timezones'));
     }
 
     public function store() {
