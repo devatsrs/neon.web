@@ -9,11 +9,11 @@
                 Filter
             </h2>
             <form role="form" id="rate-table-search" action="javascript:void(0);"  method="post" class="form-horizontal form-groups-bordered validate" novalidate>
-                <div class="form-group" style="display: none;">
+                <div class="form-group">
                     <label class="control-label">Origination Code</label>
                     <input type="text" name="OriginationCode" class="form-control" placeholder="" />
                 </div>
-                <div class="form-group" style="display: none;">
+                <div class="form-group">
                     <label class="control-label">Origination Description</label>
                     <input type="text" name="OriginationDescription" class="form-control" placeholder="" />
                 </div>
@@ -155,8 +155,8 @@
                     <input type="checkbox" id="selectall" name="checkbox[]" />
                 </div>
             </th>
-            <th width="4%" id="OCode-Header" style="display: none;">Orig. Code</th>
-            <th width="10%" style="display: none;">Orig. Description</th>
+            <th width="4%" id="OCode-Header">Orig. Code</th>
+            <th width="10%">Orig. Description</th>
             <th width="4%" id="Code-Header">Code</th>
             <th width="10%">Description</th>
             <th width="3%">One-Off Cost ({{$code}})</th>
@@ -518,12 +518,12 @@
                 var OriginationCode = OriginationCode.split(',');
                 var Code = Code.split(',');
                 var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
-                //table.append("<thead><tr><th style='width:10%'>Origination Code</th><th>Code</th></tr></thead>");
-                table.append("<thead><tr><th>Code</th></tr></thead>");
+                table.append("<thead><tr><th style='width:10%'>Origination Code</th><th>Code</th></tr></thead>");
+                //table.append("<thead><tr><th>Code</th></tr></thead>");
                 var tbody = $("<tbody></tbody>");
                 for (var i = 0; i < Code.length; i++) {
-                    //table.append("<tr class='no-selection'><td>" + OriginationCode[i] + "</td><td>" + Code[i] + "</td></tr>");
-                    table.append("<tr class='no-selection'><td>" + Code[i] + "</td></tr>");
+                    table.append("<tr class='no-selection'><td>" + OriginationCode[i] + "</td><td>" + Code[i] + "</td></tr>");
+                    //table.append("<tr class='no-selection'><td>" + Code[i] + "</td></tr>");
                 }
                 table.append(tbody);
                 row.child(table).show();
@@ -625,12 +625,10 @@
                                 return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
                             }
                         }, //0Checkbox
-                        {"bVisible" : false}, //1 Origination Code
-                        {"bVisible" : false}, //2 Origination description
                         {
                             mRender: function(id, type, full) {
                                 if(view==1) {
-                                    return full[3];
+                                    return full[1];
                                 }else
                                     return '<div class="details-control" style="text-align: center; cursor: pointer;"><i class="entypo-plus-squared" style="font-size: 20px;"></i></div>';
                             },
@@ -638,6 +636,13 @@
                             "orderable":      false,
                             "data": null,
                             "defaultContent": ''
+                        }, //1 Origination Code
+                        {}, //2 Origination description
+                        {
+                            "bVisible" : view == 1 ? true : false,
+                            mRender: function(id, type, full) {
+                                return view == 1 ? full[3] : '';
+                            }
                         }, //3 Destination Code
                         {}, //4 Destination description
                         {}, //5 OneOffCost,
@@ -823,12 +828,12 @@
                         $("#edit-rate-table-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                     }
 
-                    /*var OriginationRateID = cur_obj.find("input[name=OriginationRateID]").val();
+                    var OriginationRateID = cur_obj.find("input[name=OriginationRateID]").val();
                     if(OriginationRateID == null || OriginationRateID == '') {
                         $('#box-edit-OriginationRateID').show();
                     } else {
                         $('#box-edit-OriginationRateID').hide();
-                    }*/
+                    }
                     var TimezonesID = $searchFilter.Timezones;
                     $("#edit-rate-table-form").find("input[name='TimezonesID']").val(TimezonesID);
                     jQuery('#modal-rate-table').modal('show', {backdrop: 'static'});
@@ -946,11 +951,11 @@
                     var Code = hiddenRowData.find('input[name="Code"]').val();
                     var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
                     if(view == 1) {
-                        //table.append("<thead><tr><th>Orig. Code</th><th>Orig. Description</th><th>Dest. Code</th><th>Dest. Description</th><th>One-Off Cost ({{$code}})</th><th>Monthly Cost ({{$code}})</th><th>Cost Per Call ({{$code}})</th><th>Cost Per Minute ({{$code}})</th><th>Surcharge Per Call ({{$code}})</th><th>Surcharge Per Minute ({{$code}})</th><th>Outpayment Per Call ({{$code}})</th><th>Outpayment Per Minute ({{$code}})</th><th>Surcharges ({{$code}})</th><th>Chargeback ({{$code}})</th><th>Collection Cost ({{$code}})</th><th>Collection Cost (%)</th><th>Registration Cost ({{$code}})</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
-                        table.append("<thead><tr><th>Code</th><th>Description</th><th>One-Off Cost ({{$code}})</th><th>Monthly Cost ({{$code}})</th><th>Cost Per Call ({{$code}})</th><th>Cost Per Minute ({{$code}})</th><th>Surcharge Per Call ({{$code}})</th><th>Surcharge Per Minute ({{$code}})</th><th>Outpayment Per Call ({{$code}})</th><th>Outpayment Per Minute ({{$code}})</th><th>Surcharges ({{$code}})</th><th>Chargeback ({{$code}})</th><th>Collection Cost ({{$code}})</th><th>Collection Cost (%)</th><th>Registration Cost ({{$code}})</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                        table.append("<thead><tr><th>Orig. Code</th><th>Orig. Description</th><th>Dest. Code</th><th>Dest. Description</th><th>One-Off Cost ({{$code}})</th><th>Monthly Cost ({{$code}})</th><th>Cost Per Call ({{$code}})</th><th>Cost Per Minute ({{$code}})</th><th>Surcharge Per Call ({{$code}})</th><th>Surcharge Per Minute ({{$code}})</th><th>Outpayment Per Call ({{$code}})</th><th>Outpayment Per Minute ({{$code}})</th><th>Surcharges ({{$code}})</th><th>Chargeback ({{$code}})</th><th>Collection Cost ({{$code}})</th><th>Collection Cost (%)</th><th>Registration Cost ({{$code}})</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                        //table.append("<thead><tr><th>Code</th><th>Description</th><th>One-Off Cost ({{$code}})</th><th>Monthly Cost ({{$code}})</th><th>Cost Per Call ({{$code}})</th><th>Cost Per Minute ({{$code}})</th><th>Surcharge Per Call ({{$code}})</th><th>Surcharge Per Minute ({{$code}})</th><th>Outpayment Per Call ({{$code}})</th><th>Outpayment Per Minute ({{$code}})</th><th>Surcharges ({{$code}})</th><th>Chargeback ({{$code}})</th><th>Collection Cost ({{$code}})</th><th>Collection Cost (%)</th><th>Registration Cost ({{$code}})</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
                     } else {
-                        //table.append("<thead><tr><th>Orig. Code</th><th>Orig. Description</th><th>Dest. Description</th><th>One-Off Cost ({{$code}})</th><th>Monthly Cost ({{$code}})</th><th>Cost Per Call ({{$code}})</th><th>Cost Per Minute ({{$code}})</th><th>Surcharge Per Call ({{$code}})</th><th>Surcharge Per Minute ({{$code}})</th><th>Outpayment Per Call ({{$code}})</th><th>Outpayment Per Minute ({{$code}})</th><th>Surcharges ({{$code}})</th><th>Chargeback ({{$code}})</th><th>Collection Cost ({{$code}})</th><th>Collection Cost (%)</th><th>Registration Cost ({{$code}})</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
-                        table.append("<thead><tr><th>Description</th><th>One-Off Cost ({{$code}})</th><th>Monthly Cost ({{$code}})</th><th>Cost Per Call ({{$code}})</th><th>Cost Per Minute ({{$code}})</th><th>Surcharge Per Call ({{$code}})</th><th>Surcharge Per Minute ({{$code}})</th><th>Outpayment Per Call ({{$code}})</th><th>Outpayment Per Minute ({{$code}})</th><th>Surcharges ({{$code}})</th><th>Chargeback ({{$code}})</th><th>Collection Cost ({{$code}})</th><th>Collection Cost (%)</th><th>Registration Cost ({{$code}})</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                        table.append("<thead><tr><th>Orig. Description</th><th>Dest. Description</th><th>One-Off Cost ({{$code}})</th><th>Monthly Cost ({{$code}})</th><th>Cost Per Call ({{$code}})</th><th>Cost Per Minute ({{$code}})</th><th>Surcharge Per Call ({{$code}})</th><th>Surcharge Per Minute ({{$code}})</th><th>Outpayment Per Call ({{$code}})</th><th>Outpayment Per Minute ({{$code}})</th><th>Surcharges ({{$code}})</th><th>Chargeback ({{$code}})</th><th>Collection Cost ({{$code}})</th><th>Collection Cost (%)</th><th>Registration Cost ({{$code}})</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                        //table.append("<thead><tr><th>Description</th><th>One-Off Cost ({{$code}})</th><th>Monthly Cost ({{$code}})</th><th>Cost Per Call ({{$code}})</th><th>Cost Per Minute ({{$code}})</th><th>Surcharge Per Call ({{$code}})</th><th>Surcharge Per Minute ({{$code}})</th><th>Outpayment Per Call ({{$code}})</th><th>Outpayment Per Minute ({{$code}})</th><th>Surcharges ({{$code}})</th><th>Chargeback ({{$code}})</th><th>Collection Cost ({{$code}})</th><th>Collection Cost (%)</th><th>Registration Cost ({{$code}})</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
                     }
                     var tbody = $("<tbody></tbody>");
 
@@ -960,8 +965,10 @@
                             data['OriginationDescription'] = data['OriginationDescription'] != null ? data['OriginationDescription'] : '';
                             var html = "";
                             html += "<tr class='no-selection'>";
-                            //html += "<td>" + data['OriginationCode'] + "</td>";
-                            //html += "<td>" + data['OriginationDescription'] + "</td>";
+                            if(view == 1) {
+                                html += "<td>" + data['OriginationCode'] + "</td>";
+                            }
+                            html += "<td>" + data['OriginationDescription'] + "</td>";
                             if(view == 1) {
                                 html += "<td>" + data['Code'] + "</td>";
                             }
@@ -1172,7 +1179,7 @@
 
                 <div class="modal-body">
 
-                    <div class="row" style="display: none;">
+                    <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <input type="checkbox" name="updateOriginationRateID" class="" />
@@ -1319,7 +1326,7 @@
 
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-6" style="display: none;">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label">Origination Code</label>
                                 {{--{{ Form::select('RateID', array(), '', array("class"=>"select2 rateid_list")) }}--}}
