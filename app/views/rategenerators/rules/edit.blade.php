@@ -54,18 +54,17 @@
 
             $(".saveall.btn").click(function(e){
 
-                var OriginationCode         = $("#rategenerator-code-from input[name='Code']").val();
-                var OriginationDescription  = $("#rategenerator-code-from input[name='Description']").val();
-                var DestinationCode         = $("#rategenerator-code-from input[name='DestinationCode']").val();
-                var DestinationDescription  = $("#rategenerator-code-from input[name='DestinationDescription']").val();
+                var DestinationCode         = $("#rategenerator-code-from input[name='Code']").val();
+                var DestinationDescription  = $("#rategenerator-code-from input[name='Description']").val();
 
-                if((typeof OriginationCode  == 'undefined' || OriginationCode.trim() == '' ) && (typeof OriginationDescription  == 'undefined' || OriginationDescription.trim() == '' )){
-
-                    setTimeout(function(){$('.btn').button('reset');},10);
-                    toastr.error("Please Enter a Origination Code Or Origination Description", "Error", toastr_opts);
-                    return false;
-
-                }
+                alert(DestinationCode +','+ DestinationDescription);
+//                if((typeof OriginationCode  == 'undefined' || OriginationCode.trim() == '' ) && (typeof OriginationDescription  == 'undefined' || OriginationDescription.trim() == '' )){
+//
+//                    setTimeout(function(){$('.btn').button('reset');},10);
+//                    toastr.error("Please Enter a Origination Code Or Origination Description", "Error", toastr_opts);
+//                    return false;
+//
+//                }
 
                 if((typeof DestinationCode  == 'undefined' || DestinationCode.trim() == '' ) && (typeof DestinationDescription  == 'undefined' || DestinationDescription.trim() == '' )){
 

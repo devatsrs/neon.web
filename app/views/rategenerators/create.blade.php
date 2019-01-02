@@ -17,7 +17,7 @@
 <h3>Create Rate Generator</h3>
 <form role="form" id="rategenerator-from" method="post" action="{{URL::to('/rategenerators/store')}}" class="form-horizontal form-groups-bordered">
 <div class="float-right">
-    <button type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+    <button type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..." id="submitBtn">
         <i class="entypo-floppy"></i>
         Save
     </button>
@@ -245,6 +245,11 @@
 
     $(document).ready(function() {
 
+        if(performance.navigation.type == 2)
+        {
+            $('#getIDs').val('');
+        }
+
         $('#servicetableSubBox tbody tr').each(function() {
 
             var id = getNumber(this.id);
@@ -408,6 +413,7 @@
                 $("#group-preference-div").show();
 
             }
+
     });
 
     function getNumber($item){

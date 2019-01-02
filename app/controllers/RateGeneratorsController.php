@@ -63,6 +63,7 @@ class RateGeneratorsController extends \BaseController {
         $data ['Timezones'] = isset($data ['Timezones']) ? implode(',', $data['Timezones']) : '';
         $data ['DIDCategoryID']= isset($data['Category']) ? $data['Category'] : '';
         $data['VendorPositionPercentage'] = $data['percentageRate'];
+        $getNumberString = $data['getIDs'];
         $SelectType = $data['SelectType'];
 
         if($SelectType == 1) {
@@ -108,54 +109,29 @@ class RateGeneratorsController extends \BaseController {
             return json_validator_response($validator);
         }
         $data ['ModifiedBy'] = User::get_user_full_name();
-        $RateGeneratorID = RateGenerator::select('RateGeneratorId')->orderBy('RateGeneratorId', 'desc')->first();
-        ++$RateGeneratorID;
-        Log::info('$RateGeneratorID.' . $RateGeneratorID );
-        Log::info('$SelectType.' . $SelectType );
 
         if($SelectType == 2) {
 
-            $getNumberString = $data['getIDs'];
-            Log::info('$getNumberString.' . $getNumberString );
             $numberArray = explode(",", $getNumberString);
-            Log::info('$getNumberString.' . sizeof($numberArray) );
             $GetComponent = array();
             $addComponents = array();
 
             $i = 0;
 
-            Log::info(' xyz.' . (sizeof($numberArray) - 1) );
             for ($i; $i < sizeof($numberArray) - 1; $i++) {
-                $componts = 'Component-' . $numberArray[$i];
-                $action = 'Action-' . $numberArray[$i];
-                $mergeTo = 'MergeTo-' . $numberArray[$i];
+                $GetAllcomponts[]  = 'Component-' . $numberArray[$i];
 
-                $GetComponent = $data[$componts];
-                $GetAction = $data[$action];
-                $GetMergeTo = $data[$mergeTo];
+                if(!isset($data[$GetAllcomponts[$i]])){
 
-                $addComponents['RatePositionID'] = $data['RatePosition'];
-                $addComponents['TrunkID'] = $data['TrunkID'];
-                $addComponents['CurrencyID'] = $data['CurrencyID'];
+                    unset($data['Component-' . $numberArray[$i]]);
+                    unset($data['Action-' . $numberArray[$i]]);
+                    unset($data['MergeTo-' . $numberArray[$i]]);
+                    break;
+                }else{
 
-
-
-                $addComponents['Component'] = implode(',', $GetComponent);
-                $addComponents['Action'] = $GetAction;
-                $addComponents['MergeTo'] = $GetMergeTo;
-
-                $CostComponentSaved = 0;
-               $addComponents['RateGeneratorId'] = $RateGeneratorID->RateGeneratorId + 1;
-//
-//                Log::info(' Add the comonents.' . print_r($addComponents,true) );
-//                echo '<pre>';
-//                print_r($addComponents);
-//                echo '</pre>';
-//                exit;
-
-                Log::info(' Add the comonents.' . print_r($addComponents,true) );
-                if (RateGeneratorComponent::create($addComponents)) {
-                    $CostComponentSaved = 1;
+                    $componts[] =  $data['Component-' . $numberArray[$i]];
+                    $action[] =  $data['Action-' . $numberArray[$i]];
+                    $mergeTo[] =  $data['MergeTo-' . $numberArray[$i]];
 
                 }
 
@@ -175,22 +151,59 @@ class RateGeneratorsController extends \BaseController {
             unset($data['Category']);
 
         }
+
+
         unset($data['AllComponent']);
 
-
-            $data['RateGeneratorId'] = $RateGeneratorID;
         if ($rateg = RateGenerator::create($data)) {
-            return Response::json(array(
-                        "status" => "success",
-                        "message" => "RateGenerator Successfully Created",
-                        'LastID'=>$rateg->RateGeneratorId,
-                        'redirect' => URL::to('/rategenerators/'.$rateg->RateGeneratorId.'/edit')
-                    ));
-        } else {
-            return Response::json(array(
-                        "status" => "failed",
-                        "message" => "Problem Creating RateGenerator."
-                    ));
+            $CostComponentSaved = "Created";
+
+            if ($SelectType == 2) {
+
+                $numberArray = explode(",", $getNumberString);
+                $GetComponent = array();
+                $addComponents = array();
+                $i = 0;
+                for ($i; $i < sizeof($numberArray) - 1; $i++) {
+
+                    if(!isset($componts[$i]))
+                    {
+                        break;
+                    }
+                    $GetComponent = $componts[$i];
+                    $GetAction = $action[$i];
+                    $GetMergeTo = $mergeTo[$i];
+
+
+                    $addComponents['RatePositionID'] = $data['RatePosition'];
+                    $addComponents['TrunkID'] = $data['TrunkID'];
+                    $addComponents['CurrencyID'] = $data['CurrencyID'];
+
+                    $addComponents['Component'] = implode(",",$GetComponent);
+                    $addComponents['Action'] = $GetAction;
+                    $addComponents['MergeTo'] = $GetMergeTo;
+                    $addComponents['RateGeneratorId'] = $rateg->RateGeneratorId;
+
+                    if (RateGeneratorComponent::create($addComponents)) {
+                        $CostComponentSaved = "Components also Created";
+
+                    }
+
+                }
+
+
+                return Response::json(array(
+                    "status" => "success",
+                    "message" => "RateGenerator Successfully Created".$CostComponentSaved,
+                    'LastID' => $rateg->RateGeneratorId,
+                    'redirect' => URL::to('/rategenerators/' . $rateg->RateGeneratorId . '/edit')
+                ));
+            } else {
+                return Response::json(array(
+                    "status" => "failed",
+                    "message" => "Problem Creating RateGenerator."
+                ));
+            }
         }
     }
     
@@ -216,7 +229,7 @@ class RateGeneratorsController extends \BaseController {
                 $rategenerator_rules = RateRule::with('RateRuleMargin', 'RateRuleSource')->where([
                     "RateGeneratorId" => $id
                 ]) ->orderBy("Order", "asc")->get();
-//                $rategeneratorComponents = RateGeneratorComponent::where('RateGeneratorID',$id )->get();
+                $rategeneratorComponents = RateGeneratorComponent::where('RateGeneratorID',$id )->get();
 
                 $array_op= array();
                 $codedecklist = BaseCodeDeck::getCodedeckIDList();
@@ -230,7 +243,7 @@ class RateGeneratorsController extends \BaseController {
                $AllTypes =  RateType::getRateTypeDropDownList();
 
                 // Debugbar::info($rategenerator_rules);
-                return View::make('rategenerators.edit', compact('id', 'rategenerators', 'AllTypes' ,'Categories' ,'rategenerator', 'rategenerator_rules','codedecklist', 'trunks','array_op','currencylist','Timezones'));
+                return View::make('rategenerators.edit', compact('id', 'rategenerators', 'rategeneratorComponents' ,'AllTypes' ,'Categories' ,'rategenerator', 'rategenerator_rules','codedecklist', 'trunks','array_op','currencylist','Timezones'));
             }
     }
 
@@ -254,26 +267,10 @@ class RateGeneratorsController extends \BaseController {
         $data ['Timezones'] = isset($data ['Timezones']) ? implode(',', $data['Timezones']) : '';
         $data ['DIDCategoryID']= isset($data['Category']) ? $data['Category'] : '';
         $data['VendorPositionPercentage'] = $data['percentageRate'];
+        $getNumberString = $data['getIDs'];
+
         unset($data['SelectType']);
 
-//        if(isset($data['Component-0']))
-//        {
-//
-//            $data['Component-1'] = $data['Component-0'];
-//            unset($data['Component-0']);
-//        }
-//        if(isset($data['Action-0']))
-//        {
-//            $data['Action-1'] = $data['Action-0'];
-//            unset($data['Action-0']);
-//        }
-//        if(isset($data['MergeTo-0']))
-//        {
-//            $data['MergeTo-1'] = $data['MergeTo-0'];
-//            unset($data['MergeTo-0']);
-//
-//        }
-        //$SelectType = RateGenerator::where('RateGeneratorId',$id)->value('SelectType');
 
         $SelectTypes = RateGenerator::select([
             "SelectType"
@@ -327,37 +324,28 @@ class RateGeneratorsController extends \BaseController {
         }
         $data ['ModifiedBy'] = User::get_user_full_name();
 
-        if($SelectType == 2) { // Select Type for Voice Call
+        if($SelectType == 2) {
 
-            $getNumberString = $data['getIDs'];
             $numberArray = explode(",", $getNumberString);
             $GetComponent = array();
             $addComponents = array();
+
             $i = 0;
 
             for ($i; $i < sizeof($numberArray) - 1; $i++) {
-                $componts = 'Component-' . $numberArray[$i];
-                $action = 'Action-' . $numberArray[$i];
-                $mergeTo = 'MergeTo-' . $numberArray[$i];
+                $GetAllcomponts[]  = 'Component-' . $numberArray[$i];
 
-                $GetComponent = $data[$componts];
-                $GetAction = $data[$action];
-                $GetMergeTo = $data[$mergeTo];
+                if(!isset($data[$GetAllcomponts[$i]])){
 
-                $addComponents['RatePositionID'] = $data['RatePosition'];
-                $addComponents['TrunkID'] = $data['TrunkID'];
-                $addComponents['CurrencyID'] = $data['CurrencyID'];
-                $addComponents['RateGeneratorID'] = $RateGeneratorID;
+                    unset($data['Component-' . $numberArray[$i]]);
+                    unset($data['Action-' . $numberArray[$i]]);
+                    unset($data['MergeTo-' . $numberArray[$i]]);
+                    break;
+                }else{
 
-
-                $addComponents['Component'] = implode(',', $GetComponent);
-                $addComponents['Action'] = $GetAction;
-                $addComponents['MergeTo'] = $GetMergeTo;
-
-                $CostComponentSaved = 0;
-
-                if (RateGeneratorComponent::create($addComponents)) {
-                    $CostComponentSaved = 1;
+                    $componts[] =  $data['Component-' . $numberArray[$i]];
+                    $action[] =  $data['Action-' . $numberArray[$i]];
+                    $mergeTo[] =  $data['MergeTo-' . $numberArray[$i]];
 
                 }
 
@@ -370,20 +358,60 @@ class RateGeneratorsController extends \BaseController {
             unset($data['Category']);
             $data['SelectedComponents'] = implode(",",$data['AllComponent']);
         }else{
-                unset($data['getIDs']);
-                unset($data['Component-1']);
-                unset($data['Action-1']);
-                unset($data['MergeTo-1']);
-                unset($data['Category']);
+            unset($data['getIDs']);
+            unset($data['Component-1']);
+            unset($data['Action-1']);
+            unset($data['MergeTo-1']);
+            unset($data['Category']);
 
         }
+
         unset($data['AllComponent']);
 
         if ($RateGenerator->update($data)) {
+            $CostComponentSaved = "Updated";
 
+            RateGeneratorComponent::where("RateGeneratorId",$id)->delete();
+            if ($SelectType == 2) {
+
+                $numberArray = explode(",", $getNumberString);
+                $GetComponent = array();
+                $addComponents = array();
+                $i = 0;
+                for ($i; $i < sizeof($numberArray) - 1; $i++) {
+
+
+                    if(!isset($componts[$i]))
+                    {
+                        break;
+                    }
+
+                    $GetComponent = $componts[$i];
+                    $GetAction = $action[$i];
+                    $GetMergeTo = $mergeTo[$i];
+
+
+
+
+                    $addComponents['RatePositionID'] = $data['RatePosition'];
+                    $addComponents['TrunkID'] = $data['TrunkID'];
+                    $addComponents['CurrencyID'] = $data['CurrencyID'];
+
+                    $addComponents['Component'] = implode(",",$GetComponent);
+                    $addComponents['Action'] = $GetAction;
+                    $addComponents['MergeTo'] = $GetMergeTo;
+                    $addComponents['RateGeneratorId'] = $RateGeneratorID;
+
+                        if (RateGeneratorComponent::create($addComponents))
+                        {
+                            $CostComponentSaved = "and Cost component Updated";
+                        }
+
+                    }
+                }
                return Response::json(array(
                     "status" => "success",
-                    "message" => "RateGenerator and RateGenerator Cost component Successfully Updated"
+                    "message" => "RateGenerator and RateGenerator Cost component Successfully ".$CostComponentSaved,
                 ));
         } else {
             return Response::json(array(
