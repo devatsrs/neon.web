@@ -130,6 +130,10 @@ ALTER TABLE `tblRateTableRateChangeLog`
 	ADD COLUMN `Blocked` TINYINT NOT NULL DEFAULT '0' AFTER `Preference`,
 	ADD COLUMN `RoutingCategoryID` INT NULL DEFAULT NULL AFTER `Blocked`;
 
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1387, 'RateTables.ApprovalProcess', 1, 5);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('RateTables.approve_rate_table_did_rate', 'RateTablesController.approve_rate_table_did_rate', 1, 'Sumera Khan', NULL, '2019-01-02 11:34:50.000', '2019-01-02 11:34:50.000', 1387);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('RateTables.approve_rate_table_rate', 'RateTablesController.approve_rate_table_rate', 1, 'Sumera Khan', NULL, '2019-01-02 11:34:50.000', '2019-01-02 11:34:50.000', 1387);
+
 
 
 

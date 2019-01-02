@@ -139,8 +139,8 @@ class CustomersRatesController extends \BaseController {
             $RoutingProfileToCustomer	 	 ='';
             //$RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id,"TrunkID"=>$ServiceID])->first();
             //----------------------------------------------------------------------
-
-            return View::make('customersrates.trunks', compact('id', 'trunks', 'customer_trunks','codedecklist','Account','rate_tables','Account','companygateway','routingprofile','RoutingProfileToCustomer'));
+            $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE');
+            return View::make('customersrates.trunks', compact('id', 'trunks', 'customer_trunks','codedecklist','Account','rate_tables','Account','companygateway','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE'));
     }
 
     public function update_trunks($id) {
