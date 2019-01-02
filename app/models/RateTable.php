@@ -10,12 +10,12 @@ class RateTable extends \Eloquent
     protected static $rate_table_cache = array();
     public static $enable_cache = false;
 
-    const TYPE_VOICECALL = 1;
-    const TYPE_DID = 2;
+    //const TYPE_VOICECALL = 1;
+    //const TYPE_DID = 2;
     const APPLIED_TO_CUSTOMER = 1;
     const APPLIED_TO_VENDOR = 2;
     const APPLIED_TO_RESELLER = 3;
-    public static $types = array( self::TYPE_VOICECALL => 'Voice Call',self::TYPE_DID=>'DID');
+    //public static $types = array( self::TYPE_VOICECALL => 'Voice Call',self::TYPE_DID=>'DID');
     public static $AppliedTo = array( self::APPLIED_TO_CUSTOMER => 'Customer',self::APPLIED_TO_VENDOR=>'Vendor',self::APPLIED_TO_RESELLER=>'Reseller');
 
     /*
@@ -97,16 +97,10 @@ class RateTable extends \Eloquent
         return true;
     }
 
-    public static function getDIDTariffDropDownList($CompanyID,$Type,$CurrencyID){
+    public static function getDIDTariffDropDownList($CompanyID,$Type,$CurrencyID,$AppiedTo){
         $row=array();
-        $DIDType=RateType::getRateTypeIDBySlug('did');
-        $VoiceCallType=RateType::getRateTypeIDBySlug('voicecall');
 
-        if($Type==$DIDType){
-            $row = RateTable::where(array('CompanyID'=>$CompanyID,'Type'=>RateTable::TYPE_DID,'AppliedTo'=>RateTable::APPLIED_TO_VENDOR,'CurrencyID'=>$CurrencyID))->lists('RateTableName', 'RateTableId');
-        }else if($Type==$VoiceCallType){
-            $row = RateTable::where(array('CompanyID'=>$CompanyID,'Type'=>RateTable::TYPE_VOICECALL,'AppliedTo'=>RateTable::APPLIED_TO_VENDOR,'CurrencyID'=>$CurrencyID))->lists('RateTableName', 'RateTableId');
-        }
+        $row = RateTable::where(array('CompanyID'=>$CompanyID,'Type'=>$Type,'AppliedTo'=>$AppiedTo,'CurrencyID'=>$CurrencyID))->lists('RateTableName', 'RateTableId');
 
         if(!empty($row)){
             $row = array(""=> "Select")+$row;

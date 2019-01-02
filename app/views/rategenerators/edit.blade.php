@@ -71,7 +71,7 @@
 
                         <label for="field-1" class="col-sm-2 control-label">Type</label>
                         <div class="col-sm-4">
-                            {{Form::select('SelectType',RateGenerator::$SelectType,$rategenerators->SelectType,array("class"=>"form-control select2 small"))}}
+                            {{Form::select('SelectType',$AllTypes,$rategenerators->SelectType,array("class"=>"form-control select2 small", "disabled"))}}
 
                         </div>
                         <label for="field-1" class="col-sm-2 control-label">Name</label>
@@ -128,7 +128,7 @@
                         <div id="percentageRate">
                             <label class="col-sm-1 control-label">Percentage </label>
                             <div class="col-sm-2">
-                                <textarea class="form-control" rows="1" id="percentageRate" name="percentageRate"></textarea>
+                                <input type="text" class="form-control popover-primary" rows="1" id="percentageRate" name="percentageRate" value="{{$rategenerators->percentageRate}}" data-trigger="hover" data-toggle="popover" data-placement="top" data-content="Use vendor position mention in Rate Position unless vendor selected position is more then N% more costly than the previous vendor" data-original-title="Percentage" />
                             </div>
                         </div>
 
@@ -173,7 +173,9 @@
                                      {{Form::checkbox('UseAverage', 1,  $rategenerators->UseAverage );}}
                                  </div>
                              </div>
+                        </div>
 
+                        <div id="hide-components">
                             <label for="field-1" class="col-sm-2 control-label">Components</label>
                             <div class="col-sm-4">
                                 {{ Form::select('AllComponent[]', RateGenerator::$Component, explode("," ,$rategenerators->SelectedComponents) , array("class"=>"select2 multiselect" , "multiple"=>"multiple", "id"=>"AllComponent" )) }}
@@ -185,7 +187,7 @@
                     <div class="form-group" id="DIDCategoryDiv">
                         <label for="field-1" class="col-sm-2 control-label">Category</label>
                         <div class="col-sm-4">
-                            {{ Form::select('Category', $Categories, $Categories , array("class"=>"select2")) }}
+                            {{ Form::select('Category', $Categories, $rategenerators->DIDCategoryID , array("class"=>"select2")) }}
                         </div>
                     </div>
                 </div>
@@ -212,7 +214,8 @@
                     <table id="servicetableSubBox" class="table table-bordered datatable">
                         <thead>
                             <tr>
-                                <th width="35%">Component</th>
+                                <th width="5%">#</th>
+                                <th width="30%">Component</th>
                                 <th width="20%">Action</th>
                                 <th width="35%">Merge To</th>
                                 <th width="10%">Add</th>
@@ -249,8 +252,10 @@
 
                                 ?>
                                 <tr id="selectedRow-{{$a}}">
+                                    <td> {{$a}}</td>
                                     <td id="testValues">
-                                       {{ Form::select('Component-'.$a.'[]', $ComponentArray1, $ComponentArray1, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-".$a)) }}
+
+                                        {{ Form::select('Component-'.$a.'[]', $ComponentArray1, $ComponentArray1, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-".$a)) }}
 
                                     </td>
                                     <td>
@@ -280,6 +285,7 @@
 ?>
 
                             <tr id="selectedRow-1">
+                                <td> 1</td>
                                 <td id="testValues">
                                     {{ Form::select('Component-1[]', array(), null, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-1")) }}
 
@@ -538,22 +544,19 @@
        });
 
         var TypeValue = $("#rategenerator-from [name='SelectType']").val();
-
         if(TypeValue == 2){
             $("#rate-ostion-trunk-div").hide();
             $("#rate-aveg-div").hide();
             $("#group-preference-div").hide();
-            $("#Merge-components").hide();
             $("#DIDCategoryDiv").show();
-            $("#percentageRate").hide();
+            $("#Merge-components").show();
 
         }else if(TypeValue == 1){
             $("#rate-ostion-trunk-div").show();
             $("#rate-aveg-div").show();
             $("#group-preference-div").show();
-            $("#Merge-components").show();
+            $("#Merge-components").hide();
             $("#DIDCategoryDiv").hide();
-            $("#percentageRate").show();
         }
 
         function initSortable(){
@@ -937,17 +940,18 @@
                 $("#rate-ostion-trunk-div").hide();
                 $("#rate-aveg-div").hide();
                 $("#group-preference-div").hide();
-                $("#Merge-components").hide();
+                $("#Merge-components").show();
                 $("#DIDCategoryDiv").show();
-                $("#percentageRate").hide();
+                $("#hide-components").show();
+
 
             }else if(TypeValue == 1){
                 $("#rate-ostion-trunk-div").show();
                 $("#rate-aveg-div").show();
                 $("#group-preference-div").show();
-                $("#Merge-components").show();
+                $("#Merge-components").hide();
+                $("#hide-components").hide();
                 $("#DIDCategoryDiv").hide();
-                $("#percentageRate").show();
             }
 
         });
@@ -1039,7 +1043,7 @@
 
         }else{
 
-            toastr.error("you can delete at least one row", "Error", toastr_opts);
+            toastr.error("you cannot delete at least one row", "Error", toastr_opts);
         }
     }
 

@@ -13,7 +13,7 @@
                 <div class="form-group">
                     <div class="SelectedEffectiveDate_Class">
                         <label for="field-1" class="control-label">Type</label>
-                        {{Form::select('Type', RateTable::$types, '',array("class"=>"form-control select2"))}}
+                        {{Form::select('Type', $RateTypes, '',array("class"=>"form-control select2"))}}
                     </div>
                 </div>
                 <div class="form-group">

@@ -82,6 +82,7 @@ class LCRController extends \BaseController {
         $CurrencyID = Company::where("CompanyID",User::get_companyID())->pluck("CurrencyId");
         $LCRPosition = NeonCookie::getCookie('LCRPosition',5);
         $Timezones = Timezones::getTimezonesIDList();
+        $RateTypes = RateType::getRateTypeDropDownList();
         $data=array();
         $data['IsVendor']=1;
         $all_accounts = Account::getAccountIDList($data);
@@ -92,7 +93,7 @@ class LCRController extends \BaseController {
         $DefaultCodedeck = BaseCodeDeck::where(["CompanyID"=>$companyID,"DefaultCodedeck"=>1])->pluck("CodeDeckId");
         $GroupBy =    NeonCookie::getCookie('LCRGroupBy');
 
-        return View::make('lcr.index', compact('trunks', 'currencies','CurrencyID','codedecklist','DefaultCodedeck','trunk_keys','LCRPosition','all_accounts','GroupBy','Timezones'));
+        return View::make('lcr.index', compact('trunks', 'currencies','CurrencyID','codedecklist','DefaultCodedeck','trunk_keys','LCRPosition','all_accounts','GroupBy','Timezones','RateTypes'));
     }
     //not using
     public function exports(){
