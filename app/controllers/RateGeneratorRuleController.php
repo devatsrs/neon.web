@@ -156,23 +156,7 @@ class RateGeneratorRuleController extends \BaseController {
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
-                $rateRuleDesination  = RateRule::select('Code','Description')->where(["RateGeneratorId" => $id,"Code"=> $data['Code'],"Description"=> $data['Description'] ])->first();
 
-                if ($rateRuleDesination)
-                {
-                    if(isset($rateRuleDesination->Code) && isset($rateRuleDesination->Description))
-                    {
-                        return Response::json(array("status" => "failed", "message" => "Destination Code or Description already exist"));
-                    }
-                }
-                if(isset($data['OriginationCode']) && !empty($data['OriginationCode']) || (isset($data['OriginationDescription']) && !empty($data['OriginationDescription']) ) ) {
-                    $rateRuleOrigination = RateRule::select('OriginationCode', 'OriginationDescription')->where(["RateGeneratorId" => $id, "OriginationCode" => $data['OriginationCode'], "OriginationDescription" => $data['OriginationDescription']])->first();
-                    if ($rateRuleOrigination) {
-                        if (isset($rateRuleOrigination->OriginationCode) && isset($rateRuleOrigination->OriginationDescription)) {
-                            return Response::json(array("status" => "failed", "message" => "Origination Code or Description already exist"));
-                        }
-                    }
-                }
             if ($rategenerator_rules->update($data)) {
                 return Response::json(array(
                     "status" => "success",

@@ -55,7 +55,6 @@ class RateGeneratorsController extends \BaseController {
 
     public function store() {
         $data = Input::all();
-
         $companyID = User::get_companyID();
         $data ['CompanyID'] = $companyID;
         $data ['UseAverage'] = isset($data ['UseAverage']) ? 1 : 0;
@@ -155,7 +154,8 @@ class RateGeneratorsController extends \BaseController {
 
         unset($data['AllComponent']);
 
-        if ($rateg = RateGenerator::create($data)) {
+        $rateg = RateGenerator::create($data);
+        if (isset($rateg->RateGeneratorId) && !empty($rateg->RateGeneratorId)) {
             $CostComponentSaved = "Created";
 
             if ($SelectType == 2) {
@@ -192,18 +192,19 @@ class RateGeneratorsController extends \BaseController {
                 }
 
 
-                return Response::json(array(
-                    "status" => "success",
-                    "message" => "RateGenerator Successfully Created".$CostComponentSaved,
-                    'LastID' => $rateg->RateGeneratorId,
-                    'redirect' => URL::to('/rategenerators/' . $rateg->RateGeneratorId . '/edit')
-                ));
-            } else {
-                return Response::json(array(
-                    "status" => "failed",
-                    "message" => "Problem Creating RateGenerator."
-                ));
             }
+
+            return Response::json(array(
+                "status" => "success",
+                "message" => "RateGenerator Successfully Created".$CostComponentSaved,
+                'LastID' => $rateg->RateGeneratorId,
+                'redirect' => URL::to('/rategenerators/' . $rateg->RateGeneratorId . '/edit')
+            ));
+        }else {
+            return Response::json(array(
+                "status" => "failed",
+                "message" => "Problem Creating RateGenerator."
+            ));
         }
     }
     

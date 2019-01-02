@@ -431,10 +431,31 @@
        // $( "#sortable" ).sortable();
 
         var selectAllComponents;
+
+        var TypeValue = $("#rategenerator-from [name='SelectType']").val();
+
+        if(TypeValue == 2){
+            $("#rate-ostion-trunk-div").hide();
+            $("#rate-aveg-div").hide();
+            $("#group-preference-div").hide();
+            $("#DIDCategoryDiv").show();
+            $("#Merge-components").show();
+
+        }else if(TypeValue == 1){
+            $("#rate-ostion-trunk-div").show();
+            $("#rate-aveg-div").show();
+            $("#group-preference-div").show();
+            $("#Merge-components").hide();
+            $("#DIDCategoryDiv").hide();
+            $("#hide-components").hide();
+        }
+
         $(window).load(function() {
 
 
-                $('#servicetableSubBox tbody tr').each(function() {
+
+
+            $('#servicetableSubBox tbody tr').each(function() {
 
                         if(this.id == 'selectedRow-0')
                             var id = 0;
@@ -553,6 +574,7 @@
             $("#group-preference-div").show();
             $("#Merge-components").hide();
             $("#DIDCategoryDiv").hide();
+            $("#hide-components").hide();
         }
 
         function initSortable(){
