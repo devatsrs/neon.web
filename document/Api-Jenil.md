@@ -407,6 +407,74 @@ Return
             }
 
 
+### POST blockCall
+
+http://speakintelligence.neon-soft.com/api/blockCall
+
+Perams:
+
+"AccountID"/"AccountNo"
+UUID
+DisconnectTime
+BlockReason
+
+Return
+
+    Example:
+        Request:
+        AccountID: "6727"
+        UUID   : 1155545
+        BlockReason : LowBalance
+
+        Response:
+
+            {
+                "status": "success",
+                "message": "Call Blocked Successfully",
+                "data": {
+                    "duration": 120
+                }
+            }
+
+
+### POST getBlockCalls
+
+http://speakintelligence.neon-soft.com/api/getBlockCalls
+
+Perams:
+
+"AccountID"(optional)
+StartDate
+EndDate
+
+Return
+
+    Example:
+        Request:
+        StartDate:
+        EndDate   : 2018-11-27
+        AccountID : 2018-11-27
+
+        Response:
+
+            {
+                "status": "success",
+                "data": [
+                    {
+                        "StartDate": "2018-11-27 00:00:00",
+                        "UsageDetailID": 106350639,
+                        "UsageHeaderID": 188050,
+                        "GatewayAccountID": "Call Max Management",
+                        "connect_time": "2018-12-04 12:19:59",
+                        "disconnect_time": "2018-12-04 12:20:06",
+                        "cli": "15684083685",
+                        "cld": "111129171797732",
+                        "cost": "0.033800",
+                        "area_prefix": "Other"
+                    }
+                ]
+            }
+
 
 
 ### POST Create Account
