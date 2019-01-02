@@ -70,7 +70,7 @@
                     </div>
                 @endif
 
-                @if($RateApprovalProcess == 1)
+                @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
                 <div class="form-group">
                     <label class="control-label">Status</label>
                     <select name="ApprovedStatus" class="select2" data-allow-clear="true" data-placeholder="Select Status">
@@ -131,7 +131,7 @@
                     <li><a href="javascript:void(0)" id="clear-bulk-rate"><i class="entypo-trash"></i><span>Delete Selected</span></a></li>
                 @endif
                 @if(User::checkCategoryPermission('RateTables','ApprovalProcess') )
-                    @if($RateApprovalProcess == 1)
+                    @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
                         <li><a href="javascript:void(0)" id="approve-bulk-rate"><i class="entypo-check"></i><span>Approve Selected</span></a></li>
                     @endif
                 @endif
@@ -186,7 +186,7 @@
             <th width="5%">RateN ({{$code}})</th>
             <th width="8%">Effective Date</th>
             <th width="8%">Modified By/Date</th>
-            @if($RateApprovalProcess == 1)
+            @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
             <th width="8%">Approved By/Date</th>
             @endif
             @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
@@ -706,7 +706,7 @@
                                     return '';
                             }
                         }, //14/13 ModifiedDate
-                        @if($RateApprovalProcess == 1)
+                        @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
                         {
                             "bVisible" : bVisible,
                             mRender: function(id, type, full) {
@@ -746,7 +746,7 @@
                                     clerRate_ = "{{ URL::to('/rate_tables/{id}/clear_rate')}}";
                                     clerRate_ = clerRate_.replace('{id}', full[15]);
 
-                                    @if($RateApprovalProcess == 1)
+                                    @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
                                     if (full[22] == 1) {
                                         action += ' <button href="Javascript:;"  title="Approved" class="btn btn-default btn-xs"><i class="entypo-check" style="color: green; "></i>&nbsp;</button>';
                                     } else if (full[22] == 0) {
@@ -778,7 +778,7 @@
                                 } else {
                                     $('#actionheader').attr('width','5%');
 
-                                    @if($RateApprovalProcess == 1)
+                                    @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
                                     if (full[22] == 1) {
                                         action += ' <button href="Javascript:;"  title="Approved" class="btn btn-default btn-xs"><i class="entypo-check" style="color: green; "></i>&nbsp;</button>';
                                     } else if (full[22] == 0) {
