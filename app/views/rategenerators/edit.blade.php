@@ -71,7 +71,7 @@
 
                         <label for="field-1" class="col-sm-2 control-label">Type</label>
                         <div class="col-sm-4">
-                            {{Form::select('SelectType',$AllTypes,$rategenerators->SelectType,array("class"=>"form-control select2 small", "disabled"))}}
+                            {{Form::select('SelectType',$AllTypes,$rategenerators->SelectType,array("class"=>"form-control select2 small"))}}
 
                         </div>
                         <label for="field-1" class="col-sm-2 control-label">Name</label>
@@ -210,11 +210,9 @@
                 <div class="col-md-12">
                     <br/>
                     <input type="hidden" id="getIDs" name="getIDs" value=""/>
-
                     <table id="servicetableSubBox" class="table table-bordered datatable">
                         <thead>
                             <tr>
-                                <th width="5%">#</th>
                                 <th width="30%">Component</th>
                                 <th width="20%">Action</th>
                                 <th width="35%">Merge To</th>
@@ -252,7 +250,6 @@
 
                                 ?>
                                 <tr id="selectedRow-{{$a}}">
-                                    <td> {{$a}}</td>
                                     <td id="testValues">
 
                                         {{ Form::select('Component-'.$a.'[]', $ComponentArray1, $ComponentArray1, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-".$a)) }}
@@ -285,7 +282,6 @@
 ?>
 
                             <tr id="selectedRow-1">
-                                <td> 1</td>
                                 <td id="testValues">
                                     {{ Form::select('Component-1[]', array(), null, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-1")) }}
 
@@ -973,7 +969,6 @@
             var $item = $('#servicetableSubBox tr:last').attr('id');
             var numb = getNumber($item);
             numb++;
-            alert(numb);
             var Component      =  $(this).closest('tr').children('td:eq(0)').children('select').attr('name');
             var action         =  $(this).closest('tr').children('td:eq(1)').children('select').attr('name');
             var merge          =  $(this).closest('tr').children('td:eq(2)').children('select').attr('name');
@@ -1033,6 +1028,9 @@
         var firstValue = selectedSubscription.substr(0, removalueIndex);
         var lastValue = selectedSubscription.substr(removalueIndex + removeValue.length, selectedSubscription.length);
         var selectedSubscription = firstValue + lastValue;
+        if (selectedSubscription.charAt(0) == ',') {
+            selectedSubscription = selectedSubscription.substr(1,selectedSubscription.length)
+        }
         $('#getIDs').val(selectedSubscription);
 
 
