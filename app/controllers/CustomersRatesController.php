@@ -134,8 +134,13 @@ class CustomersRatesController extends \BaseController {
             $companygateway = CompanyGateway::getCompanyGatewayIdList();
             unset($companygateway['']);
 
+            //As per new question call the routing profile model for fetch the routing profile list.
+            $routingprofile = RoutingProfiles::getRoutingProfile();
+            $RoutingProfileToCustomer	 	 ='';
+            //$RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id,"TrunkID"=>$ServiceID])->first();
+            //----------------------------------------------------------------------
 
-            return View::make('customersrates.trunks', compact('id', 'trunks', 'customer_trunks','codedecklist','Account','rate_tables','Account','companygateway'));
+            return View::make('customersrates.trunks', compact('id', 'trunks', 'customer_trunks','codedecklist','Account','rate_tables','Account','companygateway','routingprofile','RoutingProfileToCustomer'));
     }
 
     public function update_trunks($id) {
