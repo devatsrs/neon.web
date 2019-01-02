@@ -46,8 +46,8 @@ class AccountServiceController extends \BaseController {
             $routingprofile = RoutingProfiles::getRoutingProfile();
             $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id,"ServiceID"=>$ServiceID])->first();
             //----------------------------------------------------------------------
-            
-		return View::make('accountservices.edit', compact('AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer'));
+            $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE');
+		return View::make('accountservices.edit', compact('AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE'));
 	}
 
     // add account services
