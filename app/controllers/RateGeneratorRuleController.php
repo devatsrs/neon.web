@@ -95,15 +95,15 @@ class RateGeneratorRuleController extends \BaseController {
             $data ['CreatedBy'] = User::get_user_full_name();
             $data ['RateGeneratorId'] = $id;
 
-            $rules = array(
-
-                'Code' => 'required_without_all:OriginationDescription|unique:tblRateRule,OriginationCode,NULL,RateGeneratorId,RateGeneratorId,'.$data['RateGeneratorId'],
-                'Description' => 'required_without_all:OriginationCode|unique:tblRateRule,OriginationDescription,NULL,RateGeneratorId,RateGeneratorId,'.$data['RateGeneratorId'],
-                'DestinationCode' => 'required_without_all:DestinationDescription|unique:tblRateRule,DestinationCode,NULL ,RateGeneratorId,RateGeneratorId,'.$data['RateGeneratorId'],
-                'DestinationDescription' => 'required_without_all:DestinationCode|unique:tblRateRule,DestinationDescription,NULL,RateGeneratorId,RateGeneratorId,'.$data['RateGeneratorId'],
-                'RateGeneratorId' => 'required',
-                'CreatedBy' => 'required'
-            );
+//            $rules = array(
+//
+//                'Code' => 'required_without_all:OriginationDescription|unique:tblRateRule,Code,NULL,RateGeneratorId,RateGeneratorId,'.$data['RateGeneratorId'],
+//                'Description' => 'required_without_all:Code|unique:tblRateRule,OriginationDescription,NULL,RateGeneratorId,RateGeneratorId,'.$data['RateGeneratorId'],
+//                'DestinationCode' => 'required_without_all:DestinationDescription|unique:tblRateRule,DestinationCode,NULL ,RateGeneratorId,RateGeneratorId,'.$data['RateGeneratorId'],
+//                'DestinationDescription' => 'required_without_all:DestinationCode|unique:tblRateRule,DestinationDescription,NULL,RateGeneratorId,RateGeneratorId,'.$data['RateGeneratorId'],
+//                'RateGeneratorId' => 'required',
+//                'CreatedBy' => 'required'
+//            );
 
             $validator = Validator::make($data, $rules);
 
@@ -128,14 +128,14 @@ class RateGeneratorRuleController extends \BaseController {
             $rategenerator_rules = RateRule::find($RateRuleID); // RateRule::where([ "RateRuleID" => $RateRuleID])->get();
 
             $data ['ModifiedBy'] = User::get_user_full_name();
-
-                    $rules = array(
-                        'Code' => 'required_without_all:Description|unique:tblRateRule,Code,' . $RateRuleID . ',RateGeneratorId,RateGeneratorId,'.$id,
-                        'Description' => 'required_without_all:Code|unique:tblRateRule,Description,' . $RateRuleID . ',RateGeneratorId,RateGeneratorId,'.$id,
-                        'DestinationCode' => 'required_without_all:DestinationDescription|unique:tblRateRule,DestinationCode,' . $RateRuleID . ',RateGeneratorId,RateGeneratorId,'.$id,
-                        'DestinationDescription' => 'required_without_all:DestinationCode|unique:tblRateRule,DestinationDescription,' . $RateRuleID . ',RateGeneratorId,RateGeneratorId,'.$id,
-                        'ModifiedBy' => 'required'
-                    );
+//
+//                    $rules = array(
+//                        'Code' => 'required_without_all:Description|unique:tblRateRule,Code,' . $RateRuleID . ',RateGeneratorId,RateGeneratorId,'.$id,
+//                        'Description' => 'required_without_all:Code|unique:tblRateRule,Description,' . $RateRuleID . ',RateGeneratorId,RateGeneratorId,'.$id,
+//                        'DestinationCode' => 'required_without_all:DestinationDescription|unique:tblRateRule,DestinationCode,' . $RateRuleID . ',RateGeneratorId,RateGeneratorId,'.$id,
+//                        'DestinationDescription' => 'required_without_all:DestinationCode|unique:tblRateRule,DestinationDescription,' . $RateRuleID . ',RateGeneratorId,RateGeneratorId,'.$id,
+//                        'ModifiedBy' => 'required'
+//                    );
 
             $validator = Validator::make($data, $rules);
 

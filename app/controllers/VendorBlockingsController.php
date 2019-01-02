@@ -95,7 +95,7 @@ class VendorBlockingsController extends \BaseController {
         DB::select($query);
         \Illuminate\Support\Facades\Log::info($query);
 
-        $msgVendor = $Blocked = 1 ? 'Unblocked' : 'Blocked';
+        $msgVendor = $Blocked == 1 ? 'Unblocked' : 'Blocked';
         try{
             $message =  "Vendor ".$msgVendor." Successfully";
             return json_encode(["status" => "success", "message" => $message]);

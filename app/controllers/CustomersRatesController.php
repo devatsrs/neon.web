@@ -134,8 +134,13 @@ class CustomersRatesController extends \BaseController {
             $companygateway = CompanyGateway::getCompanyGatewayIdList();
             unset($companygateway['']);
 
+            //As per new question call the routing profile model for fetch the routing profile list.
+            $routingprofile = RoutingProfiles::getRoutingProfile();
+            $RoutingProfileToCustomer	 	 ='';
+            //$RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id,"TrunkID"=>$ServiceID])->first();
+            //----------------------------------------------------------------------
 
-            return View::make('customersrates.trunks', compact('id', 'trunks', 'customer_trunks','codedecklist','Account','rate_tables','Account','companygateway'));
+            return View::make('customersrates.trunks', compact('id', 'trunks', 'customer_trunks','codedecklist','Account','rate_tables','Account','companygateway','routingprofile','RoutingProfileToCustomer'));
     }
 
     public function update_trunks($id) {
@@ -154,6 +159,7 @@ class CustomersRatesController extends \BaseController {
         $post_data = Input::all();
         if (!empty($post_data)) {
 
+            print_r($post_data);
             //Check duplicate Prefix
             $prefix_array  = array();
             foreach ($post_data['CustomerTrunk'] as $trunk => $data) {
@@ -164,8 +170,33 @@ class CustomersRatesController extends \BaseController {
                         $prefix_array[] = $data['Prefix'];
                     }
                 }
+                
+                //Check Routing Profile
+                $routingprofile_array  = array();
+                if(!empty($data['RoutingProfileID'])) {
+                    
+                    $RoutingProfileID=$data['RoutingProfileID'];
+                    $routingprofile_array[] = $data['RoutingProfileID'];
+                    $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id,"TrunkID"=>$trunk])->first();
+                    if(isset($RoutingProfileToCustomer->TrunkID) && isset($RoutingProfileToCustomer->AccountID)){
+                        $routingprofile_table=array();
+                        $routingprofile_table['RoutingProfileID'] = $RoutingProfileID;
+                        $routingprofile_table['TrunkID'] = $trunk;
+                        $routingprofile_table['AccountID'] = $id;
+                        RoutingProfileToCustomer::where(["AccountID"=>$id,"TrunkID"=>$trunk])->update($routingprofile_table);
+                    }else{
+                        if($RoutingProfileID!=''){
+                            $routingprofile_table=array();
+                            $routingprofile_table['RoutingProfileID'] = $RoutingProfileID;
+                            $routingprofile_table['AccountID'] = $id;
+                            $routingprofile_table['TrunkID'] = $trunk;
+                            RoutingProfileToCustomer::insert($routingprofile_table);
+                        }
+                    }
+                }
             }
-
+            
+            //---------------------------------------------
             $companyID = User::get_companyID();
             foreach ($post_data['CustomerTrunk'] as $trunk => $data) {
                 DB::beginTransaction();
