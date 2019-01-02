@@ -175,7 +175,13 @@ class AccountsController extends \BaseController {
             }
             $dynamicfields = Account::getDynamicfields('account',0);
             $reseller_owners = Reseller::getDropdownIDList($company_id);
-            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company','reseller_owners'));
+            
+            //As per new question call the routing profile model for fetch the routing profile list.
+            $routingprofile = RoutingProfiles::getRoutingProfile();
+            //$RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
+            //----------------------------------------------------------------------
+        
+            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company','reseller_owners','routingprofile'));
     }
 
     /**
@@ -196,6 +202,10 @@ class AccountsController extends \BaseController {
                 $ResellerUserID = $ResellerUser->UserID;
                 $companyID=$ResellerCompanyID;
                 $data['Owner'] = $ResellerUserID;
+            }
+            $RoutingProfileID='';
+            if(isset($data['routingprofile'])){
+                $RoutingProfileID=$data['routingprofile'];
             }
             $data['CompanyID'] = $companyID;
             $data['AccountType'] = 1;
@@ -222,6 +232,7 @@ class AccountsController extends \BaseController {
              }
 
             unset($data['ResellerOwner']);
+            unset($data['routingprofile']);
 
             //when account varification is off in company setting then varified the account by default.
             $AccountVerification =  CompanySetting::getKeyVal('AccountVerification');
@@ -306,7 +317,26 @@ class AccountsController extends \BaseController {
                 $DynamicData = array();
                 $DynamicData['CompanyID']= $companyID;
                 $DynamicData['AccountID']= $account->AccountID;
+                
+                //
+                if($RoutingProfileID!=''){
+                    $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$account->AccountID])->first();
 
+                    if(isset($RoutingProfileToCustomer->AccountID)){
+                        $routingprofile_table=array();
+                        $routingprofile_table['RoutingProfileID'] = $RoutingProfileID;
+                        RoutingProfileToCustomer::where(['AccountID'=>$account->AccountID])->update($routingprofile_table);
+                    }else{
+                        if($RoutingProfileID!=''){
+                            $routingprofile_table=array();
+                            $routingprofile_table['RoutingProfileID'] = $RoutingProfileID;
+                            $routingprofile_table['AccountID'] = $account->AccountID;
+                            RoutingProfileToCustomer::insert($routingprofile_table);
+                        }
+                    }
+                    unset($data['routingprofile']);
+                }
+        
                 if(!empty($AccountGateway)){
                     $DynamicData['FieldName'] = 'accountgateway';
                     $DynamicData['FieldValue']= $AccountGateway;
@@ -556,6 +586,7 @@ class AccountsController extends \BaseController {
 	}
 	 
     public function edit($id) {
+        
         Payment::multiLang_init();
         $ServiceID = 0;
         $account = Account::find($id);
@@ -613,7 +644,14 @@ class AccountsController extends \BaseController {
         $accountreseller = Reseller::where('ChildCompanyID',$companyID)->pluck('ResellerID');
         $DiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::OUTBOUND,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
         $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::INBOUND,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
-        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller'));
+        
+        //As per new question call the routing profile model for fetch the routing profile list.
+        $routingprofile = RoutingProfiles::getRoutingProfile();
+        $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
+        //----------------------------------------------------------------------
+        
+        
+        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer'));
     }
 
     /**
@@ -642,7 +680,33 @@ class AccountsController extends \BaseController {
         }
         //$DiscountPlanID = $data['DiscountPlanID'];
         //$InboundDiscountPlanID = $data['InboundDiscountPlanID'];
+        
+        if(isset($data['routingprofile'])){
+            
+            //$RoutingProfileToCustomer = RoutingProfileToCustomer::where('RoutingProfileID',$data['routingprofile'])->first();
+            $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
+            
+            if(isset($RoutingProfileToCustomer->AccountID)){
+                $routingprofile_table=array();
+                $routingprofile_table['RoutingProfileID'] = $data['routingprofile'];
+                RoutingProfileToCustomer::where(['AccountID'=>$id])->update($routingprofile_table);
+            }else{
+                if($data['routingprofile']!=''){
+                    $routingprofile_table=array();
+                    $routingprofile_table['RoutingProfileID'] = $data['routingprofile'];
+                    $routingprofile_table['AccountID'] = $id;
 
+                    RoutingProfileToCustomer::insert($routingprofile_table);
+                }
+                //
+               // print_r($data);echo '-N--';
+            }
+            unset($data['routingprofile']);
+           // die();
+        }
+
+        // assign account to routin profile
+        //
         $AccountDetails=array();
         $AccountDetails['CustomerPaymentAdd'] = isset($data['CustomerPaymentAdd']) ? 1 : 0;
         //$AccountDetails['ResellerOwner'] = $ResellerOwner;
@@ -657,9 +721,9 @@ class AccountsController extends \BaseController {
         $data['IsReseller'] = isset($data['IsReseller']) ? 1 : 0;
         $data['Billing'] = isset($data['Billing']) ? 1 : 0;
         $data['updated_by'] = User::get_user_full_name();
-		$data['AccountName'] = trim($data['AccountName']);
-		$data['ShowAllPaymentMethod'] = isset($data['ShowAllPaymentMethod']) ? 1 : 0;
-		$data['DisplayRates'] = isset($data['DisplayRates']) ? 1 : 0;
+        $data['AccountName'] = trim($data['AccountName']);
+        $data['ShowAllPaymentMethod'] = isset($data['ShowAllPaymentMethod']) ? 1 : 0;
+        $data['DisplayRates'] = isset($data['DisplayRates']) ? 1 : 0;
 
         if($data['IsReseller']==1){
             $data['IsCustomer']=1;
