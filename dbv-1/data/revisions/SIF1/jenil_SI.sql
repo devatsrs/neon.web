@@ -489,6 +489,7 @@ DELIMITER ;
 
 USE speakIntelligentRoutingEngine;
 
+
 -- Dumping structure for table speakIntelligentRoutingEngine.tblActiveCall
 DROP TABLE IF EXISTS `tblActiveCall`;
 CREATE TABLE IF NOT EXISTS `tblActiveCall` (
@@ -503,13 +504,13 @@ CREATE TABLE IF NOT EXISTS `tblActiveCall` (
   `CLD` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `CLIPrefix` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `CLDPrefix` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `cost` decimal(18,6) DEFAULT NULL,
+  `Cost` decimal(18,6) DEFAULT NULL,
   `ServiceID` int(11) DEFAULT NULL,
   `CallType` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `CallRecordingStartTime` datetime DEFAULT NULL,
-  `CallRecording` tinyint(4) DEFAULT '0',
+  `CallRecording` tinyint(4) DEFAULT NULL,
   `PackageSubscriptionID` int(11) DEFAULT NULL,
-  `RecodingCost` decimal(18,6) DEFAULT NULL,
+  `RecordingCost` decimal(18,6) DEFAULT NULL,
   `CallRecordingDuration` int(11) DEFAULT NULL,
   `CallRecordingEndTime` datetime DEFAULT NULL,
   `OutpaymentCost` decimal(18,6) DEFAULT NULL,
@@ -517,17 +518,88 @@ CREATE TABLE IF NOT EXISTS `tblActiveCall` (
   `Chargeback` decimal(18,6) DEFAULT NULL,
   `CollectionAmount` decimal(18,6) DEFAULT NULL,
   `CollectionPercent` decimal(18,6) DEFAULT NULL,
-  `TrunkID` int(11) DEFAULT NULL,
-  `VendorID` int(11) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `created_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `updated_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `TrunkID` int(11) DEFAULT NULL,
+  `VendorID` int(11) DEFAULT NULL,
+  `AccountServiceID` int(11) DEFAULT NULL,
+  `IsBlock` tinyint(4) DEFAULT '0',
+  `BlockReason` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`ActiveCallID`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
 
 
 INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, NULL, 'ActiveCall Balance Alert', 'activecallbalancealert', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Api URL","type":"text","value":"","name":"APIURL"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2018-12-29 14:07:52', 'RateManagementSystem');
+
+
+
+-- Dumping structure for procedure speakIntelligentRoutingEngine.prc_getBlockCall
+DROP PROCEDURE IF EXISTS `prc_getBlockCall`;
+DELIMITER //
+CREATE PROCEDURE `prc_getBlockCall`(
+	IN `p_AccountId` INT,
+	IN `p_StartDate` DATE,
+	IN `p_EndDate` DATE
+
+
+)
+BEGIN
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+		IF p_AccountId > 0 THEN
+				SELECT
+				uh.StartDate,
+				ud.UsageDetailID,
+				ud.UsageHeaderID,
+				uh.GatewayAccountID,
+				ud.connect_time,
+				ud.disconnect_time,
+				ud.cli,
+				ud.cld,
+				ud.cost,
+				ud.area_prefix
+			FROM speakintelligentCDR.tblUsageDetails  ud
+			INNER JOIN speakintelligentCDR.tblUsageHeader uh
+				ON uh.UsageHeaderID = ud.UsageHeaderID
+			INNER JOIN speakintelligentRM.tblAccount a
+				ON uh.AccountID = a.AccountID
+			WHERE
+			(p_StartDate ='0000-00-00' OR ( p_StartDate != '0000-00-00' AND DATE(uh.StartDate) >= p_StartDate))
+			AND (p_EndDate ='0000-00-00' OR ( p_EndDate != '0000-00-00' AND DATE(uh.StartDate) <= p_EndDate))
+			AND uh.AccountID = p_AccountID;
+			
+		ELSE 
+		
+			SELECT
+				uh.StartDate,
+				ud.UsageDetailID,
+				ud.UsageHeaderID,
+				uh.GatewayAccountID,
+				ud.connect_time,
+				ud.disconnect_time,
+				ud.cli,
+				ud.cld,
+				ud.cost,
+				ud.area_prefix
+			FROM speakintelligentCDR.tblUsageDetails  ud
+			INNER JOIN speakintelligentCDR.tblUsageHeader uh
+				ON uh.UsageHeaderID = ud.UsageHeaderID
+			WHERE
+			(p_StartDate ='0000-00-00' OR ( p_StartDate != '0000-00-00' AND DATE(uh.StartDate) >= p_StartDate))
+			AND (p_EndDate ='0000-00-00' OR ( p_EndDate != '0000-00-00' AND DATE(uh.StartDate) <= p_EndDate));
+			
+		END IF;
+		
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
 
 /* Above done on staging */
 
@@ -594,5 +666,7 @@ ALTER TABLE tblVendorCDRFailed
   ADD COLUMN `CollectionPercent` decimal(18,6) DEFAULT NULL;  
   
   
-
+  
+ 
+	
 
