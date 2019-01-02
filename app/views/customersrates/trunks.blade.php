@@ -100,7 +100,11 @@
                                         <input type="hidden" name="ratetableid" value="{{$RateTableID}}">
                                     </td>
                                     <td>
-                                        {{Form::select('routingprofile', [null=>'Please Select'] + $routingprofile, (isset($RoutingProfileToCustomer->RoutingProfileID)?$RoutingProfileToCustomer->RoutingProfileID:'' ) ,array("class"=>"select2 small form-control1"));}}
+                                        <?php
+                                        $RoutingProfileToCustomer = RoutingProfileToCustomer::where(["AccountID"=>$id,"TrunkID"=>$trunk->TrunkID])->first();
+                                        ?>
+                                        {{Form::select('CustomerTrunk['.$trunk->TrunkID.'][RoutingProfileID]', [null=>'Please Select'] + $routingprofile, (isset($RoutingProfileToCustomer->RoutingProfileID)?$RoutingProfileToCustomer->RoutingProfileID:'' ) ,array("class"=>"select2 small form-control1"));}}
+                                        <input type="hidden" name="profiledetails" value="">
                                     </td>
                                     <td>
                                         @if(isset($customer_trunks[$trunk->TrunkID]->Status) && ($customer_trunks[$trunk->TrunkID]->Status == 1)) Active @else Inactive
