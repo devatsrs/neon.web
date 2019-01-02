@@ -363,8 +363,8 @@
                                             {{$rategenerator_rule->OriginationDescription}}
                                         </td>
                                         <td>
-                                            {{$rategenerator_rule->DestinationCode}}@if(!empty($rategenerator_rule->DestinationCode)) <br/> @endif
-                                            {{$rategenerator_rule->DestinationDescription}}
+                                            {{$rategenerator_rule->Code}}@if(!empty($rategenerator_rule->Code)) <br/> @endif
+                                            {{$rategenerator_rule->Description}}
                                         </td>
                                         <td>
                                             @if(count($rategenerator_rule['RateRuleSource']))
