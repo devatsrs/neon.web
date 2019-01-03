@@ -130,6 +130,10 @@ ALTER TABLE `tblRateTableRateChangeLog`
 	ADD COLUMN `Blocked` TINYINT NOT NULL DEFAULT '0' AFTER `Preference`,
 	ADD COLUMN `RoutingCategoryID` INT NULL DEFAULT NULL AFTER `Blocked`;
 
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1387, 'RateTables.ApprovalProcess', 1, 5);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('RateTables.approve_rate_table_did_rate', 'RateTablesController.approve_rate_table_did_rate', 1, 'Sumera Khan', NULL, '2019-01-02 11:34:50.000', '2019-01-02 11:34:50.000', 1387);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('RateTables.approve_rate_table_rate', 'RateTablesController.approve_rate_table_rate', 1, 'Sumera Khan', NULL, '2019-01-02 11:34:50.000', '2019-01-02 11:34:50.000', 1387);
+
 
 
 
@@ -4289,6 +4293,7 @@ ThisSP:BEGIN
 	DECLARE v_RateTableCurrencyID_ INT;
 	DECLARE v_CompanyCurrencyID_ INT;
 	DECLARE v_RateApprovalProcess_ INT;
+	DECLARE v_RateTableAppliedTo_ INT;
 
 	DECLARE v_pointer_ INT;
 	DECLARE v_rowCount_ INT;
@@ -4296,6 +4301,7 @@ ThisSP:BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 	SELECT Value INTO v_RateApprovalProcess_ FROM tblCompanySetting WHERE CompanyID = p_companyId AND `Key`='RateApprovalProcess';
+	SELECT AppliedTo INTO v_RateTableAppliedTo_ FROM tblRateTable WHERE RateTableID = p_RateTableId;
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_JobLog_;
 	CREATE TEMPORARY TABLE tmp_JobLog_ (
@@ -4928,7 +4934,8 @@ ThisSP:BEGIN
 			tblTempRateTableRate.Blocked,
 			tblTempRateTableRate.RoutingCategoryID,
 			IFNULL(tmp_PreviousRate.PreviousRate,0) AS PreviousRate,
-			IF(v_RateApprovalProcess_=1,0,1) AS ApprovedStatus
+			 -- if rate table is not vendor rate table and Rate Approval Process is on then rate will be upload as not approved
+			IF(v_RateTableAppliedTo_!=2,IF(v_RateApprovalProcess_=1,0,1),1) AS ApprovedStatus
 		FROM tmp_TempRateTableRate_ as tblTempRateTableRate
 		JOIN tblRate
 			ON tblRate.Code = tblTempRateTableRate.Code

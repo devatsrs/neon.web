@@ -152,8 +152,9 @@ class RoutingApiController extends ApiController {
 //                }
                 } else {
                     $selectDataFromTable = 'tblVendorRate';
+                    $RoutingProfileIds = ",";
                     $query = "CALL speakIntelligentRoutingEngine.prc_getRotingRecords(" . $CustomerProfileAccountID ."," . "'" .$routingData['OriginationCode']."'". "," ."'".$routingData['DestinationCode']."'".
-                        "," . "'" . $selectDataFromTable."'". ")";
+                        "," . "'" . $selectDataFromTable."'". "," . "'" . $RoutingProfileIds. "'" . ")";
                     Log::info('Filter Routing Profile List procedure' . $query);
                     $lcrDetails  = DB::select($query);
                     Log::info('Filter Routing Profile List procedure' . count($lcrDetails));

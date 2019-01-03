@@ -2,7 +2,7 @@
 
 class ActiveCall extends \Eloquent {
 
-    protected $connection = 'neon_routingengine';
+    protected $connection = 'speakIntelligentRoutingEngine';
     protected $fillable = [];
     protected $guarded = array('ActiveCallID');
     protected $table = 'tblActiveCall';
