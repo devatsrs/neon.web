@@ -181,7 +181,7 @@ class AccountsController extends \BaseController {
             $routingprofile = RoutingProfiles::getRoutingProfile();
             //$RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
             //----------------------------------------------------------------------
-            $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE');die($ROUTING_PROFILE);
+            $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE');
             return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company','reseller_owners','routingprofile','ROUTING_PROFILE'));
     }
 
