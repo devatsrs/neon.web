@@ -291,7 +291,6 @@ class CustomersRatesController extends \BaseController {
 
                     DB::commit();
                 } catch (Exception $ex) {
-                    echo $ex->getMessage();die();
                     DB::rollback();
                 }
             }
