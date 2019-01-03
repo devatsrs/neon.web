@@ -1601,6 +1601,15 @@ Route::group(array('before' => 'auth'), function () {
         
         Route::any('/assignrouting/exports/{type}', 'AssignRoutingController@exports');
         
+        //Test Dial Plan
+	Route::any('/testdialplan/ajax_datagrid', 'TestdialplanController@ajax_datagrid');
+	Route::any('/testdialplan', 'TestdialplanController@index');
+	Route::any('/testdialplan/create', 'TestdialplanController@create');
+	Route::any('/testdialplan/update/{id}', 'TestdialplanController@update');
+	Route::any('/testdialplan/{id}/delete', 'TestdialplanController@delete');
+        Route::any('/testdialplan/update_fields_sorting', 'TestdialplanController@update_fields_sorting');
+        Route::any('/testdialplan/exports/{type}', 'TestdialplanController@exports');
+        
         
 });
 
