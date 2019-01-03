@@ -17,8 +17,8 @@ class RoutingApiController extends ApiController {
             'OriginationNo' => 'required',
             'DestinationNo' => 'required',
             'ConnectTime' => 'required',
-            'Number' => 'required_without_all:CustomerID',
-            'CustomerID' => 'required_without_all:Number',
+            'AccountNumber' => 'required_without_all:CustomerID',
+            'CustomerID' => 'required_without_all:AccountNumber',
         );
         $validator = Validator::make($routingData, $rules);
 
@@ -33,10 +33,10 @@ class RoutingApiController extends ApiController {
         $profiles = '';
         $RoutingProfileId = array();
         $CustomerProfileAccountID = '';
-        if (isset($routingData["Number"]) && $routingData["Number"] != '') {
-            $CustomerProfileAccountID = AccountRoutingProfile::where(["AccountNumber" => $routingData["Number"]])->pluck("AccountID");
+        if (isset($routingData["AccountNumber"]) && $routingData["AccountNumber"] != '') {
+            $CustomerProfileAccountID = Account::where(["Number" => $routingData["AccountNumber"]])->pluck("AccountID");
         }else {
-            $CustomerProfileAccountID = AccountRoutingProfile::where(["AccountID" => $routingData["CustomerID"]])->pluck("AccountID");
+            $CustomerProfileAccountID = Account::where(["AccountID" => $routingData["CustomerID"]])->pluck("AccountID");
         }
         Log::info('routingList:Get the routing list count.' . $CustomerProfileAccountID);
 
@@ -67,7 +67,9 @@ class RoutingApiController extends ApiController {
                     whereRaw($routingData["DestinationNo"] . ' like  CONCAT(tblRoutingProfileRate.selectionCode,"%")')
                                 ->orderByRaw('CONCAT(tblRoutingProfileRate.selectionCode,"%") desc')
                                 ->take(1);
+        Log::info('routingList profiles case 1 query with RoutingProfileRate Query' . $lcrDetails->toSql());
                 $lcrDetails= $lcrDetails->get();
+
                 Log::info('routingList profiles case 1 query with RoutingProfileRate ' . count($lcrDetails));
                 if (count($lcrDetails) > 0) {
                     foreach ($lcrDetails as $lcrDetail) {
