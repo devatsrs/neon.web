@@ -146,7 +146,8 @@ class AccountsController extends \BaseController {
         $timezones = TimeZone::getTimeZoneDropdownList();
         $rate_timezones = Timezones::getTimezonesIDList();
         $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
-        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','bulk_type','Currencies','BillingClass','timezones','reseller_owners','rate_timezones'));
+        $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE');
+        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','bulk_type','Currencies','BillingClass','timezones','reseller_owners','rate_timezones','ROUTING_PROFILE'));
 
     }
 
@@ -180,8 +181,8 @@ class AccountsController extends \BaseController {
             $routingprofile = RoutingProfiles::getRoutingProfile();
             //$RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
             //----------------------------------------------------------------------
-        
-            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company','reseller_owners','routingprofile'));
+            $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE');die($ROUTING_PROFILE);
+            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company','reseller_owners','routingprofile','ROUTING_PROFILE'));
     }
 
     /**
@@ -650,8 +651,8 @@ class AccountsController extends \BaseController {
         $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
         //----------------------------------------------------------------------
         
-        
-        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer'));
+        $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE');
+        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE'));
     }
 
     /**

@@ -68,7 +68,9 @@
                                     <th style="text-align:center" width="7%">Enable Routing Plan</th>
                                     <th width="18%">CodeDeck</th>
                                     <th width="30%">Base Rate Table</th>
+                                    @if($ROUTING_PROFILE =='1')
                                     <th width="30%">Routing Profile</th>
+                                    @endif
                                     <th width="4%">Status</th>
                                 </tr>
                             </thead>
@@ -99,6 +101,7 @@
                                         {{ Form::select( 'CustomerTrunk['.$trunk->TrunkID.'][RateTableID]'    , $rate_table, $RateTableID   , array("class"=>"select2 small ratetableid","data-placeholder"=>"Select a Table")) }}
                                         <input type="hidden" name="ratetableid" value="{{$RateTableID}}">
                                     </td>
+                                    @if($ROUTING_PROFILE =='1') 
                                     <td>
                                         <?php
                                         $RoutingProfileToCustomer = RoutingProfileToCustomer::where(["AccountID"=>$id,"TrunkID"=>$trunk->TrunkID])->first();
@@ -106,6 +109,7 @@
                                         {{Form::select('CustomerTrunk['.$trunk->TrunkID.'][RoutingProfileID]', [null=>'Please Select'] + $routingprofile, (isset($RoutingProfileToCustomer->RoutingProfileID)?$RoutingProfileToCustomer->RoutingProfileID:'' ) ,array("class"=>"select2 small form-control1"));}}
                                         <input type="hidden" name="profiledetails" value="">
                                     </td>
+                                    @endif
                                     <td>
                                         @if(isset($customer_trunks[$trunk->TrunkID]->Status) && ($customer_trunks[$trunk->TrunkID]->Status == 1)) Active @else Inactive
                                         @endif
