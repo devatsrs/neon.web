@@ -160,8 +160,8 @@ class RoutingApiController extends ApiController {
         GetTimeZone::where(array('getTimezoneID'=>$GetTimeZone->getTimezoneID))->delete();
 
                     Log::info('Filter Routing Profile List procedure' . $CustomerProfileAccountID);
-                    $query = "CALL prc_getRotingRecords(" . $CustomerProfileAccountID . "," . "'" . $routingData['OriginationNo'] . "'" . "," . "'" . $routingData['DestinationNo'] . "'" .
-                        "," . "'" . $queryTimeZone . "'" . "," . "'" . $RoutingProfileIds. "'" . ",'" . $Prefix. "'" .")";
+                    $query = "CALL prc_getRoutingRecords(" . $CustomerProfileAccountID . "," . "'" . $routingData['OriginationNo'] . "'" . "," . "'" . $routingData['DestinationNo'] . "'" .
+                        "," . "'" . $queryTimeZone . "'" . "," . "'" . $RoutingProfileIds. "'"  .")";
                     Log::info('Filter Routing Profile List procedure' . $query);
                     $lcrDetails = DB::connection('speakIntelligentRoutingEngine')->select($query);
                     Log::info('Filter Routing Profile List procedure' . count($lcrDetails));
