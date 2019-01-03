@@ -34,7 +34,7 @@ class RoutingApiController extends ApiController {
         $RoutingProfileId = array();
         $CustomerProfileAccountID = '';
         if (isset($routingData["AccountNumber"]) && $routingData["AccountNumber"] != '') {
-            $CustomerProfileAccountID = Account::where(["AccountNumber" => $routingData["AccountNumber"]])->pluck("AccountID");
+            $CustomerProfileAccountID = Account::where(["Number" => $routingData["AccountNumber"]])->pluck("AccountID");
         }else {
             $CustomerProfileAccountID = Account::where(["AccountID" => $routingData["CustomerID"]])->pluck("AccountID");
         }
