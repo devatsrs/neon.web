@@ -545,7 +545,6 @@ CREATE PROCEDURE `prc_getBlockCall`(
 	IN `p_StartDate` DATE,
 	IN `p_EndDate` DATE
 
-
 )
 BEGIN
 
@@ -571,7 +570,8 @@ BEGIN
 			WHERE
 			(p_StartDate ='0000-00-00' OR ( p_StartDate != '0000-00-00' AND DATE(uh.StartDate) >= p_StartDate))
 			AND (p_EndDate ='0000-00-00' OR ( p_EndDate != '0000-00-00' AND DATE(uh.StartDate) <= p_EndDate))
-			AND uh.AccountID = p_AccountID;
+			AND uh.AccountID = p_AccountID
+			AND ud.disposition='Blocked';
 			
 		ELSE 
 		
@@ -591,7 +591,8 @@ BEGIN
 				ON uh.UsageHeaderID = ud.UsageHeaderID
 			WHERE
 			(p_StartDate ='0000-00-00' OR ( p_StartDate != '0000-00-00' AND DATE(uh.StartDate) >= p_StartDate))
-			AND (p_EndDate ='0000-00-00' OR ( p_EndDate != '0000-00-00' AND DATE(uh.StartDate) <= p_EndDate));
+			AND (p_EndDate ='0000-00-00' OR ( p_EndDate != '0000-00-00' AND DATE(uh.StartDate) <= p_EndDate))
+			AND ud.disposition='Blocked';
 			
 		END IF;
 		
@@ -600,6 +601,7 @@ BEGIN
 
 END//
 DELIMITER ;
+
 
 /* Above done on staging */
 
