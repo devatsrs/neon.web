@@ -248,6 +248,8 @@
         if(performance.navigation.type == 2)
         {
             $('#getIDs').val('');
+            $("#hide-components").hide();
+
         }
 
         $('#servicetableSubBox tbody tr').each(function() {
@@ -305,6 +307,8 @@
             $("#group-preference-div").show();
             $("#Merge-components").hide();
             $("#DIDCategoryDiv").hide();
+            $("#hide-components").hide();
+
         }
 
         $("#rategenerator-from [name='SelectType']").on('change', function() {

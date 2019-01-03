@@ -57,7 +57,6 @@
                 var DestinationCode         = $("#rategenerator-code-from input[name='Code']").val();
                 var DestinationDescription  = $("#rategenerator-code-from input[name='Description']").val();
 
-                alert(DestinationCode +','+ DestinationDescription);
 //                if((typeof OriginationCode  == 'undefined' || OriginationCode.trim() == '' ) && (typeof OriginationDescription  == 'undefined' || OriginationDescription.trim() == '' )){
 //
 //                    setTimeout(function(){$('.btn').button('reset');},10);
