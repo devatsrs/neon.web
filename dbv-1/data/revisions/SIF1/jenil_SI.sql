@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `tblRateType` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- Dumping data for table speakintelligentRM.tblRateType: ~2 rows (approximately)
-/*!40000 ALTER TABLE `tblRateType` DISABLE KEYS */;
+
 INSERT INTO `tblRateType` (`RateTypeID`, `Slug`, `Title`, `Description`, `Active`, `created_at`, `updated_at`, `created_by`, `updated_by`) VALUES
 	(1, 'voicecall', 'Voice Call', NULL, 1, '2018-12-27 15:14:39', '2018-12-27 15:14:44', 'jenil', NULL),
 	(2, 'did', 'DID', NULL, 1, '2018-12-27 15:14:39', '2018-12-27 15:14:44', 'jenil', NULL);
@@ -443,6 +443,7 @@ ALTER TABLE `tblPayment`
 	ADD COLUMN `IsOutPayment` TINYINT(1) NULL DEFAULT '0' AFTER `UsageEndDate`;
 	
 
+USE speakintelligentBilling;	
 DROP PROCEDURE IF EXISTS `prc_getTransactionHistory`;
 DELIMITER //
 CREATE PROCEDURE `prc_getTransactionHistory`(
@@ -531,12 +532,12 @@ CREATE TABLE IF NOT EXISTS `tblActiveCall` (
 ) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
-
+use speakintelligentRM;
 
 INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, NULL, 'ActiveCall Balance Alert', 'activecallbalancealert', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Api URL","type":"text","value":"","name":"APIURL"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2018-12-29 14:07:52', 'RateManagementSystem');
 
 
-
+USE speakIntelligentRoutingEngine;
 -- Dumping structure for procedure speakIntelligentRoutingEngine.prc_getBlockCall
 DROP PROCEDURE IF EXISTS `prc_getBlockCall`;
 DELIMITER //
