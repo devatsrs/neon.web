@@ -748,6 +748,112 @@ Return
 
 
 
+### GET billingClassList
+
+http://speakintelligence.neon-soft.com/api/billingClass/list
+
+Return
+
+    Example:
+
+        Response:
+
+         {
+             "status": "success",
+             "data": [
+                 {
+                     "Name": "Wholesale",
+                     "BillingClassID": 1,
+                     "TaxRateID": "1"
+                 },
+                 {
+                     "Name": "Wt Services",
+                     "BillingClassID": 2,
+                     "TaxRateID": "2,3,8"
+                 },
+                 {
+                     "Name": "WT business",
+                     "BillingClassID": 3,
+                     "TaxRateID": "2"
+                 },
+                 {
+                     "Name": "Porta",
+                     "BillingClassID": 4,
+                     "TaxRateID": "2"
+                 },
+                 {
+                     "Name": "Default Billing Class",
+                     "BillingClassID": 5,
+                     "TaxRateID": "2,3,4,5,6,7,8,9"
+                 },
+                 {
+                     "Name": "bug test",
+                     "BillingClassID": 7,
+                     "TaxRateID": ""
+                 },
+                 {
+                     "Name": "test billing class",
+                     "BillingClassID": 8,
+                     "TaxRateID": ""
+                 },
+                 {
+                     "Name": "test billing Class account",
+                     "BillingClassID": 9,
+                     "TaxRateID": "1,6"
+                 },
+                 {
+                     "Name": "template number test with recuring",
+                     "BillingClassID": 10,
+                     "TaxRateID": "2"
+                 },
+                 {
+                     "Name": "0300101",
+                     "BillingClassID": 11,
+                     "TaxRateID": ""
+                 },
+                 {
+                     "Name": "vasim billing",
+                     "BillingClassID": 12,
+                     "TaxRateID": "1"
+                 },
+                 {
+                     "Name": "GIRISH",
+                     "BillingClassID": 13,
+                     "TaxRateID": ""
+                 },
+                 {
+                     "Name": "Reseller billing",
+                     "BillingClassID": 14,
+                     "TaxRateID": "11"
+                 },
+                 {
+                     "Name": "Round Charged CDR Test",
+                     "BillingClassID": 15,
+                     "TaxRateID": ""
+                 },
+                 {
+                     "Name": "SSResller Class",
+                     "BillingClassID": 16,
+                     "TaxRateID": ""
+                 },
+                 {
+                     "Name": "PAYG",
+                     "BillingClassID": 17,
+                     "TaxRateID": ""
+                 },
+                 {
+                     "Name": "test",
+                     "BillingClassID": 18,
+                     "TaxRateID": ""
+                 }
+             ]
+         }
+
+
+
+
+
+
 ### POST Create Account
 
 http://speakintelligence.neon-soft.com/api/account/create
