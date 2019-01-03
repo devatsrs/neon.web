@@ -407,6 +407,334 @@ Return
             }
 
 
+### POST blockCall
+
+http://speakintelligence.neon-soft.com/api/blockCall
+
+Perams:
+
+"AccountID"/"AccountNo"
+UUID
+DisconnectTime
+BlockReason
+
+Return
+
+    Example:
+        Request:
+        AccountID: "6727"
+        UUID   : 1155545
+        BlockReason : LowBalance
+
+        Response:
+
+            {
+                "status": "success",
+                "message": "Call Blocked Successfully",
+                "data": {
+                    "duration": 120
+                }
+            }
+
+
+### POST getBlockCalls
+
+http://speakintelligence.neon-soft.com/api/getBlockCalls
+
+Perams:
+
+"AccountID"(optional)
+StartDate
+EndDate
+
+Return
+
+    Example:
+        Request:
+        StartDate:
+        EndDate   : 2018-11-27
+        AccountID : 2018-11-27
+
+        Response:
+
+            {
+                "status": "success",
+                "data": [
+                    {
+                        "StartDate": "2018-11-27 00:00:00",
+                        "UsageDetailID": 106350639,
+                        "UsageHeaderID": 188050,
+                        "GatewayAccountID": "Call Max Management",
+                        "connect_time": "2018-12-04 12:19:59",
+                        "disconnect_time": "2018-12-04 12:20:06",
+                        "cli": "15684083685",
+                        "cld": "111129171797732",
+                        "cost": "0.033800",
+                        "area_prefix": "Other"
+                    }
+                ]
+            }
+
+
+### GET EmailTemplate List
+
+http://speakintelligence.neon-soft.com/api/emailTemplate/list
+
+Return
+
+    Example:
+
+        Response:
+
+            {
+                "status": "success",
+                "data": [
+                    {
+                        "TemplateID": 2,
+                        "LanguageID": 43,
+                        "TemplateName": "Push List Template",
+                        "Subject": "Push List",
+                        "TemplateBody": "Dear&nbsp;{{FirstName}}&nbsp;{{LastName}}<br><br>{{PostCode}} &nbsp;{{CompanyName}}{{CompanyAddress1}}{{CompanyAddress2}}{{CompanyAddress3}}{{CompanyCity}}{{CompanyPostCode}}<br><br>Our latest push list&nbsp;<br><br><table>\r\n <tbody><tr>\r\n  <td></td>\r\n  <td></td>\r\n  <td></td>\r\n  <td></td>\r\n  <td></td>\r\n </tr>\r\n <tr>\r\n  <td></td>\r\n  <td>Pakistan&nbsp;</td>\r\n  <td>0.0656</td>\r\n  <td></td>\r\n  <td></td>\r\n </tr>\r\n <tr>\r\n  <td></td>\r\n  <td>India</td>\r\n  <td>0.66161</td>\r\n  <td></td>\r\n  <td></td>\r\n </tr>\r\n <tr>\r\n  <td></td>\r\n  <td></td>\r\n  <td></td>\r\n  <td></td>\r\n  <td></td>\r\n </tr>\r\n <tr>\r\n  <td></td>\r\n  <td></td>\r\n  <td></td>\r\n  <td></td>\r\n  <td></td>\r\n </tr>\r\n <tr>\r\n  <td></td>\r\n  <td></td>\r\n  <td></td>\r\n  <td></td>\r\n  <td></td>\r\n </tr></tbody></table><br>Regards<br><br>Sales<br><br><img alt=\"\" src=\"http://wave-tel.com/images/logo2.png\"><br>"
+                    },
+                    {
+                        "TemplateID": 13,
+                        "LanguageID": 43,
+                        "TemplateName": "Rate Notification",
+                        "Subject": "Rate Notification from Wave Tel Limited",
+                        "TemplateBody": "<span>Dear PARTNER &nbsp;\r\n&nbsp;<br>\r\n<br>\r\nOn behalf of &nbsp;WaveTel , please find attached rate updates.&nbsp;Kindly note that the rates/codes specified in the attached rate sheets shall be\r\nthe only effective ones offered by Wavetel for CORE ROUTES. All previous rates/codes offered would be considered as null. <br><br><u>TECH PREFIX</u> - Please open the ratesheet to know the TECH PREFIX.&nbsp;<br></span><br><p><u>Note:</u> Kindly confirm receipt of the rate\r\nnotification by replying to this email. Failure to confirm receipt will not\r\nimpair effectiveness of this rate notice.&nbsp;</p><p><br></p><p><br></p><p><b>Best Regards</b></p><p><b><span><br>\r\nKhaza Mizan</span></b></p><p><b>Wavetel\r\nLimited</b></p><p><i>88 -90&nbsp;Goodmayes Road, Essex, IG3 9UU, London, UK</i><i><span>​​<br>\r\n</span></i><i><span><br>\r\n</span></i><b>T</b>&nbsp;+44(0) 0203 5000 975&nbsp;<b>M&nbsp;</b>+(44)\r\n(0)7410168732&nbsp;</p><p><b>E</b>&nbsp;<a rel=\"nofollow\" target=\"_blank\">khaza.mizan@wave-tel.com</a>&nbsp;<b>W</b><b>&nbsp;</b><span><a rel=\"nofollow\" target=\"_blank\" href=\"http://www.zamirtelecom.com/\" title=\"Link: http://www.zamirtelecom.com/\">www.</a><a rel=\"nofollow\" target=\"_blank\" href=\"http://wave-tel.com/\">wave-tel.com</a></span><span><br>\r\n</span><b>SKYPE</b><b>&nbsp;</b>live:mizankm&nbsp;<b>Whats&nbsp;App\r\n&amp; Viber</b><b>&nbsp;</b>+447970973057​</p><p><br></p><p>\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n</p><p><span>This\r\nmessage is confidential and is intended solely for the use of the individual to\r\nwhom it is addressed. Any views and opinions expressed are solely that of the\r\nauthor and not necessarily that of \"\" or any of its subsidiary\r\ncompanies or partner institutions. It may contain legally privileged, sensitive\r\ndata and be protected by legal rules. If you have received this email by error,\r\nyou must let the sender know and delete it immediately. The organisation\r\naccepts no liability for any damage caused by any virus transmitted by this\r\nemail, which may not be secure.</span></p>\r\n\r\n<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</p>"
+                    },
+                    {
+                        "TemplateID": 14,
+                        "LanguageID": 43,
+                        "TemplateName": "URGENT RATE INCREASE",
+                        "Subject": "Urgent Rate Increase Notification",
+                        "TemplateBody": "<span>Dear PARTNER &nbsp; &nbsp;<br><br>On behalf of &nbsp;WaveTel , please find attached rate updates.&nbsp;Kindly note that the rates/codes specified in the attached rate sheets shall be the only effective ones offered by Wavetel for CORE ROUTES.&nbsp;All previous rates/codes offered would be considered as null.&nbsp;<br><br><u>TECH PREFIX</u>&nbsp;- Please open the ratesheet to know the TECH PREFIX.&nbsp;<br></span><br><p><u>Note:</u>&nbsp;Kindly confirm receipt of the rate notification by replying to this email. Failure to confirm receipt will not impair effectiveness of this rate notice.&nbsp;</p><p><br></p><p><br></p><p><b>Best Regards</b></p><p><b><br>Khaza Mizan</b></p><p><b>Wavetel Limited</b></p><p><i>88 -90&nbsp;Goodmayes Road, Essex, IG3 9UU, London, UK</i><i>​​<br></i><i><br></i><b>T</b>&nbsp;+44(0) 0203 5000 975&nbsp;<b>M&nbsp;</b>+(44) (0)7410168732&nbsp;</p><p><b>E</b>&nbsp;<a rel=\"nofollow\" target=\"_blank\">khaza.mizan@wave-tel.com</a>&nbsp;<b>W</b><b>&nbsp;</b><a rel=\"nofollow\" target=\"_blank\" href=\"http://www.zamirtelecom.com/\">www.</a><a rel=\"nofollow\" target=\"_blank\" href=\"http://wave-tel.com/\">wave-tel.com</a><br><b>SKYPE</b><b>&nbsp;</b>live:mizankm&nbsp;<b>Whats&nbsp;App &amp; Viber</b><b>&nbsp;</b>+447970973057​</p><p><br></p><p></p><p>This message is confidential and is intended solely for the use of the individual to whom it is addressed. Any views and opinions expressed are solely that of the author and not necessarily that of \"\" or any of its subsidiary companies or partner institutions. It may contain legally privileged, sensitive data and be protected by legal rules. If you have received this email by error, you must let the sender know and delete it immediately. The organisation accepts no liability for any damage caused by any virus transmitted by this email, which may not be secure.</p>"
+                    },
+                    {
+                        "TemplateID": 15,
+                        "LanguageID": 43,
+                        "TemplateName": "SamTemplate",
+                        "Subject": "Account General",
+                        "TemplateBody": "{{FirstName}} &nbsp;{{LastName}}"
+                    },
+                    {
+                        "TemplateID": 16,
+                        "LanguageID": 43,
+                        "TemplateName": "SS Template",
+                        "Subject": "SS 08",
+                        "TemplateBody": "<p>{{FirstName}}&nbsp;{{LastName}}&nbsp;<br><br>{{Signature}}<br><br><img src=\"https://s3-us-west-2.amazonaws.com/ratemanagement.staging/1/Wysihtml5fileupload/2016/04/08/Wysihtml5_C047D66E-C5DD-8EB3-A024-3545BD6F4A5D.png\" title=\"Image: https://s3-us-west-2.amazonaws.com/ratemanagement.staging/1/Wysihtml5fileupload/2016/04/08/Wysihtml5_C047D66E-C5DD-8EB3-A024-3545BD6F4A5D.png\"><br></p><p><br></p><p style=\"text-align: right; \">וְאָהַבְתָּ אֵת יְיָ | אֱלֹהֶיךָ, בְּכָל-לְבָֽבְךָ, וּבְכָל-נַפְשְׁךָ, וּבְכָל-מְאֹדֶֽךָ. וְהָיוּ הַדְּבָרִים הָאֵלֶּה, אֲשֶׁר | אָֽנֹכִי מְצַוְּךָ הַיּוֹם, עַל-לְבָבֶֽךָ: וְשִׁנַּנְתָּם לְבָנֶיךָ, וְדִבַּרְתָּ בָּם בְּשִׁבְתְּךָ בְּבֵיתֶךָ, וּבְלֶכְתְּךָ בַדֶּרֶךְ וּֽבְשָׁכְבְּךָ, וּבְקוּמֶֽךָ. וּקְשַׁרְתָּם לְאוֹת | עַל-יָדֶךָ, וְהָיוּ לְטֹטָפֹת בֵּין | עֵינֶֽיךָ, וּכְתַבְתָּם | עַל מְזֻזֹת בֵּיתֶךָ וּבִשְׁעָרֶֽיךָ:</p><p style=\"text-align: right; \">וְהָיָה אִם-שָׁמֹעַ תִּשְׁמְעוּ אֶל-מִצְוֹתַי, אֲשֶׁר | אָנֹכִי מְצַוֶּה | אֶתְכֶם הַיּוֹם, לְאַהֲבָה אֶת יְיָ | אֱלֹֽהֵיכֶם, וּלְעָבְדוֹ בְּכָל-לְבַבְכֶם וּבְכָל נַפְשְׁכֶם. וְנָֽתַתִּי מְטַֽר-אַרְצְכֶם בְּעִתּוֹ, יוֹרֶה וּמַלְקוֹשׁ, וְאָֽסַפְתָּ דְגָנֶךָ וְתִירֽשְׁךָ וְיִצְהָרֶֽךָ. וְנָֽתַתִּי | עֵשֶׂב | בְּשָֽׂדְךָ לִבְהֶמְתֶּךָ, וְאָֽכַלְתָּ וְשָׂבָֽעְתָּ. הִשָּֽׁמְרוּ לָכֶם פֶּן-יִפְתֶּה לְבַבְכֶם, וְסַרְתֶּם וַעֲבַדְתֶּם | אֱלֹהִים | אֲחֵרִים וְהִשְׁתַּחֲוִיתֶם לָהֶם. וְחָרָה | אַף-יְיָ בָּכֶם, וְעָצַר | אֶת-הַשָּׁמַיִם וְלֹא-יִהְיֶה מָטָר, וְהָאֲדָמָה לֹא תִתֵּן אֶת-יְבוּלָהּ וַאֲבַדְתֶּם | מְהֵרָה מֵעַל הָאָרֶץ הַטֹּבָה | אֲשֶׁר | יְיָ נֹתֵן לָכֶם: וְשַׂמְתֶּם | אֶת דְּבָרַי | אֵלֶּה עַל-לְבַבְכֶם וְעַל-נַפְשְׁכֶם וּקְשַׁרְתֶּם | אֹתָם לְאוֹת | עַל-יֶדְכֶם, וְהָיוּ לְטוֹטָפֹת בֵּין | עֵינֵיכֶם: וְלִמַּדְתֶּם | אֹתָם | אֶת-בְּנֵיכֶם, לְדַבֵּר בָּם, בְּשִׁבְתְּךָ בְּבֵיתֶךָ, וּבְלֶכְתְּךָ בַדֶּרֶךְ, וּבְשָׁכְבְּךָ וּבְקוּמֶֽךָ: וּכְתַבְתָּם | עַל-מְזוּזוֹת בֵּיתֶךָ וּבִשְׁעָרֶֽיךָ: לְמַעַן | יִרְבּוּ | יְמֵיכֶם וִימֵי בְנֵיכֶם עַל הָֽאֲדָמָה | אֲשֶׁר נִשְׁבַּע | יְיָ לַאֲבֹֽתֵיכֶם לָתֵת לָהֶם, כִּימֵי הַשָּׁמַיִם | עַל-הָאָֽרֶץ:</p><div style=\"text-align: right; \"><br></div>"
+                    },
+                    {
+                        "TemplateID": 17,
+                        "LanguageID": 43,
+                        "TemplateName": "Low Balance Reminders",
+                        "Subject": "Low Balance Reminders",
+                        "TemplateBody": "<p>You reached call credit on account&nbsp;is {{Currency}}{{OutstandingIncludeUnbilledAmount}} which is below the warning level set of {{Currency}} {{BalanceThreshold}}</p><p>Please make a payment to your account soon to ensure your services are not limited.</p><p>As your balance is below {{Currency}}{{BalanceThreshold}}.</p><p><br></p><p>Exclude : {{OutstandingExcludeUnbilledAmount}}</p><p>Include: {{OutstandingIncludeUnbilledAmount}}</p>&nbsp;<br><br>{{BalanceThreshold}}<br>"
+                    }
+                ]
+            }
+
+
+### GET UsersList
+
+http://speakintelligence.neon-soft.com/api/users/list
+
+Return
+
+    Example:
+
+        Response:
+
+           {
+               "status": "success",
+               "data": [
+                   {
+                       "UserID": 1,
+                       "FirstName": "Sumera",
+                       "LastName": "Khan",
+                       "EmailAddress": "saeedsumera@hotmail.com",
+                       "AccountingUser": 1
+                   },
+                   {
+                       "UserID": 91,
+                       "FirstName": "Onno",
+                       "LastName": "Westra",
+                       "EmailAddress": "onno.westra@speakintelligence.com",
+                       "AccountingUser": null
+                   }
+               ]
+           }
+
+
+
+### GET CurrencyList
+
+http://speakintelligence.neon-soft.com/api/currency/list
+
+Return
+
+    Example:
+
+        Response:
+
+          {
+              "status": "success",
+              "data": [
+                  {
+                      "CurrencyId": 2,
+                      "Symbol": "£",
+                      "Code": "GBP",
+                      "Description": "Great Britain Pound"
+                  },
+                  {
+                      "CurrencyId": 3,
+                      "Symbol": "$",
+                      "Code": "USD",
+                      "Description": "United States Dollars"
+                  },
+                  {
+                      "CurrencyId": 9,
+                      "Symbol": "€",
+                      "Code": "EUR",
+                      "Description": "EURO"
+                  }
+              ]
+          }
+
+
+
+### GET ServiceList
+
+http://speakintelligence.neon-soft.com/api/service/list
+
+Return
+
+    Example:
+
+        Response:
+
+          {
+              "status": "success",
+              "data": [
+                  {
+                      "ServiceID": 1,
+                      "ServiceName": "Default Service",
+                      "ServiceType": "voice",
+                      "CompanyGatewayID": 0,
+                      "Title": null
+                  },
+                  {
+                      "ServiceID": 2,
+                      "ServiceName": "Broadband plus PSTN Line",
+                      "ServiceType": "voice",
+                      "CompanyGatewayID": 0,
+                      "Title": null
+                  },
+                  {
+                      "ServiceID": 3,
+                      "ServiceName": "PSTN Line",
+                      "ServiceType": "voice",
+                      "CompanyGatewayID": 0,
+                      "Title": null
+                  },
+                  {
+                      "ServiceID": 4,
+                      "ServiceName": "IP Centrex",
+                      "ServiceType": "voice",
+                      "CompanyGatewayID": 0,
+                      "Title": null
+                  },
+                  {
+                      "ServiceID": 5,
+                      "ServiceName": "ISDN",
+                      "ServiceType": "voice",
+                      "CompanyGatewayID": 0,
+                      "Title": null
+                  },
+                  {
+                      "ServiceID": 6,
+                      "ServiceName": "GIRISH TEST",
+                      "ServiceType": "voice",
+                      "CompanyGatewayID": 0,
+                      "Title": null
+                  }
+              ]
+          }
+
+
+
+### GET DiscountPlan
+
+http://speakintelligence.neon-soft.com/api/discount/list
+
+Return
+
+    Example:
+
+        Response:
+
+         {
+             "status": "success",
+             "data": [
+                 {
+                     "DiscountPlanID": 1,
+                     "Name": "UK + PK + IND",
+                     "CurrencyID": 3
+                 },
+                 {
+                     "DiscountPlanID": 2,
+                     "Name": "All ",
+                     "CurrencyID": 3
+                 },
+                 {
+                     "DiscountPlanID": 3,
+                     "Name": "PK ONLY",
+                     "CurrencyID": 3
+                 },
+                 {
+                     "DiscountPlanID": 4,
+                     "Name": "NEW INDIA",
+                     "CurrencyID": 3
+                 },
+                 {
+                     "DiscountPlanID": 5,
+                     "Name": "NEW INDIA 2",
+                     "CurrencyID": 3
+                 },
+                 {
+                     "DiscountPlanID": 7,
+                     "Name": "sw",
+                     "CurrencyID": 2
+                 }
+             ]
+         }
+
+
+
+### GET RateTableList
+
+http://speakintelligence.neon-soft.com/api/inboundOutbound/list/{CurrencyID}
+
+Return
+
+ Example:
+    http://speakintelligence.neon-soft.com/api/inboundOutbound/list/2
+     Response:
+
+     {
+         "status": "success",
+         "data": [
+             {
+                 "RateTableId": 263,
+                 "RateTableName": "Ziggo - Customer"
+             },
+             {
+                 "RateTableId": 261,
+                 "RateTableName": "Access GBP"
+             }
+         ]
+     }
+
 
 
 ### POST Create Account
