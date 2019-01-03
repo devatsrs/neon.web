@@ -159,7 +159,6 @@ class CustomersRatesController extends \BaseController {
         $post_data = Input::all();
         if (!empty($post_data)) {
 
-            print_r($post_data);
             //Check duplicate Prefix
             $prefix_array  = array();
             foreach ($post_data['CustomerTrunk'] as $trunk => $data) {
@@ -193,12 +192,14 @@ class CustomersRatesController extends \BaseController {
                             RoutingProfileToCustomer::insert($routingprofile_table);
                         }
                     }
+                    
                 }
             }
-            
+             unset($post_data['RoutingProfileID']);
             //---------------------------------------------
             $companyID = User::get_companyID();
             foreach ($post_data['CustomerTrunk'] as $trunk => $data) {
+                unset($data['RoutingProfileID']);
                 DB::beginTransaction();
                 try {
 
