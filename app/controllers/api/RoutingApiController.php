@@ -67,7 +67,9 @@ class RoutingApiController extends ApiController {
                     whereRaw($routingData["DestinationNo"] . ' like  CONCAT(tblRoutingProfileRate.selectionCode,"%")')
                                 ->orderByRaw('CONCAT(tblRoutingProfileRate.selectionCode,"%") desc')
                                 ->take(1);
+        Log::info('routingList profiles case 1 query with RoutingProfileRate Query' . $lcrDetails->toSql());
                 $lcrDetails= $lcrDetails->get();
+
                 Log::info('routingList profiles case 1 query with RoutingProfileRate ' . count($lcrDetails));
                 if (count($lcrDetails) > 0) {
                     foreach ($lcrDetails as $lcrDetail) {
