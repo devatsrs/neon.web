@@ -1761,6 +1761,8 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('endCall', 'ActiveCallApiController@endCall');
 	Route::post('blockCall', 'ActiveCallApiController@blockCall');
 	Route::post('getBlockCalls', 'ActiveCallApiController@getBlockCalls');
+	Route::get('emailTemplate/list', 'EmailTemplateApiController@getList');
+	Route::get('users/list', 'UsersApiController@getList');
 
 	Route::post('account/createAccount', 'AccountsApiController@createAccount');
 	Route::post('account/createService', 'AccountsApiController@createAccountService');
