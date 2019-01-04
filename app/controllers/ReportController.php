@@ -201,7 +201,7 @@ class ReportController extends \BaseController {
             if($Type == Report::PDF) {
                 $file = $data['Name'] . ".html";
                 $file2 = $data['Name'] . ".pdf";
-                $table = '<h2 style="text-align: center;">'.$data['Name'].'</h2>'.$table;
+                $table = '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><h2 style="text-align: center;">'.$data['Name'].'</h2>'.$table;
                 $temp_path = CompanyConfiguration::get('TEMP_PATH') . '/';
                 $local_htmlfile = $temp_path . $file;
                 $local_file = $temp_path . $file2;
