@@ -220,7 +220,7 @@ class AccountsController extends \BaseController {
         if ( isset($data['AutoTopup']) && $data['AutoTopup'] == 1) {
 
             if(empty($data['MinThreshold']))
-                $ErrorMessage .= "Please enter the value of Minimum Threshold field ";
+                $ErrorMessage .= "Please enter the value of Top-up Threshold field ";
 
             if(empty($data['TopupAmount']))
                 $ErrorMessage .= "Please enter the value of Top-up Amount field ";
@@ -781,7 +781,7 @@ class AccountsController extends \BaseController {
         if ( isset($data['AutoTopup']) && $data['AutoTopup'] == 1) {
 
             if(empty($data['MinThreshold']))
-                $ErrorMessage .= "Please enter the value of Minimum Threshold field ";
+                $ErrorMessage .= "Please enter the value of Top-up Threshold field ";
 
             if(empty($data['TopupAmount']))
                 $ErrorMessage .= "Please enter the value of Top-up Amount field ";
