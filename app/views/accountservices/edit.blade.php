@@ -101,7 +101,7 @@
                     <div class="form-group">
                         <label class="col-md-2 control-label">Routing Profile</label>
                         <div class="col-md-4">
-                            {{Form::select('routingprofile', [null=>'Please Select'] + $routingprofile, (isset($RoutingProfileToCustomer->RoutingProfileID)?$RoutingProfileToCustomer->RoutingProfileID:'' ) ,array("class"=>"select2 small form-control1"));}}
+                            {{Form::select('routingprofile', [null=>'Select'] + $routingprofile, (isset($RoutingProfileToCustomer->RoutingProfileID)?$RoutingProfileToCustomer->RoutingProfileID:'' ) ,array("class"=>"select2 small form-control1"));}}
                         </div>
 
 

@@ -106,7 +106,7 @@
                                         <?php
                                         $RoutingProfileToCustomer = RoutingProfileToCustomer::where(["AccountID"=>$id,"TrunkID"=>$trunk->TrunkID])->first();
                                         ?>
-                                        {{Form::select('CustomerTrunk['.$trunk->TrunkID.'][RoutingProfileID]', [null=>'Please Select'] + $routingprofile, (isset($RoutingProfileToCustomer->RoutingProfileID)?$RoutingProfileToCustomer->RoutingProfileID:'' ) ,array("class"=>"select2 small form-control1"));}}
+                                        {{Form::select('CustomerTrunk['.$trunk->TrunkID.'][RoutingProfileID]', [null=>'Select'] + $routingprofile, (isset($RoutingProfileToCustomer->RoutingProfileID)?$RoutingProfileToCustomer->RoutingProfileID:'' ) ,array("class"=>"select2 small form-control1"));}}
                                         <input type="hidden" name="profiledetails" value="">
                                     </td>
                                     @endif
