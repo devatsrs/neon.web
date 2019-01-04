@@ -177,6 +177,8 @@
               <li> <a href="{{URL::to('/routingcategory')}}">  <span>Routing Category</span> </a> </li>
               
               <li> <a href="{{URL::to('/routingprofiles')}}">  <span>Routing Profiles</span> </a> </li>
+
+          <li> <a href="{{URL::to('/testdialplan')}}">  <span>Test Dial plan</span> </a> </li>
         </ul>
     </li>
 	
