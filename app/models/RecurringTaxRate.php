@@ -8,7 +8,7 @@ class RecurringTaxRate extends \Eloquent {
     protected  $primaryKey = "RecurringInvoiceTaxRateID";
 
     public static function getRecurringInvoiceTaxRateByProductDetail($RecurringInvoiceID){
-        $InvoiceDetail=RecurringInvoiceDetail::where('RecurringInvoiceID',$RecurringInvoiceID)->select('RecurringInvoiceDetailID','TaxRateID','TaxRateID2','Price')->get();
+        $InvoiceDetail=RecurringInvoiceDetail::where('RecurringInvoiceID',$RecurringInvoiceID)->select('RecurringInvoiceDetailID','TaxRateID','TaxRateID2','Price','LineTotal')->get();
         $Result = array();
         foreach($InvoiceDetail as $data) {
             if (!empty($data->TaxRateID)) {
@@ -18,7 +18,7 @@ class RecurringTaxRate extends \Eloquent {
                 $TaxRate['Title'] = TaxRate::getTaxName($data->TaxRateID);
                 $TaxRate['created_at'] = date("Y-m-d H:i:s");
                 $TaxRate['RecurringInvoiceID'] = $RecurringInvoiceID;
-                $TaxRate['TaxAmount'] = TaxRate::calculateProductTaxAmount($data->TaxRateID, $data->Price);
+                $TaxRate['TaxAmount'] = TaxRate::calculateProductTaxAmount($data->TaxRateID, $data->LineTotal);
                 $Result[] = $TaxRate;
             }
             if (!empty($data->TaxRateID2)) {
@@ -28,7 +28,7 @@ class RecurringTaxRate extends \Eloquent {
                 $TaxRate['Title'] = TaxRate::getTaxName($data->TaxRateID2);
                 $TaxRate['created_at'] = date("Y-m-d H:i:s");
                 $TaxRate['RecurringInvoiceID'] = $RecurringInvoiceID;
-                $TaxRate['TaxAmount'] = TaxRate::calculateProductTaxAmount($data->TaxRateID2, $data->Price);
+                $TaxRate['TaxAmount'] = TaxRate::calculateProductTaxAmount($data->TaxRateID2, $data->LineTotal);
                 $Result[] = $TaxRate;
             }
         }

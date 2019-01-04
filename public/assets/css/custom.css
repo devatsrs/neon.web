@@ -3001,6 +3001,7 @@ a:focus,a:hover{text-decoration:none !important}
     .filter-visible.toggle-click .new_filter,
     .filter-visible.toggle-click .new_filter.fixed {
         display: block;
+		z-index:100;
     }
     .new_filter,
     .new_filter.fixed {
@@ -3018,7 +3019,7 @@ a:focus,a:hover{text-decoration:none !important}
         border-radius: 3px;
         background-clip: padding-box;
     }
-
+	.hidden-body{overflow:hidden;}
 }
 .boxed-layout .new_filter {
     position: absolute;
