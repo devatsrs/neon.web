@@ -1,5 +1,42 @@
 @extends('layout.main')
 
+@section('filter')
+
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <form novalidate class="form-horizontal form-groups-bordered validate" method="post" id="testdialplan_form">
+                {{--<div class="form-group">
+                    <label for="Search" class="control-label">Search</label>
+                    <input class="form-control" name="Search" id="Search"  type="text" >
+                </div>--}}
+                <div class="form-group A">
+                    <label for="field-1" class="control-label">Phone Number</label>
+                    <input type="text" value="" placeholder="Phone Number" id="field-1" class="form-control" name="Phone Number">
+                </div>
+
+                <div class="form-group  S">
+                    <label class="control-label" for="field-1">Routing Plan</label>
+                    <?php $routingplan=array("All Available Routes"=>"All Available Routes")?>
+                    {{ Form::select('routingplan', $routingplan, '' , array("class"=>"select2 RoutingMode1")) }}
+                </div>
+
+                <div class="form-group">
+                    <br/>
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@stop
+
 @section('content')
     <style>
 
@@ -13,56 +50,17 @@
             <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
         <li class="active">
-            <strong>Test Dial plan</strong>
+            <strong>Test Dial Plan</strong>
         </li>
     </ol>
-    <h3>Test Dial plan</h3><br>
+    <h3>Test Dial Plan</h3><br>
 
     @include('includes.errors')
     @include('includes.success')
 
     
     <div class="tab-content">
-        <form id="testdialplan_form" method="post" class="form-horizontal form-groups-bordered validate"
-                  novalidate="novalidate">
-                <div class="panel panel-primary" data-collapsed="0">
-                    <div class="panel-heading">
-                        <div class="panel-title">
-                            Test Dial plan
-                        </div>
-                        <div class="panel-options">
-                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                        </div>
-                    </div>
-                    <div class="panel-body">
-                        <div class="form-group">
-                            
-                            <div class="col-sm-2"><label for="field-1" class="control-label">Phone Number</label>
-                                <input type="text" value="" placeholder="Phone Number" id="field-1" class="form-control" name="Phone Number">
-                            </div>
-                            <div class="col-sm-2">
-                                <label for="field-1" class="control-label">Routing Plan</label>
-                                <?php $routingplan=array("One"=>"One")?>
-                                {{ Form::select('routingplan', $routingplan, '' , array("class"=>"select2")) }}
-                            </div>
-                            <div class="col-sm-2">
-                                <label for="field-1" class="control-label">Routing Mode</label>
-                                <?php $RoutingMode=array("Generic Routing"=>"Generic Routing")?>
-                                {{ Form::select('RoutingMode', $RoutingMode, '' , array("class"=>"select2 RoutingMode")) }}
-                            </div>
-                            
-                            
-                        </div>
-
-                        <p style="text-align: right">
-                            <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
-                                <i class="entypo-search"></i>
-                                Search
-                            </button>
-                        </p>
-                    </div>
-                </div>
-            </form>
+        
         <table class="table table-bordered datatable" id="table-4" style="display:none;">
                 <thead>
                 <tr>

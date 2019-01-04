@@ -723,7 +723,64 @@
 
             </div>
         </div>
-        @if(AccountBilling::where(array('AccountID'=>$account->AccountID,'BillingCycleType'=>'manual'))->count() == 0 || !empty($BillingCycleType))
+
+
+     <div class="panel panel-primary" data-collapsed="0">
+        <div class="panel-heading">
+                <div class="panel-title">
+                    Auto Payment
+                </div>
+            <div class="panel-options">
+                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+            </div>
+            </div>
+
+
+         <div class="panel-body payment-section">
+             <div class="form-group">
+                 <label class="col-md-2 control-label">Auto-Out Payment</label>
+                 <div class="col-md-4">
+                     <div class="panel-options">
+                         <div class="make-switch switch-small">
+                             <input type="checkbox" @if($AccountPaymentAutomation->AutoOutpayment == 1 )checked="" @endif name="AutoOutPayment" value="1">
+                         </div>
+                     </div>
+                 </div>
+                 <label class="col-md-2 control-label">Auto Top-up</label>
+                 <div class="col-md-4">
+                     <div class="panel-options">
+                         <div class="make-switch switch-small">
+                             <input type="checkbox"@if($AccountPaymentAutomation->AutoTopup == 1 )checked="" @endif name="AutoTopup" value="1">
+                         </div>
+                     </div>
+                 </div>
+             </div>
+             <div class="form-group">
+                 <label class="col-md-2 control-label">Out Payment Threshold</label>
+                 <div class="col-md-4">
+                     {{Form::text('OutPaymentThreshold',$AccountPaymentAutomation->OutPaymentThreshold,array('class'=>'form-control'))}}
+                 </div>
+                 <label class="col-md-2 control-label">Top-up Threshold</label>
+                 <div class="col-md-4">
+                     {{Form::text('MinThreshold', $AccountPaymentAutomation->MinThreshold,array('class'=>'form-control'))}}
+                 </div>
+             </div>
+             <div class="form-group">
+                 <label class="col-md-2 control-label">Out Payment Amount</label>
+                 <div class="col-md-4">
+                     {{Form::text('OutPaymentAmount',$AccountPaymentAutomation->OutPaymentAmount,array('class'=>'form-control'))}}
+                 </div>
+                 <label class="col-md-2 control-label">Top-up Amount</label>
+                 <div class="col-md-4">
+                     {{Form::text('TopupAmount', $AccountPaymentAutomation->TopupAmount ,array('class'=>'form-control'))}}
+                 </div>
+             </div>
+            </div>
+
+        </div>
+
+
+    @if(AccountBilling::where(array('AccountID'=>$account->AccountID,'BillingCycleType'=>'manual'))->count() == 0 || !empty($BillingCycleType))
             @include('accountdiscountplan.index')
         @endif
         @if(User::checkCategoryPermission('AccountService','View'))

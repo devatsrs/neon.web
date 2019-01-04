@@ -196,10 +196,94 @@ class AccountsController extends \BaseController {
             $data = Input::all();
             $companyID = User::get_companyID();
             $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
-            if($ResellerOwner>0){
+
+            $rules = array(
+                'TopupAmount' => 'numeric|regex:/^\d*(\.\d{2})?$/',
+                'AutoOutPayment' => 'numeric',
+                'OutPaymentThreshold' => 'numeric',
+                'OutPaymentAmount' => 'numeric|regex:/^\d*(\.\d{2})?$/',
+
+            );
+
+
+        $ErrorMessage = "";
+
+        if ( isset($data['AutoOutPayment']) && $data['AutoOutPayment'] == 1 ) {
+
+            if(empty($data['OutPaymentAmount']))
+                $ErrorMessage .= "Please enter the value of Out Payment Amount field ";
+
+            if(empty($data['OutPaymentThreshold']))
+                $ErrorMessage .= "Please enter the value of Out Payment Threshold field ";
+        }
+
+        if ( isset($data['AutoTopup']) && $data['AutoTopup'] == 1) {
+
+            if(empty($data['MinThreshold']))
+                $ErrorMessage .= "Please enter the value of Minimum Threshold field ";
+
+            if(empty($data['TopupAmount']))
+                $ErrorMessage .= "Please enter the value of Top-up Amount field ";
+
+        }
+
+        if($ErrorMessage != "")
+            return Response::json(array("status" => "failed", "message" => $ErrorMessage));
+
+        $AccountPaymentAutomation['AutoTopup']           = (isset($data['AutoTopup']) ? $data['AutoTopup'] : "");
+        $AccountPaymentAutomation['MinThreshold']        = $data['MinThreshold'];
+        $AccountPaymentAutomation['AutoOutpayment']      = (isset($data['AutoOutPayment'])? $data['AutoOutPayment'] : "");
+        $AccountPaymentAutomation['OutPaymentThreshold'] = $data['OutPaymentThreshold'] ;
+        $AccountPaymentAutomation['OutPaymentAmount']    = $data['OutPaymentAmount'];
+
+
+        unset($data['AutoTopup']);
+        unset($data['AutoOutPayment']);
+        unset($data['MinThreshold']);
+        unset($data['TopupAmount']);
+        unset($data['OutPaymentThreshold']);
+        unset($data['OutPaymentAmount']);
+
+
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+
+        if ( isset($data['AutoOutPayment']) && $data['AutoOutPayment'] = 1 ) {
+            $rules = array(
+                'OutPaymentThreshold' => 'required|numeric',
+                'OutPaymentAmount' => 'required|numeric|regex:/^\d*(\.\d{2})?$/',
+
+            );
+            $validator = Validator::make($data, $rules);
+
+            if ($validator->fails()) {
+                return json_validator_response($validator);
+            }
+        }
+
+
+        if ( isset($data['AutoTopup']) && $data['AutoTopup'] = 1 ) {
+            $rules = array(
+                'MinThreshold' => 'required|numeric',
+                'TopupAmount' => 'required|numeric|regex:/^\d*(\.\d{2})?$/',
+
+            );
+            $validator = Validator::make($data, $rules);
+
+            if ($validator->fails()) {
+                return json_validator_response($validator);
+            }
+        }
+
+        if($ResellerOwner>0){
                 $Reseller = Reseller::getResellerDetails($ResellerOwner);
                 $ResellerCompanyID = $Reseller->ChildCompanyID;
-                $ResellerUser =User::where('CompanyID',$ResellerCompanyID)->first();
+                $ResellerUser = User::where('CompanyID', $ResellerCompanyID)->first();
+
+
                 $ResellerUserID = $ResellerUser->UserID;
                 $companyID=$ResellerCompanyID;
                 $data['Owner'] = $ResellerUserID;
@@ -318,7 +402,10 @@ class AccountsController extends \BaseController {
                 $DynamicData = array();
                 $DynamicData['CompanyID']= $companyID;
                 $DynamicData['AccountID']= $account->AccountID;
-                
+
+                $AccountPaymentAutomation['AccountID'] = $DynamicData['AccountID'];
+                AccountPaymentAutomation::create($AccountPaymentAutomation);
+
                 //
                 if($RoutingProfileID!=''){
                     $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$account->AccountID])->first();
@@ -650,9 +737,12 @@ class AccountsController extends \BaseController {
         $routingprofile = RoutingProfiles::getRoutingProfile();
         $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
         //----------------------------------------------------------------------
-        
+
         $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE');
-        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE'));
+        $AccountPaymentAutomation = AccountPaymentAutomation::where('AccountID',$id)->first();
+
+
+        return View::make('accounts.edit', compact('account', 'AccountPaymentAutomation' ,'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE'));
     }
 
     /**
@@ -667,6 +757,61 @@ class AccountsController extends \BaseController {
         $data = Input::all();
         $companyID = User::get_companyID();
         $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
+
+        $rules = array(
+            'MinThreshold' => 'numeric',
+            'TopupAmount' => 'numeric|regex:/^\d*(\.\d{2})?$/',
+            'OutPaymentThreshold' => 'numeric',
+            'OutPaymentAmount' => 'numeric|regex:/^\d*(\.\d{2})?$/',
+
+        );
+
+
+        $ErrorMessage = "";
+
+        if ( isset($data['AutoOutPayment']) && $data['AutoOutPayment'] == 1 ) {
+
+            if(empty($data['OutPaymentAmount']))
+                $ErrorMessage .= "Please enter the value of Out Payment Amount field ";
+
+            if(empty($data['OutPaymentThreshold']))
+                $ErrorMessage .= "Please enter the value of Out Payment Threshold field ";
+        }
+
+        if ( isset($data['AutoTopup']) && $data['AutoTopup'] == 1) {
+
+            if(empty($data['MinThreshold']))
+                $ErrorMessage .= "Please enter the value of Minimum Threshold field ";
+
+            if(empty($data['TopupAmount']))
+                $ErrorMessage .= "Please enter the value of Top-up Amount field ";
+
+        }
+
+        if($ErrorMessage != "")
+            return Response::json(array("status" => "failed", "message" => $ErrorMessage));
+
+
+        $AccountPaymentAutomation['AutoTopup']           = (isset($data['AutoTopup']) ? $data['AutoTopup'] : "");
+        $AccountPaymentAutomation['MinThreshold']        = $data['MinThreshold'];
+        $AccountPaymentAutomation['AutoOutpayment']      = (isset($data['AutoOutPayment'])? $data['AutoOutPayment'] : "");
+        $AccountPaymentAutomation['OutPaymentThreshold'] = $data['OutPaymentThreshold'] ;
+        $AccountPaymentAutomation['OutPaymentAmount']    = $data['OutPaymentAmount'];
+
+        unset($data['AutoTopup']);
+        unset($data['AutoOutPayment']);
+        unset($data['MinThreshold']);
+        unset($data['TopupAmount']);
+        unset($data['OutPaymentThreshold']);
+        unset($data['OutPaymentAmount']);
+
+
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+        AccountPaymentAutomation::where(['AccountID'=>$id])->update($AccountPaymentAutomation);
         if($ResellerOwner>0){
             $Reseller = Reseller::getResellerDetails($ResellerOwner);
             $ResellerCompanyID = $Reseller->ChildCompanyID;

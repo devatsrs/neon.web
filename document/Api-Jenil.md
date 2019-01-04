@@ -383,7 +383,7 @@ Return
 
 ### POST depositFund
 
-http://speakintelligence.neon-soft.com/api/account/depositFund
+http://speakintelligence.neon-soft.com/api/depositFund
 
 Perams:
 
@@ -414,6 +414,110 @@ Return
                     "LastInvoiceID": 122046
                 }
             }
+
+
+### POST startCall
+
+http://speakintelligence.neon-soft.com/api/startCall
+
+Perams:
+
+"AccountID"/"AccountNo"
+ConnectTime
+CLI
+CLD
+CallType
+UUID
+VendorID
+TrunkID
+CLIPrefix
+CLDPrefix
+Rate
+BuyingPrice
+
+Return
+
+    Example:
+        Request:
+
+              AccountID :6727
+              ConnectTime:2018-12-26 15:23:06
+              CLI : 971562600839
+              CLD : 123456987456
+              CallType: Inbound
+              UUID : 1155544
+              VendorID : 111
+              TrunkID : 1
+              CLIPrefix : 91
+              CLDPrefix : 92
+              Rate   : 10
+              BuyingPrice : 20
+
+        Response:
+
+            {
+                  "status": "failed",
+                  "message": "Account has not sufficient balance."
+            }
+
+
+### POST endcall
+
+http://speakintelligence.neon-soft.com/api/endcall
+
+Perams:
+
+"AccountID"/"AccountNo"
+UUID
+DisconnectTime
+Reason
+
+Return
+
+    Example:
+        Request:
+
+              AccountID :6728
+              UUID:54564564
+              DisconnectTime : 2018-12-26 15:24:06
+              Reason : block
+
+
+        Response:
+
+           {
+               "status": "success",
+               "message": "Record Updated Successfully",
+               "data": {
+                   "duration": 60
+               }
+           }
+
+
+### POST startRecording
+
+http://speakintelligence.neon-soft.com/api/startRecording
+
+Perams:
+
+"AccountID"/"AccountNo"
+UUID
+
+Return
+
+    Example:
+        Request:
+
+              AccountID :6727
+              UUID:1155545
+
+        Response:
+
+          {
+              "status": "success",
+              "message": "Recording Start Successfully."
+          }
+
 
 
 ### POST blockCall
