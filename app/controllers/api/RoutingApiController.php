@@ -17,8 +17,8 @@ class RoutingApiController extends ApiController {
             'OriginationNo' => 'required',
             'DestinationNo' => 'required',
             'ConnectTime' => 'required',
-            'Number' => 'required_without_all:CustomerID',
-            'CustomerID' => 'required_without_all:Number',
+            'AccountNumber' => 'required_without_all:CustomerID',
+            'CustomerID' => 'required_without_all:AccountNumber',
         );
         $validator = Validator::make($routingData, $rules);
 
@@ -33,10 +33,10 @@ class RoutingApiController extends ApiController {
         $profiles = '';
         $RoutingProfileId = array();
         $CustomerProfileAccountID = '';
-        if (isset($routingData["Number"]) && $routingData["Number"] != '') {
-            $CustomerProfileAccountID = AccountRoutingProfile::where(["AccountNumber" => $routingData["Number"]])->pluck("AccountID");
+        if (isset($routingData["AccountNumber"]) && $routingData["AccountNumber"] != '') {
+            $CustomerProfileAccountID = Account::where(["Number" => $routingData["AccountNumber"]])->pluck("AccountID");
         }else {
-            $CustomerProfileAccountID = AccountRoutingProfile::where(["AccountID" => $routingData["CustomerID"]])->pluck("AccountID");
+            $CustomerProfileAccountID = Account::where(["AccountID" => $routingData["CustomerID"]])->pluck("AccountID");
         }
         Log::info('routingList:Get the routing list count.' . $CustomerProfileAccountID);
 
@@ -54,7 +54,7 @@ class RoutingApiController extends ApiController {
 
 
         $removePlusSign = '';
-
+        $Prefix = '';
         //trim and replace CodeComment#1
         $routingData["OriginationNo"] = trim(str_replace("+","",$routingData["OriginationNo"]));
 
@@ -63,16 +63,23 @@ class RoutingApiController extends ApiController {
         $routingData["DestinationNo"] = trim(str_replace("+","",$routingData["DestinationNo"]));
 
 
-                $lcrDetails = RoutingProfileRate::
+                $lcrDetails = RoutingProfileRate::select(['RoutingProfileId','selectionCode'])->
                     whereRaw($routingData["DestinationNo"] . ' like  CONCAT(tblRoutingProfileRate.selectionCode,"%")')
                                 ->orderByRaw('CONCAT(tblRoutingProfileRate.selectionCode,"%") desc')
-                                ->take(1)->pluck("RoutingProfileId");
+                                ->take(1);
+        Log::info('routingList profiles case 1 query with RoutingProfileRate Query' . $lcrDetails->toSql());
+                $lcrDetails= $lcrDetails->get();
 
-                Log::info('routingList profiles case 1 query with RoutingProfileRate ' . $lcrDetails);
-                if (!empty($lcrDetails)) {
-                    $RoutingProfileIds = $lcrDetails;
+                Log::info('routingList profiles case 1 query with RoutingProfileRate ' . count($lcrDetails));
+                if (count($lcrDetails) > 0) {
+                    foreach ($lcrDetails as $lcrDetail) {
+
+                    }
+                    $RoutingProfileIds = $lcrDetail->RoutingProfileId;
+                    $Prefix = $lcrDetail->selectionCode;
+                    Log::info('routingList profiles case 1 query with RoutingProfileRate ' . $RoutingProfileIds);
                 }else {
-                    $CustomerTrunks = CustomerTrunk::select(['AccountID','TrunkID'])
+                    $CustomerTrunks = CustomerTrunk::select(['AccountID','TrunkID','Prefix'])
                     ->where('UseInBilling','=',1)
                     ->whereRaw('\'' . $routingData["DestinationNo"] . '\'' . ' like  CONCAT(Prefix,"%")')
                     ->orderByRaw('CONCAT(Prefix,"%") desc')
@@ -90,9 +97,10 @@ class RoutingApiController extends ApiController {
                         Log::info('routingList profiles case 2 query with RoutingProfileRate ' . $TrunkAccountProfiles);
                         if (!empty($TrunkAccountProfiles)) {
                             $RoutingProfileIds = $TrunkAccountProfiles;
+                            $Prefix = $CustomerTrunk->Prefix;
                         }
                     }else {
-                        $CLIRateTables = CLIRateTable::select(['AccountID', 'ServiceID'])
+                        $CLIRateTables = CLIRateTable::select(['AccountID', 'ServiceID','CLI'])
                         ->where('CLI', '=', $routingData["OriginationNo"]);
                         Log::info('routingList profiles case 3 query with RoutingProfileRate ' . $CLIRateTables->toSql());
                         $CLIRateTables = $CLIRateTables->get();
@@ -122,7 +130,7 @@ class RoutingApiController extends ApiController {
                             if (!empty($AccountProfiles)) {
 
                                 $RoutingProfileIds = $AccountProfiles;
-
+                                $Prefix = $CLIRateTable->CLI;
                             }
                         }
                     }
@@ -152,8 +160,8 @@ class RoutingApiController extends ApiController {
         GetTimeZone::where(array('getTimezoneID'=>$GetTimeZone->getTimezoneID))->delete();
 
                     Log::info('Filter Routing Profile List procedure' . $CustomerProfileAccountID);
-                    $query = "CALL prc_getRotingRecords(" . $CustomerProfileAccountID . "," . "'" . $routingData['OriginationNo'] . "'" . "," . "'" . $routingData['DestinationNo'] . "'" .
-                        "," . "'" . $queryTimeZone . "'" . "," . "'" . $RoutingProfileIds. "'" . ")";
+                    $query = "CALL prc_getRoutingRecords(" . $CustomerProfileAccountID . "," . "'" . $routingData['OriginationNo'] . "'" . "," . "'" . $routingData['DestinationNo'] . "'" .
+                        "," . "'" . $queryTimeZone . "'" . "," . "'" . $RoutingProfileIds. "'"  .")";
                     Log::info('Filter Routing Profile List procedure' . $query);
                     $lcrDetails = DB::connection('speakIntelligentRoutingEngine')->select($query);
                     Log::info('Filter Routing Profile List procedure' . count($lcrDetails));
