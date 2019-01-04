@@ -267,6 +267,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accounts/expense_chart', 'AccountsController@expense_chart');
 	Route::any('accounts/expense_top_destination/{id}', 'AccountsController@expense_top_destination');
 	Route::any('accounts/unbilledreport/{id}', 'AccountsController@unbilledreport');
+	Route::any('accounts/prepaidunbilledreport/{id}', 'AccountsController@prepaidunbilledreport');
 	Route::any('accounts/activity_pdf_download/{id}', 'AccountsController@activity_pdf_download');
 	Route::any('accounts/getNextBillingDate', 'AccountsController@getNextBillingDate');
 

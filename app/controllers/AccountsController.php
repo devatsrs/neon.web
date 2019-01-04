@@ -1329,6 +1329,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         //$CompanyID = User::get_companyID();
         $account = Account::find($id);
         $CompanyID = $account->CompanyId;
+        $BillingType=AccountBilling::where(['AccountID'=>$id,'ServiceID'=>0])->pluck('BillingType');
+
         $getdata['AccountID'] = $id;
         $response = AccountBalance::where('AccountID', $id)->first(['AccountID', 'PermanentCredit', 'UnbilledAmount', 'EmailToCustomer', 'TemporaryCredit', 'TemporaryCreditDateTime', 'BalanceThreshold', 'BalanceAmount', 'VendorUnbilledAmount']);
         $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $UnbilledAmount = $VendorUnbilledAmount = $EmailToCustomer = $SOA_Amount = 0;
@@ -1356,7 +1358,12 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $EmailToCustomer = $response->EmailToCustomer;
             }
         }
-        return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','UnbilledAmount','EmailToCustomer','VendorUnbilledAmount','SOA_Amount'));
+
+        if(isset($BillingType) && $BillingType==AccountApproval::BILLINGTYPE_PREPAID){
+            $SOA_Amount = AccountBalanceLog::getPrepaidAccountBalance($id);
+        }
+
+        return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','UnbilledAmount','EmailToCustomer','VendorUnbilledAmount','SOA_Amount','BillingType'));
     }
 
     public function update_credit(){
@@ -1514,6 +1521,21 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         }
 
         return View::make('accounts.unbilled_table', compact('UnbilledResult','CurrencySymbol','VendorUnbilledResult','account'));
+    }
+
+    public function prepaidunbilledreport($id){
+        $data = Input::all();
+        // $companyID = User::get_companyID();
+        // @TODO: ServiceID need to fix for show
+        $AccountBilling = AccountBilling::getBilling($id,0);
+        $account = Account::find($id);
+        $companyID = $account->CompanyId;
+        $today = date('Y-m-d 23:59:59');
+        $CustomerLastInvoiceDate = Account::getCustomerLastInvoiceDate($AccountBilling,$account);
+        $CurrencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
+        $query = "call prc_getPrepaidUnbilledReport (?,?,?,?,?)";
+        $UnbilledResult = DB::select($query,array($companyID,$id,$CustomerLastInvoiceDate,$today,1));
+        return View::make('accounts.prepaid_unbilled_table', compact('UnbilledResult','CurrencySymbol','account'));
     }
 
     public function activity_pdf_download($id){
