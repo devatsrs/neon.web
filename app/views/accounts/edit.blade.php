@@ -738,7 +738,7 @@
 
          <div class="panel-body payment-section">
              <div class="form-group">
-                 <label class="col-md-2 control-label">Auto-Out payment</label>
+                 <label class="col-md-2 control-label">Auto-Out Payment</label>
                  <div class="col-md-4">
                      <div class="panel-options">
                          <div class="make-switch switch-small">
@@ -760,7 +760,7 @@
                  <div class="col-md-4">
                      {{Form::text('OutPaymentThreshold',$AccountPaymentAutomation->OutPaymentThreshold,array('class'=>'form-control'))}}
                  </div>
-                 <label class="col-md-2 control-label">Minimum Threshold</label>
+                 <label class="col-md-2 control-label">Top-up Threshold</label>
                  <div class="col-md-4">
                      {{Form::text('MinThreshold', $AccountPaymentAutomation->MinThreshold,array('class'=>'form-control'))}}
                  </div>

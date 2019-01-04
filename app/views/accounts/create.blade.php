@@ -428,11 +428,14 @@
                          <div class="panel-title">
                              Auto Payment
                          </div>
+                         <div class="panel-options">
+                             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                         </div>
                      </div>
 
                      <div class="panel-body payment-section">
                         <div class="form-group">
-                            <label class="col-md-2 control-label">Auto-Out payment</label>
+                            <label class="col-md-2 control-label">Auto-Out Payment</label>
                             <div class="col-md-4">
                                 <div class="panel-options">
                                     <div class="make-switch switch-small">
@@ -454,7 +457,7 @@
                              <div class="col-md-4">
                                  {{Form::text('OutPaymentThreshold','',array('class'=>'form-control'))}}
                              </div>
-                            <label class="col-md-2 control-label">Minimum Threshold</label>
+                            <label class="col-md-2 control-label">Top-up Threshold</label>
                             <div class="col-md-4">
                                 {{Form::text('MinThreshold', '',array('class'=>'form-control'))}}
                             </div>
