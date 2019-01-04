@@ -206,24 +206,31 @@ class AccountsController extends \BaseController {
             );
 
 
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+
+
         $ErrorMessage = "";
 
         if ( isset($data['AutoOutPayment']) && $data['AutoOutPayment'] == 1 ) {
 
             if(empty($data['OutPaymentAmount']))
-                $ErrorMessage .= "Please enter the value of Out Payment Amount field ";
+                $ErrorMessage .= "Please enter the value of Out Payment Amount field <br> ";
 
             if(empty($data['OutPaymentThreshold']))
-                $ErrorMessage .= "Please enter the value of Out Payment Threshold field ";
+                $ErrorMessage .= "Please enter the value of Out Payment Threshold field<br> ";
         }
 
         if ( isset($data['AutoTopup']) && $data['AutoTopup'] == 1) {
 
             if(empty($data['MinThreshold']))
-                $ErrorMessage .= "Please enter the value of Top-up Threshold field ";
+                $ErrorMessage .= "Please enter the value of Top-up Threshold field<br> ";
 
             if(empty($data['TopupAmount']))
-                $ErrorMessage .= "Please enter the value of Top-up Amount field ";
+                $ErrorMessage .= "Please enter the value of Top-up Amount field<br> ";
 
         }
 
@@ -766,27 +773,34 @@ class AccountsController extends \BaseController {
 
         );
 
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+
 
         $ErrorMessage = "";
 
         if ( isset($data['AutoOutPayment']) && $data['AutoOutPayment'] == 1 ) {
 
             if(empty($data['OutPaymentAmount']))
-                $ErrorMessage .= "Please enter the value of Out Payment Amount field ";
+                $ErrorMessage .= "Please enter the value of Out Payment Amount field <br> ";
 
             if(empty($data['OutPaymentThreshold']))
-                $ErrorMessage .= "Please enter the value of Out Payment Threshold field ";
+                $ErrorMessage .= "Please enter the value of Out Payment Threshold field<br> ";
         }
 
         if ( isset($data['AutoTopup']) && $data['AutoTopup'] == 1) {
 
             if(empty($data['MinThreshold']))
-                $ErrorMessage .= "Please enter the value of Top-up Threshold field ";
+                $ErrorMessage .= "Please enter the value of Top-up Threshold field<br> ";
 
             if(empty($data['TopupAmount']))
-                $ErrorMessage .= "Please enter the value of Top-up Amount field ";
+                $ErrorMessage .= "Please enter the value of Top-up Amount field<br> ";
 
         }
+
 
         if($ErrorMessage != "")
             return Response::json(array("status" => "failed", "message" => $ErrorMessage));
