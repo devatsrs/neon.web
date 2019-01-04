@@ -421,7 +421,62 @@
 
                 </div>
                 </div>
-        </form>
+
+
+                 <div class="panel panel-primary billing-section-hide" data-collapsed="0">
+                     <div class="panel-heading">
+                         <div class="panel-title">
+                             Auto Payment
+                         </div>
+                         <div class="panel-options">
+                             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                         </div>
+                     </div>
+
+                     <div class="panel-body payment-section">
+                        <div class="form-group">
+                            <label class="col-md-2 control-label">Auto-Out Payment</label>
+                            <div class="col-md-4">
+                                <div class="panel-options">
+                                    <div class="make-switch switch-small">
+                                        <input type="checkbox" name="AutoOutPayment" value="1">
+                                    </div>
+                                </div>
+                            </div>
+                            <label class="col-md-2 control-label">Auto Top-up</label>
+                            <div class="col-md-4">
+                                <div class="panel-options">
+                                    <div class="make-switch switch-small">
+                                        <input type="checkbox" name="AutoTopup" value="1">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                             <label class="col-md-2 control-label">Out Payment Threshold</label>
+                             <div class="col-md-4">
+                                 {{Form::text('OutPaymentThreshold','',array('class'=>'form-control'))}}
+                             </div>
+                            <label class="col-md-2 control-label">Top-up Threshold</label>
+                            <div class="col-md-4">
+                                {{Form::text('MinThreshold', '',array('class'=>'form-control'))}}
+                            </div>
+                        </div>
+                         <div class="form-group">
+                             <label class="col-md-2 control-label">Out Payment Amount</label>
+                             <div class="col-md-4">
+                                 {{Form::text('OutPaymentAmount','',array('class'=>'form-control'))}}
+                             </div>
+                             <label class="col-md-2 control-label">Top-up Amount</label>
+                             <div class="col-md-4">
+                                 {{Form::text('TopupAmount', '',array('class'=>'form-control'))}}
+                             </div>
+                         </div>
+
+                    </div>
+                 </div>
+
+             </form>
     </div>
 </div>
 
