@@ -40,9 +40,8 @@ class ActiveCallApiController extends ApiController {
             'CallType' => 'required',
             'UUID' => 'required',
             'TrunkID' => 'required',
-            'VendorID' => 'required',
-            'CLIPrefix' => 'required',
-            'CLDPrefix' => 'required'
+            'VendorID' => 'required'
+
         );
         $validator = Validator::make($data, $rules);
         if ($validator->fails()) {
