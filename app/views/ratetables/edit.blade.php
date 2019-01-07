@@ -51,7 +51,7 @@
                     </select>
                 </div>
 
-                @if($rateTable->Type == RateTable::TYPE_VOICECALL && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+                @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                     <div class="form-group">
                         <label class="control-label">Routing Category</label>
                         {{ Form::select('RoutingCategoryID', $RoutingCategories, '', array("class"=>"select2")) }}
@@ -68,6 +68,17 @@
                             <option value="0">Unblocked</option>
                         </select>
                     </div>
+                @endif
+
+                @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
+                <div class="form-group">
+                    <label class="control-label">Status</label>
+                    <select name="ApprovedStatus" class="select2" data-allow-clear="true" data-placeholder="Select Status">
+                        <option value="" selected="selected">All</option>
+                        <option value="1">Approved</option>
+                        <option value="0">Awaiting Approval</option>
+                    </select>
+                </div>
                 @endif
 
                 <div class="form-group">
@@ -105,30 +116,31 @@
 
 <div class="row" style="margin-bottom: 10px;">
     <div  class="col-md-12">
-        <div class="float-right" >
-            <a href="{{URL::to('/rate_tables')}}"  class="btn btn-primary btn-sm btn-icon icon-left" >
-                <i class="entypo-floppy"></i>
-                Back
-            </a>
-        </div>
+        <div class="input-group-btn pull-right hidden dropdown" style="width:70px;">
+            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
+            <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
+                @if($isBandTable)
+                    @if(User::checkCategoryPermission('RateTables','Add') )
+                        <li><a href="javascript:void(0)" id="add-new-rate"><i class="entypo-plus"></i><span>Add New</span></a></li>
+                    @endif
+                @endif
+                @if(User::checkCategoryPermission('RateTables','Edit') )
+                    <li><a href="javascript:void(0)" id="change-bulk-rate"><i class="entypo-pencil"></i><span>Change Selected</span></a></li>
+                @endif
+                @if(User::checkCategoryPermission('RateTables','Delete') )
+                    <li><a href="javascript:void(0)" id="clear-bulk-rate"><i class="entypo-trash"></i><span>Delete Selected</span></a></li>
+                @endif
+                @if(User::checkCategoryPermission('RateTables','ApprovalProcess') )
+                    @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
+                        <li><a href="javascript:void(0)" id="approve-bulk-rate"><i class="entypo-check"></i><span>Approve Selected</span></a></li>
+                    @endif
+                @endif
+            </ul>
+        </div><!-- /btn-group -->
 
-        @if(User::checkCategoryPermission('RateTables','Delete') )
-            <button id="clear-bulk-rate" class="btn btn-danger btn-sm btn-icon icon-left pull-right" data-loading-text="Loading..."> <i class="entypo-trash"></i> Delete Selected </button>
-        @endif
-        @if(User::checkCategoryPermission('RateTables','Edit') )
-            <a  id="change-bulk-rate" class="btn btn-primary btn-sm btn-icon icon-left pull-right" href="javascript:;"> <i class="entypo-floppy"></i>
-                Change Selected
-            </a>
-        @endif
-        @if($isBandTable)
-            @if(User::checkCategoryPermission('RateTables','Add') )
-                <button id="add-new-rate" class="btn btn-primary btn-sm btn-icon icon-left pull-right" data-loading-text="Loading..."> <i class="entypo-plus"></i> Add New</button>
-            @endif
-        @endif
         {{--@if(User::checkCategoryPermission('VendorRates','History'))--}}
-        <button class="btn btn-primary btn-sm btn-icon icon-left pull-right" onclick="location.href='{{ URL::to('/rate_upload/'.$id.'/'.RateUpload::ratetable) }}'">
-            <i class="fa fa-upload"></i>
-            Upload Rates
+        <button class="btn btn-primary pull-right" onclick="location.href='{{ URL::to('/rate_upload/'.$id.'/'.RateUpload::ratetable) }}'">
+            <i class="fa fa-upload"></i> Upload Rates
         </button>
         {{--@endif--}}
     </div>
@@ -162,7 +174,7 @@
                     <input type="checkbox" id="selectall" name="checkbox[]" />
                 </div>
             </th>
-            <th width="4%">Orig. Code</th>
+            <th width="4%" id="OCode-Header">Orig. Code</th>
             <th width="10%">Orig. Description</th>
             <th width="4%" id="Code-Header">Dest. Code</th>
             <th width="10%">Dest. Description</th>
@@ -173,13 +185,13 @@
             <th width="5%">Rate1 ({{$code}})</th>
             <th width="5%">RateN ({{$code}})</th>
             <th width="8%">Effective Date</th>
-            <th width="9%" style="display: none;">End Date</th>
-            <th width="8%">Modified Date/By</th>
-            <th width="10%" style="display: none;">Modified By</th>
-            @if($rateTable->Type == RateTable::TYPE_VOICECALL && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+            <th width="8%">Modified By/Date</th>
+            @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
+            <th width="8%">Approved By/Date</th>
+            @endif
+            @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
             <th width="5%">Routing Category</th>
             <th width="4%">Pref.</th>
-            <th width="4%" style="display: none;">Blocked</th>
             @endif
             <th width="10%" id="actionheader"> Action</th>
         </tr>
@@ -196,7 +208,7 @@
         var $searchFilter = {};
         var checked='';
         var codedeckid = '{{$id}}';
-        var list_fields  = ['ID','OriginationCode','OriginationDescription','Code','Description','Interval1','IntervalN','ConnectionFee','PreviousRate','Rate','RateN','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableRateID','OriginationRateID','RateID','RoutingCategoryID','RoutingCategoryName','Preference','Blocked'];
+        var list_fields  = ['ID','OriginationCode','OriginationDescription','Code','Description','Interval1','IntervalN','ConnectionFee','PreviousRate','Rate','RateN','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableRateID','OriginationRateID','RateID','RoutingCategoryID','RoutingCategoryName','Preference','Blocked','ApprovedStatus','ApprovedBy','ApprovedDate'];
         jQuery(document).ready(function($) {
 
         $('#filter-button-toggle').show();
@@ -388,8 +400,58 @@
             return false;
         });
 
+        //Bulk Approve Button
+        $(document).off('click.approve-bulk-rate','#approve-bulk-rate');
+        $(document).on('click.approve-bulk-rate','#approve-bulk-rate',function(ev) {
+            var $this = $(this);
+            if(!$this.hasClass('processing')) {
+                var RateTableRateIDs = [];
+                var TimezonesID = $searchFilter.Timezones;
+                var i = 0;
+                $('#table-4 tr .rowcheckbox:checked').each(function (i, el) {
+                    RateTableRateID = $(this).val();
+                    RateTableRateIDs[i] = RateTableRateID;
+                    i++;
+                });
 
+                var formdata = new FormData();
+                formdata.append('TimezonesID', TimezonesID);
+                var criteria = '';
+                if ($('#selectallbutton').is(':checked')) {
+                    criteria = JSON.stringify($searchFilter);
+                    formdata.append('RateTableRateID', '');
+                    formdata.append('criteria', criteria);
+                } else {
+                    formdata.append('RateTableRateID', RateTableRateIDs.join(","));
+                    formdata.append('criteria', '');
+                }
 
+                if (RateTableRateIDs.length) {
+                    $this.text('Processing...').addClass('processing');
+                    $.ajax({
+                        url: baseurl + '/rate_tables/{{$id}}/approve_rate_table_rate', //Server script to process data
+                        type: 'POST',
+                        dataType: 'json',
+                        success: function(response) {
+                            $this.html('<i class="entypo-check"></i><span>Approve Selected</span>').removeClass('processing');
+                            if (response.status == 'success') {
+                                toastr.success(response.message, "Success", toastr_opts);
+                                rateDataTable();
+                            } else {
+                                toastr.error(response.message, "Error", toastr_opts);
+                            }
+                        },
+                        // Form data
+                        data: formdata,
+                        //Options to tell jQuery not to process data or worry about content-type.
+                        cache: false,
+                        contentType: false,
+                        processData: false
+                    });
+                }
+            }
+            return false;
+        });
 
         // Replace Checboxes
         $(".pagination a").click(function(ev) {
@@ -468,13 +530,15 @@
             } else {
                 $(this).find('i').toggleClass('entypo-plus-squared entypo-minus-squared');
                 var hiddenRowData = tr.find('.hiddenRowData');
+                var OriginationCode = hiddenRowData.find('input[name="OriginationCode"]').val();
                 var Code = hiddenRowData.find('input[name="Code"]').val();
+                var OriginationCode = OriginationCode.split(',');
                 var Code = Code.split(',');
                 var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
-                table.append("<thead><tr><th>Code</th></tr></thead>");
+                table.append("<thead><tr><th style='width:10%'>Origination Code</th><th>Code</th></tr></thead>");
                 var tbody = $("<tbody></tbody>");
                 for (var i = 0; i < Code.length; i++) {
-                    table.append("<tr class='no-selection'><td>" + Code[i] + "</td></tr>");
+                    table.append("<tr class='no-selection'><td>" + OriginationCode[i] + "</td><td>" + Code[i] + "</td></tr>");
                 }
                 table.append(tbody);
                 row.child(table).show();
@@ -551,13 +615,14 @@
         $searchFilter.Timezones = Timezones = $("#rate-table-search select[name='Timezones']").val();
         $searchFilter.RoutingCategoryID = RoutingCategoryID = $("#rate-table-search select[name='RoutingCategoryID']").val();
 
-        @if($rateTable->Type == RateTable::TYPE_VOICECALL && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+        @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
         $searchFilter.Preference = Preference = $("#rate-table-search input[name='Preference']").val();
         $searchFilter.Blocked = Blocked = $("#rate-table-search select[name='Blocked']").val();
         @else
         $searchFilter.Preference = Preference = null;
         $searchFilter.Blocked = Blocked = null;
         @endif
+        $searchFilter.ApprovedStatus = ApprovedStatus = $("#rate-table-search select[name='ApprovedStatus']").val();
         $searchFilter.ratetablepageview = ratetablepageview;
 
         data_table = $("#table-4").DataTable({
@@ -571,9 +636,9 @@
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "sAjaxSource": baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid",
             "fnServerParams": function(aoData) {
-                aoData.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones},{"name": "RoutingCategoryID", "value": RoutingCategoryID},{"name": "Preference", "value": Preference},{"name": "Blocked", "value": Blocked},{"name": "ratetablepageview", "value": ratetablepageview});
+                aoData.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones},{"name": "RoutingCategoryID", "value": RoutingCategoryID},{"name": "Preference", "value": Preference},{"name": "Blocked", "value": Blocked},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones},{"name": "RoutingCategoryID", "value": RoutingCategoryID},{"name": "Preference", "value": Preference},{"name": "Blocked", "value": Blocked},{"name": "ratetablepageview", "value": ratetablepageview});
+                data_table_extra_params.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones},{"name": "RoutingCategoryID", "value": RoutingCategoryID},{"name": "Preference", "value": Preference},{"name": "Blocked", "value": Blocked},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview});
             },
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
@@ -586,12 +651,10 @@
                                 return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
                             }
                         }, //0Checkbox
-                        {}, //1 Origination Code
-                        {}, //2 Origination description
                         {
                             mRender: function(id, type, full) {
                                 if(view==1) {
-                                    return full[3];
+                                    return full[1];
                                 }else
                                     return '<div class="details-control" style="text-align: center; cursor: pointer;"><i class="entypo-plus-squared" style="font-size: 20px;"></i></div>';
                             },
@@ -599,6 +662,13 @@
                             "orderable":      false,
                             "data": null,
                             "defaultContent": ''
+                        }, //1 Origination Code
+                        {}, //2 Origination description
+                        {
+                            "bVisible" : view == 1 ? true : false,
+                            mRender: function(id, type, full) {
+                                return view == 1 ? full[3] : '';
+                            }
                         }, //3 Destination Code
                         {}, //4 Destination description
                         {
@@ -626,23 +696,30 @@
                         {}, //10 RateN
                         {}, //11 Effective Date
                         {
-                            "bVisible" : false
-                        }, //12 End Date
-                        {
                             "bVisible" : bVisible,
                             mRender: function(id, type, full) {
                                 full[13] = full[13] != null ? full[13] : '';
                                 full[14] = full[14] != null ? full[14] : '';
                                 if(full[13] != '' && full[14] != '')
-                                    return full[13] + '<br/>' + full[14]; // modified date/modified by
+                                    return full[14] + '<br/>' + full[13]; // modified by/modified date
                                 else
                                     return '';
                             }
-                        }, //13 ModifiedDate
+                        }, //14/13 ModifiedDate
+                        @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
                         {
-                            "bVisible" : false
-                        }, //14 ModifiedBy
-                        @if($rateTable->Type == RateTable::TYPE_VOICECALL && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+                            "bVisible" : bVisible,
+                            mRender: function(id, type, full) {
+                                full[23] = full[23] != null ? full[23] : '';
+                                full[24] = full[24] != null ? full[24] : '';
+                                if(full[23] != '' && full[24] != '')
+                                    return full[23] + '<br/>' + full[24]; // modified by/modified date
+                                else
+                                    return '';
+                            }
+                        }, //23/24 Approved By/Approved Date
+                        @endif
+                        @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                         {
                             mRender: function(id, type, full) {
                                 return full[19]
@@ -653,44 +730,43 @@
                                 return full[20]
                             }
                         }, //20 Preference
-                        {
-                            "bVisible" : false
-                            /*className: 'text-center',
-                            mRender: function(id, type, full) {
-                                if(full[21] == 0)
-                                    return '<i class="fa fa-unlock" style="color: green; font-size: 20px;"></i>';
-                                else if(full[21] == 1)
-                                    return '<i class="fa fa-lock" style="color: red; font-size: 20px;"></i>';
-                            }*/
-                        }, //21 Blocked
                         @endif
                         {
                             //"bVisible" : bVisible,
                             mRender: function(id, type, full) {
                                 var action, edit_, delete_;
+                                action = '<div class = "hiddenRowData" >';
+                                for (var i = 0; i < list_fields.length; i++) {
+                                    action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (full[i] != null ? full[i] : '') + '" / >';
+                                }
+                                action += '</div>';
+
                                 if(bVisible == true) {
                                     $('#actionheader').attr('width','10%');
                                     clerRate_ = "{{ URL::to('/rate_tables/{id}/clear_rate')}}";
-
                                     clerRate_ = clerRate_.replace('{id}', full[15]);
-                                    action = '<div class = "hiddenRowData" >';
-                                    for (var i = 0; i < list_fields.length; i++) {
-                                        action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (full[i] != null ? full[i] : '') + '" / >';
+
+                                    @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
+                                    if (full[22] == 1) {
+                                        action += ' <button href="Javascript:;"  title="Approved" class="btn btn-default btn-xs"><i class="entypo-check" style="color: green; "></i>&nbsp;</button>';
+                                    } else if (full[22] == 0) {
+                                        action += ' <button href="Javascript:;"  title="Awaiting Approval" class="btn btn-default btn-xs"><i class="entypo-cancel" style="color: red; "></i>&nbsp;</button>';
                                     }
-                                    action += '</div>';
+                                    @endif
+
                                     if (full[21] == 0) {
-                                        action += ' <a href="Javascript:;"  title="Edit" class="btn btn-default btn-xs"><i class="entypo-lock-open" style="color: green; "></i>&nbsp;</a>';
+                                        action += ' <button href="Javascript:;"  title="Unblocked" class="btn btn-default btn-xs"><i class="entypo-lock-open" style="color: green; "></i>&nbsp;</button>';
                                     } else if (full[21] == 1) {
-                                        action += ' <a href="Javascript:;"  title="Edit" class="btn btn-default btn-xs"><i class="entypo-lock" style="color: red; "></i>&nbsp;</a>';
+                                        action += ' <button href="Javascript:;"  title="Blocked" class="btn btn-default btn-xs"><i class="entypo-lock" style="color: red; "></i>&nbsp;</button>';
                                     }
 
                                     <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
                                     if (DiscontinuedRates == 0) {
-                                        action += ' <a href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</a>';
+                                        action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
                                     }
                                     <?php } ?>
 
-                                    action += ' <a href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</a>';
+                                    action += ' <button href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</button>';
 
                                     if (full[15] != null && full[15] != 0) {
                                         <?php if(User::checkCategoryPermission('RateTables', 'Delete')) { ?>
@@ -701,10 +777,19 @@
                                     }
                                 } else {
                                     $('#actionheader').attr('width','5%');
+
+                                    @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
+                                    if (full[22] == 1) {
+                                        action += ' <button href="Javascript:;"  title="Approved" class="btn btn-default btn-xs"><i class="entypo-check" style="color: green; "></i>&nbsp;</button>';
+                                    } else if (full[22] == 0) {
+                                        action += ' <button href="Javascript:;"  title="Awaiting Approval" class="btn btn-default btn-xs"><i class="entypo-cancel" style="color: red; "></i>&nbsp;</button>';
+                                    }
+                                    @endif
+
                                     if (full[21] == 0) {
-                                        action = ' <a href="Javascript:;"  title="Edit" class="btn btn-default btn-xs"><i class="entypo-lock-open" style="color: green; "></i>&nbsp;</a>';
+                                        action += ' <buttona href="Javascript:;"  title="Unblocked" class="btn btn-default btn-xs"><i class="entypo-lock-open" style="color: green; "></i>&nbsp;</buttona>';
                                     } else if (full[21] == 1) {
-                                        action = ' <a href="Javascript:;"  title="Edit" class="btn btn-default btn-xs"><i class="entypo-lock" style="color: red; "></i>&nbsp;</a>';
+                                        action += ' <button href="Javascript:;"  title="Blocked" class="btn btn-default btn-xs"><i class="entypo-lock" style="color: red; "></i>&nbsp;</button>';
                                     }
                                 }
                                 return action;
@@ -730,8 +815,10 @@
             },
             "fnDrawCallback": function() {
                 if(view==1){
+                    $('#OCode-Header').html('Orig. Code');
                     $('#Code-Header').html('Dest. Code');
                 }else{
+                    $('#OCode-Header').html('');
                     $('#Code-Header').html('');
                 }
 
@@ -941,7 +1028,7 @@
                         header += "<th>Dest. Code</th>";
                     }
                     header += "<th>Dest. Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate1</th><th>RateN</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th>";
-                    @if($rateTable->Type == RateTable::TYPE_VOICECALL && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+                    @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                         header += "<th>Routing Category</th>";
                         header += "<th>Preference</th>";
                         header += "<th>Blocked</th>";
@@ -972,7 +1059,7 @@
                             html += "<td>" + data['ModifiedDate'] + "</td>";
                             html += "<td>" + data['ModifiedBy'] + "</td>";
 
-                            @if($rateTable->Type == RateTable::TYPE_VOICECALL && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+                            @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                                 data['Preference'] = data['Preference'] != null ? data['Preference'] : '';
                                 html += "<td>" + data['RoutingCategoryName'] + "</td>";
                                 html += "<td>" + data['Preference'] + "</td>";
@@ -1067,7 +1154,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        @if($rateTable->Type == RateTable::TYPE_VOICECALL && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+                        @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="control-label">Routing Category</label>
@@ -1113,7 +1200,7 @@
                     <input type="hidden" name="updateConnectionFee" value="on">
                     <input type="hidden" name="updateEndDate" value="on">
                     <input type="hidden" name="updateType" value="singleEdit">
-                    @if($rateTable->Type == RateTable::TYPE_VOICECALL && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+                    @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                     <input type="hidden" name="updateRoutingCategoryID" value="on">
                     <input type="hidden" name="updatePreference" value="on">
                     <input type="hidden" name="updateBlocked" value="on">
@@ -1209,7 +1296,7 @@
                     </div>
                     <div class="row">
 
-                        @if($rateTable->Type == RateTable::TYPE_VOICECALL && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+                        @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <input type="checkbox" name="updateRoutingCategoryID" class="" />
@@ -1338,7 +1425,7 @@
                             </div>
                         </div>
 
-                        @if($rateTable->Type == RateTable::TYPE_VOICECALL && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+                        @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="control-label">Routing Category</label>

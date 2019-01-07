@@ -41,8 +41,14 @@ class AccountServiceController extends \BaseController {
         $ServiceTitle = AccountService::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->pluck('ServiceTitle');
         $ServiceDescription = AccountService::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->pluck('ServiceDescription');
         $ServiceTitleShow = AccountService::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->pluck('ServiceTitleShow');
+        $AccountService = AccountService::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->first();
 
-		return View::make('accountservices.edit', compact('AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow'));
+        //As per new question call the routing profile model for fetch the routing profile list.
+            $routingprofile = RoutingProfiles::getRoutingProfile();
+            $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id,"ServiceID"=>$ServiceID])->first();
+            //----------------------------------------------------------------------
+            $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE');
+		return View::make('accountservices.edit', compact('AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService'));
 	}
 
     // add account services
@@ -119,7 +125,32 @@ class AccountServiceController extends \BaseController {
                     return Response::json(array("status" => "failed", "message" => "Please fill Service Description."));
                 }
             }
+            
+            $RoutingProfileID='';
+            if(isset($data['routingprofile'])){
+                $RoutingProfileID=$data['routingprofile'];
+            }
+            if($RoutingProfileID!=''){
+                $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$AccountID,"ServiceID"=>$ServiceID])->first();
 
+                if(isset($RoutingProfileToCustomer->ServiceID) && isset($RoutingProfileToCustomer->AccountID)){
+                    $routingprofile_table=array();
+                    $routingprofile_table['RoutingProfileID'] = $RoutingProfileID;
+                    $routingprofile_table['AccountID'] = $AccountID;
+                    $routingprofile_table['ServiceID'] = $ServiceID;
+                    RoutingProfileToCustomer::where(["AccountID"=>$AccountID,"ServiceID"=>$ServiceID])->update($routingprofile_table);
+                }else{
+                    if($RoutingProfileID!=''){
+                        $routingprofile_table=array();
+                        $routingprofile_table['RoutingProfileID'] = $RoutingProfileID;
+                        $routingprofile_table['AccountID'] = $AccountID;
+                        $routingprofile_table['ServiceID'] = $ServiceID;
+                        RoutingProfileToCustomer::insert($routingprofile_table);
+                    }
+                }
+                unset($data['routingprofile']);
+            }
+                
             if($data['ServiceBilling'] == 1) {
                 if (!empty($data['BillingStartDate']) || !empty($data['BillingCycleType']) || !empty($data['BillingCycleValue']) || !empty($data['BillingClassID'])) {
                     AccountService::$rules['BillingCycleType'] = 'required';
@@ -235,6 +266,9 @@ class AccountServiceController extends \BaseController {
             $accdata['ServiceTitle'] = empty($data['ServiceTitle']) ? '':$data['ServiceTitle'];
             $accdata['ServiceDescription'] = empty($data['ServiceDescription']) ? '':$data['ServiceDescription'];
             $accdata['ServiceTitleShow'] = isset($data['ServiceTitleShow']) ? 1 : 0;
+            $accdata['SubscriptionBillingCycleType'] = empty($data['SubscriptionBillingCycleType']) ? '' : $data['SubscriptionBillingCycleType'];
+            $accdata['SubscriptionBillingCycleValue'] = empty($data['SubscriptionBillingCycleValue']) ? '' : $data['SubscriptionBillingCycleValue'];
+
             AccountService::where(['AccountID'=>$AccountID,'ServiceID'=>$ServiceID])->update($accdata);
 
             return Response::json(array("status" => "success", "message" => "Account Service Successfully updated."));

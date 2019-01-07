@@ -10,10 +10,6 @@ class VendorConnection extends \Eloquent {
         "taxrate_dropdown1_cache",   // taxrate => taxrateID
         "taxrate_dropdown2_cache",   // taxrate => taxrateID
     );
-    const Type_DID ='DID';
-    const Type_VoiceCall ='VoiceCall';
-
-    public static $Type_array = array(self::Type_DID=>'DID',self::Type_VoiceCall=>'Voice Calls');
 
     static public function checkForeignKeyById($id) {
         $hasAccountApprovalList = VendorConnection::where("VendorConnectionID",$id)->count();
@@ -23,7 +19,6 @@ class VendorConnection extends \Eloquent {
             return false;
         }
     }
-
 
 
 }

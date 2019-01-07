@@ -31,7 +31,7 @@
     <div class="row">
         <div class="col-md-12">
             <ul class="nav nav-tabs bordered" >
-                <li class="active"><a data-toggle="tab" href="#tab-code_description">Destination</a></li>
+                <li class="active"><a data-toggle="tab" href="#tab-code_description">Call Codes</a></li>
                 <li><a data-toggle="tab" href="#tab-source">Sources</a></li>
                 <li><a data-toggle="tab" href="#tab-margin">Margin</a></li>
             </ul>
@@ -40,7 +40,7 @@
                     @include('rategenerators.rules.edit_code', array('id', 'RateRuleID', 'rategenerator_rules'))
                 </div>
                 <div class="tab-pane" id="tab-source">
-                       @include('rategenerators.rules.edit_source', array('id', 'RateRuleID', 'rategenerator_sources', 'vendors', 'rategenerator'))
+                    @include('rategenerators.rules.edit_source', array('id', 'RateRuleID', 'rategenerator_sources', 'vendors', 'rategenerator'))
                 </div>
                 <div class="tab-pane" id="tab-margin">
                      @include('rategenerators.rules.edit_margin', array('id', 'RateRuleID', 'rategenerator_margins'))
@@ -54,27 +54,26 @@
 
             $(".saveall.btn").click(function(e){
 
+                var DestinationCode         = $("#rategenerator-code-from input[name='Code']").val();
+                var DestinationDescription  = $("#rategenerator-code-from input[name='Description']").val();
                 var OriginationCode         = $("#rategenerator-code-from input[name='OriginationCode']").val();
                 var OriginationDescription  = $("#rategenerator-code-from input[name='OriginationDescription']").val();
-                var DestinationCode         = $("#rategenerator-code-from input[name='DestinationCode']").val();
-                var DestinationDescription  = $("#rategenerator-code-from input[name='DestinationDescription']").val();
 
-                if((typeof OriginationCode  == 'undefined' || OriginationCode.trim() == '' ) && (typeof OriginationDescription  == 'undefined' || OriginationDescription.trim() == '' )){
+//                if((typeof OriginationCode  == 'undefined' || OriginationCode.trim() == '' ) && (typeof OriginationDescription  == 'undefined' || OriginationDescription.trim() == '' )){
+//
+//                    setTimeout(function(){$('.btn').button('reset');},10);
+//                    toastr.error("Please Enter a Origination Code Or Origination Description", "Error", toastr_opts);
+//                    return false;
+//
+//                }
+
+                if((typeof DestinationCode  == 'undefined' || DestinationCode.trim() == '' ) && (typeof DestinationDescription  == 'undefined' || DestinationDescription.trim() == '' ) && (typeof OriginationCode  == 'undefined' || OriginationCode.trim() == '' ) && (typeof OriginationDescription  == 'undefined' || OriginationDescription.trim() == '' )){
 
                     setTimeout(function(){$('.btn').button('reset');},10);
-                    toastr.error("Please Enter a Origination Code Or Origination Description", "Error", toastr_opts);
+                    toastr.error("Please Enter a Origination Code OriginationDescription or Destination Code Or Destination Description", "Error", toastr_opts);
                     return false;
 
                 }
-
-                if((typeof DestinationCode  == 'undefined' || DestinationCode.trim() == '' ) && (typeof DestinationDescription  == 'undefined' || DestinationDescription.trim() == '' )){
-
-                    setTimeout(function(){$('.btn').button('reset');},10);
-                    toastr.error("Please Enter a Destination Code Or Destination Description", "Error", toastr_opts);
-                    return false;
-
-                }
-
 
                 if($("#rategenerator-source-from input[name='AccountIds[]']:checked").length == 0 ) {
 
@@ -88,7 +87,6 @@
 
 
                 var formData = $('#rategenerator-code-from').serialize();
-
 
                 $.post( _url, formData, function( response ) {
 

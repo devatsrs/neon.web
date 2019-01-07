@@ -15,7 +15,7 @@
                 </div>
                 <div class="form-group">
                     <label class="control-label">Type</label>
-                    {{Form::select('Type', [""=>"select"]+RateTable::$types, '',array("class"=>"form-control select2"))}}
+                    {{Form::select('Type', [""=>"select"]+$RateTypes, '',array("class"=>"form-control select2"))}}
                 </div>
                 <div class="form-group">
                     <label class="control-label">Applied To</label>
@@ -140,7 +140,7 @@ jQuery(document).ready(function($) {
                 [
                     {
                         mRender: function(id, type, full) {
-                            var Types = JSON.parse('{{json_encode(RateTable::$types)}}');
+                            var Types = JSON.parse('{{json_encode($RateTypes)}}');
                             return Types[full[0]];
                         }
                     },
@@ -347,7 +347,7 @@ jQuery(document).ready(function($) {
                         <div class="col-md-6">
                             <div class="form-group ">
                                 <label class="control-label">Type</label><br/>
-                                {{Form::select('Type', RateTable::$types, '',array("class"=>"form-control select2"))}}
+                                {{Form::select('Type', $RateTypes, '',array("class"=>"form-control select2"))}}
                             </div>
                         </div>
                         <div class="col-md-6">

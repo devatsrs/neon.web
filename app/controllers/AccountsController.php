@@ -146,7 +146,8 @@ class AccountsController extends \BaseController {
         $timezones = TimeZone::getTimeZoneDropdownList();
         $rate_timezones = Timezones::getTimezonesIDList();
         $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
-        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','bulk_type','Currencies','BillingClass','timezones','reseller_owners','rate_timezones'));
+        $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',User::get_companyID());
+        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','bulk_type','Currencies','BillingClass','timezones','reseller_owners','rate_timezones','ROUTING_PROFILE'));
 
     }
 
@@ -175,7 +176,13 @@ class AccountsController extends \BaseController {
             }
             $dynamicfields = Account::getDynamicfields('account',0);
             $reseller_owners = Reseller::getDropdownIDList($company_id);
-            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company','reseller_owners'));
+            
+            //As per new question call the routing profile model for fetch the routing profile list.
+            $routingprofile = RoutingProfiles::getRoutingProfile();
+            //$RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
+            //----------------------------------------------------------------------
+            $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$company_id);
+            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company','reseller_owners','routingprofile','ROUTING_PROFILE'));
     }
 
     /**
@@ -189,13 +196,112 @@ class AccountsController extends \BaseController {
             $data = Input::all();
             $companyID = User::get_companyID();
             $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
-            if($ResellerOwner>0){
+
+
+        if( isset($data['BillingType']) && $data['BillingType'] == 1 ) {
+            $rules = array(
+                'TopupAmount' => 'numeric|regex:/^\d*(\.\d{2})?$/',
+                'AutoOutPayment' => 'numeric',
+                'OutPaymentThreshold' => 'numeric',
+                'OutPaymentAmount' => 'numeric|regex:/^\d*(\.\d{2})?$/',
+
+            );
+
+
+            $validator = Validator::make($data, $rules);
+
+            if ($validator->fails()) {
+                return json_validator_response($validator);
+            }
+
+
+            $ErrorMessage = "";
+
+            if (isset($data['AutoOutPayment']) && $data['AutoOutPayment'] == 1) {
+
+                if (empty($data['OutPaymentAmount']))
+                    $ErrorMessage .= "Please enter the value of Out Payment Amount field <br> ";
+
+                if (empty($data['OutPaymentThreshold']))
+                    $ErrorMessage .= "Please enter the value of Out Payment Threshold field<br> ";
+            }
+
+            if (isset($data['AutoTopup']) && $data['AutoTopup'] == 1) {
+
+                if (empty($data['MinThreshold']))
+                    $ErrorMessage .= "Please enter the value of Top-up Threshold field<br> ";
+
+                if (empty($data['TopupAmount']))
+                    $ErrorMessage .= "Please enter the value of Top-up Amount field<br> ";
+
+            }
+
+            if ($ErrorMessage != "")
+                return Response::json(array("status" => "failed", "message" => $ErrorMessage));
+
+            $AccountPaymentAutomation['AutoTopup'] = (isset($data['AutoTopup']) ? $data['AutoTopup'] : "");
+            $AccountPaymentAutomation['MinThreshold'] = $data['MinThreshold'];
+            $AccountPaymentAutomation['AutoOutpayment'] = (isset($data['AutoOutPayment']) ? $data['AutoOutPayment'] : "");
+            $AccountPaymentAutomation['OutPaymentThreshold'] = $data['OutPaymentThreshold'];
+            $AccountPaymentAutomation['OutPaymentAmount'] = $data['OutPaymentAmount'];
+            $AccountPaymentAutomation['TopupAmount'] = $data['TopupAmount'];
+
+
+            unset($data['AutoTopup']);
+            unset($data['AutoOutPayment']);
+            unset($data['MinThreshold']);
+            unset($data['TopupAmount']);
+            unset($data['OutPaymentThreshold']);
+            unset($data['OutPaymentAmount']);
+
+
+            $validator = Validator::make($data, $rules);
+
+            if ($validator->fails()) {
+                return json_validator_response($validator);
+            }
+
+            if (isset($data['AutoOutPayment']) && $data['AutoOutPayment'] = 1) {
+                $rules = array(
+                    'OutPaymentThreshold' => 'required|numeric',
+                    'OutPaymentAmount' => 'required|numeric|regex:/^\d*(\.\d{2})?$/',
+
+                );
+                $validator = Validator::make($data, $rules);
+
+                if ($validator->fails()) {
+                    return json_validator_response($validator);
+                }
+            }
+
+
+            if (isset($data['AutoTopup']) && $data['AutoTopup'] = 1) {
+                $rules = array(
+                    'MinThreshold' => 'required|numeric',
+                    'TopupAmount' => 'required|numeric|regex:/^\d*(\.\d{2})?$/',
+
+                );
+                $validator = Validator::make($data, $rules);
+
+                if ($validator->fails()) {
+                    return json_validator_response($validator);
+                }
+            }
+        }
+
+        if($ResellerOwner>0){
                 $Reseller = Reseller::getResellerDetails($ResellerOwner);
                 $ResellerCompanyID = $Reseller->ChildCompanyID;
-                $ResellerUser =User::where('CompanyID',$ResellerCompanyID)->first();
+                $ResellerUser = User::where('CompanyID', $ResellerCompanyID)->first();
+
+
                 $ResellerUserID = $ResellerUser->UserID;
                 $companyID=$ResellerCompanyID;
                 $data['Owner'] = $ResellerUserID;
+            }
+            $RoutingProfileID='';
+            if(isset($data['routingprofile'])){
+                $RoutingProfileID=$data['routingprofile'];
             }
             $data['CompanyID'] = $companyID;
             $data['AccountType'] = 1;
@@ -222,6 +328,7 @@ class AccountsController extends \BaseController {
              }
 
             unset($data['ResellerOwner']);
+            unset($data['routingprofile']);
 
             //when account varification is off in company setting then varified the account by default.
             $AccountVerification =  CompanySetting::getKeyVal('AccountVerification');
@@ -307,6 +414,29 @@ class AccountsController extends \BaseController {
                 $DynamicData['CompanyID']= $companyID;
                 $DynamicData['AccountID']= $account->AccountID;
 
+                if( isset($data['BillingType']) && $data['BillingType'] == 1 ) {
+                    $AccountPaymentAutomation['AccountID'] = $DynamicData['AccountID'];
+                    AccountPaymentAutomation::create($AccountPaymentAutomation);
+                }
+                //
+                if($RoutingProfileID!=''){
+                    $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$account->AccountID])->first();
+
+                    if(isset($RoutingProfileToCustomer->AccountID)){
+                        $routingprofile_table=array();
+                        $routingprofile_table['RoutingProfileID'] = $RoutingProfileID;
+                        RoutingProfileToCustomer::where(['AccountID'=>$account->AccountID])->update($routingprofile_table);
+                    }else{
+                        if($RoutingProfileID!=''){
+                            $routingprofile_table=array();
+                            $routingprofile_table['RoutingProfileID'] = $RoutingProfileID;
+                            $routingprofile_table['AccountID'] = $account->AccountID;
+                            RoutingProfileToCustomer::insert($routingprofile_table);
+                        }
+                    }
+                    unset($data['routingprofile']);
+                }
+        
                 if(!empty($AccountGateway)){
                     $DynamicData['FieldName'] = 'accountgateway';
                     $DynamicData['FieldValue']= $AccountGateway;
@@ -556,6 +686,7 @@ class AccountsController extends \BaseController {
 	}
 	 
     public function edit($id) {
+        
         Payment::multiLang_init();
         $ServiceID = 0;
         $account = Account::find($id);
@@ -613,7 +744,16 @@ class AccountsController extends \BaseController {
         $accountreseller = Reseller::where('ChildCompanyID',$companyID)->pluck('ResellerID');
         $DiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::OUTBOUND,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
         $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::INBOUND,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
-        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller'));
+        
+        //As per new question call the routing profile model for fetch the routing profile list.
+        $routingprofile = RoutingProfiles::getRoutingProfile();
+        $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
+        //----------------------------------------------------------------------
+
+        $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$companyID);
+        $AccountPaymentAutomation = AccountPaymentAutomation::where('AccountID',$id)->first();
+
+        return View::make('accounts.edit', compact('account', 'AccountPaymentAutomation' ,'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE'));
     }
 
     /**
@@ -628,6 +768,76 @@ class AccountsController extends \BaseController {
         $data = Input::all();
         $companyID = User::get_companyID();
         $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
+        if( isset($data['BillingType']) && $data['BillingType'] == 1 ) {
+            $rules = array(
+                'MinThreshold' => 'numeric',
+                'TopupAmount' => 'numeric|regex:/^\d*(\.\d{2})?$/',
+                'OutPaymentThreshold' => 'numeric',
+                'OutPaymentAmount' => 'numeric|regex:/^\d*(\.\d{2})?$/',
+
+            );
+
+            $validator = Validator::make($data, $rules);
+
+            if ($validator->fails()) {
+                return json_validator_response($validator);
+            }
+
+
+            $ErrorMessage = "";
+
+            if (isset($data['AutoOutPayment']) && $data['AutoOutPayment'] == 1) {
+
+                if (empty($data['OutPaymentAmount']))
+                    $ErrorMessage .= "Please enter the value of Out Payment Amount field <br> ";
+
+                if (empty($data['OutPaymentThreshold']))
+                    $ErrorMessage .= "Please enter the value of Out Payment Threshold field<br> ";
+            }
+
+            if (isset($data['AutoTopup']) && $data['AutoTopup'] == 1) {
+
+                if (empty($data['MinThreshold']))
+                    $ErrorMessage .= "Please enter the value of Top-up Threshold field<br> ";
+
+                if (empty($data['TopupAmount']))
+                    $ErrorMessage .= "Please enter the value of Top-up Amount field<br> ";
+
+            }
+
+
+            if ($ErrorMessage != "")
+                return Response::json(array("status" => "failed", "message" => $ErrorMessage));
+
+
+            $AccountPaymentAutomation['AutoTopup'] = (isset($data['AutoTopup']) ? $data['AutoTopup'] : "");
+            $AccountPaymentAutomation['MinThreshold'] = $data['MinThreshold'];
+            $AccountPaymentAutomation['AutoOutpayment'] = (isset($data['AutoOutPayment']) ? $data['AutoOutPayment'] : "");
+            $AccountPaymentAutomation['OutPaymentThreshold'] = $data['OutPaymentThreshold'];
+            $AccountPaymentAutomation['OutPaymentAmount'] = $data['OutPaymentAmount'];
+            $AccountPaymentAutomation['TopupAmount'] = $data['TopupAmount'];
+
+            unset($data['AutoTopup']);
+            unset($data['AutoOutPayment']);
+            unset($data['MinThreshold']);
+            unset($data['TopupAmount']);
+            unset($data['OutPaymentThreshold']);
+            unset($data['OutPaymentAmount']);
+
+
+            $validator = Validator::make($data, $rules);
+
+            if ($validator->fails()) {
+                return json_validator_response($validator);
+            }
+
+            AccountPaymentAutomation::where(['AccountID' => $id])->update($AccountPaymentAutomation);
+        }else{
+
+//            AccountPaymentAutomation::find($id)->delete();
+            AccountPaymentAutomation::where(['AccountID' => $id])->delete();
+
+        }
         if($ResellerOwner>0){
             $Reseller = Reseller::getResellerDetails($ResellerOwner);
             $ResellerCompanyID = $Reseller->ChildCompanyID;
@@ -642,7 +852,33 @@ class AccountsController extends \BaseController {
         }
         //$DiscountPlanID = $data['DiscountPlanID'];
         //$InboundDiscountPlanID = $data['InboundDiscountPlanID'];
+        
+        if(isset($data['routingprofile'])){
+            
+            //$RoutingProfileToCustomer = RoutingProfileToCustomer::where('RoutingProfileID',$data['routingprofile'])->first();
+            $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
+            
+            if(isset($RoutingProfileToCustomer->AccountID)){
+                $routingprofile_table=array();
+                $routingprofile_table['RoutingProfileID'] = $data['routingprofile'];
+                RoutingProfileToCustomer::where(['AccountID'=>$id])->update($routingprofile_table);
+            }else{
+                if($data['routingprofile']!=''){
+                    $routingprofile_table=array();
+                    $routingprofile_table['RoutingProfileID'] = $data['routingprofile'];
+                    $routingprofile_table['AccountID'] = $id;
 
+                    RoutingProfileToCustomer::insert($routingprofile_table);
+                }
+                //
+               // print_r($data);echo '-N--';
+            }
+            unset($data['routingprofile']);
+           // die();
+        }
+
+        // assign account to routin profile
+        //
         $AccountDetails=array();
         $AccountDetails['CustomerPaymentAdd'] = isset($data['CustomerPaymentAdd']) ? 1 : 0;
         //$AccountDetails['ResellerOwner'] = $ResellerOwner;
@@ -657,9 +893,9 @@ class AccountsController extends \BaseController {
         $data['IsReseller'] = isset($data['IsReseller']) ? 1 : 0;
         $data['Billing'] = isset($data['Billing']) ? 1 : 0;
         $data['updated_by'] = User::get_user_full_name();
-		$data['AccountName'] = trim($data['AccountName']);
-		$data['ShowAllPaymentMethod'] = isset($data['ShowAllPaymentMethod']) ? 1 : 0;
-		$data['DisplayRates'] = isset($data['DisplayRates']) ? 1 : 0;
+        $data['AccountName'] = trim($data['AccountName']);
+        $data['ShowAllPaymentMethod'] = isset($data['ShowAllPaymentMethod']) ? 1 : 0;
+        $data['DisplayRates'] = isset($data['DisplayRates']) ? 1 : 0;
 
         if($data['IsReseller']==1){
             $data['IsCustomer']=1;
@@ -704,6 +940,7 @@ class AccountsController extends \BaseController {
         }
         $data['Number'] = trim($data['Number']);
         $ManualBilling = isset($data['BillingCycleType']) && $data['BillingCycleType'] == 'manual'?1:0;
+
         if(Company::isBillingLicence() && $data['Billing'] == 1) {
             Account::$rules['BillingType'] = 'required';
             Account::$rules['BillingTimezone'] = 'required';
@@ -1329,6 +1566,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         //$CompanyID = User::get_companyID();
         $account = Account::find($id);
         $CompanyID = $account->CompanyId;
+        $BillingType=AccountBilling::where(['AccountID'=>$id,'ServiceID'=>0])->pluck('BillingType');
         $getdata['AccountID'] = $id;
         $response = AccountBalance::where('AccountID', $id)->first(['AccountID', 'PermanentCredit', 'UnbilledAmount', 'EmailToCustomer', 'TemporaryCredit', 'TemporaryCreditDateTime', 'BalanceThreshold', 'BalanceAmount', 'VendorUnbilledAmount']);
         $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $UnbilledAmount = $VendorUnbilledAmount = $EmailToCustomer = $SOA_Amount = 0;
@@ -1356,7 +1594,10 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $EmailToCustomer = $response->EmailToCustomer;
             }
         }
-        return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','UnbilledAmount','EmailToCustomer','VendorUnbilledAmount','SOA_Amount'));
+        if(isset($BillingType) && $BillingType==AccountApproval::BILLINGTYPE_PREPAID){
+            $SOA_Amount = AccountBalanceLog::getPrepaidAccountBalance($id);
+        }
+        return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','UnbilledAmount','EmailToCustomer','VendorUnbilledAmount','SOA_Amount','BillingType'));
     }
 
     public function update_credit(){
@@ -1514,6 +1755,21 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         }
 
         return View::make('accounts.unbilled_table', compact('UnbilledResult','CurrencySymbol','VendorUnbilledResult','account'));
+    }
+
+    public function prepaidunbilledreport($id){
+        $data = Input::all();
+        // $companyID = User::get_companyID();
+        // @TODO: ServiceID need to fix for show
+        $AccountBilling = AccountBilling::getBilling($id,0);
+        $account = Account::find($id);
+        $companyID = $account->CompanyId;
+        $today = date('Y-m-d 23:59:59');
+        $CustomerLastInvoiceDate = Account::getCustomerLastInvoiceDate($AccountBilling,$account);
+        $CurrencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
+        $query = "call prc_getPrepaidUnbilledReport (?,?,?,?,?)";
+        $UnbilledResult = DB::select($query,array($companyID,$id,$CustomerLastInvoiceDate,$today,1));
+        return View::make('accounts.prepaid_unbilled_table', compact('UnbilledResult','CurrencySymbol','account'));
     }
 
     public function activity_pdf_download($id){

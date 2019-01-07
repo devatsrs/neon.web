@@ -1084,11 +1084,15 @@ function formatSmallDate($date,$dateformat='d-m-y') {
     return $datetime;*/
 }
 
-function SortBillingType($account=0){
+function SortBillingType($account=0)
+{
     ksort(Company::$BillingCycleType);
     ksort(Company::$BillingCycleType2);
-    if($account == 0) {
+    ksort(Company::$BillingCycleType3);
+    if ($account == 0) {
         return Company::$BillingCycleType;
+    }elseif($account == 3){
+        return Company::$BillingCycleType3;
     }else{
         return Company::$BillingCycleType2;
     }

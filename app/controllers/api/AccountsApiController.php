@@ -18,7 +18,7 @@ class AccountsApiController extends ApiController {
 	/**
 	 * checkBalance():
 	 * @Param mixed
-	 * CustomerID/AccountNo
+	 * AccountID/AccountNo
 	 * @Response
 	 * has_balance - 0/1
 	 * amount
@@ -28,11 +28,11 @@ class AccountsApiController extends ApiController {
 		$data=Input::all();
 		$Result=array();
 		$AccountBalance=0;
-		if(!empty($data['CustomerID'])) {
-			$CompanyID = Account::where(["AccountID" => $data['CustomerID']])->pluck('CompanyId');
+		if(!empty($data['AccountID'])) {
+			$CompanyID = Account::where(["AccountID" => $data['AccountID']])->pluck('CompanyId');
 
 			if(intval($CompanyID) > 0){
-				$AccountBalance = AccountBalance::getNewAccountExposure($CompanyID, $data['CustomerID']);
+				$AccountBalance = AccountBalance::getNewAccountExposure($CompanyID, $data['AccountID']);
 			}else{
 				return Response::json(["status"=>"failed", "data"=>"Account Not Found"]);
 			}
@@ -62,6 +62,54 @@ class AccountsApiController extends ApiController {
 
 		return Response::json(["status"=>"success", "data"=>$Result]);
 	}
+
+	public function balanceAlert(){
+		$data=Input::all();
+		$AccountID=0;
+		if(!empty($data['AccountID'])) {
+			$cnt = Account::where(["AccountID" => $data['AccountID']])->count();
+			if($cnt > 0){
+				$AccountID = $data['AccountID'];
+			}
+		}else if(!empty($data['AccountNo'])){
+			$Account = Account::where(["Number" => $data['AccountNo']])->first();
+			if(!empty($Account)){
+				$AccountID=$Account->AccountID;
+			}
+		}else{
+			return Response::json(["status"=>"failed", "message"=>"AccountID or AccountNo is Required"]);
+		}
+		if(!empty($AccountID)){
+			//Validate
+			//Validation
+			$rules = array(
+				'Balance' => 'required',
+				//'UUIDs' => 'required'
+			);
+			$validator = Validator::make($data, $rules);
+			if ($validator->fails()) {
+				return json_validator_response($validator);
+			}
+
+			$api_url = 'http://172.16.33.70/api/v1.0/neon/balanceAlert';
+			log::info($api_url);
+			$curl = new Curl\Curl();
+			$data1=[];
+			$data1['CustomerId']=9876;
+			$data1['Balance']=1234.56;
+			$data1['Uuids']=["1de24812-053b-43c3-a3c2-429539771813","0d0be254-f55f-400c-bbc2-f8b296e658ae"];
+			$curl->post($api_url,$data1);
+			$curl->close();
+			$response = json_decode($curl->response);
+			echo "==";echo "<pre>";
+			print_r($response);
+
+		}else{
+			return Response::json(["status"=>"failed", "message"=>"Account Not Found."]);
+		}
+
+	}
+
 	public function createAccountService()
 	{
 		Log::info('createAccountService:Add Product Service.');
@@ -75,7 +123,7 @@ class AccountsApiController extends ApiController {
 			$data['Number'] = $accountData['Number'];
 			$data['ServiceTemaplate'] = $accountData['ServiceTemaplate'];
 			$data['NumberPurchased'] = $accountData['NumberPurchased'];
-			$data['InboundTariffCategory'] = isset($accountData['InboundTariffCategory']) ? $accountData['InboundTariffCategory'] :'';
+			$data['InboundTariffCategory'] = isset($accountData['InboundTariffCategoryId']) ? $accountData['InboundTariffCategoryId'] :'';
 			$data['ServiceDate'] = isset($accountData['ServiceDate'])? strtotime($accountData['ServiceDate']) : '';
 			Log::info('createAccountService:Data.' . json_encode($data));
 			Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,AccountType,1';
