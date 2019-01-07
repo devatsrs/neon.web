@@ -696,7 +696,7 @@ Route::group(array('before' => 'auth'), function () {
 	//Route::any('/rategenerators/rules/{id}/edit/{ruleID}', 'RateGeneratorsController@edit_rule')->where('ruleID', '(.[09]*)+');
 	//Route::any('/rategenerators/rules/{id}/edit_source/{rule_id}', 'RateGeneratorsController@edit_rule_source')->where('rule_id', '(.[09]*)+');
 	Route::any('/rategenerators/{id}/change_status/{status}', 'RateGeneratorsController@change_status')->where('status', '(.[09]*)+');
-	Route::any('/rategenerators/exports/{type}', 'RateGeneratorasController@exports');
+	Route::any('/rategenerators/exports/{type}', 'RateGeneratorsController@exports');
 	Route::any('/rategenerators/ajax_load_rate_table_dropdown', 'RateGeneratorsController@ajax_load_rate_table_dropdown');
     Route::any('/rategenerators/{id}/ajax_existing_rategenerator_cronjob', 'RateGeneratorsController@ajax_existing_rategenerator_cronjob');
     Route::any('/rategenerators/{id}/deletecronjob', 'RateGeneratorsController@deleteCronJob');

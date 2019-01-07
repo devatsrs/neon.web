@@ -552,17 +552,10 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 		IF p_AccountId > 0 THEN
-				SELECT
+			SELECT
+				ud.*,
 				uh.StartDate,
-				ud.UsageDetailID,
-				ud.UsageHeaderID,
-				uh.GatewayAccountID,
-				ud.connect_time,
-				ud.disconnect_time,
-				ud.cli,
-				ud.cld,
-				ud.cost,
-				ud.area_prefix
+				uh.GatewayAccountID
 			FROM speakintelligentCDR.tblUsageDetails  ud
 			INNER JOIN speakintelligentCDR.tblUsageHeader uh
 				ON uh.UsageHeaderID = ud.UsageHeaderID
@@ -577,16 +570,9 @@ BEGIN
 		ELSE 
 		
 			SELECT
+				ud.*,
 				uh.StartDate,
-				ud.UsageDetailID,
-				ud.UsageHeaderID,
-				uh.GatewayAccountID,
-				ud.connect_time,
-				ud.disconnect_time,
-				ud.cli,
-				ud.cld,
-				ud.cost,
-				ud.area_prefix
+				uh.GatewayAccountID
 			FROM speakintelligentCDR.tblUsageDetails  ud
 			INNER JOIN speakintelligentCDR.tblUsageHeader uh
 				ON uh.UsageHeaderID = ud.UsageHeaderID
@@ -670,6 +656,35 @@ ALTER TABLE tblVendorCDRFailed
   
   
   
+  
+/* RateGenerator Changes already Live - adnan */  
+
+USE speakintelligentRM;
+ 
+ALTER TABLE TABLE `tblRateGenerator`
+	ADD COLUMN `VendorPositionPercentage` INT(11) NULL DEFAULT NULL,
+	ADD COLUMN `SelectedComponents` TEXT NULL COLLATE 'utf8_unicode_ci',
+	ADD COLUMN `percentageRate` VARCHAR(11) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	ADD COLUMN`LessThenRate` FLOAT NULL DEFAULT NULL,
+	ADD COLUMN `ChargeRate` FLOAT NULL DEFAULT NULL, 
+	ADD COLUMN `SelectType` INT(11) NULL DEFAULT NULL,
+	ADD COLUMN `DIDCategoryID` INT(11) NULL DEFAULT NULL;
+ 
+
+DROP TABLE IF EXISTS `tblRateGeneratorCostComponent`;
+CREATE TABLE IF NOT EXISTS `tblRateGeneratorCostComponent` (
+  `CostComponentID` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `RatePositionID` int(11) DEFAULT NULL,
+  `TrunkID` int(11) DEFAULT NULL,
+  `CurrencyID` int(11) DEFAULT NULL,
+  `RateGeneratorId` int(11) DEFAULT NULL,
+  `Component` text COLLATE utf8_unicode_ci,
+  `Action` char(4) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `MergeTo` text COLLATE utf8_unicode_ci,
+  `updated_at` datetime DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`CostComponentID`)
+) ENGINE=InnoDB AUTO_INCREMENT=91 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='calculate Cost component Against tblRateGenerator';
  
 	
 

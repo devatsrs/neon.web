@@ -34,135 +34,149 @@
 
 <div class="row">
     <div class="panel-body">
-            <div class="panel panel-primary" data-collapsed="0">
-                <div class="panel-heading">
-                    <div class="panel-title">
-                        Rate Generator Rule Information
-                    </div>
-
-                    <div class="panel-options">
-                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                    </div>
+        <div class="panel panel-primary" data-collapsed="0">
+            <div class="panel-heading">
+                <div class="panel-title">
+                    Rate Generator Rule Information
                 </div>
 
-                <div class="panel-body">
-
-                    <div class="form-group">
-
-
-                        <label for="field-1" class="col-sm-2 control-label">Type</label>
-                        <div class="col-sm-4">
-                            {{Form::select('SelectType',$AllTypes,'',array("class"=>"form-control select2 small"))}}
-
-                        </div>
-
-                        <label for="field-1" class="col-sm-2 control-label">Name</label>
-                        <div class="col-sm-4">
-                            <input type="text" class="form-control" name="RateGeneratorName" data-validate="required" data-message-required="." id="field-1" placeholder="" value="{{Input::old('RateGeneratorName')}}" />
-                        </div>
-                    </div>
-
-                    <div class="form-group" id="rate-ostion-trunk-div">
-
-                        <label for="field-1" class="col-sm-2 control-label">Policy</label>
-                        <div class="col-sm-4">
-                            {{ Form::select('Policy', LCR::$policy, null , array("class"=>"select2")) }}
-                        </div>
-
-                        <label for="field-1" class="col-sm-2 control-label">Trunk</label>
-                        <div class="col-sm-4">
-                            {{ Form::select('TrunkID', $trunks, null , array("class"=>"select2")) }}
-                        </div>
-                    </div>
-                    <div class="form-group" id="group-preference-div">
-
-                        <label for="field-1" class="col-sm-2 control-label" id="group-by-lbl">Group By</label>
-                        <div class="col-sm-4" id="group-by-select-div">
-                            {{ Form::select('GroupBy', array('Code'=>'Code','Desc'=>'Description'), 'Code' , array("class"=>"select2")) }}
-                        </div>
-
-                        <label for="field-1" class="col-sm-2 control-label">Use Preference</label>
-                            <div class="col-sm-4">
-                                <div class="make-switch switch-small">
-                                    {{Form::checkbox('UsePreference', 1, '');}}
-                                </div>
-                            </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Currency</label>
-                        <div class="col-sm-4">
-                            {{Form::SelectControl('currency')}}
-                        </div>
-
-                        <label class="col-sm-2 control-label">Rate Position</label>
-                        <div class="col-sm-1">
-                            <input type="text" class="form-control" name="RatePosition" data-validate="required" data-message-required="." id="field-1" placeholder="" value="" />
-                        </div>
-                        <div id="percentageRate">
-                            <label class="col-sm-1 control-label">Percentage </label>
-                            <div class="col-sm-2">
-                                <input type="text" class="form-control popover-primary" rows="1" id="percentageRate" name="percentageRate" value="" data-trigger="hover" data-toggle="popover" data-placement="top" data-content="Use vendor position mention in Rate Position unless vendor selected position is more then N% more costly than the previous vendor" data-original-title="Percentage" />
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">CodeDeck</label>
-                        <div class="col-sm-4">
-                            {{ Form::select('codedeckid', $codedecklist,  null , array("class"=>"select2")) }}
-
-                        </div>
-
-                        <label for="field-1" class="col-sm-2 control-label">Timezones</label>
-                        <div class="col-sm-4">
-                            {{ Form::select('Timezones[]', $Timezones, null , array("class"=>"select2 multiselect", "multiple"=>"multiple")) }}
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">Merge Rate By Timezones</label>
-                        <div class="col-sm-4">
-                            <div class="make-switch switch-small">
-                                {{Form::checkbox('IsMerge', 1,  null, array('id' => 'IsMerge') );}}
-                            </div>
-                        </div>
-                        <label class="col-sm-2 control-label IsMerge">Take Price</label>
-                        <div class="col-sm-4 IsMerge">
-                            {{ Form::select('TakePrice', array(RateGenerator::HIGHEST_PRICE=>'Highest Price',RateGenerator::LOWEST_PRICE=>'Lowest Price'), null , array("class"=>"select2")) }}
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label IsMerge">Merge Into</label>
-                        <div class="col-sm-4 IsMerge">
-                            {{ Form::select('MergeInto', $Timezones, null , array("class"=>"select2")) }}
-                        </div>
-                        <div id="rate-aveg-div">
-                            <label for="field-1" class="col-sm-2 control-label">Use Average</label>
-                            <div class="col-sm-4">
-                                <div class="make-switch switch-small">
-                                    {{Form::checkbox('UseAverage', 1,  '' );}}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div id="hide-components">
-                            <label for="field-1" class="col-sm-2 control-label">Components</label>
-                            <div class="col-sm-4">
-                                {{ Form::select('AllComponent[]', RateGenerator::$Component, null, array("class"=>"select2 multiselect" , "multiple"=>"multiple", "id"=>"AllComponent" )) }}
-                            </div>
-
-                        </div>
-                    </div>
-                    <div class="form-group" id="DIDCategoryDiv">
-                        <label for="field-1" class="col-sm-2 control-label">Category</label>
-                        <div class="col-sm-4">
-                            {{ Form::select('Category', $Categories,null, array("class"=>"select2")) }}
-                        </div>
-                    </div>
-
-
+                <div class="panel-options">
+                    <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                 </div>
             </div>
+
+            <div class="panel-body">
+
+                <div class="form-group">
+
+
+                    <label for="field-1" class="col-sm-2 control-label">Type</label>
+                    <div class="col-sm-4">
+                        {{Form::select('SelectType',$AllTypes,'',array("class"=>"form-control select2 small"))}}
+
+                    </div>
+
+                    <label for="field-1" class="col-sm-2 control-label">Name*</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" name="RateGeneratorName" data-validate="required" data-message-required="." id="field-1" placeholder="" value="{{Input::old('RateGeneratorName')}}" />
+                    </div>
+                </div>
+
+                <div class="form-group" id="rate-ostion-trunk-div">
+
+                    <label for="field-1" class="col-sm-2 control-label">Policy</label>
+                    <div class="col-sm-4">
+                        {{ Form::select('Policy', LCR::$policy, null , array("class"=>"select2")) }}
+                    </div>
+
+                    <label for="field-1" class="col-sm-2 control-label">Trunk</label>
+                    <div class="col-sm-4">
+                        {{ Form::select('TrunkID', $trunks, null , array("class"=>"select2")) }}
+                    </div>
+                </div>
+                <div class="form-group" id="group-preference-div">
+
+                    <label for="field-1" class="col-sm-2 control-label" id="group-by-lbl">Group By</label>
+                    <div class="col-sm-4" id="group-by-select-div">
+                        {{ Form::select('GroupBy', array('Code'=>'Code','Desc'=>'Description'), 'Code' , array("class"=>"select2")) }}
+                    </div>
+
+                    <label for="field-1" class="col-sm-2 control-label">Use Preference</label>
+                        <div class="col-sm-4">
+                            <div class="make-switch switch-small">
+                                {{Form::checkbox('UsePreference', 1, '');}}
+                            </div>
+                        </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="field-1" class="col-sm-2 control-label">Currency*</label>
+                    <div class="col-sm-4">
+                        {{Form::SelectControl('currency')}}
+                    </div>
+
+                    <label class="col-sm-2 control-label">Rate Position</label>
+                    <div class="col-sm-1">
+                        <input type="text" class="form-control" name="RatePosition" data-validate="required" data-message-required="." id="field-1" placeholder="" value="" />
+                    </div>
+                    <div id="percentageRate">
+                        <label class="col-sm-1 control-label">Percentage </label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control popover-primary" rows="1" id="percentageRate" name="percentageRate" value="" data-trigger="hover" data-toggle="popover" data-placement="top" data-content="Use vendor position mention in Rate Position unless vendor selected position is more then N% more costly than the previous vendor" data-original-title="Percentage" />
+                        </div>
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="col-sm-2 control-label">CodeDeck*</label>
+                    <div class="col-sm-4">
+                        {{ Form::select('codedeckid', $codedecklist,  null , array("class"=>"select2")) }}
+
+                    </div>
+
+                    <label for="field-1" class="col-sm-2 control-label">Timezones*</label>
+                    <div class="col-sm-4">
+                        {{ Form::select('Timezones[]', $Timezones, null , array("class"=>"select2 multiselect", "multiple"=>"multiple")) }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="field-1" class="col-sm-2 control-label">If calculated rate is less then</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" name="LessThenRate" value="" />
+
+                    </div>
+
+                    <label for="field-1" class="col-sm-2 control-label">Change rate to</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" name="ChargeRate" value="" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Merge Rate By Timezones</label>
+                    <div class="col-sm-4">
+                        <div class="make-switch switch-small">
+                            {{Form::checkbox('IsMerge', 1,  null, array('id' => 'IsMerge') );}}
+                        </div>
+                    </div>
+                    <label class="col-sm-2 control-label IsMerge">Take Price</label>
+                    <div class="col-sm-4 IsMerge">
+                        {{ Form::select('TakePrice', array(RateGenerator::HIGHEST_PRICE=>'Highest Price',RateGenerator::LOWEST_PRICE=>'Lowest Price'), null , array("class"=>"select2")) }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label IsMerge">Merge Into</label>
+                    <div class="col-sm-4 IsMerge">
+                        {{ Form::select('MergeInto', $Timezones, null , array("class"=>"select2")) }}
+                    </div>
+                    <div id="rate-aveg-div">
+                        <label for="field-1" class="col-sm-2 control-label">Use Average</label>
+                        <div class="col-sm-4">
+                            <div class="make-switch switch-small">
+                                {{Form::checkbox('UseAverage', 1,  '' );}}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="hide-components">
+                        <label for="field-1" class="col-sm-2 control-label">Components</label>
+                        <div class="col-sm-4">
+                            {{ Form::select('AllComponent[]', RateGenerator::$Component, null, array("class"=>"select2 multiselect" , "multiple"=>"multiple", "id"=>"AllComponent" )) }}
+                        </div>
+
+                    </div>
+                </div>
+                <div class="form-group" id="DIDCategoryDiv">
+                    <label for="field-1" class="col-sm-2 control-label">Category*</label>
+                    <div class="col-sm-4">
+                        {{ Form::select('Category', $Categories,null, array("class"=>"select2")) }}
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
 
 
         <div class="panel panel-primary" data-collapsed="0" id="Merge-components">
@@ -209,7 +223,7 @@
                                     <i></i>
                                     +
                                 </button>
-                                <a onclick="deleteRow(this.id)" id="0" class="btn delete btn-danger btn-sm" data-loading-text="Loading...">
+                                <a onclick="deleteRow(this.id)" id="0" class="btn btn-danger btn-sm" data-loading-text="Loading..." disabled>
                                     <i></i>
                                     -
 
@@ -481,33 +495,34 @@
         $('#servicetableSubBox tr:last').children('td:eq(0)').find('div:first').remove();
         $('#servicetableSubBox tr:last').children('td:eq(1)').find('div:first').remove();
         $('#servicetableSubBox tr:last').children('td:eq(2)').find('div:first').remove();
+        $('#servicetableSubBox tr:last').closest('tr').children('td:eq(3)').find('a').removeAttr('disabled');
 
     }
 
     function deleteRow(id)
     {
-        var  selectedSubscription = $('#getIDs').val();
-        var removeValue = id + ",";
-        var removalueIndex = selectedSubscription.indexOf(removeValue);
-        var firstValue = selectedSubscription.substr(0, removalueIndex);//1,2,3,
-        var lastValue = selectedSubscription.substr(removalueIndex + removeValue.length, selectedSubscription.length);
+        if(confirm("Are You Sure?")) {
+            var selectedSubscription = $('#getIDs').val();
+            var removeValue = id + ",";
+            var removalueIndex = selectedSubscription.indexOf(removeValue);
+            var firstValue = selectedSubscription.substr(0, removalueIndex);//1,2,3,
+            var lastValue = selectedSubscription.substr(removalueIndex + removeValue.length, selectedSubscription.length);
 
-        var selectedSubscription = firstValue + lastValue;
-        if (selectedSubscription.charAt(0) == ',') {
-            selectedSubscription = selectedSubscription.substr(1,selectedSubscription.length)
-        }
-        $('#getIDs').val(selectedSubscription);
+            var selectedSubscription = firstValue + lastValue;
+            if (selectedSubscription.charAt(0) == ',') {
+                selectedSubscription = selectedSubscription.substr(1, selectedSubscription.length)
+            }
+            $('#getIDs').val(selectedSubscription);
 
+            var rowCount = $("#servicetableSubBox > tbody").children().length;
+            if (rowCount > 1) {
+                $("#" + id).closest("tr").remove();
 
-        var rowCount = $("#servicetableSubBox > tbody").children().length;
-        if(rowCount > 1)
-        {
-            $("#"+id).closest("tr").remove();
+            } else {
+                $('#getIDs').val('1,');
 
-        }else{
-            $('#getIDs').val('1,');
-
-            toastr.error("you cannot delete at least one row", "Error", toastr_opts);
+                toastr.error("You cannot delete. At least one component is required.", "Error", toastr_opts);
+            }
         }
     }
 
