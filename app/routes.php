@@ -1588,7 +1588,12 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/routingprofiles/ajax_datagrid', 'RoutingProfilesController@ajax_datagrid');
 	Route::any('/routingprofiles', 'RoutingProfilesController@index');
 	Route::any('/routingprofiles/create', 'RoutingProfilesController@create');
-        Route::any('/routingprofiles/ajaxcall/{id}', 'RoutingProfilesController@ajaxcall');
+	Route::any('/routingprofiles/ajaxfetch', 'RoutingProfilesController@ajaxfetch');
+	Route::any('/routingprofiles/ajaxedit', 'RoutingProfilesController@ajaxedit');
+	Route::any('/routingprofiles/ajaxCategories', 'RoutingProfilesController@ajax_categories');
+
+	
+    Route::any('/routingprofiles/ajaxcall/{id}', 'RoutingProfilesController@ajaxcall');
 	Route::any('/routingprofiles/update/{id}', 'RoutingProfilesController@update');
 	Route::any('/routingprofiles/{id}/delete', 'RoutingProfilesController@delete');
         Route::any('/routingprofiles/exports/{type}', 'RoutingProfilesController@exports');
