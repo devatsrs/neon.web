@@ -563,32 +563,74 @@ EndDate
 
 Return
 
-    Example:
-        Request:
+   Example:
+           Request:
 
-        StartDate:
-        EndDate   : 2018-11-27
-        AccountID : 2018-11-27
+           StartDate: 2018-01-01
+           EndDate   : 2018-08-01
+           AccountID :
 
-        Response:
+           Response:
 
-            {
-                "status": "success",
-                "data": [
-                    {
-                        "StartDate": "2018-11-27 00:00:00",
-                        "UsageDetailID": 106350639,
-                        "UsageHeaderID": 188050,
-                        "GatewayAccountID": "Call Max Management",
-                        "connect_time": "2018-12-04 12:19:59",
-                        "disconnect_time": "2018-12-04 12:20:06",
-                        "cli": "15684083685",
-                        "cld": "111129171797732",
-                        "cost": "0.033800",
-                        "area_prefix": "Other"
-                    }
-                ]
-            }
+               {
+                   "status": "success",
+                   "data": [
+                       {
+                           "status": "success",
+                           "data": [
+                               {
+                                   "UsageDetailID": 1,
+                                   "UsageHeaderID": 1,
+                                   "connect_time": "2018-06-10 23:53:58",
+                                   "disconnect_time": "2018-06-10 23:54:32",
+                                   "billed_duration": 34,
+                                   "area_prefix": "qukn8801",
+                                   "pincode": null,
+                                   "extension": null,
+                                   "cli": "971562600839",
+                                   "cld": "11118801855498036",
+                                   "cost": "0.010370",
+                                   "remote_ip": "203.90.232.81",
+                                   "duration": 34,
+                                   "trunk": "Other",
+                                   "ProcessID": "30254",
+                                   "ID": 38018081,
+                                   "is_inbound": 0,
+                                   "billed_second": 34,
+                                   "disposition": "Blocked",
+                                   "userfield": null,
+                                   "StartDate": "2018-06-10 00:00:00",
+                                   "GatewayAccountID": "QUICKCOM"
+                               },
+                               {
+                                   "UsageDetailID": 2,
+                                   "UsageHeaderID": 1,
+                                   "connect_time": "2018-06-10 23:44:15",
+                                   "disconnect_time": "2018-06-10 23:54:52",
+                                   "billed_duration": 637,
+                                   "area_prefix": "qukn8801",
+                                   "pincode": null,
+                                   "extension": null,
+                                   "cli": "971567884733",
+                                   "cld": "11118801720932251",
+                                   "cost": "0.194285",
+                                   "remote_ip": "203.90.232.81",
+                                   "duration": 637,
+                                   "trunk": "Other",
+                                   "ProcessID": "30254",
+                                   "ID": 38018164,
+                                   "is_inbound": 0,
+                                   "billed_second": 637,
+                                   "disposition": "Blocked",
+                                   "userfield": null,
+                                   "StartDate": "2018-06-10 00:00:00",
+                                   "GatewayAccountID": "QUICKCOM"
+                               }
+                           ]
+                       }
+                   ]
+               }
+
 
 
 ### GET EmailTemplate List
