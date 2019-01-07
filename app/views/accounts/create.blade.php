@@ -423,7 +423,7 @@
                 </div>
 
 
-                 <div class="panel panel-primary billing-section-hide" data-collapsed="0">
+                 <div class="panel panel-primary auto-payment-hide" data-collapsed="0">
                      <div class="panel-heading">
                          <div class="panel-title">
                              Auto Payment
@@ -435,7 +435,7 @@
 
                      <div class="panel-body payment-section">
                         <div class="form-group">
-                            <label class="col-md-2 control-label">Auto-Out Payment</label>
+                            <label class="col-md-2 control-label">Auto Out Payment</label>
                             <div class="col-md-4">
                                 <div class="panel-options">
                                     <div class="make-switch switch-small">
@@ -457,7 +457,7 @@
                              <div class="col-md-4">
                                  {{Form::text('OutPaymentThreshold','',array('class'=>'form-control'))}}
                              </div>
-                            <label class="col-md-2 control-label">Top-up Threshold</label>
+                            <label class="col-md-2 control-label">Topup Threshold</label>
                             <div class="col-md-4">
                                 {{Form::text('MinThreshold', '',array('class'=>'form-control'))}}
                             </div>
@@ -467,7 +467,7 @@
                              <div class="col-md-4">
                                  {{Form::text('OutPaymentAmount','',array('class'=>'form-control'))}}
                              </div>
-                             <label class="col-md-2 control-label">Top-up Amount</label>
+                             <label class="col-md-2 control-label">Topup Amount</label>
                              <div class="col-md-4">
                                  {{Form::text('TopupAmount', '',array('class'=>'form-control'))}}
                              </div>
@@ -532,8 +532,26 @@
             if($('[name="Billing"]').prop("checked") == true){
                 $(".billing-section").show();
                 $('.billing-section .select2-container').css('visibility','visible');
+
+                 if($('select[name="BillingType"]').val() == 1){
+
+                     $(".auto-payment-hide").show();
+                 }else{
+                     $(".auto-payment-hide").hide();
+                 }
+
             }else{
                 $(".billing-section").hide();
+                $(".auto-payment-hide").hide();
+            }
+        });
+
+        $('select[name="BillingType"]').on('change',function(){
+            if($('select[name="BillingType"]').val() == 1){
+
+                $(".auto-payment-hide").show();
+            }else{
+                $(".auto-payment-hide").hide();
             }
         });
         $('[name="BillingClassID"]').on( "change",function(e){

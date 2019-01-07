@@ -725,7 +725,7 @@
         </div>
 
 
-     <div class="panel panel-primary" data-collapsed="0">
+     <div class="panel panel-primary auto-payment-hide" data-collapsed="0">
         <div class="panel-heading">
                 <div class="panel-title">
                     Auto Payment
@@ -738,19 +738,19 @@
 
          <div class="panel-body payment-section">
              <div class="form-group">
-                 <label class="col-md-2 control-label">Auto-Out Payment</label>
+                 <label class="col-md-2 control-label">Auto Out Payment</label>
                  <div class="col-md-4">
                      <div class="panel-options">
                          <div class="make-switch switch-small">
-                             <input type="checkbox" @if($AccountPaymentAutomation->AutoOutpayment == 1 )checked="" @endif name="AutoOutPayment" value="1">
+                             <input type="checkbox" @if(isset($AccountPaymentAutomation->AutoOutpayment )) checked="" @endif name="AutoOutPayment" value="1">
                          </div>
                      </div>
                  </div>
-                 <label class="col-md-2 control-label">Auto Top-up</label>
+                 <label class="col-md-2 control-label">Auto Topup</label>
                  <div class="col-md-4">
                      <div class="panel-options">
                          <div class="make-switch switch-small">
-                             <input type="checkbox"@if($AccountPaymentAutomation->AutoTopup == 1 )checked="" @endif name="AutoTopup" value="1">
+                             <input type="checkbox" @if(isset($AccountPaymentAutomation->AutoTopup) )checked="" @endif name="AutoTopup" value="1">
                          </div>
                      </div>
                  </div>
@@ -758,21 +758,35 @@
              <div class="form-group">
                  <label class="col-md-2 control-label">Out Payment Threshold</label>
                  <div class="col-md-4">
-                     {{Form::text('OutPaymentThreshold',$AccountPaymentAutomation->OutPaymentThreshold,array('class'=>'form-control'))}}
                  </div>
-                 <label class="col-md-2 control-label">Top-up Threshold</label>
+                 <label class="col-md-2 control-label">Topup Threshold</label>
                  <div class="col-md-4">
-                     {{Form::text('MinThreshold', $AccountPaymentAutomation->MinThreshold,array('class'=>'form-control'))}}
+                     @if(isset($AccountPaymentAutomation->MinThreshold) )
+                         {{Form::text('MinThreshold', $AccountPaymentAutomation->MinThreshold,array('class'=>'form-control'))}}
+
+                     @else
+
+                         {{Form::text('MinThreshold', '',array('class'=>'form-control'))}}
+
+                     @endif
                  </div>
              </div>
              <div class="form-group">
                  <label class="col-md-2 control-label">Out Payment Amount</label>
                  <div class="col-md-4">
-                     {{Form::text('OutPaymentAmount',$AccountPaymentAutomation->OutPaymentAmount,array('class'=>'form-control'))}}
+                     @if(isset($AccountPaymentAutomation->OutPaymentAmount) )
+                        {{Form::text('OutPaymentAmount',$AccountPaymentAutomation->OutPaymentAmount,array('class'=>'form-control'))}}
+                     @else
+                         {{Form::text('OutPaymentAmount','',array('class'=>'form-control'))}}
+                     @endif
                  </div>
-                 <label class="col-md-2 control-label">Top-up Amount</label>
+                 <label class="col-md-2 control-label">Topup Amount</label>
                  <div class="col-md-4">
-                     {{Form::text('TopupAmount', $AccountPaymentAutomation->TopupAmount ,array('class'=>'form-control'))}}
+                     @if(isset($AccountPaymentAutomation->TopupAmount) )
+                        {{Form::text('TopupAmount', $AccountPaymentAutomation->TopupAmount ,array('class'=>'form-control'))}}
+                     @else
+                         {{Form::text('TopupAmount', '',array('class'=>'form-control'))}}
+                     @endif
                  </div>
              </div>
             </div>
@@ -1083,12 +1097,31 @@
                 $("#oneofcharge_filter").find('.panel-body').hide();
                 $("#clitable_filter").find('.panel-body').hide();
                 $("#service_filter").find('.panel-body').hide();
+
+               if($('select[name="BillingType"]').val() == 1){
+
+                    $(".auto-payment-hide").show();
+                }else{
+                    $(".auto-payment-hide").hide();
+                }
             }else{
                 $(".billing-section").hide();
                 $(".billing-section-hide").nextAll('.panel').attr('data-collapsed',1);
                 $(".billing-section-hide").nextAll('.panel').find('.panel-body').hide();
+                $(".auto-payment-hide").hide();
+
             }
         });
+
+        $('select[name="BillingType"]').on('change',function(){
+            if($('select[name="BillingType"]').val() == 1){
+
+                $(".auto-payment-hide").show();
+            }else{
+                $(".auto-payment-hide").hide();
+            }
+        });
+
         $('[name="Billing"]').trigger('change');
 
         $('#billing_edit').on( "click",function(e){
