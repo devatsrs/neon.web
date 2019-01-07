@@ -82,11 +82,34 @@
                     </div>
 
                     <label for="field-1" class="col-sm-2 control-label">Use Preference</label>
-                        <div class="col-sm-4">
+                        <div class="col-sm-1">
                             <div class="make-switch switch-small">
                                 {{Form::checkbox('UsePreference', 1, '');}}
                             </div>
                         </div>
+
+                    <div id="rate-aveg-div">
+                        <label for="field-1" class="col-sm-1 control-label">Use Average</label>
+                        <div class="col-sm-2">
+                            <div class="make-switch switch-small">
+                                {{Form::checkbox('UseAverage', 1,  '' );}}
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+                    <label for="field-1" class="col-sm-2 control-label">If calculated rate is less then</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" name="LessThenRate" value="" />
+
+                    </div>
+
+                    <label for="field-1" class="col-sm-2 control-label">Change rate to</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" name="ChargeRate" value="" />
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -121,19 +144,6 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">If calculated rate is less then</label>
-                    <div class="col-sm-4">
-                        <input type="text" class="form-control" name="LessThenRate" value="" />
-
-                    </div>
-
-                    <label for="field-1" class="col-sm-2 control-label">Change rate to</label>
-                    <div class="col-sm-4">
-                        <input type="text" class="form-control" name="ChargeRate" value="" />
-                    </div>
-                </div>
-
-                <div class="form-group">
                     <label class="col-sm-2 control-label">Merge Rate By Timezones</label>
                     <div class="col-sm-4">
                         <div class="make-switch switch-small">
@@ -149,14 +159,6 @@
                     <label class="col-sm-2 control-label IsMerge">Merge Into</label>
                     <div class="col-sm-4 IsMerge">
                         {{ Form::select('MergeInto', $Timezones, null , array("class"=>"select2")) }}
-                    </div>
-                    <div id="rate-aveg-div">
-                        <label for="field-1" class="col-sm-2 control-label">Use Average</label>
-                        <div class="col-sm-4">
-                            <div class="make-switch switch-small">
-                                {{Form::checkbox('UseAverage', 1,  '' );}}
-                            </div>
-                        </div>
                     </div>
 
                     <div id="hide-components">

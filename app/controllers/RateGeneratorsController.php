@@ -18,6 +18,7 @@ class RateGeneratorsController extends \BaseController {
             'tblTrunk.Trunk',
             'tblCurrency.Code',
             'tblRateGenerator.Status',
+            'tblRateGenerator.created_at',
             'tblRateGenerator.RateGeneratorId',
             'tblRateGenerator.TrunkID',
             'tblRateGenerator.CodeDeckId',
@@ -607,6 +608,7 @@ class RateGeneratorsController extends \BaseController {
                 'tblTrunk.Trunk',
                 'tblCurrency.Code',
                 'tblRateGenerator.Status',
+                'tblRateGenerator.created_at',
             ));
 
             $excel_data = json_decode(json_encode($Result),true);
