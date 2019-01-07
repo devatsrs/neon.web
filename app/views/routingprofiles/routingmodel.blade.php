@@ -99,11 +99,11 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Selection Code</label>
-                                    <textarea type="text"  name="SelectionCode" class="form-control" id="field-7"></textarea>
+                                    <input type="text"  name="SelectionCode" class="form-control" id="field-7">
                                 </div>
                             </div>        
                                                 
-                            <div class="col-md-12">
+                            <div class="col-md-12 hide">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Routing Policy</label>
                                     
@@ -123,7 +123,7 @@
                                                   
                          <div class="col-md-12">
                         <ul class="nav nav-tabs">
-                            <li class="active"><a href="#lefttab1" data-toggle="tab">Category</a></li>
+                            <li class="active"><a href="#lefttab1" data-toggle="tab">Routing Category</a></li>
 <!--                            <li><a href="#lefttab2" id="leftgroup" data-toggle="tab">Connection</a></li>-->
                         </ul>
                              <br />
@@ -235,7 +235,7 @@ $(document).ready(function () {
                 type: 'post',
                 data:{data:data},
                 success:function(data){
-                    $('.tbody').append("<tr><td><input type='number' min='0' value='99' name='Orders[]' class='form-control' /><input type='hidden' name='RoutingCategory[]' value='"+ data.RoutingCategoryID +"'/></td><td>"+ data.Name +"</td><td>"+ data.Description +"</td><td><a class='btn btn-danger btn-sm' id='"+ id +"' onclick='deleteRoute(this.id)'>DELETE</a></td></tr>");
+                    $('.tbody').append("<tr><td><input type='number' min='0' value='99' name='Orders[]' class='form-control' /><input type='hidden' name='RoutingCategory[]' value='"+ data.RoutingCategoryID +"'/></td><td>"+ data.Name +"</td><td>"+ data.Description +"</td><td><a class='btn btn-danger btn-sm' id='"+ id +"' onclick='deleteRoute(this.id)'><i class='entypo-trash'></i></a></td></tr>");
                     $('.process').css("visibility","hidden");
                     $('#RoutingCategories').select2().select2('val', 'Yes');                
                 }, 
@@ -245,6 +245,9 @@ $(document).ready(function () {
                 }  
             });
         });
+
+
+        // this function deleted the routes...
 
     function deleteRoute(id) {
         var text = $("#"+id).closest('tr').children('td:eq(1)').text();
@@ -259,7 +262,18 @@ $(document).ready(function () {
             $('#RoutingCategories').append("<option></option>");    
         }
         $('#RoutingCategories').append(newOption);
+        sortSelectInput('#RoutingCategories')
         $("#"+id).closest('tr').remove();     
+    }
+
+    function sortSelectInput(selectInp){
+        var options = $(selectInp + ' option');
+        var arr = options.map(function(_, o) { return { t: $(o).text(), v: o.value }; }).get();
+        arr.sort(function(o1, o2) { return o1.t > o2.t ? 1 : o1.t < o2.t ? -1 : 0; });
+        options.each(function(i, o) {
+            o.value = arr[i].v;
+            $(o).text(arr[i].t);
+        });
     }
 </script>
     
