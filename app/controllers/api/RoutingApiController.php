@@ -17,8 +17,8 @@ class RoutingApiController extends ApiController {
             'OriginationNo' => 'required',
             'DestinationNo' => 'required',
             'ConnectTime' => 'required',
-            'AccountNumber' => 'required_without_all:CustomerID',
-            'CustomerID' => 'required_without_all:AccountNumber',
+            'AccountNumber' => 'required_without_all:AccountID',
+            'AccountID' => 'required_without_all:AccountNumber',
         );
         $validator = Validator::make($routingData, $rules);
 
@@ -30,13 +30,14 @@ class RoutingApiController extends ApiController {
             return Response::json(["status" => "failed", "message" => $errors]);
         }
 
+        Log::info('routingList:Get the routing list user company.' . $CompanyID);
         $profiles = '';
         $RoutingProfileId = array();
         $CustomerProfileAccountID = '';
         if (isset($routingData["AccountNumber"]) && $routingData["AccountNumber"] != '') {
             $CustomerProfileAccountID = Account::where(["Number" => $routingData["AccountNumber"]])->pluck("AccountID");
         }else {
-            $CustomerProfileAccountID = Account::where(["AccountID" => $routingData["CustomerID"]])->pluck("AccountID");
+            $CustomerProfileAccountID = Account::where(["AccountID" => $routingData["AccountID"]])->pluck("AccountID");
         }
         Log::info('routingList:Get the routing list count.' . $CustomerProfileAccountID);
 
