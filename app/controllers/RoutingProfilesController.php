@@ -30,10 +30,10 @@ class RoutingProfilesController extends \BaseController {
         return Datatables::of($RoutingProfiles)->make();
     }
 
-    public function index()
-  	{
-        $RoutingCategory = RoutingProfiles::getRoutingCategory();
-        $VendorConnection = RoutingProfiles::getVendorConnection();
+    public function index() {
+        $CompanyID = User::get_companyID();
+        $RoutingCategory = RoutingProfiles::getRoutingCategory($CompanyID);
+        $VendorConnection = RoutingProfiles::getVendorConnection($CompanyID);
         $RoutingCategories  = RoutingCategory::select('Name','RoutingCategoryID','Description')->get();
         return View::make('routingprofiles.index', compact('RoutingCategory','VendorConnection','RoutingCategories'));
     }

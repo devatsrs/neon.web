@@ -225,7 +225,7 @@
                                     <i></i>
                                     +
                                 </button>
-                                <a onclick="deleteRow(this.id)" id="0" class="btn btn-danger btn-sm" data-loading-text="Loading..." disabled>
+                                <a onclick="deleteRow(this.id)" id="0" class="btn btn-danger btn-sm hidden" data-loading-text="Loading...">
                                     <i></i>
                                     -
 
@@ -497,7 +497,7 @@
         $('#servicetableSubBox tr:last').children('td:eq(0)').find('div:first').remove();
         $('#servicetableSubBox tr:last').children('td:eq(1)').find('div:first').remove();
         $('#servicetableSubBox tr:last').children('td:eq(2)').find('div:first').remove();
-        $('#servicetableSubBox tr:last').closest('tr').children('td:eq(3)').find('a').removeAttr('disabled');
+        $('#servicetableSubBox tr:last').closest('tr').children('td:eq(3)').find('a').removeClass('hidden');
 
     }
 
