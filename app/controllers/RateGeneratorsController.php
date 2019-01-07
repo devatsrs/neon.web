@@ -130,7 +130,12 @@ class RateGeneratorsController extends \BaseController {
                         unset($data['MergeTo-' . $numberArray[$i]]);
                         break;
                     } else {
-
+                        if(empty($data['Component-'. $numberArray[$i]]) || empty($data['Action-'. $numberArray[$i]]) || empty($data['MergeTo-'. $numberArray[$i]])){
+                            return Response::json(array(
+                                "status" => "failed",
+                                "message" => "Merge components Value is missing."
+                            ));
+                        }
                         $componts[] = $data['Component-' . $numberArray[$i]];
                         $action[] = $data['Action-' . $numberArray[$i]];
                         $mergeTo[] = $data['MergeTo-' . $numberArray[$i]];
@@ -347,7 +352,12 @@ class RateGeneratorsController extends \BaseController {
                         unset($data['MergeTo-' . $numberArray[$i]]);
                         break;
                     } else {
-
+                        if(empty($data['Component-'. $numberArray[$i]]) || empty($data['Action-'. $numberArray[$i]]) || empty($data['MergeTo-'. $numberArray[$i]])){
+                            return Response::json(array(
+                                "status" => "failed",
+                                "message" => "Merge components Value is missing."
+                            ));
+                        }
                         $componts[] = $data['Component-' . $numberArray[$i]];
                         $action[] = $data['Action-' . $numberArray[$i]];
                         $mergeTo[] = $data['MergeTo-' . $numberArray[$i]];
