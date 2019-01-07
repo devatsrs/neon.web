@@ -200,10 +200,29 @@ class RoutingApiController extends ApiController {
             }
         } while ($stmt->nextRowset());
 
+        //Log::info('Filter Routing Profile List procedure password' . Crypt::decrypt('eyJpdiI6IkRrbGRQTjh5V1JQeVJvTDZCNnh2Snc9PSIsInZhbHVlIjoiTGpVcWVYS1lcL2J1SXNXSFwvbXgwSzBBPT0iLCJtYWMiOiI2Mzc3MzUxNjhjM2MxOTljZDAyMTkyYTY5NWY3NTM2NTNkOWY5NjZiMjlhNWMxM2UyYTcxMzViZjBjMTY5MWI5In0='));
+        //Crypt::decrypt('eyJpdiI6IkRrbGRQTjh5V1JQeVJvTDZCNnh2Snc9PSIsInZhbHVlIjoiTGpVcWVYS1lcL2J1SXNXSFwvbXgwSzBBPT0iLCJtYWMiOiI2Mzc3MzUxNjhjM2MxOTljZDAyMTkyYTY5NWY3NTM2NTNkOWY5NjZiMjlhNWMxM2UyYTcxMzViZjBjMTY5MWI5In0=');
+
         if (count($results) == 2) {
             $lcrDetails = $results[0];
+            foreach($lcrDetails as $lcrDetail) {
+                try {
+                    $lcrDetail->Password = Crypt::decrypt($lcrDetail->Password);
+                }catch (Exception $e) {
+
+                }
+
+            }
         }else if (count($results) == 3) {
             $lcrDetails = $results[2];
+            foreach($lcrDetails as $lcrDetail) {
+                try {
+                    $lcrDetail->Password = Crypt::decrypt($lcrDetail->Password);
+                }catch (Exception $e) {
+
+                }
+
+            }
         }else {
             $lcrDetails = '';
         }
@@ -258,7 +277,7 @@ class RoutingApiController extends ApiController {
 
 
         $lcrDetails = json_decode(json_encode($lcrDetails),true);
-        return Response::json(["status" => "Success", "Positions" => $lcrDetails]);
+        return Response::json(["status" => "success", "Positions" => $lcrDetails]);
     }
 
     public function checkTimeZone($lcrDetail,$TimeZones,$connectTime) {
