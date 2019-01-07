@@ -243,8 +243,8 @@ class RoutingProfilesController extends \BaseController {
         $RoutingProfileCategory = RoutingProfileCategory::select('RoutingCategoryID')->where('RoutingProfileID', $id )->get();
         $result = array();         
         $RoutingCategory = RoutingCategory::Join('tblRoutingProfileCategory', function($join) {
-            $join->on('tblroutingcategory.RoutingCategoryID','=','tblRoutingProfileCategory.RoutingCategoryID');
-            })->select('tblRoutingProfileCategory.Order','tblroutingcategory.Name','tblroutingcategory.RoutingCategoryID','tblroutingcategory.Description')->where('tblRoutingProfileCategory.RoutingProfileID',$id)
+            $join->on('tblRoutingCategory.RoutingCategoryID','=','tblRoutingProfileCategory.RoutingCategoryID');
+            })->select('tblRoutingProfileCategory.Order','tblRoutingCategory.Name','tblRoutingCategory.RoutingCategoryID','tblRoutingCategory.Description')->where('tblRoutingProfileCategory.RoutingProfileID',$id)
             ->orderBy('tblRoutingProfileCategory.Order')->get();
         array_push($result, $RoutingCategory);             
         return $result; 
