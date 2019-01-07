@@ -758,8 +758,6 @@
              <div class="form-group">
                  <label class="col-md-2 control-label">Out Payment Threshold</label>
                  <div class="col-md-4">
-
-                 <div class="col-md-4">
                      @if(isset($AccountPaymentAutomation->OutPaymentThreshold) )
                         {{Form::text('OutPaymentThreshold',$AccountPaymentAutomation->OutPaymentThreshold,array('class'=>'form-control'))}}
                      @else
