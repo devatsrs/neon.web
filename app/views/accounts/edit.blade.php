@@ -742,7 +742,8 @@
                  <div class="col-md-4">
                      <div class="panel-options">
                          <div class="make-switch switch-small">
-                             <input type="checkbox" @if(isset($AccountPaymentAutomation->AutoOutpayment )) checked="" @endif name="AutoOutPayment" value="1">
+
+                             <input type="checkbox" @if(isset($AccountPaymentAutomation->AutoOutpayment ) && $AccountPaymentAutomation->AutoOutpayment == 1 ) checked="" @endif name="AutoOutPayment" value="1">
                          </div>
                      </div>
                  </div>
@@ -750,7 +751,7 @@
                  <div class="col-md-4">
                      <div class="panel-options">
                          <div class="make-switch switch-small">
-                             <input type="checkbox" @if(isset($AccountPaymentAutomation->AutoTopup) )checked="" @endif name="AutoTopup" value="1">
+                             <input type="checkbox" @if(isset($AccountPaymentAutomation->AutoTopup) && $AccountPaymentAutomation->AutoTopup == 1 )checked="" @endif name="AutoTopup" value="1">
                          </div>
                      </div>
                  </div>
