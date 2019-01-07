@@ -44,10 +44,10 @@ class AccountServiceController extends \BaseController {
         $AccountService = AccountService::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->first();
 
         //As per new question call the routing profile model for fetch the routing profile list.
-            $routingprofile = RoutingProfiles::getRoutingProfile();
+            $routingprofile = RoutingProfiles::getRoutingProfile($CompanyID);
             $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id,"ServiceID"=>$ServiceID])->first();
             //----------------------------------------------------------------------
-            $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE');
+            $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$CompanyID);
 		return View::make('accountservices.edit', compact('AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService'));
 	}
 

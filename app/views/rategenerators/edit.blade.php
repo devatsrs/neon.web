@@ -100,12 +100,36 @@
                         </div>
 
                         <label for="field-1" class="col-sm-2 control-label">Use Preference</label>
-                        <div class="col-sm-4">
+                        <div class="col-sm-1">
                             <div class="make-switch switch-small">
                                 {{Form::checkbox('UsePreference', 1,  $rategenerators->UsePreference );}}
                             </div>
                         </div>
+
+                        <div id="rate-aveg-div">
+                            <label for="field-1" class="col-sm-1 control-label">Use Average</label>
+                            <div class="col-sm-2">
+                                <div class="make-switch switch-small">
+                                    {{Form::checkbox('UseAverage', 1,  $rategenerators->UseAverage );}}
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-2 control-label">If calculated rate is less then</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" name="LessThenRate" value="{{(!empty($rategenerators->LessThenRate)?$rategenerators->LessThenRate:'')}}" />
+
+                        </div>
+
+                        <label for="field-1" class="col-sm-2 control-label">Change rate to</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" name="ChargeRate" value="{{(!empty($rategenerators->ChargeRate)?$rategenerators->ChargeRate:'')}}" />
+                        </div>
+                    </div>
+
+
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Currency</label>
                         <div class="col-sm-4">
@@ -150,18 +174,6 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">If calculated rate is less then</label>
-                        <div class="col-sm-4">
-                            <input type="text" class="form-control" name="LessThenRate" value="{{$rategenerators->LessThenRate}}" />
-
-                        </div>
-
-                        <label for="field-1" class="col-sm-2 control-label">Change rate to</label>
-                        <div class="col-sm-4">
-                            <input type="text" class="form-control" name="ChargeRate" value="{{$rategenerators->ChargeRate}}" />
-                        </div>
-                    </div>
 
                     <div class="form-group">
                         <label class="col-sm-2 control-label">Merge Rate By Timezones</label>
@@ -179,14 +191,6 @@
                         <label class="col-sm-2 control-label IsMerge">Merge Into</label>
                         <div class="col-sm-4 IsMerge">
                             {{ Form::select('MergeInto', $Timezones, $rategenerators->MergeInto , array("class"=>"select2")) }}
-                        </div>
-                        <div id="rate-aveg-div">
-                             <label for="field-1" class="col-sm-2 control-label">Use Average</label>
-                             <div class="col-sm-4">
-                                 <div class="make-switch switch-small">
-                                     {{Form::checkbox('UseAverage', 1,  $rategenerators->UseAverage );}}
-                                 </div>
-                             </div>
                         </div>
 
                         <div id="hide-components">
@@ -244,7 +248,7 @@
                         if (isset($rategeneratorComponents) && count($rategeneratorComponents)  > 0 )
                         {
                             $a = 0;
-                            $disabled='';
+                        $hiddenClass='';
                             $ComponentArray1 = array();
 
                         ?>
@@ -253,9 +257,9 @@
                                 <?php
                                     $a++;
                                     if($a==1){
-                                        $disabled='disabled';
+                                        $hiddenClass='hidden';
                                     }else{
-                                        $disabled='';
+                                        $hiddenClass='';
                                     }
                                 $ComponentArray = explode("," ,$Component->Component);
                                 foreach ($ComponentArray as $Component1) {
@@ -292,7 +296,7 @@
                                             <i></i>
                                             +
                                         </button>
-                                        <a onclick="deleteRow(this.id)" id="{{$a}}" class="btn btn-danger btn-sm" data-loading-text="Loading..." {{$disabled}}>
+                                        <a onclick="deleteRow(this.id)" id="{{$a}}" class="btn btn-danger btn-sm {{$hiddenClass}}" data-loading-text="Loading...">
                                             <i></i>
                                            -
 
@@ -324,7 +328,7 @@
                                         <i></i>
                                         +
                                     </button>
-                                    <a onclick="deleteRow(this.id)" id="0" class="btn btn-danger btn-sm" data-loading-text="Loading..." disabled>
+                                    <a onclick="deleteRow(this.id)" id="0" class="btn btn-danger btn-sm hidden" data-loading-text="Loading..." >
                                         <i></i>
                                         -
 
@@ -1062,7 +1066,7 @@
         $('#servicetableSubBox tr:last').children('td:eq(1)').find('div:first').remove();
         $('#servicetableSubBox tr:last').children('td:eq(2)').find('div:first').remove();
 
-        $('#servicetableSubBox tr:last').closest('tr').children('td:eq(3)').find('a').removeAttr('disabled');
+        $('#servicetableSubBox tr:last').closest('tr').children('td:eq(3)').find('a').removeClass('hidden');
 
     }
 

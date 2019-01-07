@@ -58,6 +58,7 @@
           <th width="25%">Trunk</th>
           <th width="10%">Currency</th>
           <th width="10%">Status</th>
+          <th width="10%">Created At</th>
           <th width="25%">Action</th>
         </tr>
       </thead>
@@ -93,7 +94,7 @@
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-            "aaSorting": [[3, "desc"]],
+            "aaSorting": [[4, "desc"]],
             "aoColumns": [
                 {},
                 {},
@@ -106,6 +107,7 @@
                             return '<i style="font-size:28px;color:red" class="entypo-cancel"></i>';
                     }
                 },
+                {},
                 {
                     mRender: function (id, type, full) {
                         var action, edit_, delete_;

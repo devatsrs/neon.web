@@ -14,7 +14,9 @@ class TestdialplanController extends \BaseController {
 
 	public function index()
 	{
-        return View::make('testdialplan.index');
+            $company_id = User::get_companyID();
+            $routingprofile = RoutingProfiles::getRoutingProfile($company_id);
+            return View::make('testdialplan.index',compact('routingprofile'));
 
         }
 
