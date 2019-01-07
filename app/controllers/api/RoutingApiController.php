@@ -221,7 +221,7 @@ class RoutingApiController extends ApiController {
                 }catch (Exception $e) {
 
                 }
-               
+
             }
         }else {
             $lcrDetails = '';
@@ -277,7 +277,7 @@ class RoutingApiController extends ApiController {
 
 
         $lcrDetails = json_decode(json_encode($lcrDetails),true);
-        return Response::json(["status" => "Success", "Positions" => $lcrDetails]);
+        return Response::json(["status" => "success", "Positions" => $lcrDetails]);
     }
 
     public function checkTimeZone($lcrDetail,$TimeZones,$connectTime) {
