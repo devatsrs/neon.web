@@ -709,15 +709,13 @@ Return
                        "UserID": 1,
                        "FirstName": "Sumera",
                        "LastName": "Khan",
-                       "EmailAddress": "saeedsumera@hotmail.com",
-                       "AccountingUser": 1
+                       "EmailAddress": "saeedsumera@hotmail.com"
                    },
                    {
                        "UserID": 91,
                        "FirstName": "Onno",
                        "LastName": "Westra",
-                       "EmailAddress": "onno.westra@speakintelligence.com",
-                       "AccountingUser": null
+                       "EmailAddress": "onno.westra@speakintelligence.com"
                    }
                ]
            }
