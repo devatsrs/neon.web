@@ -56,6 +56,8 @@
 
                 var DestinationCode         = $("#rategenerator-code-from input[name='Code']").val();
                 var DestinationDescription  = $("#rategenerator-code-from input[name='Description']").val();
+                var OriginationCode         = $("#rategenerator-code-from input[name='OriginationCode']").val();
+                var OriginationDescription  = $("#rategenerator-code-from input[name='OriginationDescription']").val();
 
 //                if((typeof OriginationCode  == 'undefined' || OriginationCode.trim() == '' ) && (typeof OriginationDescription  == 'undefined' || OriginationDescription.trim() == '' )){
 //
@@ -65,14 +67,13 @@
 //
 //                }
 
-                if((typeof DestinationCode  == 'undefined' || DestinationCode.trim() == '' ) && (typeof DestinationDescription  == 'undefined' || DestinationDescription.trim() == '' )){
+                if((typeof DestinationCode  == 'undefined' || DestinationCode.trim() == '' ) && (typeof DestinationDescription  == 'undefined' || DestinationDescription.trim() == '' ) && (typeof OriginationCode  == 'undefined' || OriginationCode.trim() == '' ) && (typeof OriginationDescription  == 'undefined' || OriginationDescription.trim() == '' )){
 
                     setTimeout(function(){$('.btn').button('reset');},10);
-                    toastr.error("Please Enter a Destination Code Or Destination Description", "Error", toastr_opts);
+                    toastr.error("Please Enter a Origination Code OriginationDescription or Destination Code Or Destination Description", "Error", toastr_opts);
                     return false;
 
                 }
-
 
                 if($("#rategenerator-source-from input[name='AccountIds[]']:checked").length == 0 ) {
 
@@ -86,7 +87,6 @@
 
 
                 var formData = $('#rategenerator-code-from').serialize();
-
 
                 $.post( _url, formData, function( response ) {
 
