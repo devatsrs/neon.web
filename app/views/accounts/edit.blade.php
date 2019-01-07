@@ -764,8 +764,7 @@
                          {{Form::text('OutPaymentThreshold','',array('class'=>'form-control'))}}
                      @endif
                     </div>
-             </div>
-             <div class="form-group">
+
                  <label class="col-md-2 control-label">Topup Threshold</label>
                  <div class="col-md-4">
                      @if(isset($AccountPaymentAutomation->MinThreshold) )
@@ -773,10 +772,10 @@
 
                      @else
                          {{Form::text('MinThreshold', '',array('class'=>'form-control'))}}
-
                      @endif
                  </div>
              </div>
+
              <div class="form-group">
                  <label class="col-md-2 control-label">Out Payment Amount</label>
                  <div class="col-md-4">
