@@ -33,7 +33,7 @@ class AssignRoutingController extends \BaseController {
             $all_customers = Account::getAccountIDList(['IsCustomer'=>1,'IsReseller'=>1]);
             $companyID = User::get_companyID();
             $trunks = Trunk::getTrunkDropdownIDList();
-            $routingprofile = RoutingProfiles::getRoutingProfile();
+            $routingprofile = RoutingProfiles::getRoutingProfile($companyID);
             $codedecks = BaseCodeDeck::where(["CompanyID" => $companyID])->lists("CodeDeckName", "CodeDeckId");
             $codedecks = array(""=>"Select Codedeck")+$codedecks;
             $rate_tables = RateTable::getRateTables();

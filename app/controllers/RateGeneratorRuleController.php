@@ -97,10 +97,10 @@ class RateGeneratorRuleController extends \BaseController {
 
            // $data['RateGeneratorId']
             $rules = array(
-
-                'Code' => 'required_without_all:Description',
-                'Description' => 'required_without_all:Code',
-                'RateGeneratorId' => 'required',
+                'Code' => 'required_without_all:Description,OriginationCode,OriginationDescription',
+                'Description' => 'required_without_all:Code,OriginationCode,OriginationDescription',
+                'OriginationCode' => 'required_without_all:Code,Description,OriginationDescription',
+                'OriginationDescription' => 'required_without_all:Code,Description,OriginationCode',
                 'CreatedBy' => 'required'
             );
             $validator = Validator::make($data, $rules);
@@ -109,13 +109,12 @@ class RateGeneratorRuleController extends \BaseController {
                 return json_validator_response($validator);
             }
 
-            $rateRuleDesination  = RateRule::select('Code','Description')->where(["RateGeneratorId" => $data['RateGeneratorId'],"Code"=> $data['Code'],"Description"=> $data['Description'] ])->first();
-
-            if ($rateRuleDesination)
-            {
-                if(isset($rateRuleDesination->Code) && isset($rateRuleDesination->Description))
-                {
-                    return Response::json(array("status" => "failed", "message" => "Destination Code or Description already exist"));
+            if(isset($data['Code']) && !empty($data['Code']) || (isset($data['Description']) && !empty($data['Description']) ) ) {
+                $rateRuleDesination = RateRule::select('Code', 'Description')->where(["RateGeneratorId" => $data['RateGeneratorId'], "Code" => $data['Code'], "Description" => $data['Description']])->first();
+                if ($rateRuleDesination) {
+                    if (isset($rateRuleDesination->Code) && isset($rateRuleDesination->Description)) {
+                        return Response::json(array("status" => "failed", "message" => "Destination Code or Description already exist"));
+                    }
                 }
             }
             if(isset($data['OriginationCode']) && !empty($data['OriginationCode']) || (isset($data['OriginationDescription']) && !empty($data['OriginationDescription']) ) ) {
@@ -146,8 +145,10 @@ class RateGeneratorRuleController extends \BaseController {
             $data ['ModifiedBy'] = User::get_user_full_name();
 
                     $rules = array(
-                        'Code' => 'required_without_all:Description',
-                        'Description' => 'required_without_all:Code',
+                        'Code' => 'required_without_all:Description,OriginationCode,OriginationDescription',
+                        'Description' => 'required_without_all:Code,OriginationCode,OriginationDescription',
+                        'OriginationCode' => 'required_without_all:Code,Description,OriginationDescription',
+                        'OriginationDescription' => 'required_without_all:Code,Description,OriginationCode',
                         'ModifiedBy' => 'required'
                     );
 
@@ -255,8 +256,6 @@ class RateGeneratorRuleController extends \BaseController {
                 'MaxRate' => 'numeric|unique:tblRateRuleMargin,MaxRate,'.$RateRuleMarginId.',RateRuleMarginId,RateRuleId,'.$RateRuleId,
                 'AddMargin' => 'required_without:FixedValue',
                 'FixedValue' => 'required_without:AddMargin',
-                'LessThenRate'=> 'required',
-                'ChargeRate' => 'required',
                 'RateRuleId' => 'required',
                 'RateRuleMarginId' => 'required',
                 'ModifiedBy' => 'required'
@@ -334,8 +333,6 @@ class RateGeneratorRuleController extends \BaseController {
                 'MaxRate' => 'numeric|unique:tblRateRuleMargin,MaxRate,NULL,RateRuleMarginId,RateRuleId,'.$RateRuleId,
                 'AddMargin' => 'required_without:FixedValue',
                 'FixedValue' => 'required_without:AddMargin',
-                'LessThenRate'=> 'required',
-                'ChargeRate'=> 'required',
                 'RateRuleId' => 'required',
                 'CreatedBy' => 'required'
             );
@@ -346,7 +343,6 @@ class RateGeneratorRuleController extends \BaseController {
                     "message" => "Add Margin or Fixed Rate, Both are not allowed"
                 ));
             }
-
 
             $minRateCount = RateRuleMargin::whereBetween('MinRate', array(doubleval($data['MinRate']), doubleval($data['MaxRate'])))
                 ->where(['RateRuleId'=>$RateRuleId])
@@ -380,21 +376,8 @@ class RateGeneratorRuleController extends \BaseController {
                 ));
             }
 
-            if($RateGeneratorID > 0)
-            {
-                RateGenerator::where('RateGeneratorId', $RateGeneratorID)->update( array('LessThenRate'=>$data['LessThenRate'], 'ChargeRate'=>$data['ChargeRate']) );
-                unset($data['LessThenRate']);
-                unset($data['ChargeRate']);
-            }else{
-                return Response::json(array(
-                    "status" => "failed",
-                    "message" => "Problem Inserting RateGenerator."
-                ));
-            }
-
             if (RateRuleMargin::insert($data)) {
-
-                  return Response::json(array(
+                return Response::json(array(
                     "status" => "success",
                     "message" => "RateGenerator Rule Margin Successfully Inserted"
                 ));
@@ -404,6 +387,7 @@ class RateGeneratorRuleController extends \BaseController {
                     "message" => "Problem Inserting RateGenerator Rule Margin."
                 ));
             }
+
         }
     }
 

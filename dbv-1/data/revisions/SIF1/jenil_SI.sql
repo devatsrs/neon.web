@@ -552,17 +552,10 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 		IF p_AccountId > 0 THEN
-				SELECT
+			SELECT
+				ud.*,
 				uh.StartDate,
-				ud.UsageDetailID,
-				ud.UsageHeaderID,
-				uh.GatewayAccountID,
-				ud.connect_time,
-				ud.disconnect_time,
-				ud.cli,
-				ud.cld,
-				ud.cost,
-				ud.area_prefix
+				uh.GatewayAccountID
 			FROM speakintelligentCDR.tblUsageDetails  ud
 			INNER JOIN speakintelligentCDR.tblUsageHeader uh
 				ON uh.UsageHeaderID = ud.UsageHeaderID
@@ -577,16 +570,9 @@ BEGIN
 		ELSE 
 		
 			SELECT
+				ud.*,
 				uh.StartDate,
-				ud.UsageDetailID,
-				ud.UsageHeaderID,
-				uh.GatewayAccountID,
-				ud.connect_time,
-				ud.disconnect_time,
-				ud.cli,
-				ud.cld,
-				ud.cost,
-				ud.area_prefix
+				uh.GatewayAccountID
 			FROM speakintelligentCDR.tblUsageDetails  ud
 			INNER JOIN speakintelligentCDR.tblUsageHeader uh
 				ON uh.UsageHeaderID = ud.UsageHeaderID
@@ -670,6 +656,10 @@ ALTER TABLE tblVendorCDRFailed
   
   
   
+  
+/* RateGenerator Changes already Live - adnan */  
+
+ 
  
 	
 
