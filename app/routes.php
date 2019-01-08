@@ -802,6 +802,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('lcr/ajax_customer_rate_export/{type}', 'LCRController@ajax_customer_rate_export');
 	Route::any('lcr/edit_preference', 'LCRController@editPreference');
 
+	//DIDLCR
+	Route::resource('did/lcr', 'LCRDIDController');
+
 	//Pages
 	Route::any('/about', 'PagesController@about');
 	Route::resource('page', 'PagesController');
