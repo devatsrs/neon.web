@@ -74,7 +74,7 @@
                             {{Form::select('SelectType',$AllTypes,$rategenerators->SelectType,array("class"=>"form-control select2 small","disabled"=>"disabled"))}}
 
                         </div>
-                        <label for="field-1" class="col-sm-2 control-label">Name*</label>
+                        <label for="field-1" class="col-sm-2 control-label">Name</label>
                         <div class="col-sm-4">
                             <input type="text" class="form-control" name="RateGeneratorName" data-validate="required" data-message-required="." id="field-1" placeholder="" value="{{$rategenerators->RateGeneratorName}}" />
                         </div>
@@ -160,7 +160,7 @@
                     {{--<input type="hidden" name="GroupBy" value="Code">--}}
 
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">CodeDeck*</label>
+                        <label for="field-1" class="col-sm-2 control-label">CodeDeck</label>
                         <div class="col-sm-4">
                             {{ Form::select('codedeckid', $codedecklist,  $rategenerators->CodeDeckId, array_merge( array("class"=>"select2"),$array_op)) }}
                             @if(isset($array_op['disabled']) && $array_op['disabled'] == 'disabled')
@@ -168,7 +168,7 @@
                             @endif
                         </div>
 
-                        <label for="field-1" class="col-sm-2 control-label">Timezones*</label>
+                        <label for="field-1" class="col-sm-2 control-label">Timezones</label>
                         <div class="col-sm-4">
                             {{ Form::select('Timezones[]', $Timezones, explode(',',$rategenerators->Timezones) , array("class"=>"select2 multiselect", "multiple"=>"multiple")) }}
                         </div>
@@ -203,7 +203,7 @@
                     </div>
 
                     <div class="form-group" id="DIDCategoryDiv">
-                        <label for="field-1" class="col-sm-2 control-label">Category*</label>
+                        <label for="field-1" class="col-sm-2 control-label">Category</label>
                         <div class="col-sm-4">
                             {{ Form::select('Category', $Categories, $rategenerators->DIDCategoryID , array("class"=>"select2")) }}
                         </div>
@@ -215,7 +215,7 @@
         <div class="panel panel-primary" data-collapsed="0" id="Merge-components">
             <div class="panel-heading">
                 <div class="panel-title">
-                    Merge components
+                    Merge Components
                 </div>
 
                 <div class="panel-options">
