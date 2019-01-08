@@ -146,7 +146,7 @@ class AccountsController extends \BaseController {
         $timezones = TimeZone::getTimeZoneDropdownList();
         $rate_timezones = Timezones::getTimezonesIDList();
         $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
-        $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE');
+        $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',User::get_companyID());
         return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','bulk_type','Currencies','BillingClass','timezones','reseller_owners','rate_timezones','ROUTING_PROFILE'));
 
     }
@@ -181,7 +181,7 @@ class AccountsController extends \BaseController {
             $routingprofile = RoutingProfiles::getRoutingProfile();
             //$RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
             //----------------------------------------------------------------------
-            $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE');
+            $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$company_id);
             return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company','reseller_owners','routingprofile','ROUTING_PROFILE'));
     }
 
@@ -745,7 +745,7 @@ class AccountsController extends \BaseController {
         $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
         //----------------------------------------------------------------------
 
-        $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE');
+        $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$companyID);
         $AccountPaymentAutomation = AccountPaymentAutomation::where('AccountID',$id)->first();
 
 
