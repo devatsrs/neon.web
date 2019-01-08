@@ -274,6 +274,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accounts/expense_chart', 'AccountsController@expense_chart');
 	Route::any('accounts/expense_top_destination/{id}', 'AccountsController@expense_top_destination');
 	Route::any('accounts/unbilledreport/{id}', 'AccountsController@unbilledreport');
+	Route::any('accounts/prepaidunbilledreport/{id}', 'AccountsController@prepaidunbilledreport');
 	Route::any('accounts/activity_pdf_download/{id}', 'AccountsController@activity_pdf_download');
 	Route::any('accounts/getNextBillingDate', 'AccountsController@getNextBillingDate');
 
@@ -696,7 +697,7 @@ Route::group(array('before' => 'auth'), function () {
 	//Route::any('/rategenerators/rules/{id}/edit/{ruleID}', 'RateGeneratorsController@edit_rule')->where('ruleID', '(.[09]*)+');
 	//Route::any('/rategenerators/rules/{id}/edit_source/{rule_id}', 'RateGeneratorsController@edit_rule_source')->where('rule_id', '(.[09]*)+');
 	Route::any('/rategenerators/{id}/change_status/{status}', 'RateGeneratorsController@change_status')->where('status', '(.[09]*)+');
-	Route::any('/rategenerators/exports/{type}', 'RateGeneratorasController@exports');
+	Route::any('/rategenerators/exports/{type}', 'RateGeneratorsController@exports');
 	Route::any('/rategenerators/ajax_load_rate_table_dropdown', 'RateGeneratorsController@ajax_load_rate_table_dropdown');
     Route::any('/rategenerators/{id}/ajax_existing_rategenerator_cronjob', 'RateGeneratorsController@ajax_existing_rategenerator_cronjob');
     Route::any('/rategenerators/{id}/deletecronjob', 'RateGeneratorsController@deleteCronJob');
@@ -1593,7 +1594,12 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/routingprofiles/ajax_datagrid', 'RoutingProfilesController@ajax_datagrid');
 	Route::any('/routingprofiles', 'RoutingProfilesController@index');
 	Route::any('/routingprofiles/create', 'RoutingProfilesController@create');
-        Route::any('/routingprofiles/ajaxcall/{id}', 'RoutingProfilesController@ajaxcall');
+	Route::any('/routingprofiles/ajaxfetch', 'RoutingProfilesController@ajaxfetch');
+	Route::any('/routingprofiles/ajaxedit', 'RoutingProfilesController@ajaxedit');
+	Route::any('/routingprofiles/ajaxCategories', 'RoutingProfilesController@ajax_categories');
+
+	
+    Route::any('/routingprofiles/ajaxcall/{id}', 'RoutingProfilesController@ajaxcall');
 	Route::any('/routingprofiles/update/{id}', 'RoutingProfilesController@update');
 	Route::any('/routingprofiles/{id}/delete', 'RoutingProfilesController@delete');
         Route::any('/routingprofiles/exports/{type}', 'RoutingProfilesController@exports');
@@ -1777,6 +1783,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::get('users/list', 'UsersApiController@getList');
 
 	Route::post('account/createAccount', 'AccountsApiController@createAccount');
+	Route::post('account/paymentMethod', 'AccountsApiController@getPaymentMethodList');
 	Route::post('account/createService', 'AccountsApiController@createAccountService');
 	Route::post('routing/list', 'RoutingApiController@routingList');
 

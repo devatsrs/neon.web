@@ -145,7 +145,7 @@ return array(
 		/** Neon Routing Database **/
 		'sqlsrvrouting' => [
 			'driver'    => 'mysql',
-			'host'      => "localhost",
+			'host'      => getenv('DB_HOSTROUTING'),
 			'database'  => getenv('DB_DATABASEROUTING'),
 			'username'  => getenv('DB_USERNAMEROUTING'),
 			'password'  => substr(getenv('DB_PASSWORDROUTING'),5),

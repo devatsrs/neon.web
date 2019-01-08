@@ -17,8 +17,8 @@ class RoutingApiController extends ApiController {
             'OriginationNo' => 'required',
             'DestinationNo' => 'required',
             'ConnectTime' => 'required',
-            'AccountNumber' => 'required_without_all:CustomerID',
-            'CustomerID' => 'required_without_all:AccountNumber',
+            'AccountNumber' => 'required_without_all:AccountID',
+            'AccountID' => 'required_without_all:AccountNumber',
         );
         $validator = Validator::make($routingData, $rules);
 
@@ -30,13 +30,14 @@ class RoutingApiController extends ApiController {
             return Response::json(["status" => "failed", "message" => $errors]);
         }
 
+        Log::info('routingList:Get the routing list user company.' . $CompanyID);
         $profiles = '';
         $RoutingProfileId = array();
         $CustomerProfileAccountID = '';
         if (isset($routingData["AccountNumber"]) && $routingData["AccountNumber"] != '') {
             $CustomerProfileAccountID = Account::where(["Number" => $routingData["AccountNumber"]])->pluck("AccountID");
         }else {
-            $CustomerProfileAccountID = Account::where(["AccountID" => $routingData["CustomerID"]])->pluck("AccountID");
+            $CustomerProfileAccountID = Account::where(["AccountID" => $routingData["AccountID"]])->pluck("AccountID");
         }
         Log::info('routingList:Get the routing list count.' . $CustomerProfileAccountID);
 
@@ -160,18 +161,72 @@ class RoutingApiController extends ApiController {
             print_r($GetTimeZone,true));
         GetTimeZone::where(array('getTimezoneID'=>$GetTimeZone->getTimezoneID))->delete();
 
+        /*
                     Log::info('Filter Routing Profile List procedure' . $CustomerProfileAccountID);
                     $query = "CALL prc_getRoutingRecords(" . $CustomerProfileAccountID . "," . "'" . $routingData['OriginationNo'] . "'" . "," . "'" . $routingData['DestinationNo'] . "'" .
                         "," . "'" . $queryTimeZone . "'" . "," . "'" . $RoutingProfileID. "'"  .")";
                     Log::info('Filter Routing Profile List procedure' . $query);
-                    $lcrDetails = DB::connection('speakIntelligentRoutingEngine')->select($query);
-                    Log::info('Filter Routing Profile List procedure' . count($lcrDetails));
+                    $lcrDetailsProc = DB::connection('speakIntelligentRoutingEngine')->select($query)->fetchAll();;
+                //$lcrDetailsProc = $lcrDetailsProc->cursor();
+                    Log::info('Filter Routing Profile List procedure' . count($lcrDetailsProc));
+             */
+        $procName = "prc_getRoutingRecords";
+        $syntax = '';
+        $parameters = [$CustomerProfileAccountID,$routingData['OriginationNo'],$routingData['DestinationNo'],$queryTimeZone,$RoutingProfileID];
+        for ($i = 0; $i < count($parameters); $i++) {
+            $syntax .= (!empty($syntax) ? ',' : '') . '?';
+        }
+        $syntax = 'CALL ' . $procName . '(' . $syntax . ');';
+        Log::info('Filter Routing Profile List procedure $syntax123' . $syntax);
 
+        $pdo = DB::connection('speakIntelligentRoutingEngine')->getPdo();
+        $pdo->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true);
+        $stmt = $pdo->prepare($syntax,[\PDO::ATTR_CURSOR=>\PDO::CURSOR_SCROLL]);
+        for ($i = 0; $i < count($parameters); $i++) {
+            $stmt->bindValue((1 + $i), $parameters[$i]);
+        }
+        $exec = $stmt->execute();
+        if (!$exec) return $pdo->errorInfo();
+        $results[] = $stmt->fetchAll(\PDO::FETCH_OBJ);
+        do {
+            try {
+                $results[] = $stmt->fetchAll(\PDO::FETCH_OBJ);
+                Log::info('Filter Routing Profile List procedure $syntax1232' . count($results));
+               // foreach($results as $result) {
+                //    Log::info('Filter Routing Profile List procedure $syntax' . print_r($result,true));
+               // }
+            } catch (\Exception $ex) {
 
+            }
+        } while ($stmt->nextRowset());
 
+        //Log::info('Filter Routing Profile List procedure password' . Crypt::decrypt('eyJpdiI6IkRrbGRQTjh5V1JQeVJvTDZCNnh2Snc9PSIsInZhbHVlIjoiTGpVcWVYS1lcL2J1SXNXSFwvbXgwSzBBPT0iLCJtYWMiOiI2Mzc3MzUxNjhjM2MxOTljZDAyMTkyYTY5NWY3NTM2NTNkOWY5NjZiMjlhNWMxM2UyYTcxMzViZjBjMTY5MWI5In0='));
+        //Crypt::decrypt('eyJpdiI6IkRrbGRQTjh5V1JQeVJvTDZCNnh2Snc9PSIsInZhbHVlIjoiTGpVcWVYS1lcL2J1SXNXSFwvbXgwSzBBPT0iLCJtYWMiOiI2Mzc3MzUxNjhjM2MxOTljZDAyMTkyYTY5NWY3NTM2NTNkOWY5NjZiMjlhNWMxM2UyYTcxMzViZjBjMTY5MWI5In0=');
 
+        if (count($results) == 2) {
+            $lcrDetails = $results[0];
+            foreach($lcrDetails as $lcrDetail) {
+                try {
+                    $lcrDetail->Password = Crypt::decrypt($lcrDetail->Password);
+                }catch (Exception $e) {
 
+                }
 
+            }
+        }else if (count($results) == 3) {
+            $lcrDetails = $results[2];
+            foreach($lcrDetails as $lcrDetail) {
+                try {
+                    $lcrDetail->Password = Crypt::decrypt($lcrDetail->Password);
+                }catch (Exception $e) {
+
+                }
+
+            }
+        }else {
+            $lcrDetails = '';
+        }
+        //$lcrDetails = $results;
         $routingDetails = array();
         $positionDetails = 0;
         $locationDetails = 0;
@@ -222,7 +277,7 @@ class RoutingApiController extends ApiController {
 
 
         $lcrDetails = json_decode(json_encode($lcrDetails),true);
-        return Response::json(["status" => "Success", "Positions" => $lcrDetails]);
+        return Response::json(["status" => "success", "Positions" => $lcrDetails]);
     }
 
     public function checkTimeZone($lcrDetail,$TimeZones,$connectTime) {
