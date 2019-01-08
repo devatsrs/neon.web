@@ -19,7 +19,7 @@
                 </div>
                 <div id="did_Div" class="form-group hidden">
                     <label for="Active" class="control-label">Category</label>
-                    {{Form::select('DIDCategoryID',[''=>'Select']+$Categories,'',array("class"=>"form-control select2 small"))}}
+                    {{Form::select('DIDCategoryID',[''=>'Select']+$Categories,'',array("class"=>"form-control select2 small DIDCategoryID"))}}
                 </div>
                 <div class="form-group">
                     <label for="Active" class="control-label">Trunk</label>
