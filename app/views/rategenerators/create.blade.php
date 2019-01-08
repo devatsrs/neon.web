@@ -56,7 +56,7 @@
 
                     </div>
 
-                    <label for="field-1" class="col-sm-2 control-label">Name*</label>
+                    <label for="field-1" class="col-sm-2 control-label">Name</label>
                     <div class="col-sm-4">
                         <input type="text" class="form-control" name="RateGeneratorName" data-validate="required" data-message-required="." id="field-1" placeholder="" value="{{Input::old('RateGeneratorName')}}" />
                     </div>
@@ -113,7 +113,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Currency*</label>
+                    <label for="field-1" class="col-sm-2 control-label">Currency</label>
                     <div class="col-sm-4">
                         {{Form::SelectControl('currency')}}
                     </div>
@@ -131,13 +131,13 @@
 
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">CodeDeck*</label>
+                    <label for="field-1" class="col-sm-2 control-label">CodeDeck</label>
                     <div class="col-sm-4">
                         {{ Form::select('codedeckid', $codedecklist,  null , array("class"=>"select2")) }}
 
                     </div>
 
-                    <label for="field-1" class="col-sm-2 control-label">Timezones*</label>
+                    <label for="field-1" class="col-sm-2 control-label">Timezones</label>
                     <div class="col-sm-4">
                         {{ Form::select('Timezones[]', $Timezones, null , array("class"=>"select2 multiselect", "multiple"=>"multiple")) }}
                     </div>
@@ -170,7 +170,7 @@
                     </div>
                 </div>
                 <div class="form-group" id="DIDCategoryDiv">
-                    <label for="field-1" class="col-sm-2 control-label">Category*</label>
+                    <label for="field-1" class="col-sm-2 control-label">Category</label>
                     <div class="col-sm-4">
                         {{ Form::select('Category', $Categories,null, array("class"=>"select2")) }}
                     </div>
@@ -184,7 +184,7 @@
         <div class="panel panel-primary" data-collapsed="0" id="Merge-components">
             <div class="panel-heading">
                 <div class="panel-title">
-                    Merge components
+                    Merge Components
                 </div>
 
                 <div class="panel-options">
