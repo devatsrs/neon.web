@@ -2499,6 +2499,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetDIDLCRwithPrefix`(
 
 
 
+
+
 )
 		ThisSP:BEGIN
 
@@ -2771,7 +2773,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetDIDLCRwithPrefix`(
 
 		SET @ResultField = '';
 
-		IF p_ComponentsMeargeTo != '' THEN
+		IF p_ComponentsAction != '' THEN
 
 
 			/*
@@ -2850,8 +2852,10 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetDIDLCRwithPrefix`(
 				FROM (
 					SELECT distinct
 						RateTableDIDRateID,
+
 						tblAccount.AccountId,
-						vt.Name as AccountName,
+
+						tblAccount.AccountName,
 						IFNULL(r2.Code,"") as OriginationCode,
 						tblRate.Code,
 						IFNULL(r2.Description,"") as OriginationDescription ,
@@ -3188,7 +3192,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetDIDLCRwithPrefix`(
 		THEN
 
 
-			SET @stm_query = CONCAT("SELECT	CONCAT(ANY_VALUE(t.OriginationCode) , ' : ' , ANY_VALUE(t.OriginationDescription), ' => '  ,ANY_VALUE(t.RowCode) , ' : ' , ANY_VALUE(t.Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY t.OriginationCode, t.RowCode ORDER BY RowCode ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
+			SET @stm_query = CONCAT("SELECT	CONCAT(ANY_VALUE(t.OriginationCode) , ' : ' , ANY_VALUE(t.OriginationDescription), ' <br> => '  ,ANY_VALUE(t.RowCode) , ' : ' , ANY_VALUE(t.Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY t.OriginationCode, t.RowCode ORDER BY RowCode ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
 
 
 
