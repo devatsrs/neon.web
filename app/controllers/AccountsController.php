@@ -197,6 +197,8 @@ class AccountsController extends \BaseController {
             $companyID = User::get_companyID();
             $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
 
+
+        if( isset($data['BillingType']) && $data['BillingType'] == 1 ) {
             $rules = array(
                 'TopupAmount' => 'numeric|regex:/^\d*(\.\d{2})?$/',
                 'AutoOutPayment' => 'numeric',
@@ -206,82 +208,84 @@ class AccountsController extends \BaseController {
             );
 
 
-        $validator = Validator::make($data, $rules);
-
-        if ($validator->fails()) {
-            return json_validator_response($validator);
-        }
-
-
-        $ErrorMessage = "";
-
-        if ( isset($data['AutoOutPayment']) && $data['AutoOutPayment'] == 1 ) {
-
-            if(empty($data['OutPaymentAmount']))
-                $ErrorMessage .= "Please enter the value of Out Payment Amount field <br> ";
-
-            if(empty($data['OutPaymentThreshold']))
-                $ErrorMessage .= "Please enter the value of Out Payment Threshold field<br> ";
-        }
-
-        if ( isset($data['AutoTopup']) && $data['AutoTopup'] == 1) {
-
-            if(empty($data['MinThreshold']))
-                $ErrorMessage .= "Please enter the value of Top-up Threshold field<br> ";
-
-            if(empty($data['TopupAmount']))
-                $ErrorMessage .= "Please enter the value of Top-up Amount field<br> ";
-
-        }
-
-        if($ErrorMessage != "")
-            return Response::json(array("status" => "failed", "message" => $ErrorMessage));
-
-        $AccountPaymentAutomation['AutoTopup']           = (isset($data['AutoTopup']) ? $data['AutoTopup'] : "");
-        $AccountPaymentAutomation['MinThreshold']        = $data['MinThreshold'];
-        $AccountPaymentAutomation['AutoOutpayment']      = (isset($data['AutoOutPayment'])? $data['AutoOutPayment'] : "");
-        $AccountPaymentAutomation['OutPaymentThreshold'] = $data['OutPaymentThreshold'] ;
-        $AccountPaymentAutomation['OutPaymentAmount']    = $data['OutPaymentAmount'];
-
-
-        unset($data['AutoTopup']);
-        unset($data['AutoOutPayment']);
-        unset($data['MinThreshold']);
-        unset($data['TopupAmount']);
-        unset($data['OutPaymentThreshold']);
-        unset($data['OutPaymentAmount']);
-
-
-        $validator = Validator::make($data, $rules);
-
-        if ($validator->fails()) {
-            return json_validator_response($validator);
-        }
-
-        if ( isset($data['AutoOutPayment']) && $data['AutoOutPayment'] = 1 ) {
-            $rules = array(
-                'OutPaymentThreshold' => 'required|numeric',
-                'OutPaymentAmount' => 'required|numeric|regex:/^\d*(\.\d{2})?$/',
-
-            );
             $validator = Validator::make($data, $rules);
 
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
-        }
 
 
-        if ( isset($data['AutoTopup']) && $data['AutoTopup'] = 1 ) {
-            $rules = array(
-                'MinThreshold' => 'required|numeric',
-                'TopupAmount' => 'required|numeric|regex:/^\d*(\.\d{2})?$/',
+            $ErrorMessage = "";
 
-            );
+            if (isset($data['AutoOutPayment']) && $data['AutoOutPayment'] == 1) {
+
+                if (empty($data['OutPaymentAmount']))
+                    $ErrorMessage .= "Please enter the value of Out Payment Amount field <br> ";
+
+                if (empty($data['OutPaymentThreshold']))
+                    $ErrorMessage .= "Please enter the value of Out Payment Threshold field<br> ";
+            }
+
+            if (isset($data['AutoTopup']) && $data['AutoTopup'] == 1) {
+
+                if (empty($data['MinThreshold']))
+                    $ErrorMessage .= "Please enter the value of Top-up Threshold field<br> ";
+
+                if (empty($data['TopupAmount']))
+                    $ErrorMessage .= "Please enter the value of Top-up Amount field<br> ";
+
+            }
+
+            if ($ErrorMessage != "")
+                return Response::json(array("status" => "failed", "message" => $ErrorMessage));
+
+            $AccountPaymentAutomation['AutoTopup'] = (isset($data['AutoTopup']) ? $data['AutoTopup'] : "");
+            $AccountPaymentAutomation['MinThreshold'] = $data['MinThreshold'];
+            $AccountPaymentAutomation['AutoOutpayment'] = (isset($data['AutoOutPayment']) ? $data['AutoOutPayment'] : "");
+            $AccountPaymentAutomation['OutPaymentThreshold'] = $data['OutPaymentThreshold'];
+            $AccountPaymentAutomation['OutPaymentAmount'] = $data['OutPaymentAmount'];
+            $AccountPaymentAutomation['TopupAmount'] = $data['TopupAmount'];
+
+
+            unset($data['AutoTopup']);
+            unset($data['AutoOutPayment']);
+            unset($data['MinThreshold']);
+            unset($data['TopupAmount']);
+            unset($data['OutPaymentThreshold']);
+            unset($data['OutPaymentAmount']);
+
+
             $validator = Validator::make($data, $rules);
 
             if ($validator->fails()) {
                 return json_validator_response($validator);
+            }
+
+            if (isset($data['AutoOutPayment']) && $data['AutoOutPayment'] = 1) {
+                $rules = array(
+                    'OutPaymentThreshold' => 'required|numeric',
+                    'OutPaymentAmount' => 'required|numeric|regex:/^\d*(\.\d{2})?$/',
+
+                );
+                $validator = Validator::make($data, $rules);
+
+                if ($validator->fails()) {
+                    return json_validator_response($validator);
+                }
+            }
+
+
+            if (isset($data['AutoTopup']) && $data['AutoTopup'] = 1) {
+                $rules = array(
+                    'MinThreshold' => 'required|numeric',
+                    'TopupAmount' => 'required|numeric|regex:/^\d*(\.\d{2})?$/',
+
+                );
+                $validator = Validator::make($data, $rules);
+
+                if ($validator->fails()) {
+                    return json_validator_response($validator);
+                }
             }
         }
 
@@ -410,9 +414,10 @@ class AccountsController extends \BaseController {
                 $DynamicData['CompanyID']= $companyID;
                 $DynamicData['AccountID']= $account->AccountID;
 
-                $AccountPaymentAutomation['AccountID'] = $DynamicData['AccountID'];
-                AccountPaymentAutomation::create($AccountPaymentAutomation);
-
+                if( isset($data['BillingType']) && $data['BillingType'] == 1 ) {
+                    $AccountPaymentAutomation['AccountID'] = $DynamicData['AccountID'];
+                    AccountPaymentAutomation::create($AccountPaymentAutomation);
+                }
                 //
                 if($RoutingProfileID!=''){
                     $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$account->AccountID])->first();
@@ -748,7 +753,6 @@ class AccountsController extends \BaseController {
         $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$companyID);
         $AccountPaymentAutomation = AccountPaymentAutomation::where('AccountID',$id)->first();
 
-
         return View::make('accounts.edit', compact('account', 'AccountPaymentAutomation' ,'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields','ResellerCount','accountdetails','reseller_owners','accountreseller','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE'));
     }
 
@@ -764,68 +768,76 @@ class AccountsController extends \BaseController {
         $data = Input::all();
         $companyID = User::get_companyID();
         $ResellerOwner = empty($data['ResellerOwner']) ? 0 : $data['ResellerOwner'];
+        if( isset($data['BillingType']) && $data['BillingType'] == 1 ) {
+            $rules = array(
+                'MinThreshold' => 'numeric',
+                'TopupAmount' => 'numeric|regex:/^\d*(\.\d{2})?$/',
+                'OutPaymentThreshold' => 'numeric',
+                'OutPaymentAmount' => 'numeric|regex:/^\d*(\.\d{2})?$/',
 
-        $rules = array(
-            'MinThreshold' => 'numeric',
-            'TopupAmount' => 'numeric|regex:/^\d*(\.\d{2})?$/',
-            'OutPaymentThreshold' => 'numeric',
-            'OutPaymentAmount' => 'numeric|regex:/^\d*(\.\d{2})?$/',
+            );
 
-        );
+            $validator = Validator::make($data, $rules);
 
-        $validator = Validator::make($data, $rules);
+            if ($validator->fails()) {
+                return json_validator_response($validator);
+            }
 
-        if ($validator->fails()) {
-            return json_validator_response($validator);
+
+            $ErrorMessage = "";
+
+            if (isset($data['AutoOutPayment']) && $data['AutoOutPayment'] == 1) {
+
+                if (empty($data['OutPaymentAmount']))
+                    $ErrorMessage .= "Please enter the value of Out Payment Amount field <br> ";
+
+                if (empty($data['OutPaymentThreshold']))
+                    $ErrorMessage .= "Please enter the value of Out Payment Threshold field<br> ";
+            }
+
+            if (isset($data['AutoTopup']) && $data['AutoTopup'] == 1) {
+
+                if (empty($data['MinThreshold']))
+                    $ErrorMessage .= "Please enter the value of Top-up Threshold field<br> ";
+
+                if (empty($data['TopupAmount']))
+                    $ErrorMessage .= "Please enter the value of Top-up Amount field<br> ";
+
+            }
+
+
+            if ($ErrorMessage != "")
+                return Response::json(array("status" => "failed", "message" => $ErrorMessage));
+
+
+            $AccountPaymentAutomation['AutoTopup'] = (isset($data['AutoTopup']) ? $data['AutoTopup'] : "");
+            $AccountPaymentAutomation['MinThreshold'] = $data['MinThreshold'];
+            $AccountPaymentAutomation['AutoOutpayment'] = (isset($data['AutoOutPayment']) ? $data['AutoOutPayment'] : "");
+            $AccountPaymentAutomation['OutPaymentThreshold'] = $data['OutPaymentThreshold'];
+            $AccountPaymentAutomation['OutPaymentAmount'] = $data['OutPaymentAmount'];
+            $AccountPaymentAutomation['TopupAmount'] = $data['TopupAmount'];
+
+            unset($data['AutoTopup']);
+            unset($data['AutoOutPayment']);
+            unset($data['MinThreshold']);
+            unset($data['TopupAmount']);
+            unset($data['OutPaymentThreshold']);
+            unset($data['OutPaymentAmount']);
+
+
+            $validator = Validator::make($data, $rules);
+
+            if ($validator->fails()) {
+                return json_validator_response($validator);
+            }
+
+            AccountPaymentAutomation::where(['AccountID' => $id])->update($AccountPaymentAutomation);
+        }else{
+
+//            AccountPaymentAutomation::find($id)->delete();
+            AccountPaymentAutomation::where(['AccountID' => $id])->delete();
+
         }
-
-
-        $ErrorMessage = "";
-
-        if ( isset($data['AutoOutPayment']) && $data['AutoOutPayment'] == 1 ) {
-
-            if(empty($data['OutPaymentAmount']))
-                $ErrorMessage .= "Please enter the value of Out Payment Amount field <br> ";
-
-            if(empty($data['OutPaymentThreshold']))
-                $ErrorMessage .= "Please enter the value of Out Payment Threshold field<br> ";
-        }
-
-        if ( isset($data['AutoTopup']) && $data['AutoTopup'] == 1) {
-
-            if(empty($data['MinThreshold']))
-                $ErrorMessage .= "Please enter the value of Top-up Threshold field<br> ";
-
-            if(empty($data['TopupAmount']))
-                $ErrorMessage .= "Please enter the value of Top-up Amount field<br> ";
-
-        }
-
-
-        if($ErrorMessage != "")
-            return Response::json(array("status" => "failed", "message" => $ErrorMessage));
-
-
-        $AccountPaymentAutomation['AutoTopup']           = (isset($data['AutoTopup']) ? $data['AutoTopup'] : "");
-        $AccountPaymentAutomation['MinThreshold']        = $data['MinThreshold'];
-        $AccountPaymentAutomation['AutoOutpayment']      = (isset($data['AutoOutPayment'])? $data['AutoOutPayment'] : "");
-        $AccountPaymentAutomation['OutPaymentThreshold'] = $data['OutPaymentThreshold'] ;
-        $AccountPaymentAutomation['OutPaymentAmount']    = $data['OutPaymentAmount'];
-
-        unset($data['AutoTopup']);
-        unset($data['AutoOutPayment']);
-        unset($data['MinThreshold']);
-        unset($data['TopupAmount']);
-        unset($data['OutPaymentThreshold']);
-        unset($data['OutPaymentAmount']);
-
-
-        $validator = Validator::make($data, $rules);
-
-        if ($validator->fails()) {
-            return json_validator_response($validator);
-        }
-        AccountPaymentAutomation::where(['AccountID'=>$id])->update($AccountPaymentAutomation);
         if($ResellerOwner>0){
             $Reseller = Reseller::getResellerDetails($ResellerOwner);
             $ResellerCompanyID = $Reseller->ChildCompanyID;
@@ -928,6 +940,7 @@ class AccountsController extends \BaseController {
         }
         $data['Number'] = trim($data['Number']);
         $ManualBilling = isset($data['BillingCycleType']) && $data['BillingCycleType'] == 'manual'?1:0;
+
         if(Company::isBillingLicence() && $data['Billing'] == 1) {
             Account::$rules['BillingType'] = 'required';
             Account::$rules['BillingTimezone'] = 'required';
@@ -1553,6 +1566,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         //$CompanyID = User::get_companyID();
         $account = Account::find($id);
         $CompanyID = $account->CompanyId;
+        $BillingType=AccountBilling::where(['AccountID'=>$id,'ServiceID'=>0])->pluck('BillingType');
         $getdata['AccountID'] = $id;
         $response = AccountBalance::where('AccountID', $id)->first(['AccountID', 'PermanentCredit', 'UnbilledAmount', 'EmailToCustomer', 'TemporaryCredit', 'TemporaryCreditDateTime', 'BalanceThreshold', 'BalanceAmount', 'VendorUnbilledAmount']);
         $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $UnbilledAmount = $VendorUnbilledAmount = $EmailToCustomer = $SOA_Amount = 0;
@@ -1580,7 +1594,10 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $EmailToCustomer = $response->EmailToCustomer;
             }
         }
-        return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','UnbilledAmount','EmailToCustomer','VendorUnbilledAmount','SOA_Amount'));
+        if(isset($BillingType) && $BillingType==AccountApproval::BILLINGTYPE_PREPAID){
+            $SOA_Amount = AccountBalanceLog::getPrepaidAccountBalance($id);
+        }
+        return View::make('accounts.credit', compact('account','AccountAuthenticate','PermanentCredit','TemporaryCredit','BalanceThreshold','BalanceAmount','UnbilledAmount','EmailToCustomer','VendorUnbilledAmount','SOA_Amount','BillingType'));
     }
 
     public function update_credit(){
@@ -1738,6 +1755,21 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         }
 
         return View::make('accounts.unbilled_table', compact('UnbilledResult','CurrencySymbol','VendorUnbilledResult','account'));
+    }
+
+    public function prepaidunbilledreport($id){
+        $data = Input::all();
+        // $companyID = User::get_companyID();
+        // @TODO: ServiceID need to fix for show
+        $AccountBilling = AccountBilling::getBilling($id,0);
+        $account = Account::find($id);
+        $companyID = $account->CompanyId;
+        $today = date('Y-m-d 23:59:59');
+        $CustomerLastInvoiceDate = Account::getCustomerLastInvoiceDate($AccountBilling,$account);
+        $CurrencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
+        $query = "call prc_getPrepaidUnbilledReport (?,?,?,?,?)";
+        $UnbilledResult = DB::select($query,array($companyID,$id,$CustomerLastInvoiceDate,$today,1));
+        return View::make('accounts.prepaid_unbilled_table', compact('UnbilledResult','CurrencySymbol','account'));
     }
 
     public function activity_pdf_download($id){

@@ -47,18 +47,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-2">
-                    <h5 align="center"><b>If calculated rate is less then</b></h5>
-                </div>
-                <div class="col-sm-2">
-                    <input type="text" name="LessThenRate" class="form-control" id="field-6" placeholder=""/>
-                </div>
-                <div class="col-sm-2">
-                    <h5 align="center"><b>Change rate to </b></h5>
-                </div>
-                <div class="col-sm-2">
-                    <input type="text" name="ChargeRate" class="form-control" id="field-6" placeholder="" />
-                </div>
+
 
         </form>
 
