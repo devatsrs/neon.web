@@ -128,6 +128,7 @@ class ReportCustomerCDR extends \Eloquent{
             }
 
             foreach ($data['sum'] as $colname) {
+                $measure_name  = get_measure_name($colname,self::$DetailTable);
                 if(!empty($measure_name)) {
                     $select_columns2[] = DB::Raw($measure_name." as " . $colname);
                 } else {
