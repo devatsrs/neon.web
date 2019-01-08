@@ -178,7 +178,7 @@ class AccountsController extends \BaseController {
             $reseller_owners = Reseller::getDropdownIDList($company_id);
             
             //As per new question call the routing profile model for fetch the routing profile list.
-            $routingprofile = RoutingProfiles::getRoutingProfile();
+            $routingprofile = RoutingProfiles::getRoutingProfile($company_id);
             //$RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
             //----------------------------------------------------------------------
             $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$company_id);
@@ -746,7 +746,7 @@ class AccountsController extends \BaseController {
         $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::INBOUND,'ServiceID'=>0,'AccountSubscriptionID'=>0,'SubscriptionDiscountPlanID'=>0))->pluck('DiscountPlanID');
         
         //As per new question call the routing profile model for fetch the routing profile list.
-        $routingprofile = RoutingProfiles::getRoutingProfile();
+        $routingprofile = RoutingProfiles::getRoutingProfile($companyID);
         $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id])->first();
         //----------------------------------------------------------------------
 
