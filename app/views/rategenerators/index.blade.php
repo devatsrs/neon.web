@@ -17,6 +17,10 @@
                     <label for="Active" class="control-label">Type</label>
                     {{Form::select('SelectType',[''=>'Select']+$RateTypes,'',array("class"=>"form-control select2 small"))}}
                 </div>
+                <div id="did_Div" class="form-group hidden">
+                    <label for="Active" class="control-label">Category</label>
+                    {{Form::select('DIDCategoryID',[''=>'Select']+$Categories,'',array("class"=>"form-control select2 small"))}}
+                </div>
                 <div class="form-group">
                     <label for="Active" class="control-label">Trunk</label>
                     {{ Form::select('Trunk', $Trunks, '', array("class"=>"form-control select2 small","id"=>"Trunk")) }}
@@ -54,7 +58,9 @@
     <table class="table table-bordered datatable" id="table-4">
       <thead>
         <tr>
-          <th width="25%">Name</th>
+          <th width="5%">Type</th>
+          <th width="10%">Name</th>
+            <th width="10%">Category</th>
           <th width="25%">Trunk</th>
           <th width="10%">Currency</th>
           <th width="10%">Status</th>
@@ -80,6 +86,7 @@
         $searchFilter.Search = $('#rategenerator_filter [name="Search"]').val();
         $searchFilter.Trunk  = $('#rategenerator_filter [name="Trunk"]').val();
         $searchFilter.SelectType  = $('#rategenerator_filter [name="SelectType"]').val();
+        $searchFilter.DIDCategoryID  = $('#rategenerator_filter [name="DIDCategoryID"]').val();
 
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
@@ -87,15 +94,17 @@
             "bServerSide": true,
             "sAjaxSource": baseurl + "/rategenerators/ajax_datagrid",
             "fnServerParams": function (aoData) {
-                aoData.push({ "name": "Active", "value": $searchFilter.Active },{ "name": "Search", "value": $searchFilter.Search },{ "name": "Trunk", "value": $searchFilter.Trunk },{ "name": "SelectType", "value": $searchFilter.SelectType });
+                aoData.push({ "name": "Active", "value": $searchFilter.Active },{ "name": "Search", "value": $searchFilter.Search },{ "name": "Trunk", "value": $searchFilter.Trunk },{ "name": "SelectType", "value": $searchFilter.SelectType },{ "name": "DIDCategoryID", "value": $searchFilter.DIDCategoryID });
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({ "name": "Active", "value": $searchFilter.Active },{ "name": "Search", "value": $searchFilter.Search },{ "name": "Trunk", "value": $searchFilter.Trunk },{ "name": "SelectType", "value": $searchFilter.SelectType });
+                data_table_extra_params.push({ "name": "Active", "value": $searchFilter.Active },{ "name": "Search", "value": $searchFilter.Search },{ "name": "Trunk", "value": $searchFilter.Trunk },{ "name": "SelectType", "value": $searchFilter.SelectType },{ "name": "DIDCategoryID", "value": $searchFilter.DIDCategoryID });
             },
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-            "aaSorting": [[4, "desc"]],
+            "aaSorting": [[6, "desc"]],
             "aoColumns": [
+                {},
+                {},
                 {},
                 {},
                 {},
@@ -116,7 +125,7 @@
                         generate_new_rate_table_ = "{{ URL::to('rategenerators/{id}/generate_rate_table/create')}}";
                         update_existing_rate_table_ = "{{ URL::to('rategenerators/{id}/generate_rate_table/update')}}";
                         var status_link = active_ = "";
-                        if (full[3] == "1") {
+                        if (full[5] == "1") {
                             active_ = "{{ URL::to('/rategenerators/{id}/change_status/0')}}";
                             status_link = ' <a title="Deactivate" href="' + active_ + '"  class="btn btn-default change_status btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-minus-circled"></i></a>';
                         } else {
@@ -139,9 +148,9 @@
                         @if(User::checkCategoryPermission('RateGenerator','Delete'))
                                 action += ' <a title="Delete" href="' + delete_ + '" data-redirect="{{URL::to("rategenerators")}}" data-id = '+id+'  class="btn btn-default btn-sm  delete btn-danger"><i class="entypo-trash"></i></a> '
                         @endif
-                        if (full[3] == 1) { /* When Status is 1 */
+                        if (full[5] == 1) { /* When Status is 1 */
                             action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Generate Rate Table <span class="caret"></span></button>'
-                            action += '<ul class="dropdown-menu dropdown-green" role="menu"><li><a href="' + generate_new_rate_table_ + '" class="generate_rate create" >Create New Rate Table</a></li><li><a href="' + update_existing_rate_table_ + '" class="generate_rate update" data-trunk="' + full[5] + '" data-codedeck="' + full[6] + '" data-currency="' + full[7] + '">Update Existing Rate Table</a></li></ul></div>';
+                            action += '<ul class="dropdown-menu dropdown-green" role="menu"><li><a href="' + generate_new_rate_table_ + '" class="generate_rate create" >Create New Rate Table</a></li><li><a href="' + update_existing_rate_table_ + '" class="generate_rate update" data-trunk="' + full[8] + '" data-codedeck="' + full[9] + '" data-currency="' + full[10] + '">Update Existing Rate Table</a></li></ul></div>';
                         }
                         <?php } ?>
                                 return action;
@@ -252,9 +261,20 @@
             $searchFilter.Search = $('#rategenerator_filter [name="Search"]').val();
             $searchFilter.Trunk  = $('#rategenerator_filter [name="Trunk"]').val();
             $searchFilter.SelectType  = $('#rategenerator_filter [name="SelectType"]').val();
+            $searchFilter.DIDCategoryID  = $('#rategenerator_filter [name="DIDCategoryID"]').val();
             data_table.fnFilter('', 0);
             return false;
 
+        });
+
+        $("#rategenerator_filter select[name=SelectType]").on('change',function(){
+           var Type=$(this).val();
+            $('#did_Div').find(".DIDCategoryID").select2("val", "");
+            if(Type=='{{$DIDType}}'){
+                $("#did_Div").removeClass('hidden');
+            }else{
+                $("#did_Div").addClass('hidden');
+            }
         });
 
         $('body').on('click', '.generate_rate.update', function (e) {
