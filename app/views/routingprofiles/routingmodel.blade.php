@@ -159,7 +159,7 @@
 
                                             <thead>
                                             <tr>
-                                                <th width="10%">Orders</th>
+                                                <th width="10%">Order</th>
                                                 <th width="30%">Name</th>
                                                 <th width="50%">Description</td>
                                                 <th width="50%">Action</td>
@@ -211,7 +211,7 @@ $(document).ready(function () {
 
     $("#searchFilter").on("keyup", function() {
         var value = $(this).val().toLowerCase();
-        $("#servicetable tr").filter(function() {
+        $("#servicetable tr td").filter(function() {
             $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
         });
     });
