@@ -215,8 +215,15 @@ class RoutingProfilesController extends \BaseController {
             ->select(['tblRoutingProfile.Name','tblRoutingProfile.Description','tblRoutingProfile.SelectionCode as SelectionCode','tblRoutingProfile.Status',DB::raw("(select GROUP_CONCAT(tblRoutingCategory.Name SEPARATOR ', ' ) as RoutesCategory from tblRoutingCategory where tblRoutingCategory.RoutingCategoryID in (select tblRoutingProfileCategory.RoutingCategoryID from tblRoutingProfileCategory where tblRoutingProfileCategory.RoutingProfileID = tblRoutingProfile.RoutingProfileID)) as 'Routing Category'")])
             ->where(["tblRoutingProfile.CompanyID" => $CompanyID])->groupBy("tblRoutingProfile.RoutingProfileID");
 
+
+        $data = Input::all();
+        if(!empty($data['Name'])){
+            $RoutingProfiles->where(["tblRoutingProfile.Name" => $data['Name']]);
+        }
+        if(!empty($data['Status']) || ($data['Status']=='0')){
+            $RoutingProfiles->where(["tblRoutingProfile.Status" => $data['Status']]);
+        }
         $RoutingProfiles = $RoutingProfiles->orderBy('tblRoutingProfile.Name')->get();
-        //$RoutingProfiles = RoutingProfiles::where(["CompanyID" => $CompanyID])->get(['Name','Description','SelectionCode','Status']);
         $RoutingProfiles = json_decode(json_encode($RoutingProfiles),true);
         if($type=='csv'){
             $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/RoutingProfile.csv';

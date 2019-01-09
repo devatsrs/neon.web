@@ -39,7 +39,6 @@ class ActiveCallApiController extends ApiController {
             'CLD' => 'required',
             'CallType' => 'required',
             'UUID' => 'required',
-            'TrunkID' => 'required',
             'VendorID' => 'required'
 
         );
@@ -68,10 +67,7 @@ class ActiveCallApiController extends ApiController {
                     $ActiveCallData['CLD']=$data['CLD'];
                     $ActiveCallData['CallType']=$data['CallType'];
                     $ActiveCallData['UUID']=$data['UUID'];
-                    $ActiveCallData['TrunkID']=$data['TrunkID'];
                     $ActiveCallData['VendorID']=$data['VendorID'];
-                    $ActiveCallData['CLIPrefix']=$data['CLIPrefix'];
-                    $ActiveCallData['CLDPrefix']=$data['CLDPrefix'];
 
                     /**
                      * TODO: Cost Manage

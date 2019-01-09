@@ -429,11 +429,7 @@ CLD
 CallType
 UUID
 VendorID
-TrunkID
-CLIPrefix
-CLDPrefix
-Rate
-BuyingPrice
+
 
 Return
 
@@ -447,11 +443,6 @@ Return
               CallType: Inbound
               UUID : 1155544
               VendorID : 111
-              TrunkID : 1
-              CLIPrefix : 91
-              CLDPrefix : 92
-              Rate   : 10
-              BuyingPrice : 20
 
         Response:
 
@@ -470,7 +461,7 @@ Perams:
 "AccountID"/"AccountNo"
 UUID
 DisconnectTime
-Reason
+
 
 Return
 
@@ -480,7 +471,6 @@ Return
               AccountID :6728
               UUID:54564564
               DisconnectTime : 2018-12-26 15:24:06
-              Reason : block
 
 
         Response:
