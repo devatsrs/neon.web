@@ -71,7 +71,7 @@
 
                         <label for="field-1" class="col-sm-2 control-label">Type</label>
                         <div class="col-sm-4">
-                            {{Form::select('SelectType',$AllTypes,$rategenerators->SelectType,array("class"=>"form-control select2 small"))}}
+                            {{Form::select('SelectType',$AllTypes,$rategenerators->SelectType,array("class"=>"form-control select2 small","disabled"=>"disabled"))}}
 
                         </div>
                         <label for="field-1" class="col-sm-2 control-label">Name</label>
@@ -100,12 +100,36 @@
                         </div>
 
                         <label for="field-1" class="col-sm-2 control-label">Use Preference</label>
-                        <div class="col-sm-4">
+                        <div class="col-sm-1">
                             <div class="make-switch switch-small">
                                 {{Form::checkbox('UsePreference', 1,  $rategenerators->UsePreference );}}
                             </div>
                         </div>
+
+                        <div id="rate-aveg-div">
+                            <label for="field-1" class="col-sm-1 control-label">Use Average</label>
+                            <div class="col-sm-2">
+                                <div class="make-switch switch-small">
+                                    {{Form::checkbox('UseAverage', 1,  $rategenerators->UseAverage );}}
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-2 control-label">If calculated rate is less then</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" name="LessThenRate" value="{{(!empty($rategenerators->LessThenRate)?$rategenerators->LessThenRate:'')}}" />
+
+                        </div>
+
+                        <label for="field-1" class="col-sm-2 control-label">Change rate to</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" name="ChargeRate" value="{{(!empty($rategenerators->ChargeRate)?$rategenerators->ChargeRate:'')}}" />
+                        </div>
+                    </div>
+
+
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Currency</label>
                         <div class="col-sm-4">
@@ -149,6 +173,8 @@
                             {{ Form::select('Timezones[]', $Timezones, explode(',',$rategenerators->Timezones) , array("class"=>"select2 multiselect", "multiple"=>"multiple")) }}
                         </div>
                     </div>
+
+
                     <div class="form-group">
                         <label class="col-sm-2 control-label">Merge Rate By Timezones</label>
                         <div class="col-sm-4">
@@ -165,14 +191,6 @@
                         <label class="col-sm-2 control-label IsMerge">Merge Into</label>
                         <div class="col-sm-4 IsMerge">
                             {{ Form::select('MergeInto', $Timezones, $rategenerators->MergeInto , array("class"=>"select2")) }}
-                        </div>
-                        <div id="rate-aveg-div">
-                             <label for="field-1" class="col-sm-2 control-label">Use Average</label>
-                             <div class="col-sm-4">
-                                 <div class="make-switch switch-small">
-                                     {{Form::checkbox('UseAverage', 1,  $rategenerators->UseAverage );}}
-                                 </div>
-                             </div>
                         </div>
 
                         <div id="hide-components">
@@ -197,7 +215,7 @@
         <div class="panel panel-primary" data-collapsed="0" id="Merge-components">
             <div class="panel-heading">
                 <div class="panel-title">
-                    Merge components
+                    Merge Components
                 </div>
 
                 <div class="panel-options">
@@ -221,17 +239,28 @@
                         </thead>
                         <tbody id="tbody">
 
-                        <?php if (isset($rategeneratorComponents) && count($rategeneratorComponents)  > 0 )
+                        <?php
+                        $ComponentsArr=array();
+                        if(!empty($rategenerators->SelectedComponents)){
+                            $ComponentsArr = explode("," ,$rategenerators->SelectedComponents);
+                            $ComponentsArr = array_combine($ComponentsArr, $ComponentsArr);
+                        }
+                        if (isset($rategeneratorComponents) && count($rategeneratorComponents)  > 0 )
                         {
                             $a = 0;
+                        $hiddenClass='';
                             $ComponentArray1 = array();
-
 
                         ?>
 
                             @foreach ($rategeneratorComponents as $Component)
                                 <?php
                                     $a++;
+                                    if($a==1){
+                                        $hiddenClass='hidden';
+                                    }else{
+                                        $hiddenClass='';
+                                    }
                                 $ComponentArray = explode("," ,$Component->Component);
                                 foreach ($ComponentArray as $Component1) {
                                     $ComponentArray1[$Component1]=$Component1;
@@ -247,7 +276,6 @@
                                     $MergeToArray1[$MergeTo1]=$MergeTo1;
                                 }
 
-
                                 ?>
                                 <tr id="selectedRow-{{$a}}">
                                     <td id="testValues">
@@ -260,7 +288,7 @@
 
                                     </td>
                                     <td>
-                                        {{ Form::select('MergeTo-'.$a, $MergeToArray1,  $MergeToArray1 , array("class"=>"select2" , "id"=>"MergeTo-".$a)) }}
+                                        {{ Form::select('MergeTo-'.$a, $ComponentsArr,  $MergeToArray1 , array("class"=>"select2" , "id"=>"MergeTo-".$a)) }}
 
                                     </td>
                                     <td>
@@ -268,7 +296,7 @@
                                             <i></i>
                                             +
                                         </button>
-                                        <a onclick="deleteRow(this.id)" id="0" class="btn delete btn-danger btn-sm" data-loading-text="Loading...">
+                                        <a onclick="deleteRow(this.id)" id="{{$a}}" class="btn btn-danger btn-sm {{$hiddenClass}}" data-loading-text="Loading...">
                                             <i></i>
                                            -
 
@@ -279,11 +307,12 @@
                             @endforeach
 <?php
         }else{
+
 ?>
 
                             <tr id="selectedRow-1">
                                 <td id="testValues">
-                                    {{ Form::select('Component-1[]', array(), null, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-1")) }}
+                                    {{ Form::select('Component-1[]', $ComponentsArr, null, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-1")) }}
 
                                 </td>
                                 <td>
@@ -291,7 +320,7 @@
 
                                 </td>
                                 <td>
-                                    {{ Form::select('MergeTo-1', array(),  null , array("class"=>"select2" , "id"=>"MergeTo-1")) }}
+                                    {{ Form::select('MergeTo-1', $ComponentsArr,  null , array("class"=>"select2" , "id"=>"MergeTo-1")) }}
 
                                 </td>
                                 <td>
@@ -299,7 +328,7 @@
                                         <i></i>
                                         +
                                     </button>
-                                    <a onclick="deleteRow(this.id)" id="0" class="btn delete btn-danger btn-sm" data-loading-text="Loading...">
+                                    <a onclick="deleteRow(this.id)" id="0" class="btn btn-danger btn-sm hidden" data-loading-text="Loading..." >
                                         <i></i>
                                         -
 
@@ -363,8 +392,8 @@
                                             {{$rategenerator_rule->OriginationDescription}}
                                         </td>
                                         <td>
-                                            {{$rategenerator_rule->DestinationCode}}@if(!empty($rategenerator_rule->DestinationCode)) <br/> @endif
-                                            {{$rategenerator_rule->DestinationDescription}}
+                                            {{$rategenerator_rule->Code}}@if(!empty($rategenerator_rule->Code)) <br/> @endif
+                                            {{$rategenerator_rule->Description}}
                                         </td>
                                         <td>
                                             @if(count($rategenerator_rule['RateRuleSource']))
@@ -431,10 +460,29 @@
        // $( "#sortable" ).sortable();
 
         var selectAllComponents;
+
+        var TypeValue = $("#rategenerator-from [name='SelectType']").val();
+
+        if(TypeValue == 2){
+            $("#rate-ostion-trunk-div").hide();
+            $("#rate-aveg-div").hide();
+            $("#group-preference-div").hide();
+            $("#DIDCategoryDiv").show();
+            $("#Merge-components").show();
+
+        }else if(TypeValue == 1){
+            $("#rate-ostion-trunk-div").show();
+            $("#rate-aveg-div").show();
+            $("#group-preference-div").show();
+            $("#Merge-components").hide();
+            $("#DIDCategoryDiv").hide();
+            $("#hide-components").hide();
+        }
+
         $(window).load(function() {
 
 
-                $('#servicetableSubBox tbody tr').each(function() {
+            $('#servicetableSubBox tbody tr').each(function() {
 
                         if(this.id == 'selectedRow-0')
                             var id = 0;
@@ -446,7 +494,7 @@
                     getIDString = getIDString + id + ',';
                     $('#getIDs').val(getIDString);
 
-                    selectAllComponents = $("#AllComponent").val();
+                    /*selectAllComponents = $("#AllComponent").val();
                     selectAllComponents = String(selectAllComponents);
                     var ComponentsArray = selectAllComponents.split(',');
 
@@ -474,14 +522,13 @@
                                 $('#Component-' + id).append(newOption).trigger('change');
                                 $('#MergeTo-' + id).append(newOption2).trigger('change');
                             }
-                        }
+                        }*/
 
                 });
 
         });
 
         $( "#AllComponent" ).on('change', function() {
-
 
            var selectAllComponents = $("#AllComponent").val();
             selectAllComponents = String(selectAllComponents);
@@ -553,6 +600,7 @@
             $("#group-preference-div").show();
             $("#Merge-components").hide();
             $("#DIDCategoryDiv").hide();
+            $("#hide-components").hide();
         }
 
         function initSortable(){
@@ -1018,30 +1066,35 @@
         $('#servicetableSubBox tr:last').children('td:eq(1)').find('div:first').remove();
         $('#servicetableSubBox tr:last').children('td:eq(2)').find('div:first').remove();
 
+        $('#servicetableSubBox tr:last').closest('tr').children('td:eq(3)').find('a').removeClass('hidden');
+
     }
 
     function deleteRow(id)
     {
-        var  selectedSubscription = $('#getIDs').val();
-        var removeValue = id + ",";
-        var removalueIndex = selectedSubscription.indexOf(removeValue);
-        var firstValue = selectedSubscription.substr(0, removalueIndex);
-        var lastValue = selectedSubscription.substr(removalueIndex + removeValue.length, selectedSubscription.length);
-        var selectedSubscription = firstValue + lastValue;
-        if (selectedSubscription.charAt(0) == ',') {
-            selectedSubscription = selectedSubscription.substr(1,selectedSubscription.length)
-        }
-        $('#getIDs').val(selectedSubscription);
+
+        if(confirm("Are You Sure?")) {
+            var selectedSubscription = $('#getIDs').val();
+            var removeValue = id + ",";
+            var removalueIndex = selectedSubscription.indexOf(removeValue);
+            var firstValue = selectedSubscription.substr(0, removalueIndex);
+            var lastValue = selectedSubscription.substr(removalueIndex + removeValue.length, selectedSubscription.length);
+            var selectedSubscription = firstValue + lastValue;
+            if (selectedSubscription.charAt(0) == ',') {
+                selectedSubscription = selectedSubscription.substr(1, selectedSubscription.length)
+            }
+            $('#getIDs').val(selectedSubscription);
 
 
-        var rowCount = $("#servicetableSubBox > tbody").children().length;
-        if(rowCount > 1)
-        {
-            $("#"+id).closest("tr").remove();
+            var rowCount = $("#servicetableSubBox > tbody").children().length;
+            if (rowCount > 1) {
+                $("#" + id).closest("tr").remove();
 
-        }else{
+            } else {
 
-            toastr.error("you cannot delete at least one row", "Error", toastr_opts);
+                toastr.error("You cannot delete. At least one component is required.", "Error", toastr_opts);
+            }
+            return false;
         }
     }
 

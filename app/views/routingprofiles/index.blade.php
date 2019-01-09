@@ -59,18 +59,19 @@
         Assign
     </a>
 </p>
+
 <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
-        <th width="25%">Name</th>
-        <th width="25%">Description</th>
+        <th width="20%">Name</th>
+        <th width="20%">Description</th>
+        <th width="20%">Selection Code</th>
         <th width="5%">Status</th>
-        <th width="25%">Routing Category</th>
-        <th width="30%">Action</th>
+        <th width="20%">Routing Category</th>
+        <th width="25%">Action</th>
     </tr>
     </thead>
     <tbody>
-
 
     </tbody>
 </table>
@@ -97,6 +98,9 @@ var postdata;
 
             $search.Name = $("#table_filter").find('[name="Name"]').val();
             $search.Status = $("#table_filter").find('[name="Status"]').val();
+
+        // routing categories table...
+
             
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
@@ -118,32 +122,34 @@ var postdata;
                                 {"name": "Status", "value": $search.Status},
                                 {"name": "Export", "value": 1}
                         );
-
                     },
             "aoColumns":
             [
+                {  "bSortable": true },  //0  Name', '', '', '
                 {  "bSortable": true },  //0  Name', '', '', '
                 {  "bSortable": true },  //0  Descs', '', '', '
                 {  "bSortable": true,
                     mRender: function ( id, type, full ) {
                          var action , edit_ , show_ , delete_;
-                         console.log(id);
+                         //console.log(id);
                          if(id==1){
                            action='<i class="entypo-check" style="font-size:22px;color:green"></i>';  
                          }else{
                              action='<i class="entypo-cancel" style="font-size:22px;color:red"></i>';
-                         }
-                         
+                         }                         
                        return action; 
                     } 
                 },  //0  Status', '', '', '
+               
                 {  "bSortable": true,
                     mRender: function ( id, type, full ) {
                          var action , edit_ , show_ , delete_;
-                         
+                           
                        return full[5]; 
+                      
                     } 
                 },  //0  Status', '', '', '
+                
                 {                       //3  ID
                    "bSortable": true,
                     mRender: function ( id, type, full ) {
@@ -151,17 +157,16 @@ var postdata;
                         action = '<div class = "hiddenRowData" >';
                         action += '<input type = "hidden"  name = "Name" value = "' + (full[0] != null ? full[0] : '') + '" / >';
                         action += '<input type = "hidden"  name = "Description" value = "' + (full[1] != null ? full[1] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "RoutingPolicy" value = "' + (full[4] != null ? full[4] : '') + '" / ></div>';
-                        
-                        action += ' <a data-name = "'+full[0]+'" data-id="'+ full[3] +'" title="Edit" class="edit-category btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
-                        action += ' <a data-id="'+ full[3] +'" title="Delete" class="delete-category btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
-                        
-                       action += ' <a data-id="" href="lcr" title="test routing" class="btn-success btn btn-danger btn-sm">Test</a>';
-                        
-                        
+                        action += '<input type = "hidden"  name = "RoutingPolicy" value = "' + (full[5] != null ? full[5] : '') + '" / >'
+                        action += '<input type = "hidden"  name = "SelectionCode" value = "' + (full[2] != null ? full[2] : '') + '" / ></div>';
+                        action += ' <a data-name = "'+full[0]+'" data-id="'+ full[4] +'" title="Edit" class="edit-category btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
+                        action += ' <a data-id="'+ full[4] +'" title="Delete" class="delete-category btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';                        
+                        action += ' <a data-id="" href="lcr" title="test routing" class="btn-success btn btn-danger btn-sm">Test</a>';
+                    
                         return action;
                       }
                   },
+                 
             ],
             "oTableTools": {
                 "aButtons": [
@@ -182,7 +187,7 @@ var postdata;
            "fnDrawCallback": function() {
                    //After Delete done
                    FnDeleteCurrencySuccess = function(response){
-                        console.log(response);
+                        //console.log(response);
                        if (response.status == 'success') {
                            $("#Note"+response.NoteID).parent().parent().fadeOut('fast');
                            ShowToastr("success",response.message);
@@ -208,28 +213,81 @@ var postdata;
 
         });
  });
+ $('#addnewroutpro').click(function(){
+     $('.tbody').html("");
+ })
 
 $('#filter_submit').trigger('click');
 
-        // Replace Checboxes
-        $(".pagination a").click(function (ev) {
-            replaceCheckboxes();
-        });
- $('#addnewroutpro').click(function () {  
+// Replace Checboxes
+$(".pagination a").click(function (ev) {
+    replaceCheckboxes();
+});
+
+$('#addnewroutpro').click(function () {  
      
     $('#add-new-modal-routingcategory h3').html('Add Routing Profile');
     $("#RoutingCategory option:selected").prop("selected", false);
     $("#RoutingCategory option:selected").removeAttr("selected");
-    var rcategory = $('#RoutingCategory').bootstrapDualListbox();   
+    var rcategory = $('#RoutingCategory').bootstrapDualListbox();
+    $('.dataTables_processing').css("visibility","visible");   
     rcategory.bootstrapDualListbox('refresh');
- })
+    $('#RoutingCategories').html("<option></option>");
+    $.ajax({
+        url : 'routingprofiles/ajaxCategories' ,
+        type: 'get',
+        success:function(response){
+            $.map( response, function( val, i ) {
+                $('#RoutingCategories').append("<option value='"+ val.RoutingCategoryID +"'>"+val.Name+"</option>");
+                $('.dataTables_processing').css("visibility","hidden");                  
+            });  
+        }
+    });
+ });
 $('table tbody').on('click','.addnewroutpro',function(ev){
     $("#RoutingCategory option:selected").prop("selected", false);
     $("#RoutingCategory option:selected").removeAttr("selected");
     var rcategory = $('#RoutingCategory').bootstrapDualListbox();   
     rcategory.bootstrapDualListbox('refresh');
-})
+});
     $('table tbody').on('click','.edit-category',function(ev){
+        var data = $(this).data('id');
+        $('.tbody').html("");    
+        $('.dataTables_processing').css("visibility","visible");
+        $('#RoutingCategories').empty();
+        $.ajax({
+            url : 'routingprofiles/ajaxCategories' ,
+            type: 'get',
+            success:function(response){
+                $.map( response, function( val, i ) {
+                    $('#RoutingCategories').append("<option value='"+ val.RoutingCategoryID +"'>"+val.Name+"</option>");                  
+            });  
+            }
+        })
+        setTimeout(function(){
+        $.ajax({
+            url: 'routingprofiles/ajaxedit',
+            type:'post',
+            data:{data:data},
+            success:function(response){
+                $('.dataTables_processing').css("visibility","hidden");
+                
+                $.map( response, function( val, i ) {
+                    Array.prototype.forEach.call(val, function(el) {
+                    // Do stuff here
+                    $('.tbody').append("<tr data-id="+el.RoutingCategoryID + "><td><input type='number' min='0' value='"+ el.Order +"' name='Orders[]' class='form-control' /><input type='hidden' name='RoutingCategory[]' value='"+ el.RoutingCategoryID +"'/></td><td>"+ el.Name +"</td><td>"+ el.Description +"</td><td><a class='btn btn-danger btn-sm' id='"+ el.RoutingCategoryID +"' onclick='deleteRoute(this.id)'><i class='entypo-trash'></i></a></td></tr>");
+                        
+                 }); 
+                    $('.tbody tr').each(function() {                                   
+                        var id = $(this).data('id');
+                        $('#RoutingCategories option[value='+id+']').remove();                                                        
+                        });
+                        $('#RoutingCategories').val('').trigger('change');                          
+                    });                          
+            }           
+        });
+        }, 1000
+    );
         ev.preventDefault();
         ev.stopPropagation();
         $('#add-new-routingcategory-form').trigger("reset");
@@ -250,9 +308,10 @@ $('table tbody').on('click','.addnewroutpro',function(ev){
                         
         Name = $(this).prev("div.hiddenRowData").find("input[name='Name']").val();
         Description = $(this).prev("div.hiddenRowData").find("input[name='Description']").val();
+        SelectionCode = $(this).prev("div.hiddenRowData").find("input[name='SelectionCode']").val();
         
         RoutingPolicy = $(this).prev("div.hiddenRowData").find("input[name='RoutingPolicy']").val();
-        console.log(RoutingPolicy);
+        //console.log(RoutingPolicy);
         $("#RoutingPolicy").val(RoutingPolicy);
         $("#RoutingPolicy").val(RoutingPolicy).trigger("chosen:updated");
         
@@ -260,40 +319,40 @@ $('table tbody').on('click','.addnewroutpro',function(ev){
         
         $("#add-new-routingcategory-form [name='Name']").val(Name);
         $("#add-new-routingcategory-form [name='Description']").val(Description);
+        $("#add-new-routingcategory-form [name='SelectionCode']").val(SelectionCode);
         $("#add-new-routingcategory-form [name='RoutingProfileID']").val($(this).attr('data-id'));
         $('#add-new-modal-routingcategory h3').html('Edit Routing Profile');
         $('#add-new-modal-routingcategory').modal('show');
-    })
 
+        });  
     });
 
-/*function ajax_update(fullurl,data){
-//alert(data)
-    $.ajax({
-        url:fullurl, //Server script to process data
-        type: 'POST',
-        dataType: 'json',
-        success: function(response) {
-            $("#currency-update").button('reset');
-            $(".btn").button('reset');
-            $('#modal-Currency').modal('hide');
+        /*function ajax_update(fullurl,data){
+        //alert(data)
+            $.ajax({
+                url:fullurl, //Server script to process data
+                type: 'POST',
+                dataType: 'json',
+                success: function(response) {
+                    $("#currency-update").button('reset');
+                    $(".btn").button('reset');
+                    $('#modal-Currency').modal('hide');
 
-            if (response.status == 'success') {
-                $('#add-new-modal-routingcategory').modal('hide');
-                toastr.success(response.message, "Success", toastr_opts);
-                if( typeof data_table !=  'undefined'){
-                    data_table.fnFilter('', 0);
-                }
-            } else {
-                toastr.error(response.message, "Error", toastr_opts);
-            }
-        },
-        data: data,
-        //Options to tell jQuery not to process data or worry about content-type.
-        cache: false
-    });
-}*/
-
+                    if (response.status == 'success') {
+                        $('#add-new-modal-routingcategory').modal('hide');
+                        toastr.success(response.message, "Success", toastr_opts);
+                        if( typeof data_table !=  'undefined'){
+                            data_table.fnFilter('', 0);
+                        }
+                    } else {
+                        toastr.error(response.message, "Error", toastr_opts);
+                    }
+                },
+                data: data,
+                //Options to tell jQuery not to process data or worry about content-type.
+                cache: false
+            });
+        }*/
 </script>
 <style>
 .dataTables_filter label{

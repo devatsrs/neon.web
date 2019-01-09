@@ -2,6 +2,9 @@
 
 class AccountsApiController extends ApiController {
 
+	private static $PaymentMethod = ["AuthorizeNet","AuthorizeNetEcheck",
+	"FideliPay","Paypal","PeleCard","SagePay","SagePayDirectDebit","Stripe","StripeACH","FastPay",
+	"MerchantWarrior","Wire Transfer","Other"];
 	public function validEmail() {
 		$data = Input::all();
 		$CompanyID = User::get_companyID();
@@ -359,6 +362,10 @@ class AccountsApiController extends ApiController {
 			$data['created_by'] = $CreatedBy;
 			$data['AccountType'] = 1;
 			$data['AccountName'] = isset($accountData['AccountName']) ? trim($accountData['AccountName']) : '';
+			$data['PaymentMethod'] = $accountData['PaymentMethod'];
+			if (!empty($data['PaymentMethod']) && !in_array($data['PaymentMethod'], AccountsApiController::$PaymentMethod)) {
+				return Response::json(array("status" => "failed", "message" => "Please enter the valid payment method."));
+			}
 
 
 
@@ -698,5 +705,11 @@ class AccountsApiController extends ApiController {
 		}
 
 		//return Redirect::route('accounts.index')->with('success_message', 'Accounts Successfully Created');
+	}
+	public function getPaymentMethodList()
+	{
+		Log::info('getPaymentMethodList for Account.');
+
+		return Response::json(array("status" => "success", "PaymentMethod" => AccountsApiController::$PaymentMethod));
 	}
 }

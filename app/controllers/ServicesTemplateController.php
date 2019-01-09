@@ -36,7 +36,7 @@ class ServicesTemplateController extends BaseController {
         $servicesTemplate = ServiceTemplate::
         leftJoin('tblService','tblService.ServiceID','=','tblServiceTemplate.ServiceId')
             ->Join('tblCurrency','tblServiceTemplate.CurrencyId','=','tblCurrency.CurrencyId')
-            ->select(['tblService.ServiceId','tblServiceTemplate.Name','tblService.ServiceName','tblCurrency.Code','tblServiceTemplate.OutboundRateTableId','tblServiceTemplate.ServiceTemplateId','tblServiceTemplate.CurrencyId','tblServiceTemplate.InboundDiscountPlanId','tblServiceTemplate.OutboundDiscountPlanId'])
+            ->select(['tblServiceTemplate.ServiceTemplateId','tblService.ServiceId','tblServiceTemplate.Name','tblService.ServiceName','tblCurrency.Code','tblServiceTemplate.OutboundRateTableId','tblServiceTemplate.CurrencyId','tblServiceTemplate.InboundDiscountPlanId','tblServiceTemplate.OutboundDiscountPlanId'])
             ->orderBy($iSortCol_0, $sSortDir_0);
 
         Log::info('$servicesTemplate AJAX.$data[\'ServiceId\']' . $data['ServiceId']);
@@ -1051,6 +1051,40 @@ class ServicesTemplateController extends BaseController {
         $dynamicFields['totalfields'] = count($dynamicFields['fields']);
 
         return $dynamicFields;
+    }
+
+    public function addBulkAction(){ // Add Bulk action if input empty then this will add already existing values...
+
+        $data = Input::all();
+
+        if(isset($data['ServiceTemplateId']))
+        {
+            $ServiceTemplateIdString =  ((string)$data['ServiceTemplateId']);
+            $ServiceTemplateIdArray  = explode(',',$ServiceTemplateIdString);
+
+            for($i = 0; $i < sizeof($ServiceTemplateIdArray); $i++ )
+            {
+
+                $ExistingValues = ServiceTemplate::select('CurrencyId','ServiceId','OutboundRateTableId','OutboundDiscountPlanId','InboundDiscountPlanId')
+                                                    ->where('ServiceTemplateId',$ServiceTemplateIdArray[$i])->first();
+
+                $UpdatedValues  = ServiceTemplate::where('ServiceTemplateId',$ServiceTemplateIdArray[$i])
+                                                    ->update([
+                                                                'CurrencyId'             => ($data['CurrencyId']) ? $data['CurrencyId'] : $ExistingValues['CurrencyId'],
+                                                                'ServiceId'              => ($data['ServiceId']) ? $data['ServiceId'] : $ExistingValues['ServiceId'],
+                                                                'OutboundRateTableId'    => ($data['OutboundRateTableId']) ? $data['OutboundRateTableId'] : $ExistingValues['OutboundRateTableId'],
+                                                                'OutboundDiscountPlanId' => ($data['OutboundDiscountPlanId']) ? $data['OutboundDiscountPlanId'] : $ExistingValues['OutboundDiscountPlanId'],
+                                                                'InboundDiscountPlanId'  => ($data['OutboundDiscountPlanId']) ? $data['OutboundDiscountPlanId'] : $ExistingValues['OutboundDiscountPlanId'],
+                                                            ]);
+            }
+
+            if($UpdatedValues)
+                return Response::json(array("status" => "success", "message" => "Bulk Actions updated"));
+            else
+                return Response::json(array("status" => "failed", "message" => "Failed to update Bulk Actions"));
+
+        }
+
     }
 
 }

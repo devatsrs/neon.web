@@ -1084,11 +1084,15 @@ function formatSmallDate($date,$dateformat='d-m-y') {
     return $datetime;*/
 }
 
-function SortBillingType($account=0){
+function SortBillingType($account=0)
+{
     ksort(Company::$BillingCycleType);
     ksort(Company::$BillingCycleType2);
-    if($account == 0) {
+    ksort(Company::$BillingCycleType3);
+    if ($account == 0) {
         return Company::$BillingCycleType;
+    }elseif($account == 3){
+        return Company::$BillingCycleType3;
     }else{
         return Company::$BillingCycleType2;
     }
@@ -1222,6 +1226,7 @@ function check_uri($parent_link=''){
     $Path 			  =    Route::currentRouteAction();
     $path_array 	  =    explode("Controller",$Path);
     $array_settings   =    array("Users","Trunk","CodeDecks","Gateway","Currencies","CurrencyConversion","DestinationGroup","DialString");
+    $array_routing   =      array("RoutingProfiles","RoutingCategory","Testdialplan");
     $array_admin	  =	   array("Users","Role","Themes","AccountApproval","FileUploadTemplate","EmailTemplate","Notification","ServerInfo","Retention","NoticeBoard");
     $array_summary    =    array("Summary");
     $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling","AutoRateImport");
@@ -1242,7 +1247,13 @@ function check_uri($parent_link=''){
             	return 'opened';
 			} 
         }
-
+        if(in_array($controller,$array_routing) && $parent_link =='Routing')
+        {  if($controller=='Users' && isset($_REQUEST['sm'])){
+            return 'opened';
+        }else if($controller!='Users'){
+            return 'opened';
+        }
+        }
         if(in_array($controller,$array_settings) && $parent_link =='Settings')
         {  if($controller=='Users' && isset($_REQUEST['sm'])){
             	return 'opened';

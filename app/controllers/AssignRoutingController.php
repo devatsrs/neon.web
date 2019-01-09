@@ -33,7 +33,7 @@ class AssignRoutingController extends \BaseController {
             $all_customers = Account::getAccountIDList(['IsCustomer'=>1,'IsReseller'=>1]);
             $companyID = User::get_companyID();
             $trunks = Trunk::getTrunkDropdownIDList();
-            $routingprofile = RoutingProfiles::getRoutingProfile();
+            $routingprofile = RoutingProfiles::getRoutingProfile($companyID);
             $codedecks = BaseCodeDeck::where(["CompanyID" => $companyID])->lists("CodeDeckName", "CodeDeckId");
             $codedecks = array(""=>"Select Codedeck")+$codedecks;
             $rate_tables = RateTable::getRateTables();
@@ -321,8 +321,36 @@ class AssignRoutingController extends \BaseController {
             }
 	}
         public function exports($type){
+            $data = Input::all();
+            $SourceCustomers = empty($data['SourceCustomers']) ? '' : $data['SourceCustomers'];
+            if ($SourceCustomers == 'null') {
+                $SourceCustomers = '';
+            }
+            $ratetableeid = empty($data['RateTableId']) ? 0 : $data['RateTableId'];
+            $TrunkID = empty($data['TrunkID']) ? 0 : $data['TrunkID'];
             $CompanyID = User::get_companyID();
-            $RoutingProfiles = RoutingProfiles::where(["CompanyID" => $CompanyID])->get(['Name','Description']);
+            $services = !empty($data["services"]) ? $data["services"] : 0;
+            $data['iDisplayStart'] +=1;
+            $columns = array('AccountName','Name','Trunk');
+            $sort_column = $columns[$data['iSortCol_0']];
+            $query = "call speakintelligentRouting.prc_getAssignRoutingProfileByAccount (".$CompanyID.",'".$data["level"]."',".$TrunkID.",'".$SourceCustomers."',".$services.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."' ";
+
+            $query .=',0)';
+
+
+            $RoutingAssigns  = DB::select($query);
+            $RoutingProfiles = [];
+            if($RoutingAssigns != false){
+                foreach($RoutingAssigns as $k => $rs) {
+                    $RoutingProfiles[$k] = [
+                        'Account Name' => $rs->AccountName,
+                        'Routing Profile' => $rs->Name,
+                    ];
+
+                    if(isset($data['level']) && strtolower($data['level']) == 't') $RoutingProfiles[$k]['Trunk'] = $rs->Trunk;
+                    if(isset($data['level']) && strtolower($data['level']) == 's') $RoutingProfiles[$k]['Service'] = $rs->ServiceName;
+                }
+            }
             $RoutingProfiles = json_decode(json_encode($RoutingProfiles),true);
             if($type=='csv'){
                 $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/AssignRouting.csv';
