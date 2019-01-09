@@ -1491,6 +1491,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('servicesTemplate/delete/{id}', 'ServicesTemplateController@delete');
 	Route::any('servicesTemplate/exports/{type}', 'ServicesTemplateController@exports');
 	Route::any('servicesTemplate/selectDataOnCurrency', 'ServicesTemplateController@selectDataOnCurrency');
+	Route::any('servicesTemplate/addBulkAction', 'ServicesTemplateController@addBulkAction');
+
 
 	//Service Template Fields
 	Route::any('/servicetempaltes/servicetemplatetype', 'ServicesTemplateController@viewSubscriptionDynamicFields');
