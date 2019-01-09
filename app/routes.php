@@ -805,6 +805,7 @@ Route::group(array('before' => 'auth'), function () {
 
 	//DIDLCR
 	Route::resource('did/lcr', 'LCRDIDController');
+	Route::any('did/lcr/search_ajax_datagrid/{type}', 'LCRDIDController@search_ajax_datagrid');
 
 	//Pages
 	Route::any('/about', 'PagesController@about');
