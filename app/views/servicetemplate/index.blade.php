@@ -286,15 +286,20 @@
 
         $("#selectall").click(function (ev) {
             var is_checked = $(this).is(':checked');
+            checkBoxArray = null;
 
             $('#table-4 tbody tr').each(function (i, el) {
                 if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
                     if (is_checked) {
+                        var txtValue = $(this).find('.rowcheckbox').prop("checked", true).val();
+
                         $(this).find('.rowcheckbox').prop("checked", true);
                         $(this).addClass('selected');
+                        checkBoxArray.push(txtValue);
                     } else {
                         $(this).find('.rowcheckbox').prop("checked", false);
                         $(this).removeClass('selected');
+                        checkBoxArray = null;
                     }
                 }
             });
