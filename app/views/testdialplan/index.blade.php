@@ -21,8 +21,7 @@
 
                 <div class="form-group  S">
                     <label class="control-label" for="field-1">Routing Plan</label>
-                    <?php $routingplan=array("All Available Routes"=>"All Available Routes")?>
-                    {{ Form::select('routingplan', $routingplan, '' , array("class"=>"select2 RoutingMode1")) }}
+                    {{Form::select('routingprofile', [null=>'All Available Routes'] + $routingprofile, (isset($RoutingProfileToCustomer->RoutingProfileID)?$RoutingProfileToCustomer->RoutingProfileID:'' ) ,array("class"=>"select2 small form-control1"));}}
                 </div>
 
                 <div class="form-group">
