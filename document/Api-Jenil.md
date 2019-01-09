@@ -429,11 +429,7 @@ CLD
 CallType
 UUID
 VendorID
-TrunkID
-CLIPrefix
-CLDPrefix
-Rate
-BuyingPrice
+
 
 Return
 
@@ -447,11 +443,6 @@ Return
               CallType: Inbound
               UUID : 1155544
               VendorID : 111
-              TrunkID : 1
-              CLIPrefix : 91
-              CLDPrefix : 92
-              Rate   : 10
-              BuyingPrice : 20
 
         Response:
 
@@ -470,7 +461,7 @@ Perams:
 "AccountID"/"AccountNo"
 UUID
 DisconnectTime
-Reason
+
 
 Return
 
@@ -480,7 +471,6 @@ Return
               AccountID :6728
               UUID:54564564
               DisconnectTime : 2018-12-26 15:24:06
-              Reason : block
 
 
         Response:
@@ -1160,6 +1150,7 @@ cy
 	ResellerPassword
 	ReSellerAllowWhiteLabel
 	ReSellerDomainUrl
+	PaymentMethod
 
 Return
 
@@ -1194,6 +1185,7 @@ Return
         ResellerPassword:reseller [Mandatory if reseller needs to be add with account]
         ReSellerAllowWhiteLabel:1
         ReSellerDomainUrl:http://speakintelligence.neon-soft.com/accounts/
+		PaymentMethod:AuthorizeNetEcheck
 
         Response:
 
@@ -1270,5 +1262,115 @@ Return
            {
                "status": "success",
                "message": "Account Service Successfully Added"
+           }
+
+http://speakintelligence.neon-soft.com/api/routing/list
+
+Params:
+
+	OriginationNo
+	DestinationNo
+	AccountNumber
+	AccountID
+	ConnectTime
+
+
+Return
+
+    Example:
+        Request:
+            OriginationNo:442085950856[Mandatory]
+        	DestinationNo: 44208589657[Mandatory]
+        	AccountNumber:08004570 [AccountNumber OR AccountID is mandatory]
+        	AccountID:[AccountNumber OR AccountID is mandatory]
+        	DataAndTime:2018-11-30 10:10:10
+
+        Response:
+
+           {
+               "status": "success",
+               "Positions": [
+                   {
+                       "Position": "1",
+                       "Prefix": "11144",
+                       "VendorID": "6748",
+                       "VendorName": "BICS",
+                       "VendorConnectionName": "BICS2",
+                       "SipHeader": "",
+                       "IP": "",
+                       "Port": "",
+                       "Username": "onno.westra@speakintelligence.com",
+                       "Password": "test987",
+                       "AuthenticationMode": "",
+                       "Currency": "EUR",
+                       "Rate": "0.002300"
+                   },
+                   {
+                       "Position": "2",
+                       "Prefix": "12344",
+                       "VendorID": "6747",
+                       "VendorName": "TATA",
+                       "VendorConnectionName": "TATA",
+                       "SipHeader": "",
+                       "IP": "",
+                       "Port": "",
+                       "Username": "",
+                       "Password": "",
+                       "AuthenticationMode": "",
+                       "Currency": "EUR",
+                       "Rate": "0.002300"
+                   },
+                   {
+                       "Position": "3",
+                       "Prefix": "22244",
+                       "VendorID": "6748",
+                       "VendorName": "BICS",
+                       "VendorConnectionName": "BICS1",
+                       "SipHeader": "",
+                       "IP": "",
+                       "Port": "",
+                       "Username": "",
+                       "Password": "",
+                       "AuthenticationMode": "",
+                       "Currency": "EUR",
+                       "Rate": "0.006750"
+                   }
+               ]
+           }
+
+### POST Get Account Payment Methods
+
+http://speakintelligence.neon-soft.com/api/account/paymentMethod
+
+Params:
+
+
+
+
+Return
+
+    Example:
+        Request:
+
+
+        Response:
+
+           {
+               "status": "success",
+               "PaymentMethod": [
+                   "AuthorizeNet",
+                   "AuthorizeNetEcheck",
+                   "FideliPay",
+                   "Paypal",
+                   "PeleCard",
+                   "SagePay",
+                   "SagePayDirectDebit",
+                   "Stripe",
+                   "StripeACH",
+                   "FastPay",
+                   "MerchantWarrior",
+                   "Wire Transfer",
+                   "Other"
+               ]
            }
 

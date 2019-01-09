@@ -16,7 +16,7 @@ class RoutingApiController extends ApiController {
         $rules = array(
             'OriginationNo' => 'required',
             'DestinationNo' => 'required',
-            'ConnectTime' => 'required',
+            'DataAndTime' => 'required',
             'AccountNumber' => 'required_without_all:AccountID',
             'AccountID' => 'required_without_all:AccountNumber',
         );
@@ -139,10 +139,10 @@ class RoutingApiController extends ApiController {
                 }
 
                 Log::info('Filter Routing Profile List procedure $RoutingProfileIds' . $RoutingProfileID);
-                $connectTime = strtotime($routingData["ConnectTime"]);
+                $DataAndTime = strtotime($routingData["DataAndTime"]);
                 $dataTimeZone['CompanyID'] = $CompanyID;
-                $dataTimeZone['connect_time'] = $routingData["ConnectTime"];
-                $dataTimeZone['disconnect_time'] = $routingData["ConnectTime"];
+                $dataTimeZone['connect_time'] = $routingData["DataAndTime"];
+                $dataTimeZone['disconnect_time'] = $routingData["DataAndTime"];
                // $dataTimeZone['TimezonesID'] = '';
         Log::info('Filter Routing Profile List procedure $queryTimeZone' .
             print_r($dataTimeZone,true));
@@ -150,8 +150,8 @@ class RoutingApiController extends ApiController {
                 $query="CALL `prc_updateTempCDRTimeZones`('tblgetTimezone')";
                 $queryResults = DB::connection('sqlsrv2')->select($query);
                 $queryTimeZone = GetTimeZone::
-                 where(["connect_time" => $routingData["ConnectTime"]])
-                 ->where('disconnect_time', '=', $routingData["ConnectTime"])->pluck("TimezonesID");
+                 where(["connect_time" => $routingData["DataAndTime"]])
+                 ->where('disconnect_time', '=', $routingData["DataAndTime"])->pluck("TimezonesID");
 
         if (empty($queryTimeZone)) {
             $queryTimeZone = 1;
@@ -240,7 +240,7 @@ class RoutingApiController extends ApiController {
                 $routingInfo['vendor ID'] = $lcrDetail->VendorID;
                 $routingInfo['vendor Name'] = $lcrDetail->VendorName;
                 $vendorID = $lcrDetail->VendorID;
-                Log::info('ConnectTime TimeZone $lcrDetail' . $vendorID);
+                Log::info('DataAndTime TimeZone $lcrDetail' . $vendorID);
                 if ($lastVendorID != $vendorID) {
                     $lastVendorID = $lcrDetail->VendorID;
                     $positionDetails++;
@@ -280,25 +280,25 @@ class RoutingApiController extends ApiController {
         return Response::json(["status" => "success", "Positions" => $lcrDetails]);
     }
 
-    public function checkTimeZone($lcrDetail,$TimeZones,$connectTime) {
+    public function checkTimeZone($lcrDetail,$TimeZones,$DataAndTime) {
 
 
-        $firstOfMonth = strtotime(date("Y-m-01", $connectTime));
+        $firstOfMonth = strtotime(date("Y-m-01", $DataAndTime));
         //Apply above formula.
-        $weekNum =  intval(date("W", $connectTime)) - intval(date("W", $firstOfMonth)) + 1;
-        $Month = date("n",$connectTime) . ",";
-        $DayOfMonth = date("d",$connectTime) . ",";
-        $Hour = date("H",$connectTime);
-        $Minute = date("i",$connectTime);
-        $Seconds = date("s",$connectTime);
+        $weekNum =  intval(date("W", $DataAndTime)) - intval(date("W", $firstOfMonth)) + 1;
+        $Month = date("n",$DataAndTime) . ",";
+        $DayOfMonth = date("d",$DataAndTime) . ",";
+        $Hour = date("H",$DataAndTime);
+        $Minute = date("i",$DataAndTime);
+        $Seconds = date("s",$DataAndTime);
         $timeZoneMatch = false;
-        Log::info('ConnectTime TimeZone' . $connectTime .
+        Log::info('DataAndTime TimeZone' . $DataAndTime .
             ' '.$Month.
             ' '.$DayOfMonth.
             ' '.$weekNum.
-            ' '.date("H",$connectTime).
-            ' '.date("i",$connectTime).
-            ' '.date("s",$connectTime)
+            ' '.date("H",$DataAndTime).
+            ' '.date("i",$DataAndTime).
+            ' '.date("s",$DataAndTime)
         );
 
         /*
@@ -322,7 +322,7 @@ class RoutingApiController extends ApiController {
                 if (!empty($TimeZone->Months)) {
                     Log::info('$TimeZone->TimezoneId months');
                     $monthZoneSet = 0;
-                    if (strpos($TimeZone->Months,$Month) > 0 || strpos($TimeZone->Months,',' . date("n",$connectTime)) > 0){
+                    if (strpos($TimeZone->Months,$Month) > 0 || strpos($TimeZone->Months,',' . date("n",$DataAndTime)) > 0){
                         $TimeZoneMatch = 1;
                     }
                 }
@@ -332,9 +332,9 @@ class RoutingApiController extends ApiController {
                     Log::info('$TimeZone->TimezoneId DaysOfMonth');
                     if ($monthZoneSet == 0 && $TimeZoneMatch == 0) {
                         $TimeZoneMatch = 0;
-                    } else if (($monthZoneSet == 0 && $TimeZoneMatch == 1) && strpos($TimeZone->DaysOfMonth,$DayOfMonth) > 0 || strpos($TimeZone->DaysOfMonth,',' . date("d",$connectTime)) > 0){
+                    } else if (($monthZoneSet == 0 && $TimeZoneMatch == 1) && strpos($TimeZone->DaysOfMonth,$DayOfMonth) > 0 || strpos($TimeZone->DaysOfMonth,',' . date("d",$DataAndTime)) > 0){
                         $TimeZoneMatch = 1;
-                    }else if (strpos($TimeZone->DaysOfMonth,$DayOfMonth) > 0 || strpos($TimeZone->DaysOfMonth,',' . date("d",$connectTime)) > 0){
+                    }else if (strpos($TimeZone->DaysOfMonth,$DayOfMonth) > 0 || strpos($TimeZone->DaysOfMonth,',' . date("d",$DataAndTime)) > 0){
                         $TimeZoneMatch = 1;
                     }else {
                         $TimeZoneMatch = 0;

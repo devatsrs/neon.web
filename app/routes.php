@@ -803,6 +803,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('lcr/ajax_customer_rate_export/{type}', 'LCRController@ajax_customer_rate_export');
 	Route::any('lcr/edit_preference', 'LCRController@editPreference');
 
+	//DIDLCR
+	Route::resource('did/lcr', 'LCRDIDController');
+
 	//Pages
 	Route::any('/about', 'PagesController@about');
 	Route::resource('page', 'PagesController');
@@ -1785,5 +1788,6 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('account/paymentMethod', 'AccountsApiController@getPaymentMethodList');
 	Route::post('account/createService', 'AccountsApiController@createAccountService');
 	Route::post('routing/list', 'RoutingApiController@routingList');
+	
 
 });

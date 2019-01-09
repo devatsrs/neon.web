@@ -194,7 +194,7 @@ class RoutingProfilesController extends \BaseController {
                         $result = RoutingProfiles::find($id)->delete();
                         RoutingProfiles::clearCache();
                         if ($result) {
-                            $results = RoutingProfileCategory::where(array('RoutingProfileID'=>$id))->delete();;
+                            $results = RoutingProfileCategory::where(array('RoutingProfileID'=>$id))->delete();
                             RoutingProfileCategory::clearCache();
                             return Response::json(array("status" => "success", "message" => "Routing Profiles Successfully Deleted"));
                         } else {
@@ -211,7 +211,19 @@ class RoutingProfilesController extends \BaseController {
     public function exports($type)
     {
         $CompanyID = User::get_companyID();
-        $RoutingProfiles = RoutingProfiles::where(["CompanyID" => $CompanyID])->get(['Name','Description']);
+        $RoutingProfiles = RoutingProfiles::Join('tblRoutingProfileCategory','tblRoutingProfileCategory.RoutingProfileID','=','tblRoutingProfile.RoutingProfileID')
+            ->select(['tblRoutingProfile.Name','tblRoutingProfile.Description','tblRoutingProfile.SelectionCode as SelectionCode','tblRoutingProfile.Status',DB::raw("(select GROUP_CONCAT(tblRoutingCategory.Name SEPARATOR ', ' ) as RoutesCategory from tblRoutingCategory where tblRoutingCategory.RoutingCategoryID in (select tblRoutingProfileCategory.RoutingCategoryID from tblRoutingProfileCategory where tblRoutingProfileCategory.RoutingProfileID = tblRoutingProfile.RoutingProfileID)) as 'Routing Category'")])
+            ->where(["tblRoutingProfile.CompanyID" => $CompanyID])->groupBy("tblRoutingProfile.RoutingProfileID");
+
+
+        $data = Input::all();
+        if(!empty($data['Name'])){
+            $RoutingProfiles->where(["tblRoutingProfile.Name" => $data['Name']]);
+        }
+        if(!empty($data['Status']) || ($data['Status']=='0')){
+            $RoutingProfiles->where(["tblRoutingProfile.Status" => $data['Status']]);
+        }
+        $RoutingProfiles = $RoutingProfiles->orderBy('tblRoutingProfile.Name')->get();
         $RoutingProfiles = json_decode(json_encode($RoutingProfiles),true);
         if($type=='csv'){
             $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/RoutingProfile.csv';

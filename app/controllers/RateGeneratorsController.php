@@ -13,8 +13,12 @@ class RateGeneratorsController extends \BaseController {
 		$RateGenerators = RateGenerator::
         leftjoin("tblTrunk","tblTrunk.TrunkID","=","tblRateGenerator.TrunkID")
         ->leftjoin("tblCurrency","tblCurrency.CurrencyId","=","tblRateGenerator.CurrencyId")
+        ->leftjoin("tblDIDCategory","tblDIDCategory.DIDCategoryID","=","tblRateGenerator.DIDCategoryID")
+        ->leftjoin("tblRateType","tblRateType.RateTypeID","=","tblRateGenerator.SelectType")
         ->where($where)->select(array(
+            'tblRateType.Title',
             'tblRateGenerator.RateGeneratorName',
+            'tblDIDCategory.CategoryName',
             'tblTrunk.Trunk',
             'tblCurrency.Code',
             'tblRateGenerator.Status',
@@ -34,6 +38,9 @@ class RateGeneratorsController extends \BaseController {
         if(isset($data['SelectType']) && !empty($data['SelectType'])){
             $RateGenerators->WhereRaw('tblRateGenerator.SelectType = '.$data['SelectType'].'');
         }
+        if(isset($data['DIDCategoryID']) && !empty($data['DIDCategoryID'])){
+            $RateGenerators->WhereRaw('tblRateGenerator.DIDCategoryID = '.$data['DIDCategoryID'].'');
+        }
 
         return Datatables::of($RateGenerators)->make();
     }
@@ -41,7 +48,10 @@ class RateGeneratorsController extends \BaseController {
     public function index() {
 		$Trunks =  Trunk::getTrunkDropdownIDList();
         $RateTypes =  RateType::getRateTypeDropDownList();
-		return View::make('rategenerators.index', compact('Trunks','RateTypes'));
+        $Categories = DidCategory::getCategoryDropdownIDList();
+        $DIDType=RateType::getRateTypeIDBySlug('did');
+        $VoiceCallType=RateType::getRateTypeIDBySlug('voicecall');
+		return View::make('rategenerators.index', compact('Trunks','RateTypes','Categories','DIDType','VoiceCallType'));
     }
 
     
@@ -87,8 +97,6 @@ class RateGeneratorsController extends \BaseController {
             $rules['RatePosition']='required|numeric';
             $rules['UseAverage']='required';
 
-        }elseif($SelectType == 2) {
-            $rules['Category']='required';
         }
 
         $message = array(
@@ -106,6 +114,16 @@ class RateGeneratorsController extends \BaseController {
 
         if ($validator->fails()) {
             return json_validator_response($validator);
+        }
+        //Validation For LessThenRate-ChargeRate
+        if(!empty($data['LessThenRate']) || !empty($data['ChargeRate'])){
+            if(empty($data['LessThenRate'])){
+                return Response::json(array("status" => "failed", "message" => "LessThenRate is required if given ChargeRate."));
+            }
+
+            if(empty($data['ChargeRate'])){
+                return Response::json(array("status" => "failed", "message" => "ChargeRate is required if given LessThenRate."));
+            }
         }
         $data ['CreatedBy'] = User::get_user_full_name();
         try {
@@ -309,9 +327,8 @@ class RateGeneratorsController extends \BaseController {
             $rules['RatePosition']='required|numeric';
             $rules['UseAverage']='required';
 
-        }elseif($SelectType == 2) {
-            $rules['Category']='required';
         }
+
         $message = array(
             'Timezones.required' => 'Please select at least 1 Timezone'
         );
@@ -328,6 +345,18 @@ class RateGeneratorsController extends \BaseController {
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
+
+        //Validation For LessThenRate-ChargeRate
+        if(!empty($data['LessThenRate']) || !empty($data['ChargeRate'])){
+            if(empty($data['LessThenRate'])){
+                return Response::json(array("status" => "failed", "message" => "LessThenRate is required if given ChargeRate."));
+            }
+
+            if(empty($data['ChargeRate'])){
+                return Response::json(array("status" => "failed", "message" => "ChargeRate is required if given LessThenRate."));
+            }
+        }
+
         $data ['ModifiedBy'] = User::get_user_full_name();
 
         try {
@@ -600,6 +629,8 @@ class RateGeneratorsController extends \BaseController {
         $RateGenerators = RateGenerator::
         leftjoin("tblTrunk","tblTrunk.TrunkID","=","tblRateGenerator.TrunkID")
             ->leftjoin("tblCurrency","tblCurrency.CurrencyId","=","tblRateGenerator.CurrencyId")
+            ->leftjoin("tblDIDCategory","tblDIDCategory.DIDCategoryID","=","tblRateGenerator.DIDCategoryID")
+            ->leftjoin("tblRateType","tblRateType.RateTypeID","=","tblRateGenerator.SelectType")
             ->where($where); // by Default Status 1
 
         if(isset($data['Search']) && !empty($data['Search'])){
@@ -611,10 +642,15 @@ class RateGeneratorsController extends \BaseController {
         if(isset($data['SelectType']) && !empty($data['SelectType'])){
             $RateGenerators->WhereRaw('tblRateGenerator.SelectType = '.$data['SelectType'].'');
         }
+        if(isset($data['DIDCategoryID']) && !empty($data['DIDCategoryID'])){
+            $RateGenerators->WhereRaw('tblRateGenerator.DIDCategoryID = '.$data['DIDCategoryID'].'');
+        }
 
        $Result = $RateGenerators->orderBy("RateGeneratorID", "desc")
             ->get(array(
+                'tblRateType.Title',
                 'tblRateGenerator.RateGeneratorName',
+                'tblDIDCategory.CategoryName',
                 'tblTrunk.Trunk',
                 'tblCurrency.Code',
                 'tblRateGenerator.Status',

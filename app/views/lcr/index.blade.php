@@ -12,8 +12,18 @@
             <form role="form" id="lcr-search-form" method="post" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
                 <div class="form-group">
                     <div class="SelectedEffectiveDate_Class">
-                        <label for="field-1" class="control-label">Type</label>
-                        {{Form::select('Type', $RateTypes, '',array("class"=>"form-control select2"))}}
+                        {{--<label for="field-1" class="control-label">Type</label>--}}
+
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown" aria-expanded="false" style="width:100%">Voice Call<span class="caret"></span></button>
+                            <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px; width:100% ">
+                                <li> <a  href="{{URL::to('did/lcr')}}"  style="width:100%">DID</a></li>
+                            </ul>
+                        </div>
+
+
+
+
                     </div>
                 </div>
                 <div class="form-group">
