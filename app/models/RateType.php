@@ -7,6 +7,8 @@ class RateType extends \Eloquent {
     protected $guarded = array('RateTypeID');
     protected $table = 'tblRateType';
     public  $primaryKey = "RateTypeID"; //Used in BasedController
+    CONST SLUG_DID = 'did';
+    CONST SLUG_VOICECALL = 'voicecall';
 
 
     public static function getRateTypeDropDownList(){

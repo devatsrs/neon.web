@@ -111,6 +111,76 @@ CREATE TABLE IF NOT EXISTS `tblRateTableDIDRateArchive` (
   KEY `XI_RateID_RatetableID` (`RateID`,`RateTableDIDRateID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `tblTempRateTableDIDRate` (
+  `TempRateTableDIDRateID` int(11) NOT NULL AUTO_INCREMENT,
+  `CodeDeckId` int(11) DEFAULT NULL,
+  `TimezonesID` int(11) NOT NULL DEFAULT '1',
+  `OriginationCountryCode` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `OriginationCode` text COLLATE utf8_unicode_ci,
+  `OriginationDescription` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `CountryCode` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Code` text COLLATE utf8_unicode_ci NOT NULL,
+  `Description` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `OneOffCost` decimal(18,6) DEFAULT NULL,
+  `MonthlyCost` decimal(18,6) DEFAULT NULL,
+  `CostPerCall` decimal(18,6) DEFAULT NULL,
+  `CostPerMinute` decimal(18,6) DEFAULT NULL,
+  `SurchargePerCall` decimal(18,6) DEFAULT NULL,
+  `SurchargePerMinute` decimal(18,6) DEFAULT NULL,
+  `OutpaymentPerCall` decimal(18,6) DEFAULT NULL,
+  `OutpaymentPerMinute` decimal(18,6) DEFAULT NULL,
+  `Surcharges` decimal(18,6) DEFAULT NULL,
+  `Chargeback` decimal(18,6) DEFAULT NULL,
+  `CollectionCostAmount` decimal(18,6) DEFAULT NULL,
+  `CollectionCostPercentage` decimal(18,6) DEFAULT NULL,
+  `RegistrationCostPerNumber` decimal(18,6) DEFAULT NULL,
+  `EffectiveDate` datetime NOT NULL,
+  `EndDate` datetime DEFAULT NULL,
+  `Change` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `ProcessId` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `DialStringPrefix` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`TempRateTableDIDRateID`),
+  KEY `IX_tblTempRateTableDIDRateProcessID` (`ProcessId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `tblRateTableDIDRateChangeLog` (
+  `RateTableDIDRateChangeLogID` int(11) NOT NULL AUTO_INCREMENT,
+  `TempRateTableDIDRateID` int(11) NOT NULL DEFAULT '0',
+  `RateTableDIDRateID` int(11) DEFAULT NULL,
+  `RateTableId` int(11) DEFAULT NULL,
+  `TimezonesID` int(11) NOT NULL DEFAULT '1',
+  `OriginationRateID` int(11) DEFAULT NULL,
+  `OriginationCode` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `OriginationDescription` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `RateId` int(11) DEFAULT NULL,
+  `Code` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Description` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `OneOffCost` VARCHAR(255) DEFAULT NULL,
+  `MonthlyCost` VARCHAR(255) DEFAULT NULL,
+  `CostPerCall` VARCHAR(255) DEFAULT NULL,
+  `CostPerMinute` VARCHAR(255) DEFAULT NULL,
+  `SurchargePerCall` VARCHAR(255) DEFAULT NULL,
+  `SurchargePerMinute` VARCHAR(255) DEFAULT NULL,
+  `OutpaymentPerCall` VARCHAR(255) DEFAULT NULL,
+  `OutpaymentPerMinute` VARCHAR(255) DEFAULT NULL,
+  `Surcharges` VARCHAR(255) DEFAULT NULL,
+  `Chargeback` VARCHAR(255) DEFAULT NULL,
+  `CollectionCostAmount` VARCHAR(255) DEFAULT NULL,
+  `CollectionCostPercentage` VARCHAR(255) DEFAULT NULL,
+  `RegistrationCostPerNumber` VARCHAR(255) DEFAULT NULL,
+  `EffectiveDate` datetime DEFAULT NULL,
+  `EndDate` datetime DEFAULT NULL,
+  `Action` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `ProcessID` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `created_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`RateTableDIDRateChangeLogID`),
+  KEY `IX_tblRateTableDIDRateChangeLog_RateTableDIDRateID` (`RateTableDIDRateID`),
+  KEY `IX_tblRateTableDIDRateChangeLog_ProcessID` (`ProcessID`),
+  KEY `RateId` (`RateId`),
+  KEY `EffectiveDate` (`EffectiveDate`),
+  KEY `Code` (`Code`),
+  KEY `Action` (`Action`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 ALTER TABLE `tblTempRateTableRate`
 	CHANGE COLUMN `TimezonesID` `TimezonesID` INT(11) NOT NULL DEFAULT '1' AFTER `CodeDeckId`,
@@ -133,6 +203,11 @@ ALTER TABLE `tblRateTableRateChangeLog`
 INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1387, 'RateTables.ApprovalProcess', 1, 5);
 INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('RateTables.approve_rate_table_did_rate', 'RateTablesController.approve_rate_table_did_rate', 1, 'Sumera Khan', NULL, '2019-01-02 11:34:50.000', '2019-01-02 11:34:50.000', 1387);
 INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('RateTables.approve_rate_table_rate', 'RateTablesController.approve_rate_table_rate', 1, 'Sumera Khan', NULL, '2019-01-02 11:34:50.000', '2019-01-02 11:34:50.000', 1387);
+
+
+INSERT INTO `tblFileUploadTemplateType` (`FileUploadTemplateTypeID`, `TemplateType`, `Title`, `UploadDir`, `created_at`, `created_by`, `Status`) VALUES (13, 'RatetableDIDRate', 'Ratetable DID Rate', 'RATETABLE_UPLOAD', '2019-01-02 13:59:54', 'Vasim Seta', 1);
+INSERT INTO `tblJobType` (`JobTypeID`, `Code`, `Title`, `Description`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`) VALUES (34, 'DRTU', 'DID Rate Table Upload', NULL, '2019-01-04 14:29:35', 'RateManagementSystem', NULL, NULL);
+
 
 
 
@@ -3686,7 +3761,7 @@ ThisSP:BEGIN
 
 		INSERT INTO tmp_JobLog_ (Message)
 		SELECT DISTINCT
-			CONCAT(OriginationCode, '-', Code, ' DUPLICATE CODE')
+			CONCAT(IF(OriginationCode IS NOT NULL,CONCAT(OriginationCode,'-'),''), Code, ' DUPLICATE CODE')
 		FROM(
 			SELECT count(TempRateTableRateID) as c, OriginationCode, Code FROM tmp_TempRateTableRate_  GROUP BY OriginationCode,Code,EffectiveDate,DialStringPrefix,TimezonesID HAVING c>1) AS tbl;
 	END IF;
@@ -5289,5 +5364,1641 @@ ThisSP:BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_WSReviewRateTableDIDRateUpdate`;
+DELIMITER //
+CREATE PROCEDURE `prc_WSReviewRateTableDIDRateUpdate`(
+	IN `p_RateTableID` INT,
+	IN `p_TimezonesID` INT,
+	IN `p_RateIds` TEXT,
+	IN `p_ProcessID` VARCHAR(200),
+	IN `p_criteria` INT,
+	IN `p_Action` VARCHAR(20),
+	IN `p_EndDate` DATETIME,
+	IN `p_Code` VARCHAR(50),
+	IN `p_Description` VARCHAR(50),
+	IN `p_OriginationCode` VARCHAR(50),
+	IN `p_OriginationDescription` VARCHAR(50)
+)
+ThisSP:BEGIN
+
+	DECLARE newstringcode INT(11) DEFAULT 0;
+	DECLARE v_pointer_ INT;
+	DECLARE v_rowCount_ INT;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+    DROP TEMPORARY TABLE IF EXISTS tmp_JobLog_;
+    CREATE TEMPORARY TABLE tmp_JobLog_ (
+        Message longtext
+    );
+
+	SET @stm_and_code = '';
+	IF p_Code != ''
+	THEN
+		SET @stm_and_code = CONCAT(' AND ("',p_Code,'" IS NULL OR "',p_Code,'" = "" OR tvr.Code LIKE "',REPLACE(p_Code, "*", "%"),'")');
+	END IF;
+
+	SET @stm_and_desc = '';
+	IF p_Description != ''
+	THEN
+		SET @stm_and_desc = CONCAT(' AND ("',p_Description,'" IS NULL OR "',p_Description,'" = "" OR tvr.Description LIKE "',REPLACE(p_Description, "*", "%"),'")');
+	END IF;
+
+	SET @stm_and_origination_code = '';
+	IF p_OriginationCode != ''
+	THEN
+		SET @stm_and_origination_code = CONCAT(' AND ("',p_OriginationCode,'" IS NULL OR "',p_OriginationCode,'" = "" OR tvr.OriginationCode LIKE "',REPLACE(p_OriginationCode, "*", "%"),'")');
+	END IF;
+
+	SET @stm_and_origination_desc = '';
+	IF p_OriginationDescription != ''
+	THEN
+		SET @stm_and_origination_desc = CONCAT(' AND ("',p_OriginationDescription,'" IS NULL OR "',p_OriginationDescription,'" = "" OR tvr.OriginationDescription LIKE "',REPLACE(p_OriginationDescription, "*", "%"),'")');
+	END IF;
+
+    CASE p_Action
+		WHEN 'Deleted' THEN
+			IF p_criteria = 1
+			THEN
+				SET @stm1 = CONCAT('UPDATE tblRateTableDIDRateChangeLog tvr SET EndDate="',p_EndDate,'" WHERE tvr.TimezonesID=',p_TimezonesID,' AND ProcessID="',p_ProcessID,'" AND `Action`="',p_Action,'" ',@stm_and_code,' ',@stm_and_desc,' ',@stm_and_origination_code,' ',@stm_and_origination_desc,';');
+
+				PREPARE stmt1 FROM @stm1;
+				EXECUTE stmt1;
+				DEALLOCATE PREPARE stmt1;
+			ELSE
+				SET @stm1 = CONCAT('UPDATE tblRateTableDIDRateChangeLog tvr SET EndDate="',p_EndDate,'" WHERE tvr.TimezonesID=',p_TimezonesID,' AND RateTableDIDRateID IN (',p_RateIds,')AND Action = "',p_Action,'" AND ProcessID = "',p_ProcessID,'" ',@stm_and_code,' ',@stm_and_desc,' ',@stm_and_origination_code,' ',@stm_and_origination_desc,';');
+
+				PREPARE stmt1 FROM @stm1;
+				EXECUTE stmt1;
+				DEALLOCATE PREPARE stmt1;
+			END IF;
+	END CASE;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_RateTableDIDRateCheckDialstringAndDupliacteCode`;
+DELIMITER //
+CREATE PROCEDURE `prc_RateTableDIDRateCheckDialstringAndDupliacteCode`(
+	IN `p_companyId` INT,
+	IN `p_processId` VARCHAR(200) ,
+	IN `p_dialStringId` INT,
+	IN `p_effectiveImmediately` INT,
+	IN `p_dialcodeSeparator` VARCHAR(50),
+	IN `p_seperatecolumn` INT
+)
+ThisSP:BEGIN
+
+	DECLARE totaldialstringcode INT(11) DEFAULT 0;
+	DECLARE v_CodeDeckId_ INT ;
+	DECLARE totalduplicatecode INT(11);
+	DECLARE errormessage longtext;
+	DECLARE errorheader longtext;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableDIDRateDialString_ ;
+	CREATE TEMPORARY TABLE `tmp_RateTableDIDRateDialString_` (
+		`TempRateTableDIDRateID` int,
+		`CodeDeckId` int ,
+		`TimezonesID` INT,
+		`OriginationCode` varchar(50) NULL DEFAULT NULL,
+		`OriginationDescription` varchar(200) NULL DEFAULT NULL,
+		`Code` varchar(50) ,
+		`Description` varchar(200) ,
+		`OneOffCost` decimal(18,6) DEFAULT NULL,
+	  	`MonthlyCost` decimal(18,6) DEFAULT NULL,
+	  	`CostPerCall` decimal(18,6) DEFAULT NULL,
+	  	`CostPerMinute` decimal(18,6) DEFAULT NULL,
+	  	`SurchargePerCall` decimal(18,6) DEFAULT NULL,
+	  	`SurchargePerMinute` decimal(18,6) DEFAULT NULL,
+	  	`OutpaymentPerCall` decimal(18,6) DEFAULT NULL,
+	  	`OutpaymentPerMinute` decimal(18,6) DEFAULT NULL,
+	  	`Surcharges` decimal(18,6) DEFAULT NULL,
+	  	`Chargeback` decimal(18,6) DEFAULT NULL,
+	  	`CollectionCostAmount` decimal(18,6) DEFAULT NULL,
+	  	`CollectionCostPercentage` decimal(18,6) DEFAULT NULL,
+	  	`RegistrationCostPerNumber` decimal(18,6) DEFAULT NULL,
+		`EffectiveDate` Datetime ,
+		`EndDate` Datetime ,
+		`Change` varchar(100) ,
+		`ProcessId` varchar(200) ,
+		`DialStringPrefix` varchar(500),
+		INDEX IX_orogination_code (OriginationCode),
+		INDEX IX_origination_description (OriginationDescription),
+		INDEX IX_code (code),
+		INDEX IX_CodeDeckId (CodeDeckId),
+		INDEX IX_Description (Description),
+		INDEX IX_EffectiveDate (EffectiveDate),
+		INDEX IX_DialStringPrefix (DialStringPrefix)
+	);
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableDIDRateDialString_2 ;
+	CREATE TEMPORARY TABLE `tmp_RateTableDIDRateDialString_2` (
+		`TempRateTableDIDRateID` int,
+		`CodeDeckId` int ,
+		`TimezonesID` INT,
+		`OriginationCode` varchar(50) NULL DEFAULT NULL,
+		`OriginationDescription` varchar(200) NULL DEFAULT NULL,
+		`Code` varchar(50) ,
+		`Description` varchar(200) ,
+		`OneOffCost` decimal(18,6) DEFAULT NULL,
+	  	`MonthlyCost` decimal(18,6) DEFAULT NULL,
+	  	`CostPerCall` decimal(18,6) DEFAULT NULL,
+	  	`CostPerMinute` decimal(18,6) DEFAULT NULL,
+	  	`SurchargePerCall` decimal(18,6) DEFAULT NULL,
+	  	`SurchargePerMinute` decimal(18,6) DEFAULT NULL,
+	  	`OutpaymentPerCall` decimal(18,6) DEFAULT NULL,
+	  	`OutpaymentPerMinute` decimal(18,6) DEFAULT NULL,
+	  	`Surcharges` decimal(18,6) DEFAULT NULL,
+	  	`Chargeback` decimal(18,6) DEFAULT NULL,
+	  	`CollectionCostAmount` decimal(18,6) DEFAULT NULL,
+	  	`CollectionCostPercentage` decimal(18,6) DEFAULT NULL,
+	  	`RegistrationCostPerNumber` decimal(18,6) DEFAULT NULL,
+		`EffectiveDate` Datetime ,
+		`EndDate` Datetime ,
+		`Change` varchar(100) ,
+		`ProcessId` varchar(200) ,
+		`DialStringPrefix` varchar(500),
+		INDEX IX_orogination_code (OriginationCode),
+		INDEX IX_origination_description (OriginationDescription),
+		INDEX IX_code (code),
+		INDEX IX_CodeDeckId (CodeDeckId),
+		INDEX IX_Description (Description),
+		INDEX IX_EffectiveDate (EffectiveDate),
+		INDEX IX_DialStringPrefix (DialStringPrefix)
+	);
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableDIDRateDialString_3 ;
+	CREATE TEMPORARY TABLE `tmp_RateTableDIDRateDialString_3` (
+		`TempRateTableDIDRateID` int,
+		`CodeDeckId` int ,
+		`TimezonesID` INT,
+		`OriginationCode` varchar(50) NULL DEFAULT NULL,
+		`OriginationDescription` varchar(200) NULL DEFAULT NULL,
+		`Code` varchar(50) ,
+		`Description` varchar(200) ,
+		`OneOffCost` decimal(18,6) DEFAULT NULL,
+	  	`MonthlyCost` decimal(18,6) DEFAULT NULL,
+	  	`CostPerCall` decimal(18,6) DEFAULT NULL,
+	  	`CostPerMinute` decimal(18,6) DEFAULT NULL,
+	  	`SurchargePerCall` decimal(18,6) DEFAULT NULL,
+	  	`SurchargePerMinute` decimal(18,6) DEFAULT NULL,
+	  	`OutpaymentPerCall` decimal(18,6) DEFAULT NULL,
+	  	`OutpaymentPerMinute` decimal(18,6) DEFAULT NULL,
+	  	`Surcharges` decimal(18,6) DEFAULT NULL,
+	  	`Chargeback` decimal(18,6) DEFAULT NULL,
+	  	`CollectionCostAmount` decimal(18,6) DEFAULT NULL,
+	  	`CollectionCostPercentage` decimal(18,6) DEFAULT NULL,
+	  	`RegistrationCostPerNumber` decimal(18,6) DEFAULT NULL,
+		`EffectiveDate` Datetime ,
+		`EndDate` Datetime ,
+		`Change` varchar(100) ,
+		`ProcessId` varchar(200) ,
+		`DialStringPrefix` varchar(500),
+		INDEX IX_orogination_code (OriginationCode),
+		INDEX IX_origination_description (OriginationDescription),
+		INDEX IX_code (code),
+		INDEX IX_CodeDeckId (CodeDeckId),
+		INDEX IX_Description (Description),
+		INDEX IX_EffectiveDate (EffectiveDate),
+		INDEX IX_DialStringPrefix (DialStringPrefix)
+	);
+
+	CALL prc_SplitRateTableDIDRate(p_processId,p_dialcodeSeparator,p_seperatecolumn);
+
+	IF  p_effectiveImmediately = 1
+	THEN
+		UPDATE tmp_split_RateTableDIDRate_
+		SET EffectiveDate = DATE_FORMAT (NOW(), '%Y-%m-%d')
+		WHERE EffectiveDate < DATE_FORMAT (NOW(), '%Y-%m-%d');
+
+		UPDATE tmp_split_RateTableDIDRate_
+		SET EndDate = DATE_FORMAT (NOW(), '%Y-%m-%d')
+		WHERE EndDate < DATE_FORMAT (NOW(), '%Y-%m-%d');
+	END IF;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_split_RateTableDIDRate_2;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_split_RateTableDIDRate_2 as (SELECT * FROM tmp_split_RateTableDIDRate_);
+
+	-- delete duplicate records
+	DELETE n1 FROM tmp_split_RateTableDIDRate_ n1
+	INNER JOIN
+	(
+		SELECT MAX(TempRateTableDIDRateID) AS TempRateTableDIDRateID,EffectiveDate,OriginationCode,Code,DialStringPrefix,TimezonesID,
+			OneOffCost, MonthlyCost, CostPerCall, CostPerMinute, SurchargePerCall, SurchargePerMinute, OutpaymentPerCall,
+			OutpaymentPerMinute, Surcharges, Chargeback, CollectionCostAmount, CollectionCostPercentage, RegistrationCostPerNumber
+		FROM tmp_split_RateTableDIDRate_2 WHERE ProcessId = p_processId
+		GROUP BY
+			OriginationCode,Code,EffectiveDate,DialStringPrefix,TimezonesID,
+			OneOffCost, MonthlyCost, CostPerCall, CostPerMinute, SurchargePerCall, SurchargePerMinute, OutpaymentPerCall,
+			OutpaymentPerMinute, Surcharges, Chargeback, CollectionCostAmount, CollectionCostPercentage, RegistrationCostPerNumber
+		HAVING COUNT(*)>1
+	)n2
+	ON n1.Code = n2.Code
+		AND ((n1.OriginationCode IS NULL AND n2.OriginationCode IS NULL) OR (n1.OriginationCode = n2.OriginationCode))
+		AND n2.EffectiveDate = n1.EffectiveDate
+		AND ((n2.DialStringPrefix IS NULL AND n1.DialStringPrefix IS NULL) OR (n2.DialStringPrefix = n1.DialStringPrefix))
+		AND n2.TimezonesID = n1.TimezonesID
+		AND ((n2.OneOffCost IS NULL AND n1.OneOffCost IS NULL) OR n2.OneOffCost = n1.OneOffCost)
+		AND ((n2.MonthlyCost IS NULL AND n1.MonthlyCost IS NULL) OR n2.MonthlyCost = n1.MonthlyCost)
+		AND ((n2.CostPerCall IS NULL AND n1.CostPerCall IS NULL) OR n2.CostPerCall = n1.CostPerCall)
+		AND ((n2.CostPerMinute IS NULL AND n1.CostPerMinute IS NULL) OR n2.CostPerMinute = n1.CostPerMinute)
+		AND ((n2.SurchargePerCall IS NULL AND n1.SurchargePerCall IS NULL) OR n2.SurchargePerCall = n1.SurchargePerCall)
+		AND ((n2.SurchargePerMinute IS NULL AND n1.SurchargePerMinute IS NULL) OR n2.SurchargePerMinute = n1.SurchargePerMinute)
+		AND ((n2.OutpaymentPerCall IS NULL AND n1.OutpaymentPerCall IS NULL) OR n2.OutpaymentPerCall = n1.OutpaymentPerCall)
+		AND ((n2.OutpaymentPerMinute IS NULL AND n1.OutpaymentPerMinute IS NULL) OR n2.OutpaymentPerMinute = n1.OutpaymentPerMinute)
+		AND ((n2.Surcharges IS NULL AND n1.Surcharges IS NULL) OR n2.Surcharges = n1.Surcharges)
+		AND ((n2.Chargeback IS NULL AND n1.Chargeback IS NULL) OR n2.Chargeback = n1.Chargeback)
+		AND ((n2.CollectionCostAmount IS NULL AND n1.CollectionCostAmount IS NULL) OR n2.CollectionCostAmount = n1.CollectionCostAmount)
+		AND ((n2.CollectionCostPercentage IS NULL AND n1.CollectionCostPercentage IS NULL) OR n2.CollectionCostPercentage = n1.CollectionCostPercentage)
+		AND ((n2.RegistrationCostPerNumber IS NULL AND n1.RegistrationCostPerNumber IS NULL) OR n2.RegistrationCostPerNumber = n1.RegistrationCostPerNumber)
+		AND n1.TempRateTableDIDRateID < n2.TempRateTableDIDRateID
+	WHERE
+		n1.ProcessId = p_processId;
+
+	INSERT INTO tmp_TempRateTableDIDRate_
+	SELECT DISTINCT
+		`TempRateTableDIDRateID`,
+		`CodeDeckId`,
+		`TimezonesID`,
+		`OriginationCode`,
+		`OriginationDescription`,
+		`Code`,
+		`Description`,
+		`OneOffCost`,
+		`MonthlyCost`,
+		`CostPerCall`,
+		`CostPerMinute`,
+		`SurchargePerCall`,
+		`SurchargePerMinute`,
+		`OutpaymentPerCall`,
+		`OutpaymentPerMinute`,
+		`Surcharges`,
+		`Chargeback`,
+		`CollectionCostAmount`,
+		`CollectionCostPercentage`,
+		`RegistrationCostPerNumber`,
+		`EffectiveDate`,
+		`EndDate`,
+		`Change`,
+		`ProcessId`,
+		`DialStringPrefix`
+	FROM tmp_split_RateTableDIDRate_
+	WHERE tmp_split_RateTableDIDRate_.ProcessId = p_processId;
+
+	IF  p_effectiveImmediately = 1
+	THEN
+		UPDATE tmp_TempRateTableDIDRate_
+		SET EffectiveDate = DATE_FORMAT (NOW(), '%Y-%m-%d')
+		WHERE EffectiveDate < DATE_FORMAT (NOW(), '%Y-%m-%d');
+
+		UPDATE tmp_TempRateTableDIDRate_
+		SET EndDate = DATE_FORMAT (NOW(), '%Y-%m-%d')
+		WHERE EndDate < DATE_FORMAT (NOW(), '%Y-%m-%d');
+	END IF;
+
+	SELECT COUNT(*) INTO totalduplicatecode FROM(
+	SELECT COUNT(code) as c,code FROM tmp_TempRateTableDIDRate_  GROUP BY OriginationCode,Code,EffectiveDate,DialStringPrefix,TimezonesID HAVING c>1) AS tbl;
+
+	IF  totalduplicatecode > 0
+	THEN
+
+		SELECT GROUP_CONCAT(code) into errormessage FROM(
+		SELECT DISTINCT OriginationCode,Code, 1 as a FROM(
+		SELECT COUNT(TempRateTableDIDRateID) as c, OriginationCode, Code FROM tmp_TempRateTableDIDRate_  GROUP BY OriginationCode,Code,EffectiveDate,DialStringPrefix,TimezonesID HAVING c>1) AS tbl) as tbl2 GROUP by a;
+
+		INSERT INTO tmp_JobLog_ (Message)
+		SELECT DISTINCT
+			CONCAT(IF(OriginationCode IS NOT NULL,CONCAT(OriginationCode,'-'),''), Code, ' DUPLICATE CODE')
+		FROM(
+			SELECT COUNT(TempRateTableDIDRateID) as c, OriginationCode, Code FROM tmp_TempRateTableDIDRate_  GROUP BY OriginationCode,Code,EffectiveDate,DialStringPrefix,TimezonesID HAVING c>1) AS tbl;
+	END IF;
+
+	IF	totalduplicatecode = 0
+	THEN
+
+		IF p_dialstringid >0
+		THEN
+
+			DROP TEMPORARY TABLE IF EXISTS tmp_DialString_;
+			CREATE TEMPORARY TABLE tmp_DialString_ (
+				`DialStringID` INT,
+				`DialString` VARCHAR(250),
+				`ChargeCode` VARCHAR(250),
+				`Description` VARCHAR(250),
+				`Forbidden` VARCHAR(50),
+				INDEX tmp_DialStringID (`DialStringID`),
+				INDEX tmp_DialStringID_ChargeCode (`DialStringID`,`ChargeCode`)
+			);
+
+			INSERT INTO tmp_DialString_
+			SELECT DISTINCT
+				`DialStringID`,
+				`DialString`,
+				`ChargeCode`,
+				`Description`,
+				`Forbidden`
+			FROM tblDialStringCode
+			WHERE DialStringID = p_dialstringid;
+
+			SELECT  COUNT(*) as COUNT INTO totaldialstringcode
+			FROM tmp_TempRateTableDIDRate_ vr
+			LEFT JOIN tmp_DialString_ ds
+				ON ((vr.Code = ds.ChargeCode and vr.DialStringPrefix = '') OR (vr.DialStringPrefix != '' and vr.DialStringPrefix =  ds.DialString and vr.Code = ds.ChargeCode  ))
+			WHERE vr.ProcessId = p_processId
+				AND ds.DialStringID IS NULL
+				AND vr.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
+
+			IF totaldialstringcode > 0
+			THEN
+
+				INSERT INTO tblDialStringCode (DialStringID,DialString,ChargeCode,created_by)
+				  SELECT DISTINCT p_dialStringId,vr.DialStringPrefix, Code, 'RMService'
+					FROM tmp_TempRateTableDIDRate_ vr
+						LEFT JOIN tmp_DialString_ ds
+
+							ON vr.DialStringPrefix = ds.DialString AND ds.DialStringID = p_dialStringId
+						WHERE vr.ProcessId = p_processId
+							AND ds.DialStringID IS NULL
+							AND vr.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
+
+				TRUNCATE tmp_DialString_;
+				INSERT INTO tmp_DialString_
+					SELECT DISTINCT
+						`DialStringID`,
+						`DialString`,
+						`ChargeCode`,
+						`Description`,
+						`Forbidden`
+					FROM tblDialStringCode
+						WHERE DialStringID = p_dialstringid;
+
+				SELECT  COUNT(*) as COUNT INTO totaldialstringcode
+				FROM tmp_TempRateTableDIDRate_ vr
+					LEFT JOIN tmp_DialString_ ds
+						ON ((vr.Code = ds.ChargeCode and vr.DialStringPrefix = '') OR (vr.DialStringPrefix != '' and vr.DialStringPrefix =  ds.DialString and vr.Code = ds.ChargeCode  ))
+					WHERE vr.ProcessId = p_processId
+						AND ds.DialStringID IS NULL
+						AND vr.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
+
+				INSERT INTO tmp_JobLog_ (Message)
+					  SELECT DISTINCT CONCAT(Code ,' ', vr.DialStringPrefix , ' No PREFIX FOUND')
+					  	FROM tmp_TempRateTableDIDRate_ vr
+							LEFT JOIN tmp_DialString_ ds
+								ON ((vr.Code = ds.ChargeCode and vr.DialStringPrefix = '') OR (vr.DialStringPrefix != '' and vr.DialStringPrefix =  ds.DialString and vr.Code = ds.ChargeCode  ))
+							WHERE vr.ProcessId = p_processId
+								AND ds.DialStringID IS NULL
+								AND vr.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
+			END IF;
+
+			IF totaldialstringcode = 0
+			THEN
+
+				INSERT INTO tmp_RateTableDIDRateDialString_
+				SELECT DISTINCT
+					`TempRateTableDIDRateID`,
+					`CodeDeckId`,
+					`TimezonesID`,
+					`DialString`,
+					CASE WHEN ds.Description IS NULL OR ds.Description = ''
+					THEN
+						tblTempRateTableDIDRate.Description
+					ELSE
+						ds.Description
+					END
+					AS Description,
+					`OneOffCost`,
+					`MonthlyCost`,
+					`CostPerCall`,
+					`CostPerMinute`,
+					`SurchargePerCall`,
+					`SurchargePerMinute`,
+					`OutpaymentPerCall`,
+					`OutpaymentPerMinute`,
+					`Surcharges`,
+					`Chargeback`,
+					`CollectionCostAmount`,
+					`CollectionCostPercentage`,
+					`RegistrationCostPerNumber`,
+					`EffectiveDate`,
+					`EndDate`,
+					`Change`,
+					`ProcessId`,
+					tblTempRateTableDIDRate.DialStringPrefix as DialStringPrefix
+				FROM tmp_TempRateTableDIDRate_ as tblTempRateTableDIDRate
+				INNER JOIN tmp_DialString_ ds
+					ON ( (tblTempRateTableDIDRate.Code = ds.ChargeCode AND tblTempRateTableDIDRate.DialStringPrefix = '') OR (tblTempRateTableDIDRate.DialStringPrefix != '' AND tblTempRateTableDIDRate.DialStringPrefix =  ds.DialString AND tblTempRateTableDIDRate.Code = ds.ChargeCode  ))
+				WHERE tblTempRateTableDIDRate.ProcessId = p_processId
+					AND tblTempRateTableDIDRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
+
+
+
+				INSERT INTO tmp_RateTableDIDRateDialString_2
+				SELECT *  FROM tmp_RateTableDIDRateDialString_ where DialStringPrefix!='';
+
+				Delete From tmp_RateTableDIDRateDialString_
+				Where DialStringPrefix = ''
+				And Code IN (Select DialStringPrefix From tmp_RateTableDIDRateDialString_2);
+
+				INSERT INTO tmp_RateTableDIDRateDialString_3
+				SELECT * FROM tmp_RateTableDIDRateDialString_;
+
+
+
+				DELETE  FROM tmp_TempRateTableDIDRate_ WHERE  ProcessId = p_processId;
+
+				INSERT INTO tmp_TempRateTableDIDRate_(
+					`TempRateTableDIDRateID`,
+					CodeDeckId,
+					TimezonesID,
+					Code,
+					Description,
+					OneOffCost,
+					MonthlyCost,
+					CostPerCall,
+					CostPerMinute,
+					SurchargePerCall,
+					SurchargePerMinute,
+					OutpaymentPerCall,
+					OutpaymentPerMinute,
+					Surcharges,
+					Chargeback,
+					CollectionCostAmount,
+					CollectionCostPercentage,
+					RegistrationCostPerNumber,
+					EffectiveDate,
+					EndDate,
+					`Change`,
+					ProcessId,
+					DialStringPrefix
+				)
+				SELECT DISTINCT
+					`TempRateTableDIDRateID`,
+					`CodeDeckId`,
+					`TimezonesID`,
+					`Code`,
+					`Description`,
+					`OneOffCost`,
+					`MonthlyCost`,
+					`CostPerCall`,
+					`CostPerMinute`,
+					`SurchargePerCall`,
+					`SurchargePerMinute`,
+					`OutpaymentPerCall`,
+					`OutpaymentPerMinute`,
+					`Surcharges`,
+					`Chargeback`,
+					`CollectionCostAmount`,
+					`CollectionCostPercentage`,
+					`RegistrationCostPerNumber`,
+					`EffectiveDate`,
+					`EndDate`,
+					`Change`,
+					`ProcessId`,
+					DialStringPrefix
+				FROM tmp_RateTableDIDRateDialString_3;
+
+			END IF;
+
+		END IF;
+
+	END IF;
+
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_SplitRateTableDIDRate`;
+DELIMITER //
+CREATE PROCEDURE `prc_SplitRateTableDIDRate`(
+	IN `p_processId` VARCHAR(200),
+	IN `p_dialcodeSeparator` VARCHAR(50),
+	IN `p_seperatecolumn` INT
+)
+ThisSP:BEGIN
+
+	DECLARE i INTEGER;
+	DECLARE v_rowCount_ INT;
+	DECLARE v_pointer_ INT;
+	DECLARE v_TempRateTableDIDRateID_ INT;
+	DECLARE v_OriginationCode_ TEXT;
+	DECLARE v_OriginationCountryCode_ VARCHAR(500);
+	DECLARE v_Code_ TEXT;
+	DECLARE v_CountryCode_ VARCHAR(500);
+	DECLARE newcodecount INT(11) DEFAULT 0;
+
+	IF p_dialcodeSeparator !='null'
+	THEN
+
+		DROP TEMPORARY TABLE IF EXISTS `my_splits`;
+		CREATE TEMPORARY TABLE `my_splits` (
+			`TempRateTableDIDRateID` INT(11) NULL DEFAULT NULL,
+			`OriginationCode` Text NULL DEFAULT NULL,
+			`OriginationCountryCode` Text NULL DEFAULT NULL,
+			`Code` Text NULL DEFAULT NULL,
+			`CountryCode` Text NULL DEFAULT NULL
+		);
+
+		SET i = 1;
+		REPEAT
+			/*
+				p_seperatecolumn = 1 = Origination Code
+				p_seperatecolumn = 2 = Destination Code
+			*/
+			IF(p_seperatecolumn = 1)
+			THEN
+				INSERT INTO my_splits (TempRateTableDIDRateID, OriginationCode, OriginationCountryCode, Code, CountryCode)
+				SELECT TempRateTableDIDRateID , FnStringSplit(OriginationCode, p_dialcodeSeparator, i), OriginationCountryCode, Code, CountryCode  FROM tblTempRateTableDIDRate
+				WHERE FnStringSplit(OriginationCode, p_dialcodeSeparator , i) IS NOT NULL
+					AND ProcessId = p_processId;
+			ELSE
+				INSERT INTO my_splits (TempRateTableDIDRateID, OriginationCode, OriginationCountryCode, Code, CountryCode)
+				SELECT TempRateTableDIDRateID , OriginationCode, OriginationCountryCode, FnStringSplit(Code, p_dialcodeSeparator, i), CountryCode  FROM tblTempRateTableDIDRate
+				WHERE FnStringSplit(Code, p_dialcodeSeparator , i) IS NOT NULL
+					AND ProcessId = p_processId;
+			END IF;
+
+			SET i = i + 1;
+			UNTIL ROW_COUNT() = 0
+		END REPEAT;
+
+		UPDATE my_splits SET OriginationCode = trim(OriginationCode), Code = trim(Code);
+
+
+
+		INSERT INTO my_splits (TempRateTableDIDRateID, OriginationCode, OriginationCountryCode, Code, CountryCode)
+		SELECT TempRateTableDIDRateID, OriginationCode, OriginationCountryCode, Code, CountryCode  FROM tblTempRateTableDIDRate
+		WHERE
+			(
+				(p_seperatecolumn = 1 AND (OriginationCountryCode IS NOT NULL AND OriginationCountryCode <> '') AND (OriginationCode IS NULL OR OriginationCode = '')) OR
+				(p_seperatecolumn = 2 AND (CountryCode IS NOT NULL AND CountryCode <> '') AND (Code IS NULL OR Code = ''))
+			)
+		AND ProcessId = p_processId;
+
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_newratetable_splite_;
+		CREATE TEMPORARY TABLE tmp_newratetable_splite_  (
+			RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			TempRateTableDIDRateID INT(11) NULL DEFAULT NULL,
+			OriginationCode VARCHAR(500) NULL DEFAULT NULL,
+			OriginationCountryCode VARCHAR(500) NULL DEFAULT NULL,
+			Code VARCHAR(500) NULL DEFAULT NULL,
+			CountryCode VARCHAR(500) NULL DEFAULT NULL
+		);
+
+		INSERT INTO tmp_newratetable_splite_(TempRateTableDIDRateID,OriginationCode,OriginationCountryCode,Code,CountryCode)
+		SELECT
+			TempRateTableDIDRateID,
+			OriginationCode,
+			OriginationCountryCode,
+			Code,
+			CountryCode
+		FROM my_splits
+		WHERE
+			((p_seperatecolumn = 1 AND OriginationCode like '%-%') OR (p_seperatecolumn = 2 AND Code like '%-%'))
+			AND TempRateTableDIDRateID IS NOT NULL;
+
+		SET v_pointer_ = 1;
+		SET v_rowCount_ = (SELECT COUNT(*)FROM tmp_newratetable_splite_);
+
+		WHILE v_pointer_ <= v_rowCount_
+		DO
+			SET v_TempRateTableDIDRateID_ = (SELECT TempRateTableDIDRateID FROM tmp_newratetable_splite_ t WHERE t.RowID = v_pointer_);
+			SET v_OriginationCode_ = (SELECT OriginationCode FROM tmp_newratetable_splite_ t WHERE t.RowID = v_pointer_);
+			SET v_OriginationCountryCode_ = (SELECT OriginationCountryCode FROM tmp_newratetable_splite_ t WHERE t.RowID = v_pointer_);
+			SET v_Code_ = (SELECT Code FROM tmp_newratetable_splite_ t WHERE t.RowID = v_pointer_);
+			SET v_CountryCode_ = (SELECT CountryCode FROM tmp_newratetable_splite_ t WHERE t.RowID = v_pointer_);
+
+			Call prc_SplitAndInsertRateTableDIDRate(v_TempRateTableDIDRateID_,p_seperatecolumn,v_OriginationCode_,v_OriginationCountryCode_,v_Code_,v_CountryCode_);
+
+			SET v_pointer_ = v_pointer_ + 1;
+		END WHILE;
+
+		DELETE FROM my_splits
+		WHERE
+			((p_seperatecolumn = 1 AND OriginationCode like '%-%') OR (p_seperatecolumn = 2 AND Code like '%-%'))
+			AND TempRateTableDIDRateID IS NOT NULL;
+
+		DELETE FROM my_splits
+		WHERE (Code = '' OR Code IS NULL) AND (CountryCode = '' OR CountryCode IS NULL);
+
+		INSERT INTO tmp_split_RateTableDIDRate_
+		SELECT DISTINCT
+			my_splits.TempRateTableDIDRateID as `TempRateTableDIDRateID`,
+			`CodeDeckId`,
+			`TimezonesID`,
+			CONCAT(IFNULL(my_splits.OriginationCountryCode,''),my_splits.OriginationCode) as OriginationCode,
+			`OriginationDescription`,
+			CONCAT(IFNULL(my_splits.CountryCode,''),my_splits.Code) as Code,
+			`Description`,
+			`OneOffCost`,
+			`MonthlyCost`,
+			`CostPerCall`,
+			`CostPerMinute`,
+			`SurchargePerCall`,
+			`SurchargePerMinute`,
+			`OutpaymentPerCall`,
+			`OutpaymentPerMinute`,
+			`Surcharges`,
+			`Chargeback`,
+			`CollectionCostAmount`,
+			`CollectionCostPercentage`,
+			`RegistrationCostPerNumber`,
+			`EffectiveDate`,
+			`EndDate`,
+			`Change`,
+			`ProcessId`,
+			`DialStringPrefix`
+		FROM my_splits
+		INNER JOIN tblTempRateTableDIDRate
+			ON my_splits.TempRateTableDIDRateID = tblTempRateTableDIDRate.TempRateTableDIDRateID
+		WHERE	tblTempRateTableDIDRate.ProcessId = p_processId;
+
+	END IF;
+
+	IF p_dialcodeSeparator = 'null'
+	THEN
+
+		INSERT INTO tmp_split_RateTableDIDRate_
+		SELECT DISTINCT
+			`TempRateTableDIDRateID`,
+			`CodeDeckId`,
+			`TimezonesID`,
+			CONCAT(IFNULL(tblTempRateTableDIDRate.OriginationCountryCode,''),tblTempRateTableDIDRate.OriginationCode) as OriginationCode,
+			`OriginationDescription`,
+			CONCAT(IFNULL(tblTempRateTableDIDRate.CountryCode,''),tblTempRateTableDIDRate.Code) as Code,
+			`Description`,
+			`OneOffCost`,
+			`MonthlyCost`,
+			`CostPerCall`,
+			`CostPerMinute`,
+			`SurchargePerCall`,
+			`SurchargePerMinute`,
+			`OutpaymentPerCall`,
+			`OutpaymentPerMinute`,
+			`Surcharges`,
+			`Chargeback`,
+			`CollectionCostAmount`,
+			`CollectionCostPercentage`,
+			`RegistrationCostPerNumber`,
+			`EffectiveDate`,
+			`EndDate`,
+			`Change`,
+			`ProcessId`,
+			`DialStringPrefix`
+		FROM tblTempRateTableDIDRate
+		WHERE ProcessId = p_processId;
+
+	END IF;
+
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_SplitAndInsertRateTableDIDRate`;
+DELIMITER //
+CREATE PROCEDURE `prc_SplitAndInsertRateTableDIDRate`(
+	IN `TempRateTableDIDRateID` INT,
+	IN `p_seperatecolumn` INT,
+	IN `p_OriginationCode` VARCHAR(500),
+	IN `p_OriginationCountryCode` VARCHAR(50),
+	IN `p_Code` VARCHAR(500),
+	IN `p_CountryCode` VARCHAR(50)
+)
+BEGIN
+
+	DECLARE v_First_ VARCHAR(255);
+	DECLARE v_Last_ VARCHAR(255);
+
+	SELECT  REPLACE(SUBSTRING(SUBSTRING_INDEX(IF(p_seperatecolumn=1,p_OriginationCode,p_Code), '-', 1)
+					, LENGTH(SUBSTRING_INDEX(IF(p_seperatecolumn=1,p_OriginationCode,p_Code), '-', 0)) + 1)
+					, '-'
+					, '') INTO v_First_;
+
+	SELECT REPLACE(SUBSTRING(SUBSTRING_INDEX(IF(p_seperatecolumn=1,p_OriginationCode,p_Code), '-', 2)
+					, LENGTH(SUBSTRING_INDEX(IF(p_seperatecolumn=1,p_OriginationCode,p_Code), '-', 1)) + 1)
+					, '-'
+					, '') INTO v_Last_;
+
+	SET v_First_ = CONCAT(IF(p_seperatecolumn=1,p_OriginationCountryCode,p_CountryCode),v_First_);
+	SET v_Last_ = CONCAT(IF(p_seperatecolumn=1,p_OriginationCountryCode,p_CountryCode),v_Last_);
+
+	WHILE v_Last_ >= v_First_
+	DO
+		/*
+			p_seperatecolumn = 1 = Origination Code
+			p_seperatecolumn = 2 = Destination Code
+		*/
+		IF(p_seperatecolumn = 1)
+		THEN
+			INSERT my_splits (TempRateTableDIDRateID,OriginationCode,OriginationCountryCode,Code,CountryCode) VALUES (TempRateTableDIDRateID,v_Last_,'',p_Code,p_CountryCode);
+		ELSE
+			INSERT my_splits (TempRateTableDIDRateID,OriginationCode,OriginationCountryCode,Code,CountryCode) VALUES (TempRateTableDIDRateID,p_OriginationCode,p_OriginationCountryCode,v_Last_,'');
+		END IF;
+		SET v_Last_ = v_Last_ - 1;
+	END WHILE;
+
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_getReviewRateTableDIDRates`;
+DELIMITER //
+CREATE PROCEDURE `prc_getReviewRateTableDIDRates`(
+	IN `p_ProcessID` VARCHAR(50),
+	IN `p_Action` VARCHAR(50),
+	IN `p_Origination_Code` VARCHAR(50),
+	IN `p_Origination_Description` VARCHAR(200),
+	IN `p_Code` VARCHAR(50),
+	IN `p_Description` VARCHAR(200),
+	IN `p_Timezone` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
+BEGIN
+	DECLARE v_OffSet_ int;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	IF p_isExport = 0
+	THEN
+		SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+
+		SELECT
+			distinct
+			IF(p_Action='Deleted',RateTableDIDRateID,TempRateTableDIDRateID) AS RateTableDIDRateID,
+			`OriginationCode`,`OriginationDescription`,`Code`,RTCL.`Description`,tz.Title,`OneOffCost`,`MonthlyCost`,`CostPerCall`,`CostPerMinute`,`SurchargePerCall`,`SurchargePerMinute`,`OutpaymentPerCall`,`OutpaymentPerMinute`,`Surcharges`,`Chargeback`,`CollectionCostAmount`,`CollectionCostPercentage`,`RegistrationCostPerNumber`,`EffectiveDate`,`EndDate`
+		FROM
+			tblRateTableDIDRateChangeLog AS RTCL
+		JOIN
+			tblTimezones tz ON RTCL.TimezonesID = tz.TimezonesID
+		WHERE
+			ProcessID = p_ProcessID AND Action = p_Action AND
+			RTCL.TimezonesID = p_Timezone AND
+			(p_Origination_Code IS NULL OR OriginationCode LIKE REPLACE(p_Origination_Code, '*', '%')) AND
+			(p_Origination_Description IS NULL OR OriginationDescription LIKE REPLACE(p_Origination_Description, '*', '%')) AND
+			(p_Code IS NULL OR p_Code = '' OR Code LIKE REPLACE(p_Code, '*', '%')) AND
+			(p_Description IS NULL OR p_Description = '' OR RTCL.Description LIKE REPLACE(p_Description, '*', '%'))
+		ORDER BY
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeASC') THEN OriginationCode
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeDESC') THEN OriginationCode
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationDescriptionDESC') THEN OriginationDescription
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationDescriptionASC') THEN OriginationDescription
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeASC') THEN Code
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CodeDESC') THEN Code
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionDESC') THEN RTCL.Description
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionASC') THEN RTCL.Description
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OneOffCostDESC') THEN OneOffCost
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OneOffCostASC') THEN OneOffCost
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MonthlyCostDESC') THEN MonthlyCost
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MonthlyCostASC') THEN MonthlyCost
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CostPerCallDESC') THEN CostPerCall
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CostPerCallASC') THEN CostPerCall
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CostPerMinuteDESC') THEN CostPerMinute
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CostPerMinuteASC') THEN CostPerMinute
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SurchargePerCallDESC') THEN SurchargePerCall
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SurchargePerCallASC') THEN SurchargePerCall
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SurchargePerMinuteDESC') THEN SurchargePerMinute
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SurchargePerMinuteASC') THEN SurchargePerMinute
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OutpaymentPerCallDESC') THEN OutpaymentPerCall
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OutpaymentPerCallASC') THEN OutpaymentPerCall
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OutpaymentPerMinuteDESC') THEN OutpaymentPerMinute
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OutpaymentPerMinuteASC') THEN OutpaymentPerMinute
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SurchargesDESC') THEN Surcharges
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'SurchargesASC') THEN Surcharges
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ChargebackDESC') THEN Chargeback
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ChargebackASC') THEN Chargeback
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CollectionCostAmountDESC') THEN CollectionCostAmount
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CollectionCostAmountASC') THEN CollectionCostAmount
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CollectionCostPercentageDESC') THEN CollectionCostPercentage
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CollectionCostPercentageASC') THEN CollectionCostPercentage
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RegistrationCostPerNumberDESC') THEN RegistrationCostPerNumber
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'RegistrationCostPerNumberASC') THEN RegistrationCostPerNumber
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateDESC') THEN EffectiveDate
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateASC') THEN EffectiveDate
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateDESC') THEN EndDate
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateASC') THEN EndDate
+			END ASC
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+
+		SELECT
+			COUNT(*) AS totalcount
+		FROM
+			tblRateTableDIDRateChangeLog AS RTCL
+		JOIN
+			tblTimezones tz ON RTCL.TimezonesID = tz.TimezonesID
+		WHERE
+			ProcessID = p_ProcessID AND Action = p_Action AND
+			RTCL.TimezonesID = p_Timezone AND
+			(p_Origination_Code IS NULL OR OriginationCode LIKE REPLACE(p_Origination_Code, '*', '%')) AND
+			(p_Origination_Description IS NULL OR OriginationDescription LIKE REPLACE(p_Origination_Description, '*', '%')) AND
+			(p_Code IS NULL OR p_Code = '' OR Code LIKE REPLACE(p_Code, '*', '%')) AND
+			(p_Description IS NULL OR p_Description = '' OR RTCL.Description LIKE REPLACE(p_Description, '*', '%'));
+	END IF;
+
+	IF p_isExport = 1
+	THEN
+		SELECT
+			distinct
+			`OriginationCode`,`OriginationDescription`,`Code`,RTCL.`Description`,tz.Title,`OneOffCost`,`MonthlyCost`,`CostPerCall`,`CostPerMinute`,`SurchargePerCall`,`SurchargePerMinute`,`OutpaymentPerCall`,`OutpaymentPerMinute`,`Surcharges`,`Chargeback`,`CollectionCostAmount`,`CollectionCostPercentage`,`RegistrationCostPerNumber`,`EffectiveDate`,`EndDate`
+		FROM
+			tblRateTableDIDRateChangeLog AS RTCL
+		JOIN
+			tblTimezones tz ON RTCL.TimezonesID = tz.TimezonesID
+		WHERE
+			ProcessID = p_ProcessID AND Action = p_Action AND
+			RTCL.TimezonesID = p_Timezone AND
+			(p_Origination_Code IS NULL OR OriginationCode LIKE REPLACE(p_Origination_Code, '*', '%')) AND
+			(p_Origination_Description IS NULL OR OriginationDescription LIKE REPLACE(p_Origination_Description, '*', '%')) AND
+			(p_Code IS NULL OR p_Code = '' OR Code LIKE REPLACE(p_Code, '*', '%')) AND
+			(p_Description IS NULL OR p_Description = '' OR RTCL.Description LIKE REPLACE(p_Description, '*', '%'));
+	END IF;
+
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_WSReviewRateTableDIDRate`;
+DELIMITER //
+CREATE PROCEDURE `prc_WSReviewRateTableDIDRate`(
+	IN `p_RateTableId` INT,
+	IN `p_replaceAllRates` INT,
+	IN `p_effectiveImmediately` INT,
+	IN `p_processId` VARCHAR(200),
+	IN `p_addNewCodesToCodeDeck` INT,
+	IN `p_companyId` INT,
+	IN `p_forbidden` INT,
+	IN `p_preference` INT,
+	IN `p_dialstringid` INT,
+	IN `p_dialcodeSeparator` VARCHAR(50),
+	IN `p_seperatecolumn` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_list_option` INT
+)
+ThisSP:BEGIN
+
+
+	DECLARE newstringcode INT(11) DEFAULT 0;
+	DECLARE v_pointer_ INT;
+	DECLARE v_rowCount_ INT;
+	DECLARE v_RateTableCurrencyID_ INT;
+	DECLARE v_CompanyCurrencyID_ INT;
+
+    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+    DROP TEMPORARY TABLE IF EXISTS tmp_JobLog_;
+    CREATE TEMPORARY TABLE tmp_JobLog_ (
+        Message longtext
+    );
+
+    DROP TEMPORARY TABLE IF EXISTS tmp_split_RateTableDIDRate_;
+    CREATE TEMPORARY TABLE tmp_split_RateTableDIDRate_ (
+		`TempRateTableDIDRateID` int,
+		`CodeDeckId` int ,
+		`TimezonesID` INT,
+		`OriginationCode` varchar(50) NULL DEFAULT NULL,
+		`OriginationDescription` varchar(200) NULL DEFAULT NULL,
+		`Code` varchar(50) ,
+		`Description` varchar(200) ,
+		`OneOffCost` decimal(18,6) DEFAULT NULL,
+	  	`MonthlyCost` decimal(18,6) DEFAULT NULL,
+	  	`CostPerCall` decimal(18,6) DEFAULT NULL,
+	  	`CostPerMinute` decimal(18,6) DEFAULT NULL,
+	  	`SurchargePerCall` decimal(18,6) DEFAULT NULL,
+	  	`SurchargePerMinute` decimal(18,6) DEFAULT NULL,
+	  	`OutpaymentPerCall` decimal(18,6) DEFAULT NULL,
+	  	`OutpaymentPerMinute` decimal(18,6) DEFAULT NULL,
+	  	`Surcharges` decimal(18,6) DEFAULT NULL,
+	  	`Chargeback` decimal(18,6) DEFAULT NULL,
+	  	`CollectionCostAmount` decimal(18,6) DEFAULT NULL,
+	  	`CollectionCostPercentage` decimal(18,6) DEFAULT NULL,
+	  	`RegistrationCostPerNumber` decimal(18,6) DEFAULT NULL,
+		`EffectiveDate` Datetime ,
+		`EndDate` Datetime ,
+		`Change` varchar(100) ,
+		`ProcessId` varchar(200) ,
+		`DialStringPrefix` varchar(500) ,
+		INDEX tmp_EffectiveDate (`EffectiveDate`),
+		INDEX tmp_OriginationCode (`OriginationCode`),
+		INDEX tmp_Code (`Code`),
+		INDEX tmp_CC (`Code`,`Change`),
+		INDEX tmp_Change (`Change`)
+    );
+
+    DROP TEMPORARY TABLE IF EXISTS tmp_TempRateTableDIDRate_;
+    CREATE TEMPORARY TABLE tmp_TempRateTableDIDRate_ (
+		`TempRateTableDIDRateID` int,
+		`CodeDeckId` int ,
+		`TimezonesID` INT,
+		`OriginationCode` varchar(50) NULL DEFAULT NULL,
+		`OriginationDescription` varchar(200) NULL DEFAULT NULL,
+		`Code` varchar(50) ,
+		`Description` varchar(200) ,
+		`OneOffCost` decimal(18,6) DEFAULT NULL,
+	  	`MonthlyCost` decimal(18,6) DEFAULT NULL,
+	  	`CostPerCall` decimal(18,6) DEFAULT NULL,
+	  	`CostPerMinute` decimal(18,6) DEFAULT NULL,
+	  	`SurchargePerCall` decimal(18,6) DEFAULT NULL,
+	  	`SurchargePerMinute` decimal(18,6) DEFAULT NULL,
+	  	`OutpaymentPerCall` decimal(18,6) DEFAULT NULL,
+	  	`OutpaymentPerMinute` decimal(18,6) DEFAULT NULL,
+	  	`Surcharges` decimal(18,6) DEFAULT NULL,
+	  	`Chargeback` decimal(18,6) DEFAULT NULL,
+	  	`CollectionCostAmount` decimal(18,6) DEFAULT NULL,
+	  	`CollectionCostPercentage` decimal(18,6) DEFAULT NULL,
+	  	`RegistrationCostPerNumber` decimal(18,6) DEFAULT NULL,
+		`EffectiveDate` Datetime ,
+		`EndDate` Datetime ,
+		`Change` varchar(100) ,
+		`ProcessId` varchar(200) ,
+		`DialStringPrefix` varchar(500) ,
+		INDEX tmp_EffectiveDate (`EffectiveDate`),
+		INDEX tmp_OriginationCode (`OriginationCode`),
+		INDEX tmp_Code (`Code`),
+		INDEX tmp_CC (`Code`,`Change`),
+		INDEX tmp_Change (`Change`)
+    );
+
+    CALL  prc_RateTableDIDRateCheckDialstringAndDupliacteCode(p_companyId,p_processId,p_dialstringid,p_effectiveImmediately,p_dialcodeSeparator,p_seperatecolumn);
+
+	ALTER TABLE
+		`tmp_TempRateTableDIDRate_`
+	ADD Column `NewOneOffCost` decimal(18, 6),
+	ADD Column `NewMonthlyCost` decimal(18, 6),
+	ADD Column `NewCostPerCall` decimal(18, 6),
+	ADD Column `NewCostPerMinute` decimal(18, 6),
+	ADD Column `NewSurchargePerCall` decimal(18, 6),
+	ADD Column `NewSurchargePerMinute` decimal(18, 6),
+	ADD Column `NewOutpaymentPerCall` decimal(18, 6),
+	ADD Column `NewOutpaymentPerMinute` decimal(18, 6),
+	ADD Column `NewSurcharges` decimal(18, 6),
+	ADD Column `NewChargeback` decimal(18, 6),
+	ADD Column `NewCollectionCostAmount` decimal(18, 6),
+	ADD Column `NewCollectionCostPercentage` decimal(18, 6),
+	ADD Column `NewRegistrationCostPerNumber` decimal(18, 6) ;
+
+    SELECT COUNT(*) AS COUNT INTO newstringcode FROM tmp_JobLog_;
+
+    SELECT CurrencyID into v_RateTableCurrencyID_ FROM tblCurrency WHERE CurrencyID=(SELECT CurrencyID FROM tblRateTable WHERE RateTableId=p_RateTableId);
+    SELECT CurrencyID into v_CompanyCurrencyID_ FROM tblCurrency WHERE CurrencyID=(SELECT CurrencyId FROM tblCompany WHERE CompanyID=p_companyId);
+
+	IF p_CurrencyID > 0 AND p_CurrencyID != v_RateTableCurrencyID_
+	THEN
+		IF p_CurrencyID = v_CompanyCurrencyID_
+		THEN
+			UPDATE
+				tmp_TempRateTableDIDRate_
+			SET
+				NewOneOffCost = ( OneOffCost  * (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ AND CompanyID = p_companyId ) ),
+				NewMonthlyCost = ( MonthlyCost  * (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ AND CompanyID = p_companyId ) ),
+				NewCostPerCall = ( CostPerCall  * (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ AND CompanyID = p_companyId ) ),
+				NewCostPerMinute = ( CostPerMinute  * (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ AND CompanyID = p_companyId ) ),
+				NewSurchargePerCall = ( SurchargePerCall  * (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ AND CompanyID = p_companyId ) ),
+				NewSurchargePerMinute = ( SurchargePerMinute  * (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ AND CompanyID = p_companyId ) ),
+				NewOutpaymentPerCall = ( OutpaymentPerCall  * (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ AND CompanyID = p_companyId ) ),
+				NewOutpaymentPerMinute = ( OutpaymentPerMinute  * (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ AND CompanyID = p_companyId ) ),
+				NewSurcharges = ( Surcharges  * (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ AND CompanyID = p_companyId ) ),
+				NewChargeback = ( Chargeback  * (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ AND CompanyID = p_companyId ) ),
+				NewCollectionCostAmount = ( CollectionCostAmount  * (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ AND CompanyID = p_companyId ) ),
+				NewCollectionCostPercentage = ( CollectionCostPercentage  * (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ AND CompanyID = p_companyId ) ),
+				NewRegistrationCostPerNumber = ( RegistrationCostPerNumber  * (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ AND CompanyID = p_companyId ) )
+			WHERE ProcessID=p_processId;
+		ELSE
+			UPDATE
+				tmp_TempRateTableDIDRate_
+			SET
+				NewOneOffCost = ((SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ AND CompanyID = p_companyId ) * (OneOffCost  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = p_CurrencyID AND CompanyID = p_companyId ))),
+				NewMonthlyCost = ((SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ AND CompanyID = p_companyId ) * (MonthlyCost  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = p_CurrencyID AND CompanyID = p_companyId ))),
+				NewCostPerCall = ((SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ AND CompanyID = p_companyId ) * (CostPerCall  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = p_CurrencyID AND CompanyID = p_companyId ))),
+				NewCostPerMinute = ((SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ AND CompanyID = p_companyId ) * (CostPerMinute  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = p_CurrencyID AND CompanyID = p_companyId ))),
+				NewSurchargePerCall = ((SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ AND CompanyID = p_companyId ) * (SurchargePerCall  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = p_CurrencyID AND CompanyID = p_companyId ))),
+				NewSurchargePerMinute = ((SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ AND CompanyID = p_companyId ) * (SurchargePerMinute  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = p_CurrencyID AND CompanyID = p_companyId ))),
+				NewOutpaymentPerCall = ((SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ AND CompanyID = p_companyId ) * (OutpaymentPerCall  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = p_CurrencyID AND CompanyID = p_companyId ))),
+				NewOutpaymentPerMinute = ((SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ AND CompanyID = p_companyId ) * (OutpaymentPerMinute  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = p_CurrencyID AND CompanyID = p_companyId ))),
+				NewSurcharges = ((SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ AND CompanyID = p_companyId ) * (Surcharges  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = p_CurrencyID AND CompanyID = p_companyId ))),
+				NewChargeback = ((SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ AND CompanyID = p_companyId ) * (Chargeback  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = p_CurrencyID AND CompanyID = p_companyId ))),
+				NewCollectionCostAmount = ((SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ AND CompanyID = p_companyId ) * (CollectionCostAmount  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = p_CurrencyID AND CompanyID = p_companyId ))),
+				NewCollectionCostPercentage = ((SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ AND CompanyID = p_companyId ) * (CollectionCostPercentage  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = p_CurrencyID AND CompanyID = p_companyId ))),
+				NewRegistrationCostPerNumber = ((SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_RateTableCurrencyID_ AND CompanyID = p_companyId ) * (RegistrationCostPerNumber  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = p_CurrencyID AND CompanyID = p_companyId )))
+			WHERE ProcessID=p_processId;
+		END IF;
+	ELSE
+		UPDATE
+			tmp_TempRateTableDIDRate_
+		SET
+			NewOneOffCost = OneOffCost,
+			NewMonthlyCost = MonthlyCost,
+			NewCostPerCall = CostPerCall,
+			NewCostPerMinute = CostPerMinute,
+			NewSurchargePerCall = SurchargePerCall,
+			NewSurchargePerMinute = SurchargePerMinute,
+			NewOutpaymentPerCall = OutpaymentPerCall,
+			NewOutpaymentPerMinute = OutpaymentPerMinute,
+			NewSurcharges = Surcharges,
+			NewChargeback = Chargeback,
+			NewCollectionCostAmount = CollectionCostAmount,
+			NewCollectionCostPercentage = CollectionCostPercentage,
+			NewRegistrationCostPerNumber = RegistrationCostPerNumber
+		WHERE
+			ProcessID = p_processId;
+	END IF;
+
+    IF newstringcode = 0
+    THEN
+
+		INSERT INTO tblRateTableDIDRateChangeLog(
+            TempRateTableDIDRateID,
+            RateTableDIDRateID,
+            RateTableId,
+            TimezonesID,
+            OriginationRateID,
+            OriginationCode,
+            OriginationDescription,
+            RateId,
+            Code,
+            Description,
+			OneOffCost,
+			MonthlyCost,
+			CostPerCall,
+			CostPerMinute,
+			SurchargePerCall,
+			SurchargePerMinute,
+			OutpaymentPerCall,
+			OutpaymentPerMinute,
+			Surcharges,
+			Chargeback,
+			CollectionCostAmount,
+			CollectionCostPercentage,
+			RegistrationCostPerNumber,
+            EffectiveDate,
+            EndDate,
+            `Action`,
+            ProcessID,
+            created_at
+		)
+		SELECT
+			tblTempRateTableDIDRate.TempRateTableDIDRateID,
+			tblRateTableDIDRate.RateTableDIDRateID,
+			p_RateTableId AS RateTableId,
+			tblTempRateTableDIDRate.TimezonesID,
+			OriginationRate.RateId AS OriginationRateID,
+			tblTempRateTableDIDRate.OriginationCode,
+			tblTempRateTableDIDRate.OriginationDescription,
+			tblRate.RateId,
+			tblTempRateTableDIDRate.Code,
+			tblTempRateTableDIDRate.Description,
+			tblTempRateTableDIDRate.OneOffCost,
+			tblTempRateTableDIDRate.MonthlyCost,
+			tblTempRateTableDIDRate.CostPerCall,
+			tblTempRateTableDIDRate.CostPerMinute,
+			tblTempRateTableDIDRate.SurchargePerCall,
+			tblTempRateTableDIDRate.SurchargePerMinute,
+			tblTempRateTableDIDRate.OutpaymentPerCall,
+			tblTempRateTableDIDRate.OutpaymentPerMinute,
+			tblTempRateTableDIDRate.Surcharges,
+			tblTempRateTableDIDRate.Chargeback,
+			tblTempRateTableDIDRate.CollectionCostAmount,
+			tblTempRateTableDIDRate.CollectionCostPercentage,
+			tblTempRateTableDIDRate.RegistrationCostPerNumber,
+			tblTempRateTableDIDRate.EffectiveDate,
+			tblTempRateTableDIDRate.EndDate,
+			'New' AS `Action`,
+			p_processId AS ProcessID,
+			now() AS created_at
+		FROM tmp_TempRateTableDIDRate_ as tblTempRateTableDIDRate
+		LEFT JOIN tblRate
+			ON tblTempRateTableDIDRate.Code = tblRate.Code AND tblTempRateTableDIDRate.CodeDeckId = tblRate.CodeDeckId  AND tblRate.CompanyID = p_companyId
+		LEFT JOIN tblRate AS OriginationRate
+			ON tblTempRateTableDIDRate.OriginationCode = OriginationRate.Code AND tblTempRateTableDIDRate.CodeDeckId = OriginationRate.CodeDeckId  AND OriginationRate.CompanyID = p_companyId
+		LEFT JOIN tblRateTableDIDRate
+			ON tblRate.RateID = tblRateTableDIDRate.RateId AND OriginationRate.RateID = tblRateTableDIDRate.OriginationRateID AND tblRateTableDIDRate.RateTableId = p_RateTableId AND tblRateTableDIDRate.TimezonesID = tblTempRateTableDIDRate.TimezonesID
+			AND tblRateTableDIDRate.EffectiveDate  <= date(now())
+		WHERE tblTempRateTableDIDRate.ProcessID=p_processId AND tblRateTableDIDRate.RateTableDIDRateID IS NULL
+			AND tblTempRateTableDIDRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
+
+
+
+        DROP TEMPORARY TABLE IF EXISTS tmp_EffectiveDates_;
+		CREATE TEMPORARY TABLE tmp_EffectiveDates_ (
+			EffectiveDate  Date,
+			RowID int,
+			INDEX (RowID)
+		);
+        INSERT INTO tmp_EffectiveDates_
+        SELECT DISTINCT
+            EffectiveDate,
+            @row_num := @row_num+1 AS RowID
+        FROM tmp_TempRateTableDIDRate_
+            ,(SELECT @row_num := 0) x
+        WHERE  ProcessID = p_processId
+
+        group by EffectiveDate
+        ORDER BY EffectiveDate asc;
+
+        SET v_pointer_ = 1;
+        SET v_rowCount_ = ( SELECT COUNT(*) FROM tmp_EffectiveDates_ );
+
+        IF v_rowCount_ > 0 THEN
+
+            WHILE v_pointer_ <= v_rowCount_
+            DO
+
+                SET @EffectiveDate = ( SELECT EffectiveDate FROM tmp_EffectiveDates_ WHERE RowID = v_pointer_ );
+                SET @row_num = 0;
+
+                INSERT INTO tblRateTableDIDRateChangeLog(
+					TempRateTableDIDRateID,
+					RateTableDIDRateID,
+					RateTableId,
+					TimezonesID,
+					OriginationRateID,
+					OriginationCode,
+					OriginationDescription,
+					RateId,
+					Code,
+					Description,
+					OneOffCost,
+					MonthlyCost,
+					CostPerCall,
+					CostPerMinute,
+					SurchargePerCall,
+					SurchargePerMinute,
+					OutpaymentPerCall,
+					OutpaymentPerMinute,
+					Surcharges,
+					Chargeback,
+					CollectionCostAmount,
+					CollectionCostPercentage,
+					RegistrationCostPerNumber,
+					EffectiveDate,
+					EndDate,
+					`Action`,
+					ProcessID,
+					created_at
+                )
+                SELECT
+					DISTINCT
+					tblTempRateTableDIDRate.TempRateTableDIDRateID,
+					RateTableDIDRate.RateTableDIDRateID,
+					p_RateTableId AS RateTableId,
+					tblTempRateTableDIDRate.TimezonesID,
+					OriginationRate.RateId AS OriginationRateID,
+					OriginationRate.Code AS OriginationCode,
+					OriginationRate.Description AS OriginationDescription,
+					tblRate.RateId,
+					tblRate.Code,
+					tblRate.Description,
+					CONCAT(tblTempRateTableDIDRate.OneOffCost, IF(tblTempRateTableDIDRate.NewOneOffCost > RateTableDIDRate.OneOffCost, '<span style="color: green;" data-toggle="tooltip" data-title="OneOffCost Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewOneOffCost < RateTableDIDRate.OneOffCost, '<span style="color: red;" data-toggle="tooltip" data-title="OneOffCost Decrease" data-placement="top">&#9660;</span>',''))) AS `OneOffCost`,
+					CONCAT(tblTempRateTableDIDRate.MonthlyCost, IF(tblTempRateTableDIDRate.NewMonthlyCost > RateTableDIDRate.MonthlyCost, '<span style="color: green;" data-toggle="tooltip" data-title="MonthlyCost Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewMonthlyCost < RateTableDIDRate.MonthlyCost, '<span style="color: red;" data-toggle="tooltip" data-title="MonthlyCost Decrease" data-placement="top">&#9660;</span>',''))) AS `MonthlyCost`,
+					CONCAT(tblTempRateTableDIDRate.CostPerCall, IF(tblTempRateTableDIDRate.NewCostPerCall > RateTableDIDRate.CostPerCall, '<span style="color: green;" data-toggle="tooltip" data-title="CostPerCall Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewCostPerCall < RateTableDIDRate.CostPerCall, '<span style="color: red;" data-toggle="tooltip" data-title="CostPerCall Decrease" data-placement="top">&#9660;</span>',''))) AS `CostPerCall`,
+					CONCAT(tblTempRateTableDIDRate.CostPerMinute, IF(tblTempRateTableDIDRate.NewCostPerMinute > RateTableDIDRate.CostPerMinute, '<span style="color: green;" data-toggle="tooltip" data-title="CostPerMinute Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewCostPerMinute < RateTableDIDRate.CostPerMinute, '<span style="color: red;" data-toggle="tooltip" data-title="CostPerMinute Decrease" data-placement="top">&#9660;</span>',''))) AS `CostPerMinute`,
+					CONCAT(tblTempRateTableDIDRate.SurchargePerCall, IF(tblTempRateTableDIDRate.NewSurchargePerCall > RateTableDIDRate.SurchargePerCall, '<span style="color: green;" data-toggle="tooltip" data-title="SurchargePerCall Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewSurchargePerCall < RateTableDIDRate.SurchargePerCall, '<span style="color: red;" data-toggle="tooltip" data-title="SurchargePerCall Decrease" data-placement="top">&#9660;</span>',''))) AS `SurchargePerCall`,
+					CONCAT(tblTempRateTableDIDRate.SurchargePerMinute, IF(tblTempRateTableDIDRate.NewSurchargePerMinute > RateTableDIDRate.SurchargePerMinute, '<span style="color: green;" data-toggle="tooltip" data-title="SurchargePerMinute Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewSurchargePerMinute < RateTableDIDRate.SurchargePerMinute, '<span style="color: red;" data-toggle="tooltip" data-title="SurchargePerMinute Decrease" data-placement="top">&#9660;</span>',''))) AS `SurchargePerMinute`,
+					CONCAT(tblTempRateTableDIDRate.OutpaymentPerCall, IF(tblTempRateTableDIDRate.NewOutpaymentPerCall > RateTableDIDRate.OutpaymentPerCall, '<span style="color: green;" data-toggle="tooltip" data-title="OutpaymentPerCall Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewOutpaymentPerCall < RateTableDIDRate.OutpaymentPerCall, '<span style="color: red;" data-toggle="tooltip" data-title="OutpaymentPerCall Decrease" data-placement="top">&#9660;</span>',''))) AS `OutpaymentPerCall`,
+					CONCAT(tblTempRateTableDIDRate.OutpaymentPerMinute, IF(tblTempRateTableDIDRate.NewOutpaymentPerMinute > RateTableDIDRate.OutpaymentPerMinute, '<span style="color: green;" data-toggle="tooltip" data-title="OutpaymentPerMinute Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewOutpaymentPerMinute < RateTableDIDRate.OutpaymentPerMinute, '<span style="color: red;" data-toggle="tooltip" data-title="OutpaymentPerMinute Decrease" data-placement="top">&#9660;</span>',''))) AS `OutpaymentPerMinute`,
+					CONCAT(tblTempRateTableDIDRate.Surcharges, IF(tblTempRateTableDIDRate.NewSurcharges > RateTableDIDRate.Surcharges, '<span style="color: green;" data-toggle="tooltip" data-title="Surcharges Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewSurcharges < RateTableDIDRate.Surcharges, '<span style="color: red;" data-toggle="tooltip" data-title="Surcharges Decrease" data-placement="top">&#9660;</span>',''))) AS `Surcharges`,
+					CONCAT(tblTempRateTableDIDRate.Chargeback, IF(tblTempRateTableDIDRate.NewChargeback > RateTableDIDRate.Chargeback, '<span style="color: green;" data-toggle="tooltip" data-title="Chargeback Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewChargeback < RateTableDIDRate.Chargeback, '<span style="color: red;" data-toggle="tooltip" data-title="Chargeback Decrease" data-placement="top">&#9660;</span>',''))) AS `Chargeback`,
+					CONCAT(tblTempRateTableDIDRate.CollectionCostAmount, IF(tblTempRateTableDIDRate.NewCollectionCostAmount > RateTableDIDRate.CollectionCostAmount, '<span style="color: green;" data-toggle="tooltip" data-title="CollectionCostAmount Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewCollectionCostAmount < RateTableDIDRate.CollectionCostAmount, '<span style="color: red;" data-toggle="tooltip" data-title="CollectionCostAmount Decrease" data-placement="top">&#9660;</span>',''))) AS `CollectionCostAmount`,
+					CONCAT(tblTempRateTableDIDRate.CollectionCostPercentage, IF(tblTempRateTableDIDRate.NewCollectionCostPercentage > RateTableDIDRate.CollectionCostPercentage, '<span style="color: green;" data-toggle="tooltip" data-title="CollectionCostPercentage Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewCollectionCostPercentage < RateTableDIDRate.CollectionCostPercentage, '<span style="color: red;" data-toggle="tooltip" data-title="CollectionCostPercentage Decrease" data-placement="top">&#9660;</span>',''))) AS `CollectionCostPercentage`,
+					CONCAT(tblTempRateTableDIDRate.RegistrationCostPerNumber, IF(tblTempRateTableDIDRate.NewRegistrationCostPerNumber > RateTableDIDRate.RegistrationCostPerNumber, '<span style="color: green;" data-toggle="tooltip" data-title="RegistrationCostPerNumber Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewRegistrationCostPerNumber < RateTableDIDRate.RegistrationCostPerNumber, '<span style="color: red;" data-toggle="tooltip" data-title="RegistrationCostPerNumber Decrease" data-placement="top">&#9660;</span>',''))) AS `RegistrationCostPerNumber`,
+					tblTempRateTableDIDRate.EffectiveDate,
+					tblTempRateTableDIDRate.EndDate ,
+					'IncreasedDecreased' AS `Action`,
+					p_processid AS ProcessID,
+					now() AS created_at
+                FROM
+                (
+                    SELECT DISTINCT tmp.* ,
+                        @row_num := IF(@prev_RateId = tmp.RateID AND @prev_EffectiveDate >= tmp.EffectiveDate, (@row_num + 1), 1) AS RowID,
+                        @prev_RateId := tmp.RateID,
+                        @prev_EffectiveDate := tmp.EffectiveDate
+                    FROM
+                    (
+                        SELECT DISTINCT vr1.*
+                        FROM tblRateTableDIDRate vr1
+                        LEFT OUTER JOIN tblRateTableDIDRate vr2
+                            ON vr1.RateTableId = vr2.RateTableId
+                            AND vr1.RateID = vr2.RateID
+                            AND vr1.OriginationRateID = vr2.OriginationRateID
+                            AND vr1.TimezonesID = vr2.TimezonesID
+                            AND vr2.EffectiveDate  = @EffectiveDate
+                        WHERE
+                            vr1.RateTableId = p_RateTableId
+                            AND vr1.EffectiveDate <= COALESCE(vr2.EffectiveDate,@EffectiveDate)
+                        ORDER BY vr1.RateID DESC ,vr1.EffectiveDate DESC
+                    ) tmp ,
+                    ( SELECT @row_num := 0 , @prev_RateId := 0 , @prev_EffectiveDate := '' ) x
+                      ORDER BY RateID DESC , EffectiveDate DESC
+                ) RateTableDIDRate
+                JOIN tblRate
+                    ON tblRate.CompanyID = p_companyId
+                    AND tblRate.RateID = RateTableDIDRate.RateId
+                LEFT JOIN tblRate AS OriginationRate
+                    ON OriginationRate.CompanyID = p_companyId
+                    AND OriginationRate.RateID = RateTableDIDRate.OriginationRateID
+                JOIN tmp_TempRateTableDIDRate_ tblTempRateTableDIDRate
+                    ON tblTempRateTableDIDRate.Code = tblRate.Code
+                    AND ((tblTempRateTableDIDRate.OriginationCode IS NULL AND OriginationRate.Code IS NULL) OR (tblTempRateTableDIDRate.OriginationCode = OriginationRate.Code))
+                    AND tblTempRateTableDIDRate.TimezonesID = RateTableDIDRate.TimezonesID
+                    AND tblTempRateTableDIDRate.ProcessID=p_processId
+                    AND RateTableDIDRate.EffectiveDate <= tblTempRateTableDIDRate.EffectiveDate
+                    AND tblTempRateTableDIDRate.EffectiveDate =  @EffectiveDate
+                    AND RateTableDIDRate.RowID = 1
+                WHERE
+                    RateTableDIDRate.RateTableId = p_RateTableId
+                    AND tblTempRateTableDIDRate.Code IS NOT NULL
+                    AND tblTempRateTableDIDRate.ProcessID=p_processId
+                    AND tblTempRateTableDIDRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
+
+                SET v_pointer_ = v_pointer_ + 1;
+
+            END WHILE;
+
+        END IF;
+
+
+        IF p_list_option = 1
+        THEN
+
+            INSERT INTO tblRateTableDIDRateChangeLog(
+				RateTableDIDRateID,
+				RateTableId,
+				TimezonesID,
+				OriginationRateID,
+				OriginationCode,
+				OriginationDescription,
+				RateId,
+				Code,
+				Description,
+				OneOffCost,
+				MonthlyCost,
+				CostPerCall,
+				CostPerMinute,
+				SurchargePerCall,
+				SurchargePerMinute,
+				OutpaymentPerCall,
+				OutpaymentPerMinute,
+				Surcharges,
+				Chargeback,
+				CollectionCostAmount,
+				CollectionCostPercentage,
+				RegistrationCostPerNumber,
+				EffectiveDate,
+				EndDate,
+				`Action`,
+				ProcessID,
+				created_at
+            )
+            SELECT DISTINCT
+                tblRateTableDIDRate.RateTableDIDRateID,
+                p_RateTableId AS RateTableId,
+                tblRateTableDIDRate.TimezonesID,
+                tblRateTableDIDRate.OriginationRateID,
+                OriginationRate.Code,
+                OriginationRate.Description,
+                tblRateTableDIDRate.RateId,
+                tblRate.Code,
+                tblRate.Description,
+				tblRateTableDIDRate.OneOffCost,
+				tblRateTableDIDRate.MonthlyCost,
+				tblRateTableDIDRate.CostPerCall,
+				tblRateTableDIDRate.CostPerMinute,
+				tblRateTableDIDRate.SurchargePerCall,
+				tblRateTableDIDRate.SurchargePerMinute,
+				tblRateTableDIDRate.OutpaymentPerCall,
+				tblRateTableDIDRate.OutpaymentPerMinute,
+				tblRateTableDIDRate.Surcharges,
+				tblRateTableDIDRate.Chargeback,
+				tblRateTableDIDRate.CollectionCostAmount,
+				tblRateTableDIDRate.CollectionCostPercentage,
+				tblRateTableDIDRate.RegistrationCostPerNumber,
+                tblRateTableDIDRate.EffectiveDate,
+                tblRateTableDIDRate.EndDate ,
+                'Deleted' AS `Action`,
+                p_processId AS ProcessID,
+                now() AS deleted_at
+            FROM tblRateTableDIDRate
+            JOIN tblRate
+                ON tblRate.RateID = tblRateTableDIDRate.RateId AND tblRate.CompanyID = p_companyId
+        		LEFT JOIN tblRate AS OriginationRate
+             	 ON OriginationRate.RateID = tblRateTableDIDRate.OriginationRateID AND OriginationRate.CompanyID = p_companyId
+            LEFT JOIN tmp_TempRateTableDIDRate_ as tblTempRateTableDIDRate
+                ON tblTempRateTableDIDRate.Code = tblRate.Code
+                AND ((tblTempRateTableDIDRate.OriginationCode IS NULL AND OriginationRate.Code IS NULL) OR (tblTempRateTableDIDRate.OriginationCode = OriginationRate.Code))
+                AND tblTempRateTableDIDRate.TimezonesID = tblRateTableDIDRate.TimezonesID
+                AND tblTempRateTableDIDRate.ProcessID=p_processId
+                AND (
+                    ( tblTempRateTableDIDRate.EndDate is null AND tblTempRateTableDIDRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block') )
+                    OR
+                    ( tblTempRateTableDIDRate.EndDate is not null AND tblTempRateTableDIDRate.Change IN ('Delete', 'R', 'D', 'Blocked','Block') )
+                )
+            WHERE tblRateTableDIDRate.RateTableId = p_RateTableId
+                AND ( tblRateTableDIDRate.EndDate is null OR tblRateTableDIDRate.EndDate <= date(now()) )
+                AND tblTempRateTableDIDRate.Code IS NULL
+            ORDER BY RateTableDIDRateID ASC;
+
+        END IF;
+
+
+        INSERT INTO tblRateTableDIDRateChangeLog(
+            RateTableDIDRateID,
+            RateTableId,
+            TimezonesID,
+            OriginationRateID,
+            OriginationCode,
+            OriginationDescription,
+            RateId,
+            Code,
+            Description,
+			OneOffCost,
+			MonthlyCost,
+			CostPerCall,
+			CostPerMinute,
+			SurchargePerCall,
+			SurchargePerMinute,
+			OutpaymentPerCall,
+			OutpaymentPerMinute,
+			Surcharges,
+			Chargeback,
+			CollectionCostAmount,
+			CollectionCostPercentage,
+			RegistrationCostPerNumber,
+            EffectiveDate,
+            EndDate,
+            `Action`,
+            ProcessID,
+            created_at
+        )
+        SELECT DISTINCT
+            tblRateTableDIDRate.RateTableDIDRateID,
+            p_RateTableId AS RateTableId,
+            tblRateTableDIDRate.TimezonesID,
+            tblRateTableDIDRate.OriginationRateID,
+            OriginationRate.Code,
+            OriginationRate.Description,
+            tblRateTableDIDRate.RateId,
+            tblRate.Code,
+            tblRate.Description,
+			tblRateTableDIDRate.OneOffCost,
+			tblRateTableDIDRate.MonthlyCost,
+			tblRateTableDIDRate.CostPerCall,
+			tblRateTableDIDRate.CostPerMinute,
+			tblRateTableDIDRate.SurchargePerCall,
+			tblRateTableDIDRate.SurchargePerMinute,
+			tblRateTableDIDRate.OutpaymentPerCall,
+			tblRateTableDIDRate.OutpaymentPerMinute,
+			tblRateTableDIDRate.Surcharges,
+			tblRateTableDIDRate.Chargeback,
+			tblRateTableDIDRate.CollectionCostAmount,
+			tblRateTableDIDRate.CollectionCostPercentage,
+			tblRateTableDIDRate.RegistrationCostPerNumber,
+            tblRateTableDIDRate.EffectiveDate,
+            IFNULL(tblTempRateTableDIDRate.EndDate,tblRateTableDIDRate.EndDate) as  EndDate ,
+            'Deleted' AS `Action`,
+            p_processId AS ProcessID,
+            now() AS deleted_at
+        FROM tblRateTableDIDRate
+        JOIN tblRate
+            ON tblRate.RateID = tblRateTableDIDRate.RateId AND tblRate.CompanyID = p_companyId
+        LEFT JOIN tblRate AS OriginationRate
+             ON OriginationRate.RateID = tblRateTableDIDRate.OriginationRateID AND OriginationRate.CompanyID = p_companyId
+        LEFT JOIN tmp_TempRateTableDIDRate_ as tblTempRateTableDIDRate
+            ON tblRate.Code = tblTempRateTableDIDRate.Code
+            AND ((tblTempRateTableDIDRate.OriginationCode IS NULL AND OriginationRate.Code IS NULL) OR (tblTempRateTableDIDRate.OriginationCode = OriginationRate.Code))
+            AND tblTempRateTableDIDRate.TimezonesID = tblRateTableDIDRate.TimezonesID
+            AND tblTempRateTableDIDRate.Change IN ('Delete', 'R', 'D', 'Blocked','Block')
+            AND tblTempRateTableDIDRate.ProcessID=p_processId
+        WHERE
+			tblRateTableDIDRate.RateTableId = p_RateTableId AND
+			tblTempRateTableDIDRate.Code IS NOT NULL
+        ORDER BY
+		RateTableDIDRateID ASC;
+
+    END IF;
+
+    SELECT * FROM tmp_JobLog_;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_WSReviewRateTableRateUpdate`;
+DELIMITER //
+CREATE PROCEDURE `prc_WSReviewRateTableRateUpdate`(
+	IN `p_RateTableID` INT,
+	IN `p_TimezonesID` INT,
+	IN `p_RateIds` TEXT,
+	IN `p_ProcessID` VARCHAR(200),
+	IN `p_criteria` INT,
+	IN `p_Action` VARCHAR(20),
+	IN `p_Interval1` INT,
+	IN `p_IntervalN` INT,
+	IN `p_EndDate` DATETIME,
+	IN `p_Code` VARCHAR(50),
+	IN `p_Description` VARCHAR(50),
+	IN `p_OriginationCode` VARCHAR(50),
+	IN `p_OriginationDescription` VARCHAR(50)
+)
+ThisSP:BEGIN
+
+	DECLARE newstringcode INT(11) DEFAULT 0;
+	DECLARE v_pointer_ INT;
+	DECLARE v_rowCount_ INT;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+    DROP TEMPORARY TABLE IF EXISTS tmp_JobLog_;
+    CREATE TEMPORARY TABLE tmp_JobLog_ (
+        Message longtext
+    );
+
+	SET @stm_and_code = '';
+	IF p_Code != ''
+	THEN
+		SET @stm_and_code = CONCAT(' AND ("',p_Code,'" IS NULL OR "',p_Code,'" = "" OR tvr.Code LIKE "',REPLACE(p_Code, "*", "%"),'")');
+	END IF;
+
+	SET @stm_and_desc = '';
+	IF p_Description != ''
+	THEN
+		SET @stm_and_desc = CONCAT(' AND ("',p_Description,'" IS NULL OR "',p_Description,'" = "" OR tvr.Description LIKE "',REPLACE(p_Description, "*", "%"),'")');
+	END IF;
+
+	SET @stm_and_origination_code = '';
+	IF p_OriginationCode != ''
+	THEN
+		SET @stm_and_origination_code = CONCAT(' AND ("',p_OriginationCode,'" IS NULL OR "',p_OriginationCode,'" = "" OR tvr.OriginationCode LIKE "',REPLACE(p_OriginationCode, "*", "%"),'")');
+	END IF;
+
+	SET @stm_and_origination_desc = '';
+	IF p_OriginationDescription != ''
+	THEN
+		SET @stm_and_origination_desc = CONCAT(' AND ("',p_OriginationDescription,'" IS NULL OR "',p_OriginationDescription,'" = "" OR tvr.OriginationDescription LIKE "',REPLACE(p_OriginationDescription, "*", "%"),'")');
+	END IF;
+
+    CASE p_Action
+		WHEN 'New' THEN
+			SET @stm = '';
+			IF p_Interval1 > 0
+			THEN
+				SET @stm = CONCAT(@stm,'tvr.Interval1 = ',p_Interval1);
+			END IF;
+
+			IF p_IntervalN > 0
+			THEN
+				SET @stm = CONCAT(@stm,IF(@stm != '',',',''),'tvr.IntervalN = ',p_IntervalN);
+			END IF;
+
+			IF p_criteria = 1
+			THEN
+				IF @stm != ''
+				THEN
+					SET @stm1 = CONCAT('UPDATE tblTempRateTableRate tvr LEFT JOIN tblRateTableRateChangeLog vrcl ON tvr.TempRateTableRateID=vrcl.TempRateTableRateID SET ',@stm,' WHERE tvr.TimezonesID=',p_TimezonesID,' AND tvr.TempRateTableRateID=vrcl.TempRateTableRateID AND vrcl.Action = "',p_Action,'" AND tvr.ProcessID = "',p_ProcessID,'" ',@stm_and_code,' ',@stm_and_desc,' ',@stm_and_origination_code,' ',@stm_and_origination_desc,';');
+					select @stm1;
+					PREPARE stmt1 FROM @stm1;
+					EXECUTE stmt1;
+					DEALLOCATE PREPARE stmt1;
+
+					SET @stm2 = CONCAT('UPDATE tblRateTableRateChangeLog tvr SET ',@stm,' WHERE tvr.TimezonesID=',p_TimezonesID,' AND ProcessID = "',p_ProcessID,'" AND Action = "',p_Action,'" ',@stm_and_code,' ',@stm_and_desc,' ',@stm_and_origination_code,' ',@stm_and_origination_desc,';');
+
+					PREPARE stm2 FROM @stm2;
+					EXECUTE stm2;
+					DEALLOCATE PREPARE stm2;
+				END IF;
+			ELSE
+				IF @stm != ''
+				THEN
+					SET @stm1 = CONCAT('UPDATE tblTempRateTableRate tvr LEFT JOIN tblRateTableRateChangeLog vrcl ON tvr.TempRateTableRateID=vrcl.TempRateTableRateID SET ',@stm,' WHERE tvr.TimezonesID=',p_TimezonesID,' AND tvr.TempRateTableRateID IN (',p_RateIds,') AND tvr.TempRateTableRateID=vrcl.TempRateTableRateID AND vrcl.Action = "',p_Action,'" AND tvr.ProcessID = "',p_ProcessID,'" ',@stm_and_code,' ',@stm_and_desc,' ',@stm_and_origination_code,' ',@stm_and_origination_desc,';');
+
+					PREPARE stmt1 FROM @stm1;
+					EXECUTE stmt1;
+					DEALLOCATE PREPARE stmt1;
+
+					SET @stm2 = CONCAT('UPDATE tblRateTableRateChangeLog tvr SET ',@stm,' WHERE tvr.TimezonesID=',p_TimezonesID,' AND TempRateTableRateID IN (',p_RateIds,') AND ProcessID = "',p_ProcessID,'" AND Action = "',p_Action,'" ',@stm_and_code,' ',@stm_and_desc,' ',@stm_and_origination_code,' ',@stm_and_origination_desc,';');
+
+					PREPARE stm2 FROM @stm2;
+					EXECUTE stm2;
+					DEALLOCATE PREPARE stm2;
+				END IF;
+			END IF;
+
+		WHEN 'Deleted' THEN
+			IF p_criteria = 1
+			THEN
+				SET @stm1 = CONCAT('UPDATE tblRateTableRateChangeLog tvr SET EndDate="',p_EndDate,'" WHERE tvr.TimezonesID=',p_TimezonesID,' AND ProcessID="',p_ProcessID,'" AND `Action`="',p_Action,'" ',@stm_and_code,' ',@stm_and_desc,';');
+
+				PREPARE stmt1 FROM @stm1;
+				EXECUTE stmt1;
+				DEALLOCATE PREPARE stmt1;
+			ELSE
+				SET @stm1 = CONCAT('UPDATE tblRateTableRateChangeLog tvr SET EndDate="',p_EndDate,'" WHERE tvr.TimezonesID=',p_TimezonesID,' AND RateTableRateID IN (',p_RateIds,')AND Action = "',p_Action,'" AND ProcessID = "',p_ProcessID,'" ',@stm_and_code,' ',@stm_and_desc,';');
+
+				PREPARE stmt1 FROM @stm1;
+				EXECUTE stmt1;
+				DEALLOCATE PREPARE stmt1;
+			END IF;
+	END CASE;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END//
 DELIMITER ;

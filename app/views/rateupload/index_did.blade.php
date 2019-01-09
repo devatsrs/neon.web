@@ -78,7 +78,7 @@
                         </div>
                         <div class="form-group hidden" id="rateBox">
                             <label class="col-sm-2 control-label">
-                               <!-- <input id="checkbox_import_rate" name="checkbox_import_rate" value="1" checked="" type="checkbox"/> --> Import Rates From Sheet
+                                <!-- <input id="checkbox_import_rate" name="checkbox_import_rate" value="1" checked="" type="checkbox"/> --> Import Rates From Sheet
                             </label>
                             <div class="col-sm-4">
                                 {{ Form::select('importratesheet', [], "" , array("class"=>"select2","id"=>"importrate")) }}
@@ -97,8 +97,8 @@
                             <label for="field-1" class="col-sm-2 control-label">Select Sheet</label>
                             <div class="col-sm-4">
                                 {{-- Form::select('Sheet', [], "" , array("class"=>"select2 small","id"=>"Sheet")) --}}
-                            </div>
-                        </div>-->
+                                </div>
+                            </div>-->
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Settings</label>
                             <div class="col-sm-10">
@@ -148,20 +148,20 @@
                                 </div>
 
                             </div>
-                            </div>
+                        </div>
 
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Note</label>
                             <div class="col-sm-8">
                                 <p><i class="glyphicon glyphicon-minus"></i><strong>Allowed Extension</strong> .xls, .xlsx, .csv</p>
-                               <!-- <p>Please upload the file in given <span style="cursor: pointer" onclick="jQuery('#modal-fileformat').modal('show');" class="label label-info">Format</span></p>
+                                <!-- <p>Please upload the file in given <span style="cursor: pointer" onclick="jQuery('#modal-fileformat').modal('show');" class="label label-info">Format</span></p>
                                 <p>Sample File <a class="btn btn-success btn-sm btn-icon icon-left" href="{{URL::to('vendor_rates/download_sample_excel_file')}}"><i class="entypo-down"></i>Download</a></p>-->
                                 <i class="glyphicon glyphicon-minus"></i> <strong>Replace all of the existing rates with the rates from the file -</strong> The default option is to add new rates. If there is at least one parameter that differentiates a new rate from the existent one then the new rate will override it. If a rate for a certain prefix exists in the tariff but is not present in the file you received from the carrier, it will remain unchanged. The replace mode uploads all the new rates from the file and marks all the existent rates as discontinued. <br><br>
                                 <i class="glyphicon glyphicon-minus"></i> <strong>Rates with 'effective from' date in the past should be uploaded as 'effective immediately' - </strong> Sometimes you might receive a file with rates later than expected, when the moment at which the rates were supposed to become effective has already passed. By default this check box is disabled and a rate that has an 'effective from' date that has passed will be rejected and not included in the tariff. Altematively, you may choose to insert these rates into the tariff and make them effective from the current moment; to do so enable this check box. <br><br>
                             </div>
                         </div>
 
-                        {{ Form::hidden('RateType', RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL) , array()) }}
+                        {{ Form::hidden('RateType', RateType::getRateTypeIDBySlug(RateType::SLUG_DID) , array()) }}
 
                         <p style="text-align: right;">
                             <button  type="submit" class="btn upload btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
@@ -266,7 +266,7 @@
 
                             <div class="panel-body field-remaping" id="mapping">
                                 <?php $columns = array(); ?>
-                                @include('fileuploadtemplates.rateuploadtemplate')
+                                @include('fileuploadtemplates.didrateuploadtemplate')
                             </div>
                         </div>
                         <div class="panel panel-primary" data-collapsed="0">
@@ -288,14 +288,14 @@
                                 </ul>
                                 <div class="tab-content" style="overflow: hidden;margin-top: 15px;">
                                     <div class="tab-pane active" id="tabs1">
-                                    <table class="table table-bordered datatable" id="table-4">
-                                        <thead>
-                                        <tr>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        </tbody>
-                                    </table>
+                                        <table class="table table-bordered datatable" id="table-4">
+                                            <thead>
+                                            <tr>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
                                     </div>
                                     <div class="tab-pane" id="tabs2">
                                         <table class="table table-bordered datatable" id="table-5">
@@ -338,6 +338,8 @@
         }
     </style>
     <script type="text/javascript">
+        var AllTimezones = JSON.parse('{{json_encode($AllTimezones)}}');
+
         var all_selectable_fields   = ['EndDate','Action','ActionDelete','DialString','DialStringPrefix','FromCurrency','OriginationCountryCode','OriginationCode','OriginationDescription','CountryCode'];
         var all_available_fields    = ['EndDate','Action','ActionDelete','DialString','DialStringPrefix','FromCurrency','OriginationCountryCode','OriginationCode','OriginationDescription','CountryCode'];
         var all_occupied_fields     = [];
@@ -365,6 +367,52 @@
             OriginationDescription  : 'Origination Description',
             CountryCode             : 'Destination Country Code'
         };
+
+        var all_selectable_timezone_fields   = ['CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber'];
+        var all_available_timezone_fields    = ['CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber'];
+        var all_occupied_timezone_fields     = [];
+        var all_occupied_timezone_fields2    = [];
+        var relational_columns_timezone      = {
+            CostPerCall                 : [],
+            CostPerMinute               : [],
+            SurchargePerCall            : [],
+            SurchargePerMinute          : [],
+            OutpaymentPerCall           : [],
+            OutpaymentPerMinute         : [],
+            Surcharges                  : [],
+            Chargeback                  : [],
+            CollectionCostAmount        : [],
+            CollectionCostPercentage    : [],
+            RegistrationCostPerNumber   : []
+        };
+        for(TimezonesID in AllTimezones) {
+            $id = TimezonesID == 1 ? '' : TimezonesID;
+            relational_columns_timezone.CostPerCall.push('CostPerCall'+$id);
+            relational_columns_timezone.CostPerMinute.push('CostPerMinute'+$id);
+            relational_columns_timezone.SurchargePerCall.push('SurchargePerCall'+$id);
+            relational_columns_timezone.SurchargePerMinute.push('SurchargePerMinute'+$id);
+            relational_columns_timezone.OutpaymentPerCall.push('OutpaymentPerCall'+$id);
+            relational_columns_timezone.OutpaymentPerMinute.push('OutpaymentPerMinute'+$id);
+            relational_columns_timezone.Surcharges.push('Surcharges'+$id);
+            relational_columns_timezone.Chargeback.push('Chargeback'+$id);
+            relational_columns_timezone.CollectionCostAmount.push('CollectionCostAmount'+$id);
+            relational_columns_timezone.CollectionCostPercentage.push('CollectionCostPercentage'+$id);
+            relational_columns_timezone.RegistrationCostPerNumber.push('RegistrationCostPerNumber'+$id);
+        }
+        var columns_timezone_text            = {
+            CostPerCall                 : 'Cost Per Call',
+            CostPerMinute               : 'Cost Per Minute',
+            SurchargePerCall            : 'Surcharge Per Call',
+            SurchargePerMinute          : 'Surcharge Per Minute',
+            OutpaymentPerCall           : 'Outpayment Per Call',
+            OutpaymentPerMinute         : 'Outpayment Per Minute',
+            Surcharges                  : 'Surcharges',
+            Chargeback                  : 'Chargeback',
+            CollectionCostAmount        : 'Collection Cost Amount',
+            CollectionCostPercentage    : 'Collection Cost (%)',
+            RegistrationCostPerNumber   : 'Registration Cost Per Number'
+        };
+
         var columnsMultiSelect;
         var fileData;
 
@@ -433,10 +481,10 @@
 
             setTimeout(function(){getRateTableDetails()},100);
             /*$("select[name=Ratetable]").on('change', function(){
-                var Type = $("input[name=RateUploadType]:checked").val();
-                var id   = $("select[name=Ratetable]").val();
-                getTrunk(Type,id);
-            });*/
+             var Type = $("input[name=RateUploadType]:checked").val();
+             var id   = $("select[name=Ratetable]").val();
+             getTrunk(Type,id);
+             });*/
 
             $(document).on('change','#excel', function() {
                 var formData = new FormData($('#form-upload')[0]);
@@ -475,7 +523,7 @@
 
                             $("#importrate").select2("val", "");
                             $('#importrate').html(html);
-                           // $("#importrate").select2("destroy").select2({placeholder: "Select a state"});
+                            // $("#importrate").select2("destroy").select2({placeholder: "Select a state"});
                             $('#rateBox').removeClass('hidden');
 
                             if (SheetNames.length > 1)
@@ -542,21 +590,21 @@
                 }
 
                 /*if(sheet1 == sheet2)
-                {
-                    $("a[href='#tab2']").hide();
-                    $("a[href='#tabs2']").hide();
-                }
-                else
-                {
-                    if(sheet2 != null) {
-                        $("a[href='#tab2']").show();
-                        $("a[href='#tabs2']").show();
-                    }
-                    if(sheet2 == '') {
-                        $("a[href='#tab2']").hide();
-                        $("a[href='#tabs2']").hide();
-                    }
-                }*/
+                 {
+                 $("a[href='#tab2']").hide();
+                 $("a[href='#tabs2']").hide();
+                 }
+                 else
+                 {
+                 if(sheet2 != null) {
+                 $("a[href='#tab2']").show();
+                 $("a[href='#tabs2']").show();
+                 }
+                 if(sheet2 == '') {
+                 $("a[href='#tab2']").hide();
+                 $("a[href='#tabs2']").hide();
+                 }
+                 }*/
             });
 
             $(".numbercheck").keypress(function (e) {
@@ -688,7 +736,7 @@
             $('.btn.check').click(function(e){
                 e.preventDefault();
                 //$('#table-4_processing').removeClass('hidden');
-               // $('#table-5_processing').removeClass('hidden');
+                // $('#table-5_processing').removeClass('hidden');
                 var formData = new FormData($('#add-template-form')[0]);
                 var poData = $(document.forms['form-upload']).serializeArray();
                 for (var i=0; i<poData.length; i++){
@@ -716,8 +764,8 @@
                         } else {
                             toastr.error(response.message, "Error", toastr_opts);
                         }
-                       // $('#table-4_processing').addClass('hidden');
-                       // $('#table-5_processing').addClass('hidden');
+                        // $('#table-4_processing').addClass('hidden');
+                        // $('#table-5_processing').addClass('hidden');
                     },
                     data: formData,
                     cache: false,
@@ -735,19 +783,6 @@
             $("#save_template").click(function(e){
                 e.preventDefault();
                 if($("#save_template").hasClass('reviewrates')) {
-                   /* var dialcodesheet = $('#importdialcodes').val();
-                    if(dialcodesheet != 'null' || dialcodesheet != '' ){
-                        var Join1 = $("#Join1").val();
-                        var Join2 = $("#Join2").val();
-                        if(Join2 == "" || Join2 == 'Skip loading') {
-                            toastr.error("Please Select Match Codes with Rates On For DialCodeSheet", "Error", toastr_opts);
-                            return false;
-                        }
-                        if(Join1 == "" || Join1 == 'Skip loading') {
-                            toastr.error("Please Select Match Codes with DialCode On For Ratesheet", "Error", toastr_opts);
-                            return false;
-                        }
-                    }*/
                     var formData = new FormData($('#add-template-form')[0]);
                     var poData = $(document.forms['form-upload']).serializeArray();
                     for (var i = 0; i < poData.length; i++) {
@@ -813,105 +848,6 @@
                 }
             });
 
-            $(document).on('click', '#change_intervals', function() {
-                var criteria = '';
-                var TempRateIDs = [];
-
-                var ProcessID = $('#ProcessID').val();
-
-                if($('#selectallbutton-new').is(':checked')){
-                    criteria = 1;
-                }else{
-                    var i = 0;
-                    $('#table-reviewrates-new tr .rowcheckbox:checked').each(function(i, el) {
-                        //console.log($(this).val());
-                        TempRateID = $(this).val();
-                        if(typeof TempRateID != 'undefined' && TempRateID != null && TempRateID != 'null'){
-                            TempRateIDs[i++] = TempRateID;
-                        }
-                    });
-                }
-
-                if((TempRateIDs.length || criteria==1) && (ProcessID != '' && ProcessID != 'undefined' && ProcessID != null && ProcessID != 'null') ){
-                    $('#modal-change-selected-intervals').modal('show');
-                }
-            });
-
-            $("#frm-change-selected-intervals").submit(function(e) {
-                e.preventDefault();
-                var criteria = '';
-                var TempRateIDs = [];
-
-                var ProcessID = $('#ProcessID').val();
-
-                if($('#selectallbutton-new').is(':checked')){
-                    criteria = 1;
-                }else{
-                    var i = 0;
-                    $('#table-reviewrates-new tr .rowcheckbox:checked').each(function(i, el) {
-                        //console.log($(this).val());
-                        TempRateID = $(this).val();
-                        if(typeof TempRateID != 'undefined' && TempRateID != null && TempRateID != 'null'){
-                            TempRateIDs[i++] = TempRateID;
-                        }
-                    });
-                }
-
-                if((TempRateIDs.length || criteria==1) && (ProcessID != '' && ProcessID != 'undefined' && ProcessID != null && ProcessID != 'null') ){
-                    if(criteria==''){
-                        TempRateIDs=TempRateIDs.join(",");
-                    }
-                    if (!confirm('Are you sure you want to change selected rates intervals?')) {
-                        $(".btn.save").button('reset');
-                        return;
-                    }
-
-                    var OriginationCode = $('#reviewrates-new-search input[name="OriginationCode"]').val();
-                    var OriginationDescription = $('#reviewrates-new-search input[name="OriginationDescription"]').val();
-                    var Code            = $('#reviewrates-new-search input[name="Code"]').val();
-                    var Description     = $('#reviewrates-new-search input[name="Description"]').val();
-                    var Timezone        = $('#reviewrates-new-search select[name="Timezone"]').val();
-                    var RoutingCategory = $('#reviewrates-new-search select[name="RoutingCategory"]').val();
-                    var RateUploadType  = $("input[name=RateUploadType]:checked").val();
-                    var VendorID        = $("select[name=Vendor]:checked").val();
-                    var CustomerID      = $("select[name=Customer]:checked").val();
-                    var RateTableID     = $("select[name=RateTable]:checked").val();
-
-                    $.ajax({
-                        url: '{{URL::to('rate_upload/updateTempReviewRates')}}',
-                        data: 'Action=New&TempRateIDs='+TempRateIDs+'&criteria='+criteria+'&ProcessID='+ProcessID+'&Code='+Code+'&Description='+Description+'&Timezone='+Timezone+'&RateUploadType='+RateUploadType+'&VendorID='+VendorID+'&CustomerID='+CustomerID+'&RateTableID='+RateTableID+'&'+$('#frm-change-selected-intervals').serialize(),
-                        error: function () {
-                            toastr.error("error", "Error", toastr_opts);
-                        },
-                        dataType: 'json',
-                        success: function (response) {
-                            $(".btn.save").button('reset');
-                            if (response.status == 'success') {
-                                toastr.success(response.message, "Success", toastr_opts);
-                                $('#modal-change-selected-intervals').modal('hide');
-                                checked_new = '';
-                                $("#selectall-new").prop("checked", false).prop('disabled', false);
-                                var $searchFilter = {};
-                                $searchFilter.OriginationCode = OriginationCode;
-                                $searchFilter.OriginationDescription = OriginationDescription;
-                                $searchFilter.Code = Code;
-                                $searchFilter.Description = Description;
-                                $searchFilter.Timezone = Timezone;
-                                $searchFilter.RoutingCategory = RoutingCategory;
-                                getNewRates(ProcessID, $searchFilter);
-                            } else {
-                                toastr.error(response.message, "Error", toastr_opts);
-                            }
-                        },
-                        type: 'POST'
-                    });
-                }
-
-                $(".btn.save").button('reset');
-
-                return false;
-            });
-
             $(document).on('click', '#change_enddate', function() {
                 var criteria = '';
                 var VendorRateIDs = [];
@@ -972,15 +908,14 @@
                     var Code            = $('#reviewrates-deleted-search input[name="Code"]').val();
                     var Description     = $('#reviewrates-deleted-search input[name="Description"]').val();
                     var Timezone        = $('#reviewrates-deleted-search select[name="Timezone"]').val();
-                    var RoutingCategory = $('#reviewrates-deleted-search select[name="RoutingCategory"]').val();
                     var RateUploadType  = $("input[name=RateUploadType]:checked").val();
-                    var VendorID        = $("select[name=Vendor]:checked").val();
-                    var CustomerID      = $("select[name=Customer]:checked").val();
-                    var RateTableID     = $("select[name=RateTable]:checked").val();
+                    var VendorID        = $("select[name=Vendor]").val();
+                    var CustomerID      = $("select[name=Customer]").val();
+                    var RateTableID     = $("select[name=Ratetable]").val();
 
                     $.ajax({
                         url: '{{URL::to('rate_upload/updateTempReviewRates')}}',
-                        data: 'Action=Deleted&TrunkID='+TrunkID+'&VendorRateIDs='+VendorRateIDs+'&criteria='+criteria+'&ProcessID='+ProcessID+'&Code='+Code+'&Description='+Description+'&Timezone='+Timezone+'&RateUploadType='+RateUploadType+'&VendorID='+VendorID+'&CustomerID='+CustomerID+'&RateTableID='+RateTableID+'&'+$('#frm-change-selected-enddate').serialize(),
+                        data: 'Action=Deleted&TrunkID='+TrunkID+'&VendorRateIDs='+VendorRateIDs+'&criteria='+criteria+'&ProcessID='+ProcessID+'&Code='+Code+'&Description='+Description+'&OriginationCode='+OriginationCode+'&OriginationDescription='+OriginationDescription+'&Timezone='+Timezone+'&RateUploadType='+RateUploadType+'&VendorID='+VendorID+'&CustomerID='+CustomerID+'&RateTableID='+RateTableID+'&'+$('#frm-change-selected-enddate').serialize(),
                         error: function () {
                             toastr.error("error", "Error", toastr_opts);
                         },
@@ -998,7 +933,6 @@
                                 $searchFilter.Code = Code;
                                 $searchFilter.Description = Description;
                                 $searchFilter.Timezone = Timezone;
-                                $searchFilter.RoutingCategory = RoutingCategory;
                                 getDeleteRates(ProcessID, $searchFilter);
                             } else {
                                 toastr.error(response.message, "Error", toastr_opts);
@@ -1013,40 +947,29 @@
                 return false;
             });
 
-            $("#reviewrates-new-search,#reviewrates-increased-search,#reviewrates-decreased-search,#reviewrates-deleted-search").submit(function(e) {
+            $("#reviewrates-new-search,#reviewrates-increased-decreased-search,#reviewrates-deleted-search").submit(function(e) {
                 e.preventDefault();
                 var $ProcessID = $('#ProcessID').val();
-                var OriginationCode, OriginationDescription, RoutingCategory, Code, Description, Timezone;
+                var OriginationCode, OriginationDescription, Code, Description, Timezone;
                 var $searchFilter = {};
 
                 if($(this).attr('id') == 'reviewrates-new-search') {
                     $searchFilter.OriginationCode = OriginationCode = $("#reviewrates-new-search input[name='OriginationCode']").val();
                     $searchFilter.OriginationDescription = OriginationDescription = $("#reviewrates-new-search input[name='OriginationDescription']").val();
-                    $searchFilter.RoutingCategory = RoutingCategory = $("#reviewrates-new-search select[name='RoutingCategory']").val();
                     $searchFilter.Code = Code = $("#reviewrates-new-search input[name='Code']").val();
                     $searchFilter.Description = Description = $("#reviewrates-new-search input[name='Description']").val();
                     $searchFilter.Timezone = Timezone = $("#reviewrates-new-search select[name='Timezone']").val();
                     getNewRates($ProcessID, $searchFilter);
-                } else if($(this).attr('id') == 'reviewrates-increased-search') {
-                    $searchFilter.OriginationCode = OriginationCode = $("#reviewrates-increased-search input[name='OriginationCode']").val();
-                    $searchFilter.OriginationDescription = OriginationDescription = $("#reviewrates-increased-search input[name='OriginationDescription']").val();
-                    $searchFilter.RoutingCategory = RoutingCategory = $("#reviewrates-increased-search select[name='RoutingCategory']").val();
-                    $searchFilter.Code = Code = $("#reviewrates-increased-search input[name='Code']").val();
-                    $searchFilter.Description = Description = $("#reviewrates-increased-search input[name='Description']").val();
-                    $searchFilter.Timezone = Timezone = $("#reviewrates-increased-search select[name='Timezone']").val();
-                    getIncreasedRates($ProcessID, $searchFilter);
-                } else if($(this).attr('id') == 'reviewrates-decreased-search') {
-                    $searchFilter.OriginationCode = OriginationCode = $("#reviewrates-decreased-search input[name='OriginationCode']").val();
-                    $searchFilter.OriginationDescription = OriginationDescription = $("#reviewrates-decreased-search input[name='OriginationDescription']").val();
-                    $searchFilter.RoutingCategory = RoutingCategory = $("#reviewrates-decreased-search select[name='RoutingCategory']").val();
-                    $searchFilter.Code = Code = $("#reviewrates-decreased-search input[name='Code']").val();
-                    $searchFilter.Description = Description = $("#reviewrates-decreased-search input[name='Description']").val();
-                    $searchFilter.Timezone = Timezone = $("#reviewrates-decreased-search select[name='Timezone']").val();
-                    getDecreasedRates($ProcessID, $searchFilter);
+                } else if($(this).attr('id') == 'reviewrates-increased-decreased-search') {
+                    $searchFilter.OriginationCode = OriginationCode = $("#reviewrates-increased-decreased-search input[name='OriginationCode']").val();
+                    $searchFilter.OriginationDescription = OriginationDescription = $("#reviewrates-increased-decreased-search input[name='OriginationDescription']").val();
+                    $searchFilter.Code = Code = $("#reviewrates-increased-decreased-search input[name='Code']").val();
+                    $searchFilter.Description = Description = $("#reviewrates-increased-decreased-search input[name='Description']").val();
+                    $searchFilter.Timezone = Timezone = $("#reviewrates-increased-decreased-search select[name='Timezone']").val();
+                    getIncreasedDecreasedRates($ProcessID, $searchFilter);
                 } else if($(this).attr('id') == 'reviewrates-deleted-search') {
                     $searchFilter.OriginationCode = OriginationCode = $("#reviewrates-deleted-search input[name='OriginationCode']").val();
                     $searchFilter.OriginationDescription = OriginationDescription = $("#reviewrates-deleted-search input[name='OriginationDescription']").val();
-                    $searchFilter.RoutingCategory = RoutingCategory = $("#reviewrates-deleted-search select[name='RoutingCategory']").val();
                     $searchFilter.Code = Code = $("#reviewrates-deleted-search input[name='Code']").val();
                     $searchFilter.Description = Description = $("#reviewrates-deleted-search input[name='Description']").val();
                     $searchFilter.Timezone = Timezone = $("#reviewrates-deleted-search select[name='Timezone']").val();
@@ -1062,8 +985,14 @@
                 $.each( all_available_fields, function( key, value ) {
                     columnsMultiSelect.append("<option value="+value+">"+columns_text[value]+"</option>");
                 });
+                $.each( all_available_timezone_fields, function( key, value ) {
+                    columnsMultiSelect.append("<option value="+value+">"+columns_timezone_text[value]+"</option>");
+                });
                 $.each( all_occupied_fields, function( key, value ) {
                     columnsMultiSelect.append("<option value="+value+" selected>"+columns_text[value]+"</option>");
+                });
+                $.each( all_occupied_timezone_fields, function( key, value ) {
+                    columnsMultiSelect.append("<option value="+value+" selected>"+columns_timezone_text[value]+"</option>");
                 });
                 columnsMultiSelect.bootstrapDualListbox('refresh', true);
                 $('#modal-manage-columns').modal('show');
@@ -1071,26 +1000,31 @@
             $('#btn-change-selected-columns').on('click', function(){
                 var add_fields      = $('#columnsMultiSelect').val();
                 var remove_fields   = $(all_selectable_fields).not(add_fields).get();
+                remove_fields       = remove_fields.concat($(all_selectable_timezone_fields).not(add_fields).get());
                 add_fields = add_fields == '' || add_fields == null ? [] : add_fields;
                 remove_fields = remove_fields == '' || remove_fields == null ? [] : remove_fields;
                 add_fields.sort();
                 // check and add if related field in add_fields
                 // like if Action column added then add ActionDelete too
                 $.each(add_fields, function(key, value) {
-                    $.each(relational_columns[value], function(key_rel, value_rel) {
-                        if($.inArray(value_rel, add_fields) == -1) {
-                            add_fields.push(value_rel);
-                        }
-                    });
+                    if(relational_columns[value] != undefined) {
+                        $.each(relational_columns[value], function (key_rel, value_rel) {
+                            if ($.inArray(value_rel, add_fields) == -1) {
+                                add_fields.push(value_rel);
+                            }
+                        });
+                    }
                 });
-                // check and add if related field in remove_fields
-                // like if Action column added then add ActionDelete too
+                // add field to remove field array
+                // like if MonthlyCost column removed then remove MonthlyCost column from all timezones
                 $.each(remove_fields, function(key, value) {
-                    $.each(relational_columns[value], function(key_rel, value_rel) {
-                        if($.inArray(value_rel, remove_fields) == -1) {
-                            remove_fields.push(value_rel);
-                        }
-                    });
+                    if(relational_columns_timezone[value] != undefined) {
+                        $.each(relational_columns_timezone[value], function (key_rel, value_rel) {
+                            if ($.inArray(value_rel, remove_fields) == -1) {
+                                remove_fields.push(value_rel);
+                            }
+                        });
+                    }
                 });
                 // remove all fields from remove_fields which are in add_fields
                 remove_fields = remove_fields.filter( function( el ) {
@@ -1098,17 +1032,13 @@
                 });
                 // remove fields from html
                 $.each(remove_fields, function(key, value) {
-                    if($.inArray(value, all_occupied_fields) != -1) {
-                        removeFieldFromMapping(value);
-                    }
+                    removeFieldFromMapping(value);
                 });
                 // remove dynamic empty divs
                 fixDynamicColumnsView();
                 // add fields to html
                 $.each(add_fields, function(key, value) {
-                    if($.inArray(value, all_available_fields) != -1) {
-                        addFieldToMapping(value);
-                    }
+                    addFieldToMapping(value);
                 });
                 $('#modal-manage-columns').modal('hide');
             });
@@ -1182,6 +1112,14 @@
                             if(option_value.occupied_fields != undefined && option_value.occupied_fields != '') {
                                 var occupied_fields = option_value.occupied_fields.split(',');
                                 if ($.inArray(key, all_selectable_fields) != -1 && $.inArray(key, occupied_fields) != -1) {
+                                    addFieldToMapping(key);
+                                    // reinitialize dynamic select2
+                                    reinitializeDynamicSelect(key, value);
+                                }
+                            }
+                            if(option_value.occupied_timezone_fields != undefined && option_value.occupied_timezone_fields != '') {
+                                var occupied_timezone_fields = option_value.occupied_timezone_fields.split(',');
+                                if (searchSelectableTimezoneField(key,relational_columns_timezone) != null && $.inArray(key, occupied_timezone_fields) != -1) {
                                     addFieldToMapping(key);
                                     // reinitialize dynamic select2
                                     reinitializeDynamicSelect(key, value);
@@ -1271,11 +1209,8 @@
             //new rates
             getNewRates($ProcessID,$searchFilter);
 
-            //increased rates
-            getIncreasedRates($ProcessID,$searchFilter);
-
-            //decreased rates
-            getDecreasedRates($ProcessID,$searchFilter);
+            //increased-decreased rates
+            getIncreasedDecreasedRates($ProcessID,$searchFilter);
 
             //delete rates
             getDeleteRates($ProcessID,$searchFilter);
@@ -1285,10 +1220,10 @@
             var checked_new             = '';
             var OriginationCode         = '';
             var OriginationDescription  = '';
-            var RoutingCategory         = '';
             var Code                    = '';
             var Description             = '';
             var Timezone                = 1;
+            var RateTableID             = $('#ratetable').val();
             var RateUploadType          = $("input[name=RateUploadType]:checked").val();
 
             if($searchFilter.OriginationCode != 'undefined' && $searchFilter.OriginationCode != undefined) {
@@ -1296,9 +1231,6 @@
             }
             if($searchFilter.OriginationDescription != 'undefined' && $searchFilter.OriginationDescription != undefined) {
                 OriginationDescription = $searchFilter.OriginationDescription;
-            }
-            if($searchFilter.RoutingCategory != 'undefined' && $searchFilter.RoutingCategory != undefined) {
-                RoutingCategory = $searchFilter.RoutingCategory;
             }
             if($searchFilter.Code != 'undefined' && $searchFilter.Code != undefined) {
                 Code = $searchFilter.Code;
@@ -1314,13 +1246,14 @@
                 "bProcessing":true,
                 "bDestroy": true,
                 "bServerSide":true,
+                "scrollX":true,
                 "sAjaxSource": '{{URL::to('rate_upload/getReviewRates')}}',
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox-new.col-xs-1'>'l><'col-xs-6 col-right'<'change-view-new'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"New"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RoutingCategory","value":RoutingCategory},{"name":"RateUploadType","value":RateUploadType});
+                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"New"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RateUploadType","value":RateUploadType},{"name":"RateTableID","value":RateTableID});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"New"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RoutingCategory","value":RoutingCategory},{"name":"RateUploadType","value":RateUploadType});
+                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"New"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RateUploadType","value":RateUploadType},{"name":"RateTableID","value":RateTableID});
                 },
                 "sPaginationType": "bootstrap",
                 "aaSorting"   : [[1, 'asc']],
@@ -1364,24 +1297,26 @@
                             { "bSortable": true },//3 Code
                             { "bSortable": true },//4 Description
                             { "bSortable": false},//5 Timezones
-                            { "bSortable": true },//6 Rate
-                            { "bSortable": true },//7 RateN
-                            { "bSortable": true },//8 EffectiveDate
-                            { "bSortable": true },//9 EndDate
-                            { "bSortable": true },//10 ConnectionFee
-                            { "bSortable": false},//11 Interval1
-                            { "bSortable": false},//12 IntervalN
-                            { "bSortable": false},//13 Preference
-                            { "bSortable": false},//14 Blocked
-                            { "bSortable": false},//15 Routing Category
+                            { "bSortable": true },//6 OneOffCost
+                            { "bSortable": true },//7 MonthlyCost
+                            { "bSortable": true },//8 CostPerCall
+                            { "bSortable": true },//9 CostPerMinute
+                            { "bSortable": true },//10 SurchargePerCall
+                            { "bSortable": true },//11 SurchargePerMinute
+                            { "bSortable": true },//12 OutpaymentPerCall
+                            { "bSortable": true },//13 OutpaymentPerMinute
+                            { "bSortable": true },//14 Surcharges
+                            { "bSortable": true },//15 Chargeback
+                            { "bSortable": true },//16 CollectionCostAmount
+                            { "bSortable": true },//17 CollectionCostPercentage
+                            { "bSortable": true },//18 RegistrationCostPerNumber
+                            { "bSortable": true },//19 EffectiveDate
+                            { "bSortable": true },//20 EndDate
                         ],
                 "fnDrawCallback": function() {
                     $(".dataTables_wrapper select").select2({
                         minimumResultsForSearch: -1
                     });
-                    var toggle = '<button class="btn btn-sm btn-primary grid pull-right change-selected" id="change_intervals" style="margin-right: 30%;"><i class="entypo-pencil"></i> Change Selected</button>';
-                    $('.change-view-new').html(toggle);
-
                     $('#table-reviewrates-new tbody').off('click');
                     $('#table-reviewrates-new tbody').on('click', 'tr', function() {
                         if (checked_new =='') {
@@ -1431,13 +1366,13 @@
             });
         }
 
-        function getIncreasedRates($ProcessID,$searchFilter) {
+        function getIncreasedDecreasedRates($ProcessID,$searchFilter) {
             var OriginationCode         = '';
             var OriginationDescription  = '';
-            var RoutingCategory         = '';
             var Code                    = '';
             var Description             = '';
             var Timezone                = 1;
+            var RateTableID             = $('#ratetable').val();
             var RateUploadType  = $("input[name=RateUploadType]:checked").val();
 
             if($searchFilter.OriginationCode != 'undefined' && $searchFilter.OriginationCode != undefined) {
@@ -1445,9 +1380,6 @@
             }
             if($searchFilter.OriginationDescription != 'undefined' && $searchFilter.OriginationDescription != undefined) {
                 OriginationDescription = $searchFilter.OriginationDescription;
-            }
-            if($searchFilter.RoutingCategory != 'undefined' && $searchFilter.RoutingCategory != undefined) {
-                RoutingCategory = $searchFilter.RoutingCategory;
             }
             if($searchFilter.Code != 'undefined' && $searchFilter.Code != undefined) {
                 Code = $searchFilter.Code;
@@ -1459,17 +1391,18 @@
                 Timezone = $searchFilter.Timezone;
             }
 
-            data_table_increased = $("#table-reviewrates-increased").dataTable({
+            data_table_increased_decreased = $("#table-reviewrates-increased-decreased").dataTable({
                 "bProcessing":true,
                 "bDestroy": true,
                 "bServerSide":true,
+                "scrollX":true,
                 "sAjaxSource": '{{URL::to('rate_upload/getReviewRates')}}',
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox-new.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Increased"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RoutingCategory","value":RoutingCategory},{"name":"RateUploadType","value":RateUploadType});
+                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"IncreasedDecreased"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RateUploadType","value":RateUploadType},{"name":"RateTableID","value":RateTableID});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Increased"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RoutingCategory","value":RoutingCategory},{"name":"RateUploadType","value":RateUploadType});
+                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"IncreasedDecreased"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RateUploadType","value":RateUploadType},{"name":"RateTableID","value":RateTableID});
                 },
                 "sPaginationType": "bootstrap",
                 "aaSorting"   : [[1, 'asc']],
@@ -1482,7 +1415,7 @@
                             "sUrl": '{{URL::to('rate_upload/getReviewRates/exports/xlsx')}}',
                             sButtonClass: "save-collection btn-sm",
                             "fnClick": function ( nButton, oConfig, oFlash ) {
-                                var Action = 'Increased';
+                                var Action = 'IncreasedDecreased';
                                 var URL = '{{URL::to('rate_upload/getReviewRates/exports/xlsx')}}';
                                 exportReviewRates($ProcessID,Action,URL);
                             }
@@ -1493,7 +1426,7 @@
                             "sUrl": '{{URL::to('rate_upload/getReviewRates/exports/csv')}}',
                             sButtonClass: "save-collection btn-sm",
                             "fnClick": function ( nButton, oConfig, oFlash ) {
-                                var Action = 'Increased';
+                                var Action = 'IncreasedDecreased';
                                 var URL = '{{URL::to('rate_upload/getReviewRates/exports/csv')}}';
                                 exportReviewRates($ProcessID,Action,URL);
                             }
@@ -1508,113 +1441,21 @@
                             { "bSortable": true },//3 Code
                             { "bSortable": true },//4 Description
                             { "bSortable": false},//5 Timezones
-                            { "bSortable": true },//6 Rate
-                            { "bSortable": true },//7 RateN
-                            { "bSortable": true },//8 EffectiveDate
-                            { "bSortable": true },//9 EndDate
-                            { "bSortable": true },//10 ConnectionFee
-                            { "bSortable": false},//11 Interval1
-                            { "bSortable": false},//12 IntervalN
-                            { "bSortable": false},//13 Preference
-                            { "bSortable": false},//14 Blocked
-                            { "bSortable": false},//15 Routing Category
-                        ],
-                "fnDrawCallback": function() {
-                    $(".dataTables_wrapper select").select2({
-                        minimumResultsForSearch: -1
-                    });
-                }
-            });
-        }
-
-        function getDecreasedRates($ProcessID,$searchFilter) {
-            var OriginationCode         = '';
-            var OriginationDescription  = '';
-            var RoutingCategory         = '';
-            var Code                    = '';
-            var Description             = '';
-            var Timezone                = 1;
-            var RateUploadType  = $("input[name=RateUploadType]:checked").val();
-
-            if($searchFilter.OriginationCode != 'undefined' && $searchFilter.OriginationCode != undefined) {
-                OriginationCode = $searchFilter.OriginationCode;
-            }
-            if($searchFilter.OriginationDescription != 'undefined' && $searchFilter.OriginationDescription != undefined) {
-                OriginationDescription = $searchFilter.OriginationDescription;
-            }
-            if($searchFilter.RoutingCategory != 'undefined' && $searchFilter.RoutingCategory != undefined) {
-                RoutingCategory = $searchFilter.RoutingCategory;
-            }
-            if($searchFilter.Code != 'undefined' && $searchFilter.Code != undefined) {
-                Code = $searchFilter.Code;
-            }
-            if($searchFilter.Description != 'undefined' && $searchFilter.Description != undefined) {
-                Description = $searchFilter.Description;
-            }
-            if($searchFilter.Timezone != 'undefined' && $searchFilter.Timezone != undefined) {
-                Timezone = $searchFilter.Timezone;
-            }
-
-
-            data_table_decreased = $("#table-reviewrates-decreased").dataTable({
-                "bProcessing":true,
-                "bDestroy": true,
-                "bServerSide":true,
-                "sAjaxSource": '{{URL::to('rate_upload/getReviewRates')}}',
-                "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox-new.col-xs-1'>'l><'col-xs-6 col-right'<'change'><'export-data'T>>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
-                "fnServerParams": function(aoData) {
-                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Decreased"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RoutingCategory","value":RoutingCategory},{"name":"RateUploadType","value":RateUploadType});
-                    data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Decreased"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RoutingCategory","value":RoutingCategory},{"name":"RateUploadType","value":RateUploadType});
-                },
-                "sPaginationType": "bootstrap",
-                "aaSorting"   : [[1, 'asc']],
-                "oTableTools":
-                {
-                    "aButtons": [
-                        {
-                            "sExtends": "download",
-                            "sButtonText": "EXCEL",
-                            "sUrl": '{{URL::to('rate_upload/getReviewRates/exports/xlsx')}}',
-                            sButtonClass: "save-collection btn-sm",
-                            "fnClick": function ( nButton, oConfig, oFlash ) {
-                                var Action = 'Decreased';
-                                var URL = '{{URL::to('rate_upload/getReviewRates/exports/xlsx')}}';
-                                exportReviewRates($ProcessID,Action,URL);
-                            }
-                        },
-                        {
-                            "sExtends": "download",
-                            "sButtonText": "CSV",
-                            "sUrl": '{{URL::to('rate_upload/getReviewRates/exports/csv')}}',
-                            sButtonClass: "save-collection btn-sm",
-                            "fnClick": function ( nButton, oConfig, oFlash ) {
-                                var Action = 'Decreased';
-                                var URL = '{{URL::to('rate_upload/getReviewRates/exports/csv')}}';
-                                exportReviewRates($ProcessID,Action,URL);
-                            }
-                        }
-                    ]
-                },
-                "aoColumns":
-                        [
-                            { "bVisible": false },//0 TempVendorRateID
-                            { "bSortable": true },//1 OriginationCode
-                            { "bSortable": true },//2 OriginationDescription
-                            { "bSortable": true },//3 Code
-                            { "bSortable": true },//4 Description
-                            { "bSortable": false},//5 Timezones
-                            { "bSortable": true },//6 Rate
-                            { "bSortable": true },//7 RateN
-                            { "bSortable": true },//8 EffectiveDate
-                            { "bSortable": true },//9 EndDate
-                            { "bSortable": true },//10 ConnectionFee
-                            { "bSortable": false},//11 Interval1
-                            { "bSortable": false},//12 IntervalN
-                            { "bSortable": false},//13 Preference
-                            { "bSortable": false},//14 Blocked
-                            { "bSortable": false},//15 Routing Category
+                            { "bSortable": true },//6 OneOffCost
+                            { "bSortable": true },//7 MonthlyCost
+                            { "bSortable": true },//8 CostPerCall
+                            { "bSortable": true },//9 CostPerMinute
+                            { "bSortable": true },//10 SurchargePerCall
+                            { "bSortable": true },//11 SurchargePerMinute
+                            { "bSortable": true },//12 OutpaymentPerCall
+                            { "bSortable": true },//13 OutpaymentPerMinute
+                            { "bSortable": true },//14 Surcharges
+                            { "bSortable": true },//15 Chargeback
+                            { "bSortable": true },//16 CollectionCostAmount
+                            { "bSortable": true },//17 CollectionCostPercentage
+                            { "bSortable": true },//18 RegistrationCostPerNumber
+                            { "bSortable": true },//19 EffectiveDate
+                            { "bSortable": true },//20 EndDate
                         ],
                 "fnDrawCallback": function() {
                     $(".dataTables_wrapper select").select2({
@@ -1628,10 +1469,10 @@
             var checked_deleted ='';
             var OriginationCode         = '';
             var OriginationDescription  = '';
-            var RoutingCategory         = '';
             var Code                    = '';
             var Description             = '';
             var Timezone                = 1;
+            var RateTableID             = $('#ratetable').val();
             var RateUploadType  = $("input[name=RateUploadType]:checked").val();
 
             if($searchFilter.OriginationCode != 'undefined' && $searchFilter.OriginationCode != undefined) {
@@ -1639,9 +1480,6 @@
             }
             if($searchFilter.OriginationDescription != 'undefined' && $searchFilter.OriginationDescription != undefined) {
                 OriginationDescription = $searchFilter.OriginationDescription;
-            }
-            if($searchFilter.RoutingCategory != 'undefined' && $searchFilter.RoutingCategory != undefined) {
-                RoutingCategory = $searchFilter.RoutingCategory;
             }
             if($searchFilter.Code != 'undefined' && $searchFilter.Code != undefined) {
                 Code = $searchFilter.Code;
@@ -1657,13 +1495,14 @@
                 "bProcessing":true,
                 "bDestroy": true,
                 "bServerSide":true,
+                "scrollX":true,
                 "sAjaxSource": '{{URL::to('rate_upload/getReviewRates')}}',
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox-deleted.col-xs-1'>'l><'col-xs-6 col-right'<'change-view-deleted'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Deleted"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RoutingCategory","value":RoutingCategory},{"name":"RateUploadType","value":RateUploadType});
+                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Deleted"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RateUploadType","value":RateUploadType},{"name":"RateTableID","value":RateTableID});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Deleted"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RoutingCategory","value":RoutingCategory},{"name":"RateUploadType","value":RateUploadType});
+                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Deleted"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RateUploadType","value":RateUploadType},{"name":"RateTableID","value":RateTableID});
                 },
                 "sPaginationType": "bootstrap",
                 "aaSorting"   : [[1, 'asc']],
@@ -1707,16 +1546,21 @@
                             { "bSortable": true },//3 Code
                             { "bSortable": true },//4 Description
                             { "bSortable": false},//5 Timezones
-                            { "bSortable": true },//6 Rate
-                            { "bSortable": true },//7 RateN
-                            { "bSortable": true },//8 EffectiveDate
-                            { "bSortable": true },//9 EndDate
-                            { "bSortable": true },//10 ConnectionFee
-                            { "bSortable": false},//11 Interval1
-                            { "bSortable": false},//12 IntervalN
-                            { "bSortable": false},//13 Preference
-                            { "bSortable": false},//14 Blocked
-                            { "bSortable": false},//15 Routing Category
+                            { "bSortable": true },//6 OneOffCost
+                            { "bSortable": true },//7 MonthlyCost
+                            { "bSortable": true },//8 CostPerCall
+                            { "bSortable": true },//9 CostPerMinute
+                            { "bSortable": true },//10 SurchargePerCall
+                            { "bSortable": true },//11 SurchargePerMinute
+                            { "bSortable": true },//12 OutpaymentPerCall
+                            { "bSortable": true },//13 OutpaymentPerMinute
+                            { "bSortable": true },//14 Surcharges
+                            { "bSortable": true },//15 Chargeback
+                            { "bSortable": true },//16 CollectionCostAmount
+                            { "bSortable": true },//17 CollectionCostPercentage
+                            { "bSortable": true },//18 RegistrationCostPerNumber
+                            { "bSortable": true },//19 EffectiveDate
+                            { "bSortable": true },//20 EndDate
                         ],
                 "fnDrawCallback": function() {
                     $(".dataTables_wrapper select").select2({
@@ -1888,13 +1732,22 @@
             });
         }
 
+        function searchSelectableTimezoneField(search,arr) {
+            for(key in arr) {
+                if($.inArray(search,arr)) {
+                    return key;
+                }
+            }
+            return false;
+        }
+
         function addFieldToMapping($FieldName) {
             if($.inArray($FieldName,all_selectable_fields) != -1) {
                 if($.inArray($FieldName,all_available_fields) != -1) {
                     var html = $('#controls-selection').find('.control-'+$FieldName).html();
                     if(html != '' || html != undefined) {
                         $("#add-template-form .managable select[name='selection["+$FieldName+"]']").select2('destroy');
-                        var html_div = '<div class="form-group managable solo">';
+                        var html_div = '<div class="form-group managable notimezone solo">';
                         html_div += html;
                         html_div += '</div>';
                         if($('#tab1').find('.solo').html() != undefined) {
@@ -1904,11 +1757,46 @@
                             $('#tab1').find('.duo').last().after(html_div);
                         }
                         $('#controls-selection').find('.control-'+$FieldName).html('');
-
-                        all_available_fields.splice( all_available_fields.indexOf($FieldName), 1 );
+                        all_available_fields.splice(all_available_fields.indexOf($FieldName), 1);
                         all_occupied_fields.push($FieldName);
                         $('#occupied_fields').val(all_occupied_fields);
                         reinitializeDynamicSelect($FieldName);
+                    }
+                }
+            }
+
+            if($.inArray($FieldName,all_selectable_timezone_fields) != -1) {
+                if($.inArray($FieldName,all_available_timezone_fields) != -1) {
+                    if(relational_columns_timezone[$FieldName] != undefined) {
+                        $.each(relational_columns_timezone[$FieldName], function (key, $FieldName2) {
+                            var TimezonesID = $FieldName2.replace( /[^\d.]/g, '' );
+                            var PanelID = '#panel-mapping-'+TimezonesID;
+                            var html = $('#controls-selection').find('.control-'+$FieldName2).html();
+                            if(html != '' || html != undefined) {
+                                $("#add-template-form .managable select[name='selection["+$FieldName2+"]']").select2('destroy');
+                                var html_div = '<div class="form-group managable timezone solo_timezone">';
+                                html_div += html;
+                                html_div += '</div>';
+
+                                if($('#tab1').find(PanelID+' .solo_timezone').html() != undefined) {
+                                    $('#tab1').find(PanelID+' .solo_timezone').last().append(html);
+                                    $('#tab1').find(PanelID+' .solo_timezone').removeClass('solo_timezone').addClass('duo_timezone');
+                                } else {
+                                    $('#tab1').find(PanelID+' .duo_timezone').last().after(html_div);
+                                }
+                                $('#controls-selection').find('.control-'+$FieldName2).html('');
+
+                                var index = all_available_timezone_fields.indexOf($FieldName);
+                                if (index !== -1) all_available_timezone_fields.splice(index, 1);
+
+                                if($.inArray($FieldName,all_occupied_timezone_fields) == -1) {
+                                    all_occupied_timezone_fields.push($FieldName);
+                                }
+                                all_occupied_timezone_fields2.push($FieldName2);
+                                $('#occupied_timezone_fields').val(all_occupied_timezone_fields2);
+                                reinitializeDynamicSelect($FieldName2);
+                            }
+                        });
                     }
                 }
             }
@@ -1922,10 +1810,38 @@
                     if(html != '' || html != undefined) {
                         $("#add-template-form .managable select[name='selection["+$FieldName+"]']").select2('destroy');
                         $('#tab1').find('.control-'+$FieldName+'-controls').appendTo($('.control-'+$FieldName));
-                        all_occupied_fields.splice( all_occupied_fields.indexOf($FieldName), 1 );
-                        all_available_fields.push($FieldName);
-                        $('#occupied_fields').val(all_occupied_fields);
+
+                        if($.inArray($FieldName,all_selectable_fields) != -1) {
+                            all_occupied_fields.splice(all_occupied_fields.indexOf($FieldName), 1);
+                            all_available_fields.push($FieldName);
+                            $('#occupied_fields').val(all_occupied_fields);
+                        }
                         reinitializeDynamicSelect($FieldName);
+                    }
+                }
+            }
+
+            if($.inArray($FieldName,all_selectable_timezone_fields) != -1) {
+                if ($.inArray($FieldName, all_occupied_timezone_fields) != -1) {
+                    if (relational_columns_timezone[$FieldName] != undefined) {
+                        $.each(relational_columns_timezone[$FieldName], function (key, $FieldName2) {
+                            var html = $('#tab1').find('.control-' + $FieldName2 + '-controls').html();
+                            if (html != '' || html != undefined) {
+                                $("#add-template-form .managable select[name='selection[" + $FieldName2 + "]']").select2('destroy');
+                                $('#tab1').find('.control-' + $FieldName2 + '-controls').appendTo($('.control-' + $FieldName2));
+
+                                if ($.inArray($FieldName, all_selectable_timezone_fields) != -1) {
+                                    var index = all_occupied_timezone_fields.indexOf($FieldName);
+                                    if (index !== -1) all_occupied_timezone_fields.splice(index, 1);
+                                    all_occupied_timezone_fields2.splice(all_occupied_timezone_fields2.indexOf($FieldName2), 1);
+                                    if ($.inArray($FieldName, all_available_timezone_fields) == -1) {
+                                        all_available_timezone_fields.push($FieldName);
+                                    }
+                                    $('#occupied_timezone_fields').val(all_occupied_timezone_fields2);
+                                }
+                                reinitializeDynamicSelect($FieldName);
+                            }
+                        });
                     }
                 }
             }
@@ -1933,9 +1849,16 @@
         }
 
         function fixDynamicColumnsView() {
-            $('.managable').each(function() {
+            $('.managable.notimezone').each(function() {
                 if($(this).find('label').length == 1 ) {
                     $(this).removeClass('duo').addClass('solo');
+                } else if($(this).find('label').length == 0 ) {
+                    $(this).remove();
+                }
+            });
+            $('.managable.timezone').each(function() {
+                if($(this).find('label').length == 1 ) {
+                    $(this).removeClass('duo_timezone').addClass('solo_timezone');
                 } else if($(this).find('label').length == 0 ) {
                     $(this).remove();
                 }
@@ -2099,13 +2022,8 @@
                             </a>
                         </li>
                         <li>
-                            <a href="#reviewrates-increased" data-toggle="tab" >
-                                <span class="hidden-xs">Increased</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#reviewrates-decreased" data-toggle="tab" >
-                                <span class="hidden-xs">Decreased</span>
+                            <a href="#reviewrates-increased-decreased" data-toggle="tab" >
+                                <span class="hidden-xs">Increased-Decreased</span>
                             </a>
                         </li>
                         <li>
@@ -2154,10 +2072,6 @@
                                                     <div class="col-sm-3">
                                                         <input type="text" name="Description" class="form-control" placeholder="" value="" />
                                                     </div>
-                                                    <label class="col-sm-1 control-label">Routing Category</label>
-                                                    <div class="col-sm-3">
-                                                        {{Form::select('RoutingCategory', $RoutingCategory,'',array("class"=>"select2 small"))}}
-                                                    </div>
                                                 </div>
                                                 <p style="text-align: right; margin: 0;">
                                                     <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
@@ -2181,16 +2095,21 @@
                                             <th width="15%" >Dest. Code</th>
                                             <th width="15%" >Dest. Description</th>
                                             <th width="15%" >Timezones</th>
-                                            <th width="15%" >Rate</th>
-                                            <th width="15%" >RateN</th>
+                                            <th width="15%" >OneOffCost</th>
+                                            <th width="15%" >MonthlyCost</th>
+                                            <th width="15%" >CostPerCall</th>
+                                            <th width="15%" >CostPerMinute</th>
+                                            <th width="15%" >SurchargePerCall</th>
+                                            <th width="15%" >SurchargePerMinute</th>
+                                            <th width="15%" >OutpaymentPerCall</th>
+                                            <th width="15%" >OutpaymentPerMinute</th>
+                                            <th width="15%" >Surcharges</th>
+                                            <th width="15%" >Chargeback</th>
+                                            <th width="15%" >CollectionCostAmount</th>
+                                            <th width="15%" >CollectionCostPercentage</th>
+                                            <th width="15%" >RegistrationCostPerNumber</th>
                                             <th width="15%" >Effective Date</th>
                                             <th width="15%" >End Date</th>
-                                            <th width="15%" >Connection Fee</th>
-                                            <th width="15%" >Interval 1</th>
-                                            <th width="15%" >Interval N</th>
-                                            <th width="15%" >Preference</th>
-                                            <th width="15%" >Blocked</th>
-                                            <th width="15%" >Routing Category</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -2199,10 +2118,10 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="tab-pane fade in" id="reviewrates-increased">
+                        <div class="tab-pane fade in" id="reviewrates-increased-decreased">
                             <div class="row">
                                 <div class="col-md-12">
-                                    <form role="form" id="reviewrates-increased-search" method="get" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+                                    <form role="form" id="reviewrates-increased-decreased-search" method="get" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
                                         <div class="panel panel-primary panel-collapse" data-collapsed="0">
                                             <div class="panel-heading">
                                                 <div class="panel-title">
@@ -2238,10 +2157,6 @@
                                                     <div class="col-sm-3">
                                                         <input type="text" name="Description" class="form-control" placeholder="" value="" />
                                                     </div>
-                                                    <label class="col-sm-1 control-label">Routing Category</label>
-                                                    <div class="col-sm-3">
-                                                        {{Form::select('RoutingCategory', $RoutingCategory,'',array("class"=>"select2 small"))}}
-                                                    </div>
                                                 </div>
                                                 <p style="text-align: right; margin: 0;">
                                                     <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
@@ -2256,7 +2171,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-12">
-                                    <table class="table table-bordered datatable" id="table-reviewrates-increased">
+                                    <table class="table table-bordered datatable" id="table-reviewrates-increased-decreased">
                                         <thead>
                                         <tr>
                                             <th width="5%" ></th>
@@ -2265,100 +2180,21 @@
                                             <th width="15%" >Dest. Code</th>
                                             <th width="15%" >Dest. Description</th>
                                             <th width="15%" >Timezones</th>
-                                            <th width="15%" >Rate</th>
-                                            <th width="15%" >RateN</th>
+                                            <th width="15%" >OneOffCost</th>
+                                            <th width="15%" >MonthlyCost</th>
+                                            <th width="15%" >CostPerCall</th>
+                                            <th width="15%" >CostPerMinute</th>
+                                            <th width="15%" >SurchargePerCall</th>
+                                            <th width="15%" >SurchargePerMinute</th>
+                                            <th width="15%" >OutpaymentPerCall</th>
+                                            <th width="15%" >OutpaymentPerMinute</th>
+                                            <th width="15%" >Surcharges</th>
+                                            <th width="15%" >Chargeback</th>
+                                            <th width="15%" >CollectionCostAmount</th>
+                                            <th width="15%" >CollectionCostPercentage</th>
+                                            <th width="15%" >RegistrationCostPerNumber</th>
                                             <th width="15%" >Effective Date</th>
                                             <th width="15%" >End Date</th>
-                                            <th width="15%" >Connection Fee</th>
-                                            <th width="15%" >Interval 1</th>
-                                            <th width="15%" >Interval N</th>
-                                            <th width="15%" >Preference</th>
-                                            <th width="15%" >Blocked</th>
-                                            <th width="15%" >Routing Category</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="tab-pane fade in" id="reviewrates-decreased">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <form role="form" id="reviewrates-decreased-search" method="get" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
-                                        <div class="panel panel-primary panel-collapse" data-collapsed="0">
-                                            <div class="panel-heading">
-                                                <div class="panel-title">
-                                                    Search
-                                                </div>
-
-                                                <div class="panel-options">
-                                                    <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                                                </div>
-                                            </div>
-
-                                            <div class="panel-body" style="display: none;">
-                                                <div class="form-group">
-                                                    <label class="col-sm-1 control-label">Orig. Code</label>
-                                                    <div class="col-sm-3">
-                                                        <input type="text" name="OriginationCode" class="form-control" placeholder="" value="" />
-                                                    </div>
-                                                    <label class="col-sm-1 control-label">Orig. Description</label>
-                                                    <div class="col-sm-3">
-                                                        <input type="text" name="OriginationDescription" class="form-control" placeholder="" value="" />
-                                                    </div>
-                                                    <label class="col-sm-1 control-label">Timezone</label>
-                                                    <div class="col-sm-3">
-                                                        {{Form::select('Timezone', $AllTimezones,'',array("class"=>"select2 small"))}}
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label class="col-sm-1 control-label">Dest. Code</label>
-                                                    <div class="col-sm-3">
-                                                        <input type="text" name="Code" class="form-control" placeholder="" value="" />
-                                                    </div>
-                                                    <label class="col-sm-1 control-label">Dest. Description</label>
-                                                    <div class="col-sm-3">
-                                                        <input type="text" name="Description" class="form-control" placeholder="" value="" />
-                                                    </div>
-                                                    <label class="col-sm-1 control-label">Routing Category</label>
-                                                    <div class="col-sm-3">
-                                                        {{Form::select('RoutingCategory', $RoutingCategory,'',array("class"=>"select2 small"))}}
-                                                    </div>
-                                                </div>
-                                                <p style="text-align: right; margin: 0;">
-                                                    <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
-                                                        <i class="entypo-search"></i>
-                                                        Search
-                                                    </button>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <table class="table table-bordered datatable" id="table-reviewrates-decreased">
-                                        <thead>
-                                        <tr>
-                                            <th width="5%" ></th>
-                                            <th width="15%" >Orig. Code</th>
-                                            <th width="15%" >Orig. Description</th>
-                                            <th width="15%" >Dest. Code</th>
-                                            <th width="15%" >Dest. Description</th>
-                                            <th width="15%" >Timezones</th>
-                                            <th width="15%" >Rate</th>
-                                            <th width="15%" >RateN</th>
-                                            <th width="15%" >Effective Date</th>
-                                            <th width="15%" >End Date</th>
-                                            <th width="15%" >Connection Fee</th>
-                                            <th width="15%" >Interval 1</th>
-                                            <th width="15%" >Interval N</th>
-                                            <th width="15%" >Preference</th>
-                                            <th width="15%" >Blocked</th>
-                                            <th width="15%" >Routing Category</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -2406,10 +2242,6 @@
                                                     <div class="col-sm-3">
                                                         <input type="text" name="Description" class="form-control" placeholder="" value="" />
                                                     </div>
-                                                    <label class="col-sm-1 control-label">Routing Category</label>
-                                                    <div class="col-sm-3">
-                                                        {{Form::select('RoutingCategory', $RoutingCategory,'',array("class"=>"select2 small"))}}
-                                                    </div>
                                                 </div>
                                                 <p style="text-align: right; margin: 0;">
                                                     <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
@@ -2433,16 +2265,21 @@
                                             <th width="15%" >Dest. Code</th>
                                             <th width="15%" >Dest. Description</th>
                                             <th width="15%" >Timezones</th>
-                                            <th width="15%" >Rate</th>
-                                            <th width="15%" >RateN</th>
+                                            <th width="15%" >OneOffCost</th>
+                                            <th width="15%" >MonthlyCost</th>
+                                            <th width="15%" >CostPerCall</th>
+                                            <th width="15%" >CostPerMinute</th>
+                                            <th width="15%" >SurchargePerCall</th>
+                                            <th width="15%" >SurchargePerMinute</th>
+                                            <th width="15%" >OutpaymentPerCall</th>
+                                            <th width="15%" >OutpaymentPerMinute</th>
+                                            <th width="15%" >Surcharges</th>
+                                            <th width="15%" >Chargeback</th>
+                                            <th width="15%" >CollectionCostAmount</th>
+                                            <th width="15%" >CollectionCostPercentage</th>
+                                            <th width="15%" >RegistrationCostPerNumber</th>
                                             <th width="15%" >Effective Date</th>
                                             <th width="15%" >End Date</th>
-                                            <th width="15%" >Connection Fee</th>
-                                            <th width="15%" >Interval 1</th>
-                                            <th width="15%" >Interval N</th>
-                                            <th width="15%" >Preference</th>
-                                            <th width="15%" >Blocked</th>
-                                            <th width="15%" >Routing Category</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -2461,45 +2298,6 @@
                     </button>
                     <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
                 </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="modal-change-selected-intervals">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <form id="frm-change-selected-intervals" method="post">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Change Selected</h4>
-                    </div>
-
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <input type="checkbox" name="updateInterval1" value="1" class="" />
-                                    <label for="field-5" class="control-label">Interval 1</label>
-                                    <input type="text" value="1" name="Interval1" class="form-control numbercheck" placeholder="">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <input type="checkbox" name="updateIntervalN" value="1" class="" />
-                                    <label for="field-4" class="control-label">Interval N</label>
-                                    <input type="text" name="IntervalN"  class="form-control numbercheck" value="1" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="submit" id="btn-change-selected-intervals"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                            <i class="entypo-floppy"></i>
-                            Save
-                        </button>
-                        <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
