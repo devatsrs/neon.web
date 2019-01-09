@@ -79,15 +79,12 @@
                             <input type="checkbox" id="selectall" name="checkbox[]" class="">
                         </div>
                     </th>
-                    <th>Routing CLD</th>
-                    <th>Routing To</th>
-                    <th>Connection</th>
-                    <th>Routing Category</th>
-                    <th>Preference</th>
-                    <th>Price</th>
                     <th>Destination</th>
-                    <th>Description</th>
                     <th>Vendor</th>
+                    <th>Connection</th>
+                    <th>Rate</th>
+                    <th>Routing Category</th>
+                    <th>IP</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -214,16 +211,13 @@
                             }
 
                         },
-                        {"bSortable": true, mRender: function (id, type, full) { }},
-                        {"bSortable": true, mRender: function (id, type, full) { }},
-                        {"bSortable": true, mRender: function (id, type, full) { return full[4];}},
-                        {"bSortable": true, mRender: function (id, type, full) { return full[13]; }},
-                        {"bSortable": true, mRender: function (id, type, full) { return full[14];}},
-                        {"bSortable": true, mRender: function (id, type, full) { return full[12];}},
                         {"bSortable": true, mRender: function (id, type, full) { return full[1];}},
-                        {"bSortable": true, mRender: function (id, type, full) { }},
                         {"bSortable": true, mRender: function (id, type, full) {return full[3]; }},
-
+                        {"bSortable": true, mRender: function (id, type, full) { return full[4];}},
+                        {"bSortable": true, mRender: function (id, type, full) { return full[12]; }},
+                        {"bSortable": true, mRender: function (id, type, full) { return full[14];}},
+                        {"bSortable": true, mRender: function (id, type, full) { return full[6];}},
+                       
 
                     ],
                     "oTableTools": {
