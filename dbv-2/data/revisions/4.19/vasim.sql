@@ -1089,6 +1089,182 @@ DELIMITER ;
 
 
 
+DROP PROCEDURE IF EXISTS `fnUsageDetail`;
+DELIMITER //
+CREATE PROCEDURE `fnUsageDetail`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_GatewayID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_UserID` INT,
+	IN `p_isAdmin` INT,
+	IN `p_billing_time` INT,
+	IN `p_cdr_type` VARCHAR(50),
+	IN `p_CLI` VARCHAR(50),
+	IN `p_CLD` VARCHAR(50),
+	IN `p_zerovaluecost` INT
+)
+BEGIN
+	DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageDetails_;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageDetails_(
+		AccountID int,
+		AccountName varchar(100),
+		GatewayAccountID varchar(100),
+		trunk varchar(50),
+		area_prefix varchar(50),
+		pincode VARCHAR(50),
+		extension VARCHAR(50),
+		UsageDetailID int,
+		duration int,
+		billed_duration int,
+		billed_second int,
+		cli varchar(500),
+		cld varchar(500),
+		cost decimal(18,6),
+		connect_time datetime,
+		disconnect_time datetime,
+		is_inbound tinyint(1) default 0,
+		ID BIGINT(20),
+		ServiceID INT
+	);
+	INSERT INTO tmp_tblUsageDetails_
+	SELECT
+	*
+	FROM (
+		SELECT
+			uh.AccountID,
+			a.AccountName,
+			uh.GatewayAccountID,
+			trunk,
+			area_prefix,
+			pincode,
+			extension,
+			UsageDetailID,
+			duration,
+			billed_duration,
+			billed_second,
+			cli,
+			cld,
+			cost,
+			connect_time,
+			disconnect_time,
+			ud.is_inbound,
+			ud.ID,
+			uh.ServiceID
+		FROM RMCDR3.tblUsageDetails  ud
+		INNER JOIN RMCDR3.tblUsageHeader uh
+			ON uh.UsageHeaderID = ud.UsageHeaderID
+		INNER JOIN Ratemanagement3.tblAccount a
+			ON uh.AccountID = a.AccountID
+		WHERE
+		(
+			p_cdr_type = '' OR
+			(p_cdr_type = 'inbound' AND ud.is_inbound = 1) OR
+			(p_cdr_type = 'outbound' AND ud.is_inbound = 0)
+		)
+		AND  StartDate >= DATE_ADD(p_StartDate,INTERVAL -1 DAY)
+		AND StartDate <= DATE_ADD(p_EndDate,INTERVAL 1 DAY)
+		AND a.CompanyId = p_CompanyID
+		AND uh.AccountID IS NOT NULL
+		AND (p_AccountID = 0 OR uh.AccountID = p_AccountID)
+		AND (p_GatewayID = 0 OR CompanyGatewayID = p_GatewayID)
+		AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
+		AND (p_CLI = '' OR cli LIKE REPLACE(p_CLI, '*', '%'))
+		AND (p_CLD = '' OR cld LIKE REPLACE(p_CLD, '*', '%'))
+		AND (p_zerovaluecost = 0 OR ( p_zerovaluecost = 1 AND COALESCE(cost,0) = 0) OR ( p_zerovaluecost = 2 AND cost > 0))
+	) tbl
+	WHERE
+	( (p_billing_time =1 OR p_billing_time =3) AND connect_time >= p_StartDate AND connect_time <= p_EndDate)
+	OR
+	(p_billing_time =2 AND disconnect_time >= p_StartDate AND disconnect_time <= p_EndDate)
+
+
+	AND billed_duration > 0
+	ORDER BY disconnect_time DESC;
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `fnVendorUsageDetail`;
+DELIMITER //
+CREATE PROCEDURE `fnVendorUsageDetail`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_GatewayID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_UserID` INT,
+	IN `p_isAdmin` INT,
+	IN `p_billing_time` INT,
+	IN `p_CLI` VARCHAR(50),
+	IN `p_CLD` VARCHAR(50),
+	IN `p_ZeroValueBuyingCost` INT
+)
+BEGIN
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_tblVendorUsageDetails_;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblVendorUsageDetails_(
+		AccountID INT,
+		AccountName VARCHAR(50),
+		trunk VARCHAR(50),
+		area_prefix VARCHAR(50),
+		VendorCDRID INT,
+		billed_duration INT,
+		cli VARCHAR(500),
+		cld VARCHAR(500),
+		selling_cost DECIMAL(18,6),
+		buying_cost DECIMAL(18,6),
+		connect_time DATETIME,
+		disconnect_time DATETIME
+	);
+	INSERT INTO tmp_tblVendorUsageDetails_
+	SELECT
+	*
+	FROM (
+		SELECT
+			uh.AccountID,
+			a.AccountName,
+			trunk,
+			area_prefix,
+			VendorCDRID,
+			billed_duration,
+			cli,
+			cld,
+			selling_cost,
+			buying_cost,
+			connect_time,
+			disconnect_time
+		FROM RMCDR3.tblVendorCDR  ud
+		INNER JOIN RMCDR3.tblVendorCDRHeader uh
+			ON uh.VendorCDRHeaderID = ud.VendorCDRHeaderID
+		INNER JOIN Ratemanagement3.tblAccount a
+			ON uh.AccountID = a.AccountID
+		WHERE StartDate >= DATE_ADD(p_StartDate,INTERVAL -1 DAY)
+		AND StartDate <= DATE_ADD(p_EndDate,INTERVAL 1 DAY)
+		AND uh.CompanyID = p_CompanyID
+		AND uh.AccountID IS NOT NULL
+		AND (p_AccountID = 0 OR uh.AccountID = p_AccountID)
+		AND (p_GatewayID = 0 OR CompanyGatewayID = p_GatewayID)
+		AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
+		AND (p_CLI = '' OR cli LIKE REPLACE(p_CLI, '*', '%'))
+		AND (p_CLD = '' OR cld LIKE REPLACE(p_CLD, '*', '%'))
+		AND ((p_ZeroValueBuyingCost = 0) OR ( p_ZeroValueBuyingCost = 1 AND COALESCE(buying_cost,0) = 0) OR ( p_ZeroValueBuyingCost = 2 AND buying_cost > 0))
+	) tbl
+	WHERE
+	( ( p_billing_time =1 OR p_billing_time =3 )  AND connect_time >= p_StartDate AND connect_time <= p_EndDate)
+	OR
+	(p_billing_time =2 AND disconnect_time >= p_StartDate AND disconnect_time <= p_EndDate)
+--	AND billed_duration > 0      (  Sumera : Insert Vendor CDR :  only if  billed_duration = 0 AND buying_cost = 0 AND selling_cost =  0  ; then only insert into failed call)
+	ORDER BY disconnect_time DESC;
+END//
+DELIMITER ;
+
+
+
+
 DROP PROCEDURE IF EXISTS `prc_InsertTempReRateCDR`;
 DELIMITER //
 CREATE PROCEDURE `prc_InsertTempReRateCDR`(
@@ -1116,21 +1292,21 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 	SELECT fnGetBillingTime(p_CompanyGatewayID,p_AccountID) INTO v_BillingTime_;
-	
+
 	IF p_ResellerID > 0
 	THEN
 		DROP TEMPORARY TABLE IF EXISTS tmp_reselleraccounts_;
 		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_reselleraccounts_(
 			AccountID int
 		);
-	
+
 		INSERT INTO tmp_reselleraccounts_
 		SELECT AccountID FROM Ratemanagement3.tblAccountDetails WHERE ResellerOwner=p_ResellerID
 		UNION
 		SELECT AccountID FROM Ratemanagement3.tblReseller WHERE ResellerID=p_ResellerID;
-	
+
 		SELECT IFNULL(GROUP_CONCAT(AccountID),'') INTO v_raccountids FROM tmp_reselleraccounts_;
-		
+
 	END IF;
 
 	SET @stm1 = CONCAT('
@@ -1170,7 +1346,7 @@ BEGIN
 	SELECT
 	*
 	FROM (SELECT
-		Distinct 
+		Distinct
 		uh.CompanyID,
 		uh.CompanyGatewayID,
 		uh.GatewayAccountID,
@@ -1215,7 +1391,7 @@ BEGIN
 	FROM RMCDR3.tblUsageDetails  ud
 	INNER JOIN RMCDR3.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
-	LEFT JOIN RMCDR3.tblRetailUsageDetail dr on ud.UsageDetailID = dr.UsageDetailID AND ud.ID = dr.ID	
+	LEFT JOIN RMCDR3.tblRetailUsageDetail dr on ud.UsageDetailID = dr.UsageDetailID AND ud.ID = dr.ID
 	INNER JOIN Ratemanagement3.tblAccount a
 		ON uh.AccountID = a.AccountID
 	LEFT JOIN tblGatewayAccount ga
@@ -1233,7 +1409,7 @@ WHERE
 	AND ( "' , p_CLD , '" = "" OR cld LIKE REPLACE("' , p_CLD , '", "*", "%"))
 	AND ( "' , p_trunk , '" = ""  OR  trunk = "' , p_trunk , '")
 	AND ( "' , p_area_prefix , '" = "" OR area_prefix LIKE REPLACE( "' , p_area_prefix , '", "*", "%"))
-	AND ( "' , p_zerovaluecost , '" = 0 OR (  "' , p_zerovaluecost , '" = 1 AND cost = 0) OR (  "' , p_zerovaluecost , '" = 2 AND cost > 0))
+	AND ( "' , p_zerovaluecost , '" = 0 OR (  "' , p_zerovaluecost , '" = 1 AND COALESCE(cost,0) = 0) OR (  "' , p_zerovaluecost , '" = 2 AND cost > 0))
 	AND ( "' , p_ResellerID , '" = 0 OR FIND_IN_SET(uh.AccountID, "' , v_raccountids ,'" ) != 0)
 
 	) tbl
@@ -1244,7 +1420,143 @@ WHERE
 	AND billed_duration > 0;
 	');
 
-	
+
+	PREPARE stmt1 FROM @stm1;
+	EXECUTE stmt1;
+	DEALLOCATE PREPARE stmt1;
+
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_InsertTempReRateVendorCDR`;
+DELIMITER //
+CREATE PROCEDURE `prc_InsertTempReRateVendorCDR`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_AccountID` INT,
+	IN `p_ProcessID` VARCHAR(50),
+	IN `p_tbltempvendorcdrl_name` VARCHAR(50),
+	IN `p_CLI` VARCHAR(50),
+	IN `p_CLD` VARCHAR(50),
+	IN `p_zerovaluebuyingcost` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_area_prefix` VARCHAR(50),
+	IN `p_trunk` VARCHAR(50),
+	IN `p_RateMethod` VARCHAR(50)
+)
+BEGIN
+	DECLARE v_BillingTime_ INT;
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SELECT fnGetBillingTime(p_CompanyGatewayID,p_AccountID) INTO v_BillingTime_;
+
+	SET @stm1 = CONCAT('
+
+	INSERT INTO RMCDR3.`' , p_tbltempvendorcdrl_name , '` (
+		CompanyID,
+		CompanyGatewayID,
+		GatewayAccountID,
+		GatewayAccountPKID,
+		AccountID,
+		ServiceID,
+		connect_time,
+		disconnect_time,
+		billed_duration,
+		area_prefix,
+		trunk,
+		cli,
+		cld,
+		selling_cost,
+		buying_cost,
+		remote_ip,
+		duration,
+		ProcessID,
+		ID,
+		billed_second,
+		AccountName,
+		AccountNumber,
+		AccountCLI,
+		AccountIP
+	)
+
+	SELECT
+	*
+	FROM (SELECT
+		Distinct
+		uh.CompanyID,
+		uh.CompanyGatewayID,
+		uh.GatewayAccountID,
+		uh.GatewayAccountPKID,
+		uh.AccountID,
+		uh.ServiceID,
+		connect_time,
+		disconnect_time,
+		billed_duration,
+		CASE WHEN   "' , p_RateMethod , '" = "SpecifyRate"
+		THEN
+			area_prefix
+		ELSE
+			"Other"
+		END
+		AS area_prefix,
+		CASE WHEN   "' , p_RateMethod , '" = "SpecifyRate"
+		THEN
+			trunk
+		ELSE
+			"Other"
+		END
+		AS trunk,
+		cli,
+		cld,
+		selling_cost,
+		buying_cost,
+		remote_ip,
+		duration,
+		"',p_ProcessID,'",
+		ud.ID,
+		billed_second,
+		IFNULL(ga.AccountName,""),
+		IFNULL(ga.AccountNumber,""),
+		IFNULL(ga.AccountCLI,""),
+		IFNULL(ga.AccountIP,"")
+	FROM RMCDR3.tblVendorCDR  ud
+	INNER JOIN RMCDR3.tblVendorCDRHeader uh
+		ON uh.VendorCDRHeaderID = ud.VendorCDRHeaderID
+	INNER JOIN Ratemanagement3.tblAccount a
+		ON uh.AccountID = a.AccountID
+	LEFT JOIN tblGatewayAccount ga
+		ON ga.GatewayAccountPKID = uh.GatewayAccountPKID
+WHERE
+	StartDate >= DATE_ADD( "' , p_StartDate , '",INTERVAL -1 DAY)
+	AND StartDate <= DATE_ADD( "' , p_EndDate , '",INTERVAL 1 DAY)
+	AND uh.CompanyID =  "' , p_CompanyID , '"
+	AND uh.AccountID is not null
+	AND ( "' , p_AccountID , '" = 0 OR uh.AccountID = "' , p_AccountID , '")
+	AND ( "' , p_CompanyGatewayID , '" = 0 OR uh.CompanyGatewayID = "' , p_CompanyGatewayID , '")
+	AND ( "' , p_CurrencyID ,'" = "0" OR a.CurrencyId = "' , p_CurrencyID , '")
+	AND ( "' , p_CLI , '" = "" OR cli LIKE REPLACE("' , p_CLI , '", "*", "%"))
+	AND ( "' , p_CLD , '" = "" OR cld LIKE REPLACE("' , p_CLD , '", "*", "%"))
+	AND ( "' , p_trunk , '" = ""  OR  trunk = "' , p_trunk , '")
+	AND ( "' , p_area_prefix , '" = "" OR area_prefix LIKE REPLACE( "' , p_area_prefix , '", "*", "%"))
+	AND ( "' , p_zerovaluebuyingcost , '" = 0 OR (  "' , p_zerovaluebuyingcost , '" = 1 AND COALESCE(buying_cost,0) = 0) OR (  "' , p_zerovaluebuyingcost , '" = 2 AND buying_cost > 0))
+
+	) tbl
+	WHERE
+	( ( "' , v_BillingTime_ , '" =1 OR  "' , v_BillingTime_ , '" = 3 ) AND connect_time >=  "' , p_StartDate , '" AND connect_time <=  "' , p_EndDate , '")
+	OR
+	("' , v_BillingTime_ , '" =2 AND disconnect_time >=  "' , p_StartDate , '" AND disconnect_time <=  "' , p_EndDate , '")
+	AND billed_duration > 0;
+	');
+
+
 	PREPARE stmt1 FROM @stm1;
 	EXECUTE stmt1;
 	DEALLOCATE PREPARE stmt1;
