@@ -4,6 +4,15 @@ class RateUploadController extends \BaseController {
 
     public function index($id=0,$RateUploadType='') {
         $VendorID = $CustomerID = $RatetableID = 0;
+        $Type = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL); // default upload page voice call rate upload
+
+        $Vendors            = Account::getOnlyVendorIDList();
+        $Ratetables         = RateTable::getRateTableList();    unset($Ratetables[array_search('Select',$Ratetables)]);
+        $Customers          = Account::getOnlyCustomerIDList();
+
+        if($RateUploadType == '') { //default upload type
+            $RateUploadType = RateUpload::ratetable;
+        }
 
         if($RateUploadType == RateUpload::vendor) {
             $VendorID       = $id;
@@ -11,35 +20,42 @@ class RateUploadController extends \BaseController {
             $CustomerID     = $id;
         } else if($RateUploadType == RateUpload::ratetable) {
             $RatetableID    = $id;
+
+            if(empty($RatetableID) && count($Ratetables) > 0) {
+                $RatetableID = key($Ratetables);
+            }
+            if(!empty($RatetableID)) {
+                $Type = Ratetable::find($RatetableID)->Type;
+            }
         }
 
-        if($RateUploadType == '') { //default upload type
-            $RateUploadType = RateUpload::ratetable;
-        }
-
-        $Vendors            = Account::getOnlyVendorIDList();
-        $Ratetables         = RateTable::getRateTableList();    unset($Ratetables[array_search('Select',$Ratetables)]);
-        $Customers          = Account::getOnlyCustomerIDList();
         $dialstring         = DialString::getDialStringIDList();
         $currencies         = Currency::getCurrencyDropdownIDList();
         $uploadtypes        = RateUpload::$uploadtypes;
         $Timezones          = Timezones::getTimezonesIDList(1);//no default timezones, only user defined timezones
         $AllTimezones       = Timezones::getTimezonesIDList();//all timezones
         $RoutingCategory    = RoutingCategory::getCategoryDropdownIDList();//all timezones
-        $TypeVoiceCall      = RateType::getRateTypeIDBySlug('voicecall');
+        $TypeVoiceCall      = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
 
-        return View::make('rateupload.index', compact('Vendors','Customers','Ratetables','VendorID','CustomerID','RatetableID','dialstring','currencies','uploadtypes','RateUploadType','id','Timezones','AllTimezones','RoutingCategory','TypeVoiceCall'));
+        if($Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID)) {
+            return View::make('rateupload.index_did', compact('Vendors', 'Customers', 'Ratetables', 'VendorID', 'CustomerID', 'RatetableID', 'dialstring', 'currencies', 'uploadtypes', 'RateUploadType', 'id', 'Timezones', 'AllTimezones', 'RoutingCategory', 'TypeVoiceCall'));
+        } else {
+            return View::make('rateupload.index', compact('Vendors', 'Customers', 'Ratetables', 'VendorID', 'CustomerID', 'RatetableID', 'dialstring', 'currencies', 'uploadtypes', 'RateUploadType', 'id', 'Timezones', 'AllTimezones', 'RoutingCategory', 'TypeVoiceCall'));
+        }
     }
 
     public function getUploadTemplates($RateUploadType) {
+        $data = Input::all();
         $response = array();
 
         if($RateUploadType == RateUpload::vendor) {
             $TemplateType = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_VENDOR_RATE);
         } else if($RateUploadType == RateUpload::customer) {
             $TemplateType = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_CUSTOMER_RATE);
-        } else if($RateUploadType == RateUpload::ratetable) {
+        } else if($RateUploadType == RateUpload::ratetable && $data['RateType'] == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)) {
             $TemplateType = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_RATETABLE_RATE);
+        } else if($RateUploadType == RateUpload::ratetable && $data['RateType'] == RateType::getRateTypeIDBySlug(RateType::SLUG_DID)) {
+            $TemplateType = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_RATETABLE_DIDRATE);
         }
 
         $arrData = FileUploadTemplate::where(['CompanyID'=>User::get_companyID(),'FileUploadTemplateTypeID'=>$TemplateType])->orderBy('Title')->get(['Title', 'FileUploadTemplateID', 'Options'])->toArray();
@@ -201,8 +217,10 @@ class RateUploadController extends \BaseController {
                     $TemplateType = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_VENDOR_RATE);
                 } else if ($data['RateUploadType'] == RateUpload::customer) {
                     $TemplateType = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_CUSTOMER_RATE);
-                } else if ($data['RateUploadType'] == RateUpload::ratetable) {
+                } else if($data['RateUploadType'] == RateUpload::ratetable && $data['RateType'] == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL)) {
                     $TemplateType = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_RATETABLE_RATE);
+                } else if($data['RateUploadType'] == RateUpload::ratetable && $data['RateType'] == RateType::getRateTypeIDBySlug(RateType::SLUG_DID)) {
+                    $TemplateType = FileUploadTemplateType::getTemplateType(FileUploadTemplate::TEMPLATE_RATETABLE_DIDRATE);
                 }
 
                 $grid['RateUploadType'] = $data['RateUploadType'];
@@ -334,6 +352,7 @@ class RateUploadController extends \BaseController {
         }
 
         $dir = $jobtype = '';
+        $RateTable = null;
         if($data['RateUploadType'] == RateUpload::vendor) {
             $VendorTrunk        = VendorTrunk::where(["AccountID" => $id, 'TrunkID' => $data['Trunk']])->first();
             $data['codedeckid'] = $VendorTrunk->CodeDeckId;
@@ -411,22 +430,31 @@ class RateUploadController extends \BaseController {
             $Timezones = Timezones::getTimezonesIDList(1);//no default timezones, only user defined timezones
             if(count($Timezones) > 0) { // if there are any timezones available
                 $TimezonesIDsArray = array();
-                foreach ($Timezones as $ID => $Title) {
-                    $TimezonesIDsArray[] = 'selection.Rate'.$ID;
-                }
-                $TimezonesIDsString = implode(',',$TimezonesIDsArray);
+                if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
+                    foreach ($Timezones as $ID => $Title) {
+                        $TimezonesIDsArray[] = 'selection.MonthlyCost'.$ID;
+                    }
+                    $TimezonesIDsString = implode(',',$TimezonesIDsArray);
 
-                $rules_for_type['selection.Rate']                        = 'required_without_all:'.$TimezonesIDsString;
-                $message_for_type['selection.Rate.required_without_all'] = "Please select Rate against at least any one timezone.";
-                $TimezonesIDsArray[] = 'selection.Rate';
-                foreach ($Timezones as $ID => $Title) {
-                    $TimezonesIDsString = implode(',',array_diff($TimezonesIDsArray, array('selection.Rate'.$ID)));
-                    $rules_for_type['selection.Rate'.$ID]                           = 'required_without_all:'.$TimezonesIDsString;
-                    $message_for_type['selection.Rate'.$ID.'.required_without_all'] = "Please select Rate against at least any one timezone.";
+                    $rules_for_type['selection.MonthlyCost'] = 'required_without_all:' . $TimezonesIDsString;
+                    $message_for_type['selection.MonthlyCost.required_without_all'] = "Please select Monthly Cost against at least any one timezone.";
+                } else {
+                    foreach ($Timezones as $ID => $Title) {
+                        $TimezonesIDsArray[] = 'selection.Rate'.$ID;
+                    }
+                    $TimezonesIDsString = implode(',',$TimezonesIDsArray);
+
+                    $rules_for_type['selection.Rate'] = 'required_without_all:' . $TimezonesIDsString;
+                    $message_for_type['selection.Rate.required_without_all'] = "Please select Rate against at least any one timezone.";
                 }
             } else { // if there is only 1 timezone, default timezone
-                $rules_for_type['selection.Rate']            = 'required';
-                $message_for_type['selection.Rate.required'] = "Rate Field is required";
+                if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
+                    $rules_for_type['selection.MonthlyCost'] = 'required';
+                    $message_for_type['selection.MonthlyCost.required'] = "Monthly Cost Field is required";
+                } else {
+                    $rules_for_type['selection.Rate'] = 'required';
+                    $message_for_type['selection.Rate.required'] = "Rate Field is required";
+                }
             }
 
             $tempdata = json_decode(str_replace('Skip loading','',json_encode($data,true)),true);
@@ -468,11 +496,15 @@ class RateUploadController extends \BaseController {
             $save['Trunk']          = $data['Trunk'];
             $jobtype                = 'CU';
         } else if($data['RateUploadType'] == RateUpload::ratetable) {
-            $RateTable              = RateTable::find($id);
+            //$RateTable              = RateTable::find($id);
             $save["RateTableID"]    = $id;
             $save['Trunk']          = $RateTable->TrunkID;
             $save['ratetablename']  = $RateTable->RateTableName;
-            $jobtype                = 'RTU';
+            if($RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID)) {
+                $jobtype = 'DRTU';
+            } else {
+                $jobtype = 'RTU';
+            }
         }
 
         $save['codedeckid']     = $data['codedeckid'];
@@ -578,6 +610,7 @@ class RateUploadController extends \BaseController {
         }
 
         $dir = $jobtype = '';
+        $RateTable = null;
         if($data['RateUploadType'] == RateUpload::vendor) {
             $VendorTrunk        = VendorTrunk::where(["AccountID" => $id, 'TrunkID' => $data['Trunk']])->first();
             $data['codedeckid'] = $VendorTrunk->CodeDeckId;
@@ -655,22 +688,31 @@ class RateUploadController extends \BaseController {
             $Timezones = Timezones::getTimezonesIDList(1);//no default timezones, only user defined timezones
             if(count($Timezones) > 0) { // if there are any timezones available
                 $TimezonesIDsArray = array();
-                foreach ($Timezones as $ID => $Title) {
-                    $TimezonesIDsArray[] = 'selection.Rate'.$ID;
-                }
-                $TimezonesIDsString = implode(',',$TimezonesIDsArray);
+                if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
+                    foreach ($Timezones as $ID => $Title) {
+                        $TimezonesIDsArray[] = 'selection.MonthlyCost' . $ID;
+                    }
+                    $TimezonesIDsString = implode(',', $TimezonesIDsArray);
 
-                $rules_for_type['selection.Rate']                        = 'required_without_all:'.$TimezonesIDsString;
-                $message_for_type['selection.Rate.required_without_all'] = "Please select Rate against at least any one timezone.";
-                $TimezonesIDsArray[] = 'selection.Rate';
-                foreach ($Timezones as $ID => $Title) {
-                    $TimezonesIDsString = implode(',',array_diff($TimezonesIDsArray, array('selection.Rate'.$ID)));
-                    $rules_for_type['selection.Rate'.$ID]                           = 'required_without_all:'.$TimezonesIDsString;
-                    $message_for_type['selection.Rate'.$ID.'.required_without_all'] = "Please select Rate against at least any one timezone.";
+                    $rules_for_type['selection.MonthlyCost'] = 'required_without_all:' . $TimezonesIDsString;
+                    $message_for_type['selection.MonthlyCost.required_without_all'] = "Please select Monthly Cost against at least any one timezone.";
+                } else {
+                    foreach ($Timezones as $ID => $Title) {
+                        $TimezonesIDsArray[] = 'selection.Rate'.$ID;
+                    }
+                    $TimezonesIDsString = implode(',',$TimezonesIDsArray);
+
+                    $rules_for_type['selection.Rate'] = 'required_without_all:' . $TimezonesIDsString;
+                    $message_for_type['selection.Rate.required_without_all'] = "Please select Rate against at least any one timezone.";
                 }
             } else { // if there is only 1 timezone, default timezone
-                $rules_for_type['selection.Rate']            = 'required';
-                $message_for_type['selection.Rate.required'] = "Rate Field is required";
+                if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
+                    $rules_for_type['selection.MonthlyCost'] = 'required';
+                    $message_for_type['selection.MonthlyCost.required'] = "Monthly Cost Field is required";
+                } else {
+                    $rules_for_type['selection.Rate'] = 'required';
+                    $message_for_type['selection.Rate.required'] = "Rate Field is required";
+                }
             }
 
             $option["skipRows"] = array("start_row" => $data["start_row"], "end_row" => $data["end_row"]);
@@ -717,11 +759,15 @@ class RateUploadController extends \BaseController {
             $save['Trunk']          = $data['Trunk'];
             $jobtype                = 'CU';
         } else if($data['RateUploadType'] == RateUpload::ratetable) {
-            $RateTable              = RateTable::find($id);
+            //$RateTable              = RateTable::find($id);
             $save["RateTableID"]    = $id;
             $save['Trunk']          = $RateTable->TrunkID;
             $save['ratetablename']  = $RateTable->RateTableName;
-            $jobtype                = 'RTU';
+            if($RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID)) {
+                $jobtype = 'DRTU';
+            } else {
+                $jobtype = 'RTU';
+            }
         }
 
         $save['codedeckid']     = $data['codedeckid'];
@@ -743,8 +789,10 @@ class RateUploadController extends \BaseController {
                 $MODEL = "TempVendorRate";
             } else if($data['RateUploadType'] == RateUpload::customer) {
                 $MODEL = "TempCustomerRate";
-            } else if($data['RateUploadType'] == RateUpload::ratetable) {
+            } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL))) {
                 $MODEL = "TempRateTableRate";
+            } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
+                $MODEL = "TempRateTableDIDRate";
             }
 
             if(isset($joboptions->uploadtemplate) && !empty($joboptions->uploadtemplate)){
@@ -973,7 +1021,9 @@ class RateUploadController extends \BaseController {
                 }
             }
 
-            $RoutingCategories = RoutingCategory::getCategoryDropdownIDList($CompanyID,1);
+            $RoutingCategories  = RoutingCategory::getCategoryDropdownIDList($CompanyID,1);
+            $type_voicecall     = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
+            $type_did           = RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
 
             //get how many rates mapped against timezones
             //$RatesKeys = array_key_exists_wildcard((array)$attrselection,'Rate*');
@@ -981,16 +1031,30 @@ class RateUploadController extends \BaseController {
             $lineno1 = $lineno;
             foreach ($AllTimezones as $TimezoneID => $Title) {
                 $id = $TimezoneID == 1 ? '' : $TimezoneID;
-                $Rate1Column            = 'Rate'.$id;
-                $RateNColumn            = 'RateN'.$id;
-                $Interval1Column        = 'Interval1'.$id;
-                $IntervalNColumn        = 'IntervalN'.$id;
-                $PreferenceColumn       = 'Preference'.$id;
-                $ConnectionFeeColumn    = 'ConnectionFee'.$id;
-                $BlockedColumn          = 'Blocked'.$id;
-                $RoutingCategory        = 'RoutingCategory'.$id;
+                $Rate1Column                      = 'Rate'.$id;
+                $RateNColumn                      = 'RateN'.$id;
+                $Interval1Column                  = 'Interval1'.$id;
+                $IntervalNColumn                  = 'IntervalN'.$id;
+                $PreferenceColumn                 = 'Preference'.$id;
+                $ConnectionFeeColumn              = 'ConnectionFee'.$id;
+                $BlockedColumn                    = 'Blocked'.$id;
+                $RoutingCategory                  = 'RoutingCategory'.$id;
 
-                if(!empty($attrselection->$Rate1Column)) {
+                $OneOffCostColumn                 = 'OneOffCost'.$id;
+                $MonthlyCostColumn                = 'MonthlyCost'.$id;
+                $CostPerCallColumn                = 'CostPerCall'.$id;
+                $CostPerMinuteColumn              = 'CostPerMinute'.$id;
+                $SurchargePerCallColumn           = 'SurchargePerCall'.$id;
+                $SurchargePerMinuteColumn         = 'SurchargePerMinute'.$id;
+                $OutpaymentPerCallColumn          = 'OutpaymentPerCall'.$id;
+                $OutpaymentPerMinuteColumn        = 'OutpaymentPerMinute'.$id;
+                $SurchargesColumn                 = 'Surcharges'.$id;
+                $ChargebackColumn                 = 'Chargeback'.$id;
+                $CollectionCostAmountColumn       = 'CollectionCostAmount'.$id;
+                $CollectionCostPercentageColumn   = 'CollectionCostPercentage'.$id;
+                $RegistrationCostPerNumberColumn  = 'RegistrationCostPerNumber'.$id;
+
+                if(($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID)) && !empty($attrselection->$MonthlyCostColumn)) || !empty($attrselection->$Rate1Column)) {
                     $lineno = $lineno1;
                     foreach ($results as $index => $temp_row) {
 
@@ -1116,23 +1180,145 @@ class RateUploadController extends \BaseController {
                                 $tempdata['Change'] = 'I';
                             }
 
-                            if (isset($attrselection->$Rate1Column) && !empty($attrselection->$Rate1Column)) {
-                                $temp_row[$attrselection->$Rate1Column] = preg_replace('/[^.0-9\-]/', '', $temp_row[$attrselection->$Rate1Column]); //remove anything but numbers and 0 (only allow numbers,-dash,.dot)
-                                if (is_numeric(trim($temp_row[$attrselection->$Rate1Column]))) {
-                                    $tempdata['Rate'] = trim($temp_row[$attrselection->$Rate1Column]);
-                                } else {
-                                    $error[] = 'Rate is not numeric at line no:' . $lineno;
-                                }
-                            } elseif ($tempdata['Change'] == 'D') {
-                                $tempdata['Rate'] = 0;
-                            } elseif ($tempdata['Change'] != 'D') {
-                                $error[] = 'Rate is blank at line no:' . $lineno;
-                            }
+                            if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == $type_did)) {
 
-                            if (isset($attrselection->$RateNColumn) && !empty($attrselection->$RateNColumn)) {
-                                $tempdata['RateN'] = trim($temp_row[$attrselection->$RateNColumn]);
-                            } else if(isset($tempdata['Rate'])) {
-                                $tempdata['RateN'] = $tempdata['Rate'];
+                                if (!empty($attrselection->$OneOffCostColumn)) {
+                                    $tempdata['OneOffCost'] = trim($temp_row[$attrselection->$OneOffCostColumn]);
+                                } else {
+                                    $tempdata['OneOffCost'] = NULL;
+                                }
+
+                                if (!empty($attrselection->$MonthlyCostColumn)) {
+                                    $temp_row[$attrselection->$MonthlyCostColumn] = preg_replace('/[^.0-9\-]/', '', $temp_row[$attrselection->$MonthlyCostColumn]); //remove anything but numbers and 0 (only allow numbers,-dash,.dot)
+                                    if (is_numeric(trim($temp_row[$attrselection->$MonthlyCostColumn]))) {
+                                        $tempdata['MonthlyCost'] = trim($temp_row[$attrselection->$MonthlyCostColumn]);
+                                    } else {
+                                        $error[] = 'Monthly Cost is not numeric at line no:' . $lineno;
+                                    }
+                                } elseif ($tempdata['Change'] == 'D') {
+                                    $tempdata['MonthlyCost'] = 0;
+                                } elseif ($tempdata['Change'] != 'D') {
+                                    $error[] = 'Monthly Cost is blank at line no:' . $lineno;
+                                }
+
+                                if (!empty($attrselection->$CostPerCallColumn)) {
+                                    $tempdata['CostPerCall'] = trim($temp_row[$attrselection->$CostPerCallColumn]);
+                                } else {
+                                    $tempdata['CostPerCall'] = NULL;
+                                }
+
+                                if (!empty($attrselection->$CostPerMinuteColumn)) {
+                                    $tempdata['CostPerMinute'] = trim($temp_row[$attrselection->$CostPerMinuteColumn]);
+                                } else {
+                                    $tempdata['CostPerMinute'] = NULL;
+                                }
+
+                                if (!empty($attrselection->$SurchargePerCallColumn)) {
+                                    $tempdata['SurchargePerCall'] = trim($temp_row[$attrselection->$SurchargePerCallColumn]);
+                                } else {
+                                    $tempdata['SurchargePerCall'] = NULL;
+                                }
+
+                                if (!empty($attrselection->$SurchargePerMinuteColumn)) {
+                                    $tempdata['SurchargePerMinute'] = trim($temp_row[$attrselection->$SurchargePerMinuteColumn]);
+                                } else {
+                                    $tempdata['SurchargePerMinute'] = NULL;
+                                }
+
+                                if (!empty($attrselection->$OutpaymentPerCallColumn)) {
+                                    $tempdata['OutpaymentPerCall'] = trim($temp_row[$attrselection->$OutpaymentPerCallColumn]);
+                                } else {
+                                    $tempdata['OutpaymentPerCall'] = NULL;
+                                }
+
+                                if (!empty($attrselection->$OutpaymentPerMinuteColumn)) {
+                                    $tempdata['OutpaymentPerMinute'] = trim($temp_row[$attrselection->$OutpaymentPerMinuteColumn]);
+                                } else {
+                                    $tempdata['OutpaymentPerMinute'] = NULL;
+                                }
+
+                                if (!empty($attrselection->$SurchargesColumn)) {
+                                    $tempdata['Surcharges'] = trim($temp_row[$attrselection->$SurchargesColumn]);
+                                } else {
+                                    $tempdata['Surcharges'] = NULL;
+                                }
+
+                                if (!empty($attrselection->$ChargebackColumn)) {
+                                    $tempdata['Chargeback'] = trim($temp_row[$attrselection->$ChargebackColumn]);
+                                } else {
+                                    $tempdata['Chargeback'] = NULL;
+                                }
+
+                                if (!empty($attrselection->$CollectionCostAmountColumn)) {
+                                    $tempdata['CollectionCostAmount'] = trim($temp_row[$attrselection->$CollectionCostAmountColumn]);
+                                } else {
+                                    $tempdata['CollectionCostAmount'] = NULL;
+                                }
+
+                                if (!empty($attrselection->$CollectionCostPercentageColumn)) {
+                                    $tempdata['CollectionCostPercentage'] = trim($temp_row[$attrselection->$CollectionCostPercentageColumn]);
+                                } else {
+                                    $tempdata['CollectionCostPercentage'] = NULL;
+                                }
+
+                                if (!empty($attrselection->$RegistrationCostPerNumberColumn)) {
+                                    $tempdata['RegistrationCostPerNumber'] = trim($temp_row[$attrselection->$RegistrationCostPerNumberColumn]);
+                                } else {
+                                    $tempdata['RegistrationCostPerNumber'] = NULL;
+                                }
+
+                            } else {
+
+                                if (isset($attrselection->$Rate1Column) && !empty($attrselection->$Rate1Column)) {
+                                    $temp_row[$attrselection->$Rate1Column] = preg_replace('/[^.0-9\-]/', '', $temp_row[$attrselection->$Rate1Column]); //remove anything but numbers and 0 (only allow numbers,-dash,.dot)
+                                    if (is_numeric(trim($temp_row[$attrselection->$Rate1Column]))) {
+                                        $tempdata['Rate'] = trim($temp_row[$attrselection->$Rate1Column]);
+                                    } else {
+                                        $error[] = 'Rate is not numeric at line no:' . $lineno;
+                                    }
+                                } elseif ($tempdata['Change'] == 'D') {
+                                    $tempdata['Rate'] = 0;
+                                } elseif ($tempdata['Change'] != 'D') {
+                                    $error[] = 'Rate is blank at line no:' . $lineno;
+                                }
+
+                                if (isset($attrselection->$RateNColumn) && !empty($attrselection->$RateNColumn)) {
+                                    $tempdata['RateN'] = trim($temp_row[$attrselection->$RateNColumn]);
+                                } else if(isset($tempdata['Rate'])) {
+                                    $tempdata['RateN'] = $tempdata['Rate'];
+                                }
+
+                                if (isset($attrselection->$ConnectionFeeColumn) && !empty($attrselection->$ConnectionFeeColumn)) {
+                                    $tempdata['ConnectionFee'] = trim($temp_row[$attrselection->$ConnectionFeeColumn]);
+                                }
+
+                                if (isset($attrselection->$Interval1Column) && !empty($attrselection->$Interval1Column)) {
+                                    $tempdata['Interval1'] = intval(trim($temp_row[$attrselection->$Interval1Column]));
+                                }
+
+                                if (isset($attrselection->$IntervalNColumn) && !empty($attrselection->$IntervalNColumn)) {
+                                    $tempdata['IntervalN'] = intval(trim($temp_row[$attrselection->$IntervalNColumn]));
+                                }
+
+                                if (isset($attrselection->$PreferenceColumn) && !empty($attrselection->$PreferenceColumn)) {
+                                    $tempdata['Preference'] = trim($temp_row[$attrselection->$PreferenceColumn]) == '' ? NULL : trim($temp_row[$attrselection->$PreferenceColumn]);
+                                }
+
+                                if (isset($attrselection->$BlockedColumn) && !empty($attrselection->$BlockedColumn)) {
+                                    $Blocked = trim($temp_row[$attrselection->$BlockedColumn]);
+                                    if ($Blocked == '0') {
+                                        $tempdata['Blocked'] = '0';
+                                    } elseif ($Blocked == '1') {
+                                        $tempdata['Blocked'] = '1';
+                                    } else {
+                                        $tempdata['Blocked'] = '0';
+                                    }
+                                }
+
+                                if (isset($attrselection->$RoutingCategory) && !empty($attrselection->$RoutingCategory)) {
+                                    $tempdata['RoutingCategoryID'] = isset($RoutingCategories[trim($temp_row[$attrselection->$RoutingCategory])]) ? $RoutingCategories[trim($temp_row[$attrselection->$RoutingCategory])] : NULL;
+                                }
+
                             }
 
                             if (!empty($attrselection->EffectiveDate) || !empty($attrselection2->EffectiveDate)) {
@@ -1169,37 +1355,6 @@ class RateUploadController extends \BaseController {
                                 }
                             }
 
-                            if (isset($attrselection->$ConnectionFeeColumn) && !empty($attrselection->$ConnectionFeeColumn)) {
-                                $tempdata['ConnectionFee'] = trim($temp_row[$attrselection->$ConnectionFeeColumn]);
-                            }
-
-                            if (isset($attrselection->$Interval1Column) && !empty($attrselection->$Interval1Column)) {
-                                $tempdata['Interval1'] = intval(trim($temp_row[$attrselection->$Interval1Column]));
-                            }
-
-                            if (isset($attrselection->$IntervalNColumn) && !empty($attrselection->$IntervalNColumn)) {
-                                $tempdata['IntervalN'] = intval(trim($temp_row[$attrselection->$IntervalNColumn]));
-                            }
-
-                            if (isset($attrselection->$PreferenceColumn) && !empty($attrselection->$PreferenceColumn)) {
-                                $tempdata['Preference'] = trim($temp_row[$attrselection->$PreferenceColumn]) == '' ? NULL : trim($temp_row[$attrselection->$PreferenceColumn]);
-                            }
-
-                            if (isset($attrselection->$BlockedColumn) && !empty($attrselection->$BlockedColumn)) {
-                                $Blocked = trim($temp_row[$attrselection->$BlockedColumn]);
-                                if ($Blocked == '0') {
-                                    $tempdata['Blocked'] = '0';
-                                } elseif ($Blocked == '1') {
-                                    $tempdata['Blocked'] = '1';
-                                } else {
-                                    $tempdata['Blocked'] = '0';
-                                }
-                            }
-
-                            if (isset($attrselection->$RoutingCategory) && !empty($attrselection->$RoutingCategory)) {
-                                $tempdata['RoutingCategoryID'] = isset($RoutingCategories[trim($temp_row[$attrselection->$RoutingCategory])]) ? $RoutingCategories[trim($temp_row[$attrselection->$RoutingCategory])] : NULL;
-                            }
-
                             if (!empty($DialStringId)) {
                                 if (isset($attrselection->DialStringPrefix) && !empty($attrselection->DialStringPrefix)) {
                                     $tempdata['DialStringPrefix'] = trim($temp_row[$attrselection->DialStringPrefix]);
@@ -1210,7 +1365,7 @@ class RateUploadController extends \BaseController {
 
                             $tempdata['TimezonesID'] = $TimezoneID;
 
-                            if (isset($tempdata['Code']) && isset($tempdata['Description']) && (isset($tempdata['Rate']) || $tempdata['Change'] == 'D') && (isset($tempdata['EffectiveDate']) || $tempdata['Change'] == 'D')) {
+                            if (isset($tempdata['Code']) && isset($tempdata['Description']) && (isset($tempdata['MonthlyCost']) || $tempdata['Change'] == 'D') && (isset($tempdata['EffectiveDate']) || $tempdata['Change'] == 'D')) {
                                 if (isset($tempdata['EndDate'])) {
                                     $batch_insert_array[] = $tempdata;
                                 } else {
@@ -1266,8 +1421,10 @@ class RateUploadController extends \BaseController {
                 $query = "CALL  prc_WSReviewVendorRate ('" . $save['AccountID'] . "','" . $save['Trunk'] . "'," . $save['checkbox_replace_all'] . ",'" . $save['checkbox_rates_with_effected_from'] . "','" . $ProcessID . "','" . $save['checkbox_add_new_codes_to_code_decks'] . "','" . $CompanyID . "','".$p_Blocked."','".$p_preference."','".$DialStringId."','".$dialcode_separator."',".$CurrencyID.",".$save['radio_list_option'].")";
             } else if($data['RateUploadType'] == RateUpload::customer) {
                 $query = "CALL  prc_WSReviewCustomerRate ('" . $save['AccountID'] . "','" . $save['Trunk'] . "'," . $save['checkbox_replace_all'] . ",'" . $save['checkbox_rates_with_effected_from'] . "','" . $ProcessID . "','" . $save['checkbox_add_new_codes_to_code_decks'] . "','" . $CompanyID . "','".$p_Blocked."','".$p_preference."','".$DialStringId."','".$dialcode_separator."',".$CurrencyID.",".$save['radio_list_option'].")";
-            } else if($data['RateUploadType'] == RateUpload::ratetable) {
+            } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL))) {
                 $query = "CALL  prc_WSReviewRateTableRate ('" . $save['RateTableID'] . "'," . $save['checkbox_replace_all'] . ",'" . $save['checkbox_rates_with_effected_from'] . "','" . $ProcessID . "','" . $save['checkbox_add_new_codes_to_code_decks'] . "','" . $CompanyID . "','".$p_Blocked."','".$p_preference."','".$DialStringId."','".$dialcode_separator."',".$seperatecolumn.",".$CurrencyID.",".$save['radio_list_option'].")";
+            } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
+                $query = "CALL  prc_WSReviewRateTableDIDRate ('" . $save['RateTableID'] . "'," . $save['checkbox_replace_all'] . ",'" . $save['checkbox_rates_with_effected_from'] . "','" . $ProcessID . "','" . $save['checkbox_add_new_codes_to_code_decks'] . "','" . $CompanyID . "','".$p_Blocked."','".$p_preference."','".$DialStringId."','".$dialcode_separator."',".$seperatecolumn.",".$CurrencyID.",".$save['radio_list_option'].")";
             }
 
             Log::info('Start '.$query);
@@ -1329,19 +1486,27 @@ class RateUploadController extends \BaseController {
         $data['iDisplayStart'] +=1;
 
         $columns                        = array('TempVendorRateID','OriginationCode','OriginationDescription','Code','Description','Timezones','Rate','RateN','EffectiveDate','EndDate','ConnectionFee','Interval1','IntervalN','Preference','Blocked','RoutingCategory');
+        $columns_did                    = array('TempRateTableDIDRateID','OriginationCode','OriginationDescription','Code','Description','Timezones','OneOffCost','MonthlyCost','CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber','EffectiveDate','EndDate');
         $sort_column                    = $columns[$data['iSortCol_0']];
+        $sort_column_did                = $columns_did[$data['iSortCol_0']];
         $data['OriginationCode']        = !empty($data['OriginationCode']) ? "'".$data['OriginationCode']."'" : 'NULL';
         $data['OriginationDescription'] = !empty($data['OriginationDescription']) ? "'".$data['OriginationDescription']."'" : 'NULL';
         $data['Code']                   = !empty($data['Code']) ? "'".$data['Code']."'" : 'NULL';
         $data['Description']            = !empty($data['Description']) ? "'".$data['Description']."'" : 'NULL';
         $data['RoutingCategory']        = !empty($data['RoutingCategory']) ? $data['RoutingCategory'] : 'NULL';
 
+        if($data['RateUploadType'] == RateUpload::ratetable && !empty($data['RateTableID'])) {
+            $RateTable = RateTable::find($data['RateTableID']);
+        }
+
         if($data['RateUploadType'] == RateUpload::vendor) {
             $query = "call prc_getReviewVendorRates ('".$data['ProcessID']."','".$data['Action']."','".$data['Code']."','".$data['Description']."',".$data['Timezone'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
         } else if($data['RateUploadType'] == RateUpload::customer) {
             $query = "call prc_getReviewCustomerRates ('".$data['ProcessID']."','".$data['Action']."','".$data['Code']."','".$data['Description']."',".$data['Timezone'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
-        } else if($data['RateUploadType'] == RateUpload::ratetable) {
+        } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL))) {
             $query = "call prc_getReviewRateTableRates ('".$data['ProcessID']."','".$data['Action']."',".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['Timezone'].",".$data['RoutingCategory'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
+        } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
+            $query = "call prc_getReviewRateTableDIDRates ('".$data['ProcessID']."','".$data['Action']."',".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['Timezone'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column_did."','".$data['sSortDir_0']."',0)";
         }
 
         Log::info($query);
@@ -1362,8 +1527,10 @@ class RateUploadController extends \BaseController {
             $query = "call prc_getReviewVendorRates ('".$data['ProcessID']."','".$data['Action']."','".$data['Code']."','".$data['Description']."',".$data['Timezone'].",0 ,0,'','',1)";
         } else if($data['RateUploadType'] == RateUpload::customer) {
             $query = "call prc_getReviewCustomerRates ('".$data['ProcessID']."','".$data['Action']."','".$data['Code']."','".$data['Description']."',".$data['Timezone'].",0 ,0,'','',1)";
-        } else if($data['RateUploadType'] == RateUpload::ratetable) {
+        } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL))) {
             $query = "call prc_getReviewRateTableRates ('".$data['ProcessID']."','".$data['Action']."',".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['Timezone'].",".$data['RoutingCategory'].",0 ,0,'','',1)";
+        } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
+            $query = "call prc_getReviewRateTableDIDRates ('".$data['ProcessID']."','".$data['Action']."',".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['Timezone'].",".$data['RoutingCategory'].",0 ,0,'','',1)";
         }
 
         Log::info($query);
@@ -1389,6 +1556,8 @@ class RateUploadController extends \BaseController {
         $ProcessID      = $data['ProcessID'];
         $Code           = $data['Code'];
         $Description    = $data['Description'];
+        $OriginationCode        = $data['OriginationCode'];
+        $OriginationDescription = $data['OriginationDescription'];
         $VendorID       = $data['VendorID'];
         $CustomerID     = $data['CustomerID'];
         $RateTableID    = $data['RateTableID'];
@@ -1436,13 +1605,19 @@ class RateUploadController extends \BaseController {
 
             $TempRateIDs = implode(',',$TempRateIDs);
 
+            if($data['RateUploadType'] == RateUpload::ratetable && !empty($data['RateTableID'])) {
+                $RateTable = RateTable::find($data['RateTableID']);
+            }
+
             try {
                 if($RateUploadType == RateUpload::vendor) {
                     $query = "call prc_WSReviewVendorRateUpdate ('".$VendorID."','".$TrunkID."',".$Timezone.",'".$TempRateIDs."','".$ProcessID."','".$criteria."','".$Action."','".$Interval1."','".$IntervalN."','".$EndDate."','".$Code."','".$Description."')";
                 } else if($RateUploadType == RateUpload::customer) {
                     $query = "call prc_WSReviewCustomerRateUpdate ('".$CustomerID."','".$TrunkID."',".$Timezone.",'".$TempRateIDs."','".$ProcessID."','".$criteria."','".$Action."','".$Interval1."','".$IntervalN."','".$EndDate."','".$Code."','".$Description."')";
-                } else if($RateUploadType == RateUpload::ratetable) {
-                    $query = "call prc_WSReviewRateTableRateUpdate ('".$RateTableID."','".$TempRateIDs."',".$Timezone.",'".$ProcessID."','".$criteria."','".$Action."','".$Interval1."','".$IntervalN."','".$EndDate."','".$Code."','".$Description."')";
+                } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL))) {
+                    $query = "call prc_WSReviewRateTableRateUpdate ('".$RateTableID."',".$Timezone.",'".$TempRateIDs."','".$ProcessID."','".$criteria."','".$Action."','".$Interval1."','".$IntervalN."','".$EndDate."','".$Code."','".$Description."','".$OriginationCode."','".$OriginationDescription."')";
+                } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
+                    $query = "call prc_WSReviewRateTableDIDRateUpdate ('".$RateTableID."',".$Timezone.",'".$TempRateIDs."','".$ProcessID."','".$criteria."','".$Action."','".$EndDate."','".$Code."','".$Description."','".$OriginationCode."','".$OriginationDescription."')";
                 }
 
                 Log::info($query);
@@ -1491,10 +1666,10 @@ class RateUploadController extends \BaseController {
     public function getRateTableDetails($RateTableID) {
         $RateTable = RateTable::find($RateTableID);
 
-        $data['RateTableID']    = $RateTable->RateTableId;
-        $data['Type']           = $RateTable->Type;
-        $data['AppliedTo']      = $RateTable->AppliedTo;
         if(!empty($RateTable)) {
+            $data['RateTableID']    = $RateTable->RateTableId;
+            $data['Type']           = $RateTable->Type;
+            $data['AppliedTo']      = $RateTable->AppliedTo;
             return Response::json(array("status" => "success", "message" => "RateTable found!", "RateTable" => $data ));
         } else {
             return Response::json(array("status" => "success", "message" => "No RateTable found!" ));
