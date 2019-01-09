@@ -5,8 +5,12 @@ class RoutingProfiles extends \Eloquent {
     protected $primaryKey = "RoutingProfileID";
     protected $connection = 'sqlsrvrouting';
     protected $fillable = array(
-        'CompanyID','Name','Description','RoutingPolicy','Status','created_at'
+        'CompanyID','Name','Description','RoutingPolicy','Status','created_at','SelectionCode'
     );
+
+
+
+    // created the eloqent model and relationships...
 
     public static $rules = array(
         'Name'=>'required',

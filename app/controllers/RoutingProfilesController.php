@@ -17,7 +17,7 @@ class RoutingProfilesController extends \BaseController {
 //               $excel_data = json_decode(json_encode($excel_data),true);
                
                $RoutingProfiles = RoutingProfiles::Join('tblRoutingProfileCategory','tblRoutingProfileCategory.RoutingProfileID','=','tblRoutingProfile.RoutingProfileID')
-                    ->select(['tblRoutingProfile.Name','tblRoutingProfile.Description','tblRoutingProfile.SelectionCode','tblRoutingProfile.Status','tblRoutingProfile.RoutingProfileID','tblRoutingProfile.RoutingPolicy',DB::raw("(select GROUP_CONCAT(tblRoutingCategory.Name SEPARATOR ', ' ) as Routescategory from tblRoutingCategory where tblRoutingCategory.RoutingCategoryID in (select tblRoutingProfileCategory.RoutingCategoryID from tblRoutingProfileCategory where tblRoutingProfileCategory.RoutingProfileID = tblRoutingProfile.RoutingProfileID)) as Routingcategory")])
+                    ->select(['tblRoutingProfile.Name','tblRoutingProfile.Description','tblRoutingProfile.SelectionCode','tblRoutingProfile.Status','tblRoutingProfile.RoutingProfileID',DB::raw("(select GROUP_CONCAT(tblRoutingCategory.Name SEPARATOR ', ' ) as Routescategory from tblRoutingCategory where tblRoutingCategory.RoutingCategoryID in (select tblRoutingProfileCategory.RoutingCategoryID from tblRoutingProfileCategory where tblRoutingProfileCategory.RoutingProfileID = tblRoutingProfile.RoutingProfileID)) as Routingcategory,'tblRoutingProfile.RoutingPolicy'")])
                     ->where(["tblRoutingProfile.CompanyID" => $companyID])->groupBy("tblRoutingProfile.RoutingProfileID");
                
         if(!empty($data['Name'])){
@@ -66,7 +66,7 @@ class RoutingProfilesController extends \BaseController {
         unset($data['RoutingProfileID']);
         $rules = array(
             'Name' => 'required',
-            'RoutingPolicy' => 'required',
+            //'RoutingPolicy' => 'required',
             'RoutingCategory' => 'required',
         );
         $validator = Validator::make($data, $rules);
@@ -118,13 +118,6 @@ class RoutingProfilesController extends \BaseController {
 		//
 	}
 
-	/**
-	 * Show the form for editing the specified resource.
-	 * GET /Routing Category/{id}/edit
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
 	public function edit($id)
 	{
 		//
@@ -147,7 +140,7 @@ class RoutingProfilesController extends \BaseController {
             $data["UpdatedBy"] = User::get_user_full_name();
             $rules = array(
                 'Name' => 'required',
-                'RoutingPolicy' => 'required',
+                //'RoutingPolicy' => 'required',
                 'RoutingCategory' => 'required',
             );
             $validator = Validator::make($data, $rules);
@@ -201,7 +194,7 @@ class RoutingProfilesController extends \BaseController {
                         $result = RoutingProfiles::find($id)->delete();
                         RoutingProfiles::clearCache();
                         if ($result) {
-                            $results = RoutingProfileCategory::where(array('RoutingProfileID'=>$id))->delete();;
+                            $results = RoutingProfileCategory::where(array('RoutingProfileID'=>$id))->delete();
                             RoutingProfileCategory::clearCache();
                             return Response::json(array("status" => "success", "message" => "Routing Profiles Successfully Deleted"));
                         } else {
@@ -218,7 +211,19 @@ class RoutingProfilesController extends \BaseController {
     public function exports($type)
     {
         $CompanyID = User::get_companyID();
-        $RoutingProfiles = RoutingProfiles::where(["CompanyID" => $CompanyID])->get(['Name','Description']);
+        $RoutingProfiles = RoutingProfiles::Join('tblRoutingProfileCategory','tblRoutingProfileCategory.RoutingProfileID','=','tblRoutingProfile.RoutingProfileID')
+            ->select(['tblRoutingProfile.Name','tblRoutingProfile.Description','tblRoutingProfile.SelectionCode as SelectionCode','tblRoutingProfile.Status',DB::raw("(select GROUP_CONCAT(tblRoutingCategory.Name SEPARATOR ', ' ) as RoutesCategory from tblRoutingCategory where tblRoutingCategory.RoutingCategoryID in (select tblRoutingProfileCategory.RoutingCategoryID from tblRoutingProfileCategory where tblRoutingProfileCategory.RoutingProfileID = tblRoutingProfile.RoutingProfileID)) as 'Routing Category'")])
+            ->where(["tblRoutingProfile.CompanyID" => $CompanyID])->groupBy("tblRoutingProfile.RoutingProfileID");
+
+
+        $data = Input::all();
+        if(!empty($data['Name'])){
+            $RoutingProfiles->where(["tblRoutingProfile.Name" => $data['Name']]);
+        }
+        if(!empty($data['Status']) || ($data['Status']=='0')){
+            $RoutingProfiles->where(["tblRoutingProfile.Status" => $data['Status']]);
+        }
+        $RoutingProfiles = $RoutingProfiles->orderBy('tblRoutingProfile.Name')->get();
         $RoutingProfiles = json_decode(json_encode($RoutingProfiles),true);
         if($type=='csv'){
             $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/RoutingProfile.csv';
@@ -249,16 +254,16 @@ class RoutingProfilesController extends \BaseController {
         $id = Input::all();
         $RoutingProfileCategory = RoutingProfileCategory::select('RoutingCategoryID')->where('RoutingProfileID', $id )->get();
         $result = array();         
-        $RoutingCategory = RoutingCategory::Join('tblroutingprofilecategory', function($join) {
-            $join->on('tblroutingcategory.RoutingCategoryID','=','tblroutingprofilecategory.RoutingCategoryID');
-            })->select('tblroutingprofilecategory.Order','tblroutingcategory.Name','tblroutingcategory.RoutingCategoryID','tblroutingcategory.Description')->where('tblroutingprofilecategory.RoutingProfileID',$id)
-            ->orderBy('tblroutingprofilecategory.Order')->get();
+        $RoutingCategory = RoutingCategory::Join('tblRoutingProfileCategory', function($join) {
+            $join->on('tblRoutingCategory.RoutingCategoryID','=','tblRoutingProfileCategory.RoutingCategoryID');
+            })->select('tblRoutingProfileCategory.Order','tblRoutingCategory.Name','tblRoutingCategory.RoutingCategoryID','tblRoutingCategory.Description')->where('tblRoutingProfileCategory.RoutingProfileID',$id)
+            ->orderBy('tblRoutingProfileCategory.Order')->get();
         array_push($result, $RoutingCategory);             
         return $result; 
     }
 
     public function ajax_categories(){
-       $Categories = RoutingCategory::select('Name','RoutingCategoryID','Description')->get();
+       $Categories = RoutingCategory::select('Name','RoutingCategoryID','Description')->orderBy('Name')->get();
        return $Categories;
     }
 }

@@ -14,20 +14,20 @@ class RateGenerator extends \Eloquent {
     const VoiceCall = 1;
     const DID = 2;
     public static $Component = array(
-                                        "One-Off cost"=>"One-Off cost",
-                                        "Monthly cost"=>"Monthly cost",
-                                        "Cost per call"=>"Cost per call",
-                                        "Cost per minute"=>"Cost per minute",
-                                        "Surcharge per call"=>"Surcharge per call",
-                                        "Surcharge per minute"=>"Surcharge per minute",
-                                        "Out payment per minute"=>"Out payment per minute",
+                                        "OneOffCost"=>"One-Off cost",
+                                        "MonthlyCost"=>"Monthly cost",
+                                        "CostPerCall"=>"Cost per call",
+                                        "CostPerMinute"=>"Cost per minute",
+                                        "SurchargePerCall"=>"Surcharge per call",
+                                        "SurchargePerMinute"=>"Surcharge per minute",
+                                        "OutpaymentPerMinute"=>"Out payment per minute",
                                         "Surcharges"=>"Surcharges",
-                                        "Charge back"=>"Charge back",
-                                        "Collection cost - amount"=>"Collection cost - amount",
-                                        "Collection cost - percentage"=>"Collection cost - percentage",
-                                        "Registration cost - per number"=>"Registration cost - per number",
-                                        "One-Off cost - Per country"=>"One-Off cost - Per country",
-                                        "Monthly cost - Per country"=>"Monthly cost - Per country",
+                                        "Chargeback"=>"Charge back",
+                                        "CollectionCostAmount"=>"Collection cost - amount",
+                                        "CollectionCostPercentage"=>"Collection cost - percentage",
+                                        "RegistrationCostPerNumber"=>"Registration cost - per number",
+                                        "OneOffCostPerCountry"=>"One-Off cost - Per country",
+                                        "MonthlyCostPerCountry"=>"Monthly cost - Per country",
 
                                     );
 

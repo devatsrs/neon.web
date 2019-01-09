@@ -70,7 +70,7 @@
                 if((typeof DestinationCode  == 'undefined' || DestinationCode.trim() == '' ) && (typeof DestinationDescription  == 'undefined' || DestinationDescription.trim() == '' ) && (typeof OriginationCode  == 'undefined' || OriginationCode.trim() == '' ) && (typeof OriginationDescription  == 'undefined' || OriginationDescription.trim() == '' )){
 
                     setTimeout(function(){$('.btn').button('reset');},10);
-                    toastr.error("Please Enter a Origination Code OriginationDescription or Destination Code Or Destination Description", "Error", toastr_opts);
+                    toastr.error("Please Enter any one from Origination Code,OriginationDescription,Destination Code,Destination Description", "Error", toastr_opts);
                     return false;
 
                 }
@@ -78,7 +78,7 @@
                 if($("#rategenerator-source-from input[name='AccountIds[]']:checked").length == 0 ) {
 
                     setTimeout(function(){$('.btn').button('reset');},10);
-                    toastr.error("Please a Source", "Error", toastr_opts);
+                    toastr.error("Please Select Source", "Error", toastr_opts);
                     return false;
                 }
 

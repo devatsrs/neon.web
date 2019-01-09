@@ -98,6 +98,9 @@ var postdata;
 
             $search.Name = $("#table_filter").find('[name="Name"]').val();
             $search.Status = $("#table_filter").find('[name="Status"]').val();
+
+        // routing categories table...
+
             
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
@@ -272,7 +275,7 @@ $('table tbody').on('click','.addnewroutpro',function(ev){
                 $.map( response, function( val, i ) {
                     Array.prototype.forEach.call(val, function(el) {
                     // Do stuff here
-                    $('.tbody').append("<tr data-id="+el.RoutingCategoryID + "><td><input type='number' min='0' value='"+ el.Order +"' name='Orders[]' class='form-control' /><input type='hidden' name='RoutingCategory[]' value='"+ el.RoutingCategoryID +"'/></td><td>"+ el.Name +"</td><td>"+ el.Description +"</td><td><a class='btn btn-danger btn-sm' id='"+ el.RoutingCategoryID +"' onclick='deleteRoute(this.id)'>DELETE</a></td></tr>");
+                    $('.tbody').append("<tr data-id="+el.RoutingCategoryID + "><td><input type='number' min='0' value='"+ el.Order +"' name='Orders[]' class='form-control' /><input type='hidden' name='RoutingCategory[]' value='"+ el.RoutingCategoryID +"'/></td><td>"+ el.Name +"</td><td>"+ el.Description +"</td><td><a class='btn btn-danger btn-sm' id='"+ el.RoutingCategoryID +"' onclick='deleteRoute(this.id)'><i class='entypo-trash'></i></a></td></tr>");
                         
                  }); 
                     $('.tbody tr').each(function() {                                   

@@ -760,19 +760,19 @@
                  <label class="col-md-2 control-label">Out Payment Threshold</label>
                     <div class="col-md-4">
                      @if(isset($AccountPaymentAutomation->OutPaymentThreshold) )
-                        {{Form::text('OutPaymentThreshold',$AccountPaymentAutomation->OutPaymentThreshold,array('class'=>'form-control'))}}
+                        {{Form::number('OutPaymentThreshold',$AccountPaymentAutomation->OutPaymentThreshold,array('class'=>'form-control'))}}
                      @else
-                         {{Form::text('OutPaymentThreshold','',array('class'=>'form-control'))}}
+                         {{Form::number('OutPaymentThreshold','',array('class'=>'form-control'))}}
                      @endif
                     </div>
 
                  <label class="col-md-2 control-label">Topup Threshold</label>
                  <div class="col-md-4">
                      @if(isset($AccountPaymentAutomation->MinThreshold) )
-                         {{Form::text('MinThreshold', $AccountPaymentAutomation->MinThreshold,array('class'=>'form-control'))}}
+                         {{Form::number('MinThreshold', $AccountPaymentAutomation->MinThreshold,array('class'=>'form-control'))}}
 
                      @else
-                         {{Form::text('MinThreshold', '',array('class'=>'form-control'))}}
+                         {{Form::number('MinThreshold', '',array('class'=>'form-control'))}}
                      @endif
                  </div>
              </div>
@@ -781,17 +781,17 @@
                  <label class="col-md-2 control-label">Out Payment Amount</label>
                  <div class="col-md-4">
                      @if(isset($AccountPaymentAutomation->OutPaymentAmount) )
-                        {{Form::text('OutPaymentAmount',$AccountPaymentAutomation->OutPaymentAmount,array('class'=>'form-control'))}}
+                        {{Form::number('OutPaymentAmount',$AccountPaymentAutomation->OutPaymentAmount,array('class'=>'form-control'))}}
                      @else
-                         {{Form::text('OutPaymentAmount','',array('class'=>'form-control'))}}
+                         {{Form::number('OutPaymentAmount','',array('class'=>'form-control'))}}
                      @endif
                  </div>
                  <label class="col-md-2 control-label">Topup Amount</label>
                  <div class="col-md-4">
                      @if(isset($AccountPaymentAutomation->TopupAmount) )
-                        {{Form::text('TopupAmount', $AccountPaymentAutomation->TopupAmount ,array('class'=>'form-control'))}}
+                        {{Form::number('TopupAmount', $AccountPaymentAutomation->TopupAmount ,array('class'=>'form-control'))}}
                      @else
-                         {{Form::text('TopupAmount', '',array('class'=>'form-control'))}}
+                         {{Form::number('TopupAmount', '',array('class'=>'form-control'))}}
                      @endif
                  </div>
              </div>
@@ -1104,29 +1104,29 @@
                 $("#clitable_filter").find('.panel-body').hide();
                 $("#service_filter").find('.panel-body').hide();
 
-               if($('select[name="BillingType"]').val() == 1){
-
-                    $(".auto-payment-hide").show();
-                }else{
-                    $(".auto-payment-hide").hide();
-                }
+//               if($('select[name="BillingType"]').val() == 1){
+//
+//                    $(".auto-payment-hide").show();
+//                }else{
+//                    $(".auto-payment-hide").hide();
+//                }
             }else{
                 $(".billing-section").hide();
                 $(".billing-section-hide").nextAll('.panel').attr('data-collapsed',1);
                 $(".billing-section-hide").nextAll('.panel').find('.panel-body').hide();
-                $(".auto-payment-hide").hide();
+//                $(".auto-payment-hide").hide();
 
             }
         });
 
-        $('select[name="BillingType"]').on('change',function(){
-            if($('select[name="BillingType"]').val() == 1){
-
-                $(".auto-payment-hide").show();
-            }else{
-                $(".auto-payment-hide").hide();
-            }
-        });
+//        $('select[name="BillingType"]').on('change',function(){
+//            if($('select[name="BillingType"]').val() == 1){
+//
+//                $(".auto-payment-hide").show();
+//            }else{
+//                $(".auto-payment-hide").hide();
+//            }
+//        });
 
         $('[name="Billing"]').trigger('change');
 
