@@ -26,8 +26,8 @@
                   $('#add-new-BulkAction-modal-service').modal('hide');
                   toastr.success(response.message, "Success", toastr_opts);
                   var dataTableName = $("#table-4").dataTable();
-//                  dataTableName.fnFilter("", 0,false);
                   dataTableName.fnDraw();
+                  $('#selectall').attr('checked',false);
 
 
               }else{
