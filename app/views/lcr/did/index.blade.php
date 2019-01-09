@@ -40,7 +40,7 @@
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Destination Code</label>
-                    <input type="text" name="Code" class="form-control" id="field-1" placeholder="" value='*' />
+                    <input type="text" name="Code" class="form-control" id="field-1" placeholder=""  />
                 </div>
                 <div class="form-group">
                     <label class="control-label">Destination Description</label>
@@ -67,8 +67,8 @@
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">CodeDeck</label>
-                    {{--{{ Form::select('CodeDeckId', $codedecklist, $DefaultCodedeck , array("class"=>"select2")) }}--}}
-                    {{ Form::select('CodeDeckId', $codedecklist, 22 , array("class"=>"select2")) }}
+                    {{ Form::select('CodeDeckId', $codedecklist, $DefaultCodedeck , array("class"=>"select2")) }}
+
                 </div>
 
                 <div class="form-group">
@@ -88,7 +88,7 @@
 
                 <div class="form-group">
                     <label for="field-1" class="control-label">Category</label>
-                    {{Form::select('DIDCategoryID', $Categories, 4 ,array("class"=>"form-control select2"))}}
+                    {{Form::select('DIDCategoryID', $Categories, '',array("class"=>"form-control select2"))}}
                 </div>
 
                 <div class="form-group">
