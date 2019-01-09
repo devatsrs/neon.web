@@ -151,7 +151,12 @@ class RoutingCategoryController extends \BaseController {
         public function exports($type){
             
             $CompanyID = User::get_companyID();
-            $RoutingCategory = RoutingCategory::where(["CompanyID" => $CompanyID])->get(['Name','Description']);
+            $RoutingCategory = RoutingCategory::where(["CompanyID" => $CompanyID]);
+            $data = Input::all();
+            if(!empty($data['Name'])){
+                $RoutingCategory->where(["Name" => $data['Name']]);
+            }
+            $RoutingCategory = $RoutingCategory->get(['Name','Description']);
             $RoutingCategory = json_decode(json_encode($RoutingCategory),true);
             if($type=='csv'){
                 $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/RoutingCategory.csv';

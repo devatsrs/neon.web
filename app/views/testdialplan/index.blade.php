@@ -16,14 +16,25 @@
                 </div>--}}
                 <div class="form-group A">
                     <label for="field-1" class="control-label">Phone Number</label>
-                    <input type="text" value="" placeholder="Phone Number" id="field-1" class="form-control" name="Phone Number">
+                    <input type="text" value="" placeholder="Phone Number" id="field-1" class="form-control" name="DestinationCode">
                 </div>
 
                 <div class="form-group  S">
                     <label class="control-label" for="field-1">Routing Plan</label>
-                    {{Form::select('routingprofile', [null=>'All Available Routes'] + $routingprofile, (isset($RoutingProfileToCustomer->RoutingProfileID)?$RoutingProfileToCustomer->RoutingProfileID:'' ) ,array("class"=>"select2 small form-control1"));}}
+                    {{Form::select('routingprofile', [null=>'All Available Routes'] + $routingprofile + ['DefaultLCR'=>'Default LCR'], (isset($RoutingProfileToCustomer->RoutingProfileID)?$RoutingProfileToCustomer->RoutingProfileID:'' ) ,array("class"=>"select2 small form-control1"));}}
                 </div>
-
+                
+                <div class="form-group" style="display:none;">
+                    <label class="control-label" for="field-1">Date and Time</label>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <input type="text" name="StartDate"  class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d')}}"/>
+                        </div>
+                        <div class="col-md-6 select_hour">
+                            <input type="text" name="StartHour" data-minute-step="30"   data-show-meridian="false" data-default-time="00:00" value="00:00"  data-template="dropdown" class="form-control timepicker">
+                        </div>
+                    </div>
+                </div>
                 <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
@@ -73,7 +84,7 @@
                     <th>Connection</th>
                     <th>Routing Category</th>
                     <th>Preference</th>
-                    <th>Price, GBP</th>
+                    <th>Price</th>
                     <th>Destination</th>
                     <th>Description</th>
                     <th>Vendor</th>
@@ -174,10 +185,8 @@
             });
             $("#testdialplan_form").submit(function (e) {
                 $('#table-4').show();
-                $searchFilter.Trunk = $("#testdialplan_form select[name='Trunk']").val();
-                $searchFilter.Timezones = $("#testdialplan_form select[name='Timezones']").val();
-                $searchFilter.Country = $("#testdialplan_form select[name='Country']").val();
-                $searchFilter.Code = $("#testdialplan_form [name='Code']").val();
+                $searchFilter.DestinationCode = $("#testdialplan_form [name='DestinationCode']").val();
+                $searchFilter.routingprofile = $("#testdialplan_form select[name='routingprofile']").val();
                 
                 
                 data_table = $("#table-4").dataTable({
@@ -190,9 +199,9 @@
                     "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                     "aaSorting": [[1, 'asc']],
                     "fnServerParams": function (aoData) {
-                        aoData.push({"name": "Trunk", "value": $searchFilter.Trunk}, {"name": "Country","value": $searchFilter.Country}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Timezones", "value": $searchFilter.Timezones});
+                        aoData.push({"name": "DestinationCode", "value": $searchFilter.DestinationCode}, {"name": "routingprofile","value": $searchFilter.routingprofile});
                         data_table_extra_params.length = 0;
-                        data_table_extra_params.push({"name": "Trunk","value": $searchFilter.Trunk}, {"name": "Country", "value": $searchFilter.Country}, {"name": "Code","value": $searchFilter.Code}, {"name": "Timezones", "value": $searchFilter.Timezones});
+                        data_table_extra_params.push({"name": "DestinationCode","value": $searchFilter.DestinationCode}, {"name": "routingprofile", "value": $searchFilter.routingprofile});
                     },
                     "aoColumns": [
                         {
@@ -205,9 +214,15 @@
                             }
 
                         },
-                        {"bSortable": true},
-                        {"bSortable": true},{"bSortable": true},{"bSortable": true},{"bSortable": true},{"bSortable": true},{"bSortable": true},{"bSortable": true},
-                        {"bSortable": true},
+                        {"bSortable": true, mRender: function (id, type, full) { }},
+                        {"bSortable": true, mRender: function (id, type, full) { }},
+                        {"bSortable": true, mRender: function (id, type, full) { return full[4];}},
+                        {"bSortable": true, mRender: function (id, type, full) { return full[13]; }},
+                        {"bSortable": true, mRender: function (id, type, full) { return full[14];}},
+                        {"bSortable": true, mRender: function (id, type, full) { return full[12];}},
+                        {"bSortable": true, mRender: function (id, type, full) { return full[1];}},
+                        {"bSortable": true, mRender: function (id, type, full) { }},
+                        {"bSortable": true, mRender: function (id, type, full) {return full[3]; }},
 
 
                     ],
