@@ -48,7 +48,7 @@ class RateTablesController extends \BaseController {
         $data['ApprovedStatus']         = isset($data['ApprovedStatus']) && $data['ApprovedStatus'] != '' ? "'".$data['ApprovedStatus']."'" : 'null';
 
         $view = isset($data['view']) && $data['view'] == 2 ? $data['view'] : 1;
-        $TypeVoiceCall = RateType::getRateTypeIDBySlug('voicecall');
+        $TypeVoiceCall = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
 
         $rateTable = RateTable::find($id);
         if($rateTable->Type == $TypeVoiceCall) {
@@ -187,7 +187,7 @@ class RateTablesController extends \BaseController {
         $Timezones = Timezones::getTimezonesIDList();
         $RoutingCategories = RoutingCategory::getCategoryDropdownIDList($CompanyID);
         $RateApprovalProcess = CompanySetting::getKeyVal('RateApprovalProcess');
-        $TypeVoiceCall = RateType::getRateTypeIDBySlug('voicecall');
+        $TypeVoiceCall = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
 
         if($rateTable->Type == $TypeVoiceCall) {
             return View::make('ratetables.edit', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RoutingCategories','RateApprovalProcess','TypeVoiceCall'));
@@ -604,7 +604,7 @@ class RateTablesController extends \BaseController {
         $data['isExport']               = '1'.$data['ratetablepageview'];
 
         $rateTable = RateTable::find($id);
-        $TypeVoiceCall = RateType::getRateTypeIDBySlug('voicecall');
+        $TypeVoiceCall = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
 
         if($rateTable->Type == $TypeVoiceCall) {
             if(!empty($data['DiscontinuedRates'])) {
@@ -646,7 +646,7 @@ class RateTablesController extends \BaseController {
         $rateTable = RateTable::find($id);
 
         $data['RateTableId'] = $id;
-        $TypeVoiceCall = RateType::getRateTypeIDBySlug('voicecall');
+        $TypeVoiceCall = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
         if($rateTable->Type == $TypeVoiceCall) {
             $rules = RateTableRate::$rules;
             $col_id = 'RateTableRateId';
@@ -673,7 +673,7 @@ class RateTablesController extends \BaseController {
         $RateTableRate['EffectiveDate']     = $data['EffectiveDate'];
         $RateTableRate['EndDate']           = !empty($data['EndDate']) ? $data['EndDate'] : null;
         $RateTableRate['TimezonesID']       = $data['TimezonesID'];
-        $TypeVoiceCall = RateType::getRateTypeIDBySlug('voicecall');
+        $TypeVoiceCall = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
 
         if($rateTable->Type == $TypeVoiceCall) {
             $RateTableRate['Rate']              = $data['Rate'];
@@ -934,7 +934,7 @@ class RateTablesController extends \BaseController {
             $TimezonesID        = $data['TimezonesID'];
 
             $rateTable = RateTable::find($RateTableID);
-            $TypeVoiceCall = RateType::getRateTypeIDBySlug('voicecall');
+            $TypeVoiceCall = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
             if($rateTable->Type == $TypeVoiceCall) {
                 $query = 'call prc_GetRateTableRatesArchiveGrid (' . $companyID . ',' . $RateTableID . ',' . $TimezonesID . ',"' . $RateID . '","' . $OriginationRateID . '",' . $view . ')';
             } else {

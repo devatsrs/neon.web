@@ -3,7 +3,6 @@
 
   $(document).ready(function ($) {
 
-
       var selected_company, data, url;
       selected_currency = $("#serviceTemplateCurreny").val();
 
@@ -12,6 +11,8 @@
 
       // This function exist in service template moal class
       loadValuesBasedOnCurrency(selected_currency,false,'','','','');
+
+      var table = document.getElementById ("table-4");
 
       $('#add-action-bulk-form').submit(function(e){
 
@@ -24,6 +25,11 @@
 
                   $('#add-new-BulkAction-modal-service').modal('hide');
                   toastr.success(response.message, "Success", toastr_opts);
+                  var dataTableName = $("#table-4").dataTable();
+                  dataTableName.fnDraw();
+                  $('#selectall').attr('checked',false);
+
+
               }else{
                   toastr.error(response.message, "Error", toastr_opts);
               }

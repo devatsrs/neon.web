@@ -369,6 +369,7 @@ class Job extends \Eloquent {
                 }
 
                 break;
+            case 'DRTU':
             case 'RTU':
                 /*
                  *  Rate Table Upload  Job Log
@@ -450,7 +451,7 @@ class Job extends \Eloquent {
                   Job Insers Here
                  */
                 if ($JobID = Job::insertGetId($data)) {
-                    RateSheetHistory::AddtoHistory($JobID,'RTU',$data);
+                    RateSheetHistory::AddtoHistory($JobID,$JobType,$data);
 
                     /*
                      * JobFile Insers here

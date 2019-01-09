@@ -8,11 +8,15 @@ class LCRDIDController extends \BaseController {
         $companyID = User::get_companyID();
         $data = Input::all();
         $AccountIDs = empty($data['Accounts'])?'':$data['Accounts'];
+        $data['ComponentAction']=empty($data['ComponentAction'])?'':$data['ComponentAction'];
         if($AccountIDs=='null'){
             $AccountIDs='';
         }
-        $data['Use_Preference'] = $data['Use_Preference'] == 'true' ? 1:0;
-        $data['vendor_block'] = $data['vendor_block'] == 'true' ? 1:0;
+        if(empty($data['Components'])){
+            return Response::json(array("status" => "failed", "message" => "Component is required."));
+        }
+        $data['DIDCategoryID']=empty($data['DIDCategoryID'])?0:$data['DIDCategoryID'];
+
         $data['show_all_vendor_codes'] = $data['show_all_vendor_codes'] == 'true' ? 1:0;
         $data['iDisplayStart'] +=1;
 
@@ -20,24 +24,13 @@ class LCRDIDController extends \BaseController {
         if($data['LCRPosition'] != $LCRPosition){
             NeonCookie::setCookie('LCRPosition',$data['LCRPosition'],60);
         }
-        $LCRGroupBy = Invoice::getCookie('LCRGroupBy');
-        if($data['GroupBy'] != $LCRGroupBy){
-            NeonCookie::setCookie('LCRGroupBy',$data['GroupBy'],60);
-        }
 
         $data['merge_timezones'] = $data['merge_timezones'] == 'true' ? 1 : 0;
         $data['Timezones'] = $data['merge_timezones'] == 1 ? $data['TimezonesMerged'] : $data['Timezones'];
 
         //@TODO: check $data["Type"] when DID procedue is done
 
-        if( $data['Policy'] == LCR::LCR ) {
-            //log::info("call prc_GetLCR (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."',0)");
-            $query = "call prc_GetLCR (".$companyID.",".$data['Trunk'].",'".$data['Timezones']."',".$data['CodeDeck'].",'".$data['Currency']."','".$data['OriginationCode']."','".$data['OriginationDescription']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."','".intval($data['vendor_block'])."','".$data['GroupBy']."','".$data['SelectedEffectiveDate']."','".intval($data['show_all_vendor_codes'])."' ,'".$data['merge_timezones']."' ,'".intval($data['TakePrice'])."' ";
-        } else {
-            //log::info("call prc_GetLCRwithPrefix (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."','".$data['GroupBy']."',0)");
-            $query = "call prc_GetLCRwithPrefix (".$companyID.",".$data['Trunk'].",'".$data['Timezones']."',".$data['CodeDeck'].",'".$data['Currency']."','".$data['OriginationCode']."','".$data['OriginationDescription']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."','".intval($data['vendor_block'])."','".$data['GroupBy']."','".$data['SelectedEffectiveDate']."' ,'".intval($data['show_all_vendor_codes'])."' ,'".$data['merge_timezones']."' ,'".intval($data['TakePrice'])."' ";
-        }
-
+        $query = "call prc_GetDIDLCRwithPrefix (".$companyID.",".$data['DIDCategoryID'].",'".$data['Timezones']."',".$data['CodeDeck'].",'".$data['Currency']."','".$data['OriginationCode']."','".$data['OriginationDescription']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['LCRPosition'])."','".$data['SelectedEffectiveDate']."' ,'".intval($data['show_all_vendor_codes'])."' ,'".$data['merge_timezones']."' ,'".intval($data['TakePrice'])."','".$data['Components']."','".$data['ComponentAction']."','' ";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
@@ -58,13 +51,11 @@ class LCRDIDController extends \BaseController {
                 $NeonExcel->download_excel($excel_data);
             }
 
-            /*Excel::create('LCR', function ($excel) use ($excel_data) {
-                $excel->sheet('LCR', function ($sheet) use ($excel_data) {
-                    $sheet->fromArray($excel_data);
-                });
-            })->download('xls');*/
         }
         $query .=',0)';
+        Log::info($query);
+
+        //$query= "call prc_GetDIDLCRwithPrefix (1,4,'1',22,'3','*','','*','','',1,10,'asc','5','2019-01-03','0','0','0','OneOffCost','','',0)";
 
         \Illuminate\Support\Facades\Log::info($query);
 
@@ -92,8 +83,9 @@ class LCRDIDController extends \BaseController {
         $companyID = User::get_companyID();
         $DefaultCodedeck = BaseCodeDeck::where(["CompanyID"=>$companyID,"DefaultCodedeck"=>1])->pluck("CodeDeckId");
         $GroupBy =    NeonCookie::getCookie('LCRGroupBy');
+        $Categories = DidCategory::getCategoryDropdownIDList();
 
-        return View::make('lcr.index', compact('trunks', 'currencies','CurrencyID','codedecklist','DefaultCodedeck','trunk_keys','LCRPosition','all_accounts','GroupBy','Timezones','RateTypes'));
+        return View::make('lcr.did.index', compact('trunks', 'currencies','CurrencyID','codedecklist','DefaultCodedeck','trunk_keys','LCRPosition','all_accounts','GroupBy','Timezones','RateTypes','Categories'));
     }
     //not using
     public function exports(){
