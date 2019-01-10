@@ -407,11 +407,13 @@
             }
             $searchFilter.OwnerFilter = "";
             var data_table_new = $("#" + tableID).dataTable({
-                "bDestroy": true, // Destroy when resubmit form
-                "sDom": "<'row'<'col-xs-12 border_left'f>r>t",
-                "bProcessing": false,
-                "bServerSide": false,
-                "bPaginate": false,
+                "bDestroy": true,
+            "bProcessing":true,
+            "bServerSide":true,
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
+            "sPaginationType": "bootstrap",
+            "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+            "aaSorting": [[0, 'asc']],
                 "fnServerParams": function (aoData) {
                     aoData.push(
                             {"name": "Trunk", "value": $searchFilter.Trunk},
