@@ -9,6 +9,9 @@ class TestdialplanController extends \BaseController {
         $profileId="";
         if(isset($data['routingprofile']) && $data['routingprofile']!=''){
             $profileId=$data['routingprofile'];
+            if($data['routingprofile']=='DefaultLCR'){
+                $profileId="";
+            }
         }
         $query = "call prc_getTestDialPlan ('".$DefaultCurrencyID."','','".$data['DestinationCode']."','1','".$profileId."')";
         
