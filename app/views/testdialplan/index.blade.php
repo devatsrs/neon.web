@@ -101,7 +101,7 @@
         var first_call = true;
         $(function () {
             //load_vendorGrid();
-
+$('#filter-button-toggle').show();
             $('.nav-tabs li a').click(function (e) {
                 e.preventDefault();
             });
