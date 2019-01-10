@@ -27,9 +27,9 @@ Return
 
 
 
-### POST getTransactions
+### POST getPayments
 
-http://speakintelligence.neon-soft.com/api/account/getTransactions
+http://speakintelligence.neon-soft.com/api/account/getPayments
 
 Perams:
 
