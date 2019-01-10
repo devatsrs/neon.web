@@ -405,7 +405,6 @@
                 {
                     $('#BulkServiceTemplateModelTitle').text('Add New Bulk Action');
                     var GetCurrencyId = $("#service_filter [name='FilterCurrencyId']").val();
-                     alert(checkBoxArray);
                     $("#CurrencyId").val(GetCurrencyId);
                     $("#ServiceTemplateId").val(checkBoxArray);
                 }else{
