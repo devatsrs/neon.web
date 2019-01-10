@@ -383,7 +383,7 @@ Return
 
 ### POST depositFund
 
-http://speakintelligence.neon-soft.com/api/depositFund
+http://speakintelligence.neon-soft.com/api/account/depositFund
 
 Perams:
 
