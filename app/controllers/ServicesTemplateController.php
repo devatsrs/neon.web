@@ -1056,7 +1056,6 @@ class ServicesTemplateController extends BaseController {
     public function addBulkAction(){ // Add Bulk action if input empty then this will add already existing values...
 
         $data = Input::all();
-
         if(isset($data['ServiceTemplateId']))
         {
             $ServiceTemplateIdString =  ((string)$data['ServiceTemplateId']);
@@ -1068,13 +1067,16 @@ class ServicesTemplateController extends BaseController {
                 $ExistingValues = ServiceTemplate::select('CurrencyId','ServiceId','OutboundRateTableId','OutboundDiscountPlanId','InboundDiscountPlanId')
                                                     ->where('ServiceTemplateId',$ServiceTemplateIdArray[$i])->first();
 
+                Log::info('Existing Log'.' ,'.  $ExistingValues['OutboundRateTableId']);
+
+
                 $UpdatedValues  = ServiceTemplate::where('ServiceTemplateId',$ServiceTemplateIdArray[$i])
                                                     ->update([
-                                                                'CurrencyId'             => ($data['CurrencyId']) ? $data['CurrencyId'] : $ExistingValues['CurrencyId'],
-                                                                'ServiceId'              => ($data['ServiceId']) ? $data['ServiceId'] : $ExistingValues['ServiceId'],
-                                                                'OutboundRateTableId'    => ($data['OutboundRateTableId']) ? $data['OutboundRateTableId'] : $ExistingValues['OutboundRateTableId'],
-                                                                'OutboundDiscountPlanId' => ($data['OutboundDiscountPlanId']) ? $data['OutboundDiscountPlanId'] : $ExistingValues['OutboundDiscountPlanId'],
-                                                                'InboundDiscountPlanId'  => ($data['OutboundDiscountPlanId']) ? $data['OutboundDiscountPlanId'] : $ExistingValues['OutboundDiscountPlanId'],
+                                                                'CurrencyId'             => (isset($data['CurrencyId']) ? $data['CurrencyId'] : $ExistingValues['CurrencyId']),
+                                                                'ServiceId'              => (isset($data['ServiceId']) ? $data['ServiceId'] : $ExistingValues['ServiceId']),
+                                                                'OutboundRateTableId'    => (isset($data['OutboundRateTableId']) ? $data['OutboundRateTableId'] : $ExistingValues['OutboundRateTableId']),
+                                                                'OutboundDiscountPlanId' => (isset($data['OutboundDiscountPlanId']) ? $data['OutboundDiscountPlanId'] : $ExistingValues['OutboundDiscountPlanId']),
+                                                                'InboundDiscountPlanId'  => (isset($data['OutboundDiscountPlanId']) ? $data['OutboundDiscountPlanId'] : $ExistingValues['OutboundDiscountPlanId']),
                                                             ]);
             }
 
