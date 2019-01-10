@@ -1272,7 +1272,8 @@ Params:
 	DestinationNo
 	AccountNumber
 	AccountID
-	ConnectTime
+	DataAndTime
+	Location
 
 
 Return
@@ -1284,7 +1285,7 @@ Return
         	AccountNumber:08004570 [AccountNumber OR AccountID is mandatory]
         	AccountID:[AccountNumber OR AccountID is mandatory]
         	DataAndTime:2018-11-30 10:10:10
-
+            Location:
         Response:
 
            {

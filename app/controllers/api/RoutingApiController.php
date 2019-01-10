@@ -172,7 +172,8 @@ class RoutingApiController extends ApiController {
              */
         $procName = "prc_getRoutingRecords";
         $syntax = '';
-        $parameters = [$CustomerProfileAccountID,$routingData['OriginationNo'],$routingData['DestinationNo'],$queryTimeZone,$RoutingProfileID];
+        $parameters = [$CustomerProfileAccountID,$routingData['OriginationNo'],$routingData['DestinationNo'],
+            $queryTimeZone,$RoutingProfileID,$routingData['Location']];
         for ($i = 0; $i < count($parameters); $i++) {
             $syntax .= (!empty($syntax) ? ',' : '') . '?';
         }
