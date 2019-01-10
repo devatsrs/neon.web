@@ -287,14 +287,24 @@
         $("#selectall").click(function (ev) {
             var is_checked = $(this).is(':checked');
 
+            if(checkBoxArray != null || checkBoxArray == undefined)
+               checkBoxArray = [];
+
             $('#table-4 tbody tr').each(function (i, el) {
+                var txtValue = $(this).find('.rowcheckbox').prop("checked", true).val();
+
                 if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
                     if (is_checked) {
                         $(this).find('.rowcheckbox').prop("checked", true);
                         $(this).addClass('selected');
+                        console.log(txtValue);
+                        if(txtValue)
+                          checkBoxArray.push(txtValue);
+
                     } else {
                         $(this).find('.rowcheckbox').prop("checked", false);
                         $(this).removeClass('selected');
+                        checkBoxArray = [];
                     }
                 }
             });
@@ -407,6 +417,7 @@
                     var GetCurrencyId = $("#service_filter [name='FilterCurrencyId']").val();
                     $("#CurrencyId").val(GetCurrencyId);
                     $("#ServiceTemplateId").val(checkBoxArray);
+                    checkBoxArray = [];
                 }else{
 
                    if(checkBoxArray == "")
