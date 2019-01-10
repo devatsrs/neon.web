@@ -23,6 +23,11 @@ class AccountAuthenticate extends \Eloquent {
         }else{
             $ServiceID = 0;
         }
+        if(!empty($data['AccountServiceID'])){
+            $AccountServiceID = $data['AccountServiceID'];
+        }else{
+            $AccountServiceID = 0;
+        }
         $status = ['status'=>0,'message'=>'','data'=>[]];
         $isCustomerOrVendor = $data['isCustomerOrVendor']==1?'Customer':'Vendor';
         $type = $data['type']==1?'CLI':'IP';
@@ -37,7 +42,7 @@ class AccountAuthenticate extends \Eloquent {
         $ipclis = array_filter(array_map('trim', $ipclis), 'strlen');
         $ipclist = implode(',',$ipclis);
 
-        $oldAccountAuthenticate = AccountAuthenticate::where(['CompanyID'=>$data['CompanyID'],'AccountID'=>$data['AccountID'],'ServiceID'=>$ServiceID]);
+        $oldAccountAuthenticate = AccountAuthenticate::where(['CompanyID'=>$data['CompanyID'],'AccountID'=>$data['AccountID'],'ServiceID'=>$ServiceID,'AccountServiceID'=>$AccountServiceID]);
         if($oldAccountAuthenticate->count() > 0){
             $oldAccountAuthenticate = $oldAccountAuthenticate->first();
             $oldAuthValues['CustomerAuthValue'] = $oldAccountAuthenticate->CustomerAuthValue;
@@ -47,7 +52,7 @@ class AccountAuthenticate extends \Eloquent {
             $oldAuthValues['VendorAuthValue'] = "";
         }
 
-        $query = "CALL prc_AddAccountIPCLI(".$data['CompanyID'].",".$data['AccountID'].",".$data['isCustomerOrVendor'].",'".$ipclist."','".$type."',".$ServiceID.")";
+        $query = "CALL prc_AddAccountIPCLI(".$data['CompanyID'].",".$data['AccountID'].",".$data['isCustomerOrVendor'].",'".$ipclist."','".$type."',".$ServiceID.",".$AccountServiceID.")";
         $found = DB::select($query);
         $validation = '';
         if(!empty($found)) {
@@ -65,7 +70,7 @@ class AccountAuthenticate extends \Eloquent {
         }
 
         if($type == 'IP') {
-            $accountAuthenticate = AccountAuthenticate::where(['CompanyID'=>$data['CompanyID'],'AccountID'=>$data['AccountID'],'ServiceID'=>$ServiceID]);
+            $accountAuthenticate = AccountAuthenticate::where(['CompanyID'=>$data['CompanyID'],'AccountID'=>$data['AccountID'],'ServiceID'=>$ServiceID,'AccountServiceID'=>$AccountServiceID]);
             if($accountAuthenticate->count() > 0) {
                 $accountAuthenticate = $accountAuthenticate->first();
                 AccountAuthenticate::addAuditLog($accountAuthenticate,$oldAuthValues);
@@ -126,18 +131,19 @@ class AccountAuthenticate extends \Eloquent {
 
             if(!empty($data['ServiceID'])){
 
-                if(AccountAuthenticate::where(array('AccountID'=>$data['AccountID'],'ServiceID'=>$data['ServiceID']))->count()){
-                    AccountAuthenticate::where(array('AccountID'=>$data['AccountID'],'ServiceID'=>$data['ServiceID']))->update($AccountAuthenticate);
+                if(AccountAuthenticate::where(array('AccountID'=>$data['AccountID'],'ServiceID'=>$data['ServiceID'],'AccountServiceID'=>$data['AccountServiceID']))->count()){
+                    AccountAuthenticate::where(array('AccountID'=>$data['AccountID'],'ServiceID'=>$data['ServiceID'],'AccountServiceID'=>$data['AccountServiceID']))->update($AccountAuthenticate);
                 }else{
                     $AccountAuthenticate['AccountID'] = $data['AccountID'];
                     $AccountAuthenticate['CompanyID'] = $CompanyID;
                     $AccountAuthenticate['ServiceID'] = $data['ServiceID'];
+                    $AccountAuthenticate['AccountServiceID'] = $data['AccountServiceID'];
                     AccountAuthenticate::insert($AccountAuthenticate);
                 }
 
             }else{
-                if(AccountAuthenticate::where(array('AccountID'=>$data['AccountID'],'ServiceID'=>0))->count()){
-                    AccountAuthenticate::where(array('AccountID'=>$data['AccountID'],'ServiceID'=>0))->update($AccountAuthenticate);
+                if(AccountAuthenticate::where(array('AccountID'=>$data['AccountID'],'ServiceID'=>0,'AccountServiceID'=>0))->count()){
+                    AccountAuthenticate::where(array('AccountID'=>$data['AccountID'],'ServiceID'=>0,'AccountServiceID'=>0))->update($AccountAuthenticate);
                 }else{
                     $AccountAuthenticate['AccountID'] = $data['AccountID'];
                     $AccountAuthenticate['CompanyID'] = $CompanyID;

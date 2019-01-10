@@ -3,11 +3,12 @@
 class AccountServiceController extends \BaseController {
 
     // view account edit page
-	public function edit($id,$ServiceID){
+	public function edit($id,$AccountServiceID){
         //Account::getAccountIDList(); exit;
         //AccountService::getAccountServiceIDList($id); exit;
         $account = Account::find($id);
-        $CompanyID = User::get_companyID();
+        $ServiceID = AccountService::getServiceIDByAccountServiceID($AccountServiceID);
+        $CompanyID = Account::getCompanyIDByAccountID($id);
 		$AccountID = $id;
         $ServiceName = Service::getServiceNameByID($ServiceID);
         $decimal_places = get_round_decimal_places($id);
@@ -19,57 +20,52 @@ class AccountServiceController extends \BaseController {
         $InboundTariffID = '';
         $OutboundTariffID = '';
 
-        $InboundTariff = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID, 'Type' => AccountTariff::INBOUND))->first();
+        $InboundTariff = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID,'AccountServiceID'=>$AccountServiceID, 'ServiceID' => $ServiceID, 'Type' => AccountTariff::INBOUND))->first();
         if(!empty($InboundTariff) && count($InboundTariff) > 0 ){
             $InboundTariffID = empty($InboundTariff->RateTableID) ? '' : $InboundTariff->RateTableID;
         }
 
-        $OutboundTariff = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID, 'Type' => AccountTariff::OUTBOUND))->first();
+        $OutboundTariff = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID,'AccountServiceID'=>$AccountServiceID, 'ServiceID' => $ServiceID, 'Type' => AccountTariff::OUTBOUND))->first();
         if(!empty($OutboundTariff) && count($OutboundTariff) > 0 ){
             $OutboundTariffID = empty($OutboundTariff->RateTableID) ? '' : $OutboundTariff->RateTableID;
         }
         //Billing
         $invoice_count = Account::getInvoiceCount($id);
-        $BillingClass = BillingClass::getDropdownIDList(User::get_companyID());
+        $BillingClass = BillingClass::getDropdownIDList($CompanyID);
         $timezones = TimeZone::getTimeZoneDropdownList();
-        $AccountBilling =  AccountBilling::getBilling($id,$ServiceID);
-        $AccountNextBilling =  AccountNextBilling::getBilling($id,$ServiceID);
+        $AccountBilling =  AccountBilling::getBillingByAccountService($id,$AccountServiceID);
+        $AccountNextBilling =  AccountNextBilling::getBillingByAccountService($id,$AccountServiceID);
 
-        $DiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::OUTBOUND,'ServiceID'=>$ServiceID,'AccountSubscriptionID'=>0))->pluck('DiscountPlanID');
-        $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::INBOUND,'ServiceID'=>$ServiceID,'AccountSubscriptionID'=>0))->pluck('DiscountPlanID');
+        $DiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'AccountServiceID'=>$AccountServiceID,'Type'=>AccountDiscountPlan::OUTBOUND,'ServiceID'=>$ServiceID,'AccountSubscriptionID'=>0))->pluck('DiscountPlanID');
+        $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'AccountServiceID'=>$AccountServiceID,'Type'=>AccountDiscountPlan::INBOUND,'ServiceID'=>$ServiceID,'AccountSubscriptionID'=>0))->pluck('DiscountPlanID');
 
-        $ServiceTitle = AccountService::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->pluck('ServiceTitle');
-        $ServiceDescription = AccountService::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->pluck('ServiceDescription');
-        $ServiceTitleShow = AccountService::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->pluck('ServiceTitleShow');
-        $AccountService = AccountService::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->first();
+        $ServiceTitle = AccountService::where(['AccountID'=>$id,'AccountServiceID'=>$AccountServiceID])->pluck('ServiceTitle');
+        $ServiceDescription = AccountService::where(['AccountID'=>$id,'AccountServiceID'=>$AccountServiceID])->pluck('ServiceDescription');
+        $ServiceTitleShow = AccountService::where(['AccountID'=>$id,'AccountServiceID'=>$AccountServiceID])->pluck('ServiceTitleShow');
+        $AccountService = AccountService::where(['AccountID'=>$id,'AccountServiceID'=>$AccountServiceID])->first();
 
         //As per new question call the routing profile model for fetch the routing profile list.
             $routingprofile = RoutingProfiles::getRoutingProfile($CompanyID);
-            $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id,"ServiceID"=>$ServiceID])->first();
+            $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id,"AccountServiceID"=>$AccountServiceID])->first();
             //----------------------------------------------------------------------
             $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$CompanyID);
-		return View::make('accountservices.edit', compact('AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService'));
+		return View::make('accountservices.edit', compact('AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID'));
 	}
 
     // add account services
     public function addservices($id){
         $data = Input::all();
-        $CompanyID = User::get_companyID();
         $services = $data['ServiceID'];
         $accountid = $data['AccountID'];
         $servicedata = array();
         if(!empty($services) && count($services)>0 && !empty($accountid)){
+            $CompanyID = Account::getCompanyIDByAccountID($accountid);
             $message = '';
             foreach($services as $service){
-                if(AccountService::where(array('AccountID'=>$accountid,'CompanyID'=>$CompanyID,'ServiceID'=>$service))->count()){
-                    $ServiceName = Service::getServiceNameByID($service);
-                    $message .= $ServiceName.' already exists <br>';
-                }else{
-                    $servicedata['ServiceID'] = $service;
-                    $servicedata['AccountID'] = $data['AccountID'];
-                    $servicedata['CompanyID'] = $CompanyID;
-                    AccountService::insert($servicedata);
-                }
+                $servicedata['ServiceID'] = $service;
+                $servicedata['AccountID'] = $data['AccountID'];
+                $servicedata['CompanyID'] = $CompanyID;
+                AccountService::insert($servicedata);
             }
             if(!empty($message)){
                 $message = 'Following service already exists.<br>'.$message;
@@ -90,7 +86,7 @@ class AccountServiceController extends \BaseController {
     public function ajax_datagrid($id){
         $data = Input::all();
         $id=$data['account_id'];
-        $select = ["tblAccountService.ServiceID","tblService.ServiceName","tblAccountService.ServiceTitle","tblAccountService.Status","tblAccountService.ServiceID","tblAccountService.AccountServiceID"];
+        $select = ["tblAccountService.AccountServiceID","tblService.ServiceName","tblAccountService.ServiceTitle","tblAccountService.Status","tblAccountService.ServiceID","tblAccountService.AccountServiceID"];
         $services = AccountService::join('tblService', 'tblAccountService.ServiceID', '=', 'tblService.ServiceID')->where("tblAccountService.AccountID",$id);
         if(!empty($data['ServiceName'])){
             $services->where('tblService.ServiceName','Like','%'.trim($data['ServiceName']).'%');
@@ -111,15 +107,16 @@ class AccountServiceController extends \BaseController {
     }
 
     // account service edit page data store and update
-	public function update($AccountID,$ServiceID)
+	public function update($AccountID,$AccountServiceID)
 	{
-        if( $AccountID  > 0  && $ServiceID > 0 ) {
-            $data = Input::all();
+        $data = Input::all();
+        if( $AccountID  > 0  && $AccountServiceID > 0 && !empty($data['ServiceID'])) {
 
             $date = date('Y-m-d H:i:s');
             $data['Billing'] = isset($data['Billing']) ? 1 : 0;
             $data['ServiceBilling'] = isset($data['ServiceBilling']) ? 1 : 0;
-            $CompanyID = User::get_companyID();
+            $ServiceID = $data['ServiceID'];
+            $CompanyID = Account::getCompanyIDByAccountID($AccountID);
             if(empty($data['ServiceTitleShow'])){
                 if(empty($data['ServiceDescription'])){
                     return Response::json(array("status" => "failed", "message" => "Please fill Service Description."));
@@ -131,22 +128,25 @@ class AccountServiceController extends \BaseController {
                 $RoutingProfileID=$data['routingprofile'];
             }
             if($RoutingProfileID!=''){
-                $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$AccountID,"ServiceID"=>$ServiceID])->first();
+                $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$AccountID,"AccountServiceID"=>$AccountServiceID])->first();
 
-                if(isset($RoutingProfileToCustomer->ServiceID) && isset($RoutingProfileToCustomer->AccountID)){
+                if(!empty($RoutingProfileToCustomer) && count($RoutingProfileToCustomer)>0){
                     $routingprofile_table=array();
                     $routingprofile_table['RoutingProfileID'] = $RoutingProfileID;
                     $routingprofile_table['AccountID'] = $AccountID;
                     $routingprofile_table['ServiceID'] = $ServiceID;
-                    RoutingProfileToCustomer::where(["AccountID"=>$AccountID,"ServiceID"=>$ServiceID])->update($routingprofile_table);
+                    $routingprofile_table['AccountServiceID'] = $AccountServiceID;
+                    $routingprofile_table['updated_at'] = date('Y-m-d H:i:s');
+                    RoutingProfileToCustomer::where(["AccountID"=>$AccountID,"AccountServiceID"=>$AccountServiceID])->update($routingprofile_table);
                 }else{
-                    if($RoutingProfileID!=''){
-                        $routingprofile_table=array();
-                        $routingprofile_table['RoutingProfileID'] = $RoutingProfileID;
-                        $routingprofile_table['AccountID'] = $AccountID;
-                        $routingprofile_table['ServiceID'] = $ServiceID;
-                        RoutingProfileToCustomer::insert($routingprofile_table);
-                    }
+                    $routingprofile_table=array();
+                    $routingprofile_table['RoutingProfileID'] = $RoutingProfileID;
+                    $routingprofile_table['AccountID'] = $AccountID;
+                    $routingprofile_table['ServiceID'] = $ServiceID;
+                    $routingprofile_table['AccountServiceID'] = $AccountServiceID;
+                    $routingprofile_table['created_at'] = date('Y-m-d H:i:s');
+                    $routingprofile_table['updated_at'] = date('Y-m-d H:i:s');
+                    RoutingProfileToCustomer::insert($routingprofile_table);
                 }
                 unset($data['routingprofile']);
             }
@@ -186,6 +186,9 @@ class AccountServiceController extends \BaseController {
 
             $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'), 0);
 
+            /** @TODO
+             * Billing is off now when we change need to do as accountservice wise
+             */
             if($data['ServiceBilling'] == 1) {
                 if (!empty($data['BillingStartDate']) || !empty($data['BillingCycleType']) || !empty($data['BillingCycleValue']) || !empty($data['BillingClassID'])) {
                     if ($data['NextInvoiceDate'] < $data['LastInvoiceDate']) {
@@ -207,8 +210,8 @@ class AccountServiceController extends \BaseController {
                 $AccountName='';
                 $AccountCLI='';
                 $SubscriptionDiscountPlanID=0;
-                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
-                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
             }
 
 
@@ -220,6 +223,7 @@ class AccountServiceController extends \BaseController {
             $inbounddata['CompanyID'] = $CompanyID;
             $inbounddata['AccountID'] = $AccountID;
             $inbounddata['ServiceID'] = $ServiceID;
+            $inbounddata['AccountServiceID'] = $AccountServiceID;
             $inbounddata['RateTableID'] = $InboundTariff;
             $inbounddata['Type'] = AccountTariff::INBOUND;
 
@@ -227,38 +231,39 @@ class AccountServiceController extends \BaseController {
             $outbounddata['CompanyID'] = $CompanyID;
             $outbounddata['AccountID'] = $AccountID;
             $outbounddata['ServiceID'] = $ServiceID;
+            $outbounddata['AccountServiceID'] = $AccountServiceID;
             $outbounddata['RateTableID'] = $OutboundTariff;
             $outbounddata['Type'] = AccountTariff::OUTBOUND;
 
             if(!empty($InboundTariff)){
-                $count = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID, 'Type' => AccountTariff::INBOUND))->count();
+                $count = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID,'AccountServiceID'=>$AccountServiceID, 'Type' => AccountTariff::INBOUND))->count();
                 if(!empty($count) && $count>0){
-                    AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID, 'Type' => AccountTariff::INBOUND))
+                    AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID,'AccountServiceID'=>$AccountServiceID, 'Type' => AccountTariff::INBOUND))
                                     ->update(array('RateTableID' => $InboundTariff, 'updated_at' => $date));
                 }else{
                     $inbounddata['created_at'] = $date;
                     AccountTariff::create($inbounddata);
                 }
             }else{
-                $count = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID, 'Type' => AccountTariff::INBOUND))->count();
+                $count = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID,'AccountServiceID'=>$AccountServiceID, 'Type' => AccountTariff::INBOUND))->count();
                 if(!empty($count) && $count>0){
-                    AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID, 'Type' => AccountTariff::INBOUND))->delete();
+                    AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID,'AccountServiceID'=>$AccountServiceID, 'Type' => AccountTariff::INBOUND))->delete();
                 }
             }
 
             if(!empty($OutboundTariff)){
-                $count = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID, 'Type' => AccountTariff::OUTBOUND))->count();
+                $count = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID,'AccountServiceID'=>$AccountServiceID, 'Type' => AccountTariff::OUTBOUND))->count();
                 if(!empty($count) && $count>0){
-                    AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID, 'Type' => AccountTariff::OUTBOUND))
+                    AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID,'AccountServiceID'=>$AccountServiceID, 'Type' => AccountTariff::OUTBOUND))
                         ->update(array('RateTableID' => $OutboundTariff, 'updated_at' => $date));
                 }else{
                     $outbounddata['created_at'] = $date;
                     AccountTariff::create($outbounddata);
                 }
             }else{
-                $count = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID, 'Type' => AccountTariff::OUTBOUND))->count();
+                $count = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID,'AccountServiceID'=>$AccountServiceID, 'Type' => AccountTariff::OUTBOUND))->count();
                 if(!empty($count) && $count>0){
-                    AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID, 'Type' => AccountTariff::OUTBOUND))->delete();
+                    AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID,'AccountServiceID'=>$AccountServiceID, 'Type' => AccountTariff::OUTBOUND))->delete();
                 }
             }
 
@@ -269,19 +274,19 @@ class AccountServiceController extends \BaseController {
             $accdata['SubscriptionBillingCycleType'] = empty($data['SubscriptionBillingCycleType']) ? '' : $data['SubscriptionBillingCycleType'];
             $accdata['SubscriptionBillingCycleValue'] = empty($data['SubscriptionBillingCycleValue']) ? '' : $data['SubscriptionBillingCycleValue'];
 
-            AccountService::where(['AccountID'=>$AccountID,'ServiceID'=>$ServiceID])->update($accdata);
+            AccountService::where(['AccountID'=>$AccountID,'AccountServiceID'=>$AccountServiceID])->update($accdata);
 
             return Response::json(array("status" => "success", "message" => "Account Service Successfully updated."));
         }
         return Response::json(array("status" => "failed", "message" => "Problem Creating Account Service."));
 	}
 
-    public function changestatus($ServiceID,$Status){
+    public function changestatus($AccountServiceID,$Status){
         $data = Input::all();
         $AccountID = $data['accountid'];
 
-        if ($ServiceID && $Status) {
-            $Action = AccountService::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->first();
+        if ($AccountServiceID && $Status) {
+            $Action = AccountService::where(array('AccountID'=>$AccountID,'AccountServiceID'=>$AccountServiceID))->first();
             if ($Status == 'active') {
                 $save['Status'] = 1;
             } else if ($Status == 'deactive') {
@@ -295,13 +300,13 @@ class AccountServiceController extends \BaseController {
         }
     }
 
-	public function delete($AccountID,$ServiceID)
+	public function delete($AccountID,$AccountServiceID)
 	{
-        if( intval($AccountID) > 0 && intval($ServiceID) > 0){
+        if( intval($AccountID) > 0 && intval($AccountServiceID) > 0){
 
-            if(AccountService::checkForeignKeyById($AccountID,$ServiceID)){
+            if(AccountService::checkForeignKeyById($AccountID,$AccountServiceID)){
                 try{
-                    $result = AccountService::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->delete();
+                    $result = AccountService::where(array('AccountID'=>$AccountID,'ServiceID'=>$AccountServiceID))->delete();
                     if ($result) {
                         return Response::json(array("status" => "success", "message" => "Service Successfully Deleted"));
                     } else {
@@ -328,8 +333,9 @@ class AccountServiceController extends \BaseController {
         $data['Billing'] = empty($data['Billing']) ? '' : $data['Billing'];
         $data['Tariff'] = empty($data['Tariff']) ? '' : $data['Tariff'];
         $data['DiscountPlan'] = empty($data['DiscountPlan']) ? '' : $data['DiscountPlan'];
+        $data['RoutingProfile'] = empty($data['RoutingProfile']) ? '' : $data['RoutingProfile'];
 
-
+        /**New logic CloneID is AccountServicID**/
         $CloneIDs = $data['CloneID'];
         if(!empty($data['AccountID'])){
             $AccountIDs = $data['AccountID'];
@@ -362,7 +368,7 @@ class AccountServiceController extends \BaseController {
                 }
                 $CloneIDs='';
                 foreach($results as $result){
-                    $CloneIDs.= $result['ServiceID'].',';
+                    $CloneIDs.= $result['AccountServiceID'].',';
                 }
                 $CloneIDs = rtrim($CloneIDs,',');
 
@@ -372,7 +378,7 @@ class AccountServiceController extends \BaseController {
                 $CloneIDs=explode(',',$CloneIDs);
                 $data['SourceAccountID'] = $AccountID;
                 $data['AccountIDs'] = $AccountIDs;
-                $data['ServiceIDs'] = $CloneIDs;
+                $data['AccountServiceIDs'] = $CloneIDs;
 
                 $clone_result = AccountService::CloneServices($data);
                 if(!empty($clone_result['Success'])){
@@ -396,17 +402,18 @@ class AccountServiceController extends \BaseController {
 
     public function bulk_change_status($AccountID){
         $data = Input::all();
-        $ServiceIds = array();
+        $AccountServiceIds = array();
         $save = array();
         if(!empty($data['action']) && !empty($AccountID)){
             if(!empty($data['Criteria'])){
                 $criteria = $data['Criteria'];
                 $criteria = json_decode($criteria,true);
-                $ServiceIds = AccountService::getServiceIDsByCriteria($AccountID,$criteria);
+                $AccountServiceIds = AccountService::getServiceIDsByCriteria($AccountID,$criteria);
             }
+            /**ServiceID is AccountServiceID */
             if($data['ServiceID']){
-                $ServiceIds = $data['ServiceID'];
-                $ServiceIds=explode(',',$ServiceIds);
+                $AccountServiceIds = $data['ServiceID'];
+                $AccountServiceIds=explode(',',$AccountServiceIds);
             }
 
             if ($data['action'] == 'active') {
@@ -414,7 +421,7 @@ class AccountServiceController extends \BaseController {
             } else if ($data['action'] == 'deactive') {
                 $save['Status'] = 0;
             }
-            if(AccountService::whereIn('ServiceID',$ServiceIds)->where(array('AccountID'=>$AccountID))->update($save)){
+            if(AccountService::whereIn('AccountServiceID',$AccountServiceIds)->where(array('AccountID'=>$AccountID))->update($save)){
                 return Response::json(array("status" => "success", "message" => "Service Successfully Updated"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Service."));
@@ -427,24 +434,25 @@ class AccountServiceController extends \BaseController {
 
     public function bulk_delete($AccountID){
         $data = Input::all();
-        $ServiceIds = array();
+        $AccountServiceIds = array();
         $save = array();
         $errormsg = '';
         if(!empty($data['action']) && !empty($AccountID)){
             if(!empty($data['Criteria'])){
                 $criteria = $data['Criteria'];
                 $criteria = json_decode($criteria,true);
-                $ServiceIds = AccountService::getServiceIDsByCriteria($AccountID,$criteria);
+                $AccountServiceIds = AccountService::getServiceIDsByCriteria($AccountID,$criteria);
             }
+            /**ServiceID is AccountServiceID */
             if($data['ServiceID']){
-                $ServiceIds = $data['ServiceID'];
-                $ServiceIds=explode(',',$ServiceIds);
+                $AccountServiceIds = $data['ServiceID'];
+                $AccountServiceIds=explode(',',$AccountServiceIds);
             }
             $error = '';
             try {
-                foreach ($ServiceIds as $Service => $key) {
+                foreach ($AccountServiceIds as $Service => $key) {
                     if (AccountService::checkForeignKeyById($AccountID, $key)) {
-                        AccountService::where(array('AccountID' => $AccountID, 'ServiceID' => $key))->delete();
+                        AccountService::where(array('AccountID' => $AccountID, 'AccountServiceID' => $key))->delete();
                     } else {
                         $ServiceName = Service::getServiceNameByID($key);
                         $error .= '<br>' . $ServiceName;

@@ -101,6 +101,7 @@
 <script type="text/javascript">
 var AccountID = '{{$account->AccountID}}';
 var ServiceID='{{$ServiceID}}';
+var AccountServiceID='{{$AccountServiceID}}';
 </script>
 <script src="{{ URL::asset('assets/js/clitable.js') }}"></script>
 @section('footer_ext')
@@ -137,6 +138,7 @@ var ServiceID='{{$ServiceID}}';
                     </div>
                     <input type="hidden" name="AccountID" value="{{$account->AccountID}}">
                     <input type="hidden" name="ServiceID" value="{{$ServiceID}}">
+                    <input type="hidden" name="AccountServiceID" value="{{$AccountServiceID}}">
                     <input type="hidden" name="CLIRateTableIDs" value="">
                     <input type="hidden" name="CLIRateTableID" value="">
                     <input type="hidden" name="AuthRule" value="{{$AuthRule or ''}}">

@@ -18,9 +18,9 @@
     <li>
         <a href="{{URL::to('accounts/'.$account->AccountID.'/edit')}}"></i>Edit Account({{$account->AccountName}})</a>
     </li>
-    @if($ServiceID!='0')
+    @if($AccountServiceID!='0')
     <li>
-        <a href="{{URL::to('accountservices/'.$account->AccountID.'/edit/'.$ServiceID)}}"></i>Edit Service({{Service::getServiceNameByID($ServiceID)}})</a>
+        <a href="{{URL::to('accountservices/'.$account->AccountID.'/edit/'.$AccountServiceID)}}"></i>Edit Service({{Service::getServiceNameByID($ServiceID)}})</a>
     </li>
     @endif
     <li class="active">
@@ -38,13 +38,13 @@
     @endif
 
 
-    @if($ServiceID=='0')
+    @if($AccountServiceID=='0')
         <a href="{{URL::to('accounts/'.$account->AccountID.'/edit')}}" class="btn btn-danger btn-sm btn-icon icon-left">
             <i class="entypo-cancel"></i>
             Close
         </a>
     @else
-        <a href="{{URL::to('accountservices/'.$account->AccountID.'/edit/'.$ServiceID)}}" class="btn btn-danger btn-sm btn-icon icon-left">
+        <a href="{{URL::to('accountservices/'.$account->AccountID.'/edit/'.$AccountServiceID)}}" class="btn btn-danger btn-sm btn-icon icon-left">
             <i class="entypo-cancel"></i>
             Close
         </a>
@@ -343,6 +343,7 @@
         var ipclis = '';
         var accountID = '{{$account->AccountID}}';
         var ServiceID = '{{$ServiceID}}';
+        var AccountServiceID = '{{$AccountServiceID}}';
         attachchangeevent('vendoriptable');
         attachchangeevent('customeriptable');
         attachchangeevent('vendorclitable');
@@ -382,7 +383,7 @@
                 }
                 post_data +='&'+$('#vendor_detail').serialize();
             }
-            post_data += '&AccountID='+'{{$account->AccountID}}'+'&ServiceID='+ServiceID;
+            post_data += '&AccountID='+'{{$account->AccountID}}'+'&ServiceID='+ServiceID+'&AccountServiceID='+AccountServiceID;
             var post_url = '{{URL::to('accounts/authenticate_store')}}';
             submit_ajaxbtn(post_url,post_data,'',$(this),1);
         });
@@ -477,7 +478,7 @@
             $.ajax({
                 url: url,
                 type:'POST',
-                data:{ipclis:ipclis,isCustomerOrVendor:isCustomerOrVendor,type:type,ServiceID:ServiceID},
+                data:{ipclis:ipclis,isCustomerOrVendor:isCustomerOrVendor,type:type,ServiceID:ServiceID,AccountServiceID:AccountServiceID},
                 datatype:'json',
                 success: function(response) {
                     if (response.status == 'success') {
@@ -569,7 +570,7 @@
                     $.ajax({
                         url: url,
                         type:'POST',
-                        data:{ipclis:ipclis,isCustomerOrVendor:isCustomerOrVendor,ServiceID:ServiceID},
+                        data:{ipclis:ipclis,isCustomerOrVendor:isCustomerOrVendor,ServiceID:ServiceID,AccountServiceID:AccountServiceID},
                         datatype:'json',
                         success: function(response) {
                             if (response.status == 'success') {

@@ -51,5 +51,9 @@ class AccountNextBilling extends \Eloquent {
         return AccountNextBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->first();
     }
 
+    public static function getBillingByAccountService($AccountID,$AccountServiceID=0){
+        return AccountNextBilling::where(array('AccountID'=>$AccountID,'AccountServiceID'=>$AccountServiceID))->first();
+    }
+
 
 }
