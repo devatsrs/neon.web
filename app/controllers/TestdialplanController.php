@@ -4,16 +4,29 @@ class TestdialplanController extends \BaseController {
 
     public function ajax_datagrid() {
         $data = Input::all();
-        $RoutingCategory = RoutingCategory::select('Name','Description', 'RoutingCategoryID');
-        if(!empty($data['Name'])){
-           $RoutingCategory->where(["tblRoutingCategory.Name" => $data['Name']]);
+        $companyID = User::get_companyID();
+        $DefaultCurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");
+        $profileId="";
+        if(isset($data['routingprofile']) && $data['routingprofile']!=''){
+            $profileId=$data['routingprofile'];
+            if($data['routingprofile']=='DefaultLCR'){
+                $profileId="";
+            }
         }
+        $query = "call prc_getTestDialPlan ('".$DefaultCurrencyID."','','".$data['DestinationCode']."','1','".$profileId."')";
         
-        return Datatables::of($RoutingCategory)->make();
+        Log::info('query:.' . $query);
+        
+        \Illuminate\Support\Facades\Log::info($query);
+
+        return DataTableSql::of($query,'speakIntelligentRoutingEngine')->make();
+
+        //return Datatables::of($RoutingCategory)->make();
     }
 
 	public function index()
 	{
+            //echo $CompanyTimezone = Config::get('app.timezone');
             $company_id = User::get_companyID();
             $routingprofile = RoutingProfiles::getRoutingProfile($company_id);
             return View::make('testdialplan.index',compact('routingprofile'));

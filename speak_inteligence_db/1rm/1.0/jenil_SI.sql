@@ -15,6 +15,8 @@ AUTO_INCREMENT=7
 ;
 
 
+
+DROP TABLE IF EXISTS `tblRateType`;
 CREATE TABLE IF NOT EXISTS `tblRateType` (
   `RateTypeID` int(11) NOT NULL AUTO_INCREMENT,
   `Slug` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -26,13 +28,14 @@ CREATE TABLE IF NOT EXISTS `tblRateType` (
   `created_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `updated_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`RateTypeID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- Dumping data for table speakintelligentRM.tblRateType: ~2 rows (approximately)
 
 INSERT INTO `tblRateType` (`RateTypeID`, `Slug`, `Title`, `Description`, `Active`, `created_at`, `updated_at`, `created_by`, `updated_by`) VALUES
-	(1, 'voicecall', 'Voice Call', NULL, 1, '2018-12-27 15:14:39', '2018-12-27 15:14:44', 'system', 'system'),
-	(2, 'did', 'DID', NULL, 1, '2018-12-27 15:14:39', '2018-12-27 15:14:44', 'system', 'system');
+	(1, 'voicecall', 'Voice Call', NULL, 1, '2018-12-27 15:14:39', '2018-12-27 15:14:44', 'jenil', NULL),
+	(2, 'did', 'DID', NULL, 1, '2018-12-27 15:14:39', '2018-12-27 15:14:44', 'jenil', NULL);
+
 
 
 DROP PROCEDURE IF EXISTS `prc_getDIDCategory`;
