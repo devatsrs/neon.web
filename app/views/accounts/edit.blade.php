@@ -1394,7 +1394,7 @@
         </form>
         </div>
     </div>
-</div>  
+</div>    
 @include('accountdiscountplan.discountplanmodal')
 @include('accountservices.modal')
 <script>
