@@ -250,7 +250,7 @@
     }
 
     function loadValuesBasedOnCurrency(selected_currency,selectData,ServiceId,OutboundDiscountPlanID,InboundDiscountPlanID,OutboundTariffId) {
-       // alert(selected_currency);
+        // alert(selected_currency);
         if (selected_currency == '') {
             selected_currency = "NAN";
         }
@@ -346,6 +346,7 @@
 
             data = {company: selected_company};
             resetFormFields();
+
             loadValuesBasedOnCurrency(selected_currency,false,'','','','');
         });
 
@@ -642,6 +643,7 @@
     var saveTemplateDataOutboundDiscountPlanId = '';
     var saveTemplateDataInboundDiscountPlanId = '';
     var saveTemplateDataOutboundRateTableId = '';
+
 </script>
 
 @section('footer_ext')

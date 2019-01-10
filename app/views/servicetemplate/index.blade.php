@@ -52,6 +52,11 @@
         <i class="entypo-plus"></i>
         Add New
     </a>
+
+    <a href="#" id="bulkActions" data-action="showAddbulkActionServiceTemplateModal" data-type="bulkAction" data-modal="add-new-BulkAction-modal-service" class="btn btn-primary">
+            <i class="entypo-plus"></i>
+            Bulk Actions
+    </a>
 @endif
     @if(User::checkCategoryPermission('SubscriptionTemplate','Add'))
         <a href="{{  URL::to('servicetempaltes/servicetemplatetype') }}" class="btn btn-primary pull-right" style="margin-right:2px;">
@@ -64,6 +69,7 @@
 <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
+        <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
         <th>Status</th>
         <th>Name</th>
         <th>Service Name</th>
@@ -78,6 +84,7 @@
 </table>
 
 <script type="text/javascript">
+    var checkBoxArray =[];
 
     function resetFormFields() {
         document.getElementById("SubscriptionIDListBody").innerHTML="";
@@ -131,7 +138,7 @@
                 //perform operation
             },
             error: function(error) {
-                alert(error);
+
                 $('#ajax_dynamicfield_html').html('');
                 $(".btn").button('reset');
                 ShowToastr("error", error);
@@ -144,10 +151,7 @@
 
         $('#filter-button-toggle').show();
 
-
-
-
-        data_table = $("#table-4").dataTable({
+       data_table = $("#table-4").dataTable({
 
             "bProcessing":true,
             "bServerSide":true,
@@ -155,7 +159,7 @@
             "sAjaxSource": baseurl + "/servicesTemplate/ajax_datagrid",
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
-            "aaSorting"   : [[5, 'desc']],
+            "aaSorting"   : [[6, 'desc']],
             "fnServerParams": function(aoData) {
                 //alert("Called1");
                 $searchFilter.ServiceName = $("#service_filter [name='ServiceName']").val();
@@ -168,7 +172,13 @@
             },
             "aoColumns": 
              [
-                { "bVisible": false, "bSortable": true  }, //Status
+                 {"bSortable": false,
+                     mRender: function(id, type, full) {
+                         // checkbox for bulk action
+                         return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
+                     }
+                 },
+                {"bSortable": true, "bVisible": false   }, //Status
                 { "bSortable": true }, //Name
                 { "bSortable": true }, //Type
                 { "bSortable": true }, //Gateway
@@ -180,19 +190,19 @@
                         //alert(full);
                         resetFormFields();
                         action = '<div class = "hiddenRowData"  >';
-
-                        action += '<input type = "hidden"  name = "ServiceName" value = "' + (full[1] != null ? full[1] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "ServiceTemplateId" value = "' + (full[0] != null ? full[0] : 0) + '" / >';
+                        action += '<input type = "hidden"  name = "ServiceId" value = "' + (full[1] != null ? full[1] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "OutboundTariffId" value = "' + (full[5] != null ? full[5] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "ServiceName" value = "' + (full[2] != null ? full[2] : '') + '" / >';
                         action += '<input type = "hidden"  name = "CurrencyID" value = "' + (full[6] != null ? full[6] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "ServiceId" value = "' + (full[0] != null ? full[0] : '') + '" / >';
                         action += '<input type = "hidden"  name = "OutboundDiscountPlanID" value = "' + (full[8] != null ? full[8] : '') + '" / >';
                         action += '<input type = "hidden"  name = "InboundDiscountPlanID" value = "' + (full[7] != null ? full[7] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "OutboundTariffId" value = "' + (full[4] != null ? full[4] : '') + '" / >';
                         action += '<input type = "hidden"  name = "Status" value = "" / ></div>';
                         <?php if(User::checkCategoryPermission('SubscriptionTemplate','Edit')){ ?>
-                                action += ' <a data-name = "'+full[1]+'" data-id="'+ full[5] +'" title="Edit" class="edit-service btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
+                                action += ' <a data-name = "'+full[1]+'" data-id="'+ full[0] +'" title="Edit" class="edit-service btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                         <?php } ?>
                         <?php if(User::checkCategoryPermission('SubscriptionTemplate','Delete')){ ?>
-                                action += ' <a data-id="'+ full[5] +'" title="Delete" class="delete-service btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
+                                action += ' <a data-id="'+ full[0] +'" title="Delete" class="delete-service btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                         <?php } ?>
                         return action;
                       }
@@ -274,6 +284,42 @@
             minimumResultsForSearch: -1
         });
 
+        $("#selectall").click(function (ev) {
+            var is_checked = $(this).is(':checked');
+
+            $('#table-4 tbody tr').each(function (i, el) {
+                if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                    if (is_checked) {
+                        $(this).find('.rowcheckbox').prop("checked", true);
+                        $(this).addClass('selected');
+                    } else {
+                        $(this).find('.rowcheckbox').prop("checked", false);
+                        $(this).removeClass('selected');
+                    }
+                }
+            });
+        });
+        // select single record which row is clicked
+        $('#table-4 tbody').on('click', 'tr', function () {
+
+            var txtValue = $(this).find('.rowcheckbox').prop("checked", true).val();
+            var checked = $(this).is(':checked')
+            if (checked == '') {
+                if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                    $(this).toggleClass('selected');
+                    if ($(this).hasClass('selected')) {
+                        $(this).find('.rowcheckbox').prop("checked", true);
+                        checkBoxArray.push(txtValue);
+                    } else {
+                        $(this).find('.rowcheckbox').prop("checked", false);
+                        checkBoxArray.pop(txtValue);
+
+                    }
+                }
+            }
+        });
+
+
         // Highlighted rows
         $("#table-2 tbody input[type=checkbox]").each(function (i, el) {
             var $this = $(el),
@@ -285,6 +331,8 @@
                 $p[is_checked ? 'addClass' : 'removeClass']('highlight');
             });
         });
+
+
 
         // Replace Checboxes
         $(".pagination a").click(function (ev) {
@@ -337,19 +385,51 @@
                     //perform operation
                 },
                 error: function(error) {
-                    alert(error);
                     $('#ajax_dynamicfield_html').html('');
                     $(".btn").button('reset');
                     ShowToastr("error", error);
                 }
             });
-            $('#add-new-modal-service').modal('show');
 
 
-        })
+            $('#add-new-modal-service').modal('show', {backdrop: 'static'});
+
+            return false;
+
+        });
+
+
+        $("#bulkActions").click(function(){
+
+                if($("#service_filter [name='FilterCurrencyId']").val() != "" && checkBoxArray != "")
+                {
+                    $('#BulkServiceTemplateModelTitle').text('Add New Bulk Action');
+                    var GetCurrencyId = $("#service_filter [name='FilterCurrencyId']").val();
+                     alert(checkBoxArray);
+                    $("#CurrencyId").val(GetCurrencyId);
+                    $("#ServiceTemplateId").val(checkBoxArray);
+                }else{
+
+                   if(checkBoxArray == "")
+                       ShowToastr("error", "Please select any rows");
+                   else
+                        ShowToastr("error", "Please select Currency from filter");
+
+                    return false;
+
+                }
+
+            $('#add-new-BulkAction-modal-service').modal('show', {backdrop: 'static'});
+
+
+        });
 
     });
 
 </script>
+@include('servicetemplate.bulkservicetemplatemodal')
+
 @include('servicetemplate.servicetemplatemodal')
+
+
 @stop
