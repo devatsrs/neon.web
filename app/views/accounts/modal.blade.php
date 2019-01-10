@@ -15,7 +15,7 @@
                 <form id="add-new-routingcategory-form" method="post">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h3 class="modal-title">Add New Routing Profile</h3>
+                        <h3 class="modal-title">Cancelation Contract</h3>
                     </div>
                     <div class="modal-body">
                         <div class="row">
