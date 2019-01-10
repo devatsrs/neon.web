@@ -1090,8 +1090,9 @@ class AccountsController extends \BaseController {
                     $AccountName='';
                     $AccountCLI='';
                     $SubscriptionDiscountPlanID=0;
-                    AccountDiscountPlan::addUpdateDiscountPlan($id, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
-                    AccountDiscountPlan::addUpdateDiscountPlan($id, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+                    $AccountServiceID=0;
+                    AccountDiscountPlan::addUpdateDiscountPlan($id, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+                    AccountDiscountPlan::addUpdateDiscountPlan($id, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
                 }
             }
 
@@ -1826,6 +1827,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if(!empty($data['ServiceID'])){
             $rate_tables->where('tblCLIRateTable.ServiceID','=',$data['ServiceID']);
         }
+        if(!empty($data['AccountServiceID'])){
+            $rate_tables->where('tblCLIRateTable.AccountServiceID','=',$data['AccountServiceID']);
+        }
         /*
         else{
             $rate_tables->where('tblCLIRateTable.ServiceID','=',0);
@@ -1861,6 +1865,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 if(!empty($data['ServiceID'])) {
                     $rate_tables['ServiceID'] = $data['ServiceID'];
                 }
+                if(!empty($data['AccountServiceID'])) {
+                    $rate_tables['AccountServiceID'] = $data['AccountServiceID'];
+                }
                 CLIRateTable::insert($rate_tables);
             }
         }
@@ -1888,6 +1895,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         }else{
             $ServiceID = 0;
         }
+        if(!empty($data['AccountServiceID'])){
+            $AccountServiceID = $data['AccountServiceID'];
+        }else{
+            $AccountServiceID = 0;
+        }
         AccountAuthenticate::add_cli_rule($CompanyID,$data);
         if ($CLIRateTableID > 0) {
             $CLIs = CLIRateTable::where(array('CLIRateTableID' => $CLIRateTableID))->pluck('CLI');
@@ -1908,7 +1920,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $CLIs = $CLIRateTables[0]->CLIs;
             }
         }
-        $query = "call prc_unsetCDRUsageAccount ('" . $CompanyID . "','" . $CLIs . "','".$Date."',".$Confirm.",".$ServiceID.")";
+        $query = "call prc_unsetCDRUsageAccount ('" . $CompanyID . "','" . $CLIs . "','".$Date."',".$Confirm.",".$ServiceID.",".$AccountServiceID.")";
         $recordFound = DB::Connection('sqlsrvcdr')->select($query);
         if($recordFound[0]->Status>0){
             return Response::json(array("status" => "check","check"=>1));
@@ -1937,6 +1949,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $ServiceID = $data['ServiceID'];
         }else{
             $ServiceID = 0;
+        }
+        if(!empty($data['AccountServiceID'])){
+            $AccountServiceID = $data['AccountServiceID'];
+        }else{
+            $AccountServiceID = 0;
         }
         AccountAuthenticate::add_cli_rule($CompanyID,$data);
         if (!empty($data['criteria'])) {

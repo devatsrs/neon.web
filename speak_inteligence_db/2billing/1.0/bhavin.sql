@@ -1,5 +1,11 @@
 USE `speakintelligentBilling`;
 
+ALTER TABLE `tblAccountSubscription`
+	ADD COLUMN `AccountServiceID` INT(11) NULL DEFAULT '0' AFTER `DiscountType`;	
+	
+ALTER TABLE `tblAccountOneOffCharge`
+	ADD COLUMN `AccountServiceID` INT(11) NULL DEFAULT '0' AFTER `DiscountType`;
+
 DROP PROCEDURE IF EXISTS `prc_getPBXExportPayment`;
 DELIMITER //
 CREATE PROCEDURE `prc_getPBXExportPayment`(
