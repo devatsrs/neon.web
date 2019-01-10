@@ -3,6 +3,10 @@
         display: block;
         font-size: 12px
     }
+    .cancelRadio .panel-heading.active {
+        border-left: 3px solid #00cc00;
+        padding-left: 12px;
+    }
 </style>
 <script>
 
@@ -792,7 +796,7 @@
                                                         <div class="panel-heading" style="background-color:white;">
                                                             <label for='r13'>
                                                                 <input type='radio' id='r13' name='CancellationCharges' value='3' required />
-                                                                Remaining Term Of Contract(x%)
+                                                                Remaining Term Of Contract (x%)
                                                                 <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree"></a>
                                                             </label>
                                                         </div>
@@ -988,8 +992,15 @@
     <script>
         function hideCancelCollapse(){
             $('.cancelRadio .panel-collapse').removeClass('in');
+            $('.cancelRadio .panel-heading').removeClass('active');
             var selected = $('.cancelRadio input[type="radio"]:checked');
-            selected.parent().parent().parent().parent().find('.panel-collapse').addClass('in');
+            selected.parent()
+                    .parent()
+                    .addClass('active')
+                    .parent()
+                    .parent()
+                    .find('.panel-collapse')
+                    .addClass('in');
         }
         $(function(){
             hideCancelCollapse()
