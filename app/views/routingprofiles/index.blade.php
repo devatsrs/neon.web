@@ -161,7 +161,7 @@ var postdata;
                         action += '<input type = "hidden"  name = "SelectionCode" value = "' + (full[2] != null ? full[2] : '') + '" / ></div>';
                         action += ' <a data-name = "'+full[0]+'" data-id="'+ full[4] +'" title="Edit" class="edit-category btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                         action += ' <a data-id="'+ full[4] +'" title="Delete" class="delete-category btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';                        
-                        action += ' <a data-id="" href="lcr" title="test routing" class="btn-success btn btn-danger btn-sm">Test</a>';
+                        action += '';
                     
                         return action;
                       }
