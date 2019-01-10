@@ -21,4 +21,8 @@ class RateType extends \Eloquent {
         return RateType::where(['Slug'=>$Slug,'Active'=>1])->pluck('RateTypeID');
     }
 
+    public static function getRateTypeTitleBySlug($Slug){
+        return RateType::where(['Slug'=>$Slug,'Active'=>1])->pluck('Title');
+    }
+
 }

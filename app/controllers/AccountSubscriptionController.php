@@ -32,6 +32,11 @@ public function main() {
         }else{
             $subscriptions->where('tblAccountSubscription.ServiceID','=',0);
         }
+        if(!empty($data['AccountServiceID'])){
+            $subscriptions->where('tblAccountSubscription.AccountServiceID','=',$data['AccountServiceID']);
+        }else{
+            $subscriptions->where('tblAccountSubscription.AccountServiceID','=',0);
+        }
         if(!empty($data['SubscriptionActive']) && $data['SubscriptionActive'] == 'true'){
             $subscriptions->where('tblAccountSubscription.Status','=',1);
 
@@ -243,6 +248,7 @@ public function main() {
 
         $AccountID = $data['AccountID'];
         $ServiceID = $data['ServiceID'];
+        $AccountServiceID = AccountSubscription::where(['AccountSubscriptionID'=>$data["AccountSubscriptionID"]])->pluck('AccountServiceID');
         $OutboundDiscountPlan = empty($data['OutboundDiscountPlans']) ? '' : $data['OutboundDiscountPlans'];
         $InboundDiscountPlan = empty($data['InboundDiscountPlans']) ? '' : $data['InboundDiscountPlans'];
         $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'), 0);
@@ -258,8 +264,8 @@ public function main() {
                 $AccountSubscriptionID = $data['AccountSubscriptionID'];
                 $AccountName = empty($data['AccountName']) ? '' : $data['AccountName'];
                 $AccountCLI = empty($data['AccountCLI']) ? '' : $data['AccountCLI'];
-                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff, $ServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlan->SubscriptionDiscountPlanID);
-                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff, $ServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlan->SubscriptionDiscountPlanID);
+                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff, $ServiceID,$AccountServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlan->SubscriptionDiscountPlanID);
+                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff, $ServiceID,$AccountServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlan->SubscriptionDiscountPlanID);
                 DB::commit();
                 return Response::json(array("status" => "success", "message" => "Subscription Account Added", 'LastID' => $SubscriptionDiscountPlan->SubscriptionDiscountPlanID));
 
@@ -324,6 +330,7 @@ public function main() {
 
         $AccountID = $SubscriptionDiscountPlan->AccountID;
         $ServiceID = $SubscriptionDiscountPlan->ServiceID;
+        $AccountServiceID = $SubscriptionDiscountPlan->AccountServiceID;
         $OutboundDiscountPlan = empty($data['OutboundDiscountPlans']) ? '' : $data['OutboundDiscountPlans'];
         $InboundDiscountPlan = empty($data['InboundDiscountPlans']) ? '' : $data['InboundDiscountPlans'];
         $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'), 0);
@@ -339,9 +346,8 @@ public function main() {
                 $AccountSubscriptionID = $data['AccountSubscriptionID'];
                 $AccountName = empty($data['AccountName']) ? '' : $data['AccountName'];
                 $AccountCLI = empty($data['AccountCLI']) ? '' : $data['AccountCLI'];
-
-                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff, $ServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
-                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff, $ServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
+                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff, $ServiceID,$AccountServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
+                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff, $ServiceID,$AccountServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
                 DB::commit();
                 return Response::json(array("status" => "success", "message" => "Subscription Account Updated", 'LastID' => $SubscriptionDiscountPlanID));
 
@@ -431,6 +437,7 @@ public function main() {
             $SubscriptionDiscountPlan = SubscriptionDiscountPlan::find($SubscriptionDiscountPlanID);
             $AccountID = $SubscriptionDiscountPlan->AccountID;
             $ServiceID = $SubscriptionDiscountPlan->ServiceID;
+            $AccountServiceID = $SubscriptionDiscountPlan->AccountServiceID;
             $OutboundDiscountPlan = '';
             $InboundDiscountPlan = '';
             $AccountSubscriptionID = $SubscriptionDiscountPlan->AccountSubscriptionID;
@@ -444,8 +451,8 @@ public function main() {
                     $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
                     $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
                     $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
-                    AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff, $ServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
-                    AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff, $ServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
+                    AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff, $ServiceID,$AccountServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
+                    AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff, $ServiceID,$AccountServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
                     DB::commit();
                     return Response::json(array("status" => "success", "message" => "Subscription Account Successfully Deleted"));
                 } else {

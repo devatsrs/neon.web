@@ -355,4 +355,8 @@ class AccountBilling extends \Eloquent {
         $BillingClassID = self::getBillingClassID($AccountID);
         return BillingClass::getRoundChargesAmount($BillingClassID);
     }
+
+    public static function getBillingByAccountService($AccountID,$AccountServiceID=0){
+        return AccountBilling::where(array('AccountID'=>$AccountID,'AccountServiceID'=>$AccountServiceID))->first();
+    }
 }

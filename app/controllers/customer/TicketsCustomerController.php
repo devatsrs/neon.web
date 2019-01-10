@@ -149,7 +149,7 @@ private $validlicense;
 		if(User::is_admin())	{		
 		   	$data['agent']					=	isset($data['agent'])?is_array($data['agent'])?implode(",",$data['agent']):'':'';
 		 }else{
-			 $data['agent']					=	user::get_userID();
+			 $data['agent']					=	User::get_userID();
 		 }
 		
         $response 				= 	NeonAPI::request('tickets/get_tickets',$data,true,false); 

@@ -32,7 +32,7 @@
                         {{Form::select('agent[]', $Agents, (Input::get('agent')?0:'') ,array("class"=>"select2","multiple"=>"multiple"))}}
                     @else
                         @if( TicketsTable::GetTicketAccessPermission() == TicketsTable::TICKETRESTRICTEDACCESS)
-                            <input type="hidden" name="agent" value="{{user::get_userID()}}" >
+                            <input type="hidden" name="agent" value="{{User::get_userID()}}" >
                         @else
                             <input type="hidden" name="agent" value="" >
                         @endif

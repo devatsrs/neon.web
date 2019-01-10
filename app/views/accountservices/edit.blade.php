@@ -24,7 +24,7 @@
 <p style="text-align: right;">
     @if( User::checkCategoryPermission('AuthenticationRule','View'))
         @if($account->IsCustomer==1 || $account->IsVendor==1)
-            <a href="{{URL::to('accounts/authenticate/'.$account->AccountID.'-'.$ServiceID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
+            <a href="{{URL::to('accounts/authenticate/'.$account->AccountID.'-'.$AccountService->AccountServiceID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
                 <i class="entypo-lock"></i>
                 Authentication Rule
             </a>
@@ -132,6 +132,7 @@
                         <div class="col-md-4">
                             {{Form::select('SubscriptionBillingCycleType',SortBillingType(3),$AccountService->SubscriptionBillingCycleType,array("class"=>"form-control select2"))}}
                             <input type="hidden" name="SubscriptionBillingCycleValue" value="">
+                            <input type="hidden" name="ServiceID" value="{{$ServiceID}}">
                         </div>
                     </div>
                 </div>
@@ -481,12 +482,13 @@
             $(this).button('loading');
 
             var ServiceID = '{{$ServiceID}}';
+            var AccountServiceID = '{{$AccountService->AccountServiceID}}';
             //Subscription , Additional charge filter fields should not in account save.
             $('#subscription_filter').find('input').attr("disabled", "disabled");
             $('#oneofcharge_filter').find('input').attr("disabled", "disabled");
             $('#oneofcharge_filter').find('select').attr("disabled", "disabled");
 
-            url= baseurl + '/accountservices/{{$account->AccountID}}/update/'+ServiceID;
+            url= baseurl + '/accountservices/{{$account->AccountID}}/update/'+AccountServiceID;
             var data =$('#service-edit-form').serialize();
             ajax_json(url,data,function(response){
                 $(".btn").button('reset');

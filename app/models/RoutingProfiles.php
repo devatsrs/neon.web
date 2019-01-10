@@ -35,6 +35,10 @@ class RoutingProfiles extends \Eloquent {
         $RoutingProfile = RoutingProfiles::where('CompanyID', $CompanyID)->select('Name', 'RoutingProfileID')->orderBy('Name','Asc')->lists('Name', 'RoutingProfileID');
         return $RoutingProfile;
     }
+    public static function getActiveRoutingProfile($CompanyID){
+        $RoutingProfile = RoutingProfiles::where(["CompanyID"=> $CompanyID,"Status"=>1])->select('Name', 'RoutingProfileID')->orderBy('Name','Asc')->lists('Name', 'RoutingProfileID');
+        return $RoutingProfile;
+    }
     public static function getVendorConnection($CompanyID){
         $VendorConnection = VendorConnection::where(["CompanyID"=> $CompanyID,"Active"=>1])->select('Name', 'VendorConnectionID')->orderBy('Name','Asc')->lists('Name', 'VendorConnectionID');
         return $VendorConnection;

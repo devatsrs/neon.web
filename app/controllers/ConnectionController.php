@@ -17,8 +17,8 @@ class ConnectionController extends \BaseController {
         $DIDCategories=DIDCategory::getCategoryDropdownIDList($companyID);
         $CurrencyID=Account::getCurrencyIDByAccount($id);
 
-        $DIDType=RateType::getRateTypeIDBySlug('did');
-        $VoiceCallType=RateType::getRateTypeIDBySlug('voicecall');
+        $DIDType=RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
+        $VoiceCallType=RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
 
         $TariffDID=RateTable::getDIDTariffDropDownList($companyID,$DIDType,$CurrencyID,RateTable::APPLIED_TO_VENDOR);
         $TariffVoiceCall=RateTable::getDIDTariffDropDownList($companyID,$VoiceCallType,$CurrencyID,RateTable::APPLIED_TO_VENDOR);
@@ -45,7 +45,7 @@ class ConnectionController extends \BaseController {
         }
 
 
-        $columns = array('VendorConnectionID','Name','RateTypeTitle','IP','Active','TrunkName','CategoryName','created_at','DIDCategoryID','RateTableID','TrunkID','CLIRule','CLDRule','CallPrefix','Port','Username','PrefixCDR','SipHeader','AuthenticationMode','RateTypeID');
+        $columns = array('VendorConnectionID','Name','RateTypeTitle','IP','Active','TrunkName','CategoryName','Location','created_at','DIDCategoryID','RateTableID','TrunkID','CLIRule','CLDRule','CallPrefix','Port','Username','PrefixCDR','SipHeader','AuthenticationMode','RateTypeID');
 
         $sort_column = $columns[$data['iSortCol_0']];
         //$companyID = User::get_companyID();
@@ -92,8 +92,8 @@ class ConnectionController extends \BaseController {
 
             unset($data['VendorConnectionID']);
 
-            $DIDType=RateType::getRateTypeIDBySlug('did');
-            $VoiceCallType=RateType::getRateTypeIDBySlug('voicecall');
+            $DIDType=RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
+            $VoiceCallType=RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
 
             $rules = array(
                 'RateTypeID' => 'required',
@@ -184,8 +184,8 @@ class ConnectionController extends \BaseController {
             $VendorConnection=VendorConnection::findOrFail($conID);
             unset($data['VendorConnectionID']);
 
-            $DIDType=RateType::getRateTypeIDBySlug('did');
-            $VoiceCallType=RateType::getRateTypeIDBySlug('voicecall');
+            $DIDType=RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
+            $VoiceCallType=RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
 
             $rules = array(
                 'Name' => 'required',
@@ -367,8 +367,8 @@ class ConnectionController extends \BaseController {
             $CompanyID = Account::where('AccountID',$AccountID)->pluck('CompanyId');
             $CurrencyID = Account::getCurrencyIDByAccount($AccountID);
 
-            $DIDType=RateType::getRateTypeIDBySlug('did');
-            $VoiceCallType=RateType::getRateTypeIDBySlug('voicecall');
+            $DIDType=RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
+            $VoiceCallType=RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
 
             $Result = RateTable::where(array('CompanyId'=>$CompanyID,'AppliedTo'=>RateTable::APPLIED_TO_VENDOR,'CurrencyID'=>$CurrencyID));
             if(isset($data['categoryID'])){

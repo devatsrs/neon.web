@@ -49,8 +49,8 @@ class RateGeneratorsController extends \BaseController {
 		$Trunks =  Trunk::getTrunkDropdownIDList();
         $RateTypes =  RateType::getRateTypeDropDownList();
         $Categories = DidCategory::getCategoryDropdownIDList();
-        $DIDType=RateType::getRateTypeIDBySlug('did');
-        $VoiceCallType=RateType::getRateTypeIDBySlug('voicecall');
+        $DIDType=RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
+        $VoiceCallType=RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
 		return View::make('rategenerators.index', compact('Trunks','RateTypes','Categories','DIDType','VoiceCallType'));
     }
 

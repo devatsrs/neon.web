@@ -287,14 +287,24 @@
         $("#selectall").click(function (ev) {
             var is_checked = $(this).is(':checked');
 
+            if(checkBoxArray != null || checkBoxArray == undefined)
+               checkBoxArray = [];
+
             $('#table-4 tbody tr').each(function (i, el) {
+                var txtValue = $(this).find('.rowcheckbox').prop("checked", true).val();
+
                 if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
                     if (is_checked) {
                         $(this).find('.rowcheckbox').prop("checked", true);
                         $(this).addClass('selected');
+                        console.log(txtValue);
+                        if(txtValue)
+                          checkBoxArray.push(txtValue);
+
                     } else {
                         $(this).find('.rowcheckbox').prop("checked", false);
                         $(this).removeClass('selected');
+                        checkBoxArray = [];
                     }
                 }
             });
@@ -412,7 +422,7 @@
                    if(checkBoxArray == "")
                        ShowToastr("error", "Please select any rows");
                    else
-                        ShowToastr("error", "Please select Currency from filter");
+                        ShowToastr("error", "Please s     elect Currency from filter");
 
                     return false;
 

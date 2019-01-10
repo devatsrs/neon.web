@@ -14,7 +14,7 @@ class HomeController extends BaseController {
             if(!empty($DefaultDashboard)){
                 $this->dashboard_url = $DefaultDashboard;
             }
-            if (!user::is_admin()) {
+            if (!User::is_admin()) {
                 if(!empty($DefaultDashboard) && User::checkCategoryPermission(getDashBoardController($DefaultDashboard),'All')){
                     $this->dashboard_url = $DefaultDashboard;
                 }else {
