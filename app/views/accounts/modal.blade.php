@@ -12,7 +12,7 @@
     <div class="modal fade" id="add-new-modal-accounts">
         <div class="modal-dialog  modal-lg">
             <div class="modal-content">
-                <form id="add-new-routingcategory-form" method="post">
+                <form id="cancelation-contract">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                         <h3 class="modal-title">Cancelation Contract</h3>

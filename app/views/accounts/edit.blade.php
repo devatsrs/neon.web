@@ -450,7 +450,7 @@
                     <div class="col-md-4">
                         <div class="panel-options">
                             <div class="make-switch switch-small">
-                                <input type="checkbox" @if(isset($AccountPaymentAutomation->AutoTopup) && $AccountPaymentAutomation->AutoTopup == 1 )checked="" @endif name="AutoTopup" value="1">
+                                <input type="checkbox"  name="AutoTopup" value="1">
                             </div>
                         </div>
                     </div>
@@ -472,22 +472,22 @@
                 <div class="form-group">
                     <div class="col-md-12">
                         <div class="col-md-3">
-                            <input type="radio" name="category" class="category js" data-id="" catid="" value="Fixed Fee" id=""  />
+                            <input type="radio" name="category" class="category js" data-id="" catid="" value="Remaining Enter Fee" id=""  />
                             <label  for="fixed fee"  class="newredio  wizard-active js" >
                                 Remaining Enter Fee </label>
                         </div>
                         <div class="col-md-3">
-                            <input type="radio" name="category" class="category" data-id="" catid="" value="Fixed Fee" id=""  />
+                            <input type="radio" name="category" class="category" data-id="" catid="" value=" Remaining term of the contract" id=""  />
                             <label  for="fixed fee"  class="newredio js wizard-active " >
                                 Remaining term of the contract  </label>
                         </div>
                         <div class="col-md-3">
-                            <input type="radio" name="category" class="category" data-id="" catid="" value="Fixed Fee" id=""  />
+                            <input type="radio" name="category" class="category" data-id="" catid="" value=" Remaining Percentage" id=""  />
                             <label  for="fixed fee"  class="newredio js wizard-active " >
                                 Remaining Percentage (x%)  </label>
                         </div>
                         <div class="col-md-3">
-                            <input type="radio" name="category" class="category" data-id="" catid="" value="Fixed Fee" id=""  />
+                            <input type="radio" name="category" class="category" data-id="" catid="" value="Remaining term of the contract" id=""  />
                             <label  for="fixed fee"  class="newredio js wizard-active " >
                                 Remaining term of the contract </label>
                         </div>
