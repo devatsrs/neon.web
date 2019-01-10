@@ -148,8 +148,6 @@ CREATE TABLE IF NOT EXISTS `tblVendorConnection` (
 ) ENGINE=InnoDB AUTO_INCREMENT=79 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
-
-
 -- Dumping structure for procedure speakintelligentRM.prc_getVendorConnection
 DROP PROCEDURE IF EXISTS `prc_getVendorConnection`;
 DELIMITER //
@@ -187,6 +185,7 @@ BEGIN
 			vc.Active,
 			t.Trunk as TrunkName,
 			c.CategoryName as CategoryName,
+			vc.Location,
 			vc.created_at,
 			vc.DIDCategoryID,
 			vc.RateTableID,
@@ -284,6 +283,7 @@ BEGIN
 			vc.Active,
 			t.Trunk as TrunkName,
 			c.CategoryName as CategoryName,
+			vc.Location,
 			vc.created_at
 		
 		FROM
@@ -307,6 +307,7 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END//
 DELIMITER ;
+
 
 
 

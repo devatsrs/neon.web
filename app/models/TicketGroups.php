@@ -73,7 +73,7 @@ class TicketGroups extends \Eloquent {
 	static function GetGroupsFrom(){
 		$Tickets					=	Tickets::CheckTicketLicense()?1:0;
 		$CompanyID 		 			= 	User::get_companyID(); 
-		$is_admin					=	user::is_admin()?1:0;
+		$is_admin					=	User::is_admin()?1:0;
 		$FromEmailsQuery  			= 	"CALL `prc_GetFromEmailAddress`('".$CompanyID."',".User::get_userID()." , ".$Tickets.",".$is_admin.")"; 
 		$FromEmailsResults			= 	DB::select($FromEmailsQuery);
 		$FromEmails					= 	array();

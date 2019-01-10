@@ -187,14 +187,15 @@
     <thead>
     <tr>
         <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
-        <th width="15%">Name</th>
+        <th width="12%">Name</th>
         <th width="10%">Type</th>
         <th width="10%">IP</th>
         <th width="10%">Status</th>
         <th width="10%">Trunk</th>
-        <th width="15%">Category</th>
-        <th width="15%">Created At</th>
-        <th width="25%">Action</th>
+        <th width="12%">Category</th>
+        <th width="10%">Location</th>
+        <th width="10%">Created At</th>
+        <th width="20%">Action</th>
     </tr>
     </thead>
     <tbody>
@@ -206,7 +207,7 @@
 <script type="text/javascript">
     var $searchFilter = {};
     var checked='';
-    var list_fields  = ['VendorConnectionID','Name','RateTypeTitle','IP','Active','TrunkName','CategoryName','created_at','DIDCategoryID','RateTableID','TrunkID','CLIRule','CLDRule','CallPrefix','Port','Username','PrefixCDR','SipHeader','AuthenticationMode','RateTypeID'];
+    var list_fields  = ['VendorConnectionID','Name','RateTypeTitle','IP','Active','TrunkName','CategoryName','Location','created_at','DIDCategoryID','RateTableID','TrunkID','CLIRule','CLDRule','CallPrefix','Port','Username','PrefixCDR','SipHeader','AuthenticationMode','RateTypeID'];
     var TrunkID, IP, RateTypeID,Name,DIDCategoryID,Active,update_new_url;
 
     jQuery(document).ready(function($) {
@@ -520,7 +521,7 @@
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-            "aaSorting": [7, "desc"],
+            "aaSorting": [8, "desc"],
             "aoColumns":
                     [
                         {"bSortable": false, //RateID
@@ -553,8 +554,9 @@
                         },
                         {"bSortable": false}, //5 TrunkName
                         {"bSortable": false}, //6 CategoryName
-                        {"bSortable": true}, //7 created at
-                        {// 6 Action
+                        {"bSortable": false}, //7 Location
+                        {"bSortable": true}, //8 created at
+                        {// 9 Action
                             "bSortable": false,
                             mRender: function(id, type, full) {
 
@@ -583,7 +585,7 @@
                                 }
                                 return action;
                             }
-                        }, // 11 Action
+                        }, // 10 Action
                     ],
             "oTableTools":
             {
@@ -1210,6 +1212,13 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
+                                    <label for="field-5" class="control-label">Location</label>
+                                    <input type="text" name="voice[Location]" class="form-control" id="field-10" placeholder="">
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group" style="padding-top:15px;">
                                     <label for="field-5" class="control-label">Active</label>
                                     <p class="make-switch switch-small">
                                         <input id="voice[Active]" name="voice[Active]" type="checkbox" value="1" checked >
@@ -1217,6 +1226,7 @@
                                 </div>
 
                             </div>
+
                         </div>
 
 

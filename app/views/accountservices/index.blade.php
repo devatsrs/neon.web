@@ -656,6 +656,8 @@
                                     <label><input id="rd-1" name="Billing" checked="" value="1" type="checkbox">Billing</label>
                                     &nbsp;&nbsp;
                                     <label><input id="rd-1" name="Tariff" checked="" value="1" type="checkbox">Tariff</label>
+                                    &nbsp;&nbsp;
+                                    <label><input id="rd-1" name="RoutingProfile" checked="" value="1" type="checkbox">Routing Profile</label>
 
                                 </div>
                                 <div class="checkbox ">
