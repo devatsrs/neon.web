@@ -757,7 +757,7 @@
                                                         <div class="panel-heading" style="background-color:white;">
                                                             <label for='r11'>
                                                                 <i></i>
-                                                                <input type='radio' id='r11' name='CancellationCharges' value='1' required />
+                                                                <input type='radio' id='r11' name='CancellationCharges' checked value='1' required />
                                                                 Fixed Fee
                                                                 <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"></a>
                                                             </label>
