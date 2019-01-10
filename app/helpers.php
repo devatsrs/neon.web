@@ -745,7 +745,7 @@ function bulk_mail($type,$data){
             $companyID = User::get_companyID();
             $template = [];
             if ($data['email_template_privacy'] == 1) {
-                $template['userID'] = user::get_userID();
+                $template['userID'] = User::get_userID();
             }
             $template['CompanyID'] = $companyID;
             $template['TemplateName'] = $data['template_name'];
@@ -775,7 +775,7 @@ function bulk_mail($type,$data){
                 $companyID = User::get_companyID();
                 $template = [];
                 if ($data['email_template_privacy'] == 1) {
-                    $template['userID'] = user::get_userID();
+                    $template['userID'] = User::get_userID();
                 }
                 $template['CompanyID'] = $companyID;
                 $template['Subject'] = $data['subject'];
