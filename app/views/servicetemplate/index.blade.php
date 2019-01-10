@@ -417,13 +417,12 @@
                     var GetCurrencyId = $("#service_filter [name='FilterCurrencyId']").val();
                     $("#CurrencyId").val(GetCurrencyId);
                     $("#ServiceTemplateId").val(checkBoxArray);
-                    checkBoxArray = [];
                 }else{
 
                    if(checkBoxArray == "")
                        ShowToastr("error", "Please select any rows");
                    else
-                        ShowToastr("error", "Please select Currency from filter");
+                        ShowToastr("error", "Please s     elect Currency from filter");
 
                     return false;
 
