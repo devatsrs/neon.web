@@ -859,7 +859,6 @@
                 }else{
                     var i = 0;
                     $('#table-reviewrates-deleted tr .rowcheckbox:checked').each(function(i, el) {
-                        //console.log($(this).val());
                         VendorRateID = $(this).val();
                         if(typeof VendorRateID != 'undefined' && VendorRateID != null && VendorRateID != 'null'){
                             VendorRateIDs[i++] = VendorRateID;
@@ -886,7 +885,6 @@
                 }else{
                     var i = 0;
                     $('#table-reviewrates-deleted tr .rowcheckbox:checked').each(function(i, el) {
-                        //console.log($(this).val());
                         VendorRateID = $(this).val();
                         if(typeof VendorRateID != 'undefined' && VendorRateID != null && VendorRateID != 'null'){
                             VendorRateIDs[i++] = VendorRateID;
@@ -1871,9 +1869,9 @@
             if(name !='DateFormat' && name !='DialString' && name != 'DialCodeSeparator' && name != 'OriginationDialCodeSeparator' && name != 'FromCurrency'){
                 var self = $("#add-template-form .managable select[name='selection["+name+"]']");
                 rebuildSelect2(self,fileData.columns,'Skip loading');
-                if(value) {
-                    $("#add-template-form .managable select[name='selection["+name+"]']").val(value).trigger("change");
-                }
+            }
+            if(value) {
+                $("#add-template-form .managable select[name='selection["+name+"]']").val(value).trigger("change");
             }
             if(name=='OriginationCode') {
                 $("#add-template-form .managable select[name='selection[OriginationDialCodeSeparator]']").select2('destroy');
