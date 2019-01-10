@@ -27,9 +27,9 @@ Return
 
 
 
-### POST getTransactions
+### POST getPayments
 
-http://speakintelligence.neon-soft.com/api/account/getTransactions
+http://speakintelligence.neon-soft.com/api/account/getPayments
 
 Perams:
 
@@ -383,7 +383,7 @@ Return
 
 ### POST depositFund
 
-http://speakintelligence.neon-soft.com/api/depositFund
+http://speakintelligence.neon-soft.com/api/account/depositFund
 
 Perams:
 
@@ -1272,7 +1272,8 @@ Params:
 	DestinationNo
 	AccountNumber
 	AccountID
-	ConnectTime
+	DataAndTime
+	Location
 
 
 Return
@@ -1284,7 +1285,7 @@ Return
         	AccountNumber:08004570 [AccountNumber OR AccountID is mandatory]
         	AccountID:[AccountNumber OR AccountID is mandatory]
         	DataAndTime:2018-11-30 10:10:10
-
+            Location:
         Response:
 
            {

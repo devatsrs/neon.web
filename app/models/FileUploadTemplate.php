@@ -21,6 +21,7 @@ class FileUploadTemplate extends \Eloquent {
     const TEMPLATE_VENDOR_RATE      = 'VendorRate';
     const TEMPLATE_PAYMENT          = 'Payment';
     const TEMPLATE_RATETABLE_RATE   = 'RatetableRate';
+    const TEMPLATE_RATETABLE_DIDRATE= 'RatetableDIDRate';
     const TEMPLATE_CUSTOMER_RATE    = 'CustomerRate';
     const TEMPLATE_FTPCDR           = 'FTPCDR';
 
@@ -78,7 +79,7 @@ class FileUploadTemplate extends \Eloquent {
             $option["option"]           = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
             $option["selection"]        = filterArrayRemoveNewLines($data['selection']);//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
 
-            if(isset($data['RateUploadType']) && ($data['RateUploadType'] == 'ratetable' || $data['RateUploadType'] == 'vendor')) {
+            if(isset($data['RateUploadType']) && ($data['RateUploadType'] == RateUpload::ratetable || $data['RateUploadType'] == RateUpload::vendor)) {
 
                 $option["skipRows"]         = array( "start_row"=>!empty($data["start_row"]) ? $data["start_row"] : 0, "end_row"=>!empty($data["end_row"]) ? $data["end_row"] : 0 );
                 $option["importratesheet"]  = !empty($data['importratesheet']) ? $data['importratesheet'] : '';
@@ -92,13 +93,16 @@ class FileUploadTemplate extends \Eloquent {
                 $option['Settings']['checkbox_add_new_codes_to_code_decks'] = $data['checkbox_add_new_codes_to_code_decks'];
                 $option['Settings']['checkbox_review_rates'] = $data['checkbox_review_rates'];
                 $option['Settings']['radio_list_option'] = $data['radio_list_option'];
-                $option['occupied_fields'] = $data['occupied_fields'];
                 if($data['RateUploadType'] == RateUpload::vendor || $data['RateUploadType'] == RateUpload::customer) {
                     $option['Trunk'] = $data['Trunk'];
                 } else if($data['RateUploadType'] == RateUpload::ratetable) {
                     $RateTable       = RateTable::find($data['Ratetable']);
                     $option['Trunk'] = $RateTable->TrunkID;
                 }
+                if(isset($data['occupied_fields']))
+                    $option['occupied_fields'] = $data['occupied_fields'];
+                if(isset($data['occupied_fields']))
+                    $option['occupied_timezone_fields'] = $data['occupied_timezone_fields'];
             }
             $save['Options']          = str_replace('Skip loading','',json_encode($option));
             $save['FileUploadTemplateTypeID']               = $data['TemplateType'];
@@ -180,7 +184,6 @@ class FileUploadTemplate extends \Eloquent {
                     $option['Settings']['checkbox_add_new_codes_to_code_decks'] = $data['checkbox_add_new_codes_to_code_decks'];
                     $option['Settings']['checkbox_review_rates'] = $data['checkbox_review_rates'];
                     $option['Settings']['radio_list_option'] = $data['radio_list_option'];
-                    $option['occupied_fields'] = $data['occupied_fields'];
 
                     if($data['RateUploadType'] == RateUpload::vendor || $data['RateUploadType'] == RateUpload::customer) {
                         $option['Trunk'] = $data['Trunk'];
@@ -188,6 +191,10 @@ class FileUploadTemplate extends \Eloquent {
                         $RateTable       = RateTable::find($data['Ratetable']);
                         $option['Trunk'] = $RateTable->TrunkID;
                     }
+                    if(isset($data['occupied_fields']))
+                        $option['occupied_fields'] = $data['occupied_fields'];
+                    if(isset($data['occupied_fields']))
+                        $option['occupied_timezone_fields'] = $data['occupied_timezone_fields'];
                 }
                 $save['Options']            = str_replace('Skip loading','',json_encode($option));
                 $save['FileUploadTemplateTypeID']               = $data['TemplateType'];
@@ -256,7 +263,7 @@ class FileUploadTemplate extends \Eloquent {
             $rules_for_type['selection.Code']                               = 'required';
             $rules_for_type['selection.Description']                        = 'required';
             $rules_for_type['selection.Amount']                             = 'required';
-        }else if($data['TemplateType'] == 8 || $data['TemplateType'] == 10 || $data['TemplateType'] == 11) { //vendor rate / RateTable Rate / Customer Rate Respectively
+        }else if($data['TemplateType'] == 8 || $data['TemplateType'] == 10 || $data['TemplateType'] == 11 || $data['TemplateType'] == 13) { //vendor rate / RateTable Rate / Customer Rate / RateTable DID Rate Respectively
 
             if(!empty($data['importdialcodessheet'])) {
                 $rules_for_type['selection.Join1'] = 'required';
@@ -292,26 +299,40 @@ class FileUploadTemplate extends \Eloquent {
                 $message_for_type['selection.OriginationCpde.required_with'] = 'Origination Code is required if Origination Description is selected';
                 $message_for_type['selection.OriginationDescription.required_with'] = 'Origination Description is required if Origination Code is selected';
             }
-            
+
+            if($data['RateUploadType'] == RateUpload::ratetable && !empty($data['Ratetable'])) {
+                $RateTable = RateTable::find($data['Ratetable']);
+            }
+
             $Timezones = Timezones::getTimezonesIDList(1);//no default timezones, only user defined timezones
             if(count($Timezones) > 0) { // if there are any timezones available
                 $TimezonesIDsArray = array();
-                foreach ($Timezones as $ID => $Title) {
-                    $TimezonesIDsArray[] = 'selection.Rate'.$ID;
-                }
-                $TimezonesIDsString = implode(',',$TimezonesIDsArray);
 
-                $rules_for_type['selection.Rate']                        = 'required_without_all:'.$TimezonesIDsString;
-                $message_for_type['selection.Rate.required_without_all'] = "Please select Rate against at least any one timezone.";
-                $TimezonesIDsArray[] = 'selection.Rate';
-                foreach ($Timezones as $ID => $Title) {
-                    $TimezonesIDsString = implode(',',array_diff($TimezonesIDsArray, array('selection.Rate'.$ID)));
-                    $rules_for_type['selection.Rate'.$ID]                           = 'required_without_all:'.$TimezonesIDsString;
-                    $message_for_type['selection.Rate'.$ID.'.required_without_all'] = "Please select Rate against at least any one timezone.";
+                if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
+                    foreach ($Timezones as $ID => $Title) {
+                        $TimezonesIDsArray[] = 'selection.MonthlyCost'.$ID;
+                    }
+                    $TimezonesIDsString = implode(',',$TimezonesIDsArray);
+
+                    $rules_for_type['selection.MonthlyCost'] = 'required_without_all:' . $TimezonesIDsString;
+                    $message_for_type['selection.MonthlyCost.required_without_all'] = "Please select Monthly Cost against at least any one timezone.";
+                } else {
+                    foreach ($Timezones as $ID => $Title) {
+                        $TimezonesIDsArray[] = 'selection.Rate' . $ID;
+                    }
+                    $TimezonesIDsString = implode(',', $TimezonesIDsArray);
+
+                    $rules_for_type['selection.Rate'] = 'required_without_all:' . $TimezonesIDsString;
+                    $message_for_type['selection.Rate.required_without_all'] = "Please select Rate against at least any one timezone.";
                 }
             } else { // if there is only 1 timezone, default timezone
-                $rules_for_type['selection.Rate']            = 'required';
-                $message_for_type['selection.Rate.required'] = "Rate Field is required";
+                if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
+                    $rules_for_type['selection.MonthlyCost'] = 'required';
+                    $message_for_type['selection.MonthlyCost.required'] = "Monthly Cost Field is required";
+                } else {
+                    $rules_for_type['selection.Rate'] = 'required';
+                    $message_for_type['selection.Rate.required'] = "Rate Field is required";
+                }
             }
             
             $option["skipRows"] = array("start_row" => $data["start_row"], "end_row" => $data["end_row"]);

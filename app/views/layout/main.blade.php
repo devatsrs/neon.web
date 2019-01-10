@@ -16,6 +16,7 @@
         <!--[if lt IE 9]>
                 <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
                 <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+
         <![endif]-->
 
              <script src="<?php echo URL::to('/'); ?>/assets/js/jquery-1.11.0.min.js"></script>
@@ -28,8 +29,36 @@
         {{Session::get('user_site_configrations.CustomCss')}}
         </style>
         @endif
-        
 
+        <style>
+
+            input[type="radio"].js {
+                display: none;
+            }
+
+            .newredio.js {
+                display: block;
+                float: left;
+                margin-right: 10px;
+                border: 1px solid #ababab;
+                color: #ababab;
+                text-align: center;
+                padding: 25px;
+                height:25%;
+                width: 25%;
+                cursor: pointer;
+            }
+
+            .newredio.js.active {
+                border: 1px solid #21a9e1;
+                color: #ababab;
+                font-weight: bold;
+            }
+
+            .newredio i {
+                color:green;
+            }
+        </style>
     </head>
 
     <body class="page-body gray">
