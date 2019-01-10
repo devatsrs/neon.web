@@ -17,7 +17,7 @@ class TestdialplanController extends \BaseController {
         $columns = array('AccountID','AccountName','Name','Trunk','ServiceName','ServiceID');
         $sort_column = $columns[$data['iSortCol_0']];
         
-        $query = "call prc_getTestDialPlan ('".$DefaultCurrencyID."','','".$data['DestinationCode']."','1','".$profileId."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
+        $query = "call prc_getTestDialPlan ('".$DefaultCurrencyID."','".$data['DestinationCode']."','".$data['DestinationCode']."','1','".$profileId."','',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
         
         Log::info('query:.' . $query);
         
