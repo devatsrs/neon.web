@@ -292,7 +292,6 @@
             document.getElementById("ServiceIdField").innerHTML = "" + data;
             // var ServiceId = $("div.hiddenRowData").find("input[name='ServiceId']").val();
             // alert("ServiceId" + ServiceId);
-            console.log(ServiceId);
             if (ServiceId != '') {
                 $("#add-new-service-form [name='ServiceId']").select2().select2('val', ServiceId);
 
@@ -321,7 +320,7 @@
             document.getElementById("OutboundDiscountPlanId").innerHTML = "" + data;
             //var OutboundDiscountPlanID = $("div.hiddenRowData").find("input[name='OutboundDiscountPlanID']").val();
             // alert(OutboundDiscountPlanID);
-            if (OutboundDiscountPlanID) {
+            if (OutboundDiscountPlanID != '') {
                 $("#add-new-service-form [name='OutboundDiscountPlanId']").select2().select2('val', OutboundDiscountPlanID);
             }else {
                 $("#add-new-service-form [name='OutboundDiscountPlanId']").select2().select2('val', '');
@@ -350,7 +349,7 @@
             // var res = data.split('/>');
             document.getElementById("OutboundRateTableId").innerHTML = "" + data;
             // var OutboundTariffId = $("div.hiddenRowData").find("input[name='OutboundTariffId']").val();
-            if (OutboundTariffId != null) {
+            if (OutboundTariffId != '') {
                 $("#add-new-service-form [name='OutboundRateTableId']").select2().select2('val', OutboundTariffId);
             }else {
                 $("#add-new-service-form [name='OutboundRateTableId']").select2().select2('val', '');
@@ -567,8 +566,8 @@
         var DidCategoryTariffID = SelectedDidCategoryTariffID.val();
         //alert(SelectedDidCategoryID + ":" + SelectedDidCategoryTariffID.val());
 
-        return false;
-        if (typeof DidCategoryID == 'undefined' || DidCategoryID == '') {
+
+        if(typeof DidCategoryID == 'undefined' || DidCategoryID == '') {
             DidCategoryID = "0";
             DidCategoryIDText= "";
         }
@@ -577,6 +576,8 @@
             // alert(document.getElementById("SubscriptionIDListBody"));
             // alert(document.getElementById("SubscriptionIDListBody").innerHTML);
             var CategoryTariffValue = DidCategoryID + '-' + DidCategoryTariffID;
+            var CategoryTariffDesrchValue = DidCategoryID + '-';
+
             var setValue = "setValue('CategoryTariffID[" + rowCategoryTariffHtmlIndex + "]','" + CategoryTariffValue + "');";
             var idName = "CategoryTariffID[" + rowCategoryTariffHtmlIndex + "]";
             var idNameRow = "CategoryTariffRowID" + (CategoryTariffValue) + "";
@@ -584,7 +585,7 @@
             //
             var selectedselectedcategotyTariff = document.getElementById("selectedcategotyTariff").value;
             // alert("selectedselectedcategotyTariff in add:" + selectedselectedcategotyTariff);
-            if (selectedselectedcategotyTariff.indexOf(CategoryTariffValue) == -1) {
+            if (selectedselectedcategotyTariff.indexOf(CategoryTariffDesrchValue) == -1) {
                 var rowCategoryTariffHtml =
                         '<tr class="draggable" + ' +
                         'id="' + idNameRow + '\" ' +
@@ -596,7 +597,6 @@
                         '<a title="Delete" onClick="RemoveCategoryTariffRowInTable(' + "'" + idNameRow + "'" + ');" class="delete-service2 btn btn-danger btn-sm"><i class="entypo-trash"></i></a>' +
                         '</td>' +
                         '</tr>';
-                ;
 
                 selectedselectedcategotyTariff = selectedselectedcategotyTariff + CategoryTariffValue + ",";
                 document.getElementById("selectedcategotyTariff").value = selectedselectedcategotyTariff;
@@ -683,7 +683,7 @@
 @section('footer_ext')
     @parent
     <div class="modal fade" id="add-new-modal-service">
-        <div class="modal-dialog"><!-- modal-lg -->
+        <div class="modal-dialog modal-lg"><!-- modal-lg -->
             <div class="modal-content">
                 <form id="add-new-service-form" method="post">
                     <div class="modal-header">
@@ -811,140 +811,135 @@
                                 <div id="ajax_dynamicfield_html" class="margin-top"></div>
                             </div>
                         </div>
-                    </div>
-                    <div>
-                        <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
-                            <li id="tab1">
-                                <a  href="javascript:void(0);" onclick="ShowSubscriptionTemplate('SubscriptionTab');" >
-                                    Subscription
-                                </a>
-                            </li>
-                            <li id="tab2">
-                                <a href="javascript:void(0);" onclick="ShowSubscriptionTemplate('InboundTariffTab');" >
-                                    Inbound Tariff
-                                </a>
-                            </li>
-                        </ul>
-                        <br/>
-                    </div>
-
-                    <div id="ActiveTabContent">
-                    </div>
-
-                    <div id="SubscriptionTab" style="visibility: hidden; display: none">
-                        <div id="ContentSubscriptionTab" class="modal-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <br/>
-                                    <table id="servicetableSubBox" class="table table-bordered datatable">
-                                        <tr>
-                                            <td width="80%">
-                                                <select id="templateSubscriptionList" name="templateSubscriptionList" class="form-control">
-                                                </select>
-                                            </td>
-                                            <td width="20%">
-                                                <button onclick="AddSubscriptionInTable();" type="button" id="Service-update"  class="btn btn-primary btn-sm" data-loading-text="Loading...">
-                                                    <i></i>
-                                                    +
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </table>
-
-                                </div>
-                                <div class="col-md-12">
-                                    <div class="form-group"><input type="text" id="searchFilter" name="searchFilter" class="form-control" id="field-5" placeholder="Search">
-                                        <table id="servicetable" class="table table-bordered datatable">
-
-                                            <thead>
-                                            <tr>
-                                                <td width="70%">Subscription</td>
-                                                <td width="20%">Actions</td>
-                                                <input type="hidden" id="selectedSubscription" name="selectedSubscription" value=""/>
-                                            </tr>
-                                            </thead>
-                                            <tbody id="SubscriptionIDListBody">
-
-                                            <!-- //subscription id list -->
-
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-
+                        <div>
+                            <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
+                                <li id="tab1">
+                                    <a  href="javascript:void(0);" onclick="ShowSubscriptionTemplate('SubscriptionTab');" >
+                                        Subscription
+                                    </a>
+                                </li>
+                                <li id="tab2">
+                                    <a href="javascript:void(0);" onclick="ShowSubscriptionTemplate('InboundTariffTab');" >
+                                        Inbound Tariff
+                                    </a>
+                                </li>
+                            </ul>
+                            <br/>
                         </div>
-                    </div>
 
+                        <div id="ActiveTabContent">
+                        </div>
 
-                    <div id="InboundTariffTab" style="visibility: hidden;display: none">
-                        <div id="ContentInboundTariffTab" class="modal-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <br/>
-                                    <table id="servicetableSubBox" class="table table-bordered datatable">
-                                        <tr>
-                                            <td width="10%"><label for="field-5" class="control-label">DIDCategory</label></td>
-                                            <td width="30%">
-                                                <select onchange="ShowTariffOnSelectedCategory();" id="DidCategoryID" name="DidCategoryID" class="form-control">
-                                                    <?php
-                                                    $index1 = 0;?>
-                                                    @foreach(DIDCategory::getCategoryDropdownIDList() as $DIDCategoryID  => $CategoryName)
-                                                        <option id="didCategoty{{$index1++}}" value="{{$DIDCategoryID}}">{{$CategoryName}}</option>
-                                                    @endforeach
-
-                                                </select>
-                                            </td>
-                                            <td width="10%"><label for="field-5" class="control-label">Tariff</label></td>
-                                            <td width="30%">
-                                                <select id="DidCategoryTariffID" name="DidCategoryTariffID" class="form-control">
-                                                </select>
-                                            </td>
-                                            <td width="20%">
-                                                <button onclick="AddCategoryTariffInTable();" type="button" id="Service-update"  class="btn btn-primary btn-sm" data-loading-text="Loading...">
-                                                    <i></i>
-                                                    +
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </table>
-
-                                    <div>
-                                        <table id="categotyTarifftable" class="table table-bordered datatable">
-                                            <thead>
-
+                        <div id="SubscriptionTab" style="visibility: hidden; display: none">
+                            <div id="ContentSubscriptionTab" class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <br/>
+                                        <table id="servicetableSubBox" class="table table-bordered datatable">
                                             <tr>
-
-                                                <td width="35%">Category</td>
-                                                <td width="35%">Tariff</td>
-                                                <td width="20%">Actions</td>
-                                                <input type="hidden" id="selectedcategotyTariff" name="selectedcategotyTariff" value=""/>
+                                                <td width="80%">
+                                                    <select id="templateSubscriptionList" name="templateSubscriptionList" class="form-control">
+                                                    </select>
+                                                </td>
+                                                <td width="20%">
+                                                    <button onclick="AddSubscriptionInTable();" type="button" id="Service-update"  class="btn btn-primary btn-sm" data-loading-text="Loading...">
+                                                        <i></i>
+                                                        +
+                                                    </button>
+                                                </td>
                                             </tr>
-                                            </thead>
-                                            <tbody id="categoryTariffIDListBody">
-
-                                            </tbody>
                                         </table>
+
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group"><input type="text" id="searchFilter" name="searchFilter" class="form-control" id="field-5" placeholder="Search">
+                                            <table id="servicetable" class="table table-bordered datatable">
+
+                                                <thead>
+                                                <tr>
+                                                    <td width="70%">Subscription</td>
+                                                    <td width="20%">Actions</td>
+                                                    <input type="hidden" id="selectedSubscription" name="selectedSubscription" value=""/>
+                                                </tr>
+                                                </thead>
+                                                <tbody id="SubscriptionIDListBody">
+
+                                                <!-- //subscription id list -->
+
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="modal-footer" style="vertical-align: top">
-                        <button type="submit" id="Service-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                            <i class="entypo-floppy"></i>
-                            Save
-                        </button>
-                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                            <i class="entypo-cancel"></i>
-                            Close
-                        </button>
+
+                        <div id="InboundTariffTab" style="visibility: hidden;display: none">
+                            <div id="ContentInboundTariffTab" class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <br/>
+                                        <table id="servicetableSubBox" class="table table-bordered datatable">
+                                            <tr>
+                                                <td width="10%"><label for="field-5" class="control-label">DIDCategory</label></td>
+                                                <td width="30%">
+                                                    <select onchange="ShowTariffOnSelectedCategory();" id="DidCategoryID" name="DidCategoryID" class="form-control">
+                                                        <?php
+                                                        $index1 = 0;?>
+                                                        @foreach(DIDCategory::getCategoryDropdownIDList() as $DIDCategoryID  => $CategoryName)
+                                                            <option id="didCategoty{{$index1++}}" value="{{$DIDCategoryID}}">{{$CategoryName}}</option>
+                                                        @endforeach
+
+                                                    </select>
+                                                </td>
+                                                <td width="10%"><label for="field-5" class="control-label">Tariff</label></td>
+                                                <td width="30%">
+                                                    <select id="DidCategoryTariffID" name="DidCategoryTariffID" class="form-control">
+                                                    </select>
+                                                </td>
+                                                <td width="20%">
+                                                    <button onclick="AddCategoryTariffInTable();" type="button" id="Service-update"  class="btn btn-primary btn-sm" data-loading-text="Loading...">
+                                                        <i></i>
+                                                        +
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <div>
+                                            <table id="categotyTarifftable" class="table table-bordered datatable">
+                                                <thead>
+                                                <tr>
+                                                    <td width="35%">Category</td>
+                                                    <td width="35%">Tariff</td>
+                                                    <td width="20%">Actions</td>
+                                                    <input type="hidden" id="selectedcategotyTariff" name="selectedcategotyTariff" value=""/>
+                                                </tr>
+                                                </thead>
+                                                <tbody id="categoryTariffIDListBody">
+
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer" style="vertical-align: top">
+                            <button type="submit" id="Service-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                                <i class="entypo-floppy"></i>
+                                Save
+                            </button>
+                            <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                                <i class="entypo-cancel"></i>
+                                Close
+                            </button>
+                        </div>
                     </div>
+                </form>
             </div>
-            </form>
         </div>
-    </div>
     </div>
 
     <script>
