@@ -13,6 +13,7 @@ use speakintelligentRM;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
 -- Dumping structure for procedure speakintelligentRM.prc_GetLCR
+DROP PROCEDURE IF EXISTS `prc_GetLCR`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetLCR`(
 	IN `p_companyid` INT,
@@ -30,13 +31,17 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetLCR`(
 	IN `p_SortOrder` VARCHAR(50),
 	IN `p_Preference` INT,
 	IN `p_Position` INT,
-	IN `p_vendor_block` INT,
 	IN `p_groupby` VARCHAR(50),
 	IN `p_SelectedEffectiveDate` DATE,
 	IN `p_ShowAllVendorCodes` INT,
 	IN `p_merge_timezones` INT,
 	IN `p_TakePrice` INT,
 	IN `p_isExport` INT
+
+
+
+
+
 
 
 
@@ -479,12 +484,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetLCR`(
 						AND (
 							(',p_merge_timezones,' = 0 AND tblRateTableRate.TimezonesID = "',p_TimezonesID,'") OR
 							(',p_merge_timezones,' = 1 AND FIND_IN_SET(tblRateTableRate.TimezonesID, "',p_TimezonesID,'"))
-						)
-						AND
-						(
-							(',p_vendor_block,' = 1 )
-							OR
-							(',p_vendor_block,' = 0 AND tblRateTableRate.Blocked = 0)
 						)
 						-- AND blockCode.RateId IS NULL
 						-- AND blockCountry.CountryId IS NULL
@@ -1334,15 +1333,17 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetLCR`(
 
 			IF (p_isExport = 0)
 			THEN
+
+
 				IF p_groupby = 'description' THEN
 
-					SET @stm_query = CONCAT("SELECT CONCAT(max(t.OriginationDescription) , ' => ' , max(t.Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY  t.Description ORDER BY t.Description ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
+					SET @stm_query = CONCAT("SELECT CONCAT(max(t.OriginationDescription) , ' <br> => ' , max(t.Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY  t.Description ORDER BY t.Description ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
 
 					SELECT count(Description) as totalcount from tmp_final_VendorRate_  ;
 
 				ELSE
 
-					SET @stm_query = CONCAT("SELECT CONCAT(ANY_VALUE(t.OriginationCode) , ' : ' , ANY_VALUE(t.OriginationDescription), ' => '  ,ANY_VALUE(t.RowCode) , ' : ' , ANY_VALUE(t.Description)) as Destination,", @stm_columns," FROM tmp_final_VendorRate_  t GROUP BY  RowCode ORDER BY RowCode ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
+					SET @stm_query = CONCAT("SELECT CONCAT(ANY_VALUE(t.OriginationCode) , ' : ' , ANY_VALUE(t.OriginationDescription), ' <br> => '  ,ANY_VALUE(t.RowCode) , ' : ' , ANY_VALUE(t.Description)) as Destination,", @stm_columns," FROM tmp_final_VendorRate_  t GROUP BY  RowCode ORDER BY RowCode ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
 
 					SELECT count(RowCode) as totalcount from tmp_final_VendorRate_ ;
 
@@ -1354,7 +1355,18 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetLCR`(
 			IF p_isExport = 1
 			THEN
 
-				SET @stm_query = CONCAT("SELECT CONCAT(ANY_VALUE(t.OriginationCode) , ' : ' , ANY_VALUE(t.OriginationDescription), ' => '  ,ANY_VALUE(t.RowCode) , ' : ' , ANY_VALUE(t.Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY  RowCode ORDER BY RowCode ASC;");
+				IF p_groupby = 'description' THEN
+
+					SET @stm_query = CONCAT("SELECT CONCAT(max(t.OriginationDescription) , '  => ' , max(t.Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY  t.Description ORDER BY t.Description ASC ;");
+
+
+				ELSE
+
+					SET @stm_query = CONCAT("SELECT CONCAT(ANY_VALUE(t.OriginationCode) , ' : ' , ANY_VALUE(t.OriginationDescription), '  => '  ,ANY_VALUE(t.RowCode) , ' : ' , ANY_VALUE(t.Description)) as Destination,", @stm_columns," FROM tmp_final_VendorRate_  t GROUP BY  RowCode ORDER BY RowCode ASC;");
+
+
+				END IF;
+
 
 			END IF;
 
@@ -1374,6 +1386,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetLCR`(
 DELIMITER ;
 
 -- Dumping structure for procedure speakintelligentRM.prc_GetLCRwithPrefix
+DROP PROCEDURE IF EXISTS `prc_GetLCRwithPrefix`;
 DELIMITER //
 CREATE DEFINER=`root`@`%` PROCEDURE `prc_GetLCRwithPrefix`(
 	IN `p_companyid` INT,
@@ -1398,6 +1411,8 @@ CREATE DEFINER=`root`@`%` PROCEDURE `prc_GetLCRwithPrefix`(
 	IN `p_merge_timezones` INT,
 	IN `p_TakePrice` INT,
 	IN `p_isExport` INT
+
+
 
 
 
@@ -2390,14 +2405,14 @@ CREATE DEFINER=`root`@`%` PROCEDURE `prc_GetLCRwithPrefix`(
 
 				IF p_groupby = 'description' THEN
 
-					SET @stm_query = CONCAT("SELECT	CONCAT(max(t.OriginationDescription) , ' => ' , max(t.Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY t,OriginationDescription,t.Description ORDER BY t.Description ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
+					SET @stm_query = CONCAT("SELECT	CONCAT(max(t.OriginationDescription) , ' <br> => ' , max(t.Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY t,OriginationDescription,t.Description ORDER BY t.Description ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
 
 
 					SELECT count(Description) as totalcount from tmp_final_VendorRate_  ;
 
 				ELSE
 
-					SET @stm_query = CONCAT("SELECT	CONCAT(ANY_VALUE(t.OriginationCode) , ' : ' , ANY_VALUE(t.OriginationDescription), ' => '  ,ANY_VALUE(t.RowCode) , ' : ' , ANY_VALUE(t.Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY t.OriginationCode, t.RowCode ORDER BY RowCode ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
+					SET @stm_query = CONCAT("SELECT	CONCAT(ANY_VALUE(t.OriginationCode) , ' : ' , ANY_VALUE(t.OriginationDescription), ' <br> => '  ,ANY_VALUE(t.RowCode) , ' : ' , ANY_VALUE(t.Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY t.OriginationCode, t.RowCode ORDER BY RowCode ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
 
 
 
@@ -2434,25 +2449,6 @@ CREATE DEFINER=`root`@`%` PROCEDURE `prc_GetLCRwithPrefix`(
 	END//
 DELIMITER ;
 
-/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
-/*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-
-
-
--- --------------------------------------------------------
--- Host:                         192.168.1.25
--- Server version:               5.7.23-log - MySQL Community Server (GPL)
--- Server OS:                    Win64
--- HeidiSQL Version:             9.5.0.5196
--- --------------------------------------------------------
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET NAMES utf8 */;
-/*!50503 SET NAMES utf8mb4 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-
 -- Dumping structure for procedure speakintelligentRM.prc_GetDIDLCRwithPrefix
 DROP PROCEDURE IF EXISTS `prc_GetDIDLCRwithPrefix`;
 DELIMITER //
@@ -2479,6 +2475,10 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetDIDLCRwithPrefix`(
 	IN `p_ComponentsAction` VARCHAR(200),
 	IN `p_ComponentsMeargeTo` VARCHAR(200),
 	IN `p_isExport` INT
+
+
+
+
 
 
 

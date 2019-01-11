@@ -30,88 +30,28 @@ class AccountsApiController extends ApiController {
 	public function checkBalance(){
 		$data=Input::all();
 		$Result=array();
-		$AccountBalance=0;
+
+		$Account = array();
 		if(!empty($data['AccountID'])) {
-			$CompanyID = Account::where(["AccountID" => $data['AccountID']])->pluck('CompanyId');
-
-			if(intval($CompanyID) > 0){
-				$AccountBalance = AccountBalance::getNewAccountExposure($CompanyID, $data['AccountID']);
-			}else{
-				return Response::json(["status"=>"failed", "data"=>"Account Not Found"]);
-			}
-
-		}else if(!empty($data['AccountNo'])) {
-			$Account = Account::where(["Number" => $data['AccountNo']])->select('CompanyId','AccountID')->first();
-
-			if(!empty($Account)) {
-				$CompanyID = $Account->CompanyId;
-				$AccountID = $Account->AccountID;
-				$AccountBalance = AccountBalance::getNewAccountExposure($CompanyID, $AccountID);
-			}else{
-				return Response::json(["status"=>"failed", "data"=>"Account Not Found"]);
-			}
-
-		}else {
-			return Response::json(["status"=>"failed", "data"=>"Account Not Found"]);
-		}
-
-		if($AccountBalance > 0){
-			$Result['has_balance']=1;
-			$Result['amount']=$AccountBalance;
-		}else{
-			$Result['has_balance']=0;
-			$Result['amount']=$AccountBalance;
-		}
-
-		return Response::json(["status"=>"success", "data"=>$Result]);
-	}
-
-	public function balanceAlert(){
-		$data=Input::all();
-		$AccountID=0;
-		if(!empty($data['AccountID'])) {
-			$cnt = Account::where(["AccountID" => $data['AccountID']])->count();
-			if($cnt > 0){
-				$AccountID = $data['AccountID'];
-			}
+			$Account = Account::where(["AccountID" => $data['AccountID']])->first();
 		}else if(!empty($data['AccountNo'])){
 			$Account = Account::where(["Number" => $data['AccountNo']])->first();
-			if(!empty($Account)){
-				$AccountID=$Account->AccountID;
-			}
-		}else{
-			return Response::json(["status"=>"failed", "message"=>"AccountID or AccountNo is Required"]);
-		}
-		if(!empty($AccountID)){
-			//Validate
-			//Validation
-			$rules = array(
-				'Balance' => 'required',
-				//'UUIDs' => 'required'
-			);
-			$validator = Validator::make($data, $rules);
-			if ($validator->fails()) {
-				return json_validator_response($validator);
-			}
-
-			$api_url = 'http://172.16.33.70/api/v1.0/neon/balanceAlert';
-			log::info($api_url);
-			$curl = new Curl\Curl();
-			$data1=[];
-			$data1['CustomerId']=9876;
-			$data1['Balance']=1234.56;
-			$data1['Uuids']=["1de24812-053b-43c3-a3c2-429539771813","0d0be254-f55f-400c-bbc2-f8b296e658ae"];
-			$curl->post($api_url,$data1);
-			$curl->close();
-			$response = json_decode($curl->response);
-			echo "==";echo "<pre>";
-			print_r($response);
-
-		}else{
-			return Response::json(["status"=>"failed", "message"=>"Account Not Found."]);
 		}
 
+		if(!empty($Account) && count($Account)>0){
+			$AccountBalance = AccountBalance::getBalanceAmount($Account->AccountID);
+			if($AccountBalance > 0){
+				$Result['has_balance']=1;
+				$Result['amount']=$AccountBalance;
+			}else{
+				$Result['has_balance']=0;
+				$Result['amount']=$AccountBalance;
+			}
+			return Response::json(["status"=>"success", "data"=>$Result]);
+		}
+		return Response::json(["status"=>"failed", "data"=>"Account Not Found"]);
 	}
+
 
 	public function createAccountService()
 	{
