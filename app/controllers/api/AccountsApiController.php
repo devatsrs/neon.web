@@ -30,40 +30,26 @@ class AccountsApiController extends ApiController {
 	public function checkBalance(){
 		$data=Input::all();
 		$Result=array();
-		$AccountBalance=0;
+
+		$Account = array();
 		if(!empty($data['AccountID'])) {
-			$CompanyID = Account::where(["AccountID" => $data['AccountID']])->pluck('CompanyId');
-
-			if(intval($CompanyID) > 0){
-				$AccountBalance = AccountBalance::getNewAccountExposure($CompanyID, $data['AccountID']);
-			}else{
-				return Response::json(["status"=>"failed", "data"=>"Account Not Found"]);
-			}
-
-		}else if(!empty($data['AccountNo'])) {
-			$Account = Account::where(["Number" => $data['AccountNo']])->select('CompanyId','AccountID')->first();
-
-			if(!empty($Account)) {
-				$CompanyID = $Account->CompanyId;
-				$AccountID = $Account->AccountID;
-				$AccountBalance = AccountBalance::getNewAccountExposure($CompanyID, $AccountID);
-			}else{
-				return Response::json(["status"=>"failed", "data"=>"Account Not Found"]);
-			}
-
-		}else {
-			return Response::json(["status"=>"failed", "data"=>"Account Not Found"]);
+			$Account = Account::where(["AccountID" => $data['AccountID']])->first();
+		}else if(!empty($data['AccountNo'])){
+			$Account = Account::where(["Number" => $data['AccountNo']])->first();
 		}
 
-		if($AccountBalance > 0){
-			$Result['has_balance']=1;
-			$Result['amount']=$AccountBalance;
-		}else{
-			$Result['has_balance']=0;
-			$Result['amount']=$AccountBalance;
+		if(!empty($Account) && count($Account)>0){
+			$AccountBalance = AccountBalance::getBalanceAmount($Account->AccountID);
+			if($AccountBalance > 0){
+				$Result['has_balance']=1;
+				$Result['amount']=$AccountBalance;
+			}else{
+				$Result['has_balance']=0;
+				$Result['amount']=$AccountBalance;
+			}
+			return Response::json(["status"=>"success", "data"=>$Result]);
 		}
-
-		return Response::json(["status"=>"success", "data"=>$Result]);
+		return Response::json(["status"=>"failed", "data"=>"Account Not Found"]);
 	}
 
 	public function balanceAlert(){
