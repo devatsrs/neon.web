@@ -9,10 +9,11 @@
 </style>
 @section('footer_ext')
     @parent
+
     <div class="modal fade" id="add-new-modal-accounts">
         <div class="modal-dialog  modal-lg">
             <div class="modal-content">
-                <form id="cancelation-contract">
+                <form id="add-new-account-service-cancel-contract-form" method="post">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                         <h3 class="modal-title">Cancelation Contract</h3>
@@ -21,14 +22,15 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label class="col-md-2 control-label">Termination Fees</label>
+                                    <input type="hidden" name="AccountServiceID" @if(isset($AccountServiceContract->AccountServiceID)) value="{{$AccountServiceContract->AccountServiceID}}" @endif>
+                                    <label class="col-md-2 control-label">Termination Fees </label>
                                     <div class="col-md-4">
-                                        <input type="text" class="form-control" name="teminatingFee">
+                                        <input type="text" class="form-control" name="TeminatingFee">
                                     </div>
 
                                     <label class="col-md-2 control-label">Cancelation Date</label>
                                     <div class="col-md-4">
-                                        <input type="text" data-date-format="yyyy-mm-dd" class="form-control datepicker" name="cancelDate">
+                                        <input type="text" data-date-format="yyyy-mm-dd" class="form-control datepicker" name="CancelDate">
                                     </div>
                                 </div>
                             </div>
@@ -41,7 +43,7 @@
                                     <div class="col-md-4">
                                         <div class="panel-options">
                                             <div class="make-switch switch-small">
-                                                <input type="checkbox"  name="incTerminationFees" value="1">
+                                                <input type="checkbox" name="IncTerminationFees" value="1">
                                             </div>
                                         </div>
                                     </div>
@@ -50,7 +52,7 @@
                                     <div class="col-md-4">
                                         <div class="panel-options">
                                             <div class="make-switch switch-small">
-                                                <input type="checkbox"  name="discountOffered" value="1">
+                                                <input type="checkbox"  name="DiscountOffered" value="1">
                                             </div>
                                         </div>
                                     </div>
@@ -66,7 +68,7 @@
                                     <div class="col-md-4">
                                         <div class="panel-options">
                                             <div class="make-switch switch-small">
-                                                <input type="checkbox"  name="generateInvoice" value="1">
+                                                <input type="checkbox"  name="GenerateInvoice" value="1">
                                             </div>
                                         </div>
                                     </div>
@@ -89,4 +91,21 @@
             </div>
         </div>
     </div>
+    <script>
+        $(document).ready(function(){
+            $('#add-new-account-service-cancel-contract-form').submit(function(e) {
+                e.preventDefault();
+                showAjaxScript('/neon/web/staging/public/accountservices/cancel_contract', new FormData(($('#add-new-account-service-cancel-contract-form')[0])), function (response) {
+                    //console.log(response);
+                    $(".btn").button('reset');
+                    if (response.status == 'success') {
+                        $('#add-new-modal-routingcategory').modal('hide');
+                        toastr.success(response.message, "Success", toastr_opts);
+                    } else {
+                        toastr.error(response.message, "Error", toastr_opts);
+                    }
+                });
+            });
+        })
+    </script>
 @stop
