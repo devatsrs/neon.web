@@ -16,7 +16,7 @@
                 </div>--}}
                 <div class="form-group A">
                     <label for="field-1" class="control-label">Phone Number</label>
-                    <input type="text" value="" placeholder="Phone Number" id="field-1" class="form-control" name="DestinationCode">
+                    <input type="text" value="" placeholder="Phone Number" id="field-1" required="" class="form-control" name="DestinationCode">
                 </div>
 
                 <div class="form-group  S">

@@ -109,6 +109,34 @@ class AccountServiceController extends \BaseController {
     // account service edit page data store and update
 	public function update($AccountID,$AccountServiceID)
 	{
+        $AccountServiceId = AccountService::where('AccountServiceID',$AccountServiceID)->first();
+        $AccountServiceContract = AccountServiceContract::where('AccountServiceID',$AccountServiceId->AccountServiceID)->get();
+        $Contract = array();
+        $Contract['ContractStartDate'] = Input::get('StartDate');
+        $Contract['ContractEndDate'] = Input::get('EndDate');
+        $Contract['AccountServiceID'] = $AccountServiceId->AccountServiceID;
+        $Contract['AutoRenewal'] = Input::get('AutoRenewal');
+        $Contract['FixedFee'] = Input::get('ContractTerm');
+        $Contract['Duration'] = Input::get('Duration');
+        if($Contract['FixedFee'] == 1){
+            $Contract['ContractReason'] = Input::get('FixedFee');
+        }
+        else if($Contract['FixedFee'] == 3){
+            $Contract['ContractReason'] = Input::get('Percentage');
+        }
+        else if($Contract['FixedFee'] == 4){
+            $Contract['ContractReason'] = Input::get('FixedFeeContract');
+        }
+        else{
+            $Contract['ContractReason'] = NULL;
+        }
+
+
+        if(count($AccountServiceContract) > 0){
+            AccountServiceContract::where('AccountServiceID',$AccountServiceId->AccountServiceID)->update($Contract);
+        }else{
+            AccountServiceContract::create($Contract);
+        }
         $data = Input::all();
         if( $AccountID  > 0  && $AccountServiceID > 0 && !empty($data['ServiceID'])) {
 

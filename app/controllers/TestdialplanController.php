@@ -4,6 +4,14 @@ class TestdialplanController extends \BaseController {
 
     public function ajax_datagrid() {
         $data = Input::all();
+        
+        $rules = array(
+            'DestinationCode' => 'required',
+        );
+        $validator = Validator::make($data, $rules);
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
         $companyID = User::get_companyID();
         $DefaultCurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");
         $profileId="";
