@@ -264,6 +264,7 @@
            // alert("ServiceId" + ServiceId);
             if (ServiceId != '') {
                 $("#add-new-service-form [name='ServiceId']").select2().select2('val', ServiceId);
+
             }else {
                 $("#add-new-service-form [name='ServiceId']").select2().select2('val', '');
             }
@@ -525,7 +526,6 @@
     }
 
     function AddCategoryTariffInTable() {
-        //alert("Called");
         //DidCategoryID DidCategoryTariffID
         var SelectedDidCategoryID = $("#DidCategoryID option:selected");
         var DidCategoryIDText = SelectedDidCategoryID.text();
@@ -534,6 +534,8 @@
         var DidCategoryTariffIDText = SelectedDidCategoryTariffID.text();
         var DidCategoryTariffID = SelectedDidCategoryTariffID.val();
         //alert(SelectedDidCategoryID + ":" + SelectedDidCategoryTariffID.val());
+
+        return false;
         if (typeof DidCategoryID == 'undefined' || DidCategoryID == '') {
             DidCategoryID = "0";
             DidCategoryIDText= "";
@@ -653,7 +655,6 @@
             <div class="modal-content">
                 <form id="add-new-service-form" method="post">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                         <h5 class="modal-title" id="ServiceTemplateModelTitle">Add New Service Template</h5>
                     </div>
                     <div class="modal-body">

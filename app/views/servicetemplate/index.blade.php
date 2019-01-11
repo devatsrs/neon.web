@@ -415,8 +415,25 @@
                 {
                     $('#BulkServiceTemplateModelTitle').text('Add New Bulk Action');
                     var GetCurrencyId = $("#service_filter [name='FilterCurrencyId']").val();
-                    $("#CurrencyId").val(GetCurrencyId);
-                    $("#ServiceTemplateId").val(checkBoxArray);
+                    $("#CurrencyIdBulkAction").val(GetCurrencyId);
+                    $("#ServiceTemplateIdBulkAction").val(checkBoxArray);
+                    $("#add-new-BulkAction-modal-service input:checkbox").prop("checked",false);
+                    $("#OutboundRateTableIdBulkAction").prop("disabled",true);
+                    $("#OutboundDiscountPlanIdBulkAction").prop("disabled",true);
+                    $("#InboundDiscountPlanIdBulkAction").prop("disabled",true);
+                    $("#ServiceIdBulkAction").prop("disabled",true);
+                    $("#DidCategoryIDBulkAction").prop("disabled","disab");
+                    $("#DidCategoryTariffIDBulkAction").prop("disabled",true);
+
+                    $( "#add-action-bulk-form").children('select').find('option:eq(0)').prop('selected', true);
+
+                    $( "#ServiceIdBulkAction").select2().select2('val', '');
+
+
+                    $("#add-action-bulk-form")[0].reset();
+                    $('form')[0].reset();
+
+
                 }else{
 
                    if(checkBoxArray == "")
