@@ -1,4 +1,15 @@
-
+<style>
+    .cancelRadio .panel-heading {
+        display: block;
+        font-size: 12px;
+        background: #fff;
+        margin-bottom: 0;
+    }
+    .cancelRadio .panel-heading.active {
+        border-left: 3px solid #00cc00;
+        padding-left: 12px;
+    }
+</style>
 <script>
 
 
@@ -6,7 +17,7 @@
         $('#add-new-service-form').submit(function(e){
             var ServiceID = $("#add-new-service-form [name='ServiceID']").val();
             if( typeof ServiceID != 'undefined' && ServiceID != '') {
-               // alert(loadSelectedTemplateSubscription);
+                // alert(loadSelectedTemplateSubscription);
                 if (!loadSelectedTemplateSubscription) {
                     toastr.error("Please wait.. subscription data is loading", "Error", toastr_opts);
                     return false;
@@ -21,12 +32,12 @@
 
 
 
-           /* var OutboundDiscountPlanId = $("#add-new-service-form [name='OutboundDiscountPlanId']").val();
-            alert(OutboundDiscountPlanId);
-            var InboundDiscountPlanId = $("#add-new-service-form [name='InboundDiscountPlanId']").val();
-            alert(InboundDiscountPlanId);
-            var OutboundRateTableId = $("#add-new-service-form [name='OutboundRateTableId']").val();
-            alert(OutboundRateTableId);*/
+            /* var OutboundDiscountPlanId = $("#add-new-service-form [name='OutboundDiscountPlanId']").val();
+             alert(OutboundDiscountPlanId);
+             var InboundDiscountPlanId = $("#add-new-service-form [name='InboundDiscountPlanId']").val();
+             alert(InboundDiscountPlanId);
+             var OutboundRateTableId = $("#add-new-service-form [name='OutboundRateTableId']").val();
+             alert(OutboundRateTableId);*/
 
             //var subsription = $("#add-new-service-form [name='south']").val();
             //alert(subsription);
@@ -35,7 +46,7 @@
 
             if( typeof ServiceID != 'undefined' && ServiceID != ''){
                 update_new_url = baseurl + '/servicesTemplate/update/'+ServiceID;
-               // alert(update_new_url);
+                // alert(update_new_url);
             }else{
                 update_new_url = baseurl + '/servicesTemplate/store';
                 //alert(document.getElementById("selectedSubscription").value);
@@ -45,36 +56,36 @@
             data.append ('selectedSubscription', document.getElementById("selectedSubscription").value);
             data.append ('selectedcategotyTariff', document.getElementById("selectedcategotyTariff").value);
             //alert("selectedSubscription" + document.getElementById("selectedSubscription").value);
-           // alert("selectedcategotyTariff" + document.getElementById("selectedcategotyTariff").value);
+            // alert("selectedcategotyTariff" + document.getElementById("selectedcategotyTariff").value);
             showAjaxScript(update_new_url, data, function(response){
                 document.getElementById("Service-update").disabled = false;
                 $(".btn").button('reset');
                 if (response.status == 'success') {
                     $('#add-new-modal-service').modal('hide');
-                    toastr.success(response.message, "Success", toastr_opts);										
-					var ServiceRefresh = $("#ServiceRefresh").val();
+                    toastr.success(response.message, "Success", toastr_opts);
+                    var ServiceRefresh = $("#ServiceRefresh").val();
                     //alert("ServiceRefresh" + ServiceRefresh);
-					if( typeof ServiceRefresh != 'undefined' && ServiceRefresh == '1'){
-						if (true) { //$('#ServiceStatus').is(":checked")
-                           // alert("Called Data Table");
+                    if( typeof ServiceRefresh != 'undefined' && ServiceRefresh == '1'){
+                        if (true) { //$('#ServiceStatus').is(":checked")
+                            // alert("Called Data Table");
                             data_table.fnFilter(1,0);  // 1st value 2nd column index
                         }else{
                             data_table.fnFilter(0,0);
                         }
-					}else{
-						 $('select[data-type="service"]').each(function(key,el){
-                        if($(el).attr('data-active') == 1) {
-                            var newState = new Option(response.newcreated.ServiceName, response.newcreated.ServiceID, true, true);
-                        }else{
-                            var newState = new Option(response.newcreated.ServiceName, response.newcreated.ServiceID, false, false);
-                        }
-                        $(el).append(newState).trigger('change');
-                        $(el).append($(el).find("option:gt(1)").sort(function (a, b) {
-                            return a.text == b.text ? 0 : a.text < b.text ? -1 : 1;
-                        }));
-                    });	
-					}
-                    
+                    }else{
+                        $('select[data-type="service"]').each(function(key,el){
+                            if($(el).attr('data-active') == 1) {
+                                var newState = new Option(response.newcreated.ServiceName, response.newcreated.ServiceID, true, true);
+                            }else{
+                                var newState = new Option(response.newcreated.ServiceName, response.newcreated.ServiceID, false, false);
+                            }
+                            $(el).append(newState).trigger('change');
+                            $(el).append($(el).find("option:gt(1)").sort(function (a, b) {
+                                return a.text == b.text ? 0 : a.text < b.text ? -1 : 1;
+                            }));
+                        });
+                    }
+
                 }else{
                     toastr.error(response.message, "Error", toastr_opts);
                 }
@@ -107,7 +118,7 @@
 
         sellectRowCheckBox();
 
-      //  alert(SubscriptionIDValues);
+        //  alert(SubscriptionIDValues);
         var inputTypeCheckBoxName;
         var SubscriptionIDValuesList = SubscriptionIDValues.split(":");
         for (var i =0; i <count;i++ ) {
@@ -136,8 +147,8 @@
         //alert(document.getElementById("selectallCategoryService").checked);
         var self = $('.selectallCategoryService');
         var is_checked = document.getElementById("selectallCategoryService").checked;
-       // alert(self);
-       // alert(is_checked);
+        // alert(self);
+        // alert(is_checked);
         $('#categotyTarifftable').find('tbody tr').each(function (i, el) {
             if (is_checked) {
                 if ($(this).is(':visible')) {
@@ -154,9 +165,9 @@
 
     function setValue(name,value1) {
         //var self = $(name);
-      //  alert("Called");inputTypeCheckBoxName= subsriptionId + "[" + i + "]";
+        //  alert("Called");inputTypeCheckBoxName= subsriptionId + "[" + i + "]";
         var testBox = document.getElementById(name);
-       // alert(testBox.checked);
+        // alert(testBox.checked);
         //self = document.getElementById(name);
         var is_checked = self.is(':checked');
         //alert(is_checked);
@@ -166,26 +177,26 @@
             testBox.value = '';
         }
 
-       // alert(self.val());
+        // alert(self.val());
         //alert(self.value);
-      //  alert(testBox.value);
+        //  alert(testBox.value);
     }
     /*$('.selectallservices').on('click', function () {
-        alert("Select All");
-        var self = $(this);
-        var is_checked = $(self).is(':checked');
-        self.parents('table').find('tbody tr').each(function (i, el) {
-            if (is_checked) {
-                if ($(this).is(':visible')) {
-                    $(this).find('input[type="checkbox"]').prop("checked", true);
-                    $(this).addClass('selected');
-                }
-            } else {
-                $(this).find('input[type="checkbox"]').prop("checked", false);
-                $(this).removeClass('selected');
-            }
-        });
-    });*/
+     alert("Select All");
+     var self = $(this);
+     var is_checked = $(self).is(':checked');
+     self.parents('table').find('tbody tr').each(function (i, el) {
+     if (is_checked) {
+     if ($(this).is(':visible')) {
+     $(this).find('input[type="checkbox"]').prop("checked", true);
+     $(this).addClass('selected');
+     }
+     } else {
+     $(this).find('input[type="checkbox"]').prop("checked", false);
+     $(this).removeClass('selected');
+     }
+     });
+     });*/
 
 
     $(document).ready(function(){
@@ -207,11 +218,11 @@
     });
 
     function editSelectedTemplateSubscription(selected_currency,editServiceTemplateID) {
-       // alert("Called");
+        // alert("Called");
         var selected_company, data, url;
         url = baseurl + "/servicesTemplate/selectDataOnCurrency" +
                 "?selectedCurrency=" + selected_currency + "&selectedData=editSelectedTemplateSubscription&editServiceTemplateID="+editServiceTemplateID;
-         // alert("url :" + url);
+        // alert("url :" + url);
         $.post(url, function (data, status) {
             //  var res = data.split('/>');
             //   alert(data);
@@ -231,7 +242,7 @@
         //alert("url :" + url);
         $.post(url, function (data, status) {
             //  var res = data.split('/>');
-             //  alert(data);
+            //  alert(data);
 
             document.getElementById("categoryTariffIDListBody").innerHTML = "" + data;
             categoryTariffIDListBody = document.getElementById("categoryTariffIDListBody").innerHTML;
@@ -242,8 +253,8 @@
             loadSelectedCategoryTariff = true;
         }, 'html');
 
-         tabel = document.getElementById('categotyTarifftable');
-         rijen = tabel.rows.length;
+        tabel = document.getElementById('categotyTarifftable');
+        rijen = tabel.rows.length;
         rowCategoryTariffHtmlIndex = rijen;
 
 
@@ -260,36 +271,36 @@
             //  var res = data.split('/>');
             //alert(data);
             document.getElementById("ServiceId").innerHTML = "" + data;
-           // var ServiceId = $("div.hiddenRowData").find("input[name='ServiceId']").val();
-           // alert("ServiceId" + ServiceId);
+            // var ServiceId = $("div.hiddenRowData").find("input[name='ServiceId']").val();
+            // alert("ServiceId" + ServiceId);
             if (ServiceId != '') {
                 $("#add-new-service-form [name='ServiceId']").select2().select2('val', ServiceId);
 
             }else {
                 $("#add-new-service-form [name='ServiceId']").select2().select2('val', '');
             }
-           // console.log(document.getElementById("TemplateDataTabServiceId").innerHTML);
-           // alert(document.getElementById("TemplateDataTabServiceId").innerHTML);
+            // console.log(document.getElementById("TemplateDataTabServiceId").innerHTML);
+            // alert(document.getElementById("TemplateDataTabServiceId").innerHTML);
 
             // $("#serviceBasedOnCurreny").html(data);
         }, 'html');
         //if (selectData) {
-           // editServiceId = $("div.hiddenRowData").find("input[name='ServiceId']").val();
-          //  alert('editServiceId' + editServiceId);
-          //  alert(document.getElementById('ServiceId'));
-          //  document.getElementById('ServiceId').value = editServiceId;
-           // $("#add-new-service-form [name='ServiceId']").select2().select2('val', editServiceId);
-       // }
+        // editServiceId = $("div.hiddenRowData").find("input[name='ServiceId']").val();
+        //  alert('editServiceId' + editServiceId);
+        //  alert(document.getElementById('ServiceId'));
+        //  document.getElementById('ServiceId').value = editServiceId;
+        // $("#add-new-service-form [name='ServiceId']").select2().select2('val', editServiceId);
+        // }
         //
         //
         url = baseurl + "/servicesTemplate/selectDataOnCurrency?selectedCurrency=" + selected_currency + "&selectedData=outboundPlan";
         // alert("url :" + url);
         $.post(url, function (data, status) {
             // var res = data.split('/>');
-           // alert(data);
+            // alert(data);
             document.getElementById("OutboundDiscountPlanId").innerHTML = "" + data;
             //var OutboundDiscountPlanID = $("div.hiddenRowData").find("input[name='OutboundDiscountPlanID']").val();
-           // alert(OutboundDiscountPlanID);
+            // alert(OutboundDiscountPlanID);
             if (OutboundDiscountPlanID) {
                 $("#add-new-service-form [name='OutboundDiscountPlanId']").select2().select2('val', OutboundDiscountPlanID);
             }else {
@@ -318,7 +329,7 @@
         $.post(url, function (data, status) {
             // var res = data.split('/>');
             document.getElementById("OutboundRateTableId").innerHTML = "" + data;
-           // var OutboundTariffId = $("div.hiddenRowData").find("input[name='OutboundTariffId']").val();
+            // var OutboundTariffId = $("div.hiddenRowData").find("input[name='OutboundTariffId']").val();
             if (OutboundTariffId != null) {
                 $("#add-new-service-form [name='OutboundRateTableId']").select2().select2('val', OutboundTariffId);
             }else {
@@ -354,34 +365,34 @@
     });
 
     function ShowTariffOnSelectedCategory() {
-            var selected_company, data, url;
-            selected_currency = $("#serviceTemplateCurreny").val();
-            selected_didCategory = $("#DidCategoryID").val();
-            DidCategoryIndexValue = document.getElementById("DidCategoryID").selectedIndex;
-            if (selected_currency == '') {
-                selected_currency = "NAN";
-            }
-            data = {company: selected_company};
-
-            url = baseurl + "/servicesTemplate/selectDataOnCurrency" +
-                    "?selectedCurrency=" + selected_currency + "&selectedData=DidCategoryID&selected_didCategory="+selected_didCategory;
-            // alert("url :" + url);
-            $.post(url, function (data, status) {
-                //  var res = data.split('/>');
-             //   alert(data);
-                document.getElementById("DidCategoryTariffID").innerHTML = "" + data;
-                 saveDidCategoryTariffID = document.getElementById("DidCategoryTariffID").innerHTML;
-                // $("#serviceBasedOnCurreny").html(data);
-            }, 'html');
-
+        var selected_company, data, url;
+        selected_currency = $("#serviceTemplateCurreny").val();
+        selected_didCategory = $("#DidCategoryID").val();
+        DidCategoryIndexValue = document.getElementById("DidCategoryID").selectedIndex;
+        if (selected_currency == '') {
+            selected_currency = "NAN";
         }
+        data = {company: selected_company};
+
+        url = baseurl + "/servicesTemplate/selectDataOnCurrency" +
+                "?selectedCurrency=" + selected_currency + "&selectedData=DidCategoryID&selected_didCategory="+selected_didCategory;
+        // alert("url :" + url);
+        $.post(url, function (data, status) {
+            //  var res = data.split('/>');
+            //   alert(data);
+            document.getElementById("DidCategoryTariffID").innerHTML = "" + data;
+            saveDidCategoryTariffID = document.getElementById("DidCategoryTariffID").innerHTML;
+            // $("#serviceBasedOnCurreny").html(data);
+        }, 'html');
+
+    }
 
 
 
 
     function ShowSubscriptionTemplate(showTabId) {
         //style="visibility: visible" style="visibility: hidden"
-      //  alert("Called");
+        //  alert("Called");
         var ServiceID = $("#add-new-service-form [name='ServiceID']").val();
         if( typeof ServiceID != 'undefined' && ServiceID != '') {
             // alert(loadSelectedTemplateSubscription);
@@ -394,7 +405,7 @@
                 return false;
             }
         }
-         if (showTabId == "SubscriptionTab") {
+        if (showTabId == "SubscriptionTab") {
             document.getElementById("tab1").setAttribute("class", "active");
             document.getElementById("tab2").setAttribute("class", "");
 
@@ -405,7 +416,7 @@
             saveTemplateDataOutboundDiscountPlanId = $("#OutboundDiscountPlanId").val();
             saveTemplateDataInboundDiscountPlanId = $("#InboundDiscountPlanId").val();
             saveTemplateDataOutboundRateTableId = $("#OutboundRateTableId").val();
-           // alert("DidCategoryIndexValue :" + DidCategoryIndexValue);
+            // alert("DidCategoryIndexValue :" + DidCategoryIndexValue);
 //            if ($("#DidCategoryID option:selected") != null) {
 //                DidCategoryIndexValue = $("#DidCategoryID option:selected");
 //                alert(DidCategoryIndexValue.selectedIndex);
@@ -449,11 +460,11 @@
 
 
             //alert(DidCategoryIndexValue);DidCategoryIndexValue
-          //  alert("InboundTariffTab :" + DidCategoryIndexValue);
+            //  alert("InboundTariffTab :" + DidCategoryIndexValue);
             if (DidCategoryIndexValue != -1) {
-               // document.getElementById("DidCategoryID").selectedIndex = "1";
-               // document.getElementById("DidCategoryID").options[2].selected=true;
-               // document.getElementById("DidCategoryID").options.namedItem("AAA").selected=true;
+                // document.getElementById("DidCategoryID").selectedIndex = "1";
+                // document.getElementById("DidCategoryID").options[2].selected=true;
+                // document.getElementById("DidCategoryID").options.namedItem("AAA").selected=true;
                 var id = "didCategoty" + DidCategoryIndexValue;
                 document.getElementById(id).setAttribute("selected",true);
 
@@ -502,7 +513,7 @@
     }
     function RemoveSubscriptionRowInTable(rowID) {
         var removeValue = rowID.substr("SubscriptionRowID".length, rowID.length) + ",";
-       // alert(removeValue);
+        // alert(removeValue);
         var selectedSubscription = document.getElementById("selectedSubscription").value;
         var removalueIndex = selectedSubscription.indexOf(removeValue);
         var firstValue = selectedSubscription.substr(0, removalueIndex);
@@ -512,14 +523,14 @@
         //alert("selectedSubscription in remove:" + selectedSubscription);
         document.getElementById("selectedSubscription").value = selectedSubscription;
         //alert(firstValue + lastValue);
-      //  alert('Called' + rowID);
+        //  alert('Called' + rowID);
 //        rowID = '#' + rowID;
 //        alert($(rowID));
 //        $(rowID).closest("tr").remove();
         //$(rowID).remove();
         //alert($(rowID));//servicetable
-       // alert(document.getElementById("SubscriptionIDListBody"));
-       // document.getElementById("SubscriptionIDListBody").deleteRow(1);
+        // alert(document.getElementById("SubscriptionIDListBody"));
+        // document.getElementById("SubscriptionIDListBody").deleteRow(1);
         document.getElementById(rowID).innerHTML = "";
         document.getElementById(rowID).setAttribute("id", "");
         //alert(rowIndex);
@@ -551,7 +562,7 @@
             var colValue = DidCategoryID;
             //
             var selectedselectedcategotyTariff = document.getElementById("selectedcategotyTariff").value;
-           // alert("selectedselectedcategotyTariff in add:" + selectedselectedcategotyTariff);
+            // alert("selectedselectedcategotyTariff in add:" + selectedselectedcategotyTariff);
             if (selectedselectedcategotyTariff.indexOf(CategoryTariffValue) == -1) {
                 var rowCategoryTariffHtml =
                         '<tr class="draggable" + ' +
@@ -714,16 +725,116 @@
 
                                         </div>
                                     </div>
-
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <table width="100%">
+                                                <tr>
+                                                    <td width="15%"><label for="field-14" class="control-label">Contract Duration</label></td>
+                                                    <td width="30%"><input type="number" min="0" name="ContractDuration" class="form-control" id="field-14" placeholder="(months)"></td>
+                                                    <td width="5%">&nbsp;</td>
+                                                    <td width="15%"><label for="field-15" class="control-label">Automatic Renewal</label></td>
+                                                    <td width="30%">
+                                                        <div class="form-group">
+                                                            <div class="make-switch switch-small">
+                                                                {{Form::checkbox('AutomaticRenewal', '1', true, ['id' => 'field-15'])}}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label for="field-18" class="control-label">Cancellation Charges</label>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="panel-group cancelRadio" id="accordion">
+                                                    <div class="panel panel-default">
+                                                        <label class="panel-heading" for='r11'>
+                                                            <i></i>
+                                                            <input type='radio' id='r11' name='CancellationCharges' checked value='1' required />
+                                                            Fixed Fee
+                                                        </label>
+                                                        <div id="collapseOne" class="panel-collapse collapse in">
+                                                            <div class="panel-body">
+                                                                <div class="form-group">
+                                                                    <div class="panel-options">
+                                                                        <label for="fixedfee" class="control-label">Fee</label>
+                                                                        <div>
+                                                                            <input type="text" class="form-control" id="fixedfee" name="fee">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="panel-group cancelRadio" id="accordion">
+                                                    <div class="panel panel-default">
+                                                        <label class="panel-heading" for='r12'>
+                                                            <input type='radio' id='r12' name='CancellationCharges' value='2' required />
+                                                            Remaining Term Of Contract
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="panel-group cancelRadio" id="accordion">
+                                                    <div class="panel panel-default">
+                                                        <label class="panel-heading" for='r13'>
+                                                            <input type='radio' id='r13' name='CancellationCharges' value='3' required />
+                                                            Remaining Term Of Contract (x%)
+                                                        </label>
+                                                        <div id="collapseThree" class="panel-collapse collapse in">
+                                                            <div class="panel-body">
+                                                                <div class="form-group">
+                                                                    <div class="panel-options">
+                                                                        <label for="percentFee" class="control-label">Percentage</label>
+                                                                        <div>
+                                                                            <input type="text" class="form-control" id="percentFee" name="fee">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="panel-group cancelRadio" id="accordion">
+                                                    <div class="panel panel-default">
+                                                        <label for='r14' class="panel-heading">
+                                                            <input type='radio' id='r14' name='CancellationCharges' value='4' required />
+                                                            Remaining Term Of Contract
+                                                        </label>
+                                                        <div id="collapseFour" class="panel-collapse collapse in">
+                                                            <div class="panel-body">
+                                                                <div class="form-group">
+                                                                    <div class="panel-options">
+                                                                        <label for="fixedFeeTerm" class="control-label">Fee</label>
+                                                                        <div>
+                                                                            <input type="text" class="form-control" id="fixedFeeTerm" name="fee">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="clearfix"></div>
                                     <div id="ajax_dynamicfield_html" class="margin-top"></div>
                                 </div>
                             </div>
                         </div>
-
                         <div>
-
                             <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
-
                                 <li id="tab1">
                                     <a  href="javascript:void(0);" onclick="ShowSubscriptionTemplate('SubscriptionTab');" >
                                         Subscription
@@ -734,132 +845,146 @@
                                         Inbound Tariff
                                     </a>
                                 </li>
-
                             </ul>
                             <br/>
                         </div>
 
+                        <div id="ActiveTabContent">
+                        </div>
 
-
-                            <div id="ActiveTabContent">
-                            </div>
-
-
-
-
-                    <div id="SubscriptionTab" style="visibility: hidden">
-                        <div id="ContentSubscriptionTab" class="modal-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <br/>
-                                    <table id="servicetableSubBox" class="table table-bordered datatable">
-                                        <tr>
-                                            <td width="80%">
-                                                <select id="templateSubscriptionList" name="templateSubscriptionList" class="form-control">
-                                                </select>
-                                            </td>
-                                            <td width="20%">
-                                                <button onclick="AddSubscriptionInTable();" type="button" id="Service-update"  class="btn btn-primary btn-sm" data-loading-text="Loading...">
-                                                    <i></i>
-                                                    +
-                                                </button>
-                                            </td>
-                                        </tr>
-                                     </table>
-
-                                </div>
-                                <div class="col-md-12">
-                                    <div class="form-group"><input type="text" id="searchFilter" name="searchFilter" class="form-control" id="field-5" placeholder="Search">
-                                        <table id="servicetable" class="table table-bordered datatable">
-
-                                            <thead>
+                        <div id="SubscriptionTab" style="visibility: hidden; display: none">
+                            <div id="ContentSubscriptionTab" class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <br/>
+                                        <table id="servicetableSubBox" class="table table-bordered datatable">
                                             <tr>
-                                                <td width="70%">Subscription</td>
-                                                <td width="20%">Actions</td>
-                                                <input type="hidden" id="selectedSubscription" name="selectedSubscription" value=""/>
+                                                <td width="80%">
+                                                    <select id="templateSubscriptionList" name="templateSubscriptionList" class="form-control">
+                                                    </select>
+                                                </td>
+                                                <td width="20%">
+                                                    <button onclick="AddSubscriptionInTable();" type="button" id="Service-update"  class="btn btn-primary btn-sm" data-loading-text="Loading...">
+                                                        <i></i>
+                                                        +
+                                                    </button>
+                                                </td>
                                             </tr>
-                                            </thead>
-                                            <tbody id="SubscriptionIDListBody">
-
-                                                     <!-- //subscription id list -->
-
-                                            </tbody>
                                         </table>
+
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group"><input type="text" id="searchFilter" name="searchFilter" class="form-control" id="field-5" placeholder="Search">
+                                            <table id="servicetable" class="table table-bordered datatable">
+
+                                                <thead>
+                                                <tr>
+                                                    <td width="70%">Subscription</td>
+                                                    <td width="20%">Actions</td>
+                                                    <input type="hidden" id="selectedSubscription" name="selectedSubscription" value=""/>
+                                                </tr>
+                                                </thead>
+                                                <tbody id="SubscriptionIDListBody">
+
+                                                <!-- //subscription id list -->
+
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
+
                             </div>
-
                         </div>
-                    </div>
 
 
-                    <div id="InboundTariffTab" style="visibility: hidden;display: none">
-                        <div id="ContentInboundTariffTab" class="modal-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <br/>
-                                    <table id="servicetableSubBox" class="table table-bordered datatable">
-                                        <tr>
-                                            <td width="10%"><label for="field-5" class="control-label">DIDCategory</label></td>
-                                            <td width="30%">
-                                                <select onchange="ShowTariffOnSelectedCategory();" id="DidCategoryID" name="DidCategoryID" class="form-control">
-                                                    <?php
-                                                    $index1 = 0;?>
-                                                    @foreach(DIDCategory::getCategoryDropdownIDList() as $DIDCategoryID  => $CategoryName)
-                                                        <option id="didCategoty{{$index1++}}" value="{{$DIDCategoryID}}">{{$CategoryName}}</option>
-                                                    @endforeach
+                        <div id="InboundTariffTab" style="visibility: hidden;display: none">
+                            <div id="ContentInboundTariffTab" class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <br/>
+                                        <table id="servicetableSubBox" class="table table-bordered datatable">
+                                            <tr>
+                                                <td width="10%"><label for="field-5" class="control-label">DIDCategory</label></td>
+                                                <td width="30%">
+                                                    <select onchange="ShowTariffOnSelectedCategory();" id="DidCategoryID" name="DidCategoryID" class="form-control">
+                                                        <?php
+                                                        $index1 = 0;?>
+                                                        @foreach(DIDCategory::getCategoryDropdownIDList() as $DIDCategoryID  => $CategoryName)
+                                                            <option id="didCategoty{{$index1++}}" value="{{$DIDCategoryID}}">{{$CategoryName}}</option>
+                                                        @endforeach
 
-                                                </select>
-                                            </td>
-                                            <td width="10%"><label for="field-5" class="control-label">Tariff</label></td>
-                                            <td width="30%">
-                                                <select id="DidCategoryTariffID" name="DidCategoryTariffID" class="form-control">
-                                                </select>
-                                            </td>
-                                            <td width="20%">
-                                                <button onclick="AddCategoryTariffInTable();" type="button" id="Service-update"  class="btn btn-primary btn-sm" data-loading-text="Loading...">
-                                                    <i></i>
-                                                    +
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </table>
+                                                    </select>
+                                                </td>
+                                                <td width="10%"><label for="field-5" class="control-label">Tariff</label></td>
+                                                <td width="30%">
+                                                    <select id="DidCategoryTariffID" name="DidCategoryTariffID" class="form-control">
+                                                    </select>
+                                                </td>
+                                                <td width="20%">
+                                                    <button onclick="AddCategoryTariffInTable();" type="button" id="Service-update"  class="btn btn-primary btn-sm" data-loading-text="Loading...">
+                                                        <i></i>
+                                                        +
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </table>
 
                                         <div>
-                                        <table id="categotyTarifftable" class="table table-bordered datatable">
-                                            <thead>
+                                            <table id="categotyTarifftable" class="table table-bordered datatable">
+                                                <thead>
 
-                                            <tr>
+                                                <tr>
 
-                                                <td width="35%">Category</td>
-                                                <td width="35%">Tariff</td>
-                                                <td width="20%">Actions</td>
-                                                <input type="hidden" id="selectedcategotyTariff" name="selectedcategotyTariff" value=""/>
-                                            </tr>
-                                            </thead>
-                                            <tbody id="categoryTariffIDListBody">
+                                                    <td width="35%">Category</td>
+                                                    <td width="35%">Tariff</td>
+                                                    <td width="20%">Actions</td>
+                                                    <input type="hidden" id="selectedcategotyTariff" name="selectedcategotyTariff" value=""/>
+                                                </tr>
+                                                </thead>
+                                                <tbody id="categoryTariffIDListBody">
 
-                                            </tbody>
-                                        </table>
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-
                         </div>
-                    </div>
 
-                    <div class="modal-footer" style="vertical-align: top">
-                        <button type="submit" id="Service-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                            <i class="entypo-floppy"></i>
-                            Save
-                        </button>
-                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                            <i class="entypo-cancel"></i>
-                            Close
-                        </button>
+                        <div class="modal-footer" style="vertical-align: top">
+                            <button type="submit" id="Service-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                                <i class="entypo-floppy"></i>
+                                Save
+                            </button>
+                            <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                                <i class="entypo-cancel"></i>
+                                Close
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
+    <script>
+        function hideCancelCollapse(){
+            $('.cancelRadio .panel-collapse').removeClass('in');
+            $('.cancelRadio .panel-heading').removeClass('active');
+            var selected = $('.cancelRadio input[type="radio"]:checked');
+            selected.parent()
+                    .addClass('active')
+                    .parent()
+                    .parent()
+                    .find('.panel-collapse')
+                    .addClass('in');
+        }
+        $(function(){
+            hideCancelCollapse()
+        });
+        $('input[name="CancellationCharges"]').click(function(){
+            hideCancelCollapse()
+        });
+    </script>
 @stop

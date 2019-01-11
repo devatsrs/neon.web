@@ -26,6 +26,10 @@ jQuery(document).ready(function ($) {
                         "value": ServiceID
                     },
                     {
+                        "name": "AccountServiceID",
+                        "value": AccountServiceID
+                    },
+                    {
                         "name": "CLIName",
                         "value": $searchcli.CLIName
                     }
@@ -39,6 +43,10 @@ jQuery(document).ready(function ($) {
                     {
                         "name": "ServiceID",
                         "value": ServiceID
+                    },
+                    {
+                        "name": "AccountServiceID",
+                        "value": AccountServiceID
                     },
                     {
                         "name": "CLIName",
@@ -165,7 +173,7 @@ jQuery(document).ready(function ($) {
         var AuthRule = $('#clitable-form').find('input[name=AuthRule]').val();
         var AccountID = $('#clitable-form').find('input[name=AccountID]').val();
         if (CLIRateTableIDs.length) {
-            delete_cli(clitable_delete_url.replace("{id}", 0),'CLIRateTableIDs=' + CLIRateTableIDs.join(",") + '&criteria=' + criteria+'&AuthRule='+AuthRule+'&AccountID='+AccountID+'&ServiceID=' + ServiceID)
+            delete_cli(clitable_delete_url.replace("{id}", 0),'CLIRateTableIDs=' + CLIRateTableIDs.join(",") + '&criteria=' + criteria+'&AuthRule='+AuthRule+'&AccountID='+AccountID+'&ServiceID=' + ServiceID+'&AccountServiceID='+AccountServiceID)
         }
     });
     $("#changeSelectedCLI").click(function (ev) {
@@ -205,7 +213,7 @@ jQuery(document).ready(function ($) {
             }
         });
         var CLIRateTableID = $('#clitable-form').find('input[name=CLIRateTableID]').val();
-        delete_cli(clitable_delete_url.replace("{id}", CLIRateTableID),'CLIRateTableIDs=' + CLIRateTableIDs.join(",") + '&criteria=' + criteria+'&dates=' + dates+'&ServiceID=' + ServiceID)
+        delete_cli(clitable_delete_url.replace("{id}", CLIRateTableID),'CLIRateTableIDs=' + CLIRateTableIDs.join(",") + '&criteria=' + criteria+'&dates=' + dates+'&ServiceID=' + ServiceID+'&AccountServiceID='+AccountServiceID)
 
     });
 });

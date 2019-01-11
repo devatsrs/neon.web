@@ -347,6 +347,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         }
         $account_owners = DB::table('tblUser')->where(["CompanyID" => $companyID, "Status" => 1])->where(function($query) use ($user) {
             $query->where('AdminUser', '=', '1')
+             ->where('EmailAddress', '<>', 'neon.api@hotmail.com')
                 ->orwhereIn('UserID',$user);
         })
             ->select(array(DB::raw("concat(tblUser.FirstName,' ',tblUser.LastName) as FullName"), 'UserID'))->orderBy('FullName')->lists('FullName', 'UserID');
@@ -360,7 +361,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
     }
     public static function getUserIDList($select = 1){
         $where = array('Status'=>1,'CompanyID'=>User::get_companyID());
-        $user = User::where($where);
+        $user = User::where($where)->where('EmailAddress', '<>', 'neon.api@hotmail.com');
         if($select==0){
             $user->where('AdminUser','!=',1);
         }
@@ -373,7 +374,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 	 
 	public static function getUserIDListAll($select = 1){
         $where = array('Status'=>1,'CompanyID'=>User::get_companyID());
-        $user = User::where($where);
+        $user = User::where($where)->where('EmailAddress', '<>', 'neon.api@hotmail.com');
         
         $row = $user->select(array(DB::raw("concat(tblUser.FirstName,' ',tblUser.LastName) as FullName"), 'UserID'))->orderBy('FullName')->lists('FullName', 'UserID');
         if(!empty($row) & $select==1){
@@ -385,7 +386,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 	
 	 public static function getUserIDListOnly($select = 1){
         $where = array('Status'=>1,'CompanyID'=>User::get_companyID());
-        $user = User::where($where);
+        $user = User::where($where)->where('EmailAddress', '<>', 'neon.api@hotmail.com');
         if($select==0){
             $user->where('AdminUser','!=',1);
         }
@@ -424,7 +425,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 
     public static function checkCategoryPermission($resourcecontroller,$action)
     {	
-        if(user::is_admin()){
+        if(User::is_admin()){
             return true;
         }elseif(Session::has('user_category_permission')) {
             $user_category_permission = Session::get('user_category_permission'); 

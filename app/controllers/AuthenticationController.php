@@ -17,9 +17,11 @@ class AuthenticationController extends \BaseController
         if($pos){
             $pos = explode('-',$id);
             $AccountID = $pos[0];
-            $ServiceID = $pos[1];
+            $AccountServiceID = $pos[1];
+            $ServiceID = AccountService::where(['AccountServiceID'=>$AccountServiceID])->pluck('ServiceID');
         }else{
             $AccountID = $id;
+            $AccountServiceID = 0;
             $ServiceID = 0;
         }
         $account = Account::find($AccountID);
@@ -27,14 +29,14 @@ class AuthenticationController extends \BaseController
         $vendorip=array();
         $allcustomerip=array();
         $allvendorip=array();
-        $AccountAuthenticate = AccountAuthenticate::where(array('AccountID' => $AccountID, 'ServiceID' => $ServiceID))->first();
+        $AccountAuthenticate = AccountAuthenticate::where(array('AccountID' => $AccountID, 'AccountServiceID' => $AccountServiceID))->first();
 
         /* Service IP Changes Code Start */
         if(!empty($AccountAuthenticate->CustomerAuthRule) && $AccountAuthenticate->CustomerAuthRule == 'IP'){
-            if($ServiceID==0){
+            if($AccountServiceID==0){
                 $AllAuthenticates = AccountAuthenticate::where(array('AccountID' => $AccountID,'CustomerAuthRule'=>'IP'))->get();
             }else{
-                $AllAuthenticates = AccountAuthenticate::where(array('ServiceID' => $ServiceID,'AccountID' => $AccountID,'CustomerAuthRule'=>'IP'))->get();
+                $AllAuthenticates = AccountAuthenticate::where(array('AccountServiceID' => $AccountServiceID,'AccountID' => $AccountID,'CustomerAuthRule'=>'IP'))->get();
             }
 
             if(count($AllAuthenticates)>0){
@@ -54,10 +56,10 @@ class AuthenticationController extends \BaseController
 
         }
         if(!empty($AccountAuthenticate->VendorAuthRule) && $AccountAuthenticate->VendorAuthRule == 'IP'){
-            if($ServiceID==0){
+            if($AccountServiceID==0){
                 $AllAuthenticates = AccountAuthenticate::where(array('AccountID' => $AccountID,'VendorAuthRule'=>'IP'))->get();
             }else{
-                $AllAuthenticates = AccountAuthenticate::where(array('ServiceID' => $ServiceID,'AccountID' => $AccountID,'VendorAuthRule'=>'IP'))->get();
+                $AllAuthenticates = AccountAuthenticate::where(array('AccountServiceID' => $AccountServiceID,'AccountID' => $AccountID,'VendorAuthRule'=>'IP'))->get();
             }
             if(count($AllAuthenticates)>0){
                 foreach ($AllAuthenticates as $AllAuthenticate){					
@@ -84,17 +86,22 @@ class AuthenticationController extends \BaseController
         }*/
         $rate_table = RateTable::getRateTableList(array('CurrencyID'=>$account->CurrencyId));
         $AuthRule = 'CLI';
-        return View::make('accounts.authenticate', compact('account','AccountAuthenticate','Clitables','rate_table','AuthRule','ServiceID','allcustomerip','allvendorip'));
+        return View::make('accounts.authenticate', compact('account','AccountAuthenticate','Clitables','rate_table','AuthRule','ServiceID','allcustomerip','allvendorip','AccountServiceID'));
     }
     public function authenticate_store(){
         $data = Input::all();
-        $data['CompanyID'] = $CompanyID = User::get_companyID();
+        $data['CompanyID']=Account::getCompanyIDByAccountID($data['AccountID']);
         if(!empty($data['ServiceID'])){
             $ServiceID = $data['ServiceID'];
         }else{
             $ServiceID = 0;
         }
-        $rule = AccountAuthenticate::where(array('AccountID'=>$data['AccountID'],'ServiceID'=>$ServiceID))->first();
+        if(!empty($data['AccountServiceID'])){
+            $AccountServiceID = $data['AccountServiceID'];
+        }else{
+            $AccountServiceID = 0;
+        }
+        $rule = AccountAuthenticate::where(array('AccountID'=>$data['AccountID'],'ServiceID'=>$ServiceID,'AccountServiceID'=>$AccountServiceID))->first();
         if(isset($data['VendorAuthRuleText'])) {
             unset($data['VendorAuthRuleText']);
         }
@@ -148,8 +155,8 @@ class AuthenticationController extends \BaseController
         unset($data['customerclitable_length']);
         unset($data['CLIName']);
         unset($data['table-clitable_length']);
-        if(AccountAuthenticate::where(array('AccountID'=>$data['AccountID'],'ServiceID'=>$ServiceID))->count()){
-            AccountAuthenticate::where(array('AccountID'=>$data['AccountID'],'ServiceID'=>$ServiceID))->update($data);
+        if(AccountAuthenticate::where(array('AccountID'=>$data['AccountID'],'ServiceID'=>$ServiceID,'AccountServiceID'=>$AccountServiceID))->count()){
+            AccountAuthenticate::where(array('AccountID'=>$data['AccountID'],'ServiceID'=>$ServiceID,'AccountServiceID'=>$AccountServiceID))->update($data);
             return Response::json(array("status" => "success", "message" => "Account Successfully Updated"));
         }else{
             AccountAuthenticate::insert($data);
@@ -161,11 +168,16 @@ class AuthenticationController extends \BaseController
     public function addipclis($id){
         $data = Input::all();		
         $data['AccountID'] = $id;
-        $data['CompanyID'] = $CompanyID = User::get_companyID();
+        $data['CompanyID'] = $CompanyID = Account::getCompanyIDByAccountID($id);
         if(!empty($data['ServiceID'])){
             $ServiceID = $data['ServiceID'];
         }else{
             $ServiceID = 0;
+        }
+        if(!empty($data['AccountServiceID'])){
+            $AccountServiceID = $data['AccountServiceID'];
+        }else{
+            $AccountServiceID = 0;
         }
         /*$message = '';
         $isCustomerOrVendor = $data['isCustomerOrVendor']==1?'Customer':'Vendor';*/
@@ -184,14 +196,14 @@ class AuthenticationController extends \BaseController
 		$type = $data['type']==1?'CLI':'IP';
 		$isCustomerOrVendor = $data['isCustomerOrVendor']==1?'Customer':'Vendor';
 		
-        $object = AccountAuthenticate::where(['CompanyID'=>$data['CompanyID'],'AccountID'=>$data['AccountID'],'ServiceID'=>$ServiceID])->first();
+        $object = AccountAuthenticate::where(['CompanyID'=>$data['CompanyID'],'AccountID'=>$data['AccountID'],'ServiceID'=>$ServiceID,'AccountServiceID'=>$AccountServiceID])->first();
         /* Service IP Changes Code Start */
 		if($type=='IP'){
 			if($isCustomerOrVendor=='Customer'){
-                if($ServiceID==0){
+                if($AccountServiceID==0){
                     $AllAuthenticates = AccountAuthenticate::where(array('AccountID' => $data['AccountID'],'CustomerAuthRule'=>'IP'))->get();
                 }else{
-                    $AllAuthenticates = AccountAuthenticate::where(array('ServiceID' => $ServiceID,'AccountID' => $data['AccountID'],'CustomerAuthRule'=>'IP'))->get();
+                    $AllAuthenticates = AccountAuthenticate::where(array('ServiceID' => $ServiceID,'AccountServiceID'=>$AccountServiceID,'AccountID' => $data['AccountID'],'CustomerAuthRule'=>'IP'))->get();
                 }
 				
 				if(count($AllAuthenticates)>0){
@@ -211,10 +223,10 @@ class AuthenticationController extends \BaseController
 				return Response::json(array("status" => "success","object"=>$object ,"ipobject"=>$allcustomerip, "message" => $status['message']));	
 			}			
 			if($isCustomerOrVendor=='Vendor'){
-                if($ServiceID==0) {
+                if($AccountServiceID==0) {
                     $AllAuthenticates = AccountAuthenticate::where(array('AccountID' => $data['AccountID'], 'VendorAuthRule' => 'IP'))->get();
                 }else{
-                    $AllAuthenticates = AccountAuthenticate::where(array('ServiceID' =>$ServiceID ,'AccountID' => $data['AccountID'], 'VendorAuthRule' => 'IP'))->get();
+                    $AllAuthenticates = AccountAuthenticate::where(array('ServiceID' =>$ServiceID ,'AccountServiceID'=>$AccountServiceID,'AccountID' => $data['AccountID'], 'VendorAuthRule' => 'IP'))->get();
                 }
 				
 				if(count($AllAuthenticates)>0){
@@ -256,7 +268,7 @@ class AuthenticationController extends \BaseController
 
     public function deleteips($id){
         $data = Input::all();
-        $companyID = User::get_companyID();
+        $companyID = Account::getCompanyIDByAccountID($id);
         $Date = '';
         $Confirm = 0;
         if(isset($data['dates'])){
@@ -268,10 +280,15 @@ class AuthenticationController extends \BaseController
         }else{
             $ServiceID = 0;
         }
+        if(!empty($data['AccountServiceID'])){
+            $AccountServiceID = $data['AccountServiceID'];
+        }else{
+            $AccountServiceID = 0;
+        }
         $data['AccountID'] = $id;
-        $accountAuthenticate = AccountAuthenticate::where(array('CompanyID'=>$companyID,'AccountID'=>$data['AccountID'],'ServiceID'=>$ServiceID))->first();
+        $accountAuthenticate = AccountAuthenticate::where(array('CompanyID'=>$companyID,'AccountID'=>$data['AccountID'],'ServiceID'=>$ServiceID,'AccountServiceID'=>$AccountServiceID))->first();
         $isCustomerOrVendor = $data['isCustomerOrVendor']==1?'Customer':'Vendor';
-        $query = "call prc_unsetCDRUsageAccount ('" . $companyID . "','" . $data['ipclis'] . "','".$Date."',".$Confirm.",".$ServiceID.")";
+        $query = "call prc_unsetCDRUsageAccount ('" . $companyID . "','" . $data['ipclis'] . "','".$Date."',".$Confirm.",".$ServiceID.",".$AccountServiceID.")";
         $postIps = explode(',',$data['ipclis']);
         unset($data['ipclis']);
         unset($data['isCustomerOrVendor']);
@@ -287,7 +304,7 @@ class AuthenticationController extends \BaseController
             }
 
             /* Service IP Changes Code Start */
-            if($ServiceID==0){
+            if($AccountServiceID==0){
                 if($isCustomerOrVendor=='Customer') {
                     if (count($postIps) > 0) {
                         foreach ($postIps as $ips) {
@@ -300,7 +317,7 @@ class AuthenticationController extends \BaseController
                                 $updateIPs = explode(',', $ips);
                                 $ips = implode(',',array_diff($dbIPs, $updateIPs));
                                 $data['CustomerAuthValue'] = ltrim($ips,',');
-                                AccountAuthenticate::where(array('AccountID'=>$data['AccountID'],'ServiceID'=>$accounts->ServiceID))->update($data);
+                                AccountAuthenticate::where(array('AccountID'=>$data['AccountID'],'AccountServiceID'=>$accounts->AccountServiceID))->update($data);
                             }
 
                         }
@@ -319,7 +336,7 @@ class AuthenticationController extends \BaseController
                                 $updateIPs = explode(',', $ips);
                                 $ips = implode(',',array_diff($dbIPs, $updateIPs));
                                 $data['VendorAuthValue'] = ltrim($ips,',');
-                                AccountAuthenticate::where(array('AccountID'=>$data['AccountID'],'ServiceID'=>$accounts->ServiceID))->update($data);
+                                AccountAuthenticate::where(array('AccountID'=>$data['AccountID'],'AccountServiceID'=>$accounts->AccountServiceID))->update($data);
                             }
 
                         }
@@ -339,14 +356,14 @@ class AuthenticationController extends \BaseController
                     $ips = implode(',',array_diff($dbIPs, $postIps));
                     $data['VendorAuthValue'] = ltrim($ips,',');
                 }
-                AccountAuthenticate::where(array('AccountID'=>$data['AccountID'],'ServiceID'=>$ServiceID))->update($data);
+                AccountAuthenticate::where(array('AccountID'=>$data['AccountID'],'ServiceID'=>$ServiceID,'AccountServiceID'=>$AccountServiceID))->update($data);
                 //$object = AccountAuthenticate::where(array('AccountID'=>$data['AccountID'],'ServiceID'=>$ServiceID))->first();
                 //return Response::json(array("status" => "success","ipclis"=> explode(',',$ips),"object"=>$object,"message" => "Account Successfully Updated"));
 
             }
 
             // starts add audit log
-            $accountAuthenticate = AccountAuthenticate::where(['CompanyID'=>$companyID,'AccountID'=>$data['AccountID'],'ServiceID'=>$ServiceID]);
+            $accountAuthenticate = AccountAuthenticate::where(['CompanyID'=>$companyID,'AccountID'=>$data['AccountID'],'ServiceID'=>$ServiceID,'AccountServiceID'=>$AccountServiceID]);
             if($accountAuthenticate->count() > 0) {
                 $accountAuthenticate = $accountAuthenticate->first();
                 AccountAuthenticate::addAuditLog($accountAuthenticate,$oldAuthValues);
@@ -360,10 +377,10 @@ class AuthenticationController extends \BaseController
 
             /*return response start*/
             if($isCustomerOrVendor=='Customer'){
-                if($ServiceID==0){
+                if($AccountServiceID==0){
                     $AllAuthenticates = AccountAuthenticate::where(array('AccountID' => $data['AccountID'],'CustomerAuthRule'=>'IP'))->get();
                 }else{
-                    $AllAuthenticates = AccountAuthenticate::where(array('ServiceID' => $ServiceID,'AccountID' => $data['AccountID'],'CustomerAuthRule'=>'IP'))->get();
+                    $AllAuthenticates = AccountAuthenticate::where(array('ServiceID' => $ServiceID,'AccountServiceID'=>$AccountServiceID,'AccountID' => $data['AccountID'],'CustomerAuthRule'=>'IP'))->get();
                 }
 
                 if(count($AllAuthenticates)>0){
@@ -384,10 +401,10 @@ class AuthenticationController extends \BaseController
             }
 
             if($isCustomerOrVendor=='Vendor'){
-                if($ServiceID==0) {
+                if($AccountServiceID==0) {
                     $AllAuthenticates = AccountAuthenticate::where(array('AccountID' => $data['AccountID'], 'VendorAuthRule' => 'IP'))->get();
                 }else{
-                    $AllAuthenticates = AccountAuthenticate::where(array('ServiceID' =>$ServiceID ,'AccountID' => $data['AccountID'], 'VendorAuthRule' => 'IP'))->get();
+                    $AllAuthenticates = AccountAuthenticate::where(array('ServiceID' =>$ServiceID ,'AccountServiceID'=>$AccountServiceID,'AccountID' => $data['AccountID'], 'VendorAuthRule' => 'IP'))->get();
                 }
 
                 if(count($AllAuthenticates)>0){
@@ -416,7 +433,8 @@ class AuthenticationController extends \BaseController
 
     public function deleteclis($id){
         $data = Input::all();
-        $companyID = User::get_companyID();
+        $companyID = Account::getCompanyIDByAccountID($id);
+
         $Date = '';
         $Confirm = 0;
         if(isset($data['dates'])){
@@ -428,10 +446,15 @@ class AuthenticationController extends \BaseController
         }else{
             $ServiceID = 0;
         }
+        if(!empty($data['AccountServiceID'])){
+            $AccountServiceID = $data['AccountServiceID'];
+        }else{
+            $AccountServiceID = 0;
+        }
         $data['AccountID'] = $id;
-        $accountAuthenticate = AccountAuthenticate::where(array('AccountID'=>$data['AccountID'],'ServiceID'=>$ServiceID))->first();
+        $accountAuthenticate = AccountAuthenticate::where(array('AccountID'=>$data['AccountID'],'ServiceID'=>$ServiceID,'AccountServiceID'=>$AccountServiceID))->first();
         $isCustomerOrVendor = $data['isCustomerOrVendor']==1?'Customer':'Vendor';
-        $query = "call prc_unsetCDRUsageAccount ('" . $companyID . "','" . $data['ipclis'] . "','".$Date."',".$Confirm.",".$ServiceID.")";
+        $query = "call prc_unsetCDRUsageAccount ('" . $companyID . "','" . $data['ipclis'] . "','".$Date."',".$Confirm.",".$ServiceID.",".$AccountServiceID.")";
         $postClis = explode(',',$data['ipclis']);
         unset($data['ipclis']);
         unset($data['isCustomerOrVendor']);
@@ -452,8 +475,8 @@ class AuthenticationController extends \BaseController
                 $clis = implode(',',array_diff($dbCLIs, $postClis));
                 $data['VendorAuthValue'] = ltrim($clis,',');
             }
-            AccountAuthenticate::where(array('AccountID'=>$data['AccountID'],'ServiceID'=>$ServiceID))->update($data);
-            $object = AccountAuthenticate::where(array('AccountID'=>$data['AccountID'],'ServiceID'=>$ServiceID))->first();
+            AccountAuthenticate::where(array('AccountID'=>$data['AccountID'],'AccountServiceID'=>$AccountServiceID))->update($data);
+            $object = AccountAuthenticate::where(array('AccountID'=>$data['AccountID'],'AccountServiceID'=>$AccountServiceID))->first();
             return Response::json(array("status" => "success","ipclis"=> explode(',',$clis),"object"=>$object,"message" => "Account Successfully Updated"));
         }else{
             return Response::json(array("status" => "error","message" => "No Cli exist."));

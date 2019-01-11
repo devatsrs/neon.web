@@ -24,7 +24,7 @@
 <p style="text-align: right;">
     @if( User::checkCategoryPermission('AuthenticationRule','View'))
         @if($account->IsCustomer==1 || $account->IsVendor==1)
-            <a href="{{URL::to('accounts/authenticate/'.$account->AccountID.'-'.$ServiceID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
+            <a href="{{URL::to('accounts/authenticate/'.$account->AccountID.'-'.$AccountService->AccountServiceID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
                 <i class="entypo-lock"></i>
                 Authentication Rule
             </a>
@@ -111,7 +111,169 @@
                 </div>
             </div>
             @endif
-        
+            <div class="panel panel-primary auto-payment-hide" data-collapsed="0">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        Contract
+                    </div>
+                    <div class="panel-options">
+                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                    </div>
+                </div>
+
+
+                <div class="panel-body payment-section">
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">Contract Start Date</label>
+                        <div class="col-md-4">
+                            <input type="text" data-date-format="yyyy-mm-dd" class="form-control datepicker" name="StartDate">
+                        </div>
+
+                        <label class="col-md-2 control-label">Contract End Date</label>
+                        <div class="col-md-4">
+                            <input type="text" data-date-format="yyyy-mm-dd" class="form-control datepicker" name="EndDate">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="panel-options">
+                            <label class="col-md-2 control-label">Duration(months)</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" name="Duration">
+                            </div>
+                        </div>
+                        <label class="col-md-2 control-label">Automatic Renewal</label>
+                        <div class="col-md-4">
+                            <div class="panel-options">
+                                <div class="make-switch switch-small">
+                                    <input type="checkbox"  name="AutoRenewal" value="1">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="panel-group cancelRadio" id="accordion">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading" style="background-color:white;">
+                                                <label for='r11'>
+                                                    <i></i>
+                                                    <input type='radio' id='r11' name='ContractTerm' value='1' required />
+                                                    Fixed Fee
+                                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"></a>
+                                                </label>
+                                            </div>
+                                            <div id="collapseOne" class="panel-collapse collapse in">
+                                                <div class="panel-body">
+                                                    <div class="form-group">
+                                                        <div class="panel-options">
+                                                            <div class="col-md-12">
+                                                                <label class="control-label">Fixed Fee</label>
+                                                            </div>
+                                                            <div class="col-md-12">
+                                                                <input type="text" class="form-control" name="FixedFee">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="panel-group cancelRadio" id="accordion">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading" style="background-color:white;">
+                                                <label for='r12'>
+                                                    <input type='radio' id='r12' name='ContractTerm' value='2' required />
+                                                    Remaining Term Of Contract
+                                                    <a data-toggle="collapse" data-parent="#accordion" href=""></a>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="panel-group cancelRadio" id="accordion">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading" style="background-color:white;">
+                                                <label for='r13'>
+                                                    <input type='radio' id='r13' name='ContractTerm' value='3' required />
+                                                    Remaining Term Of Contract(x%)
+                                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree"></a>
+                                                </label>
+                                            </div>
+                                            <div id="collapseThree" class="panel-collapse collapse in">
+                                                <div class="panel-body">
+                                                    <div class="form-group">
+                                                        <div class="panel-options">
+                                                            <div class="col-md-12">
+                                                                <label class="control-label">Percentage</label>
+                                                            </div>
+                                                            <div class="col-md-12">
+                                                                <input type="text" class="form-control" name="Percentage">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="panel-group cancelRadio" id="accordion">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading" style="background-color:white;">
+                                                <label for='r14'>
+                                                    <input type='radio' id='r14' name='ContractTerm' value='4' required />
+                                                    Fixed Fee + Term Of Contract
+                                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour"></a>
+                                                </label>
+                                            </div>
+                                            <div id="collapseFour" class="panel-collapse collapse in">
+                                                <div class="panel-body">
+                                                    <div class="form-group">
+                                                        <div class="panel-options">
+                                                            <div class="col-md-12">
+                                                                <label class="control-label">Fixed Fee + Contract Term</label>
+                                                            </div>
+                                                            <div class="col-md-12">
+                                                                <input type="text" class="form-control" name="FixedFeeContract">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                    </div>
+                    <div class="container">
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <div class="panel-options">
+                                    <a class="btn btn-danger btn-sm" data-toggle="modal" data-target="#add-new-modal-accounts">Cancel Contract</a>
+                                </div>
+                            </div>
+                            <br>
+                            <br>
+                            <div class="col-md-12">
+                                <div class="panel-options">
+                                    <a class="btn btn-success btn-sm">History</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+            </div>
             <!-- Service Title For Invoice -->
             <!-- Service subscription billing cycle start-->
 
@@ -132,6 +294,7 @@
                         <div class="col-md-4">
                             {{Form::select('SubscriptionBillingCycleType',SortBillingType(3),$AccountService->SubscriptionBillingCycleType,array("class"=>"form-control select2"))}}
                             <input type="hidden" name="SubscriptionBillingCycleValue" value="">
+                            <input type="hidden" name="ServiceID" value="{{$ServiceID}}">
                         </div>
                     </div>
                 </div>
@@ -481,12 +644,13 @@
             $(this).button('loading');
 
             var ServiceID = '{{$ServiceID}}';
+            var AccountServiceID = '{{$AccountService->AccountServiceID}}';
             //Subscription , Additional charge filter fields should not in account save.
             $('#subscription_filter').find('input').attr("disabled", "disabled");
             $('#oneofcharge_filter').find('input').attr("disabled", "disabled");
             $('#oneofcharge_filter').find('select').attr("disabled", "disabled");
 
-            url= baseurl + '/accountservices/{{$account->AccountID}}/update/'+ServiceID;
+            url= baseurl + '/accountservices/{{$account->AccountID}}/update/'+AccountServiceID;
             var data =$('#service-edit-form').serialize();
             ajax_json(url,data,function(response){
                 $(".btn").button('reset');
@@ -670,7 +834,23 @@
 
             return true;
         }
-
+        function hideCancelCollapse(){
+            $('.cancelRadio .panel-collapse').removeClass('in');
+            $('.cancelRadio .panel-heading').removeClass('active');
+            var selected = $('.cancelRadio input[type="radio"]:checked');
+            selected.parent()
+                    .addClass('active')
+                    .parent()
+                    .parent()
+                    .find('.panel-collapse')
+                    .addClass('in');
+        }
+        $(function(){
+            hideCancelCollapse()
+        });
+        $('input[name="ContractTerm"]').click(function(){
+            hideCancelCollapse()
+        });
 
     });
 function ajax_form_success(response){
@@ -691,9 +871,11 @@ function ajax_form_success(response){
             border: 0px;
         }
 
+
     </style>
 @stop
 @section('footer_ext')
 @parent
 @include('accountdiscountplan.discountplanmodal')
+@include('accountservices.modal')
 @stop

@@ -880,4 +880,7 @@ class Account extends \Eloquent {
         return "";
     }
 
+    public static function getCompanyIDByAccountID($AccountID){
+        return  Account::where(["AccountID"=>$AccountID])->pluck('CompanyId');
+    }
 }

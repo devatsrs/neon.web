@@ -4,6 +4,14 @@ class TestdialplanController extends \BaseController {
 
     public function ajax_datagrid() {
         $data = Input::all();
+        
+        $rules = array(
+            'DestinationCode' => 'required',
+        );
+        $validator = Validator::make($data, $rules);
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
         $companyID = User::get_companyID();
         $DefaultCurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");
         $profileId="";
@@ -17,7 +25,7 @@ class TestdialplanController extends \BaseController {
         $columns = array('AccountID','AccountName','Name','Trunk','ServiceName','ServiceID');
         $sort_column = $columns[$data['iSortCol_0']];
         
-        $query = "call prc_getTestDialPlan ('".$DefaultCurrencyID."','','".$data['DestinationCode']."','1','".$profileId."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
+        $query = "call prc_getTestDialPlan ('".$DefaultCurrencyID."','".$data['DestinationCode']."','".$data['DestinationCode']."','1','".$profileId."','',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
         
         Log::info('query:.' . $query);
         
