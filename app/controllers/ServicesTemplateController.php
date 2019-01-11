@@ -36,7 +36,7 @@ class ServicesTemplateController extends BaseController {
         $servicesTemplate = ServiceTemplate::
         leftJoin('tblService','tblService.ServiceID','=','tblServiceTemplate.ServiceId')
             ->Join('tblCurrency','tblServiceTemplate.CurrencyId','=','tblCurrency.CurrencyId')
-            ->select(['tblServiceTemplate.ServiceTemplateId','tblService.ServiceId','tblServiceTemplate.Name','tblService.ServiceName','tblCurrency.Code','tblServiceTemplate.OutboundRateTableId','tblServiceTemplate.CurrencyId','tblServiceTemplate.InboundDiscountPlanId','tblServiceTemplate.OutboundDiscountPlanId'])
+            ->select(['tblServiceTemplate.ServiceTemplateId','tblService.ServiceId','tblServiceTemplate.Name','tblService.ServiceName','tblCurrency.Code','tblServiceTemplate.OutboundRateTableId','tblServiceTemplate.CurrencyId','tblServiceTemplate.InboundDiscountPlanId','tblServiceTemplate.OutboundDiscountPlanId','tblServiceTemplate.ContractDuration','tblServiceTemplate.AutomaticRenewal','tblServiceTemplate.CancellationCharges','tblServiceTemplate.CancellationFee'])
             ->orderBy($iSortCol_0, $sSortDir_0);
 
         Log::info('$servicesTemplate AJAX.$data[\'ServiceId\']' . $data['ServiceId']);
@@ -196,6 +196,8 @@ class ServicesTemplateController extends BaseController {
         $subsriptionList = explode(",",$subsriptionList);
         $CategoryTariffList = explode(",",$CategoryTariffList);
         $OutboundDiscountPlanId = isset($data['OutboundDiscountPlanId'])?$data['OutboundDiscountPlanId']:'';
+        $ContractDuration = isset($data['ContractDuration'])&&$data['ContractDuration']!=""?$data['ContractDuration']:null;
+        $CancellationFee = isset($data['CancellationFee'])&&$data['CancellationFee']!=""?$data['CancellationFee']:null;
         $InboundDiscountPlanId = isset($data['InboundDiscountPlanId'])?$data['InboundDiscountPlanId']:'';
         $CurrencyId = isset($data['CurrencyId'])?$data['CurrencyId']:'';
 
@@ -218,6 +220,7 @@ class ServicesTemplateController extends BaseController {
                     $user_id = User::get_userID();
                     $data['CompanyID'] = User::get_companyID();
                     $data['Status'] = isset($data['Status']) ? 1 : 0;
+                    $data['AutomaticRenewal'] = isset($data['AutomaticRenewal']) ? 1 : 0;
 
                    // ServiceTemplate::$rules['ServiceId'] = 'required';
                    // ServiceTemplate::$rules['Name'] = 'required';
@@ -225,6 +228,10 @@ class ServicesTemplateController extends BaseController {
                    // ServiceTemplate::$rules['CurrencyId'] = 'required';
 
                     ServiceTemplate::$rules['Name'] = 'required|unique:tblServiceTemplate';
+                    ServiceTemplate::$rules['ContractDuration'] = 'numeric';
+                    ServiceTemplate::$rules['CancellationCharges'] = 'numeric';
+                    if(isset($data['CancellationCharges']) && $data['CancellationCharges'] != 2)
+                        ServiceTemplate::$rules['CancellationFee'] = 'numeric';
                     $validator = Validator::make($data, ServiceTemplate::$rules);
 
                     if ($validator->fails()) {
@@ -273,6 +280,7 @@ class ServicesTemplateController extends BaseController {
                     if(isset($data['hDynamicFields'])){
                         unset($data['hDynamicFields']);
                     }
+
                     if(isset($DynamicFields)) {
                         if ($error = DynamicFieldsValue::validate($DynamicFields)) {
                             return $error;
@@ -293,8 +301,11 @@ class ServicesTemplateController extends BaseController {
                         $ServiceTemplateData['OutboundRateTableId'] = $data['OutboundRateTableId'];
                     }
 
-                    $ServiceTemplateData['CurrencyId'] = $data['CurrencyId'];
-
+                    $ServiceTemplateData['CurrencyId']          = $data['CurrencyId'];
+                    $ServiceTemplateData['AutomaticRenewal']    = $data['AutomaticRenewal'];
+                    $ServiceTemplateData['CancellationCharges'] = $data['CancellationCharges'];
+                    $ServiceTemplateData['CancellationFee']     = $CancellationFee;
+                    $ServiceTemplateData['ContractDuration']    = $ContractDuration;
 
                     if($ServiceTemplate = ServiceTemplate::create($ServiceTemplateData)){
 
@@ -328,7 +339,9 @@ class ServicesTemplateController extends BaseController {
                             }
                         }
 
-                        Log::info('Create the dynamic field.' . count($DynamicFields));
+                        if(isset($DynamicFields)) {
+                            Log::info('Create the dynamic field.' . count($DynamicFields));
+                        }
                         if(isset($DynamicFields) && count($DynamicFields)>0) {
                             for($k=0; $k<count($DynamicFields); $k++) {
                                 if(trim($DynamicFields[$k]['FieldValue'])!='') {
@@ -369,6 +382,8 @@ class ServicesTemplateController extends BaseController {
         $CategoryTariffList = explode(",",$CategoryTariffList);
         $OutboundDiscountPlanId = isset($data['OutboundDiscountPlanId'])?$data['OutboundDiscountPlanId']:'';
         $InboundDiscountPlanId = isset($data['InboundDiscountPlanId'])?$data['InboundDiscountPlanId']:'';
+        $ContractDuration = isset($data['ContractDuration'])&&$data['ContractDuration']!=""?$data['ContractDuration'] : null;
+        $CancellationFee = isset($data['CancellationFee'])&&$data['CancellationFee']!=""?$data['CancellationFee'] : null;
         $data['ModifiedBy'] = User::get_user_full_name();
         $user =  $data['ModifiedBy'];
 
@@ -380,8 +395,8 @@ class ServicesTemplateController extends BaseController {
                 if(isset($_FILES["DynamicFields"]["name"][$key])){
                     $dynamicImage = $_FILES["DynamicFields"]["name"][$key];
                     if($dynamicImage){
-                        $upload_path = CompanyConfiguration::get('UPLOAD_PATH',$companyID)."/";
-                        $fileUrl=$companyID."/dynamicfields/";
+                        $upload_path = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID)."/";
+                        $fileUrl=$CompanyID."/dynamicfields/";
                         if (!file_exists($upload_path.$fileUrl)) {
                             mkdir($upload_path.$fileUrl, 0777, true);
                         }
@@ -458,10 +473,16 @@ class ServicesTemplateController extends BaseController {
             $user_id = User::get_userID();
             $data['CompanyID'] = User::get_companyID();
             $data['Status'] = isset($data['Status']) ? 1 : 0;
+            $data['AutomaticRenewal'] = isset($data['AutomaticRenewal']) ? 1 : 0;
 
 
 
             ServiceTemplate::$updateRules['Name'] = 'required|unique:tblServiceTemplate,Name,'.$ServiceTemplateId.',ServiceTemplateId';
+
+            ServiceTemplate::$rules['ContractDuration'] = 'numeric';
+            ServiceTemplate::$rules['CancellationCharges'] = 'numeric';
+            if(isset($data['CancellationCharges']) && $data['CancellationCharges'] != 2)
+                ServiceTemplate::$rules['CancellationFee'] = 'numeric';
             $validator = Validator::make($data, ServiceTemplate::$updateRules);
 
             if ($validator->fails()) {
@@ -482,6 +503,10 @@ class ServicesTemplateController extends BaseController {
                 $ServiceTemplateData['OutboundRateTableId'] = $data['OutboundRateTableId'];
             }
 
+            $ServiceTemplateData['AutomaticRenewal']    = $data['AutomaticRenewal'];
+            $ServiceTemplateData['CancellationCharges'] = $data['CancellationCharges'];
+            $ServiceTemplateData['CancellationFee']     = $CancellationFee;
+            $ServiceTemplateData['ContractDuration']    = $ContractDuration;
 
 
             $updDelStatus = false;
