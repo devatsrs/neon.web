@@ -23,7 +23,7 @@ class EmailTemplateController extends \BaseController {
             $template->Where(['Type'=>$data['type']]);
         }
         if($data['template_privacy']==1){
-            $template->Where('userID','=',user::get_userID());
+            $template->Where('userID','=',User::get_userID());
         }else{
             $template->whereNull('userID');
         } 

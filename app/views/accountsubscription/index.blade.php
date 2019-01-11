@@ -91,6 +91,7 @@
             var data_table_subscription;
             var account_id='{{$account->AccountID}}';
             var ServiceID='{{$ServiceID}}';
+            var AccountServiceID='{{$AccountService->AccountServiceID}}';
             var update_new_url;
             var postdata;
 
@@ -159,6 +160,7 @@
                             "fnServerParams": function (aoData) {
                                 aoData.push({"name": "account_id", "value": account_id},
                                         {"name": "ServiceID", "value": ServiceID},
+                                        {"name": "AccountServiceID", "value": AccountServiceID},
                                         {"name": "SubscriptionName", "value": $search.SubscriptionName},
                                         {"name": "SubscriptionInvoiceDescription", "value": $search.SubscriptionInvoiceDescription},
                                         {"name": "SubscriptionActive", "value": $search.SubscriptionActive});
@@ -166,6 +168,7 @@
                                 data_table_extra_params.length = 0;
                                 data_table_extra_params.push({"name": "account_id", "value": account_id},
                                         {"name": "ServiceID", "value": ServiceID},
+                                        {"name": "AccountServiceID", "value": AccountServiceID},
                                         {"name": "SubscriptionName", "value": $search.SubscriptionName},
                                         {"name": "SubscriptionInvoiceDescription", "value": $search.SubscriptionInvoiceDescription},
                                         {"name": "SubscriptionActive", "value": $search.SubscriptionActive});
@@ -774,6 +777,7 @@
                     </div>
                 </div>
                 <input type="hidden" name="AccountSubscriptionID">
+                <input type="hidden" name="AccountServiceID" value="{{$AccountService->AccountServiceID}}">
                 <input type="hidden" name="ServiceID" value="{{$ServiceID}}">
                 <div class="modal-footer">
                      <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left" data-loading-text="Loading...">

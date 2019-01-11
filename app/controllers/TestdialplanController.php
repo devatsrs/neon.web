@@ -4,6 +4,14 @@ class TestdialplanController extends \BaseController {
 
     public function ajax_datagrid() {
         $data = Input::all();
+        
+        $rules = array(
+            'DestinationCode' => 'required',
+        );
+        $validator = Validator::make($data, $rules);
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
         $companyID = User::get_companyID();
         $DefaultCurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");
         $profileId="";
@@ -13,7 +21,11 @@ class TestdialplanController extends \BaseController {
                 $profileId="";
             }
         }
-        $query = "call prc_getTestDialPlan ('".$DefaultCurrencyID."','','".$data['DestinationCode']."','1','".$profileId."')";
+        $data['iDisplayStart'] +=1;
+        $columns = array('AccountID','AccountName','Name','Trunk','ServiceName','ServiceID');
+        $sort_column = $columns[$data['iSortCol_0']];
+        
+        $query = "call prc_getTestDialPlan ('".$DefaultCurrencyID."','".$data['DestinationCode']."','".$data['DestinationCode']."','1','".$profileId."','',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
         
         Log::info('query:.' . $query);
         
@@ -28,7 +40,7 @@ class TestdialplanController extends \BaseController {
 	{
             //echo $CompanyTimezone = Config::get('app.timezone');
             $company_id = User::get_companyID();
-            $routingprofile = RoutingProfiles::getRoutingProfile($company_id);
+            $routingprofile = RoutingProfiles::getActiveRoutingProfile($company_id);
             return View::make('testdialplan.index',compact('routingprofile'));
 
         }

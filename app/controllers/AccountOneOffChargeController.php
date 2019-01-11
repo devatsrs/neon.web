@@ -18,6 +18,11 @@ class AccountOneOffChargeController extends \BaseController {
         }else{
             $accountOneOffCharge->where('tblAccountOneOffCharge.ServiceID','=',0);
         }
+        if(!empty($data['AccountServiceID'])){
+            $accountOneOffCharge->where('tblAccountOneOffCharge.AccountServiceID','=',$data['AccountServiceID']);
+        }else{
+            $accountOneOffCharge->where('tblAccountOneOffCharge.AccountServiceID','=',0);
+        }
         if(!empty($data['OneOfCharge_Description']))
         {            
             $accountOneOffCharge->where('tblAccountOneOffCharge.Description','Like','%'.trim($data['OneOfCharge_Description']).'%');
