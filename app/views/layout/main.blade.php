@@ -37,7 +37,7 @@
             .cancelRadio .panel-heading.active {
                 border-left: 3px solid #00cc00;
                 padding-left: 12px;
-            }
+            } 
         </style>
     </head>
 
