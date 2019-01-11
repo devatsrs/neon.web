@@ -683,7 +683,7 @@
 @section('footer_ext')
     @parent
     <div class="modal fade" id="add-new-modal-service">
-        <div class="modal-dialog"><!-- modal-lg -->
+        <div class="modal-dialog modal-lg"><!-- modal-lg -->
             <div class="modal-content">
                 <form id="add-new-service-form" method="post">
                     <div class="modal-header">
