@@ -1,13 +1,30 @@
 <style>
+    .cancelRadio {
+        margin-bottom: 10px;
+    }
+    .cancelRadio td {
+        padding-right: 6px;
+    }
+
+    .cancelRadio td:last-child {
+        padding-right: 0;
+    }
     .cancelRadio .panel-heading {
         display: block;
         font-size: 12px;
         background: #fff;
         margin-bottom: 0;
+        border: 1px solid #ddd;
+        border-radius:2px;
+        padding: 5px 10px;
+        height: 70px
     }
     .cancelRadio .panel-heading.active {
         border-left: 3px solid #00cc00;
-        padding-left: 12px;
+        padding-left: 7px;
+    }
+    .cancelRadio .form-group {
+        margin-bottom: 5px;
     }
 </style>
 <script>
@@ -60,6 +77,7 @@
             showAjaxScript(update_new_url, data, function(response){
                 document.getElementById("Service-update").disabled = false;
                 $(".btn").button('reset');
+                hideCancelCollapse();
                 if (response.status == 'success') {
                     $('#add-new-modal-service').modal('hide');
                     toastr.success(response.message, "Success", toastr_opts);
@@ -175,6 +193,7 @@
             testBox.value = value1;
         } else {
             testBox.value = '';
+            hideCancelCollapse();
         }
 
         // alert(self.val());
@@ -270,9 +289,10 @@
         $.post(url, function (data, status) {
             //  var res = data.split('/>');
             //alert(data);
-            document.getElementById("ServiceId").innerHTML = "" + data;
+            document.getElementById("ServiceIdField").innerHTML = "" + data;
             // var ServiceId = $("div.hiddenRowData").find("input[name='ServiceId']").val();
             // alert("ServiceId" + ServiceId);
+            console.log(ServiceId);
             if (ServiceId != '') {
                 $("#add-new-service-form [name='ServiceId']").select2().select2('val', ServiceId);
             }else {
@@ -346,7 +366,7 @@
             document.getElementById("templateSubscriptionList").innerHTML = "" + data;
             // $("#serviceBasedOnCurreny").html(data);
         }, 'html');
-
+        hideCancelCollapse();
         ShowTariffOnSelectedCategory();
 
     }
@@ -358,6 +378,7 @@
             data = {company: selected_company};
             resetFormFields();
 
+            hideCancelCollapse();
             loadValuesBasedOnCurrency(selected_currency,false,'','','','');
         });
 
@@ -660,7 +681,7 @@
 @section('footer_ext')
     @parent
     <div class="modal fade" id="add-new-modal-service">
-        <div class="modal-dialog">
+        <div class="modal-dialog"><!-- modal-lg -->
             <div class="modal-content">
                 <form id="add-new-service-form" method="post">
                     <div class="modal-header">
@@ -695,7 +716,7 @@
                                             <table width="100%">
                                                 <tr>
                                                     <td width="15%"><label for="field-5" class="control-label">Service</label></td>
-                                                    <td width="30%"><select  id="ServiceId" name="ServiceId" class="form-control"></select></td>
+                                                    <td width="30%"><select  id="ServiceIdField" name="ServiceId" class="form-control"></select></td>
                                                     <td width="5%">&nbsp;</td>
                                                     <td width="15%"><label for="field-5" class="control-label">Outbound Traiff</label></td>
                                                     <td width="35%">
@@ -732,7 +753,7 @@
                                                     <td width="30%"><input type="number" min="0" name="ContractDuration" class="form-control" id="field-14" placeholder="(months)"></td>
                                                     <td width="5%">&nbsp;</td>
                                                     <td width="15%"><label for="field-15" class="control-label">Automatic Renewal</label></td>
-                                                    <td width="30%">
+                                                    <td width="35%">
                                                         <div class="form-group">
                                                             <div class="make-switch switch-small">
                                                                 {{Form::checkbox('AutomaticRenewal', '1', true, ['id' => 'field-15'])}}
@@ -747,240 +768,187 @@
                                         <div class="form-group">
                                             <label for="field-18" class="control-label">Cancellation Charges</label>
                                         </div>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="panel-group cancelRadio" id="accordion">
-                                                    <div class="panel panel-default">
-                                                        <label class="panel-heading" for='r11'>
-                                                            <i></i>
-                                                            <input type='radio' id='r11' name='CancellationCharges' checked value='1' required />
-                                                            Fixed Fee
-                                                        </label>
-                                                        <div id="collapseOne" class="panel-collapse collapse in">
-                                                            <div class="panel-body">
-                                                                <div class="form-group">
-                                                                    <div class="panel-options">
-                                                                        <label for="fixedfee" class="control-label">Fee</label>
-                                                                        <div>
-                                                                            <input type="text" class="form-control" id="fixedfee" name="fee">
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="panel-group cancelRadio" id="accordion">
-                                                    <div class="panel panel-default">
-                                                        <label class="panel-heading" for='r12'>
-                                                            <input type='radio' id='r12' name='CancellationCharges' value='2' required />
-                                                            Remaining Term Of Contract
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="panel-group cancelRadio" id="accordion">
-                                                    <div class="panel panel-default">
-                                                        <label class="panel-heading" for='r13'>
-                                                            <input type='radio' id='r13' name='CancellationCharges' value='3' required />
-                                                            Remaining Term Of Contract (x%)
-                                                        </label>
-                                                        <div id="collapseThree" class="panel-collapse collapse in">
-                                                            <div class="panel-body">
-                                                                <div class="form-group">
-                                                                    <div class="panel-options">
-                                                                        <label for="percentFee" class="control-label">Percentage</label>
-                                                                        <div>
-                                                                            <input type="text" class="form-control" id="percentFee" name="fee">
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="panel-group cancelRadio" id="accordion">
-                                                    <div class="panel panel-default">
-                                                        <label for='r14' class="panel-heading">
-                                                            <input type='radio' id='r14' name='CancellationCharges' value='4' required />
-                                                            Remaining Term Of Contract
-                                                        </label>
-                                                        <div id="collapseFour" class="panel-collapse collapse in">
-                                                            <div class="panel-body">
-                                                                <div class="form-group">
-                                                                    <div class="panel-options">
-                                                                        <label for="fixedFeeTerm" class="control-label">Fee</label>
-                                                                        <div>
-                                                                            <input type="text" class="form-control" id="fixedFeeTerm" name="fee">
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="clearfix"></div>
-                                    <div id="ajax_dynamicfield_html" class="margin-top"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
-                                <li id="tab1">
-                                    <a  href="javascript:void(0);" onclick="ShowSubscriptionTemplate('SubscriptionTab');" >
-                                        Subscription
-                                    </a>
-                                </li>
-                                <li id="tab2">
-                                    <a href="javascript:void(0);" onclick="ShowSubscriptionTemplate('InboundTariffTab');" >
-                                        Inbound Tariff
-                                    </a>
-                                </li>
-                            </ul>
-                            <br/>
-                        </div>
-
-                        <div id="ActiveTabContent">
-                        </div>
-
-                        <div id="SubscriptionTab" style="visibility: hidden; display: none">
-                            <div id="ContentSubscriptionTab" class="modal-body">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <br/>
-                                        <table id="servicetableSubBox" class="table table-bordered datatable">
+                                        <table class="cancelRadio" width="100%">
                                             <tr>
-                                                <td width="80%">
-                                                    <select id="templateSubscriptionList" name="templateSubscriptionList" class="form-control">
-                                                    </select>
+                                                <td width="25%">
+                                                    <label class="panel-heading" for='r11'>
+                                                        <input type='radio' id='r11' name='CancellationCharges' data-value="1" checked value='1' required />
+                                                        Fixed Fee
+                                                    </label>
                                                 </td>
-                                                <td width="20%">
-                                                    <button onclick="AddSubscriptionInTable();" type="button" id="Service-update"  class="btn btn-primary btn-sm" data-loading-text="Loading...">
-                                                        <i></i>
-                                                        +
-                                                    </button>
+                                                <td width="25%">
+                                                    <label class="panel-heading" for='r12'>
+                                                        <input type='radio' id='r12' name='CancellationCharges' data-value="2" value='2' required />
+                                                        Remaining Term Of Contract
+                                                    </label>
+                                                </td>
+                                                <td width="25%">
+                                                    <label class="panel-heading" for='r13'>
+                                                        <input type='radio' id='r13' name='CancellationCharges' data-value="3" value='3' required />
+                                                        Remaining Term Of Contract (x%)
+                                                    </label>
+                                                </td>
+                                                <td width="25%">
+                                                    <label for='r14' class="panel-heading">
+                                                        <input type='radio' id='r14' name='CancellationCharges' data-value="4" value='4' required />
+                                                        Remaining Term Of Contract
+                                                    </label>
                                                 </td>
                                             </tr>
                                         </table>
-
                                     </div>
-                                    <div class="col-md-12">
-                                        <div class="form-group"><input type="text" id="searchFilter" name="searchFilter" class="form-control" id="field-5" placeholder="Search">
-                                            <table id="servicetable" class="table table-bordered datatable">
-
-                                                <thead>
-                                                <tr>
-                                                    <td width="70%">Subscription</td>
-                                                    <td width="20%">Actions</td>
-                                                    <input type="hidden" id="selectedSubscription" name="selectedSubscription" value=""/>
-                                                </tr>
-                                                </thead>
-                                                <tbody id="SubscriptionIDListBody">
-
-                                                <!-- //subscription id list -->
-
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-
-
-                        <div id="InboundTariffTab" style="visibility: hidden;display: none">
-                            <div id="ContentInboundTariffTab" class="modal-body">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <br/>
-                                        <table id="servicetableSubBox" class="table table-bordered datatable">
+                                    <div class="col-md-12 cancellationDiv">
+                                        <table width="100%">
                                             <tr>
-                                                <td width="10%"><label for="field-5" class="control-label">DIDCategory</label></td>
-                                                <td width="30%">
-                                                    <select onchange="ShowTariffOnSelectedCategory();" id="DidCategoryID" name="DidCategoryID" class="form-control">
-                                                        <?php
-                                                        $index1 = 0;?>
-                                                        @foreach(DIDCategory::getCategoryDropdownIDList() as $DIDCategoryID  => $CategoryName)
-                                                            <option id="didCategoty{{$index1++}}" value="{{$DIDCategoryID}}">{{$CategoryName}}</option>
-                                                        @endforeach
-
-                                                    </select>
-                                                </td>
-                                                <td width="10%"><label for="field-5" class="control-label">Tariff</label></td>
-                                                <td width="30%">
-                                                    <select id="DidCategoryTariffID" name="DidCategoryTariffID" class="form-control">
-                                                    </select>
-                                                </td>
-                                                <td width="20%">
-                                                    <button onclick="AddCategoryTariffInTable();" type="button" id="Service-update"  class="btn btn-primary btn-sm" data-loading-text="Loading...">
-                                                        <i></i>
-                                                        +
-                                                    </button>
-                                                </td>
+                                                <td width="15%"><label for="field-17" class="control-label">Cancellation Fee</label></td>
+                                                <td width="85%"><input type="number" min="0" name="CancellationFee" class="form-control" id="field-17" placeholder=""></td>
                                             </tr>
                                         </table>
-
-                                        <div>
-                                            <table id="categotyTarifftable" class="table table-bordered datatable">
-                                                <thead>
-
-                                                <tr>
-
-                                                    <td width="35%">Category</td>
-                                                    <td width="35%">Tariff</td>
-                                                    <td width="20%">Actions</td>
-                                                    <input type="hidden" id="selectedcategotyTariff" name="selectedcategotyTariff" value=""/>
-                                                </tr>
-                                                </thead>
-                                                <tbody id="categoryTariffIDListBody">
-
-                                                </tbody>
-                                            </table>
-                                        </div>
                                     </div>
                                 </div>
+                                <div class="clearfix"></div>
+                                <div id="ajax_dynamicfield_html" class="margin-top"></div>
                             </div>
-                        </div>
-
-                        <div class="modal-footer" style="vertical-align: top">
-                            <button type="submit" id="Service-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                                <i class="entypo-floppy"></i>
-                                Save
-                            </button>
-                            <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                                <i class="entypo-cancel"></i>
-                                Close
-                            </button>
                         </div>
                     </div>
-                </form>
+                    <div>
+                        <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
+                            <li id="tab1">
+                                <a  href="javascript:void(0);" onclick="ShowSubscriptionTemplate('SubscriptionTab');" >
+                                    Subscription
+                                </a>
+                            </li>
+                            <li id="tab2">
+                                <a href="javascript:void(0);" onclick="ShowSubscriptionTemplate('InboundTariffTab');" >
+                                    Inbound Tariff
+                                </a>
+                            </li>
+                        </ul>
+                        <br/>
+                    </div>
+
+                    <div id="ActiveTabContent">
+                    </div>
+
+                    <div id="SubscriptionTab" style="visibility: hidden; display: none">
+                        <div id="ContentSubscriptionTab" class="modal-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <br/>
+                                    <table id="servicetableSubBox" class="table table-bordered datatable">
+                                        <tr>
+                                            <td width="80%">
+                                                <select id="templateSubscriptionList" name="templateSubscriptionList" class="form-control">
+                                                </select>
+                                            </td>
+                                            <td width="20%">
+                                                <button onclick="AddSubscriptionInTable();" type="button" id="Service-update"  class="btn btn-primary btn-sm" data-loading-text="Loading...">
+                                                    <i></i>
+                                                    +
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group"><input type="text" id="searchFilter" name="searchFilter" class="form-control" id="field-5" placeholder="Search">
+                                        <table id="servicetable" class="table table-bordered datatable">
+
+                                            <thead>
+                                            <tr>
+                                                <td width="70%">Subscription</td>
+                                                <td width="20%">Actions</td>
+                                                <input type="hidden" id="selectedSubscription" name="selectedSubscription" value=""/>
+                                            </tr>
+                                            </thead>
+                                            <tbody id="SubscriptionIDListBody">
+
+                                            <!-- //subscription id list -->
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                    <div id="InboundTariffTab" style="visibility: hidden;display: none">
+                        <div id="ContentInboundTariffTab" class="modal-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <br/>
+                                    <table id="servicetableSubBox" class="table table-bordered datatable">
+                                        <tr>
+                                            <td width="10%"><label for="field-5" class="control-label">DIDCategory</label></td>
+                                            <td width="30%">
+                                                <select onchange="ShowTariffOnSelectedCategory();" id="DidCategoryID" name="DidCategoryID" class="form-control">
+                                                    <?php
+                                                    $index1 = 0;?>
+                                                    @foreach(DIDCategory::getCategoryDropdownIDList() as $DIDCategoryID  => $CategoryName)
+                                                        <option id="didCategoty{{$index1++}}" value="{{$DIDCategoryID}}">{{$CategoryName}}</option>
+                                                    @endforeach
+
+                                                </select>
+                                            </td>
+                                            <td width="10%"><label for="field-5" class="control-label">Tariff</label></td>
+                                            <td width="30%">
+                                                <select id="DidCategoryTariffID" name="DidCategoryTariffID" class="form-control">
+                                                </select>
+                                            </td>
+                                            <td width="20%">
+                                                <button onclick="AddCategoryTariffInTable();" type="button" id="Service-update"  class="btn btn-primary btn-sm" data-loading-text="Loading...">
+                                                    <i></i>
+                                                    +
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                    <div>
+                                        <table id="categotyTarifftable" class="table table-bordered datatable">
+                                            <thead>
+
+                                            <tr>
+
+                                                <td width="35%">Category</td>
+                                                <td width="35%">Tariff</td>
+                                                <td width="20%">Actions</td>
+                                                <input type="hidden" id="selectedcategotyTariff" name="selectedcategotyTariff" value=""/>
+                                            </tr>
+                                            </thead>
+                                            <tbody id="categoryTariffIDListBody">
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer" style="vertical-align: top">
+                        <button type="submit" id="Service-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                            <i class="entypo-floppy"></i>
+                            Save
+                        </button>
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
+                    </div>
             </div>
+            </form>
         </div>
+    </div>
     </div>
 
     <script>
-        function hideCancelCollapse(){
-            $('.cancelRadio .panel-collapse').removeClass('in');
-            $('.cancelRadio .panel-heading').removeClass('active');
-            var selected = $('.cancelRadio input[type="radio"]:checked');
-            selected.parent()
-                    .addClass('active')
-                    .parent()
-                    .parent()
-                    .find('.panel-collapse')
-                    .addClass('in');
-        }
         $(function(){
-            hideCancelCollapse()
+            hideCancelCollapse();
         });
         $('input[name="CancellationCharges"]').click(function(){
             hideCancelCollapse()
