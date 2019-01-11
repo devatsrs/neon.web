@@ -281,7 +281,7 @@
 
     <div class="modal fade" id="add-new-BulkAction-modal-service">
 
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form id="add-action-bulk-form" method="post">
                     <div class="modal-header">
