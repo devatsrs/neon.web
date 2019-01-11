@@ -3242,7 +3242,10 @@ ThisSP:BEGIN
 		LEFT JOIN tblRate AS OriginationRate
 			ON tblTempRateTableRate.OriginationCode = OriginationRate.Code AND tblTempRateTableRate.CodeDeckId = OriginationRate.CodeDeckId  AND OriginationRate.CompanyID = p_companyId
 		LEFT JOIN tblRateTableRate
-			ON tblRate.RateID = tblRateTableRate.RateId AND OriginationRate.RateID = tblRateTableRate.OriginationRateID AND tblRateTableRate.RateTableId = p_RateTableId AND tblRateTableRate.TimezonesID = tblTempRateTableRate.TimezonesID
+			ON tblRate.RateID = tblRateTableRate.RateId AND
+			((IFNULL(tblRateTableRate.OriginationRateID,0) = 0 AND OriginationRate.RateID IS NULL) OR (tblRateTableRate.OriginationRateID = OriginationRate.RateID)) AND
+			tblRateTableRate.RateTableId = p_RateTableId AND
+			tblRateTableRate.TimezonesID = tblTempRateTableRate.TimezonesID
 			AND tblRateTableRate.EffectiveDate  <= date(now())
 		WHERE tblTempRateTableRate.ProcessID=p_processId AND tblRateTableRate.RateTableRateID IS NULL
 			AND tblTempRateTableRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
@@ -4809,7 +4812,9 @@ ThisSP:BEGIN
 			AND tblTempRateTableRate.TimezonesID = tblRateTableRate.TimezonesID
 			AND tblTempRateTableRate.Change IN ('Delete', 'R', 'D', 'Blocked', 'Block')
 		SET tblRateTableRate.EndDate = IFNULL(tblTempRateTableRate.EndDate,date(now()))
-		WHERE tblRateTableRate.RateTableId = p_RateTableId;
+		WHERE tblRateTableRate.RateTableId = p_RateTableId
+			AND tblRateTableRate.RateId = tblRate.RateId
+			AND ((IFNULL(tblRateTableRate.OriginationRateID,0) = 0 AND OriginationRate.RateID IS NULL) OR (tblRateTableRate.OriginationRateID = OriginationRate.RateID));
 
 
 
@@ -4856,7 +4861,9 @@ ThisSP:BEGIN
 			tblRateTableRate.Interval1 = tblTempRateTableRate.Interval1,
 			tblRateTableRate.IntervalN = tblTempRateTableRate.IntervalN
 		WHERE
-			tblRateTableRate.RateTableId = p_RateTableId;
+			tblRateTableRate.RateTableId = p_RateTableId
+			AND tblRateTableRate.RateId = tblRate.RateId
+			AND ((IFNULL(tblRateTableRate.OriginationRateID,0) = 0 AND OriginationRate.RateID IS NULL) OR (tblRateTableRate.OriginationRateID = OriginationRate.RateID));
 
 
 
@@ -4878,7 +4885,9 @@ ThisSP:BEGIN
 			AND tblRateTableRate.TimezonesID = tblTempRateTableRate.TimezonesID
 			AND tblTempRateTableRate.Rate = tblRateTableRate.Rate
 		WHERE
-			tblTempRateTableRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block');
+			tblTempRateTableRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')
+			AND tblRateTableRate.RateId = tblRate.RateId
+			AND ((IFNULL(tblRateTableRate.OriginationRateID,0) = 0 AND OriginationRate.RateID IS NULL) OR (tblRateTableRate.OriginationRateID = OriginationRate.RateID));
 
 
 
@@ -6324,8 +6333,6 @@ CREATE PROCEDURE `prc_WSReviewRateTableDIDRate`(
 	IN `p_processId` VARCHAR(200),
 	IN `p_addNewCodesToCodeDeck` INT,
 	IN `p_companyId` INT,
-	IN `p_forbidden` INT,
-	IN `p_preference` INT,
 	IN `p_dialstringid` INT,
 	IN `p_dialcodeSeparator` VARCHAR(50),
 	IN `p_seperatecolumn` INT,
@@ -6544,19 +6551,19 @@ ThisSP:BEGIN
 			tblRate.RateId,
 			tblTempRateTableDIDRate.Code,
 			tblTempRateTableDIDRate.Description,
-			tblTempRateTableDIDRate.OneOffCost,
-			tblTempRateTableDIDRate.MonthlyCost,
-			tblTempRateTableDIDRate.CostPerCall,
-			tblTempRateTableDIDRate.CostPerMinute,
-			tblTempRateTableDIDRate.SurchargePerCall,
-			tblTempRateTableDIDRate.SurchargePerMinute,
-			tblTempRateTableDIDRate.OutpaymentPerCall,
-			tblTempRateTableDIDRate.OutpaymentPerMinute,
-			tblTempRateTableDIDRate.Surcharges,
-			tblTempRateTableDIDRate.Chargeback,
-			tblTempRateTableDIDRate.CollectionCostAmount,
-			tblTempRateTableDIDRate.CollectionCostPercentage,
-			tblTempRateTableDIDRate.RegistrationCostPerNumber,
+			tblTempRateTableDIDRate.NewOneOffCost,
+			tblTempRateTableDIDRate.NewMonthlyCost,
+			tblTempRateTableDIDRate.NewCostPerCall,
+			tblTempRateTableDIDRate.NewCostPerMinute,
+			tblTempRateTableDIDRate.NewSurchargePerCall,
+			tblTempRateTableDIDRate.NewSurchargePerMinute,
+			tblTempRateTableDIDRate.NewOutpaymentPerCall,
+			tblTempRateTableDIDRate.NewOutpaymentPerMinute,
+			tblTempRateTableDIDRate.NewSurcharges,
+			tblTempRateTableDIDRate.NewChargeback,
+			tblTempRateTableDIDRate.NewCollectionCostAmount,
+			tblTempRateTableDIDRate.NewCollectionCostPercentage,
+			tblTempRateTableDIDRate.NewRegistrationCostPerNumber,
 			tblTempRateTableDIDRate.EffectiveDate,
 			tblTempRateTableDIDRate.EndDate,
 			'New' AS `Action`,
@@ -6568,11 +6575,13 @@ ThisSP:BEGIN
 		LEFT JOIN tblRate AS OriginationRate
 			ON tblTempRateTableDIDRate.OriginationCode = OriginationRate.Code AND tblTempRateTableDIDRate.CodeDeckId = OriginationRate.CodeDeckId  AND OriginationRate.CompanyID = p_companyId
 		LEFT JOIN tblRateTableDIDRate
-			ON tblRate.RateID = tblRateTableDIDRate.RateId AND OriginationRate.RateID = tblRateTableDIDRate.OriginationRateID AND tblRateTableDIDRate.RateTableId = p_RateTableId AND tblRateTableDIDRate.TimezonesID = tblTempRateTableDIDRate.TimezonesID
-			AND tblRateTableDIDRate.EffectiveDate  <= date(now())
+			ON tblRate.RateID = tblRateTableDIDRate.RateId AND
+			((IFNULL(tblRateTableDIDRate.OriginationRateID,0) = 0 AND OriginationRate.RateID IS NULL) OR (tblRateTableDIDRate.OriginationRateID = OriginationRate.RateID)) AND
+			tblRateTableDIDRate.RateTableId = p_RateTableId AND
+			tblRateTableDIDRate.TimezonesID = tblTempRateTableDIDRate.TimezonesID AND
+			tblRateTableDIDRate.EffectiveDate  <= date(now())
 		WHERE tblTempRateTableDIDRate.ProcessID=p_processId AND tblRateTableDIDRate.RateTableDIDRateID IS NULL
 			AND tblTempRateTableDIDRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
-
 
 
         DROP TEMPORARY TABLE IF EXISTS tmp_EffectiveDates_;
@@ -6645,19 +6654,19 @@ ThisSP:BEGIN
 					tblRate.RateId,
 					tblRate.Code,
 					tblRate.Description,
-					CONCAT(tblTempRateTableDIDRate.OneOffCost, IF(tblTempRateTableDIDRate.NewOneOffCost > RateTableDIDRate.OneOffCost, '<span style="color: green;" data-toggle="tooltip" data-title="OneOffCost Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewOneOffCost < RateTableDIDRate.OneOffCost, '<span style="color: red;" data-toggle="tooltip" data-title="OneOffCost Decrease" data-placement="top">&#9660;</span>',''))) AS `OneOffCost`,
-					CONCAT(tblTempRateTableDIDRate.MonthlyCost, IF(tblTempRateTableDIDRate.NewMonthlyCost > RateTableDIDRate.MonthlyCost, '<span style="color: green;" data-toggle="tooltip" data-title="MonthlyCost Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewMonthlyCost < RateTableDIDRate.MonthlyCost, '<span style="color: red;" data-toggle="tooltip" data-title="MonthlyCost Decrease" data-placement="top">&#9660;</span>',''))) AS `MonthlyCost`,
-					CONCAT(tblTempRateTableDIDRate.CostPerCall, IF(tblTempRateTableDIDRate.NewCostPerCall > RateTableDIDRate.CostPerCall, '<span style="color: green;" data-toggle="tooltip" data-title="CostPerCall Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewCostPerCall < RateTableDIDRate.CostPerCall, '<span style="color: red;" data-toggle="tooltip" data-title="CostPerCall Decrease" data-placement="top">&#9660;</span>',''))) AS `CostPerCall`,
-					CONCAT(tblTempRateTableDIDRate.CostPerMinute, IF(tblTempRateTableDIDRate.NewCostPerMinute > RateTableDIDRate.CostPerMinute, '<span style="color: green;" data-toggle="tooltip" data-title="CostPerMinute Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewCostPerMinute < RateTableDIDRate.CostPerMinute, '<span style="color: red;" data-toggle="tooltip" data-title="CostPerMinute Decrease" data-placement="top">&#9660;</span>',''))) AS `CostPerMinute`,
-					CONCAT(tblTempRateTableDIDRate.SurchargePerCall, IF(tblTempRateTableDIDRate.NewSurchargePerCall > RateTableDIDRate.SurchargePerCall, '<span style="color: green;" data-toggle="tooltip" data-title="SurchargePerCall Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewSurchargePerCall < RateTableDIDRate.SurchargePerCall, '<span style="color: red;" data-toggle="tooltip" data-title="SurchargePerCall Decrease" data-placement="top">&#9660;</span>',''))) AS `SurchargePerCall`,
-					CONCAT(tblTempRateTableDIDRate.SurchargePerMinute, IF(tblTempRateTableDIDRate.NewSurchargePerMinute > RateTableDIDRate.SurchargePerMinute, '<span style="color: green;" data-toggle="tooltip" data-title="SurchargePerMinute Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewSurchargePerMinute < RateTableDIDRate.SurchargePerMinute, '<span style="color: red;" data-toggle="tooltip" data-title="SurchargePerMinute Decrease" data-placement="top">&#9660;</span>',''))) AS `SurchargePerMinute`,
-					CONCAT(tblTempRateTableDIDRate.OutpaymentPerCall, IF(tblTempRateTableDIDRate.NewOutpaymentPerCall > RateTableDIDRate.OutpaymentPerCall, '<span style="color: green;" data-toggle="tooltip" data-title="OutpaymentPerCall Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewOutpaymentPerCall < RateTableDIDRate.OutpaymentPerCall, '<span style="color: red;" data-toggle="tooltip" data-title="OutpaymentPerCall Decrease" data-placement="top">&#9660;</span>',''))) AS `OutpaymentPerCall`,
-					CONCAT(tblTempRateTableDIDRate.OutpaymentPerMinute, IF(tblTempRateTableDIDRate.NewOutpaymentPerMinute > RateTableDIDRate.OutpaymentPerMinute, '<span style="color: green;" data-toggle="tooltip" data-title="OutpaymentPerMinute Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewOutpaymentPerMinute < RateTableDIDRate.OutpaymentPerMinute, '<span style="color: red;" data-toggle="tooltip" data-title="OutpaymentPerMinute Decrease" data-placement="top">&#9660;</span>',''))) AS `OutpaymentPerMinute`,
-					CONCAT(tblTempRateTableDIDRate.Surcharges, IF(tblTempRateTableDIDRate.NewSurcharges > RateTableDIDRate.Surcharges, '<span style="color: green;" data-toggle="tooltip" data-title="Surcharges Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewSurcharges < RateTableDIDRate.Surcharges, '<span style="color: red;" data-toggle="tooltip" data-title="Surcharges Decrease" data-placement="top">&#9660;</span>',''))) AS `Surcharges`,
-					CONCAT(tblTempRateTableDIDRate.Chargeback, IF(tblTempRateTableDIDRate.NewChargeback > RateTableDIDRate.Chargeback, '<span style="color: green;" data-toggle="tooltip" data-title="Chargeback Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewChargeback < RateTableDIDRate.Chargeback, '<span style="color: red;" data-toggle="tooltip" data-title="Chargeback Decrease" data-placement="top">&#9660;</span>',''))) AS `Chargeback`,
-					CONCAT(tblTempRateTableDIDRate.CollectionCostAmount, IF(tblTempRateTableDIDRate.NewCollectionCostAmount > RateTableDIDRate.CollectionCostAmount, '<span style="color: green;" data-toggle="tooltip" data-title="CollectionCostAmount Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewCollectionCostAmount < RateTableDIDRate.CollectionCostAmount, '<span style="color: red;" data-toggle="tooltip" data-title="CollectionCostAmount Decrease" data-placement="top">&#9660;</span>',''))) AS `CollectionCostAmount`,
-					CONCAT(tblTempRateTableDIDRate.CollectionCostPercentage, IF(tblTempRateTableDIDRate.NewCollectionCostPercentage > RateTableDIDRate.CollectionCostPercentage, '<span style="color: green;" data-toggle="tooltip" data-title="CollectionCostPercentage Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewCollectionCostPercentage < RateTableDIDRate.CollectionCostPercentage, '<span style="color: red;" data-toggle="tooltip" data-title="CollectionCostPercentage Decrease" data-placement="top">&#9660;</span>',''))) AS `CollectionCostPercentage`,
-					CONCAT(tblTempRateTableDIDRate.RegistrationCostPerNumber, IF(tblTempRateTableDIDRate.NewRegistrationCostPerNumber > RateTableDIDRate.RegistrationCostPerNumber, '<span style="color: green;" data-toggle="tooltip" data-title="RegistrationCostPerNumber Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewRegistrationCostPerNumber < RateTableDIDRate.RegistrationCostPerNumber, '<span style="color: red;" data-toggle="tooltip" data-title="RegistrationCostPerNumber Decrease" data-placement="top">&#9660;</span>',''))) AS `RegistrationCostPerNumber`,
+					CONCAT(tblTempRateTableDIDRate.NewOneOffCost, IF(tblTempRateTableDIDRate.NewOneOffCost > RateTableDIDRate.OneOffCost, '<span style="color: green;" data-toggle="tooltip" data-title="OneOffCost Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewOneOffCost < RateTableDIDRate.OneOffCost, '<span style="color: red;" data-toggle="tooltip" data-title="OneOffCost Decrease" data-placement="top">&#9660;</span>',''))) AS `OneOffCost`,
+					CONCAT(tblTempRateTableDIDRate.NewMonthlyCost, IF(tblTempRateTableDIDRate.NewMonthlyCost > RateTableDIDRate.MonthlyCost, '<span style="color: green;" data-toggle="tooltip" data-title="MonthlyCost Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewMonthlyCost < RateTableDIDRate.MonthlyCost, '<span style="color: red;" data-toggle="tooltip" data-title="MonthlyCost Decrease" data-placement="top">&#9660;</span>',''))) AS `MonthlyCost`,
+					CONCAT(tblTempRateTableDIDRate.NewCostPerCall, IF(tblTempRateTableDIDRate.NewCostPerCall > RateTableDIDRate.CostPerCall, '<span style="color: green;" data-toggle="tooltip" data-title="CostPerCall Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewCostPerCall < RateTableDIDRate.CostPerCall, '<span style="color: red;" data-toggle="tooltip" data-title="CostPerCall Decrease" data-placement="top">&#9660;</span>',''))) AS `CostPerCall`,
+					CONCAT(tblTempRateTableDIDRate.NewCostPerMinute, IF(tblTempRateTableDIDRate.NewCostPerMinute > RateTableDIDRate.CostPerMinute, '<span style="color: green;" data-toggle="tooltip" data-title="CostPerMinute Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewCostPerMinute < RateTableDIDRate.CostPerMinute, '<span style="color: red;" data-toggle="tooltip" data-title="CostPerMinute Decrease" data-placement="top">&#9660;</span>',''))) AS `CostPerMinute`,
+					CONCAT(tblTempRateTableDIDRate.NewSurchargePerCall, IF(tblTempRateTableDIDRate.NewSurchargePerCall > RateTableDIDRate.SurchargePerCall, '<span style="color: green;" data-toggle="tooltip" data-title="SurchargePerCall Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewSurchargePerCall < RateTableDIDRate.SurchargePerCall, '<span style="color: red;" data-toggle="tooltip" data-title="SurchargePerCall Decrease" data-placement="top">&#9660;</span>',''))) AS `SurchargePerCall`,
+					CONCAT(tblTempRateTableDIDRate.NewSurchargePerMinute, IF(tblTempRateTableDIDRate.NewSurchargePerMinute > RateTableDIDRate.SurchargePerMinute, '<span style="color: green;" data-toggle="tooltip" data-title="SurchargePerMinute Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewSurchargePerMinute < RateTableDIDRate.SurchargePerMinute, '<span style="color: red;" data-toggle="tooltip" data-title="SurchargePerMinute Decrease" data-placement="top">&#9660;</span>',''))) AS `SurchargePerMinute`,
+					CONCAT(tblTempRateTableDIDRate.NewOutpaymentPerCall, IF(tblTempRateTableDIDRate.NewOutpaymentPerCall > RateTableDIDRate.OutpaymentPerCall, '<span style="color: green;" data-toggle="tooltip" data-title="OutpaymentPerCall Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewOutpaymentPerCall < RateTableDIDRate.OutpaymentPerCall, '<span style="color: red;" data-toggle="tooltip" data-title="OutpaymentPerCall Decrease" data-placement="top">&#9660;</span>',''))) AS `OutpaymentPerCall`,
+					CONCAT(tblTempRateTableDIDRate.NewOutpaymentPerMinute, IF(tblTempRateTableDIDRate.NewOutpaymentPerMinute > RateTableDIDRate.OutpaymentPerMinute, '<span style="color: green;" data-toggle="tooltip" data-title="OutpaymentPerMinute Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewOutpaymentPerMinute < RateTableDIDRate.OutpaymentPerMinute, '<span style="color: red;" data-toggle="tooltip" data-title="OutpaymentPerMinute Decrease" data-placement="top">&#9660;</span>',''))) AS `OutpaymentPerMinute`,
+					CONCAT(tblTempRateTableDIDRate.NewSurcharges, IF(tblTempRateTableDIDRate.NewSurcharges > RateTableDIDRate.Surcharges, '<span style="color: green;" data-toggle="tooltip" data-title="Surcharges Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewSurcharges < RateTableDIDRate.Surcharges, '<span style="color: red;" data-toggle="tooltip" data-title="Surcharges Decrease" data-placement="top">&#9660;</span>',''))) AS `Surcharges`,
+					CONCAT(tblTempRateTableDIDRate.NewChargeback, IF(tblTempRateTableDIDRate.NewChargeback > RateTableDIDRate.Chargeback, '<span style="color: green;" data-toggle="tooltip" data-title="Chargeback Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewChargeback < RateTableDIDRate.Chargeback, '<span style="color: red;" data-toggle="tooltip" data-title="Chargeback Decrease" data-placement="top">&#9660;</span>',''))) AS `Chargeback`,
+					CONCAT(tblTempRateTableDIDRate.NewCollectionCostAmount, IF(tblTempRateTableDIDRate.NewCollectionCostAmount > RateTableDIDRate.CollectionCostAmount, '<span style="color: green;" data-toggle="tooltip" data-title="CollectionCostAmount Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewCollectionCostAmount < RateTableDIDRate.CollectionCostAmount, '<span style="color: red;" data-toggle="tooltip" data-title="CollectionCostAmount Decrease" data-placement="top">&#9660;</span>',''))) AS `CollectionCostAmount`,
+					CONCAT(tblTempRateTableDIDRate.NewCollectionCostPercentage, IF(tblTempRateTableDIDRate.NewCollectionCostPercentage > RateTableDIDRate.CollectionCostPercentage, '<span style="color: green;" data-toggle="tooltip" data-title="CollectionCostPercentage Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewCollectionCostPercentage < RateTableDIDRate.CollectionCostPercentage, '<span style="color: red;" data-toggle="tooltip" data-title="CollectionCostPercentage Decrease" data-placement="top">&#9660;</span>',''))) AS `CollectionCostPercentage`,
+					CONCAT(tblTempRateTableDIDRate.NewRegistrationCostPerNumber, IF(tblTempRateTableDIDRate.NewRegistrationCostPerNumber > RateTableDIDRate.RegistrationCostPerNumber, '<span style="color: green;" data-toggle="tooltip" data-title="RegistrationCostPerNumber Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewRegistrationCostPerNumber < RateTableDIDRate.RegistrationCostPerNumber, '<span style="color: red;" data-toggle="tooltip" data-title="RegistrationCostPerNumber Decrease" data-placement="top">&#9660;</span>',''))) AS `RegistrationCostPerNumber`,
 					tblTempRateTableDIDRate.EffectiveDate,
 					tblTempRateTableDIDRate.EndDate ,
 					'IncreasedDecreased' AS `Action`,
@@ -6954,7 +6963,7 @@ ThisSP:BEGIN
 				IF @stm != ''
 				THEN
 					SET @stm1 = CONCAT('UPDATE tblTempRateTableRate tvr LEFT JOIN tblRateTableRateChangeLog vrcl ON tvr.TempRateTableRateID=vrcl.TempRateTableRateID SET ',@stm,' WHERE tvr.TimezonesID=',p_TimezonesID,' AND tvr.TempRateTableRateID=vrcl.TempRateTableRateID AND vrcl.Action = "',p_Action,'" AND tvr.ProcessID = "',p_ProcessID,'" ',@stm_and_code,' ',@stm_and_desc,' ',@stm_and_origination_code,' ',@stm_and_origination_desc,';');
-					select @stm1;
+
 					PREPARE stmt1 FROM @stm1;
 					EXECUTE stmt1;
 					DEALLOCATE PREPARE stmt1;
@@ -6998,6 +7007,2420 @@ ThisSP:BEGIN
 				DEALLOCATE PREPARE stmt1;
 			END IF;
 	END CASE;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_CronJobAllPending`;
+DELIMITER //
+CREATE PROCEDURE `prc_CronJobAllPending`(
+	IN `p_CompanyID` INT
+)
+BEGIN
+	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+    SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'CDR'
+		AND js.Code = 'P'
+		AND j.CompanyID = p_CompanyID
+	ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'CDR'
+		AND js.Code = 'I'
+		AND j.CompanyID = p_CompanyID
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID,
+	   TBL1.JobLoggedUserID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'BI'
+        AND js.Code = 'P'
+		AND j.CompanyID = p_CompanyID
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'BI'
+        AND js.Code = 'I'
+		AND j.CompanyID = p_CompanyID
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'CD'
+        AND js.Code = 'P'
+		AND j.CompanyID = p_CompanyID
+		AND j.Options like '%"Format":"Porta"%'
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'CD'
+        AND js.Code = 'I'
+		AND j.CompanyID = p_CompanyID
+		AND j.Options like '%"Format":"Porta"%'
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+
+	SELECT
+		tblCronJobCommand.Command,
+		tblCronJob.CronJobID
+	FROM tblCronJob
+	INNER JOIN tblCronJobCommand
+		ON tblCronJobCommand.CronJobCommandID = tblCronJob.CronJobCommandID
+	WHERE tblCronJob.CompanyID = p_CompanyID
+	AND tblCronJob.Status = 1
+	AND tblCronJob.Active = 0;
+
+
+
+
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'BIS'
+        AND js.Code = 'P'
+		AND j.CompanyID = p_CompanyID
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'BIS'
+        AND js.Code = 'I'
+		AND j.CompanyID = p_CompanyID
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'VD'
+        AND js.Code = 'P'
+		AND j.CompanyID = p_CompanyID
+		AND j.Options like '%"Format":"Porta"%'
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'VD'
+        AND js.Code = 'I'
+		AND j.CompanyID = p_CompanyID
+		AND j.Options like '%"Format":"Porta"%'
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'RCC'
+        AND js.Code = 'P'
+		AND j.CompanyID = p_CompanyID
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'RCC'
+        AND js.Code = 'I'
+		AND j.CompanyID = p_CompanyID
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'RCV'
+        AND js.Code = 'P'
+		AND j.CompanyID = p_CompanyID
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'RCV'
+        AND js.Code = 'I'
+		AND j.CompanyID = p_CompanyID
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'INU'
+        AND js.Code = 'P'
+		AND j.CompanyID = p_CompanyID
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'INU'
+        AND js.Code = 'I'
+		AND j.CompanyID = p_CompanyID
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'CD'
+			AND js.Code = 'p'
+			AND j.CompanyID = p_CompanyID
+			AND j.Options like '%"Format":"Rate Sheet"%'
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'CD'
+			AND js.Code = 'I'
+			AND j.CompanyID = p_CompanyID
+			AND j.Options like '%"Format":"Rate Sheet"%'
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'BIR'
+			AND js.Code = 'p'
+			AND j.CompanyID = p_CompanyID
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'BIR'
+			AND js.Code = 'I'
+			AND j.CompanyID = p_CompanyID
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'BLE'
+			AND js.Code = 'p'
+			AND j.CompanyID = p_CompanyID
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'BLE'
+			AND js.Code = 'I'
+			AND j.CompanyID = p_CompanyID
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'BAE'
+			AND js.Code = 'p'
+			AND j.CompanyID = p_CompanyID
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'BAE'
+			AND js.Code = 'I'
+			AND j.CompanyID = p_CompanyID
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'VU'
+			AND js.Code = 'p'
+			AND j.CompanyID = p_CompanyID
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'VU'
+			AND js.Code = 'I'
+			AND j.CompanyID = p_CompanyID
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+    SELECT
+    	  "CodeDeckUpload",
+        TBL1.JobID,
+        TBL1.Options,
+        TBL1.AccountID
+    FROM
+    (
+        SELECT
+            j.Options,
+            j.AccountID,
+            j.JobID,
+            j.JobLoggedUserID,
+            @row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			   @prev_JobLoggedUserID  := j.JobLoggedUserID,
+ 			   @prev_created_at  := created_at
+        FROM tblJob j
+        INNER JOIN tblJobType jt
+            ON j.JobTypeID = jt.JobTypeID
+        INNER JOIN tblJobStatus js
+            ON j.JobStatusID = js.JobStatusID
+         ,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+        WHERE jt.Code = 'CDU'
+            AND js.Code = 'p'
+            AND j.CompanyID = p_CompanyID
+         ORDER BY j.JobLoggedUserID,j.created_at ASC
+    ) TBL1
+    LEFT JOIN
+    (
+        SELECT
+            JobLoggedUserID
+        FROM tblJob j
+        INNER JOIN tblJobType jt
+            ON j.JobTypeID = jt.JobTypeID
+        INNER JOIN tblJobStatus js
+            ON j.JobStatusID = js.JobStatusID
+        WHERE jt.Code = 'CDU'
+            AND js.Code = 'I'
+            AND j.CompanyID = p_CompanyID
+    ) TBL2
+        ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+    WHERE TBL1.rowno = 1
+    AND TBL2.JobLoggedUserID IS NULL;
+
+
+    SELECT
+        TBL1.JobID,
+        TBL1.Options,
+        TBL1.AccountID
+    FROM
+    (
+        SELECT
+            j.Options,
+            j.AccountID,
+            j.JobID,
+            j.JobLoggedUserID,
+            @row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+				@prev_JobLoggedUserID  := j.JobLoggedUserID,
+				@prev_created_at  := created_at
+        FROM tblJob j
+        INNER JOIN tblJobType jt
+            ON j.JobTypeID = jt.JobTypeID
+        INNER JOIN tblJobStatus js
+            ON j.JobStatusID = js.JobStatusID
+         ,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+        WHERE jt.Code = 'IR'
+            AND js.Code = 'p'
+            AND j.CompanyID = p_CompanyID
+         ORDER BY j.JobLoggedUserID,j.created_at ASC
+    ) TBL1
+    LEFT JOIN
+    (
+        SELECT
+            JobLoggedUserID
+        FROM tblJob j
+        INNER JOIN tblJobType jt
+            ON j.JobTypeID = jt.JobTypeID
+        INNER JOIN tblJobStatus js
+            ON j.JobStatusID = js.JobStatusID
+        WHERE jt.Code = 'IR'
+            AND js.Code = 'I'
+            AND j.CompanyID = p_CompanyID
+    ) TBL2
+        ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+    WHERE TBL1.rowno = 1
+    AND TBL2.JobLoggedUserID IS NULL;
+
+
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'CD'
+        AND js.Code = 'P'
+		AND j.CompanyID = p_CompanyID
+		AND j.Options like '%"Format":"Sippy"%'
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'CD'
+        AND js.Code = 'I'
+		AND j.CompanyID = p_CompanyID
+		AND j.Options like '%"Format":"Sippy"%'
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'VD'
+        AND js.Code = 'P'
+		AND j.CompanyID = p_CompanyID
+		AND j.Options like '%"Format":"Sippy"%'
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'VD'
+        AND js.Code = 'I'
+		AND j.CompanyID = p_CompanyID
+		AND j.Options like '%"Format":"Sippy"%'
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'CD'
+        AND js.Code = 'P'
+		AND j.CompanyID = p_CompanyID
+		AND (j.Options like '%"Format":"Vos 3.2"%' OR j.Options like '%"Format":"Vos 2.0"%')
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'CD'
+        AND js.Code = 'I'
+		AND j.CompanyID = p_CompanyID
+		AND (j.Options like '%"Format":"Vos 3.2"%' OR j.Options like '%"Format":"Vos 2.0"%')
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'VD'
+        AND js.Code = 'P'
+		AND j.CompanyID = p_CompanyID
+		AND (j.Options like '%"Format":"Vos 3.2"%' OR j.Options like '%"Format":"Vos 2.0"%')
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'VD'
+        AND js.Code = 'I'
+		AND j.CompanyID = p_CompanyID
+		AND (j.Options like '%"Format":"Vos 3.2"%' OR j.Options like '%"Format":"Vos 2.0"%')
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'GRT'
+        AND js.Code = 'P'
+		AND j.CompanyID = p_CompanyID
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'GRT'
+        AND js.Code = 'I'
+		AND j.CompanyID = p_CompanyID
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'RTU'
+        AND js.Code = 'P'
+		AND j.CompanyID = p_CompanyID
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'RTU'
+        AND js.Code = 'I'
+		AND j.CompanyID = p_CompanyID
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'DRTU'
+        AND js.Code = 'P'
+		AND j.CompanyID = p_CompanyID
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'DRTU'
+        AND js.Code = 'I'
+		AND j.CompanyID = p_CompanyID
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+    SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'VDR'
+		AND js.Code = 'P'
+		AND j.CompanyID = p_CompanyID
+	ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'VDR'
+		AND js.Code = 'I'
+		AND j.CompanyID = p_CompanyID
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'MGA'
+        AND js.Code = 'P'
+		AND j.CompanyID = p_CompanyID
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'MGA'
+        AND js.Code = 'I'
+		AND j.CompanyID = p_CompanyID
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'DSU'
+        AND js.Code = 'P'
+		AND j.CompanyID = p_CompanyID
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'DSU'
+        AND js.Code = 'I'
+		AND j.CompanyID = p_CompanyID
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'QIP'
+			AND js.Code = 'p'
+			AND j.CompanyID = p_CompanyID
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'QIP'
+			AND js.Code = 'I'
+			AND j.CompanyID = p_CompanyID
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'ICU'
+			AND js.Code = 'p'
+			AND j.CompanyID = p_CompanyID
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'ICU'
+			AND js.Code = 'I'
+			AND j.CompanyID = p_CompanyID
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'IU'
+			AND js.Code = 'p'
+			AND j.CompanyID = p_CompanyID
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'IU'
+			AND js.Code = 'I'
+			AND j.CompanyID = p_CompanyID
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'CD'
+        AND js.Code = 'P'
+		AND j.CompanyID = p_CompanyID
+		AND j.Options like '%"Format":"Mor"%'
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'CD'
+        AND js.Code = 'I'
+		AND j.CompanyID = p_CompanyID
+		AND j.Options like '%"Format":"Mor"%'
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'VD'
+        AND js.Code = 'P'
+		AND j.CompanyID = p_CompanyID
+		AND j.Options like '%"Format":"Mor"%'
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'VD'
+        AND js.Code = 'I'
+		AND j.CompanyID = p_CompanyID
+		AND j.Options like '%"Format":"Mor"%'
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'XIP'
+			AND js.Code = 'p'
+			AND j.CompanyID = p_CompanyID
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'XIP'
+			AND js.Code = 'I'
+			AND j.CompanyID = p_CompanyID
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'CD'
+        AND js.Code = 'P'
+		AND j.CompanyID = p_CompanyID
+		AND j.Options like '%"Format":"M2"%'
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'CD'
+        AND js.Code = 'I'
+		AND j.CompanyID = p_CompanyID
+		AND j.Options like '%"Format":"M2"%'
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'VD'
+        AND js.Code = 'P'
+		AND j.CompanyID = p_CompanyID
+		AND j.Options like '%"Format":"M2"%'
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'VD'
+        AND js.Code = 'I'
+		AND j.CompanyID = p_CompanyID
+		AND j.Options like '%"Format":"M2"%'
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'QPP'
+			AND js.Code = 'p'
+			AND j.CompanyID = p_CompanyID
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'QPP'
+			AND js.Code = 'I'
+			AND j.CompanyID = p_CompanyID
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+	SELECT
+        TBL1.JobID,
+        TBL1.Options,
+        TBL1.AccountID
+    FROM
+    (
+        SELECT
+            j.Options,
+            j.AccountID,
+            j.JobID,
+            j.JobLoggedUserID,
+            @row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+				@prev_JobLoggedUserID  := j.JobLoggedUserID,
+				@prev_created_at  := created_at
+        FROM tblJob j
+        INNER JOIN tblJobType jt
+            ON j.JobTypeID = jt.JobTypeID
+        INNER JOIN tblJobStatus js
+            ON j.JobStatusID = js.JobStatusID
+         ,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+        WHERE jt.Code = 'BDS'
+            AND js.Code = 'p'
+            AND j.CompanyID = p_CompanyID
+         ORDER BY j.JobLoggedUserID,j.created_at ASC
+    ) TBL1
+    LEFT JOIN
+    (
+        SELECT
+            JobLoggedUserID
+        FROM tblJob j
+        INNER JOIN tblJobType jt
+            ON j.JobTypeID = jt.JobTypeID
+        INNER JOIN tblJobStatus js
+            ON j.JobStatusID = js.JobStatusID
+        WHERE jt.Code = 'BDS'
+            AND js.Code = 'I'
+            AND j.CompanyID = p_CompanyID
+    ) TBL2
+        ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+    WHERE TBL1.rowno = 1
+    AND TBL2.JobLoggedUserID IS NULL;
+
+
+
+
+    SELECT
+        TBL1.JobID,
+        TBL1.Options,
+        TBL1.AccountID
+    FROM
+    (
+        SELECT
+            j.Options,
+            j.AccountID,
+            j.JobID,
+            j.JobLoggedUserID,
+            @row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+				@prev_JobLoggedUserID  := j.JobLoggedUserID,
+				@prev_created_at  := created_at
+        FROM tblJob j
+        INNER JOIN tblJobType jt
+            ON j.JobTypeID = jt.JobTypeID
+        INNER JOIN tblJobStatus js
+            ON j.JobStatusID = js.JobStatusID
+         ,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+        WHERE jt.Code = 'DR'
+            AND js.Code = 'p'
+            AND j.CompanyID = p_CompanyID
+         ORDER BY j.JobLoggedUserID,j.created_at ASC
+    ) TBL1
+    LEFT JOIN
+    (
+        SELECT
+            JobLoggedUserID
+        FROM tblJob j
+        INNER JOIN tblJobType jt
+            ON j.JobTypeID = jt.JobTypeID
+        INNER JOIN tblJobStatus js
+            ON j.JobStatusID = js.JobStatusID
+        WHERE jt.Code = 'DR'
+            AND js.Code = 'I'
+            AND j.CompanyID = p_CompanyID
+    ) TBL2
+        ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+    WHERE TBL1.rowno = 1
+    AND TBL2.JobLoggedUserID IS NULL;
+
+      SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'BCS'
+        AND js.Code = 'P'
+		AND j.CompanyID = p_CompanyID
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'BCS'
+        AND js.Code = 'I'
+		AND j.CompanyID = p_CompanyID
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_WSProcessRateTableDIDRate`;
+DELIMITER //
+CREATE PROCEDURE `prc_WSProcessRateTableDIDRate`(
+	IN `p_RateTableId` INT,
+	IN `p_replaceAllRates` INT,
+	IN `p_effectiveImmediately` INT,
+	IN `p_processId` VARCHAR(200),
+	IN `p_addNewCodesToCodeDeck` INT,
+	IN `p_companyId` INT,
+	IN `p_dialstringid` INT,
+	IN `p_dialcodeSeparator` VARCHAR(50),
+	IN `p_seperatecolumn` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_list_option` INT,
+	IN `p_UserName` TEXT
+)
+ThisSP:BEGIN
+
+	DECLARE v_AffectedRecords_ INT DEFAULT 0;
+	DECLARE v_CodeDeckId_ INT ;
+	DECLARE totaldialstringcode INT(11) DEFAULT 0;
+	DECLARE newstringcode INT(11) DEFAULT 0;
+	DECLARE totalduplicatecode INT(11);
+	DECLARE errormessage longtext;
+	DECLARE errorheader longtext;
+	DECLARE v_RateTableCurrencyID_ INT;
+	DECLARE v_CompanyCurrencyID_ INT;
+	DECLARE v_RateApprovalProcess_ INT;
+	DECLARE v_RateTableAppliedTo_ INT;
+
+	DECLARE v_pointer_ INT;
+	DECLARE v_rowCount_ INT;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SELECT Value INTO v_RateApprovalProcess_ FROM tblCompanySetting WHERE CompanyID = p_companyId AND `Key`='RateApprovalProcess';
+	SELECT AppliedTo INTO v_RateTableAppliedTo_ FROM tblRateTable WHERE RateTableID = p_RateTableId;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_JobLog_;
+	CREATE TEMPORARY TABLE tmp_JobLog_ (
+		Message longtext
+	);
+
+    DROP TEMPORARY TABLE IF EXISTS tmp_TempTimezones_;
+    CREATE TEMPORARY TABLE tmp_TempTimezones_ (
+        TimezonesID INT
+    );
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_split_RateTableDIDRate_;
+	CREATE TEMPORARY TABLE tmp_split_RateTableDIDRate_ (
+		`TempRateTableDIDRateID` int,
+		`CodeDeckId` int ,
+		`TimezonesID` INT,
+		`OriginationCode` varchar(50) NULL DEFAULT NULL,
+		`OriginationDescription` varchar(200) NULL DEFAULT NULL,
+		`Code` varchar(50) ,
+		`Description` varchar(200) ,
+		`OneOffCost` decimal(18,6) DEFAULT NULL,
+	  	`MonthlyCost` decimal(18,6) DEFAULT NULL,
+	  	`CostPerCall` decimal(18,6) DEFAULT NULL,
+	  	`CostPerMinute` decimal(18,6) DEFAULT NULL,
+	  	`SurchargePerCall` decimal(18,6) DEFAULT NULL,
+	  	`SurchargePerMinute` decimal(18,6) DEFAULT NULL,
+	  	`OutpaymentPerCall` decimal(18,6) DEFAULT NULL,
+	  	`OutpaymentPerMinute` decimal(18,6) DEFAULT NULL,
+	  	`Surcharges` decimal(18,6) DEFAULT NULL,
+	  	`Chargeback` decimal(18,6) DEFAULT NULL,
+	  	`CollectionCostAmount` decimal(18,6) DEFAULT NULL,
+	  	`CollectionCostPercentage` decimal(18,6) DEFAULT NULL,
+	  	`RegistrationCostPerNumber` decimal(18,6) DEFAULT NULL,
+		`EffectiveDate` Datetime ,
+		`EndDate` Datetime ,
+		`Change` varchar(100) ,
+		`ProcessId` varchar(200) ,
+		`DialStringPrefix` varchar(500) ,
+		INDEX tmp_EffectiveDate (`EffectiveDate`),
+		INDEX tmp_OriginationCode (`OriginationCode`),
+		INDEX tmp_Code (`Code`),
+		INDEX tmp_CC (`Code`,`Change`),
+		INDEX tmp_Change (`Change`)
+	);
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_TempRateTableDIDRate_;
+	CREATE TEMPORARY TABLE tmp_TempRateTableDIDRate_ (
+		TempRateTableDIDRateID int,
+		`CodeDeckId` int ,
+		`TimezonesID` INT,
+		`OriginationCode` varchar(50) NULL DEFAULT NULL,
+		`OriginationDescription` varchar(200) NULL DEFAULT NULL,
+		`Code` varchar(50) ,
+		`Description` varchar(200) ,
+		`OneOffCost` decimal(18,6) DEFAULT NULL,
+	  	`MonthlyCost` decimal(18,6) DEFAULT NULL,
+	  	`CostPerCall` decimal(18,6) DEFAULT NULL,
+	  	`CostPerMinute` decimal(18,6) DEFAULT NULL,
+	  	`SurchargePerCall` decimal(18,6) DEFAULT NULL,
+	  	`SurchargePerMinute` decimal(18,6) DEFAULT NULL,
+	  	`OutpaymentPerCall` decimal(18,6) DEFAULT NULL,
+	  	`OutpaymentPerMinute` decimal(18,6) DEFAULT NULL,
+	  	`Surcharges` decimal(18,6) DEFAULT NULL,
+	  	`Chargeback` decimal(18,6) DEFAULT NULL,
+	  	`CollectionCostAmount` decimal(18,6) DEFAULT NULL,
+	  	`CollectionCostPercentage` decimal(18,6) DEFAULT NULL,
+	  	`RegistrationCostPerNumber` decimal(18,6) DEFAULT NULL,
+		`EffectiveDate` Datetime ,
+		`EndDate` Datetime ,
+		`Change` varchar(100) ,
+		`ProcessId` varchar(200) ,
+		`DialStringPrefix` varchar(500) ,
+		INDEX tmp_EffectiveDate (`EffectiveDate`),
+		INDEX tmp_OriginationCode (`OriginationCode`),
+		INDEX tmp_Code (`Code`),
+		INDEX tmp_CC (`Code`,`Change`),
+		INDEX tmp_Change (`Change`)
+	);
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_Delete_RateTableDIDRate;
+	CREATE TEMPORARY TABLE tmp_Delete_RateTableDIDRate (
+		RateTableDIDRateID INT,
+		RateTableId INT,
+		TimezonesID INT,
+		OriginationRateID INT,
+		OriginationCode VARCHAR(50),
+		OriginationDescription VARCHAR(200),
+		RateId INT,
+		Code VARCHAR(50),
+		Description VARCHAR(200),
+		OneOffCost decimal(18,6) DEFAULT NULL,
+	  	MonthlyCost decimal(18,6) DEFAULT NULL,
+	  	CostPerCall decimal(18,6) DEFAULT NULL,
+	  	CostPerMinute decimal(18,6) DEFAULT NULL,
+	  	SurchargePerCall decimal(18,6) DEFAULT NULL,
+	  	SurchargePerMinute decimal(18,6) DEFAULT NULL,
+	  	OutpaymentPerCall decimal(18,6) DEFAULT NULL,
+	  	OutpaymentPerMinute decimal(18,6) DEFAULT NULL,
+	  	Surcharges decimal(18,6) DEFAULT NULL,
+	  	Chargeback decimal(18,6) DEFAULT NULL,
+	  	CollectionCostAmount decimal(18,6) DEFAULT NULL,
+	  	CollectionCostPercentage decimal(18,6) DEFAULT NULL,
+	  	RegistrationCostPerNumber decimal(18,6) DEFAULT NULL,
+		EffectiveDate DATETIME,
+		EndDate Datetime ,
+		deleted_at DATETIME,
+		INDEX tmp_RateTableDIDRateDiscontinued_RateTableDIDRateID (`RateTableDIDRateID`)
+	);
+
+	CALL  prc_RateTableDIDRateCheckDialstringAndDupliacteCode(p_companyId,p_processId,p_dialstringid,p_effectiveImmediately,p_dialcodeSeparator,p_seperatecolumn);
+
+	SELECT COUNT(*) AS COUNT INTO newstringcode from tmp_JobLog_;
+
+ 	INSERT INTO tmp_TempTimezones_
+ 	SELECT DISTINCT TimezonesID from tmp_TempRateTableDIDRate_;
+
+	IF newstringcode = 0
+	THEN
+
+		IF (SELECT count(*) FROM tblRateTableDIDRateChangeLog WHERE ProcessID = p_processId ) > 0
+		THEN
+
+			UPDATE
+				tblRateTableDIDRate vr
+			INNER JOIN tblRateTableDIDRateChangeLog  vrcl
+			on vrcl.RateTableDIDRateID = vr.RateTableDIDRateID
+			SET
+				vr.EndDate = IFNULL(vrcl.EndDate,date(now()))
+			WHERE vrcl.ProcessID = p_processId
+				AND vrcl.`Action`  ='Deleted';
+
+
+			UPDATE tmp_TempRateTableDIDRate_ tblTempRateTableDIDRate
+			JOIN tblRateTableDIDRateChangeLog vrcl
+				ON  vrcl.ProcessId = p_processId
+				AND vrcl.Code = tblTempRateTableDIDRate.Code
+				AND vrcl.OriginationCode = tblTempRateTableDIDRate.OriginationCode
+			SET
+				tblTempRateTableDIDRate.EndDate = vrcl.EndDate
+			WHERE
+				vrcl.`Action` = 'Deleted'
+				AND vrcl.EndDate IS NOT NULL ;
+
+
+		END IF;
+
+
+		IF  p_replaceAllRates = 1
+		THEN
+
+			UPDATE tblRateTableDIDRate
+				SET tblRateTableDIDRate.EndDate = date(now())
+			WHERE RateTableId = p_RateTableId;
+
+		END IF;
+
+
+
+		IF p_list_option = 1
+		THEN
+
+			INSERT INTO tmp_Delete_RateTableDIDRate(
+				RateTableDIDRateID,
+				RateTableId,
+				TimezonesID,
+				OriginationRateID,
+				OriginationCode,
+				OriginationDescription,
+				RateId,
+				Code,
+				Description,
+				OneOffCost,
+				MonthlyCost,
+				CostPerCall,
+				CostPerMinute,
+				SurchargePerCall,
+				SurchargePerMinute,
+				OutpaymentPerCall,
+				OutpaymentPerMinute,
+				Surcharges,
+				Chargeback,
+				CollectionCostAmount,
+				CollectionCostPercentage,
+				RegistrationCostPerNumber,
+				EffectiveDate,
+				EndDate,
+				deleted_at
+			)
+			SELECT DISTINCT
+				tblRateTableDIDRate.RateTableDIDRateID,
+				p_RateTableId AS RateTableId,
+				tblRateTableDIDRate.TimezonesID,
+				tblRateTableDIDRate.OriginationRateID,
+				OriginationRate.Code AS OriginationCode,
+				OriginationRate.Description AS OriginationDescription,
+				tblRateTableDIDRate.RateId,
+				tblRate.Code,
+				tblRate.Description,
+				tblRateTableDIDRate.OneOffCost,
+				tblRateTableDIDRate.MonthlyCost,
+				tblRateTableDIDRate.CostPerCall,
+				tblRateTableDIDRate.CostPerMinute,
+				tblRateTableDIDRate.SurchargePerCall,
+				tblRateTableDIDRate.SurchargePerMinute,
+				tblRateTableDIDRate.OutpaymentPerCall,
+				tblRateTableDIDRate.OutpaymentPerMinute,
+				tblRateTableDIDRate.Surcharges,
+				tblRateTableDIDRate.Chargeback,
+				tblRateTableDIDRate.CollectionCostAmount,
+				tblRateTableDIDRate.CollectionCostPercentage,
+				tblRateTableDIDRate.RegistrationCostPerNumber,
+				tblRateTableDIDRate.EffectiveDate,
+				IFNULL(tblRateTableDIDRate.EndDate,date(now())) ,
+				now() AS deleted_at
+			FROM tblRateTableDIDRate
+			JOIN tblRate
+				ON tblRate.RateID = tblRateTableDIDRate.RateId
+				AND tblRate.CompanyID = p_companyId
+			LEFT JOIN tblRate AS OriginationRate
+				ON OriginationRate.RateID = tblRateTableDIDRate.OriginationRateID
+				AND OriginationRate.CompanyID = p_companyId
+		  	JOIN tmp_TempTimezones_
+		  		ON tmp_TempTimezones_.TimezonesID = tblRateTableDIDRate.TimezonesID
+			LEFT JOIN tmp_TempRateTableDIDRate_ as tblTempRateTableDIDRate
+				ON tblTempRateTableDIDRate.Code = tblRate.Code
+				AND ((tblTempRateTableDIDRate.OriginationCode IS NULL AND OriginationRate.Code IS NULL) OR (tblTempRateTableDIDRate.OriginationCode = OriginationRate.Code))
+				AND tblTempRateTableDIDRate.TimezonesID = tblRateTableDIDRate.TimezonesID
+				AND  tblTempRateTableDIDRate.ProcessId = p_processId
+				AND tblTempRateTableDIDRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block')
+			WHERE tblRateTableDIDRate.RateTableId = p_RateTableId
+				AND tblTempRateTableDIDRate.Code IS NULL
+				AND ( tblRateTableDIDRate.EndDate is NULL OR tblRateTableDIDRate.EndDate <= date(now()) )
+			ORDER BY RateTableDIDRateID ASC;
+
+
+			UPDATE tblRateTableDIDRate
+			JOIN tmp_Delete_RateTableDIDRate ON tblRateTableDIDRate.RateTableDIDRateID = tmp_Delete_RateTableDIDRate.RateTableDIDRateID
+				SET tblRateTableDIDRate.EndDate = date(now())
+			WHERE
+				tblRateTableDIDRate.RateTableId = p_RateTableId;
+
+		END IF;
+
+
+		IF ( (SELECT count(*) FROM tblRateTableDIDRate WHERE  RateTableId = p_RateTableId AND EndDate <= NOW() )  > 0  ) THEN
+
+			call prc_ArchiveOldRateTableDIDRate(p_RateTableId, NULL,p_UserName);
+
+		END IF;
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_TempRateTableDIDRate_2;
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_TempRateTableDIDRate_2 AS (SELECT * FROM tmp_TempRateTableDIDRate_);
+
+		IF  p_addNewCodesToCodeDeck = 1
+		THEN
+			-- Destination Code
+			INSERT INTO tblRate (
+				CompanyID,
+				Code,
+				Description,
+				CreatedBy,
+				CountryID,
+				CodeDeckId,
+				Interval1,
+				IntervalN
+			)
+			SELECT DISTINCT
+				p_companyId,
+				vc.Code,
+				vc.Description,
+				'RMService',
+				fnGetCountryIdByCodeAndCountry (vc.Code ,vc.Description) AS CountryID,
+				CodeDeckId,
+				Interval1,
+				IntervalN
+			FROM
+			(
+				SELECT DISTINCT
+					tblTempRateTableDIDRate.Code,
+					tblTempRateTableDIDRate.Description,
+					tblTempRateTableDIDRate.CodeDeckId,
+					1 AS Interval1,
+					1 AS IntervalN
+				FROM tmp_TempRateTableDIDRate_  as tblTempRateTableDIDRate
+				LEFT JOIN tblRate
+					ON tblRate.Code = tblTempRateTableDIDRate.Code
+					AND tblRate.CompanyID = p_companyId
+					AND tblRate.CodeDeckId = tblTempRateTableDIDRate.CodeDeckId
+				WHERE tblRate.RateID IS NULL
+					AND tblTempRateTableDIDRate.`Change` NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')
+			) vc;
+
+			-- Origination Code
+			INSERT INTO tblRate (
+				CompanyID,
+				Code,
+				Description,
+				CreatedBy,
+				CountryID,
+				CodeDeckId,
+				Interval1,
+				IntervalN
+			)
+			SELECT DISTINCT
+				p_companyId,
+				vc.Code,
+				vc.Description,
+				'RMService',
+				fnGetCountryIdByCodeAndCountry (vc.Code ,vc.Description) AS CountryID,
+				CodeDeckId,
+				Interval1,
+				IntervalN
+			FROM
+			(
+				SELECT DISTINCT
+					tblTempRateTableDIDRate.OriginationCode AS Code,
+					tblTempRateTableDIDRate.OriginationDescription AS Description,
+					tblTempRateTableDIDRate.CodeDeckId,
+					1 AS Interval1,
+					1 AS IntervalN
+				FROM tmp_TempRateTableDIDRate_  as tblTempRateTableDIDRate
+				LEFT JOIN tblRate
+					ON tblRate.Code = tblTempRateTableDIDRate.OriginationCode
+					AND tblRate.CompanyID = p_companyId
+					AND tblRate.CodeDeckId = tblTempRateTableDIDRate.CodeDeckId
+				WHERE tblRate.RateID IS NULL
+					AND tblTempRateTableDIDRate.OriginationCode IS NOT NULL AND tblTempRateTableDIDRate.OriginationCode != ''
+					AND tblTempRateTableDIDRate.`Change` NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')
+			) vc;
+
+		ELSE
+			SELECT GROUP_CONCAT(code) into errormessage FROM(
+				SELECT DISTINCT
+					c.Code as code, 1 as a
+				FROM
+				(
+					SELECT DISTINCT
+						temp.Code,
+						MAX(temp.Description) AS Description
+					FROM
+					(
+						SELECT DISTINCT
+							tblTempRateTableDIDRate.Code,
+							tblTempRateTableDIDRate.Description
+						FROM tmp_TempRateTableDIDRate_  as tblTempRateTableDIDRate
+						LEFT JOIN tblRate
+							ON tblRate.Code = tblTempRateTableDIDRate.Code
+							AND tblRate.CompanyID = p_companyId
+							AND tblRate.CodeDeckId = tblTempRateTableDIDRate.CodeDeckId
+						WHERE tblRate.RateID IS NULL
+							AND tblTempRateTableDIDRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')
+
+						UNION ALL
+
+						SELECT DISTINCT
+							tblTempRateTableDIDRate.OriginationCode AS Code,
+							tblTempRateTableDIDRate.OriginationDescription AS Description
+						FROM tmp_TempRateTableDIDRate_2  as tblTempRateTableDIDRate
+						LEFT JOIN tblRate
+							ON tblRate.Code = tblTempRateTableDIDRate.OriginationCode
+							AND tblRate.CompanyID = p_companyId
+							AND tblRate.CodeDeckId = tblTempRateTableDIDRate.CodeDeckId
+						WHERE tblRate.RateID IS NULL
+							AND tblTempRateTableDIDRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')
+					) temp
+					GROUP BY Code
+				) c
+			) as tbl GROUP BY a;
+
+			IF errormessage IS NOT NULL
+			THEN
+				INSERT INTO tmp_JobLog_ (Message)
+				SELECT DISTINCT
+					CONCAT(tbl.Code , ' CODE DOES NOT EXIST IN CODE DECK')
+				FROM
+				(
+					SELECT DISTINCT
+						temp.Code,
+						MAX(temp.Description) AS Description
+					FROM
+					(
+						SELECT DISTINCT
+							tblTempRateTableDIDRate.Code,
+							tblTempRateTableDIDRate.Description
+						FROM tmp_TempRateTableDIDRate_  as tblTempRateTableDIDRate
+						LEFT JOIN tblRate
+							ON tblRate.Code = tblTempRateTableDIDRate.Code
+							AND tblRate.CompanyID = p_companyId
+							AND tblRate.CodeDeckId = tblTempRateTableDIDRate.CodeDeckId
+						WHERE tblRate.RateID IS NULL
+							AND tblTempRateTableDIDRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')
+
+						UNION ALL
+
+						SELECT DISTINCT
+							tblTempRateTableDIDRate.OriginationCode AS Code,
+							tblTempRateTableDIDRate.OriginationDescription AS Description
+						FROM tmp_TempRateTableDIDRate_2  as tblTempRateTableDIDRate
+						LEFT JOIN tblRate
+							ON tblRate.Code = tblTempRateTableDIDRate.OriginationCode
+							AND tblRate.CompanyID = p_companyId
+							AND tblRate.CodeDeckId = tblTempRateTableDIDRate.CodeDeckId
+						WHERE tblRate.RateID IS NULL
+							AND tblTempRateTableDIDRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')
+					) temp
+					GROUP BY Code
+				) as tbl;
+			END IF;
+		END IF;
+
+
+		UPDATE tblRateTableDIDRate
+		INNER JOIN tblRate
+			ON tblRate.RateID = tblRateTableDIDRate.RateId
+			AND tblRate.CompanyID = p_companyId
+		LEFT JOIN tblRate AS OriginationRate
+			ON OriginationRate.RateID = tblRateTableDIDRate.OriginationRateID
+			AND OriginationRate.CompanyID = p_companyId
+		INNER JOIN tmp_TempRateTableDIDRate_ as tblTempRateTableDIDRate
+			ON tblRate.Code = tblTempRateTableDIDRate.Code
+			AND ((tblTempRateTableDIDRate.OriginationCode IS NULL AND OriginationRate.Code IS NULL) OR (tblTempRateTableDIDRate.OriginationCode = OriginationRate.Code))
+			AND tblTempRateTableDIDRate.TimezonesID = tblRateTableDIDRate.TimezonesID
+			AND tblTempRateTableDIDRate.Change IN ('Delete', 'R', 'D', 'Blocked', 'Block')
+		SET tblRateTableDIDRate.EndDate = IFNULL(tblTempRateTableDIDRate.EndDate,date(now()))
+		WHERE tblRateTableDIDRate.RateTableId = p_RateTableId;
+
+
+		DELETE tblTempRateTableDIDRate
+		FROM tmp_TempRateTableDIDRate_ as tblTempRateTableDIDRate
+		JOIN tblRate
+			ON tblRate.Code = tblTempRateTableDIDRate.Code
+			AND tblRate.CompanyID = p_companyId
+			AND tblRate.CodeDeckId = tblTempRateTableDIDRate.CodeDeckId
+		LEFT JOIN tblRate AS OriginationRate
+			ON OriginationRate.Code = tblTempRateTableDIDRate.OriginationCode
+			AND OriginationRate.CompanyID = p_companyId
+			AND OriginationRate.CodeDeckId = tblTempRateTableDIDRate.CodeDeckId
+		JOIN tblRateTableDIDRate
+			ON tblRateTableDIDRate.RateId = tblRate.RateId
+			AND ((IFNULL(tblRateTableDIDRate.OriginationRateID,0) = 0 AND OriginationRate.RateID IS NULL) OR (tblRateTableDIDRate.OriginationRateID = OriginationRate.RateID))
+			AND tblRateTableDIDRate.RateTableId = p_RateTableId
+			AND tblRateTableDIDRate.TimezonesID = tblTempRateTableDIDRate.TimezonesID
+			AND IFNULL(tblTempRateTableDIDRate.OneOffCost,0) = IFNULL(tblRateTableDIDRate.OneOffCost,0)
+        	AND IFNULL(tblTempRateTableDIDRate.MonthlyCost,0) = IFNULL(tblRateTableDIDRate.MonthlyCost,0)
+        	AND IFNULL(tblTempRateTableDIDRate.CostPerCall,0) = IFNULL(tblRateTableDIDRate.CostPerCall,0)
+        	AND IFNULL(tblTempRateTableDIDRate.CostPerMinute,0) = IFNULL(tblRateTableDIDRate.CostPerMinute,0)
+        	AND IFNULL(tblTempRateTableDIDRate.SurchargePerCall,0) = IFNULL(tblRateTableDIDRate.SurchargePerCall,0)
+        	AND IFNULL(tblTempRateTableDIDRate.SurchargePerMinute,0) = IFNULL(tblRateTableDIDRate.SurchargePerMinute,0)
+        	AND IFNULL(tblTempRateTableDIDRate.OutpaymentPerCall,0) = IFNULL(tblRateTableDIDRate.OutpaymentPerCall,0)
+        	AND IFNULL(tblTempRateTableDIDRate.OutpaymentPerMinute,0) = IFNULL(tblRateTableDIDRate.OutpaymentPerMinute,0)
+        	AND IFNULL(tblTempRateTableDIDRate.Surcharges,0) = IFNULL(tblRateTableDIDRate.Surcharges,0)
+        	AND IFNULL(tblTempRateTableDIDRate.Chargeback,0) = IFNULL(tblRateTableDIDRate.Chargeback,0)
+        	AND IFNULL(tblTempRateTableDIDRate.CollectionCostAmount,0) = IFNULL(tblRateTableDIDRate.CollectionCostAmount,0)
+        	AND IFNULL(tblTempRateTableDIDRate.CollectionCostPercentage,0) = IFNULL(tblRateTableDIDRate.CollectionCostPercentage,0)
+        	AND IFNULL(tblTempRateTableDIDRate.RegistrationCostPerNumber,0) = IFNULL(tblRateTableDIDRate.RegistrationCostPerNumber,0)
+		WHERE
+			tblTempRateTableDIDRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block');
+
+
+		SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();
+
+		SELECT CurrencyID into v_RateTableCurrencyID_ FROM tblCurrency WHERE CurrencyID=(SELECT CurrencyID FROM tblRateTable WHERE RateTableId=p_RateTableId);
+		SELECT CurrencyID into v_CompanyCurrencyID_ FROM tblCurrency WHERE CurrencyID=(SELECT CurrencyId FROM tblCompany WHERE CompanyID=p_companyId);
+
+
+		UPDATE tmp_TempRateTableDIDRate_ as tblTempRateTableDIDRate
+		JOIN tblRate
+			ON tblRate.Code = tblTempRateTableDIDRate.Code
+			AND tblRate.CompanyID = p_companyId
+			AND tblRate.CodeDeckId = tblTempRateTableDIDRate.CodeDeckId
+		LEFT JOIN tblRate AS OriginationRate
+			ON OriginationRate.Code = tblTempRateTableDIDRate.OriginationCode
+			AND OriginationRate.CompanyID = p_companyId
+			AND OriginationRate.CodeDeckId = tblTempRateTableDIDRate.CodeDeckId
+		JOIN tblRateTableDIDRate
+			ON tblRateTableDIDRate.RateId = tblRate.RateId
+			AND tblRateTableDIDRate.RateTableId = p_RateTableId
+			AND tblRateTableDIDRate.TimezonesID = tblTempRateTableDIDRate.TimezonesID
+		SET tblRateTableDIDRate.EndDate = NOW()
+		WHERE
+			tblRateTableDIDRate.RateId = tblRate.RateId
+			AND ((IFNULL(tblRateTableDIDRate.OriginationRateID,0) = 0 AND OriginationRate.RateID IS NULL) OR (tblRateTableDIDRate.OriginationRateID = OriginationRate.RateID))
+			AND (
+				tblTempRateTableDIDRate.OneOffCost <> tblRateTableDIDRate.OneOffCost
+				OR tblTempRateTableDIDRate.MonthlyCost <> tblRateTableDIDRate.MonthlyCost
+				OR tblTempRateTableDIDRate.CostPerCall <> tblRateTableDIDRate.CostPerCall
+				OR tblTempRateTableDIDRate.CostPerMinute <> tblRateTableDIDRate.CostPerMinute
+				OR tblTempRateTableDIDRate.SurchargePerCall <> tblRateTableDIDRate.SurchargePerCall
+				OR tblTempRateTableDIDRate.SurchargePerMinute <> tblRateTableDIDRate.SurchargePerMinute
+				OR tblTempRateTableDIDRate.OutpaymentPerCall <> tblRateTableDIDRate.OutpaymentPerCall
+				OR tblTempRateTableDIDRate.OutpaymentPerMinute <> tblRateTableDIDRate.OutpaymentPerMinute
+				OR tblTempRateTableDIDRate.Surcharges <> tblRateTableDIDRate.Surcharges
+				OR tblTempRateTableDIDRate.Chargeback <> tblRateTableDIDRate.Chargeback
+				OR tblTempRateTableDIDRate.CollectionCostAmount <> tblRateTableDIDRate.CollectionCostAmount
+				OR tblTempRateTableDIDRate.CollectionCostPercentage <> tblRateTableDIDRate.CollectionCostPercentage
+				OR tblTempRateTableDIDRate.RegistrationCostPerNumber <> tblRateTableDIDRate.RegistrationCostPerNumber
+			)
+			AND tblTempRateTableDIDRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')
+			AND DATE_FORMAT (tblRateTableDIDRate.EffectiveDate, '%Y-%m-%d') = DATE_FORMAT (tblTempRateTableDIDRate.EffectiveDate, '%Y-%m-%d');
+
+
+		call prc_ArchiveOldRateTableDIDRate(p_RateTableId, NULL,p_UserName);
+
+		SET @stm1 = CONCAT('
+			INSERT INTO tblRateTableDIDRate (
+				RateTableId,
+				TimezonesID,
+				OriginationRateID,
+				RateId,
+				OneOffCost,
+				MonthlyCost,
+				CostPerCall,
+				CostPerMinute,
+				SurchargePerCall,
+				SurchargePerMinute,
+				OutpaymentPerCall,
+				OutpaymentPerMinute,
+				Surcharges,
+				Chargeback,
+				CollectionCostAmount,
+				CollectionCostPercentage,
+				RegistrationCostPerNumber,
+				EffectiveDate,
+				EndDate,
+				ApprovedStatus
+			)
+			SELECT DISTINCT
+				',p_RateTableId,' AS RateTableId,
+				tblTempRateTableDIDRate.TimezonesID,
+				OriginationRate.RateID AS OriginationRateID,
+				tblRate.RateID,
+		');
+
+		SET @stm2 = '';
+		IF p_CurrencyID > 0 AND p_CurrencyID != v_RateTableCurrencyID_
+        THEN
+			IF p_CurrencyID = v_CompanyCurrencyID_
+            THEN
+				SET @stm2 = CONCAT('
+				    ( tblTempRateTableDIDRate.OneOffCost  * (SELECT Value from tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',v_RateTableCurrencyID_,' and CompanyID = ',p_companyId,' ) ) AS OneOffCost,
+				    ( tblTempRateTableDIDRate.MonthlyCost  * (SELECT Value from tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',v_RateTableCurrencyID_,' and CompanyID = ',p_companyId,' ) ) AS MonthlyCost,
+				    ( tblTempRateTableDIDRate.CostPerCall  * (SELECT Value from tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',v_RateTableCurrencyID_,' and CompanyID = ',p_companyId,' ) ) AS CostPerCall,
+				    ( tblTempRateTableDIDRate.CostPerMinute  * (SELECT Value from tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',v_RateTableCurrencyID_,' and CompanyID = ',p_companyId,' ) ) AS CostPerMinute,
+				    ( tblTempRateTableDIDRate.SurchargePerCall  * (SELECT Value from tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',v_RateTableCurrencyID_,' and CompanyID = ',p_companyId,' ) ) AS SurchargePerCall,
+				    ( tblTempRateTableDIDRate.SurchargePerMinute  * (SELECT Value from tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',v_RateTableCurrencyID_,' and CompanyID = ',p_companyId,' ) ) AS SurchargePerMinute,
+				    ( tblTempRateTableDIDRate.OutpaymentPerCall  * (SELECT Value from tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',v_RateTableCurrencyID_,' and CompanyID = ',p_companyId,' ) ) AS OutpaymentPerCall,
+				    ( tblTempRateTableDIDRate.OutpaymentPerMinute  * (SELECT Value from tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',v_RateTableCurrencyID_,' and CompanyID = ',p_companyId,' ) ) AS OutpaymentPerMinute,
+				    ( tblTempRateTableDIDRate.Surcharges  * (SELECT Value from tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',v_RateTableCurrencyID_,' and CompanyID = ',p_companyId,' ) ) AS Surcharges,
+				    ( tblTempRateTableDIDRate.Chargeback  * (SELECT Value from tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',v_RateTableCurrencyID_,' and CompanyID = ',p_companyId,' ) ) AS Chargeback,
+				    ( tblTempRateTableDIDRate.CollectionCostAmount  * (SELECT Value from tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',v_RateTableCurrencyID_,' and CompanyID = ',p_companyId,' ) ) AS CollectionCostAmount,
+				    ( tblTempRateTableDIDRate.CollectionCostPercentage  * (SELECT Value from tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',v_RateTableCurrencyID_,' and CompanyID = ',p_companyId,' ) ) AS CollectionCostPercentage,
+				    ( tblTempRateTableDIDRate.RegistrationCostPerNumber  * (SELECT Value from tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',v_RateTableCurrencyID_,' and CompanyID = ',p_companyId,' ) ) AS RegistrationCostPerNumber,
+				');
+			ELSE
+				SET @stm2 = CONCAT('
+					(SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',v_RateTableCurrencyID_,' AND CompanyID = ',p_companyId,' ) * (tblTempRateTableDIDRate.OneOffCost  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',p_CurrencyID,' AND CompanyID = ',p_companyId,' )) AS OneOffCost,
+					(SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',v_RateTableCurrencyID_,' AND CompanyID = ',p_companyId,' ) * (tblTempRateTableDIDRate.MonthlyCost  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',p_CurrencyID,' AND CompanyID = ',p_companyId,' )) AS MonthlyCost,
+					(SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',v_RateTableCurrencyID_,' AND CompanyID = ',p_companyId,' ) * (tblTempRateTableDIDRate.CostPerCall  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',p_CurrencyID,' AND CompanyID = ',p_companyId,' )) AS CostPerCall,
+					(SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',v_RateTableCurrencyID_,' AND CompanyID = ',p_companyId,' ) * (tblTempRateTableDIDRate.CostPerMinute  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',p_CurrencyID,' AND CompanyID = ',p_companyId,' )) AS CostPerMinute,
+					(SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',v_RateTableCurrencyID_,' AND CompanyID = ',p_companyId,' ) * (tblTempRateTableDIDRate.SurchargePerCall  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',p_CurrencyID,' AND CompanyID = ',p_companyId,' )) AS SurchargePerCall,
+					(SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',v_RateTableCurrencyID_,' AND CompanyID = ',p_companyId,' ) * (tblTempRateTableDIDRate.SurchargePerMinute  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',p_CurrencyID,' AND CompanyID = ',p_companyId,' )) AS SurchargePerMinute,
+					(SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',v_RateTableCurrencyID_,' AND CompanyID = ',p_companyId,' ) * (tblTempRateTableDIDRate.OutpaymentPerCall  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',p_CurrencyID,' AND CompanyID = ',p_companyId,' )) AS OutpaymentPerCall,
+					(SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',v_RateTableCurrencyID_,' AND CompanyID = ',p_companyId,' ) * (tblTempRateTableDIDRate.OutpaymentPerMinute  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',p_CurrencyID,' AND CompanyID = ',p_companyId,' )) AS OutpaymentPerMinute,
+					(SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',v_RateTableCurrencyID_,' AND CompanyID = ',p_companyId,' ) * (tblTempRateTableDIDRate.Surcharges  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',p_CurrencyID,' AND CompanyID = ',p_companyId,' )) AS Surcharges,
+					(SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',v_RateTableCurrencyID_,' AND CompanyID = ',p_companyId,' ) * (tblTempRateTableDIDRate.Chargeback  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',p_CurrencyID,' AND CompanyID = ',p_companyId,' )) AS Chargeback,
+					(SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',v_RateTableCurrencyID_,' AND CompanyID = ',p_companyId,' ) * (tblTempRateTableDIDRate.CollectionCostAmount  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',p_CurrencyID,' AND CompanyID = ',p_companyId,' )) AS CollectionCostAmount,
+					(SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',v_RateTableCurrencyID_,' AND CompanyID = ',p_companyId,' ) * (tblTempRateTableDIDRate.CollectionCostPercentage  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',p_CurrencyID,' AND CompanyID = ',p_companyId,' )) AS CollectionCostPercentage,
+					(SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',v_RateTableCurrencyID_,' AND CompanyID = ',p_companyId,' ) * (tblTempRateTableDIDRate.RegistrationCostPerNumber  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = ',p_CurrencyID,' AND CompanyID = ',p_companyId,' )) AS RegistrationCostPerNumber,
+				');
+			END IF;
+        ELSE
+            SET @stm2 = CONCAT('
+                    tblTempRateTableDIDRate.OneOffCost AS OneOffCost,
+                    tblTempRateTableDIDRate.MonthlyCost AS MonthlyCost,
+                    tblTempRateTableDIDRate.CostPerCall AS CostPerCall,
+                    tblTempRateTableDIDRate.CostPerMinute AS CostPerMinute,
+                    tblTempRateTableDIDRate.SurchargePerCall AS SurchargePerCall,
+                    tblTempRateTableDIDRate.SurchargePerMinute AS SurchargePerMinute,
+                    tblTempRateTableDIDRate.OutpaymentPerCall AS OutpaymentPerCall,
+                    tblTempRateTableDIDRate.OutpaymentPerMinute AS OutpaymentPerMinute,
+                    tblTempRateTableDIDRate.Surcharges AS Surcharges,
+                    tblTempRateTableDIDRate.Chargeback AS Chargeback,
+                    tblTempRateTableDIDRate.CollectionCostAmount AS CollectionCostAmount,
+                    tblTempRateTableDIDRate.CollectionCostPercentage AS CollectionCostPercentage,
+                    tblTempRateTableDIDRate.RegistrationCostPerNumber AS RegistrationCostPerNumber,
+                ');
+		END IF;
+
+		SET @stm3 = CONCAT('
+				tblTempRateTableDIDRate.EffectiveDate,
+				tblTempRateTableDIDRate.EndDate,
+				 -- if rate table is not vendor rate table and Rate Approval Process is on then rate will be upload as not approved
+				IF(',v_RateTableAppliedTo_,' !=2,IF(',v_RateApprovalProcess_,'=1,0,1),1) AS ApprovedStatus
+			FROM tmp_TempRateTableDIDRate_ as tblTempRateTableDIDRate
+			JOIN tblRate
+				ON tblRate.Code = tblTempRateTableDIDRate.Code
+				AND tblRate.CompanyID = ',p_companyId,'
+				AND tblRate.CodeDeckId = tblTempRateTableDIDRate.CodeDeckId
+			LEFT JOIN tblRate AS OriginationRate
+				ON OriginationRate.Code = tblTempRateTableDIDRate.OriginationCode
+				AND OriginationRate.CompanyID = ',p_companyId,'
+				AND OriginationRate.CodeDeckId = tblTempRateTableDIDRate.CodeDeckId
+			LEFT JOIN tblRateTableDIDRate
+				ON tblRate.RateID = tblRateTableDIDRate.RateId
+				AND ((IFNULL(tblRateTableDIDRate.OriginationRateID,0) = 0 AND OriginationRate.RateID IS NULL) OR (tblRateTableDIDRate.OriginationRateID = OriginationRate.RateID))
+				AND tblRateTableDIDRate.RateTableId = ',p_RateTableId,'
+				AND tblRateTableDIDRate.TimezonesID = tblTempRateTableDIDRate.TimezonesID
+				AND tblTempRateTableDIDRate.EffectiveDate = tblRateTableDIDRate.EffectiveDate
+			WHERE tblRateTableDIDRate.RateTableDIDRateID IS NULL
+				AND tblTempRateTableDIDRate.Change NOT IN ("Delete", "R", "D", "Blocked","Block")
+				AND tblTempRateTableDIDRate.EffectiveDate >= DATE_FORMAT (NOW(), "%Y-%m-%d");
+		');
+
+		SET @stm4 = CONCAT(@stm1,@stm2,@stm3);
+
+		PREPARE stm4 FROM @stm4;
+		EXECUTE stm4;
+		DEALLOCATE PREPARE stm4;
+
+		SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();
+
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_EffectiveDates_;
+		CREATE TEMPORARY TABLE tmp_EffectiveDates_ (
+			RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			EffectiveDate  Date
+		);
+		INSERT INTO tmp_EffectiveDates_ (EffectiveDate)
+		SELECT distinct
+			EffectiveDate
+		FROM
+		(
+			select distinct EffectiveDate
+			from 	tblRateTableDIDRate
+			WHERE
+				RateTableId = p_RateTableId
+			Group By EffectiveDate
+			order by EffectiveDate desc
+		) tmp
+		,(SELECT @row_num := 0) x;
+
+
+		SET v_pointer_ = 1;
+		SET v_rowCount_ = ( SELECT COUNT(*) FROM tmp_EffectiveDates_ );
+
+		IF v_rowCount_ > 0 THEN
+
+			WHILE v_pointer_ <= v_rowCount_
+			DO
+				SET @EffectiveDate = ( SELECT EffectiveDate FROM tmp_EffectiveDates_ WHERE RowID = v_pointer_ );
+				SET @row_num = 0;
+
+				UPDATE  tblRateTableDIDRate vr1
+				inner join
+				(
+					select
+						RateTableId,
+						OriginationRateID,
+						RateID,
+						EffectiveDate,
+						TimezonesID
+					FROM tblRateTableDIDRate
+					WHERE RateTableId = p_RateTableId
+						AND EffectiveDate =   @EffectiveDate
+					order by EffectiveDate desc
+				) tmpvr
+				on
+					vr1.RateTableId = tmpvr.RateTableId
+					AND vr1.OriginationRateID = tmpvr.OriginationRateID
+					AND vr1.RateID = tmpvr.RateID
+					AND vr1.TimezonesID = tmpvr.TimezonesID
+					AND vr1.EffectiveDate < tmpvr.EffectiveDate
+				SET
+					vr1.EndDate = @EffectiveDate
+				where
+					vr1.RateTableId = p_RateTableId
+
+					AND vr1.EndDate is null;
+
+
+				SET v_pointer_ = v_pointer_ + 1;
+
+			END WHILE;
+
+		END IF;
+
+	END IF;
+
+	INSERT INTO tmp_JobLog_ (Message) 	 	SELECT CONCAT(v_AffectedRecords_ , ' Records Uploaded ' );
+
+	call prc_ArchiveOldRateTableDIDRate(p_RateTableId, NULL,p_UserName);
+
+	DELETE  FROM tblTempRateTableDIDRate WHERE  ProcessId = p_processId;
+	DELETE  FROM tblRateTableDIDRateChangeLog WHERE ProcessID = p_processId;
+	SELECT * FROM tmp_JobLog_;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END//
