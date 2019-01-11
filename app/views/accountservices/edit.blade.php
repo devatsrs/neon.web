@@ -153,13 +153,13 @@
                     <div class="form-group">
                         <div class="col-md-12">
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-3">
                                     <div class="panel-group cancelRadio" id="accordion">
                                         <div class="panel panel-default">
                                             <div class="panel-heading" style="background-color:white;">
                                                 <label for='r11'>
                                                     <i></i>
-                                                    <input type='radio' id='r11' name='CancellationCharges' value='1' required />
+                                                    <input type='radio' id='r11' name='ContractTerm' value='1' required />
                                                     Fixed Fee
                                                     <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"></a>
                                                 </label>
@@ -168,9 +168,11 @@
                                                 <div class="panel-body">
                                                     <div class="form-group">
                                                         <div class="panel-options">
-                                                            <label class="control-label">Fee</label>
-                                                            <div>
-                                                                <input type="text" class="form-control" name="duration">
+                                                            <div class="col-md-12">
+                                                                <label class="control-label">Fixed Fee</label>
+                                                            </div>
+                                                            <div class="col-md-12">
+                                                                <input type="text" class="form-control" name="FixedFee">
                                                             </div>
                                                         </div>
                                                     </div>
@@ -179,12 +181,12 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-3">
                                     <div class="panel-group cancelRadio" id="accordion">
                                         <div class="panel panel-default">
                                             <div class="panel-heading" style="background-color:white;">
                                                 <label for='r12'>
-                                                    <input type='radio' id='r12' name='CancellationCharges' value='2' required />
+                                                    <input type='radio' id='r12' name='ContractTerm' value='2' required />
                                                     Remaining Term Of Contract
                                                     <a data-toggle="collapse" data-parent="#accordion" href=""></a>
                                                 </label>
@@ -192,12 +194,12 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-3">
                                     <div class="panel-group cancelRadio" id="accordion">
                                         <div class="panel panel-default">
                                             <div class="panel-heading" style="background-color:white;">
                                                 <label for='r13'>
-                                                    <input type='radio' id='r13' name='CancellationCharges' value='3' required />
+                                                    <input type='radio' id='r13' name='ContractTerm' value='3' required />
                                                     Remaining Term Of Contract(x%)
                                                     <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree"></a>
                                                 </label>
@@ -206,9 +208,11 @@
                                                 <div class="panel-body">
                                                     <div class="form-group">
                                                         <div class="panel-options">
-                                                            <label class="control-label">Percentage</label>
-                                                            <div>
-                                                                <input type="text" class="form-control" name="duration">
+                                                            <div class="col-md-12">
+                                                                <label class="control-label">Percentage</label>
+                                                            </div>
+                                                            <div class="col-md-12">
+                                                                <input type="text" class="form-control" name="Percentage">
                                                             </div>
                                                         </div>
                                                     </div>
@@ -217,13 +221,13 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-3">
                                     <div class="panel-group cancelRadio" id="accordion">
                                         <div class="panel panel-default">
                                             <div class="panel-heading" style="background-color:white;">
                                                 <label for='r14'>
-                                                    <input type='radio' id='r14' name='CancellationCharges' value='4' required />
-                                                    Remaining Term Of Contract
+                                                    <input type='radio' id='r14' name='ContractTerm' value='4' required />
+                                                    Fixed Fee + Term Of Contract
                                                     <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour"></a>
                                                 </label>
                                             </div>
@@ -231,9 +235,11 @@
                                                 <div class="panel-body">
                                                     <div class="form-group">
                                                         <div class="panel-options">
-                                                            <label class="control-label">Fee</label>
-                                                            <div>
-                                                                <input type="text" class="form-control" name="duration">
+                                                            <div class="col-md-12">
+                                                                <label class="control-label">Fixed Fee + Contract Term</label>
+                                                            </div>
+                                                            <div class="col-md-12">
+                                                                <input type="text" class="form-control" name="FixedFeeContract">
                                                             </div>
                                                         </div>
                                                     </div>
@@ -828,16 +834,19 @@
         }
         function hideCancelCollapse(){
             $('.cancelRadio .panel-collapse').removeClass('in');
+            $('.cancelRadio .panel-heading').removeClass('active');
             var selected = $('.cancelRadio input[type="radio"]:checked');
-            selected.parent().parent().parent().parent().find('.panel-collapse').addClass('in');
+            selected.parent()
+                    .addClass('active')
+                    .parent()
+                    .parent()
+                    .find('.panel-collapse')
+                    .addClass('in');
         }
         $(function(){
             hideCancelCollapse()
         });
-        $('.cancelRadio .panel-heading').on('click', function(){
-            $(this).find('input[type="radio"]').prop("checked", true).trigger('click');
-        });
-        $('input[name="CancellationCharges"]').click(function(){
+        $('input[name="ContractTerm"]').click(function(){
             hideCancelCollapse()
         });
 

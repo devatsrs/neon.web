@@ -113,6 +113,38 @@ class AccountServiceController extends \BaseController {
     // account service edit page data store and update
 	public function update($AccountID,$ServiceID)
 	{
+        $AccountServiceId = AccountService::where('AccountID',$AccountID)->where('ServiceID',$ServiceID)->first();
+        $AccountServiceContract = AccountServiceContract::where('AccountServiceID',$AccountServiceId->AccountServiceID)->get();
+        $Contract = array();
+        $Contract['ContractStartDate'] = Input::get('StartDate');
+        $Contract['ContractEndDate'] = Input::get('EndDate');
+        $Contract['AccountServiceID'] = $AccountServiceId->AccountServiceID;
+        $Contract['AutoRenewal'] = Input::get('AutoRenewal');
+        $Contract['FixedFee'] = Input::get('ContractTerm');
+        $Contract['Duration'] = Input::get('Duration');
+        if($Contract['FixedFee'] == 1){
+            $Contract['ContractReason'] = Input::get('FixedFee');
+        }
+        else if($Contract['FixedFee'] == 3){
+            $Contract['ContractReason'] = Input::get('Percentage');
+        }
+        else if($Contract['FixedFee'] == 4){
+            $Contract['ContractReason'] = Input::get('FixedFeeContract');
+        }
+        else{
+            $Contract['ContractReason'] = NULL;
+        }
+
+
+
+
+
+        if(count( $AccountServiceContract) > 0){
+            AccountServiceContract::where('AccountServiceID',$AccountServiceId->AccountServiceID)->update($Contract);
+        }else{
+            AccountServiceContract::create($Contract);
+        }
+
         if( $AccountID  > 0  && $ServiceID > 0 ) {
             $data = Input::all();
 
@@ -125,7 +157,7 @@ class AccountServiceController extends \BaseController {
                     return Response::json(array("status" => "failed", "message" => "Please fill Service Description."));
                 }
             }
-            
+
             $RoutingProfileID='';
             if(isset($data['routingprofile'])){
                 $RoutingProfileID=$data['routingprofile'];
@@ -150,7 +182,7 @@ class AccountServiceController extends \BaseController {
                 }
                 unset($data['routingprofile']);
             }
-                
+
             if($data['ServiceBilling'] == 1) {
                 if (!empty($data['BillingStartDate']) || !empty($data['BillingCycleType']) || !empty($data['BillingCycleValue']) || !empty($data['BillingClassID'])) {
                     AccountService::$rules['BillingCycleType'] = 'required';
