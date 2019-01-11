@@ -16,12 +16,12 @@
                 </div>--}}
                 <div class="form-group A">
                     <label for="field-1" class="control-label">Phone Number</label>
-                    <input type="text" value="" placeholder="Phone Number" id="field-1" class="form-control" name="DestinationCode">
+                    <input type="text" value="" placeholder="Phone Number" id="field-1" required="" class="form-control" name="DestinationCode">
                 </div>
 
                 <div class="form-group  S">
-                    <label class="control-label" for="field-1">Routing Plan</label>
-                    {{Form::select('routingprofile', [null=>'All Available Routes'] + $routingprofile + ['DefaultLCR'=>'Default LCR'], (isset($RoutingProfileToCustomer->RoutingProfileID)?$RoutingProfileToCustomer->RoutingProfileID:'' ) ,array("class"=>"select2 small form-control1"));}}
+                    <label class="control-label" for="field-1">Routing Profile</label>
+                    {{Form::select('routingprofile', [null=>'All Available Routing Profiles'] + $routingprofile + ['DefaultLCR'=>'Default LCR'], (isset($RoutingProfileToCustomer->RoutingProfileID)?$RoutingProfileToCustomer->RoutingProfileID:'' ) ,array("class"=>"select2 small form-control1"));}}
                 </div>
                 
                 <div class="form-group" style="display:none;">
@@ -74,11 +74,7 @@
         <table class="table table-bordered datatable" id="table-4" style="display:none;">
                 <thead>
                 <tr>
-                    <th>
-                        <div class="checkbox ">
-                            <input type="checkbox" id="selectall" name="checkbox[]" class="">
-                        </div>
-                    </th>
+                    
                     <th>Destination</th>
                     <th>Vendor</th>
                     <th>Connection</th>
@@ -201,16 +197,6 @@ $('#filter-button-toggle').show();
                         data_table_extra_params.push({"name": "DestinationCode","value": $searchFilter.DestinationCode}, {"name": "routingprofile", "value": $searchFilter.routingprofile});
                     },
                     "aoColumns": [
-                        {
-                            "bSortable": false,
-                            mRender: function (id, type, full) {
-                                var action = '<div class = "hiddenRowData" >';
-                                action += '<div class="pull-left"><input type="checkbox" class="checkbox rowcheckbox" value="' + full[1] + '" name="Code[]"></div>';
-                                action += '</div>';
-                                return action;
-                            }
-
-                        },
                         {"bSortable": true, mRender: function (id, type, full) { return full[1];}},
                         {"bSortable": true, mRender: function (id, type, full) {return full[3]; }},
                         {"bSortable": true, mRender: function (id, type, full) { return full[4];}},
@@ -270,7 +256,7 @@ $('#filter-button-toggle').show();
                     }
 
                 });
-                $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
+                $("#selectcheckbox").append('');
                 return false;
             });
             //Select Row on click
