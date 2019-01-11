@@ -29,34 +29,10 @@
         {{Session::get('user_site_configrations.CustomCss')}}
         </style>
         @endif
-
         <style>
-
-            input[type="radio"].js {
-                display: none;
-            }
-
-            .newredio.js {
+            .cancelRadio .panel-heading {
                 display: block;
-                float: left;
-                margin-right: 10px;
-                border: 1px solid #ababab;
-                color: #ababab;
-                text-align: center;
-                padding: 25px;
-                height:25%;
-                width: 25%;
-                cursor: pointer;
-            }
-
-            .newredio.js.active {
-                border: 1px solid #21a9e1;
-                color: #ababab;
-                font-weight: bold;
-            }
-
-            .newredio i {
-                color:green;
+                font-size: 12px
             }
         </style>
     </head>

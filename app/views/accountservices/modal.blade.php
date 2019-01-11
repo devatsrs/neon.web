@@ -21,14 +21,14 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label class="col-md-2 control-label">Terminating Feee</label>
+                                    <label class="col-md-2 control-label">Termination Fees</label>
                                     <div class="col-md-4">
                                         <input type="text" class="form-control" name="teminatingFee">
                                     </div>
 
-                                    <label class="col-md-2 control-label">Cancel Date</label>
+                                    <label class="col-md-2 control-label">Cancelation Date</label>
                                     <div class="col-md-4">
-                                        <input type="text" class="form-control" name="cancelDate">
+                                        <input type="text" data-date-format="yyyy-mm-dd" class="form-control datepicker" name="cancelDate">
                                     </div>
                                 </div>
                             </div>
@@ -37,14 +37,22 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label class="col-md-2 control-label">Fee Charges </label>
+                                    <label class="col-md-2 control-label">Include Termination Fees</label>
                                     <div class="col-md-4">
-                                        <input type="text" class="form-control" name="cancelationFeeCharges">
+                                        <div class="panel-options">
+                                            <div class="make-switch switch-small">
+                                                <input type="checkbox"  name="incTerminationFees" value="1">
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <label class="col-md-2 control-label">Remove Discounts </label>
+                                    <label class="col-md-2 control-label">Include Discounts Offered</label>
                                     <div class="col-md-4">
-                                        <input type="text" class="form-control" name="removeDiscounts">
+                                        <div class="panel-options">
+                                            <div class="make-switch switch-small">
+                                                <input type="checkbox"  name="discountOffered" value="1">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -54,20 +62,15 @@
                             <div class="col-md-12">
                                 <div class="form-group">
 
-                                    <label class="col-md-2 control-label">Discounts Offer</label>
-                                    <div class="col-md-4">
-                                        <input type="text" class="form-control" name="discountoffer">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <br>
-                        <div class="row">
-                            <div class="col-md-12">
                                     <label class="col-md-2 control-label">Generate Invoice</label>
                                     <div class="col-md-4">
-                                        <input type="checkbox" name="generateInvoice">
+                                        <div class="panel-options">
+                                            <div class="make-switch switch-small">
+                                                <input type="checkbox"  name="generateInvoice" value="1">
+                                            </div>
+                                        </div>
                                     </div>
+                                </div>
                             </div>
                         </div>
                     </div>
