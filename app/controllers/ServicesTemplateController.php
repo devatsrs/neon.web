@@ -1081,19 +1081,47 @@ class ServicesTemplateController extends BaseController {
     public function addBulkAction(){ // Add Bulk action if input empty then this will add already existing values...
 
         $data = Input::all();
-        if(isset($data['ServiceTemplateId']))
+
+        if(isset($data['Service']))
         {
-            $ServiceTemplateIdString =  ((string)$data['ServiceTemplateId']);
+            if(!($data['ServiceIdBulkAction']) || $data['ServiceIdBulkAction'] == "")
+                return Response::json(array("status" => "failed", "message" => "Service select box required"));
+        }
+
+        unset($data['OutboundDiscountPlan']);
+        unset($data['OutboundTraiff']);
+        unset($data['OutboundDiscountPlan']);
+        unset($data['InboundDiscountPlan']);
+        unset($data['InboundTariff']);
+
+        $data['CurrencyId']             = (isset($data['CurrencyIdBulkAction']) ? $data['CurrencyIdBulkAction'] : " ");
+        $data['ServiceId']              = (isset($data['ServiceIdBulkAction']) ? $data['ServiceIdBulkAction'] : " ");
+        $data['OutboundRateTableId']    = (isset($data['OutboundRateTableIdBulkAction']) ? $data['OutboundRateTableIdBulkAction'] : " ");
+        $data['OutboundDiscountPlanId'] = (isset($data['OutboundDiscountPlanIdBulkAction']) ? $data['OutboundDiscountPlanIdBulkAction'] : " ");
+        $data['InboundDiscountPlanId']  = (isset($data['InboundDiscountPlanIdBulkAction']) ? $data['InboundDiscountPlanIdBulkAction'] : " ");
+        $data['selectedcategotyTariff'] = (isset($data['selectedcategotyTariffBulkAction'])? $data['selectedcategotyTariffBulkAction'] : " ");
+        $data['DidCategoryTariffID']    = (isset($data['DidCategoryTariffIDBulkAction']) ? $data['DidCategoryTariffIDBulkAction'] : " ");
+        $data['InboundDiscountPlanId']  = (isset($data['InboundDiscountPlanIdBulkAction']) ? $data['InboundDiscountPlanIdBulkAction'] : " ");
+
+        unset($data['CurrencyIdBulkAction']);
+        unset($data['ServiceIdBulkAction']);
+        unset($data['OutboundRateTableIdBulkAction']);
+        unset($data['OutboundDiscountPlanIdBulkAction']);
+        unset($data['InboundDiscountPlanIdBulkAction']);
+        unset($data['DidCategoryTariffIDBulkAction']);
+        unset($data['DidCategoryIDBulkAction']);
+        unset($data['InboundDiscountPlanIdBulkAction']);
+
+
+        if(isset($data['ServiceTemplateIdBulkAction']))
+        {
+            $ServiceTemplateIdString =  ((string)$data['ServiceTemplateIdBulkAction']);
             $ServiceTemplateIdArray  = explode(',',$ServiceTemplateIdString);
 
             for($i = 0; $i < sizeof($ServiceTemplateIdArray); $i++ )
             {
-
                 $ExistingValues = ServiceTemplate::select('CurrencyId','ServiceId','OutboundRateTableId','OutboundDiscountPlanId','InboundDiscountPlanId')
-                                                    ->where('ServiceTemplateId',$ServiceTemplateIdArray[$i])->first();
-
-                Log::info('Existing Log'.' ,'.  $ExistingValues['OutboundRateTableId']);
-
+                                                   ->where('ServiceTemplateId',$ServiceTemplateIdArray[$i])->first();
 
                 $UpdatedValues  = ServiceTemplate::where('ServiceTemplateId',$ServiceTemplateIdArray[$i])
                                                     ->update([
@@ -1101,9 +1129,56 @@ class ServicesTemplateController extends BaseController {
                                                                 'ServiceId'              => (isset($data['ServiceId']) ? $data['ServiceId'] : $ExistingValues['ServiceId']),
                                                                 'OutboundRateTableId'    => (isset($data['OutboundRateTableId']) ? $data['OutboundRateTableId'] : $ExistingValues['OutboundRateTableId']),
                                                                 'OutboundDiscountPlanId' => (isset($data['OutboundDiscountPlanId']) ? $data['OutboundDiscountPlanId'] : $ExistingValues['OutboundDiscountPlanId']),
-                                                                'InboundDiscountPlanId'  => (isset($data['OutboundDiscountPlanId']) ? $data['OutboundDiscountPlanId'] : $ExistingValues['OutboundDiscountPlanId']),
+                                                                'InboundDiscountPlanId'  => (isset($data['InboundDiscountPlanId']) ? $data['InboundDiscountPlanId'] : $ExistingValues['InboundDiscountPlanId'])
+
                                                             ]);
             }
+
+            $data['ServiceTemplateId'] = $data['ServiceTemplateIdBulkAction'];
+            $data['RateTableId']       = (isset( $data['OutboundRateTableId']) ? $data['OutboundRateTableId'] : null);
+
+            $CategoryIdRateTableIdArray   =  ((string)$data['selectedcategotyTariffBulkAction']);
+            $CategoryIdRateTableIdString  = explode(',',$CategoryIdRateTableIdArray);
+
+            $collectionArray    = array();
+            $getCollectionArray = [];
+            $CategoryId =[];
+            $RateTableId=[];
+
+            for($i=0; $i < sizeof($CategoryIdRateTableIdString) -1 ; $i++)
+            {
+               $ArrayCollection     = $CategoryIdRateTableIdString[$i];
+               $getCollectionArray[]  = explode("-",$ArrayCollection);
+            }
+            unset($data['CurrencyId']);
+            unset($data['ServiceId']);
+            unset($data['OutboundRateTableId']);
+            unset($data['OutboundDiscountPlanId']);
+            unset($data['InboundDiscountPlanId']);
+            unset($data['ServiceTemplateIdBulkAction']);
+            unset($data['Service']);
+            unset($data['selectedcategotyTariff']);
+            unset($data['DidCategoryTariffID']);
+            unset($data['selectedcategotyTariffBulkAction']);
+
+            $arrayTemplateID = explode(",",$data['ServiceTemplateId']);
+           for($i = 0; $i < sizeof($arrayTemplateID); $i++)
+           {
+                unset($data['ServiceTemplateId']);
+                $data['ServiceTemplateId'] = $arrayTemplateID[$i];
+
+               for($j = 0; $j < sizeof($getCollectionArray); $j++) {
+                   $data['DIDCategoryId'] = $getCollectionArray[$j][0];
+                   $data['RateTableId']   = $getCollectionArray[$j][1];
+
+                   $alreadyExistServices = ServiceTemapleInboundTariff::where('ServiceTemplateID', $data['ServiceTemplateId'])
+                       ->where('DIDCategoryId', $data['DIDCategoryId'])
+                       ->where('RateTableId', $data['RateTableId'])->first();
+                   if (!isset($alreadyExistServices))
+                       ServiceTemapleInboundTariff::create($data);
+               }
+           }
+
 
             if($UpdatedValues)
                 return Response::json(array("status" => "success", "message" => "Bulk Actions updated"));

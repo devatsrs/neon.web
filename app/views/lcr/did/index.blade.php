@@ -333,7 +333,10 @@
                     //$(".table-responsive").find('.dataTables_wrapper:gt(0)').remove();
                     $(".table-responsive div[id^='table-']").remove();
                     $(".CompoHeading").remove();
-                    ComponentAction='';//while single component send blank in componentAction
+                    if(CountComponent == 1){
+                        ComponentAction='';//while single component send blank in componentAction
+                    }
+
 
                     buildMultipleDataTable('table',OriginationCode, OriginationDescription,Code, Description, Currency,CodeDeck,Components,ComponentAction,show_all_vendor_codes,DIDCategoryID,LCRPosition,SelectedEffectiveDate,aoColumns,aoColumnDefs,accounts,Timezones,merge_timezones,TimezonesMerged,TakePrice);
 

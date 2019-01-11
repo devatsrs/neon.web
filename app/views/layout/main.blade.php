@@ -29,35 +29,15 @@
         {{Session::get('user_site_configrations.CustomCss')}}
         </style>
         @endif
-
         <style>
-
-            input[type="radio"].js {
-                display: none;
-            }
-
-            .newredio.js {
+            .cancelRadio .panel-heading {
                 display: block;
-                float: left;
-                margin-right: 10px;
-                border: 1px solid #ababab;
-                color: #ababab;
-                text-align: center;
-                padding: 25px;
-                height:25%;
-                width: 25%;
-                cursor: pointer;
+                font-size: 12px
             }
-
-            .newredio.js.active {
-                border: 1px solid #21a9e1;
-                color: #ababab;
-                font-weight: bold;
-            }
-
-            .newredio i {
-                color:green;
-            }
+            .cancelRadio .panel-heading.active {
+                border-left: 3px solid #00cc00;
+                padding-left: 12px;
+            } 
         </style>
     </head>
 
