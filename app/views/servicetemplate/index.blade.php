@@ -433,7 +433,7 @@
 
             if($("#service_filter [name='FilterCurrencyId']").val() != "" && checkBoxArray != "")
                 {
-                    $('#BulkServiceTemplateModelTitle').text('Add New Bulk Action');
+                    $('#BulkServiceTemplateModelTitle').text('Bulk Action');
                     var GetCurrencyId = $("#service_filter [name='FilterCurrencyId']").val();
                     $("#CurrencyIdBulkAction").val(GetCurrencyId);
                     $("#ServiceTemplateIdBulkAction").val(checkBoxArray);

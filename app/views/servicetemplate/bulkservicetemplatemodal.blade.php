@@ -286,7 +286,7 @@
                 <form id="add-action-bulk-form" method="post">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h5 class="modal-title" id="BulkServiceTemplateModelTitle">Add New Bulk Action</h5>
+                        <h5 class="modal-title" id="BulkServiceTemplateModelTitle">Bulk Action</h5>
                     </div>
                     <div class="modal-body">
 
