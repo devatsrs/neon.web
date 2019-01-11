@@ -109,7 +109,7 @@ class AccountServiceController extends \BaseController {
     // account service edit page data store and update
 	public function update($AccountID,$AccountServiceID)
 	{
-        $AccountServiceId = AccountService::where('AccountID',$AccountID)->where('ServiceID',$ServiceID)->first();
+        $AccountServiceId = AccountService::where('AccountID',$AccountID)->where('ServiceID',$AccountServiceID)->first();
         $AccountServiceContract = AccountServiceContract::where('AccountServiceID',$AccountServiceId->AccountServiceID)->get();
         $Contract = array();
         $Contract['ContractStartDate'] = Input::get('StartDate');
@@ -130,7 +130,7 @@ class AccountServiceController extends \BaseController {
         else{
             $Contract['ContractReason'] = NULL;
         }
-        
+
 
         if(count( $AccountServiceContract) > 0){
             AccountServiceContract::where('AccountServiceID',$AccountServiceId->AccountServiceID)->update($Contract);
