@@ -877,3 +877,6 @@ function ajax_form_success(response){
 @include('accountdiscountplan.discountplanmodal')
 @include('accountservices.modal')
 @stop
+
+
+
