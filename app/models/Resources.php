@@ -14,7 +14,7 @@ class Resources extends \Eloquent {
     }
 
     public static function insertResources(){
-        $CompanyID = user::get_companyID();
+        $CompanyID = User::get_companyID();
         $routeCollection = Route::getRoutes();
         foreach ($routeCollection as $value) {
             $str = $value->getActionName();

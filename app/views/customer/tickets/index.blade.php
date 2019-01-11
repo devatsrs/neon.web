@@ -37,7 +37,7 @@
             <div class="col-sm-2"> {{Form::select('agent[]', $Agents, '' ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
           </div>
           @else
-          <input type="hidden" name="agent" value="{{user::get_userID()}}" >
+          <input type="hidden" name="agent" value="{{User::get_userID()}}" >
           @endif
           <p class="pull-right">
             <button type="submit" class="btn btn-primary btn_form_submit btn-sm btn-icon icon-left"> <i class="entypo-search"></i> @lang('routes.BUTTON_SEARCH_CAPTION') </button>

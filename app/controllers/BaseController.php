@@ -39,7 +39,7 @@ class BaseController extends Controller {
 
                 if(!$this->skipAllowedActions($action)) {
                     if(!Auth::guest()) {
-                        if (!user::is_admin()) {
+                        if (!User::is_admin()) {
                             if (!User::checkPermissionnew($str)) {
                                 if (!User::checkPermissionnew($str_all)) {
                                     App::abort(403, 'You have not access to' . $str);

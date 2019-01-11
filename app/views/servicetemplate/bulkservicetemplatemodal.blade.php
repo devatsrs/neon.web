@@ -2,6 +2,7 @@
 <script>
 
   $(document).ready(function ($) {
+      countSelectedItems = 1;
 
       var selected_company, data, url;
       selected_currency = $("#serviceTemplateCurreny").val();
@@ -13,8 +14,71 @@
       loadValuesBasedOnCurrency(selected_currency,false,'','','','');
 
       var table = document.getElementById ("table-4");
+      $("#add-new-BulkAction-modal-service input:checkbox").prop("checked",false);
+      $("#add-new-BulkAction-modal-service select").prop("disabled",true);
+
+
+      $("#add-new-BulkAction-modal-service input:checkbox[name='Service']").change(function() {
+
+          if ($(this).prop('checked') == false)
+          {
+              $("#ServiceId").prop('disabled', 'disabled');
+              countSelectedItems++;
+          }else{
+              $("#ServiceId").prop('disabled', false);
+              countSelectedItems--;
+          }
+
+
+      });
+
+
+      $("#add-new-BulkAction-modal-service input:checkbox[name='OutboundTraiff']").change(function() {
+
+          if ($(this).prop('checked') == false)
+          {
+              $("#OutboundRateTableId").prop('disabled', 'disabled');
+              countSelectedItems++;
+          }else {
+              $("#OutboundRateTableId").prop('disabled', false);
+              countSelectedItems--;
+          }
+      });
+
+
+      $("#add-new-BulkAction-modal-service input:checkbox[name='OutboundDiscountPlan']").change(function() {
+
+          if ($(this).prop('checked') == false)
+          {
+              $("#OutboundDiscountPlanId").prop('disabled', 'disabled');
+              countSelectedItems++;
+          }else {
+              $("#OutboundDiscountPlanId").prop('disabled', false);
+              countSelectedItems--;
+          }
+      });
+
+      $("#add-new-BulkAction-modal-service input:checkbox[name='InboundDiscountPlan']").change(function() {
+          if ($(this).prop('checked') == false)
+          {
+              $("#InboundDiscountPlanId").prop('disabled', 'disabled');
+              countSelectedItems++;
+          }else {
+              $("#InboundDiscountPlanId").prop('disabled', false);
+              countSelectedItems--;
+          }
+      });
 
       $('#add-action-bulk-form').submit(function(e){
+
+          console.log(countSelectedItems);
+
+          if(countSelectedItems == 1)
+          {
+              alert("Please select service tempalte");
+              $('#add-new-BulkAction-modal-service').modal('hide');
+              return false;
+          }
 
           update_new_url = baseurl + '/servicesTemplate/addBulkAction';
           var data = new FormData(($('#add-action-bulk-form')[0]));
@@ -27,7 +91,7 @@
                   toastr.success(response.message, "Success", toastr_opts);
                   var dataTableName = $("#table-4").dataTable();
                   dataTableName.fnDraw();
-                  $('#selectall').attr('checked',false);
+                  $("#add-new-BulkAction-modal-service [name='CurrencyId']").attr('checked',false);
 
 
               }else{
@@ -63,14 +127,14 @@
                                     <input type="hidden" name="CurrencyId" id="CurrencyId" val="" />
                                     <input type="hidden" name="ServiceTemplateId" id="ServiceTemplateId" val="" />
 
-                                    <div class="col-md-12" >
+                                    <div class="col-md-12">
                                         <div class="form-group">
                                             <table width="100%">
                                                 <tr>
-                                                    <td width="15%"><label for="field-5" class="control-label">Service</label></td>
+                                                    <td width="15%"><label for="field-5" class="control-label"><input type="checkbox" name="Service" value=""> Service</label></td>
                                                     <td width="30%"><select  id="ServiceId" name="ServiceId" class="form-control"></select></td>
                                                     <td width="5%">&nbsp;</td>
-                                                    <td width="15%"><label for="field-5" class="control-label">Outbound Traiff</label></td>
+                                                    <td width="15%"><label for="field-5" class="control-label"><input type="checkbox" name="OutboundTraiff" value=""> Outbound Traiff</label></td>
                                                     <td width="35%">
                                                         <select id="OutboundRateTableId" name="OutboundRateTableId" class="form-control">
                                                         </select>
@@ -84,10 +148,10 @@
                                             <table width="100%">
 
                                                 <tr>
-                                                    <td width="15%"><label for="field-5" class="control-label">Outbound Discount Plan</label></td>
+                                                    <td width="15%"><label for="field-5" class="control-label"><input type="checkbox" name="OutboundDiscountPlan" value=""> Outbound Discount Plan</label></td>
                                                     <td width="30"><select id="OutboundDiscountPlanId" name="OutboundDiscountPlanId" class="form-control"></select></td>
                                                     <td width="5%">&nbsp;</td>
-                                                    <td width="15%"><label for="field-5" class="control-label">Inbound Discount Plan</label></td>
+                                                    <td width="15%"><label for="field-5" class="control-label"><input type="checkbox" name="InboundDiscountPlan" value=""> Inbound Discount Plan</label></td>
                                                     <td width="35%">
                                                         <select id="InboundDiscountPlanId" name="InboundDiscountPlanId" class="form-control">
                                                         </select>

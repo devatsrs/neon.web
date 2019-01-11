@@ -89,6 +89,7 @@
     var data_table_char;
     var account_id='{{$account->AccountID}}';
     var ServiceID='{{$ServiceID}}';
+    var AccountServiceID='{{$AccountService->AccountServiceID}}';
     var update_new_url;
     var postdata;
     var $search = {};
@@ -115,6 +116,7 @@
             "fnServerParams": function (aoData) {
                         aoData.push({"name": "account_id", "value": account_id},
                                 {"name": "ServiceID", "value": ServiceID},
+                                {"name": "AccountServiceID", "value": AccountServiceID},
                                 {"name": "OneOfCharge_ProductID", "value": $search.OneOfCharge_ProductID},
                                 {"name": "OneOfCharge_Description", "value": $search.OneOfCharge_Description},
                                 {"name": "OneOfCharge_Date", "value": $search.OneOfCharge_Date});
@@ -122,6 +124,7 @@
                         data_table_extra_params.length = 0;
                         data_table_extra_params.push({"name": "account_id", "value": account_id},
                                 {"name": "ServiceID", "value": ServiceID},
+                                {"name": "AccountServiceID", "value": AccountServiceID},
                                 {"name": "OneOfCharge_ProductID", "value": $search.OneOfCharge_ProductID},
                                 {"name": "OneOfCharge_Description", "value": $search.OneOfCharge_Description},
                                 {"name": "OneOfCharge_Date", "value": $search.OneOfCharge_Date});
@@ -383,6 +386,7 @@
                             <input type="hidden" name="AccountOneOffChargeID" />
                             <input type="hidden" name="TaxAmount" />
                             <input type="hidden" name="ServiceID" value="{{$ServiceID}}">
+                            <input type="hidden" name="AccountServiceID" value="{{$AccountService->AccountServiceID}}">
                         </div>
                     </div>
                     </div>

@@ -222,7 +222,7 @@ class TicketsController extends \BaseController {
 		   	$data['agent']					=	isset($data['agent'])?is_array($data['agent'])?implode(",",$data['agent']):'':'';
 		 }else{
 			 if( TicketsTable::GetTicketAccessPermission() == TicketsTable::TICKETRESTRICTEDACCESS)	{
-			 	$data['agent']				=	user::get_userID();
+			 	$data['agent']				=	User::get_userID();
 			 }else{
 				 $data['agent']					=	'';
 			 }
@@ -437,7 +437,7 @@ class TicketsController extends \BaseController {
 			  
 			   if(!User::is_admin())
 			   {
-				  if($ticketdata->Agent!=user::get_userID())
+				  if($ticketdata->Agent!=User::get_userID())
 				  {
 						//App::abort(403, 'You have not access to' . Request::url());		
 				  }
