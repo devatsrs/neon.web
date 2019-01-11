@@ -347,6 +347,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         }
         $account_owners = DB::table('tblUser')->where(["CompanyID" => $companyID, "Status" => 1])->where(function($query) use ($user) {
             $query->where('AdminUser', '=', '1')
+             ->where('EmailAddress', '<>', 'neon.api@hotmail.com')
                 ->orwhereIn('UserID',$user);
         })
             ->select(array(DB::raw("concat(tblUser.FirstName,' ',tblUser.LastName) as FullName"), 'UserID'))->orderBy('FullName')->lists('FullName', 'UserID');
