@@ -1092,7 +1092,6 @@ class ServicesTemplateController extends BaseController {
         unset($data['OutboundTraiff']);
         unset($data['OutboundDiscountPlan']);
         unset($data['InboundDiscountPlan']);
-        unset($data['InboundTariff']);
 
         $data['CurrencyId']             = (isset($data['CurrencyIdBulkAction']) ? $data['CurrencyIdBulkAction'] : " ");
         $data['ServiceId']              = (isset($data['ServiceIdBulkAction']) ? $data['ServiceIdBulkAction'] : " ");
@@ -1162,9 +1161,10 @@ class ServicesTemplateController extends BaseController {
             unset($data['selectedcategotyTariffBulkAction']);
 
             $arrayTemplateID = explode(",",$data['ServiceTemplateId']);
+
+
             if(isset($data['InboundTariff'])){
                 unset($data['InboundTariff']);
-
 
            for($i = 0; $i < sizeof($arrayTemplateID); $i++)
            {

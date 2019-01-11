@@ -473,14 +473,7 @@
 
         $('#add-bulkAction').click(function(e){
 
-            if(countSelectedItems == 1)
-            {
-                alert("Please select service tempalte");
-                $('#add-new-BulkAction-modal-service').modal('hide');
-                return false;
-            }
-
-            update_new_url = baseurl + '/servicesTemplate/addBulkAction';
+           update_new_url = baseurl + '/servicesTemplate/addBulkAction';
             var data = new FormData(($('#add-action-bulk-form')[0]));
 
             showAjaxScript(update_new_url, data, function(response){
