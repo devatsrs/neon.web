@@ -410,8 +410,10 @@
 
 
         $("#bulkActions").click(function(){
+            document.getElementById("add-action-bulk-form").reset();
+            $("#InboundTariff").val("");
 
-                if($("#service_filter [name='FilterCurrencyId']").val() != "" && checkBoxArray != "")
+            if($("#service_filter [name='FilterCurrencyId']").val() != "" && checkBoxArray != "")
                 {
                     $('#BulkServiceTemplateModelTitle').text('Add New Bulk Action');
                     var GetCurrencyId = $("#service_filter [name='FilterCurrencyId']").val();
@@ -426,12 +428,10 @@
                     $("#DidCategoryTariffIDBulkAction").prop("disabled",true);
 
                     $( "#add-action-bulk-form").children('select').find('option:eq(0)').prop('selected', true);
+                    document.getElementById("selectedcategotyTariffBulkAction").value = "";
+                    document.getElementById("categoryTariffIDListBodyBulkAction").innerHTML = "";
+                    $( "#ServiceIdBulkAction").select2().select2('val',1);
 
-//                    $( "#ServiceIdBulkAction").select2().select2('val',1);
-
-
-                    $("#add-action-bulk-form")[0].reset();
-                    $('form')[0].reset();
 
 
                 }else{
@@ -448,6 +448,45 @@
             $('#add-new-BulkAction-modal-service').modal('show', {backdrop: 'static'});
 
 
+        });
+
+
+
+
+        $('#add-bulkAction').click(function(e){
+
+            if(countSelectedItems == 1)
+            {
+                alert("Please select service tempalte");
+                $('#add-new-BulkAction-modal-service').modal('hide');
+                return false;
+            }
+
+            update_new_url = baseurl + '/servicesTemplate/addBulkAction';
+            var data = new FormData(($('#add-action-bulk-form')[0]));
+
+            showAjaxScript(update_new_url, data, function(response){
+                $(".btn").button('reset');
+                if (response.status == 'success') {
+
+                    $('#add-new-BulkAction-modal-service').modal('hide');
+                    toastr.success(response.message, "Success", toastr_opts);
+                    var dataTableName = $("#table-4").dataTable();
+                    dataTableName.fnDraw();
+                    $("#add-new-BulkAction-modal-service [name='CurrencyId']").attr('checked',false);
+
+                    $("#add-new-BulkAction-modal-service input:checkbox").prop("checked",false);
+
+                    $( "#add-action-bulk-form").children('select').find('option:eq(0)').prop('selected', true);
+                    document.getElementById("selectedcategotyTariffBulkAction").value = "";
+                    checkBoxArray = [];
+
+
+                }else{
+                    toastr.error(response.message, "Error", toastr_opts);
+                }
+            });
+            return false;
         });
 
     });

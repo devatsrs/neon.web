@@ -106,8 +106,6 @@
       $("#OutboundDiscountPlanIdBulkAction").prop("disabled",true);
       $("#InboundDiscountPlanIdBulkAction").prop("disabled",true);
       $("#ServiceIdBulkAction").prop("disabled",true);
-      $("#DidCategoryIDBulkAction").prop("disabled","disab");
-      $("#DidCategoryTariffIDBulkAction").prop("disabled",true);
 
       $("#add-new-BulkAction-modal-service input:checkbox[name='Service']").change(function() {
 
@@ -164,49 +162,24 @@
 
       $("#add-new-BulkAction-modal-service input:checkbox[name='InboundTariff']").change(function() {
 
-          if(countSelectedItems == 1)
+
+          if($("#InboundTariff").val() == "")
           {
-              alert("Please select service tempalte");
-              return false;
-          }else{
+              $("#InboundTariff").val(1);
+
               $("#DidCategoryIDBulkAction").prop("disabled",false);
               $("#DidCategoryTariffIDBulkAction").prop("disabled",false);
-          }
-      });
 
+          }else{
+              $("#InboundTariff").val("");
 
+              $("#DidCategoryIDBulkAction").prop("disabled","disabled");
+              $("#DidCategoryTariffIDBulkAction").prop("disabled","disabled");
 
-
-      $('#add-bulkAction').click(function(e){
-
-          if(countSelectedItems == 1)
-          {
-              alert("Please select service tempalte");
-              $('#add-new-BulkAction-modal-service').modal('hide');
-              return false;
           }
 
-          update_new_url = baseurl + '/servicesTemplate/addBulkAction';
-          var data = new FormData(($('#add-action-bulk-form')[0]));
 
-          showAjaxScript(update_new_url, data, function(response){
-              $(".btn").button('reset');
-              if (response.status == 'success') {
-
-                  $('#add-new-BulkAction-modal-service').modal('hide');
-                  toastr.success(response.message, "Success", toastr_opts);
-                  var dataTableName = $("#table-4").dataTable();
-                  dataTableName.fnDraw();
-                  $("#add-new-BulkAction-modal-service [name='CurrencyId']").attr('checked',false);
-
-
-              }else{
-                  toastr.error(response.message, "Error", toastr_opts);
-              }
-          });
-            return false;
       });
-
 
   });
 
@@ -263,6 +236,7 @@
           // alert(document.getElementById("SubscriptionIDListBody"));
           // alert(document.getElementById("SubscriptionIDListBody").innerHTML);
           var CategoryTariffValue = DidCategoryID + '-' + DidCategoryTariffID;
+          var CategoryTariffSearchValue = DidCategoryID + '-';
 
           var setValue = "setValue('CategoryTariffIDBulkAction[" + rowCategoryTariffHtmlIndex + "]','" + CategoryTariffValue + "');";
 
@@ -274,7 +248,7 @@
           var selectedselectedcategotyTariff = document.getElementById("selectedcategotyTariffBulkAction").value;
           // alert("selectedselectedcategotyTariff in add:" + selectedselectedcategotyTariff);
 
-          if (selectedselectedcategotyTariff.indexOf(CategoryTariffValue) == -1) {
+          if (selectedselectedcategotyTariff.indexOf(CategoryTariffSearchValue) == -1) {
 
              var rowCategoryTariffHtml =
                       '<tr class="draggable" + ' +

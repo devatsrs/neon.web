@@ -1137,6 +1137,10 @@ class ServicesTemplateController extends BaseController {
             unset($data['selectedcategotyTariffBulkAction']);
 
             $arrayTemplateID = explode(",",$data['ServiceTemplateId']);
+            if(isset($data['InboundTariff'])){
+                unset($data['InboundTariff']);
+
+
            for($i = 0; $i < sizeof($arrayTemplateID); $i++)
            {
                 unset($data['ServiceTemplateId']);
@@ -1151,10 +1155,9 @@ class ServicesTemplateController extends BaseController {
                        ->where('RateTableId', $data['RateTableId'])->first();
                    if (!isset($alreadyExistServices))
                        ServiceTemapleInboundTariff::create($data);
-               }
-           }
-
-
+                    }
+                }
+            }
             if($UpdatedValues)
                 return Response::json(array("status" => "success", "message" => "Bulk Actions updated"));
             else
