@@ -427,7 +427,7 @@
 
                     $( "#add-action-bulk-form").children('select').find('option:eq(0)').prop('selected', true);
 
-                    $( "#ServiceIdBulkAction").select2().select2('val', '');
+//                    $( "#ServiceIdBulkAction").select2().select2('val',1);
 
 
                     $("#add-action-bulk-form")[0].reset();

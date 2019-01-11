@@ -117,6 +117,7 @@
               countSelectedItems++;
           }else{
               $("#ServiceIdBulkAction").prop('disabled', false);
+              $(this).val(1);
               countSelectedItems--;
           }
 
@@ -222,7 +223,7 @@
      data = {company: selected_company};
 
      url = baseurl + "/servicesTemplate/selectDataOnCurrency" +
-             "?selectedCurrency=" + selected_currency + "&selectedData=DidCategoryID&selected_didCategory="+selected_didCategory;     alert("url :" + url);
+             "?selectedCurrency=" + selected_currency + "&selectedData=DidCategoryID&selected_didCategory="+selected_didCategory;
      $.post(url, function (data, status) {
          //  var res = data.split('/>');
          document.getElementById("DidCategoryTariffIDBulkAction").innerHTML = "" + data;
