@@ -1,13 +1,30 @@
 <style>
+    .cancelRadio {
+        margin-bottom: 10px;
+    }
+    .cancelRadio td {
+        padding-right: 6px;
+    }
+
+    .cancelRadio td:last-child {
+        padding-right: 0;
+    }
     .cancelRadio .panel-heading {
         display: block;
         font-size: 12px;
         background: #fff;
         margin-bottom: 0;
+        border: 1px solid #ddd;
+        border-radius:2px;
+        padding: 5px 10px;
+        height: 70px
     }
     .cancelRadio .panel-heading.active {
         border-left: 3px solid #00cc00;
-        padding-left: 12px;
+        padding-left: 7px;
+    }
+    .cancelRadio .form-group {
+        margin-bottom: 5px;
     }
 </style>
 <script>
@@ -60,6 +77,7 @@
             showAjaxScript(update_new_url, data, function(response){
                 document.getElementById("Service-update").disabled = false;
                 $(".btn").button('reset');
+                hideCancelCollapse();
                 if (response.status == 'success') {
                     $('#add-new-modal-service').modal('hide');
                     toastr.success(response.message, "Success", toastr_opts);
@@ -175,6 +193,7 @@
             testBox.value = value1;
         } else {
             testBox.value = '';
+            hideCancelCollapse();
         }
 
         // alert(self.val());
@@ -270,11 +289,12 @@
         $.post(url, function (data, status) {
             //  var res = data.split('/>');
             //alert(data);
-            document.getElementById("ServiceId").innerHTML = "" + data;
+            document.getElementById("ServiceIdField").innerHTML = "" + data;
             // var ServiceId = $("div.hiddenRowData").find("input[name='ServiceId']").val();
             // alert("ServiceId" + ServiceId);
             if (ServiceId != '') {
                 $("#add-new-service-form [name='ServiceId']").select2().select2('val', ServiceId);
+
             }else {
                 $("#add-new-service-form [name='ServiceId']").select2().select2('val', '');
             }
@@ -300,7 +320,7 @@
             document.getElementById("OutboundDiscountPlanId").innerHTML = "" + data;
             //var OutboundDiscountPlanID = $("div.hiddenRowData").find("input[name='OutboundDiscountPlanID']").val();
             // alert(OutboundDiscountPlanID);
-            if (OutboundDiscountPlanID) {
+            if (OutboundDiscountPlanID != '') {
                 $("#add-new-service-form [name='OutboundDiscountPlanId']").select2().select2('val', OutboundDiscountPlanID);
             }else {
                 $("#add-new-service-form [name='OutboundDiscountPlanId']").select2().select2('val', '');
@@ -329,7 +349,7 @@
             // var res = data.split('/>');
             document.getElementById("OutboundRateTableId").innerHTML = "" + data;
             // var OutboundTariffId = $("div.hiddenRowData").find("input[name='OutboundTariffId']").val();
-            if (OutboundTariffId != null) {
+            if (OutboundTariffId != '') {
                 $("#add-new-service-form [name='OutboundRateTableId']").select2().select2('val', OutboundTariffId);
             }else {
                 $("#add-new-service-form [name='OutboundRateTableId']").select2().select2('val', '');
@@ -346,7 +366,7 @@
             document.getElementById("templateSubscriptionList").innerHTML = "" + data;
             // $("#serviceBasedOnCurreny").html(data);
         }, 'html');
-
+        hideCancelCollapse();
         ShowTariffOnSelectedCategory();
 
     }
@@ -358,6 +378,7 @@
             data = {company: selected_company};
             resetFormFields();
 
+            hideCancelCollapse();
             loadValuesBasedOnCurrency(selected_currency,false,'','','','');
         });
 
@@ -536,7 +557,6 @@
     }
 
     function AddCategoryTariffInTable() {
-        //alert("Called");
         //DidCategoryID DidCategoryTariffID
         var SelectedDidCategoryID = $("#DidCategoryID option:selected");
         var DidCategoryIDText = SelectedDidCategoryID.text();
@@ -545,7 +565,9 @@
         var DidCategoryTariffIDText = SelectedDidCategoryTariffID.text();
         var DidCategoryTariffID = SelectedDidCategoryTariffID.val();
         //alert(SelectedDidCategoryID + ":" + SelectedDidCategoryTariffID.val());
-        if (typeof DidCategoryID == 'undefined' || DidCategoryID == '') {
+
+
+        if(typeof DidCategoryID == 'undefined' || DidCategoryID == '') {
             DidCategoryID = "0";
             DidCategoryIDText= "";
         }
@@ -554,6 +576,8 @@
             // alert(document.getElementById("SubscriptionIDListBody"));
             // alert(document.getElementById("SubscriptionIDListBody").innerHTML);
             var CategoryTariffValue = DidCategoryID + '-' + DidCategoryTariffID;
+            var CategoryTariffDesrchValue = DidCategoryID + '-';
+
             var setValue = "setValue('CategoryTariffID[" + rowCategoryTariffHtmlIndex + "]','" + CategoryTariffValue + "');";
             var idName = "CategoryTariffID[" + rowCategoryTariffHtmlIndex + "]";
             var idNameRow = "CategoryTariffRowID" + (CategoryTariffValue) + "";
@@ -561,7 +585,7 @@
             //
             var selectedselectedcategotyTariff = document.getElementById("selectedcategotyTariff").value;
             // alert("selectedselectedcategotyTariff in add:" + selectedselectedcategotyTariff);
-            if (selectedselectedcategotyTariff.indexOf(CategoryTariffValue) == -1) {
+            if (selectedselectedcategotyTariff.indexOf(CategoryTariffDesrchValue) == -1) {
                 var rowCategoryTariffHtml =
                         '<tr class="draggable" + ' +
                         'id="' + idNameRow + '\" ' +
@@ -573,7 +597,6 @@
                         '<a title="Delete" onClick="RemoveCategoryTariffRowInTable(' + "'" + idNameRow + "'" + ');" class="delete-service2 btn btn-danger btn-sm"><i class="entypo-trash"></i></a>' +
                         '</td>' +
                         '</tr>';
-                ;
 
                 selectedselectedcategotyTariff = selectedselectedcategotyTariff + CategoryTariffValue + ",";
                 document.getElementById("selectedcategotyTariff").value = selectedselectedcategotyTariff;
@@ -660,11 +683,10 @@
 @section('footer_ext')
     @parent
     <div class="modal fade" id="add-new-modal-service">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg"><!-- modal-lg -->
             <div class="modal-content">
                 <form id="add-new-service-form" method="post">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                         <h5 class="modal-title" id="ServiceTemplateModelTitle">Add New Service Template</h5>
                     </div>
                     <div class="modal-body">
@@ -695,7 +717,7 @@
                                             <table width="100%">
                                                 <tr>
                                                     <td width="15%"><label for="field-5" class="control-label">Service</label></td>
-                                                    <td width="30%"><select  id="ServiceId" name="ServiceId" class="form-control"></select></td>
+                                                    <td width="30%"><select  id="ServiceIdField" name="ServiceId" class="form-control"></select></td>
                                                     <td width="5%">&nbsp;</td>
                                                     <td width="15%"><label for="field-5" class="control-label">Outbound Traiff</label></td>
                                                     <td width="35%">
@@ -732,7 +754,7 @@
                                                     <td width="30%"><input type="number" min="0" name="ContractDuration" class="form-control" id="field-14" placeholder="(months)"></td>
                                                     <td width="5%">&nbsp;</td>
                                                     <td width="15%"><label for="field-15" class="control-label">Automatic Renewal</label></td>
-                                                    <td width="30%">
+                                                    <td width="35%">
                                                         <div class="form-group">
                                                             <div class="make-switch switch-small">
                                                                 {{Form::checkbox('AutomaticRenewal', '1', true, ['id' => 'field-15'])}}
@@ -747,89 +769,46 @@
                                         <div class="form-group">
                                             <label for="field-18" class="control-label">Cancellation Charges</label>
                                         </div>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="panel-group cancelRadio" id="accordion">
-                                                    <div class="panel panel-default">
-                                                        <label class="panel-heading" for='r11'>
-                                                            <i></i>
-                                                            <input type='radio' id='r11' name='CancellationCharges' checked value='1' required />
-                                                            Fixed Fee
-                                                        </label>
-                                                        <div id="collapseOne" class="panel-collapse collapse in">
-                                                            <div class="panel-body">
-                                                                <div class="form-group">
-                                                                    <div class="panel-options">
-                                                                        <label for="fixedfee" class="control-label">Fee</label>
-                                                                        <div>
-                                                                            <input type="text" class="form-control" id="fixedfee" name="fee">
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="panel-group cancelRadio" id="accordion">
-                                                    <div class="panel panel-default">
-                                                        <label class="panel-heading" for='r12'>
-                                                            <input type='radio' id='r12' name='CancellationCharges' value='2' required />
-                                                            Remaining Term Of Contract
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="panel-group cancelRadio" id="accordion">
-                                                    <div class="panel panel-default">
-                                                        <label class="panel-heading" for='r13'>
-                                                            <input type='radio' id='r13' name='CancellationCharges' value='3' required />
-                                                            Remaining Term Of Contract (x%)
-                                                        </label>
-                                                        <div id="collapseThree" class="panel-collapse collapse in">
-                                                            <div class="panel-body">
-                                                                <div class="form-group">
-                                                                    <div class="panel-options">
-                                                                        <label for="percentFee" class="control-label">Percentage</label>
-                                                                        <div>
-                                                                            <input type="text" class="form-control" id="percentFee" name="fee">
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="panel-group cancelRadio" id="accordion">
-                                                    <div class="panel panel-default">
-                                                        <label for='r14' class="panel-heading">
-                                                            <input type='radio' id='r14' name='CancellationCharges' value='4' required />
-                                                            Remaining Term Of Contract
-                                                        </label>
-                                                        <div id="collapseFour" class="panel-collapse collapse in">
-                                                            <div class="panel-body">
-                                                                <div class="form-group">
-                                                                    <div class="panel-options">
-                                                                        <label for="fixedFeeTerm" class="control-label">Fee</label>
-                                                                        <div>
-                                                                            <input type="text" class="form-control" id="fixedFeeTerm" name="fee">
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <table class="cancelRadio" width="100%">
+                                            <tr>
+                                                <td width="25%">
+                                                    <label class="panel-heading" for='r11'>
+                                                        <input type='radio' id='r11' name='CancellationCharges' data-value="1" checked value='1' required />
+                                                        Fixed Fee
+                                                    </label>
+                                                </td>
+                                                <td width="25%">
+                                                    <label class="panel-heading" for='r12'>
+                                                        <input type='radio' id='r12' name='CancellationCharges' data-value="2" value='2' required />
+                                                        Remaining Term Of Contract
+                                                    </label>
+                                                </td>
+                                                <td width="25%">
+                                                    <label class="panel-heading" for='r13'>
+                                                        <input type='radio' id='r13' name='CancellationCharges' data-value="3" value='3' required />
+                                                        Remaining Term Of Contract (x%)
+                                                    </label>
+                                                </td>
+                                                <td width="25%">
+                                                    <label for='r14' class="panel-heading">
+                                                        <input type='radio' id='r14' name='CancellationCharges' data-value="4" value='4' required />
+                                                        Remaining Term Of Contract
+                                                    </label>
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </div>
-                                    <div class="clearfix"></div>
-                                    <div id="ajax_dynamicfield_html" class="margin-top"></div>
+                                    <div class="col-md-12 cancellationDiv">
+                                        <table width="100%">
+                                            <tr>
+                                                <td width="15%"><label for="field-17" class="control-label">Cancellation Fee</label></td>
+                                                <td width="85%"><input type="number" min="0" name="CancellationFee" class="form-control" id="field-17" placeholder=""></td>
+                                            </tr>
+                                        </table>
+                                    </div>
                                 </div>
+                                <div class="clearfix"></div>
+                                <div id="ajax_dynamicfield_html" class="margin-top"></div>
                             </div>
                         </div>
                         <div>
@@ -892,7 +871,6 @@
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
 
@@ -928,13 +906,10 @@
                                                 </td>
                                             </tr>
                                         </table>
-
                                         <div>
                                             <table id="categotyTarifftable" class="table table-bordered datatable">
                                                 <thead>
-
                                                 <tr>
-
                                                     <td width="35%">Category</td>
                                                     <td width="35%">Tariff</td>
                                                     <td width="20%">Actions</td>
@@ -968,19 +943,8 @@
     </div>
 
     <script>
-        function hideCancelCollapse(){
-            $('.cancelRadio .panel-collapse').removeClass('in');
-            $('.cancelRadio .panel-heading').removeClass('active');
-            var selected = $('.cancelRadio input[type="radio"]:checked');
-            selected.parent()
-                    .addClass('active')
-                    .parent()
-                    .parent()
-                    .find('.panel-collapse')
-                    .addClass('in');
-        }
         $(function(){
-            hideCancelCollapse()
+            hideCancelCollapse();
         });
         $('input[name="CancellationCharges"]').click(function(){
             hideCancelCollapse()

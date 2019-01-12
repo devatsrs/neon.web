@@ -107,6 +107,10 @@
         saveDidCategoryTariffID = "";
         $("#add-new-service-form [name='CurrencyId']").prop('disabled',false);//disabled="true"
         $("#add-new-service-form [name='ServiceId']").select2().select2('val','');
+        $("#add-new-service-form [name='ContractDuration']").val("");
+        $("#add-new-service-form [name='AutomaticRenewal']").prop("checked", true).trigger("change");
+        $("#add-new-service-form [name='CancellationCharges']").trigger("reset");
+        $("#add-new-service-form [name='CancellationFee']").val("");
         $("#add-new-service-form [name='OutboundDiscountPlanId']").select2().select2('val','');
         $("#add-new-service-form [name='InboundDiscountPlanId']").select2().select2('val','');
         $("#add-new-service-form [name='OutboundRateTableId']").select2().select2('val','');
@@ -122,6 +126,7 @@
         forms.each(function(index,form){
             resetForm($(form),self.attr('data-type'));
         });
+        hideCancelCollapse();
        // alert(document.getElementById("SubscriptionIDListBody").innerHTML);
        // alert(document.getElementById('categoryTariffIDListBody').innerHTML);
        // alert(categoryTariffIDListBody);
@@ -197,6 +202,10 @@
                         action += '<input type = "hidden"  name = "CurrencyID" value = "' + (full[6] != null ? full[6] : '') + '" / >';
                         action += '<input type = "hidden"  name = "OutboundDiscountPlanID" value = "' + (full[8] != null ? full[8] : '') + '" / >';
                         action += '<input type = "hidden"  name = "InboundDiscountPlanID" value = "' + (full[7] != null ? full[7] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "ContractDuration" value = "' + (full[9] != null ? full[9] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "AutomaticRenewal" value = "' + (full[10] != null ? full[10] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "CancellationCharges" value = "' + (full[11] != null ? full[11] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "CancellationFee" value = "' + (full[12] != null ? full[12] : '') + '" / >';
                         action += '<input type = "hidden"  name = "Status" value = "" / ></div>';
                         <?php if(User::checkCategoryPermission('SubscriptionTemplate','Edit')){ ?>
                                 action += ' <a data-name = "'+full[1]+'" data-id="'+ full[0] +'" title="Edit" class="edit-service btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
@@ -362,6 +371,10 @@
             var OutboundDiscountPlanID= $(this).prev("div.hiddenRowData").find("input[name='OutboundDiscountPlanID']").val();
             var InboundDiscountPlanID= $(this).prev("div.hiddenRowData").find("input[name='InboundDiscountPlanID']").val();
             var OutboundTariffId= $(this).prev("div.hiddenRowData").find("input[name='OutboundTariffId']").val();
+            var ContractDuration= $(this).prev("div.hiddenRowData").find("input[name='ContractDuration']").val();
+            var AutomaticRenewal= $(this).prev("div.hiddenRowData").find("input[name='AutomaticRenewal']").val();
+            var CancellationCharges= $(this).prev("div.hiddenRowData").find("input[name='CancellationCharges']").val();
+            var CancellationFee= $(this).prev("div.hiddenRowData").find("input[name='CancellationFee']").val();
             CompanyGatewayID = $(this).prev("div.hiddenRowData").find("input[name='CompanyGatewayID']").val();
             Status = $(this).prev("div.hiddenRowData").find("input[name='Status']").val();
             if(Status == 1 ){
@@ -371,6 +384,10 @@
             }
 
             $("#add-new-service-form [name='Name']").val(ServiceTemplateName);
+            $("#add-new-service-form [name='ContractDuration']").val(ContractDuration);
+            $("#add-new-service-form [name='CancellationFee']").val(CancellationFee);
+            $("#add-new-service-form [name='CancellationCharges'][value='" + CancellationCharges+"']").prop("checked", true).trigger("change");
+            $("#add-new-service-form [name='AutomaticRenewal']").prop('checked', AutomaticRenewal == 1).trigger('change');
             $("#add-new-service-form [name='CurrencyId']").select2().select2('val',CurrencyID);
             $("#add-new-service-form [name='CurrencyId']").prop('disabled',true);//disabled="true"
             loadValuesBasedOnCurrency(CurrencyID,true,ServiceId,OutboundDiscountPlanID,InboundDiscountPlanID,OutboundTariffId);
@@ -379,11 +396,12 @@
             $("#add-new-service-form [name='ServiceId']").select2().select2('val',ServiceId);
             $("#add-new-service-form [name='CompanyGatewayID']").select2().select2('val',CompanyGatewayID);
             $("#add-new-service-form [name='ServiceID']").val($(this).attr('data-id'));
-            $('#add-new-modal-service  Service Template');
+            //$('#add-new-modal-service  Service Template');
             document.getElementById('ajax_dynamicfield_html').innerHTML= "";
             $('#add-new-modal-service h5').html('Edit Service Template');
             document.getElementById("ActiveTabContent").innerHTML = document.getElementById("ContentSubscriptionTab").innerHTML;
 
+            hideCancelCollapse();
 
             $.ajax({
                 type: "GET",
@@ -410,13 +428,30 @@
 
 
         $("#bulkActions").click(function(){
+            document.getElementById("add-action-bulk-form").reset();
+            $("#InboundTariff").val("");
 
-                if($("#service_filter [name='FilterCurrencyId']").val() != "" && checkBoxArray != "")
+            if($("#service_filter [name='FilterCurrencyId']").val() != "" && checkBoxArray != "")
                 {
-                    $('#BulkServiceTemplateModelTitle').text('Add New Bulk Action');
+                    $('#BulkServiceTemplateModelTitle').text('Bulk Action');
                     var GetCurrencyId = $("#service_filter [name='FilterCurrencyId']").val();
-                    $("#CurrencyId").val(GetCurrencyId);
-                    $("#ServiceTemplateId").val(checkBoxArray);
+                    $("#CurrencyIdBulkAction").val(GetCurrencyId);
+                    $("#ServiceTemplateIdBulkAction").val(checkBoxArray);
+                    $("#add-new-BulkAction-modal-service input:checkbox").prop("checked",false);
+                    $("#OutboundRateTableIdBulkAction").prop("disabled",true);
+                    $("#OutboundDiscountPlanIdBulkAction").prop("disabled",true);
+                    $("#InboundDiscountPlanIdBulkAction").prop("disabled",true);
+                    $("#ServiceIdBulkAction").prop("disabled",true);
+                    $("#DidCategoryIDBulkAction").prop("disabled","disab");
+                    $("#DidCategoryTariffIDBulkAction").prop("disabled",true);
+
+                    $( "#add-action-bulk-form").children('select').find('option:eq(0)').prop('selected', true);
+                    document.getElementById("selectedcategotyTariffBulkAction").value = "";
+                    document.getElementById("categoryTariffIDListBodyBulkAction").innerHTML = "";
+                    $( "#ServiceIdBulkAction").select2().select2('val',1);
+
+
+
                 }else{
 
                    if(checkBoxArray == "")
@@ -433,8 +468,58 @@
 
         });
 
+
+
+
+        $('#add-bulkAction').click(function(e){
+
+           update_new_url = baseurl + '/servicesTemplate/addBulkAction';
+            var data = new FormData(($('#add-action-bulk-form')[0]));
+
+            showAjaxScript(update_new_url, data, function(response){
+                $(".btn").button('reset');
+                if (response.status == 'success') {
+
+                    $('#add-new-BulkAction-modal-service').modal('hide');
+                    toastr.success(response.message, "Success", toastr_opts);
+                    var dataTableName = $("#table-4").dataTable();
+                    dataTableName.fnDraw();
+                    $("#add-new-BulkAction-modal-service [name='CurrencyId']").attr('checked',false);
+
+                    $("#add-new-BulkAction-modal-service input:checkbox").prop("checked",false);
+
+                    $( "#add-action-bulk-form").children('select').find('option:eq(0)').prop('selected', true);
+                    document.getElementById("selectedcategotyTariffBulkAction").value = "";
+                    checkBoxArray = [];
+
+
+                }else{
+                    toastr.error(response.message, "Error", toastr_opts);
+                }
+            });
+            return false;
+        });
+
     });
 
+    function hideCancelCollapse(){
+        var panelLabels      = $('.cancelRadio label');
+        var cancelField      = $(".cancellationDiv");
+
+        panelLabels.removeClass('active');
+        cancelField.hide();
+
+        var selected = $('.cancelRadio input[type="radio"]:checked');
+        selected.val(selected.data('value'))
+                .parent()
+                .addClass('active');
+        if(selected.val() != 2){
+            var label = selected.val() == 3 ? "Percentage" : "Fee";
+            cancelField.find('label').text(label);
+            cancelField.find('input[type="text"]').attr("placeholder", label);
+            cancelField.show();
+        }
+    }
 </script>
 @include('servicetemplate.bulkservicetemplatemodal')
 

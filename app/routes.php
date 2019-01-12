@@ -1525,6 +1525,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accountservices/{id}/search_accounts_grid', 'AccountServiceController@search_accounts_grid');
 	Route::any('accountservices/{id}/bulk_change_status', 'AccountServiceController@bulk_change_status');
 	Route::any('accountservices/{id}/bulk_delete', 'AccountServiceController@bulk_delete');
+	Route::any('accountservices/cancel_contract', 'AccountServiceController@cancelContract');
 
 	//noticeboard
 	Route::any('/noticeboard', 'NoticeBoardController@index');

@@ -3,19 +3,20 @@
 class AccountServiceController extends \BaseController {
 
     // view account edit page
-	public function edit($id,$AccountServiceID){
+    public function edit($id,$AccountServiceID){
         //Account::getAccountIDList(); exit;
         //AccountService::getAccountServiceIDList($id); exit;
         $account = Account::find($id);
         $ServiceID = AccountService::getServiceIDByAccountServiceID($AccountServiceID);
         $CompanyID = Account::getCompanyIDByAccountID($id);
-		$AccountID = $id;
+        $AccountID = $id;
         $ServiceName = Service::getServiceNameByID($ServiceID);
         $decimal_places = get_round_decimal_places($id);
         $products = Product::getProductDropdownList($CompanyID);
         $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0,$CompanyID);
         $rate_table = RateTable::getRateTableList(array('CurrencyID'=>$account->CurrencyId));
         $DiscountPlan = DiscountPlan::getDropdownIDList($CompanyID,(int)$account->CurrencyId);
+        $AccountServiceContract = AccountServiceContract::where('AccountServiceID',$AccountServiceID)->first();
 
         $InboundTariffID = '';
         $OutboundTariffID = '';
@@ -45,12 +46,12 @@ class AccountServiceController extends \BaseController {
         $AccountService = AccountService::where(['AccountID'=>$id,'AccountServiceID'=>$AccountServiceID])->first();
 
         //As per new question call the routing profile model for fetch the routing profile list.
-            $routingprofile = RoutingProfiles::getRoutingProfile($CompanyID);
-            $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id,"AccountServiceID"=>$AccountServiceID])->first();
-            //----------------------------------------------------------------------
-            $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$CompanyID);
-		return View::make('accountservices.edit', compact('AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID'));
-	}
+        $routingprofile = RoutingProfiles::getRoutingProfile($CompanyID);
+        $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id,"AccountServiceID"=>$AccountServiceID])->first();
+        //----------------------------------------------------------------------
+        $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$CompanyID);
+        return View::make('accountservices.edit', compact('AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID','AccountServiceContract'));
+    }
 
     // add account services
     public function addservices($id){
@@ -534,6 +535,37 @@ class AccountServiceController extends \BaseController {
             $NeonExcel = new NeonExcelIO($file_path);
             $NeonExcel->download_excel($servicedata);
         }
+
+    }
+    public function cancelContract(){
+        $data = Input::all();
+        $Contract = array();
+
+        $Contract['AccountServiceID'] = $data['AccountServiceID'];
+        $Contract['TerminationFees'] = $data['TeminatingFee'];
+        $Contract['CancelationDate'] = $data['CancelDate'];
+        if(isset($data['IncTerminationFees'])){
+            $Contract['IncludeTerminationFees'] = $data['IncTerminationFees'];
+        }else{
+            $Contract['IncludeTerminationFees'] = 0;
+        }
+        if(isset($data['DiscountOffered'])){
+            $Contract['IncludeDiscountsOffered'] = $data['DiscountOffered'];
+        }else{
+            $Contract['IncludeDiscountsOffered'] = 0;
+        }
+        if(isset($data['GenerateInvoice'])){
+            $Contract['GenerateInvoice'] = $data['GenerateInvoice'];
+        }else{
+            $Contract['GenerateInvoice'] = 0;
+        }
+        $AccountServiceCancelContract = AccountServiceCancelContract::where('AccountServiceID',$data['AccountServiceID'])->first();
+        if(count($AccountServiceCancelContract) > 0){
+            AccountServiceCancelContract::where('AccountServiceID',$data['AccountServiceID'])->update($Contract);
+        }else{
+            AccountServiceCancelContract::create($Contract);
+        }
+
 
     }
 }
