@@ -1096,9 +1096,10 @@ class ServicesTemplateController extends BaseController {
     }
 
     public function addBulkAction(){ // Add Bulk action if input empty then this will add already existing values...
+        $data = Input::all();
+
 
         try{
-        $data = Input::all();
 
         if(isset($data['Service']))
         {
@@ -1106,19 +1107,17 @@ class ServicesTemplateController extends BaseController {
                 return Response::json(array("status" => "failed", "message" => "Service select box required"));
         }
 
-        unset($data['OutboundDiscountPlan']);
-        unset($data['OutboundTraiff']);
-        unset($data['OutboundDiscountPlan']);
-        unset($data['InboundDiscountPlan']);
 
-        $data['CurrencyId']             = (isset($data['CurrencyIdBulkAction']) ? $data['CurrencyIdBulkAction'] : " ");
-        $data['ServiceId']              = (isset($data['ServiceIdBulkAction']) ? $data['ServiceIdBulkAction'] : " ");
-        $data['OutboundRateTableId']    = (isset($data['OutboundRateTableIdBulkAction']) ? $data['OutboundRateTableIdBulkAction'] : " ");
-        $data['OutboundDiscountPlanId'] = (isset($data['OutboundDiscountPlanIdBulkAction']) ? $data['OutboundDiscountPlanIdBulkAction'] : " ");
-        $data['InboundDiscountPlanId']  = (isset($data['InboundDiscountPlanIdBulkAction']) ? $data['InboundDiscountPlanIdBulkAction'] : " ");
-        $data['selectedcategotyTariff'] = (isset($data['selectedcategotyTariffBulkAction'])? $data['selectedcategotyTariffBulkAction'] : " ");
-        $data['DidCategoryTariffID']    = (isset($data['DidCategoryTariffIDBulkAction']) ? $data['DidCategoryTariffIDBulkAction'] : " ");
-        $data['InboundDiscountPlanId']  = (isset($data['InboundDiscountPlanIdBulkAction']) ? $data['InboundDiscountPlanIdBulkAction'] : " ");
+
+        $data['CurrencyId']             = $data['CurrencyIdBulkAction'];
+        $data['ServiceId']              = $data['ServiceIdBulkAction'];
+        $data['OutboundRateTableId']    = $data['OutboundRateTableIdBulkAction'];
+        $data['OutboundDiscountPlanId'] = $data['OutboundDiscountPlanIdBulkAction'];
+        $data['InboundDiscountPlanId']  = $data['InboundDiscountPlanIdBulkAction'];
+        $data['selectedcategotyTariff'] = $data['selectedcategotyTariffBulkAction'];
+        $data['DidCategoryTariffID']    = $data['DidCategoryTariffIDBulkAction'];
+        $data['InboundDiscountPlanId']  = $data['InboundDiscountPlanIdBulkAction'];
+
 
         unset($data['CurrencyIdBulkAction']);
         unset($data['ServiceIdBulkAction']);
@@ -1128,7 +1127,10 @@ class ServicesTemplateController extends BaseController {
         unset($data['DidCategoryTariffIDBulkAction']);
         unset($data['DidCategoryIDBulkAction']);
         unset($data['InboundDiscountPlanIdBulkAction']);
-
+        unset($data['OutboundDiscountPlan']);
+        unset($data['OutboundTraiff']);
+        unset($data['OutboundDiscountPlan']);
+        unset($data['InboundDiscountPlan']);
 
         if(isset($data['ServiceTemplateIdBulkAction'])) {
             $ServiceTemplateIdString = ((string)$data['ServiceTemplateIdBulkAction']);
@@ -1142,17 +1144,17 @@ class ServicesTemplateController extends BaseController {
                 if (isset($data['Service'])) {
                     $updateFields['ServiceId'] = (isset($data['ServiceId']) ? $data['ServiceId'] : $ExistingValues['ServiceId']);
                 }
-                if (isset($data['OutboundTraiff'])) {
+                if (isset($data['OutboundRateTableId'])) {
                     $updateFields['OutboundRateTableId'] = (isset($data['OutboundRateTableId']) ? $data['OutboundRateTableId'] : $ExistingValues['OutboundRateTableId']);
                 }
-                if (isset($data['OutboundDiscountPlan'])) {
+                if (isset($data['OutboundDiscountPlanId'])) {
                     $updateFields['OutboundDiscountPlanId'] = (isset($data['OutboundDiscountPlanId']) ? $data['OutboundDiscountPlanId'] : $ExistingValues['OutboundDiscountPlanId']);
                 }
-                if (isset($data['InboundDiscountPlan'])) {
+                if (isset($data['InboundDiscountPlanId'])) {
                     $updateFields['InboundDiscountPlanId'] = (isset($data['InboundDiscountPlanId']) ? $data['InboundDiscountPlanId'] : $ExistingValues['InboundDiscountPlanId']);
                 }
-                ServiceTemplate::where('ServiceTemplateId', $ServiceTemplateIdArray[$i])->update($updateFields);
 
+               ServiceTemplate::where('ServiceTemplateId', $ServiceTemplateIdArray[$i])->update($updateFields);
             }
 
             $data['ServiceTemplateId'] = $data['ServiceTemplateIdBulkAction'];
@@ -1183,7 +1185,6 @@ class ServicesTemplateController extends BaseController {
 
             $arrayTemplateID = explode(",", $data['ServiceTemplateId']);
 
-
             if (isset($data['InboundTariff'])) {
                 unset($data['InboundTariff']);
 
@@ -1209,9 +1210,6 @@ class ServicesTemplateController extends BaseController {
         }catch (Exception $ex){
             return Response::json(array("status" => "failed", "message" => "Failed to update Bulk Actions"));
         }
-
-
-
 
     }
 
