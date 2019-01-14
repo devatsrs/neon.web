@@ -229,10 +229,17 @@ class ServicesTemplateController extends BaseController {
 
                     ServiceTemplate::$rules['Name'] = 'required|unique:tblServiceTemplate';
                     ServiceTemplate::$rules['ContractDuration'] = 'numeric';
-                    ServiceTemplate::$rules['CancellationCharges'] = 'numeric';
-                    if(isset($data['CancellationCharges']) && $data['CancellationCharges'] != 2)
-                        ServiceTemplate::$rules['CancellationFee'] = 'numeric';
+                    ServiceTemplate::$rules['CancellationCharges'] = 'required|numeric';
+
+                    $niceNames = ['CancellationFee' => 'Cancellation Fee'];
+                    if(isset($data['CancellationCharges']) && $data['CancellationCharges'] != 2) {
+                        ServiceTemplate::$rules['CancellationFee'] = 'required|numeric';
+                        if($data['CancellationCharges'] == 3){
+                            $niceNames = ['CancellationFee' => "Cancellation Fee Percentage"];
+                        }
+                    }
                     $validator = Validator::make($data, ServiceTemplate::$rules);
+                    $validator->setAttributeNames($niceNames);
 
                     if ($validator->fails()) {
                         return json_validator_response($validator);
@@ -479,11 +486,18 @@ class ServicesTemplateController extends BaseController {
 
             ServiceTemplate::$updateRules['Name'] = 'required|unique:tblServiceTemplate,Name,'.$ServiceTemplateId.',ServiceTemplateId';
 
-            ServiceTemplate::$rules['ContractDuration'] = 'numeric';
-            ServiceTemplate::$rules['CancellationCharges'] = 'numeric';
-            if(isset($data['CancellationCharges']) && $data['CancellationCharges'] != 2)
-                ServiceTemplate::$rules['CancellationFee'] = 'numeric';
+            ServiceTemplate::$updateRules['ContractDuration'] = 'numeric';
+            ServiceTemplate::$updateRules['CancellationCharges'] = 'required|numeric';
+
+            $niceNames = ['CancellationFee' => 'Cancellation Fee'];
+            if(isset($data['CancellationCharges']) && $data['CancellationCharges'] != 2) {
+                ServiceTemplate::$updateRules['CancellationFee'] = 'required|numeric';
+                if($data['CancellationCharges'] == 3){
+                    $niceNames = ['CancellationFee' => "Cancellation Fee Percentage"];
+                }
+            }
             $validator = Validator::make($data, ServiceTemplate::$updateRules);
+            $validator->setAttributeNames($niceNames);
 
             if ($validator->fails()) {
                 return json_validator_response($validator);

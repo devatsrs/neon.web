@@ -3,7 +3,7 @@
         margin-bottom: 10px;
     }
     .cancelRadio td {
-        padding-right: 6px;
+        padding-right: 5px;
     }
 
     .cancelRadio td:last-child {
@@ -16,8 +16,8 @@
         margin-bottom: 0;
         border: 1px solid #ddd;
         border-radius:2px;
-        padding: 5px 10px;
-        height: 70px
+        padding: 5px 3px 5px 10px;
+        min-height: 40px
     }
     .cancelRadio .panel-heading.active {
         border-left: 3px solid #00cc00;
@@ -26,6 +26,16 @@
     .cancelRadio .form-group {
         margin-bottom: 5px;
     }
+    .cancelRadio td {
+        width: 25%
+    }
+    .cancelRadio td:first-child {
+        width: 23%
+    }
+    .cancelRadio td:nth-child(3){
+        width: 27%
+    }
+
 </style>
 <script>
 
@@ -771,25 +781,25 @@
                                         </div>
                                         <table class="cancelRadio" width="100%">
                                             <tr>
-                                                <td width="25%">
+                                                <td>
                                                     <label class="panel-heading" for='r11'>
                                                         <input type='radio' id='r11' name='CancellationCharges' data-value="1" checked value='1' required />
                                                         Fixed Fee
                                                     </label>
                                                 </td>
-                                                <td width="25%">
+                                                <td>
                                                     <label class="panel-heading" for='r12'>
                                                         <input type='radio' id='r12' name='CancellationCharges' data-value="2" value='2' required />
                                                         Remaining Term Of Contract
                                                     </label>
                                                 </td>
-                                                <td width="25%">
+                                                <td>
                                                     <label class="panel-heading" for='r13'>
                                                         <input type='radio' id='r13' name='CancellationCharges' data-value="3" value='3' required />
-                                                        Remaining Term Of Contract (x%)
+                                                        Remaining Term Of Contract (%)
                                                     </label>
                                                 </td>
-                                                <td width="25%">
+                                                <td>
                                                     <label for='r14' class="panel-heading">
                                                         <input type='radio' id='r14' name='CancellationCharges' data-value="4" value='4' required />
                                                         Remaining Term Of Contract
