@@ -19,6 +19,8 @@ class AccountServiceController extends \BaseController {
         $AccountServiceContract = AccountServiceContract::where('AccountServiceID',$AccountServiceID)->first();
         $AccountServiceCancelContract = AccountServiceCancelContract::where('AccountServiceID',$AccountServiceID)->first();
 
+
+
         $InboundTariffID = '';
         $OutboundTariffID = '';
 
