@@ -615,7 +615,7 @@
             $("#EndDate").datepicker({autoclose: true})
                     .on('changeDate', function (selected) {
                         var maxDate = new Date(selected.date.valueOf());
-                        $('#StartDate').datepicker('setEndDate', maxDate);
+                        //$('#StartDate').datepicker('setEndDate', maxDate);
                     });
 
             if(new Date($('#StartDate').val()) != undefined){
