@@ -16,7 +16,7 @@
                 <form id="add-new-account-service-cancel-contract-form" method="post">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h3 class="modal-title">Cancelation Contract</h3>
+                        <h3 class="modal-title">Cancellation Contract</h3>
                     </div>
                     <div class="modal-body">
                         <div class="row">
@@ -39,7 +39,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label class="col-md-2 control-label">Include Termination Fees</label>
+                                    <label class="col-md-2 control-label">Include Termination Fee</label>
                                     <div class="col-md-4">
                                         <div class="panel-options">
                                             <div class="make-switch switch-small">
