@@ -95,7 +95,7 @@
         $(document).ready(function(){
             $('#add-new-account-service-cancel-contract-form').submit(function(e) {
                 e.preventDefault();
-                showAjaxScript('/neon/web/staging/public/accountservices/cancel_contract', new FormData(($('#add-new-account-service-cancel-contract-form')[0])), function (response) {
+                showAjaxScript(baseurl + '/accountservices/cancel_contract', new FormData(($('#add-new-account-service-cancel-contract-form')[0])), function (response) {
                     //console.log(response);
                     $(".btn").button('reset');
                     if (response.status == 'success') {

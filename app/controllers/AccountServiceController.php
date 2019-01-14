@@ -108,67 +108,41 @@ class AccountServiceController extends \BaseController {
     }
 
     // account service edit page data store and update
-	public function update($AccountID,$AccountServiceID)
-	{
-        $AccountServiceId = AccountService::where('AccountServiceID',$AccountServiceID)->first();
-        $AccountServiceContract = AccountServiceContract::where('AccountServiceID',$AccountServiceId->AccountServiceID)->get();
-        $Contract = array();
-        $Contract['ContractStartDate'] = Input::get('StartDate');
-        $Contract['ContractEndDate'] = Input::get('EndDate');
-        $Contract['AccountServiceID'] = $AccountServiceId->AccountServiceID;
-        $Contract['AutoRenewal'] = Input::get('AutoRenewal');
-        $Contract['FixedFee'] = Input::get('ContractTerm');
-        $Contract['Duration'] = Input::get('Duration');
-        if($Contract['FixedFee'] == 1){
-            $Contract['ContractReason'] = Input::get('FixedFee');
-        }
-        else if($Contract['FixedFee'] == 3){
-            $Contract['ContractReason'] = Input::get('Percentage');
-        }
-        else if($Contract['FixedFee'] == 4){
-            $Contract['ContractReason'] = Input::get('FixedFeeContract');
-        }
-        else{
-            $Contract['ContractReason'] = NULL;
-        }
+    public function update($AccountID,$AccountServiceID)
+    {
 
 
-        if(count($AccountServiceContract) > 0){
-            AccountServiceContract::where('AccountServiceID',$AccountServiceId->AccountServiceID)->update($Contract);
-        }else{
-            AccountServiceContract::create($Contract);
-        }
         $data = Input::all();
-        if( $AccountID  > 0  && $AccountServiceID > 0 && !empty($data['ServiceID'])) {
+        if ($AccountID > 0 && $AccountServiceID > 0 && !empty($data['ServiceID'])) {
 
             $date = date('Y-m-d H:i:s');
             $data['Billing'] = isset($data['Billing']) ? 1 : 0;
             $data['ServiceBilling'] = isset($data['ServiceBilling']) ? 1 : 0;
             $ServiceID = $data['ServiceID'];
             $CompanyID = Account::getCompanyIDByAccountID($AccountID);
-            if(empty($data['ServiceTitleShow'])){
-                if(empty($data['ServiceDescription'])){
+            if (empty($data['ServiceTitleShow'])) {
+                if (empty($data['ServiceDescription'])) {
                     return Response::json(array("status" => "failed", "message" => "Please fill Service Description."));
                 }
             }
-            
-            $RoutingProfileID='';
-            if(isset($data['routingprofile'])){
-                $RoutingProfileID=$data['routingprofile'];
-            }
-            if($RoutingProfileID!=''){
-                $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$AccountID,"AccountServiceID"=>$AccountServiceID])->first();
 
-                if(!empty($RoutingProfileToCustomer) && count($RoutingProfileToCustomer)>0){
-                    $routingprofile_table=array();
+            $RoutingProfileID = '';
+            if (isset($data['routingprofile'])) {
+                $RoutingProfileID = $data['routingprofile'];
+            }
+            if ($RoutingProfileID != '') {
+                $RoutingProfileToCustomer = RoutingProfileToCustomer::where(["AccountID" => $AccountID, "AccountServiceID" => $AccountServiceID])->first();
+
+                if (!empty($RoutingProfileToCustomer) && count($RoutingProfileToCustomer) > 0) {
+                    $routingprofile_table = array();
                     $routingprofile_table['RoutingProfileID'] = $RoutingProfileID;
                     $routingprofile_table['AccountID'] = $AccountID;
                     $routingprofile_table['ServiceID'] = $ServiceID;
                     $routingprofile_table['AccountServiceID'] = $AccountServiceID;
                     $routingprofile_table['updated_at'] = date('Y-m-d H:i:s');
-                    RoutingProfileToCustomer::where(["AccountID"=>$AccountID,"AccountServiceID"=>$AccountServiceID])->update($routingprofile_table);
-                }else{
-                    $routingprofile_table=array();
+                    RoutingProfileToCustomer::where(["AccountID" => $AccountID, "AccountServiceID" => $AccountServiceID])->update($routingprofile_table);
+                } else {
+                    $routingprofile_table = array();
                     $routingprofile_table['RoutingProfileID'] = $RoutingProfileID;
                     $routingprofile_table['AccountID'] = $AccountID;
                     $routingprofile_table['ServiceID'] = $ServiceID;
@@ -179,8 +153,54 @@ class AccountServiceController extends \BaseController {
                 }
                 unset($data['routingprofile']);
             }
-                
-            if($data['ServiceBilling'] == 1) {
+
+            //Contract Session//
+            $AccountServiceId = AccountService::where('AccountServiceID', $AccountServiceID)->first();
+            $AccountServiceContract = AccountServiceContract::where('AccountServiceID', $AccountServiceId->AccountServiceID)->get();
+            $Contract = array();
+            $Contract['ContractStartDate'] = Input::get('StartDate');
+            $Contract['ContractEndDate'] = Input::get('EndDate');
+            $Contract['AccountServiceID'] = $AccountServiceId->AccountServiceID;
+            $Contract['AutoRenewal'] = Input::get('AutoRenewal');
+            $Contract['ContractTerm'] = Input::get('ContractTerm');
+            $Contract['Duration'] = Input::get('Duration');
+            //validation
+            if($Contract['ContractStartDate'] != "" || $Contract['ContractEndDate'] != "" || $Contract['AutoRenewal'] != 0 || $Contract['Duration'] != "" || $Contract['ContractTerm'] != ""|| count($AccountServiceContract) > 0){
+                if ($Contract['ContractTerm'] == 1) {
+                    AccountServiceContract::$rules['FixedFee'] = 'required';
+                } else if ($Contract['ContractTerm'] == 3) {
+                    AccountServiceContract::$rules['Percentage'] = 'required';
+                } else if ($Contract['ContractTerm'] == 4) {
+                    AccountServiceContract::$rules['FixedFeeContract'] = 'required';
+                }
+                AccountServiceContract::$rules['StartDate'] = 'required|date|date_format:Y-m-d';
+                AccountServiceContract::$rules['EndDate'] = 'required|date|date_format:Y-m-d';
+                AccountServiceContract::$rules['ContractTerm'] = 'required';
+
+                $validator = \Validator::make(Input::all(), AccountServiceContract::$rules);
+                $validator->setAttributeNames(['FixedFeeContract' => 'Fixed Fee','StartDate' => 'Contract Start Date','EndDate' => 'Contract End Date','ContractTerm' => 'Contract Term']);
+                if ($validator->fails()) {
+                    return Response::json(array("status" => "failed", "message" => $validator->errors()->all()));
+                }
+                //perform actions
+                if ($Contract['ContractTerm'] == 1) {
+                    $Contract['ContractReason'] = Input::get('FixedFee');
+                } else if ($Contract['ContractTerm'] == 3) {
+                    $Contract['ContractReason'] = Input::get('Percentage');
+                } else if ($Contract['ContractTerm'] == 4) {
+                    $Contract['ContractReason'] = Input::get('FixedFeeContract');
+                } else {
+                    $Contract['ContractReason'] = NULL;
+                }
+                if (count($AccountServiceContract) > 0) {
+                    AccountServiceContract::where('AccountServiceID', $AccountServiceId->AccountServiceID)->update($Contract);
+                } else {
+                    AccountServiceContract::create($Contract);
+                }
+            }
+
+            //Service Billing Section//
+            if ($data['ServiceBilling'] == 1) {
                 if (!empty($data['BillingStartDate']) || !empty($data['BillingCycleType']) || !empty($data['BillingCycleValue']) || !empty($data['BillingClassID'])) {
                     AccountService::$rules['BillingCycleType'] = 'required';
                     AccountService::$rules['BillingStartDate'] = 'required';
@@ -190,6 +210,7 @@ class AccountServiceController extends \BaseController {
                     }
                 }
             }
+
 
             $validator = Validator::make($data, AccountService::$rules, AccountService::$messages);
 
@@ -203,12 +224,12 @@ class AccountServiceController extends \BaseController {
             //billing
             //$invoice_count = Account::getInvoiceCount($AccountID);
             $invoice_count = 0;
-            if($invoice_count == 0 && $data['ServiceBilling'] == 1){
+            if ($invoice_count == 0 && $data['ServiceBilling'] == 1) {
                 $data['LastInvoiceDate'] = $data['BillingStartDate'];
                 $data['LastChargeDate'] = $data['BillingStartDate'];
-                if($data['BillingStartDate']==$data['NextInvoiceDate']){
-                    $data['NextChargeDate']=$data['BillingStartDate'];
-                }else{
+                if ($data['BillingStartDate'] == $data['NextInvoiceDate']) {
+                    $data['NextChargeDate'] = $data['BillingStartDate'];
+                } else {
                     $data['NextChargeDate'] = date('Y-m-d', strtotime('-1 day', strtotime($data['NextInvoiceDate'])));;
                 }
             }
@@ -218,7 +239,7 @@ class AccountServiceController extends \BaseController {
             /** @TODO
              * Billing is off now when we change need to do as accountservice wise
              */
-            if($data['ServiceBilling'] == 1) {
+            if ($data['ServiceBilling'] == 1) {
                 if (!empty($data['BillingStartDate']) || !empty($data['BillingCycleType']) || !empty($data['BillingCycleValue']) || !empty($data['BillingClassID'])) {
                     if ($data['NextInvoiceDate'] < $data['LastInvoiceDate']) {
                         return Response::json(array("status" => "failed", "message" => "Please Select Appropriate Date."));
@@ -231,16 +252,16 @@ class AccountServiceController extends \BaseController {
                     $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'), $ServiceID);
                 }
             }
-            if(!empty($AccountPeriod)) {
+            if (!empty($AccountPeriod)) {
                 $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
                 $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
                 $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
                 $AccountSubscriptionID = 0;
-                $AccountName='';
-                $AccountCLI='';
-                $SubscriptionDiscountPlanID=0;
-                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
-                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID,$AccountServiceID,$AccountSubscriptionID,$AccountName,$AccountCLI,$SubscriptionDiscountPlanID);
+                $AccountName = '';
+                $AccountCLI = '';
+                $SubscriptionDiscountPlanID = 0;
+                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff, $ServiceID, $AccountServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
+                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff, $ServiceID, $AccountServiceID, $AccountSubscriptionID, $AccountName, $AccountCLI, $SubscriptionDiscountPlanID);
             }
 
 
@@ -264,51 +285,51 @@ class AccountServiceController extends \BaseController {
             $outbounddata['RateTableID'] = $OutboundTariff;
             $outbounddata['Type'] = AccountTariff::OUTBOUND;
 
-            if(!empty($InboundTariff)){
-                $count = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID,'AccountServiceID'=>$AccountServiceID, 'Type' => AccountTariff::INBOUND))->count();
-                if(!empty($count) && $count>0){
-                    AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID,'AccountServiceID'=>$AccountServiceID, 'Type' => AccountTariff::INBOUND))
-                                    ->update(array('RateTableID' => $InboundTariff, 'updated_at' => $date));
-                }else{
+            if (!empty($InboundTariff)) {
+                $count = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID, 'AccountServiceID' => $AccountServiceID, 'Type' => AccountTariff::INBOUND))->count();
+                if (!empty($count) && $count > 0) {
+                    AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID, 'AccountServiceID' => $AccountServiceID, 'Type' => AccountTariff::INBOUND))
+                        ->update(array('RateTableID' => $InboundTariff, 'updated_at' => $date));
+                } else {
                     $inbounddata['created_at'] = $date;
                     AccountTariff::create($inbounddata);
                 }
-            }else{
-                $count = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID,'AccountServiceID'=>$AccountServiceID, 'Type' => AccountTariff::INBOUND))->count();
-                if(!empty($count) && $count>0){
-                    AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID,'AccountServiceID'=>$AccountServiceID, 'Type' => AccountTariff::INBOUND))->delete();
+            } else {
+                $count = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID, 'AccountServiceID' => $AccountServiceID, 'Type' => AccountTariff::INBOUND))->count();
+                if (!empty($count) && $count > 0) {
+                    AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID, 'AccountServiceID' => $AccountServiceID, 'Type' => AccountTariff::INBOUND))->delete();
                 }
             }
 
-            if(!empty($OutboundTariff)){
-                $count = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID,'AccountServiceID'=>$AccountServiceID, 'Type' => AccountTariff::OUTBOUND))->count();
-                if(!empty($count) && $count>0){
-                    AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID,'AccountServiceID'=>$AccountServiceID, 'Type' => AccountTariff::OUTBOUND))
+            if (!empty($OutboundTariff)) {
+                $count = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID, 'AccountServiceID' => $AccountServiceID, 'Type' => AccountTariff::OUTBOUND))->count();
+                if (!empty($count) && $count > 0) {
+                    AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID, 'AccountServiceID' => $AccountServiceID, 'Type' => AccountTariff::OUTBOUND))
                         ->update(array('RateTableID' => $OutboundTariff, 'updated_at' => $date));
-                }else{
+                } else {
                     $outbounddata['created_at'] = $date;
                     AccountTariff::create($outbounddata);
                 }
-            }else{
-                $count = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID,'AccountServiceID'=>$AccountServiceID, 'Type' => AccountTariff::OUTBOUND))->count();
-                if(!empty($count) && $count>0){
-                    AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID,'AccountServiceID'=>$AccountServiceID, 'Type' => AccountTariff::OUTBOUND))->delete();
+            } else {
+                $count = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID, 'AccountServiceID' => $AccountServiceID, 'Type' => AccountTariff::OUTBOUND))->count();
+                if (!empty($count) && $count > 0) {
+                    AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID, 'AccountServiceID' => $AccountServiceID, 'Type' => AccountTariff::OUTBOUND))->delete();
                 }
             }
 
-            $accdata=array();
-            $accdata['ServiceTitle'] = empty($data['ServiceTitle']) ? '':$data['ServiceTitle'];
-            $accdata['ServiceDescription'] = empty($data['ServiceDescription']) ? '':$data['ServiceDescription'];
+            $accdata = array();
+            $accdata['ServiceTitle'] = empty($data['ServiceTitle']) ? '' : $data['ServiceTitle'];
+            $accdata['ServiceDescription'] = empty($data['ServiceDescription']) ? '' : $data['ServiceDescription'];
             $accdata['ServiceTitleShow'] = isset($data['ServiceTitleShow']) ? 1 : 0;
             $accdata['SubscriptionBillingCycleType'] = empty($data['SubscriptionBillingCycleType']) ? '' : $data['SubscriptionBillingCycleType'];
             $accdata['SubscriptionBillingCycleValue'] = empty($data['SubscriptionBillingCycleValue']) ? '' : $data['SubscriptionBillingCycleValue'];
 
-            AccountService::where(['AccountID'=>$AccountID,'AccountServiceID'=>$AccountServiceID])->update($accdata);
+            AccountService::where(['AccountID' => $AccountID, 'AccountServiceID' => $AccountServiceID])->update($accdata);
 
             return Response::json(array("status" => "success", "message" => "Account Service Successfully updated."));
         }
         return Response::json(array("status" => "failed", "message" => "Problem Creating Account Service."));
-	}
+    }
 
     public function changestatus($AccountServiceID,$Status){
         $data = Input::all();
@@ -329,8 +350,8 @@ class AccountServiceController extends \BaseController {
         }
     }
 
-	public function delete($AccountID,$AccountServiceID)
-	{
+    public function delete($AccountID,$AccountServiceID)
+    {
         if( intval($AccountID) > 0 && intval($AccountServiceID) > 0){
 
             if(AccountService::checkForeignKeyById($AccountID,$AccountServiceID)){
@@ -348,7 +369,7 @@ class AccountServiceController extends \BaseController {
                 return Response::json(array("status" => "failed", "message" => "Service is in Use, You can not delete this Service."));
             }
         }
-	}
+    }
 
     public function cloneservice($AccountID){
         $data = Input::all();
@@ -538,34 +559,50 @@ class AccountServiceController extends \BaseController {
 
     }
     public function cancelContract(){
+
         $data = Input::all();
         $Contract = array();
 
+        //data get from inputs
         $Contract['AccountServiceID'] = $data['AccountServiceID'];
         $Contract['TerminationFees'] = $data['TeminatingFee'];
         $Contract['CancelationDate'] = $data['CancelDate'];
+
+        //set the values of variables
         if(isset($data['IncTerminationFees'])){
             $Contract['IncludeTerminationFees'] = $data['IncTerminationFees'];
         }else{
             $Contract['IncludeTerminationFees'] = 0;
         }
+
         if(isset($data['DiscountOffered'])){
             $Contract['IncludeDiscountsOffered'] = $data['DiscountOffered'];
         }else{
             $Contract['IncludeDiscountsOffered'] = 0;
         }
+
         if(isset($data['GenerateInvoice'])){
             $Contract['GenerateInvoice'] = $data['GenerateInvoice'];
         }else{
             $Contract['GenerateInvoice'] = 0;
         }
-        $AccountServiceCancelContract = AccountServiceCancelContract::where('AccountServiceID',$data['AccountServiceID'])->first();
-        if(count($AccountServiceCancelContract) > 0){
-            AccountServiceCancelContract::where('AccountServiceID',$data['AccountServiceID'])->update($Contract);
-        }else{
-            AccountServiceCancelContract::create($Contract);
+
+        //update or create with validation
+        $validator = \Validator::make($data, [
+            'TeminatingFee' => 'required',
+        ]);
+
+        if ($validator->fails())
+        {
+            return Response::json(array("status" => "failed", "message" => $validator->errors()->all()));
+        }else {
+            $AccountServiceCancelContract = AccountServiceCancelContract::where('AccountServiceID', $data['AccountServiceID'])->first();
+            if (count($AccountServiceCancelContract) > 0) {
+                AccountServiceCancelContract::where('AccountServiceID', $data['AccountServiceID'])->update($Contract);
+            } else {
+                AccountServiceCancelContract::create($Contract);
+            }
+            return Response::json(array("status" => "success", "message" => "Cancel Contract Successful!."));
         }
-
-
     }
 }
