@@ -17,6 +17,7 @@ class AccountServiceController extends \BaseController {
         $rate_table = RateTable::getRateTableList(array('CurrencyID'=>$account->CurrencyId));
         $DiscountPlan = DiscountPlan::getDropdownIDList($CompanyID,(int)$account->CurrencyId);
         $AccountServiceContract = AccountServiceContract::where('AccountServiceID',$AccountServiceID)->first();
+        $AccountServiceCancelContract = AccountServiceCancelContract::where('AccountServiceID',$AccountServiceID)->first();
 
         $InboundTariffID = '';
         $OutboundTariffID = '';
@@ -50,7 +51,7 @@ class AccountServiceController extends \BaseController {
         $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id,"AccountServiceID"=>$AccountServiceID])->first();
         //----------------------------------------------------------------------
         $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$CompanyID);
-        return View::make('accountservices.edit', compact('AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID','AccountServiceContract'));
+        return View::make('accountservices.edit', compact('AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID','AccountServiceContract','AccountServiceCancelContract'));
     }
 
     // add account services
@@ -591,7 +592,7 @@ class AccountServiceController extends \BaseController {
         $validator = \Validator::make($data, [
             'TeminatingFee' => 'required',
         ]);
-
+        $validator->setAttributeNames(['TeminatingFee' => 'Termination Fees']);
         if ($validator->fails())
         {
             return Response::json(array("status" => "failed", "message" => $validator->errors()->all()));

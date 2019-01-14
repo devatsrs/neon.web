@@ -1096,9 +1096,10 @@ class ServicesTemplateController extends BaseController {
     }
 
     public function addBulkAction(){ // Add Bulk action if input empty then this will add already existing values...
+        $data = Input::all();
+
 
         try{
-        $data = Input::all();
 
         if(isset($data['Service']))
         {
@@ -1106,10 +1107,7 @@ class ServicesTemplateController extends BaseController {
                 return Response::json(array("status" => "failed", "message" => "Service select box required"));
         }
 
-        unset($data['OutboundDiscountPlan']);
-        unset($data['OutboundTraiff']);
-        unset($data['OutboundDiscountPlan']);
-        unset($data['InboundDiscountPlan']);
+
 
         $data['CurrencyId']             = (isset($data['CurrencyIdBulkAction']) ? $data['CurrencyIdBulkAction'] : " ");
         $data['ServiceId']              = (isset($data['ServiceIdBulkAction']) ? $data['ServiceIdBulkAction'] : " ");
@@ -1120,6 +1118,8 @@ class ServicesTemplateController extends BaseController {
         $data['DidCategoryTariffID']    = (isset($data['DidCategoryTariffIDBulkAction']) ? $data['DidCategoryTariffIDBulkAction'] : " ");
         $data['InboundDiscountPlanId']  = (isset($data['InboundDiscountPlanIdBulkAction']) ? $data['InboundDiscountPlanIdBulkAction'] : " ");
 
+
+
         unset($data['CurrencyIdBulkAction']);
         unset($data['ServiceIdBulkAction']);
         unset($data['OutboundRateTableIdBulkAction']);
@@ -1128,7 +1128,10 @@ class ServicesTemplateController extends BaseController {
         unset($data['DidCategoryTariffIDBulkAction']);
         unset($data['DidCategoryIDBulkAction']);
         unset($data['InboundDiscountPlanIdBulkAction']);
-
+        unset($data['OutboundDiscountPlan']);
+        unset($data['OutboundTraiff']);
+        unset($data['OutboundDiscountPlan']);
+        unset($data['InboundDiscountPlan']);
 
         if(isset($data['ServiceTemplateIdBulkAction'])) {
             $ServiceTemplateIdString = ((string)$data['ServiceTemplateIdBulkAction']);
@@ -1139,21 +1142,14 @@ class ServicesTemplateController extends BaseController {
                     ->where('ServiceTemplateId', $ServiceTemplateIdArray[$i])->first();
 
                 $updateFields = [];
-                if (isset($data['Service'])) {
-                    $updateFields['ServiceId'] = (isset($data['ServiceId']) ? $data['ServiceId'] : $ExistingValues['ServiceId']);
-                }
-                if (isset($data['OutboundTraiff'])) {
-                    $updateFields['OutboundRateTableId'] = (isset($data['OutboundRateTableId']) ? $data['OutboundRateTableId'] : $ExistingValues['OutboundRateTableId']);
-                }
-                if (isset($data['OutboundDiscountPlan'])) {
-                    $updateFields['OutboundDiscountPlanId'] = (isset($data['OutboundDiscountPlanId']) ? $data['OutboundDiscountPlanId'] : $ExistingValues['OutboundDiscountPlanId']);
-                }
-                if (isset($data['InboundDiscountPlan'])) {
-                    $updateFields['InboundDiscountPlanId'] = (isset($data['InboundDiscountPlanId']) ? $data['InboundDiscountPlanId'] : $ExistingValues['InboundDiscountPlanId']);
-                }
-                ServiceTemplate::where('ServiceTemplateId', $ServiceTemplateIdArray[$i])->update($updateFields);
+                $updateFields['ServiceId'] = (isset($data['ServiceId']) ? $data['ServiceId'] : $ExistingValues['ServiceId']);
+                $updateFields['OutboundRateTableId'] = (isset($data['OutboundRateTableId']) ? $data['OutboundRateTableId'] : $ExistingValues['OutboundRateTableId']);
+                $updateFields['OutboundDiscountPlanId'] = (isset($data['OutboundDiscountPlanId']) ? $data['OutboundDiscountPlanId'] : $ExistingValues['OutboundDiscountPlanId']);
+                $updateFields['InboundDiscountPlanId'] = (isset($data['InboundDiscountPlanId']) ? $data['InboundDiscountPlanId'] : $ExistingValues['InboundDiscountPlanId']);
 
+                ServiceTemplate::where('ServiceTemplateId', $ServiceTemplateIdArray[$i])->update($updateFields);
             }
+
 
             $data['ServiceTemplateId'] = $data['ServiceTemplateIdBulkAction'];
             $data['RateTableId'] = (isset($data['OutboundRateTableId']) ? $data['OutboundRateTableId'] : null);
