@@ -25,12 +25,12 @@
                                     <input type="hidden" name="AccountServiceID" @if(isset($AccountServiceContract->AccountServiceID)) value="{{$AccountServiceContract->AccountServiceID}}" @endif>
                                     <label class="col-md-2 control-label">Termination Fees </label>
                                     <div class="col-md-4">
-                                        <input type="text" class="form-control" name="TeminatingFee">
+                                        <input type="text" @if(isset($AccountServiceCancelContract->TerminationFees)) value="{{$AccountServiceCancelContract->TerminationFees}}" @endif class="form-control" name="TeminatingFee">
                                     </div>
 
                                     <label class="col-md-2 control-label">Cancelation Date</label>
                                     <div class="col-md-4">
-                                        <input type="text" data-date-format="yyyy-mm-dd" class="form-control datepicker" name="CancelDate">
+                                        <input type="text" @if(isset($AccountServiceCancelContract->CancelationDate)) value="{{$AccountServiceCancelContract->CancelationDate}}" @endif data-date-format="yyyy-mm-dd" class="form-control datepicker" name="CancelDate">
                                     </div>
                                 </div>
                             </div>
@@ -43,7 +43,7 @@
                                     <div class="col-md-4">
                                         <div class="panel-options">
                                             <div class="make-switch switch-small">
-                                                <input type="checkbox" name="IncTerminationFees" value="1">
+                                                <input type="checkbox" @if(isset($AccountServiceCancelContract->IncludeTerminationFees) && $AccountServiceCancelContract->IncludeTerminationFees == 1) checked @endif name="IncTerminationFees" value="1">
                                             </div>
                                         </div>
                                     </div>
@@ -52,7 +52,7 @@
                                     <div class="col-md-4">
                                         <div class="panel-options">
                                             <div class="make-switch switch-small">
-                                                <input type="checkbox"  name="DiscountOffered" value="1">
+                                                <input type="checkbox" @if(isset($AccountServiceCancelContract->IncludeDiscountsOffered) && $AccountServiceCancelContract->IncludeDiscountsOffered == 1) checked @endif  name="DiscountOffered" value="1">
                                             </div>
                                         </div>
                                     </div>
@@ -68,7 +68,7 @@
                                     <div class="col-md-4">
                                         <div class="panel-options">
                                             <div class="make-switch switch-small">
-                                                <input type="checkbox"  name="GenerateInvoice" value="1">
+                                                <input type="checkbox" @if(isset($AccountServiceCancelContract->GenerateInvoice) && $AccountServiceCancelContract->GenerateInvoice == 1) checked @endif  name="GenerateInvoice" value="1">
                                             </div>
                                         </div>
                                     </div>
@@ -99,7 +99,7 @@
                     //console.log(response);
                     $(".btn").button('reset');
                     if (response.status == 'success') {
-                        $('#add-new-modal-routingcategory').modal('hide');
+                        $('#add-new-modal-accounts').modal('hide');
                         toastr.success(response.message, "Success", toastr_opts);
                     } else {
                         toastr.error(response.message, "Error", toastr_opts);
