@@ -1224,9 +1224,15 @@ class ServicesTemplateController extends BaseController {
                                     ->update($updateFields);
                             }
                         }else{
+                            Log::info('$alreadyExistServices else.' . $data['ServiceTemplateId'] . ' ' . $data['DIDCategoryId'] . ' ' . $data['RateTableId']);
 
                             $alreadyExistServices = ServiceTemapleInboundTariff::where('ServiceTemplateID', $data['ServiceTemplateId'])
                                 ->WhereRaw('DIDCategoryId is null')->first();
+                            Log::info('$alreadyExistServices else case Query.' . ServiceTemapleInboundTariff::where('ServiceTemplateID', $data['ServiceTemplateId'])
+                                    ->WhereRaw('DIDCategoryId is null')->toSql());
+
+                            Log::info('$alreadyExistServices else case Query result.' . count($alreadyExistServices));
+
                             unset($data['DIDCategoryId']);
                             if (!isset($alreadyExistServices))
                             {
