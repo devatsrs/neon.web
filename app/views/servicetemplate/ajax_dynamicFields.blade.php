@@ -40,6 +40,7 @@
                         if($cnt==0){
                         ?>
                         <br/>
+                    <div class="row">
                     <div class="col-md-12">
                         <div class="form-group">
                     <table width="100%">
@@ -146,6 +147,7 @@
                                 ?>
                         </tr>
                     </table>
+                    </div>
                     </div>
                     </div>
                         <?php
