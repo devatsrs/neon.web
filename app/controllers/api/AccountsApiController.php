@@ -62,12 +62,17 @@ class AccountsApiController extends ApiController {
 		$CreatedBy = User::get_user_full_name();
 		$date = date('Y-m-d H:i:s');
 		$InboundRateTableReference = '';
+		$AccountService = '';
+		$AccountServiceContract = [];
 		try {
 			$data['Number'] = $accountData['Number'];
 			$data['ServiceTemaplate'] = $accountData['ServiceTemaplate'];
 			$data['NumberPurchased'] = $accountData['NumberPurchased'];
 			$data['InboundTariffCategory'] = isset($accountData['InboundTariffCategoryId']) ? $accountData['InboundTariffCategoryId'] :'';
-			$data['ServiceDate'] = isset($accountData['ServiceDate'])? strtotime($accountData['ServiceDate']) : '';
+			//$data['ServiceStartDate'] = isset($accountData['ServiceStartDate'])? strtotime($accountData['ServiceStartDate']) : '';
+			//$data['ServiceEndDate'] = isset($accountData['ServiceEndDate'])? strtotime($accountData['ServiceEndDate']) : '';
+			$AccountServiceContract['ContractStartDate'] = $accountData['ServiceStartDate'];
+			$AccountServiceContract['ContractEndDate'] = $accountData['ServiceEndDate'];
 			Log::info('createAccountService:Data.' . json_encode($data));
 			Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,AccountType,1';
 			Account::$rules['Number'] = 'required|unique:tblAccount,Number,NULL,CompanyID';
@@ -132,15 +137,36 @@ class AccountsApiController extends ApiController {
 
 
 			if (!empty($ServiceTemaplateReference->ServiceId)) {
-				if (AccountService::where(array('AccountID' => $Account->AccountID, 'CompanyID' => $CompanyID, 'ServiceID' => $ServiceTemaplateReference->ServiceId))->count()) {
+				$AccountService = AccountService::where(array('AccountID' => $Account->AccountID, 'CompanyID' => $CompanyID, 'ServiceID' => $ServiceTemaplateReference->ServiceId))->first();
+				if (isset($AccountService) && $AccountService != '') {
 					AccountService::where(array('AccountID' => $Account->AccountID, 'CompanyID' => $CompanyID, 'ServiceID' => $ServiceTemaplateReference->ServiceId))
 						->update(array('ServiceID' => $ServiceTemaplateReference->ServiceId, 'updated_at' => $date));
 				} else {
 					$servicedata['ServiceID'] = $ServiceTemaplateReference->ServiceId;
 					$servicedata['AccountID'] = $Account->AccountID;
 					$servicedata['CompanyID'] = $CompanyID;
-					AccountService::insert($servicedata);
+					$AccountService =  AccountService::insert($servicedata);
 				}
+
+				$AccountServiceContractExisting = AccountServiceContract::where(array('AccountServiceID' => $AccountService->AccountServiceID))->first();
+				if (isset($AccountServiceContractExisting) && $AccountServiceContractExisting != '') {
+					$AccountServiceContract["AccountServiceID"] = $AccountService->AccountServiceID;
+					$AccountServiceContract["Duration"] = $ServiceTemaplateReference->ContractDuration;
+					$AccountServiceContract["ContractReason"] = $ServiceTemaplateReference->CancellationFee;
+					$AccountServiceContract["AutoRenewal"] = $ServiceTemaplateReference->AutomaticRenewal;
+					$AccountServiceContract["FixedFee"] = $ServiceTemaplateReference->CancellationCharges;
+					$AccountServiceContract["updated_at"] = $date;
+					AccountServiceContract::where(array('AccountServiceID' => $AccountService->AccountServiceID))
+						->update($AccountServiceContract);
+				} else {
+					$AccountServiceContract["AccountServiceID"] = $AccountService->AccountServiceID;
+					$AccountServiceContract["Duration"] = $ServiceTemaplateReference->ContractDuration;
+					$AccountServiceContract["ContractReason"] = $ServiceTemaplateReference->CancellationFee;
+					$AccountServiceContract["AutoRenewal"] = $ServiceTemaplateReference->AutomaticRenewal;
+					$AccountServiceContract["FixedFee"] = $ServiceTemaplateReference->CancellationCharges;
+					AccountServiceContract::create($AccountServiceContract);
+				}
+
 
 			}
 
@@ -221,6 +247,7 @@ class AccountsApiController extends ApiController {
 				$rate_tables['RateTableID'] = $cliRateTableID;
 				$rate_tables['AccountID'] = $Account->AccountID;
 				$rate_tables['CompanyID'] = $CompanyID;
+				$rate_tables['AccountServiceID'] = $AccountService->AccountServiceID;
 				if (!empty($ServiceTemaplateReference->ServiceId)) {
 					$rate_tables['ServiceID'] = $ServiceTemaplateReference->ServiceId;
 				}
@@ -236,6 +263,7 @@ class AccountsApiController extends ApiController {
 
 
 		} catch (Exception $ex) {
+			Log::info('createAccountService:Exception.' . $ex->getTraceAsString());
 			return Response::json(["status" => "failed", "message" => $ex->getMessage()]);
 		}
 	}
