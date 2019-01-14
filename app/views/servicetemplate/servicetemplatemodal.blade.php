@@ -586,7 +586,7 @@
             // alert(document.getElementById("SubscriptionIDListBody"));
             // alert(document.getElementById("SubscriptionIDListBody").innerHTML);
             var CategoryTariffValue = DidCategoryID + '-' + DidCategoryTariffID;
-            var CategoryTariffDesrchValue = DidCategoryID + '-';
+            var CategoryTariffDesrchValue = '-' + DidCategoryTariffID;
 
             var setValue = "setValue('CategoryTariffID[" + rowCategoryTariffHtmlIndex + "]','" + CategoryTariffValue + "');";
             var idName = "CategoryTariffID[" + rowCategoryTariffHtmlIndex + "]";

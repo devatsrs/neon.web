@@ -1151,6 +1151,12 @@ cy
 	ReSellerAllowWhiteLabel
 	ReSellerDomainUrl
 	PaymentMethod
+	AutoTopup
+	MinThreshold
+	TopupAmount
+	AutoOutpayment
+	OutPaymentThreshold
+	OutPaymentAmount
 
 Return
 
@@ -1186,7 +1192,12 @@ Return
         ReSellerAllowWhiteLabel:1
         ReSellerDomainUrl:http://speakintelligence.neon-soft.com/accounts/
 		PaymentMethod:AuthorizeNetEcheck
-
+        AutoTopup:1
+        MinThreshold:30
+        TopupAmount:40
+        AutoOutpayment:1
+        OutPaymentThreshold:30
+        OutPaymentAmount:30
         Response:
 
             {
@@ -1211,6 +1222,10 @@ Return
             "Name": "APITempalte 11", [Mandatory]
         	"Currency": "GBP", [Mandatory]
         	"ServiceId": "1", [Mandatory]
+        	"Duration":"35",
+            "ContractType":"4",
+            "AutoRenewal":"1",
+            "ContractFeeValue":"35",
         	"OutboundDiscountPlanId": "",
         	"InboundDiscountPlanId": "",
         	"OutboundRateTableId": "",
@@ -1229,11 +1244,16 @@ Return
                 "status": "success",
                 "message": "Service Template Successfully Created",
                 "newcreated": {
-                    "Name": "APITempalte 12",
-                    "CurrencyId": 2,
-                    "updated_at": "2018-12-26 12:33:05",
-                    "created_at": "2018-12-26 12:33:05",
-                    "ServiceTemplateId": 97
+                    "ServiceId": "6",
+                    "Name": "ContractServiceTempalte1",
+                    "CurrencyId": 9,
+                    "ContractDuration": "35",
+                    "CancellationCharges": "4",
+                    "AutomaticRenewal": "1",
+                    "CancellationFee": "35",
+                    "updated_at": "2019-01-14 13:03:47",
+                    "created_at": "2019-01-14 13:03:47",
+                    "ServiceTemplateId": 108
                 }
             }
 ### POST Add Service Purchased
@@ -1246,6 +1266,13 @@ Params:
 	ServiceTemaplate
 	NumberPurchased
 	InboundTariffCategoryId
+	ServiceStartDate
+	ServiceEndDate
+	Duration
+	ContractType
+	AutoRenewal
+	ContractFeeValue
+	PaymentSubscription
 
 
 Return
@@ -1255,7 +1282,14 @@ Return
             Number:6746[Mandatory]
         	ServiceTemaplate: {"Name": "SI Product Ref","Value": "RFP"}[Mandatory]
         	NumberPurchased:08004570 [Mandatory]
-        	InboundTariffCategoryId
+        	InboundTariffCategoryId:
+        	ServiceStartDate:
+            ServiceEndDate:[Mandatory if ServiceStartDate is not null]
+            Duration:[Used the service tempalte value if not set]
+            ContractType:[Used the service tempalte value if not set]
+            AutoRenewal:[Used the service tempalte value if not set]
+            ContractFeeValue:[Used the service tempalte value if not set]
+            PaymentSubscription:[Valid subscription name not mandatory]
 
         Response:
 
