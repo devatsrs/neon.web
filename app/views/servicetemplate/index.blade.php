@@ -510,7 +510,7 @@
 
             }
 
-                $('#add-new-BulkAction-modal-service').modal('show', {backdrop: 'static'});
+               $('#add-new-BulkAction-modal-service').modal('show', {backdrop: 'static'});
 
         });
 
