@@ -131,6 +131,7 @@
               countSelectedItems++;
           }else {
               $("#OutboundRateTableIdBulkAction").prop('disabled', false);
+              $(this).val(1);
               countSelectedItems--;
           }
       });
@@ -144,6 +145,7 @@
               countSelectedItems++;
           }else {
               $("#OutboundDiscountPlanIdBulkAction").prop('disabled', false);
+              $(this).val(1);
               countSelectedItems--;
           }
       });
@@ -155,6 +157,7 @@
               countSelectedItems++;
           }else {
               $("#InboundDiscountPlanIdBulkAction").prop('disabled', false);
+              $(this).val(1);
               countSelectedItems--;
           }
       });
