@@ -22,7 +22,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <input type="hidden" name="AccountServiceID" @if(isset($AccountServiceContract->AccountServiceID)) value="{{$AccountServiceContract->AccountServiceID}}" @endif>
+                                    <input type="hidden" name="AccountServiceID" @if(isset($AccountServiceID)) value="{{$AccountServiceID}}" @endif>
                                     <label class="col-md-2 control-label">Termination Fees </label>
                                     <div class="col-md-4">
                                         <input type="text" @if(isset($AccountServiceCancelContract->TerminationFees)) value="{{$AccountServiceCancelContract->TerminationFees}}" @endif class="form-control" name="TeminatingFee">
