@@ -9,7 +9,7 @@
 
       data = {company: selected_company};
       resetFormFields();
-
+      ShowTariffOnSelectedCategoryBulkAction();
       // This function exist in service template moal class
       // Getting all the values from the ajax for Select boxes
 
@@ -195,6 +195,8 @@
      selected_currency = $("#CurrencyIdBulkAction").val();
      selected_didCategory = $("#DidCategoryIDBulkAction").val();
      DidCategoryIndexValue = document.getElementById("DidCategoryIDBulkAction").selectedIndex;
+
+
      if (selected_currency == '') {
          selected_currency = "NAN";
      }
@@ -202,6 +204,7 @@
 
      url = baseurl + "/servicesTemplate/selectDataOnCurrency" +
              "?selectedCurrency=" + selected_currency + "&selectedData=DidCategoryID&selected_didCategory="+selected_didCategory;
+
      $.post(url, function (data, status) {
          //  var res = data.split('/>');
          document.getElementById("DidCategoryTariffIDBulkAction").innerHTML = "" + data;
