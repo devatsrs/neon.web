@@ -1208,16 +1208,20 @@ class ServicesTemplateController extends BaseController {
                             $alreadyExistServices = ServiceTemapleInboundTariff::where('ServiceTemplateID', $data['ServiceTemplateId'])
                                 ->where('DIDCategoryId', $data['DIDCategoryId'])
                                 ->where('RateTableId', $data['RateTableId'])->first();
+                            if (!isset($alreadyExistServices))
+                                ServiceTemapleInboundTariff::create($data);
                         }else{
 
                             $alreadyExistServices = ServiceTemapleInboundTariff::where('ServiceTemplateID', $data['ServiceTemplateId'])
                                 ->where('RateTableId', $data['RateTableId'])->first();
+                            unset($data['DIDCategoryId']);
+                            if (!isset($alreadyExistServices))
+                                ServiceTemapleInboundTariff::create($data);
                         }
 
 
 
-                        if (!isset($alreadyExistServices))
-                            ServiceTemapleInboundTariff::create($data);
+
                     }
                 }
             }
