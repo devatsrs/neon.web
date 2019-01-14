@@ -221,6 +221,8 @@ class AccountsApiController extends ApiController {
 					//$AccountSubscription["SequenceNo"] =  $AccountSubscriptionDB[];
 					$AccountSubscription["ServiceID"] = $ServiceTemaplateReference->ServiceId;
 					$AccountSubscription["Status"] = 1;
+					$AccountSubscription["AccountServiceID"] = $AccountService->AccountServiceID;
+
 					//$AccountSubscription["DiscountAmount"] =  $AccountSubscriptionDB[];
 					//$AccountSubscription["DiscountType"] =  $AccountSubscriptionDB[];
 					if (isset($AccountSubscriptionExisting) && $AccountSubscriptionExisting != '') {
