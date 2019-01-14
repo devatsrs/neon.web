@@ -697,6 +697,7 @@
             <div class="modal-content">
                 <form id="add-new-service-form" method="post">
                     <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                         <h5 class="modal-title" id="ServiceTemplateModelTitle">Add New Service Template</h5>
                     </div>
                     <div class="modal-body">

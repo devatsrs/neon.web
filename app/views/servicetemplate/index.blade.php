@@ -475,18 +475,44 @@
                    if(checkBoxArray == "")
                        ShowToastr("error", "Please select any rows");
                    else
-                        ShowToastr("error", "Please s     elect Currency from filter");
+                        ShowToastr("error", "Please select Currency from filter");
 
                     return false;
 
                 }
 
-            $('#add-new-BulkAction-modal-service').modal('show', {backdrop: 'static'});
 
+            var selected_company, data, url;
+
+            selected_currency = $("#CurrencyIdBulkAction").val();
+            selected_didCategory = $("#DidCategoryIDBulkAction").val();
+            DidCategoryIndexValue = document.getElementById("DidCategoryIDBulkAction").selectedIndex;
+
+            if(selected_currency) {
+                if (selected_currency == '') {
+                    selected_currency = "NAN";
+                }
+                data = {company: selected_company};
+
+                url = baseurl + "/servicesTemplate/selectDataOnCurrency" +
+                        "?selectedCurrency=" + selected_currency + "&selectedData=DidCategoryID&selected_didCategory=" + selected_didCategory;
+
+                $.post(url, function (data, status) {
+                    //  var res = data.split('/>');
+                    document.getElementById("DidCategoryTariffIDBulkAction").innerHTML = "" + data;
+                    DidCategoryTariffIDBulkAction = document.getElementById("DidCategoryTariffIDBulkAction").innerHTML;
+                    // $("#serviceBasedOnCurreny").html(data);
+                }, 'html');
+
+            }else{
+
+                ShowToastr("error", "Please select Currency from filter");
+
+            }
+
+                $('#add-new-BulkAction-modal-service').modal('show', {backdrop: 'static'});
 
         });
-
-
 
 
         $('#add-bulkAction').click(function(e){

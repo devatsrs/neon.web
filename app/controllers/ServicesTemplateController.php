@@ -62,6 +62,8 @@ class ServicesTemplateController extends BaseController {
     public function selectDataOnCurrency()
     {
         $data = Input::all();
+
+
         $selecteddata = $data['selectedData'];
         $companyID = User::get_companyID();
         // $data['ServiceStatus'] = $data['ServiceStatus']== 'true'?1:0;
@@ -120,18 +122,19 @@ class ServicesTemplateController extends BaseController {
 
         $categoryTariff = RateTable::join('tblDIDCategory', 'tblDIDCategory.DIDCategoryID', '=', 'tblRateTable.DIDCategoryID');
         $categoryTariff->select(['tblRateTable.RateTableName as RateTableName','tblRateTable.RateTableID as RateTableID']);
-        if($data['selectedCurrency'] != ''){
-            $categoryTariff->where('CurrencyID','=', $data['selectedCurrency']);
-            $categoryTariff->where('tblRateTable.Type','=', '1');
-            $categoryTariff->where('tblRateTable.AppliedTo','!=',2 );
-        }
-        if(isset($data['selected_didCategory']) && $data['selected_didCategory'] != ''){
-            $categoryTariff->where('tblRateTable.DIDCategoryID','=', $data['selected_didCategory']);
-            Log::info('data[selected_didCategory].' . $data['selected_didCategory']);
-        }
+            if ($data['selectedCurrency'] != '') {
+                $categoryTariff->where('CurrencyID', '=', $data['selectedCurrency']);
+                $categoryTariff->where('tblRateTable.Type', '=', '1');
+                $categoryTariff->where('tblRateTable.AppliedTo', '!=', 2);
+            }
+            if (isset($data['selected_didCategory']) && $data['selected_didCategory'] != '') {
+                $categoryTariff->where('tblRateTable.DIDCategoryID', '=', $data['selected_didCategory']);
+                Log::info('data[selected_didCategory].' . $data['selected_didCategory']);
+            }
+
         Log::info('$rate table query.' . $categoryTariff->toSql());
         $categorytarifflist = $categoryTariff->get();
-
+        Log::info('$rate table query.' . count($categorytarifflist));
         $billingsubsforsrvtemplate = array();
         $selecteddidcategorytariflist= array();
         if(isset($data['editServiceTemplateID'])){
