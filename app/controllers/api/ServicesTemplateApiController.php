@@ -26,6 +26,15 @@ class ServicesTemplateApiController extends ApiController
                 return Response::json(["status"=>"failed", "message"=>"Please provide the valid currency"]);
             }
 
+            if (!empty($post_vars->ContractType) && ($post_vars->ContractType < 1 || $post_vars->ContractType > 4)) {
+                return Response::json(["status" => "failed", "message" => "The value of ContractType must be between 1 and 4"]);
+            }
+            if (!empty($post_vars->AutoRenewal) && ($post_vars->AutoRenewal != 0 && $post_vars->AutoRenewal != 1)) {
+                return Response::json(["status" => "failed", "message" => "The value of AutoRenewal must be between 0 or 1"]);
+            }
+
+
+
             $data['CurrencyId'] = $CurrenctCodeResult->CurrencyId;
             $data['OutboundDiscountPlanId'] = $post_vars->OutboundDiscountPlanId;
             $data['InboundDiscountPlanId'] = $post_vars->InboundDiscountPlanId;
@@ -143,6 +152,11 @@ class ServicesTemplateApiController extends ApiController
                 }
 
                 $ServiceTemplateData['CurrencyId'] = $data['CurrencyId'];
+
+                $ServiceTemplateData['ContractDuration'] = $post_vars->Duration;
+                $ServiceTemplateData['CancellationCharges'] = $post_vars->ContractType;
+                $ServiceTemplateData['AutomaticRenewal'] = $post_vars->AutoRenewal;
+                $ServiceTemplateData['CancellationFee'] = $post_vars->ContractFeeValue;
 
 
                 if ($ServiceTemplate = ServiceTemplate::create($ServiceTemplateData)) {
