@@ -1128,10 +1128,7 @@ class ServicesTemplateController extends BaseController {
         unset($data['DidCategoryTariffIDBulkAction']);
         unset($data['DidCategoryIDBulkAction']);
         unset($data['InboundDiscountPlanIdBulkAction']);
-        unset($data['OutboundDiscountPlan']);
-        unset($data['OutboundTraiff']);
-        unset($data['OutboundDiscountPlan']);
-        unset($data['InboundDiscountPlan']);
+
 
         if(isset($data['ServiceTemplateIdBulkAction'])) {
             $ServiceTemplateIdString = ((string)$data['ServiceTemplateIdBulkAction']);
@@ -1142,14 +1139,29 @@ class ServicesTemplateController extends BaseController {
                     ->where('ServiceTemplateId', $ServiceTemplateIdArray[$i])->first();
 
                 $updateFields = [];
-                $updateFields['ServiceId'] = (isset($data['ServiceId']) ? $data['ServiceId'] : $ExistingValues['ServiceId']);
-                $updateFields['OutboundRateTableId'] = (isset($data['OutboundRateTableId']) ? $data['OutboundRateTableId'] : $ExistingValues['OutboundRateTableId']);
-                $updateFields['OutboundDiscountPlanId'] = (isset($data['OutboundDiscountPlanId']) ? $data['OutboundDiscountPlanId'] : $ExistingValues['OutboundDiscountPlanId']);
-                $updateFields['InboundDiscountPlanId'] = (isset($data['InboundDiscountPlanId']) ? $data['InboundDiscountPlanId'] : $ExistingValues['InboundDiscountPlanId']);
+
+                if (isset($data['Service']) && $data['Service'] == 1) {
+                    $updateFields['ServiceId'] = (isset($data['ServiceId']) ? $data['ServiceId'] : $ExistingValues['ServiceId']);
+                }
+                if (isset($data['OutboundTraiff']) && $data['OutboundTraiff'] == 1) {
+                    $updateFields['OutboundRateTableId'] = (isset($data['OutboundRateTableId']) ? $data['OutboundRateTableId'] : $ExistingValues['OutboundRateTableId']);
+                }
+                if (isset($data['OutboundDiscountPlan']) && $data['OutboundDiscountPlan'] == 1 ) {
+                    $updateFields['OutboundDiscountPlanId'] = (isset($data['OutboundDiscountPlanId']) ? $data['OutboundDiscountPlanId'] : $ExistingValues['OutboundDiscountPlanId']);
+                }
+                if (isset($data['InboundDiscountPlan']) && $data['InboundDiscountPlan'] == 1 ) {
+                    $updateFields['InboundDiscountPlanId'] = (isset($data['InboundDiscountPlanId']) ? $data['InboundDiscountPlanId'] : $ExistingValues['InboundDiscountPlanId']);
+                }
+
+
 
                 ServiceTemplate::where('ServiceTemplateId', $ServiceTemplateIdArray[$i])->update($updateFields);
             }
 
+            unset($data['OutboundDiscountPlan']);
+            unset($data['OutboundTraiff']);
+            unset($data['OutboundDiscountPlan']);
+            unset($data['InboundDiscountPlan']);
 
             $data['ServiceTemplateId'] = $data['ServiceTemplateIdBulkAction'];
             $data['RateTableId'] = (isset($data['OutboundRateTableId']) ? $data['OutboundRateTableId'] : null);
