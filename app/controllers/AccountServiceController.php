@@ -164,7 +164,7 @@ class AccountServiceController extends \BaseController {
             $Contract['ContractStartDate'] = Input::get('StartDate');
             $Contract['ContractEndDate'] = Input::get('EndDate');
             $Contract['AccountServiceID'] = $AccountServiceId->AccountServiceID;
-            $Contract['AutoRenewal'] = Input::get('AutoRenewal');
+            $Contract['AutoRenewal'] = Input::has('AutoRenewal') ? 1 : 0;
             $Contract['ContractTerm'] = Input::get('ContractTerm');
             $Contract['Duration'] = Input::get('Duration');
             //validation
