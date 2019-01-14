@@ -131,7 +131,7 @@
                         <div class="form-group">
                             <label class="col-md-2 control-label">Contract Start Date</label>
                             <div class="col-md-4">
-                                <input type="text" data-date-format="yyyy-mm-dd" @if(isset($AccountServiceContract->ContractStartDate)) value="{{$AccountServiceContract->ContractStartDate}}" @else value="{{ date("Y-m-d") }}" @endif  class="form-control datepicker" id="StartDate" name="StartDate">
+                                <input type="text" data-date-format="yyyy-mm-dd" @if(isset($AccountServiceContract->ContractStartDate)) value="{{$AccountServiceContract->ContractStartDate}}" @endif  class="form-control datepicker" id="StartDate" name="StartDate">
                             </div>
 
                             <label class="col-md-2 control-label">Contract End Date</label>

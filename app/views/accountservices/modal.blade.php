@@ -23,12 +23,12 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <input type="hidden" name="AccountServiceID" @if(isset($AccountServiceID)) value="{{$AccountServiceID}}" @endif>
-                                    <label class="col-md-2 control-label">Termination Fees </label>
+                                    <label class="col-md-2 control-label">Termination Fee </label>
                                     <div class="col-md-4">
                                         <input type="text" @if(isset($AccountServiceCancelContract->TerminationFees)) value="{{$AccountServiceCancelContract->TerminationFees}}" @endif class="form-control" name="TeminatingFee">
                                     </div>
 
-                                    <label class="col-md-2 control-label">Cancelation Date</label>
+                                    <label class="col-md-2 control-label">Cancellation Date</label>
                                     <div class="col-md-4">
                                         <input type="text" @if(isset($AccountServiceCancelContract->CancelationDate)) value="{{$AccountServiceCancelContract->CancelationDate}}" @endif data-date-format="yyyy-mm-dd" class="form-control datepicker" name="CancelDate">
                                     </div>
