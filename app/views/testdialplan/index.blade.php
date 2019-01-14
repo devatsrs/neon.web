@@ -75,6 +75,7 @@
                 <thead>
                 <tr>
                     
+                    <th></th>
                     <th>Destination</th>
                     <th>Vendor</th>
                     <th>Connection</th>
@@ -197,14 +198,13 @@ $('#filter-button-toggle').show();
                         data_table_extra_params.push({"name": "DestinationCode","value": $searchFilter.DestinationCode}, {"name": "routingprofile", "value": $searchFilter.routingprofile});
                     },
                     "aoColumns": [
-                        {"bSortable": true, mRender: function (id, type, full) { return full[1];}},
-                        {"bSortable": true, mRender: function (id, type, full) {return full[3]; }},
-                        {"bSortable": true, mRender: function (id, type, full) { return full[4];}},
-                        {"bSortable": true, mRender: function (id, type, full) { return full[12]; }},
-                        {"bSortable": true, mRender: function (id, type, full) { return full[14];}},
-                        {"bSortable": true, mRender: function (id, type, full) { return full[6];}},
-                       
-
+                        {"bSortable": false, mRender: function (id, type, full) { return id;}},
+                        {"bSortable": false, mRender: function (id, type, full) { return full[1];}},
+                        {"bSortable": false, mRender: function (id, type, full) {return full[3]; }},
+                        {"bSortable": false, mRender: function (id, type, full) { return full[4];}},
+                        {"bSortable": false, mRender: function (id, type, full) { return full[12]; }},
+                        {"bSortable": false, mRender: function (id, type, full) { return full[14];}},
+                        {"bSortable": false, mRender: function (id, type, full) { return full[6];}},
                     ],
                     "oTableTools": {
                         "aButtons": [
@@ -227,7 +227,6 @@ $('#filter-button-toggle').show();
                                 $('#selectallbutton').prop("checked", true);
                             } else {
                                 $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
-                                ;
                                 $(this).removeClass('selected');
                             }
                         });
@@ -253,8 +252,11 @@ $('#filter-button-toggle').show();
                                 }
                             }
                         });
+                    },
+                    "fnRowCallback": function (nRow, aData, iDisplayIndex) {
+                        $("td:nth-child(1)", nRow).html(iDisplayIndex + 1);
+                        return nRow;
                     }
-
                 });
                 $("#selectcheckbox").append('');
                 return false;
