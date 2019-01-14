@@ -1,6 +1,12 @@
 @extends('layout.main')
 
 @section('content')
+    <style>
+        .panel-heading.active {
+            border-left: 3px solid #00cc00;
+            padding-left: 7px;
+        }
+    </style>
     <ol class="breadcrumb bc-3">
         <li>
             <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
@@ -158,7 +164,7 @@
                                                 <div class="panel-heading" style="background-color:white;">
                                                     <label for='r11'>
                                                         <i></i>
-                                                        <input type='radio' @if(isset($AccountServiceContract->FixedFee) && $AccountServiceContract->FixedFee == 1 ) checked  @endif  id='r11' name='ContractTerm' value='1' required />
+                                                        <input type='radio' @if(isset($AccountServiceContract->ContractTerm) && $AccountServiceContract->ContractTerm == 1 ) checked  @endif  id='r11' name='ContractTerm' value='1' required />
                                                         Fixed Fee
                                                         <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"></a>
                                                     </label>
@@ -171,7 +177,7 @@
                                                                     <label class="control-label">Fixed Fee</label>
                                                                 </div>
                                                                 <div class="col-md-12">
-                                                                    <input type="text" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->FixedFee == 1 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="FixedFee">
+                                                                    <input type="text" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->ContractTerm == 1 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="FixedFee">
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -185,7 +191,7 @@
                                             <div class="panel panel-default">
                                                 <div class="panel-heading" style="background-color:white;">
                                                     <label for='r12'>
-                                                        <input type='radio' @if(isset($AccountServiceContract->FixedFee) && $AccountServiceContract->FixedFee == 2 ) checked  @endif id='r12' name='ContractTerm' value='2' required />
+                                                        <input type='radio' @if(isset($AccountServiceContract->ContractTerm) && $AccountServiceContract->ContractTerm == 2 ) checked  @endif id='r12' name='ContractTerm' value='2' required />
                                                         Remaining Term Of Contract
                                                         <a data-toggle="collapse" data-parent="#accordion" href=""></a>
                                                     </label>
@@ -198,7 +204,7 @@
                                             <div class="panel panel-default">
                                                 <div class="panel-heading" style="background-color:white;">
                                                     <label for='r13'>
-                                                        <input type='radio' @if(isset($AccountServiceContract->FixedFee) && $AccountServiceContract->FixedFee == 3 ) checked  @endif id='r13' name='ContractTerm' value='3' required />
+                                                        <input type='radio' @if(isset($AccountServiceContract->ContractTerm) && $AccountServiceContract->ContractTerm == 3 ) checked  @endif id='r13' name='ContractTerm' value='3' required />
                                                         Remaining Term Of Contract(%)
                                                         <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree"></a>
                                                     </label>
@@ -211,7 +217,7 @@
                                                                     <label class="control-label">Percentage</label>
                                                                 </div>
                                                                 <div class="col-md-12">
-                                                                    <input type="text" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->FixedFee == 3 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="Percentage">
+                                                                    <input type="text" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->ContractTerm == 3 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="Percentage">
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -223,9 +229,9 @@
                                     <div class="col-md-3">
                                         <div class="panel-group cancelRadio" id="accordion">
                                             <div class="panel panel-default">
-                                                <div class="panel-heading" style="background-color:white;">
+                                                <div class="panel-heading" style="background-color:white;text-align: center;">
                                                     <label for='r14'>
-                                                        <input type='radio' @if(isset($AccountServiceContract->FixedFee) && $AccountServiceContract->FixedFee == 4 ) checked  @endif id='r14' name='ContractTerm' value='4' required />
+                                                        <input type='radio' @if(isset($AccountServiceContract->ContractTerm) && $AccountServiceContract->ContractTerm == 4 ) checked  @endif id='r14' name='ContractTerm' value='4' required />
                                                         Fixed Fee + Remaining Term Of Contract
                                                         <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour"></a>
                                                     </label>
@@ -238,7 +244,7 @@
                                                                     <label class="control-label">Fixed Fee</label>
                                                                 </div>
                                                                 <div class="col-md-12">
-                                                                    <input type="text" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->FixedFee == 4 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="FixedFeeContract">
+                                                                    <input type="text" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->ContractTerm == 4 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="FixedFeeContract">
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -857,7 +863,7 @@
                 $('.cancelRadio .panel-collapse').removeClass('in');
                 $('.cancelRadio .panel-heading').removeClass('active');
                 var selected = $('.cancelRadio input[type="radio"]:checked');
-                selected.parent()
+                selected.parent().parent()
                         .addClass('active')
                         .parent()
                         .parent()
