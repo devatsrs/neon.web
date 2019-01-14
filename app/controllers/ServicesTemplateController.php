@@ -1205,18 +1205,38 @@ class ServicesTemplateController extends BaseController {
 
                         if(isset($data['DIDCategoryId']) && !empty($data['DIDCategoryId']))
                         {
+
+                            Log::info('$alreadyExistServices.' . $data['ServiceTemplateId'] . ' ' . $data['DIDCategoryId'] . ' ' . $data['RateTableId']);
+
                             $alreadyExistServices = ServiceTemapleInboundTariff::where('ServiceTemplateID', $data['ServiceTemplateId'])
                                 ->where('DIDCategoryId', $data['DIDCategoryId'])
-                                ->where('RateTableId', $data['RateTableId'])->first();
-                            if (!isset($alreadyExistServices))
+                                ->first();
+
+                            //Log::info('$alreadyExistServices InboundTariffId.' . $alreadyExistServices->ServiceTemapleInboundTariffId);
+
+                            if (!isset($alreadyExistServices)){
+
                                 ServiceTemapleInboundTariff::create($data);
+
+                            }else {
+                                $updateFields['RateTableId'] = $data['RateTableId'];
+                                ServiceTemapleInboundTariff::where('ServiceTemapleInboundTariffId', $alreadyExistServices->ServiceTemapleInboundTariffId)
+                                    ->update($updateFields);
+                            }
                         }else{
 
                             $alreadyExistServices = ServiceTemapleInboundTariff::where('ServiceTemplateID', $data['ServiceTemplateId'])
-                                ->where('RateTableId', $data['RateTableId'])->first();
+                                ->WhereRaw('DIDCategoryId is null')->first();
                             unset($data['DIDCategoryId']);
                             if (!isset($alreadyExistServices))
+                            {
                                 ServiceTemapleInboundTariff::create($data);
+
+                            }else{
+                                $updateFields['RateTableId'] = $data['RateTableId'];
+                                ServiceTemapleInboundTariff::where('ServiceTemapleInboundTariffId', $alreadyExistServices->ServiceTemapleInboundTariffId)
+                                    ->update($updateFields);
+                            }
                         }
 
 
