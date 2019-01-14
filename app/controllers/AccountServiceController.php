@@ -593,8 +593,9 @@ class AccountServiceController extends \BaseController {
         //update or create with validation
         $validator = \Validator::make($data, [
             'TeminatingFee' => 'required',
+            'CancelDate' => 'required|date|date_format:Y-m-d'
         ]);
-        $validator->setAttributeNames(['TeminatingFee' => 'Termination Fees']);
+        $validator->setAttributeNames(['TeminatingFee' => 'Termination Fees','CancelDate' => 'Cancellation Date']);
         if ($validator->fails())
         {
             return Response::json(array("status" => "failed", "message" => $validator->errors()->all()));
