@@ -110,6 +110,7 @@
         $("#add-new-service-form [name='ContractDuration']").val("");
         $("#add-new-service-form [name='AutomaticRenewal']").prop("checked", true).trigger("change");
         $("#add-new-service-form [name='CancellationCharges']").trigger("reset");
+        $("#add-new-service-form [name='CancellationCharges']:first").prop("checked", true);
         $("#add-new-service-form [name='CancellationFee']").val("");
         $("#add-new-service-form [name='OutboundDiscountPlanId']").select2().select2('val','');
         $("#add-new-service-form [name='InboundDiscountPlanId']").select2().select2('val','');
