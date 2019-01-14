@@ -79,7 +79,7 @@ class AccountsApiController extends ApiController {
 			$AccountServiceContract['Duration'] = $accountData['Duration'];
 			$AccountServiceContract['ContractReason'] = $accountData['ContractFeeValue'];
 			$AccountServiceContract['AutoRenewal'] = $accountData['AutoRenewal'];
-			$AccountServiceContract['FixedFee'] = $accountData['ContractType'];
+			$AccountServiceContract['ContractTerm'] = $accountData['ContractType'];
 			$AccountSubscription["PaymentSubscription"] = $accountData['PaymentSubscription'];
 
 			if (!empty($AccountSubscription['PaymentSubscription'])) {
@@ -175,7 +175,7 @@ class AccountsApiController extends ApiController {
 					$servicedata['ServiceID'] = $ServiceTemaplateReference->ServiceId;
 					$servicedata['AccountID'] = $Account->AccountID;
 					$servicedata['CompanyID'] = $CompanyID;
-					$AccountService =  AccountService::insert($servicedata);
+					$AccountService = AccountService::insert($servicedata);
 				}
 
 				$AccountServiceContractExisting = AccountServiceContract::where(array('AccountServiceID' => $AccountService->AccountServiceID))->first();
@@ -187,7 +187,7 @@ class AccountsApiController extends ApiController {
 					$AccountServiceContract["Duration"] = empty($AccountServiceContract['Duration']) ? $ServiceTemaplateReference->ContractDuration : $AccountServiceContract['Duration'];
 					$AccountServiceContract["ContractReason"] = empty($AccountServiceContract['ContractReason']) ? $ServiceTemaplateReference->CancellationFee : $AccountServiceContract['ContractReason'];
 					$AccountServiceContract["AutoRenewal"] = empty($AccountServiceContract["AutoRenewal"]) ? $ServiceTemaplateReference->AutomaticRenewal : $AccountServiceContract["AutoRenewal"];
-					$AccountServiceContract["FixedFee"] = empty($AccountServiceContract["FixedFee"]) ?  $ServiceTemaplateReference->CancellationCharges : $AccountServiceContract["FixedFee"];
+					$AccountServiceContract["ContractTerm"] = empty($AccountServiceContract["ContractTerm"]) ? $ServiceTemaplateReference->CancellationCharges : $AccountServiceContract["ContractTerm"];
 					$AccountServiceContract["updated_at"] = $date;
 					//Log::info('AccountServiceID update records ' . $AccountServiceContract["FixedFee"] . ' ' . $AccountServiceContract["FixedFee"]);
 					AccountServiceContract::where(array('AccountServiceID' => $AccountService->AccountServiceID))
@@ -198,37 +198,39 @@ class AccountsApiController extends ApiController {
 					$AccountServiceContract["Duration"] = empty($AccountServiceContract['Duration']) ? $ServiceTemaplateReference->ContractDuration : $AccountServiceContract['Duration'];
 					$AccountServiceContract["ContractReason"] = empty($AccountServiceContract['ContractReason']) ? $ServiceTemaplateReference->CancellationFee : $AccountServiceContract['ContractReason'];
 					$AccountServiceContract["AutoRenewal"] = empty($AccountServiceContract["AutoRenewal"]) ? $ServiceTemaplateReference->AutomaticRenewal : $AccountServiceContract["AutoRenewal"];
-					$AccountServiceContract["FixedFee"] = empty($AccountServiceContract["FixedFee"]) ?  $ServiceTemaplateReference->CancellationCharges : $AccountServiceContract["FixedFee"];
+					$AccountServiceContract["ContractTerm"] = empty($AccountServiceContract["ContractTerm"]) ? $ServiceTemaplateReference->CancellationCharges : $AccountServiceContract["ContractTerm"];
 					AccountServiceContract::create($AccountServiceContract);
 				}
 
-				$AccountSubscriptionExisting = AccountSubscription::where(array('AccountID' =>$Account->AccountID,'SubscriptionID'=>$AccountSubscriptionDB["SubscriptionID"]))->first();
+				if (isset($AccountSubscriptionDB) && $AccountSubscriptionDB != '') {
+					$AccountSubscriptionExisting = AccountSubscription::where(array('AccountID' => $Account->AccountID, 'SubscriptionID' => $AccountSubscriptionDB["SubscriptionID"]))->first();
 
-				$AccountSubscription["AccountID"] =  $Account->AccountID;
-				$AccountSubscription["SubscriptionID"] =  $AccountSubscriptionDB["SubscriptionID"];
-				$AccountSubscription["InvoiceDescription"] =  $AccountSubscriptionDB["InvoiceLineDescription"];
-				$AccountSubscription["Qty"] =  1;
-				$AccountSubscription["StartDate"] =  $date;
-				$AccountSubscription["EndDate"] =  $date;
-				//$AccountSubscription["ExemptTax"] =  $AccountSubscriptionDB[];
-				$AccountSubscription["ActivationFee"] =  $AccountSubscriptionDB["ActivationFee"];
-				$AccountSubscription["AnnuallyFee"] =  $AccountSubscriptionDB["AnnuallyFee"];
-				$AccountSubscription["QuarterlyFee"] =  $AccountSubscriptionDB["QuarterlyFee"];
-				$AccountSubscription["MonthlyFee"] =  $AccountSubscriptionDB["MonthlyFee"];
-				$AccountSubscription["WeeklyFee"] =  $AccountSubscriptionDB["WeeklyFee"];
-				$AccountSubscription["DailyFee"] =  $AccountSubscriptionDB["DailyFee"];
-				//$AccountSubscription["SequenceNo"] =  $AccountSubscriptionDB[];
-				$AccountSubscription["ServiceID"] =  $ServiceTemaplateReference->ServiceId;
-				$AccountSubscription["Status"] =  1;
-				//$AccountSubscription["DiscountAmount"] =  $AccountSubscriptionDB[];
-				//$AccountSubscription["DiscountType"] =  $AccountSubscriptionDB[];
-				if (isset($AccountSubscriptionExisting) && $AccountSubscriptionExisting != '') {
-					AccountSubscription::where(array('AccountID' =>$Account->AccountID,'SubscriptionID'=>$AccountSubscriptionDB["SubscriptionID"]))
-						->update($AccountSubscription);
-				}else {
-					AccountSubscription::create($AccountSubscription);
+					$AccountSubscription["AccountID"] = $Account->AccountID;
+					$AccountSubscription["SubscriptionID"] = $AccountSubscriptionDB["SubscriptionID"];
+					$AccountSubscription["InvoiceDescription"] = $AccountSubscriptionDB["InvoiceLineDescription"];
+					$AccountSubscription["Qty"] = 1;
+					$AccountSubscription["StartDate"] = $date;
+					$AccountSubscription["EndDate"] = $date;
+					//$AccountSubscription["ExemptTax"] =  $AccountSubscriptionDB[];
+					$AccountSubscription["ActivationFee"] = $AccountSubscriptionDB["ActivationFee"];
+					$AccountSubscription["AnnuallyFee"] = $AccountSubscriptionDB["AnnuallyFee"];
+					$AccountSubscription["QuarterlyFee"] = $AccountSubscriptionDB["QuarterlyFee"];
+					$AccountSubscription["MonthlyFee"] = $AccountSubscriptionDB["MonthlyFee"];
+					$AccountSubscription["WeeklyFee"] = $AccountSubscriptionDB["WeeklyFee"];
+					$AccountSubscription["DailyFee"] = $AccountSubscriptionDB["DailyFee"];
+					//$AccountSubscription["SequenceNo"] =  $AccountSubscriptionDB[];
+					$AccountSubscription["ServiceID"] = $ServiceTemaplateReference->ServiceId;
+					$AccountSubscription["Status"] = 1;
+					//$AccountSubscription["DiscountAmount"] =  $AccountSubscriptionDB[];
+					//$AccountSubscription["DiscountType"] =  $AccountSubscriptionDB[];
+					if (isset($AccountSubscriptionExisting) && $AccountSubscriptionExisting != '') {
+						AccountSubscription::where(array('AccountID' => $Account->AccountID, 'SubscriptionID' => $AccountSubscriptionDB["SubscriptionID"]))
+							->update($AccountSubscription);
+					} else {
+						AccountSubscription::create($AccountSubscription);
+					}
+
 				}
-
 			}
 
 			$inbounddata = array();
