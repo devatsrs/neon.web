@@ -428,6 +428,24 @@
 
 
         $("#bulkActions").click(function(){
+
+
+            _currency = $("#service_filter [name='FilterCurrencyId']").val()
+            url = baseurl + "/servicesTemplate/selectDataOnCurrency?selectedCurrency=" + _currency + "&selectedData=outboundTariff";
+            $.post(url, function (data, status) {
+                // var res = data.split('/>');
+                document.getElementById("OutboundRateTableIdBulkAction").innerHTML = "" + data;
+                // var OutboundTariffId = $("div.hiddenRowData").find("input[name='OutboundTariffId']").val();
+//                if (OutboundTariffId != '') {
+//                    $("#add-action-bulk-form [name='OutboundRateTableIdBulkAction']").select2().select2('val', OutboundTariffId);
+//                }else {
+//                    $("#add-action-bulk-form [name='OutboundRateTableIdBulkAction']").select2().select2('val', '');
+//                }
+
+                // $("#serviceBasedOnCurreny").html(data);
+            }, 'html');
+
+
             document.getElementById("add-action-bulk-form").reset();
             $("#InboundTariff").val("");
 

@@ -91,6 +91,8 @@
           // $("#serviceBasedOnCurreny").html(data);
       }, 'html');
 
+
+
       url = baseurl + "/servicesTemplate/selectDataOnCurrency?selectedCurrency=" + selected_currency + "&selectedData=templateSubscriptionList";
       // alert("url :" + url);
       $.post(url, function (data, status) {
