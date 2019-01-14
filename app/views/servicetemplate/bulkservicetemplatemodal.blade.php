@@ -244,7 +244,7 @@
           // alert(document.getElementById("SubscriptionIDListBody"));
           // alert(document.getElementById("SubscriptionIDListBody").innerHTML);
           var CategoryTariffValue = DidCategoryID + '-' + DidCategoryTariffID;
-          var CategoryTariffSearchValue = '-' + DidCategoryTariffID;
+          var CategoryTariffSearchValue = DidCategoryID + '-';
 
           var setValue = "setValue('CategoryTariffIDBulkAction[" + rowCategoryTariffHtmlIndex + "]','" + CategoryTariffValue + "');";
 
