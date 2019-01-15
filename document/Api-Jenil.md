@@ -1157,7 +1157,7 @@ cy
 	AutoOutpayment
 	OutPaymentThreshold
 	OutPaymentAmount
-	AccountReference
+	DynamicFields
 
 Return
 
@@ -1199,7 +1199,13 @@ Return
         AutoOutpayment:1
         OutPaymentThreshold:30
         OutPaymentAmount:30
-        AccountReference: {"Name": "SIAccountReference","Value": "15022019"}
+        DynamicFields: [
+
+                                       {
+                                           "Name": "SIAccountID",
+                                           "Value": "745"
+                                       }
+                                   ]
         Response:
 
             {
@@ -1275,7 +1281,7 @@ Params:
 	AutoRenewal
 	ContractFeeValue
 	PaymentSubscription
-	AccountReference
+	DynamicFields
 
 
 Return
@@ -1293,7 +1299,13 @@ Return
             AutoRenewal:[Used the service tempalte value if not set]
             ContractFeeValue:[Used the service tempalte value if not set]
             PaymentSubscription:[Valid subscription name not mandatory]
-            AccountReference: {"Name": "SIAccountReference","Value": "15022019"} [Mandatory if Number is empty]
+            DynamicFields: [
+
+                                              {
+                                                  "Name": "SIAccountID",
+                                                  "Value": "745"
+                                              }
+                                          ] [Mandatory if Number is empty]
         Response:
 
            {
