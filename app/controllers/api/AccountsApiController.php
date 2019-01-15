@@ -96,6 +96,9 @@ class AccountsApiController extends ApiController {
 				return Response::json(["status" => "failed", "message" => "Please specified the Service End Data"]);
 			}
 			if (!empty($AccountServiceContract['ContractStartDate']) && !empty($AccountServiceContract['ContractEndDate'])) {
+				if ($AccountServiceContract['ContractStartDate'] > $AccountServiceContract['ContractEndDate']) {
+					return Response::json(["status" => "failed", "message" => "End Date should be greater then start date"]);
+				}
 				if (!empty($AccountServiceContract['ContractType']) && ($AccountServiceContract['ContractType'] < 1 || $AccountServiceContract['ContractType'] > 4)) {
 					return Response::json(["status" => "failed", "message" => "The value of ContractType must be between 1 and 4"]);
 				}
