@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS `tblDIDCategory` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 ALTER TABLE `tblRateTable`
-	ADD COLUMN `DIDCategoryID` INT(11) NOT NULL AFTER `RoundChargedAmount`,
+	ADD COLUMN `DIDCategoryID` INT(11) NULL DEFAULT NULL AFTER `RoundChargedAmount`,
 	ADD COLUMN `Type` INT(11) NOT NULL DEFAULT '1' AFTER `DIDCategoryID`,
 	ADD COLUMN `MinimumCallCharge` DECIMAL(18,6) NULL DEFAULT NULL AFTER `Type`,
 	ADD COLUMN `AppliedTo` INT NOT NULL DEFAULT '1' AFTER `MinimumCallCharge`;
@@ -1415,7 +1415,15 @@ CREATE PROCEDURE `prc_getDiscontinuedRateTableRateGrid`(
 )
 BEGIN
 	DECLARE v_OffSet_ int;
+	DECLARE v_ROUTING_PROFILE_ INT;
+	DECLARE v_RateApprovalProcess_ INT;
+	DECLARE v_AppliedTo_ INT;
+
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SELECT Value INTO v_ROUTING_PROFILE_ FROM tblCompanyConfiguration WHERE CompanyID=p_companyid AND `Key`='ROUTING_PROFILE';
+	SELECT Value INTO v_RateApprovalProcess_ FROM tblCompanySetting WHERE CompanyID=p_companyid AND `Key`='RateApprovalProcess';
+	SELECT AppliedTo INTO v_AppliedTo_ FROM tblRateTable WHERE CompanyID=p_companyid AND RateTableId=p_RateTableId;
 
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 
@@ -1444,7 +1452,7 @@ BEGIN
      	Blocked TINYINT,
      	ApprovedStatus TINYINT,
      	ApprovedBy VARCHAR(50),
-     	ApprovedDate DATETIME,
+     	ApprovedDate DATE,
 		INDEX tmp_RateTableRate_RateID (`Code`)
 	);
 
@@ -1762,8 +1770,59 @@ BEGIN
 
 	END IF;
 
+
+	-- export
+	IF p_isExport <> 0
+	THEN
+		SET @stm1='',@stm2='',@stm3='',@stm4=''='';
+
+		SET @stm1 = "
+			SELECT
+	         OriginationCode,
+	         OriginationDescription,
+	         Code AS DestinationCode,
+	         Description AS DestinationDescription,
+	         CONCAT(Interval1,'/',IntervalN) AS `Interval1/N`,
+	         ConnectionFee,
+				Rate,
+				RateN,
+				EffectiveDate
+		";
+
+	   IF(v_ROUTING_PROFILE_ = 1)
+		THEN
+			SET @stm3 = ', RoutingCategoryName';
+		END IF;
+
+		-- if vendor rate table
+		IF(v_AppliedTo_ = 2)
+		THEN
+		   SET @stm4 = ', Preference, Blocked';
+	   END IF;
+
+	   -- advance view
+		IF p_isExport = 11
+	   THEN
+	   	SET @stm2 = ", PreviousRate, CONCAT(ModifiedBy,'\n',updated_at) AS `Modified By/Date`";
+
+	   	-- rate approval process is on and rate table is vendor rate table
+			IF(v_RateApprovalProcess_ = 1 && v_AppliedTo_ <> 2)
+			THEN
+	   		SET @stm2 = CONCAT(@stm2,", CONCAT(ApprovedBy,'\n',ApprovedDate) AS `Approved By/Date`, ApprovedStatus");
+	   	END IF;
+
+	   END IF;
+
+	   SET @stm = CONCAT(@stm1,@stm2,@stm3,@stm4,' FROM tmp_RateTableRate_;');
+
+	   PREPARE stmt FROM @stm;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+
+	END IF;
+
 	-- basic view
-   IF p_isExport = 10
+   /*IF p_isExport = 10
    THEN
       SELECT
          OriginationCode,
@@ -1803,7 +1862,7 @@ BEGIN
          Blocked,
          ApprovedStatus
       FROM   tmp_RateTableRate_;
-   END IF;
+   END IF;*/
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END//
@@ -2515,8 +2574,16 @@ CREATE PROCEDURE `prc_GetRateTableRate`(
 )
 BEGIN
 	DECLARE v_OffSet_ int;
+	DECLARE v_ROUTING_PROFILE_ INT;
+	DECLARE v_RateApprovalProcess_ INT;
+	DECLARE v_AppliedTo_ INT;
+
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	SET SESSION GROUP_CONCAT_MAX_LEN = 1000000;
+
+	SELECT Value INTO v_ROUTING_PROFILE_ FROM tblCompanyConfiguration WHERE CompanyID=p_companyid AND `Key`='ROUTING_PROFILE';
+	SELECT Value INTO v_RateApprovalProcess_ FROM tblCompanySetting WHERE CompanyID=p_companyid AND `Key`='RateApprovalProcess';
+	SELECT AppliedTo INTO v_AppliedTo_ FROM tblRateTable WHERE CompanyID=p_companyid AND RateTableId=p_RateTableId;
 
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 
@@ -2832,8 +2899,59 @@ BEGIN
 
     END IF;
 
+
+	-- export
+	IF p_isExport <> 0
+	THEN
+		SET @stm1='',@stm2='',@stm3='',@stm4=''='';
+
+		SET @stm1 = "
+			SELECT
+	         OriginationCode,
+	         OriginationDescription,
+	         Code AS DestinationCode,
+	         Description AS DestinationDescription,
+	         CONCAT(Interval1,'/',IntervalN) AS `Interval1/N`,
+	         ConnectionFee,
+				Rate,
+				RateN,
+				EffectiveDate
+		";
+
+	   IF(v_ROUTING_PROFILE_ = 1)
+		THEN
+			SET @stm3 = ', RoutingCategoryName';
+		END IF;
+
+		-- if vendor rate table
+		IF(v_AppliedTo_ = 2)
+		THEN
+		   SET @stm4 = ', Preference, Blocked';
+	   END IF;
+
+	   -- advance view
+		IF p_isExport = 11
+	   THEN
+	   	SET @stm2 = ", PreviousRate, CONCAT(ModifiedBy,'\n',updated_at) AS `Modified By/Date`";
+
+	   	-- rate approval process is on and rate table is vendor rate table
+			IF(v_RateApprovalProcess_ = 1 && v_AppliedTo_ <> 2)
+			THEN
+	   		SET @stm2 = CONCAT(@stm2,", CONCAT(ApprovedBy,'\n',ApprovedDate) AS `Approved By/Date`, ApprovedStatus");
+	   	END IF;
+
+	   END IF;
+
+	   SET @stm = CONCAT(@stm1,@stm2,@stm3,@stm4,' FROM tmp_RateTableRate_;');
+
+	   PREPARE stmt FROM @stm;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+
+	END IF;
+
 	 -- basic view
-    IF p_isExport = 10
+    /*IF p_isExport = 10
     THEN
         SELECT
             OriginationCode,
@@ -2873,7 +2991,7 @@ BEGIN
             Blocked,
             ApprovedStatus
         FROM   tmp_RateTableRate_;
-    END IF;
+    END IF;*/
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 

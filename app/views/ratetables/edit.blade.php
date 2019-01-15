@@ -52,10 +52,12 @@
                 </div>
 
                 @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+                    @if($ROUTING_PROFILE == 1)
                     <div class="form-group">
                         <label class="control-label">Routing Category</label>
                         {{ Form::select('RoutingCategoryID', $RoutingCategories, '', array("class"=>"select2")) }}
                     </div>
+                    @endif
                     <div class="form-group">
                         <label class="control-label">Preference</label>
                         <input type="text" name="Preference" class="form-control" placeholder="">
@@ -119,11 +121,11 @@
         <div class="input-group-btn pull-right hidden dropdown" style="width:70px;">
             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
             <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
-                @if($isBandTable)
+                {{--@if($isBandTable)--}}
                     @if(User::checkCategoryPermission('RateTables','Add') )
                         <li><a href="javascript:void(0)" id="add-new-rate"><i class="entypo-plus"></i><span>Add New</span></a></li>
                     @endif
-                @endif
+                {{--@endif--}}
                 @if(User::checkCategoryPermission('RateTables','Edit') )
                     <li><a href="javascript:void(0)" id="change-bulk-rate"><i class="entypo-pencil"></i><span>Change Selected</span></a></li>
                 @endif
@@ -190,7 +192,9 @@
             <th width="8%">Approved By/Date</th>
             @endif
             @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+                @if($ROUTING_PROFILE == 1)
             <th width="5%">Routing Category</th>
+                @endif
             <th width="4%">Pref.</th>
             @endif
             <th width="10%" id="actionheader"> Action</th>
@@ -613,7 +617,8 @@
         $searchFilter.Effective = Effective = $("#rate-table-search [name='Effective']").val();
         $searchFilter.DiscontinuedRates = DiscontinuedRates = $("#rate-table-search input[name='DiscontinuedRates']").is(':checked') ? 1 : 0;
         $searchFilter.Timezones = Timezones = $("#rate-table-search select[name='Timezones']").val();
-        $searchFilter.RoutingCategoryID = RoutingCategoryID = $("#rate-table-search select[name='RoutingCategoryID']").val();
+        $searchFilter.RoutingCategoryID = RoutingCategoryID = $("#rate-table-search select[name='RoutingCategoryID']").val() != undefined ? $("#rate-table-search select[name='RoutingCategoryID']").val() : '';
+
 
         @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
         $searchFilter.Preference = Preference = $("#rate-table-search input[name='Preference']").val();
@@ -622,7 +627,7 @@
         $searchFilter.Preference = Preference = null;
         $searchFilter.Blocked = Blocked = null;
         @endif
-        $searchFilter.ApprovedStatus = ApprovedStatus = $("#rate-table-search select[name='ApprovedStatus']").val();
+        $searchFilter.ApprovedStatus = ApprovedStatus = $("#rate-table-search select[name='ApprovedStatus']").val() != undefined ? $("#rate-table-search select[name='ApprovedStatus']").val() : '';
         $searchFilter.ratetablepageview = ratetablepageview;
 
         data_table = $("#table-4").DataTable({
@@ -720,11 +725,13 @@
                         }, //23/24 Approved By/Approved Date
                         @endif
                         @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+                            @if($ROUTING_PROFILE == 1)
                         {
                             mRender: function(id, type, full) {
                                 return full[19]
                             }
                         }, //19 RoutingCategoryName
+                            @endif
                         {
                             mRender: function(id, type, full) {
                                 return full[20]
@@ -1029,7 +1036,9 @@
                     }
                     header += "<th>Dest. Description</th><th>Interval 1</th><th>Interval N</th><th>Connection Fee</th><th>Rate1</th><th>RateN</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th>";
                     @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
-                        header += "<th>Routing Category</th>";
+                        @if($ROUTING_PROFILE == 1)
+                            header += "<th>Routing Category</th>";
+                        @endif
                         header += "<th>Preference</th>";
                         header += "<th>Blocked</th>";
                     @endif
@@ -1061,7 +1070,11 @@
 
                             @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                                 data['Preference'] = data['Preference'] != null ? data['Preference'] : '';
+
+                                @if($ROUTING_PROFILE == 1)
                                 html += "<td>" + data['RoutingCategoryName'] + "</td>";
+                                @endif
+
                                 html += "<td>" + data['Preference'] + "</td>";
 
                                 if(data['Blocked'] == 0)
@@ -1155,12 +1168,14 @@
                     </div>
                     <div class="row">
                         @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+                            @if($ROUTING_PROFILE == 1)
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="control-label">Routing Category</label>
                                     {{ Form::select('RoutingCategoryID', $RoutingCategories, '', array("class"=>"select2")) }}
                                 </div>
                             </div>
+                            @endif
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="control-label">Preference</label>
@@ -1201,7 +1216,9 @@
                     <input type="hidden" name="updateEndDate" value="on">
                     <input type="hidden" name="updateType" value="singleEdit">
                     @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+                        @if($ROUTING_PROFILE == 1)
                     <input type="hidden" name="updateRoutingCategoryID" value="on">
+                        @endif
                     <input type="hidden" name="updatePreference" value="on">
                     <input type="hidden" name="updateBlocked" value="on">
                     @endif
@@ -1297,6 +1314,7 @@
                     <div class="row">
 
                         @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+                            @if($ROUTING_PROFILE == 1)
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <input type="checkbox" name="updateRoutingCategoryID" class="" />
@@ -1304,6 +1322,7 @@
                                     {{ Form::select('RoutingCategoryID', $RoutingCategories, '', array("class"=>"select2")) }}
                                 </div>
                             </div>
+                            @endif
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <input type="checkbox" name="updatePreference" class="" />
@@ -1426,12 +1445,14 @@
                         </div>
 
                         @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+                            @if($ROUTING_PROFILE == 1)
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="control-label">Routing Category</label>
                                     {{ Form::select('RoutingCategoryID', $RoutingCategories, '', array("class"=>"select2")) }}
                                 </div>
                             </div>
+                            @endif
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="control-label">Preference</label>

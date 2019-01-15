@@ -1670,6 +1670,7 @@ class RateUploadController extends \BaseController {
             $data['RateTableID']    = $RateTable->RateTableId;
             $data['Type']           = $RateTable->Type;
             $data['AppliedTo']      = $RateTable->AppliedTo;
+            $data['ROUTING_PROFILE'] = CompanyConfiguration::get('ROUTING_PROFILE');
             return Response::json(array("status" => "success", "message" => "RateTable found!", "RateTable" => $data ));
         } else {
             return Response::json(array("status" => "success", "message" => "No RateTable found!" ));
