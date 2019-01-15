@@ -170,18 +170,18 @@ class AccountServiceController extends \BaseController {
             /**validation*/
             if($Contract['ContractStartDate'] != "" || $Contract['ContractEndDate'] != "" || $Contract['AutoRenewal'] != 0 || $Contract['Duration'] != "" || $Contract['ContractTerm'] != ""|| count($AccountServiceContract) > 0){
                 if ($Contract['ContractTerm'] == 1) {
-                    AccountServiceContract::$rules['FixedFee'] = 'required';
+                    AccountServiceContract::$rules['FixedFee'] = 'required|numeric';
                 } else if ($Contract['ContractTerm'] == 3) {
-                    AccountServiceContract::$rules['Percentage'] = 'required';
+                    AccountServiceContract::$rules['Percentage'] = 'required|numeric';
                 } else if ($Contract['ContractTerm'] == 4) {
-                    AccountServiceContract::$rules['FixedFeeContract'] = 'required';
+                    AccountServiceContract::$rules['FixedFeeContract'] = 'required|numeric';
                 }
                 AccountServiceContract::$rules['StartDate'] = 'required|date|date_format:Y-m-d';
                 AccountServiceContract::$rules['EndDate'] = 'required|date|date_format:Y-m-d';
                 AccountServiceContract::$rules['ContractTerm'] = 'required';
 
                 $validator = \Validator::make(Input::all(), AccountServiceContract::$rules);
-                $validator->setAttributeNames(['FixedFeeContract' => 'Fixed Fee','StartDate' => 'Contract Start Date','EndDate' => 'Contract End Date','ContractTerm' => 'Contract Term']);
+                $validator->setAttributeNames(['Percentage' => 'Percentage','FixedFee' => 'Fixed Fee','FixedFeeContract' => 'Fixed Fee','StartDate' => 'Contract Start Date','EndDate' => 'Contract End Date','ContractTerm' => 'Contract Term']);
                 if ($validator->fails()) {
                     return Response::json(array("status" => "failed", "message" => $validator->errors()->all()));
                 }
@@ -594,10 +594,10 @@ class AccountServiceController extends \BaseController {
 
         /** update or create with validation */
         $validator = \Validator::make($data, [
-            'TeminatingFee' => 'required',
+            'TeminatingFee' => 'required|numeric',
             'CancelDate' => 'required|date|date_format:Y-m-d'
         ]);
-        $validator->setAttributeNames(['TeminatingFee' => 'Termination Fees','CancelDate' => 'Cancellation Date']);
+        $validator->setAttributeNames(['TeminatingFee' => 'Termination Fee','CancelDate' => 'Cancellation Date']);
         if ($validator->fails())
         {
             return Response::json(array("status" => "failed", "message" => $validator->errors()->all()));
