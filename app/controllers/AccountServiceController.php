@@ -157,7 +157,7 @@ class AccountServiceController extends \BaseController {
                 unset($data['routingprofile']);
             }
 
-            //start contract Section//
+            /**start contract Section*/
             $AccountServiceId = AccountService::where('AccountServiceID', $AccountServiceID)->first();
             $AccountServiceContract = AccountServiceContract::where('AccountServiceID', $AccountServiceId->AccountServiceID)->get();
             $Contract = array();
@@ -167,25 +167,25 @@ class AccountServiceController extends \BaseController {
             $Contract['AutoRenewal'] = Input::has('AutoRenewal') ? 1 : 0;
             $Contract['ContractTerm'] = Input::get('ContractTerm');
             $Contract['Duration'] = Input::get('Duration');
-            //validation
+            /**validation*/
             if($Contract['ContractStartDate'] != "" || $Contract['ContractEndDate'] != "" || $Contract['AutoRenewal'] != 0 || $Contract['Duration'] != "" || $Contract['ContractTerm'] != ""|| count($AccountServiceContract) > 0){
                 if ($Contract['ContractTerm'] == 1) {
-                    AccountServiceContract::$rules['FixedFee'] = 'required';
+                    AccountServiceContract::$rules['FixedFee'] = 'required|numeric';
                 } else if ($Contract['ContractTerm'] == 3) {
-                    AccountServiceContract::$rules['Percentage'] = 'required';
+                    AccountServiceContract::$rules['Percentage'] = 'required|numeric';
                 } else if ($Contract['ContractTerm'] == 4) {
-                    AccountServiceContract::$rules['FixedFeeContract'] = 'required';
+                    AccountServiceContract::$rules['FixedFeeContract'] = 'required|numeric';
                 }
                 AccountServiceContract::$rules['StartDate'] = 'required|date|date_format:Y-m-d';
                 AccountServiceContract::$rules['EndDate'] = 'required|date|date_format:Y-m-d';
                 AccountServiceContract::$rules['ContractTerm'] = 'required';
 
                 $validator = \Validator::make(Input::all(), AccountServiceContract::$rules);
-                $validator->setAttributeNames(['FixedFeeContract' => 'Fixed Fee','StartDate' => 'Contract Start Date','EndDate' => 'Contract End Date','ContractTerm' => 'Contract Term']);
+                $validator->setAttributeNames(['Percentage' => 'Percentage','FixedFee' => 'Fixed Fee','FixedFeeContract' => 'Fixed Fee','StartDate' => 'Contract Start Date','EndDate' => 'Contract End Date','ContractTerm' => 'Contract Term']);
                 if ($validator->fails()) {
                     return Response::json(array("status" => "failed", "message" => $validator->errors()->all()));
                 }
-                //perform actions
+                /**perform actions*/
                 if ($Contract['ContractTerm'] == 1) {
                     $Contract['ContractReason'] = Input::get('FixedFee');
                 } else if ($Contract['ContractTerm'] == 3) {
@@ -201,9 +201,9 @@ class AccountServiceController extends \BaseController {
                     AccountServiceContract::create($Contract);
                 }
             }
-            //end contract section//
+            /** end contract section */
 
-            //Service Billing Section//
+            /**Service Billing Section*/
             if ($data['ServiceBilling'] == 1) {
                 if (!empty($data['BillingStartDate']) || !empty($data['BillingCycleType']) || !empty($data['BillingCycleValue']) || !empty($data['BillingClassID'])) {
                     AccountService::$rules['BillingCycleType'] = 'required';
@@ -360,8 +360,9 @@ class AccountServiceController extends \BaseController {
 
             if(AccountService::checkForeignKeyById($AccountID,$AccountServiceID)){
                 try{
-                    $result = AccountService::where(array('AccountID'=>$AccountID,'ServiceID'=>$AccountServiceID))->delete();
+                    $result = AccountService::where(array('AccountID'=>$AccountID,'AccountServiceID'=>$AccountServiceID))->delete();
                     if ($result) {
+                        AccountServiceContract::where('AccountServiceID', $AccountServiceID)->delete();
                         return Response::json(array("status" => "success", "message" => "Service Successfully Deleted"));
                     } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Deleting Service."));
@@ -388,6 +389,7 @@ class AccountServiceController extends \BaseController {
         $data['Tariff'] = empty($data['Tariff']) ? '' : $data['Tariff'];
         $data['DiscountPlan'] = empty($data['DiscountPlan']) ? '' : $data['DiscountPlan'];
         $data['RoutingProfile'] = empty($data['RoutingProfile']) ? '' : $data['RoutingProfile'];
+        $data['Contract'] = empty($data['Contract']) ? '' : $data['Contract'];
 
         /**New logic CloneID is AccountServicID**/
         $CloneIDs = $data['CloneID'];
@@ -567,12 +569,12 @@ class AccountServiceController extends \BaseController {
         $data = Input::all();
         $Contract = array();
 
-        //data get from inputs
+        /** data get from inputs */
         $Contract['AccountServiceID'] = $data['AccountServiceID'];
         $Contract['TerminationFees'] = $data['TeminatingFee'];
         $Contract['CancelationDate'] = $data['CancelDate'];
 
-        //set the values of variables
+        /** set the values of variables*/
         if(isset($data['IncTerminationFees'])){
             $Contract['IncludeTerminationFees'] = $data['IncTerminationFees'];
         }else{
@@ -591,12 +593,12 @@ class AccountServiceController extends \BaseController {
             $Contract['GenerateInvoice'] = 0;
         }
 
-        //update or create with validation
+        /** update or create with validation */
         $validator = \Validator::make($data, [
-            'TeminatingFee' => 'required',
+            'TeminatingFee' => 'required|numeric',
             'CancelDate' => 'required|date|date_format:Y-m-d'
         ]);
-        $validator->setAttributeNames(['TeminatingFee' => 'Termination Fees','CancelDate' => 'Cancellation Date']);
+        $validator->setAttributeNames(['TeminatingFee' => 'Termination Fee','CancelDate' => 'Cancellation Date']);
         if ($validator->fails())
         {
             return Response::json(array("status" => "failed", "message" => $validator->errors()->all()));
