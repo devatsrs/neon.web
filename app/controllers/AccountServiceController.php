@@ -388,6 +388,7 @@ class AccountServiceController extends \BaseController {
         $data['Tariff'] = empty($data['Tariff']) ? '' : $data['Tariff'];
         $data['DiscountPlan'] = empty($data['DiscountPlan']) ? '' : $data['DiscountPlan'];
         $data['RoutingProfile'] = empty($data['RoutingProfile']) ? '' : $data['RoutingProfile'];
+        $data['Contract'] = empty($data['Contract']) ? '' : $data['Contract'];
 
         /**New logic CloneID is AccountServicID**/
         $CloneIDs = $data['CloneID'];

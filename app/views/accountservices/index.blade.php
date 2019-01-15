@@ -662,6 +662,7 @@
                                 </div>
                                 <div class="checkbox ">
                                     <label><input id="rd-1" name="DiscountPlan" checked="" value="1" type="checkbox">Discount Plan</label>
+                                    <label><input id="rd-1" name="Contract" checked="" value="1" type="checkbox">Contract</label>
                                 </div>
                             </div>
 
