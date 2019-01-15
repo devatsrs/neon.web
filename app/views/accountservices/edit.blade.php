@@ -161,7 +161,7 @@
                                     <div class="col-md-3">
                                         <div class="panel-group cancelRadio" id="accordion">
                                             <div class="panel panel-default">
-                                                <div class="panel-heading" style="background-color:white;">
+                                                <div class="panel-heading" style="background-color:white;text-align: center;">
                                                     <label for='r11'>
                                                         <i></i>
                                                         <input type='radio' @if(isset($AccountServiceContract->ContractTerm) && $AccountServiceContract->ContractTerm == 1 ) checked  @endif  id='r11' name='ContractTerm' value='1' required />
@@ -189,7 +189,7 @@
                                     <div class="col-md-3">
                                         <div class="panel-group cancelRadio" id="accordion">
                                             <div class="panel panel-default">
-                                                <div class="panel-heading" style="background-color:white;">
+                                                <div class="panel-heading" style="background-color:white;text-align: center;">
                                                     <label for='r12'>
                                                         <input type='radio' @if(isset($AccountServiceContract->ContractTerm) && $AccountServiceContract->ContractTerm == 2 ) checked  @endif id='r12' name='ContractTerm' value='2' required />
                                                         Remaining Term Of Contract
@@ -202,7 +202,7 @@
                                     <div class="col-md-3">
                                         <div class="panel-group cancelRadio" id="accordion">
                                             <div class="panel panel-default">
-                                                <div class="panel-heading" style="background-color:white;">
+                                                <div class="panel-heading" style="background-color:white;text-align: center;">
                                                     <label for='r13'>
                                                         <input type='radio' @if(isset($AccountServiceContract->ContractTerm) && $AccountServiceContract->ContractTerm == 3 ) checked  @endif id='r13' name='ContractTerm' value='3' required />
                                                         Remaining Term Of Contract(%)

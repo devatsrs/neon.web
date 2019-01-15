@@ -157,7 +157,7 @@ class AccountServiceController extends \BaseController {
                 unset($data['routingprofile']);
             }
 
-            //start contract Section//
+            /**start contract Section*/
             $AccountServiceId = AccountService::where('AccountServiceID', $AccountServiceID)->first();
             $AccountServiceContract = AccountServiceContract::where('AccountServiceID', $AccountServiceId->AccountServiceID)->get();
             $Contract = array();
@@ -167,7 +167,7 @@ class AccountServiceController extends \BaseController {
             $Contract['AutoRenewal'] = Input::has('AutoRenewal') ? 1 : 0;
             $Contract['ContractTerm'] = Input::get('ContractTerm');
             $Contract['Duration'] = Input::get('Duration');
-            //validation
+            /**validation*/
             if($Contract['ContractStartDate'] != "" || $Contract['ContractEndDate'] != "" || $Contract['AutoRenewal'] != 0 || $Contract['Duration'] != "" || $Contract['ContractTerm'] != ""|| count($AccountServiceContract) > 0){
                 if ($Contract['ContractTerm'] == 1) {
                     AccountServiceContract::$rules['FixedFee'] = 'required';
@@ -185,7 +185,7 @@ class AccountServiceController extends \BaseController {
                 if ($validator->fails()) {
                     return Response::json(array("status" => "failed", "message" => $validator->errors()->all()));
                 }
-                //perform actions
+                /**perform actions*/
                 if ($Contract['ContractTerm'] == 1) {
                     $Contract['ContractReason'] = Input::get('FixedFee');
                 } else if ($Contract['ContractTerm'] == 3) {
@@ -201,9 +201,9 @@ class AccountServiceController extends \BaseController {
                     AccountServiceContract::create($Contract);
                 }
             }
-            //end contract section//
+            /** end contract section */
 
-            //Service Billing Section//
+            /**Service Billing Section*/
             if ($data['ServiceBilling'] == 1) {
                 if (!empty($data['BillingStartDate']) || !empty($data['BillingCycleType']) || !empty($data['BillingCycleValue']) || !empty($data['BillingClassID'])) {
                     AccountService::$rules['BillingCycleType'] = 'required';
@@ -567,12 +567,12 @@ class AccountServiceController extends \BaseController {
         $data = Input::all();
         $Contract = array();
 
-        //data get from inputs
+        /** data get from inputs */
         $Contract['AccountServiceID'] = $data['AccountServiceID'];
         $Contract['TerminationFees'] = $data['TeminatingFee'];
         $Contract['CancelationDate'] = $data['CancelDate'];
 
-        //set the values of variables
+        /** set the values of variables*/
         if(isset($data['IncTerminationFees'])){
             $Contract['IncludeTerminationFees'] = $data['IncTerminationFees'];
         }else{
@@ -591,7 +591,7 @@ class AccountServiceController extends \BaseController {
             $Contract['GenerateInvoice'] = 0;
         }
 
-        //update or create with validation
+        /** update or create with validation */
         $validator = \Validator::make($data, [
             'TeminatingFee' => 'required',
             'CancelDate' => 'required|date|date_format:Y-m-d'
