@@ -110,6 +110,7 @@
         $("#add-new-service-form [name='ContractDuration']").val("");
         $("#add-new-service-form [name='AutomaticRenewal']").prop("checked", true).trigger("change");
         $("#add-new-service-form [name='CancellationCharges']").trigger("reset");
+        $("#add-new-service-form [name='CancellationCharges']:first").prop("checked", true);
         $("#add-new-service-form [name='CancellationFee']").val("");
         $("#add-new-service-form [name='OutboundDiscountPlanId']").select2().select2('val','');
         $("#add-new-service-form [name='InboundDiscountPlanId']").select2().select2('val','');
@@ -428,6 +429,24 @@
 
 
         $("#bulkActions").click(function(){
+
+
+            _currency = $("#service_filter [name='FilterCurrencyId']").val()
+            url = baseurl + "/servicesTemplate/selectDataOnCurrency?selectedCurrency=" + _currency + "&selectedData=outboundTariff";
+            $.post(url, function (data, status) {
+                // var res = data.split('/>');
+                document.getElementById("OutboundRateTableIdBulkAction").innerHTML = "" + data;
+                // var OutboundTariffId = $("div.hiddenRowData").find("input[name='OutboundTariffId']").val();
+//                if (OutboundTariffId != '') {
+//                    $("#add-action-bulk-form [name='OutboundRateTableIdBulkAction']").select2().select2('val', OutboundTariffId);
+//                }else {
+//                    $("#add-action-bulk-form [name='OutboundRateTableIdBulkAction']").select2().select2('val', '');
+//                }
+
+                // $("#serviceBasedOnCurreny").html(data);
+            }, 'html');
+
+
             document.getElementById("add-action-bulk-form").reset();
             $("#InboundTariff").val("");
 
@@ -457,18 +476,44 @@
                    if(checkBoxArray == "")
                        ShowToastr("error", "Please select any rows");
                    else
-                        ShowToastr("error", "Please s     elect Currency from filter");
+                        ShowToastr("error", "Please select Currency from filter");
 
                     return false;
 
                 }
 
-            $('#add-new-BulkAction-modal-service').modal('show', {backdrop: 'static'});
 
+            var selected_company, data, url;
+
+            selected_currency = $("#CurrencyIdBulkAction").val();
+            selected_didCategory = $("#DidCategoryIDBulkAction").val();
+            DidCategoryIndexValue = document.getElementById("DidCategoryIDBulkAction").selectedIndex;
+
+            if(selected_currency) {
+                if (selected_currency == '') {
+                    selected_currency = "NAN";
+                }
+                data = {company: selected_company};
+
+                url = baseurl + "/servicesTemplate/selectDataOnCurrency" +
+                        "?selectedCurrency=" + selected_currency + "&selectedData=DidCategoryID&selected_didCategory=" + selected_didCategory;
+
+                $.post(url, function (data, status) {
+                    //  var res = data.split('/>');
+                    document.getElementById("DidCategoryTariffIDBulkAction").innerHTML = "" + data;
+                    DidCategoryTariffIDBulkAction = document.getElementById("DidCategoryTariffIDBulkAction").innerHTML;
+                    // $("#serviceBasedOnCurreny").html(data);
+                }, 'html');
+
+            }else{
+
+                ShowToastr("error", "Please select Currency from filter");
+
+            }
+
+               $('#add-new-BulkAction-modal-service').modal('show', {backdrop: 'static'});
 
         });
-
-
 
 
         $('#add-bulkAction').click(function(e){
