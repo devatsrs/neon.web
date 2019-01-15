@@ -66,11 +66,14 @@ class AccountsApiController extends ApiController {
 		$AccountServiceContract = [];
 		$AccountSubscription = [];
 		$AccountSubscriptionDB = '';
+		$AccountReferenceObj = '';
+		$DynamicFieldsExist = '';
 		try {
 			Log::info('createAccountService:Data.' . json_encode($accountData));
 			$data['Number'] = $accountData['Number'];
 			$data['ServiceTemaplate'] = $accountData['ServiceTemaplate'];
 			$data['NumberPurchased'] = $accountData['NumberPurchased'];
+			$data['AccountReference'] = $accountData['AccountReference'];
 			$data['InboundTariffCategory'] = isset($accountData['InboundTariffCategoryId']) ? $accountData['InboundTariffCategoryId'] :'';
 			//$data['ServiceStartDate'] = isset($accountData['ServiceStartDate'])? strtotime($accountData['ServiceStartDate']) : '';
 			//$data['ServiceEndDate'] = isset($accountData['ServiceEndDate'])? strtotime($accountData['ServiceEndDate']) : '';
@@ -81,6 +84,9 @@ class AccountsApiController extends ApiController {
 			$AccountServiceContract['AutoRenewal'] = $accountData['AutoRenewal'];
 			$AccountServiceContract['ContractTerm'] = $accountData['ContractType'];
 			$AccountSubscription["PaymentSubscription"] = $accountData['PaymentSubscription'];
+
+
+
 
 			if (!empty($AccountSubscription['PaymentSubscription'])) {
 				$AccountSubscriptionDB = BillingSubscription::where(array('Name' => $AccountSubscription['PaymentSubscription']))->first();
@@ -110,9 +116,11 @@ class AccountsApiController extends ApiController {
 			Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,AccountType,1';
 			Account::$rules['Number'] = 'required|unique:tblAccount,Number,NULL,CompanyID';
 			$rules = array(
-				'Number' =>      'required',
+				'Number' =>      'required_without_all:AccountReference',
+				'AccountReference' =>      'required_without_all:Number',
 				'ServiceTemaplate' =>  'required',
 				'NumberPurchased'=>'required',
+
 			);
 
 
@@ -124,6 +132,24 @@ class AccountsApiController extends ApiController {
 					$errors .= $error . "<br>";
 				}
 				return Response::json(["status" => "failed", "message" => $errors]);
+			}
+
+			if (!empty($accountData['AccountReference'])) {
+				$AccountReferenceObj = json_decode($accountData['AccountReference'], true);
+				$DynamicFieldsExist=  DynamicFields::where('FieldName', $AccountReferenceObj["Name"])->first();
+				if ($DynamicFieldsExist == '') {
+					return Response::json(array("status" => "failed", "message" => "Please provide the valid dynamic field in AccountReference fields."));
+				}
+				$DynamicFieldsExists=  DynamicFieldsValue::where('FieldValue', $AccountReferenceObj["Value"])
+														->where('DynamicFieldsID', $DynamicFieldsExist["DynamicFieldsID"])->get();
+				if (count($DynamicFieldsExists) > 1) {
+					return Response::json(array("status" => "failed", "message" => "More then two account reference exists for ." . $AccountReferenceObj["Value"]));
+				}
+
+				foreach ($DynamicFieldsExists as $DynamicFieldsExist) {
+				}
+
+				$data['Number'] = $DynamicFieldsExist->ParentID;
 			}
 
 			$Account = Account::find($data['Number']);
@@ -180,11 +206,11 @@ class AccountsApiController extends ApiController {
 					$servicedata['CompanyID'] = $CompanyID;
 					$AccountService = AccountService::insert($servicedata);
 				}
-
+				Log::info('AccountServiceID ' . $AccountService->AccountServiceID);
 				$AccountServiceContractExisting = AccountServiceContract::where(array('AccountServiceID' => $AccountService->AccountServiceID))->first();
 				if (isset($AccountServiceContractExisting) && $AccountServiceContractExisting != '') {
 
-					Log::info('AccountServiceID ' . $AccountService->AccountServiceID);
+
 
 					$AccountServiceContract["AccountServiceID"] = $AccountService->AccountServiceID;
 					$AccountServiceContract["Duration"] = empty($AccountServiceContract['Duration']) ? $ServiceTemaplateReference->ContractDuration : $AccountServiceContract['Duration'];
@@ -347,32 +373,11 @@ class AccountsApiController extends ApiController {
 			$CreatedBy = User::get_user_full_name();
 			$ResellerData = [];
 			$AccountPaymentAutomation = [];
+			$AccountReferenceObj = '';
+			$DynamicFields = '';
+			$date = date('Y-m-d H:i:s.000');
+			$DynamicFieldsExist = '';
 			//$data['Owner'] = $post_vars->Owner;
-
-			/*else {
-
-				$ResellerOwner = empty($accountData['ResellerOwner']) ? 0 : $accountData['ResellerOwner'];
-				if($ResellerOwner>0){
-					$Reseller = Reseller::getResellerDetails($ResellerOwner);
-					if (!isset($Reseller)) {
-						return Response::json(array("status" => "failed", "message" => "Reseller Account not found."));
-					}
-					$ResellerCompanyID = $Reseller->ChildCompanyID;
-					Log::info('createAccount $ResellerOwner.' . $ResellerCompanyID);
-					$ResellerUser =User::where('CompanyID',$ResellerCompanyID)->first();
-					if (!isset($ResellerUser)) {
-						return Response::json(array("status" => "failed", "message" => "Reseller Account not found."));
-					}
-					$ResellerUserID = $ResellerUser->UserID;
-					Log::info('createAccount $ResellerUserID.' . $ResellerUserID);
-					$companyID=$ResellerCompanyID;
-					$data['Owner'] = $ResellerUserID;
-				}
-			}*/
-
-
-
-
 
 			$data['Number'] = $accountData['Number'];
 			$data['FirstName'] = $accountData['FirstName'];
@@ -400,6 +405,15 @@ class AccountsApiController extends ApiController {
 			$data['AccountType'] = 1;
 			$data['AccountName'] = isset($accountData['AccountName']) ? trim($accountData['AccountName']) : '';
 			$data['PaymentMethod'] = $accountData['PaymentMethod'];
+			if (!empty($accountData['AccountReference'])) {
+				$AccountReferenceObj = json_decode($accountData['AccountReference'], true);
+				$DynamicFieldsExist=  DynamicFields::where('FieldName', $AccountReferenceObj["Name"])->first();
+				if ($DynamicFieldsExist == '') {
+					return Response::json(array("status" => "failed", "message" => "Please provide the valid dynamic field in AccountReference fields."));
+				}
+			}
+
+
 			$AccountPaymentAutomation['AutoTopup']= $accountData['AutoTopup'];
 			$AccountPaymentAutomation['MinThreshold']= $accountData['MinThreshold'];
 			$AccountPaymentAutomation['TopupAmount']= $accountData['TopupAmount'];
@@ -609,6 +623,17 @@ class AccountsApiController extends ApiController {
 				$AccountDetails['AccountID'] = $account->AccountID;
 				AccountDetails::create($AccountDetails);
 				$account->update($data);
+
+				if (isset($AccountReferenceObj) && $AccountReferenceObj != '') {
+					$DynamicFields['ParentID'] = $account->AccountID;
+					$DynamicFields['DynamicFieldsID'] = $DynamicFieldsExist->DynamicFieldsID;
+					$DynamicFields['CompanyID'] = $CompanyID;
+					$DynamicFields['created_at'] = $date;
+					$DynamicFields['created_by'] = $CreatedBy;
+					$DynamicFields['FieldValue'] = $AccountReferenceObj["Value"];
+					DB::table('tblDynamicFieldsValue')->insert($DynamicFields);
+				}
+
 				if (!empty($AccountPaymentAutomation['AutoTopup']) && $AccountPaymentAutomation['AutoTopup'] == 1 ||
 					!empty($AccountPaymentAutomation['AutoOutpayment']) && $AccountPaymentAutomation['AutoOutpayment'] == 1) {
 					$AccountPaymentAutomation['AccountID'] = $account->AccountID;
@@ -785,6 +810,7 @@ class AccountsApiController extends ApiController {
 			}
 
 		} catch (Exception $ex) {
+			Log::error("CreateAccountAPI Exception" . $ex->getTraceAsString());
 			return Response::json(["status" => "failed", "message" => $ex->getMessage()]);
 			//return  Response::json(array("status" => "failed", "message" => $ex->getMessage(),'LastID'=>'','newcreated'=>''));
 		}
