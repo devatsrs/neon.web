@@ -201,12 +201,15 @@ class AccountsApiController extends ApiController {
 
 
 			if (!empty($ServiceTemaplateReference->ServiceId)) {
+
 				$AccountService = AccountService::where(array('AccountID' => $Account->AccountID, 'CompanyID' => $CompanyID, 'ServiceID' => $ServiceTemaplateReference->ServiceId))->first();
 				if (isset($AccountService) && $AccountService != '') {
+					Log::info('AccountServiceID Update');
 					AccountService::where(array('AccountID' => $Account->AccountID, 'CompanyID' => $CompanyID, 'ServiceID' => $ServiceTemaplateReference->ServiceId))
 						->update(array('ServiceID' => $ServiceTemaplateReference->ServiceId, 'updated_at' => $date));
 					$AccountService = AccountService::where(array('AccountID' => $Account->AccountID, 'CompanyID' => $CompanyID, 'ServiceID' => $ServiceTemaplateReference->ServiceId))->first();
 				} else {
+					Log::info('AccountServiceID Create');
 					$servicedata['ServiceID'] = $ServiceTemaplateReference->ServiceId;
 					$servicedata['AccountID'] = $Account->AccountID;
 					$servicedata['CompanyID'] = $CompanyID;
