@@ -883,4 +883,22 @@ class Account extends \Eloquent {
     public static function getCompanyIDByAccountID($AccountID){
         return  Account::where(["AccountID"=>$AccountID])->pluck('CompanyId');
     }
+
+    public static function findAccountBySIAccountRef($AccountRef){
+
+        $AccountReferenceArr=json_decode(json_encode(json_decode($AccountRef)),true);
+        $AccountReference=$AccountReferenceArr[0];
+
+        $DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'account','Status'=>1,'FieldSlug'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
+        if(!empty($DynamicFieldsID)){
+
+            $DynamicFieldsValue =  DynamicFieldsValue::where('FieldValue', $AccountReference["Value"])
+                ->where('DynamicFieldsID', $DynamicFieldsID);
+            if($DynamicFieldsValue->count() > 0){
+                $AccountID=$DynamicFieldsValue->ParentID;
+                return $AccountID;
+            }
+        }
+        return false;
+    }
 }
