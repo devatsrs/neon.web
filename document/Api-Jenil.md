@@ -1157,6 +1157,7 @@ cy
 	AutoOutpayment
 	OutPaymentThreshold
 	OutPaymentAmount
+	AccountReference
 
 Return
 
@@ -1198,6 +1199,7 @@ Return
         AutoOutpayment:1
         OutPaymentThreshold:30
         OutPaymentAmount:30
+        AccountReference: {"Name": "SIAccountReference","Value": "15022019"}
         Response:
 
             {
@@ -1273,13 +1275,14 @@ Params:
 	AutoRenewal
 	ContractFeeValue
 	PaymentSubscription
+	AccountReference
 
 
 Return
 
     Example:
         Request:
-            Number:6746[Mandatory]
+            Number:6746[Mandatory if AccountReference is empty]
         	ServiceTemaplate: {"Name": "SI Product Ref","Value": "RFP"}[Mandatory]
         	NumberPurchased:08004570 [Mandatory]
         	InboundTariffCategoryId:
@@ -1290,7 +1293,7 @@ Return
             AutoRenewal:[Used the service tempalte value if not set]
             ContractFeeValue:[Used the service tempalte value if not set]
             PaymentSubscription:[Valid subscription name not mandatory]
-
+            AccountReference: {"Name": "SIAccountReference","Value": "15022019"} [Mandatory if Number is empty]
         Response:
 
            {
