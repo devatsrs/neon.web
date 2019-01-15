@@ -360,8 +360,9 @@ class AccountServiceController extends \BaseController {
 
             if(AccountService::checkForeignKeyById($AccountID,$AccountServiceID)){
                 try{
-                    $result = AccountService::where(array('AccountID'=>$AccountID,'ServiceID'=>$AccountServiceID))->delete();
+                    $result = AccountService::where(array('AccountID'=>$AccountID,'AccountServiceID'=>$AccountServiceID))->delete();
                     if ($result) {
+                        AccountServiceContract::where('AccountServiceID', $AccountServiceID)->delete();
                         return Response::json(array("status" => "success", "message" => "Service Successfully Deleted"));
                     } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Deleting Service."));
