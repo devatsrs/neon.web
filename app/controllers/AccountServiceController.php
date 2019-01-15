@@ -157,7 +157,7 @@ class AccountServiceController extends \BaseController {
                 unset($data['routingprofile']);
             }
 
-            //Contract Session//
+            //start contract Section//
             $AccountServiceId = AccountService::where('AccountServiceID', $AccountServiceID)->first();
             $AccountServiceContract = AccountServiceContract::where('AccountServiceID', $AccountServiceId->AccountServiceID)->get();
             $Contract = array();
@@ -201,6 +201,7 @@ class AccountServiceController extends \BaseController {
                     AccountServiceContract::create($Contract);
                 }
             }
+            //end contract section//
 
             //Service Billing Section//
             if ($data['ServiceBilling'] == 1) {
@@ -599,14 +600,15 @@ class AccountServiceController extends \BaseController {
         if ($validator->fails())
         {
             return Response::json(array("status" => "failed", "message" => $validator->errors()->all()));
-        }else {
-            $AccountServiceCancelContract = AccountServiceCancelContract::where('AccountServiceID', $data['AccountServiceID'])->first();
-            if (count($AccountServiceCancelContract) > 0) {
-                AccountServiceCancelContract::where('AccountServiceID', $data['AccountServiceID'])->update($Contract);
-            } else {
-                AccountServiceCancelContract::create($Contract);
-            }
-            return Response::json(array("status" => "success", "message" => "Cancel Contract Successful!."));
         }
+
+        $AccountServiceCancelContract = AccountServiceCancelContract::where('AccountServiceID', $data['AccountServiceID'])->first();
+        if (count($AccountServiceCancelContract) > 0) {
+            AccountServiceCancelContract::where('AccountServiceID', $data['AccountServiceID'])->update($Contract);
+        } else {
+            AccountServiceCancelContract::create($Contract);
+        }
+        return Response::json(array("status" => "success", "message" => "Cancel Contract Successful!."));
     }
+
 }
