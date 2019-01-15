@@ -30,88 +30,28 @@ class AccountsApiController extends ApiController {
 	public function checkBalance(){
 		$data=Input::all();
 		$Result=array();
-		$AccountBalance=0;
+
+		$Account = array();
 		if(!empty($data['AccountID'])) {
-			$CompanyID = Account::where(["AccountID" => $data['AccountID']])->pluck('CompanyId');
-
-			if(intval($CompanyID) > 0){
-				$AccountBalance = AccountBalance::getNewAccountExposure($CompanyID, $data['AccountID']);
-			}else{
-				return Response::json(["status"=>"failed", "data"=>"Account Not Found"]);
-			}
-
-		}else if(!empty($data['AccountNo'])) {
-			$Account = Account::where(["Number" => $data['AccountNo']])->select('CompanyId','AccountID')->first();
-
-			if(!empty($Account)) {
-				$CompanyID = $Account->CompanyId;
-				$AccountID = $Account->AccountID;
-				$AccountBalance = AccountBalance::getNewAccountExposure($CompanyID, $AccountID);
-			}else{
-				return Response::json(["status"=>"failed", "data"=>"Account Not Found"]);
-			}
-
-		}else {
-			return Response::json(["status"=>"failed", "data"=>"Account Not Found"]);
-		}
-
-		if($AccountBalance > 0){
-			$Result['has_balance']=1;
-			$Result['amount']=$AccountBalance;
-		}else{
-			$Result['has_balance']=0;
-			$Result['amount']=$AccountBalance;
-		}
-
-		return Response::json(["status"=>"success", "data"=>$Result]);
-	}
-
-	public function balanceAlert(){
-		$data=Input::all();
-		$AccountID=0;
-		if(!empty($data['AccountID'])) {
-			$cnt = Account::where(["AccountID" => $data['AccountID']])->count();
-			if($cnt > 0){
-				$AccountID = $data['AccountID'];
-			}
+			$Account = Account::where(["AccountID" => $data['AccountID']])->first();
 		}else if(!empty($data['AccountNo'])){
 			$Account = Account::where(["Number" => $data['AccountNo']])->first();
-			if(!empty($Account)){
-				$AccountID=$Account->AccountID;
-			}
-		}else{
-			return Response::json(["status"=>"failed", "message"=>"AccountID or AccountNo is Required"]);
-		}
-		if(!empty($AccountID)){
-			//Validate
-			//Validation
-			$rules = array(
-				'Balance' => 'required',
-				//'UUIDs' => 'required'
-			);
-			$validator = Validator::make($data, $rules);
-			if ($validator->fails()) {
-				return json_validator_response($validator);
-			}
-
-			$api_url = 'http://172.16.33.70/api/v1.0/neon/balanceAlert';
-			log::info($api_url);
-			$curl = new Curl\Curl();
-			$data1=[];
-			$data1['CustomerId']=9876;
-			$data1['Balance']=1234.56;
-			$data1['Uuids']=["1de24812-053b-43c3-a3c2-429539771813","0d0be254-f55f-400c-bbc2-f8b296e658ae"];
-			$curl->post($api_url,$data1);
-			$curl->close();
-			$response = json_decode($curl->response);
-			echo "==";echo "<pre>";
-			print_r($response);
-
-		}else{
-			return Response::json(["status"=>"failed", "message"=>"Account Not Found."]);
 		}
 
+		if(!empty($Account) && count($Account)>0){
+			$AccountBalance = AccountBalance::getBalanceAmount($Account->AccountID);
+			if($AccountBalance > 0){
+				$Result['has_balance']=1;
+				$Result['amount']=$AccountBalance;
+			}else{
+				$Result['has_balance']=0;
+				$Result['amount']=$AccountBalance;
+			}
+			return Response::json(["status"=>"success", "data"=>$Result]);
+		}
+		return Response::json(["status"=>"failed", "data"=>"Account Not Found"]);
 	}
+
 
 	public function createAccountService()
 	{
@@ -122,13 +62,51 @@ class AccountsApiController extends ApiController {
 		$CreatedBy = User::get_user_full_name();
 		$date = date('Y-m-d H:i:s');
 		$InboundRateTableReference = '';
+		$AccountService = '';
+		$AccountServiceContract = [];
+		$AccountSubscription = [];
+		$AccountSubscriptionDB = '';
 		try {
+			Log::info('createAccountService:Data.' . json_encode($accountData));
 			$data['Number'] = $accountData['Number'];
 			$data['ServiceTemaplate'] = $accountData['ServiceTemaplate'];
 			$data['NumberPurchased'] = $accountData['NumberPurchased'];
 			$data['InboundTariffCategory'] = isset($accountData['InboundTariffCategoryId']) ? $accountData['InboundTariffCategoryId'] :'';
-			$data['ServiceDate'] = isset($accountData['ServiceDate'])? strtotime($accountData['ServiceDate']) : '';
-			Log::info('createAccountService:Data.' . json_encode($data));
+			//$data['ServiceStartDate'] = isset($accountData['ServiceStartDate'])? strtotime($accountData['ServiceStartDate']) : '';
+			//$data['ServiceEndDate'] = isset($accountData['ServiceEndDate'])? strtotime($accountData['ServiceEndDate']) : '';
+			$AccountServiceContract['ContractStartDate'] = $accountData['ServiceStartDate'];
+			$AccountServiceContract['ContractEndDate'] = $accountData['ServiceEndDate'];
+			$AccountServiceContract['Duration'] = $accountData['Duration'];
+			$AccountServiceContract['ContractReason'] = $accountData['ContractFeeValue'];
+			$AccountServiceContract['AutoRenewal'] = $accountData['AutoRenewal'];
+			$AccountServiceContract['ContractTerm'] = $accountData['ContractType'];
+			$AccountSubscription["PaymentSubscription"] = $accountData['PaymentSubscription'];
+
+			if (!empty($AccountSubscription['PaymentSubscription'])) {
+				$AccountSubscriptionDB = BillingSubscription::where(array('Name' => $AccountSubscription['PaymentSubscription']))->first();
+				if (!isset($AccountSubscriptionDB) || $AccountSubscriptionDB == '') {
+					return Response::json(["status" => "failed", "message" => "Please provide the correct account subscription"]);
+				}
+				unset($AccountSubscription['PaymentSubscription']);
+			}
+
+
+
+			if (!empty($AccountServiceContract['ContractStartDate']) && empty($AccountServiceContract['ContractEndDate'])) {
+				return Response::json(["status" => "failed", "message" => "Please specified the Service End Data"]);
+			}
+			if (!empty($AccountServiceContract['ContractStartDate']) && !empty($AccountServiceContract['ContractEndDate'])) {
+				if ($AccountServiceContract['ContractStartDate'] > $AccountServiceContract['ContractEndDate']) {
+					return Response::json(["status" => "failed", "message" => "End Date should be greater then start date"]);
+				}
+				if (!empty($AccountServiceContract['ContractType']) && ($AccountServiceContract['ContractType'] < 1 || $AccountServiceContract['ContractType'] > 4)) {
+					return Response::json(["status" => "failed", "message" => "The value of ContractType must be between 1 and 4"]);
+				}
+				if (!empty($AccountServiceContract['AutoRenewal']) && ($AccountServiceContract['AutoRenewal'] != 0 && $AccountServiceContract['AutoRenewal'] != 1)) {
+					return Response::json(["status" => "failed", "message" => "The value of AutoRenewal must be between 0 or 1"]);
+				}
+			}
+
 			Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,AccountType,1';
 			Account::$rules['Number'] = 'required|unique:tblAccount,Number,NULL,CompanyID';
 			$rules = array(
@@ -192,16 +170,72 @@ class AccountsApiController extends ApiController {
 
 
 			if (!empty($ServiceTemaplateReference->ServiceId)) {
-				if (AccountService::where(array('AccountID' => $Account->AccountID, 'CompanyID' => $CompanyID, 'ServiceID' => $ServiceTemaplateReference->ServiceId))->count()) {
+				$AccountService = AccountService::where(array('AccountID' => $Account->AccountID, 'CompanyID' => $CompanyID, 'ServiceID' => $ServiceTemaplateReference->ServiceId))->first();
+				if (isset($AccountService) && $AccountService != '') {
 					AccountService::where(array('AccountID' => $Account->AccountID, 'CompanyID' => $CompanyID, 'ServiceID' => $ServiceTemaplateReference->ServiceId))
 						->update(array('ServiceID' => $ServiceTemaplateReference->ServiceId, 'updated_at' => $date));
 				} else {
 					$servicedata['ServiceID'] = $ServiceTemaplateReference->ServiceId;
 					$servicedata['AccountID'] = $Account->AccountID;
 					$servicedata['CompanyID'] = $CompanyID;
-					AccountService::insert($servicedata);
+					$AccountService = AccountService::insert($servicedata);
 				}
 
+				$AccountServiceContractExisting = AccountServiceContract::where(array('AccountServiceID' => $AccountService->AccountServiceID))->first();
+				if (isset($AccountServiceContractExisting) && $AccountServiceContractExisting != '') {
+
+					Log::info('AccountServiceID ' . $AccountService->AccountServiceID);
+
+					$AccountServiceContract["AccountServiceID"] = $AccountService->AccountServiceID;
+					$AccountServiceContract["Duration"] = empty($AccountServiceContract['Duration']) ? $ServiceTemaplateReference->ContractDuration : $AccountServiceContract['Duration'];
+					$AccountServiceContract["ContractReason"] = empty($AccountServiceContract['ContractReason']) ? $ServiceTemaplateReference->CancellationFee : $AccountServiceContract['ContractReason'];
+					$AccountServiceContract["AutoRenewal"] = empty($AccountServiceContract["AutoRenewal"]) ? $ServiceTemaplateReference->AutomaticRenewal : $AccountServiceContract["AutoRenewal"];
+					$AccountServiceContract["ContractTerm"] = empty($AccountServiceContract["ContractTerm"]) ? $ServiceTemaplateReference->CancellationCharges : $AccountServiceContract["ContractTerm"];
+					$AccountServiceContract["updated_at"] = $date;
+					//Log::info('AccountServiceID update records ' . $AccountServiceContract["FixedFee"] . ' ' . $AccountServiceContract["FixedFee"]);
+					AccountServiceContract::where(array('AccountServiceID' => $AccountService->AccountServiceID))
+						->update($AccountServiceContract);
+				} else {
+					Log::info('AccountServiceID new' . $AccountService->AccountServiceID);
+					$AccountServiceContract["AccountServiceID"] = $AccountService->AccountServiceID;
+					$AccountServiceContract["Duration"] = empty($AccountServiceContract['Duration']) ? $ServiceTemaplateReference->ContractDuration : $AccountServiceContract['Duration'];
+					$AccountServiceContract["ContractReason"] = empty($AccountServiceContract['ContractReason']) ? $ServiceTemaplateReference->CancellationFee : $AccountServiceContract['ContractReason'];
+					$AccountServiceContract["AutoRenewal"] = empty($AccountServiceContract["AutoRenewal"]) ? $ServiceTemaplateReference->AutomaticRenewal : $AccountServiceContract["AutoRenewal"];
+					$AccountServiceContract["ContractTerm"] = empty($AccountServiceContract["ContractTerm"]) ? $ServiceTemaplateReference->CancellationCharges : $AccountServiceContract["ContractTerm"];
+					AccountServiceContract::create($AccountServiceContract);
+				}
+
+				if (isset($AccountSubscriptionDB) && $AccountSubscriptionDB != '') {
+					$AccountSubscriptionExisting = AccountSubscription::where(array('AccountID' => $Account->AccountID, 'SubscriptionID' => $AccountSubscriptionDB["SubscriptionID"]))->first();
+
+					$AccountSubscription["AccountID"] = $Account->AccountID;
+					$AccountSubscription["SubscriptionID"] = $AccountSubscriptionDB["SubscriptionID"];
+					$AccountSubscription["InvoiceDescription"] = $AccountSubscriptionDB["InvoiceLineDescription"];
+					$AccountSubscription["Qty"] = 1;
+					$AccountSubscription["StartDate"] = $date;
+					$AccountSubscription["EndDate"] = $date;
+					//$AccountSubscription["ExemptTax"] =  $AccountSubscriptionDB[];
+					$AccountSubscription["ActivationFee"] = $AccountSubscriptionDB["ActivationFee"];
+					$AccountSubscription["AnnuallyFee"] = $AccountSubscriptionDB["AnnuallyFee"];
+					$AccountSubscription["QuarterlyFee"] = $AccountSubscriptionDB["QuarterlyFee"];
+					$AccountSubscription["MonthlyFee"] = $AccountSubscriptionDB["MonthlyFee"];
+					$AccountSubscription["WeeklyFee"] = $AccountSubscriptionDB["WeeklyFee"];
+					$AccountSubscription["DailyFee"] = $AccountSubscriptionDB["DailyFee"];
+					//$AccountSubscription["SequenceNo"] =  $AccountSubscriptionDB[];
+					$AccountSubscription["ServiceID"] = $ServiceTemaplateReference->ServiceId;
+					$AccountSubscription["Status"] = 1;
+					$AccountSubscription["AccountServiceID"] = $AccountService->AccountServiceID;
+
+					//$AccountSubscription["DiscountAmount"] =  $AccountSubscriptionDB[];
+					//$AccountSubscription["DiscountType"] =  $AccountSubscriptionDB[];
+					if (isset($AccountSubscriptionExisting) && $AccountSubscriptionExisting != '') {
+						AccountSubscription::where(array('AccountID' => $Account->AccountID, 'SubscriptionID' => $AccountSubscriptionDB["SubscriptionID"]))
+							->update($AccountSubscription);
+					} else {
+						AccountSubscription::create($AccountSubscription);
+					}
+
+				}
 			}
 
 			$inbounddata = array();
@@ -281,6 +315,7 @@ class AccountsApiController extends ApiController {
 				$rate_tables['RateTableID'] = $cliRateTableID;
 				$rate_tables['AccountID'] = $Account->AccountID;
 				$rate_tables['CompanyID'] = $CompanyID;
+				$rate_tables['AccountServiceID'] = $AccountService->AccountServiceID;
 				if (!empty($ServiceTemaplateReference->ServiceId)) {
 					$rate_tables['ServiceID'] = $ServiceTemaplateReference->ServiceId;
 				}
@@ -296,6 +331,7 @@ class AccountsApiController extends ApiController {
 
 
 		} catch (Exception $ex) {
+			Log::info('createAccountService:Exception.' . $ex->getTraceAsString());
 			return Response::json(["status" => "failed", "message" => $ex->getMessage()]);
 		}
 	}
@@ -310,6 +346,7 @@ class AccountsApiController extends ApiController {
 			$CompanyID = User::get_companyID();
 			$CreatedBy = User::get_user_full_name();
 			$ResellerData = [];
+			$AccountPaymentAutomation = [];
 			//$data['Owner'] = $post_vars->Owner;
 
 			/*else {
@@ -363,11 +400,54 @@ class AccountsApiController extends ApiController {
 			$data['AccountType'] = 1;
 			$data['AccountName'] = isset($accountData['AccountName']) ? trim($accountData['AccountName']) : '';
 			$data['PaymentMethod'] = $accountData['PaymentMethod'];
+			$AccountPaymentAutomation['AutoTopup']= $accountData['AutoTopup'];
+			$AccountPaymentAutomation['MinThreshold']= $accountData['MinThreshold'];
+			$AccountPaymentAutomation['TopupAmount']= $accountData['TopupAmount'];
+			$AccountPaymentAutomation['AutoOutpayment']= $accountData['AutoOutpayment'];
+			$AccountPaymentAutomation['OutPaymentThreshold']= $accountData['OutPaymentThreshold'];
+			$AccountPaymentAutomation['OutPaymentAmount']= $accountData['OutPaymentAmount'];
+
 			if (!empty($data['PaymentMethod']) && !in_array($data['PaymentMethod'], AccountsApiController::$PaymentMethod)) {
 				return Response::json(array("status" => "failed", "message" => "Please enter the valid payment method."));
 			}
 
+			if (!empty($AccountPaymentAutomation['AutoTopup']) && $AccountPaymentAutomation['AutoTopup'] == 1) {
+				$rules = [];
+				$rules['MinThreshold'] = 'required';
+				$rules['TopupAmount'] = 'required';
+				$messages = array(
+					'MinThreshold.required' =>'MinThreshold field is required if AutoTopup is ON',
+					'TopupAmount.required' =>'TopupAmount field is required if AutoTopup is ON',
 
+				);
+				$validator = Validator::make($AccountPaymentAutomation, $rules, $messages);
+				if ($validator->fails()) {
+					$errors = "";
+					foreach ($validator->messages()->all() as $error) {
+						$errors .= $error . "<br>";
+					}
+					return Response::json(["status" => "failed", "message" => $errors]);
+				}
+			}
+
+			if (!empty($AccountPaymentAutomation['AutoOutpayment']) && $AccountPaymentAutomation['AutoOutpayment'] == 1) {
+				$rules = [];
+				$rules['OutPaymentThreshold'] = 'required';
+				$rules['OutPaymentAmount'] = 'required';
+				$messages = array(
+					'OutPaymentThreshold.required' =>'OutPaymentThreshold field is required if AutoOutpayment is ON',
+					'OutPaymentAmount.required' =>'OutPaymentAmount field is required if AutoOutpayment is ON',
+
+				);
+				$validator = Validator::make($AccountPaymentAutomation, $rules, $messages);
+				if ($validator->fails()) {
+					$errors = "";
+					foreach ($validator->messages()->all() as $error) {
+						$errors .= $error . "<br>";
+					}
+					return Response::json(["status" => "failed", "message" => $errors]);
+				}
+			}
 
 			 // If Reseller on backend customer is on
 
@@ -529,6 +609,11 @@ class AccountsApiController extends ApiController {
 				$AccountDetails['AccountID'] = $account->AccountID;
 				AccountDetails::create($AccountDetails);
 				$account->update($data);
+				if (!empty($AccountPaymentAutomation['AutoTopup']) && $AccountPaymentAutomation['AutoTopup'] == 1 ||
+					!empty($AccountPaymentAutomation['AutoOutpayment']) && $AccountPaymentAutomation['AutoOutpayment'] == 1) {
+					$AccountPaymentAutomation['AccountID'] = $account->AccountID;
+					AccountPaymentAutomation::create($AccountPaymentAutomation);
+				}
 				if ($data['Billing'] == 1) {
 					$dataAccountBilling['BillingType'] = $BillingSetting['billing_type'];
 					$BillingClassSql = BillingClass::where('Name', $BillingSetting['billing_class']);
@@ -711,5 +796,88 @@ class AccountsApiController extends ApiController {
 		Log::info('getPaymentMethodList for Account.');
 
 		return Response::json(array("status" => "success", "PaymentMethod" => AccountsApiController::$PaymentMethod));
+	}
+
+	public function callAccountBalanceAPI()
+	{
+		$accountresponse = array();
+
+		//https://appcenter.intuit.com/Playground/OAuth/AccessGranted?ia=true&oauth_token=lvprdco5CjnH7fx5z6P9RRHFm9AUrRHhhoH3UdCwjoGRrLEv&oauth_verifier=0hzsvq6&realmId=193514449127769&dataSource=QBO
+		//$query = 'query?query='.urlencode('Select * from Customer');
+		//$query = 'account/1';
+
+
+		$url = "http://speakintelligence.neon-soft.com/api/checkBalance";
+		$curl = curl_init();
+
+		$postdata = array(
+			'AccountID'                => '6767'
+		);
+
+		$auth = base64_encode('saeedsumera@hotmail.com:Welcome100');
+		curl_setopt_array($curl, array(
+			CURLOPT_URL => $url,
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_ENCODING => "",
+			CURLOPT_MAXREDIRS => 10,
+			CURLOPT_TIMEOUT => 30,
+			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+			CURLOPT_CUSTOMREQUEST => "POST",
+			CURLOPT_POSTFIELDS => http_build_query($postdata, '', '&'),
+			CURLOPT_HTTPHEADER => array(
+				"accept: application/json",
+				"authorization: Basic " . $auth,
+			),
+		));
+
+		$response = curl_exec($curl);
+		$err = curl_error($curl);
+
+		curl_close($curl);
+
+		if ($err) {
+			$accountresponse["error"] = $err;
+			//echo "cURL Error #:" . $err;
+		} else {
+			$accountresponse["response"] = $response;
+			//echo $response;
+		}
+		return Response::json(array("status" => "success", "PaymentMethod" => $accountresponse));
+		//return ;
+
+		/*
+		$URL = 'https://sandbox-quickbooks.api.intuit.com';
+
+		$companyid = '193514342633202';
+
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $LicenceVerifierURL);
+		curl_setopt($ch, CURLOPT_VERBOSE, '1');
+		curl_setopt($ch, CURLOPT_AUTOREFERER, 1);//TRUE to automatically set the Referer: field in requests where it follows a Location: redirect.
+		curl_setopt($ch, CURLOPT_FORBID_REUSE, 1);//TRUE to force the connection to explicitly close when it has finished processing, and not be pooled for reuse.
+		curl_setopt($ch, CURLOPT_FRESH_CONNECT, 1);//TRUE to force the use of a new connection instead of a cached one.
+
+
+		//turning off the server and peer verification(TrustManager Concept).
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+		// curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_DEFAULT);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_POST, 1);
+
+		//NVPRequest for submitting to server
+		$nvpreq = "json=" . json_encode($post);
+
+		//$nvpreq = http_build_query($post);
+
+		////setting the nvpreq as POST FIELD to curl
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $nvpreq);
+
+		//getting response from server
+		$response = curl_exec($ch);
+
+		// echo $response;
+		return $response; */
+
 	}
 }

@@ -157,15 +157,14 @@
         <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
             @if(User::checkCategoryPermission('Products','Edit'))
                 <li class="">
-                    <a class="btn btn-primary btn-sm btn-icon icon-left" id="changeStatus" href="javascript:;">
-                        <i class=""></i>
-                        Change Status
+                    <a class="" id="changeStatus" href="javascript:;">
+                        <span>Change Status</span>
                     </a>
                 </li>
                 <li class="">
-                    <a class="btn btn-primary btn-sm btn-icon icon-left" id="delete_multiconnection" href="javascript:;">
+                    <a class="" id="delete_multiconnection" href="javascript:;">
                         <i class=""></i>
-                        Delete
+                        <span>Delete</span>
                     </a>
                 </li>
 
