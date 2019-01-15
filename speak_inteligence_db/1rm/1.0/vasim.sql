@@ -3924,15 +3924,10 @@ ThisSP:BEGIN
 
 			IF totaldialstringcode > 0
 			THEN
-
-
-
-
 				INSERT INTO tblDialStringCode (DialStringID,DialString,ChargeCode,created_by)
 				  SELECT DISTINCT p_dialStringId,vr.DialStringPrefix, Code, 'RMService'
 					FROM tmp_TempRateTableRate_ vr
 						LEFT JOIN tmp_DialString_ ds
-
 							ON vr.DialStringPrefix = ds.DialString AND ds.DialStringID = p_dialStringId
 						WHERE vr.ProcessId = p_processId
 							AND ds.DialStringID IS NULL
@@ -3953,7 +3948,6 @@ ThisSP:BEGIN
 				FROM tmp_TempRateTableRate_ vr
 					LEFT JOIN tmp_DialString_ ds
 						ON ((vr.Code = ds.ChargeCode and vr.DialStringPrefix = '') OR (vr.DialStringPrefix != '' and vr.DialStringPrefix =  ds.DialString and vr.Code = ds.ChargeCode  ))
-
 					WHERE vr.ProcessId = p_processId
 						AND ds.DialStringID IS NULL
 						AND vr.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
@@ -3962,7 +3956,6 @@ ThisSP:BEGIN
 					  SELECT DISTINCT CONCAT(Code ,' ', vr.DialStringPrefix , ' No PREFIX FOUND')
 					  	FROM tmp_TempRateTableRate_ vr
 							LEFT JOIN tmp_DialString_ ds
-
 								ON ((vr.Code = ds.ChargeCode and vr.DialStringPrefix = '') OR (vr.DialStringPrefix != '' and vr.DialStringPrefix =  ds.DialString and vr.Code = ds.ChargeCode  ))
 							WHERE vr.ProcessId = p_processId
 								AND ds.DialStringID IS NULL
@@ -3972,12 +3965,13 @@ ThisSP:BEGIN
 
 			IF totaldialstringcode = 0
 			THEN
-
 				INSERT INTO tmp_RateTableRateDialString_
 				SELECT DISTINCT
 					`TempRateTableRateID`,
 					`CodeDeckId`,
 					`TimezonesID`,
+					`OriginationCode`,
+					`OriginationDescription`,
 					`DialString`,
 					CASE WHEN ds.Description IS NULL OR ds.Description = ''
 					THEN
@@ -3996,14 +3990,14 @@ ThisSP:BEGIN
 					`ConnectionFee`,
 					`Interval1`,
 					`IntervalN`,
-					tblTempRateTableRate.Forbidden as Forbidden ,
-					tblTempRateTableRate.DialStringPrefix as DialStringPrefix
+					tblTempRateTableRate.Forbidden as Forbidden,
+					tblTempRateTableRate.DialStringPrefix as DialStringPrefix,
+					`RoutingCategoryID`
 				FROM tmp_TempRateTableRate_ as tblTempRateTableRate
 				INNER JOIN tmp_DialString_ ds
 					ON ( (tblTempRateTableRate.Code = ds.ChargeCode AND tblTempRateTableRate.DialStringPrefix = '') OR (tblTempRateTableRate.DialStringPrefix != '' AND tblTempRateTableRate.DialStringPrefix =  ds.DialString AND tblTempRateTableRate.Code = ds.ChargeCode  ))
 				WHERE tblTempRateTableRate.ProcessId = p_processId
 					AND tblTempRateTableRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
-
 
 
 				INSERT INTO tmp_RateTableRateDialString_2
@@ -4017,13 +4011,14 @@ ThisSP:BEGIN
 				SELECT * FROM tmp_RateTableRateDialString_;
 
 
-
 				DELETE  FROM tmp_TempRateTableRate_ WHERE  ProcessId = p_processId;
 
 				INSERT INTO tmp_TempRateTableRate_(
 					`TempRateTableRateID`,
 					CodeDeckId,
 					TimezonesID,
+					OriginationCode,
+					OriginationDescription,
 					Code,
 					Description,
 					Rate,
@@ -4037,12 +4032,15 @@ ThisSP:BEGIN
 					Interval1,
 					IntervalN,
 					Forbidden,
-					DialStringPrefix
+					DialStringPrefix,
+					RoutingCategoryID
 				)
 				SELECT DISTINCT
 					`TempRateTableRateID`,
 					`CodeDeckId`,
 					`TimezonesID`,
+					`OriginationCode`,
+					`OriginationDescription`,
 					`Code`,
 					`Description`,
 					`Rate`,
@@ -4056,7 +4054,8 @@ ThisSP:BEGIN
 					`Interval1`,
 					`IntervalN`,
 					`Forbidden`,
-					DialStringPrefix
+					DialStringPrefix,
+					RoutingCategoryID
 				FROM tmp_RateTableRateDialString_3;
 
 				UPDATE tmp_TempRateTableRate_ as tblTempRateTableRate
@@ -5852,7 +5851,6 @@ ThisSP:BEGIN
 				  SELECT DISTINCT p_dialStringId,vr.DialStringPrefix, Code, 'RMService'
 					FROM tmp_TempRateTableDIDRate_ vr
 						LEFT JOIN tmp_DialString_ ds
-
 							ON vr.DialStringPrefix = ds.DialString AND ds.DialStringID = p_dialStringId
 						WHERE vr.ProcessId = p_processId
 							AND ds.DialStringID IS NULL
@@ -5895,6 +5893,8 @@ ThisSP:BEGIN
 					`TempRateTableDIDRateID`,
 					`CodeDeckId`,
 					`TimezonesID`,
+					`OriginationCode`,
+					`OriginationDescription`,
 					`DialString`,
 					CASE WHEN ds.Description IS NULL OR ds.Description = ''
 					THEN
@@ -5928,7 +5928,6 @@ ThisSP:BEGIN
 					AND tblTempRateTableDIDRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
 
 
-
 				INSERT INTO tmp_RateTableDIDRateDialString_2
 				SELECT *  FROM tmp_RateTableDIDRateDialString_ where DialStringPrefix!='';
 
@@ -5940,13 +5939,14 @@ ThisSP:BEGIN
 				SELECT * FROM tmp_RateTableDIDRateDialString_;
 
 
-
 				DELETE  FROM tmp_TempRateTableDIDRate_ WHERE  ProcessId = p_processId;
 
 				INSERT INTO tmp_TempRateTableDIDRate_(
 					`TempRateTableDIDRateID`,
 					CodeDeckId,
 					TimezonesID,
+					OriginationCode,
+					OriginationDescription,
 					Code,
 					Description,
 					OneOffCost,
@@ -5972,6 +5972,8 @@ ThisSP:BEGIN
 					`TempRateTableDIDRateID`,
 					`CodeDeckId`,
 					`TimezonesID`,
+					`OriginationCode`,
+					`OriginationDescription`,
 					`Code`,
 					`Description`,
 					`OneOffCost`,
