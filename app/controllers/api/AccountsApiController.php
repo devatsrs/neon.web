@@ -278,7 +278,7 @@ class AccountsApiController extends ApiController {
 					}
 
 					if (count($DynamicSubscrioptionFields) > 0) {
-						AccountSubsDynamicFields::where(array('AccountSubscriptionID'=>$AccountSubscriptionDB["AccountSubscriptionID"]))->delete();
+						AccountSubsDynamicFields::where(array('AccountSubscriptionID'=>$AccountSubscriptionQueryDB["AccountSubscriptionID"]))->delete();
 					}
 					$AccountSubsDynamicFields = [];
 					foreach($DynamicSubscrioptionFields as $DynamicSubscrioptionField) {
