@@ -1199,7 +1199,7 @@ Return
         AutoOutpayment:1
         OutPaymentThreshold:30
         OutPaymentAmount:30
-        AccountReference: {"Name": "SI AccountReference","Value": "15022019"}
+        AccountReference: {"Name": "SIAccountReference","Value": "15022019"}
         Response:
 
             {
@@ -1293,7 +1293,7 @@ Return
             AutoRenewal:[Used the service tempalte value if not set]
             ContractFeeValue:[Used the service tempalte value if not set]
             PaymentSubscription:[Valid subscription name not mandatory]
-            AccountReference: {"Name": "SI AccountReference","Value": "15022019"} [Mandatory if Number is empty]
+            AccountReference: {"Name": "SIAccountReference","Value": "15022019"} [Mandatory if Number is empty]
         Response:
 
            {
