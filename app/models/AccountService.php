@@ -112,6 +112,30 @@ class AccountService extends \Eloquent {
                             $NewAccountServiceID = $NewAccountService->AccountServiceID;
                             /* Account Service end */
 
+
+                            /**
+                             * Start Account Contract Clone
+                             */
+                            if (!empty($data['Contract'])) {
+                                $accountContract = AccountServiceContract::where('AccountServiceID', $AccountServiceID)->first();
+                                if($accountContract != false){
+                                    $accountCon['AccountServiceID']  = $NewAccountServiceID;
+                                    $accountCon['ContractStartDate'] = $accountContract->ContractStartDate;
+                                    $accountCon['ContractEndDate']   = $accountContract->ContractEndDate;
+                                    $accountCon['Duration']          = $accountContract->Duration;
+                                    $accountCon['ContractReason']    = $accountContract->ContractReason;
+                                    $accountCon['AutoRenewal']       = $accountContract->AutoRenewal;
+                                    $accountCon['ContractTerm']      = $accountContract->ContractTerm;
+                                    AccountServiceContract::create($accountCon);
+                                }
+                            }
+
+                            /**
+                             * End Account Contract Clone
+                             */
+
+
+
                             /* Account Subscription start */
 
                             if (!empty($data['Subscription'])) {

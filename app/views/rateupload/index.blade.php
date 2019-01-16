@@ -1986,8 +1986,14 @@
 
                         if(RateTable['Type'] == '{{$TypeVoiceCall}}' && RateTable['AppliedTo'] == '{{RateTable::APPLIED_TO_VENDOR}}') {
                             $('.vendor_selection_box').show();
+                            if(RateTable['ROUTING_PROFILE'] == 1) {
+                                $('.vendor_selection_routing_box').show();
+                            } else {
+                                $('.vendor_selection_routing_box').hide();
+                            }
                         } else {
                             $('.vendor_selection_box').hide();
+                            $('.vendor_selection_routing_box').hide();
                         }
                     } else {
                         toastr.error(response.message, "Error", toastr_opts);

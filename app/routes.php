@@ -1790,6 +1790,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('account/createAccount', 'AccountsApiController@createAccount');
 	Route::post('account/paymentMethod', 'AccountsApiController@getPaymentMethodList');
 	Route::post('account/createService', 'AccountsApiController@createAccountService');
+	Route::post('account/list', 'AccountsApiController@GetAccount');
 	Route::post('routing/list', 'RoutingApiController@routingList');
 	
 

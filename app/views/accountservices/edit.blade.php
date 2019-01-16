@@ -143,7 +143,7 @@
                             <div class="panel-options">
                                 <label class="col-md-2 control-label">Duration(months)</label>
                                 <div class="col-md-4">
-                                    <input type="text" @if(isset($AccountServiceContract->Duration)) value="{{$AccountServiceContract->Duration}}" @endif class="form-control" name="Duration">
+                                    <input type="number"  min="0" @if(isset($AccountServiceContract->Duration)) value="{{$AccountServiceContract->Duration}}" @endif class="form-control" name="Duration">
                                 </div>
                             </div>
                             <label class="col-md-2 control-label">Automatic Renewal</label>
@@ -161,7 +161,7 @@
                                     <div class="col-md-3">
                                         <div class="panel-group cancelRadio" id="accordion">
                                             <div class="panel panel-default">
-                                                <div class="panel-heading" style="background-color:white;">
+                                                <div class="panel-heading" style="background-color:white;text-align: center;">
                                                     <label for='r11'>
                                                         <i></i>
                                                         <input type='radio' @if(isset($AccountServiceContract->ContractTerm) && $AccountServiceContract->ContractTerm == 1 ) checked  @endif  id='r11' name='ContractTerm' value='1' required />
@@ -177,7 +177,7 @@
                                                                     <label class="control-label">Fixed Fee</label>
                                                                 </div>
                                                                 <div class="col-md-12">
-                                                                    <input type="text" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->ContractTerm == 1 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="FixedFee">
+                                                                    <input type="number"  min="0" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->ContractTerm == 1 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="FixedFee">
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -189,7 +189,7 @@
                                     <div class="col-md-3">
                                         <div class="panel-group cancelRadio" id="accordion">
                                             <div class="panel panel-default">
-                                                <div class="panel-heading" style="background-color:white;">
+                                                <div class="panel-heading" style="background-color:white;text-align: center;">
                                                     <label for='r12'>
                                                         <input type='radio' @if(isset($AccountServiceContract->ContractTerm) && $AccountServiceContract->ContractTerm == 2 ) checked  @endif id='r12' name='ContractTerm' value='2' required />
                                                         Remaining Term Of Contract
@@ -202,7 +202,7 @@
                                     <div class="col-md-3">
                                         <div class="panel-group cancelRadio" id="accordion">
                                             <div class="panel panel-default">
-                                                <div class="panel-heading" style="background-color:white;">
+                                                <div class="panel-heading" style="background-color:white;text-align: center;">
                                                     <label for='r13'>
                                                         <input type='radio' @if(isset($AccountServiceContract->ContractTerm) && $AccountServiceContract->ContractTerm == 3 ) checked  @endif id='r13' name='ContractTerm' value='3' required />
                                                         Remaining Term Of Contract(%)
@@ -217,7 +217,7 @@
                                                                     <label class="control-label">Percentage</label>
                                                                 </div>
                                                                 <div class="col-md-12">
-                                                                    <input type="text" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->ContractTerm == 3 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="Percentage">
+                                                                    <input type="number" min="0" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->ContractTerm == 3 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="Percentage">
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -244,7 +244,7 @@
                                                                     <label class="control-label">Fixed Fee</label>
                                                                 </div>
                                                                 <div class="col-md-12">
-                                                                    <input type="text" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->ContractTerm == 4 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="FixedFeeContract">
+                                                                    <input type="number"  min="0" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->ContractTerm == 4 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="FixedFeeContract">
                                                                 </div>
                                                             </div>
                                                         </div>

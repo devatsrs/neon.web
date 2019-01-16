@@ -656,12 +656,14 @@
                                     <label><input id="rd-1" name="Billing" checked="" value="1" type="checkbox">Billing</label>
                                     &nbsp;&nbsp;
                                     <label><input id="rd-1" name="Tariff" checked="" value="1" type="checkbox">Tariff</label>
-                                    &nbsp;&nbsp;
-                                    <label><input id="rd-1" name="RoutingProfile" checked="" value="1" type="checkbox">Routing Profile</label>
-
+                                    @if(@$ROUTING_PROFILE == '1')
+                                        &nbsp;&nbsp;
+                                        <label><input id="rd-1" name="RoutingProfile" checked="" value="1" type="checkbox">Routing Profile</label>
+                                    @endif
                                 </div>
                                 <div class="checkbox ">
                                     <label><input id="rd-1" name="DiscountPlan" checked="" value="1" type="checkbox">Discount Plan</label>
+                                    <label><input id="rd-1" name="Contract" checked="" value="1" type="checkbox">Contract</label>
                                 </div>
                             </div>
 
