@@ -218,7 +218,7 @@ class AccountsApiController extends ApiController {
 					$servicedata['ServiceID'] = $ServiceTemaplateReference->ServiceId;
 					$servicedata['AccountID'] = $Account->AccountID;
 					$servicedata['CompanyID'] = $CompanyID;
-					$AccountService = AccountService::insert($servicedata);
+					$AccountService = AccountService::create($servicedata);
 				}
 				Log::info('AccountServiceID ' . $AccountService->AccountServiceID);
 
