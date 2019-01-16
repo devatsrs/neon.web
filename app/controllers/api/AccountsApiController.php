@@ -81,7 +81,7 @@ class AccountsApiController extends ApiController {
 			$data['AccountNumber'] = $accountData['AccountNumber'];
 			$data['ServiceTemaplate'] = $accountData['ServiceTemaplate'];
 			$data['NumberPurchased'] = $accountData['NumberPurchased'];
-			$data['DynamicFields'] = $accountData['DynamicFields'];
+			$data['AccountDynamicField'] = $accountData['AccountDynamicField'];
 			$data['InboundTariffCategory'] = isset($accountData['InboundTariffCategoryId']) ? $accountData['InboundTariffCategoryId'] :'';
 			//$data['ServiceStartDate'] = isset($accountData['ServiceStartDate'])? strtotime($accountData['ServiceStartDate']) : '';
 			//$data['ServiceEndDate'] = isset($accountData['ServiceEndDate'])? strtotime($accountData['ServiceEndDate']) : '';
@@ -108,12 +108,11 @@ class AccountsApiController extends ApiController {
 				}
 			}
 
-			Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,AccountType,1';
-			Account::$rules['Number'] = 'required|unique:tblAccount,Number,NULL,CompanyID';
+
 			$rules = array(
-				'AccountNumber' =>      'required_without_all:DynamicFields,AccountID',
-				'AccountID' =>      'required_without_all:DynamicFields,AccountNumber',
-				'DynamicFields' =>      'required_without_all:AccountNumber,AccountID',
+				'AccountNumber' =>      'required_without_all:AccountDynamicField,AccountID',
+				'AccountID' =>      'required_without_all:AccountDynamicField,AccountNumber',
+				'AccountDynamicField' =>      'required_without_all:AccountNumber,AccountID',
 				'ServiceTemaplate' =>  'required',
 				'NumberPurchased'=>'required',
 
@@ -130,11 +129,16 @@ class AccountsApiController extends ApiController {
 				return Response::json(["status" => "failed", "message" => $errors]);
 			}
 
-			if (!empty($accountData['DynamicFields'])) {
-				$data['AccountID'] = Account::findAccountBySIAccountRef($accountData['DynamicFields']);
-				if (empty($data['AccountID'])) {
-					return Response::json(["status" => "failed", "message" => "No Account Found for the Reference"]);
+			if (!empty($accountData['AccountDynamicField'])) {
+				$AccountIDRef = '';
+				$AccountIDRef = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+				$AccountIDRef = (int)$AccountIDRef;
+				if (gettype($AccountIDRef) == "string") {
+					return Response::json(["status" => "failed", "message" => $AccountIDRef]);
+				}else {
+					$AccountIDRef = intval($AccountIDRef);
 				}
+				$data['AccountID'] = $AccountIDRef;
 			}
 
 			if (!empty($AccountSubscription['PackageSubscription'])) {
@@ -537,6 +541,17 @@ class AccountsApiController extends ApiController {
 				return Response::json(["status" => "failed", "message" => $errors]);
 			}
 
+			if (isset($accountData['AccountDynamicField'])) {
+				$AccountReferenceArr = json_decode(json_encode(json_decode($accountData['AccountDynamicField'])), true);
+				for ($i =0; $i <count($AccountReferenceArr);$i++) {
+					$AccountReference = $AccountReferenceArr[$i];
+					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'account','Status'=>1,'FieldSlug'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
+					if(empty($DynamicFieldsID)) {
+						return Response::json(array("status" => "failed", "message" => "Please provide the correct dynamic field. " . $AccountReference['Name']));
+					}
+				}
+			}
+
 			if($data['IsReseller']==1){
 
 				$ResellerCount = Reseller::where('ChildCompanyID',$CompanyID)->count();
@@ -652,20 +667,19 @@ class AccountsApiController extends ApiController {
 				AccountDetails::create($AccountDetails);
 				$account->update($data);
 
-				if (isset($accountData['DynamicFields'])) {
-					$AccountReferenceArr = json_decode(json_encode(json_decode($accountData['DynamicFields'])), true);
-					$AccountReference = $AccountReferenceArr[0];
-					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'account','Status'=>1,'FieldSlug'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
-					if(!empty($DynamicFieldsID)) {
-						$DynamicFields['ParentID'] = $account->AccountID;
-						$DynamicFields['DynamicFieldsID'] = $DynamicFieldsID;
-						$DynamicFields['CompanyID'] = $CompanyID;
-						$DynamicFields['created_at'] = $date;
-						$DynamicFields['created_by'] = $CreatedBy;
-						$DynamicFields['FieldValue'] = $AccountReference["Value"];
-						DB::table('tblDynamicFieldsValue')->insert($DynamicFields);
+				if (isset($accountData['AccountDynamicField'])) {
+					$AccountReferenceArr = json_decode(json_encode(json_decode($accountData['AccountDynamicField'])), true);
+					for ($i =0; $i <count($AccountReferenceArr);$i++) {
+						$AccountReference = $AccountReferenceArr[$i];
+						$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'account','Status'=>1,'FieldSlug'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
+							$DynamicFields['ParentID'] = $account->AccountID;
+							$DynamicFields['DynamicFieldsID'] = $DynamicFieldsID;
+							$DynamicFields['CompanyID'] = $CompanyID;
+							$DynamicFields['created_at'] = $date;
+							$DynamicFields['created_by'] = $CreatedBy;
+							$DynamicFields['FieldValue'] = $AccountReference["Value"];
+							DB::table('tblDynamicFieldsValue')->insert($DynamicFields);
 					}
-
 				}
 
 				if (!empty($AccountPaymentAutomation['AutoTopup']) && $AccountPaymentAutomation['AutoTopup'] == 1 ||
@@ -863,9 +877,9 @@ class AccountsApiController extends ApiController {
 		$data = Input::all();
 		try {
 			$rules = array(
-				'AccountNumber' => 'required_without_all:DynamicFields,AccountID',
-				'AccountID' => 'required_without_all:DynamicFields,AccountNumber',
-				'DynamicFields' => 'required_without_all:AccountNumber,AccountID',
+				'AccountNumber' => 'required_without_all:AccountDynamicField,AccountID',
+				'AccountID' => 'required_without_all:AccountDynamicField,AccountNumber',
+				'AccountDynamicField' => 'required_without_all:AccountNumber,AccountID',
 			);
 
 
@@ -879,8 +893,19 @@ class AccountsApiController extends ApiController {
 				return Response::json(["status" => "failed", "message" => $errors]);
 			}
 
-			if (!empty($data['DynamicFields'])) {
-				$data['AccountID'] = Account::findAccountBySIAccountRef($data['DynamicFields']);
+			if (!empty($data['AccountDynamicField'])) {
+				$AccountIDRef = '';
+
+					$AccountIDRef = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+					if (gettype($AccountIDRef) == "string") {
+						return Response::json(["status" => "failed", "message" => $AccountIDRef]);
+					}else {
+						$AccountIDRef = intval($AccountIDRef);
+					}
+
+
+				$data['AccountID'] = $AccountIDRef;
+
 				if (empty($data['AccountID'])) {
 					return Response::json(["status" => "failed", "message" => "No Account Found for the Reference"]);
 				}

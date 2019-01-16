@@ -887,17 +887,38 @@ class Account extends \Eloquent {
     public static function findAccountBySIAccountRef($AccountRef){
 
         $AccountReferenceArr=json_decode(json_encode(json_decode($AccountRef)),true);
-        $AccountReference=$AccountReferenceArr[0];
+        Log::info('findAccountBySIAccountRef .' . count($AccountReferenceArr));
 
-        $DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'account','Status'=>1,'FieldSlug'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
-        if(!empty($DynamicFieldsID)){
-
-            Log::info('Account $DynamicFieldsID.' . $DynamicFieldsID);
-            Log::info('Account $AccountReference["Value"].' . $AccountReference["Value"]);
-            $DynamicFieldsValue =  DynamicFieldsValue::where('FieldValue', $AccountReference["Value"])
-                ->where('DynamicFieldsID', $DynamicFieldsID)->pluck('ParentID');
-            return $DynamicFieldsValue;
+        $Query = "select distinct ParentID from tblDynamicFieldsValue where ";
+        for ($i =0; $i <count($AccountReferenceArr);$i++) {
+            $AccountReference = $AccountReferenceArr[$i];
+            $DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'account','Status'=>1,'FieldSlug'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
+            if(empty($DynamicFieldsID)){
+                return "Please provide the correct dynamic field" . $AccountReference['Name'];
+            } else {
+                $Query = $Query .'(DynamicFieldsID = ' . $DynamicFieldsID . " and FieldValue='" . $AccountReference["Value"] . "')";
+                if ($i != count($AccountReferenceArr) - 1) {
+                    $Query = $Query . " OR ";
+                }
+            }
         }
-        return false;
+
+
+        Log::info('Account $DynamicFieldsID Query.' . $Query);
+        $DynamicFieldsValues = DB::select($Query);
+
+
+            Log::info('Account $AccountReference["Value"].' . count($DynamicFieldsValues));
+            if (count($DynamicFieldsValues) > 1) {
+                return "More then two Reference found";
+            }else {
+                foreach ($DynamicFieldsValues as $DynamicFieldsValue) {
+
+                }
+                return $DynamicFieldsValue->ParentID;
+            }
+
+
+        return "Please provide the correct dynamic field";
     }
 }
