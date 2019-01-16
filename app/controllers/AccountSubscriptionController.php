@@ -3,14 +3,17 @@
 class AccountSubscriptionController extends \BaseController {
 
 public function main() {	
-		$data 				=  Input::all();        
-		$id					=  $data['id'];
-		$companyID 			=  User::get_companyID();
-		$SelectedAccount    =  Account::find($id);	 
-		$accounts	 		=  Account::getAccountIDList();
-		$services 			=  Service::getDropdownIDList($companyID);
-        $DiscountPlan = DiscountPlan::getDiscountPlanIDList($companyID);
-	    return View::make('accountsubscription.main', compact('accounts','services','SelectedAccount','services','DiscountPlan'));
+		$data 			 = Input::all();
+		$id				 = $data['id'];
+		$companyID 		 = User::get_companyID();
+		$SelectedAccount = Account::find($id);
+		$accounts	 	 = Account::getAccountIDList();
+		$services 		 = Service::getDropdownIDList($companyID);
+        $DiscountPlan    = DiscountPlan::getDiscountPlanIDList($companyID);
+        $Subscritions    =  BillingSubscription::getSubscriptionsList();
+
+
+        return View::make('accountsubscription.main', compact('accounts','services','SelectedAccount','services','DiscountPlan', 'Subscritions', 'id'));
 
     }
 
@@ -95,11 +98,14 @@ public function main() {
 	 */
 	public function store($id)
 	{
+
 		$data = Input::all();
         $data["AccountID"] = $id;
         $data["CreatedBy"] = User::get_user_full_name();
         $data['ExemptTax'] = isset($data['ExemptTax']) ? 1 : 0;
         $data['Status'] = isset($data['Status']) ? 1 : 0;
+
+        $dynamiceFields = array();
         AccountSubscription::$rules['SubscriptionID'] = 'required|unique:tblAccountSubscription,AccountSubscriptionID,NULL,SubscriptionID,'.$data['SubscriptionID'].',AccountID,'.$data["AccountID"];
 
         $verifier = App::make('validation.presence');
@@ -117,25 +123,36 @@ public function main() {
 			 
             //'EndDate'               =>'required'
         );
-        if(!empty($data['EndDate'])) {
-            $rules['StartDate'] = 'required|date|before:EndDate';
-            $rules['EndDate'] = 'required|date';
-        }
-        $validator = Validator::make($data, $rules);
-        $validator->setPresenceVerifier($verifier);
-
-        if ($validator->fails()) {
-            return json_validator_response($validator);
-        }
+//        if(!empty($data['EndDate'])) {
+//            $rules['StartDate'] = 'required|date|before:EndDate';
+//            $rules['EndDate'] = 'required|date';
+//        }
+//        $validator = Validator::make($data, $rules);
+//        $validator->setPresenceVerifier($verifier);
+//
+//        if ($validator->fails()) {
+//            return json_validator_response($validator);
+//        }
         unset($data['Status_name']);
         if(empty($data['SequenceNo'])){
             $SequenceNo = AccountSubscription::where(['AccountID'=>$data["AccountID"]])->max('SequenceNo');
             $SequenceNo = $SequenceNo +1;
             $data['SequenceNo'] = $SequenceNo;
         }
+
+
+        $dynamiceFields = $data['dynamicFileds'];
+
+        unset($data['dynamicFileds']);
+        unset($data['AccountSubscriptionID']);
+
         if ($AccountSubscription = AccountSubscription::create($data)) {
+
+
             return Response::json(array("status" => "success", "message" => "Subscription Successfully Created",'LastID'=>$AccountSubscription->AccountSubscriptionID));
+
         } else {
+
             return Response::json(array("status" => "failed", "message" => "Problem Creating Subscription."));
         }
 	}
@@ -500,4 +517,21 @@ public function main() {
         return Response::json(array("status" => "success", "data" => $Response));
     }
 
+    public function FindDynamicFields(){
+        $data 			        = Input::all();
+        $AccountSubscriptionID  = $data['AccountSubscriptionID'];
+
+        try{
+            $GetDynamiceAll = DynamicFields::join('tblDynamicFieldsValue', function($join) {
+                $join->on('tblDynamicFieldsValue.DynamicFieldsID','=','tblDynamicFields.DynamicFieldsID');
+            })->select('tblDynamicFields.FieldName' , 'tblDynamicFields.FieldDomType', 'tblDynamicFieldsValue.FieldValue')
+                ->where('tblDynamicFieldsValue.ParentID','=', $AccountSubscriptionID)
+                ->where('tblDynamicFields.Type','=', 'subscription')
+                ->get();
+            return $GetDynamiceAll;
+        }catch (Exception $ex){
+            return $ex;
+        }
+
+    }
 }
