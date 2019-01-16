@@ -17,10 +17,13 @@ class RoutingApiController extends ApiController {
             'OriginationNo' => 'required',
             'DestinationNo' => 'required',
             'DataAndTime' => 'required',
-            'AccountNumber' => 'required_without_all:AccountID',
-            'AccountID' => 'required_without_all:AccountNumber',
+            'AccountNumber' => 'required_without_all:AccountID,AccountDynamicField',
+            'AccountID' => 'required_without_all:AccountNumber,AccountDynamicField',
+            'AccountDynamicField' => 'required_without_all:AccountNumber,AccountID',
+
         );
         $validator = Validator::make($routingData, $rules);
+
 
         if ($validator->fails()) {
             $errors = "";
@@ -29,6 +32,19 @@ class RoutingApiController extends ApiController {
             }
             return Response::json(["status" => "failed", "message" => $errors]);
         }
+
+        if (!empty($routingData['AccountDynamicField'])) {
+            $AccountIDRef = '';
+            $AccountIDRef = Account::findAccountBySIAccountRef($routingData['AccountDynamicField']);
+            $AccountIDRef = (int)$AccountIDRef;
+            if (gettype($AccountIDRef) == "string") {
+                return Response::json(["status" => "failed", "message" => $AccountIDRef]);
+            }else {
+                $AccountIDRef = intval($AccountIDRef);
+            }
+            $routingData["AccountID"] = $AccountIDRef;
+        }
+
 
         Log::info('routingList:Get the routing list user company.' . $CompanyID);
         $profiles = '';
@@ -172,6 +188,7 @@ class RoutingApiController extends ApiController {
              */
         $procName = "prc_getRoutingRecords";
         $syntax = '';
+
         $parameters = [$CustomerProfileAccountID,$routingData['OriginationNo'],$routingData['DestinationNo'],
             $queryTimeZone,$RoutingProfileID,$routingData['Location']];
         for ($i = 0; $i < count($parameters); $i++) {
