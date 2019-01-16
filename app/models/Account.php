@@ -892,12 +892,11 @@ class Account extends \Eloquent {
         $DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'account','Status'=>1,'FieldSlug'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
         if(!empty($DynamicFieldsID)){
 
+            Log::info('Account $DynamicFieldsID.' . $DynamicFieldsID);
+            Log::info('Account $AccountReference["Value"].' . $AccountReference["Value"]);
             $DynamicFieldsValue =  DynamicFieldsValue::where('FieldValue', $AccountReference["Value"])
-                ->where('DynamicFieldsID', $DynamicFieldsID);
-            if($DynamicFieldsValue->count() > 0){
-                $AccountID=$DynamicFieldsValue->ParentID;
-                return $AccountID;
-            }
+                ->where('DynamicFieldsID', $DynamicFieldsID)->pluck('ParentID');
+            return $DynamicFieldsValue;
         }
         return false;
     }

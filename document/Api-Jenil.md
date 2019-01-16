@@ -4,7 +4,7 @@
 
 http://speakintelligence.neon-soft.com/api/account/checkBalance
 
-Perams:
+Params:
 
 "AccountID"
 "AccountNo"
@@ -27,11 +27,11 @@ Return
 
 
 
-### POST getPayments
+### POST getTransactions
 
-http://speakintelligence.neon-soft.com/api/account/getPayments
+http://speakintelligence.neon-soft.com/api/account/getTransactions
 
-Perams:
+Params:
 
 "AccountID"
 "AccountNo"
@@ -157,7 +157,7 @@ Return
 
 http://speakintelligence.neon-soft.com/api/getAutoDepositSettings
 
-Perams:
+Params:
 
 "AccountID"
 "AccountNo"
@@ -189,7 +189,7 @@ Return
 
 http://speakintelligence.neon-soft.com/api/setAutoDepositSettings
 
-Perams:
+Params:
 
 "AccountID"/"AccountNo"
 "AutoTopup"
@@ -223,7 +223,7 @@ Return
 
 http://speakintelligence.neon-soft.com/api/getAutoOutPaymentSettings
 
-Perams:
+Params:
 
 "AccountID"
 "AccountNo"
@@ -259,7 +259,7 @@ Description:
     If AccountID(AccountID) not found then will create New Entry in table(tblAccountPaymentAutomation).
 
 
-Perams:
+Params:
 
 "AccountID"/"AccountNo"
 "AutoTopup"
@@ -290,7 +290,7 @@ Return
 
 http://speakintelligence.neon-soft.com/api/setLowBalanceNotification
 
-Perams:
+Params:
 
 Request:
 
@@ -333,7 +333,7 @@ Return
 
 http://speakintelligence.neon-soft.com/api/getLowBalanceNotification
 
-Perams:
+Params:
 
 "AccountID"
 "AccountNo"
@@ -357,7 +357,7 @@ Return
 
 http://speakintelligence.neon-soft.com/api/account/requestFund
 
-Perams:
+Params:
 
 "AccountID"/"AccountNo"
 Amount
@@ -383,9 +383,9 @@ Return
 
 ### POST depositFund
 
-http://speakintelligence.neon-soft.com/api/account/depositFund
+http://speakintelligence.neon-soft.com/api/depositFund
 
-Perams:
+Params:
 
 "AccountID"/"AccountNo"
 Amount
@@ -420,16 +420,15 @@ Return
 
 http://speakintelligence.neon-soft.com/api/startCall
 
-Perams:
+Params:
 
-"AccountID"/"AccountNo"
-ConnectTime
-CLI
-CLD
-CallType
-UUID
-VendorID
-
+	"AccountID"/"AccountNo"
+	ConnectTime
+	CLI
+	CLD
+	CallType
+	UUID
+	VendorID
 
 Return
 
@@ -442,7 +441,7 @@ Return
               CLD : 123456987456
               CallType: Inbound
               UUID : 1155544
-              VendorID : 111
+              VendorID : 111              
 
         Response:
 
@@ -456,7 +455,7 @@ Return
 
 http://speakintelligence.neon-soft.com/api/endcall
 
-Perams:
+Params:
 
 "AccountID"/"AccountNo"
 UUID
@@ -470,11 +469,10 @@ Return
 
               AccountID :6728
               UUID:54564564
-              DisconnectTime : 2018-12-26 15:24:06
+              DisconnectTime : 2018-12-26 15:24:06            
 
 
         Response:
-
            {
                "status": "success",
                "message": "Record Updated Successfully",
@@ -488,7 +486,7 @@ Return
 
 http://speakintelligence.neon-soft.com/api/startRecording
 
-Perams:
+Params:
 
 "AccountID"/"AccountNo"
 UUID
@@ -514,7 +512,7 @@ Return
 
 http://speakintelligence.neon-soft.com/api/blockCall
 
-Perams:
+Params:
 
 "AccountID"/"AccountNo"
 UUID
@@ -545,7 +543,7 @@ Return
 
 http://speakintelligence.neon-soft.com/api/getBlockCalls
 
-Perams:
+Params:
 
 "AccountID"(optional)
 StartDate
@@ -988,154 +986,25 @@ Return
 
 
 
-### POST Create Account
 
-http://speakintelligence.neon-soft.com/api/account/create
 
-Params:
-
-	Number
-	AccountName
-	FirstName
-	LastName
-	Phone
-	Address1
-	Address2
-	City
-	Email
-	BillingEmail
-	OwnerID
-	IsVendor
-	IsCustomer
-	IsReseller
-	Currency
-	Country
-	CustomerPanelPassword
-	VatNumber
-	Language
-	BillingType
-	BillingClass
-	BillingCycleType
-	BillingCycleValue
-	BillingStartDate
-	NextInvoiceDate
-	ResellerEmail
-	ResellerPassword
-	ReSellerAllowWhiteLabel
-	ReSellerDomainUrl
-
-Return
-
-    Example:
-        Request:
-        Number:[Mandatrory if not provided system will generate as agreed formulla]
-        AccountName:20181314[Mandatory]
-        FirstName:Miss
-        LastName:Summera
-        Phone:080012345
-        Address1:land
-        Address2:netherland
-        City: City
-        Email:work@gmail.com
-        BillingEmail:work@gmail.com
-        OwnerID:72[Mandatory]
-        IsVendor:0
-        IsCustomer:0
-        IsReseller:1
-        Currency:USD[Mandatory]
-        Country:Netherlands[Mandatory]
-        CustomerPanelPassword:Hello
-        VatNumber:12345[Mandatory]
-        Language:English
-        BillingType:Prepaid [Mandatory if billing needs to be add with account]
-        BillingClass:GIRISH [Mandatory if billing needs to be add with account]
-        BillingCycleType:weekly [Mandatory if billing needs to be add with account]
-        BillingCycleValue:monday
-        BillingStartDate
-        NextInvoiceDate
-        ResellerEmail:reseller@lda.com [Mandatory if reseller needs to be add with account]
-        ResellerPassword:reseller [Mandatory if reseller needs to be add with account]
-        ReSellerAllowWhiteLabel:1
-        ReSellerDomainUrl:http://speakintelligence.neon-soft.com/accounts/
-
-        Response:
-
-            {
-                "status": "success",
-                "message": "Account Successfully Created",
-                "Account ID": 6743,
-                "redirect": "http://speakintelligence.neon-soft.com/accounts/6743/edit"
-            }
-### POST Add Service Template
-
-http://speakintelligence.neon-soft.com/api/account/add_servicetemaplate
-
-Params:
-
-JSON Request
-
-Return
-
-    Example:
-        Request:
-        {
-            "Name": "APITempalte 11", [Mandatory]
-        	"Currency": "GBP", [Mandatory]
-        	"ServiceId": "1", [Mandatory]
-        	"OutboundDiscountPlanId": "",
-        	"InboundDiscountPlanId": "",
-        	"OutboundRateTableId": "",
-        	"DynamicFields": [
-
-                {
-                    "Name": "SI Product Ref",
-                    "Value": "745"
-                }
-            ]
-        }
-
-        Response:
-
-            {
-                "status": "success",
-                "message": "Service Template Successfully Created",
-                "newcreated": {
-                    "Name": "APITempalte 12",
-                    "CurrencyId": 2,
-                    "updated_at": "2018-12-26 12:33:05",
-                    "created_at": "2018-12-26 12:33:05",
-                    "ServiceTemplateId": 97
-                }
-            }
 ### POST Add Service Purchased
 
 http://speakintelligence.neon-soft.com/api/account/createAccount
-
-Params:
-
-	Number
-	ServiceTemaplate
-	NumberPurchased
-	InboundTariffCategory
-
-
-Return
-
-    Example:
-        Request:
-            Number:6746[Mandatory]
-        	ServiceTemaplate: {"Name": "SI Product Ref","Value": "RFP"}[Mandatory]
-        	NumberPurchased:08004570 [Mandatory]
-        	InboundTariffCategory
-
-        Response:
-
-           {
-               "status": "success",
-               "message": "Account Service Successfully Added"
-           }
-
-cy
+    Number
+    AccountName
+    FirstName
+    LastName
+    Phone
+    Address1
+    Address2
+    City
+    Email
+    BillingEmail
+    OwnerID
+    IsVendor
+    IsCustomer
+    IsReseller
 	Country
 	CustomerPanelPassword
 	VatNumber
@@ -1151,13 +1020,13 @@ cy
 	ReSellerAllowWhiteLabel
 	ReSellerDomainUrl
 	PaymentMethod
+	DynamicFields
 	AutoTopup
 	MinThreshold
 	TopupAmount
 	AutoOutpayment
 	OutPaymentThreshold
 	OutPaymentAmount
-	AccountReference
 
 Return
 
@@ -1193,13 +1062,21 @@ Return
         ReSellerAllowWhiteLabel:1
         ReSellerDomainUrl:http://speakintelligence.neon-soft.com/accounts/
 		PaymentMethod:AuthorizeNetEcheck
+		DynamicFields:[
+
+                                      {
+                                          "Name": "SIAccountID",
+                                          "Value": "745"
+                                      }
+                                  ]
         AutoTopup:1
-        MinThreshold:30
+        MinThreshold:40
         TopupAmount:40
         AutoOutpayment:1
         OutPaymentThreshold:30
-        OutPaymentAmount:30
-        AccountReference: {"Name": "SIAccountReference","Value": "15022019"}
+        OutPaymentAmount:40
+
+
         Response:
 
             {
@@ -1224,7 +1101,7 @@ Return
             "Name": "APITempalte 11", [Mandatory]
         	"Currency": "GBP", [Mandatory]
         	"ServiceId": "1", [Mandatory]
-        	"Duration":"35",
+        	"ContractDuration":"35",
             "ContractType":"4",
             "AutoRenewal":"1",
             "ContractFeeValue":"35",
@@ -1246,16 +1123,11 @@ Return
                 "status": "success",
                 "message": "Service Template Successfully Created",
                 "newcreated": {
-                    "ServiceId": "6",
-                    "Name": "ContractServiceTempalte1",
-                    "CurrencyId": 9,
-                    "ContractDuration": "35",
-                    "CancellationCharges": "4",
-                    "AutomaticRenewal": "1",
-                    "CancellationFee": "35",
-                    "updated_at": "2019-01-14 13:03:47",
-                    "created_at": "2019-01-14 13:03:47",
-                    "ServiceTemplateId": 108
+                    "Name": "APITempalte 12",
+                    "CurrencyId": 2,
+                    "updated_at": "2018-12-26 12:33:05",
+                    "created_at": "2018-12-26 12:33:05",
+                    "ServiceTemplateId": 97
                 }
             }
 ### POST Add Service Purchased
@@ -1264,36 +1136,44 @@ http://speakintelligence.neon-soft.com/api/account/createService
 
 Params:
 
-	Number
+	AccountNumber
+	AccountID
 	ServiceTemaplate
 	NumberPurchased
 	InboundTariffCategoryId
-	ServiceStartDate
-	ServiceEndDate
-	Duration
-	ContractType
-	AutoRenewal
-	ContractFeeValue
-	PaymentSubscription
-	AccountReference
-
+    ServiceStartDate
+    ServiceEndDate
+    ContractDuration
+    ContractType
+    ContractFeeValue
+    AutoRenewal
+    DynamicFields
+    PackageSubscription
 
 Return
 
     Example:
         Request:
-            Number:6746[Mandatory if AccountReference is empty]
+            AccountNumber:6746[Mandatory if AccountID/Dynamic field is mandatory]
+        	AccountID:[Mandatory if AccountNumber/Dynamic field is mandatory]
         	ServiceTemaplate: {"Name": "SI Product Ref","Value": "RFP"}[Mandatory]
         	NumberPurchased:08004570 [Mandatory]
         	InboundTariffCategoryId:
-        	ServiceStartDate:
-            ServiceEndDate:[Mandatory if ServiceStartDate is not null]
-            Duration:[Used the service tempalte value if not set]
-            ContractType:[Used the service tempalte value if not set]
-            AutoRenewal:[Used the service tempalte value if not set]
-            ContractFeeValue:[Used the service tempalte value if not set]
-            PaymentSubscription:[Valid subscription name not mandatory]
-            AccountReference: {"Name": "SIAccountReference","Value": "15022019"} [Mandatory if Number is empty]
+        	ServiceStartDate:2018-12-23
+            ServiceEndDate:2018-12-23
+            ContractDuration:30
+            ContractType:1 [Possible Values are 1=Fixed Fee,2=Remaining Term Of Contract,3=Remaining Term Of Contract (%),4=Remaining Term Of Contract]
+            ContractFeeValue:20
+            AutoRenewal:1
+            DynamicFields:[
+
+                                          {
+                                              "Name": "SIAccountID",
+                                              "Value": "745"
+                                          }
+                                      ] [Mandatory if AccountNumber/AccountID field is mandatory]
+            PackageSubscription:Pro
+
         Response:
 
            {
@@ -1310,8 +1190,7 @@ Params:
 	AccountNumber
 	AccountID
 	DataAndTime
-	Location
-
+    Location
 
 Return
 
@@ -1322,7 +1201,8 @@ Return
         	AccountNumber:08004570 [AccountNumber OR AccountID is mandatory]
         	AccountID:[AccountNumber OR AccountID is mandatory]
         	DataAndTime:2018-11-30 10:10:10
-            Location:
+        	Location:Switzerland
+
         Response:
 
            {
@@ -1412,3 +1292,35 @@ Return
                ]
            }
 
+### POST Get Account
+http://speakintelligence.neon-soft.com/api/account/GetAccount
+
+Params:
+
+	AccountNumber
+	AccountID
+	DynamicFields
+
+
+Return
+
+    Example:
+        Request:
+        AccountNumber: [One of AccountNumber,AccountID,DynamicFields is mandatory]
+        AccountID:
+        DynamicFields:[
+
+                                      {
+                                          "Name": "SIAccountID",
+                                          "Value": "745"
+                                      }
+                                  ]
+        Response:
+
+
+
+                                  {
+                                      "status": "success",
+                                      "AccountID": 6773,
+                                      "AccountNumber": "dev-0557"
+                                  }
