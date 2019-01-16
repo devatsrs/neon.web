@@ -132,11 +132,8 @@ class AccountsApiController extends ApiController {
 			if (!empty($accountData['AccountDynamicField'])) {
 				$AccountIDRef = '';
 				$AccountIDRef = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
-				$AccountIDRef = (int)$AccountIDRef;
-				if (gettype($AccountIDRef) == "string") {
-					return Response::json(["status" => "failed", "message" => $AccountIDRef]);
-				}else {
-					$AccountIDRef = intval($AccountIDRef);
+				if (empty($AccountIDRef)) {
+					return Response::json(["status" => "failed", "message" => "Please provide the valid Account ID"]);
 				}
 				$data['AccountID'] = $AccountIDRef;
 			}
@@ -895,12 +892,9 @@ class AccountsApiController extends ApiController {
 
 			if (!empty($data['AccountDynamicField'])) {
 				$AccountIDRef = '';
-
 					$AccountIDRef = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
-					if (gettype($AccountIDRef) == "string") {
-						return Response::json(["status" => "failed", "message" => $AccountIDRef]);
-					}else {
-						$AccountIDRef = intval($AccountIDRef);
+					if (empty($AccountIDRef)) {
+						return Response::json(["status" => "failed", "message" => "Please provide the correct Account ID"]);
 					}
 
 
