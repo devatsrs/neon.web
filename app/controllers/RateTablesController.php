@@ -9,9 +9,12 @@ class RateTablesController extends \BaseController {
             ->join('tblCodeDeck','tblCodeDeck.CodeDeckId','=','tblRateTable.CodeDeckId')
             ->leftjoin('tblTrunk','tblTrunk.TrunkID','=','tblRateTable.TrunkID')
             ->leftjoin('tblDIDCategory','tblDIDCategory.DIDCategoryID','=','tblRateTable.DIDCategoryID')
-            ->select(['tblRateTable.Type','tblRateTable.AppliedTo','tblRateTable.RateTableName','tblCurrency.Code', 'tblTrunk.Trunk as trunkName', 'tblDIDCategory.CategoryName as CategoryName','tblCodeDeck.CodeDeckName','tblRateTable.updated_at','tblRateTable.RateTableId', 'tblRateTable.TrunkID', 'tblRateTable.CurrencyID', 'tblRateTable.RoundChargedAmount', 'tblRateTable.MinimumCallCharge', 'tblRateTable.DIDCategoryID'])
+            ->leftjoin('tblCustomerTrunk','tblCustomerTrunk.CustomerTrunkID','=',DB::RAW('(SELECT CustomerTrunkID FROM tblCustomerTrunk WHERE RateTableID = tblRateTable.RateTableId LIMIT 1)'))
+            ->leftjoin('tblVendorConnection','tblVendorConnection.VendorConnectionID','=',DB::RAW('(SELECT VendorConnectionID FROM tblVendorConnection WHERE RateTableID = tblRateTable.RateTableId LIMIT 1)'))
+            ->select(['tblRateTable.Type','tblRateTable.AppliedTo','tblRateTable.RateTableName','tblCurrency.Code', 'tblTrunk.Trunk as trunkName', 'tblDIDCategory.CategoryName as CategoryName','tblCodeDeck.CodeDeckName','tblRateTable.updated_at','tblRateTable.RateTableId', 'tblRateTable.TrunkID', 'tblRateTable.CurrencyID', 'tblRateTable.RoundChargedAmount', 'tblRateTable.MinimumCallCharge', 'tblRateTable.DIDCategoryID', 'tblCustomerTrunk.CustomerTrunkID', 'tblVendorConnection.VendorConnectionID'])
             ->where("tblRateTable.CompanyId",$CompanyID);
         //$rate_tables = RateTable::join('tblCurrency', 'tblCurrency.CurrencyId', '=', 'tblRateTable.CurrencyId')->where(["tblRateTable.CompanyId" => $CompanyID])->select(["tblRateTable.RateTableName","Code","tblRateTable.updated_at", "tblRateTable.RateTableId"]);
+
         $data = Input::all();
         if($data['TrunkID']){
             $rate_tables->where('tblRateTable.TrunkID',$data['TrunkID']);
@@ -188,9 +191,10 @@ class RateTablesController extends \BaseController {
         $RoutingCategories = RoutingCategory::getCategoryDropdownIDList($CompanyID);
         $RateApprovalProcess = CompanySetting::getKeyVal('RateApprovalProcess');
         $TypeVoiceCall = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
+        $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE', $CompanyID);
 
         if($rateTable->Type == $TypeVoiceCall) {
-            return View::make('ratetables.edit', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RoutingCategories','RateApprovalProcess','TypeVoiceCall'));
+            return View::make('ratetables.edit', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RoutingCategories','RateApprovalProcess','TypeVoiceCall','ROUTING_PROFILE'));
         } else {
             return View::make('ratetables.edit_did', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RateApprovalProcess','TypeVoiceCall'));
         }
@@ -683,7 +687,10 @@ class RateTablesController extends \BaseController {
             $RateTableRate['ConnectionFee']     = $data['ConnectionFee'];
 
             if($rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR) {
-                $RateTableRate['RoutingCategoryID']     = $data['RoutingCategoryID'];
+                $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE');
+                if($ROUTING_PROFILE == 1) {
+                    $RateTableRate['RoutingCategoryID'] = $data['RoutingCategoryID'];
+                }
                 $RateTableRate['Preference']            = $data['Preference'] != '' ? $data['Preference'] : NULL;
                 $RateTableRate['Blocked']               = !empty($data['Blocked']) ? $data['Blocked'] : 0;
             }
@@ -902,12 +909,22 @@ class RateTablesController extends \BaseController {
         $data['CompanyID'] = User::get_companyID();
         $data['RateTableName'] = trim($data['RateTableName']);
 
+        $CustomerTrunk = CustomerTrunk::where('RateTableID',$id)->count();
+        $VendorConnection = VendorConnection::where('RateTableID',$id)->count();
 
         $rules = array(
             'RateTableName' => 'required|unique:tblRateTable,RateTableName,'.$id.',RateTableId,CompanyID,'.$data['CompanyID'],
-            'CurrencyID' => 'required',
             'CompanyID' => 'required',
         );
+
+        if($CustomerTrunk == 0 && $VendorConnection == 0) {
+            $rules['CurrencyID'] = 'required';
+        } else {
+            unset($data['CurrencyID']);
+            unset($data['TrunkID']);
+            unset($data['DIDCategoryID']);
+        }
+
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {

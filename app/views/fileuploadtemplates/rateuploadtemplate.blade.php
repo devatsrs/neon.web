@@ -102,8 +102,8 @@
                             <div class="col-sm-4">
                                 {{Form::select('selection['.$ConnectionFeeColumn.']', $columns,(isset($attrselection->$ConnectionFeeColumn)?$attrselection->$ConnectionFeeColumn:''),array("class"=>"select2 small"))}}
                             </div>
-                            <label class="col-sm-2 control-label vendor_selection_box">Routing Category</label>
-                            <div class="col-sm-4 vendor_selection_box">
+                            <label class="col-sm-2 control-label vendor_selection_routing_box">Routing Category</label>
+                            <div class="col-sm-4 vendor_selection_routing_box">
                                 {{Form::select('selection['.$RoutingCategory.']', $columns,(isset($attrselection->$RoutingCategory)?$attrselection->$RoutingCategory:''),array("class"=>"select2 small"))}}
                             </div>
                         </div>

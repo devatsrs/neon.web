@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS `tblDIDCategory` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 ALTER TABLE `tblRateTable`
-	ADD COLUMN `DIDCategoryID` INT(11) NOT NULL AFTER `RoundChargedAmount`,
+	ADD COLUMN `DIDCategoryID` INT(11) NULL DEFAULT NULL AFTER `RoundChargedAmount`,
 	ADD COLUMN `Type` INT(11) NOT NULL DEFAULT '1' AFTER `DIDCategoryID`,
 	ADD COLUMN `MinimumCallCharge` DECIMAL(18,6) NULL DEFAULT NULL AFTER `Type`,
 	ADD COLUMN `AppliedTo` INT NOT NULL DEFAULT '1' AFTER `MinimumCallCharge`;
@@ -1415,7 +1415,15 @@ CREATE PROCEDURE `prc_getDiscontinuedRateTableRateGrid`(
 )
 BEGIN
 	DECLARE v_OffSet_ int;
+	DECLARE v_ROUTING_PROFILE_ INT;
+	DECLARE v_RateApprovalProcess_ INT;
+	DECLARE v_AppliedTo_ INT;
+
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SELECT Value INTO v_ROUTING_PROFILE_ FROM tblCompanyConfiguration WHERE CompanyID=p_companyid AND `Key`='ROUTING_PROFILE';
+	SELECT Value INTO v_RateApprovalProcess_ FROM tblCompanySetting WHERE CompanyID=p_companyid AND `Key`='RateApprovalProcess';
+	SELECT AppliedTo INTO v_AppliedTo_ FROM tblRateTable WHERE CompanyID=p_companyid AND RateTableId=p_RateTableId;
 
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 
@@ -1444,7 +1452,7 @@ BEGIN
      	Blocked TINYINT,
      	ApprovedStatus TINYINT,
      	ApprovedBy VARCHAR(50),
-     	ApprovedDate DATETIME,
+     	ApprovedDate DATE,
 		INDEX tmp_RateTableRate_RateID (`Code`)
 	);
 
@@ -1762,8 +1770,59 @@ BEGIN
 
 	END IF;
 
+
+	-- export
+	IF p_isExport <> 0
+	THEN
+		SET @stm1='',@stm2='',@stm3='',@stm4=''='';
+
+		SET @stm1 = "
+			SELECT
+	         OriginationCode,
+	         OriginationDescription,
+	         Code AS DestinationCode,
+	         Description AS DestinationDescription,
+	         CONCAT(Interval1,'/',IntervalN) AS `Interval1/N`,
+	         ConnectionFee,
+				Rate,
+				RateN,
+				EffectiveDate
+		";
+
+	   IF(v_ROUTING_PROFILE_ = 1)
+		THEN
+			SET @stm3 = ', RoutingCategoryName';
+		END IF;
+
+		-- if vendor rate table
+		IF(v_AppliedTo_ = 2)
+		THEN
+		   SET @stm4 = ', Preference, Blocked';
+	   END IF;
+
+	   -- advance view
+		IF p_isExport = 11
+	   THEN
+	   	SET @stm2 = ", PreviousRate, CONCAT(ModifiedBy,'\n',updated_at) AS `Modified By/Date`";
+
+	   	-- rate approval process is on and rate table is vendor rate table
+			IF(v_RateApprovalProcess_ = 1 && v_AppliedTo_ <> 2)
+			THEN
+	   		SET @stm2 = CONCAT(@stm2,", CONCAT(ApprovedBy,'\n',ApprovedDate) AS `Approved By/Date`, ApprovedStatus");
+	   	END IF;
+
+	   END IF;
+
+	   SET @stm = CONCAT(@stm1,@stm2,@stm3,@stm4,' FROM tmp_RateTableRate_;');
+
+	   PREPARE stmt FROM @stm;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+
+	END IF;
+
 	-- basic view
-   IF p_isExport = 10
+   /*IF p_isExport = 10
    THEN
       SELECT
          OriginationCode,
@@ -1803,7 +1862,7 @@ BEGIN
          Blocked,
          ApprovedStatus
       FROM   tmp_RateTableRate_;
-   END IF;
+   END IF;*/
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END//
@@ -2515,8 +2574,16 @@ CREATE PROCEDURE `prc_GetRateTableRate`(
 )
 BEGIN
 	DECLARE v_OffSet_ int;
+	DECLARE v_ROUTING_PROFILE_ INT;
+	DECLARE v_RateApprovalProcess_ INT;
+	DECLARE v_AppliedTo_ INT;
+
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	SET SESSION GROUP_CONCAT_MAX_LEN = 1000000;
+
+	SELECT Value INTO v_ROUTING_PROFILE_ FROM tblCompanyConfiguration WHERE CompanyID=p_companyid AND `Key`='ROUTING_PROFILE';
+	SELECT Value INTO v_RateApprovalProcess_ FROM tblCompanySetting WHERE CompanyID=p_companyid AND `Key`='RateApprovalProcess';
+	SELECT AppliedTo INTO v_AppliedTo_ FROM tblRateTable WHERE CompanyID=p_companyid AND RateTableId=p_RateTableId;
 
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 
@@ -2832,8 +2899,59 @@ BEGIN
 
     END IF;
 
+
+	-- export
+	IF p_isExport <> 0
+	THEN
+		SET @stm1='',@stm2='',@stm3='',@stm4=''='';
+
+		SET @stm1 = "
+			SELECT
+	         OriginationCode,
+	         OriginationDescription,
+	         Code AS DestinationCode,
+	         Description AS DestinationDescription,
+	         CONCAT(Interval1,'/',IntervalN) AS `Interval1/N`,
+	         ConnectionFee,
+				Rate,
+				RateN,
+				EffectiveDate
+		";
+
+	   IF(v_ROUTING_PROFILE_ = 1)
+		THEN
+			SET @stm3 = ', RoutingCategoryName';
+		END IF;
+
+		-- if vendor rate table
+		IF(v_AppliedTo_ = 2)
+		THEN
+		   SET @stm4 = ', Preference, Blocked';
+	   END IF;
+
+	   -- advance view
+		IF p_isExport = 11
+	   THEN
+	   	SET @stm2 = ", PreviousRate, CONCAT(ModifiedBy,'\n',updated_at) AS `Modified By/Date`";
+
+	   	-- rate approval process is on and rate table is vendor rate table
+			IF(v_RateApprovalProcess_ = 1 && v_AppliedTo_ <> 2)
+			THEN
+	   		SET @stm2 = CONCAT(@stm2,", CONCAT(ApprovedBy,'\n',ApprovedDate) AS `Approved By/Date`, ApprovedStatus");
+	   	END IF;
+
+	   END IF;
+
+	   SET @stm = CONCAT(@stm1,@stm2,@stm3,@stm4,' FROM tmp_RateTableRate_;');
+
+	   PREPARE stmt FROM @stm;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+
+	END IF;
+
 	 -- basic view
-    IF p_isExport = 10
+    /*IF p_isExport = 10
     THEN
         SELECT
             OriginationCode,
@@ -2873,7 +2991,7 @@ BEGIN
             Blocked,
             ApprovedStatus
         FROM   tmp_RateTableRate_;
-    END IF;
+    END IF;*/
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
@@ -3806,15 +3924,10 @@ ThisSP:BEGIN
 
 			IF totaldialstringcode > 0
 			THEN
-
-
-
-
 				INSERT INTO tblDialStringCode (DialStringID,DialString,ChargeCode,created_by)
 				  SELECT DISTINCT p_dialStringId,vr.DialStringPrefix, Code, 'RMService'
 					FROM tmp_TempRateTableRate_ vr
 						LEFT JOIN tmp_DialString_ ds
-
 							ON vr.DialStringPrefix = ds.DialString AND ds.DialStringID = p_dialStringId
 						WHERE vr.ProcessId = p_processId
 							AND ds.DialStringID IS NULL
@@ -3835,7 +3948,6 @@ ThisSP:BEGIN
 				FROM tmp_TempRateTableRate_ vr
 					LEFT JOIN tmp_DialString_ ds
 						ON ((vr.Code = ds.ChargeCode and vr.DialStringPrefix = '') OR (vr.DialStringPrefix != '' and vr.DialStringPrefix =  ds.DialString and vr.Code = ds.ChargeCode  ))
-
 					WHERE vr.ProcessId = p_processId
 						AND ds.DialStringID IS NULL
 						AND vr.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
@@ -3844,7 +3956,6 @@ ThisSP:BEGIN
 					  SELECT DISTINCT CONCAT(Code ,' ', vr.DialStringPrefix , ' No PREFIX FOUND')
 					  	FROM tmp_TempRateTableRate_ vr
 							LEFT JOIN tmp_DialString_ ds
-
 								ON ((vr.Code = ds.ChargeCode and vr.DialStringPrefix = '') OR (vr.DialStringPrefix != '' and vr.DialStringPrefix =  ds.DialString and vr.Code = ds.ChargeCode  ))
 							WHERE vr.ProcessId = p_processId
 								AND ds.DialStringID IS NULL
@@ -3854,12 +3965,13 @@ ThisSP:BEGIN
 
 			IF totaldialstringcode = 0
 			THEN
-
 				INSERT INTO tmp_RateTableRateDialString_
 				SELECT DISTINCT
 					`TempRateTableRateID`,
 					`CodeDeckId`,
 					`TimezonesID`,
+					`OriginationCode`,
+					`OriginationDescription`,
 					`DialString`,
 					CASE WHEN ds.Description IS NULL OR ds.Description = ''
 					THEN
@@ -3878,14 +3990,14 @@ ThisSP:BEGIN
 					`ConnectionFee`,
 					`Interval1`,
 					`IntervalN`,
-					tblTempRateTableRate.Forbidden as Forbidden ,
-					tblTempRateTableRate.DialStringPrefix as DialStringPrefix
+					tblTempRateTableRate.Forbidden as Forbidden,
+					tblTempRateTableRate.DialStringPrefix as DialStringPrefix,
+					`RoutingCategoryID`
 				FROM tmp_TempRateTableRate_ as tblTempRateTableRate
 				INNER JOIN tmp_DialString_ ds
 					ON ( (tblTempRateTableRate.Code = ds.ChargeCode AND tblTempRateTableRate.DialStringPrefix = '') OR (tblTempRateTableRate.DialStringPrefix != '' AND tblTempRateTableRate.DialStringPrefix =  ds.DialString AND tblTempRateTableRate.Code = ds.ChargeCode  ))
 				WHERE tblTempRateTableRate.ProcessId = p_processId
 					AND tblTempRateTableRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
-
 
 
 				INSERT INTO tmp_RateTableRateDialString_2
@@ -3899,13 +4011,14 @@ ThisSP:BEGIN
 				SELECT * FROM tmp_RateTableRateDialString_;
 
 
-
 				DELETE  FROM tmp_TempRateTableRate_ WHERE  ProcessId = p_processId;
 
 				INSERT INTO tmp_TempRateTableRate_(
 					`TempRateTableRateID`,
 					CodeDeckId,
 					TimezonesID,
+					OriginationCode,
+					OriginationDescription,
 					Code,
 					Description,
 					Rate,
@@ -3919,12 +4032,15 @@ ThisSP:BEGIN
 					Interval1,
 					IntervalN,
 					Forbidden,
-					DialStringPrefix
+					DialStringPrefix,
+					RoutingCategoryID
 				)
 				SELECT DISTINCT
 					`TempRateTableRateID`,
 					`CodeDeckId`,
 					`TimezonesID`,
+					`OriginationCode`,
+					`OriginationDescription`,
 					`Code`,
 					`Description`,
 					`Rate`,
@@ -3938,7 +4054,8 @@ ThisSP:BEGIN
 					`Interval1`,
 					`IntervalN`,
 					`Forbidden`,
-					DialStringPrefix
+					DialStringPrefix,
+					RoutingCategoryID
 				FROM tmp_RateTableRateDialString_3;
 
 				UPDATE tmp_TempRateTableRate_ as tblTempRateTableRate
@@ -5734,7 +5851,6 @@ ThisSP:BEGIN
 				  SELECT DISTINCT p_dialStringId,vr.DialStringPrefix, Code, 'RMService'
 					FROM tmp_TempRateTableDIDRate_ vr
 						LEFT JOIN tmp_DialString_ ds
-
 							ON vr.DialStringPrefix = ds.DialString AND ds.DialStringID = p_dialStringId
 						WHERE vr.ProcessId = p_processId
 							AND ds.DialStringID IS NULL
@@ -5777,6 +5893,8 @@ ThisSP:BEGIN
 					`TempRateTableDIDRateID`,
 					`CodeDeckId`,
 					`TimezonesID`,
+					`OriginationCode`,
+					`OriginationDescription`,
 					`DialString`,
 					CASE WHEN ds.Description IS NULL OR ds.Description = ''
 					THEN
@@ -5810,7 +5928,6 @@ ThisSP:BEGIN
 					AND tblTempRateTableDIDRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
 
 
-
 				INSERT INTO tmp_RateTableDIDRateDialString_2
 				SELECT *  FROM tmp_RateTableDIDRateDialString_ where DialStringPrefix!='';
 
@@ -5822,13 +5939,14 @@ ThisSP:BEGIN
 				SELECT * FROM tmp_RateTableDIDRateDialString_;
 
 
-
 				DELETE  FROM tmp_TempRateTableDIDRate_ WHERE  ProcessId = p_processId;
 
 				INSERT INTO tmp_TempRateTableDIDRate_(
 					`TempRateTableDIDRateID`,
 					CodeDeckId,
 					TimezonesID,
+					OriginationCode,
+					OriginationDescription,
 					Code,
 					Description,
 					OneOffCost,
@@ -5854,6 +5972,8 @@ ThisSP:BEGIN
 					`TempRateTableDIDRateID`,
 					`CodeDeckId`,
 					`TimezonesID`,
+					`OriginationCode`,
+					`OriginationDescription`,
 					`Code`,
 					`Description`,
 					`OneOffCost`,
