@@ -1219,7 +1219,7 @@ GenerateRateTable:BEGIN
 
 
 		-- for testing only
-		select * from tmp_Rates_;
+		-- select * from tmp_Rates_;
 
 
 
@@ -1239,8 +1239,8 @@ GenerateRateTable:BEGIN
 
 
 		-- for testing only
-		select * from tmp_Rates_;
-		LEAVE GenerateRateTable;
+		-- select * from tmp_Rates_;
+		-- LEAVE GenerateRateTable;
 
 
 
