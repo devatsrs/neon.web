@@ -894,7 +894,7 @@ class Account extends \Eloquent {
             $AccountReference = $AccountReferenceArr[$i];
             $DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'account','Status'=>1,'FieldSlug'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
             if(empty($DynamicFieldsID)){
-                return "Please provide the correct dynamic field" . $AccountReference['Name'];
+                return '';
             } else {
                 $Query = $Query .'(DynamicFieldsID = ' . $DynamicFieldsID . " and FieldValue='" . $AccountReference["Value"] . "')";
                 if ($i != count($AccountReferenceArr) - 1) {
@@ -909,8 +909,8 @@ class Account extends \Eloquent {
 
 
             Log::info('Account $AccountReference["Value"].' . count($DynamicFieldsValues));
-            if (count($DynamicFieldsValues) > 1) {
-                return "More then two Reference found";
+            if (count($DynamicFieldsValues) > 1 || count($DynamicFieldsValues) == 0) {
+                return '';
             }else {
                 foreach ($DynamicFieldsValues as $DynamicFieldsValue) {
 
@@ -919,6 +919,6 @@ class Account extends \Eloquent {
             }
 
 
-        return "Please provide the correct dynamic field";
+        return '';
     }
 }
