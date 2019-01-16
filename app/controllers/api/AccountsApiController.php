@@ -413,7 +413,7 @@ class AccountsApiController extends ApiController {
 			$DynamicFieldsExist = '';
 			//$data['Owner'] = $post_vars->Owner;
 
-			$data['Number'] = $accountData['Number'];
+			$data['Number'] = $accountData['AccountNumber'];
 			$data['FirstName'] = $accountData['FirstName'];
 			$data['LastName'] = $accountData['LastName'];
 			$data['Phone'] = $accountData['Phone'];
