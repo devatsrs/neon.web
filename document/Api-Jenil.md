@@ -1101,7 +1101,7 @@ Return
             "Name": "APITempalte 11", [Mandatory]
         	"Currency": "GBP", [Mandatory]
         	"ServiceId": "1", [Mandatory]
-        	"Duration":"35",
+        	"ContractDuration":"35",
             "ContractType":"4",
             "AutoRenewal":"1",
             "ContractFeeValue":"35",
@@ -1136,31 +1136,33 @@ http://speakintelligence.neon-soft.com/api/account/createService
 
 Params:
 
-	Number
+	AccountNumber
+	AccountID
 	ServiceTemaplate
 	NumberPurchased
 	InboundTariffCategoryId
     ServiceStartDate
     ServiceEndDate
-    Duration
+    ContractDuration
     ContractType
     ContractFeeValue
     AutoRenewal
     DynamicFields
-    PaymentSubscription
+    PackageSubscription
 
 Return
 
     Example:
         Request:
-            Number:6746[Mandatory]
+            AccountNumber:6746[Mandatory if AccountID/Dynamic field is mandatory]
+        	AccountID:[Mandatory if AccountNumber/Dynamic field is mandatory]
         	ServiceTemaplate: {"Name": "SI Product Ref","Value": "RFP"}[Mandatory]
         	NumberPurchased:08004570 [Mandatory]
         	InboundTariffCategoryId:
         	ServiceStartDate:2018-12-23
             ServiceEndDate:2018-12-23
-            Duration:30
-            ContractType:1
+            ContractDuration:30
+            ContractType:1 [Possible Values are 1=Fixed Fee,2=Remaining Term Of Contract,3=Remaining Term Of Contract (%),4=Remaining Term Of Contract]
             ContractFeeValue:20
             AutoRenewal:1
             DynamicFields:[
@@ -1169,8 +1171,8 @@ Return
                                               "Name": "SIAccountID",
                                               "Value": "745"
                                           }
-                                      ]
-            PaymentSubscription:Pro
+                                      ] [Mandatory if AccountNumber/AccountID field is mandatory]
+            PackageSubscription:Pro
 
         Response:
 
@@ -1188,7 +1190,7 @@ Params:
 	AccountNumber
 	AccountID
 	DataAndTime
-
+    Location
 
 Return
 
@@ -1199,6 +1201,7 @@ Return
         	AccountNumber:08004570 [AccountNumber OR AccountID is mandatory]
         	AccountID:[AccountNumber OR AccountID is mandatory]
         	DataAndTime:2018-11-30 10:10:10
+        	Location:Switzerland
 
         Response:
 
@@ -1289,3 +1292,35 @@ Return
                ]
            }
 
+### POST Get Account
+http://speakintelligence.neon-soft.com/api/account/GetAccount
+
+Params:
+
+	AccountNumber
+	AccountID
+	DynamicFields
+
+
+Return
+
+    Example:
+        Request:
+        AccountNumber: [One of AccountNumber,AccountID,DynamicFields is mandatory]
+        AccountID:
+        DynamicFields:[
+
+                                      {
+                                          "Name": "SIAccountID",
+                                          "Value": "745"
+                                      }
+                                  ]
+        Response:
+
+
+
+                                  {
+                                      "status": "success",
+                                      "AccountID": 6773,
+                                      "AccountNumber": "dev-0557"
+                                  }
