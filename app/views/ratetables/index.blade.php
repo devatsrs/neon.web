@@ -169,7 +169,7 @@ jQuery(document).ready(function($) {
                             full[12] = full[12] == null ? "" : full[12];
 
                             action = '<a title="View" href="' + view_ + '" class="btn btn-default btn-sm"><i class="fa fa-eye"></i></a>&nbsp;';
-                            action += '<a title="Edit" data-id="'+  full[8] +'" data-Type="'+full[0]+'" data-rateTableName="'+full[2]+'" data-TrunkID="'+full[9]+'" data-CurrencyID="'+full[10]+'" data-RoundChargedAmount="'+full[11]+'" data-MinimumCallCharge="'+full[12]+'" data-DIDCategoryID="'+full[13]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
+                            action += '<a title="Edit" data-id="'+  full[8] +'" data-Type="'+full[0]+'" data-rateTableName="'+full[2]+'" data-TrunkID="'+full[9]+'" data-CurrencyID="'+full[10]+'" data-RoundChargedAmount="'+full[11]+'" data-MinimumCallCharge="'+full[12]+'" data-DIDCategoryID="'+full[13]+'" data-CustomerTrunkID="'+full[14]+'" data-VendorConnectionID="'+full[15]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
 
                             <?php if(User::checkCategoryPermission('RateTables','Delete') ) { ?>
                                 action += ' <a title="Delete" href="' + delete_ + '" data-redirect="{{URL::to("/rate_tables")}}"  class="btn btn-default delete btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';
@@ -273,11 +273,24 @@ jQuery(document).ready(function($) {
         $("#modal-edit-new-rate-table [name='RoundChargedAmount']").val($(this).attr('data-RoundChargedAmount'));
         $("#modal-edit-new-rate-table [name='MinimumCallCharge']").val($(this).attr('data-MinimumCallCharge'));
         $("#modal-edit-new-rate-table [name='DIDCategoryID']").select2('val', $(this).attr('data-DIDCategoryID'));
+        var CustomerTrunkID     = $(this).attr('data-CustomerTrunkID');
+        var VendorConnectionID  = $(this).attr('data-VendorConnectionID');
+        if(CustomerTrunkID == 'null' && VendorConnectionID == 'null') {
+            $("#modal-edit-new-rate-table [name='CurrencyID']").removeAttr('disabled');
+            $("#modal-edit-new-rate-table [name='TrunkID']").removeAttr('disabled');
+            $("#modal-edit-new-rate-table [name='DIDCategoryID']").removeAttr('disabled');
+        } else {
+            $("#modal-edit-new-rate-table [name='CurrencyID']").attr('disabled','disabled');
+            $("#modal-edit-new-rate-table [name='TrunkID']").attr('disabled','disabled');
+            $("#modal-edit-new-rate-table [name='DIDCategoryID']").attr('disabled','disabled');
+        }
         if($(this).attr('data-Type') == 1) {
             $('#box-edit-DIDCategory').hide();
             $('#box-edit-Trunk').show();
+            $('#box-edit-MinimumCallCharge').show();
         } else {
             $('#box-edit-Trunk').hide();
+            $('#box-edit-MinimumCallCharge').hide();
             $('#box-edit-DIDCategory').show();
         }
         $('#modal-edit-new-rate-table').modal('show');
@@ -294,6 +307,7 @@ jQuery(document).ready(function($) {
      });
      $("#add-new-rate-table").click(function(ev) {
          ev.preventDefault();
+         $('#add-new-form select[name=Type]').trigger('change');
          $('#modal-add-new-rate-table').modal('show', {backdrop: 'static'});
      });
      $("#add-new-form").submit(function(ev){
@@ -316,11 +330,13 @@ jQuery(document).ready(function($) {
     });
     $('#add-new-form select[name=Type]').on("change",function() {
         var val = $(this).val();
-        if(val == 1) {
+        if(val == 1) { // voicecall
             $('#box-DIDCategory').hide();
             $('#box-Trunk').show();
-        } else {
+            $('#box-MinimumCallCharge').show();
+        } else { // did
             $('#box-Trunk').hide();
+            $('#box-MinimumCallCharge').hide();
             $('#box-DIDCategory').show();
         }
     });
@@ -399,7 +415,7 @@ jQuery(document).ready(function($) {
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-6" id="box-MinimumCallCharge">
                             <div class="form-group ">
                                 <label class="control-label">Minimum Call Charge</label>
                                 <input type="text" name="MinimumCallCharge" class="form-control numbercheck" value="" />
@@ -490,7 +506,7 @@ jQuery(document).ready(function($) {
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row" id="box-edit-MinimumCallCharge">
                         <div class="col-md-6">
                             <div class="form-group ">
                                 <label class="control-label">Minimum Call Charge</label>

@@ -100,11 +100,11 @@
         <div class="input-group-btn pull-right hidden dropdown" style="width:70px;">
             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
             <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
-                @if($isBandTable)
+                {{--@if($isBandTable)--}}
                     @if(User::checkCategoryPermission('RateTables','Add') )
                         <li><a href="javascript:void(0)" id="add-new-rate"><i class="entypo-plus"></i><span>Add New</span></a></li>
                     @endif
-                @endif
+                {{--@endif--}}
                 @if(User::checkCategoryPermission('RateTables','Edit') )
                     <li><a href="javascript:void(0)" id="change-bulk-rate"><i class="entypo-pencil"></i><span>Change Selected</span></a></li>
                 @endif
@@ -596,7 +596,7 @@
         $searchFilter.Effective = Effective = $("#rate-table-search [name='Effective']").val();
         $searchFilter.DiscontinuedRates = DiscontinuedRates = $("#rate-table-search input[name='DiscontinuedRates']").is(':checked') ? 1 : 0;
         $searchFilter.Timezones = Timezones = $("#rate-table-search select[name='Timezones']").val();
-        $searchFilter.ApprovedStatus = ApprovedStatus = $("#rate-table-search select[name='ApprovedStatus']").val();
+        $searchFilter.ApprovedStatus = ApprovedStatus = $("#rate-table-search select[name='ApprovedStatus']").val() != undefined ? $("#rate-table-search select[name='ApprovedStatus']").val() : '';
         $searchFilter.ratetablepageview = ratetablepageview;
 
         data_table = $("#table-4").DataTable({

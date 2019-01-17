@@ -112,6 +112,7 @@ class BillingClassApiController extends ApiController {
 
 	public function getLowBalanceNotification(){
 		$data=Input::all();
+		$result=array();
 		$AccountID=0;
 		if(!empty($data['AccountID'])) {
 			$AccountID = $data['AccountID'];
@@ -128,8 +129,12 @@ class BillingClassApiController extends ApiController {
 		if($BillingClassID > 0){
 			$BillingClass=BillingClass::find($BillingClassID);
 
+			$result['BalanceThreshold']=AccountBalance::where('AccountID', $AccountID)->pluck('BalanceThreshold');
+			$result['Status']=$BillingClass->LowBalanceReminderStatus;
 			//$BillingClass=AccountBilling::join('tblBillingClass','tblAccountBilling.BillingClassID','=','tblBillingClass.BillingClassID')->where(['tblAccountBilling.AccountID'=>$AccountID])->select('tblBillingClass.*')->first();
-			return Response::json(["status"=>"success", "data"=>json_decode(json_encode($BillingClass->LowBalanceReminderSettings),true)]);
+			$result['BillingClass']=json_decode(json_encode($BillingClass->LowBalanceReminderSettings),true);
+
+			return Response::json(["status"=>"success", "data"=>$result]);
 
 		}else{
 			return Response::json(["status"=>"failed", "data"=>"BillingClass Not Found"]);

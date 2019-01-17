@@ -288,6 +288,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('account_subscription/{subscription_id}/update', 'AccountSubscriptionController@update')->where('subscription_id', '(.[09]*)+');
 	Route::any('account_subscription/{subscription_id}/delete', 'AccountSubscriptionController@delete')->where('subscription_id', '(.[09]*)+');
 	Route::any('account_subscription/getDiscountPlanByAccount', 'AccountSubscriptionController@getDiscountPlanByAccount');
+	Route::any('account_subscription/DynamiceFieldFinder', 'AccountSubscriptionController@FindDynamicFields');
 
 	Route::any('accounts/{id}/subscription/ajax_datagrid', 'AccountSubscriptionController@ajax_datagrid');
 	Route::any('accounts/{id}/subscription/store', 'AccountSubscriptionController@store');
@@ -1525,6 +1526,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accountservices/{id}/search_accounts_grid', 'AccountServiceController@search_accounts_grid');
 	Route::any('accountservices/{id}/bulk_change_status', 'AccountServiceController@bulk_change_status');
 	Route::any('accountservices/{id}/bulk_delete', 'AccountServiceController@bulk_delete');
+	Route::any('accountservices/cancel_contract', 'AccountServiceController@cancelContract');
 
 	//noticeboard
 	Route::any('/noticeboard', 'NoticeBoardController@index');
@@ -1788,6 +1790,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('account/createAccount', 'AccountsApiController@createAccount');
 	Route::post('account/paymentMethod', 'AccountsApiController@getPaymentMethodList');
 	Route::post('account/createService', 'AccountsApiController@createAccountService');
+	Route::post('account/list', 'AccountsApiController@GetAccount');
 	Route::post('routing/list', 'RoutingApiController@routingList');
 	
 
