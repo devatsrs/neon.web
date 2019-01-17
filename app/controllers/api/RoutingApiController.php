@@ -36,11 +36,9 @@ class RoutingApiController extends ApiController {
         if (!empty($routingData['AccountDynamicField'])) {
             $AccountIDRef = '';
             $AccountIDRef = Account::findAccountBySIAccountRef($routingData['AccountDynamicField']);
-            $AccountIDRef = (int)$AccountIDRef;
-            if (gettype($AccountIDRef) == "string") {
-                return Response::json(["status" => "failed", "message" => $AccountIDRef]);
-            }else {
-                $AccountIDRef = intval($AccountIDRef);
+
+            if (empty($AccountIDRef)) {
+                return Response::json(["status" => "failed", "message" => "Please provide the correct Account ID"]);
             }
             $routingData["AccountID"] = $AccountIDRef;
         }

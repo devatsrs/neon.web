@@ -54,7 +54,8 @@ class ActiveCallApiController extends ApiController {
             }
             try{
                 //check Balance
-                $AccountBalance = AccountBalance::getNewAccountExposure($CompanyID, $AccountID);
+                //$AccountBalance = AccountBalance::getNewAccountExposure($CompanyID, $AccountID);
+                $AccountBalance = AccountBalance::getBalanceAmount($AccountID);
                 if($AccountBalance > 0){
                     $ActiveCallData=array();
                     $ActiveCallData['AccountID']=$AccountID;
@@ -84,7 +85,7 @@ class ActiveCallApiController extends ApiController {
                 }
 
             }catch(Exception $e){
-                Log::info($e->getMessage());
+                Log::info($e->getTraceAsString());
                 $reseponse = array("status" => "failed", "message" => "Something Went Wrong. \n" . $e->getMessage());
                 return $reseponse;
             }
