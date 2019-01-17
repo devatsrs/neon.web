@@ -1067,7 +1067,7 @@ class AccountsController extends \BaseController {
             }
             if(!empty($data["CustomerID"])){
                 $DynamicData['FieldName'] = 'CustomerID';
-                $DynamicData['FieldValue']= data["CustomerID"];
+                $DynamicData['FieldValue']= $data["CustomerID"];
                 Account::addUpdateAccountDynamicfield($DynamicData);
             }
 
