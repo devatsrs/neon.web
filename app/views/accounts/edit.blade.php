@@ -238,15 +238,7 @@
                 @if(!empty($dynamicfields) && count($dynamicfields)>0)
                     <div class="form-group">
                 @foreach($dynamicfields as $dynamicfield)
-                            @if($dynamicfield['FieldSlug']=='pbxaccountstatus')
-                                <label class="col-md-2 control-label">{{$dynamicfield['FieldSlug']}}</label>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
-                        <div class="col-md-4">
-                            {{Form::select('pbxaccountstatus', array('0'=>'Unblock','1'=>'Block'), (isset($dynamicfield['FieldValue'])? explode(',',$dynamicfield['FieldValue']) : array() ) ,array("class"=>"form-control select2"))}}
-                        </div>
-                            @endif
+
                     @if(!empty($dynamicfield['FieldSlug']))
                         @if($dynamicfield['FieldSlug']=='accountgateway')
                             <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
@@ -254,6 +246,12 @@
                                 {{Form::select('accountgateway[]', CompanyGateway::getCompanyGatewayIdList(), (isset($dynamicfield['FieldValue'])? explode(',',$dynamicfield['FieldValue']) : array() ) ,array("class"=>"form-control select2",'multiple'))}}
                             </div>
                         @endif
+                            @if($dynamicfield['FieldSlug']=='CustomerID')
+                                <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" autocomplete="off"  name="CustomerID" id="field-1" value="{{$dynamicfield['FieldValue']}}" />
+                                </div>
+                            @endif
                         @if($dynamicfield['FieldSlug']=='vendorname')
                             <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
                             <div class="col-md-4">

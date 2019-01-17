@@ -740,7 +740,7 @@ class AccountsController extends \BaseController {
         $ResellerCount = Reseller::where(['AccountID'=>$id,'Status'=>1])->count();
 
         $dynamicfields = Account::getDynamicfields('account',$id);
-        Log::info("Count for Dynamic fields for Account ." . $id . count($dynamicfields));
+        Log::info("Count for Dynamic fields for Account ." . $id . ' ' . count($dynamicfields));
         $accountdetails = AccountDetails::where(['AccountID'=>$id])->first();
         $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
         $accountreseller = Reseller::where('ChildCompanyID',$companyID)->pluck('ResellerID');
@@ -1049,6 +1049,12 @@ class AccountsController extends \BaseController {
                 $DynamicData['FieldValue']= $AccountGateway;
                 Account::addUpdateAccountDynamicfield($DynamicData);
             }
+            if(!empty(data["CustomerID"])){
+                $DynamicData['FieldName'] = 'CustomerID';
+                $DynamicData['FieldValue']= data["CustomerID"];
+                Account::addUpdateAccountDynamicfield($DynamicData);
+            }
+
             if(!empty($VendorName)){
                 $DynamicData['FieldName'] = 'vendorname';
                 $DynamicData['FieldValue']= $VendorName;
