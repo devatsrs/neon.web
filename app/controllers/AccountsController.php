@@ -1049,7 +1049,7 @@ class AccountsController extends \BaseController {
                 $DynamicData['FieldValue']= $AccountGateway;
                 Account::addUpdateAccountDynamicfield($DynamicData);
             }
-            if(!empty(data["CustomerID"])){
+            if(!empty($data["CustomerID"])){
                 $DynamicData['FieldName'] = 'CustomerID';
                 $DynamicData['FieldValue']= data["CustomerID"];
                 Account::addUpdateAccountDynamicfield($DynamicData);
