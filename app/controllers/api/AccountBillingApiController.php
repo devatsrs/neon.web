@@ -26,6 +26,12 @@ class AccountBillingApiController extends ApiController {
 			if(!empty($Account)){
 				$AccountID=$Account->AccountID;
 			}
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			if(empty($AccountID)){
+				return Response::json(["status"=>"failed", "data"=>"Account Not Found."]);
+			}
+
 		} else{
 			return Response::json(["status"=>"failed", "message"=>"AccountID or AccountNo Field is Required."]);
 		}
@@ -51,6 +57,12 @@ class AccountBillingApiController extends ApiController {
 			}else{
 				return Response::json(["status"=>"failed", "data"=>"Account Not Found."]);
 			}
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			if(empty($AccountID)){
+				return Response::json(["status"=>"failed", "data"=>"Account Not Found."]);
+			}
+
 		}else{
 			return Response::json(["status"=>"failed", "data"=>"AccountID or AccountNo Field is Required."]);
 		}
@@ -148,6 +160,12 @@ class AccountBillingApiController extends ApiController {
 			}else{
 				return Response::json(["status"=>"failed", "data"=>"Account Not Found."]);
 			}
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			if(empty($AccountID)){
+				return Response::json(["status"=>"failed", "data"=>"Account Not Found."]);
+			}
+
 		} else{
 			return Response::json(["status"=>"failed", "data"=>"AccountID or AccountNo Field is Required."]);
 		}
@@ -173,6 +191,12 @@ class AccountBillingApiController extends ApiController {
 			}else{
 				return Response::json(["status"=>"failed", "data"=>"Account Not Found."]);
 			}
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			if(empty($AccountID)){
+				return Response::json(["status"=>"failed", "data"=>"Account Not Found."]);
+			}
+
 		}else{
 			return Response::json(["status"=>"failed", "data"=>"AccountID or AccountNo Field is Required."]);
 		}

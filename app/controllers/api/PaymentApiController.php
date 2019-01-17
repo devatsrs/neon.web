@@ -33,6 +33,14 @@ class PaymentApiController extends ApiController {
 			}else{
 				return Response::json(["status"=>"failed", "message"=>"Account Not Found."]);
 			}
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			if(empty($AccountID)){
+				return Response::json(["status"=>"failed", "data"=>"Account Not Found."]);
+			}
+			$Account = Account::where(["AccountID" => $AccountID])->first();
+			$CompanyID = $Account->CompanyId;
+			$AccountID = $Account->AccountID;
 		}else{
 			return Response::json(["status"=>"failed", "message"=>"AccountID Required"]);
 		}
@@ -97,6 +105,17 @@ class PaymentApiController extends ApiController {
 			}else{
 				return Response::json(["status"=>"failed", "message"=>"Account Not Found"]);
 			}
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			if(empty($AccountID)){
+				return Response::json(["status"=>"failed", "data"=>"Account Not Found."]);
+			}
+			$Account = Account::where(["AccountID" => $AccountID])->first();
+			if(!empty($Account)) {
+				$CompanyID = $Account->CompanyId;
+				$AccountID = $Account->AccountID;
+			}
+
 		}else{
 			return Response::json(["status"=>"failed", "message"=>"AccountID Required"]);
 		}
@@ -146,6 +165,12 @@ class PaymentApiController extends ApiController {
 			if(!empty($Account)){
 				$AccountID=$Account->AccountID;
 			}
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			if(empty($AccountID)){
+				return Response::json(["status"=>"failed", "data"=>"Account Not Found."]);
+			}
+
 		}else{
 			return Response::json(["status"=>"failed", "message"=>"AccountID OR AccountNo Required"]);
 		}
