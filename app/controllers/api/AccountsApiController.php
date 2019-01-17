@@ -77,7 +77,7 @@ class AccountsApiController extends ApiController {
 		$DynamicSubscrioptionFields = '';
 		try {
 			Log::info('createAccountService:Data.' . json_encode($accountData));
-			$data['AccountNumber'] = $accountData['AccountNo'];
+			$data['AccountNo'] = $accountData['AccountNo'];
 			$data['ServiceTemaplate'] = $accountData['ServiceTemaplate'];
 			$data['NumberPurchased'] = $accountData['NumberPurchased'];
 			$data['AccountDynamicField'] = $accountData['AccountDynamicField'];
@@ -158,8 +158,8 @@ class AccountsApiController extends ApiController {
 				unset($AccountSubscription['PackageSubscription']);
 			}
 
-			if (!empty($data['AccountNumber'])) {
-				$Account = Account::where(array('Number' => $data['AccountNumber']))->first();
+			if (!empty($data['AccountNo'])) {
+				$Account = Account::where(array('Number' => $data['AccountNo']))->first();
 			}else {
 				$Account = Account::find($data['AccountID']);
 			}
@@ -873,9 +873,9 @@ class AccountsApiController extends ApiController {
 		$data = Input::all();
 		try {
 			$rules = array(
-				'AccountNumber' => 'required_without_all:AccountDynamicField,AccountID',
-				'AccountID' => 'required_without_all:AccountDynamicField,AccountNumber',
-				'AccountDynamicField' => 'required_without_all:AccountNumber,AccountID',
+				'AccountNo' => 'required_without_all:AccountDynamicField,AccountID',
+				'AccountID' => 'required_without_all:AccountDynamicField,AccountNo',
+				'AccountDynamicField' => 'required_without_all:AccountNo,AccountID',
 			);
 
 
@@ -904,14 +904,14 @@ class AccountsApiController extends ApiController {
 				}
 			}
 
-			if (!empty($data['AccountNumber'])) {
-				$Account = Account::where(array('Number' => $data['AccountNumber']))->first();
+			if (!empty($data['AccountNo'])) {
+				$Account = Account::where(array('Number' => $data['AccountNo']))->first();
 			}else {
 				$Account = Account::find($data['AccountID']);
 			}
 
 			if (count($Account) > 0) {
-				return Response::json(["status"=>"success", "AccountID"=>$Account->AccountID,"AccountNumber"=>$Account->Number]);
+				return Response::json(["status"=>"success", "AccountID"=>$Account->AccountID,"AccountNo"=>$Account->Number]);
 			} else {
 				return Response::json(["status" => "failed", "message" => "Account not found against the reference"]);
 			}
