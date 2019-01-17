@@ -236,9 +236,18 @@
                 </div>
 
                 @if(!empty($dynamicfields) && count($dynamicfields)>0)
-                    <div class="form-group">
-                @foreach($dynamicfields as $dynamicfield)
+                    <?php
+                    $cnt=0;
+                    ?>
 
+                @foreach($dynamicfields as $dynamicfield)
+                            <?php
+                            if($cnt==0){
+                            ?>
+                                <div class="form-group">
+                                    <?php
+                                    }
+                                    ?>
                     @if(!empty($dynamicfield['FieldSlug']))
                         @if($dynamicfield['FieldSlug']=='accountgateway')
                             <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
@@ -259,7 +268,7 @@
                             </div>
                         @endif
                         @if($dynamicfield['FieldSlug']=='pbxaccountstatus')
-                                
+
                             <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
                             <div class="col-md-4">
                                 {{Form::select('pbxaccountstatus', array('0'=>'Unblock','1'=>'Block'), (isset($dynamicfield['FieldValue'])? explode(',',$dynamicfield['FieldValue']) : array() ) ,array("class"=>"form-control select2"))}}
@@ -273,9 +282,25 @@
                                 </div>
                             </div>
                         @endif
+                            <?php
+                            if($cnt==1){
+                            ?>
+                            </div>
+                             <?php
+                            }
+                            ?>
+                            <?php ++$cnt;if($cnt==2){$cnt= 0;} ?>
                     @endif
+
                 @endforeach
-                    </div>
+                            <?php
+                            if($cnt==1){
+                            ?>
+                                </div>
+
+                                <?php
+                                }
+                                ?>
                 @endif
                 <div class="form-group">
                     <label class="col-md-2 control-label">Language</label>
