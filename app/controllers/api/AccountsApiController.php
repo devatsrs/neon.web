@@ -77,7 +77,7 @@ class AccountsApiController extends ApiController {
 		$DynamicSubscrioptionFields = '';
 		try {
 			Log::info('createAccountService:Data.' . json_encode($accountData));
-			$data['AccountNumber'] = $accountData['AccountNumber'];
+			$data['AccountNumber'] = $accountData['AccountNo'];
 			$data['ServiceTemaplate'] = $accountData['ServiceTemaplate'];
 			$data['NumberPurchased'] = $accountData['NumberPurchased'];
 			$data['AccountDynamicField'] = $accountData['AccountDynamicField'];
@@ -109,9 +109,9 @@ class AccountsApiController extends ApiController {
 
 
 			$rules = array(
-				'AccountNumber' =>      'required_without_all:AccountDynamicField,AccountID',
-				'AccountID' =>      'required_without_all:AccountDynamicField,AccountNumber',
-				'AccountDynamicField' =>      'required_without_all:AccountNumber,AccountID',
+				'AccountNo' =>      'required_without_all:AccountDynamicField,AccountID',
+				'AccountID' =>      'required_without_all:AccountDynamicField,AccountNo',
+				'AccountDynamicField' =>      'required_without_all:AccountNo,AccountID',
 				'ServiceTemaplate' =>  'required',
 				'NumberPurchased'=>'required',
 
@@ -413,7 +413,7 @@ class AccountsApiController extends ApiController {
 			$DynamicFieldsExist = '';
 			//$data['Owner'] = $post_vars->Owner;
 
-			$data['Number'] = $accountData['AccountNumber'];
+			$data['Number'] = $accountData['AccountNo'];
 			$data['FirstName'] = $accountData['FirstName'];
 			$data['LastName'] = $accountData['LastName'];
 			$data['Phone'] = $accountData['Phone'];
@@ -848,7 +848,7 @@ class AccountsApiController extends ApiController {
 					}
 				}
 				CompanySetting::setKeyVal('LastAccountNo', $account->Number);
-				return Response::json(array("status" => "success", "message" => "Account Successfully Created", 'Account ID' => $account->AccountID, 'redirect' => URL::to('/accounts/' . $account->AccountID . '/edit')));
+				return Response::json(array("status" => "success", "message" => "Account Successfully Created", 'AccountID' => $account->AccountID, 'redirect' => URL::to('/accounts/' . $account->AccountID . '/edit')));
 			} else {
 				return Response::json(array("status" => "failed", "message" => "Problem Creating Account."));
 			}

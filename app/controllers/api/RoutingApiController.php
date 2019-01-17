@@ -17,9 +17,9 @@ class RoutingApiController extends ApiController {
             'OriginationNo' => 'required',
             'DestinationNo' => 'required',
             'DataAndTime' => 'required',
-            'AccountNumber' => 'required_without_all:AccountID,AccountDynamicField',
-            'AccountID' => 'required_without_all:AccountNumber,AccountDynamicField',
-            'AccountDynamicField' => 'required_without_all:AccountNumber,AccountID',
+            'AccountNo' => 'required_without_all:AccountID,AccountDynamicField',
+            'AccountID' => 'required_without_all:AccountNo,AccountDynamicField',
+            'AccountDynamicField' => 'required_without_all:AccountNo,AccountID',
 
         );
         $validator = Validator::make($routingData, $rules);
