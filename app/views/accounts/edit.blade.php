@@ -238,6 +238,7 @@
                 @if(!empty($dynamicfields) && count($dynamicfields)>0)
                     <div class="form-group">
                 @foreach($dynamicfields as $dynamicfield)
+                            <label class="col-md-2 control-label">{{$dynamicfield['FieldSlug']}}</label>
                     @if(!empty($dynamicfield['FieldSlug']))
                         @if($dynamicfield['FieldSlug']=='accountgateway')
                             <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
