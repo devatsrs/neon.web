@@ -267,7 +267,20 @@ class ActiveCallApiController extends ApiController {
         $data=Input::all();
         $StartDate 	 = 		!empty($data['StartDate'])?$data['StartDate']:'0000-00-00';
         $EndDate 	 = 		!empty($data['EndDate'])?$data['EndDate']:'0000-00-00';
-        $AccountID   =      !empty($data['AccountID'])?$data['AccountID']:0;
+        $AccountID=0;
+
+        if(!empty($data['AccountID'])) {
+            $AccountID = $data['AccountID'];
+        }else if(!empty($data['AccountNo'])){
+            $AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
+        }else if(!empty($data['AccountDynamicField'])){
+            $AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+
+        }
+
+        if(empty($AccountID)){
+            $AccountID=0;
+        }
 
         try {
             $query = "CALL prc_getBlockCall(" . $AccountID . ",'" . $StartDate . "','" . $EndDate . "')";
