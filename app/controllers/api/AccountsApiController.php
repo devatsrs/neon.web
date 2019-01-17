@@ -36,13 +36,12 @@ class AccountsApiController extends ApiController {
 			$Account = Account::where(["AccountID" => $data['AccountID']])->first();
 		}else if(!empty($data['AccountNo'])){
 			$Account = Account::where(["Number" => $data['AccountNo']])->first();
-		}else if(!empty($data['DynamicFields'])){
-			$AccountID=Account::findAccountBySIAccountRef($data['DynamicFields']);
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 			if(empty($AccountID)){
 				return Response::json(["status"=>"failed", "data"=>"Account Not Found."]);
 			}
 			$Account = Account::where(["AccountID" => $AccountID])->first();
-			
 		}
 
 		if(!empty($Account) && count($Account)>0){
