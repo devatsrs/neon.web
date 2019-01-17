@@ -815,6 +815,7 @@ class Account extends \Eloquent {
         $data = array();
 
         $Fields = DB::table('tblDynamicFields')->where(['CompanyID'=>User::get_companyID(),'Type'=>$Type,'Status'=>1])->get();
+        Log::info("Count for Dynamic fields for Account ." . $ParentID . count($Fields));
         if(!empty($Fields) && count($Fields)>0){
             foreach($Fields as $Field){
                 $FieldValue = Account::getDynamicfieldValue($ParentID,$Field->FieldSlug);
@@ -826,7 +827,7 @@ class Account extends \Eloquent {
                 $results[] = $data;
             }
         }
-
+        Log::info("Count for Dynamic fields for Account ." . $ParentID . ' ' . count($results));
         return $results;
     }
 
