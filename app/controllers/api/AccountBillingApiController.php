@@ -103,6 +103,7 @@ class AccountBillingApiController extends ApiController {
 		}
 		unset($data['AccountID']);
 		unset($data['AccountNo']);
+		unset($data['AccountDynamicField']);
 		$data['updated_at']=date('Y-m-d H:i:s');
 
 		if ($AccountPaymentAutomationObj->update($data)) {
@@ -131,6 +132,7 @@ class AccountBillingApiController extends ApiController {
 		}
 		$data['AccountID']=$AccountID;
 		unset($data['AccountNo']);
+		unset($data['AccountDynamicField']);
 
 		$data['created_at']=date('Y-m-d H:i:s');
 		if (AccountPaymentAutomation::create($data)) {
@@ -239,6 +241,7 @@ class AccountBillingApiController extends ApiController {
 		}
 		unset($data['AccountID']);
 		unset($data['AccountNo']);
+		unset($data['AccountDynamicField']);
 
 		$data['updated_at']=date('Y-m-d H:i:s');
 		if ($AccountPaymentAutomation->update($data)) {
@@ -268,6 +271,7 @@ class AccountBillingApiController extends ApiController {
 		}
 		$data['AccountID']=$AccountID;
 		unset($data['AccountNo']);
+		unset($data['AccountDynamicField']);
 
 		$data['created_at']=date('Y-m-d H:i:s');
 		if (AccountPaymentAutomation::create($data)) {
