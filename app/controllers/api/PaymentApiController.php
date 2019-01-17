@@ -131,6 +131,7 @@ class PaymentApiController extends ApiController {
 			$data['IsOutPayment']=1;
 			unset($data['AccountID']);
 			unset($data['AccountNo']);
+			unset($data['AccountDynamicField']);
 
 			if ($Payment = Payment::create($data)) {
 				return Response::json(array("status" => "success", "data" => ["RequestFundID"=>$Payment->PaymentID]));
