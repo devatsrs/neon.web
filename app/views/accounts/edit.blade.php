@@ -240,6 +240,12 @@
                 @foreach($dynamicfields as $dynamicfield)
                             @if($dynamicfield['FieldSlug']=='pbxaccountstatus')
                                 <label class="col-md-2 control-label">{{$dynamicfield['FieldSlug']}}</label>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
+                        <div class="col-md-4">
+                            {{Form::select('pbxaccountstatus', array('0'=>'Unblock','1'=>'Block'), (isset($dynamicfield['FieldValue'])? explode(',',$dynamicfield['FieldValue']) : array() ) ,array("class"=>"form-control select2"))}}
+                        </div>
                             @endif
                     @if(!empty($dynamicfield['FieldSlug']))
                         @if($dynamicfield['FieldSlug']=='accountgateway')
@@ -255,6 +261,7 @@
                             </div>
                         @endif
                         @if($dynamicfield['FieldSlug']=='pbxaccountstatus')
+                                <label class="col-md-2 control-label">{{$dynamicfield['FieldSlug']}}</label>
                             </div>
                     <div class="form-group">
                             <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
