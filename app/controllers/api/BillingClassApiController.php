@@ -51,6 +51,17 @@ class BillingClassApiController extends ApiController {
 				$AccountID=$Account->AccountID;
 				$CompanyID=$Account->CompanyId;
 			}
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			if(empty($AccountID)){
+				return Response::json(["status"=>"failed", "data"=>"Account Not Found."]);
+			}
+			$Account = Account::where(["AccountID" => $AccountID])->first();
+			if(!empty($Account)){
+				$AccountID=$Account->AccountID;
+				$CompanyID=$Account->CompanyId;
+			}
+
 		}else{
 			return Response::json(["status"=>"failed", "message"=>"AccountID OR AccountNo Required"]);
 		}
@@ -118,6 +129,9 @@ class BillingClassApiController extends ApiController {
 			$AccountID = $data['AccountID'];
 		}else if(!empty($data['AccountNo'])){
 			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+
 		}
 
 		if(empty($AccountID)){

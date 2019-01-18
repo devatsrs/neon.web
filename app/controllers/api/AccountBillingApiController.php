@@ -26,6 +26,12 @@ class AccountBillingApiController extends ApiController {
 			if(!empty($Account)){
 				$AccountID=$Account->AccountID;
 			}
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			if(empty($AccountID)){
+				return Response::json(["status"=>"failed", "data"=>"Account Not Found."]);
+			}
+
 		} else{
 			return Response::json(["status"=>"failed", "message"=>"AccountID or AccountNo Field is Required."]);
 		}
@@ -51,6 +57,12 @@ class AccountBillingApiController extends ApiController {
 			}else{
 				return Response::json(["status"=>"failed", "data"=>"Account Not Found."]);
 			}
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			if(empty($AccountID)){
+				return Response::json(["status"=>"failed", "data"=>"Account Not Found."]);
+			}
+
 		}else{
 			return Response::json(["status"=>"failed", "data"=>"AccountID or AccountNo Field is Required."]);
 		}
@@ -91,6 +103,7 @@ class AccountBillingApiController extends ApiController {
 		}
 		unset($data['AccountID']);
 		unset($data['AccountNo']);
+		unset($data['AccountDynamicField']);
 		$data['updated_at']=date('Y-m-d H:i:s');
 
 		if ($AccountPaymentAutomationObj->update($data)) {
@@ -119,6 +132,7 @@ class AccountBillingApiController extends ApiController {
 		}
 		$data['AccountID']=$AccountID;
 		unset($data['AccountNo']);
+		unset($data['AccountDynamicField']);
 
 		$data['created_at']=date('Y-m-d H:i:s');
 		if (AccountPaymentAutomation::create($data)) {
@@ -148,6 +162,12 @@ class AccountBillingApiController extends ApiController {
 			}else{
 				return Response::json(["status"=>"failed", "data"=>"Account Not Found."]);
 			}
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			if(empty($AccountID)){
+				return Response::json(["status"=>"failed", "data"=>"Account Not Found."]);
+			}
+
 		} else{
 			return Response::json(["status"=>"failed", "data"=>"AccountID or AccountNo Field is Required."]);
 		}
@@ -173,6 +193,12 @@ class AccountBillingApiController extends ApiController {
 			}else{
 				return Response::json(["status"=>"failed", "data"=>"Account Not Found."]);
 			}
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			if(empty($AccountID)){
+				return Response::json(["status"=>"failed", "data"=>"Account Not Found."]);
+			}
+
 		}else{
 			return Response::json(["status"=>"failed", "data"=>"AccountID or AccountNo Field is Required."]);
 		}
@@ -215,6 +241,7 @@ class AccountBillingApiController extends ApiController {
 		}
 		unset($data['AccountID']);
 		unset($data['AccountNo']);
+		unset($data['AccountDynamicField']);
 
 		$data['updated_at']=date('Y-m-d H:i:s');
 		if ($AccountPaymentAutomation->update($data)) {
@@ -244,6 +271,7 @@ class AccountBillingApiController extends ApiController {
 		}
 		$data['AccountID']=$AccountID;
 		unset($data['AccountNo']);
+		unset($data['AccountDynamicField']);
 
 		$data['created_at']=date('Y-m-d H:i:s');
 		if (AccountPaymentAutomation::create($data)) {

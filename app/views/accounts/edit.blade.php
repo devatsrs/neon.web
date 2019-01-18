@@ -236,8 +236,18 @@
                 </div>
 
                 @if(!empty($dynamicfields) && count($dynamicfields)>0)
-                    <div class="form-group">
+                    <?php
+                    $cnt=0;
+                    ?>
+
                 @foreach($dynamicfields as $dynamicfield)
+                            <?php
+                            if($cnt==0){
+                            ?>
+                                <div class="form-group">
+                                    <?php
+                                    }
+                                    ?>
                     @if(!empty($dynamicfield['FieldSlug']))
                         @if($dynamicfield['FieldSlug']=='accountgateway')
                             <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
@@ -245,6 +255,12 @@
                                 {{Form::select('accountgateway[]', CompanyGateway::getCompanyGatewayIdList(), (isset($dynamicfield['FieldValue'])? explode(',',$dynamicfield['FieldValue']) : array() ) ,array("class"=>"form-control select2",'multiple'))}}
                             </div>
                         @endif
+                            @if($dynamicfield['FieldSlug']=='CustomerID')
+                                <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" autocomplete="off"  name="CustomerID" id="field-1" value="{{$dynamicfield['FieldValue']}}" />
+                                </div>
+                            @endif
                         @if($dynamicfield['FieldSlug']=='vendorname')
                             <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
                             <div class="col-md-4">
@@ -252,8 +268,7 @@
                             </div>
                         @endif
                         @if($dynamicfield['FieldSlug']=='pbxaccountstatus')
-                            </div>
-                    <div class="form-group">
+
                             <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
                             <div class="col-md-4">
                                 {{Form::select('pbxaccountstatus', array('0'=>'Unblock','1'=>'Block'), (isset($dynamicfield['FieldValue'])? explode(',',$dynamicfield['FieldValue']) : array() ) ,array("class"=>"form-control select2"))}}
@@ -267,9 +282,25 @@
                                 </div>
                             </div>
                         @endif
+                            <?php
+                            if($cnt==1){
+                            ?>
+                            </div>
+                             <?php
+                            }
+                            ?>
+                            <?php ++$cnt;if($cnt==2){$cnt= 0;} ?>
                     @endif
+
                 @endforeach
-                    </div>
+                            <?php
+                            if($cnt==1){
+                            ?>
+                                </div>
+
+                                <?php
+                                }
+                                ?>
                 @endif
                 <div class="form-group">
                     <label class="col-md-2 control-label">Language</label>
