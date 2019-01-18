@@ -17,10 +17,13 @@ class RoutingApiController extends ApiController {
             'OriginationNo' => 'required',
             'DestinationNo' => 'required',
             'DataAndTime' => 'required',
-            'AccountNumber' => 'required_without_all:AccountID',
-            'AccountID' => 'required_without_all:AccountNumber',
+            'AccountNo' => 'required_without_all:AccountID,AccountDynamicField',
+            'AccountID' => 'required_without_all:AccountNo,AccountDynamicField',
+            'AccountDynamicField' => 'required_without_all:AccountNo,AccountID',
+
         );
         $validator = Validator::make($routingData, $rules);
+
 
         if ($validator->fails()) {
             $errors = "";
@@ -30,12 +33,23 @@ class RoutingApiController extends ApiController {
             return Response::json(["status" => "failed", "message" => $errors]);
         }
 
+        if (!empty($routingData['AccountDynamicField'])) {
+            $AccountIDRef = '';
+            $AccountIDRef = Account::findAccountBySIAccountRef($routingData['AccountDynamicField']);
+
+            if (empty($AccountIDRef)) {
+                return Response::json(["status" => "failed", "message" => "Please provide the correct Account ID"]);
+            }
+            $routingData["AccountID"] = $AccountIDRef;
+        }
+
+
         Log::info('routingList:Get the routing list user company.' . $CompanyID);
         $profiles = '';
         $RoutingProfileId = array();
         $CustomerProfileAccountID = '';
-        if (isset($routingData["AccountNumber"]) && $routingData["AccountNumber"] != '') {
-            $CustomerProfileAccountID = Account::where(["Number" => $routingData["AccountNumber"]])->pluck("AccountID");
+        if (isset($routingData["AccountNo"]) && $routingData["AccountNo"] != '') {
+            $CustomerProfileAccountID = Account::where(["Number" => $routingData["AccountNo"]])->pluck("AccountID");
         }else {
             $CustomerProfileAccountID = Account::where(["AccountID" => $routingData["AccountID"]])->pluck("AccountID");
         }
@@ -172,6 +186,7 @@ class RoutingApiController extends ApiController {
              */
         $procName = "prc_getRoutingRecords";
         $syntax = '';
+
         $parameters = [$CustomerProfileAccountID,$routingData['OriginationNo'],$routingData['DestinationNo'],
             $queryTimeZone,$RoutingProfileID,$routingData['Location']];
         for ($i = 0; $i < count($parameters); $i++) {

@@ -153,7 +153,7 @@ class ServicesTemplateApiController extends ApiController
 
                 $ServiceTemplateData['CurrencyId'] = $data['CurrencyId'];
 
-                $ServiceTemplateData['ContractDuration'] = $post_vars->Duration;
+                $ServiceTemplateData['ContractDuration'] = $post_vars->ContractDuration;
                 $ServiceTemplateData['CancellationCharges'] = $post_vars->ContractType;
                 $ServiceTemplateData['AutomaticRenewal'] = $post_vars->AutoRenewal;
                 $ServiceTemplateData['CancellationFee'] = $post_vars->ContractFeeValue;
@@ -212,6 +212,7 @@ class ServicesTemplateApiController extends ApiController
             }
             //return Response::json(array("status" => "failed", "message" => "Problem Creating Service."));
         } catch (Exception $ex) {
+            Log::info('storeServiceTempalteData:Exception.' . $ex->getTraceAsString());
             return Response::json(["status" => "failed", "message" => $ex->getMessage()]);
             //return  Response::json(array("status" => "failed", "message" => $ex->getMessage(),'LastID'=>'','newcreated'=>''));
         }

@@ -132,9 +132,11 @@ class RoutingProfilesController extends \BaseController {
 	 */
 	public function update($id)
 	{
+
         if( $id > 0 ) {
             $data = Input::all();
-            $RoutingCategory = RoutingProfiles::findOrFail($id);
+            $data['Status'] = Input::has('Status') ? 1 : 0;
+            $RoutingProfiles = RoutingProfiles::findOrFail($id);
             $companyID = User::get_companyID();
             $data['CompanyID'] = $companyID;
             $data["UpdatedBy"] = User::get_user_full_name();
@@ -149,12 +151,12 @@ class RoutingProfilesController extends \BaseController {
                 return json_validator_response($validator);
             }
             unset($data['RoutingProfileID']);
-            if ($RoutingCategory->update($data)) {
+            if ($RoutingProfiles->update($data)) {
                 RoutingProfiles::clearCache();
-                
+
                 //Delete Old Data
                 RoutingProfileCategory::where(array('RoutingProfileID'=>$id))->delete();
-                
+
                 //Add Routing profile cate
                 $orderingCnt= Input::get('Orders');
                 $dataCat = array_unique($data['RoutingCategory']);

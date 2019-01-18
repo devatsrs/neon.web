@@ -764,182 +764,225 @@
                 });
                 return false;
             }
+
+//---------------------- For Dynamic Field hit the change the  subscritption select box --------------------------------
+
+
+
+        $(document).ready(function(){
+            $('#SubscriptionID').on('change', function() {
+                $("#add-dynamice-fields-show").empty();
+                SubscriptionID        = $(this).val();
+                AccountSubscriptionID = $("#AccountSubscriptionID").val();
+                var find_dynamic_feilds_url	= baseurl + '/account_subscription/DynamiceFieldFinder';
+
+                $.ajax({
+                    url: find_dynamic_feilds_url,  //Server script to process data
+                    type: 'POST',
+                    data:'SubscriptionID='+SubscriptionID+'&AccountSubscriptionID='+AccountSubscriptionID,
+                    dataType: 'html',
+                    success: function (response) {
+
+                        var i;
+                        var obj = jQuery.parseJSON(response);
+                        $('#add-dynamice-fields-show').empty();
+                        for (i = 0; i < obj.length; ++i)
+                        {
+                            if(obj[i].FieldDomType =="numericePerMin" || obj[i].FieldDomType =="text" )
+                            {
+                                $('#add-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="number" name="dynamicFileds[]" class="form-control" value="'+obj[i].FieldValue+'" /></div></div></div>');
+                            }else if(obj[i].FieldDomType == "string"){
+                                $('#add-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="text" name="dynamicFileds[]" class="form-control" value="'+obj[i].FieldValue+'" /></div></div></div>');
+                            }else if(obj[i].FieldDomType == "datetime"){
+                                $('#add-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="text" name="dynamicFileds[]" class="form-control datetimepicker" value="'+obj[i].FieldValue+'" /></div></div></div>');
+                            }else if( obj[i].FieldDomType =="text"){
+                                $('#add-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><textarea name="description" class="form-control">'+obj[i].FieldValue+'</textarea></div></div></div>');
+                            }else if( obj[i].FieldDomType =="boolean"){
+                                $('#add-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><p class="clear"><p class="make-switch switch-small"><input type="checkbox" name="dynamicFileds[]" value="'+obj[i].FieldValue+'"></p></div></div></div></div>');
+                            }else if( obj[i].FieldDomType =="select"){
+                                $('#add-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><select class="form-control" name="dynamicSelect[]"><option value="'+obj[i].FieldValue+'">'+obj[i].FieldValue+'</option></select></div></div></div>');
+                            }else if( obj[i].FieldDomType =="file"){
+                                $('#add-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">Upload file</label><br><a class="file-input-wrapper btn form-control file2 inline btn btn-primary"><i class="glyphicon glyphicon-circle-arrow-up">  Browse</a></div></div></div>');
+                            }
+
+                        }
+
+
+                    },
+                    error: function (request, status, error) {
+
+                        toastr.error(request.responseText, "Error", toastr_opts)
+                    }
+                });
+
+
+
+            });
+        });
+
+
 </script>
 <div class="modal fade in" id="modal-subscription">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <form id="subscription-form" method="post">
-        <div class="modal-header">
+
+       <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
           <h4 class="modal-title">Subscription</h4>
         </div>
+
         <div class="modal-body">
-        <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label for="field-5" class="control-label">Account</label>
-                 {{ Form::select('AccountID',$accounts, '', array("class"=>"select2 dropdown1 AccountID_add_change","id"=>"AccountID_add_change")) }}
-                </div>
-            </div>
-          </div>         
-        
           <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label for="field-5" class="control-label">Service</label>
-                	<div>
-        			{{ Form::select('ServiceID',$services,'', array("class"=>"select2 dropdown1","id"=>"ServiceID_add_change")) }}        
-                    </div>
-                </div>
-            </div>
-          </div>
-          
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label for="field-5" class="control-label">Subscription</label>
-                	<div>
-        			 {{ Form::select('SubscriptionID', array() , '' , array("class"=>"select2 dropdown1","id"=>"SubscriptionID_add_change")) }}
-                    </div>
-                </div>
-            </div>
-          </div>
-          
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label for="field-5" class="control-label">Invoice Description</label>
-                <input type="text" name="InvoiceDescription" class="form-control" value="" />
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label for="field-5" class="control-label">No</label>
-                <input type="text" name="SequenceNo" class="form-control" placeholder="AUTO" value=""  />
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label for="field-5" class="control-label">Qty</label>
-                <input type="text" name="Qty" class="form-control" value="" />
-              </div>
-            </div>
-          </div>
-          <!-- -->
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label for="AnnuallyFee" class="control-label">Yearly Fee</label>
-                <input type="text" name="AnnuallyFee" class="form-control"   maxlength="10" id="AnnuallyFee" placeholder="" value="" />
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label for="QuarterlyFee" class="control-label">Quarterly Fee</label>
-                <input type="text" name="QuarterlyFee" class="form-control"   maxlength="10" id="QuarterlyFee" placeholder="" value="" />
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label for="MonthlyFee" class="control-label">Monthly Fee</label>
-                <input type="text" name="MonthlyFee" class="form-control"   maxlength="10" id="MonthlyFee" placeholder="" value="" />
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label for="WeeklyFee" class="control-label">Weekly Fee</label>
-                <input type="text" name="WeeklyFee" id="WeeklyFee" class="form-control" value="" />
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label for="DailyFee" class="control-label">Daily Fee</label>
-                <input type="text" name="DailyFee" id="DailyFee" class="form-control" value="" />
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label for="ActivationFee" class="control-label">Activation Fee</label>
-                <input type="text" name="ActivationFee" id="ActivationFee" class="form-control" value="" />
-              </div>
-            </div>
-          </div>
-          <!-- -->
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label for="field-5" class="control-label">Start Date</label>
-                <input type="text" name="StartDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value=""   />
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label for="field-5" class="control-label">End Date</label>
-                <input type="text" name="EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value=""  />
-              </div>
-            </div>
-          </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="field-5" class="control-label">Discount</label>
-                        <input type="text" name="DiscountAmount" class="form-control" value=""  />
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="field-5" class="control-label">Discount Type</label>
-                        {{ Form::select('DiscountType', array('Flat' => 'Flat', 'Percentage' => 'Percentage') ,'', array("class"=>"form-control") ) }}
-                    </div>
-                </div>
-            </div>
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label for="field-5" class="control-label">Exempt From Tax</label>
-                <div class="clear">
-                  <p class="make-switch switch-small">
-                    <input type="checkbox" name="ExemptTax" value="0">
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-            <div class="row">
+              <div class="col-sm-6">
                 <div class="col-md-12">
-                    <div class="form-group">
-                        <label for="field-5" class="control-label">Active</label>
-                        <div class="clear">
-                            <p class="make-switch switch-small">
-                                <input type="checkbox" name="Status" value="0">
-                            </p>
+                  <div class="form-group">
+                    <label for="field-5" class="control-label">Account</label>
+                     {{ Form::select('AccountID',$accounts, '', array("class"=>"select2 dropdown1 AccountID_add_change","id"=>"AccountID_add_change")) }}
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label for="field-5" class="control-label">Service</label>
+                        <div>
+                        {{ Form::select('ServiceID',$services,'', array("class"=>"select2 dropdown1","id"=>"ServiceID_add_change")) }}
                         </div>
                     </div>
                 </div>
+                  <div class="col-md-12">
+                      <div class="form-group">
+                          <label for="field-5" class="control-label">Subscription</label>
+                          <div>
+                              {{ Form::select('SubscriptionID', $Subscritions , '', array('id'=>'SubscriptionID')) }}
+                          </div>
+                      </div>
+                  </div>
+
+                  <div class="col-md-12">
+                      <div class="form-group">
+                          <label for="field-5" class="control-label">Invoice Description</label>
+                          <input type="text" name="InvoiceDescription" class="form-control" value="" />
+                      </div>
+                  </div>
+                  <div class="col-md-12">
+                      <div class="form-group">
+                          <label for="field-5" class="control-label">No</label>
+                          <input type="text" name="SequenceNo" class="form-control" placeholder="AUTO" value=""  />
+                      </div>
+                  </div>
+                  <div class="col-md-12">
+                      <div class="form-group">
+                          <label for="field-5" class="control-label">Qty</label>
+                          <input type="text" name="Qty" class="form-control" value="" />
+                      </div>
+                  </div>
+
+                  <div class="col-md-12">
+                      <div class="form-group">
+                          <label for="AnnuallyFee" class="control-label">Yearly Fee</label>
+                          <input type="text" name="AnnuallyFee" class="form-control"   maxlength="10" id="AnnuallyFee" placeholder="" value="" />
+                      </div>
+                  </div>
+                  <div class="col-md-12">
+                      <div class="form-group">
+                          <label for="QuarterlyFee" class="control-label">Quarterly Fee</label>
+                          <input type="text" name="QuarterlyFee" class="form-control"   maxlength="10" id="QuarterlyFee" placeholder="" value="" />
+                      </div>
+                  </div>
+
+                  <div class="col-md-12">
+                      <div class="form-group">
+                          <label for="field-5" class="control-label">Active</label>
+                          <div class="clear">
+                              <p class="make-switch switch-small">
+                                  <input type="checkbox" name="Status" value="0">
+                              </p>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-sm-6">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label for="MonthlyFee" class="control-label">Monthly Fee</label>
+                        <input type="text" name="MonthlyFee" class="form-control"   maxlength="10" id="MonthlyFee" placeholder="" value="" />
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label for="WeeklyFee" class="control-label">Weekly Fee</label>
+                        <input type="text" name="WeeklyFee" id="WeeklyFee" class="form-control" value="" />
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label for="DailyFee" class="control-label">Daily Fee</label>
+                        <input type="text" name="DailyFee" id="DailyFee" class="form-control" value="" />
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label for="ActivationFee" class="control-label">Activation Fee</label>
+                        <input type="text" name="ActivationFee" id="ActivationFee" class="form-control" value="" />
+                      </div>
+                    </div>
+                  <!-- -->
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label for="field-5" class="control-label">Start Date</label>
+                        <input type="text" name="StartDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value=""   />
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label for="field-5" class="control-label">End Date</label>
+                        <input type="text" name="EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value=""  />
+                      </div>
+                    </div>
+
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label for="field-5" class="control-label">Discount</label>
+                            <input type="text" name="DiscountAmount" class="form-control" value=""  />
+                        </div>
+                    </div>
+
+
+                  <div class="col-sm-12">
+                      <div class="form-group">
+                          <label for="field-5" class="control-label">Discount Type</label>
+                          {{ Form::select('DiscountType', array('Flat' => 'Flat', 'Percentage' => 'Percentage') ,'', array("class"=>"form-control") ) }}
+                      </div>
+                  </div>
+
+                  <div class="col-md-12">
+                      <div class="form-group">
+                          <label for="field-5" class="control-label">Exempt From Tax</label>
+                          <div class="clear">
+                              <p class="make-switch switch-small">
+                                  <input type="checkbox" name="ExemptTax" value="0">
+                              </p>
+                          </div>
+                      </div>
+                  </div>
+
+              </div>
+
+          </div>
+
+            <div class="modal-body">
+                <div class="row" id="add-dynamice-fields-show">
+                </div>
             </div>
-        </div>
-        <input type="hidden" name="AccountSubscriptionID">
+
         <div class="modal-footer">
           <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
           <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
         </div>
+        <input type="hidden" name="AccountSubscriptionID" id="AccountSubscriptionID" value="{{$id}}">
       </form>
+      </div>
     </div>
   </div>
 </div>

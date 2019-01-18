@@ -143,7 +143,7 @@
                             <div class="panel-options">
                                 <label class="col-md-2 control-label">Duration(months)</label>
                                 <div class="col-md-4">
-                                    <input type="text" @if(isset($AccountServiceContract->Duration)) value="{{$AccountServiceContract->Duration}}" @endif class="form-control" name="Duration">
+                                    <input type="number"  min="0" @if(isset($AccountServiceContract->Duration)) value="{{$AccountServiceContract->Duration}}" @endif class="form-control" name="Duration">
                                 </div>
                             </div>
                             <label class="col-md-2 control-label">Automatic Renewal</label>
@@ -177,7 +177,7 @@
                                                                     <label class="control-label">Fixed Fee</label>
                                                                 </div>
                                                                 <div class="col-md-12">
-                                                                    <input type="text" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->ContractTerm == 1 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="FixedFee">
+                                                                    <input type="number"  min="0" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->ContractTerm == 1 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="FixedFee">
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -217,7 +217,7 @@
                                                                     <label class="control-label">Percentage</label>
                                                                 </div>
                                                                 <div class="col-md-12">
-                                                                    <input type="text" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->ContractTerm == 3 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="Percentage">
+                                                                    <input type="number" min="0" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->ContractTerm == 3 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="Percentage">
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -244,7 +244,7 @@
                                                                     <label class="control-label">Fixed Fee</label>
                                                                 </div>
                                                                 <div class="col-md-12">
-                                                                    <input type="text" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->ContractTerm == 4 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="FixedFeeContract">
+                                                                    <input type="number"  min="0" @if(isset($AccountServiceContract->ContractReason) && $AccountServiceContract->ContractTerm == 4 ) value="{{$AccountServiceContract->ContractReason}}"  @endif class="form-control" name="FixedFeeContract">
                                                                 </div>
                                                             </div>
                                                         </div>

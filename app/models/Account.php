@@ -815,8 +815,11 @@ class Account extends \Eloquent {
         $data = array();
 
         $Fields = DB::table('tblDynamicFields')->where(['CompanyID'=>User::get_companyID(),'Type'=>$Type,'Status'=>1])->get();
+        Log::info("Count for Dynamic fields for Account ." . $ParentID . count($Fields));
         if(!empty($Fields) && count($Fields)>0){
+            Log::info("Count for Dynamic fields for Account ." . $ParentID . ' in side loop ');
             foreach($Fields as $Field){
+                Log::info("Count for Dynamic fields for Account ." . $ParentID . ' ' . $Field->FieldSlug);
                 $FieldValue = Account::getDynamicfieldValue($ParentID,$Field->FieldSlug);
                 $data['FieldDomType'] = $Field->FieldDomType;
                 $data['FieldName'] = $Field->FieldName;
@@ -824,9 +827,10 @@ class Account extends \Eloquent {
                 $data['DynamicFieldsID'] = $Field->DynamicFieldsID;
                 $data['FieldValue'] = $FieldValue;
                 $results[] = $data;
+                Log::info("Count for Dynamic fields for Account ." . $ParentID . ' ' . count($results));
             }
         }
-
+        Log::info("Count for Dynamic fields for Account ." . $ParentID . ' ' . count($results));
         return $results;
     }
 
@@ -882,5 +886,43 @@ class Account extends \Eloquent {
 
     public static function getCompanyIDByAccountID($AccountID){
         return  Account::where(["AccountID"=>$AccountID])->pluck('CompanyId');
+    }
+
+    public static function findAccountBySIAccountRef($AccountRef){
+
+        $AccountReferenceArr=json_decode(json_encode(json_decode($AccountRef)),true);
+        Log::info('findAccountBySIAccountRef .' . count($AccountReferenceArr));
+
+        $Query = "select distinct ParentID from tblDynamicFieldsValue where ";
+        for ($i =0; $i <count($AccountReferenceArr);$i++) {
+            $AccountReference = $AccountReferenceArr[$i];
+            $DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'account','Status'=>1,'FieldSlug'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
+            if(empty($DynamicFieldsID)){
+                return '';
+            } else {
+                $Query = $Query .'(DynamicFieldsID = ' . $DynamicFieldsID . " and FieldValue='" . $AccountReference["Value"] . "')";
+                if ($i != count($AccountReferenceArr) - 1) {
+                    $Query = $Query . " OR ";
+                }
+            }
+        }
+
+
+        Log::info('Account $DynamicFieldsID Query.' . $Query);
+        $DynamicFieldsValues = DB::select($Query);
+
+
+            Log::info('Account $AccountReference["Value"].' . count($DynamicFieldsValues));
+            if (count($DynamicFieldsValues) > 1 || count($DynamicFieldsValues) == 0) {
+                return '';
+            }else {
+                foreach ($DynamicFieldsValues as $DynamicFieldsValue) {
+
+                }
+                return $DynamicFieldsValue->ParentID;
+            }
+
+
+        return '';
     }
 }
