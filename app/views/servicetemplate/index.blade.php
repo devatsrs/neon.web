@@ -516,8 +516,8 @@
         });
 
 
-        $('#add-bulkAction').click(function(e){
-
+        $('#add-action-bulk-form').submit(function(e){
+            //add-action-bulk-form
            update_new_url = baseurl + '/servicesTemplate/addBulkAction';
             var data = new FormData(($('#add-action-bulk-form')[0]));
 
