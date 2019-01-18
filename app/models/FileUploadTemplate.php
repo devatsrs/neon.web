@@ -101,7 +101,7 @@ class FileUploadTemplate extends \Eloquent {
                 }
                 if(isset($data['occupied_fields']))
                     $option['occupied_fields'] = $data['occupied_fields'];
-                if(isset($data['occupied_fields']))
+                if(isset($data['occupied_timezone_fields']))
                     $option['occupied_timezone_fields'] = $data['occupied_timezone_fields'];
             }
             $save['Options']          = str_replace('Skip loading','',json_encode($option));
@@ -193,7 +193,7 @@ class FileUploadTemplate extends \Eloquent {
                     }
                     if(isset($data['occupied_fields']))
                         $option['occupied_fields'] = $data['occupied_fields'];
-                    if(isset($data['occupied_fields']))
+                    if(isset($data['occupied_timezone_fields']))
                         $option['occupied_timezone_fields'] = $data['occupied_timezone_fields'];
                 }
                 $save['Options']            = str_replace('Skip loading','',json_encode($option));
