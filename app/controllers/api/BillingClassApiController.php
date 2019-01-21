@@ -86,6 +86,10 @@ class BillingClassApiController extends ApiController {
 				$PostData['LowBalanceReminderSettings']['StartTime'] = isset($data['StartTime']) ? $data['StartTime'] : '';
 				$PostData['LowBalanceReminderSettings']['TemplateID'] = isset($data['EmailTemplateID']) ? $data['EmailTemplateID'] : '';
 
+				if(!empty($data['Period']) && $data['Period']=='MONTHLY'){
+					$PostData['LowBalanceReminderSettings']['StartDay']=!empty($data['StartDay'])?$data['StartDay']:'1';
+				}
+
 				if (!empty($data['SendCopyToAccountOwner'])) {
 					$PostData['LowBalanceReminderSettings']['AccountManager'] = $data['SendCopyToAccountOwner'];
 				}

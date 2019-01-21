@@ -62,6 +62,12 @@ class ActiveCallApiController extends ApiController {
                 //$AccountBalance = AccountBalance::getNewAccountExposure($CompanyID, $AccountID);
                 $AccountBalance = AccountBalance::getBalanceAmount($AccountID);
                 if($AccountBalance > 0){
+                    if($data['CallType']==0){
+                        $data['CallType']='Inbound';
+                    }
+                    if($data['CallType']==1){
+                        $data['CallType']='Outbound';
+                    }
                     $ActiveCallData=array();
                     $ActiveCallData['AccountID']=$AccountID;
                     $ActiveCallData['CompanyId']=$CompanyID;
