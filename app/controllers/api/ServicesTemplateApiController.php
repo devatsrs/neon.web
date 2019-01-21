@@ -25,6 +25,13 @@ class ServicesTemplateApiController extends ApiController
                 return Response::json(["status"=>"failed", "message"=>"Please provide the valid currency"]);
             }
 
+            $ServiceCodeSql = Service::where('ServiceID',$data['ServiceId']);
+            Log::info('storeServiceTempalteData $ServiceCodeSql.' . $ServiceCodeSql->toSql());
+            $ServiceCodeSqlResult = $ServiceCodeSql->first();
+            if (!isset($ServiceCodeSqlResult)) {
+                return Response::json(["status"=>"failed", "message"=>"Please provide the valid Service"]);
+            }
+
             if (!empty($post_vars["ContractType"]) && ($post_vars["ContractType"] < 1 || $post_vars["ContractType"] > 4)) {
                 return Response::json(["status" => "failed", "message" => "The value of ContractType must be between 1 and 4"]);
             }
