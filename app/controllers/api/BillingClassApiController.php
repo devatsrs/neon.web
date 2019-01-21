@@ -67,6 +67,17 @@ class BillingClassApiController extends ApiController {
 		}
 
 		if(!empty($AccountID) && !empty($CompanyID)){
+			//Validation
+			$rules = array(
+				'Status' => 'required',
+				'Period' => 'required',
+				'Email' => 'required'
+			);
+			$validator = Validator::make($data, $rules);
+			if ($validator->fails()) {
+				return json_validator_response($validator);
+			}
+
 			try {
 				$PostData['LowBalanceReminderStatus'] = isset($data['Status']) ? $data['Status'] : 0;
 				$PostData['LowBalanceReminderSettings']['ReminderEmail'] = isset($data['Email']) ? $data['Email'] : '';
@@ -74,6 +85,10 @@ class BillingClassApiController extends ApiController {
 				$PostData['LowBalanceReminderSettings']['Interval'] = isset($data['Interval']) ? $data['Interval'] : '';
 				$PostData['LowBalanceReminderSettings']['StartTime'] = isset($data['StartTime']) ? $data['StartTime'] : '';
 				$PostData['LowBalanceReminderSettings']['TemplateID'] = isset($data['EmailTemplateID']) ? $data['EmailTemplateID'] : '';
+
+				if(!empty($data['Period']) && $data['Period']=='MONTHLY'){
+					$PostData['LowBalanceReminderSettings']['StartDay']=!empty($data['StartDay'])?$data['StartDay']:'1';
+				}
 
 				if (!empty($data['SendCopyToAccountOwner'])) {
 					$PostData['LowBalanceReminderSettings']['AccountManager'] = $data['SendCopyToAccountOwner'];
