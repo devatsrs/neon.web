@@ -6,6 +6,11 @@
             border-left: 3px solid #00cc00;
             padding-left: 7px;
         }
+        .panel-header-btn {
+            padding: 5px;
+            cursor: pointer;
+            display: inline-block;
+        }
     </style>
     <ol class="breadcrumb bc-3">
         <li>
@@ -122,6 +127,12 @@
                             Contract
                         </div>
                         <div class="panel-options">
+                            <a id="currency-update" class="save panel-header-btn" data-toggle="modal" data-target="#add-new-modal-accounts" title="Cancel Contract" style="visibility: visible;color:#222222">
+                                <i class="entypo-cancel" title="Cancel Contract" data-placement="top" data-toggle="tooltip"></i>
+                            </a>
+                            <a class="panel-header-btn" title="History" data-dismiss="modal" data-placement="top" data-toggle="tooltip" style="color: #cc2424;">
+                                <i class="entypo-clock"></i>
+                            </a>
                             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                         </div>
                     </div>
@@ -261,12 +272,6 @@
                         <div class="container">
                             <div class="form-group">
                                 <div class="col-sm-6 col-md-3">
-                                    <a id="currency-update" class="save btn btn-primary btn-sm btn-icon" data-toggle="modal" data-target="#add-new-modal-accounts" style="visibility: visible;width:99px;">
-                                        Cancel Contract
-                                    </a>
-                                    <a  class="btn  btn-danger btn-sm btn-icon" data-dismiss="modal">
-                                        History
-                                    </a>
 
                                 </div>
                             </div>
