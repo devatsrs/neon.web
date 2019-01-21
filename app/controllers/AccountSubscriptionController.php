@@ -152,8 +152,10 @@ public function main() {
         if(isset($data['dynamicImage']))
         {
             $GetDynamicImg['dynamicImage'] = $data['dynamicImage'];
-            unset( $data['dynamicImage']);
         }
+
+        unset( $data['dynamicImage']);
+
 
         if ($AccountSubscription = AccountSubscription::create($data)) {
             $dynamiceFields['AccountID']  = $data['AccountID'];
@@ -293,8 +295,8 @@ public function main() {
 
             if (isset($data['dynamicImage'])) {
                 $GetDynamicImg['dynamicImage'] = $data['dynamicImage'];
-                unset($data['dynamicImage']);
             }
+            unset($data['dynamicImage']);
 
 
             try {
