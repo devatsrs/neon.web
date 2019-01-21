@@ -149,13 +149,13 @@ public function main() {
         }
 
         $companyID        = User::get_companyID();
-        if(isset($data['dynamicImage']))
-        {
+
+
+        if (isset($data['dynamicImage']) && !empty($data['dynamicImage'])) {
             $GetDynamicImg['dynamicImage'] = $data['dynamicImage'];
+            unset( $data['dynamicImage']);
+
         }
-
-        unset( $data['dynamicImage']);
-
 
         if ($AccountSubscription = AccountSubscription::create($data)) {
             $dynamiceFields['AccountID']  = $data['AccountID'];
@@ -293,13 +293,13 @@ public function main() {
 
             $companyID = User::get_companyID();
 
-            if (isset($data['dynamicImage'])) {
+            if (isset($data['dynamicImage']) && !empty($data['dynamicImage'])) {
                 $GetDynamicImg['dynamicImage'] = $data['dynamicImage'];
+                unset($data['dynamicImage']);
             }
-            unset($data['dynamicImage']);
 
-            if(isset($ids) && isset($name) && isset($type) ) {
-                try {
+
+            try {
                 $AccountSubscription->update($data);
 
                 $GetDynamiceAll = DynamicFields::join('tblDynamicFieldsValue', function ($join) {
@@ -381,8 +381,6 @@ public function main() {
                 Log::info('Trach Line...' . $ex->getTraceAsString());
                 return Response::json(array("status" => "failed", "message" => "Problem Deleting. Exception:" . $ex->getMessage()));
             }
-          }
-
         }
 	}
 
