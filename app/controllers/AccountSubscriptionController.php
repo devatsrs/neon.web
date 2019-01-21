@@ -155,9 +155,9 @@ public function main() {
 
         if (isset($data['dynamicImage']) && !empty($data['dynamicImage'])) {
             $GetDynamicImg['dynamicImage'] = $data['dynamicImage'];
-            unset( $data['dynamicImage']);
 
         }
+        unset($data['dynamicImage']);
 
         $data['Status'] = '1';
         if ($AccountSubscription = AccountSubscription::create($data)) {
@@ -292,8 +292,8 @@ public function main() {
 
             if (isset($data['dynamicImage']) && !empty($data['dynamicImage'])) {
                 $GetDynamicImg['dynamicImage'] = $data['dynamicImage'];
-                unset($data['dynamicImage']);
             }
+            unset($data['dynamicImage']);
 
 
             try {
