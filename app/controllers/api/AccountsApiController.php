@@ -77,21 +77,21 @@ class AccountsApiController extends ApiController {
 		$DynamicSubscrioptionFields = '';
 		try {
 			Log::info('createAccountService:Data.' . json_encode($accountData));
-			$data['AccountNo'] = $accountData['AccountNo'];
-			$data['AccountID'] = $accountData['AccountID'];
-			$data['ServiceTemaplate'] = $accountData['ServiceTemaplate'];
-			$data['NumberPurchased'] = $accountData['NumberPurchased'];
-			$data['AccountDynamicField'] = $accountData['AccountDynamicField'];
+			$data['AccountNo'] = isset($accountData['AccountNo']) ? $accountData['AccountNo'] : '';
+			$data['AccountID'] = isset($accountData['AccountID']) ? $accountData['AccountID'] : '';
+			$data['ServiceTemaplate'] = isset($accountData['ServiceTemaplate']) ? $accountData['ServiceTemaplate'] : '';
+			$data['NumberPurchased'] = isset($accountData['NumberPurchased']) ? $accountData['NumberPurchased'] : '';
+			$data['AccountDynamicField'] = isset($accountData['AccountDynamicField']) ? $accountData['AccountDynamicField'] : '';
 			$data['InboundTariffCategory'] = isset($accountData['InboundTariffCategoryID']) ? $accountData['InboundTariffCategoryID'] :'';
 			//$data['ServiceStartDate'] = isset($accountData['ServiceStartDate'])? strtotime($accountData['ServiceStartDate']) : '';
 			//$data['ServiceEndDate'] = isset($accountData['ServiceEndDate'])? strtotime($accountData['ServiceEndDate']) : '';
-			$AccountServiceContract['ContractStartDate'] = $accountData['ServiceStartDate'];
-			$AccountServiceContract['ContractEndDate'] = $accountData['ServiceEndDate'];
-			$AccountServiceContract['Duration'] = $accountData['ContractDuration'];
-			$AccountServiceContract['ContractReason'] = $accountData['ContractFeeValue'];
-			$AccountServiceContract['AutoRenewal'] = $accountData['AutoRenewal'];
-			$AccountServiceContract['ContractTerm'] = $accountData['ContractType'];
-			$AccountSubscription["PackageSubscription"] = $accountData['PackageSubscriptionID'];
+			$AccountServiceContract['ContractStartDate'] = isset($accountData['ServiceStartDate']) ? $accountData['ServiceStartDate'] :'' ;
+			$AccountServiceContract['ContractEndDate'] = isset($accountData['ServiceEndDate']) ? $accountData['ServiceEndDate'] : '';
+			$AccountServiceContract['Duration'] = isset($accountData['ContractDuration']) ? $accountData['ContractDuration'] : '';
+			$AccountServiceContract['ContractReason'] = isset($accountData['ContractFeeValue']) ? $accountData['ContractFeeValue'] : '';
+			$AccountServiceContract['AutoRenewal'] = isset($accountData['AutoRenewal']) ? $accountData['AutoRenewal'] : '';
+			$AccountServiceContract['ContractTerm'] = isset($accountData['ContractType']) ? $accountData['ContractType'] : '';
+			$AccountSubscription["PackageSubscription"] = isset($accountData['PackageSubscriptionID']) ? $accountData['PackageSubscriptionID'] : '';
 
 			if (!empty($AccountServiceContract['ContractStartDate']) && empty($AccountServiceContract['ContractEndDate'])) {
 				return Response::json(["status" => "failed", "message" => "Please specified the Service End Data"]);
@@ -414,21 +414,21 @@ class AccountsApiController extends ApiController {
 			$DynamicFieldsExist = '';
 			//$data['Owner'] = $post_vars->Owner;
 
-			$data['Number'] = $accountData['AccountNo'];
-			$data['FirstName'] = $accountData['FirstName'];
-			$data['LastName'] = $accountData['LastName'];
-			$data['Phone'] = $accountData['Phone'];
-			$data['Address1'] = $accountData['Address1'];
-			$data['Address2'] = $accountData['Address2'];
-			$data['City'] = $accountData['City'];
-			$data['Email'] = $accountData['Email'];
-			$data['BillingEmail'] = $accountData['BillingEmail'];
-			$data['Owner'] = $accountData['OwnerID'];
-			$data['CurrencyId'] = $accountData['CurrencyID'];
-			$data['Country'] = $accountData['CountryID'];
+			$data['Number'] = isset($accountData['AccountNo']) ? $accountData['AccountNo'] : '';
+			$data['FirstName'] = isset($accountData['FirstName']) ? $accountData['FirstName'] : '';
+			$data['LastName'] = isset($accountData['LastName']) ? $accountData['LastName'] : '';
+			$data['Phone'] = isset($accountData['Phone']) ? $accountData['Phone'] : '';
+			$data['Address1'] = isset($accountData['Address1']) ? $accountData['Address1'] : '';
+			$data['Address2'] = isset($accountData['Address2']) ? $accountData['Address2'] : '';
+			$data['City'] = isset($accountData['City']) ? $accountData['City'] : '';
+			$data['Email'] = isset($accountData['Email']) ? $accountData['Email'] : '';
+			$data['BillingEmail'] = isset($accountData['BillingEmail']) ? $accountData['BillingEmail'] : '';
+			$data['Owner'] = isset($accountData['OwnerID']) ? $accountData['OwnerID'] : '';
+			$data['CurrencyId'] = isset($accountData['CurrencyID']) ? $accountData['CurrencyID'] : '';
+			$data['Country'] = isset($accountData['CountryID']) ? $accountData['CountryID'] : '';
 			$data['password'] = isset($accountData['CustomerPanelPassword']) ? Crypt::encrypt($accountData['CustomerPanelPassword']) :'';
-			$data['VatNumber'] = $accountData['VatNumber'];
-			$data['Language']= $accountData['LanguageID'];
+			$data['VatNumber'] = isset($accountData['VatNumber']) ? $accountData['VatNumber'] : '';
+			$data['Language']= isset($accountData['LanguageID']) ? $accountData['LanguageID'] : '';
 
 			$data['CompanyID'] = $CompanyID;
 			$data['AccountType'] = 1;
@@ -439,16 +439,16 @@ class AccountsApiController extends ApiController {
 			$data['created_by'] = $CreatedBy;
 			$data['AccountType'] = 1;
 			$data['AccountName'] = isset($accountData['AccountName']) ? trim($accountData['AccountName']) : '';
-			$data['PaymentMethod'] = $accountData['PaymentMethodID'];
+			$data['PaymentMethod'] = isset($accountData['PaymentMethodID']) ? $accountData['PaymentMethodID'] : '' ;
 
 
 
-			$AccountPaymentAutomation['AutoTopup']= $accountData['AutoTopup'];
-			$AccountPaymentAutomation['MinThreshold']= $accountData['MinThreshold'];
-			$AccountPaymentAutomation['TopupAmount']= $accountData['TopupAmount'];
-			$AccountPaymentAutomation['AutoOutpayment']= $accountData['AutoOutpayment'];
-			$AccountPaymentAutomation['OutPaymentThreshold']= $accountData['OutPaymentThreshold'];
-			$AccountPaymentAutomation['OutPaymentAmount']= $accountData['OutPaymentAmount'];
+			$AccountPaymentAutomation['AutoTopup']= isset($accountData['AutoTopup']) ? $accountData['AutoTopup'] :'';
+			$AccountPaymentAutomation['MinThreshold']= isset($accountData['MinThreshold']) ? $accountData['MinThreshold'] : '';
+			$AccountPaymentAutomation['TopupAmount']= isset($accountData['TopupAmount']) ? $accountData['TopupAmount'] : '';
+			$AccountPaymentAutomation['AutoOutpayment']= isset($accountData['AutoOutpayment']) ? $accountData['AutoOutpayment'] : '';
+			$AccountPaymentAutomation['OutPaymentThreshold']= isset($accountData['OutPaymentThreshold']) ? $accountData['OutPaymentThreshold'] : '';
+			$AccountPaymentAutomation['OutPaymentAmount']= isset($accountData['OutPaymentAmount']) ? $accountData['OutPaymentAmount'] : '';
 
 			if (!empty($data['PaymentMethod']) && !in_array($data['PaymentMethod'], AccountsApiController::$PaymentMethod)) {
 				return Response::json(array("status" => "failed", "message" => "Please enter the valid payment method."));
@@ -574,7 +574,7 @@ class AccountsApiController extends ApiController {
 				$ResellerData['Email'] = isset($accountData['ReSellerEmail']) ? $accountData['ReSellerEmail'] : '';
 				$ResellerData['Password'] = isset($accountData['ReSellerPassword']) ? $accountData['ReSellerPassword'] : '';
 				$ResellerData['AllowWhiteLabel'] = isset($accountData['ReSellerAllowWhiteLabel']) ? 1 : 0;
-				$ResellerData['DomainUrl'] = $accountData['ReSellerDomainUrl'];
+				$ResellerData['DomainUrl'] = isset($accountData['ReSellerDomainUrl']) ? $accountData['ReSellerDomainUrl'] : '' ;
 				Reseller::$messages['Email.required'] = 'The Reseller Email is Required.';
 				Reseller::$messages['Password.required'] = 'The Reseller Password is Required.';
 				if($data['IsReseller']==1) {
@@ -618,12 +618,12 @@ class AccountsApiController extends ApiController {
 			//AccountBilling::$rulesAPI['billing_cycle_options'] = 'required';
 
 
-			$BillingSetting['billing_type'] = $accountData['BillingType'];
-			$BillingSetting['billing_class']= $accountData['BillingClassID'];
-			$BillingSetting['billing_cycle']= $accountData['BillingCycleType'];
-			$BillingSetting['billing_cycle_options']= $accountData['BillingCycleValue'];
-			$BillingSetting['billing_start_date']= $accountData['BillingStartDate'];
-			$BillingSetting['NextInvoiceDate']= $accountData['NextInvoiceDate'];
+			$BillingSetting['billing_type'] = isset($accountData['BillingType']) ? $accountData['BillingType'] : '';
+			$BillingSetting['billing_class']= isset($accountData['BillingClassID']) ? $accountData['BillingClassID'] : '';
+			$BillingSetting['billing_cycle']= isset($accountData['BillingCycleType']) ? $accountData['BillingCycleType'] : '';
+			$BillingSetting['billing_cycle_options']= isset($accountData['BillingCycleValue']) ? $accountData['BillingCycleValue'] :'';
+			$BillingSetting['billing_start_date']=  isset($accountData['BillingStartDate']) ? $accountData['BillingStartDate'] : '';
+			$BillingSetting['NextInvoiceDate']= isset($accountData['NextInvoiceDate']) ? $accountData['NextInvoiceDate'] : '';
 
 			if (!empty($BillingSetting['billing_type']) ||
 				!empty($BillingSetting['billing_class']) ||
