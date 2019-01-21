@@ -89,6 +89,7 @@
             var account_id=$("#subscription_filter").find('[name="AccountID"]').val();
             var update_new_url;
             var postdata;
+            var data_table;
 
             jQuery(document).ready(function ($) {
 
@@ -478,9 +479,10 @@
                    e.preventDefault();
                    var _url  = $(this).attr("action");
                    submit_ajax_datatable(_url,$(this).serialize(),0,data_table);
-                   //data_table_subscription.fnFilter('', 0);
-                   //console.log('edit');
-                  // $('#subscription_submit').trigger('click');
+//                   data_table.fnFilter('', 0);
+                   location.reload();
+                  //console.log('edit');
+                  // $('#subscription-form-edit').trigger('click');
                });
 			   
 			     $('#modal-subscription').on('hidden.bs.modal', function(event){
