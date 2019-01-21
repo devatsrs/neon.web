@@ -423,21 +423,22 @@ ALTER TABLE `tblAccount`
 	ADD COLUMN `CustomerRef` VARCHAR(50) NULL DEFAULT NULL AFTER `DisplayRates`;
 	
 
-DROP TABLE IF EXISTS `tblAccountPaymentAutomation`;
+	
 CREATE TABLE IF NOT EXISTS `tblAccountPaymentAutomation` (
   `AccountPaymentAutomationID` int(11) NOT NULL AUTO_INCREMENT,
   `AccountID` int(11) NOT NULL DEFAULT '0',
   `AutoTopup` tinyint(1) DEFAULT '0',
-  `MinThreshold` int(11) DEFAULT NULL,
+  `MinThreshold` decimal(18,2) DEFAULT NULL,
   `TopupAmount` decimal(18,2) DEFAULT NULL,
   `AutoOutpayment` tinyint(1) DEFAULT '0',
-  `OutPaymentThreshold` int(11) DEFAULT NULL,
+  `OutPaymentThreshold` decimal(18,2) DEFAULT NULL,
   `OutPaymentAmount` decimal(18,2) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`AccountPaymentAutomationID`),
   UNIQUE KEY `AccountID` (`AccountID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 
 	
 ALTER TABLE `tblPayment`
@@ -657,10 +658,1034 @@ ALTER TABLE tblVendorCDRFailed
   
   
   
+/* Api Latest Change - Local*/ 
+INSERT INTO `tbldynamicfields` (`CompanyID`, `Type`, `FieldDomType`, `FieldName`, `FieldSlug`, `FieldDescription`, `FieldOrder`, `Status`, `created_at`, `created_by`, `updated_at`, `updated_by`, `ItemTypeID`, `Minimum`, `Maximum`, `DefaultValue`, `SelectVal`) VALUES (1, 'account', 'text', 'SI AccountReference', 'SIAccountID', 'SI AccountReference', 0, 1, NULL, NULL, NULL, NULL, 0, 0, 0, NULL, NULL);
+ 
   
-/* RateGenerator Changes already Live - adnan */  
+/*Vendor RateChanges - Download vendor Rate*/
+
+
+DROP PROCEDURE IF EXISTS `vwVendorCurrentRates`;
+DELIMITER //
+CREATE PROCEDURE `vwVendorCurrentRates`(
+	IN `p_AccountID` INT,
+	IN `p_Trunks` LONGTEXT,
+	IN `p_TimezonesID` INT,
+	IN `p_Effective` VARCHAR(50),
+	IN `p_CustomDate` DATE,
+	IN `p_AppliedToVendorID` INT,
+	IN `p_VoiceCallTypeID` INT
+)
+BEGIN
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_VendorCurrentRates_;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorCurrentRates_(
+		AccountId int,
+		Code varchar(50),
+		Description varchar(200),
+		Rate float,
+		RateN float,
+		EffectiveDate date,
+		TrunkID int,
+		TimezonesID int,
+		CountryID int,
+		RateID int,
+		Preference int,
+		Blocked int,
+		Interval1 INT,
+		IntervalN varchar(100),
+		ConnectionFee float,
+		EndDate date
+    );
+
+    DROP TEMPORARY TABLE IF EXISTS tmp_VendorRate_;
+    CREATE TEMPORARY TABLE tmp_VendorRate_ (
+        TrunkId INT,
+        TimezonesID INT,
+	 	  RateId INT,
+	 	  Preference int,
+		  Blocked int,
+        Rate DECIMAL(18,6),
+        RateN DECIMAL(18,6),
+        EffectiveDate DATE,
+        Interval1 INT,
+        IntervalN INT,
+        ConnectionFee DECIMAL(18,6),
+        EndDate date,
+        INDEX tmp_RateTable_RateId (`RateId`)
+    );
+    
+       /* INSERT INTO tmp_VendorRate_
+        SELECT   `TrunkID`, `TimezonesID`, `RateId`, `Rate`, `RateN`, `EffectiveDate`, `Interval1`, `IntervalN`, `ConnectionFee` , tblVendorRate.EndDate
+		  FROM tblVendorRate WHERE tblVendorRate.AccountId =  p_AccountID
+								AND FIND_IN_SET(tblVendorRate.TrunkId,p_Trunks) != 0
+								AND tblVendorRate.TimezonesID = p_TimezonesID
+                        AND
+								(
+					  				(p_Effective = 'Now' AND EffectiveDate <= NOW() AND (EndDate IS NULL OR EndDate > NOW() ))
+								  	OR
+								  	(p_Effective = 'Future' AND EffectiveDate > NOW() AND ( EndDate IS NULL OR EndDate > NOW() ))
+								  	OR
+								  	(p_Effective = 'CustomDate' AND EffectiveDate <= p_CustomDate AND (EndDate IS NULL OR EndDate > p_CustomDate))
+								  	OR
+								  	(p_Effective = 'All'  )
+								);*/
+								
+		INSERT INTO tmp_VendorRate_
+		SELECT  vc.`TrunkID`, rtr.`TimezonesID`, rtr.`RateId`, rtr.Preference, rtr.Blocked,rtr.`Rate`, rtr.`RateN`, DATE_FORMAT (rtr.`EffectiveDate`, '%Y-%m-%d'), rtr.`Interval1`, rtr.`IntervalN`, rtr.`ConnectionFee` , rtr.EndDate
+		FROM tblRateTableRate rtr
+		INNER JOIN tblVendorConnection vc ON vc.RateTableID=rtr.RateTableId
+		INNER JOIN tblRateTable rt ON rtr.RateTableId=vc.RateTableID
+		WHERE vc.AccountId =  p_AccountID
+			AND vc.RateTypeID = p_VoiceCallTypeID
+			AND rt.AppliedTo  = p_AppliedToVendorID
+			AND FIND_IN_SET(vc.TrunkId,p_Trunks) != 0
+			AND rtr.TimezonesID = p_TimezonesID
+			AND
+			(
+				(p_Effective = 'Now' AND rtr.EffectiveDate <= NOW() AND (rtr.EndDate IS NULL OR EndDate > NOW() ))
+				OR
+				(p_Effective = 'Future' AND rtr.EffectiveDate > NOW() AND (rtr.EndDate IS NULL OR EndDate > NOW() ))
+				OR
+				(p_Effective = 'CustomDate' AND rtr.EffectiveDate <= p_CustomDate AND (rtr.EndDate IS NULL OR rtr.EndDate > p_CustomDate))
+				OR
+				(p_Effective = 'All'  )
+			);
+			
+			
+    DROP TEMPORARY TABLE IF EXISTS tmp_VendorRate4_;
+       CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorRate4_ as (select * from tmp_VendorRate_);
+      DELETE n1 FROM tmp_VendorRate_ n1, tmp_VendorRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
+ 	   AND n1.TrunkID = n2.TrunkID
+ 	   AND n1.TimezonesID = n2.TimezonesID
+	   AND  n1.RateId = n2.RateId
+		AND
+	   (
+			(p_Effective = 'CustomDate' AND n1.EffectiveDate <= p_CustomDate AND n2.EffectiveDate <= p_CustomDate)
+		  	OR
+		  	(p_Effective != 'CustomDate' AND n1.EffectiveDate <= NOW() AND n2.EffectiveDate <= NOW())
+		);
+
+
+    INSERT INTO tmp_VendorCurrentRates_
+    SELECT DISTINCT
+    p_AccountID,
+    r.Code,
+    r.Description,
+    v_1.Rate,
+    v_1.RateN,
+    DATE_FORMAT (v_1.EffectiveDate, '%Y-%m-%d') AS EffectiveDate,
+    v_1.TrunkID,
+    v_1.TimezonesID,
+    r.CountryID,
+    r.RateID,
+    v_1.Preference,
+    v_1.Blocked,
+   	CASE WHEN v_1.Interval1 is not null
+   		THEN v_1.Interval1
+    	ELSE r.Interval1
+    END as  Interval1,
+    CASE WHEN v_1.IntervalN is not null
+    	THEN v_1.IntervalN
+        ELSE r.IntervalN
+    END IntervalN,
+    v_1.ConnectionFee,
+    v_1.EndDate
+    FROM tmp_VendorRate_ AS v_1
+	INNER JOIN tblRate AS r
+    	ON r.RateID = v_1.RateId;
+    	
+
+END//
+DELIMITER ;
+
+
 
  
- 
+DROP PROCEDURE IF EXISTS `vwVendorSippySheet`;
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `vwVendorSippySheet`(
+	IN `p_AccountID` INT,
+	IN `p_Trunks` LONGTEXT,
+	IN `p_TimezonesID` INT,
+	IN `p_Effective` VARCHAR(50),
+	IN `p_CustomDate` DATE
+
+
+)
+BEGIN
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_VendorSippySheet_;
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorSippySheet_(
+			RateID int,
+			`Action [A|D|U|S|SA` varchar(50),
+			id varchar(10),
+			Prefix varchar(50),
+			COUNTRY varchar(200),
+			Preference int,
+			`Interval 1` int,
+			`Interval N` int,
+			`Price 1` float,
+			`Price N` float,
+			`1xx Timeout` int,
+			`2xx Timeout` INT,
+			Huntstop int,
+			Forbidden int,
+			`Activation Date` varchar(20),
+			`Expiration Date` varchar(20),
+			AccountID int,
+			TrunkID int
+		);
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_VendorArhiveSippySheet_;
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorArhiveSippySheet_(
+			RateID int,
+			`Action [A|D|U|S|SA` varchar(50),
+			id varchar(10),
+			Prefix varchar(50),
+			COUNTRY varchar(200),
+			Preference int,
+			`Interval 1` int,
+			`Interval N` int,
+			`Price 1` float,
+			`Price N` float,
+			`1xx Timeout` int,
+			`2xx Timeout` INT,
+			Huntstop int,
+			Forbidden int,
+			`Activation Date` varchar(20),
+			`Expiration Date` varchar(20),
+			AccountID int,
+			TrunkID int
+		);
+
+		call vwVendorCurrentRates(p_AccountID,p_Trunks,p_TimezonesID,p_Effective,p_CustomDate);
+
+		INSERT INTO tmp_VendorSippySheet_
+			SELECT
+				NULL AS RateID,
+				CASE WHEN EndDate IS NOT NULL THEN
+					'SA'
+				ELSE
+					'A'
+				END AS `Action [A|D|U|S|SA`,
+				'' AS id,
+				Concat('' , tblTrunk.Prefix ,vendorRate.Code) AS Prefix,
+				vendorRate.Description AS COUNTRY,
+				IFNULL(vendorRate.Preference,5) as Preference,
+				vendorRate.Interval1 as `Interval 1`,
+				vendorRate.IntervalN as `Interval N`,
+				vendorRate.Rate AS `Price 1`,
+				vendorRate.RateN AS `Price N`,
+				10 AS `1xx Timeout`,
+				60 AS `2xx Timeout`,
+				0 AS Huntstop,
+				CASE
+				WHEN (
+					vendorRate.Blocked IS NOT NULL AND vendorRate.Blocked !=0	
+				) THEN 1
+				ELSE 0
+				END  AS Forbidden,
+				CASE WHEN EffectiveDate < NOW()  THEN
+					'NOW'
+				ELSE
+					DATE_FORMAT( EffectiveDate, '%Y-%m-%d %H:%i:%s' )
+				END AS `Activation Date`,
+				DATE_FORMAT( EndDate, '%Y-%m-%d %H:%i:%s' )  AS `Expiration Date`,
+
+				tblAccount.AccountID,
+				tblTrunk.TrunkID
+			FROM tmp_VendorCurrentRates_ AS vendorRate
+				INNER JOIN tblAccount
+					ON vendorRate.AccountId = tblAccount.AccountID				
+				INNER JOIN tblTrunk
+					ON tblTrunk.TrunkID = vendorRate.TrunkID
+			WHERE (vendorRate.Rate > 0);
+
+
+	END//
+DELIMITER ;
+
+
+
+DROP PROCEDURE IF EXISTS `prc_CronJobGenerateM2VendorSheet`;
+DELIMITER //
+CREATE PROCEDURE `prc_CronJobGenerateM2VendorSheet`(
+	IN `p_AccountID` INT ,
+	IN `p_trunks` VARCHAR(200),
+	IN `p_TimezonesID` INT,
+	IN `p_Effective` VARCHAR(50),
+	IN `p_CustomDate` DATE,
+	IN `p_AppliedToVendorID` INT,
+	IN `p_VoiceCallTypeID` INT
+)
+BEGIN
+		SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_m2rateall_;
+    CREATE TEMPORARY TABLE tmp_m2rateall_ (
+        RateID INT,
+        Code VARCHAR(50),
+        Description VARCHAR(200),
+        Interval1 INT,
+        IntervalN INT,
+        ConnectionFee DECIMAL(18, 6),
+        Rate DECIMAL(18, 6),
+        EffectiveDate DATE
+    );
+
+    
+    call vwVendorCurrentRates(p_AccountID,p_trunks,p_TimezonesID,p_Effective,p_CustomDate,p_AppliedToVendorID,p_VoiceCallTypeID);
+         
+     INSERT INTO tmp_m2rateall_
+     SELECT Distinct
+			vendorRate.RateID as `RateID`,
+			vendorRate.Code as `Code`,
+			vendorRate.Description as `Description` ,
+			vendorRate.Interval1 as `Interval1` ,
+			vendorRate.IntervalN as `IntervalN` ,			
+			vendorRate.ConnectionFee as `ConnectionFee`,
+			Abs(vendorRate.Rate) as `Rate`,
+			vendorRate.EffectiveDate as `EffectiveDate`
+        FROM  tmp_VendorCurrentRates_ as vendorRate;
+
+
+
+		SELECT DISTINCT
+			CONCAT(IF(tblCountry.Country IS NULL,'',CONCAT(tblCountry.Country,' - ')),tmpRate.Description) as `Destination`,
+			tmpRate.Code as `Prefix`,
+			tmpRate.Rate as `Rate(USD)`,
+			tmpRate.ConnectionFee as `Connection Fee(USD)`,
+			tmpRate.Interval1 as `Increment`,
+			tmpRate.IntervalN as `Minimal Time`,
+			'0:00:00 'as `Start Time`,
+			'23:59:59' as `End Time`,
+			'' as `Week Day`,
+			tmpRate.EffectiveDate  as `Effective from`,
+			TRUNCATE(tmpRate.Rate + ((tmpRate.Rate * 2.041)/100),6) as `Rate(USD) with Tax`
+		FROM
+			tmp_m2rateall_ AS tmpRate
+		JOIN
+			tblRate ON tblRate.RateID = tmpRate.RateID
+		LEFT JOIN
+			tblCountry ON tblCountry.CountryID = tblRate.CountryID;
+
+      SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
+
+
+DROP PROCEDURE IF EXISTS `prc_CronJobGenerateMorVendorSheet`;
+DELIMITER //
+CREATE PROCEDURE `prc_CronJobGenerateMorVendorSheet`(
+	IN `p_AccountID` INT ,
+	IN `p_trunks` VARCHAR(200),
+	IN `p_TimezonesID` INT,
+	IN `p_Effective` VARCHAR(50),
+	IN `p_CustomDate` DATE,
+	IN `p_AppliedToVendorID` INT,
+	IN `p_VoiceCallTypeID` INT
+)
+BEGIN
+		SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+		
+		call vwVendorCurrentRates(p_AccountID,p_trunks,p_TimezonesID,p_Effective,p_CustomDate,p_AppliedToVendorID,p_VoiceCallTypeID);
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_morrateall_;
+    CREATE TEMPORARY TABLE tmp_morrateall_ (
+        RateID INT,
+        Country VARCHAR(155),
+        CountryCode VARCHAR(50),
+        Code VARCHAR(50),
+        Description VARCHAR(200),
+        Interval1 INT,
+        IntervalN INT,
+        ConnectionFee DECIMAL(18, 6),
+        Rate DECIMAL(18, 6),
+        SubCode VARCHAR(50)
+    );
+
+     INSERT INTO tmp_morrateall_
+     SELECT Distinct
+          vendorRate.RateID as `RateID`,
+			  c.Country as `Country`,
+			  c.ISO3 as `CountryCode`,
+			  vendorRate.Code as `Code`,
+           vendorRate.Description as `Description` ,
+           vendorRate.Interval1 as `Interval1` ,
+			  vendorRate.IntervalN as `IntervalN` ,
+           vendorRate.ConnectionFee as `ConnectionFee`,
+           Abs(vendorRate.Rate) as `Rate`,
+           'FIX' as `SubCode`
+
+       FROM    tmp_VendorCurrentRates_ as vendorRate
+       JOIN tblRate on vendorRate.RateID =tblRate.RateID
+       LEFT JOIN tblCountry as c ON tblRate.CountryID = c.CountryID;
+
+		UPDATE tmp_morrateall_
+	  			SET SubCode='MOB'
+	  			WHERE Description LIKE '%Mobile%';
+
+
+		SELECT DISTINCT
+	      Country as `Direction` ,
+	      Description  as `Destination`,
+		   Code as `Prefix`,
+		   SubCode as `Subcode`,
+		   CountryCode as `Country code`,
+		   Rate as `Rate(EUR)`,
+		   ConnectionFee as `Connection Fee(EUR)`,
+		   Interval1 as `Increment`,
+		   IntervalN as `Minimal Time`,
+		   '0:00:00 'as `Start Time`,
+		   '23:59:59' as `End Time`,
+		   '' as `Week Day`
+     FROM tmp_morrateall_;
+
+      SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
+
+
+DROP PROCEDURE IF EXISTS `vwVendorArchiveCurrentRates`;
+DELIMITER //
+CREATE PROCEDURE `vwVendorArchiveCurrentRates`(
+	IN `p_AccountID` INT,
+	IN `p_Trunks` LONGTEXT,
+	IN `p_TimezonesID` INT,
+	IN `p_Effective` VARCHAR(50),
+	IN `p_AppliedToVendorID` INT,
+	IN `p_VoiceCallTypeID` INT
+)
+BEGIN
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_VendorArchiveCurrentRates_;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorArchiveCurrentRates_(
+		AccountId int,
+		Code varchar(50),
+		Description varchar(200),
+		Rate float,
+		RateN float,
+		EffectiveDate date,
+		TrunkID int,
+		CountryID int,
+		RateID int,
+		Interval1 INT,
+		IntervalN varchar(100),
+		ConnectionFee float,
+		EndDate date
+    );
+
+    DROP TEMPORARY TABLE IF EXISTS tmp_VendorRateArchive_;
+    CREATE TEMPORARY TABLE tmp_VendorRateArchive_ (
+        TrunkId INT,
+        TimezonesID INT,
+	 	  RateId INT,
+        Rate DECIMAL(18,6),
+        RateN DECIMAL(18,6),
+        EffectiveDate DATE,
+        Interval1 INT,
+        IntervalN INT,
+        ConnectionFee DECIMAL(18,6),
+        EndDate date,
+        INDEX tmp_RateTable_RateId (`RateId`)
+    );
+    
+        INSERT INTO tmp_VendorRateArchive_
+        SELECT   vc.`TrunkID`, vra.`TimezonesID`, vra.`RateId`, vra.`Rate`, vra.`RateN`, vra.`EffectiveDate`, vra.`Interval1`, vra.`IntervalN`, vra.`ConnectionFee` , vra.EndDate
+		  FROM tblRateTableRateArchive vra
+		  INNER JOIN tblVendorConnection vc ON vc.RateTableID=vra.RateTableId
+		  INNER JOIN tblRateTable rt ON rt.RateTableId=vc.RateTableID
+		  
+		  WHERE 
+		  vc.AccountId =  p_AccountID
+			AND vc.RateTypeID = p_VoiceCallTypeID
+			AND rt.AppliedTo  = p_AppliedToVendorID
+			AND FIND_IN_SET(vc.TrunkId,p_Trunks) != 0
+			AND vra.TimezonesID = p_TimezonesID
+         AND
+         (
+					
+				vra.EffectiveDate <= NOW() AND date(vra.EndDate) = date(NOW())
+			)
+								;
+
+    DROP TEMPORARY TABLE IF EXISTS tmp_VendorRateArchive4_;
+       CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorRateArchive4_ as (select * from tmp_VendorRateArchive_);
+      DELETE n1 FROM tmp_VendorRateArchive_ n1, tmp_VendorRateArchive4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
+ 	   AND n1.TrunkID = n2.TrunkID
+ 	   AND n1.TimezonesID = n2.TimezonesID
+	   AND  n1.RateId = n2.RateId
+		AND n1.EffectiveDate <= NOW()
+		AND n2.EffectiveDate <= NOW();
+
+
+    INSERT INTO tmp_VendorArchiveCurrentRates_
+    SELECT DISTINCT
+    p_AccountID,
+    r.Code,
+    r.Description,
+    v_1.Rate,
+    v_1.RateN,
+    DATE_FORMAT (v_1.EffectiveDate, '%Y-%m-%d') AS EffectiveDate,
+    v_1.TrunkID,
+    r.CountryID,
+    r.RateID,
+   	CASE WHEN v_1.Interval1 is not null
+   		THEN v_1.Interval1
+    	ELSE r.Interval1
+    END as  Interval1,
+    CASE WHEN v_1.IntervalN is not null
+    	THEN v_1.IntervalN
+        ELSE r.IntervalN
+    END IntervalN,
+    v_1.ConnectionFee,
+    v_1.EndDate
+    FROM tmp_VendorRateArchive_ AS v_1
+	INNER JOIN tblRate AS r
+    	ON r.RateID = v_1.RateId;
+
+END//
+DELIMITER ;
+
 	
+
+DROP PROCEDURE IF EXISTS `prc_CronJobGeneratePortaVendorSheet`;
+DELIMITER //
+CREATE PROCEDURE `prc_CronJobGeneratePortaVendorSheet`(
+	IN `p_AccountID` INT ,
+	IN `p_trunks` VARCHAR(200),
+	IN `p_TimezonesID` INT,
+	IN `p_Effective` VARCHAR(50),
+	IN `p_CustomDate` DATE,
+	IN `p_AppliedToVendorID` INT,
+	IN `p_VoiceCallTypeID` INT
+)
+BEGIN
+		SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	    
+   call vwVendorCurrentRates(p_AccountID,p_trunks,p_TimezonesID,p_Effective,p_CustomDate,p_AppliedToVendorID,p_VoiceCallTypeID);
+
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_VendorArchiveCurrentRates_;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorArchiveCurrentRates_(
+		AccountId int,
+		Code varchar(50),
+		Description varchar(200),
+		Rate float,
+		RateN float,
+		EffectiveDate date,
+		TrunkID int,
+		CountryID int,
+		RateID int,
+		Interval1 INT,
+		IntervalN varchar(100),
+		ConnectionFee float,
+		EndDate date
+    );
+
+	IF p_Effective = 'Now' || p_Effective = 'All' THEN
+
+  	 	call vwVendorArchiveCurrentRates(p_AccountID,p_Trunks,p_TimezonesID,p_Effective,p_AppliedToVendorID,p_VoiceCallTypeID);
+
+	END IF;
+
+       SELECT Distinct  
+		 			vendorRate.Code as `Destination`,
+               vendorRate.Description as `Description` ,
+               vendorRate.Interval1 as `First Interval`,
+               vendorRate.IntervalN as `Next Interval`,
+               Abs(vendorRate.Rate) as `First Price`,
+               Abs(vendorRate.RateN) as `Next Price`,
+               DATE_FORMAT (vendorRate.EffectiveDate, '%Y-%m-%d')  as `Effective From` ,
+               IFNULL(vendorRate.Preference,5) as `Preference`,
+               CASE
+                   WHEN (vendorRate.Blocked IS NOT NULL AND vendorRate.Blocked != 0)
+                        THEN 'Y'
+                   ELSE 'N'
+               END AS `Forbidden`,
+               CASE WHEN vendorRate.Rate < 0 THEN 'Y' ELSE '' END AS 'Payback Rate' ,
+               CASE WHEN vendorRate.ConnectionFee > 0 THEN
+						CONCAT('SEQ=',vendorRate.ConnectionFee,'&int1x1@price1&intNxN@priceN')
+					ELSE
+						''
+					END as `Formula`,
+					'N' AS `Discontinued`
+       FROM tmp_VendorCurrentRates_ as vendorRate
+               
+       UNION ALL
+
+
+
+		SELECT
+					Distinct
+			    	vrd.Code AS `Destination`,
+			 		vrd.Description AS `Description` ,
+			 		vrd.Interval1 AS `First Interval`,
+               vrd.IntervalN AS `Next Interval`,
+			 		Abs(vrd.Rate) AS `First Price`,
+			 		Abs(vrd.RateN) AS `Next Price`,
+			 		DATE_FORMAT (vrd.EffectiveDate, '%Y-%m-%d') AS `Effective From`,
+			 		'' AS `Preference`,
+			 		'' AS `Forbidden`,
+			 		CASE WHEN vrd.Rate < 0 THEN 'Y' ELSE '' END AS 'Payback Rate' ,
+			 		CASE WHEN vrd.ConnectionFee > 0 THEN
+						CONCAT('SEQ=',vrd.ConnectionFee,'&int1x1@price1&intNxN@priceN')
+					ELSE
+						''
+					END as `Formula`,
+			 		'Y' AS `Discontinued`
+			FROM tmp_VendorArchiveCurrentRates_ AS vrd
+	 		JOIN tblRate on vrd.RateId = tblRate.RateID
+			WHERE
+				FIND_IN_SET(vrd.TrunkID,p_trunks) != 0
+			AND vrd.AccountId = p_AccountID
+			AND vrd.Rate > 0;
+			
+			
+			
+			/*LEFT JOIN tblVendorRate vr
+						ON vrd.AccountId = vr.AccountId
+							AND vrd.TrunkID = vr.TrunkID
+							AND vrd.RateId = vr.RateId
+					WHERE FIND_IN_SET(vrd.TrunkID,p_trunks) != 0
+						AND vrd.AccountId = p_AccountID
+						AND vr.VendorRateID IS NULL
+						AND vrd.Rate > 0;*/
+
+
+
+      SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
+	
+
+	
+DROP PROCEDURE IF EXISTS `prc_WSGenerateVendorSippySheet`;
+DELIMITER //
+CREATE PROCEDURE `prc_WSGenerateVendorSippySheet`(
+	IN `p_VendorID` INT  ,
+	IN `p_Trunks` varchar(200),
+	IN `p_TimezonesID` INT,
+	IN `p_Effective` VARCHAR(50),
+	IN `p_CustomDate` DATE,
+	IN `p_AppliedToVendorID` INT,
+	IN `p_VoiceCallTypeID` INT
+)
+BEGIN
+
+		SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+		call vwVendorSippySheet(p_VendorID,p_Trunks,p_TimezonesID,p_Effective,p_CustomDate,p_AppliedToVendorID,p_VoiceCallTypeID);
+
+		SELECT
+			`Action [A|D|U|S|SA`,
+			id ,
+			vendorRate.Prefix,
+			COUNTRY,
+			Preference ,
+			`Interval 1` ,
+			`Interval N` ,
+			`Price 1` ,
+			`Price N` ,
+			`1xx Timeout` ,
+			`2xx Timeout` ,
+			`Huntstop` ,
+			Forbidden ,
+			`Activation Date` ,
+			`Expiration Date`
+		FROM    tmp_VendorSippySheet_ vendorRate
+		WHERE   vendorRate.AccountId = p_VendorID
+						And  FIND_IN_SET(vendorRate.TrunkId,p_Trunks) != 0;
+
+		
+
+		SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+	END//
+DELIMITER ;
+
+
+
+DROP PROCEDURE IF EXISTS `vwVendorSippySheet`;
+DELIMITER //
+CREATE PROCEDURE `vwVendorSippySheet`(
+	IN `p_AccountID` INT,
+	IN `p_Trunks` LONGTEXT,
+	IN `p_TimezonesID` INT,
+	IN `p_Effective` VARCHAR(50),
+	IN `p_CustomDate` DATE,
+	IN `p_AppliedToVendorID` INT,
+	IN `p_VoiceCallTypeID` INT
+)
+BEGIN
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_VendorSippySheet_;
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorSippySheet_(
+			RateID int,
+			`Action [A|D|U|S|SA` varchar(50),
+			id varchar(10),
+			Prefix varchar(50),
+			COUNTRY varchar(200),
+			Preference int,
+			`Interval 1` int,
+			`Interval N` int,
+			`Price 1` float,
+			`Price N` float,
+			`1xx Timeout` int,
+			`2xx Timeout` INT,
+			Huntstop int,
+			Forbidden int,
+			`Activation Date` varchar(20),
+			`Expiration Date` varchar(20),
+			AccountID int,
+			TrunkID int
+		);
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_VendorArhiveSippySheet_;
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorArhiveSippySheet_(
+			RateID int,
+			`Action [A|D|U|S|SA` varchar(50),
+			id varchar(10),
+			Prefix varchar(50),
+			COUNTRY varchar(200),
+			Preference int,
+			`Interval 1` int,
+			`Interval N` int,
+			`Price 1` float,
+			`Price N` float,
+			`1xx Timeout` int,
+			`2xx Timeout` INT,
+			Huntstop int,
+			Forbidden int,
+			`Activation Date` varchar(20),
+			`Expiration Date` varchar(20),
+			AccountID int,
+			TrunkID int
+		);
+
+		call vwVendorCurrentRates(p_AccountID,p_Trunks,p_TimezonesID,p_Effective,p_CustomDate,p_AppliedToVendorID,p_VoiceCallTypeID);
+
+		INSERT INTO tmp_VendorSippySheet_
+			SELECT
+				NULL AS RateID,
+				CASE WHEN EndDate IS NOT NULL THEN
+					'SA'
+				ELSE
+					'A'
+				END AS `Action [A|D|U|S|SA`,
+				'' AS id,
+				Concat('' , tblTrunk.Prefix ,vendorRate.Code) AS Prefix,
+				vendorRate.Description AS COUNTRY,
+				IFNULL(vendorRate.Preference,5) as Preference,
+				vendorRate.Interval1 as `Interval 1`,
+				vendorRate.IntervalN as `Interval N`,
+				vendorRate.Rate AS `Price 1`,
+				vendorRate.RateN AS `Price N`,
+				10 AS `1xx Timeout`,
+				60 AS `2xx Timeout`,
+				0 AS Huntstop,
+				CASE
+				WHEN (
+					vendorRate.Blocked IS NOT NULL AND vendorRate.Blocked !=0	
+				) THEN 1
+				ELSE 0
+				END  AS Forbidden,
+				CASE WHEN EffectiveDate < NOW()  THEN
+					'NOW'
+				ELSE
+					DATE_FORMAT( EffectiveDate, '%Y-%m-%d %H:%i:%s' )
+				END AS `Activation Date`,
+				DATE_FORMAT( EndDate, '%Y-%m-%d %H:%i:%s' )  AS `Expiration Date`,
+
+				tblAccount.AccountID,
+				tblTrunk.TrunkID
+			FROM tmp_VendorCurrentRates_ AS vendorRate
+				INNER JOIN tblAccount
+					ON vendorRate.AccountId = tblAccount.AccountID				
+				INNER JOIN tblTrunk
+					ON tblTrunk.TrunkID = vendorRate.TrunkID
+			WHERE (vendorRate.Rate > 0);
+
+
+	END//
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `prc_WSGenerateVendorVersion3VosSheet`;
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSGenerateVendorVersion3VosSheet`(
+	IN `p_VendorID` INT ,
+	IN `p_Trunks` varchar(200) ,
+	IN `p_TimezonesID` INT,
+	IN `p_Effective` VARCHAR(50),
+	IN `p_Format` VARCHAR(50),
+	IN `p_CustomDate` DATE,
+	IN `p_AppliedToVendorID` INT,
+	IN `p_VoiceCallTypeID` INT
+)
+BEGIN
+         SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+        call vwVendorVersion3VosSheet(p_VendorID,p_Trunks,p_TimezonesID,p_Effective,p_CustomDate,p_AppliedToVendorID,p_VoiceCallTypeID);
+
+        IF p_Effective = 'Now' OR p_Format = 'Vos 2.0'
+		  THEN
+
+	        SELECT  `Rate Prefix` ,
+	                `Area Prefix` ,
+	                `Rate Type` ,
+	                `Area Name` ,
+	                `Billing Rate` ,
+	                `Billing Cycle`,
+	                `Minute Cost` ,
+	                `Lock Type` ,
+	                `Section Rate` ,
+	                `Billing Rate for Calling Card Prompt` ,
+	                `Billing Cycle for Calling Card Prompt`
+	        FROM    tmp_VendorVersion3VosSheet_
+	       
+	       
+	        ORDER BY `Rate Prefix`;
+
+        END IF;
+
+        IF ( (p_Effective = 'Future' OR p_Effective = 'All' OR p_Effective = 'CustomDate') AND p_Format = 'Vos 3.2'  )
+		  THEN
+
+				DROP TEMPORARY TABLE IF EXISTS tmp_VendorVersion3VosSheet2_ ;
+				CREATE TEMPORARY TABLE tmp_VendorVersion3VosSheet2_ SELECT * FROM tmp_VendorVersion3VosSheet_;
+
+				SELECT
+					 	 `Time of timing replace`,
+						 `Mode of timing replace`,
+			  			 `Rate Prefix` ,
+	                `Area Prefix` ,
+	                `Rate Type` ,
+	                `Area Name` ,
+	                `Billing Rate` ,
+	                `Billing Cycle`,
+	                `Minute Cost` ,
+	                `Lock Type` ,
+	                `Section Rate` ,
+	                `Billing Rate for Calling Card Prompt` ,
+	                `Billing Cycle for Calling Card Prompt`
+	        FROM (
+					  SELECT  CONCAT(EffectiveDate,' 00:00') as `Time of timing replace`,
+								 'Append replace' as `Mode of timing replace`,
+					  			 `Rate Prefix` ,
+			                `Area Prefix` ,
+			                `Rate Type` ,
+			                `Area Name` ,
+			                `Billing Rate` ,
+			                `Billing Cycle`,
+			                `Minute Cost` ,
+			                `Lock Type` ,
+			                `Section Rate` ,
+			                `Billing Rate for Calling Card Prompt` ,
+			                `Billing Cycle for Calling Card Prompt`
+			        FROM    tmp_VendorVersion3VosSheet2_
+			        
+			       
+			       
+
+			   	
+					  
+			      
+			      
+
+			   	UNION ALL
+
+			        
+			        SELECT
+			        		distinct
+					  	  CONCAT(EndDate,' 00:00') as `Time of timing replace`,
+						 	'Delete' as `Mode of timing replace`,
+					  		`Rate Prefix` ,
+			                `Area Prefix` ,
+			                `Rate Type` ,
+			                `Area Name` ,
+			                `Billing Rate` ,
+			                `Billing Cycle`,
+			                `Minute Cost` ,
+			                `Lock Type` ,
+			                `Section Rate` ,
+			                `Billing Rate for Calling Card Prompt` ,
+			                `Billing Cycle for Calling Card Prompt`
+			        FROM    tmp_VendorArhiveVersion3VosSheet_
+
+					  
+			      
+
+
+	      ) tmp
+	      ORDER BY `Rate Prefix`;
+
+
+
+     END IF;
+
+
+
+
+
+        SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
+
+
+DROP PROCEDURE IF EXISTS `vwVendorVersion3VosSheet`;
+DELIMITER //
+CREATE PROCEDURE `vwVendorVersion3VosSheet`(
+	IN `p_AccountID` INT,
+	IN `p_Trunks` LONGTEXT,
+	IN `p_TimezonesID` INT,
+	IN `p_Effective` VARCHAR(50),
+	IN `p_CustomDate` DATE
+
+
+
+
+,
+	IN `p_AppliedToVendorID` INT,
+	IN `p_VoiceCallTypeID` INT
+)
+BEGIN
+
+
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_VendorVersion3VosSheet_;
+   CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorVersion3VosSheet_(
+			RateID int,
+			`Rate Prefix` varchar(50),
+			`Area Prefix` varchar(50),
+			`Rate Type` varchar(50),
+			`Area Name` varchar(200),
+			`Billing Rate` float,
+			`Billing Cycle` int,
+			`Minute Cost` float,
+			`Lock Type` varchar(50),
+			`Section Rate` varchar(50),
+			`Billing Rate for Calling Card Prompt` float,
+			`Billing Cycle for Calling Card Prompt` INT,
+			AccountID int,
+			TrunkID int,
+			EffectiveDate date,
+			EndDate date
+	);
+
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_VendorArhiveVersion3VosSheet_;
+   CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorArhiveVersion3VosSheet_(
+			RateID int,
+			`Rate Prefix` varchar(50),
+			`Area Prefix` varchar(50),
+			`Rate Type` varchar(50),
+			`Area Name` varchar(200),
+			`Billing Rate` float,
+			`Billing Cycle` int,
+			`Minute Cost` float,
+			`Lock Type` varchar(50),
+			`Section Rate` varchar(50),
+			`Billing Rate for Calling Card Prompt` float,
+			`Billing Cycle for Calling Card Prompt` INT,
+			AccountID int,
+			TrunkID int,
+			EffectiveDate date,
+			EndDate date
+	);
+
+
+	 Call vwVendorCurrentRates(p_AccountID,p_Trunks,p_TimezonesID,p_Effective,p_CustomDate,p_AppliedToVendorID,p_VoiceCallTypeID);
+
+
+INSERT INTO tmp_VendorVersion3VosSheet_
+SELECT
+
+
+    vendorRate.RateID AS RateID,
+    IFNULL(tblTrunk.RatePrefix, '') AS `Rate Prefix`,
+    Concat('' , IFNULL(tblTrunk.AreaPrefix, '') , vendorRate.Code) AS `Area Prefix`,
+    'International' AS `Rate Type`,
+    vendorRate.Description AS `Area Name`,
+    vendorRate.Rate / 60 AS `Billing Rate`,
+    vendorRate.IntervalN AS `Billing Cycle`,
+    CAST(vendorRate.Rate AS DECIMAL(18, 5)) AS `Minute Cost`,
+    CASE
+        WHEN (vendorRate.Blocked IS NOT NULL AND vendorRate.Blocked!=0) 
+		  THEN 
+		  		'No Lock'
+        ELSE 
+		  		'No Lock'
+    END
+    AS `Lock Type`,
+   CASE WHEN vendorRate.Interval1 != vendorRate.IntervalN
+                                      THEN
+                    Concat('0,', vendorRate.Rate, ',',vendorRate.Interval1)
+                                      ELSE ''
+                                 END as `Section Rate`,
+    0 AS `Billing Rate for Calling Card Prompt`,
+    0 AS `Billing Cycle for Calling Card Prompt`,
+    tblAccount.AccountID,
+    vendorRate.TrunkId,
+    vendorRate.EffectiveDate,
+    vendorRate.EndDate
+FROM tmp_VendorCurrentRates_ AS vendorRate
+INNER JOIN tblAccount
+    ON vendorRate.AccountId = tblAccount.AccountID
+INNER JOIN tblTrunk
+    ON tblTrunk.TrunkID = vendorRate.TrunkId
+WHERE (vendorRate.Rate > 0);
+
+
+	 
+	 IF p_Effective != 'Now' THEN
+
+		 	call vwVendorArchiveCurrentRates(p_AccountID,p_Trunks,p_TimezonesID,p_Effective,p_AppliedToVendorID,p_VoiceCallTypeID);
+
+			INSERT INTO tmp_VendorArhiveVersion3VosSheet_
+			SELECT
+
+
+			    NULL AS RateID,
+			    IFNULL(tblTrunk.RatePrefix, '') AS `Rate Prefix`,
+			    Concat('' , IFNULL(tblTrunk.AreaPrefix, '') , vendorArchiveRate.Code) AS `Area Prefix`,
+			    'International' AS `Rate Type`,
+			    vendorArchiveRate.Description AS `Area Name`,
+			    vendorArchiveRate.Rate / 60 AS `Billing Rate`,
+			    vendorArchiveRate.IntervalN AS `Billing Cycle`,
+			    CAST(vendorArchiveRate.Rate AS DECIMAL(18, 5)) AS `Minute Cost`,
+			    'No Lock'   AS `Lock Type`,
+			     CASE WHEN vendorArchiveRate.Interval1 != vendorArchiveRate.IntervalN THEN
+				           Concat('0,', vendorArchiveRate.Rate, ',',vendorArchiveRate.Interval1)
+			   	ELSE ''
+			    END as `Section Rate`,
+			    0 AS `Billing Rate for Calling Card Prompt`,
+			    0 AS `Billing Cycle for Calling Card Prompt`,
+			    tblAccount.AccountID,
+			    vendorArchiveRate.TrunkId,
+			    vendorArchiveRate.EffectiveDate,
+			    vendorArchiveRate.EndDate
+			FROM tmp_VendorArchiveCurrentRates_ AS vendorArchiveRate
+			Left join tmp_VendorVersion3VosSheet_ vendorRate
+				 ON vendorArchiveRate.AccountId = vendorRate.AccountID
+				 AND vendorArchiveRate.TrunkID = vendorRate.TrunkID
+ 				 AND vendorArchiveRate.RateID = vendorRate.RateID
+
+			INNER JOIN tblAccount
+			    ON vendorArchiveRate.AccountId = tblAccount.AccountID
+			INNER JOIN tblTrunk
+			    ON tblTrunk.TrunkID = vendorArchiveRate.TrunkId
+			WHERE vendorRate.RateID is Null AND 
+			(vendorArchiveRate.Rate > 0);
+
+	 END IF;
+
+END//
+DELIMITER ;
+
 
