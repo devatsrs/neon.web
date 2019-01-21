@@ -222,6 +222,7 @@ class AccountsController extends \BaseController {
             $data['created_by'] = User::get_user_full_name();
             $data['AccountType'] = 1;
             $data['AccountName'] = trim($data['AccountName']);
+            $CustomerID = '';
 
             if (isset($data['accountgateway'])) {
                 $AccountGateway = implode(',', array_filter(array_unique($data['accountgateway'])));
@@ -305,11 +306,19 @@ class AccountsController extends \BaseController {
                 $VendorName = '';
             }
 
+
             if (isset($data['pbxaccountstatus'])) {
                 $pbxaccountstatus = $data['pbxaccountstatus'];
                 unset($data['pbxaccountstatus']);
             }else{
                 $pbxaccountstatus = 0;
+            }
+
+            if (isset($data['CustomerID'])) {
+                $CustomerID = $data['CustomerID'];
+                unset($data['CustomerID']);
+            }else{
+                $CustomerID = '';
             }
 
             if (isset($data['autoblock'])) {
@@ -448,6 +457,12 @@ class AccountsController extends \BaseController {
                     $DynamicData['FieldValue']= $VendorName;
                     Account::addUpdateAccountDynamicfield($DynamicData);
                 }
+                if(!empty($CustomerID)){
+                    $DynamicData['FieldName'] = 'CustomerID';
+                    $DynamicData['FieldValue']= $CustomerID;
+                    Account::addUpdateAccountDynamicfield($DynamicData);
+                }
+
                 if(isset($pbxaccountstatus)){
                     $DynamicData['FieldName'] = 'pbxaccountstatus';
                     $DynamicData['FieldValue']= $pbxaccountstatus;
@@ -458,6 +473,7 @@ class AccountsController extends \BaseController {
                     $DynamicData['FieldValue']= $autoblock;
                     Account::addUpdateAccountDynamicfield($DynamicData);
                 }
+
 
                 if($data['Billing'] == 1) {
                     if($ManualBilling ==0) {
@@ -740,7 +756,7 @@ class AccountsController extends \BaseController {
         $ResellerCount = Reseller::where(['AccountID'=>$id,'Status'=>1])->count();
 
         $dynamicfields = Account::getDynamicfields('account',$id);
-        Log::info("Count for Dynamic fields for Account ." . $id . count($dynamicfields));
+        Log::info("Count for Dynamic fields for Account ." . $id . ' ' . count($dynamicfields));
         $accountdetails = AccountDetails::where(['AccountID'=>$id])->first();
         $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
         $accountreseller = Reseller::where('ChildCompanyID',$companyID)->pluck('ResellerID');
@@ -1049,6 +1065,12 @@ class AccountsController extends \BaseController {
                 $DynamicData['FieldValue']= $AccountGateway;
                 Account::addUpdateAccountDynamicfield($DynamicData);
             }
+            if(!empty($data["CustomerID"])){
+                $DynamicData['FieldName'] = 'CustomerID';
+                $DynamicData['FieldValue']= $data["CustomerID"];
+                Account::addUpdateAccountDynamicfield($DynamicData);
+            }
+
             if(!empty($VendorName)){
                 $DynamicData['FieldName'] = 'vendorname';
                 $DynamicData['FieldValue']= $VendorName;
