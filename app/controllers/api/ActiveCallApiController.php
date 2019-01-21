@@ -55,7 +55,7 @@ class ActiveCallApiController extends ApiController {
         if(!empty($AccountID) && !empty($CompanyID)){
             $IsCallexists=ActiveCall::where('UUID',$data['UUID'])->count();
             if($IsCallexists > 0){
-                return Response::json(array("status" => "failed", "message" => "Account with this UUID Already Exists."));
+                return Response::json(array("status" => "failed", "message" => "Call with this UUID already exists."));
             }
             try{
                 //check Balance

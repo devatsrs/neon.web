@@ -404,10 +404,10 @@
                         </div>
 
                         <div class="modal-footer" style="vertical-align: top">
-                            <a id="add-bulkAction"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                            <button type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                                 <i class="entypo-floppy"></i>
                                 Save
-                            </a>
+                            </button>
                             <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
                                 <i class="entypo-cancel"></i>
                                 Close
