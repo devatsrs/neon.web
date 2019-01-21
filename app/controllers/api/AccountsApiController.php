@@ -428,7 +428,7 @@ class AccountsApiController extends ApiController {
 			$data['Country'] = $accountData['CountryID'];
 			$data['password'] = isset($accountData['CustomerPanelPassword']) ? Crypt::encrypt($accountData['CustomerPanelPassword']) :'';
 			$data['VatNumber'] = $accountData['VatNumber'];
-			$data['Language']= $accountData['Language'];
+			$data['Language']= $accountData['LanguageID'];
 
 			$data['CompanyID'] = $CompanyID;
 			$data['AccountType'] = 1;
@@ -607,7 +607,7 @@ class AccountsApiController extends ApiController {
 				return Response::json(["status"=>"failed", "message"=>"Please provide the valid country"]);
 			}
 
-			$data['LanguageID'] = Language::where('Language',$data['Language'])->pluck('LanguageID');
+			$data['LanguageID'] = Language::where('LanguageID',$data['Language'])->pluck('LanguageID');
 			if (!isset($data['LanguageID'])) {
 				return Response::json(["status"=>"failed", "message"=>"Please provide the valid Language"]);
 			}
