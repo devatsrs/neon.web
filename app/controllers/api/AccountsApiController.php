@@ -432,10 +432,10 @@ class AccountsApiController extends ApiController {
 
 			$data['CompanyID'] = $CompanyID;
 			$data['AccountType'] = 1;
-			$data['IsVendor'] = isset($accountData['IsVendor']) ? 1 : 0;
-			$data['IsCustomer'] = isset($accountData['IsCustomer']) ? 1 : 0;
-			$data['IsReseller'] = isset($accountData['IsReseller']) ? 1 : 0;
-			$data['Billing'] = isset($data['Billing']) ? 1 : 0;
+			$data['IsVendor'] = isset($accountData['IsVendor']) && $accountData['IsVendor'] == 1 ? 1 : 0;
+			$data['IsCustomer'] = isset($accountData['IsCustomer']) && $accountData['IsCustomer'] == 1  ? 1 : 0;
+			$data['IsReseller'] = isset($accountData['IsReseller']) && $accountData['IsReseller'] == 1 ? 1 : 0;
+			$data['Billing'] = isset($data['Billing']) && $data['Billing'] == 1 ? 1 : 0;
 			$data['created_by'] = $CreatedBy;
 			$data['AccountType'] = 1;
 			$data['AccountName'] = isset($accountData['AccountName']) ? trim($accountData['AccountName']) : '';
@@ -577,13 +577,15 @@ class AccountsApiController extends ApiController {
 				$ResellerData['DomainUrl'] = $accountData['ReSellerDomainUrl'];
 				Reseller::$messages['Email.required'] = 'The Reseller Email is Required.';
 				Reseller::$messages['Password.required'] = 'The Reseller Password is Required.';
-				$validator = Validator::make($ResellerData, Reseller::$rules, Reseller::$messages);
-				if ($validator->fails()) {
-					$errors = "";
-					foreach ($validator->messages()->all() as $error) {
-						$errors .= $error . "<br>";
+				if($data['IsReseller']==1) {
+					$validator = Validator::make($ResellerData, Reseller::$rules, Reseller::$messages);
+					if ($validator->fails()) {
+						$errors = "";
+						foreach ($validator->messages()->all() as $error) {
+							$errors .= $error . "<br>";
+						}
+						return Response::json(["status" => "failed", "message" => $errors]);
 					}
-					return Response::json(["status" => "failed", "message" => $errors]);
 				}
 
 				if(!empty($ResellerData['AllowWhiteLabel'])){
