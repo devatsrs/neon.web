@@ -53,6 +53,7 @@ public function main() {
 
     /** Used in Main Account Subscription Page */
 	public function ajax_datagrid_page($type=''){
+
         $data 						 = 	Input::all(); //Log::info(print_r($data,true));
         $data['iDisplayStart'] 		+=	1;
         $companyID 					 =  User::get_companyID(); 
@@ -65,8 +66,9 @@ public function main() {
 			$data['Active'] =   0;
 		}
 		$data['ServiceID'] 			 =  empty($data['ServiceID'])?'null':$data['ServiceID'];
-        $query = "call prc_GetAccountSubscriptions (".$companyID.",".intval($data['AccountID']).",".intval($data['ServiceID']).",'".$data['Name']."','".$data['Active']."','".date('Y-m-d')."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".strtoupper($data['sSortDir_0'])."'";
-		
+       $query = "call prc_GetAccountSubscriptions (".$companyID.",".intval($data['AccountID']).",".intval($data['ServiceID']).",'".$data['Name']."','".$data['Active']."','".date('Y-m-d')."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".strtoupper($data['sSortDir_0'])."'";
+
+
         if(isset($data['Export']) && $data['Export'] == 1)
 		{
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
@@ -157,12 +159,10 @@ public function main() {
 
         }
 
+        $data['Status'] = '1';
         if ($AccountSubscription = AccountSubscription::create($data)) {
             $dynamiceFields['AccountID']  = $data['AccountID'];
-            $GetAccountSubscriptionID     = AccountSubscription::select('AccountSubscriptionID')
-                                            ->where('AccountID',$data['AccountID'])->first();
 
-            $dynamiceFields['AccountSubscriptionID'] = $GetAccountSubscriptionID->AccountSubscriptionID;
 
             $GetDynamiceAll = DynamicFields::join('tblDynamicFieldsValue', function($join) {
                 $join->on('tblDynamicFieldsValue.DynamicFieldsID','=','tblDynamicFields.DynamicFieldsID');
@@ -176,7 +176,6 @@ public function main() {
                 $name[] = $DynamicFieldsID->FieldName;
                 $type[] = $DynamicFieldsID->FieldDomType;
             }
-
 
             for($i=0; $i < sizeof($ids); $i++ )
             {
@@ -198,7 +197,7 @@ public function main() {
                         if($success){
 
                             AccountSubsDynamicFields::create([
-                                'AccountSubscriptionID' => $dynamiceFields['AccountSubscriptionID'],
+                                'AccountSubscriptionID' => $AccountSubscription->AccountSubscriptionID,
                                 'AccountID' => $dynamiceFields['AccountID'],
                                 'DynamicFieldsID' => $ids[$i],
                                 'FieldValue' => $dynamicImage,
@@ -219,12 +218,10 @@ public function main() {
                         }
                     }
 
-
-
                 }else{
 
                     AccountSubsDynamicFields::create([
-                        'AccountSubscriptionID' => $dynamiceFields['AccountSubscriptionID'],
+                        'AccountSubscriptionID' => $AccountSubscription->AccountSubscriptionID,
                         'AccountID' => $dynamiceFields['AccountID'],
                         'DynamicFieldsID' => $ids[$i],
                         'FieldValue' => (isset($dynamiceFields[$i]) ? $dynamiceFields[$i] : null),
@@ -721,14 +718,24 @@ public function main() {
         $data = Input::all();
         $AccountSubscriptionID = $data['AccountSubscriptionID'];
 
+
         try{
 
-            $AccountSubsDynamicFields = AccountSubsDynamicFields::where('AccountID', '=', $AccountSubscriptionID)
+
+//            $AccountSubsDynamicFields = DynamicFields::join('speakintelligentBilling.tblAccountSubsDynamicFields as db2\'', function($join) {
+//                $join->on('speakintelligentBilling.tblAccountSubsDynamicFields as db2',  'tblDynamicFieldsValue.DynamicFieldsID','=','tblDynamicFields.DynamicFieldsID');
+//            })->select('db2.AccountSubscriptionID', 'db2.AccountID', 'db2.DynamicFieldsID', 'db2.FieldValue', 'tblDynamicFields.FieldName','tblDynamicFields.FieldDomType')
+//                ->where('db2.AccountSubscriptionID','=', $AccountSubscriptionID)
+//                ->where('tblDynamicFields.Type','=', 'subscription')
+//                ->get();
+
+            $AccountSubsDynamicFields = AccountSubsDynamicFields::where('AccountSubscriptionID', '=', $AccountSubscriptionID)
                 ->join('speakintelligentRM.tblDynamicFields as db2','tblAccountSubsDynamicFields.DynamicFieldsID','=','db2.DynamicFieldsID')
                 ->select('tblAccountSubsDynamicFields.AccountSubscriptionID', 'tblAccountSubsDynamicFields.AccountID', 'tblAccountSubsDynamicFields.DynamicFieldsID', 'tblAccountSubsDynamicFields.FieldValue', 'db2.FieldName', 'db2.FieldDomType')
                 ->where('db2.Type', 'subscription')
                 ->orderBy('tblAccountSubsDynamicFields.FieldOrder','ASC')
                 ->get();
+
 
             return $AccountSubsDynamicFields;
 
