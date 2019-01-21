@@ -78,10 +78,11 @@ class AccountsApiController extends ApiController {
 		try {
 			Log::info('createAccountService:Data.' . json_encode($accountData));
 			$data['AccountNo'] = $accountData['AccountNo'];
+			$data['AccountID'] = $accountData['AccountID'];
 			$data['ServiceTemaplate'] = $accountData['ServiceTemaplate'];
 			$data['NumberPurchased'] = $accountData['NumberPurchased'];
 			$data['AccountDynamicField'] = $accountData['AccountDynamicField'];
-			$data['InboundTariffCategory'] = isset($accountData['InboundTariffCategoryId']) ? $accountData['InboundTariffCategoryId'] :'';
+			$data['InboundTariffCategory'] = isset($accountData['InboundTariffCategoryID']) ? $accountData['InboundTariffCategoryID'] :'';
 			//$data['ServiceStartDate'] = isset($accountData['ServiceStartDate'])? strtotime($accountData['ServiceStartDate']) : '';
 			//$data['ServiceEndDate'] = isset($accountData['ServiceEndDate'])? strtotime($accountData['ServiceEndDate']) : '';
 			$AccountServiceContract['ContractStartDate'] = $accountData['ServiceStartDate'];
@@ -90,7 +91,7 @@ class AccountsApiController extends ApiController {
 			$AccountServiceContract['ContractReason'] = $accountData['ContractFeeValue'];
 			$AccountServiceContract['AutoRenewal'] = $accountData['AutoRenewal'];
 			$AccountServiceContract['ContractTerm'] = $accountData['ContractType'];
-			$AccountSubscription["PackageSubscription"] = $accountData['PackageSubscription'];
+			$AccountSubscription["PackageSubscription"] = $accountData['PackageSubscriptionID'];
 
 			if (!empty($AccountServiceContract['ContractStartDate']) && empty($AccountServiceContract['ContractEndDate'])) {
 				return Response::json(["status" => "failed", "message" => "Please specified the Service End Data"]);
@@ -138,7 +139,7 @@ class AccountsApiController extends ApiController {
 			}
 
 			if (!empty($AccountSubscription['PackageSubscription'])) {
-				$AccountSubscriptionDB = BillingSubscription::where(array('Name' => $AccountSubscription['PackageSubscription']))->first();
+				$AccountSubscriptionDB = BillingSubscription::where(array('SubscriptionID' => $AccountSubscription['PackageSubscription']))->first();
 				if (!isset($AccountSubscriptionDB) || $AccountSubscriptionDB == '') {
 					return Response::json(["status" => "failed", "message" => "Please provide the correct account subscription"]);
 				}
@@ -423,8 +424,8 @@ class AccountsApiController extends ApiController {
 			$data['Email'] = $accountData['Email'];
 			$data['BillingEmail'] = $accountData['BillingEmail'];
 			$data['Owner'] = $accountData['OwnerID'];
-			$data['CurrencyId'] = $accountData['Currency'];
-			$data['Country'] = $accountData['Country'];
+			$data['CurrencyId'] = $accountData['CurrencyID'];
+			$data['Country'] = $accountData['CountryID'];
 			$data['password'] = isset($accountData['CustomerPanelPassword']) ? Crypt::encrypt($accountData['CustomerPanelPassword']) :'';
 			$data['VatNumber'] = $accountData['VatNumber'];
 			$data['Language']= $accountData['Language'];
@@ -438,7 +439,7 @@ class AccountsApiController extends ApiController {
 			$data['created_by'] = $CreatedBy;
 			$data['AccountType'] = 1;
 			$data['AccountName'] = isset($accountData['AccountName']) ? trim($accountData['AccountName']) : '';
-			$data['PaymentMethod'] = $accountData['PaymentMethod'];
+			$data['PaymentMethod'] = $accountData['PaymentMethodID'];
 
 
 
@@ -595,11 +596,11 @@ class AccountsApiController extends ApiController {
 				}
 
 			}
-			$data['CurrencyId'] = Currency::where('Code',$data['CurrencyId'])->pluck('CurrencyId');
+			$data['CurrencyId'] = Currency::where('CurrencyId',$data['CurrencyId'])->pluck('CurrencyId');
 			if (!isset($data['CurrencyId'])) {
 				return Response::json(["status"=>"failed", "message"=>"Please provide the valid currency"]);
 			}
-			$data['Country'] = Country::where(['Country' => $data['Country']])->pluck('Country');
+			$data['Country'] = Country::where(['CountryID' => $data['Country']])->pluck('Country');
 			if (!isset($data['Country'])) {
 				return Response::json(["status"=>"failed", "message"=>"Please provide the valid country"]);
 			}
@@ -616,7 +617,7 @@ class AccountsApiController extends ApiController {
 
 
 			$BillingSetting['billing_type'] = $accountData['BillingType'];
-			$BillingSetting['billing_class']= $accountData['BillingClass'];
+			$BillingSetting['billing_class']= $accountData['BillingClassID'];
 			$BillingSetting['billing_cycle']= $accountData['BillingCycleType'];
 			$BillingSetting['billing_cycle_options']= $accountData['BillingCycleValue'];
 			$BillingSetting['billing_start_date']= $accountData['BillingStartDate'];
@@ -685,7 +686,7 @@ class AccountsApiController extends ApiController {
 				}
 				if ($data['Billing'] == 1) {
 					$dataAccountBilling['BillingType'] = $BillingSetting['billing_type'];
-					$BillingClassSql = BillingClass::where('Name', $BillingSetting['billing_class']);
+					$BillingClassSql = BillingClass::where('BillingClassID', $BillingSetting['billing_class']);
 					$BillingClass = $BillingClassSql->first();
 					if (!isset($BillingClass)) {
 						return Response::json(["status" => "failed", "message" => "Please select the valid billing class"]);

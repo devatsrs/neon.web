@@ -9,51 +9,46 @@ class ServicesTemplateApiController extends ApiController
     {
         Log::info('storeServiceTempalteData:Service Template Controller.');
         try {
-            $post_vars = json_decode(file_get_contents("php://input"));
-            if (! $post_vars ) {
-                return Response::json(["status"=>"failed", "message"=>"Please provide the post message"]);
-            }
+           // $post_vars = json_decode(file_get_contents("php://input"));
+            $post_vars = Input::all();
+
             //Log::info('storeServiceTempalteData:storeServiceTempalteData.' . $post_vars->Name);
             // $data['Name'] = $post_vars->Name;
             //  return Response::json(["status"=>"success", "data"=>$post_vars]);
 
-            $data['Name'] = $post_vars->Name;
-            $data['ServiceId'] = $post_vars->ServiceId;
-            $CurrenctCodeSql = Currency::where('Code',$post_vars->Currency);
+            $data['Name'] = $post_vars["Name"];
+            $data['ServiceId'] = $post_vars["ServiceID"];
+            $CurrenctCodeSql = Currency::where('CurrencyId',$post_vars["CurrencyID"]);
             Log::info('storeServiceTempalteData $CurrenctCodeSql.' . $CurrenctCodeSql->toSql());
             $CurrenctCodeResult = $CurrenctCodeSql->first();
             if (!isset($CurrenctCodeResult)) {
                 return Response::json(["status"=>"failed", "message"=>"Please provide the valid currency"]);
             }
 
-            if (!empty($post_vars->ContractType) && ($post_vars->ContractType < 1 || $post_vars->ContractType > 4)) {
+            if (!empty($post_vars["ContractType"]) && ($post_vars["ContractType"] < 1 || $post_vars["ContractType"] > 4)) {
                 return Response::json(["status" => "failed", "message" => "The value of ContractType must be between 1 and 4"]);
             }
-            if (!empty($post_vars->AutoRenewal) && ($post_vars->AutoRenewal != 0 && $post_vars->AutoRenewal != 1)) {
+            if (!empty($post_vars["AutoRenewal"]) && ($post_vars["AutoRenewal"] != 0 && $post_vars["AutoRenewal"] != 1)) {
                 return Response::json(["status" => "failed", "message" => "The value of AutoRenewal must be between 0 or 1"]);
             }
 
 
 
             $data['CurrencyId'] = $CurrenctCodeResult->CurrencyId;
-            $data['OutboundDiscountPlanId'] = $post_vars->OutboundDiscountPlanId;
-            $data['InboundDiscountPlanId'] = $post_vars->InboundDiscountPlanId;
-            $data['OutboundRateTableId'] = $post_vars->OutboundRateTableId;
+            $data['OutboundDiscountPlanId'] = $post_vars["OutboundDiscountPlanID"];
+            $data['InboundDiscountPlanId'] = $post_vars["InboundDiscountPlanID"];
+            $data['OutboundRateTableId'] = $post_vars["OutboundRateTableID"];
             if (isset($post_vars->selectedSubscription)) {
-                $data['selectedSubscription'] = $post_vars->selectedSubscription;
+                $data['selectedSubscription'] = $post_vars["selectedSubscription"];
             }else {
                 $data['selectedSubscription'] = '';
             }
             if (isset($post_vars->selectedcategotyTariff)) {
-                $data['selectedcategotyTariff'] = $post_vars->selectedcategotyTariff;
+                $data['selectedcategotyTariff'] = $post_vars["selectedcategotyTariff"];
             } else {
                 $data['selectedcategotyTariff'] = '';
             }
-            Log::info('storeServiceTempalteData:storeServiceTempalteData.' .
-                'Name:' . $data['Name'] . 'ServiceId' . $data['ServiceId'] . 'CurrencyId' . $data['CurrencyId'] .
-                'OutboundDiscountPlanId' . $data['OutboundDiscountPlanId'] . 'InboundDiscountPlanId' . $data['InboundDiscountPlanId'] .
-                'OutboundRateTableId' . $data['OutboundRateTableId'] . 'selectedSubscription' . $data['selectedSubscription'] .
-                'selectedcategotyTariff' . $data['selectedcategotyTariff']);
+
             $j=0;
 
             $CreatedBy = '';
@@ -69,8 +64,8 @@ class ServicesTemplateApiController extends ApiController
                     return Response::json(["status" => "failed", "message" => "Not authorized. Please Login"]);
             }
             try {
-                if (isset($post_vars->DynamicFields)) {
-                    foreach ($post_vars->DynamicFields as $key => $value) {
+                if (isset($post_vars["DynamicFields"])) {
+                    foreach ($post_vars["DynamicFields"] as $key => $value) {
                         Log::info('Dynamic Field.' . $value->Name . ' ' . $value->Value);
                         $DynamicFields[$j]['FieldValue'] = $value->Value;
                         $Type = ServiceTemplateTypes::DYNAMIC_TYPE;
@@ -153,10 +148,10 @@ class ServicesTemplateApiController extends ApiController
 
                 $ServiceTemplateData['CurrencyId'] = $data['CurrencyId'];
 
-                $ServiceTemplateData['ContractDuration'] = $post_vars->ContractDuration;
-                $ServiceTemplateData['CancellationCharges'] = $post_vars->ContractType;
-                $ServiceTemplateData['AutomaticRenewal'] = $post_vars->AutoRenewal;
-                $ServiceTemplateData['CancellationFee'] = $post_vars->ContractFeeValue;
+                $ServiceTemplateData['ContractDuration'] = $post_vars["ContractDuration"];
+                $ServiceTemplateData['CancellationCharges'] = $post_vars["ContractType"];
+                $ServiceTemplateData['AutomaticRenewal'] = $post_vars["AutoRenewal"];
+                $ServiceTemplateData['CancellationFee'] = $post_vars["ContractFeeValue"];
 
 
                 if ($ServiceTemplate = ServiceTemplate::create($ServiceTemplateData)) {
