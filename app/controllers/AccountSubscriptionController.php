@@ -149,13 +149,13 @@ public function main() {
         }
 
         $companyID        = User::get_companyID();
-        if(isset($data['dynamicImage']))
-        {
+
+
+        if (isset($data['dynamicImage']) && !empty($data['dynamicImage'])) {
             $GetDynamicImg['dynamicImage'] = $data['dynamicImage'];
+            unset( $data['dynamicImage']);
+
         }
-
-        unset( $data['dynamicImage']);
-
 
         if ($AccountSubscription = AccountSubscription::create($data)) {
             $dynamiceFields['AccountID']  = $data['AccountID'];
@@ -293,10 +293,10 @@ public function main() {
 
             $companyID = User::get_companyID();
 
-            if (isset($data['dynamicImage'])) {
+            if (isset($data['dynamicImage']) && !empty($data['dynamicImage'])) {
                 $GetDynamicImg['dynamicImage'] = $data['dynamicImage'];
+                unset($data['dynamicImage']);
             }
-            unset($data['dynamicImage']);
 
 
             try {
@@ -313,66 +313,67 @@ public function main() {
                     $name[] = $DynamicFieldsID->FieldName;
                     $type[] = $DynamicFieldsID->FieldDomType;
                 }
+                if(isset($ids) && isset($name) && isset($type) ){
+                        for ($i = 0; $i < sizeof($ids); $i++) {
+                            if (isset($_FILES["dynamicImage"]["name"]) && $type[$i] == "file") {
+                                $dynamicImage = $_FILES["dynamicImage"]["name"];
+                                if ($dynamicImage) {
+                                    $upload_path = CompanyConfiguration::get('UPLOAD_PATH', $companyID) . "/";
+                                    $fileUrl = $companyID . "/dynamicfields/";
 
-                for ($i = 0; $i < sizeof($ids); $i++) {
-                    if (isset($_FILES["dynamicImage"]["name"]) && $type[$i] == "file") {
-                        $dynamicImage = $_FILES["dynamicImage"]["name"];
-                        if ($dynamicImage) {
-                            $upload_path = CompanyConfiguration::get('UPLOAD_PATH', $companyID) . "/";
-                            $fileUrl = $companyID . "/dynamicfields/";
+                                    if (!file_exists($upload_path . $fileUrl)) {
+                                        mkdir($upload_path . $fileUrl, 0777, true);
+                                    }
 
-                            if (!file_exists($upload_path . $fileUrl)) {
-                                mkdir($upload_path . $fileUrl, 0777, true);
-                            }
+                                    //rename with time img
+                                    $dynamicImage = time() . $dynamicImage;
+                                    //uploading theimage below directory path
+                                    $success = move_uploaded_file($_FILES["dynamicImage"]["tmp_name"], $upload_path . $fileUrl . $dynamicImage);
 
-                            //rename with time img
-                            $dynamicImage = time() . $dynamicImage;
-                            //uploading theimage below directory path
-                            $success = move_uploaded_file($_FILES["dynamicImage"]["tmp_name"], $upload_path . $fileUrl . $dynamicImage);
+                                    if ($success) {
 
-                            if ($success) {
+                                        AccountSubsDynamicFields::where('AccountID', $AccountID)
+                                            ->where('AccountSubscriptionID', $AccountSubscriptionID)
+                                            ->where('FieldOrder', $i)
+                                            ->where('DynamicFieldsID', $ids[$i])
+                                            ->update([
+                                                'FieldValue' => $dynamicImage
+                                            ]);
 
-                                AccountSubsDynamicFields::where('AccountID', $AccountID)
-                                    ->where('AccountSubscriptionID', $AccountSubscriptionID)
-                                    ->where('FieldOrder', $i)
-                                    ->where('DynamicFieldsID', $ids[$i])
-                                    ->update([
-                                        'FieldValue' => $dynamicImage
-                                    ]);
+                                        unset($_FILES);
 
-                                unset($_FILES);
+                                        if ($name[$i] == "file") {
+                                            unset($ids[$i]);
+                                            unset($name[$i]);
+                                        }
 
-                                if ($name[$i] == "file") {
-                                    unset($ids[$i]);
-                                    unset($name[$i]);
+                                    } else {
+
+                                        return Response::json(array("status" => "failed", "message" => "Error: There was a problem uploading your file. Please try again."));
+                                    }
                                 }
+
 
                             } else {
 
-                                return Response::json(array("status" => "failed", "message" => "Error: There was a problem uploading your file. Please try again."));
+                               if(!empty($dynamiceFields[$i]))
+                               {
+
+                                   AccountSubsDynamicFields::where('AccountID', $AccountID)
+                                       ->where('AccountSubscriptionID', $AccountSubscriptionID)
+                                       ->where('FieldOrder', $i)
+                                       ->where('DynamicFieldsID', $ids[$i])
+                                       ->update([
+                                           'FieldValue' => $dynamiceFields[$i]
+                                       ]);
+                               }
+
+
+
+
                             }
+
                         }
-
-
-                    } else {
-
-                       if(!empty($dynamiceFields[$i]))
-                       {
-
-                           AccountSubsDynamicFields::where('AccountID', $AccountID)
-                               ->where('AccountSubscriptionID', $AccountSubscriptionID)
-                               ->where('FieldOrder', $i)
-                               ->where('DynamicFieldsID', $ids[$i])
-                               ->update([
-                                   'FieldValue' => $dynamiceFields[$i]
-                               ]);
-                       }
-
-
-
-
-                    }
-
                 }
 
                 return Response::json(array("status" => "success", "message" => "Subscription Successfully Created", 'LastID' => $AccountSubscription->AccountSubscriptionID));
