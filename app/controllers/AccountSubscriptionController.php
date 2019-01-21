@@ -716,18 +716,18 @@ public function main() {
 
     public function FindEditDynamicFields(){
         $data = Input::all();
-        $AccountID  = $data['AccountID'];
+        $AccountSubscriptionID = $data['AccountSubscriptionID'];
 
         try{
 
-            $AccountSubsDynamicFields = AccountSubsDynamicFields::where('AccountID', '=', $AccountID)
+            $AccountSubsDynamicFields = AccountSubsDynamicFields::where('AccountID', '=', $AccountSubscriptionID)
                 ->join('speakintelligentRM.tblDynamicFields as db2','tblAccountSubsDynamicFields.DynamicFieldsID','=','db2.DynamicFieldsID')
                 ->select('tblAccountSubsDynamicFields.AccountSubscriptionID', 'tblAccountSubsDynamicFields.AccountID', 'tblAccountSubsDynamicFields.DynamicFieldsID', 'tblAccountSubsDynamicFields.FieldValue', 'db2.FieldName', 'db2.FieldDomType')
                 ->where('db2.Type', 'subscription')
                 ->orderBy('tblAccountSubsDynamicFields.FieldOrder','ASC')
                 ->get();
 
-         return $AccountSubsDynamicFields;
+            return $AccountSubsDynamicFields;
 
         }catch (Exception $ex){
             return $ex;

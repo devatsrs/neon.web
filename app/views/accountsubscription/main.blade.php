@@ -462,8 +462,7 @@
                        success: function(response) {
                            if (response.status == 'success') {
                               toastr.success(response.message, "Success", toastr_opts);
-
-                               data_table.fnFilter('', 0);
+                                location.reload();
                                $('.modal').modal('hide');
                            }
                        },
