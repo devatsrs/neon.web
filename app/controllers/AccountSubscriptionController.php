@@ -298,8 +298,8 @@ public function main() {
             }
             unset($data['dynamicImage']);
 
-
-            try {
+            if(isset($ids) && isset($name) && isset($type) ) {
+                try {
                 $AccountSubscription->update($data);
 
                 $GetDynamiceAll = DynamicFields::join('tblDynamicFieldsValue', function ($join) {
@@ -381,6 +381,8 @@ public function main() {
                 Log::info('Trach Line...' . $ex->getTraceAsString());
                 return Response::json(array("status" => "failed", "message" => "Problem Deleting. Exception:" . $ex->getMessage()));
             }
+          }
+
         }
 	}
 
