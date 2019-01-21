@@ -898,9 +898,6 @@ $("#subscription-form-edit select[name='SubscriptionID']").on('change', function
             AccountSubscriptionID = $("#subscription-form-edit input[name='AccountSubscriptionID']").val();
             var find_dynamic_feilds_url	= baseurl + '/account_subscription/EditDynamiceFieldFinder';
 
-            alert(find_dynamic_feilds_url);
-
-
             $.ajax({
                 url: find_dynamic_feilds_url,  //Server script to process data
                 type: 'POST',
