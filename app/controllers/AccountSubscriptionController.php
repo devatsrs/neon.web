@@ -390,11 +390,17 @@ public function main() {
                 try{
                     $AccountSubscription = AccountSubscription::find($AccountSubscriptionID);
                     $SubscriptionDiscountPlanCount = SubscriptionDiscountPlan::where("AccountSubscriptionID",$AccountSubscriptionID)->count();
+
+
+
                     if($SubscriptionDiscountPlanCount > 0)
                     {
                         return Response::json(array("status" => "failed", "message" => "Subscription is in Use, Please Delete Discount Plan."));
                         //$SubscriptionDiscountPlanCount = SubscriptionDiscountPlan::where("AccountSubscriptionID",$AccountSubscriptionID)->delete();
                     }
+
+                     AccountSubsDynamicFields::whereIn("AccountSubscriptionID",$AccountSubscriptionID)->whereIn("AccountID",$AccountID )->delete();
+
                     $result = $AccountSubscription->delete();
                     if ($result) {
                         return Response::json(array("status" => "success", "message" => "Subscription Successfully Deleted"));
