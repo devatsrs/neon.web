@@ -11,13 +11,22 @@ class VendorConnection extends \Eloquent {
         "taxrate_dropdown2_cache",   // taxrate => taxrateID
     );
 
-    static public function checkForeignKeyById($id) {
+    public static function checkForeignKeyById($id) {
         $hasAccountApprovalList = VendorConnection::where("VendorConnectionID",$id)->count();
         if( intval($hasAccountApprovalList) > 0){
             return true;
         }else{
             return false;
         }
+    }
+
+    public static function getTrunkDropdownIDList($AccountID,$CompanyID){
+        $row = VendorConnection::join("tblTrunk","tblTrunk.TrunkID", "=    ","tblVendorConnection.TrunkID")
+            ->where(["tblVendorConnection.Active"=> 1,"tblVendorConnection.CompanyID"=>$CompanyID,"tblVendorConnection.AccountId"=>$AccountID])->select(array('tblVendorConnection.TrunkID','Trunk'))->lists('Trunk', 'TrunkID');
+        if(!empty($row)){
+            $row = array(""=> "Select")+$row;
+        }
+        return $row;
     }
 
 

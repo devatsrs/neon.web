@@ -181,7 +181,8 @@ class VendorRatesController extends \BaseController
         $Account = Account::find($id);
         $Vendors = Account::getOnlyVendorIDList();
         unset($Vendors[$id]);
-        $trunks  = VendorTrunk::getTrunkDropdownIDList($id);
+        $CompanyID  = User::get_companyID();
+        $trunks  = VendorConnection::getTrunkDropdownIDList($id,$CompanyID);
         /*if(count($trunks) == 0){
             return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
         }*/
