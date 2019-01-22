@@ -2964,16 +2964,15 @@ function submit_ajax_datatable(fullurl,data,refreshjob,data_table_reload){
         success: function(response) {
             $(".btn").button('reset');
             if (response.status == 'success') {
-                console.log('-----Same Fun');
                 $('.modal').modal('hide');
                 toastr.success(response.message, "Success", toastr_opts);
                 if( typeof data_table_reload !=  'undefined'){
-                    //data_table_reload.fnFilter('', 0);
+                    data_table_reload.fnFilter('', 0);
                 }
-                if(refreshjob){
+                //if(refreshjob){
                     reloadJobsDrodown(0);
 					reloadMsgDrodown(0);
-                }
+                //}
             } else {
                 toastr.error(response.message, "Error", toastr_opts);
             }
