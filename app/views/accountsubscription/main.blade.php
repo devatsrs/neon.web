@@ -149,7 +149,7 @@
 					$search.ServiceID   =  $("#subscription_filter").find('[name="ServiceID"]').val();										
                     $search.Active  	=  $("#subscription_filter").find("[name='Active']").prop("checked");
 
-                data_table_subscription  = $("#table-subscription").DataTable({
+                data_table_subscription  = $("#table-subscription").dataTable({
             "bDestroy": true,
             "bProcessing":true,
             "bServerSide":true,
