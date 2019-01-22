@@ -157,7 +157,7 @@ class ServicesTemplateApiController extends ApiController
 
                 $ServiceTemplateData['ContractDuration'] = isset($post_vars["ContractDuration"]) ? $post_vars["ContractDuration"]:'';
                 $ServiceTemplateData['CancellationCharges'] = isset($post_vars["ContractType"]) ? $post_vars["ContractType"] :'';
-                $ServiceTemplateData['AutomaticRenewal'] = isset($post_vars["AutoRenewal"]) ? $post_vars["AutoRenewal"] : '';
+                $ServiceTemplateData['AutomaticRenewal'] = isset($post_vars["AutoRenewal"]) ? $post_vars["AutoRenewal"] : '1';
                 $ServiceTemplateData['CancellationFee'] = isset($post_vars["ContractFeeValue"]) ? $post_vars["ContractFeeValue"] : '';
 
 
