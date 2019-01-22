@@ -399,7 +399,7 @@ public function main() {
                         //$SubscriptionDiscountPlanCount = SubscriptionDiscountPlan::where("AccountSubscriptionID",$AccountSubscriptionID)->delete();
                     }
 
-                     AccountSubsDynamicFields::whereIn("AccountSubscriptionID",$AccountSubscriptionID)->whereIn("AccountID",$AccountID )->delete();
+                     AccountSubsDynamicFields::where("AccountSubscriptionID",$AccountSubscriptionID)->where("AccountID",$AccountID )->delete();
 
                     $result = $AccountSubscription->delete();
                     if ($result) {
