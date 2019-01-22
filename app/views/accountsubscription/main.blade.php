@@ -248,11 +248,11 @@
                 $('#subscription_submit').trigger('click');
                 //inst.myMethod('I am a method');
                 $('#add-subscription').click(function(ev){
+
                         ev.preventDefault();
                         $('#subscription-form').trigger("reset");
                         $('#modal-subscription h4').html('Add Subscription');
                         $("#subscription-form [name=SubscriptionID]").select2().select2('val',"");
-
                         $('#subscription-form').attr("action",subscription_add_url);
 						$('#modal-subscription').find('.dropdown1').removeAttr('disabled');
 						document.getElementById('subscription-form').reset();
@@ -261,7 +261,8 @@
 						$('#SubscriptionID_add_change').change();
 						$('#AccountID_add_change').change();
 						//$('.dropdown1').change();						
-                        $('#modal-subscription').modal('show');                        
+                        $('#modal-subscription').modal('show');
+
                 });
                 $('table tbody').on('click', '.edit-subscription', function (ev) {
                         ev.preventDefault();
@@ -307,9 +308,8 @@
                         data:'SubscriptionID='+SubscriptionID+'&AccountSubscriptionID='+AccountSubscriptionID,
                         dataType: 'html',
                         success: function (response) {
-
                             var i;
-//                            var obj = JSON.parse(JSON.stringify(response))
+//                           var obj = JSON.parse(JSON.stringify(response))
                             var obj = jQuery.parseJSON(response);
 
                             for (i = 0; i < obj.length; ++i)
@@ -897,19 +897,18 @@ $("#subscription-form-edit select[name='SubscriptionID']").on('change', function
             SubscriptionID        = $(this).val();
             AccountSubscriptionID = $("#subscription-form-edit input[name='AccountSubscriptionID']").val();
             var find_dynamic_feilds_url	= baseurl + '/account_subscription/EditDynamiceFieldFinder';
+
             $.ajax({
                 url: find_dynamic_feilds_url,  //Server script to process data
                 type: 'POST',
                 data:'SubscriptionID='+SubscriptionID+'&AccountSubscriptionID='+AccountSubscriptionID,
                 dataType: 'html',
                 success: function (response) {
-
-                    var i;//                            var obj = JSON.parse(JSON.stringify(response))
+                    var i;
+//                    var obj = JSON.parse(JSON.stringify(response));
                     var obj = jQuery.parseJSON(response);
-                    alert(obj);
                     for (i = 0; i < obj.length; ++i)
                     {
-
                         if(obj[i].FieldDomType =="numericePerMin" || obj[i].FieldDomType =="text" )
                         {
                             $('#edit-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="number" name="dynamicFileds[]" class="form-control" value="'+obj[i].FieldValue+'" /></div></div></div>');
@@ -926,14 +925,9 @@ $("#subscription-form-edit select[name='SubscriptionID']").on('change', function
                         }else if( obj[i].FieldDomType =="file"){
                             $('#edit-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">Upload file</label><br><a class="file-input-wrapper btn form-control file2 inline btn btn-primary"><i class="glyphicon glyphicon-circle-arrow-up"></i>  Browse<input name="dynamicImage" id="dynamicImage" type="file" accept=".png" class="form-control file2 inline btn btn-primary" onchange="handleFiles()"></a><span class="file-input-name"></span></div></div></div>');
                         }
-
                     }
-
-                    data_table.fnFilter('', 0);
-
                 },
                 error: function (request, status, error) {
-
                     toastr.error(request.responseText, "Error", toastr_opts)
                 }
              });
