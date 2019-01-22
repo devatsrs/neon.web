@@ -89,12 +89,10 @@ class AccountServiceController extends \BaseController {
     // get all account service
     public function ajax_datagrid(){
         $data = Input::all();
-        $CompanyID = User::get_companyID();
         $id=$data['account_id'];
         $select = ["tblAccountService.AccountServiceID","tblService.ServiceName","tblAccountService.ServiceTitle","tblAccountService.Status","tblAccountService.ServiceID","tblAccountService.AccountServiceID"];
         $services = AccountService::join('tblService', 'tblAccountService.ServiceID', '=', 'tblService.ServiceID')
-            ->where("tblAccountService.AccountID", $id)
-            ->where('tblAccountService.CompanyID', $CompanyID);
+            ->where("tblAccountService.AccountID", $id);
 
         if(!empty($data['ServiceName'])){
             $services->where('tblService.ServiceName','Like','%'.trim($data['ServiceName']).'%');
