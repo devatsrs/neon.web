@@ -349,6 +349,8 @@
                         result = confirm("Are you Sure?");
                        if(result){
                            var delete_url  = $(this).attr("href");
+
+                           console.log(data_table_subscription);
                            submit_ajax_datatable( delete_url,"",0,data_table_subscription);
                            //data_table_subscription.fnFilter('', 0);
                            //console.log('delete');
