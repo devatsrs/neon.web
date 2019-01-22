@@ -42,9 +42,9 @@ class ServicesTemplateApiController extends ApiController
 
 
             $data['CurrencyId'] = $CurrenctCodeResult->CurrencyId;
-            $data['OutboundDiscountPlanId'] = $post_vars["OutboundDiscountPlanID"];
-            $data['InboundDiscountPlanId'] = $post_vars["InboundDiscountPlanID"];
-            $data['OutboundRateTableId'] = $post_vars["OutboundRateTableID"];
+            $data['OutboundDiscountPlanId'] = isset($post_vars["OutboundDiscountPlanID"]) ? $post_vars["OutboundDiscountPlanID"] : '';
+            $data['InboundDiscountPlanId'] = isset($post_vars["InboundDiscountPlanID"]) ? $post_vars["InboundDiscountPlanID"] : '';
+            $data['OutboundRateTableId'] = isset($post_vars["OutboundRateTableID"]) ? $post_vars["OutboundRateTableID"] : '';
             if (isset($post_vars->selectedSubscription)) {
                 $data['selectedSubscription'] = $post_vars["selectedSubscription"];
             }else {
@@ -155,10 +155,10 @@ class ServicesTemplateApiController extends ApiController
 
                 $ServiceTemplateData['CurrencyId'] = $data['CurrencyId'];
 
-                $ServiceTemplateData['ContractDuration'] = $post_vars["ContractDuration"];
-                $ServiceTemplateData['CancellationCharges'] = $post_vars["ContractType"];
-                $ServiceTemplateData['AutomaticRenewal'] = $post_vars["AutoRenewal"];
-                $ServiceTemplateData['CancellationFee'] = $post_vars["ContractFeeValue"];
+                $ServiceTemplateData['ContractDuration'] = isset($post_vars["ContractDuration"]) ? $post_vars["ContractDuration"]:'';
+                $ServiceTemplateData['CancellationCharges'] = isset($post_vars["ContractType"]) ? $post_vars["ContractType"] :'';
+                $ServiceTemplateData['AutomaticRenewal'] = isset($post_vars["AutoRenewal"]) ? $post_vars["AutoRenewal"] : '';
+                $ServiceTemplateData['CancellationFee'] = isset($post_vars["ContractFeeValue"]) ? $post_vars["ContractFeeValue"] : '';
 
 
                 if ($ServiceTemplate = ServiceTemplate::create($ServiceTemplateData)) {

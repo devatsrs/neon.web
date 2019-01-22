@@ -438,6 +438,7 @@ class AccountsApiController extends ApiController {
 			$data['Billing'] = isset($data['Billing']) && $data['Billing'] == 1 ? 1 : 0;
 			$data['created_by'] = $CreatedBy;
 			$data['AccountType'] = 1;
+			$data['Status'] = 1;
 			$data['AccountName'] = isset($accountData['AccountName']) ? trim($accountData['AccountName']) : '';
 			$data['PaymentMethod'] = isset($accountData['PaymentMethodID']) ? $accountData['PaymentMethodID'] : '' ;
 
@@ -537,6 +538,13 @@ class AccountsApiController extends ApiController {
 				}
 				return Response::json(["status" => "failed", "message" => $errors]);
 			}
+
+			$UserOwnerID = User::where('UserID',$data['Owner'])->where('Status',1)->pluck('UserID');
+			if (empty($UserOwnerID)) {
+				return Response::json(["status" => "failed", "message" => "Please provide the valid OwnerID"]);
+			}
+
+
 
 			if (isset($accountData['AccountDynamicField'])) {
 				$AccountReferenceArr = json_decode(json_encode(json_decode($accountData['AccountDynamicField'])), true);
@@ -924,5 +932,5 @@ class AccountsApiController extends ApiController {
 		}
 	}
 
-	
+
 }
