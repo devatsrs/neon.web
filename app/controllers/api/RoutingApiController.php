@@ -10,7 +10,8 @@ class RoutingApiController extends ApiController {
     public function routingList()
     {
         Log::info('routingList:Get the routing list.');
-        $routingData = Input::all();
+        //$routingData = Input::all();
+        $post_vars = json_decode(file_get_contents("php://input"));
         $lcrDetails = '';
         $CompanyID = User::get_companyID();
         $rules = array(
@@ -22,6 +23,20 @@ class RoutingApiController extends ApiController {
             'AccountDynamicField' => 'required_without_all:AccountNo,AccountID',
 
         );
+        $routingData["OriginationNo"] = $post_vars->OriginationNo;
+        $routingData["DestinationNo"] = $post_vars->DestinationNo;
+        $routingData["DataAndTime"] = $post_vars->DataAndTime;
+        $routingData["AccountNo"] = $post_vars->AccountNo;
+        $routingData["AccountID"] = $post_vars->AccountID;
+        $AccountDynamicField = $post_vars->AccountDynamicField;
+        //Log::info('routingList:Get the routing list.' . count($AccountDynamicField));
+        if (count($AccountDynamicField) > 0) {
+            $routingData["AccountDynamicField"] = "[]";
+        }
+        //foreach($AccountDynamicField as $key => $value) {
+          //  Log::info('routingList:Get the routing list.' . $value->Name . ' ' . $value->Value);
+        //}
+
         $validator = Validator::make($routingData, $rules);
 
 
@@ -33,9 +48,9 @@ class RoutingApiController extends ApiController {
             return Response::json(["status" => "failed", "message" => $errors]);
         }
 
-        if (!empty($routingData['AccountDynamicField'])) {
+        if (count($AccountDynamicField) > 0) {
             $AccountIDRef = '';
-            $AccountIDRef = Account::findAccountBySIAccountRef($routingData['AccountDynamicField']);
+            $AccountIDRef = Account::findAccountBySIAccountRefWithJSON($AccountDynamicField);
 
             if (empty($AccountIDRef)) {
                 return Response::json(["status" => "failed", "message" => "Please provide the correct Account ID"]);
@@ -186,6 +201,7 @@ class RoutingApiController extends ApiController {
              */
         $procName = "prc_getRoutingRecords";
         $syntax = '';
+        $routingData['Location'] = $post_vars->Location;
         $Location = isset($routingData['Location']) ? $routingData['Location'] :'';
         $parameters = [$CustomerProfileAccountID,$routingData['OriginationNo'],$routingData['DestinationNo'],
             $queryTimeZone,$RoutingProfileID,$Location];
@@ -292,6 +308,267 @@ class RoutingApiController extends ApiController {
        // return Response::json(["status" => "Success", "Positions" => $routingDetails]);
 
 
+        $lcrDetails = json_decode(json_encode($lcrDetails),true);
+        return Response::json(["status" => "success", "Positions" => $lcrDetails]);
+    }
+
+    public function routingListNewDB()
+    {
+        Log::info('routingList:Get the routing list.');
+        $routingData = Input::all();
+        $lcrDetails = '';
+        $CompanyID = User::get_companyID();
+        $rules = array(
+            'OriginationNo' => 'required',
+            'DestinationNo' => 'required',
+            'DataAndTime' => 'required',
+            'AccountNo' => 'required_without_all:AccountID,AccountDynamicField',
+            'AccountID' => 'required_without_all:AccountNo,AccountDynamicField',
+            'AccountDynamicField' => 'required_without_all:AccountNo,AccountID',
+
+        );
+        $validator = Validator::make($routingData, $rules);
+
+
+        if ($validator->fails()) {
+            $errors = "";
+            foreach ($validator->messages()->all() as $error) {
+                $errors .= $error . "<br>";
+            }
+            return Response::json(["status" => "failed", "message" => $errors]);
+        }
+
+        if (!empty($routingData['AccountDynamicField'])) {
+            $AccountIDRef = '';
+            $AccountIDRef = Account::findAccountBySIAccountRef($routingData['AccountDynamicField']);
+
+            if (empty($AccountIDRef)) {
+                return Response::json(["status" => "failed", "message" => "Please provide the correct Account ID"]);
+            }
+            $routingData["AccountID"] = $AccountIDRef;
+        }
+
+
+        Log::info('routingList:Get the routing list user company.' . $CompanyID);
+        $profiles = '';
+        $RoutingProfileId = array();
+        $CustomerProfileAccountID = '';
+        if (isset($routingData["AccountNo"]) && $routingData["AccountNo"] != '') {
+            $CustomerProfileAccountID = Account::where(["Number" => $routingData["AccountNo"]])->pluck("AccountID");
+        }else {
+            $CustomerProfileAccountID = Account::where(["AccountID" => $routingData["AccountID"]])->pluck("AccountID");
+        }
+        Log::info('routingList:Get the routing list count.' . $CustomerProfileAccountID);
+
+        $profiles = '';
+
+
+        $RoutingProfileId = '';
+        $RoutingProfileID = '';
+
+        if (empty($CustomerProfileAccountID) ) {
+            return Response::json(["status" => "failed", "message" => "No Profile found against the Number/CustomerID"]);
+        }
+        Log::info('routingList:Get the routing list count.' . $CustomerProfileAccountID);
+
+
+
+        $removePlusSign = '';
+        $Prefix = '';
+        //trim and replace CodeComment#1
+        $routingData["OriginationNo"] = trim(str_replace("+","",$routingData["OriginationNo"]));
+
+
+        //trim and replace CodeComment#2
+        $routingData["DestinationNo"] = trim(str_replace("+","",$routingData["DestinationNo"]));
+
+
+        $lcrDetails = RoutingProfile::select(['RoutingProfileId','selectionCode'])->
+        whereRaw('\'' . $routingData["DestinationNo"] . '\'' . ' like  CONCAT(SelectionCode,"%")')
+            ->orderByRaw('CONCAT(SelectionCode,"%") desc')
+            ->take(1);
+        Log::info('routingList profiles case 1 query with RoutingProfileRate Query' . $lcrDetails->toSql());
+        $lcrDetails= $lcrDetails->get();
+
+        Log::info('routingList profiles case 1 query with RoutingProfileRate ' . count($lcrDetails));
+        if (count($lcrDetails) > 0) {
+            foreach ($lcrDetails as $lcrDetail) {
+
+            }
+            $RoutingProfileID = $lcrDetail->RoutingProfileId;
+            // $Prefix = $lcrDetail->selectionCode;
+            Log::info('routingList profiles case 1 query with RoutingProfileRate ' . $RoutingProfileID);
+        }else {
+            $CustomerTrunks = CustomerTrunk::select(['AccountID','TrunkID','Prefix'])
+                ->where('UseInBilling','=',1)
+                ->whereRaw('\'' . $routingData["DestinationNo"] . '\'' . ' like  CONCAT(Prefix,"%")')
+                ->orderByRaw('CONCAT(Prefix,"%") desc')
+                ->take(1);
+            Log::info('routingList profiles case 2 query with RoutingProfileRate ' . $CustomerTrunks->toSql());
+            $CustomerTrunks = $CustomerTrunks->get();
+            if (count($CustomerTrunks) > 0) {
+                foreach ($CustomerTrunks as $CustomerTrunk) {
+
+                }
+                $TrunkAccountProfiles = EngineRoutingProfileToCustomer::
+                where(["AccountID" => $CustomerTrunk->AccountID])
+                    ->where(["TrunkID" => $CustomerTrunk->TrunkID])
+                    ->pluck("RoutingProfileID");
+                Log::info('routingList profiles case 2 query with RoutingProfileRate ' . $TrunkAccountProfiles);
+                if (!empty($TrunkAccountProfiles)) {
+                    $RoutingProfileID = $TrunkAccountProfiles;
+                    // $Prefix = $CustomerTrunk->Prefix;
+                }
+            }else {
+                $CLIRateTables = CLIRateTable::select(['AccountID', 'ServiceID','CLI'])
+                    ->where('CLI', '=', $routingData["OriginationNo"])
+                    ->where(["CompanyID"=>$CompanyID]);;
+                Log::info('routingList profiles case 3 query with RoutingProfileRate ' . $CLIRateTables->toSql());
+                $CLIRateTables = $CLIRateTables->get();
+
+
+                if (count($CLIRateTables) > 0) {
+                    // $CLIRateTable = array_shift($CLIRateTables);
+                    foreach ($CLIRateTables as $CLIRateTable) {
+
+                    }
+                    $VendorDetails = '';
+                    Log::info('routingList profiles case 3 query with RoutingProfileRate ' . $CLIRateTable->AccountID . ' ' . $CLIRateTable->ServiceID);
+                    $AccountProfiles = EngineRoutingProfileToCustomer::
+                    where(["AccountID" => $CLIRateTable->AccountID])
+                        ->where('ServiceID', '=', $CLIRateTable->ServiceID)->pluck("RoutingProfileID");
+                    Log::info('routingList profiles case 3 query with RoutingProfileRate ' . $AccountProfiles);
+
+                    if (empty($AccountProfiles)) {
+                        $AccountProfiles = EngineRoutingProfileToCustomer::
+                        where(["AccountID" => $CLIRateTable->AccountID])
+                            ->pluck("RoutingProfileID");
+                        Log::info('routingList profiles case 3 query with RoutingProfileRate ' . $AccountProfiles);
+
+                    }
+
+
+                    if (!empty($AccountProfiles)) {
+
+                        $RoutingProfileID = $AccountProfiles;
+                        //$Prefix = $CLIRateTable->CLI;
+                    }
+                }
+            }
+        }
+
+        Log::info('Filter Routing Profile List procedure $RoutingProfileIds' . $RoutingProfileID);
+        $DataAndTime = strtotime($routingData["DataAndTime"]);
+        $dataTimeZone['CompanyID'] = $CompanyID;
+        $dataTimeZone['connect_time'] = $routingData["DataAndTime"];
+        $dataTimeZone['disconnect_time'] = $routingData["DataAndTime"];
+        // $dataTimeZone['TimezonesID'] = '';
+        Log::info('Filter Routing Profile List procedure $queryTimeZone' .
+            print_r($dataTimeZone,true));
+        $GetTimeZone = GetTimeZone::create($dataTimeZone);
+        $query="CALL `prc_updateTempCDRTimeZones`('tblgetTimezone')";
+        $queryResults = DB::connection('sqlsrv2')->select($query);
+        $queryTimeZone = GetTimeZone::
+        where(["connect_time" => $routingData["DataAndTime"]])
+            ->where('disconnect_time', '=', $routingData["DataAndTime"])->pluck("TimezonesID");
+
+        if (empty($queryTimeZone)) {
+            $queryTimeZone = 1;
+        }
+        Log::info('Filter Routing Profile List procedure $queryTimeZone' . $queryTimeZone);
+        Log::info('Filter Routing Profile List procedure $GetTimeZone' .
+            print_r($GetTimeZone,true));
+        GetTimeZone::where(array('getTimezoneID'=>$GetTimeZone->getTimezoneID))->delete();
+
+        /*
+                    Log::info('Filter Routing Profile List procedure' . $CustomerProfileAccountID);
+                    $query = "CALL prc_getRoutingRecords(" . $CustomerProfileAccountID . "," . "'" . $routingData['OriginationNo'] . "'" . "," . "'" . $routingData['DestinationNo'] . "'" .
+                        "," . "'" . $queryTimeZone . "'" . "," . "'" . $RoutingProfileID. "'"  .")";
+                    Log::info('Filter Routing Profile List procedure' . $query);
+                    $lcrDetailsProc = DB::connection('speakIntelligentRoutingEngine')->select($query)->fetchAll();;
+                //$lcrDetailsProc = $lcrDetailsProc->cursor();
+                    Log::info('Filter Routing Profile List procedure' . count($lcrDetailsProc));
+             */
+        $procName = "prc_getRoutingRecords";
+        $syntax = '';
+        $Location = isset($routingData['Location']) ? $routingData['Location'] :'';
+        $parameters = [$CustomerProfileAccountID,$routingData['OriginationNo'],$routingData['DestinationNo'],
+            $queryTimeZone,$RoutingProfileID,$Location];
+        for ($i = 0; $i < count($parameters); $i++) {
+            $syntax .= (!empty($syntax) ? ',' : '') . '?';
+        }
+        $syntax = 'CALL ' . $procName . '(' . $syntax . ');';
+        Log::info('Filter Routing Profile List procedure $syntax123' . $syntax);
+
+        $pdo = DB::connection('neon_routingenginenew')->getPdo();
+        $pdo->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true);
+        $syntaxLog = 'CALL ' . $procName . '(';
+        $stmt = $pdo->prepare($syntax,[\PDO::ATTR_CURSOR=>\PDO::CURSOR_SCROLL]);
+        for ($i = 0; $i < count($parameters); $i++) {
+            $syntaxLog = $syntaxLog . "'" . $parameters[$i] . "'" .',';
+            $stmt->bindValue((1 + $i), $parameters[$i]);
+        }
+        Log::info('Filter Routing Profile List procedure bindvalue' . ($syntaxLog . ');'));
+        $exec = $stmt->execute();
+        if (!$exec) return $pdo->errorInfo();
+        $results[] = $stmt->fetchAll(\PDO::FETCH_OBJ);
+        do {
+            try {
+                $results[] = $stmt->fetchAll(\PDO::FETCH_OBJ);
+                Log::info('Filter Routing Profile List procedure Results' . count($results));
+                // foreach($results as $result) {
+                //    Log::info('Filter Routing Profile List procedure $syntax' . print_r($result,true));
+                // }
+            } catch (\Exception $ex) {
+
+            }
+        } while ($stmt->nextRowset());
+
+        //Log::info('Filter Routing Profile List procedure password' . Crypt::decrypt('eyJpdiI6IkRrbGRQTjh5V1JQeVJvTDZCNnh2Snc9PSIsInZhbHVlIjoiTGpVcWVYS1lcL2J1SXNXSFwvbXgwSzBBPT0iLCJtYWMiOiI2Mzc3MzUxNjhjM2MxOTljZDAyMTkyYTY5NWY3NTM2NTNkOWY5NjZiMjlhNWMxM2UyYTcxMzViZjBjMTY5MWI5In0='));
+        //Crypt::decrypt('eyJpdiI6IkRrbGRQTjh5V1JQeVJvTDZCNnh2Snc9PSIsInZhbHVlIjoiTGpVcWVYS1lcL2J1SXNXSFwvbXgwSzBBPT0iLCJtYWMiOiI2Mzc3MzUxNjhjM2MxOTljZDAyMTkyYTY5NWY3NTM2NTNkOWY5NjZiMjlhNWMxM2UyYTcxMzViZjBjMTY5MWI5In0=');
+
+        if (count($results) == 2) {
+            $lcrDetails = $results[0];
+            foreach($lcrDetails as $lcrDetail) {
+                try {
+                    if (!empty($lcrDetail->Password)) {
+                        $lcrDetail->Password = Crypt::decrypt($lcrDetail->Password);
+                    }
+                }catch (Exception $e) {
+
+                }
+
+            }
+        }else if (count($results) == 3) {
+            Log::info('Filter Routing Profile List procedure bindvalues is second select' . count($lcrDetails));
+            $lcrDetails = $results[2];
+            Log::info('Filter Routing Profile List procedure bindvalues is second select' . count($lcrDetails));
+            foreach($lcrDetails as $lcrDetail) {
+                try {
+                    if (!empty($lcrDetail->Password)) {
+                        $lcrDetail->Password = Crypt::decrypt($lcrDetail->Password);
+                    }
+                }catch (Exception $e) {
+
+                    Log::info('Filter Routing Profile List procedure bindvalues is second select' .  $e.getTraceAsString());
+                }
+
+            }
+        }else {
+            $lcrDetails = '';
+        }
+        Log::info('Filter Routing Profile List procedure bindvalues is second select' . count($lcrDetails));
+
+        //$lcrDetails = $results;
+        $routingDetails = array();
+        $positionDetails = 0;
+        $locationDetails = 0;
+        $routingInfo = array();
+        $lastVendorID = '';
+        $locationDetail = '';
+
+
+        Log::info('Filter Routing Profile List procedure bindvalues is second select' . count($lcrDetails));
         $lcrDetails = json_decode(json_encode($lcrDetails),true);
         return Response::json(["status" => "success", "Positions" => $lcrDetails]);
     }
