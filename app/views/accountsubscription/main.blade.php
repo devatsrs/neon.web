@@ -884,7 +884,6 @@
                             }
 
                         }
-                        data_table.fnFilter('', 0);
 
                     },
                     error: function (request, status, error) {
