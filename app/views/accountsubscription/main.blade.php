@@ -149,8 +149,8 @@
 					$search.Account 	=  $("#subscription_filter").find('[name="AccountID"]').val();
 					$search.ServiceID   =  $("#subscription_filter").find('[name="ServiceID"]').val();										
                     $search.Active  	=  $("#subscription_filter").find("[name='Active']").prop("checked");
-					
-		 data_table  = $("#table-subscription").DataTable({
+
+                data_table_subscription  = $("#table-subscription").DataTable({
             "bDestroy": true,
             "bProcessing":true,
             "bServerSide":true,
@@ -349,7 +349,7 @@
                         result = confirm("Are you Sure?");
                        if(result){
                            var delete_url  = $(this).attr("href");
-                           submit_ajax_datatable( delete_url,"",0,data_table);
+                           submit_ajax_datatable( delete_url,"",0,data_table_subscription);
                           location.reload();
                            //data_table_subscription.fnFilter('', 0);
                            //console.log('delete');

@@ -2995,9 +2995,12 @@ function submit_ajax_datatable_Form(fullurl,data,refreshjob,data_table_reload){
             if (response.status == 'success') {
                 $('.modal').modal('hide');
                 toastr.success(response.message, "Success", toastr_opts);
+
                 if( typeof data_table_reload !=  'undefined'){
                     data_table_reload.fnFilter('', 0);
                 }
+
+
                 if(refreshjob){
                     reloadJobsDrodown(0);
                     reloadMsgDrodown(0);
