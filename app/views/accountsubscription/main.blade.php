@@ -448,7 +448,26 @@
 
                    e.preventDefault();
                    var formData = new FormData(this);
-                  submit_ajax_datatable_Form(_url,formData,0,data_table_subscription);
+                   submit_ajax_datatable_Form(_url,formData,0,data_table_subscription);
+
+//
+//                   $.ajax({
+//                       type: 'POST',
+//                       url:_url,
+//                       data:formData,
+//                       cache:false,
+//                       contentType: false,
+//                       processData: false,
+//                       success: function(response) {
+//                           if (response.status == 'success') {
+//                              toastr.success(response.message, "Success", toastr_opts);
+//                                location.reload();
+//                               $('.modal').modal('hide');
+//                           }
+//                       },
+//                       error: function(data) {
+//                       }
+//                   });
 
 
                });
@@ -457,6 +476,7 @@
 
                    e.preventDefault();
                    var _url  = $(this).attr("action");
+                   var formData = new FormData(this);
                    submit_ajax_datatable_Form(_url,formData,0,data_table_subscription);
 
                });
