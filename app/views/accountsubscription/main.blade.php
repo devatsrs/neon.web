@@ -350,7 +350,6 @@
                        if(result){
                            var delete_url  = $(this).attr("href");
                            submit_ajax_datatable( delete_url,"",0,data_table_subscription);
-                          location.reload();
                            //data_table_subscription.fnFilter('', 0);
                            //console.log('delete');
                           // $('#subscription_submit').trigger('click');
