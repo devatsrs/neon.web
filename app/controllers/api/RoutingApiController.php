@@ -17,9 +17,9 @@ class RoutingApiController extends ApiController {
             'OriginationNo' => 'required',
             'DestinationNo' => 'required',
             'DataAndTime' => 'required',
-            'AccountNumber' => 'required_without_all:AccountID,AccountDynamicField',
-            'AccountID' => 'required_without_all:AccountNumber,AccountDynamicField',
-            'AccountDynamicField' => 'required_without_all:AccountNumber,AccountID',
+            'AccountNo' => 'required_without_all:AccountID,AccountDynamicField',
+            'AccountID' => 'required_without_all:AccountNo,AccountDynamicField',
+            'AccountDynamicField' => 'required_without_all:AccountNo,AccountID',
 
         );
         $validator = Validator::make($routingData, $rules);
@@ -48,8 +48,8 @@ class RoutingApiController extends ApiController {
         $profiles = '';
         $RoutingProfileId = array();
         $CustomerProfileAccountID = '';
-        if (isset($routingData["AccountNumber"]) && $routingData["AccountNumber"] != '') {
-            $CustomerProfileAccountID = Account::where(["Number" => $routingData["AccountNumber"]])->pluck("AccountID");
+        if (isset($routingData["AccountNo"]) && $routingData["AccountNo"] != '') {
+            $CustomerProfileAccountID = Account::where(["Number" => $routingData["AccountNo"]])->pluck("AccountID");
         }else {
             $CustomerProfileAccountID = Account::where(["AccountID" => $routingData["AccountID"]])->pluck("AccountID");
         }
@@ -186,9 +186,9 @@ class RoutingApiController extends ApiController {
              */
         $procName = "prc_getRoutingRecords";
         $syntax = '';
-
+        $Location = isset($routingData['Location']) ? $routingData['Location'] :'';
         $parameters = [$CustomerProfileAccountID,$routingData['OriginationNo'],$routingData['DestinationNo'],
-            $queryTimeZone,$RoutingProfileID,$routingData['Location']];
+            $queryTimeZone,$RoutingProfileID,$Location];
         for ($i = 0; $i < count($parameters); $i++) {
             $syntax .= (!empty($syntax) ? ',' : '') . '?';
         }

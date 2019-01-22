@@ -89,6 +89,7 @@
             var account_id=$("#subscription_filter").find('[name="AccountID"]').val();
             var update_new_url;
             var postdata;
+            var data_table;
 
             jQuery(document).ready(function ($) {
 
@@ -247,11 +248,11 @@
                 $('#subscription_submit').trigger('click');
                 //inst.myMethod('I am a method');
                 $('#add-subscription').click(function(ev){
+
                         ev.preventDefault();
                         $('#subscription-form').trigger("reset");
                         $('#modal-subscription h4').html('Add Subscription');
                         $("#subscription-form [name=SubscriptionID]").select2().select2('val',"");
-
                         $('#subscription-form').attr("action",subscription_add_url);
 						$('#modal-subscription').find('.dropdown1').removeAttr('disabled');
 						document.getElementById('subscription-form').reset();
@@ -260,7 +261,8 @@
 						$('#SubscriptionID_add_change').change();
 						$('#AccountID_add_change').change();
 						//$('.dropdown1').change();						
-                        $('#modal-subscription').modal('show');                        
+                        $('#modal-subscription').modal('show');
+
                 });
                 $('table tbody').on('click', '.edit-subscription', function (ev) {
                         ev.preventDefault();
@@ -290,6 +292,57 @@
                             }
                         }
                         $('#modal-edit-subscription').modal('show');
+
+
+                    //------------------ Get Dynamic Field Data -----------------------
+
+                    $('#edit-dynamice-fields-show').empty();
+
+
+                    SubscriptionID        = $("#subscription-form-edit select[name='SubscriptionID']").val();
+                    AccountSubscriptionID = $("#subscription-form-edit input[name='AccountSubscriptionID']").val();
+                    var find_dynamic_feilds_url	= baseurl + '/account_subscription/EditDynamiceFieldFinder';
+                    $.ajax({
+                        url: find_dynamic_feilds_url,  //Server script to process data
+                        type: 'POST',
+                        data:'SubscriptionID='+SubscriptionID+'&AccountSubscriptionID='+AccountSubscriptionID,
+                        dataType: 'html',
+                        success: function (response) {
+                            var i;
+//                           var obj = JSON.parse(JSON.stringify(response))
+                            var obj = jQuery.parseJSON(response);
+
+                            for (i = 0; i < obj.length; ++i)
+                            {
+
+                                if(obj[i].FieldDomType =="numericePerMin" || obj[i].FieldDomType =="text" )
+                                {
+                                    $('#edit-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="number" name="dynamicFileds[]" class="form-control" value="'+obj[i].FieldValue+'" /></div></div></div>');
+                                }else if(obj[i].FieldDomType == "string"){
+                                    $('#edit-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="text" name="dynamicFileds[]" class="form-control" value="'+obj[i].FieldValue+'" /></div></div></div>');
+                                }else if(obj[i].FieldDomType == "datetime"){
+                                    $('#edit-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="text" name="dynamicFileds[]" class="form-control datetimepicker" value="'+obj[i].FieldValue+'" /></div></div></div>');
+                                }else if( obj[i].FieldDomType =="text"){
+                                    $('#edit-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><textarea name="description" class="form-control">'+obj[i].FieldValue+'</textarea></div></div></div>');
+                                }else if( obj[i].FieldDomType =="boolean"){
+                                    $('#edit-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><p class="clear"><p class="make-switch switch-small"><input type="checkbox" name="dynamicFileds[]" value="'+obj[i].FieldValue+'"></p></div></div></div></div>');
+                                }else if( obj[i].FieldDomType =="select"){
+                                    $('#edit-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><select class="form-control" name="dynamicSelect[]"><option value="'+obj[i].FieldValue+'">'+obj[i].FieldValue+'</option></select></div></div></div>');
+                                }else if( obj[i].FieldDomType =="file"){
+                                    $('#edit-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">Upload file</label><br><a class="file-input-wrapper btn form-control file2 inline btn btn-primary"><i class="glyphicon glyphicon-circle-arrow-up"></i>  Browse<input name="dynamicImage" id="dynamicImage" type="file" accept=".png" class="form-control file2 inline btn btn-primary" onchange="handleFiles()"></a><span class="file-input-name"></span></div></div></div>');
+                                }
+
+                            }
+
+
+                        },
+                        error: function (request, status, error) {
+
+                            toastr.error(request.responseText, "Error", toastr_opts)
+                        }
+                    });
+
+
                 });
                 $('table tbody').on('click', '.delete-subscription', function (ev) {
                         ev.preventDefault();
@@ -388,9 +441,7 @@
 
 				
                $("#subscription-form").submit(function(e){
-				   e.preventDefault();
-					var servicesubmited =  ServiceSubmit();                   
-				   if(servicesubmited==1){
+					var servicesubmited =  ServiceSubmit();
                    	var _url  = $(this).attr("action");
 					var AccountID_add = $('#AccountID_add_change').val();  
 					if(!AccountID_add){
@@ -398,10 +449,28 @@
 						return false;
 					}
 					_url = _url.replace("{id}",AccountID_add);
-                   	submit_ajax_datatable(_url,$(this).serialize(),0,data_table);
-				   }else{ 				   
-				  	setTimeout($('#modal-subscription').find('.btn').reset(),1000);
-				   }
+
+                   e.preventDefault();
+                   var formData = new FormData(this);
+
+                   $.ajax({
+                       type: 'POST',
+                       url:_url,
+                       data:formData,
+                       cache:false,
+                       contentType: false,
+                       processData: false,
+                       success: function(response) {
+                           if (response.status == 'success') {
+                              toastr.success(response.message, "Success", toastr_opts);
+                                location.reload();
+                               $('.modal').modal('hide');
+                           }
+                       },
+                       error: function(data) {
+                       }
+                   });
+
                   
                });
 			   
@@ -410,9 +479,10 @@
                    e.preventDefault();
                    var _url  = $(this).attr("action");
                    submit_ajax_datatable(_url,$(this).serialize(),0,data_table);
-                   //data_table_subscription.fnFilter('', 0);
-                   //console.log('edit');
-                  // $('#subscription_submit').trigger('click');
+//                   data_table.fnFilter('', 0);
+                   location.reload();
+                  //console.log('edit');
+                  // $('#subscription-form-edit').trigger('click');
                });
 			   
 			     $('#modal-subscription').on('hidden.bs.modal', function(event){
@@ -693,6 +763,7 @@
                     }
 
                 });
+
                 $('#modal-add_discountplan h4').html('Edit Account');
                 $('#add_discountplan_form').attr("action",discountplan_edit_url);
 
@@ -802,11 +873,11 @@
                             }else if( obj[i].FieldDomType =="select"){
                                 $('#add-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><select class="form-control" name="dynamicSelect[]"><option value="'+obj[i].FieldValue+'">'+obj[i].FieldValue+'</option></select></div></div></div>');
                             }else if( obj[i].FieldDomType =="file"){
-                                $('#add-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">Upload file</label><br><a class="file-input-wrapper btn form-control file2 inline btn btn-primary"><i class="glyphicon glyphicon-circle-arrow-up">  Browse</a></div></div></div>');
+                                $('#add-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">Upload file</label><br><a class="file-input-wrapper btn form-control file2 inline btn btn-primary"><i class="glyphicon glyphicon-circle-arrow-up"></i>  Browse<input name="dynamicImage" id="dynamicImage" type="file" accept=".png" class="form-control file2 inline btn btn-primary" onchange="handleFiles()"></a><span class="file-input-name"></span></div></div></div>');
                             }
 
                         }
-
+                        data_table.fnFilter('', 0);
 
                     },
                     error: function (request, status, error) {
@@ -818,14 +889,72 @@
 
 
             });
+
+
+$("#subscription-form-edit select[name='SubscriptionID']").on('change', function() {
+
+            $('#edit-dynamice-fields-show').empty();
+            SubscriptionID        = $(this).val();
+            AccountSubscriptionID = $("#subscription-form-edit input[name='AccountSubscriptionID']").val();
+            var find_dynamic_feilds_url	= baseurl + '/account_subscription/EditDynamiceFieldFinder';
+
+            $.ajax({
+                url: find_dynamic_feilds_url,  //Server script to process data
+                type: 'POST',
+                data:'SubscriptionID='+SubscriptionID+'&AccountSubscriptionID='+AccountSubscriptionID,
+                dataType: 'html',
+                success: function (response) {
+                    var i;
+//                    var obj = JSON.parse(JSON.stringify(response));
+                    var obj = jQuery.parseJSON(response);
+                    for (i = 0; i < obj.length; ++i)
+                    {
+                        if(obj[i].FieldDomType =="numericePerMin" || obj[i].FieldDomType =="text" )
+                        {
+                            $('#edit-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="number" name="dynamicFileds[]" class="form-control" value="'+obj[i].FieldValue+'" /></div></div></div>');
+                        }else if(obj[i].FieldDomType == "string"){
+                            $('#edit-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="text" name="dynamicFileds[]" class="form-control" value="'+obj[i].FieldValue+'" /></div></div></div>');
+                        }else if(obj[i].FieldDomType == "datetime"){
+                            $('#edit-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="text" name="dynamicFileds[]" class="form-control datetimepicker" value="'+obj[i].FieldValue+'" /></div></div></div>');
+                        }else if( obj[i].FieldDomType =="text"){
+                            $('#edit-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><textarea name="description" class="form-control">'+obj[i].FieldValue+'</textarea></div></div></div>');
+                        }else if( obj[i].FieldDomType =="boolean"){
+                            $('#edit-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><p class="clear"><p class="make-switch switch-small"><input type="checkbox" name="dynamicFileds[]" value="'+obj[i].FieldValue+'"></p></div></div></div></div>');
+                        }else if( obj[i].FieldDomType =="select"){
+                            $('#edit-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><select class="form-control" name="dynamicSelect[]"><option value="'+obj[i].FieldValue+'">'+obj[i].FieldValue+'</option></select></div></div></div>');
+                        }else if( obj[i].FieldDomType =="file"){
+                            $('#edit-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">Upload file</label><br><a class="file-input-wrapper btn form-control file2 inline btn btn-primary"><i class="glyphicon glyphicon-circle-arrow-up"></i>  Browse<input name="dynamicImage" id="dynamicImage" type="file" accept=".png" class="form-control file2 inline btn btn-primary" onchange="handleFiles()"></a><span class="file-input-name"></span></div></div></div>');
+                        }
+                    }
+                },
+                error: function (request, status, error) {
+                    toastr.error(request.responseText, "Error", toastr_opts)
+                }
+             });
+
+           });
         });
 
 
+
+
+ function handleFiles(){
+     var fullPath = document.getElementById('dynamicImage').value;
+     if (fullPath) {
+         var startIndex = (fullPath.indexOf('\\') >= 0 ? fullPath.lastIndexOf('\\') : fullPath.lastIndexOf('/'));
+         var filename = fullPath.substring(startIndex);
+         if (filename.indexOf('\\') === 0 || filename.indexOf('/') === 0) {
+             filename = filename.substring(1);
+         }
+
+         $(".file-input-name").text(filename);
+     }
+ }
 </script>
 <div class="modal fade in" id="modal-subscription">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <form id="subscription-form" method="post">
+      <form id="subscription-form" method="post" enctype="multipart/form-data">
 
        <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -975,6 +1104,7 @@
                 <div class="row" id="add-dynamice-fields-show">
                 </div>
             </div>
+            </div>
 
         <div class="modal-footer">
           <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
@@ -988,14 +1118,18 @@
 </div>
 
 <div class="modal fade in" id="modal-edit-subscription">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <form id="subscription-form-edit" method="post">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     <h4 class="modal-title">Edit Subscription</h4>
                 </div>
-                <div class="modal-body">
+
+            <div class="modal-body">
+               <div class="row">
+
+                <div class="col-sm-6">
                     <div class="row">
                         <div class="col-md-12">
                         <div class="form-group">
@@ -1004,6 +1138,7 @@
                         </div>
                     </div>
                     </div>
+
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
@@ -1053,6 +1188,22 @@
                             </div>
                         </div>
                     </div>
+
+
+                       <div class="row">
+                           <div class="col-md-12">
+                               <div class="form-group">
+                                   <label for="field-5" class="control-label">Exempt From Tax</label>
+                                   <div class="clear">
+                                       <p class="make-switch switch-small">
+                                           <input type="checkbox" name="ExemptTax" value="0">
+                                       </p>
+                                   </div>
+                               </div>
+                           </div>
+                       </div>
+                </div>
+                <div class="col-sm-6">
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
@@ -1062,7 +1213,7 @@
                         </div>
                     </div>
                     <div class="row">
-                         <div class="col-md-12">
+                        <div class="col-md-12">
                             <div class="form-group">
                                 <label for="DailyFee" class="control-label">Daily Fee</label>
                                 <input type="text" name="DailyFee" id="DailyFee" class="form-control" value="" />
@@ -1095,31 +1246,20 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Discount</label>
                                 <input type="text" name="DiscountAmount" class="form-control" value=""  />
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Discount Type</label>
                                 {{ Form::select('DiscountType', array('Flat' => 'Flat', 'Percentage' => 'Percentage') ,'', array("class"=>"form-control") ) }}
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="field-5" class="control-label">Exempt From Tax</label>
-                            <div class="clear">
-                                <p class="make-switch switch-small">
-                                    <input type="checkbox" name="ExemptTax" value="0">
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    </div>
+
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
@@ -1133,6 +1273,13 @@
                         </div>
                     </div>
                 </div>
+                </div>
+
+                </div>
+              <div class="modal-body">
+                  <div class="row" id="edit-dynamice-fields-show">
+                  </div>
+              </div>
                 <input type="hidden" name="AccountSubscriptionID">
                 <input type="hidden" name="ServiceID" value="">
                 <div class="modal-footer">
@@ -1149,6 +1296,7 @@
     </div>
   </div>
 </div>
+
 <div class="modal fade in" id="modal-add_discountplan">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -1210,6 +1358,7 @@
         </div>
     </div>
 </div>
+
 <div class="modal fade" id="minutes_report-modal">
     <div class="modal-dialog" style="width: 70%;">
         <div class="modal-content">

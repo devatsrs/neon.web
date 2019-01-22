@@ -89,6 +89,7 @@ class RateGeneratorsController extends \BaseController {
             'Policy' => 'required',
             'LessThenRate' => 'numeric',
             'ChargeRate' => 'numeric',
+            'percentageRate' => 'numeric',
 
         );
 
@@ -320,6 +321,7 @@ class RateGeneratorsController extends \BaseController {
             'Policy' => 'required',
             'LessThenRate' => 'numeric',
             'ChargeRate' => 'numeric',
+            'percentageRate' => 'numeric',
         );
 
         if($SelectType == 1) {

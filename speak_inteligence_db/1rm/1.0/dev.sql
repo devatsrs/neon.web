@@ -837,6 +837,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetLCR`(
 
 
 
+
+
 )
 		ThisSP:BEGIN
 
@@ -2049,7 +2051,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetLCR`(
 					ANY_VALUE(RowCode) as RowCode,
 					ANY_VALUE(FinalRankNumber) as FinalRankNumber
 				from tmp_final_VendorRate_
-				GROUP BY  Description ORDER BY RowCode ASC;
+				GROUP BY  OriginationDescription,Description ORDER BY RowCode ASC;
 
 			ELSE
 
@@ -2071,7 +2073,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetLCR`(
 					RowCode as RowCode,
 					ANY_VALUE(FinalRankNumber) as FinalRankNumber
 				from tmp_final_VendorRate_
-				GROUP BY  RowCode ORDER BY RowCode ASC;
+				GROUP BY  OriginationCode,RowCode ORDER BY RowCode ASC;
 
 
 			END IF;
@@ -2113,13 +2115,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetLCR`(
 
 				IF p_groupby = 'description' THEN
 
-					SET @stm_query = CONCAT("SELECT CONCAT(max(t.OriginationDescription) , ' <br> => ' , max(t.Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY  t.Description ORDER BY t.Description ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
+					SET @stm_query = CONCAT("SELECT CONCAT(max(t.OriginationDescription) , ' <br> => ' , max(t.Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY  t.Description ORDER BY t.OriginationDescription, t.Description ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
 
 					SELECT count(Description) as totalcount from tmp_final_VendorRate_  ;
 
 				ELSE
 
-					SET @stm_query = CONCAT("SELECT CONCAT(ANY_VALUE(t.OriginationCode) , ' : ' , ANY_VALUE(t.OriginationDescription), ' <br> => '  ,ANY_VALUE(t.RowCode) , ' : ' , ANY_VALUE(t.Description)) as Destination,", @stm_columns," FROM tmp_final_VendorRate_  t GROUP BY  RowCode ORDER BY RowCode ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
+					SET @stm_query = CONCAT("SELECT CONCAT(ANY_VALUE(t.OriginationCode) , ' : ' , ANY_VALUE(t.OriginationDescription), ' <br> => '  ,ANY_VALUE(t.RowCode) , ' : ' , ANY_VALUE(t.Description)) as Destination,", @stm_columns," FROM tmp_final_VendorRate_  t GROUP BY  OriginationCode,RowCode ORDER BY RowCode ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
 
 					SELECT count(RowCode) as totalcount from tmp_final_VendorRate_ ;
 
@@ -2187,6 +2189,8 @@ CREATE DEFINER=`root`@`%` PROCEDURE `prc_GetLCRwithPrefix`(
 	IN `p_merge_timezones` INT,
 	IN `p_TakePrice` INT,
 	IN `p_isExport` INT
+
+
 
 
 
@@ -2591,7 +2595,7 @@ CREATE DEFINER=`root`@`%` PROCEDURE `prc_GetLCRwithPrefix`(
 							 FROM tmp_VendorCurrentRates1_
 								 ,(SELECT @row_num := 1, @prev_RateTableRateID := '', @prev_AccountId := '',@prev_TrunkID := '', @prev_OriginationDescription := '', @prev_Description := '', @prev_OriginationRateID := '',@prev_RateId := '', @prev_EffectiveDate := '') x
 
-							 ORDER BY AccountId, TrunkID, OriginationDescription,Description, EffectiveDate,VendorConnectionID DESC
+							 ORDER BY AccountId, TrunkID, OriginationDescription,Description, EffectiveDate DESC
 						 ) tbl
 				WHERE RowID = 1
 				group BY AccountId, TrunkID, Description, OriginationDescription,RateTableRateID
@@ -3144,7 +3148,7 @@ CREATE DEFINER=`root`@`%` PROCEDURE `prc_GetLCRwithPrefix`(
 					RowCode as RowCode,
 					ANY_VALUE(FinalRankNumber) as FinalRankNumber
 				from tmp_final_VendorRate_
-				GROUP BY  RowCode ORDER BY RowCode ASC;
+				GROUP BY  OriginationCode,RowCode ORDER BY RowCode ASC;
 
 
 			END IF;
@@ -3182,7 +3186,7 @@ CREATE DEFINER=`root`@`%` PROCEDURE `prc_GetLCRwithPrefix`(
 
 				IF p_groupby = 'description' THEN
 
-					SET @stm_query = CONCAT("SELECT	CONCAT(max(t.OriginationDescription) , ' <br> => ' , max(t.Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY t,OriginationDescription,t.Description ORDER BY t.Description ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
+					SET @stm_query = CONCAT("SELECT	CONCAT(max(t.OriginationDescription) , ' <br> => ' , max(t.Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY t,OriginationDescription,t.Description ORDER BY t.OriginationDescription , t.Description ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
 
 
 					SELECT count(Description) as totalcount from tmp_final_VendorRate_  ;
@@ -3202,7 +3206,7 @@ CREATE DEFINER=`root`@`%` PROCEDURE `prc_GetLCRwithPrefix`(
 
 				IF p_groupby = 'description' THEN
 
-					SET @stm_query = CONCAT("SELECT CONCAT(max(t.OriginationDescription) , ' => ' , max(t.Description))as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY  t,OriginationDescription,t.Description ORDER BY t.Description ASC;");
+					SET @stm_query = CONCAT("SELECT CONCAT(max(t.OriginationDescription) , ' => ' , max(t.Description))as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY  t.OriginationDescription,t.Description ORDER BY t.Description ASC;");
 
 				ELSE
 
