@@ -2982,6 +2982,35 @@ function submit_ajax_datatable(fullurl,data,refreshjob,data_table_reload){
         cache: false
     });
 }
+
+
+function submit_ajax_datatable_Form(fullurl,data,refreshjob,data_table_reload){
+    $.ajax({
+        url:fullurl, //Server script to process data
+        type: 'POST',
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            $(".btn").button('reset');
+            if (response.status == 'success') {
+                $('.modal').modal('hide');
+                toastr.success(response.message, "Success", toastr_opts);
+                if( typeof data_table_reload !=  'undefined'){
+                    data_table_reload.fnFilter('', 0);
+                }
+                if(refreshjob){
+                    reloadJobsDrodown(0);
+                    reloadMsgDrodown(0);
+                }
+            } else {
+                toastr.error(response.message, "Error", toastr_opts);
+            }
+        },
+        data: data,
+        //Options to tell jQuery not to process data or worry about content-type.
+        cache: false
+    });
+}
 function submit_ajax_withfile(fullurl,formData,refreshjob,loading_bar) {
     $.ajax({
         url: fullurl,  //Server script to process data

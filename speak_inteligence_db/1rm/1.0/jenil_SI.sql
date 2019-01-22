@@ -664,6 +664,7 @@ INSERT INTO `tbldynamicfields` (`CompanyID`, `Type`, `FieldDomType`, `FieldName`
   
 /*Vendor RateChanges - Download vendor Rate*/
 
+
 DROP PROCEDURE IF EXISTS `vwVendorCurrentRates`;
 DELIMITER //
 CREATE PROCEDURE `vwVendorCurrentRates`(
@@ -674,7 +675,6 @@ CREATE PROCEDURE `vwVendorCurrentRates`(
 	IN `p_CustomDate` DATE,
 	IN `p_AppliedToVendorID` INT,
 	IN `p_VoiceCallTypeID` INT
-
 )
 BEGIN
 
@@ -743,9 +743,9 @@ BEGIN
 			AND rtr.TimezonesID = p_TimezonesID
 			AND
 			(
-				(p_Effective = 'Now' AND rtr.EffectiveDate <= NOW() AND (rtr.EndDate IS NULL OR rtr.EndDate > NOW() ))
+				(p_Effective = 'Now' AND rtr.EffectiveDate <= NOW() AND (rtr.EndDate IS NULL OR EndDate > NOW() ))
 				OR
-				(p_Effective = 'Future' AND rtr.EffectiveDate > NOW() AND (rtr.EndDate IS NULL OR rtr.EndDate > NOW() ))
+				(p_Effective = 'Future' AND rtr.EffectiveDate > NOW() AND (rtr.EndDate IS NULL OR EndDate > NOW() ))
 				OR
 				(p_Effective = 'CustomDate' AND rtr.EffectiveDate <= p_CustomDate AND (rtr.EndDate IS NULL OR rtr.EndDate > p_CustomDate))
 				OR
@@ -801,11 +801,10 @@ DELIMITER ;
 
 
 
-
  
 DROP PROCEDURE IF EXISTS `vwVendorSippySheet`;
 DELIMITER //
-CREATE PROCEDURE `vwVendorSippySheet`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `vwVendorSippySheet`(
 	IN `p_AccountID` INT,
 	IN `p_Trunks` LONGTEXT,
 	IN `p_TimezonesID` INT,
@@ -1418,7 +1417,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_WSGenerateVendorVersion3VosSheet`;
 DELIMITER //
-CREATE PROCEDURE `prc_WSGenerateVendorVersion3VosSheet`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSGenerateVendorVersion3VosSheet`(
 	IN `p_VendorID` INT ,
 	IN `p_Trunks` varchar(200) ,
 	IN `p_TimezonesID` INT,
@@ -1546,7 +1545,12 @@ CREATE PROCEDURE `vwVendorVersion3VosSheet`(
 	IN `p_Trunks` LONGTEXT,
 	IN `p_TimezonesID` INT,
 	IN `p_Effective` VARCHAR(50),
-	IN `p_CustomDate` DATE,
+	IN `p_CustomDate` DATE
+
+
+
+
+,
 	IN `p_AppliedToVendorID` INT,
 	IN `p_VoiceCallTypeID` INT
 )

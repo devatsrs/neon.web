@@ -350,7 +350,8 @@
                        if(result){
                            var delete_url  = $(this).attr("href");
                            submit_ajax_datatable( delete_url,"",0,data_table);
-                            //data_table_subscription.fnFilter('', 0);
+                          location.reload();
+                           //data_table_subscription.fnFilter('', 0);
                            //console.log('delete');
                           // $('#subscription_submit').trigger('click');
                        }
@@ -453,23 +454,27 @@
                    e.preventDefault();
                    var formData = new FormData(this);
 
-                   $.ajax({
-                       type: 'POST',
-                       url:_url,
-                       data:formData,
-                       cache:false,
-                       contentType: false,
-                       processData: false,
-                       success: function(response) {
-                           if (response.status == 'success') {
-                              toastr.success(response.message, "Success", toastr_opts);
-                                location.reload();
-                               $('.modal').modal('hide');
-                           }
-                       },
-                       error: function(data) {
-                       }
-                   });
+
+                   submit_ajax_datatable_Form(_url,formData,0,data_table_subscription);
+
+//
+//                   $.ajax({
+//                       type: 'POST',
+//                       url:_url,
+//                       data:formData,
+//                       cache:false,
+//                       contentType: false,
+//                       processData: false,
+//                       success: function(response) {
+//                           if (response.status == 'success') {
+//                              toastr.success(response.message, "Success", toastr_opts);
+//                                location.reload();
+//                               $('.modal').modal('hide');
+//                           }
+//                       },
+//                       error: function(data) {
+//                       }
+//                   });
 
                   
                });
@@ -478,7 +483,9 @@
 
                    e.preventDefault();
                    var _url  = $(this).attr("action");
-                   submit_ajax_datatable(_url,$(this).serialize(),0,data_table);
+//                   submit_ajax_datatable(_url,$(this).serialize(),0,data_table);
+                   submit_ajax_datatable_Form(_url,formData,0,data_table_subscription);
+
 //                   data_table.fnFilter('', 0);
                    location.reload();
                   //console.log('edit');
@@ -877,7 +884,6 @@
                             }
 
                         }
-                        data_table.fnFilter('', 0);
 
                     },
                     error: function (request, status, error) {

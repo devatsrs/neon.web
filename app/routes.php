@@ -1787,8 +1787,6 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('getBlockCalls', 'ActiveCallApiController@getBlockCalls');
 	Route::get('emailTemplate/list', 'EmailTemplateApiController@getList');
 	Route::get('users/list', 'UsersApiController@getList');
-	Route::get('country/list', 'CountryApiController@getList');
-	Route::get('language/list', 'LanguageApiController@getList');
 
 	Route::post('account/createAccount', 'AccountsApiController@createAccount');
 	Route::post('account/paymentMethod', 'AccountsApiController@getPaymentMethodList');

@@ -39,7 +39,7 @@
         });
 
         $('#add-new-modal-template').on('shown.bs.modal', function(event){
-			var modal = $(this);
+			var modal = $(this);  
 			if(typeof popup_type  == "undefined" ) {popup_type = 0;}
 			if(popup_type == {{EmailTemplate::ACCOUNT_TEMPLATE}}){
 
@@ -84,11 +84,7 @@
 				show_summernote(modal.find('.message'),{"opportunities":true});
 
 			}
-			else if(popup_type == {{EmailTemplate::OUT_PAYMENT_TEMPLATE}}){
-
-				show_summernote(modal.find('.message'),{"outpaymentoptions":true});
-
-			} else{
+			else{
 
 				show_summernote(modal.find('.message'),{"leadoptions":true});
 
