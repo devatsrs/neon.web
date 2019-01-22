@@ -3,7 +3,7 @@
 class AccountServiceController extends \BaseController {
 
     // view account edit page
-    public function edit($id,$AccountServiceID){
+    public function edit($id, $AccountServiceID){
         //Account::getAccountIDList(); exit;
         //AccountService::getAccountServiceIDList($id); exit;
         $account = Account::find($id);
@@ -57,7 +57,7 @@ class AccountServiceController extends \BaseController {
     }
 
     // add account services
-    public function addservices($id){
+    public function addservices(){
         $data = Input::all();
         $services = $data['ServiceID'];
         $accountid = $data['AccountID'];
@@ -87,11 +87,15 @@ class AccountServiceController extends \BaseController {
     }
 
     // get all account service
-    public function ajax_datagrid($id){
+    public function ajax_datagrid(){
         $data = Input::all();
+        $CompanyID = User::get_companyID();
         $id=$data['account_id'];
         $select = ["tblAccountService.AccountServiceID","tblService.ServiceName","tblAccountService.ServiceTitle","tblAccountService.Status","tblAccountService.ServiceID","tblAccountService.AccountServiceID"];
-        $services = AccountService::join('tblService', 'tblAccountService.ServiceID', '=', 'tblService.ServiceID')->where("tblAccountService.AccountID",$id);
+        $services = AccountService::join('tblService', 'tblAccountService.ServiceID', '=', 'tblService.ServiceID')
+            ->where("tblAccountService.AccountID", $id)
+            ->where('tblAccountService.CompanyID', $CompanyID);
+
         if(!empty($data['ServiceName'])){
             $services->where('tblService.ServiceName','Like','%'.trim($data['ServiceName']).'%');
         }
@@ -105,6 +109,7 @@ class AccountServiceController extends \BaseController {
                 $query->where('tblAccountService.Status','=','0');
             });
         }
+
         $services->select($select);
 
         return Datatables::of($services)->make();
