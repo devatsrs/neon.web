@@ -30,8 +30,10 @@ class RoutingApiController extends ApiController {
         $routingData["AccountID"] = isset($post_vars->AccountID) ? $post_vars->AccountID : '';
         $AccountDynamicField = isset($post_vars->AccountDynamicField) ? $post_vars->AccountDynamicField : '';
         //Log::info('routingList:Get the routing list.' . count($AccountDynamicField));
-        if (count($AccountDynamicField) > 0) {
+        if (count($AccountDynamicField) > 0 && $AccountDynamicField != '') {
             $routingData["AccountDynamicField"] = "[]";
+        }else {
+            $routingData["AccountDynamicField"] = '';
         }
         //foreach($AccountDynamicField as $key => $value) {
           //  Log::info('routingList:Get the routing list.' . $value->Name . ' ' . $value->Value);
@@ -48,7 +50,7 @@ class RoutingApiController extends ApiController {
             return Response::json(["status" => "failed", "message" => $errors]);
         }
 
-        if (count($AccountDynamicField) > 0) {
+        if (count($AccountDynamicField) > 0 && $AccountDynamicField != '') {
             $AccountIDRef = '';
             $AccountIDRef = Account::findAccountBySIAccountRefWithJSON($AccountDynamicField);
 
