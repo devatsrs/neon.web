@@ -89,7 +89,6 @@
             var account_id=$("#subscription_filter").find('[name="AccountID"]').val();
             var update_new_url;
             var postdata;
-            var data_table;
 
             jQuery(document).ready(function ($) {
 
@@ -349,11 +348,7 @@
                         result = confirm("Are you Sure?");
                        if(result){
                            var delete_url  = $(this).attr("href");
-
                            submit_ajax_datatable( delete_url,"",0,data_table_subscription);
-                           //data_table_subscription.fnFilter('', 0);
-                           //console.log('delete');
-                          // $('#subscription_submit').trigger('click');
                        }
                        return false;
                 });
@@ -483,13 +478,8 @@
 
                    e.preventDefault();
                    var _url  = $(this).attr("action");
-//                   submit_ajax_datatable(_url,$(this).serialize(),0,data_table);
                    submit_ajax_datatable_Form(_url,formData,0,data_table_subscription);
 
-//                   data_table.fnFilter('', 0);
-                   location.reload();
-                  //console.log('edit');
-                  // $('#subscription-form-edit').trigger('click');
                });
 			   
 			     $('#modal-subscription').on('hidden.bs.modal', function(event){
