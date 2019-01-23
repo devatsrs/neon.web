@@ -182,6 +182,7 @@ public function main() {
             }
 
 
+
             for($i=0; $i < sizeof($ids); $i++ )
             {
                 if(isset($_FILES["dynamicImage"]["name"]) && $type[$i] == "file") {
@@ -225,13 +226,18 @@ public function main() {
 
                 }else{
 
-                    AccountSubsDynamicFields::create([
-                        'AccountSubscriptionID' => $AccountSubscription->AccountSubscriptionID,
-                        'AccountID' => $dynamiceFields['AccountID'],
-                        'DynamicFieldsID' => $ids[$i],
-                        'FieldValue' => (isset($dynamiceFields[$i]) ? $dynamiceFields[$i] : null),
-                        'FieldOrder' => $i
-                    ]);
+
+                    if(isset($dynamiceFields[$i]) && !empty($dynamiceFields[$i]))
+                    {
+                        AccountSubsDynamicFields::create([
+                            'AccountSubscriptionID' => $AccountSubscription->AccountSubscriptionID,
+                            'AccountID' => $dynamiceFields['AccountID'],
+                            'DynamicFieldsID' => $ids[$i],
+                            'FieldValue' => $dynamiceFields[$i],
+                            'FieldOrder' => $i
+                        ]);
+
+                    }
 
                 }
 
