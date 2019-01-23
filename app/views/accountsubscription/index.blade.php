@@ -310,7 +310,29 @@
                                 }else if( obj[i].FieldDomType =="boolean"){
                                     $('#add-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><p class="clear"><p class="make-switch switch-small"><input type="checkbox" name="dynamicFileds[]" value="'+obj[i].FieldValue+'"></p></div></div></div></div>');
                                 }else if( obj[i].FieldDomType =="select"){
-                                    $('#add-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><select class="form-control" name="dynamicSelect[]"><option value="'+obj[i].FieldValue+'">'+obj[i].FieldValue+'</option></select></div></div></div>');
+                                    var value = obj[i].FieldValue.search(',');
+                                    if(value >= 1)
+                                    {
+                                        var res = obj[i].FieldValue.split(",");
+
+                                        console.log('total length' + res.length);
+                                        var t;
+                                        for (t = 0; t < res.length; ++t)
+                                        {
+                                            console.log('t counter' + t);
+
+                                            if(t == 0)
+                                            {
+                                                $('#add-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><select class="form-control" name="dynamicSelect[]"><option value="'+res[t]+'">'+res[t]+'</option></select></div></div></div>');
+                                            }else{
+                                                $('#add-dynamice-fields-show select[name="dynamicSelect[]"]').append('<option value="'+res[t]+'">'+res[t]+'</option>');
+                                            }
+                                        }
+
+                                    }else{
+                                        $('#add-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><select class="form-control" name="dynamicSelect[]"><option value="'+obj[i].FieldValue+'">'+obj[i].FieldValue+'</option></select></div></div></div>');
+                                    }
+
                                 }else if( obj[i].FieldDomType =="file"){
                                     $('#add-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">Upload file</label><br><a class="file-input-wrapper btn form-control file2 inline btn btn-primary"><i class="glyphicon glyphicon-circle-arrow-up"></i>  Browse<input name="dynamicImage" id="dynamicImage" type="file" accept=".png" class="form-control file2 inline btn btn-primary" onchange="handleFiles()"></a><span class="file-input-name"></span></div></div></div>');
                                 }
@@ -684,7 +706,30 @@
                                 }else if( obj[i].FieldDomType =="boolean"){
                                     $('#add-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><p class="clear"><p class="make-switch switch-small"><input type="checkbox" name="dynamicFileds[]" value="'+obj[i].FieldValue+'"></p></div></div></div></div>');
                                 }else if( obj[i].FieldDomType =="select"){
-                                    $('#add-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><select class="form-control" name="dynamicSelect[]"><option value="'+obj[i].FieldValue+'">'+obj[i].FieldValue+'</option></select></div></div></div>');
+
+                                    var value = obj[i].FieldValue.search(',');
+                                    if(value >= 1)
+                                    {
+                                        var res = obj[i].FieldValue.split(",");
+
+                                        console.log('total length' + res.length);
+                                        var t;
+                                        for (t = 0; t < res.length; ++t)
+                                        {
+                                            console.log('t counter' + t);
+
+                                            if(t == 0)
+                                            {
+                                                $('#add-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><select class="form-control" name="dynamicSelect[]"><option value="'+res[t]+'">'+res[t]+'</option></select></div></div></div>');
+                                            }else{
+                                                $('#add-dynamice-fields-show select[name="dynamicSelect[]"]').append('<option value="'+res[t]+'">'+res[t]+'</option>');
+                                            }
+                                        }
+
+                                    }else{
+                                        $('#add-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><select class="form-control" name="dynamicSelect[]"><option value="'+obj[i].FieldValue+'">'+obj[i].FieldValue+'</option></select></div></div></div>');
+                                    }
+
                                 }else if( obj[i].FieldDomType =="file"){
                                     $('#add-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">Upload file</label><br><a class="file-input-wrapper btn form-control file2 inline btn btn-primary"><i class="glyphicon glyphicon-circle-arrow-up"></i>  Browse<input name="dynamicImage" id="dynamicImage" type="file" accept=".png" class="form-control file2 inline btn btn-primary" onchange="handleFiles()"></a><span class="file-input-name"></span></div></div></div>');
                                 }
