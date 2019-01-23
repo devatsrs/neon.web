@@ -170,7 +170,7 @@ public function main() {
 
             $GetDynamiceAll = DynamicFields::join('tblDynamicFieldsValue', function($join) {
                 $join->on('tblDynamicFieldsValue.DynamicFieldsID','=','tblDynamicFields.DynamicFieldsID');
-            })->select('tblDynamicFields.DynamicFieldsID','tblDynamicFields.FieldName','tblDynamicFields.FieldDomType')->where('tblDynamicFieldsValue.ParentID','=',$data['AccountID'])
+            })->select('tblDynamicFields.DynamicFieldsID','tblDynamicFields.FieldName','tblDynamicFields.FieldDomType')
               ->get();
 
 
@@ -720,7 +720,7 @@ public function main() {
             $GetDynamiceAll = DynamicFields::join('tblDynamicFieldsValue', function($join) {
                 $join->on('tblDynamicFieldsValue.DynamicFieldsID','=','tblDynamicFields.DynamicFieldsID');
             })->select('tblDynamicFields.FieldName' , 'tblDynamicFields.FieldDomType', 'tblDynamicFieldsValue.FieldValue')
-                ->where('tblDynamicFieldsValue.ParentID','=', $AccountSubscriptionID)
+                ->where('tblDynamicFields.Type','=', 'subscription')
                 ->get();
 
             return $GetDynamiceAll;
@@ -738,17 +738,9 @@ public function main() {
 
         try{
 
-
-//            $AccountSubsDynamicFields = DynamicFields::join('speakintelligentBilling.tblAccountSubsDynamicFields as db2\'', function($join) {
-//                $join->on('speakintelligentBilling.tblAccountSubsDynamicFields as db2',  'tblDynamicFieldsValue.DynamicFieldsID','=','tblDynamicFields.DynamicFieldsID');
-//            })->select('db2.AccountSubscriptionID', 'db2.AccountID', 'db2.DynamicFieldsID', 'db2.FieldValue', 'tblDynamicFields.FieldName','tblDynamicFields.FieldDomType')
-//                ->where('db2.AccountSubscriptionID','=', $AccountSubscriptionID)
-//                ->where('tblDynamicFields.Type','=', 'subscription')
-//                ->get();
-
-            $AccountSubsDynamicFields = AccountSubsDynamicFields::where('AccountSubscriptionID', '=', $AccountSubscriptionID)
-                ->join('speakintelligentRM.tblDynamicFields as db2','tblAccountSubsDynamicFields.DynamicFieldsID','=','db2.DynamicFieldsID')
+            $AccountSubsDynamicFields = AccountSubsDynamicFields::join('speakintelligentRM.tblDynamicFields as db2','tblAccountSubsDynamicFields.DynamicFieldsID','=','db2.DynamicFieldsID')
                 ->select('tblAccountSubsDynamicFields.AccountSubscriptionID', 'tblAccountSubsDynamicFields.AccountID', 'tblAccountSubsDynamicFields.DynamicFieldsID', 'tblAccountSubsDynamicFields.FieldValue', 'db2.FieldName', 'db2.FieldDomType')
+                ->where('db2.Type','=', 'subscription')
                 ->orderBy('tblAccountSubsDynamicFields.FieldOrder','ASC')
                 ->get();
 
