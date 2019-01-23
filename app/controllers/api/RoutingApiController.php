@@ -456,6 +456,17 @@ class RoutingApiController extends ApiController {
                         $RoutingProfileID = $AccountProfiles;
                         //$Prefix = $CLIRateTable->CLI;
                     }
+                }else {
+                    Log::info('routingList profiles case 4 query with RoutingProfileRate ' . $CustomerProfileAccountID);
+                    $AccountProfiles = EngineRoutingProfileToCustomer::
+                    where(["AccountID" => $CustomerProfileAccountID])
+                        ->pluck("RoutingProfileID");
+                    Log::info('routingList profiles case 41 query with RoutingProfileRate ' . $AccountProfiles);
+                    if (!empty($AccountProfiles)) {
+
+                        $RoutingProfileID = $AccountProfiles;
+                        //$Prefix = $CLIRateTable->CLI;
+                    }
                 }
             }
         }
