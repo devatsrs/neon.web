@@ -745,7 +745,6 @@ public function main() {
             $AccountSubsDynamicFields = AccountSubsDynamicFields::where('AccountSubscriptionID', '=', $AccountSubscriptionID)
                 ->join('speakintelligentRM.tblDynamicFields as db2','tblAccountSubsDynamicFields.DynamicFieldsID','=','db2.DynamicFieldsID')
                 ->select('tblAccountSubsDynamicFields.AccountSubscriptionID', 'tblAccountSubsDynamicFields.AccountID', 'tblAccountSubsDynamicFields.DynamicFieldsID', 'tblAccountSubsDynamicFields.FieldValue', 'db2.FieldName', 'db2.FieldDomType')
-                ->where('db2.Type', 'subscription')
                 ->orderBy('tblAccountSubsDynamicFields.FieldOrder','ASC')
                 ->get();
 
