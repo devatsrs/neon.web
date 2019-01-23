@@ -28,8 +28,11 @@ class AccountsApiController extends ApiController {
 	 */
 
 	public function checkBalance(){
-		$data=Input::all();
 		$Result=array();
+		//$data=Input::all();
+		$post_vars = json_decode(file_get_contents("php://input"));
+		$data=json_decode(json_encode($post_vars),true);
+
 
 		$Account = array();
 		if(!empty($data['AccountID'])) {
@@ -37,6 +40,7 @@ class AccountsApiController extends ApiController {
 		}else if(!empty($data['AccountNo'])){
 			$Account = Account::where(["Number" => $data['AccountNo']])->first();
 		}else if(!empty($data['AccountDynamicField'])){
+
 			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 			if(empty($AccountID)){
 				return Response::json(["status"=>"failed", "data"=>"Account Not Found."]);
