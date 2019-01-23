@@ -16,7 +16,9 @@ class AccountBillingApiController extends ApiController {
 	 * 	AutoTopup,MinThreshold,TopupAmount
 	 */
 	public function getAutoDepositSettings(){
-		$data=Input::all();
+		$post_vars = json_decode(file_get_contents("php://input"));
+		$data=json_decode(json_encode($post_vars),true);
+
 		$AccountID=0;
 		if(!empty($data['AccountID'])){
 			$AccountID=$data['AccountID'];
@@ -46,7 +48,9 @@ class AccountBillingApiController extends ApiController {
 	 * AutoTopup,MinThreshold,TopupAmount
 	 */
 	public function setAutoDepositSettings(){
-		$data=Input::all();
+		$post_vars = json_decode(file_get_contents("php://input"));
+		$data=json_decode(json_encode($post_vars),true);
+
 		$AccountID=0;
 		if(!empty($data['AccountID'])){
 			$AccountID=$data['AccountID'];
@@ -150,7 +154,9 @@ class AccountBillingApiController extends ApiController {
 	 * AutoOutpayment,OutPaymentThreshold,OutPaymentAmount
 	 */
 	public function getAutoOutPaymentSettings(){
-		$data=Input::all();
+		$post_vars = json_decode(file_get_contents("php://input"));
+		$data=json_decode(json_encode($post_vars),true);
+
 		$AccountID=0;
 		if(!empty($data['AccountID'])){
 			$AccountID=$data['AccountID'];
@@ -182,7 +188,9 @@ class AccountBillingApiController extends ApiController {
 	 *AutoOutpayment,OutPaymentThreshold,OutPaymentAmount
 	 */
 	public function setAutoOutPaymentSettings(){
-		$data=Input::all();
+		$post_vars = json_decode(file_get_contents("php://input"));
+		$data=json_decode(json_encode($post_vars),true);
+
 		$AccountID=0;
 		if(!empty($data['AccountID'])){
 			$AccountID=$data['AccountID'];
