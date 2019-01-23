@@ -26,12 +26,14 @@ class RoutingApiController extends ApiController {
         $routingData["OriginationNo"] = $post_vars->OriginationNo;
         $routingData["DestinationNo"] = $post_vars->DestinationNo;
         $routingData["DataAndTime"] = $post_vars->DataAndTime;
-        $routingData["AccountNo"] = $post_vars->AccountNo;
-        $routingData["AccountID"] = $post_vars->AccountID;
-        $AccountDynamicField = $post_vars->AccountDynamicField;
+        $routingData["AccountNo"] = isset($post_vars->AccountNo) ? $post_vars->AccountNo : '';
+        $routingData["AccountID"] = isset($post_vars->AccountID) ? $post_vars->AccountID : '';
+        $AccountDynamicField = isset($post_vars->AccountDynamicField) ? $post_vars->AccountDynamicField : '';
         //Log::info('routingList:Get the routing list.' . count($AccountDynamicField));
-        if (count($AccountDynamicField) > 0) {
+        if (count($AccountDynamicField) > 0 && $AccountDynamicField != '') {
             $routingData["AccountDynamicField"] = "[]";
+        }else {
+            $routingData["AccountDynamicField"] = '';
         }
         //foreach($AccountDynamicField as $key => $value) {
           //  Log::info('routingList:Get the routing list.' . $value->Name . ' ' . $value->Value);
@@ -48,7 +50,7 @@ class RoutingApiController extends ApiController {
             return Response::json(["status" => "failed", "message" => $errors]);
         }
 
-        if (count($AccountDynamicField) > 0) {
+        if (count($AccountDynamicField) > 0 && $AccountDynamicField != '') {
             $AccountIDRef = '';
             $AccountIDRef = Account::findAccountBySIAccountRefWithJSON($AccountDynamicField);
 
@@ -201,8 +203,9 @@ class RoutingApiController extends ApiController {
              */
         $procName = "prc_getRoutingRecords";
         $syntax = '';
-        $routingData['Location'] = $post_vars->Location;
-        $Location = isset($routingData['Location']) ? $routingData['Location'] :'';
+       // $routingData['Location'] = $post_vars->Location;
+        $Location = isset($post_vars->Location) ? $post_vars->Location :'';
+        $routingData['Location'] = $Location;
         $parameters = [$CustomerProfileAccountID,$routingData['OriginationNo'],$routingData['DestinationNo'],
             $queryTimeZone,$RoutingProfileID,$Location];
         for ($i = 0; $i < count($parameters); $i++) {
