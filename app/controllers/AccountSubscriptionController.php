@@ -292,7 +292,13 @@ public function main() {
                 unset($data['AccountSubscriptionID']);
             }
 
+            if(isset($data['dynamicSelect']) && !empty($data['dynamicSelect']))
+            {
+                $selectBox = $data['dynamicSelect'];
+                $dynamiceFields[] = implode(",",$selectBox);
+                unset( $data['dynamicSelect']);
 
+            }
             $companyID = User::get_companyID();
 
             if (isset($data['dynamicImage']) && !empty($data['dynamicImage'])) {
@@ -366,7 +372,7 @@ public function main() {
                                        ->where('FieldOrder', $i)
                                        ->where('DynamicFieldsID', $ids[$i])
                                        ->update([
-                                           'FieldValue' => $dynamiceFields[$i]
+                                           'FieldValue' =>(isset($dynamiceFields[$i]) ? $dynamiceFields[$i] : null),
                                        ]);
                                }
 
@@ -395,8 +401,6 @@ public function main() {
                 try{
                     $AccountSubscription = AccountSubscription::find($AccountSubscriptionID);
                     $SubscriptionDiscountPlanCount = SubscriptionDiscountPlan::where("AccountSubscriptionID",$AccountSubscriptionID)->count();
-
-
 
                     if($SubscriptionDiscountPlanCount > 0)
                     {
