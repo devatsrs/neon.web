@@ -1793,6 +1793,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('account/createService', 'AccountsApiController@createAccountService');
 	Route::post('account/list', 'AccountsApiController@GetAccount');
 	Route::post('routing/list', 'RoutingApiController@routingList');
+	Route::post('routing/list1', 'RoutingApiController@routingListNewDB');
 	
 
 });

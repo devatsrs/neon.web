@@ -3,7 +3,9 @@
 class AccountServiceController extends \BaseController {
 
     // view account edit page
-    public function edit($id, $AccountServiceID){
+    public function edit($id,$AccountServiceID){
+        Artisan::call('cache:clear');
+
         //Account::getAccountIDList(); exit;
         //AccountService::getAccountServiceIDList($id); exit;
         $account = Account::find($id);
@@ -50,14 +52,17 @@ class AccountServiceController extends \BaseController {
 
         //As per new question call the routing profile model for fetch the routing profile list.
         $routingprofile = RoutingProfiles::getRoutingProfile($CompanyID);
-        $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where(["AccountID"=>$id,"AccountServiceID"=>$AccountServiceID])->first();
+
+        $RoutingProfileToCustomer	 	 =	RoutingProfileToCustomer::where('AccountID',$id)->where('AccountServiceID',$AccountServiceID)->first();
         //----------------------------------------------------------------------
         $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$CompanyID);
-        return View::make('accountservices.edit', compact('AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID','AccountServiceContract','AccountServiceCancelContract'));
+
+        $AccountSubscriptionID = $id;
+        return View::make('accountservices.edit', compact('AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID','AccountServiceContract','AccountServiceCancelContract', 'AccountSubscriptionID'));
     }
 
     // add account services
-    public function addservices(){
+    public function addservices($id){
         $data = Input::all();
         $services = $data['ServiceID'];
         $accountid = $data['AccountID'];
@@ -87,15 +92,11 @@ class AccountServiceController extends \BaseController {
     }
 
     // get all account service
-    public function ajax_datagrid(){
+    public function ajax_datagrid($id){
         $data = Input::all();
-        $CompanyID = User::get_companyID();
         $id=$data['account_id'];
         $select = ["tblAccountService.AccountServiceID","tblService.ServiceName","tblAccountService.ServiceTitle","tblAccountService.Status","tblAccountService.ServiceID","tblAccountService.AccountServiceID"];
-        $services = AccountService::join('tblService', 'tblAccountService.ServiceID', '=', 'tblService.ServiceID')
-            ->where("tblAccountService.AccountID", $id)
-            ->where('tblAccountService.CompanyID', $CompanyID);
-
+        $services = AccountService::join('tblService', 'tblAccountService.ServiceID', '=', 'tblService.ServiceID')->where("tblAccountService.AccountID",$id);
         if(!empty($data['ServiceName'])){
             $services->where('tblService.ServiceName','Like','%'.trim($data['ServiceName']).'%');
         }
@@ -109,7 +110,6 @@ class AccountServiceController extends \BaseController {
                 $query->where('tblAccountService.Status','=','0');
             });
         }
-
         $services->select($select);
 
         return Datatables::of($services)->make();

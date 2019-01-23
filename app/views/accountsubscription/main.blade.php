@@ -89,7 +89,6 @@
             var account_id=$("#subscription_filter").find('[name="AccountID"]').val();
             var update_new_url;
             var postdata;
-            var data_table;
 
             jQuery(document).ready(function ($) {
 
@@ -149,8 +148,8 @@
 					$search.Account 	=  $("#subscription_filter").find('[name="AccountID"]').val();
 					$search.ServiceID   =  $("#subscription_filter").find('[name="ServiceID"]').val();										
                     $search.Active  	=  $("#subscription_filter").find("[name='Active']").prop("checked");
-					
-		 data_table  = $("#table-subscription").DataTable({
+
+                data_table_subscription  = $("#table-subscription").dataTable({
             "bDestroy": true,
             "bProcessing":true,
             "bServerSide":true,
@@ -349,10 +348,7 @@
                         result = confirm("Are you Sure?");
                        if(result){
                            var delete_url  = $(this).attr("href");
-                           submit_ajax_datatable( delete_url,"",0,data_table);
-                            //data_table_subscription.fnFilter('', 0);
-                           //console.log('delete');
-                          // $('#subscription_submit').trigger('click');
+                           submit_ajax_datatable( delete_url,"",0,data_table_subscription);
                        }
                        return false;
                 });
@@ -452,37 +448,37 @@
 
                    e.preventDefault();
                    var formData = new FormData(this);
+                   submit_ajax_datatable_Form(_url,formData,0,data_table_subscription);
 
-                   $.ajax({
-                       type: 'POST',
-                       url:_url,
-                       data:formData,
-                       cache:false,
-                       contentType: false,
-                       processData: false,
-                       success: function(response) {
-                           if (response.status == 'success') {
-                              toastr.success(response.message, "Success", toastr_opts);
-                                location.reload();
-                               $('.modal').modal('hide');
-                           }
-                       },
-                       error: function(data) {
-                       }
-                   });
+//
+//                   $.ajax({
+//                       type: 'POST',
+//                       url:_url,
+//                       data:formData,
+//                       cache:false,
+//                       contentType: false,
+//                       processData: false,
+//                       success: function(response) {
+//                           if (response.status == 'success') {
+//                              toastr.success(response.message, "Success", toastr_opts);
+//                                location.reload();
+//                               $('.modal').modal('hide');
+//                           }
+//                       },
+//                       error: function(data) {
+//                       }
+//                   });
 
-                  
+
                });
 			   
 			   $("#subscription-form-edit").submit(function(e){
 
                    e.preventDefault();
                    var _url  = $(this).attr("action");
-                   submit_ajax_datatable(_url,$(this).serialize(),0,data_table);
-//                   data_table.fnFilter('', 0);
-                   location.reload();
-                  //console.log('edit');
-                  // $('#subscription-form-edit').trigger('click');
+                   var formData = new FormData(this);
+                   submit_ajax_datatable_Form(_url,formData,0,data_table_subscription);
+
                });
 			   
 			     $('#modal-subscription').on('hidden.bs.modal', function(event){
@@ -877,7 +873,6 @@
                             }
 
                         }
-                        data_table.fnFilter('', 0);
 
                     },
                     error: function (request, status, error) {
