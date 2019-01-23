@@ -32,7 +32,9 @@ class BillingClassApiController extends ApiController {
 	 * Update Success
 	 */
 	public function setLowBalanceNotification(){
-		$data=Input::all();
+		$post_vars = json_decode(file_get_contents("php://input"));
+		$data=json_decode(json_encode($post_vars),true);
+
 		$PostData=array();
 		$AccountID=0;
 		$CompanyID=0;
@@ -137,7 +139,9 @@ class BillingClassApiController extends ApiController {
 	 */
 
 	public function getLowBalanceNotification(){
-		$data=Input::all();
+		$post_vars = json_decode(file_get_contents("php://input"));
+		$data=json_decode(json_encode($post_vars),true);
+
 		$result=array();
 		$AccountID=0;
 		if(!empty($data['AccountID'])) {

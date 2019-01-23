@@ -17,7 +17,8 @@ class PaymentApiController extends ApiController {
 	 */
 
 	public function getPaymentHistory(){
-		$data=Input::all();
+		$post_vars = json_decode(file_get_contents("php://input"));
+		$data=json_decode(json_encode($post_vars),true);
 		$Result=[];
 		$CompanyID=0;
 		$AccountID=0;
@@ -75,7 +76,8 @@ class PaymentApiController extends ApiController {
 	 */
 
 	public function requestFund(){
-		$data=Input::all();
+		$post_vars = json_decode(file_get_contents("php://input"));
+		$data=json_decode(json_encode($post_vars),true);
 
 		$rules = array(
 			'Amount' => 'required',
@@ -154,7 +156,9 @@ class PaymentApiController extends ApiController {
 	 */
 
 	public function depositFund(){
-		$data=Input::all();
+		$post_vars = json_decode(file_get_contents("php://input"));
+		$data=json_decode(json_encode($post_vars),true);
+
 		$AccountID=0;
 		$BillingClassID=0;
 		$errors=[];

@@ -29,7 +29,6 @@ class RoutingApiController extends ApiController {
         $routingData["AccountNo"] = isset($post_vars->AccountNo) ? $post_vars->AccountNo : '';
         $routingData["AccountID"] = isset($post_vars->AccountID) ? $post_vars->AccountID : '';
         $AccountDynamicField = isset($post_vars->AccountDynamicField) ? $post_vars->AccountDynamicField : '';
-        //Log::info('routingList:Get the routing list.' . count($AccountDynamicField));
         if (count($AccountDynamicField) > 0 && $AccountDynamicField != '') {
             $routingData["AccountDynamicField"] = "[]";
         }else {
@@ -388,6 +387,7 @@ class RoutingApiController extends ApiController {
 
         $lcrDetails = RoutingProfile::select(['RoutingProfileId','selectionCode'])->
         whereRaw('\'' . $routingData["DestinationNo"] . '\'' . ' like  CONCAT(SelectionCode,"%")')
+            ->where('SelectionCode','<>','')
             ->orderByRaw('CONCAT(SelectionCode,"%") desc')
             ->take(1);
         Log::info('routingList profiles case 1 query with RoutingProfileRate Query' . $lcrDetails->toSql());
@@ -404,6 +404,7 @@ class RoutingApiController extends ApiController {
         }else {
             $CustomerTrunks = CustomerTrunk::select(['AccountID','TrunkID','Prefix'])
                 ->where('UseInBilling','=',1)
+                ->where('Prefix','<>','')
                 ->whereRaw('\'' . $routingData["DestinationNo"] . '\'' . ' like  CONCAT(Prefix,"%")')
                 ->orderByRaw('CONCAT(Prefix,"%") desc')
                 ->take(1);
