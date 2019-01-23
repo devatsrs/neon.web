@@ -145,30 +145,34 @@ public function main() {
         if(isset($data['dynamicFileds']))
         {
             $dynamiceFields = $data['dynamicFileds'];
-            $dynamicFieldCollects = $dynamiceFields;
+
+            if(isset($data['dynamicSelect']) && !empty($data['dynamicSelect']))
+            {
+                $selectBox = $data['dynamicSelect'];
+                $dynamiceFields[] = implode(",",$selectBox);
+                unset( $data['dynamicSelect']);
+
+            }
+
             unset($data['dynamicFileds']);
             unset($data['AccountSubscriptionID']);
         }
 
         $companyID        = User::get_companyID();
-
-
         if (isset($data['dynamicImage']) && !empty($data['dynamicImage'])) {
             $GetDynamicImg['dynamicImage'] = $data['dynamicImage'];
-
         }
         unset($data['dynamicImage']);
-
         $data['Status'] = '1';
+
         if ($AccountSubscription = AccountSubscription::create($data)) {
             $dynamiceFields['AccountID']  = $data['AccountID'];
-
 
             $GetDynamiceAll = DynamicFields::join('tblDynamicFieldsValue', function($join) {
                 $join->on('tblDynamicFieldsValue.DynamicFieldsID','=','tblDynamicFields.DynamicFieldsID');
             })->select('tblDynamicFields.DynamicFieldsID','tblDynamicFields.FieldName','tblDynamicFields.FieldDomType')->where('tblDynamicFieldsValue.ParentID','=',$data['AccountID'])
-              ->where('tblDynamicFields.Type','=', 'subscription')
               ->get();
+
 
             foreach($GetDynamiceAll as $DynamicFieldsID)
             {
@@ -176,6 +180,7 @@ public function main() {
                 $name[] = $DynamicFieldsID->FieldName;
                 $type[] = $DynamicFieldsID->FieldDomType;
             }
+
 
             for($i=0; $i < sizeof($ids); $i++ )
             {
@@ -705,13 +710,15 @@ public function main() {
         $data 			        = Input::all();
         $AccountSubscriptionID  = $data['AccountSubscriptionID'];
 
+
+
         try{
             $GetDynamiceAll = DynamicFields::join('tblDynamicFieldsValue', function($join) {
                 $join->on('tblDynamicFieldsValue.DynamicFieldsID','=','tblDynamicFields.DynamicFieldsID');
             })->select('tblDynamicFields.FieldName' , 'tblDynamicFields.FieldDomType', 'tblDynamicFieldsValue.FieldValue')
                 ->where('tblDynamicFieldsValue.ParentID','=', $AccountSubscriptionID)
-                ->where('tblDynamicFields.Type','=', 'subscription')
                 ->get();
+
             return $GetDynamiceAll;
         }catch (Exception $ex){
             return $ex;
