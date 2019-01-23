@@ -21,4 +21,15 @@ class VendorConnection extends \Eloquent {
     }
 
 
+    public static function getTrunkDropdownIDList($AccountID,$CompanyID){
+        $row = VendorConnection::join("tblTrunk","tblTrunk.TrunkID", "=    ","tblVendorConnection.TrunkID")
+            ->where(["tblVendorConnection.Active"=> 1,"tblVendorConnection.CompanyID"=>$CompanyID,"tblVendorConnection.AccountId"=>$AccountID])->select(array('tblVendorConnection.TrunkID','Trunk'))->lists('Trunk', 'TrunkID');
+        if(!empty($row)){
+            $row = array(""=> "Select")+$row;
+        }
+        return $row;
+    }
+
+
+
 }
