@@ -12,7 +12,9 @@ class ActiveCallApiController extends ApiController {
      */
 
     public function startCall(){
-        $data=Input::all();
+        $post_vars = json_decode(file_get_contents("php://input"));
+        $data=json_decode(json_encode($post_vars),true);
+
         $CompanyID=0;
         $AccountID=0;
 
@@ -108,7 +110,9 @@ class ActiveCallApiController extends ApiController {
     }
 
     public function endCall(){
-        $data=Input::all();
+        $post_vars = json_decode(file_get_contents("php://input"));
+        $data=json_decode(json_encode($post_vars),true);
+
         $AccountID=0;
 
         if(!empty($data['AccountID'])) {
@@ -162,7 +166,9 @@ class ActiveCallApiController extends ApiController {
     }
 
     public function blockCall(){
-        $data=Input::all();
+        $post_vars = json_decode(file_get_contents("php://input"));
+        $data=json_decode(json_encode($post_vars),true);
+
         $AccountID=0;
 
         if(!empty($data['AccountID'])) {
@@ -218,7 +224,9 @@ class ActiveCallApiController extends ApiController {
     }
 
     public function startRecording(){
-        $data=Input::all();
+        $post_vars = json_decode(file_get_contents("php://input"));
+        $data=json_decode(json_encode($post_vars),true);
+
         $AccountID=0;
 
         if(!empty($data['AccountID'])) {
@@ -270,7 +278,9 @@ class ActiveCallApiController extends ApiController {
     }
 
     public function getBlockCalls(){
-        $data=Input::all();
+        $post_vars = json_decode(file_get_contents("php://input"));
+        $data=json_decode(json_encode($post_vars),true);
+
         $StartDate 	 = 		!empty($data['StartDate'])?$data['StartDate']:'0000-00-00';
         $EndDate 	 = 		!empty($data['EndDate'])?$data['EndDate']:'0000-00-00';
         $AccountID=0;

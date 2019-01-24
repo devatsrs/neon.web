@@ -890,7 +890,8 @@ class Account extends \Eloquent {
 
     public static function findAccountBySIAccountRef($AccountRef){
 
-        $AccountReferenceArr=json_decode(json_encode(json_decode($AccountRef)),true);
+        $AccountReferenceArr=json_decode(json_encode($AccountRef),true);
+
         Log::info('findAccountBySIAccountRef .' . count($AccountReferenceArr));
 
         $Query = "select distinct ParentID from tblDynamicFieldsValue where ";
