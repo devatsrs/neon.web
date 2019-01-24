@@ -214,7 +214,9 @@ class PaymentApiController extends ApiController {
 			//DeductTaxAmount
 			$AmountExcludeTax=self::AmountExcludeTaxRate($BillingClassID,$data['Amount']);
 			if($AmountExcludeTax > 0){
-				$data['Amount']=$AmountExcludeTax;
+				Log::info("Original Amount = ".$data['Amount']);
+				$data['Amount']=$data['Amount']-$AmountExcludeTax;
+				Log::info("Amount Excluded Tax = ".$data['Amount']);
 			}
 
 			$PaymentData=array();
