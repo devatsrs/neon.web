@@ -265,12 +265,11 @@
                 });
                 $('table tbody').on('click', '.edit-subscription', function (ev) {
                         ev.preventDefault();
-                        console.log('status');
                         $('#modal-edit-subscription').trigger("reset");
                         var edit_url  = $(this).attr("href");
                         $('#subscription-form-edit').attr("action",edit_url);
                         var cur_obj = $(this).prev("div.hiddenRowData");
-                        for(var i = 0 ; i< list_fields.length; i++){ 
+                         for(var i = 0 ; i< list_fields.length; i++){
                             $("#subscription-form-edit [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                             if(list_fields[i] == 'SubscriptionID'){
                                 $("#subscription-form-edit [name='"+list_fields[i]+"']").select2().select2('val',cur_obj.find("input[name='"+list_fields[i]+"']").val());
@@ -293,56 +292,10 @@
                         }
                         $('#modal-edit-subscription').modal('show');
 
+                    OnEditCallSubsDynamicFields();
+
 
                     //------------------ Get Dynamic Field Data -----------------------
-
-                    $('#edit-dynamice-fields-show').empty();
-
-
-                    SubscriptionID        = $("#subscription-form-edit select[name='SubscriptionID']").val();
-                    AccountSubscriptionID = $("#subscription-form-edit input[name='AccountSubscriptionID']").val();
-                    var find_dynamic_feilds_url	= baseurl + '/account_subscription/EditDynamiceFieldFinder';
-
-                    $.ajax({
-                        url: find_dynamic_feilds_url,  //Server script to process data
-                        type: 'POST',
-                        data:'SubscriptionID='+SubscriptionID+'&AccountSubscriptionID='+AccountSubscriptionID,
-                        dataType: 'html',
-                        success: function (response) {
-                            var i;
-//                           var obj = JSON.parse(JSON.stringify(response))
-                            var obj = jQuery.parseJSON(response);
-                            console.log(obj.length);
-                            for (i = 0; i <= obj.length; ++i)
-                            {
-
-                                if(obj[i].FieldDomType =="numericePerMin" || obj[i].FieldDomType =="text" )
-                                {
-                                    $('#edit-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="number" name="dynamicFileds[]" class="form-control" value="'+obj[i].FieldValue+'" /></div></div></div>');
-                                }else if(obj[i].FieldDomType == "string"){
-                                    $('#edit-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="text" name="dynamicFileds[]" class="form-control" value="'+obj[i].FieldValue+'" /></div></div></div>');
-                                }else if(obj[i].FieldDomType == "datetime"){
-                                    $('#edit-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="text" name="dynamicFileds[]" class="form-control datetimepicker" value="'+obj[i].FieldValue+'" /></div></div></div>');
-                                }else if( obj[i].FieldDomType =="text"){
-                                    $('#edit-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><textarea name="description" class="form-control">'+obj[i].FieldValue+'</textarea></div></div></div>');
-                                }else if( obj[i].FieldDomType =="boolean"){
-                                    $('#edit-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><p class="clear"><p class="make-switch switch-small"><input type="checkbox" name="dynamicFileds[]" value="'+obj[i].FieldValue+'"></p></div></div></div></div>');
-                                }else if( obj[i].FieldDomType =="select"){
-                                    $('#edit-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><select class="form-control" name="dynamicSelect[]"><option value="'+obj[i].FieldValue+'">'+obj[i].FieldValue+'</option></select></div></div></div>');
-                                }else if( obj[i].FieldDomType =="file"){
-                                    $('#edit-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">Upload file</label><br><a class="file-input-wrapper btn form-control file2 inline btn btn-primary"><i class="glyphicon glyphicon-circle-arrow-up"></i>  Browse<input name="dynamicImage" id="dynamicImage" type="file" accept=".png" class="form-control file2 inline btn btn-primary" onchange="handleFiles()"></a><span class="file-input-name"></span></div></div></div>');
-                                }
-
-                            }
-
-
-                        },
-                        error: function (request, status, error) {
-
-                            toastr.error(request.responseText, "Error", toastr_opts)
-                        }
-                    });
-
 
                 });
                 $('table tbody').on('click', '.delete-subscription', function (ev) {
@@ -1021,7 +974,58 @@ $("#subscription-form-edit select[name='SubscriptionID']").on('change', function
         });
 
 
+function  OnEditCallSubsDynamicFields()
+{
 
+    $('#edit-dynamice-fields-show').empty();
+
+
+    SubscriptionID        = $("#subscription-form-edit select[name='SubscriptionID']").val();
+    AccountSubscriptionID = $("#subscription-form-edit input[name='AccountSubscriptionID']").val();
+    var find_dynamic_feilds_url	= baseurl + '/account_subscription/EditDynamiceFieldFinder';
+    $.ajax({
+        url: find_dynamic_feilds_url,  //Server script to process data
+        type: 'POST',
+        data:'SubscriptionID='+SubscriptionID+'&AccountSubscriptionID='+AccountSubscriptionID,
+        dataType: 'html',
+        success: function (response) {
+            var i;
+//                           var obj = JSON.parse(JSON.stringify(response))
+            var obj = jQuery.parseJSON(response);
+            console.log(obj.length);
+            for (i = 0; i <= obj.length; ++i)
+            {
+
+                if(obj[i].FieldDomType =="numericePerMin" || obj[i].FieldDomType =="text" )
+                {
+                    $('#edit-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="number" name="dynamicFileds[]" class="form-control" value="'+obj[i].FieldValue+'" /></div></div></div>');
+                }else if(obj[i].FieldDomType == "string"){
+                    $('#edit-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="text" name="dynamicFileds[]" class="form-control" value="'+obj[i].FieldValue+'" /></div></div></div>');
+                }else if(obj[i].FieldDomType == "datetime"){
+                    $('#edit-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="text" name="dynamicFileds[]" class="form-control datetimepicker" value="'+obj[i].FieldValue+'" /></div></div></div>');
+                }else if( obj[i].FieldDomType =="text"){
+                    $('#edit-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><textarea name="description" class="form-control">'+obj[i].FieldValue+'</textarea></div></div></div>');
+                }else if( obj[i].FieldDomType =="boolean"){
+                    $('#edit-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><p class="clear"><p class="make-switch switch-small"><input type="checkbox" name="dynamicFileds[]" value="'+obj[i].FieldValue+'"></p></div></div></div></div>');
+                }else if( obj[i].FieldDomType =="select"){
+                    $('#edit-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><select class="form-control" name="dynamicSelect[]"><option value="'+obj[i].FieldValue+'">'+obj[i].FieldValue+'</option></select></div></div></div>');
+                }else if( obj[i].FieldDomType =="file"){
+                    $('#edit-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">Upload file</label><br><a class="file-input-wrapper btn form-control file2 inline btn btn-primary"><i class="glyphicon glyphicon-circle-arrow-up"></i>  Browse<input name="dynamicImage" id="dynamicImage" type="file" accept=".png" class="form-control file2 inline btn btn-primary" onchange="handleFiles()"></a><span class="file-input-name"></span></div></div></div>');
+                }
+
+            }
+
+
+        },
+        error: function (request, status, error) {
+
+            toastr.error(request.responseText, "Error", toastr_opts)
+        }
+    });
+
+
+
+}
 
  function handleFiles(){
      var fullPath = document.getElementById('dynamicImage').value;
