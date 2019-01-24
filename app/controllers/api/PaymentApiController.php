@@ -181,7 +181,7 @@ class PaymentApiController extends ApiController {
 		}
 
 		$rules = array(
-			'Amount' => 'required|numeric',
+			'Amount' => 'required|numeric|min:1',
 		);
 
 		$verifier = App::make('validation.presence');
@@ -215,8 +215,11 @@ class PaymentApiController extends ApiController {
 			$AmountExcludeTax=self::AmountExcludeTaxRate($BillingClassID,$data['Amount']);
 			if($AmountExcludeTax > 0){
 				Log::info("Original Amount = ".$data['Amount']);
+
 				$data['Amount']=$data['Amount']-$AmountExcludeTax;
+
 				Log::info("Amount Excluded Tax = ".$data['Amount']);
+
 			}
 
 			$PaymentData=array();
