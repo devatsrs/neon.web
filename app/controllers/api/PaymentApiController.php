@@ -17,7 +17,8 @@ class PaymentApiController extends ApiController {
 	 */
 
 	public function getPaymentHistory(){
-		$data=Input::all();
+		$post_vars = json_decode(file_get_contents("php://input"));
+		$data=json_decode(json_encode($post_vars),true);
 		$Result=[];
 		$CompanyID=0;
 		$AccountID=0;
@@ -31,18 +32,18 @@ class PaymentApiController extends ApiController {
 				$CompanyID = $Account->CompanyId;
 				$AccountID = $Account->AccountID;
 			}else{
-				return Response::json(["status"=>"failed", "message"=>"Account Not Found."]);
+				return Response::json(["status"=>"404", "message"=>"Account Not Found."]);
 			}
 		}else if(!empty($data['AccountDynamicField'])){
 			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 			if(empty($AccountID)){
-				return Response::json(["status"=>"failed", "data"=>"Account Not Found."]);
+				return Response::json(["status"=>"404", "data"=>"Account Not Found."]);
 			}
 			$Account = Account::where(["AccountID" => $AccountID])->first();
 			$CompanyID = $Account->CompanyId;
 			$AccountID = $Account->AccountID;
 		}else{
-			return Response::json(["status"=>"failed", "message"=>"AccountID Required"]);
+			return Response::json(["status"=>"404", "message"=>"AccountID Required"]);
 		}
 
 		$data['StartDate'] 	 = 		!empty($data['StartDate'])?$data['StartDate']:'0000-00-00';
@@ -54,14 +55,14 @@ class PaymentApiController extends ApiController {
 				//echo $query;die;
 				$Result = DB::connection('sqlsrv2')->select($query);
 				$Response = json_decode(json_encode($Result), true);
-				return Response::json(["status" => "success", "data" => $Response]);
+				return Response::json(["status" => "200", "data" => $Response]);
 			}catch(Exception $e){
 				Log::info($e);
-				$reseponse = array("status" => "failed", "message" => "Something Went Wrong.");
+				$reseponse = array("status" => "500", "message" => "Something Went Wrong.");
 				return $reseponse;
 			}
 		}else{
-			return Response::json(["status"=>"failed", "message"=>"Account Not Found","data"=>[]]);
+			return Response::json(["status"=>"404", "message"=>"Account Not Found","data"=>[]]);
 		}
 
 	}
@@ -75,7 +76,8 @@ class PaymentApiController extends ApiController {
 	 */
 
 	public function requestFund(){
-		$data=Input::all();
+		$post_vars = json_decode(file_get_contents("php://input"));
+		$data=json_decode(json_encode($post_vars),true);
 
 		$rules = array(
 			'Amount' => 'required',
@@ -103,12 +105,12 @@ class PaymentApiController extends ApiController {
 				$CompanyID = $Account->CompanyId;
 				$AccountID = $Account->AccountID;
 			}else{
-				return Response::json(["status"=>"failed", "message"=>"Account Not Found"]);
+				return Response::json(["status"=>"404", "message"=>"Account Not Found"]);
 			}
 		}else if(!empty($data['AccountDynamicField'])){
 			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 			if(empty($AccountID)){
-				return Response::json(["status"=>"failed", "data"=>"Account Not Found."]);
+				return Response::json(["status"=>"404", "data"=>"Account Not Found."]);
 			}
 			$Account = Account::where(["AccountID" => $AccountID])->first();
 			if(!empty($Account)) {
@@ -117,7 +119,7 @@ class PaymentApiController extends ApiController {
 			}
 
 		}else{
-			return Response::json(["status"=>"failed", "message"=>"AccountID Required"]);
+			return Response::json(["status"=>"404", "message"=>"AccountID Required"]);
 		}
 
 		if(!empty($AccountID) && !empty($CompanyID)){
@@ -134,13 +136,13 @@ class PaymentApiController extends ApiController {
 			unset($data['AccountDynamicField']);
 
 			if ($Payment = Payment::create($data)) {
-				return Response::json(array("status" => "success", "data" => ["RequestFundID"=>$Payment->PaymentID]));
+				return Response::json(array("status" => "200", "data" => ["RequestFundID"=>$Payment->PaymentID]));
 			} else {
-				return Response::json(array("status" => "failed", "message" => "Problem Creating Payment."));
+				return Response::json(array("status" => "500", "message" => "Problem Creating Payment."));
 			}
 
 		}else{
-			return Response::json(["status"=>"failed", "message"=>"Account Not Found"]);
+			return Response::json(["status"=>"404", "message"=>"Account Not Found"]);
 		}
 
 	}
@@ -154,7 +156,9 @@ class PaymentApiController extends ApiController {
 	 */
 
 	public function depositFund(){
-		$data=Input::all();
+		$post_vars = json_decode(file_get_contents("php://input"));
+		$data=json_decode(json_encode($post_vars),true);
+
 		$AccountID=0;
 		$BillingClassID=0;
 		$errors=[];
@@ -169,11 +173,11 @@ class PaymentApiController extends ApiController {
 		}else if(!empty($data['AccountDynamicField'])){
 			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 			if(empty($AccountID)){
-				return Response::json(["status"=>"failed", "data"=>"Account Not Found."]);
+				return Response::json(["status"=>"404", "data"=>"Account Not Found."]);
 			}
 
 		}else{
-			return Response::json(["status"=>"failed", "message"=>"AccountID OR AccountNo Required"]);
+			return Response::json(["status"=>"404", "message"=>"AccountID OR AccountNo Required"]);
 		}
 
 		$rules = array(
@@ -198,12 +202,12 @@ class PaymentApiController extends ApiController {
 					$BillingClassID=$data['BillingClassID'];
 				}else{
 					$errormsg="BillingClassID ".$data['BillingClassID']." Not set on this Account.";
-					return Response::json(["status"=>"failed", "message"=>$errormsg]);
+					return Response::json(["status"=>"404", "message"=>$errormsg]);
 				}
 			}else{
 				$BillingClassID=AccountBilling::getBillingClassID($AccountID);
 				if(empty($BillingClassID)){
-					return Response::json(["status"=>"failed", "message"=>"BillingClassID Not set on this Account."]);
+					return Response::json(["status"=>"404", "message"=>"BillingClassID Not set on this Account."]);
 				}
 			}
 
@@ -241,11 +245,11 @@ class PaymentApiController extends ApiController {
 
 						$InvoiceGenerate=self::GenerateInvoice($PaymentData['AccountID'],$PaymentData['outstanginamount'],$BillingClassID);
 
-						return Response::json(["status"=>"success","PaymentResponse"=>$ReturnData,"InvoiceResponse"=>$InvoiceGenerate]);
+						return Response::json(["status"=>"200","PaymentResponse"=>$ReturnData,"InvoiceResponse"=>$InvoiceGenerate]);
 
 					}else{
 						//Failed Payment
-						return Response::json(["status"=>"failed", "message"=>"Payment Failed.","PaymentResponse"=>$ReturnData]);
+						return Response::json(["status"=>"500", "message"=>"Payment Failed.","PaymentResponse"=>$ReturnData]);
 					}
 					
 				}else{
@@ -258,11 +262,11 @@ class PaymentApiController extends ApiController {
 
 			}
 		}else{
-			return Response::json(["status"=>"failed", "message"=>"Account Not Found."]);
+			return Response::json(["status"=>"404", "message"=>"Account Not Found."]);
 		}
 
 		if(!empty($errors)){
-			return Response::json(["status"=>"failed", "message"=>$errors]);
+			return Response::json(["status"=>"500", "message"=>$errors]);
 		}
 
 
@@ -341,7 +345,7 @@ class PaymentApiController extends ApiController {
 			if(empty($Invoice)){
 				//$reseponse = array("status" => "failed", "message" => "Problem Creating Invoice. ");
 				$error['message']="Problem Creating Invoice For Account ".$Account->AccountName;
-				$error['status']="failed";
+				$error['status']="500";
 				return $error;
 
 			}
@@ -443,7 +447,7 @@ class PaymentApiController extends ApiController {
 
 				if (empty($pdf_path)) {
 					$error['message'] = 'Failed to generate Invoice PDF File';
-					$error['status'] = 'failed';
+					$error['status'] = '500';
 					return $error;
 				} else {
 
@@ -456,14 +460,14 @@ class PaymentApiController extends ApiController {
 				return $reseponse;
 			}else{
 				$error['message']="Empty InvoiceID Found.";
-				$error['status'] = 'failed';
+				$error['status'] = '404';
 				return $error;
 			}
 
 		}catch (Exception $e){
 			Log::info($e);
 			DB::connection('sqlsrv2')->rollback();
-			$reseponse = array("status" => "failed", "message" => "Problem Creating Invoice. \n" . $e->getMessage());
+			$reseponse = array("status" => "500", "message" => "Problem Creating Invoice. \n" . $e->getMessage());
 			return $reseponse;
 		}
 

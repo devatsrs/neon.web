@@ -10,35 +10,47 @@ class ServicesTemplateApiController extends ApiController
         Log::info('storeServiceTempalteData:Service Template Controller.');
         try {
             $post_vars = json_decode(file_get_contents("php://input"));
-            if (! $post_vars ) {
-                return Response::json(["status"=>"failed", "message"=>"Please provide the post message"]);
-            }
+            //$post_vars = Input::all();
+
+           // Log::info('Dynamic Field for create template1223.' . count($post_vars->DynamicFields));
+          //  foreach ($post_vars->DynamicFields as $key => $value) {
+          //      Log::info('Dynamic Field for create template.' . $value->Name . ' ' . $value->Value);
+          //  }
+          //  return;
+
             //Log::info('storeServiceTempalteData:storeServiceTempalteData.' . $post_vars->Name);
             // $data['Name'] = $post_vars->Name;
             //  return Response::json(["status"=>"success", "data"=>$post_vars]);
 
-            $data['Name'] = $post_vars->Name;
-            $data['ServiceId'] = $post_vars->ServiceId;
-            $CurrenctCodeSql = Currency::where('Code',$post_vars->Currency);
+            $data['Name'] = isset($post_vars->Name) ? $post_vars->Name : '';
+            $data['ServiceId'] = isset($post_vars->ServiceID) ? $post_vars->ServiceID : '';
+            $CurrenctCodeSql = Currency::where('CurrencyId',$post_vars->CurrencyID);
             Log::info('storeServiceTempalteData $CurrenctCodeSql.' . $CurrenctCodeSql->toSql());
             $CurrenctCodeResult = $CurrenctCodeSql->first();
             if (!isset($CurrenctCodeResult)) {
-                return Response::json(["status"=>"failed", "message"=>"Please provide the valid currency"]);
+                return Response::json(["status"=>"401", "message"=>"Please provide the valid currency"]);
+            }
+
+            $ServiceCodeSql = Service::where('ServiceID',$data['ServiceId']);
+            Log::info('storeServiceTempalteData $ServiceCodeSql.' . $ServiceCodeSql->toSql());
+            $ServiceCodeSqlResult = $ServiceCodeSql->first();
+            if (!isset($ServiceCodeSqlResult)) {
+                return Response::json(["status"=>"401", "message"=>"Please provide the valid Service"]);
             }
 
             if (!empty($post_vars->ContractType) && ($post_vars->ContractType < 1 || $post_vars->ContractType > 4)) {
-                return Response::json(["status" => "failed", "message" => "The value of ContractType must be between 1 and 4"]);
+                return Response::json(["status" => "401", "message" => "The value of ContractType must be between 1 and 4"]);
             }
             if (!empty($post_vars->AutoRenewal) && ($post_vars->AutoRenewal != 0 && $post_vars->AutoRenewal != 1)) {
-                return Response::json(["status" => "failed", "message" => "The value of AutoRenewal must be between 0 or 1"]);
+                return Response::json(["status" => "401", "message" => "The value of AutoRenewal must be between 0 or 1"]);
             }
 
 
 
-            $data['CurrencyId'] = $CurrenctCodeResult->CurrencyId;
-            $data['OutboundDiscountPlanId'] = $post_vars->OutboundDiscountPlanId;
-            $data['InboundDiscountPlanId'] = $post_vars->InboundDiscountPlanId;
-            $data['OutboundRateTableId'] = $post_vars->OutboundRateTableId;
+            $data['CurrencyId'] = isset($CurrenctCodeResult->CurrencyId) ? $CurrenctCodeResult->CurrencyId : '';
+            $data['OutboundDiscountPlanId'] = isset($post_vars->OutboundDiscountPlanID) ? $post_vars->OutboundDiscountPlanID : '';
+            $data['InboundDiscountPlanId'] = isset($post_vars->InboundDiscountPlanID) ? $post_vars->InboundDiscountPlanID : '';
+            $data['OutboundRateTableId'] = isset($post_vars->OutboundRateTableID) ? $post_vars->OutboundRateTableID : '';
             if (isset($post_vars->selectedSubscription)) {
                 $data['selectedSubscription'] = $post_vars->selectedSubscription;
             }else {
@@ -49,11 +61,7 @@ class ServicesTemplateApiController extends ApiController
             } else {
                 $data['selectedcategotyTariff'] = '';
             }
-            Log::info('storeServiceTempalteData:storeServiceTempalteData.' .
-                'Name:' . $data['Name'] . 'ServiceId' . $data['ServiceId'] . 'CurrencyId' . $data['CurrencyId'] .
-                'OutboundDiscountPlanId' . $data['OutboundDiscountPlanId'] . 'InboundDiscountPlanId' . $data['InboundDiscountPlanId'] .
-                'OutboundRateTableId' . $data['OutboundRateTableId'] . 'selectedSubscription' . $data['selectedSubscription'] .
-                'selectedcategotyTariff' . $data['selectedcategotyTariff']);
+
             $j=0;
 
             $CreatedBy = '';
@@ -66,19 +74,21 @@ class ServicesTemplateApiController extends ApiController
                 $CreatedBy = '';
             }
             if (!isset($CreatedBy)) {
-                    return Response::json(["status" => "failed", "message" => "Not authorized. Please Login"]);
+                    return Response::json(["status" => "401", "message" => "Not authorized. Please Login"]);
             }
             try {
+
+
                 if (isset($post_vars->DynamicFields)) {
                     foreach ($post_vars->DynamicFields as $key => $value) {
-                        Log::info('Dynamic Field.' . $value->Name . ' ' . $value->Value);
+                        Log::info('Dynamic Field for create template.' . $value->Name . ' ' . $value->Value);
                         $DynamicFields[$j]['FieldValue'] = $value->Value;
                         $Type = ServiceTemplateTypes::DYNAMIC_TYPE;
                         $DynamicFieldsSql = DynamicFields::where('Type', $Type)->where('CompanyID', $companyID)->where('Status', '1')->where('FieldName', $value->Name);
                         Log::info('storeServiceTempalteData $DynamicFieldsSql.' . $DynamicFieldsSql->toSql());
                         $DynamicFieldsResult = $DynamicFieldsSql->first();
                         if (!isset($DynamicFieldsResult)) {
-                            return Response::json(["status" => "failed", "message" => "Please provide the valid and active dynamic field"]);
+                            return Response::json(["status" => "401", "message" => "Please provide the valid and active dynamic field"]);
                         }
                         $DynamicFields[$j]['DynamicFieldsID'] = $DynamicFieldsResult->DynamicFieldsID;
                         Log::info('storeServiceTempalteData $DynamicFieldsSql.' . $DynamicFieldsResult->DynamicFieldsID);
@@ -92,7 +102,7 @@ class ServicesTemplateApiController extends ApiController
 
                     if (isset($DynamicFields)) {
                         if ($error = DynamicFieldsValue::validate($DynamicFields)) {
-                            return Response::json(["status" => "failed", "message" => $error]);
+                            return Response::json(["status" => "401", "message" => $error]);
                         }
                     }
                 }
@@ -134,7 +144,7 @@ class ServicesTemplateApiController extends ApiController
                     foreach ($validator->messages()->all() as $error) {
                         $errors .= $error . "<br>";
                     }
-                    return Response::json(["status" => "failed", "message" => $errors]);
+                    return Response::json(["status" => "401", "message" => $errors]);
                 }
                 Log::info('storeServiceTempalteData:read Category Tariff List2.');
                 if (isset($data['ServiceId']) && $data['ServiceId'] != '') {
@@ -153,10 +163,10 @@ class ServicesTemplateApiController extends ApiController
 
                 $ServiceTemplateData['CurrencyId'] = $data['CurrencyId'];
 
-                $ServiceTemplateData['ContractDuration'] = $post_vars->ContractDuration;
-                $ServiceTemplateData['CancellationCharges'] = $post_vars->ContractType;
-                $ServiceTemplateData['AutomaticRenewal'] = $post_vars->AutoRenewal;
-                $ServiceTemplateData['CancellationFee'] = $post_vars->ContractFeeValue;
+                $ServiceTemplateData['ContractDuration'] = isset($post_vars->ContractDuration) ? $post_vars->ContractDuration : '';
+                $ServiceTemplateData['CancellationCharges'] = isset($post_vars->ContractType) ? $post_vars->ContractType : '';
+                $ServiceTemplateData['AutomaticRenewal'] = isset($post_vars->AutoRenewal) ? $post_vars->AutoRenewal : '1';
+                $ServiceTemplateData['CancellationFee'] = isset($post_vars->ContractFeeValue) ? $post_vars->ContractFeeValue : '';
 
 
                 if ($ServiceTemplate = ServiceTemplate::create($ServiceTemplateData)) {
@@ -202,10 +212,10 @@ class ServicesTemplateApiController extends ApiController
                         }
                     }
 
-                    return Response::json(["status" => "success", "message" => "Service Template Successfully Created", 'newcreated' => $ServiceTemplate]);
+                    return Response::json(["status" => "200", "message" => "Service Template Successfully Created", 'newcreated' => $ServiceTemplate]);
                     // return  Response::json(array("status" => "success", "message" => "Service Template Successfully Created",'LastID'=>$ServiceTemplate->ServiceTemplateId,'newcreated'=>$ServiceTemplate));
                 } else {
-                    return Response::json(["status" => "failed", "message" => "Problem Creating Service."]);
+                    return Response::json(["status" => "401", "message" => "Problem Creating Service Template."]);
                     //return  Response::json(array("status" => "failed", "message" => "Problem Creating Service."));
                 }
 
@@ -213,7 +223,7 @@ class ServicesTemplateApiController extends ApiController
             //return Response::json(array("status" => "failed", "message" => "Problem Creating Service."));
         } catch (Exception $ex) {
             Log::info('storeServiceTempalteData:Exception.' . $ex->getTraceAsString());
-            return Response::json(["status" => "failed", "message" => $ex->getMessage()]);
+            return Response::json(["status" => "500", "message" => "Exception while creating the service template"]);
             //return  Response::json(array("status" => "failed", "message" => $ex->getMessage(),'LastID'=>'','newcreated'=>''));
         }
     }

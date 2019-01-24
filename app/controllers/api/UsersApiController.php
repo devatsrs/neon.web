@@ -9,6 +9,6 @@ class UsersApiController extends ApiController {
 
 		$EmailTemplates = User::select(["UserID","FirstName","LastName", "EmailAddress"])
 			->where(["CompanyID" => $companyID,"Status"=>1])->get();
-		return Response::json(["status"=>"success", "data"=>$EmailTemplates]);
+		return Response::json(["status"=>"200", "data"=>$EmailTemplates]);
 	}
 }
