@@ -81,6 +81,8 @@
                     <th>Connection</th>
                     <th>Rate</th>
                     <th>Routing Category</th>
+                    <th>Routing Category Order</th>
+                    <th>Preference</th>
                     <th>IP</th>
                 </tr>
                 </thead>
@@ -204,6 +206,9 @@ $('#filter-button-toggle').show();
                         {"bSortable": false, mRender: function (id, type, full) { return full[4];}},
                         {"bSortable": false, mRender: function (id, type, full) { return full[12]; }},
                         {"bSortable": false, mRender: function (id, type, full) { return full[14];}},
+                            
+                            {"bSortable": false, mRender: function (id, type, full) { return full[16];}},
+                                {"bSortable": false, mRender: function (id, type, full) { return full[15];}},
                         {"bSortable": false, mRender: function (id, type, full) { return full[6];}},
                     ],
                     "oTableTools": {
