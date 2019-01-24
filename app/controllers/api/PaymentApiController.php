@@ -181,7 +181,7 @@ class PaymentApiController extends ApiController {
 		}
 
 		$rules = array(
-			'Amount' => 'required|numeric',
+			'Amount' => 'required|numeric|min:1',
 		);
 
 		$verifier = App::make('validation.presence');
@@ -209,6 +209,17 @@ class PaymentApiController extends ApiController {
 				if(empty($BillingClassID)){
 					return Response::json(["status"=>"404", "message"=>"BillingClassID Not set on this Account."]);
 				}
+			}
+
+			//DeductTaxAmount
+			$AmountExcludeTax=self::AmountExcludeTaxRate($BillingClassID,$data['Amount']);
+			if($AmountExcludeTax > 0){
+				Log::info("Original Amount = ".$data['Amount']);
+
+				$data['Amount']=$data['Amount']-$AmountExcludeTax;
+
+				Log::info("Amount Excluded Tax = ".$data['Amount']);
+
 			}
 
 			$PaymentData=array();
@@ -473,4 +484,23 @@ class PaymentApiController extends ApiController {
 
 	}
 
+	public static function AmountExcludeTaxRate($BillingClassID,$Amount){
+		$TotalTax=0;
+		$TaxRates=BillingClass::getTaxRateType($BillingClassID,TaxRate::TAX_ALL);
+
+		if(!empty($TaxRates)){
+
+			foreach ($TaxRates as $TaxRateID) {
+
+				$TaxRateData=TaxRate::find($TaxRateID);
+
+				if(!empty($TaxRateData)){
+
+					$TaxAmount=TaxRate::calculateProductTaxAmount($TaxRateID,$Amount);
+					$TotalTax+=$TaxAmount;
+				}
+			}
+		}
+		return $TotalTax;
+	}
 }
