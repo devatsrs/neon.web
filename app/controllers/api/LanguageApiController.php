@@ -8,6 +8,6 @@ class LanguageApiController extends ApiController {
 
 		$Languages = Language::select(["LanguageID","ISOCode","Language"])
 			->get();
-		return Response::json(["status"=>"success", "data"=>$Languages]);
+		return Response::json(["status"=>"200", "data"=>$Languages]);
 	}
 }
