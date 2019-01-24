@@ -12,6 +12,780 @@ use speakintelligentRM;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
+-- Dumping structure for procedure speakintelligentRM.prc_GetDIDLCRwithPrefix
+DROP PROCEDURE IF EXISTS `prc_GetDIDLCRwithPrefix`;
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetDIDLCRwithPrefix`(
+	IN `p_companyid` INT,
+	IN `p_DIDCategoryID` INT,
+	IN `p_TimezonesID` VARCHAR(50),
+	IN `p_codedeckID` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_Originationcode` VARCHAR(50),
+	IN `p_OriginationDescription` VARCHAR(250),
+	IN `p_code` VARCHAR(50),
+	IN `p_Description` VARCHAR(250),
+	IN `p_AccountIds` TEXT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_SortOrder` VARCHAR(50),
+	IN `p_Position` INT,
+	IN `p_SelectedEffectiveDate` DATE,
+	IN `p_ShowAllVendorCodes` INT,
+	IN `p_merge_timezones` INT,
+	IN `p_TakePrice` INT,
+	IN `p_Components` VARCHAR(200),
+	IN `p_ComponentsAction` VARCHAR(200),
+	IN `p_ComponentsMeargeTo` VARCHAR(200),
+	IN `p_isExport` INT
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+)
+		ThisSP:BEGIN
+
+		DECLARE v_OffSet_ int;
+		DECLARE v_Code VARCHAR(50) ;
+		DECLARE v_pointer_ int;
+		DECLARE v_rowCount_ int;
+		DECLARE v_p_code VARCHAR(50);
+		DECLARE v_Codlen_ int;
+		DECLARE v_position int;
+		DECLARE v_p_code__ VARCHAR(50);
+		DECLARE v_has_null_position int ;
+		DECLARE v_next_position1 VARCHAR(200) ;
+		DECLARE v_CompanyCurrencyID_ INT;
+
+
+		SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+		SET @@session.collation_connection='utf8_unicode_ci';
+		SET @@session.character_set_results='utf8';
+
+		SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_VendorRate_stage_;
+		CREATE TEMPORARY TABLE tmp_VendorRate_stage_ (
+			RateTableDIDRateID int,
+			-- VendorConnectionID int,
+			RowCode VARCHAR(50) ,
+			AccountId INT ,
+			AccountName VARCHAR(100) ,
+			Code VARCHAR(50) ,
+			OriginationCode VARCHAR(50) ,
+			Rate DECIMAL(18,6) ,
+
+			EffectiveDate DATETIME ,
+			OriginationDescription VARCHAR(255),
+			Description VARCHAR(255),
+
+			MaxMatchRank int ,
+			prev_prev_RowCode VARCHAR(50),
+			prev_AccountID int
+		)
+		;
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_VendorRate_stage2_;
+		CREATE TEMPORARY TABLE tmp_VendorRate_stage2_ (
+			RateTableDIDRateID int,
+			-- VendorConnectionID int,
+			RowCode VARCHAR(50) ,
+			AccountId INT ,
+			AccountName VARCHAR(100) ,
+			OriginationCode VARCHAR(50) ,
+			Code VARCHAR(50) ,
+			Rate DECIMAL(18,6) ,
+
+			EffectiveDate DATETIME ,
+			OriginationDescription VARCHAR(255),
+			Description VARCHAR(255),
+
+			MaxMatchRank int ,
+			prev_prev_RowCode VARCHAR(50),
+			prev_AccountID int
+		)
+		;
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_VendorRate_;
+		CREATE TEMPORARY TABLE tmp_VendorRate_ (
+			RateTableDIDRateID int,
+			-- VendorConnectionID int,
+			AccountId INT ,
+
+			AccountName VARCHAR(100) ,
+			OriginationCode VARCHAR(50) ,
+			Code VARCHAR(50) ,
+			Rate DECIMAL(18,6) ,
+			RateID int,
+
+			EffectiveDate DATETIME ,
+			OriginationDescription VARCHAR(255),
+			Description VARCHAR(255),
+
+			RowCode VARCHAR(50)
+		)
+		;
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_final_VendorRate_;
+		CREATE TEMPORARY TABLE tmp_final_VendorRate_ (
+			RateTableDIDRateID int,
+			-- VendorConnectionID int,
+			AccountId INT ,
+
+			AccountName VARCHAR(100) ,
+			OriginationCode VARCHAR(50) ,
+			Code VARCHAR(50) ,
+			Rate DECIMAL(18,6) ,
+			RateID int,
+
+			EffectiveDate DATETIME ,
+			OriginationDescription VARCHAR(255),
+			Description VARCHAR(255),
+
+			RowCode VARCHAR(50),
+			FinalRankNumber int
+		)
+		;
+
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_search_code_;
+		CREATE TEMPORARY TABLE tmp_search_code_ (
+			Code  varchar(50),
+			INDEX Index1 (Code)
+		);
+
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_code_;
+		CREATE TEMPORARY TABLE tmp_code_ (
+			RowCode  varchar(50),
+			Code  varchar(50),
+			RowNo int,
+			INDEX Index1 (Code)
+		);
+
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_all_code_;
+		CREATE TEMPORARY TABLE tmp_all_code_ (
+			RowCode  varchar(50),
+			Code  varchar(50),
+
+			INDEX Index2 (Code)
+		)
+		;
+
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_VendorCurrentRates_;
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorCurrentRates_(
+			RateTableDIDRateID int,
+			-- VendorConnectionID int,
+			AccountId int,
+
+			AccountName varchar(200),
+			OriginationCode varchar(50),
+			Code varchar(50),
+			OriginationDescription varchar(200),
+			Description varchar(200),
+			Rate DECIMAL(18,6) ,
+
+			EffectiveDate date,
+			TrunkID int,
+			CountryID int,
+			RateID int,
+
+			INDEX IX_Code (Code)
+		)
+		;
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_VendorCurrentRates1_;
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorCurrentRates1_(
+			RateTableDIDRateID int,
+			-- VendorConnectionID int,
+			AccountId int,
+
+			AccountName varchar(200),
+			OriginationCode varchar(50),
+			Code varchar(50),
+			OriginationDescription varchar(200),
+			Description varchar(200),
+			Rate DECIMAL(18,6) ,
+
+			EffectiveDate date,
+			TrunkID int,
+			CountryID int,
+			OriginationRateID int,
+			RateID int,
+
+			INDEX IX_Code (Code),
+			INDEX tmp_VendorCurrentRates_AccountId (`AccountId`,`TrunkID`,`RateId`,`EffectiveDate`)
+		)
+		;
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_VendorRateByRank_;
+		CREATE TEMPORARY TABLE tmp_VendorRateByRank_ (
+			RateTableDIDRateID int,
+			-- VendorConnectionID int,
+			AccountId INT ,
+
+			AccountName VARCHAR(100) ,
+			OriginationCode VARCHAR(50) ,
+			Code VARCHAR(50) ,
+			Rate DECIMAL(18,6) ,
+			RateID int,
+
+			EffectiveDate DATETIME ,
+			OriginationDescription VARCHAR(255),
+			Description VARCHAR(255),
+
+			rankname INT,
+			INDEX IX_Code (Code,rankname)
+		)
+		;
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_block0;
+		CREATE TEMPORARY TABLE tmp_block0(
+			AccountId INT,
+			AccountName VARCHAR(200),
+			des VARCHAR(200),
+			RateId INT
+		);
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_all_components;
+		CREATE TEMPORARY TABLE tmp_all_components(
+			component VARCHAR(200),
+			component_title VARCHAR(200)
+		);
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_components;
+		CREATE TEMPORARY TABLE tmp_components(
+			component VARCHAR(200),
+			component_title VARCHAR(200)
+		);
+
+
+		SELECT CurrencyId INTO v_CompanyCurrencyID_ FROM  tblCompany WHERE CompanyID = p_companyid;
+
+
+
+		SET @num := 0, @AccountID := '', @TrunkID := '', @RateID := '';
+
+		SET @stm_show_all_vendor_codes = CONCAT("INNER JOIN (SELECT Code,Description FROM tblRate WHERE CodeDeckId=",p_codedeckID,") tmpselectedcd ON tmpselectedcd.Code=tblRate.Code");
+
+
+		SET @stm_filter_oringation_code = CONCAT('INNER JOIN tblRate r2 ON r2.CompanyID = ',p_companyid,' AND tblRateTableDIDRate.OriginationRateID = r2.RateID
+						AND ( CHAR_LENGTH(RTRIM("',p_Originationcode,'")) = 0 OR r2.Code LIKE REPLACE("',p_Originationcode,'","*", "%") )
+						AND ( "',p_OriginationDescription,'"=""  OR r2.Description LIKE REPLACE("',p_OriginationDescription,'","*", "%") )
+				');
+
+
+		/*		insert into tmp_all_components ( component , component_title )
+        VALUES ( 'OneOffCost',  'One-Off cost'),
+        ('MonthlyCost', 			'Monthly cost'),
+        ('CostPerCall'  , 		'Cost per call'),
+        ('CostPerMinute',			'Cost per minute'),
+        ('SurchargePerCall', 	'Surcharge per call'),
+        ('SurchargePerMinute',	'Surcharge per minute'),
+        ('OutpaymentPerCall', 	'Out payment per call'),
+        ('OutpaymentPerMinute', 'Out payment per minute'),
+        ('Surcharges',				'Surcharges'),
+        ('Chargeback',			   'Charge back'),
+        ('CollectionCostAmount','Collection cost - amount'),
+        ('CollectionCostPercentage', 'Collection cost - percentage'),
+        ('RegistrationCostPerNumber', 'Registration cost - per number');
+    */
+
+		--		('One-Off cost - Per country'),
+		--		('Monthly cost - Per country');
+
+
+		-- IN `p_Components` VARCHAR(200),
+		-- IN `p_ComponentsAction` VARCHAR(200),
+		-- IN `p_ComponentsMeargeTo` VARCHAR(200),
+
+
+		/*Components
+    Case 1
+    Compnents Action  MergeTo
+    A 			''			''
+    Case 2
+    Compnents Action  MergeTo
+    A,b,c 		'Max'	'A'
+    */
+
+		SET @ResultField = '';
+
+		IF p_ComponentsAction != '' THEN
+
+
+			/*
+        INSERT INTO tmp_components
+        SELECT component , component_title
+        FROM tmp_all_components a
+        WHERE  FIND_IN_SET(component, p_ComponentsMeargeTo)!= 0  OR  FIND_IN_SET(component, p_Components)!= 0  ;
+  */
+
+			IF p_ComponentsAction = 'sum' THEN
+
+				SET @ResultField = concat('(' ,  REPLACE(p_Components,',',' + ') , ') ');
+
+			ELSE
+
+				SET @ResultField = concat('GREATEST(' ,  p_Components, ') ');
+
+			END IF;
+
+		ELSE
+
+			SET @ResultField = p_Components;
+
+
+		END IF;
+
+
+
+
+		SET @stm = CONCAT('
+			INSERT INTO tmp_VendorCurrentRates1_
+			',
+											IF (p_merge_timezones = 1,"
+				SELECT DISTINCT
+					RateTableDIDRateID,
+
+					AccountId,
+
+					AccountName,
+					OriginationCode,
+					Code,
+					OriginationDescription,
+					Description,
+					Rate,
+
+					EffectiveDate,
+					TrunkID,
+					CountryID,
+					OriginationRateID,
+					RateID
+				FROM (
+			",""),'
+
+				Select DISTINCT
+					RateTableDIDRateID,
+
+					AccountId,
+
+					AccountName,
+					OriginationCode,
+					Code,
+					OriginationDescription,
+					Description,
+					Rate,
+
+					EffectiveDate,
+					TrunkID,
+					CountryID,
+					OriginationRateID,
+					RateID
+					',IF (p_merge_timezones = 1,",
+						@num := if(@AccountID = AccountID AND @RateID = RateID, @num + 1, 1) as row_number,
+						@AccountID := AccountID,
+						@RateID := RateID
+					",""),'
+				FROM (
+					SELECT distinct
+						RateTableDIDRateID,
+
+						tblAccount.AccountId,
+
+						tblAccount.AccountName,
+						IFNULL(r2.Code,"") as OriginationCode,
+						tblRate.Code,
+						IFNULL(r2.Description,"") as OriginationDescription ,
+						tblRate.Description,
+						CASE WHEN  tblAccount.CurrencyId = ',p_CurrencyID,'
+						THEN
+							', @ResultField,'
+						WHEN  ',v_CompanyCurrencyID_,' = ',p_CurrencyID,'
+						THEN
+						(
+							( ', @ResultField,'  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = tblAccount.CurrencyId and  CompanyID = ',p_companyid,' ) )
+						)
+						ELSE
+						(
+							(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = ',p_CurrencyID,' and  CompanyID = ',p_companyid,' )
+							* (', @ResultField,'  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = tblAccount.CurrencyId and CompanyID = ',p_companyid,' ))
+						)
+						END as Rate,
+						DATE_FORMAT (tblRateTableDIDRate.EffectiveDate, "%Y-%m-%d") AS EffectiveDate,
+						0 as TrunkID,
+						tblRate.CountryID,
+						r2.RateID as OriginationRateID,
+						tblRate.RateID
+
+					FROM
+						tblRateTableDIDRate
+					INNER JOIN tblRateTable rt ON  rt.RateTableId  = tblRateTableDIDRate.RateTableId AND  rt.CompanyID = ',p_companyid,' AND rt.DIDCategoryID = ' , p_DIDCategoryID ,'
+					INNER JOIN tblVendorConnection vt ON vt.CompanyID = ',p_companyid,' and vt.RateTableID = tblRateTableDIDRate.RateTableID  and vt.RateTypeID = 2 and vt.Active = 1
+					INNER JOIN tblAccount ON tblAccount.AccountID = vt.AccountId AND  tblAccount.CompanyID = ',p_companyid,' AND vt.AccountId = tblAccount.AccountID
+					INNER JOIN tblRate ON tblRate.CompanyID = ',p_companyid,' AND tblRateTableDIDRate.RateId = tblRate.RateID
+
+						LEFT JOIN tblRate r2 ON r2.CompanyID = ',p_companyid,' AND tblRateTableDIDRate.OriginationRateID = r2.RateID
+						AND ( CHAR_LENGTH(RTRIM("',p_Originationcode,'")) = 0 OR r2.Code LIKE REPLACE("',p_Originationcode,'","*", "%") )
+						AND ( "',p_OriginationDescription,'"=""  OR r2.Description LIKE REPLACE("',p_OriginationDescription,'","*", "%") )
+
+					',
+											IF (p_ShowAllVendorCodes = 1,"",@stm_show_all_vendor_codes)
+		,'
+					WHERE
+						( CHAR_LENGTH(RTRIM("',p_code,'")) = 0 OR tblRate.Code LIKE REPLACE("',p_code,'","*", "%") )
+						AND ("',p_Description,'"="" OR tblRate.Description LIKE REPLACE("',p_Description,'","*","%"))
+
+						AND ( "',p_Originationcode,'" = ""  OR  ( r2.RateID IS NOT NULL ) )
+						AND ( "',p_OriginationDescription,'" = ""  OR  ( r2.RateID IS NOT NULL ) )
+
+						AND ("',p_AccountIds,'"="" OR FIND_IN_SET(tblAccount.AccountID,"',p_AccountIds,'") != 0 )
+						-- AND EffectiveDate <= NOW()
+						AND EffectiveDate <= DATE("',p_SelectedEffectiveDate,'")
+						AND (tblRateTableDIDRate.EndDate is NULL OR tblRateTableDIDRate.EndDate > now() )    -- rate should not end Today
+						AND tblAccount.IsVendor = 1
+						AND tblAccount.Status = 1
+						AND tblAccount.CurrencyId is not NULL
+						AND (
+							(',p_merge_timezones,' = 0 AND tblRateTableDIDRate.TimezonesID = "',p_TimezonesID,'") OR
+							(',p_merge_timezones,' = 1 AND FIND_IN_SET(tblRateTableDIDRate.TimezonesID, "',p_TimezonesID,'"))
+						)
+
+
+					',
+											IF (p_merge_timezones = 1,CONCAT("ORDER BY AccountID, RateID, Rate ",IF(p_TakePrice=1,"DESC","ASC")),"")
+		,'
+				) tbl
+			',
+											IF (p_merge_timezones = 1,") AS x WHERE x.row_number <= 1","")
+		,'
+			ORDER BY Code ASC;');
+
+
+
+
+		PREPARE stmt FROM @stm;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+
+
+
+
+		INSERT INTO tmp_VendorCurrentRates_ (RateTableDIDRateID,AccountId,AccountName,OriginationCode,Code,OriginationDescription,Description, Rate,EffectiveDate,CountryID,RateID)
+			Select RateTableDIDRateID,AccountId,AccountName,OriginationCode,Code,OriginationDescription,Description, Rate,EffectiveDate,CountryID,RateID
+			FROM (
+						 SELECT * ,
+							 @row_num := IF(@prev_RateTableDIDRateID = RateTableDIDRateID AND @prev_AccountId = AccountID AND @prev_OriginationRateID = OriginationRateID AND @prev_RateId = RateID AND @prev_EffectiveDate >= EffectiveDate, @row_num + 1, 1) AS RowID,
+							 @prev_RateTableDIDRateID := RateTableDIDRateID,
+							 @prev_AccountId := AccountID,
+							 @prev_OriginationRateID := OriginationRateID,
+							 @prev_RateId := RateID,
+							 @prev_EffectiveDate := EffectiveDate
+						 FROM tmp_VendorCurrentRates1_
+							 ,(SELECT @row_num := 1,@prev_RateTableDIDRateID := '',  @prev_AccountId := '', @prev_OriginationRateID := '', @prev_RateId := '', @prev_EffectiveDate := '') x
+						 ORDER BY AccountId, OriginationRateID,RateId, EffectiveDate,RateTableDIDRateID DESC
+					 ) tbl
+			WHERE RowID = 1
+			order by OriginationCode,Code asc;
+
+
+
+
+
+		INSERT IGNORE INTO tmp_VendorRateByRank_
+			SELECT
+				RateTableDIDRateID,
+
+				AccountID,
+
+				AccountName,
+				OriginationCode,
+				Code,
+				Rate,
+				RateID,
+				--
+				EffectiveDate,
+				OriginationDescription,
+				Description,
+
+				RateRank
+			FROM (
+						 SELECT
+							 RateTableDIDRateID,
+
+							 AccountID,
+
+							 AccountName,
+							 OriginationCode,
+							 Code,
+							 Rate,
+							 RateID,
+
+							 EffectiveDate,
+							 OriginationDescription,
+							 Description,
+
+
+							 @rank := 	CASE WHEN (@prev_OriginationCode    = OriginationCode AND @prev_Code    = Code AND @prev_Rate < Rate) THEN @rank + 1
+												 WHEN (@prev_OriginationCode    = OriginationCode AND @prev_Code    = Code AND @prev_Rate = Rate) THEN @rank
+												 ELSE 1
+												 END
+
+								 AS RateRank,
+							 @prev_OriginationCode := OriginationCode,
+							 @prev_Code := Code,
+							 @prev_OriginationDescription = OriginationDescription AND
+							 @prev_Description := Description,
+							 @prev_Rate := Rate
+						 FROM tmp_VendorCurrentRates_ AS rank,
+							 (SELECT @rank := 0 , @prev_Code := '' ,@prev_OriginationCode := '',  @prev_OriginationDescription := ''  , @prev_Description := '' , @prev_Rate := 0) f
+						 ORDER BY
+
+							 rank.OriginationCode
+							 ,
+
+							 rank.Code
+							 ,
+							 rank.Rate,rank.AccountId
+
+					 ) tbl
+			WHERE ( p_isExport = 1 OR p_isExport = 2 ) OR (p_isExport = 0 AND RateRank <= p_Position)
+			ORDER BY OriginationCode,Code, RateRank;
+
+
+
+
+		IF p_ShowAllVendorCodes = 1 THEN
+
+			insert ignore into tmp_VendorRate_
+				select
+					distinct
+					RateTableDIDRateID,
+
+					AccountId ,
+
+					AccountName ,
+					v.OriginationCode ,
+					v.Code,
+					Rate,
+					RateID,
+
+					EffectiveDate,
+					CASE WHEN (tr2.Code is not null) THEN
+						tr2.Description
+					ELSE
+						concat(v.OriginationDescription,'*')
+					END
+								 as Description,
+					CASE WHEN (tr.Code is not null) THEN
+						tr.Description
+					ELSE
+						concat(v.Description,'*')
+					END
+								 as Description,
+
+					v.Code as RowCode
+				from tmp_VendorRateByRank_ v
+					LEFT JOIN (
+											select Code,Description from tblRate
+											where CodeDeckId = p_codedeckID
+														AND
+														(
+															( CHAR_LENGTH(RTRIM(p_code)) = 0  OR Code LIKE REPLACE(p_code,'*', '%') )
+															AND ( p_Description = ''  OR Description LIKE REPLACE(p_Description,'*', '%') )
+														)
+
+										) tr on tr.Code=v.Code
+					LEFT JOIN (
+											select Code,Description from tblRate
+											where CodeDeckId = p_codedeckID
+														AND
+														(
+															( CHAR_LENGTH(RTRIM(p_Originationcode)) = 0  OR Code LIKE REPLACE(p_Originationcode,'*', '%') )
+															AND ( p_OriginationDescription = ''  OR Description LIKE REPLACE(p_OriginationDescription,'*', '%') )
+
+														)
+
+										) tr2 on tr2.Code=v.OriginationCode
+
+				order by RowCode desc;
+
+		ELSE
+
+			insert ignore into tmp_VendorRate_
+				select
+					distinct
+					RateTableDIDRateID,
+
+					AccountId ,
+
+					AccountName ,
+					OriginationCode ,
+					Code ,
+					Rate ,
+					RateID,
+
+					EffectiveDate ,
+					OriginationDescription ,
+					Description ,
+
+					Code as RowCode
+				from tmp_VendorRateByRank_
+				order by RowCode desc;
+
+		END IF;
+
+
+
+
+
+		insert into tmp_final_VendorRate_
+			SELECT
+				RateTableDIDRateID,
+
+				AccountId ,
+
+				AccountName ,
+				OriginationCode ,
+				Code ,
+				Rate ,
+				RateID,
+
+				EffectiveDate ,
+				OriginationDescription ,
+				Description ,
+
+				RowCode,
+				FinalRankNumber
+			from
+				(
+					SELECT
+						RateTableDIDRateID,
+
+						AccountId ,
+
+						AccountName ,
+						OriginationCode ,
+						Code ,
+						Rate ,
+						RateID,
+
+						EffectiveDate ,
+						OriginationDescription ,
+						Description ,
+
+						RowCode,
+						@rank := CASE WHEN (@prev_OriginationCode    = OriginationCode AND  @prev_RowCode     = RowCode AND @prev_Rate <  Rate ) THEN @rank+1
+										 WHEN (@prev_OriginationCode    = OriginationCode AND  @prev_RowCode    = RowCode AND @prev_Rate = Rate ) THEN @rank
+										 ELSE
+											 1
+										 END
+							AS FinalRankNumber,
+						@prev_OriginationCode  := OriginationCode,
+						@prev_RowCode  := RowCode,
+						@prev_Rate  := Rate
+					from tmp_VendorRate_
+						,( SELECT @rank := 0 , @prev_OriginationCode := '' , @prev_RowCode := '' , @prev_Rate := 0 ) x
+					order by RowCode,Rate,AccountId ASC
+
+				) tbl1
+			where
+				( p_isExport = 1 OR p_isExport = 2 ) OR (p_isExport = 0 AND FinalRankNumber <= p_Position);
+
+
+
+		SET @stm_columns = "";
+
+
+		IF p_isExport = 0 AND p_Position > 10 THEN
+			SET p_Position = 10;
+		END IF;
+
+
+
+
+		IF p_isExport = 1 THEN
+			SELECT MAX(FinalRankNumber) INTO p_Position FROM tmp_final_VendorRate_;
+		END IF;
+
+
+		SET v_pointer_=1;
+		WHILE v_pointer_ <= p_Position
+		DO
+
+			IF (p_isExport = 0)
+			THEN
+				SET @stm_columns = CONCAT(@stm_columns, "GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = ",v_pointer_,", CONCAT(  ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName) , '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.RateTableDIDRateID), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode)  ), NULL))AS `POSITION ",v_pointer_,"`,");
+			ELSE
+				SET @stm_columns = CONCAT(@stm_columns, "GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = ",v_pointer_,", CONCAT(  ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName) , '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y') ), NULL))AS `POSITION ",v_pointer_,"`,");
+			END IF;
+
+			SET v_pointer_ = v_pointer_ + 1;
+
+		END WHILE;
+
+		SET @stm_columns = TRIM(TRAILING ',' FROM @stm_columns);
+
+		IF (p_isExport = 0)
+		THEN
+
+
+			SET @stm_query = CONCAT("SELECT	CONCAT(ANY_VALUE(t.OriginationCode) , ' : ' , ANY_VALUE(t.OriginationDescription), ' <br> => '  ,ANY_VALUE(t.RowCode) , ' : ' , ANY_VALUE(t.Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY t.OriginationCode, t.RowCode ORDER BY RowCode ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
+
+
+
+			SELECT count(RowCode) as totalcount from tmp_final_VendorRate_ ;
+
+
+
+		ELSE
+
+
+
+			SET @stm_query = CONCAT("SELECT CONCAT(ANY_VALUE(t.OriginationCode) , ' : ' , ANY_VALUE(t.OriginationDescription), ' => '  ,ANY_VALUE(t.RowCode) , ' : ' , ANY_VALUE(t.Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY  t.OriginationCode, t.RowCode  ORDER BY RowCode ASC;");
+
+
+
+
+		END IF;
+
+		PREPARE stm_query FROM @stm_query;
+		EXECUTE stm_query;
+		DEALLOCATE PREPARE stm_query;
+
+
+
+		SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+	END//
+DELIMITER ;
+
 -- Dumping structure for procedure speakintelligentRM.prc_GetLCR
 DROP PROCEDURE IF EXISTS `prc_GetLCR`;
 DELIMITER //
@@ -31,12 +805,16 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetLCR`(
 	IN `p_SortOrder` VARCHAR(50),
 	IN `p_Preference` INT,
 	IN `p_Position` INT,
+	IN `p_vendor_block` INT,
 	IN `p_groupby` VARCHAR(50),
 	IN `p_SelectedEffectiveDate` DATE,
 	IN `p_ShowAllVendorCodes` INT,
 	IN `p_merge_timezones` INT,
 	IN `p_TakePrice` INT,
 	IN `p_isExport` INT
+
+
+
 
 
 
@@ -451,7 +1229,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetLCR`(
 					FROM
 						tblRateTableRate
 					INNER JOIN tblVendorConnection vt ON vt.CompanyID = ',p_companyid,' and vt.RateTableID = tblRateTableRate.RateTableID  and vt.RateTypeID = 1   and vt.Active = 1 and vt.TrunkID = ',p_trunkID,'
-					INNER JOIN tblAccount ON tblAccount.CompanyID = ',p_companyid,' AND vt.AccountId = tblAccount.AccountID
+					INNER JOIN tblAccount ON tblAccount.AccountID = vt.AccountId AND  tblAccount.CompanyID = ',p_companyid,' AND vt.AccountId = tblAccount.AccountID
 					INNER JOIN tblRate ON tblRate.CompanyID = ',p_companyid,' AND tblRateTableRate.RateId = tblRate.RateID -- AND vt.CodeDeckId = tblRate.CodeDeckId
 
 
@@ -1273,7 +2051,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetLCR`(
 					ANY_VALUE(RowCode) as RowCode,
 					ANY_VALUE(FinalRankNumber) as FinalRankNumber
 				from tmp_final_VendorRate_
-				GROUP BY  Description ORDER BY RowCode ASC;
+				GROUP BY  OriginationDescription,Description ORDER BY RowCode ASC;
 
 			ELSE
 
@@ -1295,7 +2073,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetLCR`(
 					RowCode as RowCode,
 					ANY_VALUE(FinalRankNumber) as FinalRankNumber
 				from tmp_final_VendorRate_
-				GROUP BY  RowCode ORDER BY RowCode ASC;
+				GROUP BY  OriginationCode,RowCode ORDER BY RowCode ASC;
 
 
 			END IF;
@@ -1337,13 +2115,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetLCR`(
 
 				IF p_groupby = 'description' THEN
 
-					SET @stm_query = CONCAT("SELECT CONCAT(max(t.OriginationDescription) , ' <br> => ' , max(t.Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY  t.Description ORDER BY t.Description ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
+					SET @stm_query = CONCAT("SELECT CONCAT(max(t.OriginationDescription) , ' <br> => ' , max(t.Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY  t.Description ORDER BY t.OriginationDescription, t.Description ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
 
 					SELECT count(Description) as totalcount from tmp_final_VendorRate_  ;
 
 				ELSE
 
-					SET @stm_query = CONCAT("SELECT CONCAT(ANY_VALUE(t.OriginationCode) , ' : ' , ANY_VALUE(t.OriginationDescription), ' <br> => '  ,ANY_VALUE(t.RowCode) , ' : ' , ANY_VALUE(t.Description)) as Destination,", @stm_columns," FROM tmp_final_VendorRate_  t GROUP BY  RowCode ORDER BY RowCode ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
+					SET @stm_query = CONCAT("SELECT CONCAT(ANY_VALUE(t.OriginationCode) , ' : ' , ANY_VALUE(t.OriginationDescription), ' <br> => '  ,ANY_VALUE(t.RowCode) , ' : ' , ANY_VALUE(t.Description)) as Destination,", @stm_columns," FROM tmp_final_VendorRate_  t GROUP BY  OriginationCode,RowCode ORDER BY RowCode ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
 
 					SELECT count(RowCode) as totalcount from tmp_final_VendorRate_ ;
 
@@ -1411,6 +2189,9 @@ CREATE DEFINER=`root`@`%` PROCEDURE `prc_GetLCRwithPrefix`(
 	IN `p_merge_timezones` INT,
 	IN `p_TakePrice` INT,
 	IN `p_isExport` INT
+
+
+
 
 
 
@@ -1742,7 +2523,7 @@ CREATE DEFINER=`root`@`%` PROCEDURE `prc_GetLCRwithPrefix`(
 					FROM
 						tblRateTableRate
 					INNER JOIN tblVendorConnection vt ON vt.CompanyID = ',p_companyid,' and vt.RateTableID = tblRateTableRate.RateTableID  and vt.RateTypeID = 1   and vt.Active = 1 and vt.TrunkID = ',p_trunkID,'
-					INNER JOIN tblAccount ON tblAccount.CompanyID = ',p_companyid,' AND vt.AccountId = tblAccount.AccountID
+					INNER JOIN tblAccount ON tblAccount.AccountID = vt.AccountId AND tblAccount.CompanyID = ',p_companyid,' AND vt.AccountId = tblAccount.AccountID
 					INNER JOIN tblRate ON tblRate.CompanyID = ',p_companyid,' AND tblRateTableRate.RateId = tblRate.RateID
 
 						LEFT JOIN tblRate r2 ON r2.CompanyID = ',p_companyid,' AND tblRateTableRate.OriginationRateID = r2.RateID
@@ -1814,7 +2595,7 @@ CREATE DEFINER=`root`@`%` PROCEDURE `prc_GetLCRwithPrefix`(
 							 FROM tmp_VendorCurrentRates1_
 								 ,(SELECT @row_num := 1, @prev_RateTableRateID := '', @prev_AccountId := '',@prev_TrunkID := '', @prev_OriginationDescription := '', @prev_Description := '', @prev_OriginationRateID := '',@prev_RateId := '', @prev_EffectiveDate := '') x
 
-							 ORDER BY AccountId, TrunkID, OriginationDescription,Description, EffectiveDate,VendorConnectionID DESC
+							 ORDER BY AccountId, TrunkID, OriginationDescription,Description, EffectiveDate DESC
 						 ) tbl
 				WHERE RowID = 1
 				group BY AccountId, TrunkID, Description, OriginationDescription,RateTableRateID
@@ -2367,7 +3148,7 @@ CREATE DEFINER=`root`@`%` PROCEDURE `prc_GetLCRwithPrefix`(
 					RowCode as RowCode,
 					ANY_VALUE(FinalRankNumber) as FinalRankNumber
 				from tmp_final_VendorRate_
-				GROUP BY  RowCode ORDER BY RowCode ASC;
+				GROUP BY  OriginationCode,RowCode ORDER BY RowCode ASC;
 
 
 			END IF;
@@ -2405,7 +3186,7 @@ CREATE DEFINER=`root`@`%` PROCEDURE `prc_GetLCRwithPrefix`(
 
 				IF p_groupby = 'description' THEN
 
-					SET @stm_query = CONCAT("SELECT	CONCAT(max(t.OriginationDescription) , ' <br> => ' , max(t.Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY t,OriginationDescription,t.Description ORDER BY t.Description ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
+					SET @stm_query = CONCAT("SELECT	CONCAT(max(t.OriginationDescription) , ' <br> => ' , max(t.Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY t,OriginationDescription,t.Description ORDER BY t.OriginationDescription , t.Description ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
 
 
 					SELECT count(Description) as totalcount from tmp_final_VendorRate_  ;
@@ -2425,7 +3206,7 @@ CREATE DEFINER=`root`@`%` PROCEDURE `prc_GetLCRwithPrefix`(
 
 				IF p_groupby = 'description' THEN
 
-					SET @stm_query = CONCAT("SELECT CONCAT(max(t.OriginationDescription) , ' => ' , max(t.Description))as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY  t,OriginationDescription,t.Description ORDER BY t.Description ASC;");
+					SET @stm_query = CONCAT("SELECT CONCAT(max(t.OriginationDescription) , ' => ' , max(t.Description))as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY  t.OriginationDescription,t.Description ORDER BY t.Description ASC;");
 
 				ELSE
 
@@ -2443,779 +3224,6 @@ CREATE DEFINER=`root`@`%` PROCEDURE `prc_GetLCRwithPrefix`(
 
 
 		END IF;
-
-		SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-
-	END//
-DELIMITER ;
-
--- Dumping structure for procedure speakintelligentRM.prc_GetDIDLCRwithPrefix
-DROP PROCEDURE IF EXISTS `prc_GetDIDLCRwithPrefix`;
-DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetDIDLCRwithPrefix`(
-	IN `p_companyid` INT,
-	IN `p_DIDCategoryID` INT,
-	IN `p_TimezonesID` VARCHAR(50),
-	IN `p_codedeckID` INT,
-	IN `p_CurrencyID` INT,
-	IN `p_Originationcode` VARCHAR(50),
-	IN `p_OriginationDescription` VARCHAR(250),
-	IN `p_code` VARCHAR(50),
-	IN `p_Description` VARCHAR(250),
-	IN `p_AccountIds` TEXT,
-	IN `p_PageNumber` INT,
-	IN `p_RowspPage` INT,
-	IN `p_SortOrder` VARCHAR(50),
-	IN `p_Position` INT,
-	IN `p_SelectedEffectiveDate` DATE,
-	IN `p_ShowAllVendorCodes` INT,
-	IN `p_merge_timezones` INT,
-	IN `p_TakePrice` INT,
-	IN `p_Components` VARCHAR(200),
-	IN `p_ComponentsAction` VARCHAR(200),
-	IN `p_ComponentsMeargeTo` VARCHAR(200),
-	IN `p_isExport` INT
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-)
-		ThisSP:BEGIN
-
-		DECLARE v_OffSet_ int;
-		DECLARE v_Code VARCHAR(50) ;
-		DECLARE v_pointer_ int;
-		DECLARE v_rowCount_ int;
-		DECLARE v_p_code VARCHAR(50);
-		DECLARE v_Codlen_ int;
-		DECLARE v_position int;
-		DECLARE v_p_code__ VARCHAR(50);
-		DECLARE v_has_null_position int ;
-		DECLARE v_next_position1 VARCHAR(200) ;
-		DECLARE v_CompanyCurrencyID_ INT;
-
-
-		SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-
-		SET @@session.collation_connection='utf8_unicode_ci';
-		SET @@session.character_set_results='utf8';
-
-		SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-
-		DROP TEMPORARY TABLE IF EXISTS tmp_VendorRate_stage_;
-		CREATE TEMPORARY TABLE tmp_VendorRate_stage_ (
-			RateTableDIDRateID int,
-			-- VendorConnectionID int,
-			RowCode VARCHAR(50) ,
-			AccountId INT ,
-			AccountName VARCHAR(100) ,
-			Code VARCHAR(50) ,
-			OriginationCode VARCHAR(50) ,
-			Rate DECIMAL(18,6) ,
-
-			EffectiveDate DATETIME ,
-			OriginationDescription VARCHAR(255),
-			Description VARCHAR(255),
-
-			MaxMatchRank int ,
-			prev_prev_RowCode VARCHAR(50),
-			prev_AccountID int
-		)
-		;
-
-		DROP TEMPORARY TABLE IF EXISTS tmp_VendorRate_stage2_;
-		CREATE TEMPORARY TABLE tmp_VendorRate_stage2_ (
-			RateTableDIDRateID int,
-			-- VendorConnectionID int,
-			RowCode VARCHAR(50) ,
-			AccountId INT ,
-			AccountName VARCHAR(100) ,
-			OriginationCode VARCHAR(50) ,
-			Code VARCHAR(50) ,
-			Rate DECIMAL(18,6) ,
-
-			EffectiveDate DATETIME ,
-			OriginationDescription VARCHAR(255),
-			Description VARCHAR(255),
-
-			MaxMatchRank int ,
-			prev_prev_RowCode VARCHAR(50),
-			prev_AccountID int
-		)
-		;
-
-		DROP TEMPORARY TABLE IF EXISTS tmp_VendorRate_;
-		CREATE TEMPORARY TABLE tmp_VendorRate_ (
-			RateTableDIDRateID int,
-			-- VendorConnectionID int,
-			AccountId INT ,
-
-			AccountName VARCHAR(100) ,
-			OriginationCode VARCHAR(50) ,
-			Code VARCHAR(50) ,
-			Rate DECIMAL(18,6) ,
-			RateID int,
-
-			EffectiveDate DATETIME ,
-			OriginationDescription VARCHAR(255),
-			Description VARCHAR(255),
-
-			RowCode VARCHAR(50)
-		)
-		;
-
-		DROP TEMPORARY TABLE IF EXISTS tmp_final_VendorRate_;
-		CREATE TEMPORARY TABLE tmp_final_VendorRate_ (
-			RateTableDIDRateID int,
-			-- VendorConnectionID int,
-			AccountId INT ,
-
-			AccountName VARCHAR(100) ,
-			OriginationCode VARCHAR(50) ,
-			Code VARCHAR(50) ,
-			Rate DECIMAL(18,6) ,
-			RateID int,
-
-			EffectiveDate DATETIME ,
-			OriginationDescription VARCHAR(255),
-			Description VARCHAR(255),
-
-			RowCode VARCHAR(50),
-			FinalRankNumber int
-		)
-		;
-
-
-		DROP TEMPORARY TABLE IF EXISTS tmp_search_code_;
-		CREATE TEMPORARY TABLE tmp_search_code_ (
-			Code  varchar(50),
-			INDEX Index1 (Code)
-		);
-
-
-		DROP TEMPORARY TABLE IF EXISTS tmp_code_;
-		CREATE TEMPORARY TABLE tmp_code_ (
-			RowCode  varchar(50),
-			Code  varchar(50),
-			RowNo int,
-			INDEX Index1 (Code)
-		);
-
-
-		DROP TEMPORARY TABLE IF EXISTS tmp_all_code_;
-		CREATE TEMPORARY TABLE tmp_all_code_ (
-			RowCode  varchar(50),
-			Code  varchar(50),
-
-			INDEX Index2 (Code)
-		)
-		;
-
-
-		DROP TEMPORARY TABLE IF EXISTS tmp_VendorCurrentRates_;
-		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorCurrentRates_(
-			RateTableDIDRateID int,
-			-- VendorConnectionID int,
-			AccountId int,
-
-			AccountName varchar(200),
-			OriginationCode varchar(50),
-			Code varchar(50),
-			OriginationDescription varchar(200),
-			Description varchar(200),
-			Rate DECIMAL(18,6) ,
-
-			EffectiveDate date,
-			TrunkID int,
-			CountryID int,
-			RateID int,
-
-			INDEX IX_Code (Code)
-		)
-		;
-
-		DROP TEMPORARY TABLE IF EXISTS tmp_VendorCurrentRates1_;
-		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorCurrentRates1_(
-			RateTableDIDRateID int,
-			-- VendorConnectionID int,
-			AccountId int,
-
-			AccountName varchar(200),
-			OriginationCode varchar(50),
-			Code varchar(50),
-			OriginationDescription varchar(200),
-			Description varchar(200),
-			Rate DECIMAL(18,6) ,
-
-			EffectiveDate date,
-			TrunkID int,
-			CountryID int,
-			OriginationRateID int,
-			RateID int,
-
-			INDEX IX_Code (Code),
-			INDEX tmp_VendorCurrentRates_AccountId (`AccountId`,`TrunkID`,`RateId`,`EffectiveDate`)
-		)
-		;
-
-		DROP TEMPORARY TABLE IF EXISTS tmp_VendorRateByRank_;
-		CREATE TEMPORARY TABLE tmp_VendorRateByRank_ (
-			RateTableDIDRateID int,
-			-- VendorConnectionID int,
-			AccountId INT ,
-
-			AccountName VARCHAR(100) ,
-			OriginationCode VARCHAR(50) ,
-			Code VARCHAR(50) ,
-			Rate DECIMAL(18,6) ,
-			RateID int,
-
-			EffectiveDate DATETIME ,
-			OriginationDescription VARCHAR(255),
-			Description VARCHAR(255),
-
-			rankname INT,
-			INDEX IX_Code (Code,rankname)
-		)
-		;
-
-		DROP TEMPORARY TABLE IF EXISTS tmp_block0;
-		CREATE TEMPORARY TABLE tmp_block0(
-			AccountId INT,
-			AccountName VARCHAR(200),
-			des VARCHAR(200),
-			RateId INT
-		);
-
-		DROP TEMPORARY TABLE IF EXISTS tmp_all_components;
-		CREATE TEMPORARY TABLE tmp_all_components(
-			component VARCHAR(200),
-			component_title VARCHAR(200)
-		);
-
-		DROP TEMPORARY TABLE IF EXISTS tmp_components;
-		CREATE TEMPORARY TABLE tmp_components(
-			component VARCHAR(200),
-			component_title VARCHAR(200)
-		);
-
-
-		SELECT CurrencyId INTO v_CompanyCurrencyID_ FROM  tblCompany WHERE CompanyID = p_companyid;
-
-
-
-		SET @num := 0, @AccountID := '', @TrunkID := '', @RateID := '';
-
-		SET @stm_show_all_vendor_codes = CONCAT("INNER JOIN (SELECT Code,Description FROM tblRate WHERE CodeDeckId=",p_codedeckID,") tmpselectedcd ON tmpselectedcd.Code=tblRate.Code");
-
-
-		SET @stm_filter_oringation_code = CONCAT('INNER JOIN tblRate r2 ON r2.CompanyID = ',p_companyid,' AND tblRateTableDIDRate.OriginationRateID = r2.RateID
-						AND ( CHAR_LENGTH(RTRIM("',p_Originationcode,'")) = 0 OR r2.Code LIKE REPLACE("',p_Originationcode,'","*", "%") )
-						AND ( "',p_OriginationDescription,'"=""  OR r2.Description LIKE REPLACE("',p_OriginationDescription,'","*", "%") )
-				');
-
-
-		/*		insert into tmp_all_components ( component , component_title )
-        VALUES ( 'OneOffCost',  'One-Off cost'),
-        ('MonthlyCost', 			'Monthly cost'),
-        ('CostPerCall'  , 		'Cost per call'),
-        ('CostPerMinute',			'Cost per minute'),
-        ('SurchargePerCall', 	'Surcharge per call'),
-        ('SurchargePerMinute',	'Surcharge per minute'),
-        ('OutpaymentPerCall', 	'Out payment per call'),
-        ('OutpaymentPerMinute', 'Out payment per minute'),
-        ('Surcharges',				'Surcharges'),
-        ('Chargeback',			   'Charge back'),
-        ('CollectionCostAmount','Collection cost - amount'),
-        ('CollectionCostPercentage', 'Collection cost - percentage'),
-        ('RegistrationCostPerNumber', 'Registration cost - per number');
-    */
-
-		--		('One-Off cost - Per country'),
-		--		('Monthly cost - Per country');
-
-
-		-- IN `p_Components` VARCHAR(200),
-		-- IN `p_ComponentsAction` VARCHAR(200),
-		-- IN `p_ComponentsMeargeTo` VARCHAR(200),
-
-
-		/*Components
-    Case 1
-    Compnents Action  MergeTo
-    A 			''			''
-    Case 2
-    Compnents Action  MergeTo
-    A,b,c 		'Max'	'A'
-    */
-
-		SET @ResultField = '';
-
-		IF p_ComponentsAction != '' THEN
-
-
-			/*
-        INSERT INTO tmp_components
-        SELECT component , component_title
-        FROM tmp_all_components a
-        WHERE  FIND_IN_SET(component, p_ComponentsMeargeTo)!= 0  OR  FIND_IN_SET(component, p_Components)!= 0  ;
-  */
-
-			IF p_ComponentsAction = 'sum' THEN
-
-				SET @ResultField = concat('(' ,  REPLACE(p_Components,',',' + ') , ') ');
-
-			ELSE
-
-				SET @ResultField = concat('GREATEST(' ,  p_Components, ') ');
-
-			END IF;
-
-		ELSE
-
-			SET @ResultField = p_Components;
-
-
-		END IF;
-
-
-
-
-		SET @stm = CONCAT('
-			INSERT INTO tmp_VendorCurrentRates1_
-			',
-											IF (p_merge_timezones = 1,"
-				SELECT DISTINCT
-					RateTableDIDRateID,
-
-					AccountId,
-
-					AccountName,
-					OriginationCode,
-					Code,
-					OriginationDescription,
-					Description,
-					Rate,
-
-					EffectiveDate,
-					TrunkID,
-					CountryID,
-					OriginationRateID,
-					RateID
-				FROM (
-			",""),'
-
-				Select DISTINCT
-					RateTableDIDRateID,
-
-					AccountId,
-
-					AccountName,
-					OriginationCode,
-					Code,
-					OriginationDescription,
-					Description,
-					Rate,
-
-					EffectiveDate,
-					TrunkID,
-					CountryID,
-					OriginationRateID,
-					RateID
-					',IF (p_merge_timezones = 1,",
-						@num := if(@AccountID = AccountID AND @RateID = RateID, @num + 1, 1) as row_number,
-						@AccountID := AccountID,
-						@RateID := RateID
-					",""),'
-				FROM (
-					SELECT distinct
-						RateTableDIDRateID,
-
-						tblAccount.AccountId,
-
-						tblAccount.AccountName,
-						IFNULL(r2.Code,"") as OriginationCode,
-						tblRate.Code,
-						IFNULL(r2.Description,"") as OriginationDescription ,
-						tblRate.Description,
-						CASE WHEN  tblAccount.CurrencyId = ',p_CurrencyID,'
-						THEN
-							', @ResultField,'
-						WHEN  ',v_CompanyCurrencyID_,' = ',p_CurrencyID,'
-						THEN
-						(
-							( ', @ResultField,'  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = tblAccount.CurrencyId and  CompanyID = ',p_companyid,' ) )
-						)
-						ELSE
-						(
-							(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = ',p_CurrencyID,' and  CompanyID = ',p_companyid,' )
-							* (', @ResultField,'  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = tblAccount.CurrencyId and CompanyID = ',p_companyid,' ))
-						)
-						END as Rate,
-						DATE_FORMAT (tblRateTableDIDRate.EffectiveDate, "%Y-%m-%d") AS EffectiveDate,
-						0 as TrunkID,
-						tblRate.CountryID,
-						r2.RateID as OriginationRateID,
-						tblRate.RateID
-
-					FROM
-						tblRateTableDIDRate
-					INNER JOIN tblRateTable rt ON  rt.RateTableId  = tblRateTableDIDRate.RateTableId AND  rt.CompanyID = ',p_companyid,' AND rt.DIDCategoryID = ' , p_DIDCategoryID ,'
-					INNER JOIN tblVendorConnection vt ON vt.CompanyID = ',p_companyid,' and vt.RateTableID = tblRateTableDIDRate.RateTableID  and vt.RateTypeID = 2 and vt.Active = 1
-					INNER JOIN tblAccount ON tblAccount.CompanyID = ',p_companyid,' AND vt.AccountId = tblAccount.AccountID
-					INNER JOIN tblRate ON tblRate.CompanyID = ',p_companyid,' AND tblRateTableDIDRate.RateId = tblRate.RateID
-
-						LEFT JOIN tblRate r2 ON r2.CompanyID = ',p_companyid,' AND tblRateTableDIDRate.OriginationRateID = r2.RateID
-						AND ( CHAR_LENGTH(RTRIM("',p_Originationcode,'")) = 0 OR r2.Code LIKE REPLACE("',p_Originationcode,'","*", "%") )
-						AND ( "',p_OriginationDescription,'"=""  OR r2.Description LIKE REPLACE("',p_OriginationDescription,'","*", "%") )
-
-					',
-											IF (p_ShowAllVendorCodes = 1,"",@stm_show_all_vendor_codes)
-		,'
-					WHERE
-						( CHAR_LENGTH(RTRIM("',p_code,'")) = 0 OR tblRate.Code LIKE REPLACE("',p_code,'","*", "%") )
-						AND ("',p_Description,'"="" OR tblRate.Description LIKE REPLACE("',p_Description,'","*","%"))
-
-						AND ( "',p_Originationcode,'" = ""  OR  ( r2.RateID IS NOT NULL ) )
-						AND ( "',p_OriginationDescription,'" = ""  OR  ( r2.RateID IS NOT NULL ) )
-
-						AND ("',p_AccountIds,'"="" OR FIND_IN_SET(tblAccount.AccountID,"',p_AccountIds,'") != 0 )
-						-- AND EffectiveDate <= NOW()
-						AND EffectiveDate <= DATE("',p_SelectedEffectiveDate,'")
-						AND (tblRateTableDIDRate.EndDate is NULL OR tblRateTableDIDRate.EndDate > now() )    -- rate should not end Today
-						AND tblAccount.IsVendor = 1
-						AND tblAccount.Status = 1
-						AND tblAccount.CurrencyId is not NULL
-						AND (
-							(',p_merge_timezones,' = 0 AND tblRateTableDIDRate.TimezonesID = "',p_TimezonesID,'") OR
-							(',p_merge_timezones,' = 1 AND FIND_IN_SET(tblRateTableDIDRate.TimezonesID, "',p_TimezonesID,'"))
-						)
-
-
-					',
-											IF (p_merge_timezones = 1,CONCAT("ORDER BY AccountID, RateID, Rate ",IF(p_TakePrice=1,"DESC","ASC")),"")
-		,'
-				) tbl
-			',
-											IF (p_merge_timezones = 1,") AS x WHERE x.row_number <= 1","")
-		,'
-			ORDER BY Code ASC;');
-
-
-
-
-		PREPARE stmt FROM @stm;
-		EXECUTE stmt;
-		DEALLOCATE PREPARE stmt;
-
-
-
-
-		INSERT INTO tmp_VendorCurrentRates_ (RateTableDIDRateID,AccountId,AccountName,OriginationCode,Code,OriginationDescription,Description, Rate,EffectiveDate,CountryID,RateID)
-			Select RateTableDIDRateID,AccountId,AccountName,OriginationCode,Code,OriginationDescription,Description, Rate,EffectiveDate,CountryID,RateID
-			FROM (
-						 SELECT * ,
-							 @row_num := IF(@prev_RateTableDIDRateID = RateTableDIDRateID AND @prev_AccountId = AccountID AND @prev_OriginationRateID = OriginationRateID AND @prev_RateId = RateID AND @prev_EffectiveDate >= EffectiveDate, @row_num + 1, 1) AS RowID,
-							 @prev_RateTableDIDRateID := RateTableDIDRateID,
-							 @prev_AccountId := AccountID,
-							 @prev_OriginationRateID := OriginationRateID,
-							 @prev_RateId := RateID,
-							 @prev_EffectiveDate := EffectiveDate
-						 FROM tmp_VendorCurrentRates1_
-							 ,(SELECT @row_num := 1,@prev_RateTableDIDRateID := '',  @prev_AccountId := '', @prev_OriginationRateID := '', @prev_RateId := '', @prev_EffectiveDate := '') x
-						 ORDER BY AccountId, OriginationRateID,RateId, EffectiveDate,RateTableDIDRateID DESC
-					 ) tbl
-			WHERE RowID = 1
-			order by OriginationCode,Code asc;
-
-
-
-
-
-		INSERT IGNORE INTO tmp_VendorRateByRank_
-			SELECT
-				RateTableDIDRateID,
-
-				AccountID,
-
-				AccountName,
-				OriginationCode,
-				Code,
-				Rate,
-				RateID,
-				--
-				EffectiveDate,
-				OriginationDescription,
-				Description,
-
-				RateRank
-			FROM (
-						 SELECT
-							 RateTableDIDRateID,
-
-							 AccountID,
-
-							 AccountName,
-							 OriginationCode,
-							 Code,
-							 Rate,
-							 RateID,
-
-							 EffectiveDate,
-							 OriginationDescription,
-							 Description,
-
-
-							 @rank := 	CASE WHEN (@prev_OriginationCode    = OriginationCode AND @prev_Code    = Code AND @prev_Rate < Rate) THEN @rank + 1
-												 WHEN (@prev_OriginationCode    = OriginationCode AND @prev_Code    = Code AND @prev_Rate = Rate) THEN @rank
-												 ELSE 1
-												 END
-
-								 AS RateRank,
-							 @prev_OriginationCode := OriginationCode,
-							 @prev_Code := Code,
-							 @prev_OriginationDescription = OriginationDescription AND
-							 @prev_Description := Description,
-							 @prev_Rate := Rate
-						 FROM tmp_VendorCurrentRates_ AS rank,
-							 (SELECT @rank := 0 , @prev_Code := '' ,@prev_OriginationCode := '',  @prev_OriginationDescription := ''  , @prev_Description := '' , @prev_Rate := 0) f
-						 ORDER BY
-
-							 rank.OriginationCode
-							 ,
-
-							 rank.Code
-							 ,
-							 rank.Rate,rank.AccountId
-
-					 ) tbl
-			WHERE ( p_isExport = 1 OR p_isExport = 2 ) OR (p_isExport = 0 AND RateRank <= p_Position)
-			ORDER BY OriginationCode,Code, RateRank;
-
-
-
-
-		IF p_ShowAllVendorCodes = 1 THEN
-
-			insert ignore into tmp_VendorRate_
-				select
-					distinct
-					RateTableDIDRateID,
-
-					AccountId ,
-
-					AccountName ,
-					v.OriginationCode ,
-					v.Code,
-					Rate,
-					RateID,
-
-					EffectiveDate,
-					CASE WHEN (tr2.Code is not null) THEN
-						tr2.Description
-					ELSE
-						concat(v.OriginationDescription,'*')
-					END
-								 as Description,
-					CASE WHEN (tr.Code is not null) THEN
-						tr.Description
-					ELSE
-						concat(v.Description,'*')
-					END
-								 as Description,
-
-					v.Code as RowCode
-				from tmp_VendorRateByRank_ v
-					LEFT JOIN (
-											select Code,Description from tblRate
-											where CodeDeckId = p_codedeckID
-														AND
-														(
-															( CHAR_LENGTH(RTRIM(p_code)) = 0  OR Code LIKE REPLACE(p_code,'*', '%') )
-															AND ( p_Description = ''  OR Description LIKE REPLACE(p_Description,'*', '%') )
-														)
-
-										) tr on tr.Code=v.Code
-					LEFT JOIN (
-											select Code,Description from tblRate
-											where CodeDeckId = p_codedeckID
-														AND
-														(
-															( CHAR_LENGTH(RTRIM(p_Originationcode)) = 0  OR Code LIKE REPLACE(p_Originationcode,'*', '%') )
-															AND ( p_OriginationDescription = ''  OR Description LIKE REPLACE(p_OriginationDescription,'*', '%') )
-
-														)
-
-										) tr2 on tr2.Code=v.OriginationCode
-
-				order by RowCode desc;
-
-		ELSE
-
-			insert ignore into tmp_VendorRate_
-				select
-					distinct
-					RateTableDIDRateID,
-
-					AccountId ,
-
-					AccountName ,
-					OriginationCode ,
-					Code ,
-					Rate ,
-					RateID,
-
-					EffectiveDate ,
-					OriginationDescription ,
-					Description ,
-
-					Code as RowCode
-				from tmp_VendorRateByRank_
-				order by RowCode desc;
-
-		END IF;
-
-
-
-
-
-		insert into tmp_final_VendorRate_
-			SELECT
-				RateTableDIDRateID,
-
-				AccountId ,
-
-				AccountName ,
-				OriginationCode ,
-				Code ,
-				Rate ,
-				RateID,
-
-				EffectiveDate ,
-				OriginationDescription ,
-				Description ,
-
-				RowCode,
-				FinalRankNumber
-			from
-				(
-					SELECT
-						RateTableDIDRateID,
-
-						AccountId ,
-
-						AccountName ,
-						OriginationCode ,
-						Code ,
-						Rate ,
-						RateID,
-
-						EffectiveDate ,
-						OriginationDescription ,
-						Description ,
-
-						RowCode,
-						@rank := CASE WHEN (@prev_OriginationCode    = OriginationCode AND  @prev_RowCode     = RowCode AND @prev_Rate <  Rate ) THEN @rank+1
-										 WHEN (@prev_OriginationCode    = OriginationCode AND  @prev_RowCode    = RowCode AND @prev_Rate = Rate ) THEN @rank
-										 ELSE
-											 1
-										 END
-							AS FinalRankNumber,
-						@prev_OriginationCode  := OriginationCode,
-						@prev_RowCode  := RowCode,
-						@prev_Rate  := Rate
-					from tmp_VendorRate_
-						,( SELECT @rank := 0 , @prev_OriginationCode := '' , @prev_RowCode := '' , @prev_Rate := 0 ) x
-					order by RowCode,Rate,AccountId ASC
-
-				) tbl1
-			where
-				( p_isExport = 1 OR p_isExport = 2 ) OR (p_isExport = 0 AND FinalRankNumber <= p_Position);
-
-
-
-		SET @stm_columns = "";
-
-
-		IF p_isExport = 0 AND p_Position > 10 THEN
-			SET p_Position = 10;
-		END IF;
-
-
-
-
-		IF p_isExport = 1 THEN
-			SELECT MAX(FinalRankNumber) INTO p_Position FROM tmp_final_VendorRate_;
-		END IF;
-
-
-		SET v_pointer_=1;
-		WHILE v_pointer_ <= p_Position
-		DO
-
-			IF (p_isExport = 0)
-			THEN
-				SET @stm_columns = CONCAT(@stm_columns, "GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = ",v_pointer_,", CONCAT(  ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName) , '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y'),'', '=', ANY_VALUE(t.RateTableDIDRateID), '-', ANY_VALUE(t.AccountId), '-', ANY_VALUE(t.RowCode)  ), NULL))AS `POSITION ",v_pointer_,"`,");
-			ELSE
-				SET @stm_columns = CONCAT(@stm_columns, "GROUP_CONCAT(if(ANY_VALUE(FinalRankNumber) = ",v_pointer_,", CONCAT(  ANY_VALUE(t.Rate), '<br>', ANY_VALUE(t.AccountName) , '<br>', DATE_FORMAT (ANY_VALUE(t.EffectiveDate), '%d/%m/%Y') ), NULL))AS `POSITION ",v_pointer_,"`,");
-			END IF;
-
-			SET v_pointer_ = v_pointer_ + 1;
-
-		END WHILE;
-
-		SET @stm_columns = TRIM(TRAILING ',' FROM @stm_columns);
-
-		IF (p_isExport = 0)
-		THEN
-
-
-			SET @stm_query = CONCAT("SELECT	CONCAT(ANY_VALUE(t.OriginationCode) , ' : ' , ANY_VALUE(t.OriginationDescription), ' <br> => '  ,ANY_VALUE(t.RowCode) , ' : ' , ANY_VALUE(t.Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY t.OriginationCode, t.RowCode ORDER BY RowCode ASC LIMIT ",p_RowspPage," OFFSET ",v_OffSet_," ;");
-
-
-
-			SELECT count(RowCode) as totalcount from tmp_final_VendorRate_ ;
-
-
-
-		ELSE
-
-
-
-			SET @stm_query = CONCAT("SELECT CONCAT(ANY_VALUE(t.OriginationCode) , ' : ' , ANY_VALUE(t.OriginationDescription), ' => '  ,ANY_VALUE(t.RowCode) , ' : ' , ANY_VALUE(t.Description)) as Destination,",@stm_columns," FROM tmp_final_VendorRate_  t GROUP BY  t.OriginationCode, t.RowCode  ORDER BY RowCode ASC;");
-
-
-
-
-		END IF;
-
-		PREPARE stm_query FROM @stm_query;
-		EXECUTE stm_query;
-		DEALLOCATE PREPARE stm_query;
-
-
 
 		SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 

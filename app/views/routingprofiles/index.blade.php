@@ -158,7 +158,8 @@ var postdata;
                         action += '<input type = "hidden"  name = "Name" value = "' + (full[0] != null ? full[0] : '') + '" / >';
                         action += '<input type = "hidden"  name = "Description" value = "' + (full[1] != null ? full[1] : '') + '" / >';
                         action += '<input type = "hidden"  name = "RoutingPolicy" value = "' + (full[5] != null ? full[5] : '') + '" / >'
-                        action += '<input type = "hidden"  name = "SelectionCode" value = "' + (full[2] != null ? full[2] : '') + '" / ></div>';
+                        action += '<input type = "hidden"  name = "SelectionCode" value = "' + (full[2] != null ? full[2] : '') + '" / >'
+                        action += '<input type = "hidden"  name = "Status" value = "' + (full[3] != null ? full[3] : '') + '" / ></div>';
                         action += ' <a data-name = "'+full[0]+'" data-id="'+ full[4] +'" title="Edit" class="edit-category btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                         action += ' <a data-id="'+ full[4] +'" title="Delete" class="delete-category btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';                        
                         action += '';
@@ -309,7 +310,9 @@ $('table tbody').on('click','.addnewroutpro',function(ev){
         Name = $(this).prev("div.hiddenRowData").find("input[name='Name']").val();
         Description = $(this).prev("div.hiddenRowData").find("input[name='Description']").val();
         SelectionCode = $(this).prev("div.hiddenRowData").find("input[name='SelectionCode']").val();
-        
+        Status = $(this).prev("div.hiddenRowData").find("input[name='Status']").val();
+        console.log(Status);
+
         RoutingPolicy = $(this).prev("div.hiddenRowData").find("input[name='RoutingPolicy']").val();
         //console.log(RoutingPolicy);
         $("#RoutingPolicy").val(RoutingPolicy);
@@ -320,6 +323,7 @@ $('table tbody').on('click','.addnewroutpro',function(ev){
         $("#add-new-routingcategory-form [name='Name']").val(Name);
         $("#add-new-routingcategory-form [name='Description']").val(Description);
         $("#add-new-routingcategory-form [name='SelectionCode']").val(SelectionCode);
+        $("#add-new-routingcategory-form [name='Status']").prop('checked', Status == 1);
         $("#add-new-routingcategory-form [name='RoutingProfileID']").val($(this).attr('data-id'));
         $('#add-new-modal-routingcategory h3').html('Edit Routing Profile');
         $('#add-new-modal-routingcategory').modal('show');

@@ -63,14 +63,6 @@
                 @endif
 
                 <div class="form-group">
-                    <label for="field-1" class="control-label">Group By</label>
-                    <select class="select2" name="GroupBy" id="GroupBy">
-                        <option value="GroupByCode">Code</option>
-                        <option value="GroupByDesc">Description</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
                         <i class="entypo-search"></i>
@@ -100,11 +92,11 @@
         <div class="input-group-btn pull-right hidden dropdown" style="width:70px;">
             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
             <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
-                @if($isBandTable)
+                {{--@if($isBandTable)--}}
                     @if(User::checkCategoryPermission('RateTables','Add') )
                         <li><a href="javascript:void(0)" id="add-new-rate"><i class="entypo-plus"></i><span>Add New</span></a></li>
                     @endif
-                @endif
+                {{--@endif--}}
                 @if(User::checkCategoryPermission('RateTables','Edit') )
                     <li><a href="javascript:void(0)" id="change-bulk-rate"><i class="entypo-pencil"></i><span>Change Selected</span></a></li>
                 @endif
@@ -155,23 +147,23 @@
                     <input type="checkbox" id="selectall" name="checkbox[]" />
                 </div>
             </th>
-            <th width="4%" id="OCode-Header">Orig. Code</th>
+            <th width="4%">Orig. Code</th>
             <th width="10%">Orig. Description</th>
-            <th width="4%" id="Code-Header">Code</th>
+            <th width="4%">Code</th>
             <th width="10%">Description</th>
-            <th width="3%">One-Off Cost ({{$code}})</th>
-            <th width="3%">Monthly cost ({{$code}})</th>
-            <th width="5%">Cost Per Call ({{$code}})</th>
-            <th width="5%">Cost Per Minute ({{$code}})</th>
-            <th width="5%">Surcharge Per Call ({{$code}})</th>
-            <th width="5%">Surcharge Per Minute ({{$code}})</th>
-            <th width="5%">Outpayment Per Call ({{$code}})</th>
-            <th width="5%">Outpayment Per Minute ({{$code}})</th>
-            <th width="5%">Surcharges ({{$code}})</th>
-            <th width="5%">Chargeback ({{$code}})</th>
-            <th width="5%">Collection Cost ({{$code}})</th>
+            <th width="3%">One-Off Cost</th>
+            <th width="3%">Monthly cost</th>
+            <th width="5%">Cost Per Call</th>
+            <th width="5%">Cost Per Minute</th>
+            <th width="5%">Surcharge Per Call</th>
+            <th width="5%">Surcharge Per Minute</th>
+            <th width="5%">Outpayment Per Call</th>
+            <th width="5%">Outpayment Per Minute</th>
+            <th width="5%">Surcharges</th>
+            <th width="5%">Chargeback</th>
+            <th width="5%">Collection Cost</th>
             <th width="5%">Collection Cost (%)</th>
-            <th width="5%">Registration Cost ({{$code}})</th>
+            <th width="5%">Registration Cost</th>
             <th width="8%">Effective Date</th>
             <th width="9%" style="display: none;">End Date</th>
             <th width="8%">Modified By/Date</th>
@@ -193,20 +185,11 @@
         var $searchFilter = {};
         var checked='';
         var codedeckid = '{{$id}}';
-        var list_fields  = ['ID','OriginationCode','OriginationDescription','Code','Description','OneOffCost','MonthlyCost','CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableDIDRateID','OriginationRateID','RateID','ApprovedStatus','ApprovedBy','ApprovedDate'];
+        var list_fields  = ['ID','OriginationCode','OriginationDescription','Code','Description','OneOffCost','MonthlyCost','CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableDIDRateID','OriginationRateID','RateID','ApprovedStatus','ApprovedBy','ApprovedDate','OneOffCostCurrency','MonthlyCostCurrency', 'CostPerCallCurrency', 'CostPerMinuteCurrency', 'SurchargePerCallCurrency', 'SurchargePerMinuteCurrency', 'OutpaymentPerCallCurrency', 'OutpaymentPerMinuteCurrency', 'SurchargesCurrency', 'ChargebackCurrency', 'CollectionCostAmountCurrency', 'RegistrationCostPerNumberCurrency'];
         jQuery(document).ready(function($) {
 
         $('#filter-button-toggle').show();
 
-        var view = 1;
-        var ratetableview = getCookie('ratetableview');
-        if(ratetableview=='GroupByDesc'){
-            view = 2;
-            $('#rate-table-search #GroupBy').val('GroupByDesc');
-        } else {
-            view = 1;
-            $('#rate-table-search #GroupBy').val('GroupByCode');
-        }
         var ratetablepageview = getCookie('ratetablepageview');
         if(ratetablepageview=='AdvanceView'){
             $('#btn-basic-view').removeClass('active');
@@ -218,10 +201,7 @@
 
 
             $("#rate-table-search").submit(function(e) {
-            /*if(view == 2)
-                return rateDataTable2(view);
-            else
-                return rateDataTable(view);*/
+
             return rateDataTable();
         });
         $("#rate-table-search").trigger('submit');
@@ -571,14 +551,6 @@
     });
 
     function rateDataTable() {
-        var GroupBy = $('#rate-table-search #GroupBy').val();
-        if(GroupBy == 'GroupByDesc'){
-            setCookie('ratetableview','GroupByDesc','30');
-            view = 2;
-        }else{
-            setCookie('ratetableview','GroupByCode','30');
-            view = 1;
-        }
         var bVisible = false;
         ratetablepageview = getCookie('ratetablepageview');
         if(ratetablepageview == 'AdvanceView') {
@@ -596,7 +568,7 @@
         $searchFilter.Effective = Effective = $("#rate-table-search [name='Effective']").val();
         $searchFilter.DiscontinuedRates = DiscontinuedRates = $("#rate-table-search input[name='DiscontinuedRates']").is(':checked') ? 1 : 0;
         $searchFilter.Timezones = Timezones = $("#rate-table-search select[name='Timezones']").val();
-        $searchFilter.ApprovedStatus = ApprovedStatus = $("#rate-table-search select[name='ApprovedStatus']").val();
+        $searchFilter.ApprovedStatus = ApprovedStatus = $("#rate-table-search select[name='ApprovedStatus']").val() != undefined ? $("#rate-table-search select[name='ApprovedStatus']").val() : '';
         $searchFilter.ratetablepageview = ratetablepageview;
 
         data_table = $("#table-4").DataTable({
@@ -610,14 +582,14 @@
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "sAjaxSource": baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid",
             "fnServerParams": function(aoData) {
-                aoData.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview});
+                aoData.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "Timezones", "value": Timezones},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "view", "value": view},{"name": "Timezones", "value": Timezones},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview});
+                data_table_extra_params.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "Timezones", "value": Timezones},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview});
             },
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             //  "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-            "aaSorting": [[view==2 ? 4 : 3, "asc"]],
+            "aaSorting": [[3, "asc"]],
             "aoColumns":
                     [
                         {"bSortable": false,
@@ -627,10 +599,7 @@
                         }, //0Checkbox
                         {
                             mRender: function(id, type, full) {
-                                if(view==1) {
-                                    return full[1];
-                                }else
-                                    return '<div class="details-control" style="text-align: center; cursor: pointer;"><i class="entypo-plus-squared" style="font-size: 20px;"></i></div>';
+                                return full[1];
                             },
                             "className":      'details-control',
                             "orderable":      false,
@@ -639,25 +608,85 @@
                         }, //1 Origination Code
                         {}, //2 Origination description
                         {
-                            "bVisible" : view == 1 ? true : false,
+                            "bVisible" : true,
                             mRender: function(id, type, full) {
-                                return view == 1 ? full[3] : '';
+                                return full[3];
                             }
                         }, //3 Destination Code
                         {}, //4 Destination description
-                        {}, //5 OneOffCost,
-                        {}, //6 MonthlyCost,
-                        {}, //7 CostPerCall,
-                        {}, //8 CostPerMinute,
-                        {}, //9 SurchargePerCall,
-                        {}, //10 SurchargePerMinute,
-                        {}, //11 OutpaymentPerCall,
-                        {}, //12 OutpaymentPerMinute,
-                        {}, //13 Surcharges,
-                        {}, //14 Chargeback,
-                        {}, //15 CollectionCostAmount,
+                        {
+                            mRender: function(col, type, full) {
+                                var currency = full[28].split('-');
+                                if(col != null && col != '') return currency[0] + col; else return '';
+                            }
+                        }, //5 OneOffCost,
+                        {
+                            mRender: function(col, type, full) {
+                                var currency = full[29].split('-');
+                                if(col != null && col != '') return currency[0] + col; else return '';
+                            }
+                        }, //6 MonthlyCost,
+                        {
+                            mRender: function(col, type, full) {
+                                var currency = full[30].split('-');
+                                if(col != null && col != '') return currency[0] + col; else return '';
+                            }
+                        }, //7 CostPerCall,
+                        {
+                            mRender: function(col, type, full) {
+                                var currency = full[31].split('-');
+                                if(col != null && col != '') return currency[0] + col; else return '';
+                            }
+                        }, //8 CostPerMinute,
+                        {
+                            mRender: function(col, type, full) {
+                                var currency = full[32].split('-');
+                                if(col != null && col != '') return currency[0] + col; else return '';
+                            }
+                        }, //9 SurchargePerCall,
+                        {
+                            mRender: function(col, type, full) {
+                                var currency = full[33].split('-');
+                                if(col != null && col != '') return currency[0] + col; else return '';
+                            }
+                        }, //10 SurchargePerMinute,
+                        {
+                            mRender: function(col, type, full) {
+                                var currency = full[34].split('-');
+                                if(col != null && col != '') return currency[0] + col; else return '';
+                            }
+                        }, //11 OutpaymentPerCall,
+                        {
+                            mRender: function(col, type, full) {
+                                var currency = full[35].split('-');
+                                if(col != null && col != '') return currency[0] + col; else return '';
+                            }
+                        }, //12 OutpaymentPerMinute,
+                        {
+                            mRender: function(col, type, full) {
+                                var currency = full[36].split('-');
+                                if(col != null && col != '') return currency[0] + col; else return '';
+                            }
+                        }, //13 Surcharges,
+                        {
+                            mRender: function(col, type, full) {
+                                var currency = full[37].split('-');
+                                if(col != null && col != '') return currency[0] + col; else return '';
+                            }
+                        }, //14 Chargeback,
+                        {
+                            mRender: function(col, type, full) {
+                                var currency = full[38].split('-');
+                                if(col != null && col != '') return currency[0] + col; else return '';
+                            }
+                        }, //15 CollectionCostAmount,
                         {}, //16 CollectionCostPercentage,
-                        {}, //17 RegistrationCostPerNumber,
+                        {
+                            mRender: function(col, type, full) {
+                                var currency = full[39].split('-');
+                                if(col != null && col != '') return currency[0] + col; else return '';
+                            }
+                        }, //17 RegistrationCostPerNumber,
                         {}, //18 Effective Date
                         {
                             "bVisible" : false
@@ -692,13 +721,18 @@
                                 var action, edit_, delete_;
                                 action = '<div class = "hiddenRowData" >';
                                 for (var i = 0; i < list_fields.length; i++) {
-                                    action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (full[i] != null ? full[i] : '') + '" / >';
+                                    if (i < 28) { // all fields except currency fields
+                                        action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (full[i] != null ? full[i] : '') + '" / >';
+                                    } else { // all currency fields
+                                        var currency = full[i].split('-');
+                                        action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (currency[1] != null ? currency[1] : '') + '" / >';
+                                    }
                                 }
                                 action += '</div>';
 
                                 if(bVisible == true) {
                                     clerRate_ = "{{ URL::to('/rate_tables/{id}/clear_rate')}}";
-                                    clerRate_ = clerRate_.replace('{id}', id);
+                                    clerRate_ = clerRate_.replace('{id}', full[22]);
                                     @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
                                     if (full[25] == 1) {
                                         action += ' <button href="Javascript:;"  title="Approved" class="btn btn-default btn-xs"><i class="entypo-check" style="color: green; "></i>&nbsp;</button>';
@@ -715,7 +749,7 @@
 
                                             action += ' <button href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</button>';
 
-                                    if (id != null && id != 0) {
+                                    if (full[22] != null && full[22] != 0) {
                                         <?php if(User::checkCategoryPermission('RateTables', 'Delete')) { ?>
                                         if (DiscontinuedRates == 0) {
                                             action += ' <button title="Delete" href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-xs" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
@@ -755,14 +789,6 @@
                 ]
             },
             "fnDrawCallback": function() {
-                if(view==1){
-                    $('#OCode-Header').html('Orig. Code');
-                    $('#Code-Header').html('Dest. Code');
-                }else{
-                    $('#OCode-Header').html('');
-                    $('#Code-Header').html('');
-                }
-
                 $(".dropdown").removeClass("hidden");
                 var toggle = '<header>';
                 toggle += '<span class="list-style-buttons">';
@@ -825,7 +851,7 @@
                     ev.stopPropagation();
                     var cur_obj = $(this).prevAll("div.hiddenRowData");
                     for(var i = 0 ; i< list_fields.length; i++){
-                        $("#edit-rate-table-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                        $("#edit-rate-table-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger('change');
                     }
 
                     var OriginationRateID = cur_obj.find("input[name=OriginationRateID]").val();
@@ -921,18 +947,10 @@
             tr.find('.details-control i').toggleClass('entypo-plus-squared entypo-minus-squared');
             $clickedButton.attr('disabled','disabled');
 
-            var view = 1;
-            var ratetableview = getCookie('ratetableview');
-            if(ratetableview=='GroupByDesc'){
-                view = 2;
-            } else {
-                view = 1;
-            }
-
             $.ajax({
                 url: baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid_archive_rates",
                 type: 'POST',
-                data: "RateID=" + RateID + "&OriginationRateID=" + OriginationRateID + "&view=" + view + "&TimezonesID=" + $searchFilter.Timezones,
+                data: "RateID=" + RateID + "&OriginationRateID=" + OriginationRateID + "&TimezonesID=" + $searchFilter.Timezones,
                 dataType: 'json',
                 cache: false,
                 success: function (response) {
@@ -950,13 +968,8 @@
                     var hiddenRowData = tr.find('.hiddenRowData');
                     var Code = hiddenRowData.find('input[name="Code"]').val();
                     var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
-                    if(view == 1) {
-                        table.append("<thead><tr><th>Orig. Code</th><th>Orig. Description</th><th>Dest. Code</th><th>Dest. Description</th><th>One-Off Cost ({{$code}})</th><th>Monthly Cost ({{$code}})</th><th>Cost Per Call ({{$code}})</th><th>Cost Per Minute ({{$code}})</th><th>Surcharge Per Call ({{$code}})</th><th>Surcharge Per Minute ({{$code}})</th><th>Outpayment Per Call ({{$code}})</th><th>Outpayment Per Minute ({{$code}})</th><th>Surcharges ({{$code}})</th><th>Chargeback ({{$code}})</th><th>Collection Cost ({{$code}})</th><th>Collection Cost (%)</th><th>Registration Cost ({{$code}})</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
-                        //table.append("<thead><tr><th>Code</th><th>Description</th><th>One-Off Cost ({{$code}})</th><th>Monthly Cost ({{$code}})</th><th>Cost Per Call ({{$code}})</th><th>Cost Per Minute ({{$code}})</th><th>Surcharge Per Call ({{$code}})</th><th>Surcharge Per Minute ({{$code}})</th><th>Outpayment Per Call ({{$code}})</th><th>Outpayment Per Minute ({{$code}})</th><th>Surcharges ({{$code}})</th><th>Chargeback ({{$code}})</th><th>Collection Cost ({{$code}})</th><th>Collection Cost (%)</th><th>Registration Cost ({{$code}})</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
-                    } else {
-                        table.append("<thead><tr><th>Orig. Description</th><th>Dest. Description</th><th>One-Off Cost ({{$code}})</th><th>Monthly Cost ({{$code}})</th><th>Cost Per Call ({{$code}})</th><th>Cost Per Minute ({{$code}})</th><th>Surcharge Per Call ({{$code}})</th><th>Surcharge Per Minute ({{$code}})</th><th>Outpayment Per Call ({{$code}})</th><th>Outpayment Per Minute ({{$code}})</th><th>Surcharges ({{$code}})</th><th>Chargeback ({{$code}})</th><th>Collection Cost ({{$code}})</th><th>Collection Cost (%)</th><th>Registration Cost ({{$code}})</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
-                        //table.append("<thead><tr><th>Description</th><th>One-Off Cost ({{$code}})</th><th>Monthly Cost ({{$code}})</th><th>Cost Per Call ({{$code}})</th><th>Cost Per Minute ({{$code}})</th><th>Surcharge Per Call ({{$code}})</th><th>Surcharge Per Minute ({{$code}})</th><th>Outpayment Per Call ({{$code}})</th><th>Outpayment Per Minute ({{$code}})</th><th>Surcharges ({{$code}})</th><th>Chargeback ({{$code}})</th><th>Collection Cost ({{$code}})</th><th>Collection Cost (%)</th><th>Registration Cost ({{$code}})</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
-                    }
+                        table.append("<thead><tr><th>Orig. Code</th><th>Orig. Description</th><th>Dest. Code</th><th>Dest. Description</th><th>One-Off Cost</th><th>Monthly Cost</th><th>Cost Per Call</th><th>Cost Per Minute</th><th>Surcharge Per Call</th><th>Surcharge Per Minute</th><th>Outpayment Per Call</th><th>Outpayment Per Minute</th><th>Surcharges</th><th>Chargeback</th><th>Collection Cost</th><th>Collection Cost (%)</th><th>Registration Cost</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                        //table.append("<thead><tr><th>Code</th><th>Description</th><th>One-Off Cost</th><th>Monthly Cost</th><th>Cost Per Call</th><th>Cost Per Minute</th><th>Surcharge Per Call</th><th>Surcharge Per Minute</th><th>Outpayment Per Call</th><th>Outpayment Per Minute</th><th>Surcharges</th><th>Chargeback</th><th>Collection Cost</th><th>Collection Cost (%)</th><th>Registration Cost</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
                     var tbody = $("<tbody></tbody>");
 
                     ArchiveRates.forEach(function (data) {
@@ -965,13 +978,9 @@
                             data['OriginationDescription'] = data['OriginationDescription'] != null ? data['OriginationDescription'] : '';
                             var html = "";
                             html += "<tr class='no-selection'>";
-                            if(view == 1) {
-                                html += "<td>" + data['OriginationCode'] + "</td>";
-                            }
+                            html += "<td>" + data['OriginationCode'] + "</td>";
                             html += "<td>" + data['OriginationDescription'] + "</td>";
-                            if(view == 1) {
-                                html += "<td>" + data['Code'] + "</td>";
-                            }
+                            html += "<td>" + data['Code'] + "</td>";
                             html += "<td>" + data['Description'] + "</td>";
                             html += "<td>" + data['OneOffCost'] + "</td>";
                             html += "<td>" + (data['MonthlyCost'] != null?data['MonthlyCost']:'') + "</td>";
@@ -1008,6 +1017,9 @@
 #selectcheckbox{
     padding: 15px 10px;
 }
+.component-form-control {
+    padding: 0;
+}
 </style>
 @stop @section('footer_ext') @parent
 <div class="modal fade" id="modal-rate-table">
@@ -1039,69 +1051,113 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">One-Off Cost</label>
                                 <input type="text" name="OneOffCost" class="form-control numbercheck" placeholder="">
                             </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <label class="control-label"> &nbsp;</label>
+                                {{ Form::select('OneOffCostCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">Monthly Cost</label>
                                 <input type="text" name="MonthlyCost" class="form-control numbercheck" placeholder="">
                             </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <label class="control-label"> &nbsp;</label>
+                                {{ Form::select('MonthlyCostCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">Cost Per Call</label>
                                 <input type="text" name="CostPerCall" class="form-control numbercheck" placeholder="">
                             </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <label class="control-label"> &nbsp;</label>
+                                {{ Form::select('CostPerCallCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">Cost Per Minute</label>
                                 <input type="text" name="CostPerMinute" class="form-control numbercheck" placeholder="">
                             </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <label class="control-label"> &nbsp;</label>
+                                {{ Form::select('CostPerMinuteCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">Surcharge Per Call</label>
                                 <input type="text" name="SurchargePerCall" class="form-control numbercheck" placeholder="">
                             </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <label class="control-label"> &nbsp;</label>
+                                {{ Form::select('SurchargePerCallCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">Surcharge Per Minute</label>
                                 <input type="text" name="SurchargePerMinute" class="form-control numbercheck" placeholder="">
                             </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <label class="control-label"> &nbsp;</label>
+                                {{ Form::select('SurchargePerMinuteCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">Outpayment Per Call</label>
                                 <input type="text" name="OutpaymentPerCall" class="form-control numbercheck" placeholder="">
                             </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <label class="control-label"> &nbsp;</label>
+                                {{ Form::select('OutpaymentPerCallCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">Outpayment Per Minute</label>
                                 <input type="text" name="OutpaymentPerMinute" class="form-control numbercheck" placeholder="">
                             </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <label class="control-label"> &nbsp;</label>
+                                {{ Form::select('OutpaymentPerMinuteCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">Surcharges</label>
                                 <input type="text" name="Surcharges" class="form-control numbercheck" placeholder="">
                             </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="control-label">Chargeback</label>
-                                <input type="text" name="Chargeback" class="form-control numbercheck" placeholder="">
+                            <div class="form-group col-sm-4 component-form-control">
+                                <label class="control-label"> &nbsp;</label>
+                                {{ Form::select('SurchargesCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
+                                <label class="control-label">Chargeback</label>
+                                <input type="text" name="Chargeback" class="form-control numbercheck" placeholder="">
+                            </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <label class="control-label"> &nbsp;</label>
+                                {{ Form::select('ChargebackCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">Collection Cost (Amount)</label>
                                 <input type="text" name="CollectionCostAmount" class="form-control numbercheck" placeholder="">
+                            </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <label class="control-label"> &nbsp;</label>
+                                {{ Form::select('CollectionCostAmountCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -1111,9 +1167,13 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">Registration Cost Per Number</label>
                                 <input type="text" name="RegistrationCostPerNumber" class="form-control numbercheck" placeholder="">
+                            </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <label class="control-label"> &nbsp;</label>
+                                {{ Form::select('RegistrationCostPerNumberCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
                             </div>
                         </div>
                     </div>
@@ -1147,6 +1207,18 @@
                     <input type="hidden" name="updateCollectionCostAmount" value="on">
                     <input type="hidden" name="updateCollectionCostPercentage" value="on">
                     <input type="hidden" name="updateRegistrationCostPerNumber" value="on">
+                    <input type="hidden" name="updateOneOffCostCurrency" value="on">
+                    <input type="hidden" name="updateMonthlyCostCurrency" value="on">
+                    <input type="hidden" name="updateCostPerCallCurrency" value="on">
+                    <input type="hidden" name="updateCostPerMinuteCurrency" value="on">
+                    <input type="hidden" name="updateSurchargePerCallCurrency" value="on">
+                    <input type="hidden" name="updateSurchargePerMinuteCurrency" value="on">
+                    <input type="hidden" name="updateOutpaymentPerCallCurrency" value="on">
+                    <input type="hidden" name="updateOutpaymentPerMinuteCurrency" value="on">
+                    <input type="hidden" name="updateSurchargesCurrency" value="on">
+                    <input type="hidden" name="updateChargebackCurrency" value="on">
+                    <input type="hidden" name="updateCollectionCostAmountCurrency" value="on">
+                    <input type="hidden" name="updateRegistrationCostPerNumberCurrency" value="on">
                     <input type="hidden" name="updateEndDate" value="on">
                     <input type="hidden" name="updateType" value="singleEdit">
                     <input type="hidden" name="TimezonesID" value="">
@@ -1197,80 +1269,135 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <input type="checkbox" name="updateOneOffCost" class="" />
                                 <label class="control-label">One-Off Cost</label>
                                 <input type="text" name="OneOffCost" class="form-control numbercheck" value="" />
                             </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <input type="checkbox" name="updateOneOffCostCurrency" class="" />
+                                <label class="control-label"> Currency</label>
+                                {{ Form::select('OneOffCostCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <input type="checkbox" name="updateMonthlyCost" class="" />
                                 <label class="control-label">Monthly Cost</label>
                                 <input type="text" name="MonthlyCost" class="form-control numbercheck" value="" />
                             </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <input type="checkbox" name="updateMonthlyCostCurrency" class="" />
+                                <label class="control-label"> Currency</label>
+                                {{ Form::select('MonthlyCostCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <input type="checkbox" name="updateCostPerCall" class="" />
                                 <label class="control-label">Cost Per Call</label>
                                 <input type="text" name="CostPerCall" class="form-control numbercheck" value="" />
                             </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <input type="checkbox" name="updateCostPerCallCurrency" class="" />
+                                <label class="control-label"> Currency</label>
+                                {{ Form::select('CostPerCallCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <input type="checkbox" name="updateCostPerMinute" class="" />
                                 <label class="control-label">Cost Per Minute</label>
                                 <input type="text" name="CostPerMinute" class="form-control numbercheck" value="" />
                             </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <input type="checkbox" name="updateCostPerMinuteCurrency" class="" />
+                                <label class="control-label"> Currency</label>
+                                {{ Form::select('CostPerMinuteCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <input type="checkbox" name="updateSurchargePerCall" class="" />
                                 <label class="control-label">Surcharge Per Call</label>
                                 <input type="text" name="SurchargePerCall" class="form-control numbercheck" value="" />
                             </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <input type="checkbox" name="updateSurchargePerCallCurrency" class="" />
+                                <label class="control-label"> Currency</label>
+                                {{ Form::select('SurchargePerCallCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <input type="checkbox" name="updateSurchargePerMinute" class="" />
                                 <label class="control-label">Surcharge Per Minute</label>
                                 <input type="text" name="SurchargePerMinute" class="form-control numbercheck" value="" />
                             </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <input type="checkbox" name="updateSurchargePerMinuteCurrency" class="" />
+                                <label class="control-label"> Currency</label>
+                                {{ Form::select('SurchargePerMinuteCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <input type="checkbox" name="updateOutpaymentPerCall" class="" />
                                 <label class="control-label">Outpayment Per Call</label>
                                 <input type="text" name="OutpaymentPerCall" class="form-control numbercheck" value="" />
                             </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <input type="checkbox" name="updateOutpaymentPerCallCurrency" class="" />
+                                <label class="control-label"> Currency</label>
+                                {{ Form::select('OutpaymentPerCallCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <input type="checkbox" name="updateOutpaymentPerMinute" class="" />
                                 <label class="control-label">Outpayment Per Minute</label>
                                 <input type="text" name="OutpaymentPerMinute" class="form-control numbercheck" value="" />
                             </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <input type="checkbox" name="updateOutpaymentPerMinuteCurrency" class="" />
+                                <label class="control-label"> Currency</label>
+                                {{ Form::select('OutpaymentPerMinuteCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <input type="checkbox" name="updateSurcharges" class="" />
                                 <label class="control-label">Surcharges</label>
                                 <input type="text" name="Surcharges" class="form-control numbercheck" value="" />
                             </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <input type="checkbox" name="updateSurchargesCurrency" class="" />
+                                <label class="control-label"> Currency</label>
+                                {{ Form::select('SurchargesCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <input type="checkbox" name="updateChargeback" class="" />
                                 <label class="control-label">Chargeback</label>
                                 <input type="text" name="Chargeback" class="form-control numbercheck" value="" />
                             </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <input type="checkbox" name="updateChargebackCurrency" class="" />
+                                <label class="control-label"> Currency</label>
+                                {{ Form::select('ChargebackCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <input type="checkbox" name="updateCollectionCostAmount" class="" />
                                 <label class="control-label">Collection Cost (Amount)</label>
                                 <input type="text" name="CollectionCostAmount" class="form-control numbercheck" value="" />
+                            </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <input type="checkbox" name="updateCollectionCostAmountCurrency" class="" />
+                                <label class="control-label"> Currency</label>
+                                {{ Form::select('CollectionCostAmountCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -1281,10 +1408,15 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <input type="checkbox" name="updateRegistrationCostPerNumber" class="" />
                                 <label class="control-label">Registration Cost Per Number</label>
                                 <input type="text" name="RegistrationCostPerNumber" class="form-control numbercheck" value="" />
+                            </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <input type="checkbox" name="updateRegistrationCostPerNumberCurrency" class="" />
+                                <label class="control-label"> Currency</label>
+                                {{ Form::select('RegistrationCostPerNumberCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
                             </div>
                         </div>
                     </div>
@@ -1353,69 +1485,113 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">One-Off Cost</label>
                                 <input type="text" name="OneOffCost" class="form-control numbercheck" placeholder="">
                             </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <label class="control-label"> &nbsp;</label>
+                                {{ Form::select('OneOffCostCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">Monthly Cost</label>
                                 <input type="text" name="MonthlyCost" class="form-control numbercheck" placeholder="">
                             </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <label class="control-label"> &nbsp;</label>
+                                {{ Form::select('MonthlyCostCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">Cost Per Call</label>
                                 <input type="text" name="CostPerCall" class="form-control numbercheck" placeholder="">
                             </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <label class="control-label"> &nbsp;</label>
+                                {{ Form::select('CostPerCallCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">Cost Per Minute</label>
                                 <input type="text" name="CostPerMinute" class="form-control numbercheck" placeholder="">
                             </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <label class="control-label"> &nbsp;</label>
+                                {{ Form::select('CostPerMinuteCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">Surcharge Per Call</label>
                                 <input type="text" name="SurchargePerCall" class="form-control numbercheck" placeholder="">
                             </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <label class="control-label"> &nbsp;</label>
+                                {{ Form::select('SurchargePerCallCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">Surcharge Per Minute</label>
                                 <input type="text" name="SurchargePerMinute" class="form-control numbercheck" placeholder="">
                             </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <label class="control-label"> &nbsp;</label>
+                                {{ Form::select('SurchargePerMinuteCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">Outpayment Per Call</label>
                                 <input type="text" name="OutpaymentPerCall" class="form-control numbercheck" placeholder="">
                             </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <label class="control-label"> &nbsp;</label>
+                                {{ Form::select('OutpaymentPerCallCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">Outpayment Per Minute</label>
                                 <input type="text" name="OutpaymentPerMinute" class="form-control numbercheck" placeholder="">
                             </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <label class="control-label"> &nbsp;</label>
+                                {{ Form::select('OutpaymentPerMinuteCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">Surcharges</label>
                                 <input type="text" name="Surcharges" class="form-control numbercheck" placeholder="">
                             </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="control-label">Chargeback</label>
-                                <input type="text" name="Chargeback" class="form-control numbercheck" placeholder="">
+                            <div class="form-group col-sm-4 component-form-control">
+                                <label class="control-label"> &nbsp;</label>
+                                {{ Form::select('SurchargesCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
+                                <label class="control-label">Chargeback</label>
+                                <input type="text" name="Chargeback" class="form-control numbercheck" placeholder="">
+                            </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <label class="control-label"> &nbsp;</label>
+                                {{ Form::select('ChargebackCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">Collection Cost (Amount)</label>
                                 <input type="text" name="CollectionCostAmount" class="form-control numbercheck" placeholder="">
+                            </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <label class="control-label"> &nbsp;</label>
+                                {{ Form::select('CollectionCostAmountCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -1425,9 +1601,13 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="form-group col-sm-8 component-form-control">
                                 <label class="control-label">Registration Cost Per Number</label>
                                 <input type="text" name="RegistrationCostPerNumber" class="form-control numbercheck" placeholder="">
+                            </div>
+                            <div class="form-group col-sm-4 component-form-control">
+                                <label class="control-label"> &nbsp;</label>
+                                {{ Form::select('RegistrationCostPerNumberCurrency', $CurrencyDropDown, $rateTable->CurrencyID, array("class"=>"select2")) }}
                             </div>
                         </div>
                     </div>

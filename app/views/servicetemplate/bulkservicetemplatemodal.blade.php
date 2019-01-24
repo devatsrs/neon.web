@@ -9,7 +9,7 @@
 
       data = {company: selected_company};
       resetFormFields();
-
+      ShowTariffOnSelectedCategoryBulkAction();
       // This function exist in service template moal class
       // Getting all the values from the ajax for Select boxes
 
@@ -91,6 +91,8 @@
           // $("#serviceBasedOnCurreny").html(data);
       }, 'html');
 
+
+
       url = baseurl + "/servicesTemplate/selectDataOnCurrency?selectedCurrency=" + selected_currency + "&selectedData=templateSubscriptionList";
       // alert("url :" + url);
       $.post(url, function (data, status) {
@@ -131,6 +133,7 @@
               countSelectedItems++;
           }else {
               $("#OutboundRateTableIdBulkAction").prop('disabled', false);
+              $(this).val(1);
               countSelectedItems--;
           }
       });
@@ -144,6 +147,7 @@
               countSelectedItems++;
           }else {
               $("#OutboundDiscountPlanIdBulkAction").prop('disabled', false);
+              $(this).val(1);
               countSelectedItems--;
           }
       });
@@ -155,6 +159,7 @@
               countSelectedItems++;
           }else {
               $("#InboundDiscountPlanIdBulkAction").prop('disabled', false);
+              $(this).val(1);
               countSelectedItems--;
           }
       });
@@ -190,6 +195,8 @@
      selected_currency = $("#CurrencyIdBulkAction").val();
      selected_didCategory = $("#DidCategoryIDBulkAction").val();
      DidCategoryIndexValue = document.getElementById("DidCategoryIDBulkAction").selectedIndex;
+
+
      if (selected_currency == '') {
          selected_currency = "NAN";
      }
@@ -197,6 +204,7 @@
 
      url = baseurl + "/servicesTemplate/selectDataOnCurrency" +
              "?selectedCurrency=" + selected_currency + "&selectedData=DidCategoryID&selected_didCategory="+selected_didCategory;
+
      $.post(url, function (data, status) {
          //  var res = data.split('/>');
          document.getElementById("DidCategoryTariffIDBulkAction").innerHTML = "" + data;
@@ -396,10 +404,10 @@
                         </div>
 
                         <div class="modal-footer" style="vertical-align: top">
-                            <a id="add-bulkAction"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                            <button type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                                 <i class="entypo-floppy"></i>
                                 Save
-                            </a>
+                            </button>
                             <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
                                 <i class="entypo-cancel"></i>
                                 Close

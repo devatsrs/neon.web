@@ -16,7 +16,9 @@ class AccountBillingApiController extends ApiController {
 	 * 	AutoTopup,MinThreshold,TopupAmount
 	 */
 	public function getAutoDepositSettings(){
-		$data=Input::all();
+		$post_vars = json_decode(file_get_contents("php://input"));
+		$data=json_decode(json_encode($post_vars),true);
+
 		$AccountID=0;
 		if(!empty($data['AccountID'])){
 			$AccountID=$data['AccountID'];
@@ -26,12 +28,18 @@ class AccountBillingApiController extends ApiController {
 			if(!empty($Account)){
 				$AccountID=$Account->AccountID;
 			}
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			if(empty($AccountID)){
+				return Response::json(["status"=>"404", "data"=>"Account Not Found."]);
+			}
+
 		} else{
-			return Response::json(["status"=>"failed", "message"=>"AccountID or AccountNo Field is Required."]);
+			return Response::json(["status"=>"404", "message"=>"AccountID or AccountNo Field is Required."]);
 		}
 		$Result=AccountPaymentAutomation::where('AccountID',$AccountID)->get(['AutoTopup','MinThreshold','TopupAmount']);
 
-		return Response::json(["status"=>"success", "data"=>$Result]);
+		return Response::json(["status"=>"200", "data"=>$Result]);
 	}
 
 	/**
@@ -40,7 +48,9 @@ class AccountBillingApiController extends ApiController {
 	 * AutoTopup,MinThreshold,TopupAmount
 	 */
 	public function setAutoDepositSettings(){
-		$data=Input::all();
+		$post_vars = json_decode(file_get_contents("php://input"));
+		$data=json_decode(json_encode($post_vars),true);
+
 		$AccountID=0;
 		if(!empty($data['AccountID'])){
 			$AccountID=$data['AccountID'];
@@ -49,10 +59,16 @@ class AccountBillingApiController extends ApiController {
 			if(!empty($Account)){
 				$AccountID=$Account->AccountID;
 			}else{
-				return Response::json(["status"=>"failed", "data"=>"Account Not Found."]);
+				return Response::json(["status"=>"404", "data"=>"Account Not Found."]);
 			}
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			if(empty($AccountID)){
+				return Response::json(["status"=>"404", "data"=>"Account Not Found."]);
+			}
+
 		}else{
-			return Response::json(["status"=>"failed", "data"=>"AccountID or AccountNo Field is Required."]);
+			return Response::json(["status"=>"404", "data"=>"AccountID or AccountNo Field is Required."]);
 		}
 		$AccountCount=Account::where('AccountID',$AccountID)->count();
 		if($AccountCount > 0) {
@@ -69,7 +85,7 @@ class AccountBillingApiController extends ApiController {
 				return $this->createAutoDepositSetting($data, $AccountID);
 			}
 		}else{
-			return Response::json(["status"=>"failed", "message"=>"Account Not Found."]);
+			return Response::json(["status"=>"404", "message"=>"Account Not Found."]);
 		}
 	}
 
@@ -91,12 +107,13 @@ class AccountBillingApiController extends ApiController {
 		}
 		unset($data['AccountID']);
 		unset($data['AccountNo']);
+		unset($data['AccountDynamicField']);
 		$data['updated_at']=date('Y-m-d H:i:s');
 
 		if ($AccountPaymentAutomationObj->update($data)) {
-			return Response::json(array("status" => "success", "message" => "Auto Deposit Settings Updated Successfully."));
+			return Response::json(array("status" => "200", "message" => "Auto Deposit Settings Updated Successfully."));
 		} else {
-			return Response::json(array("status" => "failed", "message" => "Problem Updating Auto Deposit Settings."));
+			return Response::json(array("status" => "500", "message" => "Problem Updating Auto Deposit Settings."));
 		}
 
 	}
@@ -119,12 +136,13 @@ class AccountBillingApiController extends ApiController {
 		}
 		$data['AccountID']=$AccountID;
 		unset($data['AccountNo']);
+		unset($data['AccountDynamicField']);
 
 		$data['created_at']=date('Y-m-d H:i:s');
 		if (AccountPaymentAutomation::create($data)) {
-			return Response::json(array("status" => "success", "message" => "Auto Deposit Settings created Successfully."));
+			return Response::json(array("status" => "200", "message" => "Auto Deposit Settings created Successfully."));
 		} else {
-			return Response::json(array("status" => "failed", "message" => "Problem Creating Auto Deposit Settings."));
+			return Response::json(array("status" => "500", "message" => "Problem Creating Auto Deposit Settings."));
 		}
 
 	}
@@ -136,7 +154,9 @@ class AccountBillingApiController extends ApiController {
 	 * AutoOutpayment,OutPaymentThreshold,OutPaymentAmount
 	 */
 	public function getAutoOutPaymentSettings(){
-		$data=Input::all();
+		$post_vars = json_decode(file_get_contents("php://input"));
+		$data=json_decode(json_encode($post_vars),true);
+
 		$AccountID=0;
 		if(!empty($data['AccountID'])){
 			$AccountID=$data['AccountID'];
@@ -146,14 +166,20 @@ class AccountBillingApiController extends ApiController {
 			if(!empty($Account)){
 				$AccountID=$Account->AccountID;
 			}else{
-				return Response::json(["status"=>"failed", "data"=>"Account Not Found."]);
+				return Response::json(["status"=>"404", "data"=>"Account Not Found."]);
 			}
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			if(empty($AccountID)){
+				return Response::json(["status"=>"404", "data"=>"Account Not Found."]);
+			}
+
 		} else{
-			return Response::json(["status"=>"failed", "data"=>"AccountID or AccountNo Field is Required."]);
+			return Response::json(["status"=>"404", "data"=>"AccountID or AccountNo Field is Required."]);
 		}
 		$Result=AccountPaymentAutomation::where('AccountID',$AccountID)->get(['AutoOutpayment','OutPaymentThreshold','OutPaymentAmount']);
 
-		return Response::json(["status"=>"success", "data"=>$Result]);
+		return Response::json(["status"=>"200", "data"=>$Result]);
 	}
 
 	/**
@@ -162,7 +188,9 @@ class AccountBillingApiController extends ApiController {
 	 *AutoOutpayment,OutPaymentThreshold,OutPaymentAmount
 	 */
 	public function setAutoOutPaymentSettings(){
-		$data=Input::all();
+		$post_vars = json_decode(file_get_contents("php://input"));
+		$data=json_decode(json_encode($post_vars),true);
+
 		$AccountID=0;
 		if(!empty($data['AccountID'])){
 			$AccountID=$data['AccountID'];
@@ -171,10 +199,16 @@ class AccountBillingApiController extends ApiController {
 			if(!empty($Account)){
 				$AccountID=$Account->AccountID;
 			}else{
-				return Response::json(["status"=>"failed", "data"=>"Account Not Found."]);
+				return Response::json(["status"=>"404", "data"=>"Account Not Found."]);
 			}
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			if(empty($AccountID)){
+				return Response::json(["status"=>"404", "data"=>"Account Not Found."]);
+			}
+
 		}else{
-			return Response::json(["status"=>"failed", "data"=>"AccountID or AccountNo Field is Required."]);
+			return Response::json(["status"=>"404", "data"=>"AccountID or AccountNo Field is Required."]);
 		}
 		$AccountCount=Account::where('AccountID',$AccountID)->count();
 		if($AccountCount > 0) {
@@ -191,7 +225,7 @@ class AccountBillingApiController extends ApiController {
 				return $this->createAutoOutPaymentSetting($data, $AccountID);
 			}
 		}else{
-			return Response::json(["status"=>"failed", "message"=>"Account Not Found."]);
+			return Response::json(["status"=>"404", "message"=>"Account Not Found."]);
 		}
 
 	}
@@ -215,12 +249,13 @@ class AccountBillingApiController extends ApiController {
 		}
 		unset($data['AccountID']);
 		unset($data['AccountNo']);
+		unset($data['AccountDynamicField']);
 
 		$data['updated_at']=date('Y-m-d H:i:s');
 		if ($AccountPaymentAutomation->update($data)) {
-			return Response::json(array("status" => "success", "message" => "Auto Out Deposit Settings Updated Successfully."));
+			return Response::json(array("status" => "200", "message" => "Auto Out Deposit Settings Updated Successfully."));
 		} else {
-			return Response::json(array("status" => "failed", "message" => "Problem Updating Auto Out Deposit Settings."));
+			return Response::json(array("status" => "500", "message" => "Problem Updating Auto Out Deposit Settings."));
 		}
 
 	}
@@ -244,12 +279,13 @@ class AccountBillingApiController extends ApiController {
 		}
 		$data['AccountID']=$AccountID;
 		unset($data['AccountNo']);
+		unset($data['AccountDynamicField']);
 
 		$data['created_at']=date('Y-m-d H:i:s');
 		if (AccountPaymentAutomation::create($data)) {
-			return Response::json(array("status" => "success", "message" => "Auto Out Deposit Settings created Successfully."));
+			return Response::json(array("status" => "200", "message" => "Auto Out Deposit Settings created Successfully."));
 		} else {
-			return Response::json(array("status" => "failed", "message" => "Problem Creating Auto Out Deposit Settings."));
+			return Response::json(array("status" => "500", "message" => "Problem Creating Auto Out Deposit Settings."));
 		}
 
 	}

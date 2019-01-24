@@ -317,7 +317,7 @@
                         $cloneTable=$("#table").clone();
                         $cloneTable[0].setAttribute('id', tableID);
 
-                        $('.table-responsive').append('<h2 class="CompoHeading">LCR :'+component+' </h2>');
+                        $('.table-responsive').append('<h2 class="CompoHeading">'+component+' </h2>');
                         $('.table-responsive').append($cloneTable);
 
                         buildMultipleDataTable(tableID,OriginationCode, OriginationDescription,Code, Description, Currency,CodeDeck,component,ComponentAction,show_all_vendor_codes,DIDCategoryID,LCRPosition,SelectedEffectiveDate,aoColumns,aoColumnDefs,accounts,Timezones,merge_timezones,TimezonesMerged,TakePrice);

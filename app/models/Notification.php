@@ -19,6 +19,7 @@ class Notification extends \Eloquent {
     const LowStockReminder=10;
     const AutoTopAccount=11;
     const ContractEnding=12;
+    const AutoOutPayment=13;
 
     public static $type = [ Notification::InvoiceCopy=>'Invoice Copy',
         Notification::ReRate=>'CDR Rate Log',
@@ -29,7 +30,8 @@ class Notification extends \Eloquent {
         Notification::ContractEnding=>'Contract Ending',
         Notification::InvoicePaidByCustomer=>'Invoice Paid',
         Notification::AutoAddIP=>'Auto Add IP',
-        Notification::AutoTopAccount=>'Auto Top Account'
+        Notification::AutoTopAccount=>'Auto Top Account',
+        Notification::AutoOutPayment=>'Auto Out Payment'
         //Notification::LowStockReminder=>'Low Stock Reminder'
     ];
 
