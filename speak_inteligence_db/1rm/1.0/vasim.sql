@@ -39,7 +39,7 @@ ALTER TABLE `tblRateTableRate`
 
 CREATE TABLE IF NOT EXISTS `tblRateTableDIDRate` (
   `RateTableDIDRateID` bigint(20) NOT NULL AUTO_INCREMENT,
-  `OriginationRateID` bigint(20) NULL DEFAULT NULL,
+  `OriginationRateID` bigint(20) NOT NULL DEFAULT '0',
   `RateID` int(11) NOT NULL,
   `RateTableId` bigint(20) NOT NULL,
   `TimezonesID` bigint(20) NOT NULL DEFAULT '1',
@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS `tblRateTableDIDRate` (
 CREATE TABLE IF NOT EXISTS `tblRateTableDIDRateArchive` (
   `RateTableDIDRateArchiveID` bigint(20) NOT NULL AUTO_INCREMENT,
   `RateTableDIDRateID` bigint(20) NOT NULL,
-  `OriginationRateID` bigint(20) NULL DEFAULT NULL,
+  `OriginationRateID` bigint(20) NOT NULL DEFAULT '0',
   `RateID` int(11) NOT NULL,
   `RateTableId` bigint(20) NOT NULL,
   `TimezonesID` bigint(20) NOT NULL DEFAULT '1',
@@ -185,7 +185,7 @@ CREATE TABLE IF NOT EXISTS `tblRateTableDIDRateChangeLog` (
   `RateTableDIDRateID` int(11) DEFAULT NULL,
   `RateTableId` int(11) DEFAULT NULL,
   `TimezonesID` int(11) NOT NULL DEFAULT '1',
-  `OriginationRateID` int(11) DEFAULT NULL,
+  `OriginationRateID` int(11) NOT NULL DEFAULT '0',
   `OriginationCode` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `OriginationDescription` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
   `RateId` int(11) DEFAULT NULL,
@@ -241,12 +241,36 @@ ALTER TABLE `tblTempRateTableRate`
 	ADD COLUMN `RoutingCategoryID` INT NULL DEFAULT NULL AFTER `DialStringPrefix`;
 
 ALTER TABLE `tblRateTableRateChangeLog`
-	ADD COLUMN `OriginationRateID` INT(11) NULL DEFAULT NULL AFTER `TimezonesID`,
+	ADD COLUMN `OriginationRateID` INT(11) NOT NULL DEFAULT '0' AFTER `TimezonesID`,
 	ADD COLUMN `OriginationCode` VARCHAR(50) NULL DEFAULT NULL AFTER `OriginationRateID`,
 	ADD COLUMN `OriginationDescription` VARCHAR(200) NULL DEFAULT NULL AFTER `OriginationCode`,
 	ADD COLUMN `Preference` INT NULL DEFAULT NULL AFTER `ConnectionFee`,
 	ADD COLUMN `Blocked` TINYINT NOT NULL DEFAULT '0' AFTER `Preference`,
 	ADD COLUMN `RoutingCategoryID` INT NULL DEFAULT NULL AFTER `Blocked`;
+
+UPDATE tblRateTableDIDRate SET OriginationRateID=0 WHERE OriginationRateID IS NULL;
+ALTER TABLE `tblRateTableDIDRate`
+	CHANGE COLUMN `OriginationRateID` `OriginationRateID` BIGINT(20) NOT NULL DEFAULT '0' AFTER `RateTableDIDRateID`;
+
+UPDATE tblRateTableDIDRateArchive SET OriginationRateID=0 WHERE OriginationRateID IS NULL;
+ALTER TABLE `tblRateTableDIDRateArchive`
+	CHANGE COLUMN `OriginationRateID` `OriginationRateID` BIGINT(20) NOT NULL DEFAULT '0' AFTER `RateTableDIDRateID`;
+
+UPDATE tblRateTableDIDRateChangeLog SET OriginationRateID=0 WHERE OriginationRateID IS NULL;
+ALTER TABLE `tblRateTableDIDRateChangeLog`
+	CHANGE COLUMN `OriginationRateID` `OriginationRateID` BIGINT(20) NOT NULL DEFAULT '0' AFTER `TimezonesID`;
+
+UPDATE tblRateTableRate SET OriginationRateID=0 WHERE OriginationRateID IS NULL;
+ALTER TABLE `tblRateTableRate`
+	CHANGE COLUMN `OriginationRateID` `OriginationRateID` BIGINT(20) NOT NULL DEFAULT '0' AFTER `RateTableRateID`;
+
+UPDATE tblRateTableRateArchive SET OriginationRateID=0 WHERE OriginationRateID IS NULL;
+ALTER TABLE `tblRateTableRateArchive`
+	CHANGE COLUMN `OriginationRateID` `OriginationRateID` BIGINT(20) NOT NULL DEFAULT '0' AFTER `TimezonesID`;
+
+UPDATE tblRateTableRateChangeLog SET OriginationRateID=0 WHERE OriginationRateID IS NULL;
+ALTER TABLE `tblRateTableRateChangeLog`
+	CHANGE COLUMN `OriginationRateID` `OriginationRateID` BIGINT(20) NOT NULL DEFAULT '0' AFTER `TimezonesID`;
 
 INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1387, 'RateTables.ApprovalProcess', 1, 5);
 INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ('RateTables.approve_rate_table_did_rate', 'RateTablesController.approve_rate_table_did_rate', 1, 'Sumera Khan', NULL, '2019-01-02 11:34:50.000', '2019-01-02 11:34:50.000', 1387);
@@ -276,7 +300,7 @@ BEGIN
 	INNER JOIN tblRateTableRate rtr2
 		ON rtr2.RateTableId = rtr.RateTableId
 		AND rtr2.RateID = rtr.RateID
-		AND ((rtr2.OriginationRateID IS NULL AND rtr.OriginationRateID IS NULL) OR (rtr2.OriginationRateID = rtr.OriginationRateID))
+		AND rtr2.OriginationRateID = rtr.OriginationRateID
 	SET
 		rtr.EndDate=NOW()
 	WHERE
@@ -367,7 +391,7 @@ ThisSP:BEGIN
 	DROP TEMPORARY TABLE IF EXISTS tmp_TempRateTableRate_;
 	CREATE TEMPORARY TABLE tmp_TempRateTableRate_ (
 		`RateTableRateId` int(11) NOT NULL,
-		`OriginationRateID` int(11) NULL DEFAULT NULL,
+		`OriginationRateID` int(11) NOT NULL DEFAULT '0',
 		`RateId` int(11) NOT NULL,
 		`RateTableId` int(11) NOT NULL,
 		`TimezonesID` int(11) NOT NULL,
@@ -623,7 +647,7 @@ ThisSP:BEGIN
 	DROP TEMPORARY TABLE IF EXISTS tmp_TempRateTableDIDRate_;
 	CREATE TEMPORARY TABLE tmp_TempRateTableDIDRate_ (
 		`RateTableDIDRateId` int(11) NOT NULL,
-		`OriginationRateID` int(11) NOT NULL,
+		`OriginationRateID` int(11) NOT NULL DEFAULT '0',
 		`RateId` int(11) NOT NULL,
 		`RateTableId` int(11) NOT NULL,
 		`TimezonesID` int(11) NOT NULL,
@@ -921,7 +945,7 @@ BEGIN
 	INNER JOIN tblRateTableDIDRate rtr2
 		ON rtr2.RateTableId = rtr.RateTableId
 		AND rtr2.RateID = rtr.RateID
-		AND ((rtr2.OriginationRateID IS NULL AND rtr.OriginationRateID IS NULL) OR rtr2.OriginationRateID = rtr.OriginationRateID)
+		AND rtr2.OriginationRateID = rtr.OriginationRateID
 	SET
 		rtr.EndDate=NOW()
 	WHERE
@@ -3210,7 +3234,7 @@ ThisSP:BEGIN
 			tblRateTableRate.RateTableRateID,
          p_RateTableId AS RateTableId,
          tblTempRateTableRate.TimezonesID,
-         OriginationRate.RateId AS OriginationRateID,
+         IFNULL(OriginationRate.RateID,0) AS OriginationRateID,
          tblTempRateTableRate.OriginationCode,
          tblTempRateTableRate.OriginationDescription,
          tblRate.RateId,
@@ -3306,7 +3330,7 @@ ThisSP:BEGIN
                     RateTableRate.RateTableRateID,
                     p_RateTableId AS RateTableId,
                     tblTempRateTableRate.TimezonesID,
-                    OriginationRate.RateId AS OriginationRateID,
+                    IFNULL(OriginationRate.RateID,0) AS OriginationRateID,
                     OriginationRate.Code AS OriginationCode,
                     OriginationRate.Description AS OriginationDescription,
                     tblRate.RateId,
@@ -4961,7 +4985,7 @@ ThisSP:BEGIN
 		SELECT DISTINCT
 			p_RateTableId,
 			tblTempRateTableRate.TimezonesID,
-			OriginationRate.RateID AS OriginationRateID,
+			IFNULL(OriginationRate.RateID,0) AS OriginationRateID,
 			tblRate.RateID,
 			IF (
 				p_CurrencyID > 0,
@@ -6769,7 +6793,7 @@ ThisSP:BEGIN
 			tblRateTableDIDRate.RateTableDIDRateID,
 			p_RateTableId AS RateTableId,
 			tblTempRateTableDIDRate.TimezonesID,
-			OriginationRate.RateId AS OriginationRateID,
+			IFNULL(OriginationRate.RateID,0) AS OriginationRateID,
 			tblTempRateTableDIDRate.OriginationCode,
 			tblTempRateTableDIDRate.OriginationDescription,
 			tblRate.RateId,
@@ -6896,7 +6920,7 @@ ThisSP:BEGIN
 					RateTableDIDRate.RateTableDIDRateID,
 					p_RateTableId AS RateTableId,
 					tblTempRateTableDIDRate.TimezonesID,
-					OriginationRate.RateId AS OriginationRateID,
+					IFNULL(OriginationRate.RateID,0) AS OriginationRateID,
 					OriginationRate.Code AS OriginationCode,
 					OriginationRate.Description AS OriginationDescription,
 					tblRate.RateId,
@@ -9635,7 +9659,7 @@ ThisSP:BEGIN
 			SELECT DISTINCT
 				',p_RateTableId,' AS RateTableId,
 				tblTempRateTableDIDRate.TimezonesID,
-				OriginationRate.RateID AS OriginationRateID,
+				IFNULL(OriginationRate.RateID,0) AS OriginationRateID,
 				tblRate.RateID,
 		');
 

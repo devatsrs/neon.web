@@ -674,7 +674,7 @@ class RateTablesController extends \BaseController {
         $RateTableRate = array();
         $RateTableRate['RateTableId']       = $id;
         $RateTableRate['RateID']            = $data['RateID'];
-        $RateTableRate['OriginationRateID'] = !empty($data['OriginationRateID']) ? $data['OriginationRateID'] : NULL;
+        $RateTableRate['OriginationRateID'] = !empty($data['OriginationRateID']) ? $data['OriginationRateID'] : 0;
         $RateTableRate['EffectiveDate']     = $data['EffectiveDate'];
         $RateTableRate['EndDate']           = !empty($data['EndDate']) ? $data['EndDate'] : null;
         $RateTableRate['TimezonesID']       = $data['TimezonesID'];
