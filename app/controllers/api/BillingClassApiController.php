@@ -165,7 +165,8 @@ class BillingClassApiController extends ApiController {
 			$result['BalanceThreshold']=AccountBalance::where('AccountID', $AccountID)->pluck('BalanceThreshold');
 			$result['Status']=$BillingClass->LowBalanceReminderStatus;
 			//$BillingClass=AccountBilling::join('tblBillingClass','tblAccountBilling.BillingClassID','=','tblBillingClass.BillingClassID')->where(['tblAccountBilling.AccountID'=>$AccountID])->select('tblBillingClass.*')->first();
-			$result['BillingClass']=json_decode(json_encode($BillingClass->LowBalanceReminderSettings),true);
+
+			$result['BillingClass']=json_decode($BillingClass->LowBalanceReminderSettings);
 
 			return Response::json(["status"=>"200", "data"=>$result]);
 
