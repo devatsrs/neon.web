@@ -211,6 +211,12 @@ class PaymentApiController extends ApiController {
 				}
 			}
 
+			//DeductTaxAmount
+			$AmountExcludeTax=self::AmountExcludeTaxRate($BillingClassID,$data['Amount']);
+			if($AmountExcludeTax > 0){
+				$data['Amount']=$AmountExcludeTax;
+			}
+
 			$PaymentData=array();
 			$CompanyID=$Account->CompanyID;
 			$PaymentMethod=$Account->PaymentMethod;
@@ -473,4 +479,23 @@ class PaymentApiController extends ApiController {
 
 	}
 
+	public static function AmountExcludeTaxRate($BillingClassID,$Amount){
+		$TotalTax=0;
+		$TaxRates=BillingClass::getTaxRateType($BillingClassID,TaxRate::TAX_ALL);
+
+		if(!empty($TaxRates)){
+
+			foreach ($TaxRates as $TaxRateID) {
+
+				$TaxRateData=TaxRate::find($TaxRateID);
+
+				if(!empty($TaxRateData)){
+
+					$TaxAmount=TaxRate::calculateProductTaxAmount($TaxRateID,$Amount);
+					$TotalTax+=$TaxAmount;
+				}
+			}
+		}
+		return $TotalTax;
+	}
 }
