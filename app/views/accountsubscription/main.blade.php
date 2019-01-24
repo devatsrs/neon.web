@@ -280,6 +280,7 @@
                                 }else{
                                     $('[name="ExemptTax"]').prop('checked',false);
                                 }
+
                             }else if(list_fields[i] == 'Status'){
                                 if(cur_obj.find("input[name='Status']").val() == 1 ){
                                     $('[name="Status"]').prop('checked',true).change();
@@ -288,6 +289,7 @@
                                 }
 
                             }
+
                         }
                         $('#modal-edit-subscription').modal('show');
 
@@ -300,6 +302,7 @@
                     SubscriptionID        = $("#subscription-form-edit select[name='SubscriptionID']").val();
                     AccountSubscriptionID = $("#subscription-form-edit input[name='AccountSubscriptionID']").val();
                     var find_dynamic_feilds_url	= baseurl + '/account_subscription/EditDynamiceFieldFinder';
+
                     $.ajax({
                         url: find_dynamic_feilds_url,  //Server script to process data
                         type: 'POST',
@@ -309,8 +312,8 @@
                             var i;
 //                           var obj = JSON.parse(JSON.stringify(response))
                             var obj = jQuery.parseJSON(response);
-
-                            for (i = 0; i < obj.length; ++i)
+                            console.log(obj.length);
+                            for (i = 0; i <= obj.length; ++i)
                             {
 
                                 if(obj[i].FieldDomType =="numericePerMin" || obj[i].FieldDomType =="text" )
@@ -325,29 +328,7 @@
                                 }else if( obj[i].FieldDomType =="boolean"){
                                     $('#edit-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><p class="clear"><p class="make-switch switch-small"><input type="checkbox" name="dynamicFileds[]" value="'+obj[i].FieldValue+'"></p></div></div></div></div>');
                                 }else if( obj[i].FieldDomType =="select"){
-                                    var value = obj[i].FieldValue.search(',');
-                                    if(value >= 1)
-                                    {
-                                        var res = obj[i].FieldValue.split(",");
-
-                                        console.log('total length' + res.length);
-                                        var t;
-                                        for (t = 0; t < res.length; ++t)
-                                        {
-                                            console.log('t counter' + t);
-
-                                            if(t == 0)
-                                            {
-                                                $('#edit-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><select class="form-control" name="dynamicSelect[]"><option value="'+res[t]+'">'+res[t]+'</option></select></div></div></div>');
-                                            }else{
-                                                $('#edit-dynamice-fields-show select[name="dynamicSelect[]"]').append('<option value="'+res[t]+'">'+res[t]+'</option>');
-                                            }
-                                        }
-
-                                    }else{
-                                        $('#edit-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><select class="form-control" name="dynamicSelect[]"><option value="'+obj[i].FieldValue+'">'+obj[i].FieldValue+'</option></select></div></div></div>');
-                                    }
-
+                                    $('#edit-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><select class="form-control" name="dynamicSelect[]"><option value="'+obj[i].FieldValue+'">'+obj[i].FieldValue+'</option></select></div></div></div>');
                                 }else if( obj[i].FieldDomType =="file"){
                                     $('#edit-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">Upload file</label><br><a class="file-input-wrapper btn form-control file2 inline btn btn-primary"><i class="glyphicon glyphicon-circle-arrow-up"></i>  Browse<input name="dynamicImage" id="dynamicImage" type="file" accept=".png" class="form-control file2 inline btn btn-primary" onchange="handleFiles()"></a><span class="file-input-name"></span></div></div></div>');
                                 }
@@ -573,17 +554,16 @@
                                            {
                                                var res = obj[i].FieldValue.split(",");
 
-                                               console.log('total length' + res.length);
+                                               console.log('' + res.length);
                                                var t;
                                                for (t = 0; t < res.length; ++t)
                                                {
-                                                   console.log('t counter' + t);
-
                                                    if(t == 0)
                                                    {
                                                        $('#add-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><select class="form-control" name="dynamicSelect[]"><option value="'+res[t]+'">'+res[t]+'</option></select></div></div></div>');
                                                    }else{
-                                                       $('#add-dynamice-fields-show select[name="dynamicSelect[]"]').append('<option value="'+res[t]+'">'+res[t]+'</option>');
+                                                       $('#add-dynamice-fields-show select[name="dynamicSelect"]').append('<option value="'+res[t]+'">'+res[t]+'</option>');
+
                                                    }
                                                }
 
@@ -825,6 +805,7 @@
                 $(".namehide").removeAttr('readonly');
                 $('#modal-add_discountplan').modal('show');
             }
+
             function edit_discountplan(SubscriptionDiscountPlanID,AccountID,ServiceID){
                 var discountplan_edit_url = baseurl + "/accounts/"+AccountID+"/subscription/update_discountplan";
                 $('#add_discountplan_form').trigger("reset");
@@ -1010,24 +991,22 @@ $("#subscription-form-edit select[name='SubscriptionID']").on('change', function
                             {
                                 var res = obj[i].FieldValue.split(",");
 
-                                console.log('total length' + res.length);
+                                console.log('' + res.length);
                                 var t;
                                 for (t = 0; t < res.length; ++t)
                                 {
-                                    console.log('t counter' + t);
-
                                     if(t == 0)
                                     {
                                         $('#edit-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><select class="form-control" name="dynamicSelect[]"><option value="'+res[t]+'">'+res[t]+'</option></select></div></div></div>');
                                     }else{
-                                        $('#edit-dynamice-fields-show select[name="dynamicSelect[]"]').append('<option value="'+res[t]+'">'+res[t]+'</option>');
+                                        $('#edit-dynamice-fields-show select[name="dynamicSelect"]').append('<option value="'+res[t]+'">'+res[t]+'</option>');
+
                                     }
                                 }
 
                             }else{
                                 $('#edit-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><select class="form-control" name="dynamicSelect[]"><option value="'+obj[i].FieldValue+'">'+obj[i].FieldValue+'</option></select></div></div></div>');
                             }
-
                         }else if( obj[i].FieldDomType =="file"){
                             $('#edit-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">Upload file</label><br><a class="file-input-wrapper btn form-control file2 inline btn btn-primary"><i class="glyphicon glyphicon-circle-arrow-up"></i>  Browse<input name="dynamicImage" id="dynamicImage" type="file" accept=".png" class="form-control file2 inline btn btn-primary" onchange="handleFiles()"></a><span class="file-input-name"></span></div></div></div>');
                         }
