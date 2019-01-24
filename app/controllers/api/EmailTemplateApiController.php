@@ -8,6 +8,6 @@ class EmailTemplateApiController extends ApiController {
 		$companyID 	=  User::get_companyID();
 		$EmailTemplates = EmailTemplate::select(["TemplateID","LanguageID", "TemplateName", "Subject", "TemplateBody"])
 			->where(["CompanyID" => $companyID])->get();
-		return Response::json(["status"=>"success", "data"=>$EmailTemplates]);
+		return Response::json(["status"=>"200", "data"=>$EmailTemplates]);
 	}
 }
