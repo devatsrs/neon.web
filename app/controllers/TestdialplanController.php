@@ -31,8 +31,8 @@ class TestdialplanController extends \BaseController {
         
         \Illuminate\Support\Facades\Log::info($query);
 
-        return DataTableSql::of($query,'speakIntelligentRoutingEngine')->make();
-       // return DataTableSql::of($query,'neon_routingenginenew')->make();
+        //return DataTableSql::of($query,'speakIntelligentRoutingEngine')->make();
+       return DataTableSql::of($query,'neon_routingenginenew')->make();
 
         //return Datatables::of($RoutingCategory)->make();
     }
