@@ -340,8 +340,9 @@
     <script type="text/javascript">
         var AllTimezones = JSON.parse('{{json_encode($AllTimezones)}}');
 
-        var all_selectable_fields   = ['EndDate','Action','ActionDelete','DialString','DialStringPrefix','FromCurrency','OriginationCountryCode','OriginationCode','OriginationDescription','CountryCode'];
-        var all_available_fields    = ['EndDate','Action','ActionDelete','DialString','DialStringPrefix','FromCurrency','OriginationCountryCode','OriginationCode','OriginationDescription','CountryCode'];
+        var all_selectable_fields   = ['EndDate','Action','ActionDelete','DialString','DialStringPrefix','OriginationCountryCode','OriginationCode','OriginationDescription','CountryCode'];
+        var all_available_fields    = ['EndDate','Action','ActionDelete','DialString','DialStringPrefix','OriginationCountryCode','OriginationCode','OriginationDescription','CountryCode'];
+        // FromCurrency is removed from above 2 variables as we don't need it in did upload
         var all_occupied_fields     = [];
         var relational_columns      = {
             EndDate                 : ['EndDate'],
@@ -385,6 +386,11 @@
             CollectionCostPercentage    : [],
             RegistrationCostPerNumber   : []
         };
+        var currency_columns_timezone       = [];
+        var currency_static_columns_timezone= {
+            OneOffCost: [],
+            MonthlyCost: []
+        }
         for(TimezonesID in AllTimezones) {
             $id = TimezonesID == 1 ? '' : TimezonesID;
             relational_columns_timezone.CostPerCall.push('CostPerCall'+$id);
@@ -398,6 +404,20 @@
             relational_columns_timezone.CollectionCostAmount.push('CollectionCostAmount'+$id);
             relational_columns_timezone.CollectionCostPercentage.push('CollectionCostPercentage'+$id);
             relational_columns_timezone.RegistrationCostPerNumber.push('RegistrationCostPerNumber'+$id);
+
+            currency_columns_timezone['CostPerCall'+$id]                = 'CostPerCallCurrency'+$id;
+            currency_columns_timezone['CostPerMinute'+$id]              = 'CostPerMinuteCurrency'+$id;
+            currency_columns_timezone['SurchargePerCall'+$id]           = 'SurchargePerCallCurrency'+$id;
+            currency_columns_timezone['SurchargePerMinute'+$id]         = 'SurchargePerMinuteCurrency'+$id;
+            currency_columns_timezone['OutpaymentPerCall'+$id]          = 'OutpaymentPerCallCurrency'+$id;
+            currency_columns_timezone['OutpaymentPerMinute'+$id]        = 'OutpaymentPerMinuteCurrency'+$id;
+            currency_columns_timezone['Surcharges'+$id]                 = 'SurchargesCurrency'+$id;
+            currency_columns_timezone['Chargeback'+$id]                 = 'ChargebackCurrency'+$id;
+            currency_columns_timezone['CollectionCostAmount'+$id]       = 'CollectionCostAmountCurrency'+$id;
+            currency_columns_timezone['RegistrationCostPerNumber'+$id]  = 'RegistrationCostPerNumberCurrency'+$id;
+
+            currency_static_columns_timezone.OneOffCost.push('OneOffCostCurrency'+$id);
+            currency_static_columns_timezone.MonthlyCost.push('MonthlyCostCurrency'+$id);
         }
         var columns_timezone_text            = {
             CostPerCall                 : 'Cost Per Call',
@@ -1053,6 +1073,19 @@
                 tr.append('<th>'+value+'</th>');
             });
 
+            $('.CurrencyDD').each(function(i, el){
+                var self = $(this);
+                var label = 'Map From File';
+                if(el.name != undefined) {
+                    var currency_static_column = el.name.replace('selection[', '').replace(']', '');
+                    if (searchKeyByValue(currency_static_column, currency_static_columns_timezone) != false) {
+                        self.select2('destroy');
+                        self.select2();
+                    }
+                    rebuildSelectComposite(self, fileData.columns, label);
+                }
+            });
+
             $.each( data.rows, function(key, row) {
                 var tr = '<tr>';
 
@@ -1069,8 +1102,12 @@
             });
             $("#mapping #tab1 select").each(function(i, el){
                 if(el.name !='selection[DateFormat]' && el.name !='selection[DialString]' && el.name != 'selection[DialCodeSeparator]' && el.name != 'selection[OriginationDialCodeSeparator]' && el.name != 'selection[FromCurrency]'){
-                    var self = $('#add-template-form [name="'+el.name+'"]');
-                    rebuildSelect2(self,data.columns,'Skip loading');
+                    var currency_static_column = el.name.replace('selection[', '').replace(']', '');
+                    // if not component currency field then
+                    if (searchKeyByValue(currency_static_column, currency_static_columns_timezone) === false) {
+                        var self = $('#add-template-form [name="' + el.name + '"]');
+                        rebuildSelect2(self, data.columns, 'Skip loading');
+                    }
                 }
             });
             if(data.FileUploadTemplate){
@@ -1117,10 +1154,14 @@
                             }
                             if(option_value.occupied_timezone_fields != undefined && option_value.occupied_timezone_fields != '') {
                                 var occupied_timezone_fields = option_value.occupied_timezone_fields.split(',');
-                                if (searchSelectableTimezoneField(key,relational_columns_timezone) != null && $.inArray(key, occupied_timezone_fields) != -1) {
+                                if (searchKeyByValue(key,relational_columns_timezone) != false && $.inArray(key, occupied_timezone_fields) != -1) {
                                     addFieldToMapping(key);
                                     // reinitialize dynamic select2
                                     reinitializeDynamicSelect(key, value);
+                                }
+                                if(currency_columns_timezone[key] != undefined) {
+                                    // reinitialize dynamic currency select2
+                                    reinitializeDynamicSelectCurrency(currency_columns_timezone[key]);
                                 }
                             }
 
@@ -1730,9 +1771,9 @@
             });
         }
 
-        function searchSelectableTimezoneField(search,arr) {
+        function searchKeyByValue(search,arr) {
             for(key in arr) {
-                if($.inArray(search,arr)) {
+                if($.inArray(search,arr[key]) != -1) {
                     return key;
                 }
             }
@@ -1772,6 +1813,7 @@
                             var html = $('#controls-selection').find('.control-'+$FieldName2).html();
                             if(html != '' || html != undefined) {
                                 $("#add-template-form .managable select[name='selection["+$FieldName2+"]']").select2('destroy');
+                                $("#add-template-form .managable select[name='selection["+currency_columns_timezone[$FieldName2]+"]']").select2('destroy');
                                 var html_div = '<div class="form-group managable timezone solo_timezone">';
                                 html_div += html;
                                 html_div += '</div>';
@@ -1793,6 +1835,10 @@
                                 all_occupied_timezone_fields2.push($FieldName2);
                                 $('#occupied_timezone_fields').val(all_occupied_timezone_fields2);
                                 reinitializeDynamicSelect($FieldName2);
+
+                                if(currency_columns_timezone[$FieldName2] != undefined) {
+                                    reinitializeDynamicSelectCurrency(currency_columns_timezone[$FieldName2]);
+                                }
                             }
                         });
                     }
@@ -1826,6 +1872,7 @@
                             var html = $('#tab1').find('.control-' + $FieldName2 + '-controls').html();
                             if (html != '' || html != undefined) {
                                 $("#add-template-form .managable select[name='selection[" + $FieldName2 + "]']").select2('destroy');
+                                $("#add-template-form .managable select[name='selection[" + currency_columns_timezone[$FieldName2] + "]']").select2('destroy');
                                 $('#tab1').find('.control-' + $FieldName2 + '-controls').appendTo($('.control-' + $FieldName2));
 
                                 if ($.inArray($FieldName, all_selectable_timezone_fields) != -1) {
@@ -1838,6 +1885,10 @@
                                     $('#occupied_timezone_fields').val(all_occupied_timezone_fields2);
                                 }
                                 reinitializeDynamicSelect($FieldName);
+
+                                if(currency_columns_timezone[$FieldName2] != undefined) {
+                                    reinitializeDynamicSelectCurrency(currency_columns_timezone[$FieldName2]);
+                                }
                             }
                         });
                     }
@@ -1876,6 +1927,19 @@
             if(name=='OriginationCode') {
                 $("#add-template-form .managable select[name='selection[OriginationDialCodeSeparator]']").select2('destroy');
                 $("#add-template-form .managable select[name='selection[OriginationDialCodeSeparator]']").select2();
+            }
+        }
+
+        function reinitializeDynamicSelectCurrency(name,value) {
+            $("#add-template-form .managable select[name='selection["+name+"]']").select2('destroy');
+            $("#add-template-form .managable select[name='selection["+name+"]']").select2();
+
+            var self = $("#add-template-form .managable select[name='selection["+name+"]']");
+            var label = 'Map From File';
+            rebuildSelectComposite(self,fileData.columns,label);
+
+            if(value) {
+                $("#add-template-form .managable select[name='selection["+name+"]']").val(value).trigger("change");
             }
         }
 
