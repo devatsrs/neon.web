@@ -2,6 +2,6 @@
 
 class EngineRoutingProfileToCustomer extends \Eloquent {
 	
-    protected $connection 	= 	'neon_routingenginenew';
+    protected $connection 	= 	'speakIntelligentRoutingEngine';
     protected $table = "tblRoutingProfileToCustomer";
 }
