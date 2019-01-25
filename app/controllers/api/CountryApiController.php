@@ -8,6 +8,6 @@ class CountryApiController extends ApiController {
 
 		$Countries = Country::select(["CountryID","Prefix","Country", "ISO2", "ISO3"])
 			->get();
-		return Response::json(["status"=>"success", "data"=>$Countries]);
+		return Response::json(["status"=>"200", "data"=>$Countries]);
 	}
 }

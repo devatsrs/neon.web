@@ -6,7 +6,7 @@ class BillingClassApiController extends ApiController {
 	public function getList()
 	{
 		$DropdownIDList = BillingClass::select('Name', 'BillingClassID','TaxRateID')->get();
-		return Response::json(["status"=>"success", "data"=>$DropdownIDList]);
+		return Response::json(["status"=>"200", "data"=>$DropdownIDList]);
 	}
 
 	public function getTaxRateList()
@@ -65,7 +65,7 @@ class BillingClassApiController extends ApiController {
 			}
 
 		}else{
-			return Response::json(["status"=>"failed", "message"=>"AccountID OR AccountNo Required"]);
+			return Response::json(["status"=>"404", "message"=>"AccountID OR AccountNo Required"]);
 		}
 
 		if(!empty($AccountID) && !empty($CompanyID)){
@@ -115,18 +115,18 @@ class BillingClassApiController extends ApiController {
 					if(!empty($data['BalanceThreshold'])){
 						$AccountBalance = AccountBalance::where('AccountID', $AccountID)->update(['BalanceThreshold'=>$data['BalanceThreshold']]);
 					}
-					return Response::json(["status"=>"success", "message"=>"Updated Successfully."]);
+					return Response::json(["status"=>"200", "message"=>"Updated Successfully."]);
 				}else{
-					return Response::json(["status"=>"failed", "message"=>"Billing Class Not Set For This Account."]);
+					return Response::json(["status"=>"404", "message"=>"Billing Class Not Set For This Account."]);
 				}
 
 			}catch (\Exception $e) {
 				Log::info($e);
-				return Response::json(["status"=>"failed", "message"=>"Something Went Wrong. Exception Generated."]);
+				return Response::json(["status"=>"500", "message"=>"Something Went Wrong. Exception Generated."]);
 			}
 
 		}else{
-			return Response::json(["status"=>"failed", "message"=>"Account or Company Not Found."]);
+			return Response::json(["status"=>"404", "message"=>"Account or Company Not Found."]);
 		}
 
 	}
@@ -155,7 +155,7 @@ class BillingClassApiController extends ApiController {
 
 		if(empty($AccountID)){
 
-			return Response::json(["status"=>"failed", "data"=>"AccountID or AccountNo is Required"]);
+			return Response::json(["status"=>"404", "data"=>"AccountID or AccountNo is Required"]);
 		}
 
 		$BillingClassID=AccountBilling::getBillingClassID($AccountID);
@@ -165,12 +165,13 @@ class BillingClassApiController extends ApiController {
 			$result['BalanceThreshold']=AccountBalance::where('AccountID', $AccountID)->pluck('BalanceThreshold');
 			$result['Status']=$BillingClass->LowBalanceReminderStatus;
 			//$BillingClass=AccountBilling::join('tblBillingClass','tblAccountBilling.BillingClassID','=','tblBillingClass.BillingClassID')->where(['tblAccountBilling.AccountID'=>$AccountID])->select('tblBillingClass.*')->first();
-			$result['BillingClass']=json_decode(json_encode($BillingClass->LowBalanceReminderSettings),true);
 
-			return Response::json(["status"=>"success", "data"=>$result]);
+			$result['BillingClass']=json_decode($BillingClass->LowBalanceReminderSettings);
+
+			return Response::json(["status"=>"200", "data"=>$result]);
 
 		}else{
-			return Response::json(["status"=>"failed", "data"=>"BillingClass Not Found"]);
+			return Response::json(["status"=>"404", "data"=>"BillingClass Not Found"]);
 		}
 
 

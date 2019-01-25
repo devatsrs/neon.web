@@ -9,6 +9,6 @@ class DiscountPlanApiController extends ApiController {
 		$discountPlan = DiscountPlan::where("CompanyID", $companyID)
 			->select("DiscountPlanID", "Name","CurrencyID")
 			->get();
-		return Response::json(["status"=>"success", "data"=>$discountPlan]);
+		return Response::json(["status"=>"200", "data"=>$discountPlan]);
 	}
 }

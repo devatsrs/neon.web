@@ -46,6 +46,8 @@
                     $id = $TimezoneID == 1 ? '' : $TimezoneID;
                     $OneOffCostColumn           = 'OneOffCost'.$id;
                     $MonthlyCostColumn          = 'MonthlyCost'.$id;
+                    $OneOffCostCurrencyColumn   = 'OneOffCostCurrency'.$id;
+                    $MonthlyCostCurrencyColumn  = 'MonthlyCostCurrency'.$id;
                 ?>
                 <div class="panel panel-primary {{$id != '' ? 'panel-collapse' : ''}}" id="panel-mapping-{{$id}}" data-collapsed="0">
                     <div class="panel-heading">
@@ -60,12 +62,18 @@
                     <div class="panel-body field-remaping" id="mapping-{{$id}}" style="{{$id != '' ? 'display:none;' : ''}}">
                         <div class="form-group duo_timezone">
                             <label class="col-sm-2 control-label">One Off Cost</label>
-                            <div class="col-sm-4">
-                                {{Form::select('selection['.$OneOffCostColumn.']', $columns,(isset($attrselection->$OneOffCostColumn)?$attrselection->$OneOffCostColumn:''),array("class"=>"select2 small"))}}
+                            <div class="col-sm-2">
+                                {{Form::select('selection['.$OneOffCostColumn.']', $columns,'',array("class"=>"select2 small"))}}
+                            </div>
+                            <div class="col-sm-2">
+                                {{Form::select('selection['.$OneOffCostCurrencyColumn.']', $component_currencies,(isset($attrselection->$OneOffCostCurrencyColumn)?$attrselection->$OneOffCostCurrencyColumn:''),array("class"=>"select2 CurrencyDD small"))}}
                             </div>
                             <label class="col-sm-2 control-label">Monthly Cost</label>
-                            <div class="col-sm-4">
-                                {{Form::select('selection['.$MonthlyCostColumn.']', $columns,(isset($attrselection->$MonthlyCostColumn)?$attrselection->$MonthlyCostColumn:''),array("class"=>"select2 small"))}}
+                            <div class="col-sm-2">
+                                {{Form::select('selection['.$MonthlyCostColumn.']', $columns,'',array("class"=>"select2 small"))}}
+                            </div>
+                            <div class="col-sm-2">
+                                {{Form::select('selection['.$MonthlyCostCurrencyColumn.']', $component_currencies,(isset($attrselection->$MonthlyCostCurrencyColumn)?$attrselection->$MonthlyCostCurrencyColumn:''),array("class"=>"select2 CurrencyDD small"))}}
                             </div>
                         </div>
                     </div>
@@ -167,8 +175,8 @@
         </div>
     </div>
     <div class="control-FromCurrency">
-        <label class="col-sm-2 control-label control-FromCurrency-controls">Currency Conversion <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Select currency to convert rates to your base currency" data-original-title="Currency Conversion">?</span></label>
-        <div class="col-sm-4 control-FromCurrency-controls">
+        <label class="col-sm-2 control-label control-FromCurrency-controls" style="display: none;">Currency Conversion <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Select currency to convert rates to your base currency" data-original-title="Currency Conversion">?</span></label>
+        <div class="col-sm-4 control-FromCurrency-controls" style="display: none;">
             {{Form::select('selection[FromCurrency]', $currencies ,(isset($attrselection->FromCurrency)?$attrselection->FromCurrency:''),array("class"=>" small"))}}
         </div>
     </div>
@@ -223,59 +231,97 @@
                 $CollectionCostAmountColumn         = 'CollectionCostAmount'.$id;
                 $CollectionCostPercentageColumn     = 'CollectionCostPercentage'.$id;
                 $RegistrationCostPerNumberColumn    = 'RegistrationCostPerNumber'.$id;
+
+                $CostPerCallCurrencyColumn                  = 'CostPerCallCurrency'.$id;
+                $CostPerMinuteCurrencyColumn                = 'CostPerMinuteCurrency'.$id;
+                $SurchargePerCallCurrencyColumn             = 'SurchargePerCallCurrency'.$id;
+                $SurchargePerMinuteCurrencyColumn           = 'SurchargePerMinuteCurrency'.$id;
+                $OutpaymentPerCallCurrencyColumn            = 'OutpaymentPerCallCurrency'.$id;
+                $OutpaymentPerMinuteCurrencyColumn          = 'OutpaymentPerMinuteCurrency'.$id;
+                $SurchargesCurrencyColumn                   = 'SurchargesCurrency'.$id;
+                $ChargebackCurrencyColumn                   = 'ChargebackCurrency'.$id;
+                $CollectionCostAmountCurrencyColumn         = 'CollectionCostAmountCurrency'.$id;
+                $RegistrationCostPerNumberCurrencyColumn    = 'RegistrationCostPerNumberCurrency'.$id;
             ?>
             <div class="control-{{$CostPerCallColumn}}">
                 <label class="col-sm-2 control-label control-{{$CostPerCallColumn}}-controls">Cost Per Call</label>
-                <div class="col-sm-4 control-{{$CostPerCallColumn}}-controls">
+                <div class="col-sm-2 control-{{$CostPerCallColumn}}-controls">
                     {{Form::select('selection['.$CostPerCallColumn.']', $columns,(isset($attrselection->$CostPerCallColumn)?$attrselection->$CostPerCallColumn:''),array("class"=>" small"))}}
+                </div>
+                <div class="col-sm-2 control-{{$CostPerCallColumn}}-controls">
+                    {{Form::select('selection['.$CostPerCallCurrencyColumn.']', $component_currencies,(isset($attrselection->$CostPerCallCurrencyColumn)?$attrselection->$CostPerCallCurrencyColumn:''),array("class"=>"CurrencyDD small"))}}
                 </div>
             </div>
             <div class="control-{{$CostPerMinuteColumn}}">
                 <label class="col-sm-2 control-label control-{{$CostPerMinuteColumn}}-controls">Cost Per Minute</label>
-                <div class="col-sm-4 control-{{$CostPerMinuteColumn}}-controls">
+                <div class="col-sm-2 control-{{$CostPerMinuteColumn}}-controls">
                     {{Form::select('selection['.$CostPerMinuteColumn.']', $columns,(isset($attrselection->$CostPerMinuteColumn)?$attrselection->$CostPerMinuteColumn:''),array("class"=>" small"))}}
+                </div>
+                <div class="col-sm-2 control-{{$CostPerMinuteColumn}}-controls">
+                    {{Form::select('selection['.$CostPerMinuteCurrencyColumn.']', $component_currencies,(isset($attrselection->$CostPerMinuteCurrencyColumn)?$attrselection->$CostPerMinuteCurrencyColumn:''),array("class"=>"CurrencyDD small"))}}
                 </div>
             </div>
             <div class="control-{{$SurchargePerCallColumn}}">
                 <label class="col-sm-2 control-label control-{{$SurchargePerCallColumn}}-controls">Surcharge Per Call</label>
-                <div class="col-sm-4 control-{{$SurchargePerCallColumn}}-controls">
+                <div class="col-sm-2 control-{{$SurchargePerCallColumn}}-controls">
                     {{Form::select('selection['.$SurchargePerCallColumn.']', $columns,(isset($attrselection->$SurchargePerCallColumn)?$attrselection->$SurchargePerCallColumn:''),array("class"=>" small"))}}
+                </div>
+                <div class="col-sm-2 control-{{$SurchargePerCallColumn}}-controls">
+                    {{Form::select('selection['.$SurchargePerCallCurrencyColumn.']', $component_currencies,(isset($attrselection->$SurchargePerCallCurrencyColumn)?$attrselection->$SurchargePerCallCurrencyColumn:''),array("class"=>"CurrencyDD small"))}}
                 </div>
             </div>
             <div class="control-{{$SurchargePerMinuteColumn}}">
                 <label class="col-sm-2 control-label control-{{$SurchargePerMinuteColumn}}-controls">Surcharge Per Minute</label>
-                <div class="col-sm-4 control-{{$SurchargePerMinuteColumn}}-controls">
+                <div class="col-sm-2 control-{{$SurchargePerMinuteColumn}}-controls">
                     {{Form::select('selection['.$SurchargePerMinuteColumn.']', $columns,(isset($attrselection->$SurchargePerMinuteColumn)?$attrselection->$SurchargePerMinuteColumn:''),array("class"=>" small"))}}
+                </div>
+                <div class="col-sm-2 control-{{$SurchargePerMinuteColumn}}-controls">
+                    {{Form::select('selection['.$SurchargePerMinuteCurrencyColumn.']', $component_currencies,(isset($attrselection->$SurchargePerMinuteCurrencyColumn)?$attrselection->$SurchargePerMinuteCurrencyColumn:''),array("class"=>"CurrencyDD small"))}}
                 </div>
             </div>
             <div class="control-{{$OutpaymentPerCallColumn}}">
                 <label class="col-sm-2 control-label control-{{$OutpaymentPerCallColumn}}-controls">Outpayment Per Call</label>
-                <div class="col-sm-4 control-{{$OutpaymentPerCallColumn}}-controls">
+                <div class="col-sm-2 control-{{$OutpaymentPerCallColumn}}-controls">
                     {{Form::select('selection['.$OutpaymentPerCallColumn.']', $columns,(isset($attrselection->$OutpaymentPerCallColumn)?$attrselection->$OutpaymentPerCallColumn:''),array("class"=>" small"))}}
+                </div>
+                <div class="col-sm-2 control-{{$OutpaymentPerCallColumn}}-controls">
+                    {{Form::select('selection['.$OutpaymentPerCallCurrencyColumn.']', $component_currencies,(isset($attrselection->$OutpaymentPerCallCurrencyColumn)?$attrselection->$OutpaymentPerCallCurrencyColumn:''),array("class"=>"CurrencyDD small"))}}
                 </div>
             </div>
             <div class="control-{{$OutpaymentPerMinuteColumn}}">
                 <label class="col-sm-2 control-label control-{{$OutpaymentPerMinuteColumn}}-controls">Outpayment Per Minute</label>
-                <div class="col-sm-4 control-{{$OutpaymentPerMinuteColumn}}-controls">
+                <div class="col-sm-2 control-{{$OutpaymentPerMinuteColumn}}-controls">
                     {{Form::select('selection['.$OutpaymentPerMinuteColumn.']', $columns,(isset($attrselection->$OutpaymentPerMinuteColumn)?$attrselection->$OutpaymentPerMinuteColumn:''),array("class"=>" small"))}}
+                </div>
+                <div class="col-sm-2 control-{{$OutpaymentPerMinuteColumn}}-controls">
+                    {{Form::select('selection['.$OutpaymentPerMinuteCurrencyColumn.']', $component_currencies,(isset($attrselection->$OutpaymentPerMinuteCurrencyColumn)?$attrselection->$OutpaymentPerMinuteCurrencyColumn:''),array("class"=>"CurrencyDD small"))}}
                 </div>
             </div>
             <div class="control-{{$SurchargesColumn}}">
                 <label class="col-sm-2 control-label control-{{$SurchargesColumn}}-controls">Surcharges</label>
-                <div class="col-sm-4 control-{{$SurchargesColumn}}-controls">
+                <div class="col-sm-2 control-{{$SurchargesColumn}}-controls">
                     {{Form::select('selection['.$SurchargesColumn.']', $columns,(isset($attrselection->$SurchargesColumn)?$attrselection->$SurchargesColumn:''),array("class"=>" small"))}}
+                </div>
+                <div class="col-sm-2 control-{{$SurchargesColumn}}-controls">
+                    {{Form::select('selection['.$SurchargesCurrencyColumn.']', $component_currencies,(isset($attrselection->$SurchargesCurrencyColumn)?$attrselection->$SurchargesCurrencyColumn:''),array("class"=>"CurrencyDD small"))}}
                 </div>
             </div>
             <div class="control-{{$ChargebackColumn}}">
                 <label class="col-sm-2 control-label control-{{$ChargebackColumn}}-controls">Chargeback</label>
-                <div class="col-sm-4 control-{{$ChargebackColumn}}-controls">
+                <div class="col-sm-2 control-{{$ChargebackColumn}}-controls">
                     {{Form::select('selection['.$ChargebackColumn.']', $columns,(isset($attrselection->$ChargebackColumn)?$attrselection->$ChargebackColumn:''),array("class"=>" small"))}}
+                </div>
+                <div class="col-sm-2 control-{{$ChargebackColumn}}-controls">
+                    {{Form::select('selection['.$ChargebackCurrencyColumn.']', $component_currencies,(isset($attrselection->$ChargebackCurrencyColumn)?$attrselection->$ChargebackCurrencyColumn:''),array("class"=>"CurrencyDD small"))}}
                 </div>
             </div>
             <div class="control-{{$CollectionCostAmountColumn}}">
                 <label class="col-sm-2 control-label control-{{$CollectionCostAmountColumn}}-controls">Collection Cost Amount</label>
-                <div class="col-sm-4 control-{{$CollectionCostAmountColumn}}-controls">
+                <div class="col-sm-2 control-{{$CollectionCostAmountColumn}}-controls">
                     {{Form::select('selection['.$CollectionCostAmountColumn.']', $columns,(isset($attrselection->$CollectionCostAmountColumn)?$attrselection->$CollectionCostAmountColumn:''),array("class"=>" small"))}}
+                </div>
+                <div class="col-sm-2 control-{{$CollectionCostAmountColumn}}-controls">
+                    {{Form::select('selection['.$CollectionCostAmountCurrencyColumn.']', $component_currencies,(isset($attrselection->$CollectionCostAmountCurrencyColumn)?$attrselection->$CollectionCostAmountCurrencyColumn:''),array("class"=>"CurrencyDD small"))}}
                 </div>
             </div>
             <div class="control-{{$CollectionCostPercentageColumn}}">
@@ -286,8 +332,11 @@
             </div>
             <div class="control-{{$RegistrationCostPerNumberColumn}}">
                 <label class="col-sm-2 control-label control-{{$RegistrationCostPerNumberColumn}}-controls">Registration Cost Per Number</label>
-                <div class="col-sm-4 control-{{$RegistrationCostPerNumberColumn}}-controls">
+                <div class="col-sm-2 control-{{$RegistrationCostPerNumberColumn}}-controls">
                     {{Form::select('selection['.$RegistrationCostPerNumberColumn.']', $columns,(isset($attrselection->$RegistrationCostPerNumberColumn)?$attrselection->$RegistrationCostPerNumberColumn:''),array("class"=>" small"))}}
+                </div>
+                <div class="col-sm-2 control-{{$RegistrationCostPerNumberColumn}}-controls">
+                    {{Form::select('selection['.$RegistrationCostPerNumberCurrencyColumn.']', $component_currencies,(isset($attrselection->$RegistrationCostPerNumberCurrencyColumn)?$attrselection->$RegistrationCostPerNumberCurrencyColumn:''),array("class"=>"CurrencyDD small"))}}
                 </div>
             </div>
             <?php $co++; ?>

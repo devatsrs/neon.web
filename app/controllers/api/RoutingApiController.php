@@ -7,7 +7,7 @@
  * Time: 12:47 AM
  */
 class RoutingApiController extends ApiController {
-    public function routingList()
+    public function routingListOld()
     {
         try {
             Log::info('routingList:Get the routing list.');
@@ -317,11 +317,13 @@ class RoutingApiController extends ApiController {
         }
     }
 
-    public function routingListNewDB()
+    public function routingList()
     {
         try {
             Log::info('routingList:Get the routing list.');
-            $routingData = Input::all();
+            $post_vars = json_decode(file_get_contents("php://input"));
+            //$post_vars = Input::all();
+            $routingData=json_decode(json_encode($post_vars),true);
             $lcrDetails = '';
             $CompanyID = User::get_companyID();
             $rules = array(
@@ -518,7 +520,7 @@ class RoutingApiController extends ApiController {
             $syntax = 'CALL ' . $procName . '(' . $syntax . ');';
             Log::info('Filter Routing Profile List procedure $syntax123' . $syntax);
 
-            $pdo = DB::connection('neon_routingenginenew')->getPdo();
+            $pdo = DB::connection('speakIntelligentRoutingEngine')->getPdo();
             $pdo->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true);
             $syntaxLog = 'CALL ' . $procName . '(';
             $stmt = $pdo->prepare($syntax, [\PDO::ATTR_CURSOR => \PDO::CURSOR_SCROLL]);
@@ -590,6 +592,7 @@ class RoutingApiController extends ApiController {
             $lcrDetails = json_decode(json_encode($lcrDetails), true);
             return Response::json(["status" => "200", "Positions" => $lcrDetails]);
         }catch(Exception $ex) {
+            Log::info('Exception in Routing API.' . $ex->getTraceAsString());
             return Response::json(["status" => "500", "message" => "Exception in Routing API"]);
         }
     }
