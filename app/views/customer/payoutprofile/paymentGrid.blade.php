@@ -2,7 +2,7 @@
 <div class="panel panel-primary" data-collapsed="0">
     <div class="panel-heading">
         <div class="panel-title">
-            {{PaymentGateway::getPayoutGatewayNameBYAccount($account->AccountID)}} @lang('routes.CUST_PANEL_PAGE_PAYOUT_TITLE')
+            Stripe @lang('routes.CUST_PANEL_PAGE_PAYOUT_TITLE')
         </div>
         <div class="panel-options">
             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
