@@ -127,18 +127,23 @@
                             Contract
                         </div>
                         <div class="panel-options">
-                            <a id="currency-update" class="save panel-header-btn" data-toggle="modal" data-target="#add-new-modal-accounts" title="Cancel Contract" style="visibility: visible;color:#222222">
-                                <i class="entypo-cancel" title="Cancel Contract" data-placement="top" data-toggle="tooltip"></i>
-                            </a>
-                            <a class="panel-header-btn" title="History" data-dismiss="modal" data-placement="top" data-toggle="tooltip" style="color: #cc2424;">
-                                <i class="entypo-clock"></i>
-                            </a>
                             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                         </div>
                     </div>
 
 
-                    <div class="panel-body payment-section">
+                    <div class="panel-body ">
+                        <div class="form-group text-right">
+                            <div class="col-md-12">
+                            @if(!$AccountService->CancelContractStatus)
+                                <a type="button" title="Cancel Contract" class="btn btn-danger btn-sm"  data-toggle="modal" data-target="#add-new-modal-accounts"> <i class="entypo-cancel"></i> </a>
+                            @else
+                                <a type="button" title="Renew Contract"  class="btn btn-info" id="renewal"> <i class="entypo-info"></i> </a>
+                            @endif
+                                <a type="button" title="History" class="btn btn-default btn-sm" data-toggle="modal" data-target="#history-modal" data-dismiss="modal"> <i class="entypo-back-in-time"></i> </a>
+
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label class="col-md-2 control-label">Contract Start Date</label>
                             <div class="col-md-4">
@@ -157,7 +162,7 @@
                                     <input type="number"  min="0" @if(isset($AccountServiceContract->Duration)) value="{{$AccountServiceContract->Duration}}" @endif class="form-control" name="Duration">
                                 </div>
                             </div>
-                            <label class="col-md-2 control-label">Automatic Renewal</label>
+                            <label class="col-md-2 control-label">Auto Renewal</label>
                             <div class="col-md-4">
                                 <div class="panel-options">
                                     <div class="make-switch switch-small" >
@@ -210,6 +215,7 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div id="table-4_processing" class="dataTables_processing process">Processing...</div>
                                     <div class="col-md-3">
                                         <div class="panel-group cancelRadio" id="accordion">
                                             <div class="panel panel-default">
@@ -267,19 +273,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                        </div>
-                        <div class="container">
-                            <div class="form-group">
-                                <div class="col-sm-6 col-md-3">
-
-                                </div>
-                            </div>
-                        </div>
-
-
                     </div>
-
                 </div>
                 <!-- Service Title For Invoice -->
                 <!-- Service subscription billing cycle start-->
@@ -603,6 +597,7 @@
         var BillingChanged;
         var FirstTimeTrigger = true;
         jQuery(document).ready(function ($) {
+            $('.dataTables_processing').css("visibility","hidden");
 
             $("#StartDate").datepicker({
                 todayBtn:  1,
@@ -882,6 +877,26 @@
                 hideCancelCollapse()
             });
 
+            $('#renewal').click(function(e) {
+                e.preventDefault();
+                var AccountServiceID = '{{$AccountService->AccountServiceID}}';
+                showAjaxScript(baseurl + '/accountservices/contract_status/'+AccountServiceID, new FormData(($('#add-new-account-service-cancel-contract-form')[0])), function (response) {
+                    //console.log(response);
+                    $(".btn").button('reset');
+                    $('.dataTables_processing').css("visibility","visible");
+                    if (response.status == 'success') {
+                        toastr.success(response.message, "Success", toastr_opts);
+                        $('.dataTables_processing').css("visibility","hidden");
+                        setTimeout(function () {
+                            window.location.reload()
+                        }, 1000);
+                    } else {
+                        toastr.error(response.message, "Error", toastr_opts);
+                        $('.dataTables_processing').css("visibility","hidden");
+                    }
+                });
+            });
+
         });
         function ajax_form_success(response){
             if(typeof response.redirect != 'undefined' && response.redirect != ''){
@@ -908,4 +923,5 @@
     @parent
     @include('accountdiscountplan.discountplanmodal')
     @include('accountservices.modal')
+    @include('accountservices.history')
 @stop
