@@ -252,7 +252,7 @@
 
 
                     $("#add-dynamice-fields-show").empty();
-                    var find_dynamic_feilds_url	= baseurl + '/account_subscription/DynamiceFieldFinder';
+                    var find_dynamic_feilds_url	= baseurl + '/account_subscription/FindAccountServicesField';
 
                     $.ajax({
                         url: find_dynamic_feilds_url,  //Server script to process data
@@ -303,7 +303,7 @@
                                 }else if( obj[i].FieldDomType =="file"){
 
                                     $('#add-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">Upload file</label><br><a class="file-input-wrapper btn form-control file2 inline btn btn-primary"><i class="glyphicon glyphicon-circle-arrow-up"></i>  Browse<input name="dynamicImage" id="dynamicImage" type="file" accept=".png" class="form-control file2 inline btn btn-primary" onchange="handleFiles()"></a><span class="file-input-name"></span></div></div></div>');
-                                    $('#add-dynamice-fields-show').append('<input type="text" name="ImageID" value="'+obj[i].DynamicFieldsID+'"/>');
+                                    $('#add-dynamice-fields-show').append('<input type="hidden" name="ImageID" value="'+obj[i].DynamicFieldsID+'"/>');
                                 }
 
                             }
