@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `tblRateTableDIDRate` (
   `RateTableId` bigint(20) NOT NULL,
   `TimezonesID` bigint(20) NOT NULL DEFAULT '1',
   `EffectiveDate` date NOT NULL,
-  `EndDate` DATE NULL DEFAULT NULL,
+  `EndDate` date DEFAULT NULL,
   `OneOffCost` decimal(18,6) DEFAULT NULL,
   `MonthlyCost` decimal(18,6) DEFAULT NULL,
   `CostPerCall` decimal(18,6) DEFAULT NULL,
@@ -58,25 +58,25 @@ CREATE TABLE IF NOT EXISTS `tblRateTableDIDRate` (
   `CollectionCostAmount` decimal(18,6) DEFAULT NULL,
   `CollectionCostPercentage` decimal(18,6) DEFAULT NULL,
   `RegistrationCostPerNumber` decimal(18,6) DEFAULT NULL,
-	`OneOffCostCurrency` INT(11) NULL DEFAULT NULL,
-	`MonthlyCostCurrency` INT(11) NULL DEFAULT NULL,
-	`CostPerCallCurrency` INT(11) NULL DEFAULT NULL,
-	`CostPerMinuteCurrency` INT(11) NULL DEFAULT NULL,
-	`SurchargePerCallCurrency` INT(11) NULL DEFAULT NULL,
-	`SurchargePerMinuteCurrency` INT(11) NULL DEFAULT NULL,
-	`OutpaymentPerCallCurrency` INT(11) NULL DEFAULT NULL,
-	`OutpaymentPerMinuteCurrency` INT(11) NULL DEFAULT NULL,
-	`SurchargesCurrency` INT(11) NULL DEFAULT NULL,
-	`ChargebackCurrency` INT(11) NULL DEFAULT NULL,
-	`CollectionCostAmountCurrency` INT(11) NULL DEFAULT NULL,
-	`RegistrationCostPerNumberCurrency` INT(11) NULL DEFAULT NULL,
+  `OneOffCostCurrency` int(11) DEFAULT NULL,
+  `MonthlyCostCurrency` int(11) DEFAULT NULL,
+  `CostPerCallCurrency` int(11) DEFAULT NULL,
+  `CostPerMinuteCurrency` int(11) DEFAULT NULL,
+  `SurchargePerCallCurrency` int(11) DEFAULT NULL,
+  `SurchargePerMinuteCurrency` int(11) DEFAULT NULL,
+  `OutpaymentPerCallCurrency` int(11) DEFAULT NULL,
+  `OutpaymentPerMinuteCurrency` int(11) DEFAULT NULL,
+  `SurchargesCurrency` int(11) DEFAULT NULL,
+  `ChargebackCurrency` int(11) DEFAULT NULL,
+  `CollectionCostAmountCurrency` int(11) DEFAULT NULL,
+  `RegistrationCostPerNumberCurrency` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL,
   `CreatedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `ModifiedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-	`ApprovedStatus` TINYINT(4) NOT NULL DEFAULT '1',
-	`ApprovedBy` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
-	`ApprovedDate` DATETIME NULL DEFAULT NULL,
+  `ApprovedStatus` tinyint(4) NOT NULL DEFAULT '1',
+  `ApprovedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `ApprovedDate` datetime DEFAULT NULL,
   PRIMARY KEY (`RateTableDIDRateID`),
   UNIQUE KEY `IX_Unique_RateID_ORateID_RateTableId_TimezonesID_EffectiveDate` (`RateID`,`OriginationRateID`,`RateTableId`,`TimezonesID`,`EffectiveDate`),
   KEY `RateTableIDEffectiveDate` (`RateTableId`,`EffectiveDate`,`RateID`),
@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS `tblRateTableDIDRateArchive` (
   `RateTableId` bigint(20) NOT NULL,
   `TimezonesID` bigint(20) NOT NULL DEFAULT '1',
   `EffectiveDate` date NOT NULL,
-  `EndDate` DATE NULL DEFAULT NULL,
+  `EndDate` date DEFAULT NULL,
   `OneOffCost` decimal(18,6) DEFAULT NULL,
   `MonthlyCost` decimal(18,6) DEFAULT NULL,
   `CostPerCall` decimal(18,6) DEFAULT NULL,
@@ -108,31 +108,82 @@ CREATE TABLE IF NOT EXISTS `tblRateTableDIDRateArchive` (
   `CollectionCostAmount` decimal(18,6) DEFAULT NULL,
   `CollectionCostPercentage` decimal(18,6) DEFAULT NULL,
   `RegistrationCostPerNumber` decimal(18,6) DEFAULT NULL,
-	`OneOffCostCurrency` INT(11) NULL DEFAULT NULL,
-	`MonthlyCostCurrency` INT(11) NULL DEFAULT NULL,
-	`CostPerCallCurrency` INT(11) NULL DEFAULT NULL,
-	`CostPerMinuteCurrency` INT(11) NULL DEFAULT NULL,
-	`SurchargePerCallCurrency` INT(11) NULL DEFAULT NULL,
-	`SurchargePerMinuteCurrency` INT(11) NULL DEFAULT NULL,
-	`OutpaymentPerCallCurrency` INT(11) NULL DEFAULT NULL,
-	`OutpaymentPerMinuteCurrency` INT(11) NULL DEFAULT NULL,
-	`SurchargesCurrency` INT(11) NULL DEFAULT NULL,
-	`ChargebackCurrency` INT(11) NULL DEFAULT NULL,
-	`CollectionCostAmountCurrency` INT(11) NULL DEFAULT NULL,
-	`RegistrationCostPerNumberCurrency` INT(11) NULL DEFAULT NULL,
+  `OneOffCostCurrency` int(11) DEFAULT NULL,
+  `MonthlyCostCurrency` int(11) DEFAULT NULL,
+  `CostPerCallCurrency` int(11) DEFAULT NULL,
+  `CostPerMinuteCurrency` int(11) DEFAULT NULL,
+  `SurchargePerCallCurrency` int(11) DEFAULT NULL,
+  `SurchargePerMinuteCurrency` int(11) DEFAULT NULL,
+  `OutpaymentPerCallCurrency` int(11) DEFAULT NULL,
+  `OutpaymentPerMinuteCurrency` int(11) DEFAULT NULL,
+  `SurchargesCurrency` int(11) DEFAULT NULL,
+  `ChargebackCurrency` int(11) DEFAULT NULL,
+  `CollectionCostAmountCurrency` int(11) DEFAULT NULL,
+  `RegistrationCostPerNumberCurrency` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL,
   `CreatedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `ModifiedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-	`ApprovedStatus` TINYINT(4) NOT NULL DEFAULT '1',
-	`ApprovedBy` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
-	`ApprovedDate` DATETIME NULL DEFAULT NULL,
+  `ApprovedStatus` tinyint(4) NOT NULL DEFAULT '1',
+  `ApprovedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `ApprovedDate` datetime DEFAULT NULL,
   `Notes` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`RateTableDIDRateArchiveID`),
   KEY `RateTableIDEffectiveDate` (`RateTableId`,`EffectiveDate`,`RateID`),
   KEY `IX_RateTableId_RateID_EffectiveDate` (`RateTableId`,`RateID`,`EffectiveDate`),
   KEY `IX_RateTableId` (`RateTableId`),
   KEY `XI_RateID_RatetableID` (`RateID`,`RateTableDIDRateID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `tblRateTableDIDRateChangeLog` (
+  `RateTableDIDRateChangeLogID` int(11) NOT NULL AUTO_INCREMENT,
+  `TempRateTableDIDRateID` int(11) NOT NULL DEFAULT '0',
+  `RateTableDIDRateID` int(11) DEFAULT NULL,
+  `RateTableId` int(11) DEFAULT NULL,
+  `TimezonesID` int(11) NOT NULL DEFAULT '1',
+  `OriginationRateID` int(11) NOT NULL DEFAULT '0',
+  `OriginationCode` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `OriginationDescription` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `RateId` int(11) DEFAULT NULL,
+  `Code` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Description` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `OneOffCost` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `MonthlyCost` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `CostPerCall` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `CostPerMinute` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `SurchargePerCall` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `SurchargePerMinute` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `OutpaymentPerCall` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `OutpaymentPerMinute` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Surcharges` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Chargeback` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `CollectionCostAmount` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `CollectionCostPercentage` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `RegistrationCostPerNumber` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `OneOffCostCurrency` int(11) DEFAULT NULL,
+  `MonthlyCostCurrency` int(11) DEFAULT NULL,
+  `CostPerCallCurrency` int(11) DEFAULT NULL,
+  `CostPerMinuteCurrency` int(11) DEFAULT NULL,
+  `SurchargePerCallCurrency` int(11) DEFAULT NULL,
+  `SurchargePerMinuteCurrency` int(11) DEFAULT NULL,
+  `OutpaymentPerCallCurrency` int(11) DEFAULT NULL,
+  `OutpaymentPerMinuteCurrency` int(11) DEFAULT NULL,
+  `SurchargesCurrency` int(11) DEFAULT NULL,
+  `ChargebackCurrency` int(11) DEFAULT NULL,
+  `CollectionCostAmountCurrency` int(11) DEFAULT NULL,
+  `RegistrationCostPerNumberCurrency` int(11) DEFAULT NULL,
+  `EffectiveDate` datetime DEFAULT NULL,
+  `EndDate` datetime DEFAULT NULL,
+  `Action` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `ProcessID` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `created_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`RateTableDIDRateChangeLogID`),
+  KEY `IX_tblRateTableDIDRateChangeLog_RateTableDIDRateID` (`RateTableDIDRateID`),
+  KEY `IX_tblRateTableDIDRateChangeLog_ProcessID` (`ProcessID`),
+  KEY `RateId` (`RateId`),
+  KEY `EffectiveDate` (`EffectiveDate`),
+  KEY `Code` (`Code`),
+  KEY `Action` (`Action`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `tblTempRateTableDIDRate` (
@@ -158,18 +209,18 @@ CREATE TABLE IF NOT EXISTS `tblTempRateTableDIDRate` (
   `CollectionCostAmount` decimal(18,6) DEFAULT NULL,
   `CollectionCostPercentage` decimal(18,6) DEFAULT NULL,
   `RegistrationCostPerNumber` decimal(18,6) DEFAULT NULL,
-	`OneOffCostCurrency` INT(11) NULL DEFAULT NULL,
-	`MonthlyCostCurrency` INT(11) NULL DEFAULT NULL,
-	`CostPerCallCurrency` INT(11) NULL DEFAULT NULL,
-	`CostPerMinuteCurrency` INT(11) NULL DEFAULT NULL,
-	`SurchargePerCallCurrency` INT(11) NULL DEFAULT NULL,
-	`SurchargePerMinuteCurrency` INT(11) NULL DEFAULT NULL,
-	`OutpaymentPerCallCurrency` INT(11) NULL DEFAULT NULL,
-	`OutpaymentPerMinuteCurrency` INT(11) NULL DEFAULT NULL,
-	`SurchargesCurrency` INT(11) NULL DEFAULT NULL,
-	`ChargebackCurrency` INT(11) NULL DEFAULT NULL,
-	`CollectionCostAmountCurrency` INT(11) NULL DEFAULT NULL,
-	`RegistrationCostPerNumberCurrency` INT(11) NULL DEFAULT NULL,
+  `OneOffCostCurrency` int(11) DEFAULT NULL,
+  `MonthlyCostCurrency` int(11) DEFAULT NULL,
+  `CostPerCallCurrency` int(11) DEFAULT NULL,
+  `CostPerMinuteCurrency` int(11) DEFAULT NULL,
+  `SurchargePerCallCurrency` int(11) DEFAULT NULL,
+  `SurchargePerMinuteCurrency` int(11) DEFAULT NULL,
+  `OutpaymentPerCallCurrency` int(11) DEFAULT NULL,
+  `OutpaymentPerMinuteCurrency` int(11) DEFAULT NULL,
+  `SurchargesCurrency` int(11) DEFAULT NULL,
+  `ChargebackCurrency` int(11) DEFAULT NULL,
+  `CollectionCostAmountCurrency` int(11) DEFAULT NULL,
+  `RegistrationCostPerNumberCurrency` int(11) DEFAULT NULL,
   `EffectiveDate` datetime NOT NULL,
   `EndDate` datetime DEFAULT NULL,
   `Change` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -179,63 +230,12 @@ CREATE TABLE IF NOT EXISTS `tblTempRateTableDIDRate` (
   KEY `IX_tblTempRateTableDIDRateProcessID` (`ProcessId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `tblRateTableDIDRateChangeLog` (
-  `RateTableDIDRateChangeLogID` int(11) NOT NULL AUTO_INCREMENT,
-  `TempRateTableDIDRateID` int(11) NOT NULL DEFAULT '0',
-  `RateTableDIDRateID` int(11) DEFAULT NULL,
-  `RateTableId` int(11) DEFAULT NULL,
-  `TimezonesID` int(11) NOT NULL DEFAULT '1',
-  `OriginationRateID` int(11) NOT NULL DEFAULT '0',
-  `OriginationCode` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `OriginationDescription` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `RateId` int(11) DEFAULT NULL,
-  `Code` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `Description` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `OneOffCost` VARCHAR(255) DEFAULT NULL,
-  `MonthlyCost` VARCHAR(255) DEFAULT NULL,
-  `CostPerCall` VARCHAR(255) DEFAULT NULL,
-  `CostPerMinute` VARCHAR(255) DEFAULT NULL,
-  `SurchargePerCall` VARCHAR(255) DEFAULT NULL,
-  `SurchargePerMinute` VARCHAR(255) DEFAULT NULL,
-  `OutpaymentPerCall` VARCHAR(255) DEFAULT NULL,
-  `OutpaymentPerMinute` VARCHAR(255) DEFAULT NULL,
-  `Surcharges` VARCHAR(255) DEFAULT NULL,
-  `Chargeback` VARCHAR(255) DEFAULT NULL,
-  `CollectionCostAmount` VARCHAR(255) DEFAULT NULL,
-  `CollectionCostPercentage` VARCHAR(255) DEFAULT NULL,
-  `RegistrationCostPerNumber` VARCHAR(255) DEFAULT NULL,
-  `OneOffCostCurrency` INT(11) NULL DEFAULT NULL,
-	`MonthlyCostCurrency` INT(11) NULL DEFAULT NULL,
-	`CostPerCallCurrency` INT(11) NULL DEFAULT NULL,
-	`CostPerMinuteCurrency` INT(11) NULL DEFAULT NULL,
-	`SurchargePerCallCurrency` INT(11) NULL DEFAULT NULL,
-	`SurchargePerMinuteCurrency` INT(11) NULL DEFAULT NULL,
-	`OutpaymentPerCallCurrency` INT(11) NULL DEFAULT NULL,
-	`OutpaymentPerMinuteCurrency` INT(11) NULL DEFAULT NULL,
-	`SurchargesCurrency` INT(11) NULL DEFAULT NULL,
-	`ChargebackCurrency` INT(11) NULL DEFAULT NULL,
-	`CollectionCostAmountCurrency` INT(11) NULL DEFAULT NULL,
-	`RegistrationCostPerNumberCurrency` INT(11) NULL DEFAULT NULL,
-  `EffectiveDate` datetime DEFAULT NULL,
-  `EndDate` datetime DEFAULT NULL,
-  `Action` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `ProcessID` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
-  `created_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`RateTableDIDRateChangeLogID`),
-  KEY `IX_tblRateTableDIDRateChangeLog_RateTableDIDRateID` (`RateTableDIDRateID`),
-  KEY `IX_tblRateTableDIDRateChangeLog_ProcessID` (`ProcessID`),
-  KEY `RateId` (`RateId`),
-  KEY `EffectiveDate` (`EffectiveDate`),
-  KEY `Code` (`Code`),
-  KEY `Action` (`Action`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
 ALTER TABLE `tblTempRateTableRate`
 	CHANGE COLUMN `TimezonesID` `TimezonesID` INT(11) NOT NULL DEFAULT '1' AFTER `CodeDeckId`,
 	ADD COLUMN `OriginationCountryCode` VARCHAR(500) NULL DEFAULT NULL AFTER `TimezonesID`,
 	ADD COLUMN `OriginationCode` TEXT NULL DEFAULT NULL AFTER `OriginationCountryCode`,
 	ADD COLUMN `OriginationDescription` VARCHAR(200) NULL DEFAULT NULL AFTER `OriginationCode`,
-	CHANGE COLUMN `CountryCode` `CountryCode` VARCHAR(500) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci' AFTER `OriginationDescription`
+	CHANGE COLUMN `CountryCode` `CountryCode` VARCHAR(500) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci' AFTER `OriginationDescription`,
 	CHANGE COLUMN `Preference` `Preference` INT NULL DEFAULT NULL COLLATE 'utf8_unicode_ci' AFTER `ProcessId`,
 	CHANGE COLUMN `Forbidden` `Blocked` TINYINT NOT NULL DEFAULT '0' COLLATE 'utf8_unicode_ci' AFTER `IntervalN`,
 	ADD COLUMN `RoutingCategoryID` INT NULL DEFAULT NULL AFTER `DialStringPrefix`;
@@ -9836,6 +9836,120 @@ ThisSP:BEGIN
 
 	DELETE  FROM tblTempRateTableDIDRate WHERE  ProcessId = p_processId;
 	DELETE  FROM tblRateTableDIDRateChangeLog WHERE ProcessID = p_processId;
+	SELECT * FROM tmp_JobLog_;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_WSMapCountryRateTableDIDRate`;
+DELIMITER //
+CREATE PROCEDURE `prc_WSMapCountryRateTableDIDRate`(
+	IN `p_ProcessID` TEXT,
+	IN `p_CountryMapping` INT,
+	IN `p_OriginationCountryMapping` INT
+)
+ThisSP:BEGIN
+
+	DECLARE v_Country_Error_ INT DEFAULT 0;
+	DECLARE v_OCountry_Error_ INT DEFAULT 0;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_JobLog_;
+	CREATE TEMPORARY TABLE tmp_JobLog_ (
+		Message longtext
+	);
+
+	IF p_CountryMapping = 1
+	THEN
+		SELECT
+			COUNT(*) INTO v_Country_Error_
+		FROM
+			tblTempRateTableDIDRate temp
+		LEFT JOIN
+			tblCountry c ON c.Country=temp.CountryCode
+		WHERE
+			temp.ProcessID = p_ProcessID AND
+			temp.CountryCode IS NOT NULL AND
+			temp.CountryCode != '' AND
+			c.CountryID IS NULL;
+
+		IF v_Country_Error_ = 0
+		THEN
+			UPDATE
+				tblTempRateTableDIDRate temp
+			LEFT JOIN
+				tblCountry c ON c.Country=temp.CountryCode
+			SET
+				temp.CountryCode = c.Prefix
+			WHERE
+				temp.ProcessID = p_ProcessID AND
+				temp.CountryCode IS NOT NULL AND
+				temp.CountryCode != '' AND
+				c.CountryID IS NOT NULL;
+		ELSE
+			INSERT INTO tmp_JobLog_ (Message)
+			SELECT DISTINCT
+				CONCAT(temp.CountryCode , ' Country NOT FOUND IN DATABASE')
+			FROM
+				tblTempRateTableDIDRate temp
+			LEFT JOIN
+				tblCountry c ON c.Country=temp.CountryCode
+			WHERE
+				temp.ProcessID = p_ProcessID AND
+				temp.CountryCode IS NOT NULL AND
+				temp.CountryCode != '' AND
+				c.CountryID IS NULL;
+		END IF;
+	END IF;
+
+	IF p_OriginationCountryMapping = 1
+	THEN
+		SELECT
+			COUNT(*) INTO v_OCountry_Error_
+		FROM
+			tblTempRateTableDIDRate temp
+		LEFT JOIN
+			tblCountry c ON c.Country=temp.OriginationCountryCode
+		WHERE
+			temp.ProcessID = p_ProcessID AND
+			temp.OriginationCountryCode IS NOT NULL AND
+			temp.OriginationCountryCode != '' AND
+			c.CountryID IS NULL;
+
+		IF v_Country_Error_ = 0
+		THEN
+			UPDATE
+				tblTempRateTableDIDRate temp
+			LEFT JOIN
+				tblCountry c ON c.Country=temp.OriginationCountryCode
+			SET
+				temp.OriginationCountryCode = c.Prefix
+			WHERE
+				temp.ProcessID = p_ProcessID AND
+				temp.OriginationCountryCode IS NOT NULL AND
+				temp.OriginationCountryCode != '' AND
+				c.CountryID IS NULL;
+		ELSE
+			INSERT INTO tmp_JobLog_ (Message)
+			SELECT DISTINCT
+				CONCAT(temp.OriginationCountryCode , ' Origination Country NOT FOUND IN DATABASE')
+			FROM
+				tblTempRateTableDIDRate temp
+			LEFT JOIN
+				tblCountry c ON c.Country=temp.OriginationCountryCode
+			WHERE
+				temp.ProcessID = p_ProcessID AND
+				temp.OriginationCountryCode IS NOT NULL AND
+				temp.OriginationCountryCode != '' AND
+				c.CountryID IS NOT NULL;
+		END IF;
+	END IF;
+
 	SELECT * FROM tmp_JobLog_;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
