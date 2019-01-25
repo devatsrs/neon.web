@@ -128,15 +128,17 @@ class PaymentApiController extends ApiController {
 			//if Auto payout is allowed
 			$approved = !empty($data['Approved']) && $data['Approved'] == 1 ? 1 : 0;
 
-			$resp = [];
-			if ($approved == 1) {
+			$resp = ['status' => 'success'];
+			/*if ($approved == 1) {
 				$resp = $this->payout($data);
-			}
+			}*/
 
 			if($approved == 1){
 
 				if($resp['status'] == "success") {
-					$note = "Stripe payout_id: {$resp['id']}, transaction_id: {$resp['balance_transaction']}";
+					$transactionID = @$resp['response']['balance_transaction'];
+					$payoutID = @$resp['response']['balance_transaction'];
+					$note = "Stripe payout_id: {$transactionID}, transaction_id: {$payoutID}";
 
 					$data['Status'] 	 = 'Approved';
 					$data['PaymentType'] = Payment::$action['Payment Out'];
