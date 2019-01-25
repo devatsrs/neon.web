@@ -129,9 +129,9 @@ class PaymentApiController extends ApiController {
 			$approved = !empty($data['Approved']) && $data['Approved'] == 1 ? 1 : 0;
 
 			$resp = ['status' => 'success'];
-			/*if ($approved == 1) {
+			if ($approved == 1) {
 				$resp = $this->payout($data);
-			}*/
+			}
 
 			if($approved == 1){
 
