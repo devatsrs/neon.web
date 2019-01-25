@@ -301,6 +301,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('account_subscription/{subscription_id}/delete', 'AccountSubscriptionController@delete')->where('subscription_id', '(.[09]*)+');
 	Route::any('account_subscription/getDiscountPlanByAccount', 'AccountSubscriptionController@getDiscountPlanByAccount');
 	Route::any('account_subscription/DynamiceFieldFinder', 'AccountSubscriptionController@FindDynamicFields');
+	Route::any('account_subscription/FindAccountServicesField', 'AccountSubscriptionController@FindAccountServicesField');
 	Route::any('account_subscription/EditDynamiceFieldFinder', 'AccountSubscriptionController@FindEditDynamicFields');
 
 	Route::any('accounts/{id}/subscription/ajax_datagrid', 'AccountSubscriptionController@ajax_datagrid');

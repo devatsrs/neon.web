@@ -724,16 +724,35 @@ public function main() {
         return Response::json(array("status" => "success", "data" => $Response));
     }
 
+
+    public function FindAccountServicesField()
+    {
+        try{
+
+            $GetDynamiceAll = DynamicFields::select('FieldName' , 'FieldDomType', 'FieldValue','DynamicFieldsID')
+                ->where('tblDynamicFields.Type','=', 'subscription')
+                ->groupBy('tblDynamicFields.DynamicFieldsID')
+                ->get();
+
+            return $GetDynamiceAll;
+        }catch (Exception $ex){
+            return $ex;
+        }
+    }
+
     public function FindDynamicFields(){
        try{
-            $GetDynamiceAll = DynamicFields::join('tblDynamicFieldsValue', function($join) {
+
+           $GetDynamiceAll = DynamicFields::join('tblDynamicFieldsValue', function($join) {
                 $join->on('tblDynamicFieldsValue.DynamicFieldsID','=','tblDynamicFields.DynamicFieldsID');
             })->select('tblDynamicFields.FieldName' , 'tblDynamicFields.FieldDomType', 'tblDynamicFieldsValue.FieldValue','tblDynamicFieldsValue.DynamicFieldsID')
                 ->where('tblDynamicFields.Type','=', 'subscription')
                 ->groupBy('tblDynamicFields.DynamicFieldsID')
                 ->get();
 
-            return $GetDynamiceAll;
+           return $GetDynamiceAll;
+
+
         }catch (Exception $ex){
             return $ex;
         }
