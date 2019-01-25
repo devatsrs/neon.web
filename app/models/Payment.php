@@ -22,6 +22,13 @@ class Payment extends \Eloquent {
         "JCB"=>"JCB",
         'IsraCard'=>'IsraCard',
     );
+
+    public static $debit_card_type = array(
+        'Discover'=>'Discover',
+        'MasterCard'=>'MasterCard',
+        'Visa'=>'Visa',
+    );
+
     public static $account_holder_type = array(
         'individual'=>'individual',
         'company'=>'company',
