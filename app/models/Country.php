@@ -101,6 +101,15 @@ class Country extends \Eloquent {
     public static function getCountryPrefix($CountryID){
         return Country::where(array('CountryID'=>$CountryID))->pluck('Prefix');
     }
+
+    public static function getCountryCodeByName($CountryName){
+        $country =  Country::where(array('Country'=>$CountryName))->first();
+        if($country != false)
+            return $country->ISO2;
+        else
+            return '';
+    }
+
     public static function getName($CountryID){
         return Country::where(array('CountryID'=>$CountryID))->pluck('Country');
     }
