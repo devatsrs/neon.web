@@ -191,14 +191,14 @@
                             <input type="checkbox" name="Status"  @if($account->Status == 1 )checked=""@endif value="1">
                         </div>
                     </div>
- 
+
                 </div>
                 <div class="form-group">
                     <label class="col-md-2 control-label">Account Tags</label>
                     <div class="col-md-4">
                         <input type="text" class="form-control" id="tags" name="tags" value="{{$account->tags}}" />
                     </div>
-                    
+
                      <label class="col-md-2 control-label">VAT Number</label>
                     <div class="col-md-4">
                         <input type="text" class="form-control"  name="VatNumber" id="field-1" placeholder="" value="{{$account->VatNumber}}" />
@@ -313,8 +313,8 @@
                     $(document).ready(function() {
                         $(".btn-toolbar .btn").first().button("toggle");
                     });
-                </script>               
-                
+                </script>
+
                 <div class="panel-title desc clear">
                     Description
                 </div>
@@ -323,8 +323,8 @@
                         <textarea class="form-control" name="Description" id="events_log" rows="5" placeholder="Description">{{$account->Description}}</textarea>
                     </div>
                 </div>
-                
-                            <div class="form-group">            
+
+                            <div class="form-group">
                     <label for="CustomerPassword" class="col-md-2 control-label">Customer Panel Password</label>
                     <div class="col-md-4">
         <input type="password" class="form-control"    id="CustomerPassword_hide" autocomplete="off" placeholder="Enter Password" value="" />
@@ -420,8 +420,8 @@
                         </div>
                     </div>
         @endif
-        
-        @if($ROUTING_PROFILE =='1') 
+
+        @if($ROUTING_PROFILE =='1')
         <div class="panel panel-primary" data-collapsed="0">
             <div class="panel-heading">
                 <div class="panel-title">
@@ -919,6 +919,38 @@
                     </div>
                     <div class="col-md-9">
                         @include('customer.paymentprofile.mainpaymentGrid')
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-primary" data-collapsed="0">
+
+            <div class="panel-heading">
+                <div class="panel-title">
+                    Payout
+                </div>
+
+                <div class="panel-options">
+                    <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                </div>
+            </div>
+
+            <div class="panel-body">
+                <div class="form-group">
+                    <div class="col-md-3">
+
+                        <h4>@lang('routes.CUST_PANEL_PAGE_PAYOUT_PREFERRED_PAYOUT_METHOD')</h4>
+
+                        <ul class="icheck-list">
+                            <li>
+                                <input type="radio" class="icheck-11" id="minimal-radio-24-11" name="PayoutMethod" value="Stripe"
+                                      checked=""/>
+                                <label for="minimal-radio-24-11">Stripe</label>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-9">
+                        @include('customer.payoutprofile.mainpaymentGrid')
                     </div>
                 </div>
             </div>

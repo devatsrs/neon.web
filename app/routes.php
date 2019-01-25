@@ -59,6 +59,17 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/customer/PaymentMethodProfiles/verify_bankaccount', 'PaymentProfileCustomerController@verify_bankaccount');
     Route::any('/customer/PaymentMethodProfiles/{id}/card_status/{active_deactive}', array('as' => 'payment_rules', 'uses' => 'PaymentProfileCustomerController@card_active_deactive'))->where('active_deactive', '(active|deactive)');
 
+	//payout
+	Route::any('/customer/Payout/create', 'PayoutController@create');
+	Route::any('/customer/Payout/{id}/delete', 'PayoutController@delete');
+	Route::any('/customer/Payout/update', 'PayoutController@update');
+	Route::any('/customer/Payout/{id}/set_default', 'PayoutController@set_default');
+	Route::any('/customer/Payout/verify_bankaccount', 'PayoutController@verify_bankaccount');
+	Route::any('/customer/Payout/{id}/payout_status/{active_deactive}', array(
+		'as' => 'payout_status',
+		'uses' => 'PayoutController@payout_active_deactive'
+	))->where('active_deactive', '(active|deactive)');
+
 	//notice board
 	Route::any('customer/noticeboard', 'NoticeBoardCustomerController@index');
 	Route::any('customer/get_next_update/{id}', 'NoticeBoardCustomerController@get_next_update');
@@ -251,6 +262,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accounts/due_ratesheet', 'AccountsController@due_ratesheet');
 	Route::any('accounts/ajax_datagrid_sheet/{type}', 'AccountsController@ajax_datagrid_sheet');
     Route::any('accounts/{id}/ajax_datagrid_PaymentProfiles', 'AccountsController@ajax_datagrid_PaymentProfiles');
+	Route::any('accounts/{id}/ajax_datagrid_PayoutAccounts', 'AccountsController@ajax_datagrid_PayoutAccounts');
 	Route::any('accounts/addbillingaccount', 'AccountsController@addbillingaccount');
 	Route::any('accounts/{id}/change_verifiaction_status/{status}', 'AccountsController@change_verifiaction_status')->where('status', '(.[09]*)+');;
     Route::any('accounts/getoutstandingamount/{id}', 'AccountsController@get_outstanding_amount');
