@@ -549,7 +549,7 @@ class RateUploadController extends \BaseController {
         $ProcessID          = (string) GUID::generate();
         $bacth_insert_limit = 250;
         $counter            = 0;
-        $p_Blocked        = 0;
+        $p_Blocked          = 0;
         $p_preference       = 0;
         $DialStringId       = 0;
         $dialcode_separator = 'null';
@@ -1585,11 +1585,61 @@ class RateUploadController extends \BaseController {
                     $batch_insert_array2 = [];
                     $counter = 0;
                 }
-
             } // $Ratekeys loop over
 
             $JobStatusMessage = array();
             $duplicatecode=0;
+
+            if(!empty($attrselection->CountryMapping) || !empty($attrselection2->CountryMapping) || !empty($attrselection->OriginationCountryMapping) || !empty($attrselection2->OriginationCountryMapping)) {
+                $CountryMapping             = !empty($attrselection->CountryMapping) || !empty($attrselection2->CountryMapping) ? 1 : 0;
+                $OriginationCountryMapping  = !empty($attrselection->OriginationCountryMapping) || !empty($attrselection2->OriginationCountryMapping) ? 1 : 0;
+
+                if($data['RateUploadType'] == RateUpload::vendor) {
+                    $query_CM = "CALL prc_WSMapCountryVendorRate ('" . $ProcessID . "','".$CountryMapping."','".$OriginationCountryMapping."')";
+                } else if($data['RateUploadType'] == RateUpload::customer) {
+                    $query_CM = "CALL prc_WSMapCountryCustomerRate ('" . $ProcessID . "','".$CountryMapping."','".$OriginationCountryMapping."')";
+                } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL))) {
+                    $query_CM = "CALL prc_WSMapCountryRateTableRate ('" . $ProcessID . "','".$CountryMapping."','".$OriginationCountryMapping."')";
+                } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
+                    $query_CM = "CALL prc_WSMapCountryRateTableDIDRate ('" . $ProcessID . "','".$CountryMapping."','".$OriginationCountryMapping."')";
+                }
+
+                // map country against rates with tblCountry table, if not found then throw error - if option is checked at upload time
+                Log::info('Start '.$query_CM);
+                try {
+                    DB::beginTransaction();
+                    $JobStatusMessage_CM = DB::select($query_CM);
+                    Log::info('End ' . $query_CM);
+                    DB::commit();
+
+                    $JobStatusMessage_CM = array_reverse(json_decode(json_encode($JobStatusMessage_CM), true));
+                    Log::info($JobStatusMessage_CM);
+                    Log::info(count($JobStatusMessage_CM));
+
+                    if(count($JobStatusMessage_CM) >= 1){
+                        $prc_error_CM = array();
+                        foreach ($JobStatusMessage_CM as $JobStatusMessage_CM1) {
+                            $prc_error_CM[] = $JobStatusMessage_CM1['Message'];
+                        }
+
+                        //unset($error[0]);
+                        $jobdata['message'] = implode('<br>',fix_jobstatus_meassage($prc_error_CM));
+                        $jobdata['JobStatusID'] = DB::table('tblJobStatus')->where('Code','F')->pluck('JobStatusID');
+                        $jobdata['status'] = "failed";
+
+                    }
+                } catch ( Exception $err ) {
+                    DB::rollback();
+                    $jobdata['JobStatusID'] = DB::table('tblJobStatus')->where('Code', 'F')->pluck('JobStatusID');
+                    $jobdata['message'] = 'Exception: ' . $err->getMessage();
+                    $jobdata['status'] = "failed";
+                    Log::error($err);
+                }
+
+                if(!empty($jobdata)) {
+                    return json_encode($jobdata);
+                }
+            }
 
             if($data['RateUploadType'] == RateUpload::vendor) {
                 $query = "CALL  prc_WSReviewVendorRate ('" . $save['AccountID'] . "','" . $save['Trunk'] . "'," . $save['checkbox_replace_all'] . ",'" . $save['checkbox_rates_with_effected_from'] . "','" . $ProcessID . "','" . $save['checkbox_add_new_codes_to_code_decks'] . "','" . $CompanyID . "','".$p_Blocked."','".$p_preference."','".$DialStringId."','".$dialcode_separator."',".$CurrencyID.",".$save['radio_list_option'].")";

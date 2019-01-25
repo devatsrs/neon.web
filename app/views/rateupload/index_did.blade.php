@@ -366,7 +366,7 @@
             OriginationCountryCode  : 'Origination Country Code',
             OriginationCode         : 'Origination Code',
             OriginationDescription  : 'Origination Description',
-            CountryCode             : 'Destination Country Code'
+            CountryCode             : 'Country Code'
         };
 
         var all_selectable_timezone_fields   = ['CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber'];
@@ -1125,9 +1125,11 @@
                             }
                         });
                         $.each( option_value.selection, function( key, value ) {
-                            if(typeof $("#add-template-form input[name='selection["+key+"]']").val() != 'undefined'){
-                                $('#add-template-form').find('input[name="selection['+key+']"]').val(value)
-                            }else if(typeof $("#add-template-form select[name='selection["+key+"]']").val() != 'undefined'){
+                            if(key == 'CountryMapping' || 'OriginationCountryMapping') {
+                                $('#add-template-form').find('input[name="selection['+key+']"]').attr("checked","checked");
+                            } else if(typeof $("#add-template-form input[name='selection["+key+"]']").val() != 'undefined') {
+                                $('#add-template-form').find('input[name="selection['+key+']"]').val(value);
+                            } else if(typeof $("#add-template-form select[name='selection["+key+"]']").val() != 'undefined') {
                                 $("#add-template-form [name='selection["+key+"]']").val(value).trigger("change");
 
                                 // hide all timezones sections which are not mapped
@@ -1216,7 +1218,9 @@
                     if(optionskey == 'Options'){
                         if(option_value.selection2 != undefined) {
                             $.each(option_value.selection2, function (key, value) {
-                                if (typeof $("#add-template-form input[name='selection2[" + key + "]']").val() != 'undefined') {
+                                if(key == 'CountryMapping' || 'OriginationCountryMapping') {
+                                    $('#add-template-form').find('input[name="selection['+key+']"]').attr("checked","checked");
+                                } else if (typeof $("#add-template-form input[name='selection2[" + key + "]']").val() != 'undefined') {
                                     $('#add-template-form').find('input[name="selection2[' + key + ']"]').val(value)
                                 } else if (typeof $("#add-template-form select[name='selection2[" + key + "]']").val() != 'undefined') {
                                     $("#add-template-form [name='selection2[" + key + "]']").val(value).trigger("change");

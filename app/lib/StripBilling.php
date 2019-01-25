@@ -34,7 +34,7 @@ class StripeBilling {
 
 	/**
 	 * Invoice Payment with stripe
-	*/
+	 */
 	public function create_charge($data)
 	{
 		$response = array();
@@ -344,6 +344,279 @@ class StripeBilling {
 		}else{
 			return Response::json(array("status" => "failed", "message" => $result['error']));
 		}
+	}
+
+
+	/**
+	 * @param $data
+	 * @return array
+	 */
+	public function createAccount($data){
+		$CustomerID = $data['AccountID'];
+		$CompanyID = $data['CompanyID'];
+		$PaymentGatewayID=$data['PaymentGatewayID'];
+		$account = Account::where(array('AccountID' => $CustomerID))->first();
+		$isDefault = 1;
+		$count = AccountPaymentProfile::where(['AccountID' => $CustomerID])
+			->where(['CompanyID' => $CompanyID])
+			->where(['PaymentGatewayID' => $PaymentGatewayID])
+			->where(['isDefault' => 1])
+			->count();
+
+		if($count>0) $isDefault = 0;
+
+		$currency = Currency::where('CurrencyId', $account->CurrencyId)->first();
+		$currency = $currency != false ? 'usd' : strtolower($account->Code);
+		$response = array();
+		$token = array();
+		try{
+			$token = Stripe::tokens()->create([
+				'card' => [
+					'number'    => $data['CardNumber'],
+					'exp_month' => $data['ExpirationMonth'],
+					'cvc'       => $data['CVVNumber'],
+					'exp_year'  => $data['ExpirationYear'],
+					'name' 		=> $data['NameOnCard'],
+					'currency'  => $currency
+				],
+			]);
+			//Log::info(print_r($token,true));
+
+		} catch (Exception $e) {
+			Log::error($e);
+			//return ["return_var"=>$e->getMessage()];
+			$response['status'] = 'failed';
+			$response['message'] = $e->getMessage();
+		}
+
+		if(!empty($token) && $token['id'] != ''){
+
+			if(isset($token['card']['funding']) && $token['card']['funding'] == "debit") {
+
+				try {
+					\Stripe\Stripe::setApiKey($this->stripe_secret_key);
+
+					$stripeAccountInfo = $this->setStripeAccountInfo($data, $account);
+					$stripeAccount = \Stripe\Account::create($stripeAccountInfo);
+
+					if (!empty($stripeAccount['id']) && $stripeAccount['id'] != '') {
+
+						$account = \Stripe\Account::retrieve($stripeAccount['id']);
+						$card = $account->external_accounts->create([
+							"external_account" => $token['id']
+						]);
+
+						if (!empty($card['id']) && $card['id'] != '') {
+							$option = array(
+								'PayoutAccountID' => $stripeAccount['id'],
+								'CardID' => $card['id']
+							);
+
+							$AccountDetails = array(
+								'Title' 	=> $data['Title'],
+								'Options' 	=> json_encode($option),
+								'Status' 	=> 1,
+								'isDefault' => $isDefault,
+								'created_by'=> Customer::get_accountName(),
+								'CompanyID' => $CompanyID,
+								'AccountID' => $CustomerID,
+								'PaymentGatewayID' => $PaymentGatewayID
+							);
+
+							if (AccountPayout::create($AccountDetails)) {
+								$response = array("status" => "success", "message" => cus_lang("PAYMENT_MSG_PAYOUT_ACCOUNT_SUCCESSFULLY_CREATED"));
+							} else {
+								$response = array("status" => "failed", "message" => cus_lang("PAYMENT_MSG_PROBLEM_SAVING_PAYOUT_ACCOUNT"));
+							}
+
+						} else {
+							$response['status'] = 'failed';
+							$response['message'] = cus_lang("PAYMENT_MSG_PROBLEM_CREATING_PAYOUT_ACCOUNT");
+						}
+					} else {
+						$response['status'] = 'failed';
+						$response['message'] = cus_lang("PAYMENT_MSG_PROBLEM_ADDING_PAYOUT_CARD");
+					}
+				} catch (Exception $e) {
+					Log::error($e);
+					$response['status'] = 'failed';
+					$response['message'] = $e->getMessage();
+				}
+			} else {
+				$response['status'] = 'failed';
+				$response['message'] = cus_lang("PAYMENT_MSG_PROBLEM_PAYOUT_ACCOUNT_DEBIT_CARD_VALIDITY");
+			}
+		}
+
+		return Response::json($response);
+	}
+
+	/**
+	 * @param $data
+	 * @param $account
+	 * @return array
+	 */
+	public function setStripeAccountInfo($data, $account){
+		$data['email'] 		  = empty($account->BillingEmail) ? '' : $account->BillingEmail;
+		$data['account_name'] = empty($account->AccountName) ? '' : $account->AccountName;
+		$data['first_name']   = empty($account->FirstName) ? '' : $account->FirstName;
+		$data['last_name'] 	  = empty($account->LastName) ? '' : $account->LastName;
+		$data['address'] 	  = empty($account->Address1) ? '' : $account->Address1;
+		$data['city'] 		  = empty($account->City) ? '' : $account->City;
+		$data['state'] 	      = empty($account->State) ? '' : $account->State;
+		$data['post_code'] 	  = empty($account->PostCode) ? '' : $account->PostCode;
+		$data['country'] 	  = empty($account->Country) ? '' : $account->Country;
+
+		$stripeAccount = [
+			"type" => "custom",
+			"tos_acceptance" => [
+				"date" 	=> time(),
+				"ip" 	=> $_SERVER['REMOTE_ADDR'],
+			]
+		];
+
+		if($data['country'] != '')
+			$data['country'] = Country::getCountryCodeByName($data['country']);
+
+		if($data['first_name'] != '')
+			$stripeAccount['legal_entity']['first_name'] = $data['first_name'];
+
+		if($data['last_name'] != '')
+			$stripeAccount['legal_entity']['last_name'] = $data['last_name'];
+
+		if($data['address'] != '')
+			$stripeAccount['legal_entity']['address']['line1'] = $data['address'];
+
+		if($data['city'] != '')
+			$stripeAccount['legal_entity']['address']['city'] = $data['city'];
+
+		if($data['state'] != '')
+			$stripeAccount['legal_entity']['address']['state'] = $data['state'];
+
+		if($data['post_code'] != '')
+			$stripeAccount['legal_entity']['address']['post_code'] = $data['post_code'];
+
+		if($data['country'] != '')
+			$stripeAccount['country'] = $data['country'];
+
+		if(isset($data['DOB'])) {
+			$dt = DateTime::createFromFormat("Y-m-d", $data['DOB']);
+			if($dt !== false && !array_sum($dt->getLastErrors())) {
+				$dob = explode("-", $data['DOB']);
+				if (count($dob) == 3) {
+					$stripeAccount['legal_entity']['dob']['year']  = $dob[0];
+					$stripeAccount['legal_entity']['dob']['month'] = $dob[1];
+					$stripeAccount['legal_entity']['dob']['day']   = $dob[2];
+				}
+			}
+		}
+
+		return $stripeAccount;
+	}
+
+	public function deleteAccount($data){
+		$AccountID = $data['AccountID'];
+		$CompanyID = $data['CompanyID'];
+		$AccountPayoutID=$data['AccountPayoutID'];
+
+		$count = AccountPayout::where([
+			"CompanyID" => $CompanyID,
+			"AccountID" => $AccountID
+		])->count();
+
+		$PayoutAccount = AccountPayout::find($AccountPayoutID);
+		if(!empty($PayoutAccount)){
+			$options = json_decode($PayoutAccount->Options);
+			$PayoutAccountID = $options->PayoutAccountID;
+			$isDefault = $PayoutAccount->isDefault;
+		}else{
+			return Response::json(array("status" => "failed", "message" => cus_lang("MESSAGE_RECORD_NOT_FOUND")));
+		}
+		if($isDefault==1){
+			if($count!=1){
+				return Response::json(array("status" => "failed", "message" => cus_lang("PAYMENT_MSG_NOT_DELETE_DEFAULT_PAYOUT_METHOD")));
+			}
+		}
+
+		try {
+			\Stripe\Stripe::setApiKey($this->stripe_secret_key);
+			$account = \Stripe\Account::retrieve($PayoutAccountID);
+			$res = $account->delete();
+			if(!empty($res) && $res['deleted'] == true){
+				$result['status'] = 'Success';
+			} else {
+				$result['status'] = 'Failed';
+			}
+		} catch (Exception $e) {
+			Log::error($e);
+			$result['status'] = 'Failed';
+			$result['message'] = $e->getMessage();
+		}
+
+		if($result["status"]=="Success"){
+			if($PayoutAccount->delete()) {
+				return Response::json(array("status" => "success", "message" => cus_lang("PAYMENT_MSG_PAYOUT_DELETED")));
+			} else {
+				return Response::json(array("status" => "failed", "message" => cus_lang("PAYMENT_MSG_PROBLEM_DELETING_PAYOUT_ACCOUNT")));
+			}
+		}else{
+			return Response::json(array("status" => "failed", "message" => $result['error']));
+		}
+	}
+
+	/**
+	 * @param $data
+	 * @return array
+	 */
+	public function payoutWithStripeAccount($data){
+
+		$response = ['status' => 'failed', 'message' => "Invalid Request."];
+		$Account = $data['account'];
+		$AccountPayout = AccountPayout::where([
+			'AccountID' => $data['AccountID'],
+			'CompanyID' => $data['CompanyID'],
+			'Status' 	=> 1,
+			'isDefault' => 1,
+		])->first();
+
+		if($AccountPayout != false){
+			$options = json_decode($AccountPayout->Options);
+			$PayoutAccountID = $options->PayoutAccountID;
+			$CardID = $options->CardID;
+			try {
+				\Stripe\Stripe::setApiKey($this->stripe_secret_key);
+				$payoutAcc = \Stripe\Account::retrieve($PayoutAccountID);
+
+				if(!empty($payoutAcc['id'])) {
+					$currency = Currency::where('CurrencyId', $Account->CurrencyId)->first();
+					$currency = $currency != false ? 'usd' : strtolower($Account->Code);
+					$payout = \Stripe\Payout::create([
+						'amount' 		 => $data['Amount'],
+						'currency' 		 => $currency,
+						'description' 	 => $Account->AccountName,
+						'destination'    => $CardID
+					], ['stripe_account' => $PayoutAccountID]);
+
+					if(!empty($payout['id']) || !empty($payout['balance_transaction'])){
+						$response = [
+							'status' 	=> 'success',
+							'response' 	=> $payout,
+							'message' 	=> "Payout request has successfully submitted."];
+					} else {
+						$response = [
+							'status'  => 'failed',
+							'message' => "Payout request failed."];
+					}
+				}
+
+			} catch(Exception $e) {
+				Log::error($e);
+				$response['status'] = 'failed';
+				$response['message'] = $e->getMessage();
+			}
+		}
+
+		return $response;
 	}
 
 	public function paymentValidateWithProfile($data){
