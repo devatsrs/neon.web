@@ -408,7 +408,11 @@ class AccountsApiController extends ApiController {
 	public function createAccount() {
 		Log::info('createAccount:Create new Account.');
 		try {
-			$accountData = Input::all();
+
+			$post_vars = json_decode(file_get_contents("php://input"));
+			//$post_vars = Input::all();
+			$accountData=json_decode(json_encode($post_vars),true);
+			//$accountData = Input::all();
 			$ServiceID = 0;
 			$CompanyID = User::get_companyID();
 			$CreatedBy = User::get_user_full_name();
