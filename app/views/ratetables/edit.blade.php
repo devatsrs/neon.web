@@ -465,7 +465,6 @@
             e.preventDefault();
             $("#new-rate-form")[0].reset();
             $("#new-rate-form .rateid_list").select2("val","");
-            $("#new-rate-form .rateid_list").select2("val","");
             $("#new-rate-form select[name=RoutingCategoryID]").select2("val", "");
             //$("#new-rate-form [name='RateID']").select2().select2('val','');
             $("#modal-add-new").modal('show');
@@ -891,6 +890,8 @@
                 $(".edit-rate-table.btn").off('click');
                 $(".edit-rate-table.btn").click(function(ev) {
                     ev.stopPropagation();
+
+                    $("#edit-rate-table-form  [name=OriginationRateID]").select2("val", "");
                     var cur_obj = $(this).prevAll("div.hiddenRowData");
                     for(var i = 0 ; i< list_fields.length; i++){
                         $("#edit-rate-table-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
