@@ -121,7 +121,7 @@ public function main() {
             'DailyFee' => 'required|numeric',
 			 'ActivationFee' => 'required|numeric',
 			 'Qty' => 'required|numeric',
-			 
+
             //'EndDate'               =>'required'
         );
 //        if(!empty($data['EndDate'])) {
@@ -141,8 +141,15 @@ public function main() {
             $data['SequenceNo'] = $SequenceNo;
         }
 
+        Log::info('Trach Line...1' . count($data['dynamicFileds']));
 
         if(isset($data['dynamicFileds']))
+        {
+            $dynamicData['dynamicFileds'] = $data['dynamicFileds'];
+            unset($data['dynamicFileds']);
+        }
+
+    /*    if(isset($data['dynamicFileds']))
         {
             $dynamiceFields = $data['dynamicFileds'];
 
@@ -153,7 +160,6 @@ public function main() {
                 unset( $data['dynamicSelect']);
 
             }
-
             unset($data['dynamicFileds']);
             unset($data['AccountSubscriptionID']);
         }
@@ -163,91 +169,89 @@ public function main() {
             $GetDynamicImg['dynamicImage'] = $data['dynamicImage'];
         }
         unset($data['dynamicImage']);
+    */
+
+        if(isset($data['ImageID']) && !empty($data['ImageID']))
+        {
+            $DaynamicImageID     = $data['ImageID'];
+            $GetDynamicImageInfo = $data['dynamicImage'];
+            unset($data['ImageID']);
+        }
+        unset($data['dynamicImage']);
         $data['Status'] = '1';
+        $DynamicFields = [];
 
         if ($AccountSubscription = AccountSubscription::create($data)) {
+            $data['DynamicFields'] = $dynamicData['dynamicFileds'];
+            Log::info('Trach Line...2' . count($data['DynamicFields']));
             $dynamiceFields['AccountID']  = $data['AccountID'];
 
-//            $GetDynamiceAll = DynamicFields::join('tblDynamicFieldsValue', function($join) {
-//                $join->on('tblDynamicFieldsValue.DynamicFieldsID','=','tblDynamicFields.DynamicFieldsID');
-//            })->select('tblDynamicFields.DynamicFieldsID','tblDynamicFields.FieldName','tblDynamicFields.FieldDomType')
-//              ->where('tblDynamicFieldsValue.ParentID', $data['AccountID'])
-//              ->get();
+            if(isset($data['DynamicFields'])) {
+                $j=0;
+                Log::info('Trach Line...21' . count($data['DynamicFields']));
+                $companyID = User::get_companyID();
 
-            $GetDynamiceAll = DynamicFields::join('tblDynamicFieldsValue', function($join) {
-                $join->on('tblDynamicFieldsValue.DynamicFieldsID','=','tblDynamicFields.DynamicFieldsID');
-            })->select('tblDynamicFields.FieldName' , 'tblDynamicFields.DynamicFieldsID','tblDynamicFields.FieldDomType', 'tblDynamicFieldsValue.FieldValue')
-                ->where('tblDynamicFields.Type','=', 'subscription')
-                ->get();
+                foreach($data['DynamicFields'] as $key => $value) {
+
+                    $key = (int) $key;
+                    $DynamicFields[$j]['DynamicFieldsID'] = $key;
+                    $DynamicFields[$j]['CompanyID'] = $companyID;
+                    $DynamicFields[$j]['FieldValue'] = $value;
+                    $DynamicFields[$j]['created_at'] = date('Y-m-d H:i:s.000');
+                    $DynamicFields[$j]['created_by'] = User::get_user_full_name();
+                    $j++;
 
 
-            foreach($GetDynamiceAll as $DynamicFieldsID)
-            {
-                $ids [] = $DynamicFieldsID->DynamicFieldsID;
-                $name[] = $DynamicFieldsID->FieldName;
-                $type[] = $DynamicFieldsID->FieldDomType;
+                }
             }
 
 
-            for($i=0; $i < sizeof($ids); $i++ )
+            if(isset($DynamicFields) && count($DynamicFields)>0) {
+                for($k=0; $k<count($DynamicFields); $k++) {
+
+                        AccountSubsDynamicFields::create([
+                            'AccountSubscriptionID' => $AccountSubscription->AccountSubscriptionID,
+                            'AccountID' => $dynamiceFields['AccountID'],
+                            'DynamicFieldsID' => $DynamicFields[$k]['DynamicFieldsID'],
+                            'FieldValue' => $DynamicFields[$k]['FieldValue'],
+                            'FieldOrder' => $k
+                        ]);
+                }
+            }
+
+
+            if(isset($GetDynamicImageInfo) && !empty($GetDynamicImageInfo))
             {
-                if(isset($_FILES["dynamicImage"]["name"]) && $type[$i] == "file") {
+                if(isset($_FILES["dynamicImage"]["name"])){
                     $dynamicImage = $_FILES["dynamicImage"]["name"];
                     if($dynamicImage){
                         $upload_path = CompanyConfiguration::get('UPLOAD_PATH',$companyID)."/";
                         $fileUrl=$companyID."/dynamicfields/";
-
                         if (!file_exists($upload_path.$fileUrl)) {
                             mkdir($upload_path.$fileUrl, 0777, true);
                         }
+                        $dynamicImage = time().$companyID. $dynamicImage;
 
-                        //rename with time img
-                        $dynamicImage=time().$dynamicImage;
-                        //uploading theimage below directory path
                         $success=move_uploaded_file($_FILES["dynamicImage"]["tmp_name"],$upload_path.$fileUrl.$dynamicImage);
 
                         if($success){
-
                             AccountSubsDynamicFields::create([
                                 'AccountSubscriptionID' => $AccountSubscription->AccountSubscriptionID,
                                 'AccountID' => $dynamiceFields['AccountID'],
-                                'DynamicFieldsID' => $ids[$i],
+                                'DynamicFieldsID' => $DaynamicImageID,
                                 'FieldValue' => $dynamicImage,
-                                'FieldOrder' => $i
+                                'FieldOrder' => count($DynamicFields)
                             ]);
 
                             unset($_FILES);
+                            unset($GetDynamicImageInfo);
 
-                            if($name[$i] == "file")
-                            {
-                                unset($ids[$i]);
-                                unset($name[$i]);
-                            }
-
-                        }else{
-
-                            return Response::json(array("status" => "failed", "message" => "Error: There was a problem uploading your file. Please try again."));
                         }
                     }
 
-                }else{
-
-
-                    if(isset($dynamiceFields[$i]) && !empty($dynamiceFields[$i]))
-                    {
-                        AccountSubsDynamicFields::create([
-                            'AccountSubscriptionID' => $AccountSubscription->AccountSubscriptionID,
-                            'AccountID' => $dynamiceFields['AccountID'],
-                            'DynamicFieldsID' => $ids[$i],
-                            'FieldValue' => $dynamiceFields[$i],
-                            'FieldOrder' => $i
-                        ]);
-
-                    }
-
                 }
-
             }
+
 
             return Response::json(array("status" => "success", "message" => "Subscription Successfully Created",'LastID'=>$AccountSubscription->AccountSubscriptionID));
 
@@ -720,18 +724,34 @@ public function main() {
         return Response::json(array("status" => "success", "data" => $Response));
     }
 
-    public function FindDynamicFields(){
-        $data 			        = Input::all();
-        $AccountSubscriptionID  = $data['AccountSubscriptionID'];
 
+    public function FindAccountServicesField()
+    {
         try{
-            $GetDynamiceAll = DynamicFields::join('tblDynamicFieldsValue', function($join) {
-                $join->on('tblDynamicFieldsValue.DynamicFieldsID','=','tblDynamicFields.DynamicFieldsID');
-            })->select('tblDynamicFields.FieldName' , 'tblDynamicFields.FieldDomType', 'tblDynamicFieldsValue.FieldValue')
+
+            $GetDynamiceAll = DynamicFields::select('FieldName' , 'FieldDomType', 'FieldValue','DynamicFieldsID')
                 ->where('tblDynamicFields.Type','=', 'subscription')
+                ->groupBy('tblDynamicFields.DynamicFieldsID')
                 ->get();
 
             return $GetDynamiceAll;
+        }catch (Exception $ex){
+            return $ex;
+        }
+    }
+
+    public function FindDynamicFields(){
+       try{
+
+           $GetDynamiceAll = DynamicFields::join('tblDynamicFieldsValue', function($join) {
+                $join->on('tblDynamicFieldsValue.DynamicFieldsID','=','tblDynamicFields.DynamicFieldsID');
+            })->select('tblDynamicFields.FieldName' , 'tblDynamicFields.FieldDomType', 'tblDynamicFieldsValue.FieldValue','tblDynamicFieldsValue.DynamicFieldsID')
+                ->where('tblDynamicFields.Type','=', 'subscription')
+                ->groupBy('tblDynamicFields.DynamicFieldsID')
+                ->get();
+
+           return $GetDynamiceAll;
+
 
         }catch (Exception $ex){
             return $ex;
@@ -741,18 +761,22 @@ public function main() {
 
 
     public function FindEditDynamicFields(){
-        $data = Input::all();
-        $AccountSubscriptionID = $data['AccountSubscriptionID'];
+       $data = Input::all();
+       $AccountSubscriptionID  = (string)$data['AccountSubscriptionID'];
+       $AccountID              = (string)$data['AccountID'];
 
-        try{
+
+
+      try{
 
             $AccountSubsDynamicFields = AccountSubsDynamicFields::join('speakintelligentRM.tblDynamicFields as db2','tblAccountSubsDynamicFields.DynamicFieldsID','=','db2.DynamicFieldsID')
-                ->select('tblAccountSubsDynamicFields.AccountSubscriptionID', 'tblAccountSubsDynamicFields.AccountID', 'tblAccountSubsDynamicFields.DynamicFieldsID', 'tblAccountSubsDynamicFields.FieldValue', 'db2.FieldName', 'db2.FieldDomType')
-                ->where('tblAccountSubsDynamicFields.AccountSubscriptionID', $AccountSubscriptionID)
-                ->orderBy('tblAccountSubsDynamicFields.FieldOrder','ASC')
-                ->get();
+            ->select('tblAccountSubsDynamicFields.AccountSubscriptionID', 'tblAccountSubsDynamicFields.AccountID', 'tblAccountSubsDynamicFields.DynamicFieldsID', 'tblAccountSubsDynamicFields.FieldValue', 'db2.FieldName', 'db2.FieldDomType')
+            ->where('tblAccountSubsDynamicFields.AccountSubscriptionID','=',$AccountSubscriptionID)
+            ->where('tblAccountSubsDynamicFields.AccountID','=',$AccountID)
+            ->orderBy('tblAccountSubsDynamicFields.FieldOrder','ASC')
+            ->get();
 
-            return $AccountSubsDynamicFields;
+          return $AccountSubsDynamicFields;
 
         }catch (Exception $ex){
             return $ex;
