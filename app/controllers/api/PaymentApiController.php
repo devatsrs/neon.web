@@ -79,13 +79,12 @@ class PaymentApiController extends ApiController {
 		$post_vars = json_decode(file_get_contents("php://input"));
 		$data=json_decode(json_encode($post_vars),true);
 
-		$rules = array(
-			'Amount' => 'required',
-		);
-
 		$verifier = App::make('validation.presence');
 		$verifier->setConnection('sqlsrv2');
 
+		$rules = array(
+			'Amount' => 'required',
+		);
 		$validator = Validator::make($data, $rules);
 		$validator->setPresenceVerifier($verifier);
 
@@ -123,28 +122,91 @@ class PaymentApiController extends ApiController {
 		}
 
 		if(!empty($AccountID) && !empty($CompanyID)){
-			$data['CompanyId']=$CompanyID;
-			$data['Status']='Pending Approval';
-			$data['PaymentType']=Payment::$action['Payment Out'];
-			$data['PaymentDate']=date('Y-m-d 00:00:00');
-			$data['created_at']=date("Y-m-d H:i:s");
-			$data['CreatedBy']='API';
+			$data['CompanyID']=$CompanyID;
 			$data['AccountID']=$AccountID;
-			$data['IsOutPayment']=1;
-			unset($data['AccountID']);
-			unset($data['AccountNo']);
-			unset($data['AccountDynamicField']);
 
-			if ($Payment = Payment::create($data)) {
-				return Response::json(array("status" => "200", "data" => ["RequestFundID"=>$Payment->PaymentID]));
-			} else {
-				return Response::json(array("status" => "500", "message" => "Problem Creating Payment."));
+			//if Auto payout is allowed
+			$approved = !empty($data['Approved']) && $data['Approved'] == 1 ? 1 : 0;
+
+			$resp = [];
+			if ($approved == 1) {
+				$resp = $this->payout($data);
 			}
 
-		}else{
+			if($approved == 1){
+
+				if($resp['status'] == "success") {
+					$note = "Stripe payout_id: {$resp['id']}, transaction_id: {$resp['balance_transaction']}";
+
+					$data['Status'] 	 = 'Approved';
+					$data['PaymentType'] = Payment::$action['Payment Out'];
+					$data['PaymentDate'] = date('Y-m-d 00:00:00');
+					$data['created_at']  = date("Y-m-d H:i:s");
+					$data['CreatedBy'] 	 = 'API';
+					$data['Notes'] 	 	 = $note;
+					$data['IsOutPayment']= 1;
+					unset($data['AccountNo']);
+					unset($data['Approved']);
+					unset($data['AccountDynamicField']);
+
+					if ($Payment = Payment::create($data)) {
+						return Response::json(array("status" => "200", "data" => ["RequestFundID" => $Payment->PaymentID]));
+					} else {
+						return Response::json(array("status" => "500", "message" => "Problem Creating Payment."));
+					}
+
+				} else {
+					return Response::json(array("status" => "500", "message" => @$resp['message']));
+				}
+
+			} else {
+				$data['Status'] = 'Pending Approval';
+				$data['PaymentType'] = Payment::$action['Payment Out'];
+				$data['PaymentDate'] = date('Y-m-d 00:00:00');
+				$data['created_at'] = date("Y-m-d H:i:s");
+				$data['CreatedBy'] = 'API';
+				$data['IsOutPayment'] = 1;
+				unset($data['AccountNo']);
+				unset($data['Approved']);
+				unset($data['AccountDynamicField']);
+
+				if ($Payment = Payment::create($data)) {
+					return Response::json(array("status" => "200", "data" => ["RequestFundID" => $Payment->PaymentID]));
+				} else {
+					return Response::json(array("status" => "500", "message" => "Problem Creating Payment."));
+				}
+			}
+
+		} else {
 			return Response::json(["status"=>"404", "message"=>"Account Not Found"]);
 		}
 
+	}
+
+	/**
+	 * @param $data
+	 * @return array
+	 */
+	public function payout($data){
+
+		$Account = Account::where([
+			'AccountID' => $data['AccountID'],
+			'CompanyID' => $data['CompanyID']
+		])->first();
+		$response = ['status' => 'failed', 'message' => "Invalid Request."];
+		if($Account != false) {
+			$PayoutMethod = $Account->PayoutMethod;
+			if (!empty($PayoutMethod) && $PayoutMethod=='Stripe') {
+				$PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PayoutMethod);
+				$PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
+				$PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $data['CompanyID']);
+				$data['account'] = $Account;
+
+				$response = $PaymentIntegration->payoutWithStripeAccount($data);
+			}
+		}
+
+		return $response;
 	}
 
 	/**

@@ -40,7 +40,11 @@ class PaymentIntegration {
 	public function deleteAccount($data){
 		return $this->request->deleteAccount($data);
 	}
-	
+
+	public function payoutWithStripeAccount($data){
+		return $this->request->payoutWithStripeAccount($data);
+	}
+
 	public function deleteProfile($data){
 		return $this->request->deleteProfile($data);
 	}
