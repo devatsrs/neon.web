@@ -1528,6 +1528,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accountservices/{id}/bulk_change_status', 'AccountServiceController@bulk_change_status');
 	Route::any('accountservices/{id}/bulk_delete', 'AccountServiceController@bulk_delete');
 	Route::any('accountservices/cancel_contract', 'AccountServiceController@cancelContract');
+	Route::any('accountservices/contract_status/{serviceid}', 'AccountServiceController@contract_status');
+
 
 	//noticeboard
 	Route::any('/noticeboard', 'NoticeBoardController@index');
