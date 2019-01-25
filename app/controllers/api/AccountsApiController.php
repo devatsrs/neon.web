@@ -394,7 +394,7 @@ class AccountsApiController extends ApiController {
 
 
 
-			return Response::json(array("status" => "200", "message" => $message));
+			return Response::json(array("status" => "200", "data" => $message));
 
 
 		} catch (Exception $ex) {
@@ -862,8 +862,12 @@ class AccountsApiController extends ApiController {
 						}
 					}
 				}
+
+				$AccountSuccessMessage['AccountID'] = $account->AccountID;
+				$AccountSuccessMessage['redirect'] = URL::to('/accounts/' . $account->AccountID . '/edit');
+
 				CompanySetting::setKeyVal('LastAccountNo', $account->Number);
-				return Response::json(array("status" => "200", "message" => "Account Successfully Created", 'AccountID' => $account->AccountID, 'redirect' => URL::to('/accounts/' . $account->AccountID . '/edit')));
+				return Response::json(array("status" => "200", 'data' => $AccountSuccessMessage));
 			} else {
 				return Response::json(array("status" => "401", "message" => "Problem Creating Account."));
 			}
