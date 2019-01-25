@@ -201,6 +201,14 @@ class PaymentGateway extends \Eloquent {
         }
         return $PaymentGatewayName;
     }
+    public static function getPayoutGatewayNameBYAccount($AccountID){
+        $Account = Account::find($AccountID);
+        $PaymentGatewayName = '';
+        if(!empty($Account->PayoutMethod)){
+            $PaymentGatewayName = $Account->PayoutMethod;
+        }
+        return $PaymentGatewayName;
+    }
 
     public static function getPaymentGatewayClass($PaymentGatewayID){
         if($PaymentGatewayID=='2'){
