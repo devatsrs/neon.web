@@ -311,7 +311,7 @@ class RoutingApiController extends ApiController {
 
 
             $lcrDetails = json_decode(json_encode($lcrDetails), true);
-            return Response::json(["status" => "200", "Positions" => $lcrDetails]);
+            return Response::json(["status" => "200", "data" => $lcrDetails]);
         }catch(Exception $ex) {
             return Response::json(["status" => "500", "message" => "Exception in Routing API"]);
         }
@@ -590,7 +590,7 @@ class RoutingApiController extends ApiController {
 
             Log::info('Filter Routing Profile List procedure bindvalues is second select' . count($lcrDetails));
             $lcrDetails = json_decode(json_encode($lcrDetails), true);
-            return Response::json(["status" => "200", "Positions" => $lcrDetails]);
+            return Response::json(["status" => "200", "data" => $lcrDetails]);
         }catch(Exception $ex) {
             Log::info('Exception in Routing API.' . $ex->getTraceAsString());
             return Response::json(["status" => "500", "message" => "Exception in Routing API"]);

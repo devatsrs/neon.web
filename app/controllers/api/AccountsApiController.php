@@ -394,7 +394,7 @@ class AccountsApiController extends ApiController {
 
 
 
-			return Response::json(array("status" => "200", "message" => $message));
+			return Response::json(array("status" => "200", "data" => $message));
 
 
 		} catch (Exception $ex) {
@@ -408,7 +408,11 @@ class AccountsApiController extends ApiController {
 	public function createAccount() {
 		Log::info('createAccount:Create new Account.');
 		try {
-			$accountData = Input::all();
+
+			$post_vars = json_decode(file_get_contents("php://input"));
+			//$post_vars = Input::all();
+			$accountData=json_decode(json_encode($post_vars),true);
+			//$accountData = Input::all();
 			$ServiceID = 0;
 			$CompanyID = User::get_companyID();
 			$CreatedBy = User::get_user_full_name();
@@ -858,8 +862,12 @@ class AccountsApiController extends ApiController {
 						}
 					}
 				}
+
+				$AccountSuccessMessage['AccountID'] = $account->AccountID;
+				$AccountSuccessMessage['redirect'] = URL::to('/accounts/' . $account->AccountID . '/edit');
+
 				CompanySetting::setKeyVal('LastAccountNo', $account->Number);
-				return Response::json(array("status" => "200", "message" => "Account Successfully Created", 'AccountID' => $account->AccountID, 'redirect' => URL::to('/accounts/' . $account->AccountID . '/edit')));
+				return Response::json(array("status" => "200", 'data' => $AccountSuccessMessage));
 			} else {
 				return Response::json(array("status" => "401", "message" => "Problem Creating Account."));
 			}
