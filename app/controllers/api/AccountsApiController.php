@@ -195,6 +195,9 @@ class AccountsApiController extends ApiController {
 
 			$ServiceTemaplateReference = DynamicFieldsValue::where(["DynamicFieldsID"=>$DynamicField,"FieldValue"=>$ServiceTemaplateData["Value"]])->pluck('ParentID');
 			$ServiceTemaplateReference = ServiceTemplate::find($ServiceTemaplateReference);
+			if (!isset($ServiceTemaplateReference)) {
+				return Response::json(array("status" => Codes::$Code1008[0], "ErrorMessage" => Codes::$Code1008[1]));
+			}
 			Log::info('ServiceTemplateId' . $ServiceTemaplateReference->ServiceTemplateId);
 
 
