@@ -93,8 +93,8 @@ class AccountsApiController extends ApiController {
 			$data['InboundTariffCategory'] = isset($accountData['InboundTariffCategoryID']) ? $accountData['InboundTariffCategoryID'] :'';
 			//$data['ServiceStartDate'] = isset($accountData['ServiceStartDate'])? strtotime($accountData['ServiceStartDate']) : '';
 			//$data['ServiceEndDate'] = isset($accountData['ServiceEndDate'])? strtotime($accountData['ServiceEndDate']) : '';
-			$AccountServiceContract['ContractStartDate'] = isset($accountData['ServiceStartDate']) ? $accountData['ServiceStartDate'] :'' ;
-			$AccountServiceContract['ContractEndDate'] = isset($accountData['ServiceEndDate']) ? $accountData['ServiceEndDate'] : '';
+			$AccountServiceContract['ContractStartDate'] = isset($accountData['ContractStartDate']) ? $accountData['ContractStartDate'] :'' ;
+			$AccountServiceContract['ContractEndDate'] = isset($accountData['ContractEndDate']) ? $accountData['ContractEndDate'] : '';
 			$AccountServiceContract['Duration'] = isset($accountData['ContractDuration']) ? $accountData['ContractDuration'] : '';
 			$AccountServiceContract['ContractReason'] = isset($accountData['ContractFeeValue']) ? $accountData['ContractFeeValue'] : '';
 			$AccountServiceContract['AutoRenewal'] = isset($accountData['AutoRenewal']) ? $accountData['AutoRenewal'] : '';
@@ -196,7 +196,7 @@ class AccountsApiController extends ApiController {
 			$ServiceTemaplateReference = DynamicFieldsValue::where(["DynamicFieldsID"=>$DynamicField,"FieldValue"=>$ServiceTemaplateData["Value"]])->pluck('ParentID');
 			$ServiceTemaplateReference = ServiceTemplate::find($ServiceTemaplateReference);
 			if (!isset($ServiceTemaplateReference)) {
-				return Response::json(array("status" => Codes::$Code1008[0], "ErrorMessage" => Codes::$Code1008[1]));
+				return Response::json(array("status" => Codes::$Code1021[0], "ErrorMessage" => Codes::$Code1021[1]));
 			}
 			Log::info('ServiceTemplateId' . $ServiceTemaplateReference->ServiceTemplateId);
 
