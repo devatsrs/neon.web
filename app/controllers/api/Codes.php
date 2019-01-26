@@ -20,7 +20,7 @@ class Codes
 //    ErrorMessage: ""
 
 
-
+    public static $Code1000 =["402","Invalid Account"];
     public static $Code1001 =["402","Please specified the Service End Date"];
     public static $Code1002 =["402","End Date should be greater then start date"];
     public static $Code1003 =["402","The value of ContractType must be between 1 and 4"];
