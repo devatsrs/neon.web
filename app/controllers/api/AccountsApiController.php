@@ -460,15 +460,22 @@ class AccountsApiController extends ApiController {
 			$data['IsVendor'] = isset($accountData['IsVendor']);
 			if (!empty($accountData['IsVendor']) && ($accountData['IsVendor'] != 0 && $accountData['IsVendor'] != 1)) {
 				return Response::json(["status" => Codes::$Code1025[0],"ErrorMessage"=>Codes::$Code1025[1]]);
+			}else {
+				$data['IsVendor'] = 0;
 			}
 			$data['IsCustomer'] = isset($accountData['IsCustomer']);
 			if (!empty($accountData['IsCustomer']) && ($accountData['IsCustomer'] != 0 && $accountData['IsCustomer'] != 1)) {
 				return Response::json(["status" => Codes::$Code1024[0],"ErrorMessage"=>Codes::$Code1024[1]]);
+			}else {
+				$data['IsReseller'] = 0;
 			}
-			$data['IsReseller'] = isset($accountData['IsReseller']);
+			$data['IsReseller'] = $accountData['IsReseller'];
 			if (!empty($accountData['IsReseller']) && ($accountData['IsReseller'] != 0 && $accountData['IsReseller'] != 1)) {
 				return Response::json(["status" => Codes::$Code1023[0],"ErrorMessage"=>Codes::$Code1023[1]]);
+			}else {
+				$data['IsReseller'] = 0;
 			}
+			//Log::info('createAccount:Create new Account Reseller0.' . $accountData['IsReseller'] . ' ' . $data['IsReseller']);
 
 			$data['Billing'] = isset($data['Billing']) && $data['Billing'] == 1 ? 1 : 0;
 			$data['created_by'] = $CreatedBy;
@@ -585,6 +592,7 @@ class AccountsApiController extends ApiController {
 				}
 			}
 
+			Log::info('createAccount:Create new Account Reseller.' . $data['IsReseller']);
 			if($data['IsReseller']==1){
 
 				$ResellerCount = Reseller::where('ChildCompanyID',$CompanyID)->count();
@@ -659,9 +667,9 @@ class AccountsApiController extends ApiController {
 			//AccountBilling::$rulesAPI['billing_cycle_options'] = 'required';
 
 
-			$BillingSetting['billing_type'] = isset($accountData['BillingType']) ? $accountData['BillingType'] : '';
+			$BillingSetting['billing_type'] = isset($accountData['BillingTypeID']) ? $accountData['BillingTypeID'] : '';
 			$BillingSetting['billing_class']= isset($accountData['BillingClassID']) ? $accountData['BillingClassID'] : '';
-			$BillingSetting['billing_cycle']= isset($accountData['BillingCycleType']) ? $accountData['BillingCycleType'] : '';
+			$BillingSetting['billing_cycle']= isset($accountData['BillingCycleTypeID']) ? $accountData['BillingCycleTypeID'] : '';
 			$BillingSetting['billing_cycle_options']= isset($accountData['BillingCycleValue']) ? $accountData['BillingCycleValue'] :'';
 			$BillingSetting['billing_start_date']=  isset($accountData['BillingStartDate']) ? $accountData['BillingStartDate'] : '';
 			$BillingSetting['NextInvoiceDate']= isset($accountData['NextInvoiceDate']) ? $accountData['NextInvoiceDate'] : '';
@@ -689,13 +697,49 @@ class AccountsApiController extends ApiController {
 					return Response::json(["status" => Codes::$Code402[0], "ErrorMessage" => $errors]);
 				}
 
-				if ($BillingSetting['billing_type'] == "Prepaid") {
-					$BillingSetting['billing_type'] = "1";
-				} else if ($BillingSetting['billing_type'] == "Postpaid") {
-					$BillingSetting['billing_type'] = "2";
-				} else {
+				if (!empty($BillingSetting['billing_type']) && ($BillingSetting['billing_type'] != 1 && $BillingSetting['billing_type'] != 2)) {
 					return Response::json(["status" => Codes::$Code1016[0], "ErrorMessage" => Codes::$Code1016[1]]);
 				}
+
+				if (!empty($BillingSetting['billing_cycle'])
+					&& ($BillingSetting['billing_cycle'] < 1 || $BillingSetting['billing_cycle'] > 8)) {
+					return Response::json(["status" => Codes::$Code1026[0], "ErrorMessage" => Codes::$Code1026[1]]);
+				}
+
+				$BillingCycleTypeID[0] = "Daily";
+				$BillingCycleTypeID[1] = "Fortnightly";
+				$BillingCycleTypeID[2] = "In Specific days";
+				$BillingCycleTypeID[3] = "Manual";
+				$BillingCycleTypeID[4] = "Monthly";
+				$BillingCycleTypeID[5] = "Monthly anniversary";
+				$BillingCycleTypeID[6] = "Quarterly";
+				$BillingCycleTypeID[7] = "Weekly";
+				$BillingCycleTypeID[8] = "Yearly";
+
+				if ($BillingSetting['billing_cycle'] == 2 || $BillingSetting['billing_cycle'] == 5 || $BillingSetting['billing_cycle'] == 7) {
+					if (empty($BillingSetting['billing_cycle_options'])) {
+						return Response::json(["status" => Codes::$Code1027[0], "ErrorMessage" => Codes::$Code1027[1]]);
+					}
+
+					if ($BillingSetting['billing_cycle'] == 2 || $BillingSetting['billing_cycle'] == 5 ) {
+						$checkDate = strtotime($BillingSetting['billing_cycle_options']);
+						if (empty($checkDate)) {
+							return Response::json(["status" => Codes::$Code1022[0], "ErrorMessage" => Codes::$Code1022[1]]);
+						}
+					}
+
+					if ($BillingSetting['billing_cycle'] == 7) {
+						$validValues = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+						$BillingCycleOptions = explode(',', $BillingSetting['billing_cycle_options']);
+						foreach($BillingCycleOptions as $BillingCycleOption) {
+							if (!in_array($BillingCycleOption, $validValues)) {
+								return Response::json(["status" => Codes::$Code1028[0], "ErrorMessage" => Codes::$Code1028[1]]);
+							}
+						}
+					}
+				}
+
+
 			}
 
 			if ($account = Account::create($data)) {

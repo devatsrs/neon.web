@@ -48,6 +48,10 @@ class Codes
     public static $Code1024 =["402","The value of isCustomer must be between 0 or 1"];
     public static $Code1025 =["402","The value of IsVendor must be between 0 or 1"];
 
+    public static $Code1026 =["402","The value of BillingCycleID must be between 1 and 8"];
+    public static $Code1027 =["402","Please provide the value for BillingCycleValue in case of BillingCycleType 2,5 and 7"];
+    public static $Code1028 =["402","Please provide the ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'] for BillingCycleValue for BillingCycleID 7"];
+
 
 
 }
