@@ -41,6 +41,7 @@ class Codes
     public static $Code1018 =["402","Account Name contains illegal character"];
     public static $Code1019 =["402","Please provide the valid owner ID"];
     public static $Code1020 =["402","Please enter the valid payment method"];
+    public static $Code1021 =["402","Please provide the valid template reference"];
 
 
 
