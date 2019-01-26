@@ -345,7 +345,7 @@ class RoutingApiController extends ApiController {
                 foreach ($validator->messages()->all() as $error) {
                     $errors .= $error . "<br>";
                 }
-                return Response::json(["status" => Codes::$Code401[0], "data" => $errors]);
+                return Response::json(["status" => Codes::$Code402[0], "ErrorMessage" => $errors]);
             }
 
             if (!empty($routingData['AccountDynamicField'])) {
@@ -353,7 +353,7 @@ class RoutingApiController extends ApiController {
                 $AccountIDRef = Account::findAccountBySIAccountRef($routingData['AccountDynamicField']);
 
                 if (empty($AccountIDRef)) {
-                    return Response::json(["status" => Codes::$Code1000[0]]);
+                    return Response::json(["status" => Codes::$Code1000[0], "ErrorMessage"=>Codes::$Code1000[1]]);
                 }
                 $routingData["AccountID"] = $AccountIDRef;
             }
@@ -377,7 +377,7 @@ class RoutingApiController extends ApiController {
             $RoutingProfileID = '';
 
             if (empty($CustomerProfileAccountID)) {
-                return Response::json(["status" => Codes::$Code1000[0]]);
+                return Response::json(["status" => Codes::$Code1000[0], "ErrorMessage"=>Codes::$Code1000[1]]);
             }
             Log::info('routingList:Get the routing list count.' . $CustomerProfileAccountID);
 
@@ -595,7 +595,7 @@ class RoutingApiController extends ApiController {
             return Response::json(["status" => Codes::$Code200[0], "data" => $lcrDetails]);
         }catch(Exception $ex) {
             Log::info('Exception in Routing API.' . $ex->getTraceAsString());
-            return Response::json(["status" => Codes::$Code500[0]]);
+            return Response::json(["status" => Codes::$Code500[0], "ErrorMessage"=>Codes::$Code500[1]]);
         }
     }
 
