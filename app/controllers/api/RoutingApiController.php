@@ -379,6 +379,11 @@ class RoutingApiController extends ApiController {
             if (empty($CustomerProfileAccountID)) {
                 return Response::json(["status" => Codes::$Code1000[0], "ErrorMessage"=>Codes::$Code1000[1]]);
             }
+
+            $checkDate = strtotime($routingData['DataAndTime']);
+            if (empty($checkDate)) {
+                return Response::json(["status" => Codes::$Code1022[0], "ErrorMessage"=>Codes::$Code1022[1]]);
+            }
             Log::info('routingList:Get the routing list count.' . $CustomerProfileAccountID);
 
 

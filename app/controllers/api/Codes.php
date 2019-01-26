@@ -42,6 +42,11 @@ class Codes
     public static $Code1019 =["402","Please provide the valid owner ID"];
     public static $Code1020 =["402","Please enter the valid payment method"];
     public static $Code1021 =["402","Please provide the valid template reference"];
+    public static $Code1022 =["402","Provided date is not in correct format"];
+
+    public static $Code1023 =["402","The value of isReseller must be between 0 or 1"];
+    public static $Code1024 =["402","The value of isCustomer must be between 0 or 1"];
+    public static $Code1025 =["402","The value of IsVendor must be between 0 or 1"];
 
 
 

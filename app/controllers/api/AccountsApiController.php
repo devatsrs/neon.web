@@ -105,6 +105,16 @@ class AccountsApiController extends ApiController {
 				return Response::json(["status" => Codes::$Code1001[0], "ErrorMessage"=>Codes::$Code1001[1]]);
 			}
 			if (!empty($AccountServiceContract['ContractStartDate']) && !empty($AccountServiceContract['ContractEndDate'])) {
+				$checkDate = strtotime($AccountServiceContract['ContractStartDate']);
+				Log::info('createAccountService:Add Product Service123.' . $checkDate);
+				if (empty($checkDate)) {
+					return Response::json(["status" => Codes::$Code1022[0], "ErrorMessage"=>Codes::$Code1022[1]]);
+				}
+				$checkDate = strtotime($AccountServiceContract['ContractEndDate']);
+				if (empty($checkDate)) {
+					return Response::json(["status" => Codes::$Code1022[0], "ErrorMessage"=>Codes::$Code1022[1]]);
+				}
+
 				if ($AccountServiceContract['ContractStartDate'] > $AccountServiceContract['ContractEndDate']) {
 					return Response::json(["status" => Codes::$Code1002[0], "ErrorMessage"=>Codes::$Code1002[1]]);
 				}
@@ -447,9 +457,19 @@ class AccountsApiController extends ApiController {
 
 			$data['CompanyID'] = $CompanyID;
 			$data['AccountType'] = 1;
-			$data['IsVendor'] = isset($accountData['IsVendor']) && $accountData['IsVendor'] == 1 ? 1 : 0;
-			$data['IsCustomer'] = isset($accountData['IsCustomer']) && $accountData['IsCustomer'] == 1  ? 1 : 0;
-			$data['IsReseller'] = isset($accountData['IsReseller']) && $accountData['IsReseller'] == 1 ? 1 : 0;
+			$data['IsVendor'] = isset($accountData['IsVendor']);
+			if (!empty($accountData['IsVendor']) && ($accountData['IsVendor'] != 0 && $accountData['IsVendor'] != 1)) {
+				return Response::json(["status" => Codes::$Code1025[0],"ErrorMessage"=>Codes::$Code1025[1]]);
+			}
+			$data['IsCustomer'] = isset($accountData['IsCustomer']);
+			if (!empty($accountData['IsCustomer']) && ($accountData['IsCustomer'] != 0 && $accountData['IsCustomer'] != 1)) {
+				return Response::json(["status" => Codes::$Code1024[0],"ErrorMessage"=>Codes::$Code1024[1]]);
+			}
+			$data['IsReseller'] = isset($accountData['IsReseller']);
+			if (!empty($accountData['IsReseller']) && ($accountData['IsReseller'] != 0 && $accountData['IsReseller'] != 1)) {
+				return Response::json(["status" => Codes::$Code1023[0],"ErrorMessage"=>Codes::$Code1023[1]]);
+			}
+
 			$data['Billing'] = isset($data['Billing']) && $data['Billing'] == 1 ? 1 : 0;
 			$data['created_by'] = $CreatedBy;
 			$data['AccountType'] = 1;
