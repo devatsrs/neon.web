@@ -28,11 +28,11 @@
             </div>
         </div>
         <div class="form-group duo">
-            <label for="field-1" class="col-sm-2 control-label">EffectiveDate <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If not selected then rates will be uploaded as effective immediately" data-original-title="EffectiveDate">?</span></label>
+            <label for="field-1" class="col-sm-2 control-label">EffectiveDate <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="If not selected then rates will be uploaded as effective immediately" data-original-title="EffectiveDate">?</span></label>
             <div class="col-sm-4">
                 {{Form::select('selection[EffectiveDate]', $columns,(isset($attrselection->EffectiveDate)?$attrselection->EffectiveDate:''),array("class"=>"select2 small"))}}
             </div>
-            <label for=" field-1" class="col-sm-2 control-label">Date Format <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Please check date format selected and date displays in grid." data-original-title="Date Format">?</span></label>
+            <label for=" field-1" class="col-sm-2 control-label">Date Format <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="Please check date format selected and date displays in grid." data-original-title="Date Format">?</span></label>
             <div class="col-sm-4">
                 {{Form::select('selection[DateFormat]',Company::$date_format ,(isset($attrselection->DateFormat)?$attrselection->DateFormat:''),array("class"=>"select2 small"))}}
             </div>
@@ -139,11 +139,11 @@
             </div>
         </div>
         <div class="form-group">
-            <label for="field-1" class="col-sm-2 control-label">EffectiveDate <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If not selected then rates will be uploaded as effective immediately" data-original-title="EffectiveDate">?</span></label>
+            <label for="field-1" class="col-sm-2 control-label">EffectiveDate <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="If not selected then rates will be uploaded as effective immediately" data-original-title="EffectiveDate">?</span></label>
             <div class="col-sm-4">
                 {{Form::select('selection2[EffectiveDate]', $columns,(isset($attrselection2->EffectiveDate)?$attrselection2->EffectiveDate:''),array("class"=>"select2 small"))}}
             </div>
-            <label for=" field-1" class="col-sm-2 control-label">Date Format <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Please check date format selected and date displays in grid." data-original-title="Date Format">?</span></label>
+            <label for=" field-1" class="col-sm-2 control-label">Date Format <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="Please check date format selected and date displays in grid." data-original-title="Date Format">?</span></label>
             <div class="col-sm-4">
                 {{Form::select('selection2[DateFormat]',Company::$date_format ,(isset($attrselection2->DateFormat)?$attrselection2->DateFormat:''),array("class"=>"select2 small"))}}
             </div>
@@ -227,6 +227,12 @@
         <div class="col-sm-1 control-CountryCode-controls">
             <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="it's round up the value to given decimal points. Ex: you have entered 2 in Round Charged Amount then it will round the CDR amount like this : amount is 1.2355 becomes 1.24. Note that rounding off is always done upwards." data-original-title="Round Charged Amount (123.45)">?</span>
             {{Form::checkbox('selection[CountryMapping]', '1', false, array("class"=>"CountryMapping"))}}
+        </div>
+    </div>
+    <div class="control-CityTariff">
+        <label class="col-sm-2 control-label control-CityTariff-controls">City/Tariff</label>
+        <div class="col-sm-4 control-CityTariff-controls">
+            {{Form::select('selection[CityTariff]', $columns ,(isset($attrselection->CityTariff)?$attrselection->CityTariff:''),array("class"=>" small"))}}
         </div>
     </div>
 
