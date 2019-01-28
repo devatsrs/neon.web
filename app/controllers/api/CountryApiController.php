@@ -1,4 +1,5 @@
 <?php
+use app\controllers\api\Codes;
 
 class CountryApiController extends ApiController {
 
@@ -8,6 +9,6 @@ class CountryApiController extends ApiController {
 
 		$Countries = Country::select(["CountryID","Prefix","Country", "ISO2", "ISO3"])
 			->get();
-		return Response::json(["status"=>"200", "data"=>$Countries]);
+		return Response::json(["data"=>$Countries],Codes::$Code200[0]);
 	}
 }
