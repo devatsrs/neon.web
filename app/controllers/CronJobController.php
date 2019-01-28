@@ -148,6 +148,7 @@ class CronJobController extends \BaseController {
                 $CompanyGateway = CompanyGateway::getGatewayIDList($CronJobCommand->GatewayID);
             }
             if($CronJobCommand->Command == 'sippyaccountusage'){
+                
                 $hour_limit = 3;
             }else if($CronJobCommand->Command == 'portaaccountusage'){
                 $day_limit= 2;
@@ -178,11 +179,14 @@ class CronJobController extends \BaseController {
                 $StartDateMessage = 'in order to create previous days summary please select start date and end date. Otherwise leave it bank. By default system creates last 4 days summary.'; // popup message
             }else if($CronJobCommand->Command == 'resellerpbxaccountusage'){
                 $StartDateMessage = "In order to process Reseller's CDRs for previous days please select start and end date. If blank system will process today's CDRs."; // popup message
+            }else if($CronJobCommand->Command == 'neonproductimport'){
+                $services = ServiceTemplate::select();
+                $services = array_diff($services, array('Select'));
             }
 
             $commandconfig = json_decode($commandconfig,true);
 
-            return View::make('cronjob.ajax_config_html', compact('commandconfig','commandconfigval','hour_limit','rateGenerators','rateTables','CompanyGateway','day_limit','emailTemplates','accounts','customers','vendors','StartDateMessage'));
+            return View::make('cronjob.ajax_config_html', compact('commandconfig','commandconfigval','hour_limit','rateGenerators','rateTables','CompanyGateway','day_limit','emailTemplates','accounts','customers','vendors','StartDateMessage','services'));
         }
         return '';
     }
