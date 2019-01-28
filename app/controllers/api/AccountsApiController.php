@@ -429,7 +429,9 @@ class AccountsApiController extends ApiController {
 			$accountData=json_decode(json_encode($post_vars),true);
 			//$accountData = Input::all();
 			$ServiceID = 0;
-			$CompanyID = User::get_companyID();
+			$LogonUser = User::getUserInfo();
+			$CompanyID = $LogonUser["CompanyID"];
+			Log::info('createAccount:User:.CompanyID' . $CompanyID);
 			$CreatedBy = User::get_user_full_name();
 			$ResellerData = [];
 			$AccountPaymentAutomation = [];
@@ -555,7 +557,7 @@ class AccountsApiController extends ApiController {
 			if (strpbrk($data['AccountName'], '\/?*:|"<>')) {
 				return Response::json(array("status" => Codes::$Code1018[0], "ErrorMessage" => Codes::$Code1018[1]));
 			}
-			$data['Status'] = isset($data['Status']) ? 1 : 0;
+			$data['Status'] = 1;
 
 			if (empty($data['Number'])) {
 				$data['Number'] = Account::getLastAccountNo();
