@@ -9,7 +9,7 @@
 class Codes
 {
     public static $Code200 = ['200' ,'Success'];
-    public static $Code500 = ["400","Bad Request"];
+    public static $Code500 = ["500","Internal Server Error"];
     public static $Code401 =["401","Unauthorized"];
     public static $Code402 =["402","Invalid parameters"];
     public static $Code403 = ["403","Forbidden"];

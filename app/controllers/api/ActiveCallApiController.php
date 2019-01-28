@@ -1,4 +1,5 @@
 <?php
+use app\controllers\api\Codes;
 
 class ActiveCallApiController extends ApiController {
 
@@ -29,7 +30,7 @@ class ActiveCallApiController extends ApiController {
             $AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 
         }else{
-            return Response::json(["status"=>"404", "message"=>"AccountID or AccountNo or AccountDynamicField Required."]);
+            return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField Required."],Codes::$Code402[0]);
         }
 
         $Account=Account::where(["AccountID" => $AccountID]);
@@ -57,7 +58,7 @@ class ActiveCallApiController extends ApiController {
         if(!empty($AccountID) && !empty($CompanyID)){
             $IsCallexists=ActiveCall::where('UUID',$data['UUID'])->count();
             if($IsCallexists > 0){
-                return Response::json(array("status" => "404", "message" => "Call with this UUID already exists."));
+                return Response::json(array("ErrorMessage" => "Call with this UUID already exists."),Codes::$Code410[0]);
             }
             try{
                 //check Balance
@@ -88,23 +89,23 @@ class ActiveCallApiController extends ApiController {
                      */
 
                     if ($ActiveCall = ActiveCall::create($ActiveCallData)) {
-                        return Response::json(array("status" => "200","message"=>"Active Call Created Successfully.","data" => ["ActiveCallID"=>$ActiveCall->ActiveCallID]));
+                        return Response::json(array("data" => ["ActiveCallID"=>$ActiveCall->ActiveCallID]),Codes::$Code200[0]);
                     }else{
-                        return Response::json(array("status" => "500", "message" => "Problem Creating Active Call."));
+                        return Response::json(array("ErrorMessage" => "Problem Creating Active Call."),Codes::$Code500[0]);
                     }
 
                 }else{
-                    return Response::json(array("status" => "404", "message" => "Account has not sufficient balance."));
+                    return Response::json(array("ErrorMessage" => "Account has not sufficient balance."),Codes::$Code402[0]);
                 }
 
             }catch(Exception $e){
                 Log::info($e->getTraceAsString());
-                $reseponse = array("status" => "500", "message" => "Something Went Wrong. \n" . $e->getMessage());
-                return $reseponse;
+                $reseponse = array("ErrorMessage" => "Something Went Wrong. \n" . $e->getMessage());
+                return Response::json($reseponse,Codes::$Code500[0]);
             }
 
         }else{
-            return Response::json(["status"=>"404", "message"=>"Account or Company Not Found"]);
+            return Response::json(["ErrorMessage"=>"Account or Company Not Found"],Codes::$Code402[0]);
         }
 
     }
@@ -123,7 +124,7 @@ class ActiveCallApiController extends ApiController {
             $AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 
         }else{
-            return Response::json(["status"=>"404", "message"=>"AccountID Required"]);
+            return Response::json(["ErrorMessage"=>"AccountID Required"],Codes::$Code402[0]);
         }
 
         //Validation
@@ -154,14 +155,14 @@ class ActiveCallApiController extends ApiController {
                 }
 
                 if ($Result = $ActiveCall->update($UpdateData)) {
-                    return Response::json(["status" => "200", "message" => "Record Updated Successfully", "data" => ['duration' => $duration]]);
+                    return Response::json(["data" => ['duration' => $duration]],Codes::$Code200[0]);
                 }
 
             } else {
-                return Response::json(["status" => "404", "message" => "Record Not Found", "data" => []]);
+                return Response::json(["ErrorMessage" => "Record Not Found"],Codes::$Code402[0]);
             }
         }else{
-            return Response::json(["status"=>"404", "message"=>"Account Not Found."]);
+            return Response::json(["ErrorMessage"=>"Account Not Found."],Codes::$Code402[0]);
         }
     }
 
@@ -179,7 +180,7 @@ class ActiveCallApiController extends ApiController {
             $AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 
         }else{
-            return Response::json(["status"=>"404", "message"=>"AccountID Required"]);
+            return Response::json(["ErrorMessage"=>"AccountID Required"],Codes::$Code402[0]);
         }
 
         //Validation
@@ -212,14 +213,14 @@ class ActiveCallApiController extends ApiController {
                 }
 
                 if ($Result = $ActiveCall->update($UpdateData)) {
-                    return Response::json(["status" => "200", "message" => "Call Blocked Successfully", "data" => ['duration' => $duration]]);
+                    return Response::json(["data" => ['duration' => $duration]],Codes::$Code200[0]);
                 }
 
             } else {
-                return Response::json(["status" => "404", "message" => "Record Not Found"]);
+                return Response::json(["ErrorMessage" => "Record Not Found"],Codes::$Code402[0]);
             }
         }else{
-            return Response::json(["status" => "404", "message" => "Account Not Found"]);
+            return Response::json(["ErrorMessage" => "Account Not Found"],Codes::$Code402[0]);
         }
     }
 
@@ -237,7 +238,7 @@ class ActiveCallApiController extends ApiController {
             $AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 
         }else{
-            return Response::json(["status"=>"404", "message"=>"AccountID or AccountNo Required"]);
+            return Response::json(["ErrorMessage"=>"AccountID or AccountNo Required"],Codes::$Code402[0]);
         }
 
         //Validation
@@ -256,7 +257,7 @@ class ActiveCallApiController extends ApiController {
                 $UpdateData = array();
                 $ActiveCall = $ActiveCallobj->first();
                 if ($ActiveCall->CallRecording == 1) {
-                    return Response::json(["status" => "404", "message" => "Recording Already Started"]);
+                    return Response::json(["ErrorMessage" => "Recording Already Started"],Codes::$Code402[0]);
                 }
 
                 $UpdateData['CallRecordingStartTime'] = date('Y-m-d H:i:s');
@@ -264,15 +265,15 @@ class ActiveCallApiController extends ApiController {
                 $UpdateData['updated_by'] = "API";
 
                 if ($Result = $ActiveCall->update($UpdateData)) {
-                    return Response::json(["status" => "200", "message" => "Recording Start Successfully."]);
+                    return Response::json([],Codes::$Code200[0]);
                 } else {
-                    return Response::json(["status" => "500", "message" => "Problem Updating Recording.", "data" => []]);
+                    return Response::json(["ErrorMessage" => "Problem Updating Recording."],Codes::$Code500[0]);
                 }
             } else {
-                return Response::json(["status" => "404", "message" => "Record Not Found", "data" => []]);
+                return Response::json(["ErrorMessage" => "Record Not Found"],Codes::$Code402[0]);
             }
         }else{
-            return Response::json(["status" => "404", "message" => "Account Not Found"]);
+            return Response::json(["ErrorMessage" => "Account Not Found"],Codes::$Code402[0]);
         }
 
     }
@@ -303,10 +304,10 @@ class ActiveCallApiController extends ApiController {
             //echo $query;die;
             $Result = DB::connection('speakIntelligentRoutingEngine')->select($query);
             $Response = json_decode(json_encode($Result), true);
-            return Response::json(["status" => "200", "data" => $Response]);
+            return Response::json(["data" => $Response],Codes::$Code200[0]);
         }catch(Exception $e){
             Log::info($e);
-            $reseponse = array("status" => "500", "message" => "Something Went Wrong.");
+            $reseponse = array("ErrorMessage" => "Something Went Wrong.",Codes::$Code402[0]);
             return $reseponse;
         }
 
