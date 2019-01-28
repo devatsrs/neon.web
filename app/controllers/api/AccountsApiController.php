@@ -87,7 +87,7 @@ class AccountsApiController extends ApiController {
 			Log::info('createAccountService:Data.' . json_encode($accountData));
 			$data['AccountNo'] = isset($accountData['AccountNo']) ? $accountData['AccountNo'] : '';
 			$data['AccountID'] = isset($accountData['AccountID']) ? $accountData['AccountID'] : '';
-			$data['ServiceTemaplate'] = isset($accountData['ServiceTemaplate']) ? $accountData['ServiceTemaplate'] : '';
+			$data['ServiceTemaplateDynamicField'] = isset($accountData['ServiceTemaplateDynamicField']) ? $accountData['ServiceTemaplateDynamicField'] : '';
 			$data['NumberPurchased'] = isset($accountData['NumberPurchased']) ? $accountData['NumberPurchased'] : '';
 			$data['AccountDynamicField'] = isset($accountData['AccountDynamicField']) ? $accountData['AccountDynamicField'] : '';
 			$data['InboundTariffCategory'] = isset($accountData['InboundTariffCategoryID']) ? $accountData['InboundTariffCategoryID'] :'';
@@ -102,27 +102,27 @@ class AccountsApiController extends ApiController {
 			$AccountSubscription["PackageSubscription"] = isset($accountData['PackageSubscriptionID']) ? $accountData['PackageSubscriptionID'] : '';
 
 			if (!empty($AccountServiceContract['ContractStartDate']) && empty($AccountServiceContract['ContractEndDate'])) {
-				return Response::json(["status" => Codes::$Code1001[0], "ErrorMessage"=>Codes::$Code1001[1]]);
+				return Response::json(["ErrorMessage"=>Codes::$Code1001[1]],Codes::$Code1001[0]);
 			}
 			if (!empty($AccountServiceContract['ContractStartDate']) && !empty($AccountServiceContract['ContractEndDate'])) {
 				$checkDate = strtotime($AccountServiceContract['ContractStartDate']);
 				Log::info('createAccountService:Add Product Service123.' . $checkDate);
 				if (empty($checkDate)) {
-					return Response::json(["status" => Codes::$Code1022[0], "ErrorMessage"=>Codes::$Code1022[1]]);
+					return Response::json(["ErrorMessage"=>Codes::$Code1022[1]],Codes::$Code1022[0]);
 				}
 				$checkDate = strtotime($AccountServiceContract['ContractEndDate']);
 				if (empty($checkDate)) {
-					return Response::json(["status" => Codes::$Code1022[0], "ErrorMessage"=>Codes::$Code1022[1]]);
+					return Response::json(["ErrorMessage"=>Codes::$Code1022[1]],Codes::$Code1022[0]);
 				}
 
 				if ($AccountServiceContract['ContractStartDate'] > $AccountServiceContract['ContractEndDate']) {
-					return Response::json(["status" => Codes::$Code1002[0], "ErrorMessage"=>Codes::$Code1002[1]]);
+					return Response::json(["ErrorMessage"=>Codes::$Code1002[1]],Codes::$Code1002[0]);
 				}
 				if (!empty($AccountServiceContract['ContractType']) && ($AccountServiceContract['ContractType'] < 1 || $AccountServiceContract['ContractType'] > 4)) {
-					return Response::json(["status" => Codes::$Code1003[0], "ErrorMessage"=>Codes::$Code1003[1]]);
+					return Response::json(["ErrorMessage"=>Codes::$Code1003[1]],Codes::$Code1003[0]);
 				}
 				if (!empty($AccountServiceContract['AutoRenewal']) && ($AccountServiceContract['AutoRenewal'] != 0 && $AccountServiceContract['AutoRenewal'] != 1)) {
-					return Response::json(["status" => Codes::$Code1004[0],"ErrorMessage"=>Codes::$Code1004[1]]);
+					return Response::json(["ErrorMessage"=>Codes::$Code1004[1]],Codes::$Code1004[0]);
 				}
 			}
 
@@ -131,7 +131,7 @@ class AccountsApiController extends ApiController {
 				'AccountNo' =>      'required_without_all:AccountDynamicField,AccountID',
 				'AccountID' =>      'required_without_all:AccountDynamicField,AccountNo',
 				'AccountDynamicField' =>      'required_without_all:AccountNo,AccountID',
-				'ServiceTemaplate' =>  'required',
+				'ServiceTemaplateDynamicField' =>  'required',
 				'NumberPurchased'=>'required',
 
 			);
@@ -144,14 +144,14 @@ class AccountsApiController extends ApiController {
 				foreach ($validator->messages()->all() as $error) {
 					$errors .= $error . "<br>";
 				}
-				return Response::json(["status" => Codes::$Code402[0], "ErrorMessage" => $errors]);
+				return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
 			}
 
 			if (!empty($accountData['AccountDynamicField'])) {
 				$AccountIDRef = '';
 				$AccountIDRef = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 				if (empty($AccountIDRef)) {
-					return Response::json(["status" => Codes::$Code1000[0], "ErrorMessage" => Codes::$Code1000[1]]);
+					return Response::json(["ErrorMessage" => Codes::$Code1000[1]],Codes::$Code1000[0]);
 				}
 				$data['AccountID'] = $AccountIDRef;
 			}
@@ -159,7 +159,7 @@ class AccountsApiController extends ApiController {
 			if (!empty($AccountSubscription['PackageSubscription'])) {
 				$AccountSubscriptionDB = BillingSubscription::where(array('SubscriptionID' => $AccountSubscription['PackageSubscription']))->first();
 				if (!isset($AccountSubscriptionDB) || $AccountSubscriptionDB == '') {
-					return Response::json(["status" => Codes::$Code1005[0], "ErrorMessage" => Codes::$Code1005[1]]);
+					return Response::json(["ErrorMessage" => Codes::$Code1005[1]],Codes::$Code1005[0]);
 				}
 
 				$DynamicFieldIDs = '';
@@ -183,44 +183,37 @@ class AccountsApiController extends ApiController {
 				$Account = Account::find($data['AccountID']);
 			}
 			if (!$Account) {
-				return Response::json(["status" => Codes::$Code1000[0], "ErrorMessage" => Codes::$Code1000[1]]);
-			}
-			$ServiceTemaplateData = $data['ServiceTemaplate'];
-
-			$DynamicField = DynamicFields::where(["FieldName"=>$ServiceTemaplateData["Name"],"Type"=>ServiceTemplateTypes::DYNAMIC_TYPE])->pluck('DynamicFieldsID');
-			if (empty($DynamicField)) {
-				return Response::json(["status" => Codes::$Code1006[0], "ErrorMessage" => Codes::$Code1006[1]]);
+				return Response::json(["ErrorMessage" => Codes::$Code1000[1]],Codes::$Code1000[0]);
 			}
 
-			$ServiceTemaplateReference = DynamicFieldsValue::where(["DynamicFieldsID"=>$DynamicField,"FieldValue"=>$ServiceTemaplateData["Value"]])->count();
-			if ($ServiceTemaplateReference > 1) {
-				return Response::json(["status" => Codes::$Code1007[0], "ErrorMessage" => Codes::$Code1007[1]]);
+			$ServiceTemaplateReference = ServiceTemplate::findServiceTemplateByDynamicField($data['ServiceTemaplateDynamicField']);
+			if (empty($ServiceTemaplateReference)) {
+				return Response::json(array("ErrorMessage" => Codes::$Code1021[1]),Codes::$Code1021[0]);
 			}
+			$ServiceTemaplateReference = ServiceTemplate::find($ServiceTemaplateReference);
+
+
 			if(CLIRateTable::where(array('CompanyID'=>$CompanyID, 'CLI'=>$data['NumberPurchased']))->count()){
 				$AccountID = CLIRateTable::where(array('CompanyID'=>$CompanyID,'CLI'=>$data['NumberPurchased']))->pluck('AccountID');
 				$message .= $data['NumberPurchased'].' already exist against '.Account::getCompanyNameByID($AccountID).'.<br>';
 				$message = 'Following CLI already exists.<br>'.$message;
-				return Response::json(array("status" => Codes::$Code1008[0], "ErrorMessage" => Codes::$Code1008[1]));
+				return Response::json(array("ErrorMessage" => Codes::$Code1008[1]),Codes::$Code1008[0]);
 			}
 
-			$ServiceTemaplateReference = DynamicFieldsValue::where(["DynamicFieldsID"=>$DynamicField,"FieldValue"=>$ServiceTemaplateData["Value"]])->pluck('ParentID');
-			$ServiceTemaplateReference = ServiceTemplate::find($ServiceTemaplateReference);
-			if (!isset($ServiceTemaplateReference)) {
-				return Response::json(array("status" => Codes::$Code1021[0], "ErrorMessage" => Codes::$Code1021[1]));
-			}
+
 			Log::info('ServiceTemplateId' . $ServiceTemaplateReference->ServiceTemplateId);
 
 
 			if (!empty($data['InboundTariffCategory'])) {
 				$InboundRateTableReference = ServiceTemapleInboundTariff::where(["ServiceTemplateID"=>$ServiceTemaplateReference->ServiceTemplateId,"DIDCategoryId"=>$data['InboundTariffCategory']])->count();
 				if ($InboundRateTableReference > 1) {
-					return Response::json(["status" => Codes::$Code1009[0], "ErrorMessage" => Codes::$Code1009[1]]);
+					return Response::json(["ErrorMessage" => Codes::$Code1009[1]],Codes::$Code1009[0]);
 				}
 				$InboundRateTableReference = ServiceTemapleInboundTariff::where(["ServiceTemplateID"=>$ServiceTemaplateReference->ServiceTemplateId,"DIDCategoryId"=>$data['InboundTariffCategory']])->pluck('RateTableId');
 			}else {
 				$InboundRateTableReference = ServiceTemapleInboundTariff::where("ServiceTemplateID",'=',$ServiceTemaplateReference->ServiceTemplateId)->WhereNull('DIDCategoryId')->count();
 				if ($InboundRateTableReference > 1) {
-					return Response::json(["status" => Codes::$Code1009[0], "ErrorMessage" => Codes::$Code1009[1]]);
+					return Response::json(["ErrorMessage" => Codes::$Code1009[1]],Codes::$Code1009[0]);
 				}
 				$InboundRateTableReference = ServiceTemapleInboundTariff::where("ServiceTemplateID",'=',$ServiceTemaplateReference->ServiceTemplateId)->WhereNull('DIDCategoryId')->pluck('RateTableId');
 			}
@@ -265,7 +258,9 @@ class AccountsApiController extends ApiController {
 					$AccountServiceContract["ContractReason"] = empty($AccountServiceContract['ContractReason']) ? $ServiceTemaplateReference->CancellationFee : $AccountServiceContract['ContractReason'];
 					$AccountServiceContract["AutoRenewal"] = empty($AccountServiceContract["AutoRenewal"]) ? $ServiceTemaplateReference->AutomaticRenewal : $AccountServiceContract["AutoRenewal"];
 					$AccountServiceContract["ContractTerm"] = empty($AccountServiceContract["ContractTerm"]) ? $ServiceTemaplateReference->CancellationCharges : $AccountServiceContract["ContractTerm"];
+					Log::info('AccountServiceContract Done' . print_r($AccountServiceContract,true) );
 					AccountServiceContract::create($AccountServiceContract);
+					Log::info('AccountServiceContract Done' );
 				}
 
 				if (isset($AccountSubscriptionDB) && $AccountSubscriptionDB != '') {
@@ -409,12 +404,12 @@ class AccountsApiController extends ApiController {
 
 
 
-			return Response::json(array("status" => Codes::$Code200[0], "data" => $message));
+			return Response::json(array("data" => $message),Codes::$Code200[0]);
 
 
 		} catch (Exception $ex) {
 			Log::info('createAccountService:Exception.' . $ex->getTraceAsString());
-			return Response::json(["status" => Codes::$Code500[0], "ErrorMessage" => Codes::$Code500[1]]);
+			return Response::json(["ErrorMessage" => Codes::$Code500[1]],Codes::$Code500[0]);
 		}
 	}
 
