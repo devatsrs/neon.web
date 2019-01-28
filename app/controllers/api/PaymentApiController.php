@@ -210,9 +210,9 @@ class PaymentApiController extends ApiController {
 			'AccountID' => $data['AccountID'],
 			'CompanyID' => $data['CompanyID']
 		])->first();
-		$response = ['status' => 'failed', 'message' => "Invalid Request."];
+		$response = ['status' => 'failed', 'message' => "Payout Request Failed."];
 		if($Account != false) {
-			$PayoutMethod = $Account->PayoutMethod;
+			$PayoutMethod = $Account->PayoutMethod != "" ? $Account->PayoutMethod : "Stripe";
 			if (!empty($PayoutMethod) && $PayoutMethod=='Stripe') {
 				$PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PayoutMethod);
 				$PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
