@@ -180,8 +180,8 @@ class CronJobController extends \BaseController {
             }else if($CronJobCommand->Command == 'resellerpbxaccountusage'){
                 $StartDateMessage = "In order to process Reseller's CDRs for previous days please select start and end date. If blank system will process today's CDRs."; // popup message
             }else if($CronJobCommand->Command == 'neonproductimport'){
-                $services = ServiceTemplate::select();
-                $services = array_diff($services, array('Select'));
+               // $services = ServiceTemplate::select();
+                //$services = array_diff($services, array('Select'));
             }
 
             $commandconfig = json_decode($commandconfig,true);
