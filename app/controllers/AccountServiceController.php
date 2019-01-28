@@ -580,7 +580,6 @@ class AccountServiceController extends \BaseController {
 
         /** data get from inputs */
         $Contract['AccountServiceID'] = $data['AccountServiceID'];
-        $Contract['TerminationFees'] = $data['TeminatingFee'];
         $Contract['CancelationDate'] = $data['CancelDate'];
 
         /** set the values of variables*/
