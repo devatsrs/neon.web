@@ -1,9 +1,9 @@
 <?php
 
-class AccountServiceContract extends \Eloquent {
+class AccountServiceHistory extends \Eloquent {
     protected $fillable = [];
     protected $connection = "sqlsrv";
-    protected $table = "tblAccountServiceContract";
+    protected $table = "tblAccountServiceHistory";
     protected $primaryKey = "AccountServiceContractID";
     protected $guarded = array('AccountServiceContractID');
 

@@ -25,12 +25,12 @@
                                     <input type="hidden" name="AccountServiceID" @if(isset($AccountServiceID)) value="{{$AccountServiceID}}" @endif>
                                     <label class="col-md-2 control-label">Termination Fee </label>
                                     <div class="col-md-4">
-                                        <input type="number" min="0" @if(isset($AccountServiceCancelContract->TerminationFees)) value="{{$AccountServiceCancelContract->TerminationFees}}" @endif class="form-control" name="TeminatingFee">
+                                        <input type="number" min="0"  class="form-control" name="TeminatingFee">
                                     </div>
 
                                     <label class="col-md-2 control-label">Cancellation Date</label>
                                     <div class="col-md-4">
-                                        <input type="text" @if(isset($AccountServiceCancelContract->CancelationDate)) value="{{$AccountServiceCancelContract->CancelationDate}}" @endif data-date-format="yyyy-mm-dd" class="form-control datepicker" name="CancelDate">
+                                        <input type="text"  @if(isset($AccountServiceCancelContract->CancelationDate)) value="{{$AccountServiceCancelContract->CancelationDate}}" @else value="{{ date('Y-m-d'); }}"   @endif data-date-format="yyyy-mm-dd" class="form-control datepicker" name="CancelDate">
                                     </div>
                                 </div>
                             </div>
