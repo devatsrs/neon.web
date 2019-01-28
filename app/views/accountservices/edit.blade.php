@@ -136,12 +136,11 @@
                         <div class="form-group text-right">
                             <div class="col-md-12">
                             @if(!$AccountService->CancelContractStatus)
-                                <a type="button" title="Cancel Contract" class="btn btn-danger btn-sm"  data-toggle="modal" data-target="#add-new-modal-accounts"> <i class="entypo-cancel"></i> </a>
+                                <a title="Cancel Contract" class="btn btn-danger btn-sm"  data-toggle="modal" data-target="#add-new-modal-accounts"> <i class="entypo-cancel"></i> </a>
                             @else
-                                <a type="button" title="Renew Contract"  class="btn btn-info" id="renewal"> <i class="entypo-info"></i> </a>
+                                <a title="Renew Contract"  class="btn btn-info" id="renewal"> <i class="entypo-info"></i> </a>
                             @endif
-                                <a type="button" title="History" class="btn btn-default btn-sm" data-toggle="modal" data-target="#history-modal" data-dismiss="modal"> <i class="entypo-back-in-time"></i> </a>
-
+                                <a title="History" class="btn btn-default btn-sm" data-toggle="modal" data-target="#history-modal" data-dismiss="modal" onclick="load_history()"> <i class="entypo-back-in-time"></i> </a>
                             </div>
                         </div>
                         <div class="form-group">
