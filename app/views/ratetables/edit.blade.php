@@ -465,7 +465,6 @@
             e.preventDefault();
             $("#new-rate-form")[0].reset();
             $("#new-rate-form .rateid_list").select2("val","");
-            $("#new-rate-form .rateid_list").select2("val","");
             $("#new-rate-form select[name=RoutingCategoryID]").select2("val", "");
             //$("#new-rate-form [name='RateID']").select2().select2('val','');
             $("#modal-add-new").modal('show');
@@ -761,11 +760,13 @@
                                     }
                                     @endif
 
+                                    @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                                     if (full[21] == 0) {
                                         action += ' <button href="Javascript:;"  title="Unblocked" class="btn btn-default btn-xs"><i class="entypo-lock-open" style="color: green; "></i>&nbsp;</button>';
                                     } else if (full[21] == 1) {
                                         action += ' <button href="Javascript:;"  title="Blocked" class="btn btn-default btn-xs"><i class="entypo-lock" style="color: red; "></i>&nbsp;</button>';
                                     }
+                                    @endif
 
                                     <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
                                     if (DiscontinuedRates == 0) {
@@ -891,6 +892,8 @@
                 $(".edit-rate-table.btn").off('click');
                 $(".edit-rate-table.btn").click(function(ev) {
                     ev.stopPropagation();
+
+                    $("#edit-rate-table-form  [name=OriginationRateID]").select2("val", "");
                     var cur_obj = $(this).prevAll("div.hiddenRowData");
                     for(var i = 0 ; i< list_fields.length; i++){
                         $("#edit-rate-table-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
@@ -1256,7 +1259,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <input type="checkbox" name="updateOriginationRateID" class="" />
-                                <label class="control-label">Code</label>
+                                <label class="control-label">Origination Code</label>
                                 <input type="hidden" class="rateid_list" name="OriginationRateID" />
                             </div>
                         </div>

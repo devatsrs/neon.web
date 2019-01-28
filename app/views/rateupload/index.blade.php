@@ -1289,6 +1289,7 @@
             var Code                    = '';
             var Description             = '';
             var Timezone                = 1;
+            var RateTableID             = $('#ratetable').val();
             var RateUploadType          = $("input[name=RateUploadType]:checked").val();
 
             if($searchFilter.OriginationCode != 'undefined' && $searchFilter.OriginationCode != undefined) {
@@ -1318,9 +1319,9 @@
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox-new.col-xs-1'>'l><'col-xs-6 col-right'<'change-view-new'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"New"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RoutingCategory","value":RoutingCategory},{"name":"RateUploadType","value":RateUploadType});
+                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"New"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RoutingCategory","value":RoutingCategory},{"name":"RateUploadType","value":RateUploadType},{"name":"RateTableID","value":RateTableID});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"New"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RoutingCategory","value":RoutingCategory},{"name":"RateUploadType","value":RateUploadType});
+                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"New"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RoutingCategory","value":RoutingCategory},{"name":"RateUploadType","value":RateUploadType},{"name":"RateTableID","value":RateTableID});
                 },
                 "sPaginationType": "bootstrap",
                 "aaSorting"   : [[1, 'asc']],
@@ -1438,6 +1439,7 @@
             var Code                    = '';
             var Description             = '';
             var Timezone                = 1;
+            var RateTableID             = $('#ratetable').val();
             var RateUploadType  = $("input[name=RateUploadType]:checked").val();
 
             if($searchFilter.OriginationCode != 'undefined' && $searchFilter.OriginationCode != undefined) {
@@ -1467,9 +1469,9 @@
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox-new.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Increased"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RoutingCategory","value":RoutingCategory},{"name":"RateUploadType","value":RateUploadType});
+                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Increased"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RoutingCategory","value":RoutingCategory},{"name":"RateUploadType","value":RateUploadType},{"name":"RateTableID","value":RateTableID});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Increased"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RoutingCategory","value":RoutingCategory},{"name":"RateUploadType","value":RateUploadType});
+                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Increased"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RoutingCategory","value":RoutingCategory},{"name":"RateUploadType","value":RateUploadType},{"name":"RateTableID","value":RateTableID});
                 },
                 "sPaginationType": "bootstrap",
                 "aaSorting"   : [[1, 'asc']],
@@ -1534,6 +1536,7 @@
             var Code                    = '';
             var Description             = '';
             var Timezone                = 1;
+            var RateTableID             = $('#ratetable').val();
             var RateUploadType  = $("input[name=RateUploadType]:checked").val();
 
             if($searchFilter.OriginationCode != 'undefined' && $searchFilter.OriginationCode != undefined) {
@@ -1564,9 +1567,9 @@
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox-new.col-xs-1'>'l><'col-xs-6 col-right'<'change'><'export-data'T>>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Decreased"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RoutingCategory","value":RoutingCategory},{"name":"RateUploadType","value":RateUploadType});
+                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Decreased"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RoutingCategory","value":RoutingCategory},{"name":"RateUploadType","value":RateUploadType},{"name":"RateTableID","value":RateTableID});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Decreased"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RoutingCategory","value":RoutingCategory},{"name":"RateUploadType","value":RateUploadType});
+                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Decreased"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RoutingCategory","value":RoutingCategory},{"name":"RateUploadType","value":RateUploadType},{"name":"RateTableID","value":RateTableID});
                 },
                 "sPaginationType": "bootstrap",
                 "aaSorting"   : [[1, 'asc']],
@@ -1632,6 +1635,7 @@
             var Code                    = '';
             var Description             = '';
             var Timezone                = 1;
+            var RateTableID             = $('#ratetable').val();
             var RateUploadType  = $("input[name=RateUploadType]:checked").val();
 
             if($searchFilter.OriginationCode != 'undefined' && $searchFilter.OriginationCode != undefined) {
@@ -1661,9 +1665,9 @@
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox-deleted.col-xs-1'>'l><'col-xs-6 col-right'<'change-view-deleted'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "fnServerParams": function(aoData) {
-                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Deleted"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RoutingCategory","value":RoutingCategory},{"name":"RateUploadType","value":RateUploadType});
+                    aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Deleted"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RoutingCategory","value":RoutingCategory},{"name":"RateUploadType","value":RateUploadType},{"name":"RateTableID","value":RateTableID});
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Deleted"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RoutingCategory","value":RoutingCategory},{"name":"RateUploadType","value":RateUploadType});
+                    data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Deleted"},{"name":"Code","value":Code},{"name":"Description","value":Description},{"name":"Timezone","value":Timezone},{"name":"OriginationCode","value":OriginationCode},{"name":"OriginationDescription","value":OriginationDescription},{"name":"RoutingCategory","value":RoutingCategory},{"name":"RateUploadType","value":RateUploadType},{"name":"RateTableID","value":RateTableID});
                 },
                 "sPaginationType": "bootstrap",
                 "aaSorting"   : [[1, 'asc']],

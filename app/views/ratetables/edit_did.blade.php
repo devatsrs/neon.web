@@ -27,6 +27,10 @@
                     <input type="hidden" name="TrunkID" value="{{$trunkID}}" >
                 </div>
                 <div class="form-group">
+                    <label class="control-label">City/Tariff</label>
+                    <input type="text" name="CityTariff" class="form-control" placeholder="" />
+                </div>
+                <div class="form-group">
                     <label class="control-label">Timezone</label>
                     {{ Form::select('Timezones', $Timezones, '', array("class"=>"select2")) }}
                 </div>
@@ -147,12 +151,14 @@
                     <input type="checkbox" id="selectall" name="checkbox[]" />
                 </div>
             </th>
+            <th width="10%">Country</th>
             <th width="4%">Orig. Code</th>
             <th width="10%">Orig. Description</th>
             <th width="4%">Code</th>
             <th width="10%">Description</th>
+            <th width="10%">City/Tariff</th>
             <th width="3%">One-Off Cost</th>
-            <th width="3%">Monthly cost</th>
+            <th width="3%">Monthly Cost</th>
             <th width="5%">Cost Per Call</th>
             <th width="5%">Cost Per Minute</th>
             <th width="5%">Surcharge Per Call</th>
@@ -185,7 +191,7 @@
         var $searchFilter = {};
         var checked='';
         var codedeckid = '{{$id}}';
-        var list_fields  = ['ID','OriginationCode','OriginationDescription','Code','Description','OneOffCost','MonthlyCost','CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableDIDRateID','OriginationRateID','RateID','ApprovedStatus','ApprovedBy','ApprovedDate','OneOffCostCurrency','MonthlyCostCurrency', 'CostPerCallCurrency', 'CostPerMinuteCurrency', 'SurchargePerCallCurrency', 'SurchargePerMinuteCurrency', 'OutpaymentPerCallCurrency', 'OutpaymentPerMinuteCurrency', 'SurchargesCurrency', 'ChargebackCurrency', 'CollectionCostAmountCurrency', 'RegistrationCostPerNumberCurrency'];
+        var list_fields  = ['ID','OriginationCode','OriginationDescription','Code','Description','CityTariff','OneOffCost','MonthlyCost','CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableDIDRateID','OriginationRateID','RateID','ApprovedStatus','ApprovedBy','ApprovedDate','OneOffCostCurrency','MonthlyCostCurrency', 'CostPerCallCurrency', 'CostPerMinuteCurrency', 'SurchargePerCallCurrency', 'SurchargePerMinuteCurrency', 'OutpaymentPerCallCurrency', 'OutpaymentPerMinuteCurrency', 'SurchargesCurrency', 'ChargebackCurrency', 'CollectionCostAmountCurrency', 'RegistrationCostPerNumberCurrency'];
         jQuery(document).ready(function($) {
 
         $('#filter-button-toggle').show();
@@ -426,6 +432,7 @@
         $("#add-new-rate").click(function(e){
             e.preventDefault();
             $("#new-rate-form")[0].reset();
+            $("#new-rate-form .rateid_list").select2("val","");
             //$("#new-rate-form [name='RateID']").select2().select2('val','');
             $("#modal-add-new").modal('show');
         });
@@ -523,7 +530,8 @@
             var $this   = $(this);
             var RateID   = $this.prevAll("div.hiddenRowData").find("input[name='RateID']").val();
             var OriginationRateID = $this.prevAll("div.hiddenRowData").find("input[name='OriginationRateID']").val();
-            getArchiveRateTableDIDRates($this,RateID,OriginationRateID);
+            var CityTariff = $this.prevAll("div.hiddenRowData").find("input[name='CityTariff']").val();
+            getArchiveRateTableDIDRates($this,RateID,OriginationRateID,CityTariff);
         });
 
         $(".numbercheck").keypress(function (e) {
@@ -563,6 +571,7 @@
         $searchFilter.OriginationDescription = $("#rate-table-search input[name='OriginationDescription']").val();
         $searchFilter.Code = $("#rate-table-search input[name='Code']").val();
         $searchFilter.Description = $("#rate-table-search input[name='Description']").val();
+        $searchFilter.CityTariff = $("#rate-table-search input[name='CityTariff']").val();
         $searchFilter.Country = $("#rate-table-search select[name='Country']").val();
         $searchFilter.TrunkID = $("#rate-table-search [name='TrunkID']").val();
         $searchFilter.Effective = Effective = $("#rate-table-search [name='Effective']").val();
@@ -582,9 +591,9 @@
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "sAjaxSource": baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid",
             "fnServerParams": function(aoData) {
-                aoData.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "Timezones", "value": Timezones},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview});
+                aoData.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "Timezones", "value": Timezones},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview},{"name": "CityTariff", "value": $searchFilter.CityTariff});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "Timezones", "value": Timezones},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview});
+                data_table_extra_params.push({"name": "OriginationCode", "value": $searchFilter.OriginationCode}, {"name": "OriginationDescription", "value": $searchFilter.OriginationDescription}, {"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective}, {"name": "DiscontinuedRates", "value": DiscontinuedRates},{"name": "Timezones", "value": Timezones},{"name": "ApprovedStatus", "value": ApprovedStatus},{"name": "ratetablepageview", "value": ratetablepageview},{"name": "CityTariff", "value": $searchFilter.CityTariff});
             },
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
@@ -597,123 +606,125 @@
                                 return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
                             }
                         }, //0Checkbox
+                        {}, //1 Country
                         {
                             mRender: function(id, type, full) {
-                                return full[1];
+                                return full[2];
                             },
                             "className":      'details-control',
                             "orderable":      false,
                             "data": null,
                             "defaultContent": ''
-                        }, //1 Origination Code
-                        {}, //2 Origination description
+                        }, //2 Origination Code
+                        {"bVisible" : bVisible}, //3 Origination description
                         {
                             "bVisible" : true,
                             mRender: function(id, type, full) {
-                                return full[3];
+                                return full[4];
                             }
-                        }, //3 Destination Code
-                        {}, //4 Destination description
-                        {
-                            mRender: function(col, type, full) {
-                                var currency = full[28].split('-');
-                                if(col != null && col != '') return currency[0] + col; else return '';
-                            }
-                        }, //5 OneOffCost,
-                        {
-                            mRender: function(col, type, full) {
-                                var currency = full[29].split('-');
-                                if(col != null && col != '') return currency[0] + col; else return '';
-                            }
-                        }, //6 MonthlyCost,
+                        }, //4 Destination Code
+                        {"bVisible" : bVisible}, //5 Destination description
+                        {}, //6 CityTariff
                         {
                             mRender: function(col, type, full) {
                                 var currency = full[30].split('-');
                                 if(col != null && col != '') return currency[0] + col; else return '';
                             }
-                        }, //7 CostPerCall,
+                        }, //7 OneOffCost,
                         {
                             mRender: function(col, type, full) {
                                 var currency = full[31].split('-');
                                 if(col != null && col != '') return currency[0] + col; else return '';
                             }
-                        }, //8 CostPerMinute,
+                        }, //8 MonthlyCost,
                         {
                             mRender: function(col, type, full) {
                                 var currency = full[32].split('-');
                                 if(col != null && col != '') return currency[0] + col; else return '';
                             }
-                        }, //9 SurchargePerCall,
+                        }, //9 CostPerCall,
                         {
                             mRender: function(col, type, full) {
                                 var currency = full[33].split('-');
                                 if(col != null && col != '') return currency[0] + col; else return '';
                             }
-                        }, //10 SurchargePerMinute,
+                        }, //10 CostPerMinute,
                         {
                             mRender: function(col, type, full) {
                                 var currency = full[34].split('-');
                                 if(col != null && col != '') return currency[0] + col; else return '';
                             }
-                        }, //11 OutpaymentPerCall,
+                        }, //11 SurchargePerCall,
                         {
                             mRender: function(col, type, full) {
                                 var currency = full[35].split('-');
                                 if(col != null && col != '') return currency[0] + col; else return '';
                             }
-                        }, //12 OutpaymentPerMinute,
+                        }, //12 SurchargePerMinute,
                         {
                             mRender: function(col, type, full) {
                                 var currency = full[36].split('-');
                                 if(col != null && col != '') return currency[0] + col; else return '';
                             }
-                        }, //13 Surcharges,
+                        }, //13 OutpaymentPerCall,
                         {
                             mRender: function(col, type, full) {
                                 var currency = full[37].split('-');
                                 if(col != null && col != '') return currency[0] + col; else return '';
                             }
-                        }, //14 Chargeback,
+                        }, //14 OutpaymentPerMinute,
                         {
                             mRender: function(col, type, full) {
                                 var currency = full[38].split('-');
                                 if(col != null && col != '') return currency[0] + col; else return '';
                             }
-                        }, //15 CollectionCostAmount,
-                        {}, //16 CollectionCostPercentage,
+                        }, //15 Surcharges,
                         {
                             mRender: function(col, type, full) {
                                 var currency = full[39].split('-');
                                 if(col != null && col != '') return currency[0] + col; else return '';
                             }
-                        }, //17 RegistrationCostPerNumber,
-                        {}, //18 Effective Date
+                        }, //16 Chargeback,
+                        {
+                            mRender: function(col, type, full) {
+                                var currency = full[40].split('-');
+                                if(col != null && col != '') return currency[0] + col; else return '';
+                            }
+                        }, //17 CollectionCostAmount,
+                        {}, //18 CollectionCostPercentage,
+                        {
+                            mRender: function(col, type, full) {
+                                var currency = full[41].split('-');
+                                if(col != null && col != '') return currency[0] + col; else return '';
+                            }
+                        }, //19 RegistrationCostPerNumber,
+                        {}, //20 Effective Date
                         {
                             "bVisible" : false
-                        }, //19 End Date
+                        }, //21 End Date
                         {
                             "bVisible" : bVisible,
                             mRender: function(id, type, full) {
-                                full[20] = full[20] != null ? full[20] : '';
-                                full[21] = full[21] != null ? full[21] : '';
-                                if(full[20] != '' && full[14] != '')
-                                    return full[21] + '<br/>' + full[20]; // modified by/modified date
+                                full[22] = full[22] != null ? full[22] : '';
+                                full[23] = full[23] != null ? full[23] : '';
+                                if(full[22] != '' && full[23] != '')
+                                    return full[23] + '<br/>' + full[22]; // modified by/modified date
                                 else
                                     return '';
                             }
-                        }, //20/21 ModifiedDate
+                        }, //22/23 modified by/modified date
                         @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
                         {
                             "bVisible" : bVisible,
                             mRender: function(id, type, full) {
-                                full[26] = full[26] != null ? full[26] : '';
-                                full[27] = full[27] != null ? full[27] : '';
-                                if(full[26] != '' && full[27] != '')
-                                    return full[26] + '<br/>' + full[27]; // modified by/modified date
+                                full[28] = full[28] != null ? full[28] : '';
+                                full[29] = full[29] != null ? full[29] : '';
+                                if(full[28] != '' && full[29] != '')
+                                    return full[28] + '<br/>' + full[29]; // Approved By/Approved Date
                                 else
                                     return '';
                             }
-                        }, //23/24 Approved By/Approved Date
+                        }, //24/25 Approved By/Approved Date
                         @endif
                         {
                             mRender: function(id, type, full) {
@@ -721,7 +732,7 @@
                                 var action, edit_, delete_;
                                 action = '<div class = "hiddenRowData" >';
                                 for (var i = 0; i < list_fields.length; i++) {
-                                    if (i < 28) { // all fields except currency fields
+                                    if (i < 30) { // all fields except currency fields
                                         action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (full[i] != null ? full[i] : '') + '" / >';
                                     } else { // all currency fields
                                         var currency = full[i].split('-');
@@ -730,43 +741,32 @@
                                 }
                                 action += '</div>';
 
-                                if(bVisible == true) {
-                                    clerRate_ = "{{ URL::to('/rate_tables/{id}/clear_rate')}}";
-                                    clerRate_ = clerRate_.replace('{id}', full[22]);
-                                    @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-                                    if (full[25] == 1) {
-                                        action += ' <button href="Javascript:;"  title="Approved" class="btn btn-default btn-xs"><i class="entypo-check" style="color: green; "></i>&nbsp;</button>';
-                                    } else if (full[25] == 0) {
-                                        action += ' <button href="Javascript:;"  title="Awaiting Approval" class="btn btn-default btn-xs"><i class="entypo-cancel" style="color: red; "></i>&nbsp;</button>';
-                                    }
-                                    @endif
+                                clerRate_ = "{{ URL::to('/rate_tables/{id}/clear_rate')}}";
+                                clerRate_ = clerRate_.replace('{id}', full[24]);
+                                @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
+                                if (full[27] == 1) {
+                                    action += ' <button href="Javascript:;"  title="Approved" class="btn btn-default btn-xs"><i class="entypo-check" style="color: green; "></i>&nbsp;</button>';
+                                } else if (full[27] == 0) {
+                                    action += ' <button href="Javascript:;"  title="Awaiting Approval" class="btn btn-default btn-xs"><i class="entypo-cancel" style="color: red; "></i>&nbsp;</button>';
+                                }
+                                @endif
 
-                                    <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
+                                <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
+                                if (DiscontinuedRates == 0) {
+                                    action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
+                                }
+                                <?php } ?>
+
+                                        action += ' <button href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</button>';
+
+                                if (full[24] != null && full[24] != 0) {
+                                    <?php if(User::checkCategoryPermission('RateTables', 'Delete')) { ?>
                                     if (DiscontinuedRates == 0) {
-                                        action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
+                                        action += ' <button title="Delete" href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-xs" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
                                     }
                                     <?php } ?>
-
-                                            action += ' <button href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</button>';
-
-                                    if (full[22] != null && full[22] != 0) {
-                                        <?php if(User::checkCategoryPermission('RateTables', 'Delete')) { ?>
-                                        if (DiscontinuedRates == 0) {
-                                            action += ' <button title="Delete" href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-xs" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
-                                        }
-                                        <?php } ?>
-                                    }
-                                } else {
-                                    $('#actionheader').attr('width','5%');
-
-                                    @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-                                    if (full[25] == 1) {
-                                        action += ' <button href="Javascript:;"  title="Approved" class="btn btn-default btn-xs"><i class="entypo-check" style="color: green; "></i>&nbsp;</button>';
-                                    } else if (full[25] == 0) {
-                                        action += ' <button href="Javascript:;"  title="Awaiting Approval" class="btn btn-default btn-xs"><i class="entypo-cancel" style="color: red; "></i>&nbsp;</button>';
-                                    }
-                                    @endif
                                 }
+
                                 return action;
                             }
                         }
@@ -849,6 +849,8 @@
                 $(".edit-rate-table.btn").off('click');
                 $(".edit-rate-table.btn").click(function(ev) {
                     ev.stopPropagation();
+
+                    $("#edit-rate-table-form  [name=OriginationRateID]").select2("val", "");
                     var cur_obj = $(this).prevAll("div.hiddenRowData");
                     for(var i = 0 ; i< list_fields.length; i++){
                         $("#edit-rate-table-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger('change');
@@ -929,7 +931,7 @@
         return false;
     }
 
-    function getArchiveRateTableDIDRates($clickedButton,RateID,OriginationRateID) {
+    function getArchiveRateTableDIDRates($clickedButton,RateID,OriginationRateID,CityTariff) {
         //var Codes = new Array();
         var ArchiveRates;
         /*$("#table-4 tr td:nth-child(2)").each(function(){
@@ -950,7 +952,7 @@
             $.ajax({
                 url: baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid_archive_rates",
                 type: 'POST',
-                data: "RateID=" + RateID + "&OriginationRateID=" + OriginationRateID + "&TimezonesID=" + $searchFilter.Timezones,
+                data: "RateID=" + RateID + "&OriginationRateID=" + OriginationRateID + "&TimezonesID=" + $searchFilter.Timezones + "&CityTariff=" + CityTariff,
                 dataType: 'json',
                 cache: false,
                 success: function (response) {
@@ -968,7 +970,7 @@
                     var hiddenRowData = tr.find('.hiddenRowData');
                     var Code = hiddenRowData.find('input[name="Code"]').val();
                     var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
-                        table.append("<thead><tr><th>Orig. Code</th><th>Orig. Description</th><th>Dest. Code</th><th>Dest. Description</th><th>One-Off Cost</th><th>Monthly Cost</th><th>Cost Per Call</th><th>Cost Per Minute</th><th>Surcharge Per Call</th><th>Surcharge Per Minute</th><th>Outpayment Per Call</th><th>Outpayment Per Minute</th><th>Surcharges</th><th>Chargeback</th><th>Collection Cost</th><th>Collection Cost (%)</th><th>Registration Cost</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
+                        table.append("<thead><tr><th>Orig. Code</th><th>Orig. Description</th><th>Code</th><th>Description</th><th>City/Tariff</th><th>One-Off Cost</th><th>Monthly Cost</th><th>Cost Per Call</th><th>Cost Per Minute</th><th>Surcharge Per Call</th><th>Surcharge Per Minute</th><th>Outpayment Per Call</th><th>Outpayment Per Minute</th><th>Surcharges</th><th>Chargeback</th><th>Collection Cost</th><th>Collection Cost (%)</th><th>Registration Cost</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
                         //table.append("<thead><tr><th>Code</th><th>Description</th><th>One-Off Cost</th><th>Monthly Cost</th><th>Cost Per Call</th><th>Cost Per Minute</th><th>Surcharge Per Call</th><th>Surcharge Per Minute</th><th>Outpayment Per Call</th><th>Outpayment Per Minute</th><th>Surcharges</th><th>Chargeback</th><th>Collection Cost</th><th>Collection Cost (%)</th><th>Registration Cost</th><th class='sorting_desc'>Effective Date</th><th>End Date</th><th>Modified Date</th><th>Modified By</th></tr></thead>");
                     var tbody = $("<tbody></tbody>");
 
@@ -982,7 +984,8 @@
                             html += "<td>" + data['OriginationDescription'] + "</td>";
                             html += "<td>" + data['Code'] + "</td>";
                             html += "<td>" + data['Description'] + "</td>";
-                            html += "<td>" + data['OneOffCost'] + "</td>";
+                            html += "<td>" + data['CityTariff'] + "</td>";
+                            html += "<td>" + (data['OneOffCost'] != null?data['OneOffCost']:'') + "</td>";
                             html += "<td>" + (data['MonthlyCost'] != null?data['MonthlyCost']:'') + "</td>";
                             html += "<td>" + (data['CostPerCall'] != null?data['CostPerCall']:'') + "</td>";
                             html += "<td>" + (data['CostPerMinute'] != null?data['CostPerMinute']:'') + "</td>";
@@ -1048,6 +1051,12 @@
                             <div class="form-group">
                                 <label class="control-label">Effective Date</label>
                                 <input type="text"  name="EffectiveDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}" data-start-date="" data-date-format="yyyy-mm-dd" value="" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">City/Tariff</label>
+                                <input type="text" name="CityTariff" class="form-control" placeholder="">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -1194,6 +1203,7 @@
                     <input type="hidden" name="criteria" value="">
                     <input type="hidden" name="updateEffectiveDate" value="on">
                     <input type="hidden" name="updateOriginationRateID" value="on">
+                    <input type="hidden" name="updateCityTariff" value="on">
                     <input type="hidden" name="updateOneOffCost" value="on">
                     <input type="hidden" name="updateMonthlyCost" value="on">
                     <input type="hidden" name="updateCostPerCall" value="on">
@@ -1255,7 +1265,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <input type="checkbox" name="updateOriginationRateID" class="" />
-                                <label class="control-label">Code</label>
+                                <label class="control-label">Origination Code</label>
                                 <input type="hidden" class="rateid_list" name="OriginationRateID" />
                             </div>
                         </div>
@@ -1266,6 +1276,13 @@
                                 <input type="checkbox" name="updateEffectiveDate" class="" />
                                 <label class="control-label">Effective Date</label>
                                 <input type="text" name="EffectiveDate" class="form-control datepicker"  data-startdate="{{date('Y-m-d')}}" data-date-format="yyyy-mm-dd" value="" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="checkbox" name="updateCityTariff" class="" />
+                                <label class="control-label">City/Tariff</label>
+                                <input type="text" name="CityTariff" class="form-control" placeholder="">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -1482,6 +1499,12 @@
                             <div class="form-group">
                                 <label class="control-label">Timezone</label>
                                 {{ Form::select('TimezonesID', $Timezones, '', array("class"=>"select2")) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">City/Tariff</label>
+                                <input type="text" name="CityTariff" class="form-control" placeholder="">
                             </div>
                         </div>
                         <div class="col-md-6">

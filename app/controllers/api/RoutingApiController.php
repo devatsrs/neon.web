@@ -6,6 +6,8 @@
  * Date: 28/12/2018
  * Time: 12:47 AM
  */
+use app\controllers\api\Codes;
+
 class RoutingApiController extends ApiController {
     public function routingListOld()
     {
@@ -311,7 +313,7 @@ class RoutingApiController extends ApiController {
 
 
             $lcrDetails = json_decode(json_encode($lcrDetails), true);
-            return Response::json(["status" => "200", "Positions" => $lcrDetails]);
+            return Response::json(["status" => "200", "data" => $lcrDetails]);
         }catch(Exception $ex) {
             return Response::json(["status" => "500", "message" => "Exception in Routing API"]);
         }
@@ -321,9 +323,23 @@ class RoutingApiController extends ApiController {
     {
         try {
             Log::info('routingList:Get the routing list.');
-            $post_vars = json_decode(file_get_contents("php://input"));
-            //$post_vars = Input::all();
-            $routingData=json_decode(json_encode($post_vars),true);
+            $accountInfo = [];
+            $accountreseller = '';
+            $post_vars = '';
+            $routingData = [];
+            try {
+                $post_vars = json_decode(file_get_contents("php://input"));
+                //$post_vars = Input::all();
+                $routingData = json_decode(json_encode($post_vars), true);
+                $countValues = count($routingData);
+                if ($countValues == 0) {
+                    Log::info('Exception in Routing API.Invalid JSON');
+                    return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
+                }
+            }catch(Exception $ex) {
+                Log::info('Exception in Routing API.Invalid JSON' . $ex->getTraceAsString());
+                return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
+            }
             $lcrDetails = '';
             $CompanyID = User::get_companyID();
             $rules = array(
@@ -343,7 +359,7 @@ class RoutingApiController extends ApiController {
                 foreach ($validator->messages()->all() as $error) {
                     $errors .= $error . "<br>";
                 }
-                return Response::json(["status" => "401", "message" => $errors]);
+                return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
             }
 
             if (!empty($routingData['AccountDynamicField'])) {
@@ -351,7 +367,7 @@ class RoutingApiController extends ApiController {
                 $AccountIDRef = Account::findAccountBySIAccountRef($routingData['AccountDynamicField']);
 
                 if (empty($AccountIDRef)) {
-                    return Response::json(["status" => "401", "message" => "Please provide the correct Account ID"]);
+                    return Response::json(["ErrorMessage"=>Codes::$Code1000[1]],Codes::$Code1000[0]);
                 }
                 $routingData["AccountID"] = $AccountIDRef;
             }
@@ -362,11 +378,26 @@ class RoutingApiController extends ApiController {
             $RoutingProfileId = array();
             $CustomerProfileAccountID = '';
             if (isset($routingData["AccountNo"]) && $routingData["AccountNo"] != '') {
-                $CustomerProfileAccountID = Account::where(["Number" => $routingData["AccountNo"]])->pluck("AccountID");
-            } else {
-                $CustomerProfileAccountID = Account::where(["AccountID" => $routingData["AccountID"]])->pluck("AccountID");
+                $accountInfo = Account::where(["Number" => $routingData["AccountNo"]])->first();
+                if (!empty($accountInfo)) {
+                    $CustomerProfileAccountID = $accountInfo["AccountID"];
+                }
+            } else if (isset($routingData["AccountID"]) && $routingData["AccountID"] != ''){
+                $accountInfo = Account::where(["AccountID" => $routingData["AccountID"]])->first();
+                if (!empty($accountInfo)) {
+                    $CustomerProfileAccountID = $accountInfo["AccountID"];
+                }
             }
-            Log::info('routingList:Get the routing list count.' . $CustomerProfileAccountID);
+
+            if (empty($CustomerProfileAccountID)) {
+                return Response::json(["ErrorMessage"=>Codes::$Code1000[1]],Codes::$Code1000[0]);
+            }
+
+            if (!empty($accountInfo)) {
+                $companyID = $accountInfo["CompanyId"];
+                $accountreseller = Reseller::where('ChildCompanyID', $companyID)->pluck('AccountID');
+            }
+            Log::info('routingList:Get the routing list count.' . $CustomerProfileAccountID . ' ReSeller Account ' . $accountreseller);
 
             $profiles = '';
 
@@ -374,8 +405,11 @@ class RoutingApiController extends ApiController {
             $RoutingProfileId = '';
             $RoutingProfileID = '';
 
-            if (empty($CustomerProfileAccountID)) {
-                return Response::json(["status" => "401", "message" => "No Profile found against the Number/CustomerID"]);
+
+
+            $checkDate = strtotime($routingData['DataAndTime']);
+            if (empty($checkDate)) {
+                return Response::json(["ErrorMessage"=>Codes::$Code1022[1]],Codes::$Code1022[0]);
             }
             Log::info('routingList:Get the routing list count.' . $CustomerProfileAccountID);
 
@@ -446,19 +480,18 @@ class RoutingApiController extends ApiController {
                         $AccountProfiles = EngineRoutingProfileToCustomer::
                         where(["AccountID" => $CLIRateTable->AccountID])
                             ->where('ServiceID', '=', $CLIRateTable->ServiceID)->pluck("RoutingProfileID");
-                        Log::info('routingList profiles case 3 query with RoutingProfileRate ' . $AccountProfiles);
+                        Log::info('routingList profiles case 31 query with RoutingProfileRate ' . $AccountProfiles);
 
                         if (empty($AccountProfiles)) {
                             $AccountProfiles = EngineRoutingProfileToCustomer::
                             where(["AccountID" => $CLIRateTable->AccountID])
                                 ->pluck("RoutingProfileID");
-                            Log::info('routingList profiles case 3 query with RoutingProfileRate ' . $AccountProfiles);
+                            Log::info('routingList profiles case 32 query with RoutingProfileRate ' . $AccountProfiles);
 
                         }
 
 
                         if (!empty($AccountProfiles)) {
-
                             $RoutingProfileID = $AccountProfiles;
                             //$Prefix = $CLIRateTable->CLI;
                         }
@@ -472,6 +505,17 @@ class RoutingApiController extends ApiController {
 
                             $RoutingProfileID = $AccountProfiles;
                             //$Prefix = $CLIRateTable->CLI;
+                        }else {
+                            Log::info('routingList profiles case 5 query with RoutingProfileRate ' . $CustomerProfileAccountID);
+                            $AccountProfiles = EngineRoutingProfileToCustomer::
+                            where(["AccountID" => $accountreseller])
+                                ->pluck("RoutingProfileID");
+                            Log::info('routingList profiles case 51 query with RoutingProfileRate ' . $AccountProfiles);
+                            if (!empty($AccountProfiles)) {
+
+                                $RoutingProfileID = $AccountProfiles;
+                                //$Prefix = $CLIRateTable->CLI;
+                            }
                         }
                     }
                 }
@@ -590,10 +634,10 @@ class RoutingApiController extends ApiController {
 
             Log::info('Filter Routing Profile List procedure bindvalues is second select' . count($lcrDetails));
             $lcrDetails = json_decode(json_encode($lcrDetails), true);
-            return Response::json(["status" => "200", "Positions" => $lcrDetails]);
+            return Response::json(["data" => $lcrDetails],Codes::$Code200[0]);
         }catch(Exception $ex) {
             Log::info('Exception in Routing API.' . $ex->getTraceAsString());
-            return Response::json(["status" => "500", "message" => "Exception in Routing API"]);
+            return Response::json(["ErrorMessage"=>Codes::$Code500[1]],Codes::$Code500[0]);
         }
     }
 

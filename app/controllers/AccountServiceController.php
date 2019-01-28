@@ -49,6 +49,7 @@ class AccountServiceController extends \BaseController {
         $ServiceDescription = AccountService::where(['AccountID'=>$id,'AccountServiceID'=>$AccountServiceID])->pluck('ServiceDescription');
         $ServiceTitleShow = AccountService::where(['AccountID'=>$id,'AccountServiceID'=>$AccountServiceID])->pluck('ServiceTitleShow');
         $AccountService = AccountService::where(['AccountID'=>$id,'AccountServiceID'=>$AccountServiceID])->first();
+        $AccountServiceHistory = AccountServiceHistory::where('AccountServiceID',$AccountServiceID)->first();
 
         //As per new question call the routing profile model for fetch the routing profile list.
         $routingprofile = RoutingProfiles::getRoutingProfile($CompanyID);
@@ -58,7 +59,7 @@ class AccountServiceController extends \BaseController {
         $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$CompanyID);
 
         $AccountSubscriptionID = $id;
-        return View::make('accountservices.edit', compact('AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID','AccountServiceContract','AccountServiceCancelContract', 'AccountSubscriptionID'));
+        return View::make('accountservices.edit', compact('AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID','AccountServiceContract','AccountServiceCancelContract', 'AccountSubscriptionID','AccountServiceHistory'));
     }
 
     // add account services
@@ -165,13 +166,16 @@ class AccountServiceController extends \BaseController {
             /**start contract Section*/
             $AccountServiceId = AccountService::where('AccountServiceID', $AccountServiceID)->first();
             $AccountServiceContract = AccountServiceContract::where('AccountServiceID', $AccountServiceId->AccountServiceID)->get();
+
             $Contract = array();
+
             $Contract['ContractStartDate'] = Input::get('StartDate');
             $Contract['ContractEndDate'] = Input::get('EndDate');
             $Contract['AccountServiceID'] = $AccountServiceId->AccountServiceID;
             $Contract['AutoRenewal'] = Input::has('AutoRenewal') ? 1 : 0;
             $Contract['ContractTerm'] = Input::get('ContractTerm');
             $Contract['Duration'] = Input::get('Duration');
+
             /**validation*/
             if($Contract['ContractStartDate'] != "" || $Contract['ContractEndDate'] != "" || $Contract['AutoRenewal'] != 0 || $Contract['Duration'] != "" || $Contract['ContractTerm'] != ""|| count($AccountServiceContract) > 0){
                 if ($Contract['ContractTerm'] == 1) {
@@ -616,6 +620,26 @@ class AccountServiceController extends \BaseController {
             AccountServiceCancelContract::create($Contract);
         }
         return Response::json(array("status" => "success", "message" => "Cancel Contract Successful!."));
+    }
+    public function contract_status($AccountServiceID){
+        //return $AccountServiceID;
+        $AccountService = AccountService::where('AccountServiceID', $AccountServiceID)->first();
+        $CancelContractStatus = array();
+        $CancelContractStatus['CancelContractStatus'] = 0;
+        $InsertRenewalHistory = [
+            'Date' => DATE('y-m-d'),
+            'Action' => 'Contract Renew',
+            'ActionBy' => 'System',
+            'AccountServiceID' => $AccountServiceID
+
+        ];
+
+            AccountService::where('AccountServiceID', $AccountServiceID)->update($CancelContractStatus);
+            AccountServiceHistory::where('AccountServiceID', $AccountServiceID)->update($InsertRenewalHistory);
+       
+
+            return Response::json(array("status" => "success", "message" => "Your Contract Is Renewal!"));
+
     }
 
 }

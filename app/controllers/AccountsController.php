@@ -81,6 +81,26 @@ class AccountsController extends \BaseController {
         return Datatables::of($carddetail)->make();
     }
 
+    public function ajax_datagrid_PayoutAccounts($AccountID) {
+        $PaymentGatewayName = '';
+        $PaymentGatewayID='';
+        $account = Account::find($AccountID);
+        $CompanyID = $account->CompanyId;
+        if(!empty($account->PayoutMethod)){
+            $PaymentGatewayName = $account->PayoutMethod;
+            $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PaymentGatewayName);
+        } else {
+            $PaymentGatewayName = "Stripe";
+            $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PaymentGatewayName);
+        }
+        $payouts = AccountPayout::select("tblAccountPayout.Title","tblAccountPayout.Status","tblAccountPayout.isDefault",DB::raw("'".$PaymentGatewayName."' as gateway"),"created_at","tblAccountPayout.AccountPayoutID","tblAccountPayout.Options");
+        $payouts->where(["tblAccountPayout.CompanyID"=>$CompanyID])
+            ->where(["tblAccountPayout.AccountID"=>$AccountID])
+            ->where(["tblAccountPayout.PaymentGatewayID"=>$PaymentGatewayID]);
+
+        return Datatables::of($payouts)->make();
+    }
+
     public function ajax_datagrid_account_logs($AccountID) {
         $account = Account::find($AccountID);
         $CompanyID = $account->CompanyId;

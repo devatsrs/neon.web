@@ -59,6 +59,17 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/customer/PaymentMethodProfiles/verify_bankaccount', 'PaymentProfileCustomerController@verify_bankaccount');
     Route::any('/customer/PaymentMethodProfiles/{id}/card_status/{active_deactive}', array('as' => 'payment_rules', 'uses' => 'PaymentProfileCustomerController@card_active_deactive'))->where('active_deactive', '(active|deactive)');
 
+	//payout
+	Route::any('/customer/Payout/create', 'PayoutController@create');
+	Route::any('/customer/Payout/{id}/delete', 'PayoutController@delete');
+	Route::any('/customer/Payout/update', 'PayoutController@update');
+	Route::any('/customer/Payout/{id}/set_default', 'PayoutController@set_default');
+	Route::any('/customer/Payout/verify_bankaccount', 'PayoutController@verify_bankaccount');
+	Route::any('/customer/Payout/{id}/payout_status/{active_deactive}', array(
+		'as' => 'payout_status',
+		'uses' => 'PayoutController@payout_active_deactive'
+	))->where('active_deactive', '(active|deactive)');
+
 	//notice board
 	Route::any('customer/noticeboard', 'NoticeBoardCustomerController@index');
 	Route::any('customer/get_next_update/{id}', 'NoticeBoardCustomerController@get_next_update');
@@ -251,6 +262,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accounts/due_ratesheet', 'AccountsController@due_ratesheet');
 	Route::any('accounts/ajax_datagrid_sheet/{type}', 'AccountsController@ajax_datagrid_sheet');
     Route::any('accounts/{id}/ajax_datagrid_PaymentProfiles', 'AccountsController@ajax_datagrid_PaymentProfiles');
+	Route::any('accounts/{id}/ajax_datagrid_PayoutAccounts', 'AccountsController@ajax_datagrid_PayoutAccounts');
 	Route::any('accounts/addbillingaccount', 'AccountsController@addbillingaccount');
 	Route::any('accounts/{id}/change_verifiaction_status/{status}', 'AccountsController@change_verifiaction_status')->where('status', '(.[09]*)+');;
     Route::any('accounts/getoutstandingamount/{id}', 'AccountsController@get_outstanding_amount');
@@ -289,6 +301,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('account_subscription/{subscription_id}/delete', 'AccountSubscriptionController@delete')->where('subscription_id', '(.[09]*)+');
 	Route::any('account_subscription/getDiscountPlanByAccount', 'AccountSubscriptionController@getDiscountPlanByAccount');
 	Route::any('account_subscription/DynamiceFieldFinder', 'AccountSubscriptionController@FindDynamicFields');
+	Route::any('account_subscription/FindAccountServicesField', 'AccountSubscriptionController@FindAccountServicesField');
 	Route::any('account_subscription/EditDynamiceFieldFinder', 'AccountSubscriptionController@FindEditDynamicFields');
 
 	Route::any('accounts/{id}/subscription/ajax_datagrid', 'AccountSubscriptionController@ajax_datagrid');
@@ -1528,6 +1541,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accountservices/{id}/bulk_change_status', 'AccountServiceController@bulk_change_status');
 	Route::any('accountservices/{id}/bulk_delete', 'AccountServiceController@bulk_delete');
 	Route::any('accountservices/cancel_contract', 'AccountServiceController@cancelContract');
+	Route::any('accountservices/contract_status/{serviceid}', 'AccountServiceController@contract_status');
+
 
 	//noticeboard
 	Route::any('/noticeboard', 'NoticeBoardController@index');
@@ -1771,20 +1786,20 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('serviceTemplate/createServiceTemplate', 'ServicesTemplateApiController@storeServiceTempalteData');
 
 	Route::post('account/checkBalance/', 'AccountsApiController@checkBalance');
-	Route::post('account/getPayments/', 'PaymentApiController@getPaymentHistory');
-	Route::post('getAutoDepositSettings/', 'AccountBillingApiController@getAutoDepositSettings');
+	Route::post('account/Payments/list', 'PaymentApiController@getPaymentHistory');
+	Route::post('AutoDepositSettings/list', 'AccountBillingApiController@getAutoDepositSettings');
 	Route::post('setAutoDepositSettings/', 'AccountBillingApiController@setAutoDepositSettings');
-	Route::post('getAutoOutPaymentSettings/', 'AccountBillingApiController@getAutoOutPaymentSettings');
+	Route::post('AutoOutPaymentSettings/list', 'AccountBillingApiController@getAutoOutPaymentSettings');
 	Route::post('setAutoOutPaymentSettings/', 'AccountBillingApiController@setAutoOutPaymentSettings');
 	Route::post('setLowBalanceNotification/', 'BillingClassApiController@setLowBalanceNotification');
-	Route::post('getLowBalanceNotification/', 'BillingClassApiController@getLowBalanceNotification');
+	Route::post('LowBalanceNotification/list', 'BillingClassApiController@getLowBalanceNotification');
 	Route::post('account/requestFund/', 'PaymentApiController@requestFund');
 	Route::post('account/depositFund/', 'PaymentApiController@depositFund');
 	Route::post('startRecording', 'ActiveCallApiController@startRecording');
 	Route::post('startCall', 'ActiveCallApiController@startCall');
 	Route::post('endCall', 'ActiveCallApiController@endCall');
 	Route::post('blockCall', 'ActiveCallApiController@blockCall');
-	Route::post('getBlockCalls', 'ActiveCallApiController@getBlockCalls');
+	Route::post('BlockCalls/list', 'ActiveCallApiController@getBlockCalls');
 	Route::get('emailTemplate/list', 'EmailTemplateApiController@getList');
 	Route::get('users/list', 'UsersApiController@getList');
 	Route::get('country/list', 'CountryApiController@getList');
@@ -1795,7 +1810,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('account/createService', 'AccountsApiController@createAccountService');
 	Route::post('account/list', 'AccountsApiController@GetAccount');
 	Route::post('routing/list', 'RoutingApiController@routingList');
-	Route::post('routing/list1', 'RoutingApiController@routingListNewDB');
+
 	
 
 });
