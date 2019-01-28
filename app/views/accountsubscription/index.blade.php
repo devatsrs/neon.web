@@ -243,7 +243,6 @@
                 //inst.myMethod('I am a method');
                 $('#add-subscription').click(function(ev){
 
-                    alert('i am inside of that code...');
                         ev.preventDefault();
                         $('#subscription-form').trigger("reset");
                         $('#modal-subscription h4').html('Add Subscription');
