@@ -45,7 +45,7 @@ class AccountsApiController extends ApiController {
 
 			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 			if(empty($AccountID)){
-				return Response::json(["status"=>"404", "data"=>"Account Not Found."]);
+				return Response::json(["ErrorMessage"=>"Account Not Found"],Codes::$Code402[0]);
 			}
 			$Account = Account::where(["AccountID" => $AccountID])->first();
 		}
@@ -59,9 +59,9 @@ class AccountsApiController extends ApiController {
 				$Result['has_balance']=0;
 				$Result['amount']=$AccountBalance;
 			}
-			return Response::json(["status"=>"200", "data"=>$Result]);
+			return Response::json($Result, Codes::$Code200[0]);
 		}
-		return Response::json(["status"=>"404", "data"=>"Account Not Found"]);
+		return Response::json(["ErrorMessage"=>"Account Not Found"],Codes::$Code402[0]);
 	}
 
 
