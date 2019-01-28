@@ -235,7 +235,7 @@ class ProductsController extends \BaseController {
             }
             if(isset($DynamicFields) && count($DynamicFields)>0) {
                 for($k=0; $k<count($DynamicFields); $k++) {
-                    if(trim($DynamicFields[$k]['FieldValue'])!='') {
+                    if(isset($DynamicFields[$k]['FieldValue']) && trim($DynamicFields[$k]['FieldValue'])!='') {
                         $DynamicFields[$k]['ParentID'] = $product->ProductID;
                         DB::table('tblDynamicFieldsValue')->insert($DynamicFields[$k]);
                     }
