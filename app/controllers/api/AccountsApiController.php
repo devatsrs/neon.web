@@ -69,9 +69,25 @@ class AccountsApiController extends ApiController {
 	{
 		Log::info('createAccountService:Add Product Service.');
 		$message = '';
-		$post_vars = json_decode(file_get_contents("php://input"));
+		$post_vars = '';
+		$accountData = '';
+		try {
+			$post_vars = json_decode(file_get_contents("php://input"));
+			//$post_vars = Input::all();
+			$accountData=json_decode(json_encode($post_vars),true);
+			$countValues = count($accountData);
+			if ($countValues == 0) {
+				Log::info('Exception in Routing API.Invalid JSON');
+				return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
+			}
+		}catch(Exception $ex) {
+			Log::info('Exception in Routing API.Invalid JSON' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
+		}
+
+
 		//$post_vars = Input::all();
-		$accountData=json_decode(json_encode($post_vars),true);
+
 		$CompanyID = User::get_companyID();
 		$CreatedBy = User::get_user_full_name();
 		$date = date('Y-m-d H:i:s');
@@ -417,11 +433,27 @@ class AccountsApiController extends ApiController {
 
 	public function createAccount() {
 		Log::info('createAccount:Create new Account.');
+		$post_vars = '';
+		$accountData = [];
 		try {
 
-			$post_vars = json_decode(file_get_contents("php://input"));
+			try {
+				$post_vars = json_decode(file_get_contents("php://input"));
+				//$post_vars = Input::all();
+				$accountData=json_decode(json_encode($post_vars),true);
+				$countValues = count($accountData);
+				if ($countValues == 0) {
+					Log::info('Exception in Routing API.Invalid JSON');
+					return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
+				}
+			}catch(Exception $ex) {
+				Log::info('Exception in Routing API.Invalid JSON' . $ex->getTraceAsString());
+				return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
+			}
+
+
 			//$post_vars = Input::all();
-			$accountData=json_decode(json_encode($post_vars),true);
+
 			//$accountData = Input::all();
 			$ServiceID = 0;
 			$LogonUser = User::getUserInfo();

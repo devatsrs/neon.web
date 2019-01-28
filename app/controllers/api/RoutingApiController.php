@@ -325,9 +325,21 @@ class RoutingApiController extends ApiController {
             Log::info('routingList:Get the routing list.');
             $accountInfo = [];
             $accountreseller = '';
-            $post_vars = json_decode(file_get_contents("php://input"));
-            //$post_vars = Input::all();
-            $routingData=json_decode(json_encode($post_vars),true);
+            $post_vars = '';
+            $routingData = [];
+            try {
+                $post_vars = json_decode(file_get_contents("php://input"));
+                //$post_vars = Input::all();
+                $routingData = json_decode(json_encode($post_vars), true);
+                $countValues = count($routingData);
+                if ($countValues == 0) {
+                    Log::info('Exception in Routing API.Invalid JSON');
+                    return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
+                }
+            }catch(Exception $ex) {
+                Log::info('Exception in Routing API.Invalid JSON' . $ex->getTraceAsString());
+                return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
+            }
             $lcrDetails = '';
             $CompanyID = User::get_companyID();
             $rules = array(
