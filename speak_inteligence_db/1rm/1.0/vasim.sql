@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `tblRateTableDIDRate` (
   `RateTableId` bigint(20) NOT NULL,
   `TimezonesID` bigint(20) NOT NULL DEFAULT '1',
   `EffectiveDate` date NOT NULL,
-  `EndDate` DATE NULL DEFAULT NULL,
+  `EndDate` date DEFAULT NULL,
   `OneOffCost` decimal(18,6) DEFAULT NULL,
   `MonthlyCost` decimal(18,6) DEFAULT NULL,
   `CostPerCall` decimal(18,6) DEFAULT NULL,
@@ -58,25 +58,25 @@ CREATE TABLE IF NOT EXISTS `tblRateTableDIDRate` (
   `CollectionCostAmount` decimal(18,6) DEFAULT NULL,
   `CollectionCostPercentage` decimal(18,6) DEFAULT NULL,
   `RegistrationCostPerNumber` decimal(18,6) DEFAULT NULL,
-	`OneOffCostCurrency` INT(11) NULL DEFAULT NULL,
-	`MonthlyCostCurrency` INT(11) NULL DEFAULT NULL,
-	`CostPerCallCurrency` INT(11) NULL DEFAULT NULL,
-	`CostPerMinuteCurrency` INT(11) NULL DEFAULT NULL,
-	`SurchargePerCallCurrency` INT(11) NULL DEFAULT NULL,
-	`SurchargePerMinuteCurrency` INT(11) NULL DEFAULT NULL,
-	`OutpaymentPerCallCurrency` INT(11) NULL DEFAULT NULL,
-	`OutpaymentPerMinuteCurrency` INT(11) NULL DEFAULT NULL,
-	`SurchargesCurrency` INT(11) NULL DEFAULT NULL,
-	`ChargebackCurrency` INT(11) NULL DEFAULT NULL,
-	`CollectionCostAmountCurrency` INT(11) NULL DEFAULT NULL,
-	`RegistrationCostPerNumberCurrency` INT(11) NULL DEFAULT NULL,
+  `OneOffCostCurrency` int(11) DEFAULT NULL,
+  `MonthlyCostCurrency` int(11) DEFAULT NULL,
+  `CostPerCallCurrency` int(11) DEFAULT NULL,
+  `CostPerMinuteCurrency` int(11) DEFAULT NULL,
+  `SurchargePerCallCurrency` int(11) DEFAULT NULL,
+  `SurchargePerMinuteCurrency` int(11) DEFAULT NULL,
+  `OutpaymentPerCallCurrency` int(11) DEFAULT NULL,
+  `OutpaymentPerMinuteCurrency` int(11) DEFAULT NULL,
+  `SurchargesCurrency` int(11) DEFAULT NULL,
+  `ChargebackCurrency` int(11) DEFAULT NULL,
+  `CollectionCostAmountCurrency` int(11) DEFAULT NULL,
+  `RegistrationCostPerNumberCurrency` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL,
   `CreatedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `ModifiedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-	`ApprovedStatus` TINYINT(4) NOT NULL DEFAULT '1',
-	`ApprovedBy` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
-	`ApprovedDate` DATETIME NULL DEFAULT NULL,
+  `ApprovedStatus` tinyint(4) NOT NULL DEFAULT '1',
+  `ApprovedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `ApprovedDate` datetime DEFAULT NULL,
   PRIMARY KEY (`RateTableDIDRateID`),
   UNIQUE KEY `IX_Unique_RateID_ORateID_RateTableId_TimezonesID_EffectiveDate` (`RateID`,`OriginationRateID`,`RateTableId`,`TimezonesID`,`EffectiveDate`),
   KEY `RateTableIDEffectiveDate` (`RateTableId`,`EffectiveDate`,`RateID`),
@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS `tblRateTableDIDRateArchive` (
   `RateTableId` bigint(20) NOT NULL,
   `TimezonesID` bigint(20) NOT NULL DEFAULT '1',
   `EffectiveDate` date NOT NULL,
-  `EndDate` DATE NULL DEFAULT NULL,
+  `EndDate` date DEFAULT NULL,
   `OneOffCost` decimal(18,6) DEFAULT NULL,
   `MonthlyCost` decimal(18,6) DEFAULT NULL,
   `CostPerCall` decimal(18,6) DEFAULT NULL,
@@ -108,31 +108,82 @@ CREATE TABLE IF NOT EXISTS `tblRateTableDIDRateArchive` (
   `CollectionCostAmount` decimal(18,6) DEFAULT NULL,
   `CollectionCostPercentage` decimal(18,6) DEFAULT NULL,
   `RegistrationCostPerNumber` decimal(18,6) DEFAULT NULL,
-	`OneOffCostCurrency` INT(11) NULL DEFAULT NULL,
-	`MonthlyCostCurrency` INT(11) NULL DEFAULT NULL,
-	`CostPerCallCurrency` INT(11) NULL DEFAULT NULL,
-	`CostPerMinuteCurrency` INT(11) NULL DEFAULT NULL,
-	`SurchargePerCallCurrency` INT(11) NULL DEFAULT NULL,
-	`SurchargePerMinuteCurrency` INT(11) NULL DEFAULT NULL,
-	`OutpaymentPerCallCurrency` INT(11) NULL DEFAULT NULL,
-	`OutpaymentPerMinuteCurrency` INT(11) NULL DEFAULT NULL,
-	`SurchargesCurrency` INT(11) NULL DEFAULT NULL,
-	`ChargebackCurrency` INT(11) NULL DEFAULT NULL,
-	`CollectionCostAmountCurrency` INT(11) NULL DEFAULT NULL,
-	`RegistrationCostPerNumberCurrency` INT(11) NULL DEFAULT NULL,
+  `OneOffCostCurrency` int(11) DEFAULT NULL,
+  `MonthlyCostCurrency` int(11) DEFAULT NULL,
+  `CostPerCallCurrency` int(11) DEFAULT NULL,
+  `CostPerMinuteCurrency` int(11) DEFAULT NULL,
+  `SurchargePerCallCurrency` int(11) DEFAULT NULL,
+  `SurchargePerMinuteCurrency` int(11) DEFAULT NULL,
+  `OutpaymentPerCallCurrency` int(11) DEFAULT NULL,
+  `OutpaymentPerMinuteCurrency` int(11) DEFAULT NULL,
+  `SurchargesCurrency` int(11) DEFAULT NULL,
+  `ChargebackCurrency` int(11) DEFAULT NULL,
+  `CollectionCostAmountCurrency` int(11) DEFAULT NULL,
+  `RegistrationCostPerNumberCurrency` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL,
   `CreatedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `ModifiedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-	`ApprovedStatus` TINYINT(4) NOT NULL DEFAULT '1',
-	`ApprovedBy` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
-	`ApprovedDate` DATETIME NULL DEFAULT NULL,
+  `ApprovedStatus` tinyint(4) NOT NULL DEFAULT '1',
+  `ApprovedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `ApprovedDate` datetime DEFAULT NULL,
   `Notes` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`RateTableDIDRateArchiveID`),
   KEY `RateTableIDEffectiveDate` (`RateTableId`,`EffectiveDate`,`RateID`),
   KEY `IX_RateTableId_RateID_EffectiveDate` (`RateTableId`,`RateID`,`EffectiveDate`),
   KEY `IX_RateTableId` (`RateTableId`),
   KEY `XI_RateID_RatetableID` (`RateID`,`RateTableDIDRateID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `tblRateTableDIDRateChangeLog` (
+  `RateTableDIDRateChangeLogID` int(11) NOT NULL AUTO_INCREMENT,
+  `TempRateTableDIDRateID` int(11) NOT NULL DEFAULT '0',
+  `RateTableDIDRateID` int(11) DEFAULT NULL,
+  `RateTableId` int(11) DEFAULT NULL,
+  `TimezonesID` int(11) NOT NULL DEFAULT '1',
+  `OriginationRateID` int(11) NOT NULL DEFAULT '0',
+  `OriginationCode` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `OriginationDescription` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `RateId` int(11) DEFAULT NULL,
+  `Code` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Description` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `OneOffCost` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `MonthlyCost` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `CostPerCall` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `CostPerMinute` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `SurchargePerCall` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `SurchargePerMinute` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `OutpaymentPerCall` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `OutpaymentPerMinute` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Surcharges` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Chargeback` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `CollectionCostAmount` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `CollectionCostPercentage` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `RegistrationCostPerNumber` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `OneOffCostCurrency` int(11) DEFAULT NULL,
+  `MonthlyCostCurrency` int(11) DEFAULT NULL,
+  `CostPerCallCurrency` int(11) DEFAULT NULL,
+  `CostPerMinuteCurrency` int(11) DEFAULT NULL,
+  `SurchargePerCallCurrency` int(11) DEFAULT NULL,
+  `SurchargePerMinuteCurrency` int(11) DEFAULT NULL,
+  `OutpaymentPerCallCurrency` int(11) DEFAULT NULL,
+  `OutpaymentPerMinuteCurrency` int(11) DEFAULT NULL,
+  `SurchargesCurrency` int(11) DEFAULT NULL,
+  `ChargebackCurrency` int(11) DEFAULT NULL,
+  `CollectionCostAmountCurrency` int(11) DEFAULT NULL,
+  `RegistrationCostPerNumberCurrency` int(11) DEFAULT NULL,
+  `EffectiveDate` datetime DEFAULT NULL,
+  `EndDate` datetime DEFAULT NULL,
+  `Action` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `ProcessID` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `created_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`RateTableDIDRateChangeLogID`),
+  KEY `IX_tblRateTableDIDRateChangeLog_RateTableDIDRateID` (`RateTableDIDRateID`),
+  KEY `IX_tblRateTableDIDRateChangeLog_ProcessID` (`ProcessID`),
+  KEY `RateId` (`RateId`),
+  KEY `EffectiveDate` (`EffectiveDate`),
+  KEY `Code` (`Code`),
+  KEY `Action` (`Action`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `tblTempRateTableDIDRate` (
@@ -158,18 +209,18 @@ CREATE TABLE IF NOT EXISTS `tblTempRateTableDIDRate` (
   `CollectionCostAmount` decimal(18,6) DEFAULT NULL,
   `CollectionCostPercentage` decimal(18,6) DEFAULT NULL,
   `RegistrationCostPerNumber` decimal(18,6) DEFAULT NULL,
-	`OneOffCostCurrency` INT(11) NULL DEFAULT NULL,
-	`MonthlyCostCurrency` INT(11) NULL DEFAULT NULL,
-	`CostPerCallCurrency` INT(11) NULL DEFAULT NULL,
-	`CostPerMinuteCurrency` INT(11) NULL DEFAULT NULL,
-	`SurchargePerCallCurrency` INT(11) NULL DEFAULT NULL,
-	`SurchargePerMinuteCurrency` INT(11) NULL DEFAULT NULL,
-	`OutpaymentPerCallCurrency` INT(11) NULL DEFAULT NULL,
-	`OutpaymentPerMinuteCurrency` INT(11) NULL DEFAULT NULL,
-	`SurchargesCurrency` INT(11) NULL DEFAULT NULL,
-	`ChargebackCurrency` INT(11) NULL DEFAULT NULL,
-	`CollectionCostAmountCurrency` INT(11) NULL DEFAULT NULL,
-	`RegistrationCostPerNumberCurrency` INT(11) NULL DEFAULT NULL,
+  `OneOffCostCurrency` int(11) DEFAULT NULL,
+  `MonthlyCostCurrency` int(11) DEFAULT NULL,
+  `CostPerCallCurrency` int(11) DEFAULT NULL,
+  `CostPerMinuteCurrency` int(11) DEFAULT NULL,
+  `SurchargePerCallCurrency` int(11) DEFAULT NULL,
+  `SurchargePerMinuteCurrency` int(11) DEFAULT NULL,
+  `OutpaymentPerCallCurrency` int(11) DEFAULT NULL,
+  `OutpaymentPerMinuteCurrency` int(11) DEFAULT NULL,
+  `SurchargesCurrency` int(11) DEFAULT NULL,
+  `ChargebackCurrency` int(11) DEFAULT NULL,
+  `CollectionCostAmountCurrency` int(11) DEFAULT NULL,
+  `RegistrationCostPerNumberCurrency` int(11) DEFAULT NULL,
   `EffectiveDate` datetime NOT NULL,
   `EndDate` datetime DEFAULT NULL,
   `Change` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -179,63 +230,12 @@ CREATE TABLE IF NOT EXISTS `tblTempRateTableDIDRate` (
   KEY `IX_tblTempRateTableDIDRateProcessID` (`ProcessId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `tblRateTableDIDRateChangeLog` (
-  `RateTableDIDRateChangeLogID` int(11) NOT NULL AUTO_INCREMENT,
-  `TempRateTableDIDRateID` int(11) NOT NULL DEFAULT '0',
-  `RateTableDIDRateID` int(11) DEFAULT NULL,
-  `RateTableId` int(11) DEFAULT NULL,
-  `TimezonesID` int(11) NOT NULL DEFAULT '1',
-  `OriginationRateID` int(11) NOT NULL DEFAULT '0',
-  `OriginationCode` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `OriginationDescription` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `RateId` int(11) DEFAULT NULL,
-  `Code` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `Description` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `OneOffCost` VARCHAR(255) DEFAULT NULL,
-  `MonthlyCost` VARCHAR(255) DEFAULT NULL,
-  `CostPerCall` VARCHAR(255) DEFAULT NULL,
-  `CostPerMinute` VARCHAR(255) DEFAULT NULL,
-  `SurchargePerCall` VARCHAR(255) DEFAULT NULL,
-  `SurchargePerMinute` VARCHAR(255) DEFAULT NULL,
-  `OutpaymentPerCall` VARCHAR(255) DEFAULT NULL,
-  `OutpaymentPerMinute` VARCHAR(255) DEFAULT NULL,
-  `Surcharges` VARCHAR(255) DEFAULT NULL,
-  `Chargeback` VARCHAR(255) DEFAULT NULL,
-  `CollectionCostAmount` VARCHAR(255) DEFAULT NULL,
-  `CollectionCostPercentage` VARCHAR(255) DEFAULT NULL,
-  `RegistrationCostPerNumber` VARCHAR(255) DEFAULT NULL,
-  `OneOffCostCurrency` INT(11) NULL DEFAULT NULL,
-	`MonthlyCostCurrency` INT(11) NULL DEFAULT NULL,
-	`CostPerCallCurrency` INT(11) NULL DEFAULT NULL,
-	`CostPerMinuteCurrency` INT(11) NULL DEFAULT NULL,
-	`SurchargePerCallCurrency` INT(11) NULL DEFAULT NULL,
-	`SurchargePerMinuteCurrency` INT(11) NULL DEFAULT NULL,
-	`OutpaymentPerCallCurrency` INT(11) NULL DEFAULT NULL,
-	`OutpaymentPerMinuteCurrency` INT(11) NULL DEFAULT NULL,
-	`SurchargesCurrency` INT(11) NULL DEFAULT NULL,
-	`ChargebackCurrency` INT(11) NULL DEFAULT NULL,
-	`CollectionCostAmountCurrency` INT(11) NULL DEFAULT NULL,
-	`RegistrationCostPerNumberCurrency` INT(11) NULL DEFAULT NULL,
-  `EffectiveDate` datetime DEFAULT NULL,
-  `EndDate` datetime DEFAULT NULL,
-  `Action` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `ProcessID` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
-  `created_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`RateTableDIDRateChangeLogID`),
-  KEY `IX_tblRateTableDIDRateChangeLog_RateTableDIDRateID` (`RateTableDIDRateID`),
-  KEY `IX_tblRateTableDIDRateChangeLog_ProcessID` (`ProcessID`),
-  KEY `RateId` (`RateId`),
-  KEY `EffectiveDate` (`EffectiveDate`),
-  KEY `Code` (`Code`),
-  KEY `Action` (`Action`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
 ALTER TABLE `tblTempRateTableRate`
 	CHANGE COLUMN `TimezonesID` `TimezonesID` INT(11) NOT NULL DEFAULT '1' AFTER `CodeDeckId`,
 	ADD COLUMN `OriginationCountryCode` VARCHAR(500) NULL DEFAULT NULL AFTER `TimezonesID`,
 	ADD COLUMN `OriginationCode` TEXT NULL DEFAULT NULL AFTER `OriginationCountryCode`,
 	ADD COLUMN `OriginationDescription` VARCHAR(200) NULL DEFAULT NULL AFTER `OriginationCode`,
-	CHANGE COLUMN `CountryCode` `CountryCode` VARCHAR(500) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci' AFTER `OriginationDescription`
+	CHANGE COLUMN `CountryCode` `CountryCode` VARCHAR(500) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci' AFTER `OriginationDescription`,
 	CHANGE COLUMN `Preference` `Preference` INT NULL DEFAULT NULL COLLATE 'utf8_unicode_ci' AFTER `ProcessId`,
 	CHANGE COLUMN `Forbidden` `Blocked` TINYINT NOT NULL DEFAULT '0' COLLATE 'utf8_unicode_ci' AFTER `IntervalN`,
 	ADD COLUMN `RoutingCategoryID` INT NULL DEFAULT NULL AFTER `DialStringPrefix`;
@@ -280,7 +280,19 @@ INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `Create
 INSERT INTO `tblFileUploadTemplateType` (`FileUploadTemplateTypeID`, `TemplateType`, `Title`, `UploadDir`, `created_at`, `created_by`, `Status`) VALUES (13, 'RatetableDIDRate', 'Ratetable DID Rate', 'RATETABLE_UPLOAD', '2019-01-02 13:59:54', 'Vasim Seta', 1);
 INSERT INTO `tblJobType` (`JobTypeID`, `Code`, `Title`, `Description`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`) VALUES (34, 'DRTU', 'DID Rate Table Upload', NULL, '2019-01-04 14:29:35', 'RateManagementSystem', NULL, NULL);
 
+ALTER TABLE `tblRateTableDIDRate`
+	ADD COLUMN `CityTariff` VARCHAR(50) NOT NULL DEFAULT '' AFTER `EndDate`
+	DROP INDEX `IX_Unique_RateID_ORateID_RateTableId_TimezonesID_EffectiveDate`,
+	ADD UNIQUE INDEX `IX_Unique_RateID_ORateID_RateTableId_Timezone_Effective_CityT` (`RateID`, `OriginationRateID`, `RateTableId`, `TimezonesID`, `EffectiveDate`, `CityTariff`);
 
+ALTER TABLE `tblRateTableDIDRateArchive`
+	ADD COLUMN `CityTariff` VARCHAR(50) NOT NULL DEFAULT '' AFTER `EndDate`;
+
+ALTER TABLE `tblRateTableDIDRateChangeLog`
+	ADD COLUMN `CityTariff` VARCHAR(50) NOT NULL DEFAULT '' AFTER `Description`;
+
+ALTER TABLE `tblTempRateTableDIDRate`
+	ADD COLUMN `CityTariff` VARCHAR(50) NOT NULL DEFAULT '' AFTER `Description`;
 
 
 
@@ -603,6 +615,7 @@ CREATE PROCEDURE `prc_RateTableDIDRateUpdateDelete`(
 	IN `p_OriginationRateID` INT,
 	IN `p_EffectiveDate` DATETIME,
 	IN `p_EndDate` DATETIME,
+	IN `p_CityTariff` VARCHAR(50),
 	IN `p_OneOffCost` DECIMAL(18,6),
 	IN `p_MonthlyCost` DECIMAL(18,6),
 	IN `p_CostPerCall` DECIMAL(18,6),
@@ -631,6 +644,7 @@ CREATE PROCEDURE `prc_RateTableDIDRateUpdateDelete`(
 	IN `p_Critearea_CountryId` INT,
 	IN `p_Critearea_Code` varchar(50),
 	IN `p_Critearea_Description` varchar(200),
+	IN `p_Critearea_CityTariff` VARCHAR(50),
 	IN `p_Critearea_OriginationCode` VARCHAR(50),
 	IN `p_Critearea_OriginationDescription` VARCHAR(200),
 	IN `p_Critearea_Effective` VARCHAR(50),
@@ -651,6 +665,7 @@ ThisSP:BEGIN
 		`RateId` int(11) NOT NULL,
 		`RateTableId` int(11) NOT NULL,
 		`TimezonesID` int(11) NOT NULL,
+		`CityTariff` VARCHAR(20) NOT NULL DEFAULT '',
 		`OneOffCost` decimal(18,6) NULL DEFAULT NULL,
 		`MonthlyCost` decimal(18,6) NULL DEFAULT NULL,
 		`CostPerCall` decimal(18,6) NULL DEFAULT NULL,
@@ -694,6 +709,7 @@ ThisSP:BEGIN
 		rtr.RateId,
 		rtr.RateTableId,
 		rtr.TimezonesID,
+		IFNULL(p_CityTariff,rtr.CityTariff) AS CityTariff,
 		IFNULL(p_OneOffCost,rtr.OneOffCost) AS OneOffCost,
 		IFNULL(p_MonthlyCost,rtr.MonthlyCost) AS MonthlyCost,
 		IFNULL(p_CostPerCall,rtr.CostPerCall) AS CostPerCall,
@@ -743,7 +759,7 @@ ThisSP:BEGIN
 						FROM
 							tblRateTableDIDRate
 						WHERE
-							EffectiveDate=p_EffectiveDate AND TimezonesID=p_TimezonesID AND
+							EffectiveDate=p_EffectiveDate AND TimezonesID=p_TimezonesID AND CityTariff=p_CityTariff AND
 							((p_Critearea = 0 AND (FIND_IN_SET(RateTableDIDRateID,p_RateTableDIDRateID) = 0 )) OR p_Critearea = 1) AND
 							RateTableId = p_RateTableId
 				)
@@ -760,6 +776,7 @@ ThisSP:BEGIN
 					((p_Critearea_OriginationDescription IS NULL) OR (p_Critearea_OriginationDescription IS NOT NULL AND r2.Description LIKE REPLACE(p_Critearea_OriginationDescription,'*', '%'))) AND
 					((p_Critearea_Code IS NULL) OR (p_Critearea_Code IS NOT NULL AND r.Code LIKE REPLACE(p_Critearea_Code,'*', '%'))) AND
 					((p_Critearea_Description IS NULL) OR (p_Critearea_Description IS NOT NULL AND r.Description LIKE REPLACE(p_Critearea_Description,'*', '%'))) AND
+					((p_Critearea_CityTariff IS NULL) OR (p_Critearea_CityTariff IS NOT NULL AND rtr.CityTariff LIKE REPLACE(p_Critearea_CityTariff,'*', '%'))) AND
 					(p_Critearea_ApprovedStatus IS NULL OR rtr.ApprovedStatus = p_Critearea_ApprovedStatus) AND
 					(
 						p_Critearea_Effective = 'All' OR
@@ -795,6 +812,7 @@ ThisSP:BEGIN
 		WHERE
 			(rtr.OriginationRateID = temp.OriginationRateID) AND
 			(rtr.EffectiveDate = temp.EffectiveDate) AND
+			((rtr.CityTariff IS NULL && temp.CityTariff IS NULL) || rtr.CityTariff = temp.CityTariff) AND
 			((rtr.OneOffCost IS NULL && temp.OneOffCost IS NULL) || rtr.OneOffCost = temp.OneOffCost) AND
 			((rtr.MonthlyCost IS NULL && temp.MonthlyCost IS NULL) || rtr.MonthlyCost = temp.MonthlyCost) AND
 			((rtr.CostPerCall IS NULL && temp.CostPerCall IS NULL) || rtr.CostPerCall = temp.CostPerCall) AND
@@ -843,6 +861,7 @@ ThisSP:BEGIN
 			RateId,
 			RateTableId,
 			TimezonesID,
+			CityTariff,
 			OneOffCost,
 			MonthlyCost,
 			CostPerCall,
@@ -883,6 +902,7 @@ ThisSP:BEGIN
 			RateId,
 			RateTableId,
 			TimezonesID,
+			CityTariff,
 			OneOffCost,
 			MonthlyCost,
 			CostPerCall,
@@ -963,6 +983,7 @@ BEGIN
 		`TimezonesID`,
 		`EffectiveDate`,
 		IFNULL(`EndDate`,date(now())) as EndDate,
+		`CityTariff`,
 		`OneOffCost`,
 		`MonthlyCost`,
 		`CostPerCall`,
@@ -1028,6 +1049,7 @@ CREATE PROCEDURE `prc_getDiscontinuedRateTableDIDRateGrid`(
 	IN `p_origination_description` VARCHAR(200),
 	IN `p_Code` VARCHAR(50),
 	IN `p_Description` VARCHAR(200),
+	IN `p_CityTariff` VARCHAR(50),
 	IN `p_ApprovedStatus` TINYINT,
 	IN `p_PageNumber` INT,
 	IN `p_RowspPage` INT,
@@ -1048,6 +1070,7 @@ BEGIN
 		OriginationDescription VARCHAR(200),
 		Code VARCHAR(50),
 		Description VARCHAR(200),
+      CityTariff VARCHAR(50),
 		OneOffCost DECIMAL(18,6),
 	  	MonthlyCost DECIMAL(18,6),
 	  	CostPerCall DECIMAL(18,6),
@@ -1093,6 +1116,7 @@ BEGIN
 		OriginationRate.Description AS OriginationDescription,
 		r.Code,
 		r.Description,
+		vra.CityTariff,
 		vra.OneOffCost,
 	  	vra.MonthlyCost,
 	  	vra.CostPerCall,
@@ -1116,18 +1140,18 @@ BEGIN
       vra.ApprovedStatus,
       vra.ApprovedBy,
       vra.ApprovedDate,
-		IFNULL(CONCAT(tblOneOffCostCurrency.Symbol,'-',tblOneOffCostCurrency.CurrencyID),CONCAT(tblRateTableCurrency.Symbol,'-',tblRateTableCurrency.CurrencyID)) AS OneOffCostCurrency,
-		IFNULL(CONCAT(tblMonthlyCostCurrency.Symbol,'-',tblMonthlyCostCurrency.CurrencyID),CONCAT(tblRateTableCurrency.Symbol,'-',tblRateTableCurrency.CurrencyID)) AS MonthlyCostCurrency,
-		IFNULL(CONCAT(tblCostPerCallCurrency.Symbol,'-',tblCostPerCallCurrency.CurrencyID),CONCAT(tblRateTableCurrency.Symbol,'-',tblRateTableCurrency.CurrencyID)) AS CostPerCallCurrency,
-		IFNULL(CONCAT(tblCostPerMinuteCurrency.Symbol,'-',tblCostPerMinuteCurrency.CurrencyID),CONCAT(tblRateTableCurrency.Symbol,'-',tblRateTableCurrency.CurrencyID)) AS CostPerMinuteCurrency,
-		IFNULL(CONCAT(tblSurchargePerCallCurrency.Symbol,'-',tblSurchargePerCallCurrency.CurrencyID),CONCAT(tblRateTableCurrency.Symbol,'-',tblRateTableCurrency.CurrencyID)) AS SurchargePerCallCurrency,
-		IFNULL(CONCAT(tblSurchargePerMinuteCurrency.Symbol,'-',tblSurchargePerMinuteCurrency.CurrencyID),CONCAT(tblRateTableCurrency.Symbol,'-',tblRateTableCurrency.CurrencyID)) AS SurchargePerMinuteCurrency,
-		IFNULL(CONCAT(tblOutpaymentPerCallCurrency.Symbol,'-',tblOutpaymentPerCallCurrency.CurrencyID),CONCAT(tblRateTableCurrency.Symbol,'-',tblRateTableCurrency.CurrencyID)) AS OutpaymentPerCallCurrency,
-		IFNULL(CONCAT(tblOutpaymentPerMinuteCurrency.Symbol,'-',tblOutpaymentPerMinuteCurrency.CurrencyID),CONCAT(tblRateTableCurrency.Symbol,'-',tblRateTableCurrency.CurrencyID)) AS OutpaymentPerMinuteCurrency,
-		IFNULL(CONCAT(tblSurchargesCurrency.Symbol,'-',tblSurchargesCurrency.CurrencyID),CONCAT(tblRateTableCurrency.Symbol,'-',tblRateTableCurrency.CurrencyID)) AS SurchargesCurrency,
-		IFNULL(CONCAT(tblChargebackCurrency.Symbol,'-',tblChargebackCurrency.CurrencyID),CONCAT(tblRateTableCurrency.Symbol,'-',tblRateTableCurrency.CurrencyID)) AS ChargebackCurrency,
-		IFNULL(CONCAT(tblCollectionCostAmountCurrency.Symbol,'-',tblCollectionCostAmountCurrency.CurrencyID),CONCAT(tblRateTableCurrency.Symbol,'-',tblRateTableCurrency.CurrencyID)) AS CollectionCostAmountCurrency,
-		IFNULL(CONCAT(tblRegistrationCostPerNumberCurrency.Symbol,'-',tblRegistrationCostPerNumberCurrency.CurrencyID),CONCAT(tblRateTableCurrency.Symbol,'-',tblRateTableCurrency.CurrencyID)) AS RegistrationCostPerNumberCurrency
+		IFNULL(CONCAT(tblOneOffCostCurrency.Symbol,'-',tblOneOffCostCurrency.CurrencyID),'-') AS OneOffCostCurrency,
+		IFNULL(CONCAT(tblMonthlyCostCurrency.Symbol,'-',tblMonthlyCostCurrency.CurrencyID),'-') AS MonthlyCostCurrency,
+		IFNULL(CONCAT(tblCostPerCallCurrency.Symbol,'-',tblCostPerCallCurrency.CurrencyID),'-') AS CostPerCallCurrency,
+		IFNULL(CONCAT(tblCostPerMinuteCurrency.Symbol,'-',tblCostPerMinuteCurrency.CurrencyID),'-') AS CostPerMinuteCurrency,
+		IFNULL(CONCAT(tblSurchargePerCallCurrency.Symbol,'-',tblSurchargePerCallCurrency.CurrencyID),'-') AS SurchargePerCallCurrency,
+		IFNULL(CONCAT(tblSurchargePerMinuteCurrency.Symbol,'-',tblSurchargePerMinuteCurrency.CurrencyID),'-') AS SurchargePerMinuteCurrency,
+		IFNULL(CONCAT(tblOutpaymentPerCallCurrency.Symbol,'-',tblOutpaymentPerCallCurrency.CurrencyID),'-') AS OutpaymentPerCallCurrency,
+		IFNULL(CONCAT(tblOutpaymentPerMinuteCurrency.Symbol,'-',tblOutpaymentPerMinuteCurrency.CurrencyID),'-') AS OutpaymentPerMinuteCurrency,
+		IFNULL(CONCAT(tblSurchargesCurrency.Symbol,'-',tblSurchargesCurrency.CurrencyID),'-') AS SurchargesCurrency,
+		IFNULL(CONCAT(tblChargebackCurrency.Symbol,'-',tblChargebackCurrency.CurrencyID),'-') AS ChargebackCurrency,
+		IFNULL(CONCAT(tblCollectionCostAmountCurrency.Symbol,'-',tblCollectionCostAmountCurrency.CurrencyID),'-') AS CollectionCostAmountCurrency,
+		IFNULL(CONCAT(tblRegistrationCostPerNumberCurrency.Symbol,'-',tblRegistrationCostPerNumberCurrency.CurrencyID),'-') AS RegistrationCostPerNumberCurrency
 	FROM
 		tblRateTableDIDRateArchive vra
 	JOIN
@@ -1173,6 +1197,7 @@ BEGIN
 		(p_origination_description is null OR OriginationRate.Description LIKE REPLACE(p_origination_description, '*', '%')) AND
 		(p_code IS NULL OR r.Code LIKE REPLACE(p_code, '*', '%')) AND
 		(p_description IS NULL OR r.Description LIKE REPLACE(p_description, '*', '%')) AND
+		(p_CityTariff is null OR tblRateTableDIDRate.CityTariff LIKE REPLACE(p_CityTariff, '*', '%')) AND
 		(p_ApprovedStatus IS NULL OR vra.ApprovedStatus = p_ApprovedStatus) AND
 		vr.RateTableDIDRateID is NULL;
 
@@ -1211,6 +1236,12 @@ BEGIN
              END DESC,
              CASE
                  WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionASC') THEN Description
+             END ASC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CityTariffDESC') THEN CityTariff
+             END DESC,
+             CASE
+                 WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CityTariffASC') THEN CityTariff
              END ASC,
              CASE
                  WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OneOffCostDESC') THEN OneOffCost
@@ -1339,6 +1370,7 @@ BEGIN
 			OriginationDescription,
 			Code AS DestinationCode,
 			Description AS DestinationDescription,
+         CityTariff,
 			CONCAT(OneOffCostCurrency,OneOffCost) AS OneOffCost,
 			CONCAT(MonthlyCostCurrency,MonthlyCost) AS MonthlyCost,
 			CONCAT(CostPerCallCurrency,CostPerCall) AS CostPerCall,
@@ -1364,6 +1396,7 @@ BEGIN
 			OriginationDescription,
 			Code AS DestinationCode,
 			Description AS DestinationDescription,
+         CityTariff,
 			CONCAT(OneOffCostCurrency,OneOffCost) AS OneOffCost,
 			CONCAT(MonthlyCostCurrency,MonthlyCost) AS MonthlyCost,
 			CONCAT(CostPerCallCurrency,CostPerCall) AS CostPerCall,
@@ -1882,6 +1915,7 @@ CREATE PROCEDURE `prc_GetRateTableDIDRate`(
 	IN `p_origination_description` VARCHAR(50),
 	IN `p_code` VARCHAR(50),
 	IN `p_description` VARCHAR(50),
+	IN `p_CityTariff` VARCHAR(50),
 	IN `p_effective` VARCHAR(50),
 	IN `p_ApprovedStatus` TINYINT,
 	IN `p_PageNumber` INT,
@@ -1904,6 +1938,7 @@ BEGIN
         OriginationDescription VARCHAR(200),
         Code VARCHAR(50),
         Description VARCHAR(200),
+        CityTariff VARCHAR(50),
         OneOffCost DECIMAL(18,6),
 		  MonthlyCost DECIMAL(18,6),
 		  CostPerCall DECIMAL(18,6),
@@ -1950,6 +1985,7 @@ BEGIN
         OriginationRate.Description AS OriginationDescription,
         tblRate.Code,
         tblRate.Description,
+		  CityTariff,
         OneOffCost,
 		  MonthlyCost,
 		  CostPerCall,
@@ -1973,18 +2009,18 @@ BEGIN
         tblRateTableDIDRate.ApprovedStatus,
         tblRateTableDIDRate.ApprovedBy,
         tblRateTableDIDRate.ApprovedDate,
-		  IFNULL(CONCAT(tblOneOffCostCurrency.Symbol,'-',tblOneOffCostCurrency.CurrencyID),CONCAT(tblRateTableCurrency.Symbol,'-',tblRateTableCurrency.CurrencyID)) AS OneOffCostCurrency,
-        IFNULL(CONCAT(tblMonthlyCostCurrency.Symbol,'-',tblMonthlyCostCurrency.CurrencyID),CONCAT(tblRateTableCurrency.Symbol,'-',tblRateTableCurrency.CurrencyID)) AS MonthlyCostCurrency,
-        IFNULL(CONCAT(tblCostPerCallCurrency.Symbol,'-',tblCostPerCallCurrency.CurrencyID),CONCAT(tblRateTableCurrency.Symbol,'-',tblRateTableCurrency.CurrencyID)) AS CostPerCallCurrency,
-        IFNULL(CONCAT(tblCostPerMinuteCurrency.Symbol,'-',tblCostPerMinuteCurrency.CurrencyID),CONCAT(tblRateTableCurrency.Symbol,'-',tblRateTableCurrency.CurrencyID)) AS CostPerMinuteCurrency,
-        IFNULL(CONCAT(tblSurchargePerCallCurrency.Symbol,'-',tblSurchargePerCallCurrency.CurrencyID),CONCAT(tblRateTableCurrency.Symbol,'-',tblRateTableCurrency.CurrencyID)) AS SurchargePerCallCurrency,
-        IFNULL(CONCAT(tblSurchargePerMinuteCurrency.Symbol,'-',tblSurchargePerMinuteCurrency.CurrencyID),CONCAT(tblRateTableCurrency.Symbol,'-',tblRateTableCurrency.CurrencyID)) AS SurchargePerMinuteCurrency,
-        IFNULL(CONCAT(tblOutpaymentPerCallCurrency.Symbol,'-',tblOutpaymentPerCallCurrency.CurrencyID),CONCAT(tblRateTableCurrency.Symbol,'-',tblRateTableCurrency.CurrencyID)) AS OutpaymentPerCallCurrency,
-        IFNULL(CONCAT(tblOutpaymentPerMinuteCurrency.Symbol,'-',tblOutpaymentPerMinuteCurrency.CurrencyID),CONCAT(tblRateTableCurrency.Symbol,'-',tblRateTableCurrency.CurrencyID)) AS OutpaymentPerMinuteCurrency,
-        IFNULL(CONCAT(tblSurchargesCurrency.Symbol,'-',tblSurchargesCurrency.CurrencyID),CONCAT(tblRateTableCurrency.Symbol,'-',tblRateTableCurrency.CurrencyID)) AS SurchargesCurrency,
-        IFNULL(CONCAT(tblChargebackCurrency.Symbol,'-',tblChargebackCurrency.CurrencyID),CONCAT(tblRateTableCurrency.Symbol,'-',tblRateTableCurrency.CurrencyID)) AS ChargebackCurrency,
-        IFNULL(CONCAT(tblCollectionCostAmountCurrency.Symbol,'-',tblCollectionCostAmountCurrency.CurrencyID),CONCAT(tblRateTableCurrency.Symbol,'-',tblRateTableCurrency.CurrencyID)) AS CollectionCostAmountCurrency,
-        IFNULL(CONCAT(tblRegistrationCostPerNumberCurrency.Symbol,'-',tblRegistrationCostPerNumberCurrency.CurrencyID),CONCAT(tblRateTableCurrency.Symbol,'-',tblRateTableCurrency.CurrencyID)) AS RegistrationCostPerNumberCurrency
+			IFNULL(CONCAT(tblOneOffCostCurrency.Symbol,'-',tblOneOffCostCurrency.CurrencyID),'-') AS OneOffCostCurrency,
+			IFNULL(CONCAT(tblMonthlyCostCurrency.Symbol,'-',tblMonthlyCostCurrency.CurrencyID),'-') AS MonthlyCostCurrency,
+			IFNULL(CONCAT(tblCostPerCallCurrency.Symbol,'-',tblCostPerCallCurrency.CurrencyID),'-') AS CostPerCallCurrency,
+			IFNULL(CONCAT(tblCostPerMinuteCurrency.Symbol,'-',tblCostPerMinuteCurrency.CurrencyID),'-') AS CostPerMinuteCurrency,
+			IFNULL(CONCAT(tblSurchargePerCallCurrency.Symbol,'-',tblSurchargePerCallCurrency.CurrencyID),'-') AS SurchargePerCallCurrency,
+			IFNULL(CONCAT(tblSurchargePerMinuteCurrency.Symbol,'-',tblSurchargePerMinuteCurrency.CurrencyID),'-') AS SurchargePerMinuteCurrency,
+			IFNULL(CONCAT(tblOutpaymentPerCallCurrency.Symbol,'-',tblOutpaymentPerCallCurrency.CurrencyID),'-') AS OutpaymentPerCallCurrency,
+			IFNULL(CONCAT(tblOutpaymentPerMinuteCurrency.Symbol,'-',tblOutpaymentPerMinuteCurrency.CurrencyID),'-') AS OutpaymentPerMinuteCurrency,
+			IFNULL(CONCAT(tblSurchargesCurrency.Symbol,'-',tblSurchargesCurrency.CurrencyID),'-') AS SurchargesCurrency,
+			IFNULL(CONCAT(tblChargebackCurrency.Symbol,'-',tblChargebackCurrency.CurrencyID),'-') AS ChargebackCurrency,
+			IFNULL(CONCAT(tblCollectionCostAmountCurrency.Symbol,'-',tblCollectionCostAmountCurrency.CurrencyID),'-') AS CollectionCostAmountCurrency,
+			IFNULL(CONCAT(tblRegistrationCostPerNumberCurrency.Symbol,'-',tblRegistrationCostPerNumberCurrency.CurrencyID),'-') AS RegistrationCostPerNumberCurrency
     FROM tblRate
     LEFT JOIN tblRateTableDIDRate
         ON tblRateTableDIDRate.RateID = tblRate.RateID
@@ -2025,6 +2061,7 @@ BEGIN
 		AND (p_origination_description is null OR OriginationRate.Description LIKE REPLACE(p_origination_description, '*', '%'))
 		AND (p_code is null OR tblRate.Code LIKE REPLACE(p_code, '*', '%'))
 		AND (p_description is null OR tblRate.Description LIKE REPLACE(p_description, '*', '%'))
+		AND (p_CityTariff is null OR tblRateTableDIDRate.CityTariff LIKE REPLACE(p_CityTariff, '*', '%'))
 		AND (p_ApprovedStatus IS NULL OR tblRateTableDIDRate.ApprovedStatus = p_ApprovedStatus)
 		AND TrunkID = p_trunkID
 		AND tblRateTableDIDRate.TimezonesID = p_TimezonesID
@@ -2069,6 +2106,12 @@ BEGIN
                 END DESC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionASC') THEN Description
+                END ASC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CityTariffDESC') THEN CityTariff
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CityTariffASC') THEN CityTariff
                 END ASC,
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OneOffCostDESC') THEN OneOffCost
@@ -2194,6 +2237,7 @@ BEGIN
             OriginationDescription,
             Code AS DestinationCode,
             Description AS DestinationDescription,
+            CityTariff,
             CONCAT(OneOffCostCurrency,OneOffCost) AS OneOffCost,
 	        	CONCAT(MonthlyCostCurrency,MonthlyCost) AS MonthlyCost,
 	        	CONCAT(CostPerCallCurrency,CostPerCall) AS CostPerCall,
@@ -2221,6 +2265,7 @@ BEGIN
             OriginationDescription,
             Code AS DestinationCode,
             Description AS DestinationDescription,
+            CityTariff,
             CONCAT(OneOffCostCurrency,OneOffCost) AS OneOffCost,
 	        	CONCAT(MonthlyCostCurrency,MonthlyCost) AS MonthlyCost,
 	        	CONCAT(CostPerCallCurrency,CostPerCall) AS CostPerCall,
@@ -2272,6 +2317,7 @@ BEGIN
         OriginationDescription VARCHAR(200),
         Code VARCHAR(50),
         Description VARCHAR(200),
+        CityTariff VARCHAR(50),
         OneOffCost DECIMAL(18,6),
 		  MonthlyCost DECIMAL(18,6),
 		  CostPerCall DECIMAL(18,6),
@@ -2308,6 +2354,7 @@ BEGIN
 	  	OriginationDescription,
 		Code,
 	  	Description,
+	  	CityTariff,
 	  	OneOffCost,
 	   MonthlyCost,
 	   CostPerCall,
@@ -2343,6 +2390,7 @@ BEGIN
 		o_r.Description AS OriginationDescription,
 		r.Code,
 		r.Description,
+		vra.CityTariff,
 		vra.OneOffCost,
 	  	vra.MonthlyCost,
 	  	vra.CostPerCall,
@@ -2423,6 +2471,7 @@ BEGIN
 	  	OriginationDescription,
 		Code,
 		Description,
+		CityTariff,
 		CONCAT(OneOffCostCurrency, OneOffCost) AS OneOffCost,
 		CONCAT(MonthlyCostCurrency, MonthlyCost) AS MonthlyCost,
 		CONCAT(CostPerCallCurrency, CostPerCall) AS CostPerCall,
@@ -5499,6 +5548,7 @@ ThisSP:BEGIN
 		`OriginationDescription` varchar(200) NULL DEFAULT NULL,
 		`Code` varchar(50) ,
 		`Description` varchar(200) ,
+		`CityTariff` varchar(50),
 		`OneOffCost` decimal(18,6) DEFAULT NULL,
 	  	`MonthlyCost` decimal(18,6) DEFAULT NULL,
 	  	`CostPerCall` decimal(18,6) DEFAULT NULL,
@@ -5547,6 +5597,7 @@ ThisSP:BEGIN
 		`OriginationDescription` varchar(200) NULL DEFAULT NULL,
 		`Code` varchar(50) ,
 		`Description` varchar(200) ,
+		`CityTariff` varchar(50),
 		`OneOffCost` decimal(18,6) DEFAULT NULL,
 	  	`MonthlyCost` decimal(18,6) DEFAULT NULL,
 	  	`CostPerCall` decimal(18,6) DEFAULT NULL,
@@ -5595,6 +5646,7 @@ ThisSP:BEGIN
 		`OriginationDescription` varchar(200) NULL DEFAULT NULL,
 		`Code` varchar(50) ,
 		`Description` varchar(200) ,
+		`CityTariff` varchar(50),
 		`OneOffCost` decimal(18,6) DEFAULT NULL,
 	  	`MonthlyCost` decimal(18,6) DEFAULT NULL,
 	  	`CostPerCall` decimal(18,6) DEFAULT NULL,
@@ -5654,12 +5706,12 @@ ThisSP:BEGIN
 	DELETE n1 FROM tmp_split_RateTableDIDRate_ n1
 	INNER JOIN
 	(
-		SELECT MAX(TempRateTableDIDRateID) AS TempRateTableDIDRateID,EffectiveDate,OriginationCode,Code,DialStringPrefix,TimezonesID,
+		SELECT MAX(TempRateTableDIDRateID) AS TempRateTableDIDRateID,EffectiveDate,OriginationCode,Code,DialStringPrefix,TimezonesID,CityTariff,
 			OneOffCost, MonthlyCost, CostPerCall, CostPerMinute, SurchargePerCall, SurchargePerMinute, OutpaymentPerCall,
 			OutpaymentPerMinute, Surcharges, Chargeback, CollectionCostAmount, CollectionCostPercentage, RegistrationCostPerNumber
 		FROM tmp_split_RateTableDIDRate_2 WHERE ProcessId = p_processId
 		GROUP BY
-			OriginationCode,Code,EffectiveDate,DialStringPrefix,TimezonesID,
+			OriginationCode,Code,EffectiveDate,DialStringPrefix,TimezonesID,CityTariff,
 			OneOffCost, MonthlyCost, CostPerCall, CostPerMinute, SurchargePerCall, SurchargePerMinute, OutpaymentPerCall,
 			OutpaymentPerMinute, Surcharges, Chargeback, CollectionCostAmount, CollectionCostPercentage, RegistrationCostPerNumber
 		HAVING COUNT(*)>1
@@ -5669,6 +5721,7 @@ ThisSP:BEGIN
 		AND n2.EffectiveDate = n1.EffectiveDate
 		AND ((n2.DialStringPrefix IS NULL AND n1.DialStringPrefix IS NULL) OR (n2.DialStringPrefix = n1.DialStringPrefix))
 		AND n2.TimezonesID = n1.TimezonesID
+		AND ((n2.CityTariff IS NULL AND n1.CityTariff IS NULL) OR n2.CityTariff = n1.CityTariff)
 		AND ((n2.OneOffCost IS NULL AND n1.OneOffCost IS NULL) OR n2.OneOffCost = n1.OneOffCost)
 		AND ((n2.MonthlyCost IS NULL AND n1.MonthlyCost IS NULL) OR n2.MonthlyCost = n1.MonthlyCost)
 		AND ((n2.CostPerCall IS NULL AND n1.CostPerCall IS NULL) OR n2.CostPerCall = n1.CostPerCall)
@@ -5695,6 +5748,7 @@ ThisSP:BEGIN
 		`OriginationDescription`,
 		`Code`,
 		`Description`,
+		`CityTariff`,
 		`OneOffCost`,
 		`MonthlyCost`,
 		`CostPerCall`,
@@ -5740,20 +5794,20 @@ ThisSP:BEGIN
 	END IF;
 
 	SELECT COUNT(*) INTO totalduplicatecode FROM(
-	SELECT COUNT(code) as c,code FROM tmp_TempRateTableDIDRate_  GROUP BY OriginationCode,Code,EffectiveDate,DialStringPrefix,TimezonesID HAVING c>1) AS tbl;
+	SELECT COUNT(code) as c,code FROM tmp_TempRateTableDIDRate_  GROUP BY OriginationCode,Code,EffectiveDate,DialStringPrefix,TimezonesID,CityTariff HAVING c>1) AS tbl;
 
 	IF  totalduplicatecode > 0
 	THEN
 
 		SELECT GROUP_CONCAT(code) into errormessage FROM(
 		SELECT DISTINCT OriginationCode,Code, 1 as a FROM(
-		SELECT COUNT(TempRateTableDIDRateID) as c, OriginationCode, Code FROM tmp_TempRateTableDIDRate_  GROUP BY OriginationCode,Code,EffectiveDate,DialStringPrefix,TimezonesID HAVING c>1) AS tbl) as tbl2 GROUP by a;
+		SELECT COUNT(TempRateTableDIDRateID) as c, OriginationCode, Code FROM tmp_TempRateTableDIDRate_  GROUP BY OriginationCode,Code,EffectiveDate,DialStringPrefix,TimezonesID,CityTariff HAVING c>1) AS tbl) as tbl2 GROUP by a;
 
 		INSERT INTO tmp_JobLog_ (Message)
 		SELECT DISTINCT
 			CONCAT(IF(OriginationCode IS NOT NULL,CONCAT(OriginationCode,'-'),''), Code, ' DUPLICATE CODE')
 		FROM(
-			SELECT COUNT(TempRateTableDIDRateID) as c, OriginationCode, Code FROM tmp_TempRateTableDIDRate_  GROUP BY OriginationCode,Code,EffectiveDate,DialStringPrefix,TimezonesID HAVING c>1) AS tbl;
+			SELECT COUNT(TempRateTableDIDRateID) as c, OriginationCode, Code FROM tmp_TempRateTableDIDRate_  GROUP BY OriginationCode,Code,EffectiveDate,DialStringPrefix,TimezonesID,CityTariff HAVING c>1) AS tbl;
 	END IF;
 
 	IF	totalduplicatecode = 0
@@ -5850,6 +5904,7 @@ ThisSP:BEGIN
 						ds.Description
 					END
 					AS Description,
+					`CityTariff`,
 					`OneOffCost`,
 					`MonthlyCost`,
 					`CostPerCall`,
@@ -5908,6 +5963,7 @@ ThisSP:BEGIN
 					OriginationDescription,
 					Code,
 					Description,
+					CityTariff,
 					OneOffCost,
 					MonthlyCost,
 					CostPerCall,
@@ -5947,6 +6003,7 @@ ThisSP:BEGIN
 					`OriginationDescription`,
 					`Code`,
 					`Description`,
+					`CityTariff`,
 					`OneOffCost`,
 					`MonthlyCost`,
 					`CostPerCall`,
@@ -6114,6 +6171,7 @@ ThisSP:BEGIN
 			`OriginationDescription`,
 			CONCAT(IFNULL(my_splits.CountryCode,''),my_splits.Code) as Code,
 			`Description`,
+			`CityTariff`,
 			`OneOffCost`,
 			`MonthlyCost`,
 			`CostPerCall`,
@@ -6163,6 +6221,7 @@ ThisSP:BEGIN
 			`OriginationDescription`,
 			CONCAT(IFNULL(tblTempRateTableDIDRate.CountryCode,''),tblTempRateTableDIDRate.Code) as Code,
 			`Description`,
+			`CityTariff`,
 			`OneOffCost`,
 			`MonthlyCost`,
 			`CostPerCall`,
@@ -6263,6 +6322,7 @@ CREATE PROCEDURE `prc_getReviewRateTableDIDRates`(
 	IN `p_Code` VARCHAR(50),
 	IN `p_Description` VARCHAR(200),
 	IN `p_Timezone` INT,
+	IN `p_CityTariff` VARCHAR(50),
 	IN `p_PageNumber` INT,
 	IN `p_RowspPage` INT,
 	IN `p_lSortCol` VARCHAR(50),
@@ -6285,6 +6345,7 @@ BEGIN
 			RTCL.Code,
 			RTCL.Description,
 			tz.Title,
+			RTCL.CityTariff,
 			CONCAT(IFNULL(tblOneOffCostCurrency.Symbol,''), IFNULL(OneOffCost,'')) AS OneOffCost,
 			CONCAT(IFNULL(tblMonthlyCostCurrency.Symbol,''), IFNULL(MonthlyCost,'')) AS MonthlyCost,
 			CONCAT(IFNULL(tblCostPerCallCurrency.Symbol,''), IFNULL(CostPerCall,'')) AS CostPerCall,
@@ -6334,7 +6395,8 @@ BEGIN
 			(p_Origination_Code IS NULL OR OriginationCode LIKE REPLACE(p_Origination_Code, '*', '%')) AND
 			(p_Origination_Description IS NULL OR OriginationDescription LIKE REPLACE(p_Origination_Description, '*', '%')) AND
 			(p_Code IS NULL OR p_Code = '' OR RTCL.Code LIKE REPLACE(p_Code, '*', '%')) AND
-			(p_Description IS NULL OR p_Description = '' OR RTCL.Description LIKE REPLACE(p_Description, '*', '%'))
+			(p_Description IS NULL OR p_Description = '' OR RTCL.Description LIKE REPLACE(p_Description, '*', '%')) AND
+			(p_CityTariff IS NULL OR p_CityTariff = '' OR RTCL.CityTariff LIKE REPLACE(p_CityTariff, '*', '%'))
 		ORDER BY
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OriginationCodeASC') THEN OriginationCode
@@ -6359,6 +6421,12 @@ BEGIN
 			END DESC,
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionASC') THEN RTCL.Description
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CityTariffDESC') THEN RTCL.CityTariff
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CityTariffASC') THEN RTCL.CityTariff
 			END ASC,
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OneOffCostDESC') THEN OneOffCost
@@ -6464,7 +6532,8 @@ BEGIN
 			(p_Origination_Code IS NULL OR OriginationCode LIKE REPLACE(p_Origination_Code, '*', '%')) AND
 			(p_Origination_Description IS NULL OR OriginationDescription LIKE REPLACE(p_Origination_Description, '*', '%')) AND
 			(p_Code IS NULL OR p_Code = '' OR Code LIKE REPLACE(p_Code, '*', '%')) AND
-			(p_Description IS NULL OR p_Description = '' OR RTCL.Description LIKE REPLACE(p_Description, '*', '%'));
+			(p_Description IS NULL OR p_Description = '' OR RTCL.Description LIKE REPLACE(p_Description, '*', '%')) AND
+			(p_CityTariff IS NULL OR p_CityTariff = '' OR RTCL.CityTariff LIKE REPLACE(p_CityTariff, '*', '%'));
 	END IF;
 
 	IF p_isExport = 1
@@ -6476,6 +6545,7 @@ BEGIN
 			RTCL.Code,
 			RTCL.Description,
 			tz.Title,
+			RTCL.CityTariff,
 			CONCAT(IFNULL(tblOneOffCostCurrency.Symbol,''), IFNULL(OneOffCost,'')) AS OneOffCost,
 			CONCAT(IFNULL(tblMonthlyCostCurrency.Symbol,''), IFNULL(MonthlyCost,'')) AS MonthlyCost,
 			CONCAT(IFNULL(tblCostPerCallCurrency.Symbol,''), IFNULL(CostPerCall,'')) AS CostPerCall,
@@ -6525,7 +6595,8 @@ BEGIN
 			(p_Origination_Code IS NULL OR OriginationCode LIKE REPLACE(p_Origination_Code, '*', '%')) AND
 			(p_Origination_Description IS NULL OR OriginationDescription LIKE REPLACE(p_Origination_Description, '*', '%')) AND
 			(p_Code IS NULL OR p_Code = '' OR RTCL.Code LIKE REPLACE(p_Code, '*', '%')) AND
-			(p_Description IS NULL OR p_Description = '' OR RTCL.Description LIKE REPLACE(p_Description, '*', '%'));
+			(p_Description IS NULL OR p_Description = '' OR RTCL.Description LIKE REPLACE(p_Description, '*', '%')) AND
+			(p_CityTariff IS NULL OR p_CityTariff = '' OR RTCL.CityTariff LIKE REPLACE(p_CityTariff, '*', '%'));
 	END IF;
 
 
@@ -6576,6 +6647,7 @@ ThisSP:BEGIN
 		`OriginationDescription` varchar(200) NULL DEFAULT NULL,
 		`Code` varchar(50) ,
 		`Description` varchar(200) ,
+		`CityTariff` varchar(50),
 		`OneOffCost` decimal(18,6) DEFAULT NULL,
 	  	`MonthlyCost` decimal(18,6) DEFAULT NULL,
 	  	`CostPerCall` decimal(18,6) DEFAULT NULL,
@@ -6622,6 +6694,7 @@ ThisSP:BEGIN
 		`OriginationDescription` varchar(200) NULL DEFAULT NULL,
 		`Code` varchar(50) ,
 		`Description` varchar(200) ,
+		`CityTariff` varchar(50),
 		`OneOffCost` decimal(18,6) DEFAULT NULL,
 	  	`MonthlyCost` decimal(18,6) DEFAULT NULL,
 	  	`CostPerCall` decimal(18,6) DEFAULT NULL,
@@ -6757,6 +6830,7 @@ ThisSP:BEGIN
             RateId,
             Code,
             Description,
+            CityTariff,
 			OneOffCost,
 			MonthlyCost,
 			CostPerCall,
@@ -6799,6 +6873,7 @@ ThisSP:BEGIN
 			tblRate.RateId,
 			tblTempRateTableDIDRate.Code,
 			tblTempRateTableDIDRate.Description,
+			tblTempRateTableDIDRate.CityTariff,
 			tblTempRateTableDIDRate.NewOneOffCost,
 			tblTempRateTableDIDRate.NewMonthlyCost,
 			tblTempRateTableDIDRate.NewCostPerCall,
@@ -6839,6 +6914,7 @@ ThisSP:BEGIN
 			((IFNULL(tblRateTableDIDRate.OriginationRateID,0) = 0 AND OriginationRate.RateID IS NULL) OR (tblRateTableDIDRate.OriginationRateID = OriginationRate.RateID)) AND
 			tblRateTableDIDRate.RateTableId = p_RateTableId AND
 			tblRateTableDIDRate.TimezonesID = tblTempRateTableDIDRate.TimezonesID AND
+			tblRateTableDIDRate.CityTariff = tblTempRateTableDIDRate.CityTariff AND
 			tblRateTableDIDRate.EffectiveDate  <= date(now())
 		WHERE tblTempRateTableDIDRate.ProcessID=p_processId AND tblRateTableDIDRate.RateTableDIDRateID IS NULL
 			AND tblTempRateTableDIDRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
@@ -6883,6 +6959,7 @@ ThisSP:BEGIN
 					RateId,
 					Code,
 					Description,
+					CityTariff,
 					OneOffCost,
 					MonthlyCost,
 					CostPerCall,
@@ -6926,6 +7003,7 @@ ThisSP:BEGIN
 					tblRate.RateId,
 					tblRate.Code,
 					tblRate.Description,
+					tblTempRateTableDIDRate.CityTariff,
 					CONCAT(tblTempRateTableDIDRate.NewOneOffCost, IF(tblTempRateTableDIDRate.NewOneOffCost > RateTableDIDRate.OneOffCost, '<span style="color: green;" data-toggle="tooltip" data-title="OneOffCost Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewOneOffCost < RateTableDIDRate.OneOffCost, '<span style="color: red;" data-toggle="tooltip" data-title="OneOffCost Decrease" data-placement="top">&#9660;</span>',''))) AS `OneOffCost`,
 					CONCAT(tblTempRateTableDIDRate.NewMonthlyCost, IF(tblTempRateTableDIDRate.NewMonthlyCost > RateTableDIDRate.MonthlyCost, '<span style="color: green;" data-toggle="tooltip" data-title="MonthlyCost Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewMonthlyCost < RateTableDIDRate.MonthlyCost, '<span style="color: red;" data-toggle="tooltip" data-title="MonthlyCost Decrease" data-placement="top">&#9660;</span>',''))) AS `MonthlyCost`,
 					CONCAT(tblTempRateTableDIDRate.NewCostPerCall, IF(tblTempRateTableDIDRate.NewCostPerCall > RateTableDIDRate.CostPerCall, '<span style="color: green;" data-toggle="tooltip" data-title="CostPerCall Increase" data-placement="top">&#9650;</span>', IF(tblTempRateTableDIDRate.NewCostPerCall < RateTableDIDRate.CostPerCall, '<span style="color: red;" data-toggle="tooltip" data-title="CostPerCall Decrease" data-placement="top">&#9660;</span>',''))) AS `CostPerCall`,
@@ -6971,6 +7049,7 @@ ThisSP:BEGIN
                             AND vr1.RateID = vr2.RateID
                             AND vr1.OriginationRateID = vr2.OriginationRateID
                             AND vr1.TimezonesID = vr2.TimezonesID
+                            AND vr1.CityTariff = vr2.CityTariff
                             AND vr2.EffectiveDate  = @EffectiveDate
                         WHERE
                             vr1.RateTableId = p_RateTableId
@@ -6990,6 +7069,7 @@ ThisSP:BEGIN
                     ON tblTempRateTableDIDRate.Code = tblRate.Code
                     AND ((tblTempRateTableDIDRate.OriginationCode IS NULL AND OriginationRate.Code IS NULL) OR (tblTempRateTableDIDRate.OriginationCode = OriginationRate.Code))
                     AND tblTempRateTableDIDRate.TimezonesID = RateTableDIDRate.TimezonesID
+                    AND tblTempRateTableDIDRate.CityTariff = RateTableDIDRate.CityTariff
                     AND tblTempRateTableDIDRate.ProcessID=p_processId
                     AND RateTableDIDRate.EffectiveDate <= tblTempRateTableDIDRate.EffectiveDate
                     AND tblTempRateTableDIDRate.EffectiveDate =  @EffectiveDate
@@ -7020,6 +7100,7 @@ ThisSP:BEGIN
 				RateId,
 				Code,
 				Description,
+				CityTariff,
 				OneOffCost,
 				MonthlyCost,
 				CostPerCall,
@@ -7061,6 +7142,7 @@ ThisSP:BEGIN
                 tblRateTableDIDRate.RateId,
                 tblRate.Code,
                 tblRate.Description,
+                tblRateTableDIDRate.CityTariff,
 				tblRateTableDIDRate.OneOffCost,
 				tblRateTableDIDRate.MonthlyCost,
 				tblRateTableDIDRate.CostPerCall,
@@ -7100,6 +7182,7 @@ ThisSP:BEGIN
                 ON tblTempRateTableDIDRate.Code = tblRate.Code
                 AND ((tblTempRateTableDIDRate.OriginationCode IS NULL AND OriginationRate.Code IS NULL) OR (tblTempRateTableDIDRate.OriginationCode = OriginationRate.Code))
                 AND tblTempRateTableDIDRate.TimezonesID = tblRateTableDIDRate.TimezonesID
+                AND tblTempRateTableDIDRate.CityTariff = tblRateTableDIDRate.CityTariff
                 AND tblTempRateTableDIDRate.ProcessID=p_processId
                 AND (
                     ( tblTempRateTableDIDRate.EndDate is null AND tblTempRateTableDIDRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block') )
@@ -7124,6 +7207,7 @@ ThisSP:BEGIN
             RateId,
             Code,
             Description,
+            CityTariff,
 			OneOffCost,
 			MonthlyCost,
 			CostPerCall,
@@ -7165,6 +7249,7 @@ ThisSP:BEGIN
             tblRateTableDIDRate.RateId,
             tblRate.Code,
             tblRate.Description,
+            tblRateTableDIDRate.CityTariff,
 			tblRateTableDIDRate.OneOffCost,
 			tblRateTableDIDRate.MonthlyCost,
 			tblRateTableDIDRate.CostPerCall,
@@ -7204,6 +7289,7 @@ ThisSP:BEGIN
             ON tblRate.Code = tblTempRateTableDIDRate.Code
             AND ((tblTempRateTableDIDRate.OriginationCode IS NULL AND OriginationRate.Code IS NULL) OR (tblTempRateTableDIDRate.OriginationCode = OriginationRate.Code))
             AND tblTempRateTableDIDRate.TimezonesID = tblRateTableDIDRate.TimezonesID
+            AND tblTempRateTableDIDRate.CityTariff = tblRateTableDIDRate.CityTariff
             AND tblTempRateTableDIDRate.Change IN ('Delete', 'R', 'D', 'Blocked','Block')
             AND tblTempRateTableDIDRate.ProcessID=p_processId
         WHERE
@@ -9078,6 +9164,7 @@ ThisSP:BEGIN
 		`OriginationDescription` varchar(200) NULL DEFAULT NULL,
 		`Code` varchar(50) ,
 		`Description` varchar(200) ,
+		`CityTariff` varchar(50),
 		`OneOffCost` decimal(18,6) DEFAULT NULL,
 	  	`MonthlyCost` decimal(18,6) DEFAULT NULL,
 	  	`CostPerCall` decimal(18,6) DEFAULT NULL,
@@ -9124,6 +9211,7 @@ ThisSP:BEGIN
 		`OriginationDescription` varchar(200) NULL DEFAULT NULL,
 		`Code` varchar(50) ,
 		`Description` varchar(200) ,
+		`CityTariff` varchar(50),
 		`OneOffCost` decimal(18,6) DEFAULT NULL,
 	  	`MonthlyCost` decimal(18,6) DEFAULT NULL,
 	  	`CostPerCall` decimal(18,6) DEFAULT NULL,
@@ -9172,6 +9260,7 @@ ThisSP:BEGIN
 		RateId INT,
 		Code VARCHAR(50),
 		Description VARCHAR(200),
+		CityTariff varchar(50),
 		OneOffCost decimal(18,6) DEFAULT NULL,
 	  	MonthlyCost decimal(18,6) DEFAULT NULL,
 	  	CostPerCall decimal(18,6) DEFAULT NULL,
@@ -9265,6 +9354,7 @@ ThisSP:BEGIN
 				RateId,
 				Code,
 				Description,
+				CityTariff,
 				OneOffCost,
 				MonthlyCost,
 				CostPerCall,
@@ -9304,6 +9394,7 @@ ThisSP:BEGIN
 				tblRateTableDIDRate.RateId,
 				tblRate.Code,
 				tblRate.Description,
+				tblRateTableDIDRate.CityTariff,
 				tblRateTableDIDRate.OneOffCost,
 				tblRateTableDIDRate.MonthlyCost,
 				tblRateTableDIDRate.CostPerCall,
@@ -9345,6 +9436,7 @@ ThisSP:BEGIN
 				ON tblTempRateTableDIDRate.Code = tblRate.Code
 				AND ((tblTempRateTableDIDRate.OriginationCode IS NULL AND OriginationRate.Code IS NULL) OR (tblTempRateTableDIDRate.OriginationCode = OriginationRate.Code))
 				AND tblTempRateTableDIDRate.TimezonesID = tblRateTableDIDRate.TimezonesID
+				AND tblTempRateTableDIDRate.CityTariff = tblRateTableDIDRate.CityTariff
 				AND  tblTempRateTableDIDRate.ProcessId = p_processId
 				AND tblTempRateTableDIDRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block')
 			WHERE tblRateTableDIDRate.RateTableId = p_RateTableId
@@ -9540,6 +9632,7 @@ ThisSP:BEGIN
 			ON tblRate.Code = tblTempRateTableDIDRate.Code
 			AND ((tblTempRateTableDIDRate.OriginationCode IS NULL AND OriginationRate.Code IS NULL) OR (tblTempRateTableDIDRate.OriginationCode = OriginationRate.Code))
 			AND tblTempRateTableDIDRate.TimezonesID = tblRateTableDIDRate.TimezonesID
+			AND tblTempRateTableDIDRate.CityTariff = tblRateTableDIDRate.CityTariff
 			AND tblTempRateTableDIDRate.Change IN ('Delete', 'R', 'D', 'Blocked', 'Block')
 		SET tblRateTableDIDRate.EndDate = IFNULL(tblTempRateTableDIDRate.EndDate,date(now()))
 		WHERE tblRateTableDIDRate.RateTableId = p_RateTableId;
@@ -9560,6 +9653,7 @@ ThisSP:BEGIN
 			AND ((IFNULL(tblRateTableDIDRate.OriginationRateID,0) = 0 AND OriginationRate.RateID IS NULL) OR (tblRateTableDIDRate.OriginationRateID = OriginationRate.RateID))
 			AND tblRateTableDIDRate.RateTableId = p_RateTableId
 			AND tblRateTableDIDRate.TimezonesID = tblTempRateTableDIDRate.TimezonesID
+			AND tblRateTableDIDRate.CityTariff = tblTempRateTableDIDRate.CityTariff
 			AND IFNULL(tblTempRateTableDIDRate.OneOffCost,0) = IFNULL(tblRateTableDIDRate.OneOffCost,0)
         	AND IFNULL(tblTempRateTableDIDRate.MonthlyCost,0) = IFNULL(tblRateTableDIDRate.MonthlyCost,0)
         	AND IFNULL(tblTempRateTableDIDRate.CostPerCall,0) = IFNULL(tblRateTableDIDRate.CostPerCall,0)
@@ -9596,12 +9690,14 @@ ThisSP:BEGIN
 			ON tblRateTableDIDRate.RateId = tblRate.RateId
 			AND tblRateTableDIDRate.RateTableId = p_RateTableId
 			AND tblRateTableDIDRate.TimezonesID = tblTempRateTableDIDRate.TimezonesID
+			AND tblRateTableDIDRate.CityTariff = tblTempRateTableDIDRate.CityTariff
 		SET tblRateTableDIDRate.EndDate = NOW()
 		WHERE
 			tblRateTableDIDRate.RateId = tblRate.RateId
 			AND ((IFNULL(tblRateTableDIDRate.OriginationRateID,0) = 0 AND OriginationRate.RateID IS NULL) OR (tblRateTableDIDRate.OriginationRateID = OriginationRate.RateID))
 			AND (
-				tblTempRateTableDIDRate.OneOffCost <> tblRateTableDIDRate.OneOffCost
+				tblTempRateTableDIDRate.CityTariff <> tblRateTableDIDRate.CityTariff
+				OR tblTempRateTableDIDRate.OneOffCost <> tblRateTableDIDRate.OneOffCost
 				OR tblTempRateTableDIDRate.MonthlyCost <> tblRateTableDIDRate.MonthlyCost
 				OR tblTempRateTableDIDRate.CostPerCall <> tblRateTableDIDRate.CostPerCall
 				OR tblTempRateTableDIDRate.CostPerMinute <> tblRateTableDIDRate.CostPerMinute
@@ -9627,6 +9723,7 @@ ThisSP:BEGIN
 				TimezonesID,
 				OriginationRateID,
 				RateId,
+				CityTariff,
 				OneOffCost,
 				MonthlyCost,
 				CostPerCall,
@@ -9661,6 +9758,7 @@ ThisSP:BEGIN
 				tblTempRateTableDIDRate.TimezonesID,
 				IFNULL(OriginationRate.RateID,0) AS OriginationRateID,
 				tblRate.RateID,
+				tblTempRateTableDIDRate.CityTariff,
 		');
 
 		SET @stm2 = '';
@@ -9749,6 +9847,7 @@ ThisSP:BEGIN
 				AND ((IFNULL(tblRateTableDIDRate.OriginationRateID,0) = 0 AND OriginationRate.RateID IS NULL) OR (tblRateTableDIDRate.OriginationRateID = OriginationRate.RateID))
 				AND tblRateTableDIDRate.RateTableId = ',p_RateTableId,'
 				AND tblRateTableDIDRate.TimezonesID = tblTempRateTableDIDRate.TimezonesID
+				AND tblRateTableDIDRate.CityTariff = tblTempRateTableDIDRate.CityTariff
 				AND tblTempRateTableDIDRate.EffectiveDate = tblRateTableDIDRate.EffectiveDate
 			WHERE tblRateTableDIDRate.RateTableDIDRateID IS NULL
 				AND tblTempRateTableDIDRate.Change NOT IN ("Delete", "R", "D", "Blocked","Block")
@@ -9802,7 +9901,8 @@ ThisSP:BEGIN
 						OriginationRateID,
 						RateID,
 						EffectiveDate,
-						TimezonesID
+						TimezonesID,
+						CityTariff
 					FROM tblRateTableDIDRate
 					WHERE RateTableId = p_RateTableId
 						AND EffectiveDate =   @EffectiveDate
@@ -9813,6 +9913,7 @@ ThisSP:BEGIN
 					AND vr1.OriginationRateID = tmpvr.OriginationRateID
 					AND vr1.RateID = tmpvr.RateID
 					AND vr1.TimezonesID = tmpvr.TimezonesID
+					AND vr1.CityTariff = tmpvr.CityTariff
 					AND vr1.EffectiveDate < tmpvr.EffectiveDate
 				SET
 					vr1.EndDate = @EffectiveDate
@@ -9836,6 +9937,120 @@ ThisSP:BEGIN
 
 	DELETE  FROM tblTempRateTableDIDRate WHERE  ProcessId = p_processId;
 	DELETE  FROM tblRateTableDIDRateChangeLog WHERE ProcessID = p_processId;
+	SELECT * FROM tmp_JobLog_;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_WSMapCountryRateTableDIDRate`;
+DELIMITER //
+CREATE PROCEDURE `prc_WSMapCountryRateTableDIDRate`(
+	IN `p_ProcessID` TEXT,
+	IN `p_CountryMapping` INT,
+	IN `p_OriginationCountryMapping` INT
+)
+ThisSP:BEGIN
+
+	DECLARE v_Country_Error_ INT DEFAULT 0;
+	DECLARE v_OCountry_Error_ INT DEFAULT 0;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_JobLog_;
+	CREATE TEMPORARY TABLE tmp_JobLog_ (
+		Message longtext
+	);
+
+	IF p_CountryMapping = 1
+	THEN
+		SELECT
+			COUNT(*) INTO v_Country_Error_
+		FROM
+			tblTempRateTableDIDRate temp
+		LEFT JOIN
+			tblCountry c ON c.Country=temp.CountryCode
+		WHERE
+			temp.ProcessID = p_ProcessID AND
+			temp.CountryCode IS NOT NULL AND
+			temp.CountryCode != '' AND
+			c.CountryID IS NULL;
+
+		IF v_Country_Error_ = 0
+		THEN
+			UPDATE
+				tblTempRateTableDIDRate temp
+			LEFT JOIN
+				tblCountry c ON c.Country=temp.CountryCode
+			SET
+				temp.CountryCode = c.Prefix
+			WHERE
+				temp.ProcessID = p_ProcessID AND
+				temp.CountryCode IS NOT NULL AND
+				temp.CountryCode != '' AND
+				c.CountryID IS NOT NULL;
+		ELSE
+			INSERT INTO tmp_JobLog_ (Message)
+			SELECT DISTINCT
+				CONCAT(temp.CountryCode , ' Country NOT FOUND IN DATABASE')
+			FROM
+				tblTempRateTableDIDRate temp
+			LEFT JOIN
+				tblCountry c ON c.Country=temp.CountryCode
+			WHERE
+				temp.ProcessID = p_ProcessID AND
+				temp.CountryCode IS NOT NULL AND
+				temp.CountryCode != '' AND
+				c.CountryID IS NULL;
+		END IF;
+	END IF;
+
+	IF p_OriginationCountryMapping = 1
+	THEN
+		SELECT
+			COUNT(*) INTO v_OCountry_Error_
+		FROM
+			tblTempRateTableDIDRate temp
+		LEFT JOIN
+			tblCountry c ON c.Country=temp.OriginationCountryCode
+		WHERE
+			temp.ProcessID = p_ProcessID AND
+			temp.OriginationCountryCode IS NOT NULL AND
+			temp.OriginationCountryCode != '' AND
+			c.CountryID IS NULL;
+
+		IF v_Country_Error_ = 0
+		THEN
+			UPDATE
+				tblTempRateTableDIDRate temp
+			LEFT JOIN
+				tblCountry c ON c.Country=temp.OriginationCountryCode
+			SET
+				temp.OriginationCountryCode = c.Prefix
+			WHERE
+				temp.ProcessID = p_ProcessID AND
+				temp.OriginationCountryCode IS NOT NULL AND
+				temp.OriginationCountryCode != '' AND
+				c.CountryID IS NULL;
+		ELSE
+			INSERT INTO tmp_JobLog_ (Message)
+			SELECT DISTINCT
+				CONCAT(temp.OriginationCountryCode , ' Origination Country NOT FOUND IN DATABASE')
+			FROM
+				tblTempRateTableDIDRate temp
+			LEFT JOIN
+				tblCountry c ON c.Country=temp.OriginationCountryCode
+			WHERE
+				temp.ProcessID = p_ProcessID AND
+				temp.OriginationCountryCode IS NOT NULL AND
+				temp.OriginationCountryCode != '' AND
+				c.CountryID IS NOT NULL;
+		END IF;
+	END IF;
+
 	SELECT * FROM tmp_JobLog_;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

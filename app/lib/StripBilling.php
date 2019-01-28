@@ -564,6 +564,61 @@ class StripeBilling {
 		}
 	}
 
+	/**
+	 * @param $data
+	 * @return array
+	 */
+	public function payoutWithStripeAccount($data){
+
+		$response = ['status' => 'failed', 'message' => "Invalid Request."];
+		$Account = $data['account'];
+		$AccountPayout = AccountPayout::where([
+			'AccountID' => $data['AccountID'],
+			'CompanyID' => $data['CompanyID'],
+			'Status' 	=> 1,
+			'isDefault' => 1,
+		])->first();
+
+		if($AccountPayout != false){
+			$options = json_decode($AccountPayout->Options);
+			$PayoutAccountID = $options->PayoutAccountID;
+			$CardID = $options->CardID;
+			try {
+				\Stripe\Stripe::setApiKey($this->stripe_secret_key);
+				$payoutAcc = \Stripe\Account::retrieve($PayoutAccountID);
+
+				if(!empty($payoutAcc['id'])) {
+					$currency = Currency::where('CurrencyId', $Account->CurrencyId)->first();
+					$currency = $currency != false ? 'usd' : strtolower($Account->Code);
+					$payout = \Stripe\Payout::create([
+						'amount' 		 => $data['Amount'],
+						'currency' 		 => $currency,
+						'description' 	 => $Account->AccountName,
+						'destination'    => $CardID
+					], ['stripe_account' => $PayoutAccountID]);
+
+					if(!empty($payout['id']) || !empty($payout['balance_transaction'])){
+						$response = [
+							'status' 	=> 'success',
+							'response' 	=> $payout,
+							'message' 	=> "Payout request has successfully submitted."];
+					} else {
+						$response = [
+							'status'  => 'failed',
+							'message' => "Payout request failed."];
+					}
+				}
+
+			} catch(Exception $e) {
+				Log::error($e);
+				$response['status'] = 'failed';
+				$response['message'] = $e->getMessage();
+			}
+		}
+
+		return $response;
+	}
+
 	public function paymentValidateWithProfile($data){
 		$Response = array();
 		$Response['status']='success';
