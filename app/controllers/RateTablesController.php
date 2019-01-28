@@ -49,6 +49,7 @@ class RateTablesController extends \BaseController {
         $data['Preference']             = !empty($data['Preference']) ? "'".$data['Preference']."'" : 'null';
         $data['Blocked']                = isset($data['Blocked']) && $data['Blocked'] != '' ? "'".$data['Blocked']."'" : 'null';
         $data['ApprovedStatus']         = isset($data['ApprovedStatus']) && $data['ApprovedStatus'] != '' ? "'".$data['ApprovedStatus']."'" : 'null';
+        $data['CityTariff']             = !empty($data['CityTariff']) ? "'".$data['CityTariff']."'" : 'null';
 
         $view = isset($data['view']) && $data['view'] == 2 ? $data['view'] : 1;
         $TypeVoiceCall = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
@@ -64,12 +65,12 @@ class RateTablesController extends \BaseController {
                 $query = "call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$data['RoutingCategoryID'].",".$data['Preference'].",".$data['Blocked'].",".$data['ApprovedStatus'].",".$view.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
             }
         } else {
-            $columns = array('RateTableRateID','OriginationCode','OriginationDescription','Code','Description','OneOffCost','MonthlyCost','CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableDIDRateID','OriginationRateID','RateID','ApprovedStatus','ApprovedBy','ApprovedDate');
+            $columns = array('RateTableRateID','OriginationCode','OriginationDescription','Code','Description','CityTariff','OneOffCost','MonthlyCost','CostPerCall','CostPerMinute','SurchargePerCall','SurchargePerMinute','OutpaymentPerCall','OutpaymentPerMinute','Surcharges','Chargeback','CollectionCostAmount','CollectionCostPercentage','RegistrationCostPerNumber','EffectiveDate','EndDate','updated_at','ModifiedBy','RateTableDIDRateID','OriginationRateID','RateID','ApprovedStatus','ApprovedBy','ApprovedDate');
             $sort_column = $columns[$data['iSortCol_0']];
             if(!empty($data['DiscontinuedRates'])) {
-                $query = "call prc_getDiscontinuedRateTableDIDRateGrid (" . $companyID . "," . $id . ",".$data['Timezones']."," . $data['Country'] . ",".$data['OriginationCode'].",".$data['OriginationDescription']."," . $data['Code'] . "," . $data['Description'] . ",".$data['ApprovedStatus']."," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "',0)";
+                $query = "call prc_getDiscontinuedRateTableDIDRateGrid (" . $companyID . "," . $id . ",".$data['Timezones']."," . $data['Country'] . ",".$data['OriginationCode'].",".$data['OriginationDescription']."," . $data['Code'] . "," . $data['Description'] . "," . $data['CityTariff'] . ",".$data['ApprovedStatus']."," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'] . ",'" . $sort_column . "','" . $data['sSortDir_0'] . "',0)";
             } else {
-                $query = "call prc_GetRateTableDIDRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$data['ApprovedStatus'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
+                $query = "call prc_GetRateTableDIDRate (".$companyID.",".$id.",".$data['TrunkID'].",".$data['Timezones'].",".$data['Country'].",".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['CityTariff'].",'".$data['Effective']."',".$data['ApprovedStatus'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
             }
         }
         Log::info($query);
@@ -651,25 +652,6 @@ class RateTablesController extends \BaseController {
         $rateTable = RateTable::find($id);
 
         $data['RateTableId'] = $id;
-        $TypeVoiceCall = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
-        if($rateTable->Type == $TypeVoiceCall) {
-            $rules = RateTableRate::$rules;
-            $col_id = 'RateTableRateId';
-            $table = 'tblRateTableRate';
-        } else {
-            $rules = RateTableDIDRate::$rules;
-            $col_id = 'RateTableDIDRateID';
-            $table = 'tblRateTableDIDRate';
-        }
-        $rules['RateID']            = 'required|unique:'.$table.',RateID,NULL,'.$col_id.',RateTableId,'.$id.',EffectiveDate,'.$data['EffectiveDate'].',OriginationRateID,'.$data['OriginationRateID'];
-        //$rules['OriginationRateID'] = 'unique:'.$table.',OriginationRateID,NULL,'.$col_id.',RateTableId,'.$id.',EffectiveDate,'.$data['EffectiveDate'].',RateID,'.$data['RateID'];
-        $message['RateID.unique'] = 'This combination of Origination Rate and Destination Rate on given Effective Date is already exist!';
-
-        $validator                  = Validator::make($data, $rules, $message);
-
-        if ($validator->fails()) {
-            return json_validator_response($validator);
-        }
 
         $RateTableRate = array();
         $RateTableRate['RateTableId']       = $id;
@@ -679,6 +661,23 @@ class RateTablesController extends \BaseController {
         $RateTableRate['EndDate']           = !empty($data['EndDate']) ? $data['EndDate'] : null;
         $RateTableRate['TimezonesID']       = $data['TimezonesID'];
         $TypeVoiceCall = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
+
+        if($rateTable->Type == $TypeVoiceCall) {
+            $rules                          = RateTableRate::$rules;
+            $rules['RateID']                = 'required|unique:tblRateTableRate,RateID,NULL,RateTableRateId,RateTableId,'.$id.',TimezonesID,'.$RateTableRate['TimezonesID'].',EffectiveDate,'.$RateTableRate['EffectiveDate'].',OriginationRateID,'.$RateTableRate['OriginationRateID'];
+            //$rules['OriginationRateID']   = 'unique:'.$table.',OriginationRateID,NULL,'.$col_id.',RateTableId,'.$id.',EffectiveDate,'.$data['EffectiveDate'].',RateID,'.$data['RateID'];
+            $message['RateID.unique']       = 'This combination of Origination Rate and Destination Rate on given Effective Date is already exist!';
+        } else {
+            $rules                          = RateTableDIDRate::$rules;
+            $RateTableRate['CityTariff']    = !empty($data['CityTariff']) ? $data['CityTariff'] : '';
+            $rules['RateID']                = 'required|unique:tblRateTableDIDRate,RateID,NULL,RateTableDIDRateID,RateTableId,'.$id.',TimezonesID,'.$RateTableRate['TimezonesID'].',EffectiveDate,'.$RateTableRate['EffectiveDate'].',OriginationRateID,'.$RateTableRate['OriginationRateID'].',CityTariff,'.$RateTableRate['CityTariff'];
+            $message['RateID.unique']       = 'This combination of Origination Rate and Destination Rate on given Effective Date is already exist!';
+        }
+        $validator                  = Validator::make($data, $rules, $message);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
 
         if($rateTable->Type == $TypeVoiceCall) {
             $RateTableRate['Rate']              = $data['Rate'];
@@ -712,18 +711,18 @@ class RateTablesController extends \BaseController {
             $RateTableRate['CollectionCostPercentage']  = $data['CollectionCostPercentage' ] == '' ? NULL : $data['CollectionCostPercentage'];
             $RateTableRate['RegistrationCostPerNumber'] = $data['RegistrationCostPerNumber' ] == '' ? NULL : $data['RegistrationCostPerNumber'];
 
-            $RateTableRate['OneOffCostCurrency']                = $data['OneOffCostCurrency'] == '' ? $rateTable->CurrencyID : $data['OneOffCostCurrency'];
-            $RateTableRate['MonthlyCostCurrency']               = $data['MonthlyCostCurrency' ] == '' ? $rateTable->CurrencyID : $data['MonthlyCostCurrency'];
-            $RateTableRate['CostPerCallCurrency']               = $data['CostPerCallCurrency' ] == '' ? $rateTable->CurrencyID : $data['CostPerCallCurrency'];
-            $RateTableRate['CostPerMinuteCurrency']             = $data['CostPerMinuteCurrency' ] == '' ? $rateTable->CurrencyID : $data['CostPerMinuteCurrency'];
-            $RateTableRate['SurchargePerCallCurrency']          = $data['SurchargePerCallCurrency' ] == '' ? $rateTable->CurrencyID : $data['SurchargePerCallCurrency'];
-            $RateTableRate['SurchargePerMinuteCurrency']        = $data['SurchargePerMinuteCurrency' ] == '' ? $rateTable->CurrencyID : $data['SurchargePerMinuteCurrency'];
-            $RateTableRate['OutpaymentPerCallCurrency']         = $data['OutpaymentPerCallCurrency' ] == '' ? $rateTable->CurrencyID : $data['OutpaymentPerCallCurrency'];
-            $RateTableRate['OutpaymentPerMinuteCurrency']       = $data['OutpaymentPerMinuteCurrency' ] == '' ? $rateTable->CurrencyID : $data['OutpaymentPerMinuteCurrency'];
-            $RateTableRate['SurchargesCurrency']                = $data['SurchargesCurrency' ] == '' ? $rateTable->CurrencyID : $data['SurchargesCurrency'];
-            $RateTableRate['ChargebackCurrency']                = $data['ChargebackCurrency' ] == '' ? $rateTable->CurrencyID : $data['ChargebackCurrency'];
-            $RateTableRate['CollectionCostAmountCurrency']      = $data['CollectionCostAmountCurrency' ] == '' ? $rateTable->CurrencyID : $data['CollectionCostAmountCurrency'];
-            $RateTableRate['RegistrationCostPerNumberCurrency'] = $data['RegistrationCostPerNumberCurrency' ] == '' ? $rateTable->CurrencyID : $data['RegistrationCostPerNumberCurrency'];
+            $RateTableRate['OneOffCostCurrency']                = $data['OneOffCostCurrency'] == '' ? NULL : $data['OneOffCostCurrency'];
+            $RateTableRate['MonthlyCostCurrency']               = $data['MonthlyCostCurrency' ] == '' ? NULL : $data['MonthlyCostCurrency'];
+            $RateTableRate['CostPerCallCurrency']               = $data['CostPerCallCurrency' ] == '' ? NULL : $data['CostPerCallCurrency'];
+            $RateTableRate['CostPerMinuteCurrency']             = $data['CostPerMinuteCurrency' ] == '' ? NULL : $data['CostPerMinuteCurrency'];
+            $RateTableRate['SurchargePerCallCurrency']          = $data['SurchargePerCallCurrency' ] == '' ? NULL : $data['SurchargePerCallCurrency'];
+            $RateTableRate['SurchargePerMinuteCurrency']        = $data['SurchargePerMinuteCurrency' ] == '' ? NULL : $data['SurchargePerMinuteCurrency'];
+            $RateTableRate['OutpaymentPerCallCurrency']         = $data['OutpaymentPerCallCurrency' ] == '' ? NULL : $data['OutpaymentPerCallCurrency'];
+            $RateTableRate['OutpaymentPerMinuteCurrency']       = $data['OutpaymentPerMinuteCurrency' ] == '' ? NULL : $data['OutpaymentPerMinuteCurrency'];
+            $RateTableRate['SurchargesCurrency']                = $data['SurchargesCurrency' ] == '' ? NULL : $data['SurchargesCurrency'];
+            $RateTableRate['ChargebackCurrency']                = $data['ChargebackCurrency' ] == '' ? NULL : $data['ChargebackCurrency'];
+            $RateTableRate['CollectionCostAmountCurrency']      = $data['CollectionCostAmountCurrency' ] == '' ? NULL : $data['CollectionCostAmountCurrency'];
+            $RateTableRate['RegistrationCostPerNumberCurrency'] = $data['RegistrationCostPerNumberCurrency' ] == '' ? NULL : $data['RegistrationCostPerNumberCurrency'];
 
             $Rate = RateTableDIDRate::insert($RateTableRate);
         }
@@ -990,14 +989,21 @@ class RateTablesController extends \BaseController {
             $data = Input::all();
             $error = 0;
 
-            $EffectiveDate = $EndDate = $OriginationRateID = $OneOffCost = $MonthlyCost = $CostPerCall = $CostPerMinute = $SurchargePerCall = $SurchargePerMinute = $OutpaymentPerCall = $OutpaymentPerMinute = $Surcharges = $Chargeback = $CollectionCostAmount = $CollectionCostPercentage = $RegistrationCostPerNumber = $OneOffCostCurrency = $MonthlyCostCurrency = $CostPerCallCurrency = $CostPerMinuteCurrency = $SurchargePerCallCurrency = $SurchargePerMinuteCurrency = $OutpaymentPerCallCurrency = $OutpaymentPerMinuteCurrency = $SurchargesCurrency = $ChargebackCurrency = $CollectionCostAmountCurrency = $RegistrationCostPerNumberCurrency = 'null';
+            $EffectiveDate = $EndDate = $OriginationRateID = $CityTariff = $OneOffCost = $MonthlyCost = $CostPerCall = $CostPerMinute = $SurchargePerCall = $SurchargePerMinute = $OutpaymentPerCall = $OutpaymentPerMinute = $Surcharges = $Chargeback = $CollectionCostAmount = $CollectionCostPercentage = $RegistrationCostPerNumber = $OneOffCostCurrency = $MonthlyCostCurrency = $CostPerCallCurrency = $CostPerMinuteCurrency = $SurchargePerCallCurrency = $SurchargePerMinuteCurrency = $OutpaymentPerCallCurrency = $OutpaymentPerMinuteCurrency = $SurchargesCurrency = $ChargebackCurrency = $CollectionCostAmountCurrency = $RegistrationCostPerNumberCurrency = 'null';
 
-            if(!empty($data['updateEffectiveDate']) || !empty($data['updateOneOffCost']) || !empty($data['updateMonthlyCost']) || !empty($data['updateCostPerCall']) || !empty($data['updateCostPerMinute']) || !empty($data['updateSurchargePerCall']) || !empty($data['updateSurchargePerMinute']) || !empty($data['updateOutpaymentPerCall']) || !empty($data['updateOutpaymentPerMinute']) || !empty($data['updateSurcharges']) || !empty($data['updateChargeback']) || !empty($data['updateCollectionCostAmount']) || !empty($data['updateCollectionCostPercentage']) || !empty($data['updateRegistrationCostPerNumber']) || !empty($data['updateOneOffCostCurrency']) || !empty($data['updateMonthlyCostCurrency']) || !empty($data['updateCostPerCallCurrency']) || !empty($data['updateCostPerMinuteCurrency']) || !empty($data['updateSurchargePerCallCurrency']) || !empty($data['updateSurchargePerMinuteCurrency']) || !empty($data['updateOutpaymentPerCallCurrency']) || !empty($data['updateOutpaymentPerMinuteCurrency']) || !empty($data['updateSurchargesCurrency']) || !empty($data['updateChargebackCurrency']) || !empty($data['updateCollectionCostAmountCurrency']) || !empty($data['updateRegistrationCostPerNumberCurrency']) || !empty($data['updateOriginationRateID'])) {// || !empty($data['EndDate'])
+            if(!empty($data['updateEffectiveDate']) || !empty($data['updateCityTariff']) || !empty($data['updateOneOffCost']) || !empty($data['updateMonthlyCost']) || !empty($data['updateCostPerCall']) || !empty($data['updateCostPerMinute']) || !empty($data['updateSurchargePerCall']) || !empty($data['updateSurchargePerMinute']) || !empty($data['updateOutpaymentPerCall']) || !empty($data['updateOutpaymentPerMinute']) || !empty($data['updateSurcharges']) || !empty($data['updateChargeback']) || !empty($data['updateCollectionCostAmount']) || !empty($data['updateCollectionCostPercentage']) || !empty($data['updateRegistrationCostPerNumber']) || !empty($data['updateOneOffCostCurrency']) || !empty($data['updateMonthlyCostCurrency']) || !empty($data['updateCostPerCallCurrency']) || !empty($data['updateCostPerMinuteCurrency']) || !empty($data['updateSurchargePerCallCurrency']) || !empty($data['updateSurchargePerMinuteCurrency']) || !empty($data['updateOutpaymentPerCallCurrency']) || !empty($data['updateOutpaymentPerMinuteCurrency']) || !empty($data['updateSurchargesCurrency']) || !empty($data['updateChargebackCurrency']) || !empty($data['updateCollectionCostAmountCurrency']) || !empty($data['updateRegistrationCostPerNumberCurrency']) || !empty($data['updateOriginationRateID'])) {// || !empty($data['EndDate'])
                 if(!empty($data['updateEffectiveDate'])) {
                     if(!empty($data['EffectiveDate'])) {
                         $EffectiveDate = "'".$data['EffectiveDate']."'";
                     } else {
                         $error=1;
+                    }
+                }
+                if(!empty($data['updateCityTariff'])) {
+                    if(!empty($data['CityTariff'])) {
+                        $CityTariff = "'".$data['CityTariff']."'";
+                    } else {
+                        $CityTariff = "''";
                     }
                 }
                 if(!empty($data['updateOneOffCost'])) {
@@ -1097,7 +1103,7 @@ class RateTablesController extends \BaseController {
                 }
                 if(!empty($data['updateOutpaymentPerCallCurrency'])) {
                     if(!empty($data['OutpaymentPerCallCurrency'])) {
-                        $OutpaymentPerCallCurrency = "'".$data['OutpaymentPerCall']."'";
+                        $OutpaymentPerCallCurrency = "'".$data['OutpaymentPerCallCurrency']."'";
                     }
                 }
                 if(!empty($data['updateOutpaymentPerMinuteCurrency'])) {
@@ -1150,6 +1156,7 @@ class RateTablesController extends \BaseController {
                 $criteria['OriginationDescription']    = !empty($criteria['OriginationDescription']) && $criteria['OriginationDescription'] != '' ? "'" . $criteria['OriginationDescription'] . "'" : 'NULL';
                 $criteria['Code']           = !empty($criteria['Code']) && $criteria['Code'] != '' ? "'" . $criteria['Code'] . "'" : 'NULL';
                 $criteria['Description']    = !empty($criteria['Description']) && $criteria['Description'] != '' ? "'" . $criteria['Description'] . "'" : 'NULL';
+                $criteria['CityTariff']     = !empty($criteria['CityTariff']) && $criteria['CityTariff'] != '' ? "'" . $criteria['CityTariff'] . "'" : 'NULL';
                 $criteria['Country']        = !empty($criteria['Country']) && $criteria['Country'] != '' ? "'" . $criteria['Country'] . "'" : 'NULL';
                 $criteria['Effective']      = !empty($criteria['Effective']) && $criteria['Effective'] != '' ? "'" . $criteria['Effective'] . "'" : 'NULL';
                 $criteria['TimezonesID']    = !empty($criteria['Timezones']) && $criteria['Timezones'] != '' ? "'" . $criteria['Timezones'] . "'" : 'NULL';
@@ -1167,7 +1174,7 @@ class RateTablesController extends \BaseController {
                     $p_criteria = 1;
                 }
 
-                $query = "call prc_RateTableDIDRateUpdateDelete (" . $RateTableID . ",'" . $RateTableDIDRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $OneOffCost . "," . $MonthlyCost . "," . $CostPerCall . "," . $CostPerMinute . "," . $SurchargePerCall . "," . $SurchargePerMinute . "," . $OutpaymentPerCall . "," . $OutpaymentPerMinute . "," . $Surcharges . "," . $Chargeback . "," . $CollectionCostAmount . "," . $CollectionCostPercentage . "," . $RegistrationCostPerNumber . "," . $OneOffCostCurrency . "," . $MonthlyCostCurrency . "," . $CostPerCallCurrency . "," . $CostPerMinuteCurrency . "," . $SurchargePerCallCurrency . "," . $SurchargePerMinuteCurrency . "," . $OutpaymentPerCallCurrency . "," . $OutpaymentPerMinuteCurrency . "," . $SurchargesCurrency . "," . $ChargebackCurrency . "," . $CollectionCostAmountCurrency . "," . $RegistrationCostPerNumberCurrency . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
+                $query = "call prc_RateTableDIDRateUpdateDelete (" . $RateTableID . ",'" . $RateTableDIDRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $CityTariff . "," . $OneOffCost . "," . $MonthlyCost . "," . $CostPerCall . "," . $CostPerMinute . "," . $SurchargePerCall . "," . $SurchargePerMinute . "," . $OutpaymentPerCall . "," . $OutpaymentPerMinute . "," . $Surcharges . "," . $Chargeback . "," . $CollectionCostAmount . "," . $CollectionCostPercentage . "," . $RegistrationCostPerNumber . "," . $OneOffCostCurrency . "," . $MonthlyCostCurrency . "," . $CostPerCallCurrency . "," . $CostPerMinuteCurrency . "," . $SurchargePerCallCurrency . "," . $SurchargePerMinuteCurrency . "," . $OutpaymentPerCallCurrency . "," . $OutpaymentPerMinuteCurrency . "," . $SurchargesCurrency . "," . $ChargebackCurrency . "," . $CollectionCostAmountCurrency . "," . $RegistrationCostPerNumberCurrency . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['CityTariff'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 Log::info($query);
                 $results = DB::statement($query);
 
@@ -1192,7 +1199,7 @@ class RateTablesController extends \BaseController {
         if ($id > 0) {
             $data           = Input::all();//echo "<pre>";print_r($data);exit();
             $username       = User::get_user_full_name();
-            $EffectiveDate = $EndDate = $OriginationRateID = $OneOffCost = $MonthlyCost = $CostPerCall = $CostPerMinute = $SurchargePerCall = $SurchargePerMinute = $OutpaymentPerCall = $OutpaymentPerMinute = $Surcharges = $Chargeback = $CollectionCostAmount = $CollectionCostPercentage = $RegistrationCostPerNumber = $OneOffCostCurrency = $MonthlyCostCurrency = $CostPerCallCurrency = $CostPerMinuteCurrency = $SurchargePerCallCurrency = $SurchargePerMinuteCurrency = $OutpaymentPerCallCurrency = $OutpaymentPerMinuteCurrency = $SurchargesCurrency = $ChargebackCurrency = $CollectionCostAmountCurrency = $RegistrationCostPerNumberCurrency = 'null';
+            $EffectiveDate = $EndDate = $OriginationRateID = $CityTariff = $OneOffCost = $MonthlyCost = $CostPerCall = $CostPerMinute = $SurchargePerCall = $SurchargePerMinute = $OutpaymentPerCall = $OutpaymentPerMinute = $Surcharges = $Chargeback = $CollectionCostAmount = $CollectionCostPercentage = $RegistrationCostPerNumber = $OneOffCostCurrency = $MonthlyCostCurrency = $CostPerCallCurrency = $CostPerMinuteCurrency = $SurchargePerCallCurrency = $SurchargePerMinuteCurrency = $OutpaymentPerCallCurrency = $OutpaymentPerMinuteCurrency = $SurchargesCurrency = $ChargebackCurrency = $CollectionCostAmountCurrency = $RegistrationCostPerNumberCurrency = 'null';
 
             try {
                 DB::beginTransaction();
@@ -1204,6 +1211,7 @@ class RateTablesController extends \BaseController {
                 $criteria['OriginationDescription']    = !empty($criteria['OriginationDescription']) && $criteria['OriginationDescription'] != '' ? "'" . $criteria['OriginationDescription'] . "'" : 'NULL';
                 $criteria['Code']           = !empty($criteria['Code']) && $criteria['Code'] != '' ? "'" . $criteria['Code'] . "'" : 'null';
                 $criteria['Description']    = !empty($criteria['Description']) && $criteria['Description'] != '' ? "'" . $criteria['Description'] . "'" : 'null';
+                $criteria['CityTariff']     = !empty($criteria['CityTariff']) && $criteria['CityTariff'] != '' ? "'" . $criteria['CityTariff'] . "'" : 'NULL';
                 $criteria['Country']        = !empty($criteria['Country']) && $criteria['Country'] != '' ? "'" . $criteria['Country'] . "'" : 'null';
                 $criteria['Effective']      = !empty($criteria['Effective']) && $criteria['Effective'] != '' ? "'" . $criteria['Effective'] . "'" : 'null';
                 $criteria['TimezonesID']    = !empty($criteria['Timezones']) && $criteria['Timezones'] != '' ? "'" . $criteria['Timezones'] . "'" : 'NULL';
@@ -1220,7 +1228,7 @@ class RateTablesController extends \BaseController {
                     $p_criteria = 1;
                 }
 
-                $query = "call prc_RateTableDIDRateUpdateDelete (" . $RateTableID . ",'" . $RateTableDIDRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $OneOffCost . "," . $MonthlyCost . "," . $CostPerCall . "," . $CostPerMinute . "," . $SurchargePerCall . "," . $SurchargePerMinute . "," . $OutpaymentPerCall . "," . $OutpaymentPerMinute . "," . $Surcharges . "," . $Chargeback . "," . $CollectionCostAmount . "," . $CollectionCostPercentage . "," . $RegistrationCostPerNumber . "," . $OneOffCostCurrency . "," . $MonthlyCostCurrency . "," . $CostPerCallCurrency . "," . $CostPerMinuteCurrency . "," . $SurchargePerCallCurrency . "," . $SurchargePerMinuteCurrency . "," . $OutpaymentPerCallCurrency . "," . $OutpaymentPerMinuteCurrency . "," . $SurchargesCurrency . "," . $ChargebackCurrency . "," . $CollectionCostAmountCurrency . "," . $RegistrationCostPerNumberCurrency . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
+                $query = "call prc_RateTableDIDRateUpdateDelete (" . $RateTableID . ",'" . $RateTableDIDRateID . "'," . $OriginationRateID . "," . $EffectiveDate . "," . $EndDate . "," . $CityTariff . "," . $OneOffCost . "," . $MonthlyCost . "," . $CostPerCall . "," . $CostPerMinute . "," . $SurchargePerCall . "," . $SurchargePerMinute . "," . $OutpaymentPerCall . "," . $OutpaymentPerMinute . "," . $Surcharges . "," . $Chargeback . "," . $CollectionCostAmount . "," . $CollectionCostPercentage . "," . $RegistrationCostPerNumber . "," . $OneOffCostCurrency . "," . $MonthlyCostCurrency . "," . $CostPerCallCurrency . "," . $CostPerMinuteCurrency . "," . $SurchargePerCallCurrency . "," . $SurchargePerMinuteCurrency . "," . $OutpaymentPerCallCurrency . "," . $OutpaymentPerMinuteCurrency . "," . $SurchargesCurrency . "," . $ChargebackCurrency . "," . $CollectionCostAmountCurrency . "," . $RegistrationCostPerNumberCurrency . "," . $criteria['Country'] . "," . $criteria['Code'] . "," . $criteria['Description'] . "," . $criteria['CityTariff'] . "," . $criteria['OriginationCode'] . "," . $criteria['OriginationDescription'] . "," . $criteria['Effective'] . "," . $criteria['TimezonesID'] . "," . $criteria['ApprovedStatus'] . ",'" . $username . "',".$p_criteria.",".$action.")";
                 Log::info($query);
                 $results = DB::statement($query);
 

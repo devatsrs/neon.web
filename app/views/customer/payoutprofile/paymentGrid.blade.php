@@ -2,7 +2,7 @@
 <div class="panel panel-primary" data-collapsed="0">
     <div class="panel-heading">
         <div class="panel-title">
-            {{PaymentGateway::getPaymentGatewayNameBYAccount($account->AccountID)}} @lang('routes.CUST_PANEL_PAGE_PAYOUT_TITLE')
+            Stripe @lang('routes.CUST_PANEL_PAGE_PAYOUT_TITLE')
         </div>
         <div class="panel-options">
             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
@@ -185,7 +185,7 @@
                 $('#add-new-payout').click(function (ev) {
                     ev.preventDefault();
 
-                    var pgid = '{{PaymentGateway::getPaymentGatewayIDBYAccount($account->AccountID)}}';
+                    var pgid = '{{PaymentGateway::getPayoutGatewayIDBYAccount($account->AccountID)}}';
                     $("#add-payout-form")[0].reset();
                     $("#add-payout-form").find('input[name="payoutAccountID"]').val('');
                     $("#add-payout-form [name='ExpirationMonth']").val('').trigger("change");

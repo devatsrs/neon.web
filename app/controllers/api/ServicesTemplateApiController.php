@@ -212,7 +212,7 @@ class ServicesTemplateApiController extends ApiController
                         }
                     }
 
-                    return Response::json(["status" => "200", "message" => "Service Template Successfully Created", 'newcreated' => $ServiceTemplate]);
+                    return Response::json(["status" => "200", 'data' => $ServiceTemplate]);
                     // return  Response::json(array("status" => "success", "message" => "Service Template Successfully Created",'LastID'=>$ServiceTemplate->ServiceTemplateId,'newcreated'=>$ServiceTemplate));
                 } else {
                     return Response::json(["status" => "401", "message" => "Problem Creating Service Template."]);
