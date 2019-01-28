@@ -6,8 +6,21 @@ class BillingClassApiController extends ApiController {
 
 	public function getList()
 	{
+		$data=array();
 		$DropdownIDList = BillingClass::select('Name', 'BillingClassID','TaxRateID')->get();
-		return Response::json(["status"=>"200", "data"=>$DropdownIDList]);
+		foreach($DropdownIDList as $val){
+			$arr=array();
+			$arr["Name"]=$val["Name"];
+			$arr["BillingClassID"]=$val["BillingClassID"];
+			if($val["TaxRateID"]!=''){
+				$arr["TaxRateID"]=explode(",",$val["TaxRateID"]);
+			}else{
+				$arr["TaxRateID"]=[];
+			}
+
+			array_push($data,$arr);
+		}
+		return Response::json(["data"=>$data],Codes::$Code200[0]);
 	}
 
 	public function getTaxRateList()

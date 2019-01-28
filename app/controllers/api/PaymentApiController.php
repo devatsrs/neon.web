@@ -336,7 +336,7 @@ class PaymentApiController extends ApiController {
 
 						$InvoiceGenerate=self::GenerateInvoice($PaymentData['AccountID'],$PaymentData['outstanginamount'],$BillingClassID);
 
-						return Response::json(["PaymentResponse"=>$ReturnData,"InvoiceResponse"=>$InvoiceGenerate],Codes::$Code200[0]);
+						return Response::json(["data"=>["PaymentResponse"=>$ReturnData,"InvoiceResponse"=>$InvoiceGenerate]],Codes::$Code200[0]);
 
 					}else{
 						//Failed Payment
