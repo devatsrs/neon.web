@@ -89,6 +89,9 @@ class AccountsController extends \BaseController {
         if(!empty($account->PayoutMethod)){
             $PaymentGatewayName = $account->PayoutMethod;
             $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PaymentGatewayName);
+        } else {
+            $PaymentGatewayName = "Stripe";
+            $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PaymentGatewayName);
         }
         $payouts = AccountPayout::select("tblAccountPayout.Title","tblAccountPayout.Status","tblAccountPayout.isDefault",DB::raw("'".$PaymentGatewayName."' as gateway"),"created_at","tblAccountPayout.AccountPayoutID","tblAccountPayout.Options");
         $payouts->where(["tblAccountPayout.CompanyID"=>$CompanyID])

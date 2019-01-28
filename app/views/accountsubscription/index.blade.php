@@ -242,6 +242,7 @@
                 $('#subscription_submit').trigger('click');
                 //inst.myMethod('I am a method');
                 $('#add-subscription').click(function(ev){
+
                         ev.preventDefault();
                         $('#subscription-form').trigger("reset");
                         $('#modal-subscription h4').html('Add Subscription');
@@ -263,19 +264,29 @@
                             var i;
                             var obj = jQuery.parseJSON(response);
                             $('#add-dynamice-fields-show').empty();
+                            var timePicker = 0;
+                            console.log(obj);
+
                             for (i = 0; i < obj.length; ++i)
                             {
+
                                 if((obj[i].FieldDomType =="numericePerMin"  || obj[i].FieldDomType =="text") )
                                 {
                                     $('#add-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="number" name="dynamicFileds['+obj[i].DynamicFieldsID+']" class="form-control" value="" /></div></div></div>');
                                 }else if(obj[i].FieldDomType == "string"){
                                     $('#add-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="text" name="dynamicFileds['+obj[i].DynamicFieldsID+']" class="form-control" value="" /></div></div></div>');
                                 }else if(obj[i].FieldDomType == "datetime"){
-                                    $('#add-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="text" name="dynamicFileds['+obj[i].DynamicFieldsID+']" class="form-control datetimepicker" value="" /></div></div></div>');
+                                    timePicker++;
+                                    if(timePicker == 1)
+                                    {
+                                        $('#add-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="text" id="datetimepickerStart" name="dynamicFileds['+obj[i].DynamicFieldsID+']" class="form-control datetimepicker" data-date-format="yyyy-mm-dd" value="" /></div></div></div>');
+                                    }else if(timePicker == 2){
+                                        $('#add-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="text" id="datetimepickerEnd" name="dynamicFileds['+obj[i].DynamicFieldsID+']" class="form-control datetimepicker" data-date-format="yyyy-mm-dd" value="" /></div></div></div>');
+                                    }
                                 }else if( obj[i].FieldDomType =="text"){
                                     $('#add-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><textarea name="description" name="dynamicFileds['+obj[i].DynamicFieldsID+']"  class="form-control"></textarea></div></div></div>');
                                 }else if( obj[i].FieldDomType =="boolean"){
-                                    $('#add-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><p class="clear"><p class="make-switch switch-small"><input type="checkbox" name="dynamicFileds['+obj[i].DynamicFieldsID+']" value=""></p></div></div></div></div>');
+                                    $('#add-dynamice-fields-show').append('<div class="col-sm-6 row"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><p class="clear"><p class="make-switch switch-small"><input type="checkbox" name="dynamicFileds['+obj[i].DynamicFieldsID+']" value="'+obj[i].FieldValue+'"></p></div></div></div></div>');
                                 }else if( obj[i].FieldDomType =="select"){
 
                                     var value = obj[i].FieldValue.search(',');
@@ -522,6 +533,31 @@
                      });
                 });
 
+
+                $("#datetimepickerStart").datepicker({
+                    todayBtn:  1,
+                    autoclose: true
+                }).on('changeDate', function (selected) {
+                    var minDate = new Date(selected.date.valueOf());
+                    var endDate = $('#EndDate');
+                    endDate.datepicker('setStartDate', minDate);
+                    if(endDate.val() && new Date(endDate.val()) != undefined) {
+                        if(minDate > new Date(endDate.val()))
+                            endDate.datepicker("setDate", minDate)
+                    }
+                });
+
+                $("#datetimepickerEnd").datepicker({autoclose: true})
+                        .on('changeDate', function (selected) {
+                            var maxDate = new Date(selected.date.valueOf());
+                            //$('#StartDate').datepicker('setEndDate', maxDate);
+                        });
+
+                if(new Date($('#StartDate').val()) != undefined){
+                    $("#EndDate").datepicker('setStartDate', new Date($('#StartDate').val()))
+                }
+
+
             });
 
             //check-uncheck all checkbox of subrow
@@ -693,18 +729,26 @@
                     dataType: 'html',
                     success: function (response) {
                         var i;
+                        var timePicker = 0;
 //                           var obj = JSON.parse(JSON.stringify(response))
                         var obj = jQuery.parseJSON(response);
-                        console.log(obj.length);
                         for (i = 0; i <= obj.length; ++i)
                         {
+                            console.log(obj[i].FieldDomType);
+
                             if(obj[i].FieldDomType =="numericePerMin" || obj[i].FieldDomType =="text" )
                             {
                                 $('#add-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="number" name="dynamicFileds[]" class="form-control" value="'+obj[i].FieldValue+'" /></div></div></div>');
                             }else if(obj[i].FieldDomType == "string"){
                                 $('#add-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="text" name="dynamicFileds[]" class="form-control" value="'+obj[i].FieldValue+'" /></div></div></div>');
                             }else if(obj[i].FieldDomType == "datetime"){
-                                $('#add-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="text" name="dynamicFileds[]" class="form-control datetimepicker" value="'+obj[i].FieldValue+'" /></div></div></div>');
+                                timePicker++;
+                                if(timePicker == 1)
+                                {
+                                    $('#add-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="text" id="datetimepickerStart" name="dynamicFileds['+obj[i].DynamicFieldsID+']" class="form-control datetimepicker" data-date-format="yyyy-mm-dd" value="'+obj[i].FieldValue+'" /></div></div></div>');
+                                }else if(timePicker == 2){
+                                    $('#add-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="text" id="datetimepickerEnd" name="dynamicFileds['+obj[i].DynamicFieldsID+']" class="form-control datetimepicker" data-date-format="yyyy-mm-dd" value="'+obj[i].FieldValue+'" /></div></div></div>');
+                                }
                             }else if( obj[i].FieldDomType =="text"){
                                 $('#add-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><textarea name="description" class="form-control">'+obj[i].FieldValue+'</textarea></div></div></div>');
                             }else if( obj[i].FieldDomType =="boolean"){
@@ -742,10 +786,15 @@
                         toastr.error(request.responseText, "Error", toastr_opts)
                     }
                 });
+           }
+            $(document).on("click","#datetimepickerStart", function() {
+                $("#datetimepickerStart").datepicker('show');
+            });
 
+            $(document).on("click","#datetimepickerEnd", function() {
+                $("#datetimepickerEnd").datepicker('show');
+            });
 
-
-            }
 
             function handleFiles(){
                 var fullPath = document.getElementById('dynamicImage').value;

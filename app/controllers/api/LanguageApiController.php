@@ -1,4 +1,5 @@
 <?php
+use app\controllers\api\Codes;
 
 class LanguageApiController extends ApiController {
 
@@ -8,6 +9,6 @@ class LanguageApiController extends ApiController {
 
 		$Languages = Language::select(["LanguageID","ISOCode","Language"])
 			->get();
-		return Response::json(["status"=>"200", "data"=>$Languages]);
+		return Response::json(["data"=>$Languages],Codes::$Code200[0]);
 	}
 }

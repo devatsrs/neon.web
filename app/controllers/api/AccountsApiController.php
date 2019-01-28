@@ -1,5 +1,7 @@
 <?php
 
+use app\controllers\api\Codes;
+
 class AccountsApiController extends ApiController {
 
 	private static $PaymentMethod = ["AuthorizeNet","AuthorizeNetEcheck",
@@ -43,7 +45,7 @@ class AccountsApiController extends ApiController {
 
 			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 			if(empty($AccountID)){
-				return Response::json(["status"=>"404", "data"=>"Account Not Found."]);
+				return Response::json(["ErrorMessage"=>"Account Not Found"],Codes::$Code402[0]);
 			}
 			$Account = Account::where(["AccountID" => $AccountID])->first();
 		}
@@ -57,9 +59,9 @@ class AccountsApiController extends ApiController {
 				$Result['has_balance']=0;
 				$Result['amount']=$AccountBalance;
 			}
-			return Response::json(["status"=>"200", "data"=>$Result]);
+			return Response::json($Result, Codes::$Code200[0]);
 		}
-		return Response::json(["status"=>"404", "data"=>"Account Not Found"]);
+		return Response::json(["ErrorMessage"=>"Account Not Found"],Codes::$Code402[0]);
 	}
 
 
@@ -67,9 +69,25 @@ class AccountsApiController extends ApiController {
 	{
 		Log::info('createAccountService:Add Product Service.');
 		$message = '';
-		$post_vars = json_decode(file_get_contents("php://input"));
+		$post_vars = '';
+		$accountData = '';
+		try {
+			$post_vars = json_decode(file_get_contents("php://input"));
+			//$post_vars = Input::all();
+			$accountData=json_decode(json_encode($post_vars),true);
+			$countValues = count($accountData);
+			if ($countValues == 0) {
+				Log::info('Exception in Routing API.Invalid JSON');
+				return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
+			}
+		}catch(Exception $ex) {
+			Log::info('Exception in Routing API.Invalid JSON' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
+		}
+
+
 		//$post_vars = Input::all();
-		$accountData=json_decode(json_encode($post_vars),true);
+
 		$CompanyID = User::get_companyID();
 		$CreatedBy = User::get_user_full_name();
 		$date = date('Y-m-d H:i:s');
@@ -85,14 +103,14 @@ class AccountsApiController extends ApiController {
 			Log::info('createAccountService:Data.' . json_encode($accountData));
 			$data['AccountNo'] = isset($accountData['AccountNo']) ? $accountData['AccountNo'] : '';
 			$data['AccountID'] = isset($accountData['AccountID']) ? $accountData['AccountID'] : '';
-			$data['ServiceTemaplate'] = isset($accountData['ServiceTemaplate']) ? $accountData['ServiceTemaplate'] : '';
+			$data['ServiceTemaplateDynamicField'] = isset($accountData['ServiceTemaplateDynamicField']) ? $accountData['ServiceTemaplateDynamicField'] : '';
 			$data['NumberPurchased'] = isset($accountData['NumberPurchased']) ? $accountData['NumberPurchased'] : '';
 			$data['AccountDynamicField'] = isset($accountData['AccountDynamicField']) ? $accountData['AccountDynamicField'] : '';
 			$data['InboundTariffCategory'] = isset($accountData['InboundTariffCategoryID']) ? $accountData['InboundTariffCategoryID'] :'';
 			//$data['ServiceStartDate'] = isset($accountData['ServiceStartDate'])? strtotime($accountData['ServiceStartDate']) : '';
 			//$data['ServiceEndDate'] = isset($accountData['ServiceEndDate'])? strtotime($accountData['ServiceEndDate']) : '';
-			$AccountServiceContract['ContractStartDate'] = isset($accountData['ServiceStartDate']) ? $accountData['ServiceStartDate'] :'' ;
-			$AccountServiceContract['ContractEndDate'] = isset($accountData['ServiceEndDate']) ? $accountData['ServiceEndDate'] : '';
+			$AccountServiceContract['ContractStartDate'] = isset($accountData['ContractStartDate']) ? $accountData['ContractStartDate'] :'' ;
+			$AccountServiceContract['ContractEndDate'] = isset($accountData['ContractEndDate']) ? $accountData['ContractEndDate'] : '';
 			$AccountServiceContract['Duration'] = isset($accountData['ContractDuration']) ? $accountData['ContractDuration'] : '';
 			$AccountServiceContract['ContractReason'] = isset($accountData['ContractFeeValue']) ? $accountData['ContractFeeValue'] : '';
 			$AccountServiceContract['AutoRenewal'] = isset($accountData['AutoRenewal']) ? $accountData['AutoRenewal'] : '';
@@ -100,17 +118,27 @@ class AccountsApiController extends ApiController {
 			$AccountSubscription["PackageSubscription"] = isset($accountData['PackageSubscriptionID']) ? $accountData['PackageSubscriptionID'] : '';
 
 			if (!empty($AccountServiceContract['ContractStartDate']) && empty($AccountServiceContract['ContractEndDate'])) {
-				return Response::json(["status" => "401", "message" => "Please specified the Service End Data"]);
+				return Response::json(["ErrorMessage"=>Codes::$Code1001[1]],Codes::$Code1001[0]);
 			}
 			if (!empty($AccountServiceContract['ContractStartDate']) && !empty($AccountServiceContract['ContractEndDate'])) {
+				$checkDate = strtotime($AccountServiceContract['ContractStartDate']);
+				Log::info('createAccountService:Add Product Service123.' . $checkDate);
+				if (empty($checkDate)) {
+					return Response::json(["ErrorMessage"=>Codes::$Code1022[1]],Codes::$Code1022[0]);
+				}
+				$checkDate = strtotime($AccountServiceContract['ContractEndDate']);
+				if (empty($checkDate)) {
+					return Response::json(["ErrorMessage"=>Codes::$Code1022[1]],Codes::$Code1022[0]);
+				}
+
 				if ($AccountServiceContract['ContractStartDate'] > $AccountServiceContract['ContractEndDate']) {
-					return Response::json(["status" => "401", "message" => "End Date should be greater then start date"]);
+					return Response::json(["ErrorMessage"=>Codes::$Code1002[1]],Codes::$Code1002[0]);
 				}
 				if (!empty($AccountServiceContract['ContractType']) && ($AccountServiceContract['ContractType'] < 1 || $AccountServiceContract['ContractType'] > 4)) {
-					return Response::json(["status" => "401", "message" => "The value of ContractType must be between 1 and 4"]);
+					return Response::json(["ErrorMessage"=>Codes::$Code1003[1]],Codes::$Code1003[0]);
 				}
 				if (!empty($AccountServiceContract['AutoRenewal']) && ($AccountServiceContract['AutoRenewal'] != 0 && $AccountServiceContract['AutoRenewal'] != 1)) {
-					return Response::json(["status" => "401", "message" => "The value of AutoRenewal must be between 0 or 1"]);
+					return Response::json(["ErrorMessage"=>Codes::$Code1004[1]],Codes::$Code1004[0]);
 				}
 			}
 
@@ -119,7 +147,7 @@ class AccountsApiController extends ApiController {
 				'AccountNo' =>      'required_without_all:AccountDynamicField,AccountID',
 				'AccountID' =>      'required_without_all:AccountDynamicField,AccountNo',
 				'AccountDynamicField' =>      'required_without_all:AccountNo,AccountID',
-				'ServiceTemaplate' =>  'required',
+				'ServiceTemaplateDynamicField' =>  'required',
 				'NumberPurchased'=>'required',
 
 			);
@@ -132,14 +160,14 @@ class AccountsApiController extends ApiController {
 				foreach ($validator->messages()->all() as $error) {
 					$errors .= $error . "<br>";
 				}
-				return Response::json(["status" => "failed", "message" => $errors]);
+				return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
 			}
 
 			if (!empty($accountData['AccountDynamicField'])) {
 				$AccountIDRef = '';
 				$AccountIDRef = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
 				if (empty($AccountIDRef)) {
-					return Response::json(["status" => "401", "message" => "Please provide the valid Account ID"]);
+					return Response::json(["ErrorMessage" => Codes::$Code1000[1]],Codes::$Code1000[0]);
 				}
 				$data['AccountID'] = $AccountIDRef;
 			}
@@ -147,7 +175,7 @@ class AccountsApiController extends ApiController {
 			if (!empty($AccountSubscription['PackageSubscription'])) {
 				$AccountSubscriptionDB = BillingSubscription::where(array('SubscriptionID' => $AccountSubscription['PackageSubscription']))->first();
 				if (!isset($AccountSubscriptionDB) || $AccountSubscriptionDB == '') {
-					return Response::json(["status" => "failed", "message" => "Please provide the correct account subscription"]);
+					return Response::json(["ErrorMessage" => Codes::$Code1005[1]],Codes::$Code1005[0]);
 				}
 
 				$DynamicFieldIDs = '';
@@ -171,41 +199,37 @@ class AccountsApiController extends ApiController {
 				$Account = Account::find($data['AccountID']);
 			}
 			if (!$Account) {
-				return Response::json(["status" => "failed", "message" => "Please enter the valid account number"]);
-			}
-			$ServiceTemaplateData = $data['ServiceTemaplate'];
-
-			$DynamicField = DynamicFields::where(["FieldName"=>$ServiceTemaplateData["Name"],"Type"=>ServiceTemplateTypes::DYNAMIC_TYPE])->pluck('DynamicFieldsID');
-			if (empty($DynamicField)) {
-				return Response::json(["status" => "401", "message" => "Please provide the valid dynamic field"]);
+				return Response::json(["ErrorMessage" => Codes::$Code1000[1]],Codes::$Code1000[0]);
 			}
 
-			$ServiceTemaplateReference = DynamicFieldsValue::where(["DynamicFieldsID"=>$DynamicField,"FieldValue"=>$ServiceTemaplateData["Value"]])->count();
-			if ($ServiceTemaplateReference > 1) {
-				return Response::json(["status" => "failed", "message" => "More then one service template, please provide the unique product reference"]);
+			$ServiceTemaplateReference = ServiceTemplate::findServiceTemplateByDynamicField($data['ServiceTemaplateDynamicField']);
+			if (empty($ServiceTemaplateReference)) {
+				return Response::json(array("ErrorMessage" => Codes::$Code1021[1]),Codes::$Code1021[0]);
 			}
+			$ServiceTemaplateReference = ServiceTemplate::find($ServiceTemaplateReference);
+
+
 			if(CLIRateTable::where(array('CompanyID'=>$CompanyID, 'CLI'=>$data['NumberPurchased']))->count()){
 				$AccountID = CLIRateTable::where(array('CompanyID'=>$CompanyID,'CLI'=>$data['NumberPurchased']))->pluck('AccountID');
 				$message .= $data['NumberPurchased'].' already exist against '.Account::getCompanyNameByID($AccountID).'.<br>';
 				$message = 'Following CLI already exists.<br>'.$message;
-				return Response::json(array("status" => "401", "message" => $message));
+				return Response::json(array("ErrorMessage" => Codes::$Code1008[1]),Codes::$Code1008[0]);
 			}
 
-			$ServiceTemaplateReference = DynamicFieldsValue::where(["DynamicFieldsID"=>$DynamicField,"FieldValue"=>$ServiceTemaplateData["Value"]])->pluck('ParentID');
-			$ServiceTemaplateReference = ServiceTemplate::find($ServiceTemaplateReference);
+
 			Log::info('ServiceTemplateId' . $ServiceTemaplateReference->ServiceTemplateId);
 
 
 			if (!empty($data['InboundTariffCategory'])) {
 				$InboundRateTableReference = ServiceTemapleInboundTariff::where(["ServiceTemplateID"=>$ServiceTemaplateReference->ServiceTemplateId,"DIDCategoryId"=>$data['InboundTariffCategory']])->count();
 				if ($InboundRateTableReference > 1) {
-					return Response::json(["status" => "failed", "message" => "More then one Inbound Tariff found against the Category"]);
+					return Response::json(["ErrorMessage" => Codes::$Code1009[1]],Codes::$Code1009[0]);
 				}
 				$InboundRateTableReference = ServiceTemapleInboundTariff::where(["ServiceTemplateID"=>$ServiceTemaplateReference->ServiceTemplateId,"DIDCategoryId"=>$data['InboundTariffCategory']])->pluck('RateTableId');
 			}else {
 				$InboundRateTableReference = ServiceTemapleInboundTariff::where("ServiceTemplateID",'=',$ServiceTemaplateReference->ServiceTemplateId)->WhereNull('DIDCategoryId')->count();
 				if ($InboundRateTableReference > 1) {
-					return Response::json(["status" => "401", "message" => "More then one Inbound Tariff found against the Category"]);
+					return Response::json(["ErrorMessage" => Codes::$Code1009[1]],Codes::$Code1009[0]);
 				}
 				$InboundRateTableReference = ServiceTemapleInboundTariff::where("ServiceTemplateID",'=',$ServiceTemaplateReference->ServiceTemplateId)->WhereNull('DIDCategoryId')->pluck('RateTableId');
 			}
@@ -250,7 +274,9 @@ class AccountsApiController extends ApiController {
 					$AccountServiceContract["ContractReason"] = empty($AccountServiceContract['ContractReason']) ? $ServiceTemaplateReference->CancellationFee : $AccountServiceContract['ContractReason'];
 					$AccountServiceContract["AutoRenewal"] = empty($AccountServiceContract["AutoRenewal"]) ? $ServiceTemaplateReference->AutomaticRenewal : $AccountServiceContract["AutoRenewal"];
 					$AccountServiceContract["ContractTerm"] = empty($AccountServiceContract["ContractTerm"]) ? $ServiceTemaplateReference->CancellationCharges : $AccountServiceContract["ContractTerm"];
+					Log::info('AccountServiceContract Done' . print_r($AccountServiceContract,true) );
 					AccountServiceContract::create($AccountServiceContract);
+					Log::info('AccountServiceContract Done' );
 				}
 
 				if (isset($AccountSubscriptionDB) && $AccountSubscriptionDB != '') {
@@ -394,12 +420,12 @@ class AccountsApiController extends ApiController {
 
 
 
-			return Response::json(array("status" => "200", "message" => $message));
+			return Response::json(array("data" => $message),Codes::$Code200[0]);
 
 
 		} catch (Exception $ex) {
 			Log::info('createAccountService:Exception.' . $ex->getTraceAsString());
-			return Response::json(["status" => "500", "message" => "Exception while attaching the service to account"]);
+			return Response::json(["ErrorMessage" => Codes::$Code500[1]],Codes::$Code500[0]);
 		}
 	}
 
@@ -407,10 +433,32 @@ class AccountsApiController extends ApiController {
 
 	public function createAccount() {
 		Log::info('createAccount:Create new Account.');
+		$post_vars = '';
+		$accountData = [];
 		try {
-			$accountData = Input::all();
+
+			try {
+				$post_vars = json_decode(file_get_contents("php://input"));
+				//$post_vars = Input::all();
+				$accountData=json_decode(json_encode($post_vars),true);
+				$countValues = count($accountData);
+				if ($countValues == 0) {
+					Log::info('Exception in Routing API.Invalid JSON');
+					return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
+				}
+			}catch(Exception $ex) {
+				Log::info('Exception in Routing API.Invalid JSON' . $ex->getTraceAsString());
+				return Response::json(["ErrorMessage"=>Codes::$Code400[1]],Codes::$Code400[0]);
+			}
+
+
+			//$post_vars = Input::all();
+
+			//$accountData = Input::all();
 			$ServiceID = 0;
-			$CompanyID = User::get_companyID();
+			$LogonUser = User::getUserInfo();
+			$CompanyID = $LogonUser["CompanyID"];
+			Log::info('createAccount:User:.CompanyID' . $CompanyID);
 			$CreatedBy = User::get_user_full_name();
 			$ResellerData = [];
 			$AccountPaymentAutomation = [];
@@ -438,9 +486,26 @@ class AccountsApiController extends ApiController {
 
 			$data['CompanyID'] = $CompanyID;
 			$data['AccountType'] = 1;
-			$data['IsVendor'] = isset($accountData['IsVendor']) && $accountData['IsVendor'] == 1 ? 1 : 0;
-			$data['IsCustomer'] = isset($accountData['IsCustomer']) && $accountData['IsCustomer'] == 1  ? 1 : 0;
-			$data['IsReseller'] = isset($accountData['IsReseller']) && $accountData['IsReseller'] == 1 ? 1 : 0;
+			$data['IsVendor'] = isset($accountData['IsVendor']);
+			if (!empty($accountData['IsVendor']) && ($accountData['IsVendor'] != 0 && $accountData['IsVendor'] != 1)) {
+				return Response::json(["status" => Codes::$Code1025[0],"ErrorMessage"=>Codes::$Code1025[1]]);
+			}else {
+				$data['IsVendor'] = 0;
+			}
+			$data['IsCustomer'] = isset($accountData['IsCustomer']);
+			if (!empty($accountData['IsCustomer']) && ($accountData['IsCustomer'] != 0 && $accountData['IsCustomer'] != 1)) {
+				return Response::json(["status" => Codes::$Code1024[0],"ErrorMessage"=>Codes::$Code1024[1]]);
+			}else {
+				$data['IsReseller'] = 0;
+			}
+			$data['IsReseller'] = $accountData['IsReseller'];
+			if (!empty($accountData['IsReseller']) && ($accountData['IsReseller'] != 0 && $accountData['IsReseller'] != 1)) {
+				return Response::json(["status" => Codes::$Code1023[0],"ErrorMessage"=>Codes::$Code1023[1]]);
+			}else {
+				$data['IsReseller'] = 0;
+			}
+			//Log::info('createAccount:Create new Account Reseller0.' . $accountData['IsReseller'] . ' ' . $data['IsReseller']);
+
 			$data['Billing'] = isset($data['Billing']) && $data['Billing'] == 1 ? 1 : 0;
 			$data['created_by'] = $CreatedBy;
 			$data['AccountType'] = 1;
@@ -457,7 +522,7 @@ class AccountsApiController extends ApiController {
 			$AccountPaymentAutomation['OutPaymentAmount']= isset($accountData['OutPaymentAmount']) ? $accountData['OutPaymentAmount'] : '';
 
 			if (!empty($data['PaymentMethod']) && !in_array($data['PaymentMethod'], AccountsApiController::$PaymentMethod)) {
-				return Response::json(array("status" => "401", "message" => "Please enter the valid payment method."));
+				return Response::json(array("status" => Codes::$Code1020[0], "ErrorMessage" => Codes::$Code1020[1]));
 			}
 
 			if (!empty($AccountPaymentAutomation['AutoTopup']) && $AccountPaymentAutomation['AutoTopup'] == 1) {
@@ -475,7 +540,7 @@ class AccountsApiController extends ApiController {
 					foreach ($validator->messages()->all() as $error) {
 						$errors .= $error . "<br>";
 					}
-					return Response::json(["status" => "401", "message" => $errors]);
+					return Response::json(["status" => Codes::$Code402[0], "ErrorMessage" => $errors]);
 				}
 			}
 
@@ -494,7 +559,7 @@ class AccountsApiController extends ApiController {
 					foreach ($validator->messages()->all() as $error) {
 						$errors .= $error . "<br>";
 					}
-					return Response::json(["status" => "401", "message" => $errors]);
+					return Response::json(["status" => Codes::$Code402[0], "ErrorMessage" => $errors]);
 				}
 			}
 
@@ -517,9 +582,9 @@ class AccountsApiController extends ApiController {
 
 
 			if (strpbrk($data['AccountName'], '\/?*:|"<>')) {
-				return Response::json(array("status" => "failed", "message" => "Account Name contains illegal character."));
+				return Response::json(array("status" => Codes::$Code1018[0], "ErrorMessage" => Codes::$Code1018[1]));
 			}
-			$data['Status'] = isset($data['Status']) ? 1 : 0;
+			$data['Status'] = 1;
 
 			if (empty($data['Number'])) {
 				$data['Number'] = Account::getLastAccountNo();
@@ -529,8 +594,11 @@ class AccountsApiController extends ApiController {
 
 
 
-			Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,AccountType,1';
-			Account::$rules['Number'] = 'required|unique:tblAccount,Number,NULL,CompanyID';
+			Account::$rules['AccountName'] = 'required';
+			Account::$rules['Number'] = 'required';
+
+
+
 
 
 
@@ -541,8 +609,19 @@ class AccountsApiController extends ApiController {
 				foreach ($validator->messages()->all() as $error) {
 					$errors .= $error . "<br>";
 				}
-				return Response::json(["status" => "401", "message" => $errors]);
+				return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
 			}
+
+			$AccountName = Account::where(['AccountName'=>$data["AccountName"],'CompanyID'=>$CompanyID,'AccountType'=>1])->count();
+			if ($AccountName > 0) {
+				return Response::json(["ErrorMessage"=>Codes::$Code1029[1]],Codes::$Code410[0]);
+			}
+
+			$AccountNumber = Account::where(['Number'=>$data["Number"],'CompanyID'=>$CompanyID])->count();
+			if ($AccountNumber > 0) {
+				return Response::json(["ErrorMessage"=>Codes::$Code1030[1]],Codes::$Code410[0]);
+			}
+
 
 			if (isset($accountData['AccountDynamicField'])) {
 				//$AccountReferenceArr = json_decode(json_encode(json_decode($accountData['AccountDynamicField'])), true);
@@ -551,16 +630,17 @@ class AccountsApiController extends ApiController {
 					$AccountReference = $AccountReferenceArr[$i];
 					$DynamicFieldsID = DynamicFields::where(['CompanyID'=>User::get_companyID(),'Type'=>'account','Status'=>1,'FieldSlug'=>$AccountReference['Name']])->pluck('DynamicFieldsID');
 					if(empty($DynamicFieldsID)) {
-						return Response::json(array("status" => "401", "message" => "Please provide the correct dynamic field. " . $AccountReference['Name']));
+						return Response::json(["ErrorMessage" => Codes::$Code1006[1]],Codes::$Code1006[0]);
 					}
 				}
 			}
 
+			Log::info('createAccount:Create new Account Reseller.' . $data['IsReseller']);
 			if($data['IsReseller']==1){
 
 				$ResellerCount = Reseller::where('ChildCompanyID',$CompanyID)->count();
 				if($ResellerCount>0){
-					return Response::json(["status" => "401", "message" => "Reseller user can not create reseller"]);
+					return Response::json(["ErrorMessage" => Codes::$Code1010[1]],Codes::$Code1010[0]);
 				}
 
 				Log::info("Read the reseller fields1");
@@ -591,7 +671,7 @@ class AccountsApiController extends ApiController {
 						foreach ($validator->messages()->all() as $error) {
 							$errors .= $error . "<br>";
 						}
-						return Response::json(["status" => "401", "message" => $errors]);
+						return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
 					}
 				}
 
@@ -600,23 +680,28 @@ class AccountsApiController extends ApiController {
 						$ResellerData['DomainUrl'] = CompanyConfiguration::where(['CompanyID'=>$CompanyID,'Key'=>'WEB_URL'])->pluck('Value');
 					}
 					if(!Reseller::IsAllowDomainUrl($ResellerData['DomainUrl'],'')){
-						return  Response::json(array("status" => "401", "message" => "please setup different domain for your reseller."));
+						return  Response::json(array("ErrorMessage" => Codes::$Code1011[1]),Codes::$Code1011[0]);
 					}
 				}
 
 			}
 			$data['CurrencyId'] = Currency::where('CurrencyId',$data['CurrencyId'])->pluck('CurrencyId');
 			if (!isset($data['CurrencyId'])) {
-				return Response::json(["status"=>"401", "message"=>"Please provide the valid currency"]);
+				return Response::json(["ErrorMessage" => Codes::$Code1012[1],Codes::$Code1012[0]]);
 			}
 			$data['Country'] = Country::where(['CountryID' => $data['Country']])->pluck('Country');
 			if (!isset($data['Country'])) {
-				return Response::json(["status"=>"401", "message"=>"Please provide the valid country"]);
+				return Response::json(["ErrorMessage" => Codes::$Code1013[1]],Codes::$Code1013[0]);
 			}
 
 			$data['LanguageID'] = Language::where('LanguageID',$data['Language'])->pluck('LanguageID');
 			if (!isset($data['LanguageID'])) {
-				return Response::json(["status"=>"401", "message"=>"Please provide the valid Language"]);
+				return Response::json(["ErrorMessage" => Codes::$Code1014[1]],Codes::$Code1014[0]);
+			}
+
+			$data['Owner'] = User::where('UserID',$data['Owner'])->pluck('UserID');
+			if (!isset($data['Owner'])) {
+				return Response::json(["ErrorMessage" => Codes::$Code1019[1]],Codes::$Code1019[0]);
 			}
 
 			AccountBilling::$rulesAPI['billing_type'] = 'required';
@@ -625,9 +710,9 @@ class AccountsApiController extends ApiController {
 			//AccountBilling::$rulesAPI['billing_cycle_options'] = 'required';
 
 
-			$BillingSetting['billing_type'] = isset($accountData['BillingType']) ? $accountData['BillingType'] : '';
+			$BillingSetting['billing_type'] = isset($accountData['BillingTypeID']) ? $accountData['BillingTypeID'] : '';
 			$BillingSetting['billing_class']= isset($accountData['BillingClassID']) ? $accountData['BillingClassID'] : '';
-			$BillingSetting['billing_cycle']= isset($accountData['BillingCycleType']) ? $accountData['BillingCycleType'] : '';
+			$BillingSetting['billing_cycle']= isset($accountData['BillingCycleTypeID']) ? $accountData['BillingCycleTypeID'] : '';
 			$BillingSetting['billing_cycle_options']= isset($accountData['BillingCycleValue']) ? $accountData['BillingCycleValue'] :'';
 			$BillingSetting['billing_start_date']=  isset($accountData['BillingStartDate']) ? $accountData['BillingStartDate'] : '';
 			$BillingSetting['NextInvoiceDate']= isset($accountData['NextInvoiceDate']) ? $accountData['NextInvoiceDate'] : '';
@@ -644,7 +729,7 @@ class AccountsApiController extends ApiController {
 				if (isset($BillingSetting['NextInvoiceDate']) && $BillingSetting['NextInvoiceDate'] != '' &&
 					isset($BillingSetting['billing_start_date']) && $BillingSetting['billing_start_date'] != '' && strtotime($BillingSetting['NextInvoiceDate']) < strtotime($BillingSetting['billing_start_date'])
 				) {
-					return Response::json(["status" => "401", "message" => "NextInvoiceDate Should be greater than BillingStartDate"]);
+					return Response::json(["ErrorMessage" => Codes::$Code1015[1],Codes::$Code1015[0]]);
 				}
 				$validator = Validator::make($BillingSetting, AccountBilling::$rulesAPI);
 				if ($validator->fails()) {
@@ -652,16 +737,52 @@ class AccountsApiController extends ApiController {
 					foreach ($validator->messages()->all() as $error) {
 						$errors .= $error . "<br>";
 					}
-					return Response::json(["status" => "401", "message" => $errors]);
+					return Response::json(["ErrorMessage" => $errors,Codes::$Code402[0]]);
 				}
 
-				if ($BillingSetting['billing_type'] == "Prepaid") {
-					$BillingSetting['billing_type'] = "1";
-				} else if ($BillingSetting['billing_type'] == "Postpaid") {
-					$BillingSetting['billing_type'] = "2";
-				} else {
-					return Response::json(["status" => "401", "message" => "Please select the valid billing type"]);
+				if (!empty($BillingSetting['billing_type']) && ($BillingSetting['billing_type'] != 1 && $BillingSetting['billing_type'] != 2)) {
+					return Response::json(["ErrorMessage" => Codes::$Code1016[1]],Codes::$Code1016[0]);
 				}
+
+				if (!empty($BillingSetting['billing_cycle'])
+					&& ($BillingSetting['billing_cycle'] < 1 || $BillingSetting['billing_cycle'] > 8)) {
+					return Response::json(["ErrorMessage" => Codes::$Code1026[1]],Codes::$Code1026[0]);
+				}
+
+				$BillingCycleTypeID[0] = "Daily";
+				$BillingCycleTypeID[1] = "Fortnightly";
+				$BillingCycleTypeID[2] = "In Specific days";
+				$BillingCycleTypeID[3] = "Manual";
+				$BillingCycleTypeID[4] = "Monthly";
+				$BillingCycleTypeID[5] = "Monthly anniversary";
+				$BillingCycleTypeID[6] = "Quarterly";
+				$BillingCycleTypeID[7] = "Weekly";
+				$BillingCycleTypeID[8] = "Yearly";
+
+				if ($BillingSetting['billing_cycle'] == 2 || $BillingSetting['billing_cycle'] == 5 || $BillingSetting['billing_cycle'] == 7) {
+					if (empty($BillingSetting['billing_cycle_options'])) {
+						return Response::json(["ErrorMessage" => Codes::$Code1027[1]],Codes::$Code1027[0]);
+					}
+
+					if ($BillingSetting['billing_cycle'] == 2 || $BillingSetting['billing_cycle'] == 5 ) {
+						$checkDate = strtotime($BillingSetting['billing_cycle_options']);
+						if (empty($checkDate)) {
+							return Response::json(["ErrorMessage" => Codes::$Code1022[1]],Codes::$Code1022[0]);
+						}
+					}
+
+					if ($BillingSetting['billing_cycle'] == 7) {
+						$validValues = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+						$BillingCycleOptions = explode(',', $BillingSetting['billing_cycle_options']);
+						foreach($BillingCycleOptions as $BillingCycleOption) {
+							if (!in_array($BillingCycleOption, $validValues)) {
+								return Response::json(["ErrorMessage" => Codes::$Code1028[1]],Codes::$Code1028[0]);
+							}
+						}
+					}
+				}
+
+
 			}
 
 			if ($account = Account::create($data)) {
@@ -699,7 +820,7 @@ class AccountsApiController extends ApiController {
 					$BillingClassSql = BillingClass::where('BillingClassID', $BillingSetting['billing_class']);
 					$BillingClass = $BillingClassSql->first();
 					if (!isset($BillingClass)) {
-						return Response::json(["status" => "401", "message" => "Please select the valid billing class"]);
+						return Response::json(["ErrorMessage" => Codes::$Code1017[1]],Codes::$Code1017[0]);
 					}
 
 					$dataAccountBilling['BillingClassID'] = $BillingClass->BillingClassID;
@@ -845,7 +966,7 @@ class AccountsApiController extends ApiController {
 								}
 
 							} else {
-								return Response::json(array("status" => "401", "message" => "Problem Creating Account."));
+								return Response::json(array("ErrorMessage" => Codes::$Code500[1]),Codes::$Code500[0]);
 							}
 						} catch (Exception $e) {
 							try {
@@ -854,19 +975,23 @@ class AccountsApiController extends ApiController {
 								Log::error($err);
 							}
 							Log::error($e);
-							return Response::json(array("status" => "401", "message" => "Problem Creating Account."));
+							return Response::json(array("ErrorMessage" => Codes::$Code500[1]),Codes::$Code500[0]);
 						}
 					}
 				}
+
+				$AccountSuccessMessage['AccountID'] = $account->AccountID;
+				$AccountSuccessMessage['redirect'] = URL::to('/accounts/' . $account->AccountID . '/edit');
+
 				CompanySetting::setKeyVal('LastAccountNo', $account->Number);
-				return Response::json(array("status" => "200", "message" => "Account Successfully Created", 'AccountID' => $account->AccountID, 'redirect' => URL::to('/accounts/' . $account->AccountID . '/edit')));
+				return Response::json(array('data' => $AccountSuccessMessage),Codes::$Code200[0]);
 			} else {
-				return Response::json(array("status" => "401", "message" => "Problem Creating Account."));
+				return Response::json(array("ErrorMessage" => Codes::$Code500[1]),Codes::$Code500[0]);
 			}
 
 		} catch (Exception $ex) {
 			Log::error("CreateAccountAPI Exception" . $ex->getTraceAsString());
-			return Response::json(["status" => "500", "message" => "Error while creating the account"]);
+			return Response::json(["ErrorMessage" => Codes::$Code500[1]],Codes::$Code500[0]);
 			//return  Response::json(array("status" => "failed", "message" => $ex->getMessage(),'LastID'=>'','newcreated'=>''));
 		}
 

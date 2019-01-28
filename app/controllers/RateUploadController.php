@@ -1200,6 +1200,16 @@ class RateUploadController extends \BaseController {
 
                             if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == $type_did)) {
 
+                                if (!empty($attrselection->CityTariff)) {
+                                    if (!empty($temp_row[$attrselection->CityTariff])) {
+                                        $tempdata['CityTariff'] = $temp_row[$attrselection->CityTariff];
+                                    } else {
+                                        $tempdata['CityTariff'] = '';
+                                    }
+                                } else {
+                                    $tempdata['CityTariff'] = '';
+                                }
+
                                 if (!empty($attrselection->$OneOffCostColumn) && isset($temp_row[$attrselection->$OneOffCostColumn])) {
                                     $tempdata['OneOffCost'] = trim($temp_row[$attrselection->$OneOffCostColumn]);
                                 } else {
@@ -1539,7 +1549,7 @@ class RateUploadController extends \BaseController {
 
                             $tempdata['TimezonesID'] = $TimezoneID;
 
-                            if (isset($tempdata['Code']) && isset($tempdata['Description']) && (isset($tempdata['MonthlyCost']) || $tempdata['Change'] == 'D') && (isset($tempdata['EffectiveDate']) || $tempdata['Change'] == 'D')) {
+                            if (isset($tempdata['Code']) && isset($tempdata['Description']) && ((isset($tempdata['Rate'])|| isset($tempdata['MonthlyCost'])) || $tempdata['Change'] == 'D') && (isset($tempdata['EffectiveDate']) || $tempdata['Change'] == 'D')) {
                                 if (isset($tempdata['EndDate'])) {
                                     $batch_insert_array[] = $tempdata;
                                 } else {
@@ -1718,6 +1728,7 @@ class RateUploadController extends \BaseController {
         $data['Code']                   = !empty($data['Code']) ? "'".$data['Code']."'" : 'NULL';
         $data['Description']            = !empty($data['Description']) ? "'".$data['Description']."'" : 'NULL';
         $data['RoutingCategory']        = !empty($data['RoutingCategory']) ? $data['RoutingCategory'] : 'NULL';
+        $data['CityTariff']             = !empty($data['CityTariff']) ? $data['CityTariff'] : 'NULL';
 
         if($data['RateUploadType'] == RateUpload::ratetable && !empty($data['RateTableID'])) {
             $RateTable = RateTable::find($data['RateTableID']);
@@ -1730,7 +1741,7 @@ class RateUploadController extends \BaseController {
         } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL))) {
             $query = "call prc_getReviewRateTableRates ('".$data['ProcessID']."','".$data['Action']."',".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['Timezone'].",".$data['RoutingCategory'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
         } else if($data['RateUploadType'] == RateUpload::ratetable && (!empty($RateTable) && $RateTable->Type == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))) {
-            $query = "call prc_getReviewRateTableDIDRates ('".$data['ProcessID']."','".$data['Action']."',".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['Timezone'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column_did."','".$data['sSortDir_0']."',0)";
+            $query = "call prc_getReviewRateTableDIDRates ('".$data['ProcessID']."','".$data['Action']."',".$data['OriginationCode'].",".$data['OriginationDescription'].",".$data['Code'].",".$data['Description'].",".$data['Timezone'].",".$data['CityTariff'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column_did."','".$data['sSortDir_0']."',0)";
         }
 
         Log::info($query);

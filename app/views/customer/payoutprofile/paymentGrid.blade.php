@@ -185,7 +185,7 @@
                 $('#add-new-payout').click(function (ev) {
                     ev.preventDefault();
 
-                    var pgid = '{{PaymentGateway::getPaymentGatewayIDBYAccount($account->AccountID)}}';
+                    var pgid = '{{PaymentGateway::getPayoutGatewayIDBYAccount($account->AccountID)}}';
                     $("#add-payout-form")[0].reset();
                     $("#add-payout-form").find('input[name="payoutAccountID"]').val('');
                     $("#add-payout-form [name='ExpirationMonth']").val('').trigger("change");

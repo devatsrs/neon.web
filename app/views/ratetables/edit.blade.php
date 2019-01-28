@@ -760,11 +760,13 @@
                                     }
                                     @endif
 
+                                    @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
                                     if (full[21] == 0) {
                                         action += ' <button href="Javascript:;"  title="Unblocked" class="btn btn-default btn-xs"><i class="entypo-lock-open" style="color: green; "></i>&nbsp;</button>';
                                     } else if (full[21] == 1) {
                                         action += ' <button href="Javascript:;"  title="Blocked" class="btn btn-default btn-xs"><i class="entypo-lock" style="color: red; "></i>&nbsp;</button>';
                                     }
+                                    @endif
 
                                     <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
                                     if (DiscontinuedRates == 0) {
@@ -1257,7 +1259,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <input type="checkbox" name="updateOriginationRateID" class="" />
-                                <label class="control-label">Code</label>
+                                <label class="control-label">Origination Code</label>
                                 <input type="hidden" class="rateid_list" name="OriginationRateID" />
                             </div>
                         </div>

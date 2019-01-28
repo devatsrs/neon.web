@@ -1789,20 +1789,20 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('serviceTemplate/createServiceTemplate', 'ServicesTemplateApiController@storeServiceTempalteData');
 
 	Route::post('account/checkBalance/', 'AccountsApiController@checkBalance');
-	Route::post('account/getPayments/', 'PaymentApiController@getPaymentHistory');
-	Route::post('getAutoDepositSettings/', 'AccountBillingApiController@getAutoDepositSettings');
+	Route::post('account/Payments/list', 'PaymentApiController@getPaymentHistory');
+	Route::post('AutoDepositSettings/list', 'AccountBillingApiController@getAutoDepositSettings');
 	Route::post('setAutoDepositSettings/', 'AccountBillingApiController@setAutoDepositSettings');
-	Route::post('getAutoOutPaymentSettings/', 'AccountBillingApiController@getAutoOutPaymentSettings');
+	Route::post('AutoOutPaymentSettings/list', 'AccountBillingApiController@getAutoOutPaymentSettings');
 	Route::post('setAutoOutPaymentSettings/', 'AccountBillingApiController@setAutoOutPaymentSettings');
 	Route::post('setLowBalanceNotification/', 'BillingClassApiController@setLowBalanceNotification');
-	Route::post('getLowBalanceNotification/', 'BillingClassApiController@getLowBalanceNotification');
+	Route::post('LowBalanceNotification/list', 'BillingClassApiController@getLowBalanceNotification');
 	Route::post('account/requestFund/', 'PaymentApiController@requestFund');
 	Route::post('account/depositFund/', 'PaymentApiController@depositFund');
 	Route::post('startRecording', 'ActiveCallApiController@startRecording');
 	Route::post('startCall', 'ActiveCallApiController@startCall');
 	Route::post('endCall', 'ActiveCallApiController@endCall');
 	Route::post('blockCall', 'ActiveCallApiController@blockCall');
-	Route::post('getBlockCalls', 'ActiveCallApiController@getBlockCalls');
+	Route::post('BlockCalls/list', 'ActiveCallApiController@getBlockCalls');
 	Route::get('emailTemplate/list', 'EmailTemplateApiController@getList');
 	Route::get('users/list', 'UsersApiController@getList');
 	Route::get('country/list', 'CountryApiController@getList');
@@ -1813,7 +1813,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('account/createService', 'AccountsApiController@createAccountService');
 	Route::post('account/list', 'AccountsApiController@GetAccount');
 	Route::post('routing/list', 'RoutingApiController@routingList');
-	Route::post('routing/list1', 'RoutingApiController@routingListNewDB');
+
 	
 
 });

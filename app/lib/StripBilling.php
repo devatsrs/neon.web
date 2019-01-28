@@ -474,7 +474,8 @@ class StripeBilling {
 				"ip" 	=> $_SERVER['REMOTE_ADDR'],
 			]
 		];
-
+		$stripeAccount['legal_entity']['type'] = "individual";
+		
 		if($data['country'] != '')
 			$data['country'] = Country::getCountryCodeByName($data['country']);
 

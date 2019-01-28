@@ -727,14 +727,15 @@ public function main() {
 
     public function FindAccountServicesField()
     {
+
         try{
 
-            $GetDynamiceAll = DynamicFields::select('FieldName' , 'FieldDomType', 'FieldValue','DynamicFieldsID')
+            $GetDynamiceAll = DynamicFields::select('FieldName' , 'FieldDomType', 'DynamicFieldsID')
                 ->where('tblDynamicFields.Type','=', 'subscription')
                 ->groupBy('tblDynamicFields.DynamicFieldsID')
                 ->get();
-
             return $GetDynamiceAll;
+
         }catch (Exception $ex){
             return $ex;
         }
@@ -765,17 +766,23 @@ public function main() {
        $AccountSubscriptionID  = (string)$data['AccountSubscriptionID'];
        $AccountID              = (string)$data['AccountID'];
 
-
-
       try{
+
+
 
             $AccountSubsDynamicFields = AccountSubsDynamicFields::join('speakintelligentRM.tblDynamicFields as db2','tblAccountSubsDynamicFields.DynamicFieldsID','=','db2.DynamicFieldsID')
             ->select('tblAccountSubsDynamicFields.AccountSubscriptionID', 'tblAccountSubsDynamicFields.AccountID', 'tblAccountSubsDynamicFields.DynamicFieldsID', 'tblAccountSubsDynamicFields.FieldValue', 'db2.FieldName', 'db2.FieldDomType')
             ->where('tblAccountSubsDynamicFields.AccountSubscriptionID','=',$AccountSubscriptionID)
             ->where('tblAccountSubsDynamicFields.AccountID','=',$AccountID)
+            ->where('db2.Type','=', 'subscription')
+            ->groupBy('db2.DynamicFieldsID')
             ->orderBy('tblAccountSubsDynamicFields.FieldOrder','ASC')
             ->get();
 
+//          echo '<pre>';
+//            print_r($AccountSubsDynamicFields);
+//          echo '</pre>';
+//          exit;
           return $AccountSubsDynamicFields;
 
         }catch (Exception $ex){
