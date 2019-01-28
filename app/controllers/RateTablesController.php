@@ -962,13 +962,14 @@ class RateTablesController extends \BaseController {
             $RateID             = $data['RateID'];
             $OriginationRateID  = !empty($data['OriginationRateID']) ? $data['OriginationRateID'] : 0;
             $TimezonesID        = $data['TimezonesID'];
+            $CityTariff         = !empty($data['CityTariff']) ? '"'.$data['CityTariff'].'"' : '';
 
             $rateTable = RateTable::find($RateTableID);
             $TypeVoiceCall = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
             if($rateTable->Type == $TypeVoiceCall) {
                 $query = 'call prc_GetRateTableRatesArchiveGrid (' . $companyID . ',' . $RateTableID . ',' . $TimezonesID . ',"' . $RateID . '","' . $OriginationRateID . '",' . $view . ')';
             } else {
-                $query = 'call prc_GetRateTableDIDRatesArchiveGrid (' . $companyID . ',' . $RateTableID . ',' . $TimezonesID . ',"' . $RateID . '","' . $OriginationRateID . '",' . $view . ')';
+                $query = 'call prc_GetRateTableDIDRatesArchiveGrid (' . $companyID . ',' . $RateTableID . ',' . $TimezonesID . ',"' . $RateID . '","' . $OriginationRateID . '",'.$CityTariff.',' . $view . ')';
             }
             //Log::info($query);
             $response['status']     = "success";
