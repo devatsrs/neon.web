@@ -13,6 +13,9 @@ class PayoutController extends \BaseController {
         $AccountResponse = array();
         $CustomerID = $data['AccountID'];
         if($CustomerID > 0) {
+            if(empty($data['PaymentGatewayID']))
+                $data['PaymentGatewayID'] = PaymentGateway::getPaymentGatewayIDByName("Stripe");;
+
             if(empty($data['PaymentGatewayID']) || empty($data['CompanyID'])){
                 return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_CARD_MSG_PLEASE_SELECT_PAYMENT_GATEWAY')));
             }

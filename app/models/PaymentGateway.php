@@ -192,6 +192,15 @@ class PaymentGateway extends \Eloquent {
         }
         return $PaymentGatewayID;
     }
+    public static function getPayoutGatewayIDBYAccount($AccountID){
+        $Account = Account::find($AccountID);
+        $PaymentGatewayID = '';
+        if(!empty($Account->PayoutMethod)){
+            $PaymentGatewayName = $Account->PayoutMethod;
+            $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PaymentGatewayName);
+        }
+        return $PaymentGatewayID;
+    }
 
     public static function getPaymentGatewayNameBYAccount($AccountID){
         $Account = Account::find($AccountID);

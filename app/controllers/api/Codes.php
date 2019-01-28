@@ -52,6 +52,8 @@ class Codes
     public static $Code1026 =["402","The value of BillingCycleID must be between 1 and 8"];
     public static $Code1027 =["402","Please provide the value for BillingCycleValue in case of BillingCycleType 2,5 and 7"];
     public static $Code1028 =["402","Please provide the ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'] for BillingCycleValue for BillingCycleID 7"];
+    public static $Code1029 =["410","The account name has already been taken"];
+    public static $Code1030 =["410","The number has already been taken"];
 
 
 
