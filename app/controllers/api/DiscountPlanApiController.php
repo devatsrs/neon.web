@@ -1,4 +1,5 @@
 <?php
+use app\controllers\api\Codes;
 
 class DiscountPlanApiController extends ApiController {
 
@@ -9,6 +10,6 @@ class DiscountPlanApiController extends ApiController {
 		$discountPlan = DiscountPlan::where("CompanyID", $companyID)
 			->select("DiscountPlanID", "Name","CurrencyID")
 			->get();
-		return Response::json(["status"=>"200", "data"=>$discountPlan]);
+		return Response::json(["data"=>$discountPlan],Codes::$Code200[0]);
 	}
 }
