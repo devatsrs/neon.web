@@ -16,6 +16,7 @@ class Codes
     public static $Code404 = ["404","Not Found"];
     public static $Code410 = ["410","Record already exists"];
     public static $Code409 = ["409","Conflict"];
+    public static $Code400 = ["400","Bad Request"];
 
 
 //    ErrorMessage: ""
