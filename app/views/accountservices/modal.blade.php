@@ -22,23 +22,10 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <input type="hidden" name="AccountServiceID" @if(isset($AccountServiceID)) value="{{$AccountServiceID}}" @endif>
-                                    <label class="col-md-2 control-label">Termination Fee </label>
-                                    <div class="col-md-4">
-                                        <input type="number" min="0"  class="form-control" name="TeminatingFee">
-                                    </div>
-
                                     <label class="col-md-2 control-label">Cancellation Date</label>
                                     <div class="col-md-4">
                                         <input type="text"  @if(isset($AccountServiceCancelContract->CancelationDate)) value="{{$AccountServiceCancelContract->CancelationDate}}" @else value="{{ date('Y-m-d'); }}"   @endif data-date-format="yyyy-mm-dd" class="form-control datepicker" name="CancelDate">
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                        <br>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
                                     <label class="col-md-2 control-label">Include Termination Fee</label>
                                     <div class="col-md-4">
                                         <div class="panel-options">
@@ -48,6 +35,21 @@
                                         </div>
                                     </div>
 
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label">Generate Invoice</label>
+                                    <div class="col-md-4">
+                                        <div class="panel-options">
+                                            <div class="make-switch switch-small">
+                                                <input type="checkbox" @if(isset($AccountServiceCancelContract->GenerateInvoice) && $AccountServiceCancelContract->GenerateInvoice == 1) checked @endif  name="GenerateInvoice" value="1">
+                                            </div>
+                                        </div>
+                                    </div>
                                     <label class="col-md-2 control-label">Include Discounts Offered</label>
                                     <div class="col-md-4">
                                         <div class="panel-options">
@@ -59,24 +61,7 @@
                                 </div>
                             </div>
                         </div>
-                        <br>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-
-                                    <label class="col-md-2 control-label">Generate Invoice</label>
-                                    <div class="col-md-4">
-                                        <div class="panel-options">
-                                            <div class="make-switch switch-small">
-                                                <input type="checkbox" @if(isset($AccountServiceCancelContract->GenerateInvoice) && $AccountServiceCancelContract->GenerateInvoice == 1) checked @endif  name="GenerateInvoice" value="1">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
-
                     <div class="modal-footer">
                         <button type="submit" id="currency-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                             <i class="entypo-floppy"></i>
