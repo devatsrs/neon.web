@@ -259,7 +259,12 @@ class AccountBillingApiController extends ApiController {
 		$validator->setPresenceVerifier($verifier);
 
 		if ($validator->fails()) {
-			return json_validator_response($validator);
+			//return json_validator_response($validator);
+			$errors = "";
+			foreach ($validator->messages()->all() as $error) {
+				$errors .= $error . "<br>";
+			}
+			return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
 		}
 		unset($data['AccountID']);
 		unset($data['AccountNo']);
@@ -289,7 +294,12 @@ class AccountBillingApiController extends ApiController {
 		$validator->setPresenceVerifier($verifier);
 
 		if ($validator->fails()) {
-			return json_validator_response($validator);
+			//return json_validator_response($validator);
+			$errors = "";
+			foreach ($validator->messages()->all() as $error) {
+				$errors .= $error . "<br>";
+			}
+			return Response::json(["ErrorMessage" => $errors],Codes::$Code402[0]);
 		}
 		$data['AccountID']=$AccountID;
 		unset($data['AccountNo']);
