@@ -20,3 +20,6 @@ CREATE TABLE `speakintelligentRM`.`tblAccountPayout` (
 	PRIMARY KEY (`AccountPayoutID`)
 )
  COLLATE 'utf8_unicode_ci' ENGINE=InnoDB ROW_FORMAT=Dynamic AUTO_INCREMENT=32;
+
+ ALTER TABLE `tblAccountBalance`
+	ADD COLUMN `OutPayment` DECIMAL (18,6) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci' AFTER `VendorUnbilledAmount`;

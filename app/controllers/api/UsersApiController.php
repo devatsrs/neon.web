@@ -1,4 +1,5 @@
 <?php
+use app\controllers\api\Codes;
 
 class UsersApiController extends ApiController {
 
@@ -9,6 +10,6 @@ class UsersApiController extends ApiController {
 
 		$EmailTemplates = User::select(["UserID","FirstName","LastName", "EmailAddress"])
 			->where(["CompanyID" => $companyID,"Status"=>1])->get();
-		return Response::json(["status"=>"200", "data"=>$EmailTemplates]);
+		return Response::json(["data"=>$EmailTemplates],Codes::$Code200[0]);
 	}
 }

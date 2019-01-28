@@ -9,10 +9,11 @@
 class Codes
 {
     public static $Code200 = ['200' ,'Success'];
-    public static $Code500 = ["400","Bad Request"];
+    public static $Code500 = ["500","Internal Server Error"];
     public static $Code401 =["401","Unauthorized"];
     public static $Code402 =["402","Invalid parameters"];
-    public static $Code403 = ["403","Not found"];
+    public static $Code403 = ["403","Forbidden"];
+    public static $Code404 = ["404","Not Found"];
     public static $Code410 = ["410","Record already exists"];
     public static $Code409 = ["409","Conflict"];
 
@@ -51,6 +52,8 @@ class Codes
     public static $Code1026 =["402","The value of BillingCycleID must be between 1 and 8"];
     public static $Code1027 =["402","Please provide the value for BillingCycleValue in case of BillingCycleType 2,5 and 7"];
     public static $Code1028 =["402","Please provide the ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'] for BillingCycleValue for BillingCycleID 7"];
+    public static $Code1029 =["410","The account name has already been taken"];
+    public static $Code1030 =["410","The number has already been taken"];
 
 
 

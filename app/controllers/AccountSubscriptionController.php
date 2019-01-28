@@ -727,14 +727,15 @@ public function main() {
 
     public function FindAccountServicesField()
     {
+
         try{
 
-            $GetDynamiceAll = DynamicFields::select('FieldName' , 'FieldDomType', 'FieldValue','DynamicFieldsID')
+            $GetDynamiceAll = DynamicFields::select('FieldName' , 'FieldDomType', 'DynamicFieldsID')
                 ->where('tblDynamicFields.Type','=', 'subscription')
                 ->groupBy('tblDynamicFields.DynamicFieldsID')
                 ->get();
-
             return $GetDynamiceAll;
+
         }catch (Exception $ex){
             return $ex;
         }
@@ -764,8 +765,6 @@ public function main() {
        $data = Input::all();
        $AccountSubscriptionID  = (string)$data['AccountSubscriptionID'];
        $AccountID              = (string)$data['AccountID'];
-
-
 
       try{
 

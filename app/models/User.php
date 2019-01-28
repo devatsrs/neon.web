@@ -224,6 +224,36 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 
     }
 
+    public static function getUserInfo(){
+        try {
+            if (!empty(Auth::user())) {
+                return Auth::user();
+            }
+            $Request = [];
+            if (isset($_SERVER["PHP_AUTH_USER"]) && isset($_SERVER["PHP_AUTH_PW"])) {
+                $Request["EmailAddress"] = $_SERVER["PHP_AUTH_USER"];
+                $Request["password"] = $_SERVER["PHP_AUTH_PW"];
+            }
+
+            $rules = array(
+                'EmailAddress' => 'required',
+                'password' => 'required',
+            );
+            $validator = Validator::make($Request, $rules);
+            if ($validator->fails()) {
+                return Response::json(["status" => "failed", "message" => "Not authorized. Please Login"]);
+            }
+
+            $validate = NeonAPI::RegisterApiLogin($Request);
+            return $validate;
+
+        }catch (Exception $ex) {
+            Log::error("getUserInfo Exception" . $ex->getTraceAsString());
+            return [];
+        }
+
+    }
+
     public static function get_user_role(){
         return Auth::user()->Roles;
     }
