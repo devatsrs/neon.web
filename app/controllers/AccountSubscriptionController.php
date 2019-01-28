@@ -768,13 +768,21 @@ public function main() {
 
       try{
 
+
+
             $AccountSubsDynamicFields = AccountSubsDynamicFields::join('speakintelligentRM.tblDynamicFields as db2','tblAccountSubsDynamicFields.DynamicFieldsID','=','db2.DynamicFieldsID')
             ->select('tblAccountSubsDynamicFields.AccountSubscriptionID', 'tblAccountSubsDynamicFields.AccountID', 'tblAccountSubsDynamicFields.DynamicFieldsID', 'tblAccountSubsDynamicFields.FieldValue', 'db2.FieldName', 'db2.FieldDomType')
             ->where('tblAccountSubsDynamicFields.AccountSubscriptionID','=',$AccountSubscriptionID)
             ->where('tblAccountSubsDynamicFields.AccountID','=',$AccountID)
+            ->where('db2.Type','=', 'subscription')
+            ->groupBy('db2.DynamicFieldsID')
             ->orderBy('tblAccountSubsDynamicFields.FieldOrder','ASC')
             ->get();
 
+//          echo '<pre>';
+//            print_r($AccountSubsDynamicFields);
+//          echo '</pre>';
+//          exit;
           return $AccountSubsDynamicFields;
 
         }catch (Exception $ex){
