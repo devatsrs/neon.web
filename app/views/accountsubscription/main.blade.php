@@ -289,9 +289,9 @@
                                     timePicker++;
                                     if(timePicker == 1)
                                     {
-                                        $('#add-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="text" id="datetimepickerStart" name="dynamicFileds[]" class="form-control datetimepicker" data-date-format="yyyy-mm-dd" value="'+obj[i].FieldValue+'" /></div></div></div>');
+                                        $('#add-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="text" id="datetimepickerStart" name="dynamicFileds['+obj[i].DynamicFieldsID+']" class="form-control datetimepicker" data-date-format="yyyy-mm-dd" value="'+obj[i].FieldValue+'" /></div></div></div>');
                                     }else if(timePicker == 2){
-                                        $('#add-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="text" id="datetimepickerEnd" name="dynamicFileds[]" class="form-control datetimepicker" data-date-format="yyyy-mm-dd" value="'+obj[i].FieldValue+'" /></div></div></div>');
+                                        $('#add-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><input type="text" id="datetimepickerEnd" name="dynamicFileds['+obj[i].DynamicFieldsID+']" class="form-control datetimepicker" data-date-format="yyyy-mm-dd" value="'+obj[i].FieldValue+'" /></div></div></div>');
                                     }
                                 }else if( obj[i].FieldDomType =="text"){
                                     $('#add-dynamice-fields-show').append('<div class="col-sm-6"><div class="col-md-12"><div class="form-group"><label for="field-5" class="control-label">'+obj[i].FieldName+'</label><textarea name="description" name="dynamicFileds['+obj[i].DynamicFieldsID+']"  class="form-control">'+obj[i].FieldValue+'</textarea></div></div></div>');
@@ -915,7 +915,7 @@
 function OnEditCallSubsDynamicFields(AccountID,AccountSubscriptionID)
 {
    $('#edit-dynamice-fields-show').empty();
-
+    console.log(AccountID+", "+AccountSubscriptionID);
     var find_dynamic_feilds_url	= baseurl + '/account_subscription/EditDynamiceFieldFinder';
     $.ajax({
         url: find_dynamic_feilds_url,  //Server script to process data
@@ -923,6 +923,7 @@ function OnEditCallSubsDynamicFields(AccountID,AccountSubscriptionID)
         data:'AccountID='+AccountID+'&AccountSubscriptionID='+AccountSubscriptionID,
         dataType: 'html',
         success: function (response) {
+
             var i;
 //                           var obj = JSON.parse(JSON.stringify(response))
             var obj = jQuery.parseJSON(response);
