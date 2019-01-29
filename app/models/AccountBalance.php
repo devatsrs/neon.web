@@ -32,7 +32,15 @@ class AccountBalance extends \Eloquent {
     }
 	
 	  public static function getBalanceAmount($AccountID){
-        return AccountBalance::where(['AccountID'=>$AccountID])->pluck('BalanceAmount');
+          $BalanceAmount = AccountBalance::where(['AccountID'=>$AccountID])->pluck('BalanceAmount');
+
+          $BillingType=AccountBilling::where(['AccountID'=>$AccountID,'ServiceID'=>0])->pluck('BillingType');
+
+          if($BillingType==AccountApproval::BILLINGTYPE_PREPAID){
+              $BalanceAmount = AccountBalanceLog::getPrepaidAccountBalance($AccountID);
+          }
+
+        return $BalanceAmount;
     }
 	
 	 public static function getBalanceThresholdAmount($AccountID){
@@ -53,11 +61,13 @@ class AccountBalance extends \Eloquent {
         $BillingType = AccountBilling::where(['AccountID'=>$AccountID,'ServiceID'=>0])->pluck('BillingType');
         if(isset($BillingType)){
             if($BillingType==AccountApproval::BILLINGTYPE_PREPAID){
+                /*
                 if($AccountBalance<0){
                     $AccountBalance=abs($AccountBalance);
                 }else{
                     $AccountBalance=($AccountBalance) * -1;
-                }
+                }*/
+                $AccountBalance = AccountBalanceLog::getPrepaidAccountBalance($AccountID);
             }else{
                 if($AccountBalance<0){
                     $AccountBalance=0;

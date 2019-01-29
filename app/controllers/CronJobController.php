@@ -52,6 +52,7 @@ class CronJobController extends \BaseController {
 	{
         $isvalid = CronJob::validate();
         if($isvalid['valid']==1){
+            $isvalid['data']['PID']='';
             if ($CronJobID = CronJob::insertGetId($isvalid['data'])) {
                 CronJob::upadteNextTimeRun($CronJobID);
                 return Response::json(array("status" => "success", "message" => "Cron Job Successfully Created"));
