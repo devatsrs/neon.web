@@ -42,6 +42,7 @@ class Product extends \Eloquent {
         $items = Product::select(['ProductID','Name'])->where('CompanyId',$CompanyID)->lists('Name','ProductID');
         $products[Product::ITEM] = $items;
         //  $products[Product::ONEOFFCHARGE] = $items;
+        $products[Product::USAGE] = array("Usage");
         $products[Product::SUBSCRIPTION] = BillingSubscription::getAllSubscriptionsNames($CompanyID);
         return $products;
     }
