@@ -603,7 +603,17 @@
                     [
                         {"bSortable": false,
                             mRender: function(id, type, full) {
-                                return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
+                                var html = '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
+
+                                @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
+                                if (full[27] == 1) {
+                                    html += '<i class="entypo-check" title="Approved" style="color: green; "></i>';
+                                } else if (full[27] == 0) {
+                                    html += '<i class="entypo-cancel" title="Awaiting Approval" style="color: red; "></i>';
+                                }
+                                @endif
+
+                                return html;
                             }
                         }, //0Checkbox
                         {}, //1 Country
@@ -743,13 +753,6 @@
 
                                 clerRate_ = "{{ URL::to('/rate_tables/{id}/clear_rate')}}";
                                 clerRate_ = clerRate_.replace('{id}', full[24]);
-                                @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-                                if (full[27] == 1) {
-                                    action += ' <button href="Javascript:;"  title="Approved" class="btn btn-default btn-xs"><i class="entypo-check" style="color: green; "></i>&nbsp;</button>';
-                                } else if (full[27] == 0) {
-                                    action += ' <button href="Javascript:;"  title="Awaiting Approval" class="btn btn-default btn-xs"><i class="entypo-cancel" style="color: red; "></i>&nbsp;</button>';
-                                }
-                                @endif
 
                                 <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
                                 if (DiscontinuedRates == 0) {

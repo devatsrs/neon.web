@@ -4745,10 +4745,10 @@ ThisSP:BEGIN
 			(
 				SELECT DISTINCT
 					tblTempRateTableRate.Code,
-					tblTempRateTableRate.Description,
-					tblTempRateTableRate.CodeDeckId,
-					tblTempRateTableRate.Interval1,
-					tblTempRateTableRate.IntervalN
+					MAX(tblTempRateTableRate.Description) AS Description,
+					MAX(tblTempRateTableRate.CodeDeckId) AS CodeDeckId,
+					MAX(tblTempRateTableRate.Interval1) AS Interval1,
+					MAX(tblTempRateTableRate.IntervalN) AS IntervalN
 				FROM tmp_TempRateTableRate_  as tblTempRateTableRate
 				LEFT JOIN tblRate
 					ON tblRate.Code = tblTempRateTableRate.Code
@@ -4784,10 +4784,10 @@ ThisSP:BEGIN
 			(
 				SELECT DISTINCT
 					tblTempRateTableRate.OriginationCode AS Code,
-					tblTempRateTableRate.OriginationDescription AS Description,
-					tblTempRateTableRate.CodeDeckId,
-					tblTempRateTableRate.Interval1,
-					tblTempRateTableRate.IntervalN
+					MAX(tblTempRateTableRate.OriginationDescription) AS Description,
+					MAX(tblTempRateTableRate.CodeDeckId) AS CodeDeckId,
+					MAX(tblTempRateTableRate.Interval1) AS Interval1,
+					MAX(tblTempRateTableRate.IntervalN) AS IntervalN
 				FROM tmp_TempRateTableRate_  as tblTempRateTableRate
 				LEFT JOIN tblRate
 					ON tblRate.Code = tblTempRateTableRate.OriginationCode
@@ -4797,7 +4797,7 @@ ThisSP:BEGIN
 					AND tblTempRateTableRate.OriginationCode IS NOT NULL AND tblTempRateTableRate.OriginationCode != ''
 					AND tblTempRateTableRate.`Change` NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')
 				GROUP BY
-					tblTempRateTableRate.Code
+					tblTempRateTableRate.OriginationCode
 			) vc;
 
 		ELSE
@@ -9508,8 +9508,8 @@ ThisSP:BEGIN
 			(
 				SELECT DISTINCT
 					tblTempRateTableDIDRate.Code,
-					tblTempRateTableDIDRate.Description,
-					tblTempRateTableDIDRate.CodeDeckId,
+					MAX(tblTempRateTableDIDRate.Description) AS Description,
+					MAX(tblTempRateTableDIDRate.CodeDeckId) AS CodeDeckId,
 					1 AS Interval1,
 					1 AS IntervalN
 				FROM tmp_TempRateTableDIDRate_  as tblTempRateTableDIDRate
@@ -9547,8 +9547,8 @@ ThisSP:BEGIN
 			(
 				SELECT DISTINCT
 					tblTempRateTableDIDRate.OriginationCode AS Code,
-					tblTempRateTableDIDRate.OriginationDescription AS Description,
-					tblTempRateTableDIDRate.CodeDeckId,
+					MAX(tblTempRateTableDIDRate.OriginationDescription) AS Description,
+					MAX(tblTempRateTableDIDRate.CodeDeckId) AS CodeDeckId,
 					1 AS Interval1,
 					1 AS IntervalN
 				FROM tmp_TempRateTableDIDRate_  as tblTempRateTableDIDRate
@@ -9560,7 +9560,7 @@ ThisSP:BEGIN
 					AND tblTempRateTableDIDRate.OriginationCode IS NOT NULL AND tblTempRateTableDIDRate.OriginationCode != ''
 					AND tblTempRateTableDIDRate.`Change` NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')
 				GROUP BY
-					tblTempRateTableDIDRate.Code
+					tblTempRateTableDIDRate.OriginationCode
 			) vc;
 
 		ELSE
