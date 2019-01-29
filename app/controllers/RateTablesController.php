@@ -192,13 +192,16 @@ class RateTablesController extends \BaseController {
         $RoutingCategories = RoutingCategory::getCategoryDropdownIDList($CompanyID);
         $RateApprovalProcess = CompanySetting::getKeyVal('RateApprovalProcess');
         $TypeVoiceCall = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
+        $TypeDID = RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
         $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE', $CompanyID);
         $CurrencyDropDown = Currency::getCurrencyDropdownIDList();
 
         if($rateTable->Type == $TypeVoiceCall) {
             return View::make('ratetables.edit', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RoutingCategories','RateApprovalProcess','TypeVoiceCall','ROUTING_PROFILE'));
-        } else {
+        } else if($rateTable->Type == $TypeDID) {
             return View::make('ratetables.edit_did', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RateApprovalProcess','TypeVoiceCall','CurrencyDropDown'));
+        } else {
+            return View::make('ratetables.edit_pkg', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RoutingCategories','RateApprovalProcess','TypeVoiceCall','ROUTING_PROFILE'));
         }
     }
 
