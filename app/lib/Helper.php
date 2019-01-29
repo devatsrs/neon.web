@@ -130,4 +130,28 @@ class Helper{
         }
         return $status;
     }
+
+
+    public static function sendMail($view,$data,$ViewType=1){
+        $companyID = $data['CompanyID'];
+        if($ViewType){
+            $body 	=  html_entity_decode(View::make($view,compact('data'))->render());
+        }
+        else{
+            $body  = $view;
+        }
+        Log::info('Email Body.' . $body);
+
+        if(SiteIntegration::CheckCategoryConfiguration(false,SiteIntegration::$EmailSlug,$companyID)){
+            $status = 	 SiteIntegration::SendMail($view,$data,$companyID,$body);
+        }
+        else
+        {
+            $config = Company::select('SMTPServer','SMTPUsername','CompanyName','SMTPPassword','Port','IsSSL','EmailFrom')->where("CompanyID", '=', $companyID)->first();
+            $status = 	 PHPMAILERIntegtration::SendMail($view,$data,$config,$companyID,$body);
+        }
+
+
+        return $status;
+    }
 }

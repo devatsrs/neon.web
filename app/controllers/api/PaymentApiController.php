@@ -143,6 +143,8 @@ class PaymentApiController extends ApiController {
 			if($approved == 1){
 
 				if($resp['status'] == "success") {
+
+					$this->successPayoutCustomerEmail($data);
 					$transactionID = @$resp['response']['balance_transaction'];
 					$payoutID = @$resp['response']['balance_transaction'];
 					$note = "Stripe payout_id: {$transactionID}, transaction_id: {$payoutID}";
@@ -216,6 +218,49 @@ class PaymentApiController extends ApiController {
 		}
 
 		return $response;
+	}
+
+
+
+	public function successPayoutCustomerEmail($email){
+
+		$status = EmailsTemplates::CheckEmailTemplateStatus(Account::OutPaymentEmailTemplate);
+		if($status != false) {
+			$Account = Account::find($email['AccountID']);
+			$CompanyName = Company::getName($email['CompanyID']);
+			$Currency = Currency::find($Account->CurrencyId);
+			$CurrencyCode = !empty($Currency) ? $Currency->Code : '';
+			$emaildata = array(
+				'CompanyName' => $CompanyName,
+				'Currency' => $CurrencyCode,
+				'CompanyID' => $email['CompanyID'],
+				'OutPaymentAmount' => $email['Amount'],
+			);
+
+			$emaildata['EmailToName'] = $Account->AccountName;
+			$body = EmailsTemplates::setOutPaymentPlaceholder($Account, 'body', $CompanyID, $emaildata);
+			$emaildata['Subject'] = EmailsTemplates::setOutPaymentPlaceholder($Account, "subject", $CompanyID, $emaildata);
+			if (!isset($emaildata['EmailFrom'])) {
+				$emaildata['EmailFrom'] = EmailsTemplates::GetEmailTemplateFrom(Account::OutPaymentEmailTemplate);
+			}
+
+			$CustomerEmail = $Account->BillingEmail;
+			if($CustomerEmail != '') {
+				$CustomerEmail = explode(",", $CustomerEmail);
+				$customeremail_status['status'] = 0;
+				$customeremail_status['message'] = '';
+				$customeremail_status['body'] = '';
+				foreach ($CustomerEmail as $singleemail) {
+					$singleemail = trim($singleemail);
+					if (filter_var($singleemail, FILTER_VALIDATE_EMAIL)) {
+						$emaildata['EmailTo'][] = $singleemail;
+					}
+				}
+				Log::info("============ EmailData ===========");
+				Log::info($emaildata);
+				$customeremail_status = Helper::sendMaiL($body, $emaildata, 0);
+			}
+		}
 	}
 
 	/**
@@ -334,7 +379,7 @@ class PaymentApiController extends ApiController {
 						//Failed Payment
 						return Response::json(["ErrorMessage"=>"Payment Failed.","PaymentResponse"=>$ReturnData],Codes::$Code402[0]);
 					}
-					
+
 				}else{
 					$errors[] = 'Payment Profile Not set:' . $Account->AccountName;
 				}
