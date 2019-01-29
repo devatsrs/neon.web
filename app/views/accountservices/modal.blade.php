@@ -21,6 +21,7 @@
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-12">
+                                <div class="form-group">
                                     @if(isset($AccountServiceID))
                                         <input type="hidden" name="AccountServiceID" value="{{$AccountServiceID}}">
                                     @endif
