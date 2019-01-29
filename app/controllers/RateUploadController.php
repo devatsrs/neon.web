@@ -1549,7 +1549,7 @@ class RateUploadController extends \BaseController {
 
                             $tempdata['TimezonesID'] = $TimezoneID;
 
-                            if (isset($tempdata['Code']) && isset($tempdata['Description']) && (isset($tempdata['MonthlyCost']) || $tempdata['Change'] == 'D') && (isset($tempdata['EffectiveDate']) || $tempdata['Change'] == 'D')) {
+                            if (isset($tempdata['Code']) && isset($tempdata['Description']) && ((isset($tempdata['Rate'])|| isset($tempdata['MonthlyCost'])) || $tempdata['Change'] == 'D') && (isset($tempdata['EffectiveDate']) || $tempdata['Change'] == 'D')) {
                                 if (isset($tempdata['EndDate'])) {
                                     $batch_insert_array[] = $tempdata;
                                 } else {

@@ -5,7 +5,7 @@ class RoutingProfileToCustomer extends \Eloquent {
     protected $primaryKey = "RoutingProfileToCustomerID";
     protected $connection = 'sqlsrvrouting';
     protected $fillable = array(
-        'CompanyID','RoutingProfileID','AccountID','TrunkID','ServiceID','created_at'
+        'CompanyID','RoutingProfileID','AccountID','TrunkID','ServiceID','AccountServiceID','created_at'
     );
 
     public static $rules = array(

@@ -136,12 +136,11 @@
                         <div class="form-group text-right">
                             <div class="col-md-12">
                             @if(!$AccountService->CancelContractStatus)
-                                <a type="button" title="Cancel Contract" class="btn btn-danger btn-sm"  data-toggle="modal" data-target="#add-new-modal-accounts"> <i class="entypo-cancel"></i> </a>
+                                <a title="Cancel Contract" class="btn btn-danger btn-sm"  data-toggle="modal" data-target="#add-new-modal-accounts"> <i class="entypo-cancel"></i> </a>
                             @else
-                                <a type="button" title="Renew Contract"  class="btn btn-info" id="renewal"> <i class="entypo-info"></i> </a>
+                                <a title="Renew Contract"  class="btn btn-info" id="renewal"> <i class="entypo-info"></i> </a>
                             @endif
-                                <a type="button" title="History" class="btn btn-default btn-sm" data-toggle="modal" data-target="#history-modal" data-dismiss="modal"> <i class="entypo-back-in-time"></i> </a>
-
+                                <a title="History" class="btn btn-default btn-sm" data-toggle="modal" data-target="#history-modal" data-dismiss="modal" onclick="load_history()"> <i class="entypo-back-in-time"></i> </a>
                             </div>
                         </div>
                         <div class="form-group">
@@ -878,21 +877,24 @@
             });
 
             $('#renewal').click(function(e) {
-                e.preventDefault();
+                e.preventDefault()
+                $('#renewal').attr('disabled',true);
+                $('.dataTables_processing').css("visibility","visible");
                 var AccountServiceID = '{{$AccountService->AccountServiceID}}';
                 showAjaxScript(baseurl + '/accountservices/contract_status/'+AccountServiceID, new FormData(($('#add-new-account-service-cancel-contract-form')[0])), function (response) {
                     //console.log(response);
                     $(".btn").button('reset');
-                    $('.dataTables_processing').css("visibility","visible");
                     if (response.status == 'success') {
                         toastr.success(response.message, "Success", toastr_opts);
                         $('.dataTables_processing').css("visibility","hidden");
                         setTimeout(function () {
                             window.location.reload()
                         }, 1000);
+                        $('#renewal').attr('disabled',false);
                     } else {
                         toastr.error(response.message, "Error", toastr_opts);
                         $('.dataTables_processing').css("visibility","hidden");
+                        $('#renewal').attr('disabled',false);
                     }
                 });
             });

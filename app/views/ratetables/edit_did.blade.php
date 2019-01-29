@@ -151,6 +151,7 @@
                     <input type="checkbox" id="selectall" name="checkbox[]" />
                 </div>
             </th>
+            <th width="10%">Country</th>
             <th width="4%">Orig. Code</th>
             <th width="10%">Orig. Description</th>
             <th width="4%">Code</th>
@@ -529,7 +530,8 @@
             var $this   = $(this);
             var RateID   = $this.prevAll("div.hiddenRowData").find("input[name='RateID']").val();
             var OriginationRateID = $this.prevAll("div.hiddenRowData").find("input[name='OriginationRateID']").val();
-            getArchiveRateTableDIDRates($this,RateID,OriginationRateID);
+            var CityTariff = $this.prevAll("div.hiddenRowData").find("input[name='CityTariff']").val();
+            getArchiveRateTableDIDRates($this,RateID,OriginationRateID,CityTariff);
         });
 
         $(".numbercheck").keypress(function (e) {
@@ -601,123 +603,134 @@
                     [
                         {"bSortable": false,
                             mRender: function(id, type, full) {
-                                return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
+                                var html = '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
+
+                                @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
+                                if (full[27] == 1) {
+                                    html += '<i class="entypo-check" title="Approved" style="color: green; "></i>';
+                                } else if (full[27] == 0) {
+                                    html += '<i class="entypo-cancel" title="Awaiting Approval" style="color: red; "></i>';
+                                }
+                                @endif
+
+                                return html;
                             }
                         }, //0Checkbox
+                        {}, //1 Country
                         {
                             mRender: function(id, type, full) {
-                                return full[1];
+                                return full[2];
                             },
                             "className":      'details-control',
                             "orderable":      false,
                             "data": null,
                             "defaultContent": ''
-                        }, //1 Origination Code
-                        {}, //2 Origination description
+                        }, //2 Origination Code
+                        {"bVisible" : bVisible}, //3 Origination description
                         {
                             "bVisible" : true,
                             mRender: function(id, type, full) {
-                                return full[3];
+                                return full[4];
                             }
-                        }, //3 Destination Code
-                        {}, //4 Destination description
-                        {}, //5 CityTariff
-                        {
-                            mRender: function(col, type, full) {
-                                var currency = full[29].split('-');
-                                if(col != null && col != '') return currency[0] + col; else return '';
-                            }
-                        }, //6 OneOffCost,
+                        }, //4 Destination Code
+                        {"bVisible" : bVisible}, //5 Destination description
+                        {}, //6 CityTariff
                         {
                             mRender: function(col, type, full) {
                                 var currency = full[30].split('-');
                                 if(col != null && col != '') return currency[0] + col; else return '';
                             }
-                        }, //7 MonthlyCost,
+                        }, //7 OneOffCost,
                         {
                             mRender: function(col, type, full) {
                                 var currency = full[31].split('-');
                                 if(col != null && col != '') return currency[0] + col; else return '';
                             }
-                        }, //8 CostPerCall,
+                        }, //8 MonthlyCost,
                         {
                             mRender: function(col, type, full) {
                                 var currency = full[32].split('-');
                                 if(col != null && col != '') return currency[0] + col; else return '';
                             }
-                        }, //9 CostPerMinute,
+                        }, //9 CostPerCall,
                         {
                             mRender: function(col, type, full) {
                                 var currency = full[33].split('-');
                                 if(col != null && col != '') return currency[0] + col; else return '';
                             }
-                        }, //10 SurchargePerCall,
+                        }, //10 CostPerMinute,
                         {
                             mRender: function(col, type, full) {
                                 var currency = full[34].split('-');
                                 if(col != null && col != '') return currency[0] + col; else return '';
                             }
-                        }, //11 SurchargePerMinute,
+                        }, //11 SurchargePerCall,
                         {
                             mRender: function(col, type, full) {
                                 var currency = full[35].split('-');
                                 if(col != null && col != '') return currency[0] + col; else return '';
                             }
-                        }, //12 OutpaymentPerCall,
+                        }, //12 SurchargePerMinute,
                         {
                             mRender: function(col, type, full) {
                                 var currency = full[36].split('-');
                                 if(col != null && col != '') return currency[0] + col; else return '';
                             }
-                        }, //13 OutpaymentPerMinute,
+                        }, //13 OutpaymentPerCall,
                         {
                             mRender: function(col, type, full) {
                                 var currency = full[37].split('-');
                                 if(col != null && col != '') return currency[0] + col; else return '';
                             }
-                        }, //14 Surcharges,
+                        }, //14 OutpaymentPerMinute,
                         {
                             mRender: function(col, type, full) {
                                 var currency = full[38].split('-');
                                 if(col != null && col != '') return currency[0] + col; else return '';
                             }
-                        }, //15 Chargeback,
+                        }, //15 Surcharges,
                         {
                             mRender: function(col, type, full) {
                                 var currency = full[39].split('-');
                                 if(col != null && col != '') return currency[0] + col; else return '';
                             }
-                        }, //16 CollectionCostAmount,
-                        {}, //17 CollectionCostPercentage,
+                        }, //16 Chargeback,
                         {
                             mRender: function(col, type, full) {
                                 var currency = full[40].split('-');
                                 if(col != null && col != '') return currency[0] + col; else return '';
                             }
-                        }, //18 RegistrationCostPerNumber,
-                        {}, //19 Effective Date
+                        }, //17 CollectionCostAmount,
+                        {}, //18 CollectionCostPercentage,
+                        {
+                            mRender: function(col, type, full) {
+                                var currency = full[41].split('-');
+                                if(col != null && col != '') return currency[0] + col; else return '';
+                            }
+                        }, //19 RegistrationCostPerNumber,
+                        {}, //20 Effective Date
                         {
                             "bVisible" : false
-                        }, //20 End Date
+                        }, //21 End Date
                         {
                             "bVisible" : bVisible,
                             mRender: function(id, type, full) {
-                                full[21] = full[21] != null ? full[21] : '';
                                 full[22] = full[22] != null ? full[22] : '';
-                                if(full[21] != '' && full[15] != '')
-                                    return full[22] + '<br/>' + full[21]; // modified by/modified date
+                                full[23] = full[23] != null ? full[23] : '';
+                                if(full[22] != '' && full[23] != '')
+                                    return full[23] + '<br/>' + full[22]; // modified by/modified date
                                 else
                                     return '';
                             }
-                        }, //21/22 modified by/modified date
+                        }, //22/23 modified by/modified date
                         @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
                         {
                             "bVisible" : bVisible,
                             mRender: function(id, type, full) {
-                                full[27] = full[27] != null ? full[27] : '';
                                 full[28] = full[28] != null ? full[28] : '';
-                                if(full[27] != '' && full[28] != '')
-                                    return full[27] + '<br/>' + full[28]; // Approved By/Approved Date
+                                full[29] = full[29] != null ? full[29] : '';
+                                if(full[28] != '' && full[29] != '')
+                                    return full[28] + '<br/>' + full[29]; // Approved By/Approved Date
                                 else
                                     return '';
                             }
@@ -729,7 +742,7 @@
                                 var action, edit_, delete_;
                                 action = '<div class = "hiddenRowData" >';
                                 for (var i = 0; i < list_fields.length; i++) {
-                                    if (i < 29) { // all fields except currency fields
+                                    if (i < 30) { // all fields except currency fields
                                         action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (full[i] != null ? full[i] : '') + '" / >';
                                     } else { // all currency fields
                                         var currency = full[i].split('-');
@@ -738,43 +751,25 @@
                                 }
                                 action += '</div>';
 
-                                if(bVisible == true) {
-                                    clerRate_ = "{{ URL::to('/rate_tables/{id}/clear_rate')}}";
-                                    clerRate_ = clerRate_.replace('{id}', full[23]);
-                                    @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-                                    if (full[26] == 1) {
-                                        action += ' <button href="Javascript:;"  title="Approved" class="btn btn-default btn-xs"><i class="entypo-check" style="color: green; "></i>&nbsp;</button>';
-                                    } else if (full[26] == 0) {
-                                        action += ' <button href="Javascript:;"  title="Awaiting Approval" class="btn btn-default btn-xs"><i class="entypo-cancel" style="color: red; "></i>&nbsp;</button>';
-                                    }
-                                    @endif
+                                clerRate_ = "{{ URL::to('/rate_tables/{id}/clear_rate')}}";
+                                clerRate_ = clerRate_.replace('{id}', full[24]);
 
-                                    <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
+                                <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
+                                if (DiscontinuedRates == 0) {
+                                    action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
+                                }
+                                <?php } ?>
+
+                                        action += ' <button href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</button>';
+
+                                if (full[24] != null && full[24] != 0) {
+                                    <?php if(User::checkCategoryPermission('RateTables', 'Delete')) { ?>
                                     if (DiscontinuedRates == 0) {
-                                        action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
+                                        action += ' <button title="Delete" href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-xs" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
                                     }
                                     <?php } ?>
-
-                                            action += ' <button href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</button>';
-
-                                    if (full[23] != null && full[23] != 0) {
-                                        <?php if(User::checkCategoryPermission('RateTables', 'Delete')) { ?>
-                                        if (DiscontinuedRates == 0) {
-                                            action += ' <button title="Delete" href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-xs" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
-                                        }
-                                        <?php } ?>
-                                    }
-                                } else {
-                                    $('#actionheader').attr('width','5%');
-
-                                    @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-                                    if (full[26] == 1) {
-                                        action += ' <button href="Javascript:;"  title="Approved" class="btn btn-default btn-xs"><i class="entypo-check" style="color: green; "></i>&nbsp;</button>';
-                                    } else if (full[26] == 0) {
-                                        action += ' <button href="Javascript:;"  title="Awaiting Approval" class="btn btn-default btn-xs"><i class="entypo-cancel" style="color: red; "></i>&nbsp;</button>';
-                                    }
-                                    @endif
                                 }
+
                                 return action;
                             }
                         }
@@ -939,7 +934,7 @@
         return false;
     }
 
-    function getArchiveRateTableDIDRates($clickedButton,RateID,OriginationRateID) {
+    function getArchiveRateTableDIDRates($clickedButton,RateID,OriginationRateID,CityTariff) {
         //var Codes = new Array();
         var ArchiveRates;
         /*$("#table-4 tr td:nth-child(2)").each(function(){
@@ -960,7 +955,7 @@
             $.ajax({
                 url: baseurl + "/rate_tables/{{$id}}/search_ajax_datagrid_archive_rates",
                 type: 'POST',
-                data: "RateID=" + RateID + "&OriginationRateID=" + OriginationRateID + "&TimezonesID=" + $searchFilter.Timezones,
+                data: "RateID=" + RateID + "&OriginationRateID=" + OriginationRateID + "&TimezonesID=" + $searchFilter.Timezones + "&CityTariff=" + CityTariff,
                 dataType: 'json',
                 cache: false,
                 success: function (response) {
@@ -993,7 +988,7 @@
                             html += "<td>" + data['Code'] + "</td>";
                             html += "<td>" + data['Description'] + "</td>";
                             html += "<td>" + data['CityTariff'] + "</td>";
-                            html += "<td>" + data['OneOffCost'] + "</td>";
+                            html += "<td>" + (data['OneOffCost'] != null?data['OneOffCost']:'') + "</td>";
                             html += "<td>" + (data['MonthlyCost'] != null?data['MonthlyCost']:'') + "</td>";
                             html += "<td>" + (data['CostPerCall'] != null?data['CostPerCall']:'') + "</td>";
                             html += "<td>" + (data['CostPerMinute'] != null?data['CostPerMinute']:'') + "</td>";
@@ -1273,7 +1268,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <input type="checkbox" name="updateOriginationRateID" class="" />
-                                <label class="control-label">Code</label>
+                                <label class="control-label">Origination Code</label>
                                 <input type="hidden" class="rateid_list" name="OriginationRateID" />
                             </div>
                         </div>

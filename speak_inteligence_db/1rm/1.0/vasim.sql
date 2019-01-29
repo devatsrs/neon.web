@@ -281,7 +281,7 @@ INSERT INTO `tblFileUploadTemplateType` (`FileUploadTemplateTypeID`, `TemplateTy
 INSERT INTO `tblJobType` (`JobTypeID`, `Code`, `Title`, `Description`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`) VALUES (34, 'DRTU', 'DID Rate Table Upload', NULL, '2019-01-04 14:29:35', 'RateManagementSystem', NULL, NULL);
 
 ALTER TABLE `tblRateTableDIDRate`
-	ADD COLUMN `CityTariff` VARCHAR(50) NOT NULL DEFAULT '' AFTER `EndDate`
+	ADD COLUMN `CityTariff` VARCHAR(50) NOT NULL DEFAULT '' AFTER `EndDate`,
 	DROP INDEX `IX_Unique_RateID_ORateID_RateTableId_TimezonesID_EffectiveDate`,
 	ADD UNIQUE INDEX `IX_Unique_RateID_ORateID_RateTableId_Timezone_Effective_CityT` (`RateID`, `OriginationRateID`, `RateTableId`, `TimezonesID`, `EffectiveDate`, `CityTariff`);
 
@@ -665,7 +665,7 @@ ThisSP:BEGIN
 		`RateId` int(11) NOT NULL,
 		`RateTableId` int(11) NOT NULL,
 		`TimezonesID` int(11) NOT NULL,
-		`CityTariff` VARCHAR(20) NOT NULL DEFAULT '',
+		`CityTariff` VARCHAR(50) NOT NULL DEFAULT '',
 		`OneOffCost` decimal(18,6) NULL DEFAULT NULL,
 		`MonthlyCost` decimal(18,6) NULL DEFAULT NULL,
 		`CostPerCall` decimal(18,6) NULL DEFAULT NULL,
@@ -798,6 +798,9 @@ ThisSP:BEGIN
 			CREATE TEMPORARY TABLE IF NOT EXISTS tmp_TempRateTableDIDRate_2 as (select * from tmp_TempRateTableDIDRate_);
 			DELETE n1 FROM tmp_TempRateTableDIDRate_ n1, tmp_TempRateTableDIDRate_2 n2 WHERE n1.RateTableDIDRateID < n2.RateTableDIDRateID AND  n1.RateID = n2.RateID AND n1.OriginationRateID = n2.OriginationRateID;
 		END IF;
+
+		-- delete records which can be duplicates, we will not update them
+		DELETE n1.* FROM tmp_TempRateTableDIDRate_ n1, tblRateTableDIDRate n2 WHERE n1.RateTableDIDRateID <> n2.RateTableDIDRateID AND n1.RateTableID = n2.RateTableID AND n1.TimezonesID = n2.TimezonesID AND n1.EffectiveDate = n2.EffectiveDate AND n1.RateID = n2.RateID AND n1.OriginationRateID = n2.OriginationRateID AND n1.CityTariff=n2.CityTariff AND n2.RateTableID=p_RateTableId;
 
 		/*
 			it was creating history evan if no columns are updating of row
@@ -1066,6 +1069,7 @@ BEGIN
 	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableDIDRate_;
 	CREATE TEMPORARY TABLE tmp_RateTableDIDRate_ (
 		ID INT,
+		Country VARCHAR(200),
 		OriginationCode VARCHAR(50),
 		OriginationDescription VARCHAR(200),
 		Code VARCHAR(50),
@@ -1112,6 +1116,7 @@ BEGIN
 	INSERT INTO tmp_RateTableDIDRate_
 	SELECT
 		vra.RateTableDIDRateID,
+		tblCountry.Country,
 		OriginationRate.Code AS OriginationCode,
 		OriginationRate.Description AS OriginationDescription,
 		r.Code,
@@ -1156,6 +1161,8 @@ BEGIN
 		tblRateTableDIDRateArchive vra
 	JOIN
 		tblRate r ON r.RateID=vra.RateId
+	LEFT JOIN
+		tblCountry ON tblCountry.CountryID = r.CountryID
    LEFT JOIN
 		tblRate AS OriginationRate ON OriginationRate.RateID = vra.OriginationRateID
 	LEFT JOIN
@@ -1197,7 +1204,7 @@ BEGIN
 		(p_origination_description is null OR OriginationRate.Description LIKE REPLACE(p_origination_description, '*', '%')) AND
 		(p_code IS NULL OR r.Code LIKE REPLACE(p_code, '*', '%')) AND
 		(p_description IS NULL OR r.Description LIKE REPLACE(p_description, '*', '%')) AND
-		(p_CityTariff is null OR tblRateTableDIDRate.CityTariff LIKE REPLACE(p_CityTariff, '*', '%')) AND
+		(p_CityTariff is null OR vra.CityTariff LIKE REPLACE(p_CityTariff, '*', '%')) AND
 		(p_ApprovedStatus IS NULL OR vra.ApprovedStatus = p_ApprovedStatus) AND
 		vr.RateTableDIDRateID is NULL;
 
@@ -1366,10 +1373,9 @@ BEGIN
 	IF p_isExport = 10
 	THEN
 		SELECT
+			Country,
 			OriginationCode,
-			OriginationDescription,
 			Code AS DestinationCode,
-			Description AS DestinationDescription,
          CityTariff,
 			CONCAT(OneOffCostCurrency,OneOffCost) AS OneOffCost,
 			CONCAT(MonthlyCostCurrency,MonthlyCost) AS MonthlyCost,
@@ -1392,6 +1398,7 @@ BEGIN
 	IF p_isExport = 11
 	THEN
 		SELECT
+			Country,
 			OriginationCode,
 			OriginationDescription,
 			Code AS DestinationCode,
@@ -1934,6 +1941,7 @@ BEGIN
 	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableDIDRate_;
    CREATE TEMPORARY TABLE tmp_RateTableDIDRate_ (
         ID INT,
+        Country VARCHAR(200),
         OriginationCode VARCHAR(50),
         OriginationDescription VARCHAR(200),
         Code VARCHAR(50),
@@ -1981,6 +1989,7 @@ BEGIN
     INSERT INTO tmp_RateTableDIDRate_
     SELECT
         RateTableDIDRateID AS ID,
+        tblCountry.Country,
         OriginationRate.Code AS OriginationCode,
         OriginationRate.Description AS OriginationDescription,
         tblRate.Code,
@@ -2027,6 +2036,8 @@ BEGIN
         AND tblRateTableDIDRate.RateTableId = p_RateTableId
     LEFT JOIN tblRate AS OriginationRate
     	  ON OriginationRate.RateID = tblRateTableDIDRate.OriginationRateID
+    LEFT JOIN tblCountry
+    		ON tblCountry.CountryID = tblRate.CountryID
     LEFT JOIN tblCurrency AS tblOneOffCostCurrency
         ON tblOneOffCostCurrency.CurrencyID = tblRateTableDIDRate.OneOffCostCurrency
     LEFT JOIN tblCurrency AS tblMonthlyCostCurrency
@@ -2233,10 +2244,9 @@ BEGIN
     IF p_isExport = 10
     THEN
         SELECT
+        		Country,
          	OriginationCode,
-            OriginationDescription,
             Code AS DestinationCode,
-            Description AS DestinationDescription,
             CityTariff,
             CONCAT(OneOffCostCurrency,OneOffCost) AS OneOffCost,
 	        	CONCAT(MonthlyCostCurrency,MonthlyCost) AS MonthlyCost,
@@ -2261,6 +2271,7 @@ BEGIN
     IF p_isExport = 11
     THEN
         SELECT
+        		Country,
             OriginationCode,
             OriginationDescription,
             Code AS DestinationCode,
@@ -2303,13 +2314,14 @@ CREATE PROCEDURE `prc_GetRateTableDIDRatesArchiveGrid`(
 	IN `p_TimezonesID` INT,
 	IN `p_RateID` LONGTEXT,
 	IN `p_OriginationRateID` LONGTEXT,
+	IN `p_CityTariff` VARCHAR(50),
 	IN `p_View` INT
 )
 BEGIN
 
 	SET SESSION GROUP_CONCAT_MAX_LEN = 1000000;
 
-	CALL prc_SplitAndInsertRateIDs(p_RateID,p_OriginationRateID);
+--	CALL prc_SplitAndInsertRateIDs(p_RateID,p_OriginationRateID);
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_RateTableRate_;
    CREATE TEMPORARY TABLE tmp_RateTableRate_ (
@@ -2458,11 +2470,14 @@ BEGIN
 		r.CompanyID = p_CompanyID AND
 		vra.RateTableId = p_RateTableID AND
 		vra.TimezonesID = p_TimezonesID AND
-		(
+		vra.RateID = p_RateID AND
+		vra.OriginationRateID = p_OriginationRateID AND
+		vra.CityTariff = p_CityTariff
+		/*(
 			(vra.RateID, vra.OriginationRateID) IN (
 				SELECT RateID,OriginationRateID FROM temp_rateids_
 			)
-		)
+		)*/
 	ORDER BY
 		vra.EffectiveDate DESC, vra.created_at DESC;
 
@@ -4730,10 +4745,10 @@ ThisSP:BEGIN
 			(
 				SELECT DISTINCT
 					tblTempRateTableRate.Code,
-					tblTempRateTableRate.Description,
-					tblTempRateTableRate.CodeDeckId,
-					tblTempRateTableRate.Interval1,
-					tblTempRateTableRate.IntervalN
+					MAX(tblTempRateTableRate.Description) AS Description,
+					MAX(tblTempRateTableRate.CodeDeckId) AS CodeDeckId,
+					MAX(tblTempRateTableRate.Interval1) AS Interval1,
+					MAX(tblTempRateTableRate.IntervalN) AS IntervalN
 				FROM tmp_TempRateTableRate_  as tblTempRateTableRate
 				LEFT JOIN tblRate
 					ON tblRate.Code = tblTempRateTableRate.Code
@@ -4741,6 +4756,8 @@ ThisSP:BEGIN
 					AND tblRate.CodeDeckId = tblTempRateTableRate.CodeDeckId
 				WHERE tblRate.RateID IS NULL
 					AND tblTempRateTableRate.`Change` NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')
+				GROUP BY
+					tblTempRateTableRate.Code
 			) vc;
 
 			-- Origination Code
@@ -4767,10 +4784,10 @@ ThisSP:BEGIN
 			(
 				SELECT DISTINCT
 					tblTempRateTableRate.OriginationCode AS Code,
-					tblTempRateTableRate.OriginationDescription AS Description,
-					tblTempRateTableRate.CodeDeckId,
-					tblTempRateTableRate.Interval1,
-					tblTempRateTableRate.IntervalN
+					MAX(tblTempRateTableRate.OriginationDescription) AS Description,
+					MAX(tblTempRateTableRate.CodeDeckId) AS CodeDeckId,
+					MAX(tblTempRateTableRate.Interval1) AS Interval1,
+					MAX(tblTempRateTableRate.IntervalN) AS IntervalN
 				FROM tmp_TempRateTableRate_  as tblTempRateTableRate
 				LEFT JOIN tblRate
 					ON tblRate.Code = tblTempRateTableRate.OriginationCode
@@ -4779,6 +4796,8 @@ ThisSP:BEGIN
 				WHERE tblRate.RateID IS NULL
 					AND tblTempRateTableRate.OriginationCode IS NOT NULL AND tblTempRateTableRate.OriginationCode != ''
 					AND tblTempRateTableRate.`Change` NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')
+				GROUP BY
+					tblTempRateTableRate.OriginationCode
 			) vc;
 
 		ELSE
@@ -9489,8 +9508,8 @@ ThisSP:BEGIN
 			(
 				SELECT DISTINCT
 					tblTempRateTableDIDRate.Code,
-					tblTempRateTableDIDRate.Description,
-					tblTempRateTableDIDRate.CodeDeckId,
+					MAX(tblTempRateTableDIDRate.Description) AS Description,
+					MAX(tblTempRateTableDIDRate.CodeDeckId) AS CodeDeckId,
 					1 AS Interval1,
 					1 AS IntervalN
 				FROM tmp_TempRateTableDIDRate_  as tblTempRateTableDIDRate
@@ -9500,6 +9519,8 @@ ThisSP:BEGIN
 					AND tblRate.CodeDeckId = tblTempRateTableDIDRate.CodeDeckId
 				WHERE tblRate.RateID IS NULL
 					AND tblTempRateTableDIDRate.`Change` NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')
+				GROUP BY
+					tblTempRateTableDIDRate.Code
 			) vc;
 
 			-- Origination Code
@@ -9526,8 +9547,8 @@ ThisSP:BEGIN
 			(
 				SELECT DISTINCT
 					tblTempRateTableDIDRate.OriginationCode AS Code,
-					tblTempRateTableDIDRate.OriginationDescription AS Description,
-					tblTempRateTableDIDRate.CodeDeckId,
+					MAX(tblTempRateTableDIDRate.OriginationDescription) AS Description,
+					MAX(tblTempRateTableDIDRate.CodeDeckId) AS CodeDeckId,
 					1 AS Interval1,
 					1 AS IntervalN
 				FROM tmp_TempRateTableDIDRate_  as tblTempRateTableDIDRate
@@ -9538,6 +9559,8 @@ ThisSP:BEGIN
 				WHERE tblRate.RateID IS NULL
 					AND tblTempRateTableDIDRate.OriginationCode IS NOT NULL AND tblTempRateTableDIDRate.OriginationCode != ''
 					AND tblTempRateTableDIDRate.`Change` NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')
+				GROUP BY
+					tblTempRateTableDIDRate.OriginationCode
 			) vc;
 
 		ELSE

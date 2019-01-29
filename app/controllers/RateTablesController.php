@@ -206,10 +206,25 @@ class RateTablesController extends \BaseController {
 
     public function delete($id) {
         if ($id > 0) {
-            $is_id_assigned = RateTable::join('tblCustomerTrunk', 'tblCustomerTrunk.RateTableId', '=', 'tblRateTable.RateTableId')
+            $cronjob            = 'Cronjob';
+            $customer_trunk     = 'Customer Trunk';
+            $customer_service   = 'Customer Service';
+            $customer_cli       = 'Customer CLI';
+            $vendor_connection  = 'Vendor Connection';
+            $service_template   = 'Service Template';
+            $is_id_assigned_customer_trunk   = RateTable::join('tblCustomerTrunk', 'tblCustomerTrunk.RateTableId', '=', 'tblRateTable.RateTableId')
                             ->where("tblRateTable.RateTableId", $id)->count();
-            //Is RateTable assigne to RateTableRate table then dont delete
-            if ($is_id_assigned == 0) {
+            $is_id_assigned_customer_service = RateTable::join('tblAccountTariff', 'tblAccountTariff.RateTableID', '=', 'tblRateTable.RateTableId')
+                            ->where("tblRateTable.RateTableId", $id)->count();
+            $is_id_assigned_customer_cli     = RateTable::join('tblCLIRateTable', 'tblCLIRateTable.RateTableID', '=', 'tblRateTable.RateTableId')
+                            ->where("tblRateTable.RateTableId", $id)->count();
+            $is_id_assigned_vendor           = RateTable::join('tblVendorConnection', 'tblVendorConnection.RateTableID', '=', 'tblRateTable.RateTableId')
+                            ->where("tblRateTable.RateTableId", $id)->count();
+            $is_id_assigned_service_template = RateTable::join('tblServiceTemplate', 'tblServiceTemplate.OutboundRateTableId', '=', 'tblRateTable.RateTableId')
+                            ->where("tblRateTable.RateTableId", $id)->count();
+
+            //Is RateTable is not being used anywhere then and then only delete
+            if ($is_id_assigned_customer_trunk == 0 && $is_id_assigned_customer_service == 0 && $is_id_assigned_customer_cli == 0 && $is_id_assigned_vendor == 0 && $is_id_assigned_service_template == 0) {
                 if(RateTable::checkRateTableInCronjob($id)){
                     if(RateTableRate::where(["RateTableId" => $id])->count()>0){
                         if (RateTableRate::where(["RateTableId" => $id])->delete() && RateTable::where(["RateTableId" => $id])->delete()) {
@@ -230,11 +245,17 @@ class RateTablesController extends \BaseController {
                 }
 
             } else {
-                if(RateTable::checkRateTableInCronjob($id)){
-                    return Response::json(array("status" => "failed", "message" => "RateTable can not be deleted, Its assigned to Customer Rate."));
-                }else{
-                    return Response::json(array("status" => "failed", "message" => "RateTable can not be deleted, Its assigned to Customer Rate and CronJob."));
-                }
+                $error = '';
+                $error .= RateTable::checkRateTableInCronjob($id) == false ? $cronjob.',' : '';
+                $error .= $is_id_assigned_customer_trunk > 0 ? $customer_trunk.',' : '';
+                $error .= $is_id_assigned_customer_service > 0 ? $customer_service.',' : '';
+                $error .= $is_id_assigned_customer_cli > 0 ? $customer_cli.',' : '';
+                $error .= $is_id_assigned_vendor > 0 ? $vendor_connection.',' : '';
+                $error .= $is_id_assigned_service_template > 0 ? $service_template.',' : '';
+
+                $response = 'RateTable can not be deleted, Its assigned to '.trim($error,',');
+
+                return Response::json(array("status" => "failed", "message" => $response));
             }
         }
     }
@@ -962,13 +983,14 @@ class RateTablesController extends \BaseController {
             $RateID             = $data['RateID'];
             $OriginationRateID  = !empty($data['OriginationRateID']) ? $data['OriginationRateID'] : 0;
             $TimezonesID        = $data['TimezonesID'];
+            $CityTariff         = !empty($data['CityTariff']) ? '"'.$data['CityTariff'].'"' : '';
 
             $rateTable = RateTable::find($RateTableID);
             $TypeVoiceCall = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
             if($rateTable->Type == $TypeVoiceCall) {
                 $query = 'call prc_GetRateTableRatesArchiveGrid (' . $companyID . ',' . $RateTableID . ',' . $TimezonesID . ',"' . $RateID . '","' . $OriginationRateID . '",' . $view . ')';
             } else {
-                $query = 'call prc_GetRateTableDIDRatesArchiveGrid (' . $companyID . ',' . $RateTableID . ',' . $TimezonesID . ',"' . $RateID . '","' . $OriginationRateID . '",' . $view . ')';
+                $query = 'call prc_GetRateTableDIDRatesArchiveGrid (' . $companyID . ',' . $RateTableID . ',' . $TimezonesID . ',"' . $RateID . '","' . $OriginationRateID . '",'.$CityTariff.',' . $view . ')';
             }
             //Log::info($query);
             $response['status']     = "success";

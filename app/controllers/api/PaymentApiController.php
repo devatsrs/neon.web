@@ -159,14 +159,6 @@ class PaymentApiController extends ApiController {
 					unset($data['AccountDynamicField']);
 
 					if ($Payment = Payment::create($data)) {
-						$balance = AccountBalance::where('AccountID', $AccountID)->first();
-
-						if($balance != false){
-							$outPayment = $balance->OutPayment != null ? (int)$balance->OutPayment : 0;
-							$newOutPayment = $outPayment + (int)$data['Amount'];
-							AccountBalance::where('AccountID', $AccountID)->update(['OutPayment' => $newOutPayment]);
-						}
-
 						return Response::json(array("data" => ["RequestFundID" => $Payment->PaymentID]),Codes::$Code200[0]);
 					} else {
 						return Response::json(array("ErrorMessage" => "Problem Creating Payment."),Codes::$Code500[0]);

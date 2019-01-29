@@ -301,6 +301,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('account_subscription/{subscription_id}/delete', 'AccountSubscriptionController@delete')->where('subscription_id', '(.[09]*)+');
 	Route::any('account_subscription/getDiscountPlanByAccount', 'AccountSubscriptionController@getDiscountPlanByAccount');
 	Route::any('account_subscription/DynamiceFieldFinder', 'AccountSubscriptionController@FindDynamicFields');
+	Route::any('account_subscription/DynamiceFieldSubscription', 'AccountSubscriptionController@FindDynamicFieldsSubscription');
 	Route::any('account_subscription/FindAccountServicesField', 'AccountSubscriptionController@FindAccountServicesField');
 	Route::any('account_subscription/EditDynamiceFieldFinder', 'AccountSubscriptionController@FindEditDynamicFields');
 
@@ -1542,6 +1543,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accountservices/{id}/bulk_delete', 'AccountServiceController@bulk_delete');
 	Route::any('accountservices/cancel_contract', 'AccountServiceController@cancelContract');
 	Route::any('accountservices/contract_status/{serviceid}', 'AccountServiceController@contract_status');
+	Route::any('accountservices/history/{serviceid}', 'AccountServiceController@contract_history');
+
+
 
 
 	//noticeboard
