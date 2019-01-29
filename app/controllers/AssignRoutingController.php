@@ -133,8 +133,13 @@ class AssignRoutingController extends \BaseController {
                     $dataArray['AccountID']=$customid['0'];
                 }else if ($data["selected_level"] == 'S') {
                     //Delete Old Data
-                    RoutingProfileToCustomer::where(array('ServiceID' => $customid['1'], 'AccountID' => $customid['0']))->delete();
+                    RoutingProfileToCustomer::where(array(
+                        'AccountServiceID' => @$data["selected_account_service"],
+                        'ServiceID' => $customid['1'],
+                        'AccountID' => $customid['0']
+                    ))->delete();
                     
+                    $dataArray['AccountServiceID'] = @$data["selected_account_service"];
                     $dataArray['ServiceID']=$customid['1'];
                     $dataArray['AccountID']=$customid['0'];
                 }else if ($data["selected_level"] == 'A') {

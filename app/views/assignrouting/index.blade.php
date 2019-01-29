@@ -136,7 +136,8 @@
                         <input type="hidden" name="selected_customer">
                         <input type="hidden" name="selected_trunk">
                         <input type="hidden" name="selected_service">
-                        
+                        <input type="hidden" name="selected_account_service">
+
                         <input type="hidden" name="selected_level">
                         <div class="allpage"><input type="hidden" name="chk_allpageschecked" value="N" ></div>
                         <div class="row">
@@ -266,12 +267,16 @@
                         },
                         {"bSortable": true},
                         {"bSortable": true},
-                        {"bSortable": true},
+                        {"bSortable": true,
+                            mRender: function(id, type, full) {
+                                return full[7] == undefined || full[7] == null ? full[3] : full[3]+' '+full[7];
+                            }
+                        },
                         {
                             mRender: function(id, type, full) {
                                 var action;
                                 var account_service = full[0]+'_'+full[4];
-                                action = '<a title="Edit" data-id="'+ account_service +'" data-OutboundRatetable="'+full[8]+'" data-inboundRatetable="'+full[7]+'" data-serviceId="'+full[5]+'" data-RoutingProfileID="'+full[5]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
+                                action = '<a title="Edit" data-id="'+ account_service +'" data-OutboundRatetable="'+full[8]+'" data-inboundRatetable="'+full[7]+'" data-serviceId="'+full[5]+'" data-RoutingProfileID="'+full[5]+'" data-AccountServiceID="'+full[6]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
                                 return action;
                             }
                         },
@@ -477,6 +482,7 @@ console.log($(this).attr('data-RoutingProfileID'));
                 var dataOutBound = $(this).attr('data-OutboundRatetable')!= 'null' ?  $(this).attr('data-OutboundRatetable') : '';
                 $("#modal-add-new-rate-table [name='OutboundRateTable']").select2('val', dataOutBound);
                 $("#modal-add-new-rate-table [name='ServiceID']").select2('val', $(this).attr('data-serviceId'));
+                $("#modal-add-new-rate-table [name='selected_account_service']").val($(this).attr('data-AccountServiceID'));
 
                 /* For Trunk Level */
                 var RateTblId = $(this).attr('data-rateTableName')!= 'null' ?  $(this).attr('data-rateTableName') : '';
@@ -498,6 +504,7 @@ console.log('---ppppp');
                 $("#modal-add-new-rate-table [name='InboundRateTable']").select2('val', '');
                 $("#modal-add-new-rate-table [name='OutboundRateTable']").select2('val', '');
                 $("#modal-add-new-rate-table [name='ServiceID']").select2('val', '');
+                $("#modal-add-new-rate-table [name='selected_account_service']").val('');
 
                 $("input[name='selected_trunk']").val($("#ratetable_filter [name='TrunkID']").val());
                 $("input[name='selected_service']").val($('#ratetable_filter [name="services"]').val());
