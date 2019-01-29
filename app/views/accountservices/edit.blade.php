@@ -877,21 +877,24 @@
             });
 
             $('#renewal').click(function(e) {
-                e.preventDefault();
+                e.preventDefault()
+                $('#renewal').attr('disabled',true);
+                $('.dataTables_processing').css("visibility","visible");
                 var AccountServiceID = '{{$AccountService->AccountServiceID}}';
                 showAjaxScript(baseurl + '/accountservices/contract_status/'+AccountServiceID, new FormData(($('#add-new-account-service-cancel-contract-form')[0])), function (response) {
                     //console.log(response);
                     $(".btn").button('reset');
-                    $('.dataTables_processing').css("visibility","visible");
                     if (response.status == 'success') {
                         toastr.success(response.message, "Success", toastr_opts);
                         $('.dataTables_processing').css("visibility","hidden");
                         setTimeout(function () {
                             window.location.reload()
                         }, 1000);
+                        $('#renewal').attr('disabled',false);
                     } else {
                         toastr.error(response.message, "Error", toastr_opts);
                         $('.dataTables_processing').css("visibility","hidden");
+                        $('#renewal').attr('disabled',false);
                     }
                 });
             });
