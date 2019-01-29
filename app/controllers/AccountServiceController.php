@@ -633,7 +633,7 @@ class AccountServiceController extends \BaseController {
         ];
 
             AccountService::where('AccountServiceID', $AccountServiceID)->update($CancelContractStatus);
-            AccountServiceHistory::where('AccountServiceID', $AccountServiceID)->update($InsertRenewalHistory);
+            AccountServiceHistory::insert($InsertRenewalHistory);
 
 
             return Response::json(array("status" => "success", "message" => "Your Contract Is Renewal!"));
