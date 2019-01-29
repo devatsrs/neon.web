@@ -227,13 +227,14 @@ class PaymentApiController extends ApiController {
 		$status = EmailsTemplates::CheckEmailTemplateStatus(Account::OutPaymentEmailTemplate);
 		if($status != false) {
 			$Account = Account::find($email['AccountID']);
-			$CompanyName = Company::getName($email['CompanyID']);
+			$CompanyID = $email['CompanyID'];
+			$CompanyName = Company::getName();
 			$Currency = Currency::find($Account->CurrencyId);
 			$CurrencyCode = !empty($Currency) ? $Currency->Code : '';
 			$emaildata = array(
 				'CompanyName' => $CompanyName,
 				'Currency' => $CurrencyCode,
-				'CompanyID' => $email['CompanyID'],
+				'CompanyID' => $CompanyID,
 				'OutPaymentAmount' => $email['Amount'],
 			);
 
