@@ -47,7 +47,7 @@
             <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
         <li>
-            <a href="{{URL::to('servicesTemplate')}}"><i class=""></i>Service Template</a>
+            <a href="{{URL::to('servicesTemplate')}}"><i class=""></i>Product</a>
         </li>
         <li class="active">
             <strong>Dynamic Fields</strong>

@@ -187,7 +187,7 @@
     User::checkCategoryPermission('TaxRates','View') || User::checkCategoryPermission('CDR','Upload') || User::checkCategoryPermission('CDR','View')  ||
     User::checkCategoryPermission('Disputes','View') || User::checkCategoryPermission('Service','View') || User::checkCategoryPermission('BillingDashboard','All') ||
     User::checkCategoryPermission('BillingClass','View') || User::checkCategoryPermission('DiscountPlan','View'))
-    <li class="{{check_uri('Billing')}}"> <a href="#"> <i class="fa fa-credit-card" ></i> <span>Billing</span> </a>
+    <li class="{{check_uri('Billing')}}"> <a href="#"> <i class="fa fa-table" ></i> <span>Billing</span> </a>
       <ul>
         @if(User::checkCategoryPermission('BillingDashboard','All'))
           <li> <a href="{{Url::to('/billingdashboard')}}"><span>Analysis</span> </a> </li>
@@ -212,7 +212,7 @@
             <li> <a href="{{URL::to('/services')}}">  <span>Services</span> </a> </li>
           @endif
           @if(User::checkCategoryPermission('SubscriptionTemplate','View'))
-            <li> <a href="{{URL::to('/servicesTemplate')}}">  <span>Service Template</span> </a> </li>
+            <li> <a href="{{URL::to('/servicesTemplate')}}">  <span>Product</span> </a> </li>
           @endif
           @if(User::checkCategoryPermission('BillingSubscription','View'))
             <li> <a href="{{URL::to('/billing_subscription')}}">  <span>Subscription</span> </a> </li>

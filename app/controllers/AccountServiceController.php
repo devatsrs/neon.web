@@ -49,7 +49,7 @@ class AccountServiceController extends \BaseController {
         $ServiceDescription = AccountService::where(['AccountID'=>$id,'AccountServiceID'=>$AccountServiceID])->pluck('ServiceDescription');
         $ServiceTitleShow = AccountService::where(['AccountID'=>$id,'AccountServiceID'=>$AccountServiceID])->pluck('ServiceTitleShow');
         $AccountService = AccountService::where(['AccountID'=>$id,'AccountServiceID'=>$AccountServiceID])->first();
-        $AccountServiceHistory = AccountServiceHistory::where('AccountServiceID',$AccountServiceID)->first();
+
 
         //As per new question call the routing profile model for fetch the routing profile list.
         $routingprofile = RoutingProfiles::getRoutingProfile($CompanyID);
@@ -59,7 +59,7 @@ class AccountServiceController extends \BaseController {
         $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$CompanyID);
 
         $AccountSubscriptionID = $id;
-        return View::make('accountservices.edit', compact('AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID','AccountServiceContract','AccountServiceCancelContract', 'AccountSubscriptionID','AccountServiceHistory'));
+        return View::make('accountservices.edit', compact('AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID','AccountServiceContract','AccountServiceCancelContract', 'AccountSubscriptionID'));
     }
 
     // add account services
@@ -580,7 +580,6 @@ class AccountServiceController extends \BaseController {
 
         /** data get from inputs */
         $Contract['AccountServiceID'] = $data['AccountServiceID'];
-        $Contract['TerminationFees'] = $data['TeminatingFee'];
         $Contract['CancelationDate'] = $data['CancelDate'];
 
         /** set the values of variables*/
@@ -604,10 +603,9 @@ class AccountServiceController extends \BaseController {
 
         /** update or create with validation */
         $validator = \Validator::make($data, [
-            'TeminatingFee' => 'required|numeric',
             'CancelDate' => 'required|date|date_format:Y-m-d'
         ]);
-        $validator->setAttributeNames(['TeminatingFee' => 'Termination Fee','CancelDate' => 'Cancellation Date']);
+        $validator->setAttributeNames(['CancelDate' => 'Cancellation Date']);
         if ($validator->fails())
         {
             return Response::json(array("status" => "failed", "message" => $validator->errors()->all()));
@@ -636,10 +634,16 @@ class AccountServiceController extends \BaseController {
 
             AccountService::where('AccountServiceID', $AccountServiceID)->update($CancelContractStatus);
             AccountServiceHistory::where('AccountServiceID', $AccountServiceID)->update($InsertRenewalHistory);
-       
+
 
             return Response::json(array("status" => "success", "message" => "Your Contract Is Renewal!"));
 
+    }
+
+    public function contract_history($ServiceID){
+        $AccountServiceHistory = AccountServiceHistory::select('Date','Action','ActionBy')->where('AccountServiceID',$ServiceID);
+
+        return Datatables::of($AccountServiceHistory)->make();
     }
 
 }

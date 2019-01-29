@@ -761,6 +761,49 @@ public function main() {
     }
 
 
+    public function FindDynamicFieldsSubscription()
+    {
+        $data           = Input::all();
+        $SubscriptionID         = $data['SubscriptionID'];
+        $AccountSubscriptionID  = $data['AccountSubscriptionID'];
+
+
+
+        $AccountSubscription = AccountSubscription::select('AccountID')
+                                                        ->where('SubscriptionID',$SubscriptionID)
+                                                        ->where('AccountID', $AccountSubscriptionID)
+                                                        ->first();
+
+            if( isset($AccountSubscription->AccountID) && !empty($AccountSubscription->AccountID))
+            {
+
+
+                $GetDynamiceAll = DynamicFields::join('tblDynamicFieldsValue', function($join) {
+                    $join->on('tblDynamicFieldsValue.DynamicFieldsID','=','tblDynamicFields.DynamicFieldsID');
+                })->select('tblDynamicFields.FieldName' , 'tblDynamicFields.FieldDomType', 'tblDynamicFieldsValue.FieldValue','tblDynamicFieldsValue.DynamicFieldsID')
+                    ->where('tblDynamicFieldsValue.ParentID','=', $AccountSubscription->AccountID )
+                    ->where('tblDynamicFields.Type','=', 'subscription')
+                    ->groupBy('tblDynamicFields.DynamicFieldsID')
+                    ->get();
+
+            }else {
+
+
+                $GetDynamiceAll = DynamicFields::join('tblDynamicFieldsValue', function ($join) {
+                    $join->on('tblDynamicFieldsValue.DynamicFieldsID', '=', 'tblDynamicFields.DynamicFieldsID');
+                })->select('tblDynamicFields.FieldName', 'tblDynamicFields.FieldDomType', 'tblDynamicFieldsValue.FieldValue', 'tblDynamicFieldsValue.DynamicFieldsID')
+                    ->where('tblDynamicFields.Type', '=', 'subscription')
+                    ->groupBy('tblDynamicFields.DynamicFieldsID')
+                    ->get();
+
+
+            }
+
+        return $GetDynamiceAll;
+
+    }
+
+
     public function FindEditDynamicFields(){
        $data = Input::all();
        $AccountSubscriptionID  = (string)$data['AccountSubscriptionID'];
