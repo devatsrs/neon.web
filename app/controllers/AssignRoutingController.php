@@ -19,7 +19,6 @@ class AssignRoutingController extends \BaseController {
         $query = "call prc_getAssignRoutingProfileByAccount (".$CompanyID.",'".$data["level"]."',".$TrunkID.",'".$SourceCustomers."',".$services.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."' ";
 
         $query .=',0)';
-        
         Log::info('query:.' . $query);
         
         \Illuminate\Support\Facades\Log::info($query);
@@ -39,7 +38,8 @@ class AssignRoutingController extends \BaseController {
             $rate_tables = RateTable::getRateTables();
             $allservice = Service::getDropdownIDList($companyID);
             //For Set the Empty data
-            $routingprofile['Blank']='Blank';
+            $routingprofile[0] =  "Select";
+            ksort($routingprofile);
             
             return View::make('assignrouting.index', compact('all_customers','trunks','codedecks','rate_tables','allservice','routingprofile'));
         }
@@ -123,6 +123,7 @@ class AssignRoutingController extends \BaseController {
             }
             $makearray= explode(',', $data["selected_customer"]);
             foreach($makearray  as $key => $val){
+                $alreadyExit = false;
                 $customid= explode("_", $val);
                 if ($data["selected_level"] == 'T') {
                     
@@ -131,21 +132,24 @@ class AssignRoutingController extends \BaseController {
                     
                     $dataArray['TrunkID']=$customid['1'];
                     $dataArray['AccountID']=$customid['0'];
-                }else if ($data["selected_level"] == 'S') {
+                }elseif ($data["selected_level"] == 'S') {
                     //Delete Old Data
-                    RoutingProfileToCustomer::where(array('ServiceID' => $customid['1'], 'AccountID' => $customid['0']))->delete();
-                    
-                    $dataArray['ServiceID']=$customid['1'];
-                    $dataArray['AccountID']=$customid['0'];
-                }else if ($data["selected_level"] == 'A') {
+                    RoutingProfileToCustomer::where(array(
+                        'AccountServiceID' => $customid['2']
+                    ))->delete();
+                    $dataArray['AccountServiceID'] = $customid['2'];
+                    $dataArray['ServiceID'] = $customid['1'];
+                    $dataArray['AccountID'] = $customid['0'];
+                } elseif ($data["selected_level"] == 'A') {
                     //Delete Old Data
                     RoutingProfileToCustomer::where(array('AccountID' => $customid['0']))->delete();
                     $dataArray['AccountID']=$customid['0'];
                 }
-                if($data['RoutingProfile']=='Blank'){$dataArray['RoutingProfileID']=null;}else{
-                $dataArray['RoutingProfileID']=$data['RoutingProfile'];
+
+                if($data['RoutingProfile'] != '0'){
+                    $dataArray['RoutingProfileID'] = $data['RoutingProfile'];
+                    RoutingProfileToCustomer::create($dataArray);
                 }
-                RoutingProfileToCustomer::create($dataArray);
             }   
 //            $chk_Trunkid = empty($data['chk_Trunkid']) ? 0 : $data['chk_Trunkid'];
 //            $chk_services = empty($data['chk_services']) ? 0 : $data['chk_services'];

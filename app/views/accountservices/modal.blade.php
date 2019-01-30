@@ -22,7 +22,9 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <input type="hidden" name="AccountServiceID" value="{{$AccountServiceID}}">
+                                    @if(isset($AccountServiceID))
+                                        <input type="hidden" name="AccountServiceID" value="{{$AccountServiceID}}">
+                                    @endif
                                     <label class="col-md-2 control-label">Cancellation Date</label>
                                     <div class="col-md-4">
                                         <input type="text"  @if(isset($AccountServiceCancelContract->CancelationDate)) value="{{$AccountServiceCancelContract->CancelationDate}}" @else value="{{ date('Y-m-d'); }}"   @endif data-date-format="yyyy-mm-dd" class="form-control datepicker" name="CancelDate">

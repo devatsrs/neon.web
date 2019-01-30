@@ -559,5 +559,39 @@ class EmailsTemplates{
 	}
 
 
+
+	/**
+	 * @param $Account
+	 * @param string $type
+	 * @param $CompanyID
+	 * @param array $data
+	 * @return mixed
+	 */
+	static function setOutPaymentPlaceholder($Account,$type="body",$CompanyID, $data = [])
+	{
+		$replace_array = $data;
+		$EmailTemplate = EmailTemplate::getSystemEmailTemplate($CompanyID, Account::OutPaymentEmailTemplate, $Account->LanguageID);
+		if ($type == "subject") {
+			$EmailMessage = $EmailTemplate->Subject;
+		} else {
+			$EmailMessage = $EmailTemplate->TemplateBody;
+		}
+		$replace_array = EmailsTemplates::setCompanyFields($replace_array, $CompanyID);
+		$replace_array = EmailsTemplates::setAccountFields($replace_array, $Account->AccountID);
+		$replace_array['OutPaymentAmount'] = $data['OutPaymentAmount'];
+
+		$extraSpecific = ["{{OutPaymentAmount}}"];
+
+		$extraDefault = EmailsTemplates::$fields;
+		$extra = array_merge($extraDefault, $extraSpecific);
+
+		foreach ($extra as $item) {
+			$item_name = str_replace(array('{', '}'), array('', ''), $item);
+			if (array_key_exists($item_name, $replace_array)) {
+				$EmailMessage = str_replace($item, $replace_array[$item_name], $EmailMessage);
+			}
+		}
+		return $EmailMessage;
+	}
 }
 ?>

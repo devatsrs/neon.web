@@ -42,10 +42,10 @@
         <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
     </li>
     <li class="active">
-        <strong>Service Template</strong>
+        <strong>Product</strong>
     </li>
 </ol>
-<h3>Service Template</h3>
+<h3>Product</h3>
 <p class="text-right">
 @if(User::checkCategoryPermission('SubscriptionTemplate','Add'))
     <a href="#" data-action="showAddServiceTemplateModal" data-type="service" data-modal="add-new-modal-service" class="btn btn-primary">
@@ -133,7 +133,7 @@
        // alert(categoryTariffIDListBody);
         modal.modal('show');
        // modal.find('h4').html("Add New"+getTitle(self.attr('data-type')));
-        $('#add-new-modal-service h5').html('Add Service Template');
+        $('#add-new-modal-service h5').html('Add Product');
         $.ajax({
             type: "POST",
             url: "servicetempaltes/servicetemplatetype/dynamicField/fieldAccess",
@@ -399,7 +399,7 @@
             $("#add-new-service-form [name='ServiceID']").val($(this).attr('data-id'));
             //$('#add-new-modal-service  Service Template');
             document.getElementById('ajax_dynamicfield_html').innerHTML= "";
-            $('#add-new-modal-service h5').html('Edit Service Template');
+            $('#add-new-modal-service h5').html('Edit Product');
             document.getElementById("ActiveTabContent").innerHTML = document.getElementById("ContentSubscriptionTab").innerHTML;
 
             hideCancelCollapse();

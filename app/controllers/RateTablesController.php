@@ -192,13 +192,16 @@ class RateTablesController extends \BaseController {
         $RoutingCategories = RoutingCategory::getCategoryDropdownIDList($CompanyID);
         $RateApprovalProcess = CompanySetting::getKeyVal('RateApprovalProcess');
         $TypeVoiceCall = RateType::getRateTypeIDBySlug(RateType::SLUG_VOICECALL);
+        $TypeDID = RateType::getRateTypeIDBySlug(RateType::SLUG_DID);
         $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE', $CompanyID);
         $CurrencyDropDown = Currency::getCurrencyDropdownIDList();
 
         if($rateTable->Type == $TypeVoiceCall) {
             return View::make('ratetables.edit', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RoutingCategories','RateApprovalProcess','TypeVoiceCall','ROUTING_PROFILE'));
-        } else {
+        } else if($rateTable->Type == $TypeDID) {
             return View::make('ratetables.edit_did', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RateApprovalProcess','TypeVoiceCall','CurrencyDropDown'));
+        } else {
+            return View::make('ratetables.edit_pkg', compact('id', 'countries','trunkID','codes','isBandTable','code','rateTable','Timezones','RoutingCategories','RateApprovalProcess','TypeVoiceCall','ROUTING_PROFILE'));
         }
     }
 
@@ -206,10 +209,25 @@ class RateTablesController extends \BaseController {
 
     public function delete($id) {
         if ($id > 0) {
-            $is_id_assigned = RateTable::join('tblCustomerTrunk', 'tblCustomerTrunk.RateTableId', '=', 'tblRateTable.RateTableId')
+            $cronjob            = 'Cronjob';
+            $customer_trunk     = 'Customer Trunk';
+            $customer_service   = 'Customer Service';
+            $customer_cli       = 'Customer CLI';
+            $vendor_connection  = 'Vendor Connection';
+            $service_template   = 'Service Template';
+            $is_id_assigned_customer_trunk   = RateTable::join('tblCustomerTrunk', 'tblCustomerTrunk.RateTableId', '=', 'tblRateTable.RateTableId')
                             ->where("tblRateTable.RateTableId", $id)->count();
-            //Is RateTable assigne to RateTableRate table then dont delete
-            if ($is_id_assigned == 0) {
+            $is_id_assigned_customer_service = RateTable::join('tblAccountTariff', 'tblAccountTariff.RateTableID', '=', 'tblRateTable.RateTableId')
+                            ->where("tblRateTable.RateTableId", $id)->count();
+            $is_id_assigned_customer_cli     = RateTable::join('tblCLIRateTable', 'tblCLIRateTable.RateTableID', '=', 'tblRateTable.RateTableId')
+                            ->where("tblRateTable.RateTableId", $id)->count();
+            $is_id_assigned_vendor           = RateTable::join('tblVendorConnection', 'tblVendorConnection.RateTableID', '=', 'tblRateTable.RateTableId')
+                            ->where("tblRateTable.RateTableId", $id)->count();
+            $is_id_assigned_service_template = RateTable::join('tblServiceTemplate', 'tblServiceTemplate.OutboundRateTableId', '=', 'tblRateTable.RateTableId')
+                            ->where("tblRateTable.RateTableId", $id)->count();
+
+            //Is RateTable is not being used anywhere then and then only delete
+            if ($is_id_assigned_customer_trunk == 0 && $is_id_assigned_customer_service == 0 && $is_id_assigned_customer_cli == 0 && $is_id_assigned_vendor == 0 && $is_id_assigned_service_template == 0) {
                 if(RateTable::checkRateTableInCronjob($id)){
                     if(RateTableRate::where(["RateTableId" => $id])->count()>0){
                         if (RateTableRate::where(["RateTableId" => $id])->delete() && RateTable::where(["RateTableId" => $id])->delete()) {
@@ -230,11 +248,17 @@ class RateTablesController extends \BaseController {
                 }
 
             } else {
-                if(RateTable::checkRateTableInCronjob($id)){
-                    return Response::json(array("status" => "failed", "message" => "RateTable can not be deleted, Its assigned to Customer Rate."));
-                }else{
-                    return Response::json(array("status" => "failed", "message" => "RateTable can not be deleted, Its assigned to Customer Rate and CronJob."));
-                }
+                $error = '';
+                $error .= RateTable::checkRateTableInCronjob($id) == false ? $cronjob.',' : '';
+                $error .= $is_id_assigned_customer_trunk > 0 ? $customer_trunk.',' : '';
+                $error .= $is_id_assigned_customer_service > 0 ? $customer_service.',' : '';
+                $error .= $is_id_assigned_customer_cli > 0 ? $customer_cli.',' : '';
+                $error .= $is_id_assigned_vendor > 0 ? $vendor_connection.',' : '';
+                $error .= $is_id_assigned_service_template > 0 ? $service_template.',' : '';
+
+                $response = 'RateTable can not be deleted, Its assigned to '.trim($error,',');
+
+                return Response::json(array("status" => "failed", "message" => $response));
             }
         }
     }

@@ -8,6 +8,7 @@ class Account extends \Eloquent {
     protected  $primaryKey = "AccountID";
 
     const  NOT_VERIFIED = 0;
+    const  OutPaymentEmailTemplate ='OutPayment';
     //const  PENDING_VERIFICATION = 1;
     const  VERIFIED =2;
     public static $doc_status = array( self::NOT_VERIFIED => 'Not Verified',self::VERIFIED=>'Verified');
