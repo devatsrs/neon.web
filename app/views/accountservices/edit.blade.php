@@ -132,9 +132,17 @@
                     </div>
 
 
+
                     <div class="panel-body ">
-                        <div class="form-group text-right">
-                            <div class="col-md-12">
+                        @if($AccountService->CancelContractStatus)
+                            <div class="col-md-3"></div>
+                            <div class="form-group col-md-6 center-block alert alert-danger text-center">
+                                <h3 class="text-danger">Contract Is Cancel</h3>
+                            </div>
+                            <div class="col-md-3"></div>
+                        @endif
+                        <div class="form-group">
+                            <div class="col-md-12 text-right">
                             @if(!$AccountService->CancelContractStatus)
                                 <a title="Cancel Contract" class="btn btn-danger btn-sm"  data-toggle="modal" data-target="#add-new-modal-accounts"> <i class="entypo-cancel"></i> </a>
                             @else
