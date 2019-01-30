@@ -1547,6 +1547,14 @@ Route::group(array('before' => 'auth'), function () {
 
 
 
+	// packages
+	Route::any('package', 'PackageController@index');
+	Route::any('package/ajax_datagrid', 'PackageController@ajax_datagrid');
+	Route::any('package/store', 'PackageController@store');
+	Route::any('package/update/{id}', 'PackageController@update');
+	Route::any('package/delete/{id}', 'PackageController@delete');
+	Route::any('package/exports/{type}', 'PackageController@exports');
+	Route::any('package/{id}/get_currency_rate_table', 'PackageController@getRateTableFromCurrencyId');
 
 	//noticeboard
 	Route::any('/noticeboard', 'NoticeBoardController@index');
