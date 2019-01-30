@@ -144,7 +144,7 @@
                             <div class="col-md-12">
                                 <div class="form-group ">
                                     <label for="field-5" class="control-label">Routing Profile</label>
-                                    {{Form::select('RoutingProfile', $routingprofile, '',array("class"=>"form-control select2","id"=>"RoutingProfile"))}}
+                                    {{Form::select('RoutingProfile', $routingprofile, '0',array("class"=>"form-control select2","id"=>"RoutingProfile"))}}
                                 </div>
                             </div>
 
@@ -261,7 +261,7 @@
                     aoColumns = [
                         {"bSortable": false,
                             mRender: function(id, type, full) {
-                                var account_service = full[0]+'_'+full[4];
+                                var account_service = full[0]+'_'+full[4]+'_'+full[6];
                                 return '<div class="checkbox "><input type="checkbox" name="customer[]" value="' + account_service + '" class="rowcheckbox" ></div>';
                             }
                         },
@@ -275,7 +275,7 @@
                         {
                             mRender: function(id, type, full) {
                                 var action;
-                                var account_service = full[0]+'_'+full[4];
+                                var account_service = full[0]+'_'+full[4]+'_'+full[6];
                                 action = '<a title="Edit" data-id="'+ account_service +'" data-OutboundRatetable="'+full[8]+'" data-inboundRatetable="'+full[7]+'" data-serviceId="'+full[5]+'" data-RoutingProfileID="'+full[5]+'" data-AccountServiceID="'+full[6]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
                                 return action;
                             }
