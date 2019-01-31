@@ -124,7 +124,7 @@ class ServicesTemplateController extends BaseController {
         $categoryTariff->select(['tblRateTable.RateTableName as RateTableName','tblRateTable.RateTableID as RateTableID']);
             if ($data['selectedCurrency'] != '') {
                 $categoryTariff->where('CurrencyID', '=', $data['selectedCurrency']);
-                $categoryTariff->where('tblRateTable.Type', '=', '1');
+                $categoryTariff->where('tblRateTable.Type', '=', '2');
                 $categoryTariff->where('tblRateTable.AppliedTo', '!=', 2);
             }
             if (isset($data['selected_didCategory']) && $data['selected_didCategory'] != '') {
