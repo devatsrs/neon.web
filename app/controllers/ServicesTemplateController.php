@@ -120,7 +120,7 @@ class ServicesTemplateController extends BaseController {
         Log::info('$billing subscription query.' . $BillingSubscription->toSql());
         $billingsubscriptionlist = $BillingSubscription->get();
 
-        $categoryTariff = RateTable::join('tblDIDCategory', 'tblDIDCategory.DIDCategoryID', '=', 'tblRateTable.DIDCategoryID');
+        $categoryTariff = RateTable::leftjoin('tblDIDCategory', 'tblDIDCategory.DIDCategoryID', '=', 'tblRateTable.DIDCategoryID');
         $categoryTariff->select(['tblRateTable.RateTableName as RateTableName','tblRateTable.RateTableID as RateTableID']);
             if ($data['selectedCurrency'] != '') {
                 $categoryTariff->where('CurrencyID', '=', $data['selectedCurrency']);
