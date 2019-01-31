@@ -89,6 +89,7 @@
                 <th width="30%">CLI</th>
                 <th width="35%">Rate Table</th>
                 <th width="20%">Service</th>
+                <th width="20%">City/Tariff</th>
                 <th width="30%">Action</th>
             </tr>
             </thead>
@@ -132,6 +133,17 @@ var AccountServiceID='{{$AccountServiceID}}';
                                         <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Select Rate Table to rate Inboud Calls based on origination no" data-original-title="Rate Table">?</span></label>
                                     </label>
                                     {{ Form::select('RateTableID', $rate_table , '' , array("class"=>"select2")) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">City/Tariff
+                                        <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Select Rate Table to rate Inboud Calls based on origination no" data-original-title="Rate Table">?</span></label>
+                                    </label>
+                                    <input type="text" name="CityTariff" value="" class="form-control" id="field-5" placeholder="">
                                 </div>
                             </div>
                         </div>

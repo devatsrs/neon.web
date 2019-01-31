@@ -76,7 +76,7 @@
             </a>
         </li>
     @endif
-    @include('vendorrates.upload_rates_button')
+    {{--@include('vendorrates.upload_rates_button')--}}
 </ul>
 
 

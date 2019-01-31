@@ -75,6 +75,9 @@ jQuery(document).ready(function ($) {
                     }
 
                 },  // 1  Name
+                {
+                    "bSortable": true
+                },
                 {                        // 10 Action
                     "bSortable": false,
                     mRender: function (id, type, full) {

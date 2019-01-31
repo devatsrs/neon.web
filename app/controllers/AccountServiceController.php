@@ -59,7 +59,24 @@ class AccountServiceController extends \BaseController {
         $ROUTING_PROFILE = CompanyConfiguration::get('ROUTING_PROFILE',$CompanyID);
 
         $AccountSubscriptionID = $id;
-        return View::make('accountservices.edit', compact('AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID','AccountServiceContract','AccountServiceCancelContract', 'AccountSubscriptionID'));
+
+        $Packages = Package::getDropdownIDList();
+        $CurrencyID=Account::getCurrencyIDByAccount($id);
+        $PackageType=RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE);
+
+        $AppiedTo=Account::getAccountTypeByAccountID($id);
+        $RateTable=RateTable::getDIDTariffDropDownList($CompanyID,$PackageType,$CurrencyID,$AppiedTo);
+
+        $PackageId="";
+        $RateTableID="";
+
+        $AccountServicePackage = AccountServicePackage::where(['AccountID' => $AccountID, 'AccountServiceID' => $AccountServiceID])->first();
+        if(!empty($AccountServicePackage) && count($AccountServicePackage) > 0){
+            $PackageId=$AccountServicePackage->PackageId;
+            $RateTableID=$AccountServicePackage->RateTableID;
+        }
+        return View::make('accountservices.edit', compact('AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow','routingprofile','RoutingProfileToCustomer','ROUTING_PROFILE','AccountService','AccountServiceID','AccountServiceContract','AccountServiceCancelContract', 'AccountSubscriptionID','Packages','RateTable','PackageId','RateTableID'));
+
     }
 
     // add account services
@@ -224,6 +241,11 @@ class AccountServiceController extends \BaseController {
                 }
             }
 
+            /* Package Section Validation */
+            if(!empty($data['PackageId']) || !empty($data['RateTableID'])){
+                AccountService::$rules['PackageId'] = 'required';
+                AccountService::$rules['RateTableID'] = 'required';
+            }
 
             $validator = Validator::make($data, AccountService::$rules, AccountService::$messages);
 
@@ -327,6 +349,29 @@ class AccountServiceController extends \BaseController {
                 $count = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID, 'AccountServiceID' => $AccountServiceID, 'Type' => AccountTariff::OUTBOUND))->count();
                 if (!empty($count) && $count > 0) {
                     AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID, 'AccountServiceID' => $AccountServiceID, 'Type' => AccountTariff::OUTBOUND))->delete();
+                }
+            }
+
+
+            //Package Section
+            if(!empty($data['PackageId']) && !empty($data['RateTableID'])) {
+                $AccountServicePackage = AccountServicePackage::where(['AccountID' => $AccountID, 'AccountServiceID' => $AccountServiceID]);
+                if ($AccountServicePackage->count() > 0) {
+                    //Update
+                    $AccountServicePackage->update(['PackageId' => $data['PackageId'], 'RateTableID' => $data['RateTableID']]);
+
+                } else {
+                    //Create
+                    $packagedata = array();
+                    $packagedata['AccountID'] = $AccountID;
+                    $packagedata['AccountServiceID'] = $AccountServiceID;
+                    $packagedata['CompanyID'] = $CompanyID;
+                    $packagedata['PackageId'] = $data['PackageId'];
+                    $packagedata['RateTableID'] = $data['RateTableID'];
+                    $packagedata['created_at'] = date('Y-m-d H:i:s');
+
+                    AccountServicePackage::create($packagedata);
+
                 }
             }
 
