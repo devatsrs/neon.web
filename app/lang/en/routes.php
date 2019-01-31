@@ -440,7 +440,7 @@ return array(
 	'CUST_PANEL_PAGE_NOTIFICATIONS_TBL_UPDATED_BY'=>'Updated By',
 	'CUST_PANEL_PAGE_NOTIFICATIONS_TITLE'=>'Notifications',
 	'CUST_PANEL_PAGE_PAYMENTS_BUTTON_ADD_NEW'=>'Add New',
-	'CUST_PANEL_PAGE_PAYOUT_TITLE'=>'Out Payment Method', 
+	'CUST_PANEL_PAGE_PAYOUT_TITLE'=>'Out Payment Method',
 	'CUST_PANEL_PAGE_PAYOUT_TBL_DISABLE_MSG'=>'Are you sure you want to Disable the Out Payment Method?',
 	'CUST_PANEL_PAGE_PAYOUT_TBL_ACTIVE_MSG'=>'Are you sure you want to Active the Out Payment Method?',
 	'CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_TITLE'=>'Add New Out Payment Method',
