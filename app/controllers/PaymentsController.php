@@ -512,6 +512,13 @@ class PaymentsController extends \BaseController {
                     return json_validator_response($validator);
                 }
                 $Payment = Payment::findOrFail($id);
+
+                // If Request is Payment Out and Get Approved request
+                if($Payment->PaymentType == Payment::$action['Payment Out']){
+                    $resp = $this->payoutRequest($Payment);
+                    return Response::json(array("status" => $resp['status'], "message" => $resp['message']));
+                }
+
                 $save = array();
                 if ($action == 'approve') {
                     $save['Status'] = 'Approved';
@@ -540,10 +547,130 @@ class PaymentsController extends \BaseController {
                     return Response::json(array("status" => "failed", "message" =>  Lang::get("routes.CUST_PANEL_PAGE_PAYMENTS_MSG_PROBLEM_CREATING_PAYMENT")));
                 }
             }
-        }else{
+        } else {
             return Response::json(array("status" => "failed", "message" => Lang::get("routes.CUST_PANEL_PAGE_PAYMENTS_MSG_YOU_HAVE_NOT_PERMISSION_TO_APPROVE_OR_REJECT")));
         }
     }
+
+
+    // Payout Functions Start
+    /**
+     * @param $Payment
+     * @return array
+     */
+    function payoutRequest($Payment){
+
+        if($Payment->AccountID == false && $Payment->AccountID == ""){
+            return [
+                'status' => 'failed',
+                'message' => 'Account Id is Required.'
+            ];
+        }
+
+        $data = array(
+            'AccountID' => $Payment->AccountID,
+            'CompanyID' => $Payment->CompanyID,
+            'Amount'    => (float)$Payment->Amount,
+            'PaymentID' => $Payment->PaymentID
+        );
+
+        $resp = $this->payout($data);
+
+        if($resp['status'] == "success") {
+
+            $this->successPayoutCustomerEmail($data);
+            $transactionID = @$resp['response']['balance_transaction'];
+            $payoutID = @$resp['response']['balance_transaction'];
+            $note = "Stripe payout_id: {$transactionID}, transaction_id: {$payoutID}";
+
+            $update['Status'] 	   = 'Approved';
+            $update['PaymentDate'] = date('Y-m-d 00:00:00');
+            $update['CreatedBy']   = 'API';
+            $update['Notes'] 	   = $note;
+
+            $Payment = Payment::where('PaymentID', $Payment->PaymentID)->update($update);
+
+            if ($Payment != false) {
+                return [
+                    'status'  => 'success',
+                    'message' => Lang::get('routes.CUST_PANEL_PAGE_PAYMENTS_MSG_PAYMENT_SUCCESSFULLY_UPDATED')
+                ];
+            } else {
+                return ['status' => 'failed', 'message' => 'Payment Out Request could not be approved.'];
+            }
+        } else {
+            return ['status' => 'failed', 'message' => addslashes(@$resp['message'])];
+        }
+    }
+
+    /**
+     * @param $data
+     * @return array
+     */
+    public function payout($data){
+
+        $Account = Account::where([
+            'AccountID' => $data['AccountID'],
+            'CompanyID' => $data['CompanyID']
+        ])->first();
+        $response = ['status' => 'failed', 'message' => "Payout Request Failed."];
+        if($Account != false) {
+            $PayoutMethod = $Account->PayoutMethod != "" ? $Account->PayoutMethod : "Stripe";
+            if (!empty($PayoutMethod) && $PayoutMethod=='Stripe') {
+                $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PayoutMethod);
+                $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
+                $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $data['CompanyID']);
+                $data['account'] = $Account;
+
+                $response = $PaymentIntegration->payoutWithStripeAccount($data);
+            }
+        }
+
+        return $response;
+    }
+
+    public function successPayoutCustomerEmail($email){
+
+        $status = EmailsTemplates::CheckEmailTemplateStatus(Account::OutPaymentEmailTemplate);
+        if($status != false) {
+            $Account = Account::find($email['AccountID']);
+            $CompanyID = $email['CompanyID'];
+            $CompanyName = Company::getName();
+            $Currency = Currency::find($Account->CurrencyId);
+            $CurrencyCode = !empty($Currency) ? $Currency->Code : '';
+            $emaildata = array(
+                'CompanyName' => $CompanyName,
+                'Currency' => $CurrencyCode,
+                'CompanyID' => $CompanyID,
+                'OutPaymentAmount' => $email['Amount'],
+            );
+
+            $emaildata['EmailToName'] = $Account->AccountName;
+            $body = EmailsTemplates::setOutPaymentPlaceholder($Account, 'body', $CompanyID, $emaildata);
+            $emaildata['Subject'] = EmailsTemplates::setOutPaymentPlaceholder($Account, "subject", $CompanyID, $emaildata);
+            if (!isset($emaildata['EmailFrom'])) {
+                $emaildata['EmailFrom'] = EmailsTemplates::GetEmailTemplateFrom(Account::OutPaymentEmailTemplate);
+            }
+
+            $CustomerEmail = $Account->BillingEmail;
+            if($CustomerEmail != '') {
+                $CustomerEmail = explode(",", $CustomerEmail);
+                $customeremail_status['status'] = 0;
+                $customeremail_status['message'] = '';
+                $customeremail_status['body'] = '';
+                foreach ($CustomerEmail as $singleemail) {
+                    $singleemail = trim($singleemail);
+                    if (filter_var($singleemail, FILTER_VALIDATE_EMAIL)) {
+                        $emaildata['EmailTo'][] = $singleemail;
+                    }
+                }
+                Log::info("============ EmailData ===========");
+                Log::info($emaildata);
+                $customeremail_status = Helper::sendMaiL($body, $emaildata, 0);
+            }
+        }
+    }
+    // Payout Functions End
 
     /* Refill Datagrid against File options changed once Check button clicked
      * */
