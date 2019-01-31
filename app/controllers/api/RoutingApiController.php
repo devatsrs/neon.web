@@ -345,7 +345,7 @@ class RoutingApiController extends ApiController {
             $rules = array(
                 'OriginationNo' => 'required',
                 'DestinationNo' => 'required',
-                'DataAndTime' => 'required',
+                'DateAndTime' => 'required',
                 'AccountNo' => 'required_without_all:AccountID,AccountDynamicField',
                 'AccountID' => 'required_without_all:AccountNo,AccountDynamicField',
                 'AccountDynamicField' => 'required_without_all:AccountNo,AccountID',
@@ -407,7 +407,7 @@ class RoutingApiController extends ApiController {
 
 
 
-            $checkDate = strtotime($routingData['DataAndTime']);
+            $checkDate = strtotime($routingData['DateAndTime']);
             if (empty($checkDate)) {
                 return Response::json(["ErrorMessage"=>Codes::$Code1022[1]],Codes::$Code1022[0]);
             }
@@ -522,10 +522,10 @@ class RoutingApiController extends ApiController {
             }
 
             Log::info('Filter Routing Profile List procedure $RoutingProfileIds' . $RoutingProfileID);
-            $DataAndTime = strtotime($routingData["DataAndTime"]);
+            $DataAndTime = strtotime($routingData["DateAndTime"]);
             $dataTimeZone['CompanyID'] = $CompanyID;
-            $dataTimeZone['connect_time'] = $routingData["DataAndTime"];
-            $dataTimeZone['disconnect_time'] = $routingData["DataAndTime"];
+            $dataTimeZone['connect_time'] = $routingData["DateAndTime"];
+            $dataTimeZone['disconnect_time'] = $routingData["DateAndTime"];
             // $dataTimeZone['TimezonesID'] = '';
             Log::info('Filter Routing Profile List procedure $queryTimeZone' .
                 print_r($dataTimeZone, true));
@@ -533,8 +533,8 @@ class RoutingApiController extends ApiController {
             $query = "CALL `prc_updateTempCDRTimeZones`('tblgetTimezone')";
             $queryResults = DB::connection('sqlsrv2')->select($query);
             $queryTimeZone = GetTimeZone::
-            where(["connect_time" => $routingData["DataAndTime"]])
-                ->where('disconnect_time', '=', $routingData["DataAndTime"])->pluck("TimezonesID");
+            where(["connect_time" => $routingData["DateAndTime"]])
+                ->where('disconnect_time', '=', $routingData["DateAndTime"])->pluck("TimezonesID");
 
             if (empty($queryTimeZone)) {
                 $queryTimeZone = 1;
