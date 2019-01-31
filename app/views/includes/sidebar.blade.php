@@ -199,6 +199,9 @@
         <li> <a href="{{URL::to('/invoice')}}">  <span>Invoices</span> </a> </li>
         @endif
         <li> <a href="{{URL::to('/creditnotes')}}">  <span>Credit Notes</span> </a> </li>
+          @if(User::checkCategoryPermission('Service','View'))
+        <li> <a href="{{URL::to('/package')}}">  <span>Packages</span> </a> </li>
+          @endif
       @if(User::checkCategoryPermission('Payments','View'))
         <li> <a href="{{URL::to('/payments')}}">  <span>Payments</span> </a> </li>
       @endif

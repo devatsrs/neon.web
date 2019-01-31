@@ -652,7 +652,25 @@
                     [
                         {"bSortable": false,
                             mRender: function(id, type, full) {
-                                return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
+                                var html = '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
+
+                                @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
+                                if (full[22] == 1) {
+                                    html += '<i class="entypo-check" title="Approved" style="color: green; "></i>';
+                                } else if (full[22] == 0) {
+                                    html += '<i class="entypo-cancel" title="Awaiting Approval" style="color: red; "></i>';
+                                }
+                                @endif
+
+                                @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
+                                if (full[21] == 0) {
+                                    html += '<i class="entypo-lock-open" title="Unblocked" style="color: green; "></i>';
+                                } else if (full[21] == 1) {
+                                    html += '<i class="entypo-lock" title="Blocked" style="color: red; "></i>';
+                                }
+                                @endif
+
+                                return html;
                             }
                         }, //0Checkbox
                         {
@@ -738,7 +756,7 @@
                         }, //20 Preference
                         @endif
                         {
-                            //"bVisible" : bVisible,
+                            "bVisible" : bVisible,
                             mRender: function(id, type, full) {
                                 var action, edit_, delete_;
                                 action = '<div class = "hiddenRowData" >';
@@ -747,59 +765,26 @@
                                 }
                                 action += '</div>';
 
-                                if(bVisible == true) {
-                                    $('#actionheader').attr('width','10%');
-                                    clerRate_ = "{{ URL::to('/rate_tables/{id}/clear_rate')}}";
-                                    clerRate_ = clerRate_.replace('{id}', full[15]);
+                                $('#actionheader').attr('width','10%');
+                                clerRate_ = "{{ URL::to('/rate_tables/{id}/clear_rate')}}";
+                                clerRate_ = clerRate_.replace('{id}', full[15]);
 
-                                    @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-                                    if (full[22] == 1) {
-                                        action += ' <button href="Javascript:;"  title="Approved" class="btn btn-default btn-xs"><i class="entypo-check" style="color: green; "></i>&nbsp;</button>';
-                                    } else if (full[22] == 0) {
-                                        action += ' <button href="Javascript:;"  title="Awaiting Approval" class="btn btn-default btn-xs"><i class="entypo-cancel" style="color: red; "></i>&nbsp;</button>';
-                                    }
-                                    @endif
+                                <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
+                                if (DiscontinuedRates == 0) {
+                                    action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
+                                }
+                                <?php } ?>
 
-                                    @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
-                                    if (full[21] == 0) {
-                                        action += ' <button href="Javascript:;"  title="Unblocked" class="btn btn-default btn-xs"><i class="entypo-lock-open" style="color: green; "></i>&nbsp;</button>';
-                                    } else if (full[21] == 1) {
-                                        action += ' <button href="Javascript:;"  title="Blocked" class="btn btn-default btn-xs"><i class="entypo-lock" style="color: red; "></i>&nbsp;</button>';
-                                    }
-                                    @endif
+                                action += ' <button href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</button>';
 
-                                    <?php if(User::checkCategoryPermission('RateTables', 'Edit')) { ?>
+                                if (full[15] != null && full[15] != 0) {
+                                    <?php if(User::checkCategoryPermission('RateTables', 'Delete')) { ?>
                                     if (DiscontinuedRates == 0) {
-                                        action += ' <button href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</button>';
+                                        action += ' <button title="Delete" href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-xs" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
                                     }
                                     <?php } ?>
-
-                                    action += ' <button href="Javascript:;" title="History" class="btn btn-default btn-xs btn-history details-control"><i class="entypo-back-in-time"></i>&nbsp;</button>';
-
-                                    if (full[15] != null && full[15] != 0) {
-                                        <?php if(User::checkCategoryPermission('RateTables', 'Delete')) { ?>
-                                        if (DiscontinuedRates == 0) {
-                                            action += ' <button title="Delete" href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-xs" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
-                                        }
-                                        <?php } ?>
-                                    }
-                                } else {
-                                    $('#actionheader').attr('width','5%');
-
-                                    @if($RateApprovalProcess == 1 && $rateTable->AppliedTo != RateTable::APPLIED_TO_VENDOR)
-                                    if (full[22] == 1) {
-                                        action += ' <button href="Javascript:;"  title="Approved" class="btn btn-default btn-xs"><i class="entypo-check" style="color: green; "></i>&nbsp;</button>';
-                                    } else if (full[22] == 0) {
-                                        action += ' <button href="Javascript:;"  title="Awaiting Approval" class="btn btn-default btn-xs"><i class="entypo-cancel" style="color: red; "></i>&nbsp;</button>';
-                                    }
-                                    @endif
-
-                                    if (full[21] == 0) {
-                                        action += ' <buttona href="Javascript:;"  title="Unblocked" class="btn btn-default btn-xs"><i class="entypo-lock-open" style="color: green; "></i>&nbsp;</buttona>';
-                                    } else if (full[21] == 1) {
-                                        action += ' <button href="Javascript:;"  title="Blocked" class="btn btn-default btn-xs"><i class="entypo-lock" style="color: red; "></i>&nbsp;</button>';
-                                    }
                                 }
+
                                 return action;
                             }
                         }

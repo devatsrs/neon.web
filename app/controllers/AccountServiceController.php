@@ -581,6 +581,9 @@ class AccountServiceController extends \BaseController {
         /** data get from inputs */
         $Contract['AccountServiceID'] = $data['AccountServiceID'];
         $Contract['CancelationDate'] = $data['CancelDate'];
+        $Contract['UserName'] = User::get_user_full_name();
+
+
 
         /** set the values of variables*/
         if(isset($data['IncTerminationFees'])){
@@ -625,9 +628,9 @@ class AccountServiceController extends \BaseController {
         $CancelContractStatus = array();
         $CancelContractStatus['CancelContractStatus'] = 0;
         $InsertRenewalHistory = [
-            'Date' => DATE('y-m-d'),
+            'Date' => date('Y-m-d H:i:s'),
             'Action' => 'Contract Renew',
-            'ActionBy' => 'System',
+            'ActionBy' => User::get_user_full_name(),
             'AccountServiceID' => $AccountServiceID
 
         ];
@@ -636,12 +639,12 @@ class AccountServiceController extends \BaseController {
             AccountServiceHistory::insert($InsertRenewalHistory);
 
 
-            return Response::json(array("status" => "success", "message" => "Your Contract Is Renewal!"));
+            return Response::json(array("status" => "success", "message" => "Contract Is Renewed!"));
 
     }
 
     public function contract_history($ServiceID){
-        $AccountServiceHistory = AccountServiceHistory::select('Date','Action','ActionBy')->where('AccountServiceID',$ServiceID);
+        $AccountServiceHistory = AccountServiceHistory::select('Date','Action','ActionBy')->where('AccountServiceID',$ServiceID)->orderBy('Date','desc');
 
         return Datatables::of($AccountServiceHistory)->make();
     }

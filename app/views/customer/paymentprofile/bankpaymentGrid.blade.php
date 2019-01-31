@@ -239,7 +239,35 @@
                     }else{
                         update_new_url = baseurl + '/customer/PaymentMethodProfiles/create';
                     }
-                    ajax_Add_update(update_new_url);
+                    //ajax_Add_update(update_new_url);
+                    var data = new FormData($('#add-bankaccount-form')[0]);
+                    //show_loading_bar(0);
+                    $.ajax({
+                        url:update_new_url, //Server script to process data
+                        type: 'POST',
+                        dataType: 'json',
+                        success: function(response) {
+                            $("#bankaccount-update").button('reset');
+                            $(".btn").button('reset');
+                            if (response.status == 'success') {
+                                $('#add-modal-bankaccount').modal('hide');
+                                toastr.success(response.message, "Success", toastr_opts);
+                                $('#add-modal-bankaccount').modal('hide');
+                                if( typeof data_table !=  'undefined'){
+                                    data_table.fnFilter('', 0);
+                                }
+                            } else {
+                                toastr.error(response.message, "Error", toastr_opts);
+                            }
+                            $('#table-4_processing').css('visibility','hidden');
+                            $('.btn.upload').button('reset');
+                        },
+                        data: data,
+                        //Options to tell jQuery not to process data or worry about content-type.
+                        cache: false,
+                        contentType: false,
+                        processData: false
+                    });
                 });
 
                 $('table tbody').on('click','.edit-bankaccount',function(ev){
