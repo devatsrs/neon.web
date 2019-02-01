@@ -20,19 +20,25 @@ class PayoutController extends \BaseController {
                 return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_CARD_MSG_PLEASE_SELECT_PAYMENT_GATEWAY')));
             }
 
-            $checkDOB = $this->DOBValidation($data);
-            if($checkDOB['status'] == 'failed') {
-                return Response::json($checkDOB);
+            $validate = $this->validation($data);
+
+            if($validate['status'] == 'failed') {
+                return Response::json($validate);
             }
 
             $CompanyID = $data['CompanyID'];
-            $PaymentGatewayID=$data['PaymentGatewayID'];
+            $PaymentGatewayID = $data['PaymentGatewayID'];
             $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
             $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass,$CompanyID);
-            $Response = $PaymentIntegration->doValidation($data);
+
+            if($data['PayoutType'] == "bank")
+                $Response = AccountPayout::bankValidation($data);
+            else
+                $Response = AccountPayout::cardValidation($data);
+
             if($Response['status'] == 'failed'){
                 return  Response::json(array("status" => "failed", "message" => $Response['message']));
-            }elseif($Response['status'] == 'success'){
+            } elseif($Response['status'] == 'success'){
                 $AccountResponse = $PaymentIntegration->createAccount($data);
             }
         }
@@ -43,10 +49,11 @@ class PayoutController extends \BaseController {
      * @param $data
      * @return array
      */
-    public function DOBValidation($data){
+    public function validation($data){
         $ValidationResponse = array();
         $rules = array(
             'DOB' => 'required|date|date_format:Y-m-d',
+            'PayoutType' => 'required|in:card,bank'
         );
         $validator = Validator::make($data, $rules);
         $validator->setAttributeNames(['DOB' => "Date of Birth"]);

@@ -132,9 +132,17 @@
                     </div>
 
 
+
                     <div class="panel-body ">
-                        <div class="form-group text-right">
-                            <div class="col-md-12">
+                        @if($AccountService->CancelContractStatus)
+                            <div class="col-md-3"></div>
+                            <div class="form-group col-md-6 center-block alert alert-danger text-center">
+                                <h3 class="text-danger">Contract Is Cancel</h3>
+                            </div>
+                            <div class="col-md-3"></div>
+                        @endif
+                        <div class="form-group">
+                            <div class="col-md-12 text-right">
                             @if(!$AccountService->CancelContractStatus)
                                 <a title="Cancel Contract" class="btn btn-danger btn-sm"  data-toggle="modal" data-target="#add-new-modal-accounts"> <i class="entypo-cancel"></i> </a>
                             @else
@@ -299,6 +307,41 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Package Section Start -->
+
+                <div class="panel panel-primary " data-collapsed="0">
+                    <div class="panel-heading">
+                        <div class="panel-title">
+                            Package
+                        </div>
+                        <div class="panel-options">
+                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i> </a>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label for="field-1" class="col-md-2 control-label">
+                                Package
+                            </label>
+                            <div class="col-md-4">
+                                {{ Form::select('PackageId', $Packages, $PackageId, array("class"=>"select2")) }}
+                            </div>
+
+                            <label for="field-1" class="col-md-2 control-label">
+                                RateTable
+                            </label>
+                            <div class="col-md-4">
+                                {{ Form::select('RateTableID', $RateTable, $RateTableID, array("class"=>"select2")) }}
+                            </div>
+
+                        </div>
+
+
+                    </div>
+                </div>
+
+                <!-- Package Section End -->
 
                 <!-- Service subscription billing cycle end-->
                 @include('accountsubscription.index')

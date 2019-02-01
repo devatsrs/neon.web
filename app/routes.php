@@ -1544,9 +1544,17 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accountservices/cancel_contract', 'AccountServiceController@cancelContract');
 	Route::any('accountservices/contract_status/{serviceid}', 'AccountServiceController@contract_status');
 	Route::any('accountservices/history/{serviceid}', 'AccountServiceController@contract_history');
+	
 
-
-
+	// packages
+	Route::any('package', 'PackageController@index');
+	Route::any('package/ajax_datagrid', 'PackageController@ajax_datagrid');
+	Route::any('package/store', 'PackageController@store');
+	Route::any('package/update/{id}', 'PackageController@update');
+	Route::any('package/delete/{id}', 'PackageController@delete');
+	Route::post('package/bulk-delete', 'PackageController@bulkDelete');
+	Route::any('package/exports/{type}', 'PackageController@exports');
+	Route::any('package/{id}/get_currency_rate_table', 'PackageController@getRateTableFromCurrencyId');
 
 	//noticeboard
 	Route::any('/noticeboard', 'NoticeBoardController@index');

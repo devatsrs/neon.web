@@ -187,6 +187,7 @@
 
                     var pgid = '{{PaymentGateway::getPayoutGatewayIDBYAccount($account->AccountID)}}';
                     $("#add-payout-form")[0].reset();
+                    add_payout_type();
                     $("#add-payout-form").find('input[name="payoutAccountID"]').val('');
                     $("#add-payout-form [name='ExpirationMonth']").val('').trigger("change");
                     $("#add-payout-form [name='ExpirationYear']").val('').trigger("change");
@@ -273,6 +274,22 @@
                             <label for="field-5555" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_DOB')</label>
                             <input autocomplete="off" id="5555" type="text" name="DOB" class="form-control datepicker" data-date-format="yyyy-mm-dd" value="" placeholder="YYYY-MM-DD"/>
                         </div>
+                        <input type="hidden" name="payoutAccountID" />
+                        <input type="hidden" name="AccountID" />
+                        <input type="hidden" name="CompanyID" />
+                        <input type="hidden" name="PaymentGatewayID" />
+                        <div class="form-group">
+                            <p class="control-label">Select Payout Method</p>
+                            <label for="field-36" class="control-label">
+                                <input type="radio" checked name="PayoutType" id="field-36" value="card">
+                                @lang('routes.CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_PAYOUT_FIELD_DEBIT_CARD')
+                            </label>
+                            &nbsp; &nbsp;
+                            <label for="field-37" class="control-label">
+                                <input type="radio" name="PayoutType" id="field-37" value="bank">
+                                @lang('routes.CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_PAYOUT_FIELD_BANK_ACCOUNT')
+                            </label>
+                        </div>
                         <div class="payout-card-form">
                             <div class="form-group">
                                 <label for="field-55" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_CARD_FIELD_NAME_ON_CARD')</label>
@@ -281,10 +298,6 @@
                             <div class="form-group">
                                 <label for="field-335" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_CARD_FIELD_DEBIT_CARD_NUMBER')</label>
                                 <input type="text" name="CardNumber" autocomplete="off" class="form-control" id="field-335" placeholder="">
-                                <input type="hidden" name="payoutAccountID" />
-                                <input type="hidden" name="AccountID" />
-                                <input type="hidden" name="CompanyID" />
-                                <input type="hidden" name="PaymentGatewayID" />
                             </div>
                             <div class="form-group">
                                 <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_CARD_FIELD_CARD_TYPE')</label>
@@ -308,6 +321,24 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="payout-bank-form">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_BANK_AC_FIELD_AC_HOLDER_NAME')</label>
+                                <input type="text" name="AccountHolderName" autocomplete="off" class="form-control" id="field-5" placeholder="">
+                            </div>
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_BANK_AC_FIELD_AC_NUMBER')</label>
+                                <input type="text" name="AccountNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
+                            </div>
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_BANK_AC_FIELD_ROUTING_NUMBER')</label>
+                                <input type="text" name="RoutingNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
+                            </div>
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYOUT_MODAL_ADD_NEW_BANK_AC_FIELD_AC_HOLDER_TYPE')</label>
+                                {{ Form::select('AccountHolderType',Payment::$account_holder_type,'', array("class"=>"select2 small")) }}
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="submit" id="payout-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')">
@@ -324,10 +355,24 @@
         </div>
     </div>
 <script>
+    function add_payout_type(){
+        var payoutMethod = $("input[name='PayoutType']:checked").val();
+        if(payoutMethod == "bank"){
+            $(".payout-card-form").hide();
+            $(".payout-bank-form").show();
+        } else {
+            $(".payout-card-form").show();
+            $(".payout-bank-form").hide();
+        }
+    }
     $(function () {
         $('.datepicker').datepicker({
             endDate: '-5y'
         });
+        $("input[name='PayoutType']").on("change", function (e) {
+            add_payout_type();
+        });
+        add_payout_type();
     });
 </script>
 @stop

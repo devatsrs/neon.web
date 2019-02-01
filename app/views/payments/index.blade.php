@@ -420,7 +420,12 @@
                                     @if(User::is('BillingAdmin') || User::is_admin())
                                     if(full[7] != "Approved"){
                                         action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Approve/Reject <span class="caret"></span></button>'
-                                        action += '<ul class="dropdown-menu dropdown-green" role="menu"><li><a href="' + Approve_Payment+ '" class="approvepayment" >Approve</a></li><li><a href="' + Reject_Payment + '" class="rejectpayment">Reject</a></li></ul></div>';
+
+                                        if(full[4] == "{{ Payment::$action['Payment Out'] }}") {
+                                            action += '<ul class="dropdown-menu dropdown-green" role="menu"><li><a href="' + Approve_Payment+ '" class="approvepayout" >Approve</a></li><li><a href="' + Reject_Payment + '" class="rejectpayment">Reject</a></li></ul></div>';
+                                        } else {
+                                            action += '<ul class="dropdown-menu dropdown-green" role="menu"><li><a href="' + Approve_Payment+ '" class="approvepayment" >Approve</a></li><li><a href="' + Reject_Payment + '" class="rejectpayment">Reject</a></li></ul></div>';
+                                        }
                                     }
                                     @endif
 
@@ -520,15 +525,15 @@
                         setSelection(self);
                         $('#view-modal-payment').trigger("reset");
                         var cur_obj = self.prev("div.hiddenRowData");
-                        for(var i = 0 ; i< list_fields.length; i++){							
+                        for(var i = 0 ; i< list_fields.length; i++){
                             if(list_fields[i] == 'AmountWithSymbol'){
                                 $("#view-modal-payment [name='Amount']").text(cur_obj.find("input[name='AmountWithSymbol']").val());
-                            }else if(list_fields[i] == 'Currency'){ 							
+                            }else if(list_fields[i] == 'Currency'){
 							var currency_sign_show = currency_signs[cur_obj.find("input[name='" + list_fields[i] + "']").val()];
-								if(currency_sign_show!='Select a Currency'){								
-									$("#view-modal-payment [name='" + list_fields[i] + "']").text(currency_sign_show);	
+								if(currency_sign_show!='Select a Currency'){
+									$("#view-modal-payment [name='" + list_fields[i] + "']").text(currency_sign_show);
 								 }else{
-									 $("#view-modal-payment [name='" + list_fields[i] + "']").text("Currency Not Found");	
+									 $("#view-modal-payment [name='" + list_fields[i] + "']").text("Currency Not Found");
 									 }
 							}else {
                                 $("#view-modal-payment [name='" + list_fields[i] + "']").text(cur_obj.find("input[name='" + list_fields[i] + "']").val());
@@ -803,6 +808,22 @@
                         return false;
                     });
 
+                    $('table tbody').on('click', '.approvepayout', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        var self = $(this);
+                        setSelection(self);
+                        var text = (self.hasClass("approvepayout")?'Approve':'Reject');
+                        if (!confirm('Are you sure you want to '+ text +' the payment?')) {
+                            return;
+                        }
+                        $("#payment-status-form").find("input[name='Notes']").val('Payout Request');
+                        $("#payment-status-form").find("input[name='URL']").val($(this).attr('href'));
+                        var approval = $("#payment-status-form");
+                        submit_ajax(approval.find("input[name='URL']").val(),approval.serialize());
+                        return false;
+                    });
+
                     $("#add-edit-payment-form [name='AccountID']").change(function(){
 
                         $("#add-edit-payment-form [name='AccountName']").val( $("#add-edit-payment-form [name='AccountID'] option:selected").text());
@@ -1047,7 +1068,7 @@
                         $('#add-template-form').find('[name="TemplateFile"]').val(data.filename);
                         $('#add-template-form').find('[name="TempFileName"]').val(data.tempfilename);
                     }
-					
+
 			function get_total_grand()
 			{
 				$('.total_ajax').remove();
@@ -1059,13 +1080,13 @@
 				"AccountID":$("#payment-table-search select[name='AccountID']").val(),
 				"InvoiceNo":$("#payment-table-search input[name='InvoiceNo']").val(),
 				"Status":$("#payment-table-search select[name='Status']").val(),
-				"type":$("#payment-table-search select[name='type']").val(),				
+				"type":$("#payment-table-search select[name='type']").val(),
 				"paymentmethod":$("#payment-table-search select[name='paymentmethod']").val(),
 				"PaymentDate_StartDate":$("#payment-table-search input[name='PaymentDate_StartDate']").val(),
 				"PaymentDate_StartTime":$("#payment-table-search input[name='PaymentDate_StartTime']").val(),
 				"PaymentDate_EndDate":$("#payment-table-search input[name='PaymentDate_EndDate']").val(),
 				"PaymentDate_EndTime":$("#payment-table-search input[name='PaymentDate_EndTime']").val(),
-				"CurrencyID":$("#payment-table-search select[name='CurrencyID']").val(),	
+				"CurrencyID":$("#payment-table-search select[name='CurrencyID']").val(),
 				"tag":$("#payment-table-search select[name='tag']").val(),
 				"recall_on_off":$searchFilter.recall_on_off = $("#payment-table-search [name='recall_on_off']").prop("checked"),
 				"bDestroy": true,
@@ -1082,10 +1103,10 @@
                         if(response1.total_grand!=null) {
                             $('#table-4 tbody').append('<tr class="total_ajax"><td colspan="3"><strong>Total</strong></td><td><strong>'+response1.total_grand+'</strong></td><td colspan="6"></td></tr>');
                         }
-						
-	
+
+
 						}
-				});	
+				});
 		}
                     if (isxs()) {
                         $('#paymentsearch').find('.col-sm-2,.col-sm-1').each(function () {
