@@ -582,7 +582,7 @@ class AccountsApiController extends ApiController {
 		$InvoiceLineDescription = empty($InvoiceLineDescriptionAPI) ? $AccountSubscriptionDB["InvoiceLineDescription"] : $InvoiceLineDescriptionAPI;
 		//Log::info('$InvoiceLineDescriptionAPI .' . $InvoiceLineDescription);
 		$AccountSubscription["AccountID"] = $Account->AccountID;
-		$AccountSubscription["SubscriptionID"] = $AccountSubscriptionDB["SubscriptionID"];
+		$AccountSubscription["SubscriptionID"] = $SubscriptionId;
 		$AccountSubscription["InvoiceDescription"] = $InvoiceLineDescription;
 		$AccountSubscription["Qty"] = 1;
 		$AccountSubscription["StartDate"] = $date;
