@@ -1,6 +1,7 @@
 
 <script>
     $(document).ready(function ($) {
+
         $('#add-new-package-form').submit(function(e){
             e.preventDefault();
             var PackageId = $("#add-new-package-form [name='PackageId']").val();
@@ -13,6 +14,7 @@
             showAjaxScript(update_new_url, new FormData(($('#add-new-package-form')[0])), function(response){
                 $(".btn").button('reset');
                 if (response.status == 'success') {
+                    checkBoxArray = [];
                     $('#add-new-modal-package').modal('hide');
                     toastr.success(response.message, "Success", toastr_opts);
                     var PackageRefresh = $("#PackageRefresh").val();
@@ -47,7 +49,7 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-1" class="control-label">Currency</label>
-                                    {{ Form::select('CurrencyId', Currency::getCurrencyDropdownIDList(),'', array("class"=>"select2 small")) }}
+                                    {{ Form::select('CurrencyId', Currency::getCurrencyDropdownIDList(), '', array("class"=>"select2 small")) }}
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -73,9 +75,16 @@
         </div>
     </div>
     <script>
-        $("[data-action='showAddModal']").click(function(){
-            $("#editRateTableId").val("");
+        $(document).ready(function ($) {
+            $("[data-action='showAddModal']").click(function(){
+                $("#editRateTableId").val("");
+                var defaultVal = "{{$defaultCurrencyId}}";
+                setTimeout(function() {
+                    $("#add-new-package-form [name='CurrencyId']").val(defaultVal).trigger("change");
+                }, 2000);
+            });
         });
+
         function getRateTableByCurrency(){
             var currency = $("#add-new-package-form [name='CurrencyId']").val();
 
@@ -93,16 +102,16 @@
                     var rateTableField = $("#add-new-package-form [name='RateTableId']");
                     rateTableField.html(options);
                     var editVal = $("#editRateTableId").val();
-                    rateTableField.select2().select2('val', '').select2().select2('val', editVal);
+                    rateTableField.select2().select2('val', editVal);
                 }
             });
         }
 
-        jQuery(document).ready(function ($) {
-            getRateTableByCurrency();
+        $(document).ready(function () {
             $("#add-new-package-form [name='CurrencyId']").change(function () {
                 getRateTableByCurrency();
             });
+
         });
     </script>
 @stop

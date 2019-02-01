@@ -134,12 +134,11 @@ class PaymentApiController extends ApiController {
 
 			//if Auto payout is allowed
 			$approved = !empty($data['Approved']) && $data['Approved'] == 1 ? 1 : 0;
-
+			$paymentID = isset($data['PaymentID']) ? $data['PaymentID'] : false;
 			$resp = ['status' => 'success'];
 			if ($approved == 1) {
 				$resp = $this->payout($data);
 			}
-
 			if($approved == 1){
 
 				if($resp['status'] == "success") {
@@ -158,9 +157,17 @@ class PaymentApiController extends ApiController {
 					$data['IsOutPayment']= 1;
 					unset($data['AccountNo']);
 					unset($data['Approved']);
+					unset($data['PaymentID']);
 					unset($data['AccountDynamicField']);
 
-					if ($Payment = Payment::create($data)) {
+					$Payment = $paymentID != false ? Payment::find($paymentID) : false;
+					if($paymentID != false && $Payment != false){
+						$Payment = $Payment->save($data);
+					} else {
+						$Payment = Payment::create($data);
+					}
+
+					if ($Payment != false) {
 						return Response::json(array("data" => ["RequestFundID" => $Payment->PaymentID]),Codes::$Code200[0]);
 					} else {
 						return Response::json(array("ErrorMessage" => "Problem Creating Payment."),Codes::$Code500[0]);
@@ -180,6 +187,7 @@ class PaymentApiController extends ApiController {
 				unset($data['AccountNo']);
 				unset($data['Approved']);
 				unset($data['AccountDynamicField']);
+				unset($data['PaymentID']);
 
 				if ($Payment = Payment::create($data)) {
 					return Response::json(array("data" => ["RequestFundID" => $Payment->PaymentID]),Codes::$Code200[0]);

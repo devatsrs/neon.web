@@ -32,7 +32,7 @@ class ServiceTemplate extends \Eloquent
 
         $AccountReferenceArr=json_decode(json_encode($TemplateRef),true);
 
-        Log::info('findServiceTemplateByDynamicField .' . count($AccountReferenceArr));
+        Log::info('findServiceTemplateByDynamicField .' . count($AccountReferenceArr) . ' ' . print_r($TemplateRef,true));
 
         $Query = "select distinct ParentID from tblDynamicFieldsValue where ";
         for ($i =0; $i <count($AccountReferenceArr);$i++) {

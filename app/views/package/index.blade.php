@@ -48,11 +48,16 @@
             <i class="entypo-plus"></i>
             Add New Package
         </a>
+        <a href="#" id="bulkDelete" data-action="showDeleteBulkActionModal" data-type="bulkAction" data-modal="add-new-BulkAction-modal-service" class="btn btn-danger">
+            <i class="entypo-trash"></i>
+            Bulk Delete
+        </a>
     </p>
 
     <table class="table table-bordered datatable" id="table-4">
         <thead>
         <tr>
+            <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
             <th>Name</th>
             <th>Rate Table</th>
             <th>Currency</th>
@@ -66,6 +71,7 @@
     </table>
 
     <script type="text/javascript">
+        var checkBoxArray =[];
         var $searchFilter = {};
         jQuery(document).ready(function ($) {
             $('#filter-button-toggle').show();
@@ -91,6 +97,12 @@
                 },
                 "aoColumns":
                         [
+                            {"bSortable": false,
+                                mRender: function(id, type, full) {
+                                    // checkbox for bulk action
+                                    return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
+                                }
+                            },
                             { "bSortable": true }, //Name
                             { "bSortable": true }, //Type
                             { "bSortable": true }, //Gateway
@@ -99,14 +111,14 @@
                                 mRender: function ( id, type, full ) {
                                     var action , edit_ , show_, delete_ ;
                                     action = '<div class = "hiddenRowData" >';
-                                    action += '<input type = "hidden"  name ="PackageName" value= "' + (full[0] != null ? full[0] : '') + '" / >';
-                                    action += '<input type = "hidden"  name ="RateTable" value= "' + (full[1] != null ? full[1] : '') + '" / >';
-                                    action += '<input type = "hidden"  name ="Currency" value= "' + (full[2] != null ? full[2] : '') + '" / >';
+                                    action += '<input type = "hidden"  name ="PackageName" value= "' + (full[1] != null ? full[1] : '') + '" / >';
+                                    action += '<input type = "hidden"  name ="RateTable" value= "' + (full[2] != null ? full[2] : '') + '" / >';
+                                    action += '<input type = "hidden"  name ="Currency" value= "' + (full[3] != null ? full[3] : '') + '" / >';
                                     action += '<input type = "hidden"  name ="RateTableId" value= "' + (full[4] != null ? full[4] : '') + '" / >';
                                     action += '<input type = "hidden"  name ="CurrencyId" value= "' + (full[5] != null ? full[5] : '') + '" / >';
                                     action += '</div>';
-                                    action += ' <a data-name = "'+full[0]+'" data-id="'+ full[3] +'" title="Edit" class="edit-package btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
-                                    action += ' <a data-id="'+ full[3] +'" title="Delete" class="delete-package btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
+                                    action += ' <a data-name = "'+full[1]+'" data-id="'+ full[0] +'" title="Edit" class="edit-package btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
+                                    action += ' <a data-id="'+ full[0] +'" title="Delete" class="delete-package btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                                     return action;
                                 }
                             }
@@ -141,6 +153,7 @@
                                 if (response.status == 'success') {
                                     $(this).button('reset');
                                     data_table.fnFilter('', 0);
+                                    checkBoxArray = [];
                                     toastr.success(response.message, "Success", toastr_opts);
                                 } else {
                                     toastr.error(response.message, "Error", toastr_opts);
@@ -153,14 +166,38 @@
                     });
                 }
             });
-            /*
-             $('#ServiceStatus').change(function() {
-             if ($(this).is(":checked")) {
-             data_table.fnFilter(1,0);  // 1st value 2nd column index
-             } else {
-             data_table.fnFilter(0,0);
-             }
-             });*/
+            $("#bulkDelete").click(function(ev) {
+                if(checkBoxArray.length < 1){
+                    $("input.rowcheckbox:checkbox:checked").each(function() {
+                        checkBoxArray.push($(this).val());
+                    });
+                }
+                if(checkBoxArray.length > 0) {
+                    response = confirm('Are you sure?');
+                    if (response) {
+                        var package_bulkdelete_url = baseurl + "/package/bulk-delete";
+                        $.ajax({
+                            url: package_bulkdelete_url,
+                            type: 'POST',
+                                data: "PackageIds=" + checkBoxArray,
+                            dataType: 'json',
+                            cache: false,
+                            success: function (response) {
+                                if (response.status == 'success') {
+                                    data_table.fnFilter('', 0);
+                                    toastr.success(response.message, "Success", toastr_opts);
+                                    checkBoxArray = [];
+                                } else {
+                                    toastr.error(response.message, "Error", toastr_opts);
+                                }
+                            }
+                        });
+                    }
+                } else {
+                    toastr.error("Please select a row first.", "Error", toastr_opts);
+                }
+                return false;
+            });
 
             $("#package_filter").submit(function(e) {
                 e.preventDefault();
@@ -177,12 +214,69 @@
             });
 
             // Highlighted rows
-            $("#table-2 tbody input[type=checkbox]").each(function (i, el) {
+            $("#table-4 tbody input[type=checkbox]").each(function (i, el) {
                 var $this = $(el),
                         $p = $this.closest('tr');
 
                 $(el).on('change', function () {
                     var is_checked = $this.is(':checked');
+                    $p[is_checked ? 'addClass' : 'removeClass']('highlight');
+                });
+            });
+
+            $("#selectall").click(function (ev) {
+                var is_checked = $(this).is(':checked');
+
+                if(checkBoxArray != null || checkBoxArray == undefined)
+                    checkBoxArray = [];
+
+                $('#table-4 tbody tr').each(function (i, el) {
+                    var txtValue = $(this).find('.rowcheckbox').prop("checked", true).val();
+
+                    if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                        if (is_checked) {
+                            $(this).find('.rowcheckbox').prop("checked", true);
+                            $(this).addClass('selected');
+                            if(txtValue)
+                                checkBoxArray.push(txtValue);
+
+                        } else {
+                            $(this).find('.rowcheckbox').prop("checked", false);
+                            $(this).removeClass('selected');
+                            checkBoxArray = [];
+                        }
+                    }
+                });
+            });
+            // select single record which row is clicked
+            $('#table-4 tbody').on('click', 'tr', function () {
+
+                var txtValue = $(this).find('.rowcheckbox').prop("checked", true).val();
+                var checked = $(this).is(':checked')
+                if (checked == '') {
+                    if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                        $(this).toggleClass('selected');
+                        if ($(this).hasClass('selected')) {
+                            $(this).find('.rowcheckbox').prop("checked", true);
+                            checkBoxArray.push(txtValue);
+                        } else {
+                            $(this).find('.rowcheckbox').prop("checked", false);
+                            checkBoxArray.pop(txtValue);
+
+                        }
+                    }
+                }
+            });
+
+
+            // Highlighted rows
+            $("#table-4 tbody input[type=checkbox]").each(function (i, el) {
+                var $this = $(el),
+                        $p = $this.closest('tr');
+
+                $(el).on('change', function () {
+                    var is_checked = $this.is(':checked');
+
                     $p[is_checked ? 'addClass' : 'removeClass']('highlight');
                 });
             });
@@ -205,15 +299,11 @@
                 $("#add-new-package-form [name='PackageId']").val($(this).attr('data-id'));
                 $("#add-new-package-form [name='CurrencyId']").val(CurrencyId).trigger("change");
                 $('#add-new-modal-package h4').html('Edit Package');
-
                 $("#editRateTableId").val(RateTableId);
-                /*setTimeout(function(){
-                    $("#add-new-package-form [name='RateTableId']").val(RateTableId).trigger("change");
-                }, 4000);*/
-
                 $('#add-new-modal-package').modal('show');
-            })
-        });
+            });
+
+       });
 
     </script>
     @include('package.packagemodal')

@@ -16,7 +16,7 @@ class Package extends \Eloquent
 
 
     public static function getDropdownIDList(){
-        $DropdownIDList = Package::lists('Name', 'PackageID');
+        $DropdownIDList = Package::lists('Name', 'PackageId');
         $DropdownIDList = array('' => "Select") + $DropdownIDList;
         return $DropdownIDList;
     }
