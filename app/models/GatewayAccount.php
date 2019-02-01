@@ -4,6 +4,8 @@ class GatewayAccount extends \Eloquent {
 	protected $fillable = [];
     protected $connection = 'sqlsrv2';
     protected $table = 'tblGatewayAccount';
+    protected $primaryKey = "GatewayAccountPKID";
+    protected $guarded = array('GatewayAccountPKID');
     public $timestamps = false; // no created_at and updated_at
 
     public static function getAccountIDList($gatewayid=0){

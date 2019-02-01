@@ -574,11 +574,9 @@ class PaymentsController extends \BaseController {
             'PaymentID' => $Payment->PaymentID
         );
 
-        $resp = $this->payout($data);
-
+        $resp = AccountPayout::payout($data);
         if($resp['status'] == "success") {
-
-            $this->successPayoutCustomerEmail($data);
+            AccountPayout::successPayoutCustomerEmail($data);
             $transactionID = @$resp['response']['balance_transaction'];
             $payoutID = @$resp['response']['balance_transaction'];
             $note = "Stripe payout_id: {$transactionID}, transaction_id: {$payoutID}";
@@ -600,74 +598,6 @@ class PaymentsController extends \BaseController {
             }
         } else {
             return ['status' => 'failed', 'message' => addslashes(@$resp['message'])];
-        }
-    }
-
-    /**
-     * @param $data
-     * @return array
-     */
-    public function payout($data){
-
-        $Account = Account::where([
-            'AccountID' => $data['AccountID'],
-            'CompanyID' => $data['CompanyID']
-        ])->first();
-        $response = ['status' => 'failed', 'message' => "Payout Request Failed."];
-        if($Account != false) {
-            $PayoutMethod = $Account->PayoutMethod != "" ? $Account->PayoutMethod : "Stripe";
-            if (!empty($PayoutMethod) && $PayoutMethod=='Stripe') {
-                $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PayoutMethod);
-                $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
-                $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $data['CompanyID']);
-                $data['account'] = $Account;
-
-                $response = $PaymentIntegration->payoutWithStripeAccount($data);
-            }
-        }
-
-        return $response;
-    }
-
-    public function successPayoutCustomerEmail($email){
-
-        $status = EmailsTemplates::CheckEmailTemplateStatus(Account::OutPaymentEmailTemplate);
-        if($status != false) {
-            $Account = Account::find($email['AccountID']);
-            $CompanyID = $email['CompanyID'];
-            $CompanyName = Company::getName();
-            $Currency = Currency::find($Account->CurrencyId);
-            $CurrencyCode = !empty($Currency) ? $Currency->Code : '';
-            $emaildata = array(
-                'CompanyName' => $CompanyName,
-                'Currency' => $CurrencyCode,
-                'CompanyID' => $CompanyID,
-                'OutPaymentAmount' => $email['Amount'],
-            );
-
-            $emaildata['EmailToName'] = $Account->AccountName;
-            $body = EmailsTemplates::setOutPaymentPlaceholder($Account, 'body', $CompanyID, $emaildata);
-            $emaildata['Subject'] = EmailsTemplates::setOutPaymentPlaceholder($Account, "subject", $CompanyID, $emaildata);
-            if (!isset($emaildata['EmailFrom'])) {
-                $emaildata['EmailFrom'] = EmailsTemplates::GetEmailTemplateFrom(Account::OutPaymentEmailTemplate);
-            }
-
-            $CustomerEmail = $Account->BillingEmail;
-            if($CustomerEmail != '') {
-                $CustomerEmail = explode(",", $CustomerEmail);
-                $customeremail_status['status'] = 0;
-                $customeremail_status['message'] = '';
-                $customeremail_status['body'] = '';
-                foreach ($CustomerEmail as $singleemail) {
-                    $singleemail = trim($singleemail);
-                    if (filter_var($singleemail, FILTER_VALIDATE_EMAIL)) {
-                        $emaildata['EmailTo'][] = $singleemail;
-                    }
-                }
-                Log::info("============ EmailData ===========");
-                Log::info($emaildata);
-                $customeremail_status = Helper::sendMaiL($body, $emaildata, 0);
-            }
         }
     }
     // Payout Functions End
