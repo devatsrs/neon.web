@@ -73,6 +73,7 @@ class AccountsApiController extends ApiController {
 		$post_vars = '';
 		$accountData = '';
 		$DefaultSubscriptionID = '';
+		$DefaultSubscriptionPackageID = '';
 		$ServiceTitle = '';
 		try {
 			$post_vars = json_decode(file_get_contents("php://input"));
@@ -95,6 +96,7 @@ class AccountsApiController extends ApiController {
 
 		$CompanyID = User::get_companyID();
 		$DefaultSubscriptionID = CompanyConfiguration::where(['CompanyID'=>$CompanyID,'Key'=>'DEFAULT_SUBSCRIPTION_ID'])->pluck('Value');
+		$DefaultSubscriptionPackageID = CompanyConfiguration::where(['CompanyID'=>$CompanyID,'Key'=>'DEFAULT_SUBSCRIPTION_PACKAGE_ID'])->pluck('Value');
 		$CreatedBy = User::get_user_full_name();
 		$date = date('Y-m-d H:i:s');
 		$InboundRateTableReference = '';
@@ -510,7 +512,7 @@ class AccountsApiController extends ApiController {
 				}
 			}
 
-			if (!empty($DefaultSubscriptionID) && !empty($PackagedataRecord)) {
+			if (!empty($DefaultSubscriptionPackageID) && !empty($PackagedataRecord)) {
 
 				if(!empty($PackagedataRecord["PackageId"]) && !empty($PackagedataRecord["RateTableId"])) {
 				//	$AccountServicePackage = AccountServicePackage::where(['AccountID' => $Account->AccountID, 'AccountServiceID' => $AccountService->AccountServiceID]);
@@ -547,7 +549,7 @@ class AccountsApiController extends ApiController {
 				foreach ($RateTableDIDRates as $RateTableDIDRate) {
 					$this->createAccountSubscriptionFromRateTable($Account, $AccountSubscriptionDB,
 						$date, $ServiceTemaplateReference, $AccountService,
-						$DefaultSubscriptionID, $DynamicFieldIDs,
+						$DefaultSubscriptionPackageID, $DynamicFieldIDs,
 						$RateTableDIDRate, $Packagedata["InvoicePackageDescription"],++$SubscriptionSequence);
 				}
 			}
