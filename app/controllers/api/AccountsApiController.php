@@ -97,6 +97,8 @@ class AccountsApiController extends ApiController {
 		$CompanyID = User::get_companyID();
 		$DefaultSubscriptionID = CompanyConfiguration::where(['CompanyID'=>$CompanyID,'Key'=>'DEFAULT_SUBSCRIPTION_ID'])->pluck('Value');
 		$DefaultSubscriptionPackageID = CompanyConfiguration::where(['CompanyID'=>$CompanyID,'Key'=>'DEFAULT_SUBSCRIPTION_PACKAGE_ID'])->pluck('Value');
+		Log::info('createAccountService:Add Product Service.' . '$DefaultSubscriptionID:' . $DefaultSubscriptionID .
+			' ' . '$DefaultSubscriptionPackageID' . ' ' . $DefaultSubscriptionPackageID);
 		$CreatedBy = User::get_user_full_name();
 		$date = date('Y-m-d H:i:s');
 		$InboundRateTableReference = '';
