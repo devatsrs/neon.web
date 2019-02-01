@@ -330,7 +330,11 @@ jQuery(document).ready(function($) {
     });
     $('#add-new-form select[name=Type]').on("change",function() {
         var val = $(this).val();
-        if(val == 1) { // voicecall
+        if(val == 3) { // package
+            $('#box-DIDCategory').hide();
+            $('#box-Trunk').hide();
+            $('#box-MinimumCallCharge').hide();
+        } else if(val == 1) { // voicecall
             $('#box-DIDCategory').hide();
             $('#box-Trunk').show();
             $('#box-MinimumCallCharge').show();
