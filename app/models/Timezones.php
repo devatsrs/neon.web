@@ -58,4 +58,55 @@ class Timezones extends \Eloquent {
         return '';
     }
 
+    public static function getTimeZoneByConnectTime($ConnectTime){
+        $TimeZones = Timezones::where(['Status'=>1,'ApplyIF'=>'start'])->orderBY('TimezonesID')->get();
+        $Count = count(($TimeZones));
+        if($Count>1){
+            foreach($TimeZones as $TimeZone){
+                if(!empty($TimeZone->FromTime) && !empty($TimeZone->ToTime)){
+                    // check on time
+                    $date = date('Y-m-d',strtotime($ConnectTime));
+                    $FromTime = $date.' '.$TimeZone->FromTime.':00';
+                    $ToTime = $date.' '.$TimeZone->ToTime.':00';
+                    //echo $ConnectTime.' '.$FromTime.' '.$ToTime;
+                    if( strtotime($ConnectTime) >= strtotime($FromTime) && strtotime($ConnectTime) <= strtotime($ToTime)){
+                        return $TimeZone->TimezonesID;
+                    }
+                }
+                if(!empty($TimeZone->Months)){
+                    $Months = explode(',',$TimeZone->Months);
+                    $m = date('m',strtotime($ConnectTime));
+                    if(in_array($m,$Months)){
+                        return $TimeZone->TimezonesID;
+                    }
+                }
+                if(!empty($TimeZone->DaysOfMonth)){
+                    $DaysOfMonth = explode(',',$TimeZone->DaysOfMonth);
+                    $d = date('d',strtotime($ConnectTime));
+                    if(in_array($d,$DaysOfMonth)){
+                        return $TimeZone->TimezonesID;
+                    }
+                }
+                if(!empty($TimeZone->DaysOfWeek)){
+                    $DaysOfWeek = explode(',',$TimeZone->DaysOfWeek);
+                    $day = date("l",strtotime($ConnectTime)) ;
+                    if($day=='Sunday'){
+                        $weekdays=1;
+                    }else{
+                        $weekdays = date("N",strtotime($ConnectTime)) +1 ;
+                    }
+                    if(in_array($weekdays,$DaysOfWeek)){
+                        return $TimeZone->TimezonesID;
+                    }
+                }
+            }
+        }else{
+            $TimezonesID = Timezones::where(['Status'=>1,'ApplyIF'=>'start'])->pluck('TimezonesID');
+            return $TimezonesID;
+        }
+
+        $TimezonesID = Timezones::where(['Status'=>1,'Title'=>'Default'])->pluck('TimezonesID');
+        return $TimezonesID;
+    }
+
 }

@@ -344,4 +344,10 @@ class AccountService extends \Eloquent {
         return AccountService::where(['AccountServiceID'=>$AccountServiceID])->pluck('ServiceID');
     }
 
+    public static function getFirstAccountServiceID($AccountID){
+        $AccountService = AccountService::where(['AccountID'=>$AccountID])->first();
+        $AccountServiceID = empty($AccountService->AccountServiceID)?0:$AccountService->AccountServiceID;
+        return $AccountServiceID;
+    }
+
 }
