@@ -579,7 +579,7 @@ class AccountsApiController extends ApiController {
 		$AccountSubscription["SubscriptionID"] = $AccountSubscriptionDB["SubscriptionID"];
 		$AccountSubscription["InvoiceDescription"] = $InvoiceLineDescription;
 		$AccountSubscription["Qty"] = 1;
-	//	$AccountSubscription["StartDate"] = $date;
+		$AccountSubscription["StartDate"] = $date;
 	//	$AccountSubscription["EndDate"] = $date;
 		//$AccountSubscription["ExemptTax"] =  $AccountSubscriptionDB[];
 		$AccountSubscription["ActivationFee"] = $RateTableDIDRate["OneOffCost"];
@@ -630,7 +630,7 @@ class AccountsApiController extends ApiController {
 		$AccountSubscription["SubscriptionID"] = $AccountSubscriptionDB["SubscriptionID"];
 		$AccountSubscription["InvoiceDescription"] = $AccountSubscriptionDB["InvoiceLineDescription"];
 		$AccountSubscription["Qty"] = 1;
-		//$AccountSubscription["StartDate"] = $date;
+		$AccountSubscription["StartDate"] = $date;
 		//$AccountSubscription["EndDate"] = $date;
 		//$AccountSubscription["ExemptTax"] =  $AccountSubscriptionDB[];
 		$AccountSubscription["ActivationFee"] = $AccountSubscriptionDB["ActivationFee"];
