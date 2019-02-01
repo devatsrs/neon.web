@@ -124,13 +124,15 @@ class AccountsApiController extends ApiController {
 			$AccountServiceContract['ContractTerm'] = isset($accountData['ContractType']) ? $accountData['ContractType'] : '';
 			//$AccountSubscription["PackageSubscription"] = isset($accountData['PackageSubscriptionID']) ? $accountData['PackageSubscriptionID'] : '';
 			$ServiceTitle = isset($accountData['ServiceTitle']) ? $accountData['ServiceTitle'] : '';
-			$Packagedata['PackageID'] = isset($accountData['PackageID']) ? $accountData['PackageID'] :'';
+			$Packagedata['PackageSubcriptionDynamicField'] = isset($accountData['PackageSubcriptionDynamicField']) ? $accountData['PackageSubcriptionDynamicField'] :'';
 			$Packagedata['InvoicePackageDescription'] = isset($accountData['InvoicePackageDescription']) ? $accountData['InvoicePackageDescription'] :'';
-			if (!empty($Packagedata['PackageID'])) {
-				$PackagedataRecord =  Package::find($Packagedata['PackageID']);
-				if (!isset($PackagedataRecord)) {
+			if (!empty($Packagedata['PackageSubcriptionDynamicField'])) {
+				$PackagedataRecord =  Package::findPackageByDynamicField($Packagedata['PackageSubcriptionDynamicField']);
+				if (empty($PackagedataRecord)) {
 					return Response::json(["ErrorMessage" => Codes::$Code1031[1]], Codes::$Code1031[0]);
 				}
+
+				$PackagedataRecord = Package::find($PackagedataRecord);
 			}
 			if (!empty($AccountServiceContract['ContractStartDate']) && empty($AccountServiceContract['ContractEndDate'])) {
 				return Response::json(["ErrorMessage"=>Codes::$Code1001[1]],Codes::$Code1001[0]);
