@@ -109,4 +109,16 @@ class RateTable extends \Eloquent
 
     }
 
+    public static function getPackageTariffDropDownList($CompanyID,$Type,$AppiedTo){
+        $row=array();
+
+        $row = RateTable::where(array('CompanyID'=>$CompanyID,'Type'=>$Type,'AppliedTo'=>$AppiedTo))->lists('RateTableName', 'RateTableId');
+
+        if(!empty($row)){
+            $row = array(""=> "Select")+$row;
+        }
+        return $row;
+
+    }
+
 }

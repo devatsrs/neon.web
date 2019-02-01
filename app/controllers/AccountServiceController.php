@@ -65,7 +65,7 @@ class AccountServiceController extends \BaseController {
         $PackageType=RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE);
 
         $AppiedTo=Account::getAccountTypeByAccountID($id);
-        $RateTable=RateTable::getDIDTariffDropDownList($CompanyID,$PackageType,$CurrencyID,$AppiedTo);
+        $RateTable=RateTable::getPackageTariffDropDownList($CompanyID,$PackageType,$AppiedTo);
 
         $PackageId="";
         $RateTableID="";
