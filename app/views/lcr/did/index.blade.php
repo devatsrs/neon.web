@@ -26,19 +26,19 @@
                 </div>
                 <div class="form-group">
                     <label class="control-label">Product</label>
-                    {{ Form::select('Product', $products, '', array("class"=>"select2 small")) }}
+                    {{ Form::select('Product', $products, '', array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Currency</label>
-                    {{Form::select('Currency', $currencies, $CurrencyID ,array("class"=>"select2 small"))}}
+                    {{Form::select('Currency', $currencies, $CurrencyID ,array("class"=>"select2"))}}
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Show Positions</label>
-                    {{ Form::select('LCRPosition', LCR::$position, $LCRPosition , array("class"=>"select2 small")) }}
+                    {{ Form::select('LCRPosition', LCR::$position, $LCRPosition , array("class"=>"select2")) }}
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Category</label>
-                    {{Form::select('DIDCategoryID', $Categories, '',array("class"=>"select2 small"))}}
+                    {{Form::select('DIDCategoryID', $Categories, '',array("class"=>"select2"))}}
                 </div>
                 <div class="form-group usage-inp">
                     <h4>Usage Input</h4>
@@ -51,13 +51,21 @@
                     <label class="control-label">Minutes</label>
                     <input type="number" min="0" name="Minutes" class="form-control" id="field-15" placeholder="" />
                 </div>
-                <div class="form-group" id="TimezonesBox">
-                    <label class="control-label">Timezone</label>
-                    {{ Form::select('Timezones', $Timezones, '', array("class"=>"select2 small")) }}
+                <div class="form-group" id="Timezone">
+                    <label class="control-label">Time of day</label>
+                    {{ Form::select('Timezone', $Timezones, '', array("class"=>"select2")) }}
+                </div>
+                <div class="form-group" id="TimezonePercentage">
+                    <label class="control-label">Time of day %</label>
+                    <input type="number" min="0" name="TimezonePercentage" class="form-control" id="field-15" placeholder="" />
                 </div>
                 <div class="form-group" id="Origination">
+                    <label class="control-label">Origination</label>
+                    <input type="text" name="Origination" class="form-control" id="field-15" placeholder="" />
+                </div>
+                <div class="form-group" id="OriginationPercentage">
                     <label class="control-label">Origination %</label>
-                    <input type="number" min="0" name="Origination" class="form-control" id="field-15" placeholder="" />
+                    <input type="number" min="0" name="OriginationPercentage" class="form-control" id="field-15" placeholder="" />
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="control-label">Date From</label>
@@ -92,28 +100,28 @@
         </li>
         <li>
 
-            <a href="{{URL::to('accounts')}}">LCR</a>
+            <a href="{{URL::to('lcr')}}">LCR</a>
         </li>
         <li class="active">
-            <strong>DID</strong>
+            <strong>Access</strong>
         </li>
     </ol>
-    <h3 id="headingLCR">DID</h3>
+    <h3 id="headingLCR">Access</h3>
     <div class="clear"></div>
     <br>
     <table class="table table-bordered datatable" id="table">
         <thead>
-        <tr>
+        {{--<tr>
             <th><h4><strong>PRS IT 0900 caller rate:</strong></h4></th>
             <th>$</th>
             <th></th>
             <th></th>
-        </tr>
+        </tr>--}}
         <tr>
             <th>Cost Components</th>
-            <th id="dt_v1">Vendor A</th>
-            <th id="dt_v2">Vendor B</th>
-            <th id="dt_v3">Vendor C</th>
+            <th id="dt_p1">Position 1</th>
+            <th id="dt_p2">Position 2</th>
+            <th id="dt_p3">Position 3</th>
         </tr>
         </thead>
         <tbody>
@@ -121,101 +129,11 @@
     </table>
     <script type="text/javascript">
         var $searchFilter = {};
+        var data_table;
         jQuery(document).ready(function($) {
-
             $('#filter-button-toggle').show();
-            var data_table = $("#table").dataTable({
-                "bDestroy":    true,
-                "bProcessing": true,
-                "bServerSide": false,
-                "sAjaxSource": baseurl + "/lcr/search_ajax_datagrid/type",
-                "fnServerParams": function (aoData) {
-                    aoData.push(
-                            {"name": "EffectiveDate", "value": $searchFilter.EffectiveDate},
-                            {"name": "Product","value": $searchFilter.Product},
-                            {"name": "Currency","value": $searchFilter.Currency},
-                            {"name": "LCRPosition","value": $searchFilter.LCRPosition},
-                            {"name": "DIDCategoryID","value": $searchFilter.DIDCategoryID},
-                            {"name": "Calls","value": $searchFilter.Calls},
-                            {"name": "Minutes","value": $searchFilter.Minutes},
-                            {"name": "Origination","value": $searchFilter.Origination},
-                            {"name": "Timezones","value": $searchFilter.Timezones},
-                            {"name": "DateTo", "value": $searchFilter.DateTo},
-                            {"name": "DateFrom", "value": $searchFilter.DateFrom}
-                    );
-                    data_table_extra_params.length = 0;
-                    data_table_extra_params.push(
-                            {"name": "EffectiveDate", "value": $searchFilter.EffectiveDate},
-                            {"name": "Product","value": $searchFilter.Product},
-                            {"name": "Currency","value": $searchFilter.Currency},
-                            {"name": "LCRPosition","value": $searchFilter.LCRPosition},
-                            {"name": "DIDCategoryID","value": $searchFilter.DIDCategoryID},
-                            {"name": "Calls","value": $searchFilter.Calls},
-                            {"name": "Minutes","value": $searchFilter.Minutes},
-                            {"name": "Origination","value": $searchFilter.Origination},
-                            {"name": "Timezones","value": $searchFilter.Timezones},
-                            {"name": "DateTo", "value": $searchFilter.DateTo},
-                            {"name": "DateFrom", "value": $searchFilter.DateFrom}
-                    );
-
-                },
-                "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
-                "sPaginationType": "bootstrap",
-                "sDom": "<'row'<'col-xs-6 col-left '<'.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                "aaSorting": [[5, 'desc']],
-                "aoColumns": [
-                    {
-                        "bSortable": true,
-                        mRender: function (id, type, full) {
-                            return full[0]
-                        }
-                    },
-                    {
-                        "bSortable": true,
-                        mRender: function (id, type, full) {
-                            return full[1]
-                        }
-                    },
-                    {
-                        "bSortable": true,
-                        mRender: function (id, type, full) {
-                            return full[2]
-                        }
-                    },
-                    {
-                        "bSortable": true,
-                        mRender: function (id, type, full) {
-                            return full[3]
-                        }
-                    }
-                ],
-                "oTableTools": {
-                    "aButtons": [
-                        {
-                            "sExtends": "download",
-                            "sButtonText": "EXCEL",
-                            "sUrl": baseurl + "/payments/ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
-                            sButtonClass: "save-collection"
-                        },
-                        {
-                            "sExtends": "download",
-                            "sButtonText": "CSV",
-                            "sUrl": baseurl + "/payments/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
-                            sButtonClass: "save-collection"
-                        }
-                    ]
-                },
-                "fnDrawCallback": function () {
-                    $(".dataTables_wrapper select").select2({
-                        minimumResultsForSearch: -1
-                    });
-                }
-
-            });
-
             $("#did-search-form").submit(function(e) {
                 e.preventDefault();
-                $(".vendorRateInfo").addClass('hide');
                 $searchFilter.EffectiveDate = $("#did-search-form input[name='EffectiveDate']").val();
                 $searchFilter.Product       = $("#did-search-form input[name='Product']").val();
                 $searchFilter.Currency      = $("#did-search-form select[name='Currency']").val();
@@ -224,10 +142,105 @@
                 $searchFilter.Calls         = $("#did-search-form input[name='Calls']").val();
                 $searchFilter.Minutes       = $("#did-search-form input[name='Minutes']").val();
                 $searchFilter.Origination   = $("#did-search-form input[name='Origination']").val();
-                $searchFilter.Timezones     = $("#lcr-search-form select[name='Timezones']").val();
+                $searchFilter.OriginationPercentage   = $("#did-search-form input[name='OriginationPercentage']").val();
+                $searchFilter.Timezone      = $("#lcr-search-form select[name='Timezone']").val();
+                $searchFilter.TimezonePercentage = $("#lcr-search-form select[name='TimezonePercentage']").val();
+                $searchFilter.Origination   = $("#lcr-search-form select[name='Origination']").val();
                 $searchFilter.DateTo        = $("#did-search-form input[name='DateTo']").val();
                 $searchFilter.DateFrom      = $("#did-search-form input[name='DateFrom']").val();
-                data_table.fnFilter('', 0);
+
+                data_table = $("#table").dataTable({
+                    "bDestroy":    true,
+                    "bProcessing": true,
+                    "bServerSide": true,
+                    "sAjaxSource": baseurl + "/lcr/search_ajax_datagrid/type",
+                    "fnServerParams": function (aoData) {
+                        aoData.push(
+                                {"name": "EffectiveDate", "value": $searchFilter.EffectiveDate},
+                                {"name": "Product","value": $searchFilter.Product},
+                                {"name": "Currency","value": $searchFilter.Currency},
+                                {"name": "LCRPosition","value": $searchFilter.LCRPosition},
+                                {"name": "DIDCategoryID","value": $searchFilter.DIDCategoryID},
+                                {"name": "Calls","value": $searchFilter.Calls},
+                                {"name": "Minutes","value": $searchFilter.Minutes},
+                                {"name": "Origination","value": $searchFilter.Origination},
+                                {"name": "OriginationPercentage","value": $searchFilter.OriginationPercentage},
+                                {"name": "Timezone","value": $searchFilter.Timezone},
+                                {"name": "TimezonePercentage","value": $searchFilter.TimezonePercentage},
+                                {"name": "DateTo", "value": $searchFilter.DateTo},
+                                {"name": "DateFrom", "value": $searchFilter.DateFrom}
+                        );
+                        data_table_extra_params.length = 0;
+                        data_table_extra_params.push(
+                                {"name": "EffectiveDate", "value": $searchFilter.EffectiveDate},
+                                {"name": "Product","value": $searchFilter.Product},
+                                {"name": "Currency","value": $searchFilter.Currency},
+                                {"name": "LCRPosition","value": $searchFilter.LCRPosition},
+                                {"name": "DIDCategoryID","value": $searchFilter.DIDCategoryID},
+                                {"name": "Calls","value": $searchFilter.Calls},
+                                {"name": "Minutes","value": $searchFilter.Minutes},
+                                {"name": "Origination","value": $searchFilter.Origination},
+                                {"name": "OriginationPercentage","value": $searchFilter.OriginationPercentage},
+                                {"name": "Timezone","value": $searchFilter.Timezone},
+                                {"name": "TimezonePercentage","value": $searchFilter.TimezonePercentage},
+                                {"name": "DateTo", "value": $searchFilter.DateTo},
+                                {"name": "DateFrom", "value": $searchFilter.DateFrom}
+                        );
+
+                    },
+                    "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
+                    "sPaginationType": "bootstrap",
+                    "sDom": "<'row'<'col-xs-6 col-left '<'.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                    "aaSorting": [[5, 'desc']],
+                    "aoColumns": [
+                        {
+                            "bSortable": true,
+                            mRender: function (id, type, full) {
+                                return full[0]
+                            }
+                        },
+                        {
+                            "bSortable": true,
+                            mRender: function (id, type, full) {
+                                return full[1]
+                            }
+                        },
+                        {
+                            "bSortable": true,
+                            mRender: function (id, type, full) {
+                                return full[2]
+                            }
+                        },
+                        {
+                            "bSortable": true,
+                            mRender: function (id, type, full) {
+                                return full[3]
+                            }
+                        }
+                    ],
+                    "oTableTools": {
+                        "aButtons": [
+                            {
+                                "sExtends": "download",
+                                "sButtonText": "EXCEL",
+                                "sUrl": baseurl + "/payments/ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
+                                sButtonClass: "save-collection"
+                            },
+                            {
+                                "sExtends": "download",
+                                "sButtonText": "CSV",
+                                "sUrl": baseurl + "/payments/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
+                                sButtonClass: "save-collection"
+                            }
+                        ]
+                    },
+                    "fnDrawCallback": function () {
+                        $(".dataTables_wrapper select").select2({
+                            minimumResultsForSearch: -1
+                        });
+                    }
+
+                });
                 return false;
             });
 
