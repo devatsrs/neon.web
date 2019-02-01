@@ -325,7 +325,9 @@ class ServicesTemplateController extends BaseController {
                         foreach ($subsriptionList as $subsription) {
                             $ServiceTemapleSubscription['SubscriptionId'] = $subsription;
                             Log::info('Service Template Controller.' . $subsription);
-                            ServiceTemapleSubscription::create($ServiceTemapleSubscription);
+                            if (!empty($subsription)) {
+                                ServiceTemapleSubscription::create($ServiceTemapleSubscription);
+                            }
                         }
 
                         foreach ($CategoryTariffList as $index1 => $CategoryTariffValue) {
@@ -540,7 +542,9 @@ class ServicesTemplateController extends BaseController {
                 foreach ($subsriptionList as $subsription) {
                     $ServiceTemapleSubscription['SubscriptionId'] = $subsription;
                     Log::info('Service Template Controller.' . $subsription);
-                    ServiceTemapleSubscription::create($ServiceTemapleSubscription);
+                    if (!empty($subsription)) {
+                        ServiceTemapleSubscription::create($ServiceTemapleSubscription);
+                    }
                 }
 
                 foreach ($CategoryTariffList as $index1 => $CategoryTariffValue) {
