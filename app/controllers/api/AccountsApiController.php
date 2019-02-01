@@ -474,7 +474,7 @@ class AccountsApiController extends ApiController {
 					$NumberPurchased = $NumberPurchasedRef[$i];
 					Log::info('CreateAccountService:$NumberPurchasedRef .' . $NumberPurchased["Number"]);
 					$rate_tables['CLI'] = $NumberPurchased["Number"];
-					$rate_tables['RateTableID'] = $cliRateTableID;
+					//$rate_tables['RateTableID'] = $cliRateTableID;
 					$rate_tables['AccountID'] = $Account->AccountID;
 					$rate_tables['CompanyID'] = $CompanyID;
 					$rate_tables['CityTariff'] = $ServiceTemaplateReference->city_tariff;
@@ -494,7 +494,8 @@ class AccountsApiController extends ApiController {
 						$RateTableDIDRates = $RateTableDIDRates->where(["tblRateTableDIDRate.CityTariff" => $ServiceTemaplateReference->city_tariff]);
 						$RateTableDIDRates = $RateTableDIDRates->where(["tblRateTableDIDRate.RateTableId" => $InboundRateTableReference]);
 						$RateTableDIDRates = $RateTableDIDRates->where(["tblRateTableDIDRate.ApprovedStatus" => 1]);
-						Log::info('$RateTableDIDRates.' . $RateTableDIDRates->toSql());
+						$RateTableDIDRates = $RateTableDIDRates->whereRaw(["tblRateTableDIDRate.EffectiveDate <= NOW()" ]);
+						Log::info('$RateTableDIDRates CLI.' . $RateTableDIDRates->toSql());
 						$RateTableDIDRates = $RateTableDIDRates->get();
 						//$RateTableDIDRates = RateTableDIDRate::where(array('CityTariff' => $ServiceTemaplateReference->city_tariff))->get();
 						foreach ($RateTableDIDRates as $RateTableDIDRate) {
@@ -537,6 +538,7 @@ class AccountsApiController extends ApiController {
 				$RateTableDIDRates = $RateTableDIDRates->where(["tblRate.Code" => $PackagedataRecord["Name"]]);
 				$RateTableDIDRates = $RateTableDIDRates->where(["tblRateTableDIDRate.RateTableId" => $PackagedataRecord["RateTableId"]]);
 				$RateTableDIDRates = $RateTableDIDRates->where(["tblRateTableDIDRate.ApprovedStatus" => 1]);
+				$RateTableDIDRates = $RateTableDIDRates->whereRaw(["tblRateTableDIDRate.EffectiveDate <= NOW()" ]);
 				Log::info('Package $RateTableDIDRates.' . $RateTableDIDRates->toSql());
 				$RateTableDIDRates = $RateTableDIDRates->get();
 				//$RateTableDIDRates = RateTableDIDRate::where(array('CityTariff' => $ServiceTemaplateReference->city_tariff))->get();
