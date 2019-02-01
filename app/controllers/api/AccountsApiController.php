@@ -305,6 +305,51 @@ class AccountsApiController extends ApiController {
 
 			}
 
+			$OutboundDiscountPlan = $ServiceTemaplateReference->OutboundDiscountPlanId;
+			$InboundDiscountPlan = $ServiceTemaplateReference->InboundDiscountPlanId;
+
+				$AccountSubscriptionID = 0;
+				$AccountName = '';
+				$AccountCLI = '';
+				$SubscriptionDiscountPlanID = 0;
+			if (!empty($OutboundDiscountPlan)) {
+				$AccountDiscountPlan['AccountID'] = $Account->AccountID;
+				$AccountDiscountPlan['DiscountPlanID'] = $OutboundDiscountPlan;
+				$AccountDiscountPlan['Type'] = AccountDiscountPlan::OUTBOUND;
+				$AccountDiscountPlan['ServiceID'] = $ServiceTemaplateReference->ServiceId;
+				$AccountDiscountPlan['AccountSubscriptionID'] = $AccountSubscriptionID;
+				$AccountDiscountPlan['AccountName'] = $AccountName;
+				$AccountDiscountPlan['AccountCLI'] = $AccountCLI;
+				$AccountDiscountPlan['SubscriptionDiscountPlanID'] = $SubscriptionDiscountPlanID;
+				$AccountDiscountPlanExists = AccountDiscountPlan::where(array('AccountID' => $Account->AccountID, 'Type' => AccountDiscountPlan::OUTBOUND))->count();
+				if ($AccountDiscountPlanExists == 0) {
+					AccountDiscountPlan::create($AccountDiscountPlan);
+				} else {
+					AccountDiscountPlan::where(array('AccountID' => $Account->AccountID, 'Type' => AccountDiscountPlan::OUTBOUND))
+						->update($AccountDiscountPlan);
+				}
+			}
+
+			if (!empty($InboundDiscountPlan)) {
+				$AccountInboudDiscountPlan = AccountDiscountPlan::where(array('AccountID' => $Account->AccountID,'Type'=>AccountDiscountPlan::INBOUND))->count();
+				$AccountDiscountPlan['AccountID'] = $Account->AccountID;
+				$AccountDiscountPlan['ServiceID'] = $ServiceTemaplateReference->ServiceId;
+				$AccountDiscountPlan['AccountSubscriptionID'] = $AccountSubscriptionID;
+				$AccountDiscountPlan['AccountName'] = $AccountName;
+				$AccountDiscountPlan['AccountCLI'] = $AccountCLI;
+				$AccountDiscountPlan['SubscriptionDiscountPlanID'] = $SubscriptionDiscountPlanID;
+				$AccountDiscountPlan['Type'] = AccountDiscountPlan::INBOUND;
+				$AccountDiscountPlan['DiscountPlanID'] =$InboundDiscountPlan;
+				$AccountDiscountPlanExists = AccountDiscountPlan::where(array('AccountID' => $Account->AccountID, 'Type' => AccountDiscountPlan::INBOUND))->count();
+				if ($AccountDiscountPlanExists == 0) {
+					AccountDiscountPlan::create($AccountDiscountPlan);
+				}else {
+					AccountDiscountPlan::where(array('AccountID' => $Account->AccountID,'Type'=>AccountDiscountPlan::INBOUND))
+						->update($AccountDiscountPlan);
+				}
+
+			}
+
 
 
 			$inbounddata = array();
@@ -313,6 +358,7 @@ class AccountsApiController extends ApiController {
 				$inbounddata['AccountID'] = $Account->AccountID;
 				$inbounddata['ServiceID'] = $ServiceTemaplateReference->ServiceId;
 				$inbounddata['RateTableID'] = $InboundRateTableReference;
+				$inbounddata['AccountServiceID'] = $AccountService->AccountServiceID;
 				$inbounddata['Type'] = AccountTariff::INBOUND;
 			}
 
@@ -322,6 +368,7 @@ class AccountsApiController extends ApiController {
 				$outbounddata['AccountID'] = $Account->AccountID;
 				$outbounddata['ServiceID'] = $ServiceTemaplateReference->ServiceId;
 				$outbounddata['RateTableID'] = $ServiceTemaplateReference->OutboundRateTableId;
+				$outbounddata['AccountServiceID'] = $AccountService->AccountServiceID;
 				$outbounddata['Type'] = AccountTariff::OUTBOUND;
 			}
 
@@ -428,7 +475,7 @@ class AccountsApiController extends ApiController {
 					$rate_tables['RateTableID'] = $cliRateTableID;
 					$rate_tables['AccountID'] = $Account->AccountID;
 					$rate_tables['CompanyID'] = $CompanyID;
-					$rate_tables['city_tariff'] = $ServiceTemaplateReference->city_tariff;
+					$rate_tables['CityTariff'] = $ServiceTemaplateReference->city_tariff;
 					$rate_tables['AccountServiceID'] = $AccountService->AccountServiceID;
 					if (!empty($ServiceTemaplateReference->ServiceId)) {
 						$rate_tables['ServiceID'] = $ServiceTemaplateReference->ServiceId;
@@ -459,6 +506,28 @@ class AccountsApiController extends ApiController {
 			}
 
 			if (!empty($DefaultSubscriptionID) && !empty($PackagedataRecord)) {
+
+				if(!empty($PackagedataRecord["PackageId"]) && !empty($PackagedataRecord["RateTableId"])) {
+					$AccountServicePackage = AccountServicePackage::where(['AccountID' => $Account->AccountID, 'AccountServiceID' => $AccountService->AccountServiceID]);
+					if ($AccountServicePackage->count() > 0) {
+						//Update
+						$AccountServicePackage->update(['PackageId' => $PackagedataRecord["PackageId"], 'RateTableID' => $PackagedataRecord["RateTableId"]]);
+
+					} else {
+						//Create
+						$packagedata = array();
+						$packagedata['AccountID'] = $Account->AccountID;
+						$packagedata['AccountServiceID'] = $AccountService->AccountServiceID;
+						$packagedata['CompanyID'] = $CompanyID;
+						$packagedata['PackageId'] = $PackagedataRecord["PackageId"];
+						$packagedata['RateTableID'] = $PackagedataRecord["RateTableId"];
+						$packagedata['created_at'] = date('Y-m-d H:i:s');
+
+						AccountServicePackage::create($packagedata);
+
+					}
+				}
+
 				$RateTableDIDRates = RateTableDIDRate::
 				Join('tblRate', 'tblRateTableDIDRate.RateID', '=', 'tblRate.RateID')
 					->select(['tblRateTableDIDRate.OneOffCost', 'tblRateTableDIDRate.MonthlyCost',
@@ -506,8 +575,8 @@ class AccountsApiController extends ApiController {
 		$AccountSubscription["SubscriptionID"] = $AccountSubscriptionDB["SubscriptionID"];
 		$AccountSubscription["InvoiceDescription"] = $InvoiceLineDescription;
 		$AccountSubscription["Qty"] = 1;
-		$AccountSubscription["StartDate"] = $date;
-		$AccountSubscription["EndDate"] = $date;
+	//	$AccountSubscription["StartDate"] = $date;
+	//	$AccountSubscription["EndDate"] = $date;
 		//$AccountSubscription["ExemptTax"] =  $AccountSubscriptionDB[];
 		$AccountSubscription["ActivationFee"] = $RateTableDIDRate["OneOffCost"];
 		$AccountSubscription["AnnuallyFee"] = $monthly * 12;
@@ -557,8 +626,8 @@ class AccountsApiController extends ApiController {
 		$AccountSubscription["SubscriptionID"] = $AccountSubscriptionDB["SubscriptionID"];
 		$AccountSubscription["InvoiceDescription"] = $AccountSubscriptionDB["InvoiceLineDescription"];
 		$AccountSubscription["Qty"] = 1;
-		$AccountSubscription["StartDate"] = $date;
-		$AccountSubscription["EndDate"] = $date;
+		//$AccountSubscription["StartDate"] = $date;
+		//$AccountSubscription["EndDate"] = $date;
 		//$AccountSubscription["ExemptTax"] =  $AccountSubscriptionDB[];
 		$AccountSubscription["ActivationFee"] = $AccountSubscriptionDB["ActivationFee"];
 		$AccountSubscription["AnnuallyFee"] = $AccountSubscriptionDB["AnnuallyFee"];
