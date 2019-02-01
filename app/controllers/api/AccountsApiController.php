@@ -321,6 +321,7 @@ class AccountsApiController extends ApiController {
 				$AccountDiscountPlan['AccountName'] = $AccountName;
 				$AccountDiscountPlan['AccountCLI'] = $AccountCLI;
 				$AccountDiscountPlan['SubscriptionDiscountPlanID'] = $SubscriptionDiscountPlanID;
+				$AccountDiscountPlan['AccountServiceID'] = $AccountService->AccountServiceID;
 				$AccountDiscountPlanExists = AccountDiscountPlan::where(array('AccountID' => $Account->AccountID, 'Type' => AccountDiscountPlan::OUTBOUND))->count();
 				if ($AccountDiscountPlanExists == 0) {
 					AccountDiscountPlan::create($AccountDiscountPlan);
@@ -340,6 +341,7 @@ class AccountsApiController extends ApiController {
 				$AccountDiscountPlan['SubscriptionDiscountPlanID'] = $SubscriptionDiscountPlanID;
 				$AccountDiscountPlan['Type'] = AccountDiscountPlan::INBOUND;
 				$AccountDiscountPlan['DiscountPlanID'] =$InboundDiscountPlan;
+				$AccountDiscountPlan['AccountServiceID'] = $AccountService->AccountServiceID;
 				$AccountDiscountPlanExists = AccountDiscountPlan::where(array('AccountID' => $Account->AccountID, 'Type' => AccountDiscountPlan::INBOUND))->count();
 				if ($AccountDiscountPlanExists == 0) {
 					AccountDiscountPlan::create($AccountDiscountPlan);
