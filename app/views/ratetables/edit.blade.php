@@ -1048,22 +1048,20 @@
                             html += "<td>" + data['Description'] + "</td>";
                             html += "<td>" + data['Interval1'] + "</td>";
                             html += "<td>" + data['IntervalN'] + "</td>";
-                            html += "<td>" + data['ConnectionFee'] + "</td>";
+                            html += "<td>" + (data['ConnectionFee'] != null?data['ConnectionFee']:'') + "</td>";
                             html += "<td>" + data['Rate'] + "</td>";
-                            html += "<td>" + data['RateN'] + "</td>";
+                            html += "<td>" + (data['RateN'] != null?data['RateN']:'') + "</td>";
                             html += "<td>" + data['EffectiveDate'] + "</td>";
                             html += "<td>" + data['EndDate'] + "</td>";
                             html += "<td>" + data['ModifiedDate'] + "</td>";
                             html += "<td>" + data['ModifiedBy'] + "</td>";
 
                             @if($rateTable->Type == $TypeVoiceCall && $rateTable->AppliedTo == RateTable::APPLIED_TO_VENDOR)
-                                data['Preference'] = data['Preference'] != null ? data['Preference'] : '';
-
                                 @if($ROUTING_PROFILE == 1)
-                                html += "<td>" + data['RoutingCategoryName'] + "</td>";
+                                html += "<td>" + (data['RoutingCategoryName'] != null?data['RoutingCategoryName']:'') + "</td>";
                                 @endif
 
-                                html += "<td>" + data['Preference'] + "</td>";
+                                html += "<td>" + (data['Preference'] != null?data['Preference']:'') + "</td>";
 
                                 if(data['Blocked'] == 0)
                                     html += '<td><i class="fa fa-unlock" style="color: green; font-size: 20px;"></i></td>';
