@@ -409,8 +409,8 @@ CREATE TABLE IF NOT EXISTS `tblTempRateTablePKGRate` (
   KEY `IX_tblTempRateTablePKGRateProcessID` (`ProcessId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-INSERT INTO `tblfileuploadtemplatetype` (`FileUploadTemplateTypeID`, `TemplateType`, `Title`, `UploadDir`, `created_at`, `created_by`, `Status`) VALUES (14, 'RatetablePKGRate', 'Ratetable Package Rate', 'RATETABLE_UPLOAD', '2019-01-31 13:59:54', 'Vasim Seta', 1);
-INSERT INTO `tbljobtype` (`JobTypeID`, `Code`, `Title`, `Description`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`) VALUES (35, 'PRTU', 'Package Rate Table Upload', NULL, '2019-01-31 14:29:35', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblFileUploadTemplateType` (`FileUploadTemplateTypeID`, `TemplateType`, `Title`, `UploadDir`, `created_at`, `created_by`, `Status`) VALUES (14, 'RatetablePKGRate', 'Ratetable Package Rate', 'RATETABLE_UPLOAD', '2019-01-31 13:59:54', 'Vasim Seta', 1);
+INSERT INTO `tblJobType` (`JobTypeID`, `Code`, `Title`, `Description`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`) VALUES (35, 'PRTU', 'Package Rate Table Upload', NULL, '2019-01-31 14:29:35', 'RateManagementSystem', NULL, NULL);
 
 
 
