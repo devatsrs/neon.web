@@ -311,7 +311,7 @@
             $("#edit-vendor-rate-form [name='VendorConnectionID']").val('');
 
             $('.modal-title').html('Add New  Vendor Connection');
-            $('#did_Div,#voice_Div').addClass('hidden');
+            $('#did_Div,#voice_Div,#package_Div').addClass('hidden');
             var RateTypeID = $("#vendor-rate-search select[name='RateTypeID']").val();
             if(typeof(RateTypeID)!='undefined' && $.trim(RateTypeID)!=''){
                 $("#edit-vendor-rate-form [name='RateTypeID']").val(RateTypeID).trigger("change");
@@ -322,18 +322,25 @@
 
         $("select[name='RateTypeID']").change(function(){
            var  RateTypeID=$(this).val();
-            $('#did_Div,#voice_Div').find('input:text').val('');
-            $('#voice_Div,#did_Div').find(".select2").select2("val", "");
+            $('#did_Div,#voice_Div,#package_Div').find('input:text').val('');
+            $('#voice_Div,#did_Div,#package_Div').find(".select2").select2("val", "");
 
             if(typeof(RateTypeID)!='undefined' && RateTypeID=='{{$DIDType}}'){
                 $("#did_Div").removeClass('hidden');
+                $("#package_Div").addClass('hidden');
                 $("#voice_Div").addClass('hidden');
             }else if(typeof(RateTypeID)!='undefined' && RateTypeID=='{{$VoiceCallType}}'){
                 $("#did_Div").addClass('hidden');
+                $("#package_Div").addClass('hidden');
                 $("#voice_Div").removeClass('hidden');
+            }else if(typeof(RateTypeID)!='undefined' && RateTypeID=='{{$PackageCallType}}'){
+                $("#did_Div").addClass('hidden');
+                $("#voice_Div").addClass('hidden');
+                $("#package_Div").removeClass('hidden');
             }else{
                 $("#did_Div").addClass('hidden');
                 $("#voice_Div").addClass('hidden');
+                $("#package_Div").addClass('hidden');
             }
 
         });
@@ -676,6 +683,21 @@
 
                             }else if(list_fields[i] == 'RateTableID'){
                                 $("#edit-vendor-rate-form [name='did[" + list_fields[i] + "]']").val(cur_obj.find("input[name='" + list_fields[i] + "']").val()).trigger("change");
+
+                            }
+
+                        }else if(RateTypeID=='{{$PackageCallType}}'){
+
+                            if(list_fields[i] == 'Active'){
+                                if(cur_obj.find("input[name='"+list_fields[i]+"']").val() == 1){
+                                    console.log('true');
+                                    $('#edit-vendor-rate-form [name="package[Active]"]').prop('checked',true);
+                                }else{
+                                    console.log('false');
+                                    $('#edit-vendor-rate-form [name="package[Active]"]').prop('checked',false);
+                                }
+                            }else if(list_fields[i] == 'RateTableID'){
+                                $("#edit-vendor-rate-form [name='package[" + list_fields[i] + "]']").val(cur_obj.find("input[name='" + list_fields[i] + "']").val()).trigger("change");
 
                             }
 
@@ -1072,7 +1094,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Tariff*</label>
+                                    <label for="field-5" class="control-label">Rate Table*</label>
                                     {{ Form::select('did[RateTableID]', $TariffDID, '', array("class"=>"select2")) }}
                                     <span id="DIDTariffLoading" class="hidden">Loading ...</span>
                                 </div>
@@ -1090,6 +1112,31 @@
 
                             </div>
 
+                        </div>
+
+                    </div>
+
+
+                    <div id="package_Div" class="hidden">
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Rate Table*</label>
+                                    {{ Form::select('package[RateTableID]', $TariffPackage, '', array("class"=>"select2")) }}
+                                    <span id="DIDTariffLoading" class="hidden">Loading ...</span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group" style="padding-top:15px;">
+                                    <label for="field-5" class="control-label">Active</label>
+                                    <p class="make-switch switch-small">
+                                        <input id="package[Active]" name="package[Active]" type="checkbox" value="1" checked >
+                                    </p>
+                                </div>
+
+                            </div>
                         </div>
 
                     </div>
@@ -1189,7 +1236,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Tariff</label>
+                                    <label for="field-5" class="control-label">Rate Table</label>
                                     {{ Form::select('voice[RateTableID]', $TariffVoiceCall, '', array("class"=>"select2")) }}
                                     <span id="VoiceTariffLoading" class="hidden">Loading ...</span>
 
