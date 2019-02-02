@@ -155,7 +155,7 @@ class PackageController extends BaseController {
 
     public function getRateTableFromCurrencyId($id){
             $rateTables = RateTable::where('CurrencyID', $id)
-                ->where('type', 3)
+                ->where('Type', 3)
                 ->where('AppliedTo', "!=", 2)
                 ->lists("RateTableName", "RateTableId");
             if ($rateTables != false) {
