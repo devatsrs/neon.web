@@ -20,7 +20,7 @@ class BillingClassApiController extends ApiController {
 
 			array_push($data,$arr);
 		}
-		return Response::json(["data"=>$data],Codes::$Code200[0]);
+		return Response::json($data,Codes::$Code200[0]);
 	}
 
 	public function getTaxRateList()
@@ -182,7 +182,7 @@ class BillingClassApiController extends ApiController {
 
 			$result['BillingClass']=json_decode($BillingClass->LowBalanceReminderSettings);
 
-			return Response::json(["data"=>$result],Codes::$Code200[0]);
+			return Response::json($result,Codes::$Code200[0]);
 
 		}else{
 			return Response::json(["ErrorMessage"=>"BillingClass Not Found"],Codes::$Code402[0]);

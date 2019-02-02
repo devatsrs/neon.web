@@ -57,7 +57,7 @@ class PaymentApiController extends ApiController {
 				//echo $query;die;
 				$Result = DB::connection('sqlsrv2')->select($query);
 				$Response = json_decode(json_encode($Result), true);
-				return Response::json(["data" => $Response],Codes::$Code200[0]);
+				return Response::json($Response,Codes::$Code200[0]);
 			}catch(Exception $e){
 				Log::info($e);
 				$reseponse = array("ErrorMessage" => "Something Went Wrong.",Codes::$Code500[0]);
@@ -166,7 +166,7 @@ class PaymentApiController extends ApiController {
 					}
 
 					if ($Payment != false) {
-						return Response::json(array("data" => ["RequestFundID" => $Payment->PaymentID]),Codes::$Code200[0]);
+						return Response::json(array("RequestFundID" => $Payment->PaymentID),Codes::$Code200[0]);
 					} else {
 						return Response::json(array("ErrorMessage" => "Problem Creating Payment."),Codes::$Code500[0]);
 					}
@@ -188,7 +188,7 @@ class PaymentApiController extends ApiController {
 				unset($data['PaymentID']);
 
 				if ($Payment = Payment::create($data)) {
-					return Response::json(array("data" => ["RequestFundID" => $Payment->PaymentID]),Codes::$Code200[0]);
+					return Response::json(array("RequestFundID" => $Payment->PaymentID),Codes::$Code200[0]);
 				} else {
 					return Response::json(array("ErrorMessage" => "Problem Creating Payment."),Codes::$Code500[0]);
 				}
@@ -310,7 +310,7 @@ class PaymentApiController extends ApiController {
 
 						$InvoiceGenerate=self::GenerateInvoice($PaymentData['AccountID'],$PaymentData['outstanginamount'],$BillingClassID);
 
-						return Response::json(["data"=>["PaymentResponse"=>$ReturnData,"InvoiceResponse"=>$InvoiceGenerate]],Codes::$Code200[0]);
+						return Response::json(["PaymentResponse"=>$ReturnData,"InvoiceResponse"=>$InvoiceGenerate],Codes::$Code200[0]);
 
 					}else{
 						//Failed Payment
