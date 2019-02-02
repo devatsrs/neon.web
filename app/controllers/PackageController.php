@@ -23,7 +23,7 @@ class PackageController extends BaseController {
                 "tblCurrency.Code",
                 "tblPackage.RateTableId",
                 "tblPackage.CurrencyId"
-            ])->where("CompanyID", $CompanyID);
+            ])->where("tblPackage.CompanyID", $CompanyID);
 
 
         if(!empty($data['PackageName'])){
@@ -147,7 +147,7 @@ class PackageController extends BaseController {
                 "tblPackage.Name",
                 "tblRateTable.RateTableName",
                 "tblCurrency.Code as Currency"
-            ])->where("CompanyID", $CompanyID);
+            ])->where("tblPackage.CompanyID", $CompanyID);
 
         if(!empty($data['PackageName'])){
             $query->where('tblPackage.Name','like','%'.$data['PackageName'].'%');
